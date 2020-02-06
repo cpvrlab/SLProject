@@ -27,12 +27,6 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBVocabulary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.h
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/FileLog.h
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/Logger.h
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelDebug.h
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelWarn.h
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelInfo.h
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/LogLevelError.h
     )
 
 set(sources
@@ -55,8 +49,6 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/SURFextractor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/logging/FileLog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/source/logging/Logger.cpp
     )
 
 # Group source files (for visual studio ide)

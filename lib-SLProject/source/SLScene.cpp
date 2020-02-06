@@ -144,8 +144,8 @@ SLScene::~SLScene()
     // delete fonts
     SLTexFont::deleteFonts();
 
-    SL_LOG("Destructor      : ~SLScene\n");
-    SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("Destructor      : ~SLScene");
+    SL_LOG("------------------------------------------------------------------");
 }
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
@@ -363,7 +363,7 @@ bool SLScene::onUpdate()
     SLfloat updateTimeMS = SLApplication::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 
-    //SL_LOG("SLScene::onUpdate\n");
+    //SL_LOG("SLScene::onUpdate");
     return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------

@@ -66,7 +66,7 @@ SLSceneView::~SLSceneView()
         _gui->onClose();
     }
 
-    SL_LOG("Destructor      : ~SLSceneView\n");
+    SL_LOG("Destructor      : ~SLSceneView");
 }
 //-----------------------------------------------------------------------------
 /*! SLSceneView::init initializes default values for an empty scene
@@ -388,7 +388,7 @@ void SLSceneView::onInitialize()
         for (auto mesh : s->meshes())
             mesh->updateAccelStruct();
 
-        SL_LOG("Time for AABBs  : %5.3f sec.\n",
+        SL_LOG("Time for AABBs  : %5.3f sec.",
                (SLfloat)(clock() - t) / (SLfloat)CLOCKS_PER_SEC);
 
         // Collect node statistics
@@ -396,7 +396,7 @@ void SLSceneView::onInitialize()
 
         // Warn if there are no light in scene
         if (s->lights().empty())
-            SL_LOG("\n**** No Lights found in scene! ****\n");
+            SL_LOG("**** No Lights found in scene! ****");
     }
 
     // init 2D scene with initial depth 1
@@ -1327,7 +1327,7 @@ more than 500ms and has not moved.
 */
 SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
 {
-    //SL_LOG("onLongTouch(%d, %d)\n", x, y);
+    //SL_LOG("onLongTouch(%d, %d)", x, y);
 
     // Correct viewport offset
     // mouse corrds are top-left, viewport is bottom-left)
@@ -1737,7 +1737,7 @@ SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
 */
 SLbool SLSceneView::draw3DCT()
 {
-    //SL_LOG("Rendering VXC \n");
+    //SL_LOG("Rendering VXC ");
     SLScene* s       = SLApplication::scene;
     SLfloat  startMS = SLApplication::timeMS();
 

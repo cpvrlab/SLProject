@@ -46,7 +46,7 @@ SLRaytracer::SLRaytracer()
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()
 {
-    SL_LOG("Destructor      : ~SLRaytracer\n");
+    SL_LOG("Destructor      : ~SLRaytracer");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -716,9 +716,9 @@ Prints some statistics after the rendering
 void SLRaytracer::printStats(SLfloat sec)
 {
     SL_LOG("\nRender time  : %10.2f sec.", sec);
-    SL_LOG("\nImage size   : %10d x %d", _images[0]->width(), _images[0]->height());
-    SL_LOG("\nNum. Threads : %10d", Utils::maxThreads());
-    SL_LOG("\nAllowed depth: %10d", SLRay::maxDepth);
+    SL_LOG("Image size   : %10d x %d", _images[0]->width(), _images[0]->height());
+    SL_LOG("Num. Threads : %10d", Utils::maxThreads());
+    SL_LOG("Allowed depth: %10d", SLRay::maxDepth);
 
     SLuint primarys = (SLuint)(_sv->viewportRect().width * _sv->viewportRect().height);
     SLuint total    = primarys +
@@ -727,24 +727,23 @@ void SLRaytracer::printStats(SLfloat sec)
                    SLRay::refractedRays +
                    SLRay::shadowRays;
 
-    SL_LOG("\nMaximum depth     : %10d", SLRay::maxDepthReached);
-    SL_LOG("\nAverage depth     : %10.6f", SLRay::avgDepth / primarys);
-    SL_LOG("\nAA threshold      : %10.1f", _aaThreshold);
-    SL_LOG("\nAA subsampling    : %8dx%d\n", _aaSamples, _aaSamples);
-    SL_LOG("\nSubsampled pixels : %10u, %4.1f%% of total", SLRay::subsampledPixels, (SLfloat)SLRay::subsampledPixels / primarys * 100.0f);
-    SL_LOG("\nPrimary rays      : %10u, %4.1f%% of total", primarys, (SLfloat)primarys / total * 100.0f);
-    SL_LOG("\nReflected rays    : %10u, %4.1f%% of total", SLRay::reflectedRays, (SLfloat)SLRay::reflectedRays / total * 100.0f);
-    SL_LOG("\nRefracted rays    : %10u, %4.1f%% of total", SLRay::refractedRays, (SLfloat)SLRay::refractedRays / total * 100.0f);
-    SL_LOG("\nIgnored rays      : %10u, %4.1f%% of total", SLRay::ignoredRays, (SLfloat)SLRay::ignoredRays / total * 100.0f);
-    SL_LOG("\nTIR rays          : %10u, %4.1f%% of total", SLRay::tirRays, (SLfloat)SLRay::tirRays / total * 100.0f);
-    SL_LOG("\nShadow rays       : %10u, %4.1f%% of total", SLRay::shadowRays, (SLfloat)SLRay::shadowRays / total * 100.0f);
-    SL_LOG("\nAA subsampled rays: %10u, %4.1f%% of total", SLRay::subsampledRays, (SLfloat)SLRay::subsampledRays / total * 100.0f);
-    SL_LOG("\nTotal rays        : %10u,100.0%%\n", total);
+    SL_LOG("Maximum depth     : %10d", SLRay::maxDepthReached);
+    SL_LOG("Average depth     : %10.6f", SLRay::avgDepth / primarys);
+    SL_LOG("AA threshold      : %10.1f", _aaThreshold);
+    SL_LOG("AA subsampling    : %8dx%d\n", _aaSamples, _aaSamples);
+    SL_LOG("Subsampled pixels : %10u, %4.1f%% of total", SLRay::subsampledPixels, (SLfloat)SLRay::subsampledPixels / primarys * 100.0f);
+    SL_LOG("Primary rays      : %10u, %4.1f%% of total", primarys, (SLfloat)primarys / total * 100.0f);
+    SL_LOG("Reflected rays    : %10u, %4.1f%% of total", SLRay::reflectedRays, (SLfloat)SLRay::reflectedRays / total * 100.0f);
+    SL_LOG("Refracted rays    : %10u, %4.1f%% of total", SLRay::refractedRays, (SLfloat)SLRay::refractedRays / total * 100.0f);
+    SL_LOG("Ignored rays      : %10u, %4.1f%% of total", SLRay::ignoredRays, (SLfloat)SLRay::ignoredRays / total * 100.0f);
+    SL_LOG("TIR rays          : %10u, %4.1f%% of total", SLRay::tirRays, (SLfloat)SLRay::tirRays / total * 100.0f);
+    SL_LOG("Shadow rays       : %10u, %4.1f%% of total", SLRay::shadowRays, (SLfloat)SLRay::shadowRays / total * 100.0f);
+    SL_LOG("AA subsampled rays: %10u, %4.1f%% of total", SLRay::subsampledRays, (SLfloat)SLRay::subsampledRays / total * 100.0f);
+    SL_LOG("Total rays        : %10u,100.0%%\n", total);
 
-    SL_LOG("\nRays per second   : %10u", (SLuint)(total / sec));
-    SL_LOG("\nIntersection tests: %10u", SLRay::tests);
-    SL_LOG("\nIntersections     : %10u, %4.1f%%", SLRay::intersections, SLRay::intersections / (SLfloat)SLRay::tests * 100.0f);
-    SL_LOG("\n\n");
+    SL_LOG("Rays per second   : %10u", (SLuint)(total / sec));
+    SL_LOG("Intersection tests: %10u", SLRay::tests);
+    SL_LOG("Intersections     : %10u, %4.1f%%\n", SLRay::intersections, SLRay::intersections / (SLfloat)SLRay::tests * 100.0f);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -869,8 +868,7 @@ finish our UI and end OpenGL rendering properly.
 */
 void SLRaytracer::renderUIBeforeUpdate()
 {
-    //ImGui::Render();
-    SL_EXIT_MSG("Please find another solution for ImGui::Render() here!");
+    _sv->gui()->onPaint(_sv->viewportRect());
     SLGLState::instance()->unbindAnythingAndFlush();
 }
 //-----------------------------------------------------------------------------

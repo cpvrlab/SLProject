@@ -45,7 +45,7 @@ bool CVTrackedChessboard::loadCalibParams()
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
+        Utils::log("Could not open the calibration parameter file: %s", fullCalibIniFile.c_str());
         return false;
     }
 

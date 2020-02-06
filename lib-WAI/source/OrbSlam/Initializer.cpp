@@ -237,7 +237,7 @@ bool Initializer::InitializeWithKnownPose(const std::vector<cv::KeyPoint>& mvKey
         int nMinGood = max(static_cast<int>(0.9 * N), minTriangulated);
         //int nMinGood = minTriangulated;
 
-        //WAI_LOG("nGood, nMinGood, parallax: %i, %i, %f", nGood, nMinGood, parallax);
+        //Utils::log("WAI","nGood, nMinGood, parallax: %i, %i, %f", nGood, nMinGood, parallax);
 
         float minParallax = 10.0f; // min. angle in degrees between frames
         if (maxGood < nMinGood || parallax <= minParallax)

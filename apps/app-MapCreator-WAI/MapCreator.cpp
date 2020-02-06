@@ -121,7 +121,7 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
                         throw std::runtime_error("Calibration file does not exist: " + _calibrationsDir + calibFile);
 
                     //load calibration file and check for aspect ratio
-                    if (!videoAndCalib.calibration.load(_calibrationsDir, calibFile))
+                    if (!videoAndCalib.calibration.load(_calibrationsDir, calibFile, true))
                         throw std::runtime_error("Could not load calibration file: " + _calibrationsDir + calibFile);
 
                     std::vector<std::string> size;
@@ -133,7 +133,7 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
                         if (videoAndCalib.calibration.imageSize().width != width ||
                             videoAndCalib.calibration.imageSize().height != height)
                         {
-                            videoAndCalib.calibration.adaptForNewResolution(CVSize(width, height));
+                            videoAndCalib.calibration.adaptForNewResolution(CVSize(width, height), true);
                             //throw std::runtime_error("Resolutions of video and calibration do not fit together. Using: " + calibFile + " and " + name);
                         }
                     }

@@ -74,18 +74,17 @@ struct SLNodeStats
         SLfloat avgTriPerVox = numVoxels ? (SLfloat)numTriangles /
                                              (SLfloat)(numVoxels - numVoxEmpty)
                                          : 0;
-        SL_LOG("Voxels         : %d\n", numVoxels);
-        SL_LOG("Voxels empty   : %4.1f%%\n", voxelsEmpty);
-        SL_LOG("Avg. Tria/Voxel: %4.1f\n", avgTriPerVox);
-        SL_LOG("Max. Tria/Voxel: %d\n", numVoxMaxTria);
-        SL_LOG("MB Meshes      : %f\n", (SLfloat)numBytes / 1000000.0f);
-        SL_LOG("MB Accel.      : %f\n", (SLfloat)numBytesAccel / 1000000.0f);
-        SL_LOG("Group Nodes    : %d\n", numGroupNodes);
-        SL_LOG("Leaf Nodes     : %d\n", numLeafNodes);
-        SL_LOG("Meshes         : %d\n", numMeshes);
-        SL_LOG("Triangles      : %d\n", numTriangles);
+        SL_LOG("Voxels         : %d", numVoxels);
+        SL_LOG("Voxels empty   : %4.1f%%", voxelsEmpty);
+        SL_LOG("Avg. Tria/Voxel: %4.1f", avgTriPerVox);
+        SL_LOG("Max. Tria/Voxel: %d", numVoxMaxTria);
+        SL_LOG("MB Meshes      : %f", (SLfloat)numBytes / 1000000.0f);
+        SL_LOG("MB Accel.      : %f", (SLfloat)numBytesAccel / 1000000.0f);
+        SL_LOG("Group Nodes    : %d", numGroupNodes);
+        SL_LOG("Leaf Nodes     : %d", numLeafNodes);
+        SL_LOG("Meshes         : %d", numMeshes);
+        SL_LOG("Triangles      : %d", numTriangles);
         SL_LOG("Lights         : %d\n", numLights);
-        SL_LOG("\n");
     }
 };
 //-----------------------------------------------------------------------------

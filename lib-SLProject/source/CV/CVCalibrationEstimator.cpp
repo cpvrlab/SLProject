@@ -90,7 +90,7 @@ bool CVCalibrationEstimator::calculate()
         if (calibrationSuccessful)
         {
             Utils::log("SLProject", "Calibration succeeded.");
-            Utils::log("SLProject", "Reproj. error: %f\n", _reprojectionError);
+            Utils::log("SLProject", "Reproj. error: %f", _reprojectionError);
         }
         else
         {
@@ -282,7 +282,7 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
 #endif
     ////////////////////////////////////////////////
 
-    Utils::log("SLProject", "Re-projection error reported by calibrateCamera: %f\n", rms);
+    Utils::log("SLProject", "Re-projection error reported by calibrateCamera: %f", rms);
 
     bool ok = cv::checkRange(cameraMatrix) && cv::checkRange(distCoeffs);
 
@@ -339,7 +339,7 @@ bool CVCalibrationEstimator::loadCalibParams()
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("SLProject", "Could not open the calibration parameter file: %s\n", fullCalibIniFile.c_str());
+        Utils::log("SLProject", "Could not open the calibration parameter file: %s", fullCalibIniFile.c_str());
         return false;
     }
 
@@ -410,7 +410,7 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
                 {
                     _state = State::Done;
                     Utils::log("SLProject", "Calibration succeeded.");
-                    Utils::log("SLProject", "Reproj. error: %f\n", _reprojectionError);
+                    Utils::log("SLProject", "Reproj. error: %f", _reprojectionError);
                 }
                 else
                 {

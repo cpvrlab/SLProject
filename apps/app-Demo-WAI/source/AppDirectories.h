@@ -8,6 +8,8 @@ typedef struct AppDirectories
     std::string waiDataRoot;
     std::string slDataRoot;
     std::string vocabularyDir;
+    std::string logFileDir;
+
 } AppDirectories;
 
 #endif

@@ -508,39 +508,50 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
-    std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>(SENSCamera::Facing::BACK);
-    SENSCamera::Config             config;
-    config.targetWidth   = 640;
-    config.targetHeight  = 480;
-    config.convertToGray = true;
-    camera->start(config);
-
-    AppDirectories dirs;
-    dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
-    dirs.slDataRoot    = SLstring(SL_PROJECT_ROOT) + "/data";
-    dirs.writableDir   = Utils::getAppsWritableDir();
-    dirs.vocabularyDir = dirs.writableDir + "voc/";
-
-    svIndex = waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
-    waiApp.setCamera(camera.get());
-    waiApp.loadSlam();
-    // Event loop
-    while (!appShouldClose)
+    try
     {
-        SLbool doRepaint = waiApp.update();
+        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>(SENSCamera::Facing::BACK);
+        SENSCamera::Config             config;
+        config.targetWidth   = 640;
+        config.targetHeight  = 480;
+        config.convertToGray = true;
+        camera->start(config);
 
-        glfwSwapBuffers(window);
-        glfwSetWindowTitle(window, waiApp.name().c_str());
+        AppDirectories dirs;
+        dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
+        dirs.slDataRoot    = SLstring(SL_PROJECT_ROOT) + "/data";
+        dirs.writableDir   = Utils::getAppsWritableDir();
+        dirs.vocabularyDir = dirs.writableDir + "voc/";
+        dirs.logFileDir    = dirs.writableDir + "log/";
 
-        // if no updated occurred wait for the next event (power saving)
-        if (!doRepaint)
-            glfwWaitEvents();
-        else
-            glfwPollEvents();
+        svIndex = waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
+        waiApp.setCamera(camera.get());
+        waiApp.loadSlam();
+        // Event loop
+        while (!appShouldClose)
+        {
+            SLbool doRepaint = waiApp.update();
+
+            glfwSwapBuffers(window);
+            glfwSetWindowTitle(window, waiApp.name().c_str());
+
+            // if no updated occurred wait for the next event (power saving)
+            if (!doRepaint)
+                glfwWaitEvents();
+            else
+                glfwPollEvents();
+        }
+
+        waiApp.close();
     }
-
-    waiApp.close();
-
+    catch (std::exception& e)
+    {
+        std::cout << "main: std exception catched: " << e.what() << std::endl;
+    }
+    catch (...)
+    {
+        std::cout << "main: Unknown exception catched!" << std::endl;
+    }
     //slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();

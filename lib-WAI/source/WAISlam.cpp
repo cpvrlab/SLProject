@@ -178,7 +178,7 @@ bool WAISlamTools::initialize(InitializerData& iniData,
 
         if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
         {
-            WAI_LOG("Wrong initialization, reseting...");
+            Utils::log("WAI", "Wrong initialization, reseting...");
             keyFrameDatabase->clear();
             WAIKeyFrame::nNextId            = 0;
             WAIFrame::nNextId               = 0;
@@ -672,7 +672,7 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     */
 
     AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
-    return nmatches >= 10;//nmatchesMap >= 10;
+    return nmatches >= 10; //nmatchesMap >= 10;
 }
 
 int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame)
@@ -960,7 +960,7 @@ WAISlam::WAISlam(cv::Mat      intrinsic,
     if (!WAIOrbVocabulary::initialize(orbVocFile))
         throw std::runtime_error("ModeOrbSlam2: could not find vocabulary file: " + orbVocFile);
     _voc = WAIOrbVocabulary::get();
-    Utils::log("WAISlam", "WAIOrbVocabulary loading: %fms\n", t.elapsedTimeInMilliSec());
+    Utils::log("WAISlam", "WAIOrbVocabulary loading: %fms", t.elapsedTimeInMilliSec());
 
     _keyFrameDatabase = new WAIKeyFrameDB(*_voc);
     _globalMap        = new WAIMap("Map");
@@ -1710,7 +1710,7 @@ std::vector<WAIMapPoint*> WAISlamMarker::getMarkerCornerMapPoints()
     {
         if (_mpUL->isBad())
         {
-            WAI_LOG("_mpUL->isBad()!!!");
+            Utils::log("WAI", "_mpUL->isBad()!!!");
         }
         result.push_back(_mpUL);
     }
@@ -1718,7 +1718,7 @@ std::vector<WAIMapPoint*> WAISlamMarker::getMarkerCornerMapPoints()
     {
         if (_mpUR->isBad())
         {
-            WAI_LOG("_mpUR->isBad()!!!");
+            Utils::log("WAI", "_mpUR->isBad()!!!");
         }
         result.push_back(_mpUR);
     }
@@ -1726,7 +1726,7 @@ std::vector<WAIMapPoint*> WAISlamMarker::getMarkerCornerMapPoints()
     {
         if (_mpLL->isBad())
         {
-            WAI_LOG("_mpLL->isBad()!!!");
+            Utils::log("WAI", "_mpLL->isBad()!!!");
         }
         result.push_back(_mpLL);
     }
@@ -1734,7 +1734,7 @@ std::vector<WAIMapPoint*> WAISlamMarker::getMarkerCornerMapPoints()
     {
         if (_mpLR->isBad())
         {
-            WAI_LOG("_mpLR->isBad()!!!");
+            Utils::log("WAI", "_mpLR->isBad()!!!");
         }
         result.push_back(_mpLR);
     }

@@ -146,10 +146,10 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
                 fs["showLoopEdges"] >> showLoopEdges;
 
             fs.release();
-            SL_LOG("Config. loaded  : %s\n", fileName.c_str());
-            SL_LOG("Config. date    : %s\n", configTime.c_str());
-            SL_LOG("fontPropDots    : %f\n", fontPropDots);
-            SL_LOG("fontFixedDots   : %f\n", fontFixedDots);
+            SL_LOG("Config. loaded  : %s", fileName.c_str());
+            SL_LOG("Config. date    : %s", configTime.c_str());
+            SL_LOG("fontPropDots    : %f", fontPropDots);
+            SL_LOG("fontFixedDots   : %f", fontFixedDots);
         }
         else
         {
@@ -243,5 +243,5 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     fs << "showLoopEdges" << showLoopEdges;
 
     fs.release();
-    SL_LOG("Config. saved   : %s\n", fileName.c_str());
+    SL_LOG("Config. saved   : %s", fileName.c_str());
 }

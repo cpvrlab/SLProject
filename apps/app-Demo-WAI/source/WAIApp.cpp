@@ -75,6 +75,8 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
 {
     _dirs = directories;
 
+    Utils::initFileLog(_dirs.logFileDir, true);
+
     SLApplication::devRot.isUsed(true);
     SLApplication::devLoc.isUsed(true);
 
@@ -151,7 +153,7 @@ SENSFramePtr WAIApp::updateVideoOrCamera()
     }
     else
     {
-        WAI_WARN("WAIApp::updateVideoOrCamera: No active video stream or camera available!");
+        Utils::log("WAI WARN", "WAIApp::updateVideoOrCamera: No active video stream or camera available!");
     }
 
     return frame;
@@ -526,12 +528,12 @@ void WAIApp::initExternalDataDirectory(std::string path)
 {
     if (Utils::dirExists(path))
     {
-        Utils::log("External directory: %s\n", path.c_str());
+        Utils::log("External directory: %s", path.c_str());
         SLApplication::externalPath = path;
     }
     else
     {
-        Utils::log("ERROR: external directory does not exists: %s\n", path.c_str());
+        Utils::log("ERROR: external directory does not exists: %s", path.c_str());
     }
 }
 
@@ -1123,7 +1125,7 @@ void WAIApp::saveVideo(std::string filename)
     else if (_camera)
         ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _camera->getFrameSize(), true);
     else
-        WAI_WARN("WAIApp::saveVideo: No active video stream or camera available!");
+        Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
 
 void WAIApp::saveGPSData(std::string videofile)

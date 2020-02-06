@@ -71,18 +71,18 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 
     SLGLState* stateGL = SLGLState::instance();
 
-    SL_LOG("Path to Models  : %s\n", modelPath.c_str());
-    SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
-    SL_LOG("Path to Textures: %s\n", texturePath.c_str());
-    SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
-    SL_LOG("Path to Config. : %s\n", configPath.c_str());
-    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-    SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
-    SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
-    SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
-    SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
-    SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("Path to Models  : %s", modelPath.c_str());
+    SL_LOG("Path to Shaders : %s", shaderPath.c_str());
+    SL_LOG("Path to Textures: %s", texturePath.c_str());
+    SL_LOG("Path to Fonts   : %s", fontPath.c_str());
+    SL_LOG("Path to Config. : %s", configPath.c_str());
+    SL_LOG("OpenCV Version  : %d.%d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+    SL_LOG("CV has OpenCL   : %s", cv::ocl::haveOpenCL() ? "yes" : "no");
+    SL_LOG("OpenGL Version  : %s", stateGL->glVersion().c_str());
+    SL_LOG("Vendor          : %s", stateGL->glVendor().c_str());
+    SL_LOG("Renderer        : %s", stateGL->glRenderer().c_str());
+    SL_LOG("GLSL Version    : %s (%s) ", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
+    SL_LOG("------------------------------------------------------------------");
 
     SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
 }
@@ -452,12 +452,12 @@ void slSetupExternalDir(const SLstring& externalPath)
 {
     if (Utils::dirExists(externalPath))
     {
-        SL_LOG("External directory: %s\n", externalPath.c_str());
+        SL_LOG("External directory: %s", externalPath.c_str());
         SLApplication::externalPath = externalPath;
     }
     else
     {
-        SL_LOG("ERROR: external directory does not exists: %s\n", externalPath.c_str());
+        SL_LOG("ERROR: external directory does not exists: %s", externalPath.c_str());
     }
 }
 //-----------------------------------------------------------------------------

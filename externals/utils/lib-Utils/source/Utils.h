@@ -14,9 +14,12 @@
 #include <string>
 #include <vector>
 #include <cfloat>
+#include <memory>
+#include <FileLog.h>
 
 using namespace std;
 
+//class FileLog;
 //-----------------------------------------------------------------------------
 //! Utils provides utility functions
 /*!
@@ -137,20 +140,30 @@ bool deleteFile(string& pathfilename);
 ///////////////////////
 // Logging Functions //
 ///////////////////////
+//! FileLog Instance for logging to logfile. If it is instantiated the logging methods
+//! will also output into this file. Instantiate it with initFileLog function.
+static std::unique_ptr<FileLog> fileLog;
+//! Instantiates FileLog instance
+void initFileLog(const std::string logDir, bool forceFlush);
 
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);
 
 //! Terminates the application with a message. No leak cheching.
 [[noreturn]] void exitMsg(const char* tag,
-                          const char* appString,
+                          const char* msg,
                           int         line,
                           const char* file);
 
 void warnMsg(const char* tag,
-             const char* appString,
+             const char* msg,
              int         line,
              const char* file);
+
+void errorMsg(const char* tag,
+              const char* msg,
+              int         line,
+              const char* file);
 
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads();

@@ -248,7 +248,7 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
 //-----------------------------------------------------------------------------
 SLGLTexture::~SLGLTexture()
 {
-    //SL_LOG("~SLGLTexture(%s)\n", name().c_str());
+    //SL_LOG("~SLGLTexture(%s)", name().c_str());
     clearData();
 }
 //-----------------------------------------------------------------------------
@@ -346,7 +346,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
 
     if (needsBuild || _texID == 0)
     {
-        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
+        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
         build();
@@ -386,7 +386,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
 
     if (needsBuild || _texID == 0)
     {
-        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
+        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
         build();
@@ -415,7 +415,7 @@ void SLGLTexture::build(SLint texID)
     {
         glBindTexture(_target, _texID);
         glDeleteTextures(1, &_texID);
-        SL_LOG("SLGLTexture::build: Deleted: %d, %s\n",
+        SL_LOG("SLGLTexture::build: Deleted: %d, %s",
                _texID,
                _images[0]->name().c_str());
         glBindTexture(_target, 0);
@@ -617,8 +617,8 @@ void SLGLTexture::build(SLint texID)
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
-    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
-    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
+    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
 
     GET_GL_ERROR;
 }
@@ -645,7 +645,7 @@ void SLGLTexture::bindActive(SLint texID)
 
         // Check if texture name is valid only for debug purpose
         //if (!glIsTexture(_texName))
-        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n\n",
+        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n",
         //           _texName, texID, _images[0]->name().c_str());
         //}
 

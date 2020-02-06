@@ -142,7 +142,7 @@ intersection (L)
 */
 void SLRay::print() const
 {
-    SL_LOG("Ray: O(%.2f, %.2f, %.2f), D(%.2f, %.2f, %.2f), L: %.2f\n",
+    SL_LOG("Ray: O(%.2f, %.2f, %.2f), D(%.2f, %.2f, %.2f), L: %.2f",
            origin.x,
            origin.y,
            origin.z,

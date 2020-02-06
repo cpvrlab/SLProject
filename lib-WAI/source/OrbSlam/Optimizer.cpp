@@ -413,8 +413,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
 }
 */
 
-
-int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool> &vbOutliers)
+int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
 {
     //ghm1: Attention, we add every map point assotiated to a keypoint to the optimizer
     g2o::SparseOptimizer                    optimizer;
@@ -688,7 +687,8 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
 
         if (chi2 > chi2Mono[3])
         {
-            pFrame->mvpMapPoints[idx] = static_cast<WAIMapPoint*>(NULL);;
+            pFrame->mvpMapPoints[idx] = static_cast<WAIMapPoint*>(NULL);
+            ;
             e->setLevel(1);
             nBad++;
         }
@@ -706,7 +706,6 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
 
     return nInitialCorrespondences - nBad;
 }
-
 
 void Optimizer::OptimizeEssentialGraph(WAIMap* pMap, WAIKeyFrame* pLoopKF, WAIKeyFrame* pCurKF, const LoopClosing::KeyFrameAndPose& NonCorrectedSim3, const LoopClosing::KeyFrameAndPose& CorrectedSim3, const map<WAIKeyFrame*, set<WAIKeyFrame*>>& LoopConnections, const bool& bFixScale)
 {

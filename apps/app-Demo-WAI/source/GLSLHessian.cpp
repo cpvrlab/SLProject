@@ -144,7 +144,6 @@ static std::string vGaussianDyFs = "#ifdef GL_ES\n"
                                    "    pixel = response;\n"
                                    "}\n";
 
-
 static std::string hGaussianDx2Fs = "#ifdef GL_ES\n"
                                     "precision highp float;\n"
                                     "#endif\n"
@@ -263,126 +262,125 @@ static std::string nmsyFs = "#ifdef GL_ES\n"
                             "    }\n"
                             "}\n";
 
-
-static std::string fast =  "bool fast(float t)\n"
-                           "{\n"
-                           "    float p[16];\n"
-                           "    float o = texture(gray, texcoords).r;\n"
-                           "    p[0 ] = texture(gray, texcoords + vec2( 0.0 / w, 3.0 / h)).r - o;\n"
-                           "    p[4 ] = texture(gray, texcoords + vec2( 3.0 / w, 0.0 / h)).r - o;\n"
-                           "    p[8 ] = texture(gray, texcoords + vec2( 0.0 / w,-3.0 / h)).r - o;\n"
-                           "    p[12] = texture(gray, texcoords + vec2(-3.0 / w, 0.0 / h)).r - o;\n"
-                           "\n"
-                           "    int n;\n"
-                           "    if (p[0] > t || p[1] > t)\n"
-                           "    {\n"
-                           "        n = 0;\n"
-                           "        if (p[0] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[4] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[8] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[12] > t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "    }\n"
-                           "\n"
-                           "    if (n < 3)\n"
-                           "        return false;\n"
-                           "\n"
-                           "    if (p[0] < -t || p[1] < -t)\n"
-                           "    {\n"
-                           "        n = 0;\n"
-                           "        if (p[0] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[4] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[8] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "        if (p[12] < -t)\n"
-                           "        {\n"
-                           "            n++;\n"
-                           "        }\n"
-                           "    }\n"
-                           "\n"
-                           "    if (n < 3)\n"
-                           "        return false;\n"
-                           "\n"
-                           "    p[1 ] = texture(gray, texcoords + vec2( 1.0 / w, 3.0 / h)).r - o;\n"
-                           "    p[2 ] = texture(gray, texcoords + vec2( 2.0 / w, 2.0 / h)).r - o;\n"
-                           "    p[3 ] = texture(gray, texcoords + vec2( 3.0 / w, 1.0 / h)).r - o;\n"
-                           "    p[5 ] = texture(gray, texcoords + vec2( 3.0 / w,-1.0 / h)).r - o;\n"
-                           "    p[6 ] = texture(gray, texcoords + vec2( 2.0 / w,-2.0 / h)).r - o;\n"
-                           "    p[7 ] = texture(gray, texcoords + vec2( 1.0 / w,-3.0 / h)).r - o;\n"
-                           "    p[9 ] = texture(gray, texcoords + vec2(-1.0 / w,-3.0 / h)).r - o;\n"
-                           "    p[10] = texture(gray, texcoords + vec2(-2.0 / w,-2.0 / h)).r - o;\n"
-                           "    p[11] = texture(gray, texcoords + vec2(-3.0 / w,-1.0 / h)).r - o;\n"
-                           "    p[13] = texture(gray, texcoords + vec2(-3.0 / w, 1.0 / h)).r - o;\n"
-                           "    p[14] = texture(gray, texcoords + vec2(-2.0 / w, 2.0 / h)).r - o;\n"
-                           "    p[15] = texture(gray, texcoords + vec2(-1.0 / w, 3.0 / h)).r - o;\n"
-                           "    \n"
-                           "    n = 0;\n"
-                           "    bool sup = true;\n"
-                           "    for (int i = 0; i < 24; i++)\n\n"
-                           "    {\n"
-                           "         int idx = i % 16;\n"
-                           "         if (sup)\n"
-                           "         {\n"
-                           "              if (p[idx] > t)\n"
-                           "              {\n"
-                           "                   n++;\n"
-                           "              }\n"
-                           "              else if(p[idx] < -t)\n"
-                           "              {\n"
-                           "                   n = 1;\n"
-                           "                   sup = false;\n"
-                           "              }\n"
-                           "              else\n"
-                           "              {\n"
-                           "                   n = 0;\n"
-                           "                   sup = false;\n"
-                           "              }\n"
-                           "         }\n"
-                           "         else\n"
-                           "         {\n"
-                           "              if (p[idx] < -t)\n"
-                           "              {\n"
-                           "                   n++;\n"
-                           "              }\n"
-                           "              else if(p[idx] > t)\n"
-                           "              {\n"
-                           "                   n = 1;\n"
-                           "                   sup = true;\n"
-                           "              }\n"
-                           "              else\n"
-                           "              {\n"
-                           "                   n = 0;\n"
-                           "                   sup = true;\n"
-                           "              }\n"
-                           "         }\n"
-                           "         if (n >= 8)\n"
-                           "         {\n"
-                           "               return true;\n"
-                           "         }\n"
-                           "    }\n"
-                           "    return false;\n"
-                           "    \n"
-                           "}\n"
-                           "\n";
+static std::string fast = "bool fast(float t)\n"
+                          "{\n"
+                          "    float p[16];\n"
+                          "    float o = texture(gray, texcoords).r;\n"
+                          "    p[0 ] = texture(gray, texcoords + vec2( 0.0 / w, 3.0 / h)).r - o;\n"
+                          "    p[4 ] = texture(gray, texcoords + vec2( 3.0 / w, 0.0 / h)).r - o;\n"
+                          "    p[8 ] = texture(gray, texcoords + vec2( 0.0 / w,-3.0 / h)).r - o;\n"
+                          "    p[12] = texture(gray, texcoords + vec2(-3.0 / w, 0.0 / h)).r - o;\n"
+                          "\n"
+                          "    int n;\n"
+                          "    if (p[0] > t || p[1] > t)\n"
+                          "    {\n"
+                          "        n = 0;\n"
+                          "        if (p[0] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[4] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[8] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[12] > t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "    }\n"
+                          "\n"
+                          "    if (n < 3)\n"
+                          "        return false;\n"
+                          "\n"
+                          "    if (p[0] < -t || p[1] < -t)\n"
+                          "    {\n"
+                          "        n = 0;\n"
+                          "        if (p[0] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[4] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[8] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "        if (p[12] < -t)\n"
+                          "        {\n"
+                          "            n++;\n"
+                          "        }\n"
+                          "    }\n"
+                          "\n"
+                          "    if (n < 3)\n"
+                          "        return false;\n"
+                          "\n"
+                          "    p[1 ] = texture(gray, texcoords + vec2( 1.0 / w, 3.0 / h)).r - o;\n"
+                          "    p[2 ] = texture(gray, texcoords + vec2( 2.0 / w, 2.0 / h)).r - o;\n"
+                          "    p[3 ] = texture(gray, texcoords + vec2( 3.0 / w, 1.0 / h)).r - o;\n"
+                          "    p[5 ] = texture(gray, texcoords + vec2( 3.0 / w,-1.0 / h)).r - o;\n"
+                          "    p[6 ] = texture(gray, texcoords + vec2( 2.0 / w,-2.0 / h)).r - o;\n"
+                          "    p[7 ] = texture(gray, texcoords + vec2( 1.0 / w,-3.0 / h)).r - o;\n"
+                          "    p[9 ] = texture(gray, texcoords + vec2(-1.0 / w,-3.0 / h)).r - o;\n"
+                          "    p[10] = texture(gray, texcoords + vec2(-2.0 / w,-2.0 / h)).r - o;\n"
+                          "    p[11] = texture(gray, texcoords + vec2(-3.0 / w,-1.0 / h)).r - o;\n"
+                          "    p[13] = texture(gray, texcoords + vec2(-3.0 / w, 1.0 / h)).r - o;\n"
+                          "    p[14] = texture(gray, texcoords + vec2(-2.0 / w, 2.0 / h)).r - o;\n"
+                          "    p[15] = texture(gray, texcoords + vec2(-1.0 / w, 3.0 / h)).r - o;\n"
+                          "    \n"
+                          "    n = 0;\n"
+                          "    bool sup = true;\n"
+                          "    for (int i = 0; i < 24; i++)\n\n"
+                          "    {\n"
+                          "         int idx = i % 16;\n"
+                          "         if (sup)\n"
+                          "         {\n"
+                          "              if (p[idx] > t)\n"
+                          "              {\n"
+                          "                   n++;\n"
+                          "              }\n"
+                          "              else if(p[idx] < -t)\n"
+                          "              {\n"
+                          "                   n = 1;\n"
+                          "                   sup = false;\n"
+                          "              }\n"
+                          "              else\n"
+                          "              {\n"
+                          "                   n = 0;\n"
+                          "                   sup = false;\n"
+                          "              }\n"
+                          "         }\n"
+                          "         else\n"
+                          "         {\n"
+                          "              if (p[idx] < -t)\n"
+                          "              {\n"
+                          "                   n++;\n"
+                          "              }\n"
+                          "              else if(p[idx] > t)\n"
+                          "              {\n"
+                          "                   n = 1;\n"
+                          "                   sup = true;\n"
+                          "              }\n"
+                          "              else\n"
+                          "              {\n"
+                          "                   n = 0;\n"
+                          "                   sup = true;\n"
+                          "              }\n"
+                          "         }\n"
+                          "         if (n >= 8)\n"
+                          "         {\n"
+                          "               return true;\n"
+                          "         }\n"
+                          "    }\n"
+                          "    return false;\n"
+                          "    \n"
+                          "}\n"
+                          "\n";
 
 static std::string removeEdge = "#ifdef GL_ES\n"
                                 "precision highp float;\n"
@@ -416,17 +414,16 @@ static std::string removeEdge = "#ifdef GL_ES\n"
                                 "}\n";
 
 static std::string screenQuadOffsetVs = "layout (location = 0) in vec3 vcoords;\n"
-                                       "out vec2 texcoords;\n"
-                                       "uniform vec2 ofst;\n"
-                                       "uniform vec2 s;\n"
-                                       "\n"
-                                       "void main()\n"
-                                       "{\n"
-                                       "    vec2 coords = 0.5 * (vcoords.xy + vec2(1.0));\n" //[0, 1]
-                                       "    texcoords = ofst + coords * s;\n" // offset + [0, s]
-                                       "    gl_Position = vec4((2.0 * texcoords) - vec2(1.0), 0.0, 1.0);\n"
-                                       "}\n"
-                                       ;
+                                        "out vec2 texcoords;\n"
+                                        "uniform vec2 ofst;\n"
+                                        "uniform vec2 s;\n"
+                                        "\n"
+                                        "void main()\n"
+                                        "{\n"
+                                        "    vec2 coords = 0.5 * (vcoords.xy + vec2(1.0));\n" //[0, 1]
+                                        "    texcoords = ofst + coords * s;\n"                // offset + [0, s]
+                                        "    gl_Position = vec4((2.0 * texcoords) - vec2(1.0), 0.0, 1.0);\n"
+                                        "}\n";
 
 static std::string extractorFS = "#ifdef GL_ES\n"
                                  "precision highp float;\n"
@@ -462,7 +459,7 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "         if (i < $NB_MAX_KEYPOINTS)\n"
                                  "         {\n"
                                  "             ivec4 lastSave = imageLoad(bigSigmaImageR, ivec2(i, idx));\n" //A low thrs kp may be already saved at this position
-                                 "             lastSave.rg = pos;\n" //{b,a} should be already set as low thrs point
+                                 "             lastSave.rg = pos;\n"                                         //{b,a} should be already set as low thrs point
                                  "             imageStore(bigSigmaImageW, ivec2(i, idx), lastSave);\n"
                                  "         }\n"
                                  "    }\n"
@@ -485,7 +482,7 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "         if (i < $NB_MAX_KEYPOINTS)\n"
                                  "         {\n"
                                  "             ivec4 lastSave = imageLoad(smallSigmaImageR, ivec2(i, idx));\n" //A low thrs kp may be already saved at this position
-                                 "             lastSave.rg = pos;\n" //{b,a} should be already set as low thrs point
+                                 "             lastSave.rg = pos;\n"                                           //{b,a} should be already set as low thrs point
                                  "             imageStore(smallSigmaImageW, ivec2(i, idx), lastSave);\n"
                                  "         }\n"
                                  "    }\n"
@@ -497,8 +494,7 @@ static std::string extractorFS = "#ifdef GL_ES\n"
                                  "             imageStore(smallSigmaImageW, ivec2(i, idx), pos_low);\n"
                                  "         }\n"
                                  "    }\n"
-                                 "}\n"
-                                 ;
+                                 "}\n";
 
 /*
 static std::string descriptors = ""
@@ -587,8 +583,8 @@ static std::string descriptors = ""
 GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
 {
     // Compile Shader code
-    GLuint shaderHandle = glCreateShader(shaderType);
-    string version;
+    GLuint     shaderHandle = glCreateShader(shaderType);
+    string     version;
     SLGLState* state = SLGLState::instance();
 
     if (state->glIsES3())
@@ -614,7 +610,7 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
 
     std::cout << "nb keypoints " << nbKeypointsBigSigmaStr << "  high thrs " << highThresholdStr << "  low thrs " << lowThresholdStr << std::endl;
 
-    const char* src         = completeSrc.c_str();
+    const char* src = completeSrc.c_str();
 
     glShaderSource(shaderHandle, 1, &src, nullptr);
     glCompileShader(shaderHandle);
@@ -626,14 +622,14 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     GLint logSize = 0;
     glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logSize);
 
-    GLchar * log = new GLchar[logSize];
+    GLchar* log = new GLchar[logSize];
 
     glGetShaderInfoLog(shaderHandle, logSize, nullptr, log);
 
     if (!compileSuccess)
     {
-        Utils::log("AAAA Cannot compile shader %s\n", log);
-        Utils::log("AAAA %s\n", src);
+        Utils::log("AAAA Cannot compile shader %s", log);
+        Utils::log("AAAA %s", src);
         exit(1);
     }
     return shaderHandle;
@@ -750,30 +746,27 @@ void GLSLHessian::initShaders()
     edgeGxxLoc   = glGetUniformLocation(edge, "tgxx");
     edgeGyyLoc   = glGetUniformLocation(edge, "tgyy");
 
-    extractorTexLoc            = glGetUniformLocation(extractor, "tex");
-    extractorPatternLoc        = glGetUniformLocation(extractor, "pattern");
-    extractorOffsetLoc         = glGetUniformLocation(extractor, "ofst");
-    extractorSizeLoc           = glGetUniformLocation(extractor, "s");
-    extractorIdxLoc            = glGetUniformLocation(extractor, "idx");
-    extractorWLoc              = glGetUniformLocation(extractor, "w");
-    extractorHLoc              = glGetUniformLocation(extractor, "h");
+    extractorTexLoc     = glGetUniformLocation(extractor, "tex");
+    extractorPatternLoc = glGetUniformLocation(extractor, "pattern");
+    extractorOffsetLoc  = glGetUniformLocation(extractor, "ofst");
+    extractorSizeLoc    = glGetUniformLocation(extractor, "s");
+    extractorIdxLoc     = glGetUniformLocation(extractor, "idx");
+    extractorWLoc       = glGetUniformLocation(extractor, "w");
+    extractorHLoc       = glGetUniformLocation(extractor, "h");
 
     extractorBigSigmaCountersLowThrsLoc    = glGetUniformLocation(extractor, "bigSigmaCounterLowThrs");
     extractorBigSigmaCountersHighThrsLoc   = glGetUniformLocation(extractor, "bigSigmaCounterHighThrs");
     extractorSmallSigmaCountersLowThrsLoc  = glGetUniformLocation(extractor, "smallSigmaCountersLowThrs");
     extractorSmallSigmaCountersHighThrsLoc = glGetUniformLocation(extractor, "smallSigmaCountersHighThrs");
-    extractorBigSigmaImageRLoc       = glGetUniformLocation(extractor, "bigSigmaImageR");
-    extractorBigSigmaImageWLoc       = glGetUniformLocation(extractor, "bigSigmaImageW");
-    extractorSmallSigmaImageRLoc     = glGetUniformLocation(extractor, "smallSigmaImageR");
-    extractorSmallSigmaImageWLoc     = glGetUniformLocation(extractor, "smallSigmaImageW");
+    extractorBigSigmaImageRLoc             = glGetUniformLocation(extractor, "bigSigmaImageR");
+    extractorBigSigmaImageWLoc             = glGetUniformLocation(extractor, "bigSigmaImageW");
+    extractorSmallSigmaImageRLoc           = glGetUniformLocation(extractor, "smallSigmaImageR");
+    extractorSmallSigmaImageWLoc           = glGetUniformLocation(extractor, "smallSigmaImageW");
 }
 
 void GLSLHessian::initVBO()
 {
-    float vertices[12] = {-1, -1,  0,
-                           1, -1,  0,
-                           1,  1,  0,
-                          -1,  1,  0 };
+    float vertices[12] = {-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0};
 
     GLuint indices[6] = {0, 1, 2, 2, 3, 0};
 
@@ -822,7 +815,6 @@ void GLSLHessian::textureR(int w, int h)
 {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 }
-
 
 void GLSLHessian::initTextureBuffers(int width, int height)
 {
@@ -1048,8 +1040,8 @@ void GLSLHessian::extract(int w, int h, int curr)
 
     float offsetx = 15.0 / (float)m_w;
     float offsety = 15.0 / (float)m_h;
-    float sizex = ((float)m_w - 30.0) / (8.0 * float(m_w));
-    float sizey = ((float)m_h - 30.0) / (8.0 * float(m_h));
+    float sizex   = ((float)m_w - 30.0) / (8.0 * float(m_w));
+    float sizey   = ((float)m_h - 30.0) / (8.0 * float(m_h));
 
     glUniform2f(extractorSizeLoc, sizex, sizey);
 
@@ -1069,14 +1061,14 @@ void GLSLHessian::extract(int w, int h, int curr)
 /* These function are scaled such that the value after all filters are about between 0-1 */
 string GLSLHessian::gaussian(int size, int halfSize, float sigma)
 {
-    float v = 2.0 * (1.0 / sigma) * exp(-(halfSize*halfSize) / (2.0 * sigma*sigma));
+    float v = 2.0 * (1.0 / sigma) * exp(-(halfSize * halfSize) / (2.0 * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - halfSize);
-        float v = 2.0 * (1.0 / sigma) * exp(-(x*x) / (2.0 * sigma*sigma));
+        float v = 2.0 * (1.0 / sigma) * exp(-(x * x) / (2.0 * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -1086,14 +1078,14 @@ string GLSLHessian::gaussian(int size, int halfSize, float sigma)
 
 string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
 {
-    float v = -2.0 * (half_size / (sigma*sigma*sigma)) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+    float v = -2.0 * (half_size / (sigma * sigma * sigma)) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = -2.0 * (x / (sigma*sigma*sigma)) * exp(-(x*x) / (2.0 * sigma*sigma));
+        float v = -2.0 * (x / (sigma * sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -1103,14 +1095,14 @@ string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
 
 string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
 {
-    float v = 2.0 * (half_size*half_size - sigma*sigma) / (sigma*sigma*sigma*sigma*sigma) * exp(-(half_size*half_size) / (2.0 * sigma*sigma));
+    float v = 2.0 * (half_size * half_size - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = 2.0 * (x*x - sigma*sigma) / (sigma*sigma*sigma*sigma*sigma) * exp(-(x*x) / (2.0 * sigma*sigma));
+        float v = 2.0 * (x * x - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(x * x) / (2.0 * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -1120,22 +1112,22 @@ string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
 
 void GLSLHessian::init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
 {
-    m_w = w;
-    m_h = h;
-    curr = 1;
-    ready = 0;
-    mNbKeypointsBigSigma = nbKeypointsBigSigma;
-    mNbKeypointsSmallSigma = nbKeypointsSmallSigma;
-    nbKeypointsBigSigmaStr = std::to_string(nbKeypointsBigSigma);
+    m_w                      = w;
+    m_h                      = h;
+    curr                     = 1;
+    ready                    = 0;
+    mNbKeypointsBigSigma     = nbKeypointsBigSigma;
+    mNbKeypointsSmallSigma   = nbKeypointsSmallSigma;
+    nbKeypointsBigSigmaStr   = std::to_string(nbKeypointsBigSigma);
     nbKeypointsSmallSigmaStr = std::to_string(nbKeypointsSmallSigma);
-    highThresholdStr = std::to_string(highThrs);
-    lowThresholdStr = std::to_string(lowThrs);
+    highThresholdStr         = std::to_string(highThrs);
+    lowThresholdStr          = std::to_string(lowThrs);
 
     //At a radius of 3 sigma from the center, we keep ~97% of the gaussian fct.
     // | 0x1 to ensure this is a odd number (not divisible per 2)
-    int size = ((int)floor(bigSigma * 6.0)) | 0x1;
-    int halfSize = size >> 1;
-    string sz_s = to_string(size);
+    int    size     = ((int)floor(bigSigma * 6.0)) | 0x1;
+    int    halfSize = size >> 1;
+    string sz_s     = to_string(size);
 
     std::string gaussianBigSigmaKernelStr   = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussian(size, halfSize, bigSigma) + ");\n";
     std::string gaussianD1BigSigmaKernelStr = "const float bigSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, bigSigma) + ");\n";
@@ -1145,21 +1137,20 @@ void GLSLHessian::init(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSma
     std::string gaussianD1SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD1(size, halfSize, smallSigma) + ");\n";
     std::string gaussianD2SmallSigmaKernelStr = "const float smallSigmaKernel[" + sz_s + "] = float[" + sz_s + "](" + gaussianD2(size, halfSize, smallSigma) + ");\n";
 
-    gaussianKernelStr = gaussianBigSigmaKernelStr + gaussianSmallSigmaKernelStr;
+    gaussianKernelStr   = gaussianBigSigmaKernelStr + gaussianSmallSigmaKernelStr;
     gaussianD1KernelStr = gaussianD1BigSigmaKernelStr + gaussianD1SmallSigmaKernelStr;
-    gaussianD2KernelStr = gaussianD2BigSigmaKernelStr  + gaussianD2SmallSigmaKernelStr;
+    gaussianD2KernelStr = gaussianD2BigSigmaKernelStr + gaussianD2SmallSigmaKernelStr;
 
-    kernelSizeStr       = "const float kHalfSize = " + to_string((float)halfSize) + ";\nconst int kSize = " + sz_s + ";\n";
+    kernelSizeStr = "const float kHalfSize = " + to_string((float)halfSize) + ";\nconst int kSize = " + sz_s + ";\n";
 
     initShaders();
     initVBO();
     initTextureBuffers(w, h);
     initKeypointBuffers();
     initFBO();
-
 }
 
-GLSLHessian::GLSLHessian() { }
+GLSLHessian::GLSLHessian() {}
 
 GLSLHessian::GLSLHessian(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
 {
@@ -1170,7 +1161,7 @@ GLSLHessian::~GLSLHessian()
 {
     if (externalTexture)
     {
-        glDeleteTextures(11, renderTextures+1);
+        glDeleteTextures(11, renderTextures + 1);
     }
     else
     {
@@ -1206,17 +1197,17 @@ GLSLHessian::~GLSLHessian()
     glDeleteProgram(extractor);
 }
 
-void GLSLHessian::setInputTexture(SLGLTexture &tex)
+void GLSLHessian::setInputTexture(SLGLTexture& tex)
 {
     if (!externalTexture)
     {
-        Utils::log("Error", "externalTexture is not set\n");
+        Utils::log("Error", "externalTexture is not set");
         return;
     }
     renderTextures[0] = (GLuint)tex.texID();
 }
 
-void GLSLHessian::setInputTexture(cv::Mat &image)
+void GLSLHessian::setInputTexture(cv::Mat& image)
 {
     glBindTexture(GL_TEXTURE_2D, renderTextures[0]);
     glTexImage2D(GL_TEXTURE_2D,
@@ -1236,7 +1227,7 @@ void GLSLHessian::gpu_kp()
     glDisable(GL_DEPTH_TEST);
 
     ready = curr;
-    curr = (curr+1) % 2; //Set rendering buffers
+    curr  = (curr + 1) % 2; //Set rendering buffers
 
     SLVec4i wp = SLGLState::instance()->getViewport();
     SLGLState::instance()->viewport(0, 0, m_w, m_h);
@@ -1271,7 +1262,7 @@ void GLSLHessian::gpu_kp()
     SLGLState::instance()->viewport(wp.x, wp.y, wp.z, wp.w);
 }
 
-void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
+void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, bigSigmaImagesFB);
     glFlush();
@@ -1285,10 +1276,10 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, bigSigmaImagePBOs[ready]);
-    unsigned int * bigSigmaData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsBigSigma * 64 * 4 * 4, GL_MAP_READ_BIT);
+    unsigned int* bigSigmaData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsBigSigma * 64 * 4 * 4, GL_MAP_READ_BIT);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, smallSigmaImagePBOs[ready]);
-    unsigned int * smallSigmaData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsSmallSigma * 64 * 4 * 4, GL_MAP_READ_BIT);
+    unsigned int* smallSigmaData = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, mNbKeypointsSmallSigma * 64 * 4 * 4, GL_MAP_READ_BIT);
 
     if (bigSigmaData && smallSigmaData)
     {
@@ -1297,7 +1288,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
             int n = 0;
             int j = 0;
 
-            if (bigSigmaData[8*4] > 0) //If there are more than 8 keypoints with high threshold, take high threshold points
+            if (bigSigmaData[8 * 4] > 0) //If there are more than 8 keypoints with high threshold, take high threshold points
             {
                 for (j = 0; j < mNbKeypointsBigSigma; j++)
                 {
@@ -1318,7 +1309,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
             {
                 for (j = 0; j < mNbKeypointsBigSigma; j++)
                 {
-                    int idx       = (i * mNbKeypointsBigSigma + j) * 4;
+                    int idx      = (i * mNbKeypointsBigSigma + j) * 4;
                     int lowThrsX = bigSigmaData[idx + 2];
                     int lowThrsY = bigSigmaData[idx + 3];
                     if (lowThrsX == 0)
@@ -1333,7 +1324,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
             n = j;
             if (n < 8) // if there are less than 8 keypoints with THICK corners, take the one with higher granularity
             {
-                if (smallSigmaData[8*4] > 0) //If there are more than 8 keypoints with high threshold, take high threshold points
+                if (smallSigmaData[8 * 4] > 0) //If there are more than 8 keypoints with high threshold, take high threshold points
                 {
                     for (j = 0; j < mNbKeypointsSmallSigma; j++)
                     {
@@ -1374,4 +1365,3 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint> &kps)
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
-

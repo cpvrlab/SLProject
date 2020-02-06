@@ -74,7 +74,7 @@ void AverageTiming::doStart(const std::string& name)
     }
 
     //if ((*this)[name]->isStarted)
-    //    SL_LOG("AverageTiming: Block with name %s started twice!\n", name.c_str());
+    //    SL_LOG("AverageTiming: Block with name %s started twice!", name.c_str());
 
     (*this)[name]->timer.start();
     (*this)[name]->isStarted = true;
@@ -89,7 +89,7 @@ void AverageTiming::doStop(const std::string& name)
     if (find(name) != end())
     {
         if (!(*this)[name]->isStarted)
-            Utils::log("AverageTiming: Block with name %s stopped without being started!\n", name.c_str());
+            Utils::log("AverageTiming: Block with name %s stopped without being started!", name.c_str());
         (*this)[name]->timer.stop();
         (*this)[name]->val.set((*this)[name]->timer.elapsedTimeInMilliSec());
         (*this)[name]->nCalls++;
@@ -97,7 +97,7 @@ void AverageTiming::doStop(const std::string& name)
         this->_currentPosH--;
     }
     else
-        Utils::log("AverageTiming: A block with name %s does not exist!\n", name.c_str());
+        Utils::log("AverageTiming: A block with name %s does not exist!", name.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ float AverageTiming::doGetTime(const std::string& name)
         return (*this)[name]->val.average();
     }
     else
-        Utils::log("AverageTiming: A block with name %s does not exist!\n", name.c_str());
+        Utils::log("AverageTiming: A block with name %s does not exist!", name.c_str());
 
     return 0.0f;
 }
@@ -134,7 +134,7 @@ int AverageTiming::doGetNumValues(const std::string& name)
         return (*this)[name]->val.numValues();
     }
     else
-        Utils::log("AverageTiming: A block with name %s does not exist!\n", name.c_str());
+        Utils::log("AverageTiming: A block with name %s does not exist!", name.c_str());
 
     return 0;
 }

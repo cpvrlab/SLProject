@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include "MapCreator.h"
-
+#include <Utils.h>
 #include <GLFW/glfw3.h>
 
 //app parameter
@@ -126,8 +126,8 @@ int main(int argc, char* argv[])
 
         //initialize logger
         std::string cwd = Utils::getCurrentWorkingDir();
-        Logger::initFileLog(Utils::unifySlashes(config.erlebARDir) + "MapCreator/", true);
-        WAI_INFO("WAI MapCreator");
+        Utils::initFileLog(Utils::unifySlashes(config.erlebARDir) + "MapCreator/", true);
+        Utils::log("Main", "MapCreator");
 
         //init map creator
         MapCreator mapCreator(config.erlebARDir, config.configFile);
@@ -137,13 +137,11 @@ int main(int argc, char* argv[])
     }
     catch (std::exception& e)
     {
-        WAI_ERROR("Exception catched during map creation: %s", e.what());
-        Logger::flushFileLog();
+        Utils::log("Main", "Exception catched during map creation: %s", e.what());
     }
     catch (...)
     {
-        WAI_ERROR("Unknown exception during map creation!");
-        Logger::flushFileLog();
+        Utils::log("Main", "Unknown exception during map creation!");
     }
 
     return 0;

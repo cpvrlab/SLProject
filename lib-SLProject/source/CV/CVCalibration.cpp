@@ -148,8 +148,8 @@ bool CVCalibration::load(const string& calibDir,
     FileStorage fs(fullPathAndFilename, FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("SLProject", "Calibration     : %s\n", calibFileName.c_str());
-        Utils::log("SLProject", "Calib. created  : No. Calib. will be estimated\n");
+        Utils::log("SLProject", "Calibration     : %s", calibFileName.c_str());
+        Utils::log("SLProject", "Calib. created  : No. Calib. will be estimated");
         _numCaptured       = 0;
         _isMirroredH       = false;
         _isMirroredV       = false;
@@ -213,9 +213,9 @@ bool CVCalibration::load(const string& calibDir,
             buildUndistortionMaps();
     }
 
-    Utils::log("SLProject", "Calib. loaded  : %s\n", fullPathAndFilename.c_str());
-    Utils::log("SLProject", "Calib. created : %s\n", _calibrationTime.c_str());
-    Utils::log("SLProject", "Camera FOV H/V : %3.1f/%3.1f\n", _cameraFovVDeg, _cameraFovHDeg);
+    Utils::log("SLProject", "Calib. loaded  : %s", fullPathAndFilename.c_str());
+    Utils::log("SLProject", "Calib. created : %s", _calibrationTime.c_str());
+    Utils::log("SLProject", "Camera FOV H/V : %3.1f/%3.1f", _cameraFovVDeg, _cameraFovHDeg);
 
     _cameraMatOrig = _cameraMat.clone();
     _imageSizeOrig = _imageSize;
@@ -233,7 +233,7 @@ bool CVCalibration::save(const string& calibDir,
 
     if (!fs.isOpened())
     {
-        Utils::log("SLProject", "Failed to write calib. %s\n", fullPathAndFilename.c_str());
+        Utils::log("SLProject", "Failed to write calib. %s", fullPathAndFilename.c_str());
         return false;
     }
 
@@ -295,7 +295,7 @@ bool CVCalibration::save(const string& calibDir,
 
     // close file
     fs.release();
-    Utils::log("SLProject", "Calib. saved    : %s\n", fullPathAndFilename.c_str());
+    Utils::log("SLProject", "Calib. saved    : %s", fullPathAndFilename.c_str());
     return true;
     //uploadCalibration(fullPathAndFilename);
 }
@@ -373,7 +373,7 @@ void CVCalibration::buildUndistortionMaps()
                                 CV_16SC2, //before we had CV_32FC1 but in all tutorials they use CV_16SC2.. is there a reason?
                                 _undistortMapX,
                                 _undistortMapY);
-    Utils::log("CVCalibration", "initUndistortRectifyMap: %fms\n", t.elapsedTimeInMilliSec());
+    Utils::log("CVCalibration", "initUndistortRectifyMap: %fms", t.elapsedTimeInMilliSec());
 
     if (_undistortMapX.empty() || _undistortMapY.empty())
         Utils::exitMsg("SLProject", "CVCalibration::buildUndistortionMaps failed.", __LINE__, __FILE__);

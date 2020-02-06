@@ -465,7 +465,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                nullptr,
                                                SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
             SLfloat          timeEnd    = SLApplication::timeS();
-            SL_LOG("Time to load  : %4.2f sec.\n", timeEnd - timeStart);
+            SL_LOG("Time to load  : %4.2f sec.", timeEnd - timeStart);
             SLNode* scene = new SLNode("Scene");
             scene->addChild(light1);
             scene->addChild(largeModel);
@@ -730,7 +730,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         SLuint num = (SLuint)(size + size + 1);
-        SL_LOG("Triangles on GPU: %u\n", res * res * 2 * num * num * num);
+        SL_LOG("Triangles on GPU: %u", res * res * 2 * num * num * num);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
@@ -1104,7 +1104,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Wave Shader Test");
         s->info("Vertex Shader with wave displacment.");
-        SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
+        SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 3, 8);
@@ -1157,7 +1157,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Water Shader Test");
         s->info("Water Shader with reflection & refraction mapping.");
-        SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n\n");
+        SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 3, 8);
@@ -1278,9 +1278,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Parallax Map Test");
         s->info("Normal map parallax mapping.");
-        SL_LOG("Demo application for parallax bump mapping.\n");
-        SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.\n");
-        SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n\n");
+        SL_LOG("Demo application for parallax bump mapping.");
+        SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.");
+        SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
         SLGLProgram*   sp     = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
@@ -1395,10 +1395,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Earth Shader Test");
         s->info("Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
-        SL_LOG("Earth Shader from Markus Knecht\n");
-        SL_LOG("Use (SHIFT) & key Y to change scale of the parallax mapping\n");
-        SL_LOG("Use (SHIFT) & key X to change bias of the parallax mapping\n");
-        SL_LOG("Use (SHIFT) & key C to change cloud height\n");
+        SL_LOG("Earth Shader from Markus Knecht");
+        SL_LOG("Use (SHIFT) & key Y to change scale of the parallax mapping");
+        SL_LOG("Use (SHIFT) & key X to change bias of the parallax mapping");
+        SL_LOG("Use (SHIFT) & key C to change cloud height");
 
         // Create shader program with 4 uniforms
         SLGLProgram*   sp     = new SLGLGenericProgram("BumpNormal.vert", "BumpNormalEarth.frag");
