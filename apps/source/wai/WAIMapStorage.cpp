@@ -214,6 +214,7 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
 
 bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                             SLNode*        mapNode,
+                            ORBVocabulary* voc,
                             std::string    path,
                             bool           loadImgs,
                             bool           fixKfsAndMPts)
@@ -224,6 +225,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
     std::map<int, std::vector<int>> loopEdgesMap;
     std::map<int, WAIKeyFrame*>     kfsMap;
     int                             numLoopClosings = 0;
+
 
     std::string imgDir;
     if (loadImgs)
@@ -330,7 +332,7 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
                                              keyPtsUndist.size(),
                                              keyPtsUndist,
                                              featureDescriptors,
-                                             WAIOrbVocabulary::get(),
+                                             voc,
                                              nScaleLevels,
                                              scaleFactor,
                                              vScaleFactor,

@@ -1139,10 +1139,15 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     if (globalMap == nullptr)
     {
         WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
-        _globalMap = new WAIMap(kfDB);
+        _globalMap          = new WAIMap(kfDB);
+        _state              = TrackingState_Initializing;
     }
     else
+    {
         _globalMap = globalMap;
+        _state     = TrackingState_TrackingLost;
+        _initialized = true;
+    }
 
     _localMapping = new ORB_SLAM2::LocalMapping(_globalMap, 1, _voc, 0.95);
     _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap, _voc, false, false);
@@ -1156,7 +1161,6 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
         _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
-    _state               = TrackingState_Initializing;
     _iniData.initializer = nullptr;
     _cameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
 
@@ -1203,6 +1207,7 @@ bool WAISlam::update(cv::Mat& imageGray)
                 {
                     _lastRelocId = 0;
                     _state       = TrackingState_TrackingOK;
+                    _initialized = true;
                 }
             }
         }

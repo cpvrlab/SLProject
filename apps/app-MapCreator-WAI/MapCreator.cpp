@@ -23,6 +23,7 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::stri
     loadSites(erlebARDir, configFile);
 
     //init keypoint extractors
+    //TODO(lulu) create extractor depending on video resolution especially if different for each video!
     FeatureExtractorFactory factory;
     _kpExtractor       = factory.make(7, {640, 320});
     //_kpIniExtractor    = factory.make(8, {640, 360});
@@ -237,21 +238,26 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             capturedSize.height != cap->activeCamera->calibration.imageSize().height)
             throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
+        FeatureExtractorFactory factory;
+        _kpExtractor = factory.make(7, {capturedSize.width, capturedSize.height});
+
         ORBVocabulary* voc = new ORBVocabulary();
         if (!voc->loadFromBinaryFile(_vocFile))
         {
             std::cout << "Can't open vocabulary file!!!" << std::endl;
             exit(1);
         }
-        WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
-        WAIMap* map = new WAIMap(kfdb);
+        WAIMap* map = nullptr;
 
         //if we have an active map from one of the previously processed videos for this area then load it
         SLNode mapNode = SLNode();
         if (initialized)
         {
+            WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
+            map = new WAIMap(kfdb);
             bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                             &mapNode,
+                                                            voc,
                                                             mapDir + "/" + mapFile,
                                                             false,
                                                             modeParams.fixOldKfs);
@@ -261,6 +267,10 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 std::cout << ("Could not load map from file " + mapDir + "/" + mapFile) << std::endl;
                 return;
             }
+        }
+        else
+        {
+            std::cout << "not initialized" << std::endl;
         }
 
         //instantiate wai mode
@@ -323,6 +333,11 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             initialized = true;
             saveMap(waiMode.get(), mapDir, currentMapFileName, &mapNode);
         }
+        else
+        {
+            std::cout << "Mode return not initialized!!" << std::endl;
+        }
+        
 
         //increment video index for map saving
         videoIndex++;
@@ -358,6 +373,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                     &mapNode,
+                                                    voc,
                                                     inputMapFile,
                                                     false,
                                                     modeParams.fixOldKfs);
@@ -450,6 +466,7 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                     &mapNode,
+                                                    voc,
                                                     mapDir + "/" + mapFile,
                                                     false,
                                                     modeParams.fixOldKfs);
