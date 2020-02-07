@@ -66,6 +66,7 @@ public:
                               WAIMap*          map,
                               LocalMap&        localMap,
                               LocalMapping*    localMapper,
+                              LoopClosing*     loopCloser,
                               ORBVocabulary*   voc,
                               int              mapPointsNeeded);
 

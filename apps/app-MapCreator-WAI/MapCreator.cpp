@@ -4,11 +4,11 @@
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
 
-MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
+MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
-    _vocFile         = _erlebARDir + "../voc/ORBvoc.bin";
+    _vocFile         = vocFile;
     _outputDir       = _erlebARDir + "MapCreator/";
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
@@ -24,9 +24,9 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile)
 
     //init keypoint extractors
     FeatureExtractorFactory factory;
-    _kpExtractor       = factory.make(8, {640, 360});
-    _kpIniExtractor    = factory.make(8, {640, 360});
-    _kpMarkerExtractor = factory.make(8, {640, 360});
+    _kpExtractor       = factory.make(7, {640, 320});
+    //_kpIniExtractor    = factory.make(8, {640, 360});
+    //_kpMarkerExtractor = factory.make(8, {640, 360});
 }
 
 MapCreator::~MapCreator()
@@ -40,6 +40,9 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
         WAI_DEBUG("MapCreator: loading sites:");
         //parse config file
         cv::FileStorage fs;
+        std::cout << "erlebBarDir " << erlebARDir << std::endl;
+        std::cout << "configFile " << configFile << std::endl << std::endl;
+
         fs.open(configFile, cv::FileStorage::READ);
         if (!fs.isOpened())
             throw std::runtime_error("Could not open configFile: " + configFile);
@@ -235,7 +238,11 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             throw std::runtime_error("MapCreator::createWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
         ORBVocabulary* voc = new ORBVocabulary();
-        voc->loadFromBinaryFile(_vocFile);
+        if (!voc->loadFromBinaryFile(_vocFile))
+        {
+            std::cout << "Can't open vocabulary file!!!" << std::endl;
+            exit(1);
+        }
         WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
         WAIMap* map = new WAIMap(kfdb);
 
@@ -338,7 +345,11 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     modeParams.retainImg         = true;
 
     ORBVocabulary* voc = new ORBVocabulary();
-    voc->loadFromBinaryFile(_vocFile);
+    if (!voc->loadFromBinaryFile(_vocFile))
+    {
+        std::cout << "Can't open vocabulary file!!!" << std::endl;
+        exit(1);
+    }
     WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
     WAIMap* map = new WAIMap(kfdb);
 
@@ -428,7 +439,11 @@ bool MapCreator::doMarkerMapPreprocessing(const std::string& mapDir,
     modeParams.retainImg         = true;
 
     ORBVocabulary* voc = new ORBVocabulary();
-    voc->loadFromBinaryFile(_vocFile);
+    if (!voc->loadFromBinaryFile(_vocFile))
+    {
+        std::cout << "Can't open vocabulary file!!!" << std::endl;
+        exit(1);
+    }
     WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
     WAIMap* map = new WAIMap(kfDB);
     SLNode mapNode = SLNode();
@@ -853,7 +868,8 @@ void MapCreator::decorateDebug(WAISlam* waiMode, CVCapture* cap, const int curre
     {
         cv::Mat            decoImg      = cap->lastFrame.clone();
         std::string state = waiMode->getPrintableState();
-        waiMode->drawKeyPointMatches(*waiMode->getLastFrame(), decoImg);
+
+        waiMode->drawInfo(decoImg, true, true, true);
 
         double     fontScale = 0.5;
         cv::Point  stateOff(10, 25);
