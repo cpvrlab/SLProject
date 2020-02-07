@@ -167,8 +167,12 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF, WAIFrame& F, vector<WAIMapPoint*>&
     int nmatches = 0;
 
     vector<int> rotHist[HISTO_LENGTH];
-    for (int i = 0; i < HISTO_LENGTH; i++)
-        rotHist[i].reserve(500);
+
+    if (mbCheckOrientation)
+    {
+        for (int i = 0; i < HISTO_LENGTH; i++)
+            rotHist[i].reserve(500);
+    }
     const float factor = 1.0f / HISTO_LENGTH;
 
     // We perform the matching over ORB that belong to the same vocabulary node (at a certain level)
@@ -405,8 +409,11 @@ int ORBmatcher::SearchForInitialization(WAIFrame& F1, WAIFrame& F2, vector<cv::P
     vnMatches12  = vector<int>(F1.mvKeysUn.size(), -1);
 
     vector<int> rotHist[HISTO_LENGTH];
-    for (int i = 0; i < HISTO_LENGTH; i++)
-        rotHist[i].reserve(500);
+    if (mbCheckOrientation)
+    {
+        for (int i = 0; i < HISTO_LENGTH; i++)
+            rotHist[i].reserve(500);
+    }
     const float factor = 1.0f / HISTO_LENGTH;
 
     vector<int> vMatchedDistance(F2.mvKeysUn.size(), INT_MAX);
@@ -649,8 +656,11 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapP
     vector<bool> vbMatched2(vpMapPoints2.size(), false);
 
     vector<int> rotHist[HISTO_LENGTH];
-    for (int i = 0; i < HISTO_LENGTH; i++)
-        rotHist[i].reserve(500);
+    if (mbCheckOrientation)
+    {
+        for (int i = 0; i < HISTO_LENGTH; i++)
+            rotHist[i].reserve(500);
+    }
 
     const float factor = 1.0f / HISTO_LENGTH;
 
