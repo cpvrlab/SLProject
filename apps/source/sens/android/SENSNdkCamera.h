@@ -56,9 +56,13 @@ public:
 
 private:
     void                                  initOptimalCamera(SENSCamera::Facing facing);
-    ACameraDevice_stateCallbacks*         getDeviceListener();
-    ACameraManager_AvailabilityCallbacks* getManagerListener();
-    ACameraCaptureSession_stateCallbacks* getSessionListener();
+    //ACameraDevice_stateCallbacks*         getDeviceListener();
+    //ACameraManager_AvailabilityCallbacks* getManagerListener();
+    ACameraManager_AvailabilityCallbacks _cameraManagerAvailabilityCallbacks;
+
+    static void onSessionActive(void* ctx, ACameraCaptureSession* ses);
+    static void onSessionClosed(void* ctx, ACameraCaptureSession* ses);
+    static void onSessionReady(void* ctx, ACameraCaptureSession* ses);
 
     static cv::Mat convertToYuv(AImage* image);
     SENSFramePtr   processNewYuvImg(cv::Mat yuvImg);
@@ -75,14 +79,14 @@ private:
     AvailableStreamConfigs _availableStreamConfig;
 
     //std::map<std::string, CameraId> _cameras;
-    AImageReader*                   _imageReader = nullptr;
-    ANativeWindow*                  _surface;
-    ACaptureSessionOutput*          _captureSessionOutput;
-    ACaptureSessionOutputContainer* _captureSessionOutputContainer;
-    ACameraOutputTarget*            _cameraOutputTarget;
-    ACaptureRequest*                _captureRequest;
-    ACameraCaptureSession*          _captureSession;
-    CaptureSessionState             _captureSessionState;
+    AImageReader*                   _imageReader                   = nullptr;
+    ANativeWindow*                  _surface                       = nullptr;
+    ACaptureSessionOutput*          _captureSessionOutput          = nullptr;
+    ACaptureSessionOutputContainer* _captureSessionOutputContainer = nullptr;
+    ACameraOutputTarget*            _cameraOutputTarget            = nullptr;
+    ACaptureRequest*                _captureRequest                = nullptr;
+    ACameraCaptureSession*          _captureSession                = nullptr;
+    CaptureSessionState             _captureSessionState           = CaptureSessionState::MAX_STATE;
 
     volatile bool _valid = false;
 

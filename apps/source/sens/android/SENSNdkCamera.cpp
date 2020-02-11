@@ -11,8 +11,33 @@
 #include "SENSNdkCameraUtils.h"
 #include "SENSUtils.h"
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
+#define LOG_CAM_WARN(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
+#define LOG_CAM_INFO(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
+
+/*
+ * Camera Manager Listener object
+ */
+void OnCameraAvailable(void* ctx, const char* id)
+{
+    reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, true);
+}
+void OnCameraUnavailable(void* ctx, const char* id)
+{
+    reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, false);
+}
+
+/*
+ * CameraDevice callbacks
+ */
+void onDeviceDisconnected(void* ctx, ACameraDevice* dev)
+{
+    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceDisconnected(dev);
+}
+
+void onDeviceErrorChanges(void* ctx, ACameraDevice* dev, int err)
+{
+    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceError(dev, err);
+}
 
 //searches for best machting size and returns it
 cv::Size AvailableStreamConfigs::findBestMatchingSize(cv::Size requiredSize)
@@ -65,21 +90,35 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     if (!_cameraManager)
         throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
+    //register callbacks
+    _cameraManagerAvailabilityCallbacks = {
+      .context             = this,
+      .onCameraAvailable   = OnCameraAvailable,
+      .onCameraUnavailable = OnCameraUnavailable,
+    };
+    ACameraManager_registerAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
+
     //PrintCameras(_cameraManager);
 
     //find camera device that fits our needs and retrieve required camera charakteristics
     initOptimalCamera(facing);
 
-    //open the camera
-    camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), getDeviceListener(), &_cameraDevice);
+    LOG_CAM_INFO("Opening camera ...");
+    //open the so found camera with _cameraId
+    ACameraDevice_stateCallbacks cameraDeviceListener = {
+      .context        = this,
+      .onDisconnected = ::onDeviceDisconnected,
+      .onError        = ::onDeviceErrorChanges,
+    };
+    camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), &cameraDeviceListener, &_cameraDevice);
     if (openResult != ACAMERA_OK)
     {
         throw SENSException(SENSType::CAM, "Could not open camera! Already opened?", __LINE__, __FILE__);
     }
-    //register callbacks
-    ACameraManager_registerAvailabilityCallback(_cameraManager, getManagerListener());
+    LOG_CAM_INFO("Opening opened");
 
     _valid = true;
+    LOG_CAM_INFO("Camera instantiated");
 }
 
 SENSNdkCamera::~SENSNdkCamera()
@@ -88,17 +127,23 @@ SENSNdkCamera::~SENSNdkCamera()
     // stop session if it is on:
     if (_captureSessionState == CaptureSessionState::ACTIVE)
     {
+        LOG_CAM_INFO("CaptureSession state: destruction stopRepeating");
         ACameraCaptureSession_stopRepeating(_captureSession);
     }
+    else
+        LOG_CAM_INFO("CaptureSession state: destruction NOT ACTIVE");
+    ;
     ACameraCaptureSession_close(_captureSession);
 
     //free request stuff
     ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
     ACaptureRequest_free(_captureRequest);
+    _captureRequest = nullptr;
     ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer, _captureSessionOutput);
     ACaptureSessionOutput_free(_captureSessionOutput);
     ANativeWindow_release(_surface);
     ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
+    _captureSessionOutputContainer = nullptr;
 
     //close camera
     ACameraDevice_close(_cameraDevice);
@@ -107,7 +152,7 @@ SENSNdkCamera::~SENSNdkCamera()
     //delete camera manager
     if (_cameraManager)
     {
-        ACameraManager_unregisterAvailabilityCallback(_cameraManager, getManagerListener());
+        ACameraManager_unregisterAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
         ACameraManager_delete(_cameraManager);
         _cameraManager = nullptr;
     }
@@ -116,6 +161,7 @@ SENSNdkCamera::~SENSNdkCamera()
     if (_imageReader)
     {
         AImageReader_delete(_imageReader);
+        _imageReader = nullptr;
     }
 
     //terminate the thread
@@ -127,6 +173,8 @@ SENSNdkCamera::~SENSNdkCamera()
             _thread->join();
         _thread.release();
     }
+
+    LOG_CAM_INFO("Camera destructor finished");
 }
 
 /**
@@ -152,6 +200,7 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
     //todo: find best fitting image format in _availableStreamConfig
     cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
 
+    LOG_CAM_INFO("start: captureSize (%d, %d)", captureSize.width, captureSize.height);
     //create request with necessary parameters
 
     //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
@@ -190,9 +239,15 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
 
         ACaptureRequest_addTarget(_captureRequest, _cameraOutputTarget);
 
+        _captureSessionState                                              = CaptureSessionState::READY;
+        ACameraCaptureSession_stateCallbacks captureSessionStateCallbacks = {
+          .context  = this,
+          .onActive = SENSNdkCamera::onSessionActive,
+          .onReady  = SENSNdkCamera::onSessionReady,
+          .onClosed = SENSNdkCamera::onSessionClosed};
         if (ACameraDevice_createCaptureSession(_cameraDevice,
                                                _captureSessionOutputContainer,
-                                               getSessionListener(),
+                                               &captureSessionStateCallbacks,
                                                &_captureSession) != AMEDIA_OK)
             throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
 
@@ -318,6 +373,8 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
         {
             //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
             sensFrame = std::move(_processedFrame);
+            //static int getFrameN = 0;
+            //LOG_CAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
         }
         if (_threadHasException)
         {
@@ -330,8 +387,9 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
         media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
         if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
         {
-            static int newImage = 0;
-            //LOGI("new image %d", newImage++);
+            //static int getFrameN = 0;
+            //LOG_CAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
+
             cv::Mat yuv = convertToYuv(image);
             //now that the data is copied we have to delete the image
             AImage_delete(image);
@@ -363,6 +421,8 @@ void SENSNdkCamera::run()
                 yuv = _yuvImgToProcess;
             }
 
+            static int imageConsumed = 0;
+            LOG_CAM_INFO("run: imageConsumed %d", imageConsumed++)
             //do the processing
             SENSFramePtr sensFrame;
             //make yuv to rgb conversion, cropping, scaling, mirroring, gray conversion
@@ -396,7 +456,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
     if (status == AMEDIA_OK && image)
     {
         static int newImage = 0;
-        //LOGI("new image %d", newImage++);
+        LOG_CAM_INFO("imageCallback: new image %d", newImage++);
 
         cv::Mat yuv = convertToYuv(image);
 
@@ -537,19 +597,8 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
     }
     ACameraMetadata_free(camCharacteristics);
 }
+
 /*
- * CameraDevice callbacks
- */
-void onDeviceDisconnected(void* ctx, ACameraDevice* dev)
-{
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceDisconnected(dev);
-}
-
-void onDeviceErrorChanges(void* ctx, ACameraDevice* dev, int err)
-{
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceError(dev, err);
-}
-
 ACameraDevice_stateCallbacks* SENSNdkCamera::getDeviceListener()
 {
     static ACameraDevice_stateCallbacks cameraDeviceListener = {
@@ -559,6 +608,7 @@ ACameraDevice_stateCallbacks* SENSNdkCamera::getDeviceListener()
     };
     return &cameraDeviceListener;
 }
+ */
 
 /**
  * Handle Camera DeviceStateChanges msg, notify device is disconnected
@@ -566,11 +616,15 @@ ACameraDevice_stateCallbacks* SENSNdkCamera::getDeviceListener()
  */
 void SENSNdkCamera::onDeviceDisconnected(ACameraDevice* dev)
 {
-    LOGW("device %s is disconnected");
+    if (dev == _cameraDevice)
+    {
+        std::string id(ACameraDevice_getId(dev));
+        LOG_CAM_WARN("device %s is disconnected", id.c_str());
 
-    _cameraAvailable = false;
-    ACameraDevice_close(_cameraDevice);
-    _cameraDevice = nullptr;
+        _cameraAvailable = false;
+        ACameraDevice_close(_cameraDevice);
+        _cameraDevice = nullptr;
+    }
 }
 /**
  * Handles Camera's deviceErrorChanges message, no action;
@@ -583,7 +637,7 @@ void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
     if (dev == _cameraDevice)
     {
         std::string id(ACameraDevice_getId(dev));
-        LOGI("CameraDevice %s is in error %#x", id.c_str(), err);
+        LOG_CAM_INFO("CameraDevice %s is in error %#x", id.c_str(), err);
         switch (err)
         {
             case ERROR_CAMERA_IN_USE:
@@ -601,23 +655,12 @@ void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
     }
 }
 
-/*
- * Camera Manager Listener object
- */
-void OnCameraAvailable(void* ctx, const char* id)
-{
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, true);
-}
-void OnCameraUnavailable(void* ctx, const char* id)
-{
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, false);
-}
-
 /**
  * Construct a camera manager listener on the fly and return to caller
  *
  * @return ACameraManager_AvailabilityCallback
  */
+/*
 ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
 {
     static ACameraManager_AvailabilityCallbacks cameraMgrListener = {
@@ -627,6 +670,7 @@ ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
     };
     return &cameraMgrListener;
 }
+*/
 
 /**
  * OnCameraStatusChanged()
@@ -634,43 +678,48 @@ ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
  */
 void SENSNdkCamera::onCameraStatusChanged(const char* id, bool available)
 {
+    LOG_CAM_INFO("onCameraStatusChanged: called: valid %s id: %s", available ? "true" : "false", id);
     if (_valid && std::string(id) == _cameraId)
     {
         _cameraAvailable = available ? true : false;
+        LOG_CAM_INFO("onCameraStatusChanged: camera available %s", available ? "true" : "false");
     }
 }
 
 // CaptureSession state callbacks
-void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
+void SENSNdkCamera::onSessionClosed(void* ctx, ACameraCaptureSession* ses)
 {
-    LOGW("session %p closed", ses);
+    LOG_CAM_WARN("CaptureSession state: session %p closed", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::CLOSED);
 }
-void onSessionReady(void* ctx, ACameraCaptureSession* ses)
+void SENSNdkCamera::onSessionReady(void* ctx, ACameraCaptureSession* ses)
 {
-    LOGW("session %p ready", ses);
+    LOG_CAM_WARN("CaptureSession state: session %p ready", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::READY);
 }
-void onSessionActive(void* ctx, ACameraCaptureSession* ses)
+
+void SENSNdkCamera::onSessionActive(void* ctx, ACameraCaptureSession* ses)
 {
-    LOGW("session %p active", ses);
+    LOG_CAM_WARN("CaptureSession state: session %p active", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::ACTIVE);
 }
 
-ACameraCaptureSession_stateCallbacks* SENSNdkCamera::getSessionListener()
+std::string getPrintableState(CaptureSessionState state)
 {
-    static ACameraCaptureSession_stateCallbacks sessionListener = {
-      .context  = this,
-      .onActive = ::onSessionActive,
-      .onReady  = ::onSessionReady,
-      .onClosed = ::onSessionClosed,
-    };
-    return &sessionListener;
+    if (state == CaptureSessionState::READY) // session is ready
+        return "READY";
+    else if (state == CaptureSessionState::ACTIVE)
+        return "ACTIVE";
+    else if (state == CaptureSessionState::CLOSED)
+        return "CLOSED";
+    else if (state == CaptureSessionState::MAX_STATE)
+        return "MAX_STATE";
+    else
+        return "UNKNOWN";
 }
-
 /**
  * Handles capture session state changes.
  *   Update into internal session state.
@@ -678,16 +727,26 @@ ACameraCaptureSession_stateCallbacks* SENSNdkCamera::getSessionListener()
 void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
                                    CaptureSessionState    state)
 {
+    LOG_CAM_WARN("CaptureSession state: entered");
+
+    if (!_captureSession)
+        LOG_CAM_WARN("CaptureSession state: CaptureSession is NULL");
+
+    /*
     if (!ses || ses != _captureSession)
     {
-        LOGW("CaptureSession is %s", (ses ? "NOT our session" : "NULL"));
+        LOG_CAM_WARN("CaptureSession state: CaptureSession is %s", (ses ? "NOT our session" : "NULL"));
         return;
     }
+    else
+        LOG_CAM_WARN("CaptureSession state state: CaptureSession is %s", (ses ? "our session" : "NULL"));
+*/
 
     if (state >= CaptureSessionState::MAX_STATE)
     {
         throw SENSException(SENSType::CAM, "Wrong state " + std::to_string((int)state), __LINE__, __FILE__);
     }
 
+    LOG_CAM_WARN("CaptureSession state: %s", getPrintableState(state).c_str());
     _captureSessionState = state;
 }
