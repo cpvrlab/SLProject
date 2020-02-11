@@ -97,7 +97,7 @@ void startCamera()
             camConfig.targetHeight         = 360;
             camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
             camConfig.convertToGray        = true;
-            camConfig.adjustAsynchronously = false;
+            camConfig.adjustAsynchronously = true;
             ndkCamera->start(camConfig);
 
             Engine* engine = (Engine*)androidApp->userData;
