@@ -87,14 +87,14 @@ extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onInit(JNIEnv* env, 
 
     SENSCamera::Config config;
     config.targetWidth = 640;
-    config.targetHeight = 480;
+    config.targetHeight = 360;
     config.adjustAsynchronously = true;
     config.convertToGray = true;
 
     ndkCamera = std::make_unique<SENSNdkCamera>(SENSCamera::Facing::BACK);
     ndkCamera->start(config);
 
-    svIndex = waiApp.load(ndkCamera.get(), 640, 480, width, height, 1.0, 1.0, dpi, dirs);
+    svIndex = waiApp.load(ndkCamera.get(), 640, 360, width, height, 1.0, 1.0, dpi, dirs);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_cpvr_wai_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)

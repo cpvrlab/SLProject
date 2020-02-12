@@ -226,7 +226,6 @@ bool WAIMapStorage::loadMap(WAIMap*        waiMap,
     std::map<int, WAIKeyFrame*>     kfsMap;
     int                             numLoopClosings = 0;
 
-
     std::string imgDir;
     if (loadImgs)
     {

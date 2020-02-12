@@ -31,24 +31,24 @@
 namespace ORB_SLAM2
 {
 
-LoopClosing::LoopClosing(WAIMap* pMap, 
-                         ORBVocabulary* pVoc, 
-                         const bool bFixScale, 
-                         const bool manualLoopClose) 
-  : mbResetRequested(false), 
-    mbFinishRequested(false), 
-    mbFinished(true), 
-    mpMap(pMap), 
-    mpORBVocabulary(pVoc), 
-    mpMatchedKF(NULL), 
-    mLastLoopKFid(0), 
-    mbRunningGBA(false), 
-    mbFinishedGBA(true), 
-    mbStopGBA(false), 
-    mpThreadGBA(NULL), 
-    mbFixScale(bFixScale), 
-    mnFullBAIdx(0), 
-    _attemptLoopClose(!manualLoopClose), 
+LoopClosing::LoopClosing(WAIMap*        pMap,
+                         ORBVocabulary* pVoc,
+                         const bool     bFixScale,
+                         const bool     manualLoopClose)
+  : mbResetRequested(false),
+    mbFinishRequested(false),
+    mbFinished(true),
+    mpMap(pMap),
+    mpORBVocabulary(pVoc),
+    mpMatchedKF(NULL),
+    mLastLoopKFid(0),
+    mbRunningGBA(false),
+    mbFinishedGBA(true),
+    mbStopGBA(false),
+    mpThreadGBA(NULL),
+    mbFixScale(bFixScale),
+    mnFullBAIdx(0),
+    _attemptLoopClose(!manualLoopClose),
     _manualLoopClose(manualLoopClose)
 {
     mnCovisibilityConsistencyTh = 3;
@@ -105,6 +105,8 @@ void LoopClosing::Run()
         }
 
         ResetIfRequested();
+
+        std::cout << "loopClosing status: " << getStatusString() << std::endl;
 
         if (CheckFinish())
             break;
@@ -663,8 +665,6 @@ void LoopClosing::doCorrectLoop()
 
 void LoopClosing::CorrectLoop()
 {
-    cout << "Loop detected!" << endl;
-
     // Send a stop signal to Local Mapping
     // Avoid new keyframes are inserted while correcting the loop
     mpLocalMapper->RequestStop();

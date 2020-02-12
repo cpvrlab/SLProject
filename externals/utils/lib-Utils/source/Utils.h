@@ -198,7 +198,7 @@ template<class T> inline T pulse(T a, T b, T x){return (SL_step(a, x) - step(b, 
 template<class T> inline T clamp(T a, T min, T max){return (a < min) ? min : (a > max) ? max : a;}
 template<class T> inline T mix(T mix, T a, T b){return (1 - mix) * a + mix * b;}
 template<class T> inline T lerp(T x, T a, T b){return (a + x * (b - a));}
-template<class T> inline T swap(T& a, T& b){T c = a; a = b; b = c;}
+//template<class T> inline T swap(T& a, T& b){T c = a; a = b; b = c;}
 //-----------------------------------------------------------------------------
 inline bool isPowerOf2(unsigned int a)
 {

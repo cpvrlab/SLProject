@@ -22,7 +22,6 @@ enum TrackingState
 struct LocalMap
 {
     WAIKeyFrame*              refKF;
-    WAIKeyFrame*              lastKF;
     std::vector<WAIKeyFrame*> keyFrames;
     std::vector<WAIMapPoint*> mapPoints;
 };
@@ -53,7 +52,8 @@ public:
                            WAIFrame&        frame,
                            ORBVocabulary*   voc,
                            LocalMap&        localMap,
-                           int              mapPointsNeeded);
+                           int              mapPointsNeeded,
+                           unsigned long&   lastKeyFrameFrameId);
 
     static bool genInitialMap(WAIMap*       globalMap,
                               LocalMapping* localMapper,
@@ -68,38 +68,43 @@ public:
                               LocalMapping*    localMapper,
                               LoopClosing*     loopCloser,
                               ORBVocabulary*   voc,
-                              int              mapPointsNeeded);
+                              int              mapPointsNeeded,
+                              unsigned long&   lastKeyFrameFrameId);
 
     static bool relocalization(WAIFrame& currentFrame,
                                WAIMap*   waiMap,
                                LocalMap& localMap,
                                int&      inliers);
 
-    static bool tracking(WAIMap*        map,
-                         LocalMap&      localMap,
-                         WAIFrame&      frame,
-                         WAIFrame&      lastFrame,
-                         int            lastRelocFrameId,
-                         cv::Mat&       velocity,
-                         int&           inliers);
+    static bool tracking(WAIMap*   map,
+                         LocalMap& localMap,
+                         WAIFrame& frame,
+                         WAIFrame& lastFrame,
+                         int       lastRelocFrameId,
+                         cv::Mat&  velocity,
+                         int&      inliers);
 
     static bool trackLocalMap(LocalMap& localMap,
                               WAIFrame& frame,
                               int       lastRelocFrameId,
                               int&      inliers);
 
-    static void mapping(WAIMap*        map,
-                        LocalMap&      localMap,
-                        LocalMapping*  localMapper,
-                        WAIFrame&      frame,
-                        int            inliers);
+    static void mapping(WAIMap*             map,
+                        LocalMap&           localMap,
+                        LocalMapping*       localMapper,
+                        WAIFrame&           frame,
+                        int                 inliers,
+                        const unsigned long lastRelocFrameId,
+                        unsigned long&      lastKeyFrameFrameId);
 
-    static void serialMapping(WAIMap*        map,
-                              LocalMap&      localMap,
-                              LocalMapping*  localMapper,
-                              LoopClosing*   loopCloser,
-                              WAIFrame&      frame,
-                              int            inliers);
+    static void serialMapping(WAIMap*             map,
+                              LocalMap&           localMap,
+                              LocalMapping*       localMapper,
+                              LoopClosing*        loopCloser,
+                              WAIFrame&           frame,
+                              int                 inliers,
+                              const unsigned long lastRelocFrameId,
+                              unsigned long&      lastKeyFrameFrameId);
 
     static void motionModel(WAIFrame& frame,
                             WAIFrame& lastFrame,
@@ -114,16 +119,35 @@ public:
 
     static int trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame);
 
-    static bool needNewKeyFrame(WAIMap*       globalMap,
-                                LocalMap&     localMap,
-                                LocalMapping* localMapper,
-                                WAIFrame&     frame,
-                                int           nInliners);
+    static bool needNewKeyFrame(WAIMap*             globalMap,
+                                LocalMap&           localMap,
+                                LocalMapping*       localMapper,
+                                WAIFrame&           frame,
+                                int                 nInliners,
+                                const unsigned long lastRelocFrameId,
+                                const unsigned long lastKeyFrameFrameId);
 
     static void createNewKeyFrame(LocalMapping*  localMapper,
                                   LocalMap&      localMap,
                                   WAIMap*        globalMap,
-                                  WAIFrame&      frame);
+                                  WAIFrame&      frame,
+                                  unsigned long& lastKeyFrameFrameId);
+
+    static WAIFrame createMarkerFrame(std::string    markerFile,
+                                      KPextractor*   markerExtractor,
+                                      const cv::Mat& markerCameraIntrinsic,
+                                      ORBVocabulary* voc);
+    static bool     findMarkerHomography(WAIFrame&    markerFrame,
+                                         WAIKeyFrame* kfCand,
+                                         cv::Mat&     homography,
+                                         int          minMatches);
+    static bool     doMarkerMapPreprocessing(std::string    markerFile,
+                                             cv::Mat&       nodeTransform,
+                                             float          markerWidthInM,
+                                             KPextractor*   markerExtractor,
+                                             WAIMap*        map,
+                                             const cv::Mat& markerCameraIntrinsic,
+                                             ORBVocabulary* voc);
 
 protected:
     WAISlamTools(){};
@@ -154,9 +178,10 @@ public:
             ORBVocabulary* voc,
             KPextractor*   extractor,
             WAIMap*        globalMap,
-            bool           trackingOnly = false,
-            bool           serial       = false,
-            bool           retainImg    = false);
+            bool           trackingOnly      = false,
+            bool           serial            = false,
+            bool           retainImg         = false,
+            float          cullRedundantPerc = 0.95f);
 
     virtual void reset();
     virtual bool update(cv::Mat& imageGray);
@@ -211,11 +236,11 @@ public:
         }
     }
 
-    virtual int           getKeyPointCount() { return _lastFrame.N; }
-    virtual int           getKeyFrameCount() { return _globalMap->KeyFramesInMap(); }
-    virtual int           getMapPointCount() { return _globalMap->MapPointsInMap(); }
-    virtual cv::Mat       getPose() { return _cameraExtrinsic; }
-    virtual void          setMap(WAIMap* globalMap);
+    virtual int     getKeyPointCount() { return _lastFrame.N; }
+    virtual int     getKeyFrameCount() { return _globalMap->KeyFramesInMap(); }
+    virtual int     getMapPointCount() { return _globalMap->MapPointsInMap(); }
+    virtual cv::Mat getPose() { return _cameraExtrinsic; }
+    virtual void    setMap(WAIMap* globalMap);
 
     virtual TrackingState getTrackingState() { return _state; }
 
@@ -229,13 +254,12 @@ public:
         return _extractor;
     };
 
-    WAIFrame createMarkerFrame(std::string markerFile, KPextractor* markerExtractor);
-
 protected:
-    std::mutex   _mutexStates;
-    bool         _retainImg;
-    int          _lastRelocId;
-    bool         _serial;
-    bool         _trackingOnly;
-    KPextractor* _extractor;
+    std::mutex    _mutexStates;
+    bool          _retainImg;
+    unsigned long _lastRelocFrameId;
+    unsigned long _lastKeyFrameFrameId;
+    bool          _serial;
+    bool          _trackingOnly;
+    KPextractor*  _extractor;
 };
