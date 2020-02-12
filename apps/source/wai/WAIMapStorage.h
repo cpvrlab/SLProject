@@ -17,6 +17,7 @@ public:
 
     static bool loadMap(WAIMap*        waiMap,
                         SLNode*        mapNode,
+                        ORBVocabulary* voc,
                         std::string    path,
                         bool           loadImgs,
                         bool           fixKfsAndMPts);

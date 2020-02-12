@@ -83,7 +83,6 @@ bool WAISlamTools::initialize(InitializerData& iniData,
             //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
             fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
         }
-
         return false;
     }
 
@@ -122,97 +121,102 @@ bool WAISlamTools::initialize(InitializerData& iniData,
                 nmatches--;
             }
         }
-
-        // Set Frame Poses
-        iniData.initialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
-        cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
-        Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
-        tcw.copyTo(Tcw.rowRange(0, 3).col(3));
-        frame.SetPose(Tcw);
-
-        //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
-        //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
-        //because the second will set the first as a parent too. We get problems later during culling.
-        //This also fixes a problem in first GlobalBundleAdjustment which messed up the map after a reset.
-        WAIKeyFrame::nNextId = 0;
-
-        // Create KeyFrames
-        WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame);
-        WAIKeyFrame* pKFcur = new WAIKeyFrame(frame);
-
-        pKFini->ComputeBoW(voc);
-        pKFcur->ComputeBoW(voc);
-
-        // Create MapPoints and associate to keyframes
-        for (size_t i = 0; i < iniData.iniMatches.size(); i++)
-        {
-            if (iniData.iniMatches[i] < 0)
-                continue;
-
-            //Create MapPoint.
-            cv::Mat worldPos(iniData.iniPoint3D[i]);
-
-            WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
-
-            pKFini->AddMapPoint(pMP, i);
-            pKFcur->AddMapPoint(pMP, iniData.iniMatches[i]);
-
-            pMP->AddObservation(pKFini, i);
-            pMP->AddObservation(pKFcur, iniData.iniMatches[i]);
-
-            pMP->ComputeDistinctiveDescriptors();
-            pMP->UpdateNormalAndDepth();
-
-            //Fill Current Frame structure
-            frame.mvpMapPoints[iniData.iniMatches[i]] = pMP;
-        }
-
-        // Update Connections
-        pKFini->UpdateConnections();
-        pKFcur->UpdateConnections();
-
-        // Set median depth to 1
-        float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
-        float invMedianDepth = 1.0f / medianDepth;
-
-        if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
-        {
-            Utils::log("WAI", "Wrong initialization, reseting...");
-            WAIKeyFrame::nNextId            = 0;
-            WAIFrame::nNextId               = 0;
-            WAIFrame::mbInitialComputations = true;
-            WAIMapPoint::nNextId            = 0;
-
-            return false;
-        }
-
-        localMap.keyFrames.push_back(pKFcur);
-        localMap.keyFrames.push_back(pKFini);
-        // Scale initial baseline
-        cv::Mat Tc2w               = pKFcur->GetPose();
-        Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
-        pKFcur->SetPose(Tc2w);
-
-        // Scale points
-        vector<WAIMapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
-        for (size_t iMP = 0; iMP < vpAllMapPoints.size(); iMP++)
-        {
-            if (vpAllMapPoints[iMP])
-            {
-                WAIMapPoint* pMP = vpAllMapPoints[iMP];
-                pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
-                localMap.mapPoints.push_back(pMP);
-            }
-        }
-
-        frame.SetPose(pKFcur->GetPose());
-        localMap.lastKF     = pKFcur;
-        localMap.refKF      = pKFcur;
-        frame.mpReferenceKF = pKFcur;
-
-        return true;
     }
-    return false;
+    else
+    {
+        //delete iniData.initializer;
+        //iniData.initializer = static_cast<Initializer*>(NULL);
+        return false;
+    }
+
+    // Set Frame Poses
+    iniData.initialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
+    cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
+    Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
+    tcw.copyTo(Tcw.rowRange(0, 3).col(3));
+    frame.SetPose(Tcw);
+
+    //ghm1: reset nNextId to 0! This is important otherwise the first keyframe cannot be identified via its id and a lot of stuff gets messed up!
+    //One problem we identified is in UpdateConnections: the first one is not allowed to have a parent,
+    //because the second will set the first as a parent too. We get problems later during culling.
+    //This also fixes a problem in first GlobalBundleAdjustment which messed up the map after a reset.
+    WAIKeyFrame::nNextId = 0;
+
+    // Create KeyFrames
+    WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame);
+    WAIKeyFrame* pKFcur = new WAIKeyFrame(frame);
+
+    pKFini->ComputeBoW(voc);
+    pKFcur->ComputeBoW(voc);
+
+    // Create MapPoints and associate to keyframes
+    for (size_t i = 0; i < iniData.iniMatches.size(); i++)
+    {
+        if (iniData.iniMatches[i] < 0)
+            continue;
+
+        //Create MapPoint.
+        cv::Mat worldPos(iniData.iniPoint3D[i]);
+
+        WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
+
+        pKFini->AddMapPoint(pMP, i);
+        pKFcur->AddMapPoint(pMP, iniData.iniMatches[i]);
+
+        pMP->AddObservation(pKFini, i);
+        pMP->AddObservation(pKFcur, iniData.iniMatches[i]);
+
+        pMP->ComputeDistinctiveDescriptors();
+        pMP->UpdateNormalAndDepth();
+
+        //Fill Current Frame structure
+        frame.mvpMapPoints[iniData.iniMatches[i]] = pMP;
+    }
+
+    // Update Connections
+    pKFini->UpdateConnections();
+    pKFcur->UpdateConnections();
+
+    // Set median depth to 1
+    float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
+    float invMedianDepth = 1.0f / medianDepth;
+
+    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
+    {
+        Utils::log("WAI", "Wrong initialization, reseting...");
+        WAIKeyFrame::nNextId            = 0;
+        WAIFrame::nNextId               = 0;
+        WAIFrame::mbInitialComputations = true;
+        WAIMapPoint::nNextId            = 0;
+
+        return false;
+    }
+
+    localMap.keyFrames.push_back(pKFcur);
+    localMap.keyFrames.push_back(pKFini);
+    // Scale initial baseline
+    cv::Mat Tc2w               = pKFcur->GetPose();
+    Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
+    pKFcur->SetPose(Tc2w);
+
+    // Scale points
+    vector<WAIMapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
+    for (size_t iMP = 0; iMP < vpAllMapPoints.size(); iMP++)
+    {
+        if (vpAllMapPoints[iMP])
+        {
+            WAIMapPoint* pMP = vpAllMapPoints[iMP];
+            pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
+            localMap.mapPoints.push_back(pMP);
+        }
+    }
+
+    frame.SetPose(pKFcur->GetPose());
+    localMap.lastKF     = pKFcur;
+    localMap.refKF      = pKFcur;
+    frame.mpReferenceKF = pKFcur;
+
+    return true;
 }
 
 bool WAISlamTools::genInitialMap(WAIMap*       map,
@@ -255,6 +259,194 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
         localMapper->RunOnce();
     }
 
+    return true;
+}
+
+bool WAISlamTools::oldInitialize(WAIFrame&        frame,
+                                 InitializerData& iniData,
+                                 WAIMap*          map,
+                                 LocalMap&        localMap,
+                                 LocalMapping*    localMapper,
+                                 LoopClosing*     loopCloser,
+                                 ORBVocabulary*   voc,
+                                 int              mapPointsNeeded)
+{
+    int matchesNeeded = 100;
+
+    // Get Map Mutex -> Map cannot be changed
+    std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
+    lock.lock();
+
+    if (!iniData.initializer)
+    {
+        // Set Reference Frame
+        if (frame.mvKeys.size() > matchesNeeded)
+        {
+            iniData.initialFrame = WAIFrame(frame);
+            iniData.prevMatched.resize(frame.mvKeysUn.size());
+            //ghm1: we store the undistorted keypoints of the initial frame in an extra vector
+            //todo: why not using mInitialFrame.mvKeysUn????
+            for (size_t i = 0; i < frame.mvKeysUn.size(); i++)
+                iniData.prevMatched[i] = frame.mvKeysUn[i].pt;
+
+            iniData.initializer = new ORB_SLAM2::Initializer(frame, 1.0, 200);
+            //ghm1: clear mvIniMatches. it contains the index of the matched keypoint in the current frame
+            fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
+        }
+        return false;
+    }
+    // Try to initialize
+    if ((int)frame.mvKeys.size() <= matchesNeeded)
+    {
+        delete iniData.initializer;
+        iniData.initializer = static_cast<Initializer*>(NULL);
+        fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
+        return false;
+    }
+
+    // Find correspondences
+    ORBmatcher matcher(0.9, true);
+    int        nmatches = matcher.SearchForInitialization(iniData.initialFrame, frame, iniData.prevMatched, iniData.iniMatches, 100);
+
+    // Check if there are enough correspondences
+    if (nmatches < matchesNeeded)
+    {
+        delete iniData.initializer;
+        iniData.initializer = static_cast<Initializer*>(NULL);
+        return false;
+    }
+
+    cv::Mat      Rcw;            // Current Camera Rotation
+    cv::Mat      tcw;            // Current Camera Translation
+    vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
+
+    if (iniData.initializer->Initialize(frame, iniData.iniMatches, Rcw, tcw, iniData.iniPoint3D, vbTriangulated))
+    {
+        for (size_t i = 0, iend = iniData.iniMatches.size(); i < iend; i++)
+        {
+            if (iniData.iniMatches[i] >= 0 && !vbTriangulated[i])
+            {
+                iniData.iniMatches[i] = -1;
+                nmatches--;
+            }
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+    // Set Frame Poses
+    iniData.initialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
+    cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
+    Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
+    tcw.copyTo(Tcw.rowRange(0, 3).col(3));
+    frame.SetPose(Tcw);
+
+    WAIKeyFrame::nNextId = 0;
+
+    // Create KeyFrames
+    WAIKeyFrame* pKFini = new WAIKeyFrame(iniData.initialFrame);
+    WAIKeyFrame* pKFcur = new WAIKeyFrame(frame);
+
+    pKFini->ComputeBoW(voc);
+    pKFcur->ComputeBoW(voc);
+
+    // Insert KFs in the map
+    map->AddKeyFrame(pKFini);
+    map->AddKeyFrame(pKFcur);
+
+    // Create MapPoints and asscoiate to keyframes
+    for (size_t i = 0; i < iniData.iniMatches.size(); i++)
+    {
+        if (iniData.iniMatches[i] < 0)
+            continue;
+
+        //Create MapPoint.
+        cv::Mat worldPos(iniData.iniPoint3D[i]);
+
+        WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
+
+        pKFini->AddMapPoint(pMP, i);
+        pKFcur->AddMapPoint(pMP, iniData.iniMatches[i]);
+
+        pMP->AddObservation(pKFini, i);
+        pMP->AddObservation(pKFcur, iniData.iniMatches[i]);
+
+        pMP->ComputeDistinctiveDescriptors();
+        pMP->UpdateNormalAndDepth();
+
+        //Fill Current Frame structure
+        frame.mvpMapPoints[iniData.iniMatches[i]] = pMP;
+
+        //Add to Map
+        map->AddMapPoint(pMP);
+    }
+
+    // Update Connections
+    pKFini->UpdateConnections();
+    pKFcur->UpdateConnections();
+
+    //cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
+
+    // Bundle Adjustment
+    Optimizer::GlobalBundleAdjustemnt(map, 20);
+
+    // Set median depth to 1
+    float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
+    float invMedianDepth = 1.0f / medianDepth;
+
+    if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
+    {
+        Utils::log("WAI", "Wrong initialization, reseting...");
+        localMapper->reset();
+        loopCloser->reset();
+
+        map->clear();
+        localMap.keyFrames.clear();
+        localMap.mapPoints.clear();
+        localMap.refKF = nullptr;
+
+        WAIKeyFrame::nNextId            = 0;
+        WAIFrame::nNextId               = 0;
+        WAIFrame::mbInitialComputations = true;
+        WAIMapPoint::nNextId            = 0;
+        return false;
+    }
+
+    localMap.keyFrames.push_back(pKFcur);
+    localMap.keyFrames.push_back(pKFini);
+
+    // Scale initial baseline
+    cv::Mat Tc2w               = pKFcur->GetPose();
+    Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
+    pKFcur->SetPose(Tc2w);
+
+    // Scale points
+    vector<WAIMapPoint*> vpAllMapPoints = pKFini->GetMapPointMatches();
+    for (size_t iMP = 0; iMP < vpAllMapPoints.size(); iMP++)
+    {
+        if (vpAllMapPoints[iMP])
+        {
+            WAIMapPoint* pMP = vpAllMapPoints[iMP];
+            pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
+        }
+    }
+
+    localMapper->InsertKeyFrame(pKFini);
+    localMapper->InsertKeyFrame(pKFcur);
+
+    frame.SetPose(pKFcur->GetPose());
+    localMap.lastKF = pKFcur;
+    localMap.refKF = pKFcur;
+
+    localMap.mapPoints = map->GetAllMapPoints();
+
+    frame.mpReferenceKF = pKFcur;
+
+    map->SetReferenceMapPoints(localMap.mapPoints);
+
+    map->mvpKeyFrameOrigins.push_back(pKFini);
     return true;
 }
 
@@ -630,7 +822,7 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
 
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
-    ORBmatcher           matcher(0.7, true);
+    ORBmatcher           matcher(0.7, false); //don't test rotation
     vector<WAIMapPoint*> vpMapPointMatches;
 
     int nmatches = matcher.SearchByBoW(map.refKF, frame, vpMapPointMatches);
@@ -939,18 +1131,23 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     WAIMapPoint::nNextId            = 0;
     WAIFrame::mbInitialComputations = true;
 
-    _distortion      = distortion.clone();
-    _cameraIntrinsic = intrinsic.clone();
-
-    _voc = voc;
+    _distortion       = distortion.clone();
+    _cameraIntrinsic  = intrinsic.clone();
+    _voc              = voc;
+    _extractor        = extractor;
 
     if (globalMap == nullptr)
     {
         WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
-        _globalMap = new WAIMap(kfDB);
+        _globalMap          = new WAIMap(kfDB);
+        _state              = TrackingState_Initializing;
     }
-
-    _extractor        = extractor;
+    else
+    {
+        _globalMap = globalMap;
+        _state     = TrackingState_TrackingLost;
+        _initialized = true;
+    }
 
     _localMapping = new ORB_SLAM2::LocalMapping(_globalMap, 1, _voc, 0.95);
     _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap, _voc, false, false);
@@ -964,7 +1161,6 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
         _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
-    _state               = TrackingState_Initializing;
     _iniData.initializer = nullptr;
     _cameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
 
@@ -1004,12 +1200,14 @@ bool WAISlam::update(cv::Mat& imageGray)
     switch (_state)
     {
         case TrackingState_Initializing: {
+            //bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing,_voc, 100);
             if (initialize(_iniData, frame, _voc, _localMap, 100))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
                 {
                     _lastRelocId = 0;
                     _state       = TrackingState_TrackingOK;
+                    _initialized = true;
                 }
             }
         }
@@ -1065,6 +1263,11 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
             drawKeyPointInfo(_lastFrame, imageRGB);
         if (showKeyPointsMatched)
             drawKeyPointMatches(_lastFrame, imageRGB);
+    }
+    else if (_state == TrackingState_TrackingLost)
+    {
+        if (showKeyPoints)
+            drawKeyPointInfo(_lastFrame, imageRGB);
     }
 }
 

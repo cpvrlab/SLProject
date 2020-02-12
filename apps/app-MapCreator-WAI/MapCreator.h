@@ -35,7 +35,7 @@ class MapCreator
     typedef std::map<Area, AreaConfig> Areas;
 
 public:
-    MapCreator(std::string erlebARDir, std::string configFile);
+    MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile);
     ~MapCreator();
     //! execute map creation
     void execute();

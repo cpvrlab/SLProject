@@ -9,6 +9,7 @@ struct Config
 {
     std::string erlebARDir;
     std::string configFile;
+    std::string vocFile;
     std::string mapOutputDir;
 };
 
@@ -23,6 +24,7 @@ void printHelp()
     ss << "  -h/-help        print this help, e.g. -h" << std::endl;
     ss << "  -erlebARDir     Path to Erleb-AR root directory" << std::endl;
     ss << "  -configFile     Path and name to MapCreatorConfig.json" << std::endl;
+    ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
     ss << "  -mapOutputDir   Directory where to output generated maps" << std::endl;
 
     std::cout << ss.str() << std::endl;
@@ -39,6 +41,10 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-configFile"))
         {
             config.configFile = argv[++i];
+        }
+        else if (!strcmp(argv[i], "-vocFile"))
+        {
+            config.vocFile = argv[++i];
         }
         else if (!strcmp(argv[i], "-mapOutputDir"))
         {
@@ -130,7 +136,7 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.configFile);
+        MapCreator mapCreator(config.erlebARDir, config.configFile, config.vocFile);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

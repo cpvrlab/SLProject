@@ -443,17 +443,21 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
 
     ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
     voc->loadFromBinaryFile(slamParams.vocabularyFile);
+    std::cout << "Vocabulary " << voc << std::endl;
+    std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
     WAIMap* map = nullptr;
 
     // 5. Load map data
     if (useMapFile)
     {
+        std::cout << "Vocabulary " << voc << std::endl;
         WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
         map                    = new WAIMap(kfdb);
         bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                         _waiScene.mapNode,
+                                                        voc,
                                                         slamParams.mapFile,
-                                                        _mode->retainImage(),
+                                                        false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
 
         if (!mapLoadingSuccess)

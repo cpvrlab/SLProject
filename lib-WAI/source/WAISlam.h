@@ -55,10 +55,25 @@ public:
                            LocalMap&        localMap,
                            int              mapPointsNeeded);
 
-    static bool relocalization(WAIFrame&      currentFrame,
-                               WAIMap*        waiMap,
-                               LocalMap&      localMap,
-                               int&           inliers);
+    static bool genInitialMap(WAIMap*       globalMap,
+                              LocalMapping* localMapper,
+                              LoopClosing*  loopCloser,
+                              LocalMap&     localMap,
+                              bool          serial);
+
+    static bool oldInitialize(WAIFrame&        frame,
+                              InitializerData& iniData,
+                              WAIMap*          map,
+                              LocalMap&        localMap,
+                              LocalMapping*    localMapper,
+                              LoopClosing*     loopCloser,
+                              ORBVocabulary*   voc,
+                              int              mapPointsNeeded);
+
+    static bool relocalization(WAIFrame& currentFrame,
+                               WAIMap*   waiMap,
+                               LocalMap& localMap,
+                               int&      inliers);
 
     static bool tracking(WAIMap*        map,
                          LocalMap&      localMap,
@@ -104,12 +119,6 @@ public:
                                 LocalMapping* localMapper,
                                 WAIFrame&     frame,
                                 int           nInliners);
-
-    static bool genInitialMap(WAIMap*       globalMap,
-                              LocalMapping* localMapper,
-                              LoopClosing*  loopCloser,
-                              LocalMap&     localMap,
-                              bool          serial);
 
     static void createNewKeyFrame(LocalMapping*  localMapper,
                                   LocalMap&      localMap,
