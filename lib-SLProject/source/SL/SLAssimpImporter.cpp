@@ -271,7 +271,9 @@ materials within the file are ignored.
 SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path or on default path
                                SLbool      loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial* overrideMat,    //!< Override material
-                               SLuint      flags)               //!< Import flags (see postprocess.h)
+                               float       ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
+                               SLuint      flags           //!< Import flags (see postprocess.h)
+)
 {
     // clear the intermediate data
     clear();
@@ -314,7 +316,10 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     if (!overrideMat)
     {
         for (SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
-            materials.push_back(loadMaterial(i, scene->mMaterials[i], modelPath));
+            materials.push_back(loadMaterial(i,
+                                             scene->mMaterials[i],
+                                             modelPath,
+                                             ambientFactor));
     }
 
     // load meshes & set their material
@@ -374,7 +379,7 @@ aiNode* SLAssimpImporter::getNodeByName(const SLstring& name)
 }
 //-----------------------------------------------------------------------------
 //! Returns an aiBone ptr if name exists, or null if it doesn't
-const SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
+SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 {
     if (_jointOffsets.find(name) != _jointOffsets.end())
         return _jointOffsets[name];
@@ -525,10 +530,10 @@ void SLAssimpImporter::findSkeletonRoot()
                        "   '%s' ancestor list: ",
                        it->first.c_str());
 
-            for (SLuint i = 0; i < list.size(); i++)
+            for (auto& i : list)
                 logMessage(LV_diagnostic,
                            "'%s' ",
-                           list[i]->mName.C_Str());
+                           i->mName.C_Str());
 
             logMessage(LV_diagnostic, "\n");
         }
@@ -646,9 +651,10 @@ SLAssimpImporter::loadMaterial loads the AssImp material an returns the SLMateri
 The materials and textures are added to the SLScene material and texture 
 vectors.
 */
-SLMaterial* SLAssimpImporter::loadMaterial(SLint       index,
-                                           aiMaterial* material,
-                                           SLstring    modelPath)
+SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
+                                           aiMaterial*     material,
+                                           const SLstring& modelPath,
+                                           float           ambientFactor)
 {
     // Get the materials name
     aiString matName;
@@ -669,28 +675,28 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint       index,
     textureTypes[4] = aiTextureType_OPACITY; // Texture with alpha channel
 
     // load all the textures for this material and add it to the material vector
-    for (SLint i = 0; i < textureCount; ++i)
+    for (auto& textureType : textureTypes)
     {
-        if (material->GetTextureCount(textureTypes[i]) > 0)
+        if (material->GetTextureCount(textureType) > 0)
         {
             aiString aipath;
-            material->GetTexture(textureTypes[i], 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
-            SLTextureType texType = textureTypes[i] == aiTextureType_DIFFUSE
+            material->GetTexture(textureType, 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
+            SLTextureType texType = textureType == aiTextureType_DIFFUSE
                                       ? TT_color
-                                      : textureTypes[i] == aiTextureType_NORMALS
+                                      : textureType == aiTextureType_NORMALS
                                           ? TT_normal
-                                          : textureTypes[i] == aiTextureType_SPECULAR
+                                          : textureType == aiTextureType_SPECULAR
                                               ? TT_gloss
-                                              : textureTypes[i] == aiTextureType_HEIGHT
+                                              : textureType == aiTextureType_HEIGHT
                                                   ? TT_height
-                                                  : textureTypes[i] == aiTextureType_OPACITY
+                                                  : textureType == aiTextureType_OPACITY
                                                       ? TT_color
                                                       : TT_unknown;
             SLstring texFile = checkFilePath(modelPath, aipath.data);
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation
-            if (texType == TT_color)
+            if (texType == TT_color || texType == TT_normal)
             {
                 SLGLTexture* tex = loadTexture(texFile, texType);
                 mat->textures().push_back(tex);
@@ -719,7 +725,13 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint       index,
         shininess = 10.0f;
 
     // set color data
-    mat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
+    if (ambientFactor > 0.0f)
+        mat->ambient(SLCol4f(diffuse.r * ambientFactor,
+                             diffuse.g * ambientFactor,
+                             diffuse.b * ambientFactor));
+    else
+        mat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
+
     mat->diffuse(SLCol4f(diffuse.r, diffuse.g, diffuse.b));
     mat->specular(SLCol4f(specular.r, specular.g, specular.b));
     mat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
@@ -739,10 +751,10 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
 {
     SLVGLTexture& sceneTex = SLApplication::scene->textures();
 
-    // return if a texture with the same file allready exists
-    for (SLuint i = 0; i < sceneTex.size(); ++i)
-        if (sceneTex[i]->name() == textureFile)
-            return sceneTex[i];
+    // return if a texture with the same file already exists
+    for (auto& i : sceneTex)
+        if (i->name() == textureFile)
+            return i;
 
     // Create the new texture. It is also push back to SLScene::_textures
     SLGLTexture* texture = new SLGLTexture(textureFile,
@@ -846,11 +858,11 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
         m->P[i].set(mesh->mVertices[i].x,
                     mesh->mVertices[i].y,
                     mesh->mVertices[i].z);
-        if (m->N.size())
+        if (!m->N.empty())
             m->N[i].set(mesh->mNormals[i].x,
                         mesh->mNormals[i].y,
                         mesh->mNormals[i].z);
-        if (m->Tc.size())
+        if (!m->Tc.empty())
             m->Tc[i].set(mesh->mTextureCoords[0][i].x,
                          mesh->mTextureCoords[0][i].y);
     }
@@ -1263,7 +1275,8 @@ Some file formats have absolute path stored, some have relative paths.
 If a model contains absolute path it is best to put all texture files beside the
 model file in the same folder.
 */
-SLstring SLAssimpImporter::checkFilePath(SLstring modelPath, SLstring aiTexFile)
+SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
+                                         SLstring        aiTexFile)
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;

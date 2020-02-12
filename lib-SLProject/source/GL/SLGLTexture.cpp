@@ -70,6 +70,7 @@ SLGLTexture::SLGLTexture(SLint min_filter,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _texType      = TT_unknown;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->textures().push_back(this);
@@ -102,6 +103,7 @@ SLGLTexture::SLGLTexture(unsigned char* data,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _texType      = type;
 
     _images.push_back(image);
     // Add pointer to the global resource vectors for deallocation
@@ -118,7 +120,7 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
                          SLint           wrapT)
   : SLObject(Utils::getFileName(filename), filename)
 {
-    assert(filename != "");
+    assert(!filename.empty());
 
     _texType = type == TT_unknown ? detectType(filename) : type;
 
@@ -497,9 +499,9 @@ void SLGLTexture::build(SLint texID)
     }
 
     // apply anisotropic or minification filter
-    SLfloat anisotropy = 1.0f; // = off
     if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
     {
+        SLfloat anisotropy; // = off
         if (_min_filter == SL_ANISOTROPY_MAX)
             anisotropy = maxAnisotropy;
         else
@@ -783,7 +785,7 @@ SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction
-SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
+SLCol4f SLGLTexture::getTexelf(const SLVec3f& cubemapDir)
 {
     assert(_images.size() == 6 &&
            _target == GL_TEXTURE_CUBE_MAP &&
@@ -822,8 +824,9 @@ SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 }
 //-----------------------------------------------------------------------------
 //! Detects the texture type from the filename appendix (See SLTexType def.)
-SLTextureType SLGLTexture::detectType(SLstring filename)
+SLTextureType SLGLTexture::detectType(const SLstring& filename)
 {
+    // Check first our own texture name encoding
     SLstring name     = Utils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
     if (appendix == "_C") return TT_color;
@@ -833,6 +836,57 @@ SLTextureType SLGLTexture::detectType(SLstring filename)
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
     if (appendix == "_F") return TT_font;
+
+    // Now check various formats found in the past
+    name = Utils::toUpperString(name);
+
+    if (Utils::containsString(name, "COL") ||
+        Utils::containsString(name, "COLOR") ||
+        Utils::containsString(name, "ALBEDO") ||
+        Utils::containsString(name, "DIFFUSE") ||
+        Utils::containsString(name, "DIFF") ||
+        Utils::containsString(name, "DIF"))
+        return TT_color;
+
+    if (Utils::containsString(name, "NRM") ||
+        Utils::containsString(name, "NORM") ||
+        Utils::containsString(name, "NORMAL"))
+        return TT_normal;
+
+    if (Utils::containsString(name, "DISP") ||
+        Utils::containsString(name, "DISPL") ||
+        Utils::containsString(name, "HEIGHT") ||
+        Utils::containsString(name, "BUMP"))
+        return TT_height;
+
+    if (Utils::containsString(name, "GLOSS") ||
+        Utils::containsString(name, "REFL") ||
+        Utils::containsString(name, "SPECULAR") ||
+        Utils::containsString(name, "SPEC"))
+        return TT_gloss;
+
+    if (Utils::containsString(name, "ROUGHNESS") ||
+        Utils::containsString(name, "RGH") ||
+        Utils::containsString(name, "ROUGH"))
+        return TT_roughness;
+
+    if (Utils::containsString(name, "METAL") ||
+        Utils::containsString(name, "METALLIC") ||
+        Utils::containsString(name, "METALNESS"))
+        return TT_metallic;
+
+    if (Utils::containsString(name, "AO") ||
+        Utils::containsString(name, "AMBIENT") ||
+        Utils::containsString(name, "OCCLUSION") ||
+        Utils::containsString(name, "OCCL") ||
+        Utils::containsString(name, "OCC"))
+        return TT_ambientOcc;
+
+    // if nothing was detected so far we interpret it as a color texture
+    SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s",
+                                       filename.c_str());
+    SL_WARN_MSG(msg.c_str());
+
     return TT_color;
 }
 //-----------------------------------------------------------------------------
@@ -922,8 +976,8 @@ SLstring SLGLTexture::typeName()
         case TT_normal: return "normal map";
         case TT_height: return "hight map";
         case TT_gloss: return "gloss map";
-        case TT_roughness: //*_R.{ext} Cook-Torrance roughness 0-1
-        case TT_metallic:  //*_M.{ext} Cook-Torrance metallic 0-1
+        case TT_roughness: return "roughness map";
+        case TT_metallic: return "metalness map";
         case TT_font: return "font map"; ;
         default: return "Unknown type";
     }
@@ -1095,6 +1149,8 @@ void SLGLTexture::cubeUV2XYZ(SLint    index,
             y = vc;
             z = -1.0f;
             break; // NEGATIVE Z
+        default:
+            SL_EXIT_MSG("SLGLTexture::cubeUV2XYZ: Invalid index");
     }
 }
 //------------------------------------------------------------------------------

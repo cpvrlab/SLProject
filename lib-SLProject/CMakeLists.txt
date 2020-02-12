@@ -264,19 +264,8 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/include
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/clipper
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/irrXML
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/poly2tri
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/code/BoostWorkaround
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
-        ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
+        ${assimp_INCLUDE_DIR}
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
@@ -307,7 +296,7 @@ target_link_libraries(${target}
         ${PlatformLinkLibs}
         ${OpenCV_LIBS}
         ${META_PROJECT_NAME}::lib-SLExternal
-        ${META_PROJECT_NAME}::lib-assimp
+        ${assimp_LIBS}
         lib-Utils
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE

@@ -73,18 +73,16 @@ SLMaterial::SLMaterial(const SLchar* name,
     _roughness    = 0.5f;
     _metalness    = 0.0f;
     _translucency = 0.0f;
+    _program      = shaderProg;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+    _diffuse.w    = 1.0f - _kt;
 
     if (texture1) _textures.push_back(texture1);
     if (texture2) _textures.push_back(texture2);
     if (texture3) _textures.push_back(texture3);
     if (texture4) _textures.push_back(texture4);
-
-    _program = shaderProg;
-
-    _kr        = 0.0f;
-    _kt        = 0.0f;
-    _kn        = 1.0f;
-    _diffuse.w = 1.0f - _kt;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->materials().push_back(this);
@@ -94,7 +92,11 @@ SLMaterial::SLMaterial(const SLchar* name,
 SLMaterial::SLMaterial(const SLchar* name,
                        SLGLProgram*  shaderProg) : SLObject(name)
 {
-    _program = shaderProg;
+    _program      = shaderProg;
+    _shininess    = 125.0f;
+    _roughness    = 0.0f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->materials().push_back(this);
@@ -109,15 +111,16 @@ SLMaterial::SLMaterial(const SLchar*  name,
 {
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
-    _specular.set(1, 1, 1);                   // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                // not used in Cook-Torrance
-    _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness = roughness;
-    _metalness = metalness;
-    _kr        = 0.0f;
-    _kt        = 0.0f;
-    _kn        = 1.0f;
-    _program   = SLApplication::scene->programs(SP_perPixCookTorrance);
+    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
+    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness    = roughness;
+    _metalness    = metalness;
+    _translucency = 0.0f;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+    _program      = SLApplication::scene->programs(SP_perPixCookTorrance);
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->materials().push_back(this);
@@ -131,15 +134,14 @@ SLMaterial::SLMaterial(const SLCol4f& uniformColor, const SLchar* name)
     _diffuse = uniformColor;
     _specular.set(0, 0, 0);
     _emissive.set(0, 0, 0, 0);
-    _shininess = 125;
-    _roughness = 0.5f;
-    _metalness = 0.0f;
-
-    _program = SLApplication::scene->programs(SP_colorUniform);
-
-    _kr = 0.0f;
-    _kt = 0.0f;
-    _kn = 1.0f;
+    _shininess    = 125;
+    _roughness    = 0.5f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
+    _program      = SLApplication::scene->programs(SP_colorUniform);
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
 
     // Add pointer to the global resource vectors for deallocation
     SLApplication::scene->materials().push_back(this);
@@ -149,9 +151,7 @@ SLMaterial::SLMaterial(const SLCol4f& uniformColor, const SLchar* name)
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
-SLMaterial::~SLMaterial()
-{
-}
+SLMaterial::~SLMaterial() = default;
 //-----------------------------------------------------------------------------
 /*!
 SLMaterial::activate applies the material parameter to the global render state
@@ -173,7 +173,12 @@ void SLMaterial::activate(SLDrawBits drawBits)
     if (!_program)
     {
         if (!_textures.empty())
-            program(s->programs(SP_perVrtBlinnTex));
+        {
+            //if (_textures.size() == 1)
+                program(s->programs(SP_perVrtBlinnTex));
+            //if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
+                //program(s->programs(SP_bumpNormal));
+        }
         else
             program(s->programs(SP_perVrtBlinn));
     }

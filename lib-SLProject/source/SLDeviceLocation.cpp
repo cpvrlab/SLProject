@@ -46,7 +46,7 @@ void SLDeviceLocation::init()
 // Setter for hasOrigin flag.
 void SLDeviceLocation::hasOrigin(SLbool hasOrigin)
 {
-    if (hasOrigin == false)
+    if (!hasOrigin)
     {
         _improveTimer.start();
         _originAccuracyM = FLT_MAX;
@@ -78,7 +78,8 @@ void SLDeviceLocation::onLocationLLA(SLdouble latDEG,
         }
 
         // Only improve if accuracy is higher and the improve time has not elapsed
-        if (accuracyM < _originAccuracyM || _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
+        if (accuracyM < _originAccuracyM ||
+            _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
         {
             _originAccuracyM = accuracyM;
             originLLA(latDEG, lonDEG, altM);
@@ -101,7 +102,9 @@ void SLDeviceLocation::onLocationLLA(SLdouble latDEG,
 /*! The calculated values can be used for global camera positioning via GPS
 sensor.
 */
-void SLDeviceLocation::originLLA(SLdouble latDEG, SLdouble lonDEG, SLdouble altM)
+void SLDeviceLocation::originLLA(SLdouble latDEG,
+                                 SLdouble lonDEG,
+                                 SLdouble altM)
 {
     _originLLA = SLVec3d(latDEG, lonDEG, altM);
     _originECEF.lla2ecef(_originLLA);
@@ -163,7 +166,7 @@ void SLDeviceLocation::defaultLLA(SLdouble latDEG,
 //! Setter that turns on the device rotation sensor
 void SLDeviceLocation::isUsed(SLbool use)
 {
-    if (!_isUsed && use == true)
+    if (!_isUsed && use)
         _isFirstSensorValue = true;
 
     _isUsed = use;
@@ -183,13 +186,30 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     if (!_hasOrigin) return false;
 
     std::time_t t = std::time(nullptr);
-    tm          ut;
+    tm          ut{}, lt{};
+
     memcpy(&ut, std::gmtime(&t), sizeof(tm));
-    tm lt;
     memcpy(&lt, std::localtime(&t), sizeof(tm));
 
-    SL_LOG("\nUniversal time  : %02d.%02d.%02d %02d:%02d:%02d", ut.tm_mday, ut.tm_mon, ut.tm_year + 1900, ut.tm_hour, ut.tm_min, ut.tm_sec);
-    SL_LOG("Local time      : %02d.%02d.%02d %02d:%02d:%02d", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
+    ut.tm_year += 1900;
+    lt.tm_year += 1900;
+    ut.tm_mon++;
+    lt.tm_mon++;
+
+    SL_LOG("Universal time  : %02d.%02d.%02d %02d:%02d:%02d",
+           ut.tm_mday,
+           ut.tm_mon,
+           ut.tm_year,
+           ut.tm_hour,
+           ut.tm_min,
+           ut.tm_sec);
+    SL_LOG("Local time      : %02d.%02d.%02d %02d:%02d:%02d",
+           lt.tm_mday,
+           lt.tm_mon,
+           lt.tm_year,
+           lt.tm_hour,
+           lt.tm_min,
+           lt.tm_sec);
     SL_LOG("Timezone        : %d", lt.tm_hour - ut.tm_hour);
 
     spa_data spa; //declare the SPA structure
@@ -208,7 +228,7 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     spa.longitude = lonDEG;
     spa.latitude  = latDEG;
     spa.elevation = altM;
-    // http://systemdesign.ch/wiki/Barometrische_H%C3%B6henformel
+    // http://systemdesign.ch/wiki/Barometrische_Hoehenformel
     spa.pressure      = 1013.25 * pow((1.0 - 0.0065 * altM / 288.15), 5.255);
     spa.temperature   = 15.0;
     spa.slope         = 0;

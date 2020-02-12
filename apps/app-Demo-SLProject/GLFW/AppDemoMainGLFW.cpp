@@ -503,8 +503,8 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth       = 640;
-    scrHeight      = 480;
+    scrWidth       = 1280;
+    scrHeight      = 720;
     scrWdivH       = (float)scrWidth / (float)scrHeight;
     fixAspectRatio = false;
     touch2.set(-1, -1);

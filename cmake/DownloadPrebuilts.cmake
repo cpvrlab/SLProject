@@ -10,7 +10,6 @@ set(OpenCV_VERSION)
 set(OpenCV_DIR)
 set(OpenCV_LINK_DIR)
 set(OpenCV_INCLUDE_DIR)
-
 set(OpenCV_LINK_LIBS
         opencv_aruco
         opencv_calib3d
@@ -26,22 +25,25 @@ set(OpenCV_LINK_LIBS
         opencv_xfeatures2d
         opencv_core
         )
-
 set(OpenCV_LIBS)
 
 set(g2o_DIR)
 set(g2o_INCLUDE_DIR)
 set(g2o_LINK_DIR)
 set(g2o_LINK_LIBS
-    g2o_core
-    g2o_solver_dense
-    g2o_solver_eigen
-    g2o_stuff
-    g2o_types_sba
-    g2o_types_sim3
-    g2o_types_slam3d
-    g2o_types_slam3d_addons
+        g2o_core
+        g2o_solver_dense
+        g2o_solver_eigen
+        g2o_stuff
+        g2o_types_sba
+        g2o_types_sim3
+        g2o_types_slam3d
+        g2o_types_slam3d_addons
     )
+
+set(assimp_DIR)
+set(assimp_LINK_DIR)
+set(assimp_INCLUDE_DIR)
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
@@ -67,6 +69,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(g2o_LIBS ${g2o_LINK_LIBS})
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
+    #OpenCV
     set(OpenCV_VERSION "4.1.2")
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
@@ -164,6 +167,54 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
 		file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
+
+    #assimp for windows
+    set(assimp_VERSION "5.0")
+    set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+    set(assimp_LINK_DIR "${assimp_DIR}/lib")
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
+    set(assimp_LINK_LIBS assimp-mt)
+
+    if (NOT EXISTS "${assimp_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+
+        if( NOT EXISTS "${assimp_DIR}" )
+            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
+        endif()
+    endif ()
+
+    set(assimp_LIBS
+            ${assimp_LIBS}
+            optimized assimp-mt
+            debug assimp-mtd)
+
+    file(GLOB assimp_LIBS_to_copy_debug
+            ${assimp_LIBS_to_copy_debug}
+            ${assimp_DIR}/lib/assimp-mtd.dll
+            )
+    file(GLOB assimp_LIBS_to_copy_release
+            ${assimp_LIBS_to_copy_release}
+            ${assimp_DIR}/lib/assimp-mt.dll
+            )
+
+    # Set working dir for VS
+    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
+            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+    # For MSVS copy them to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif()
+
+
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
@@ -275,6 +326,63 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
             )
     endforeach(lib)
 
+    #assimp for macos
+    set(assimp_VERSION "5.0")
+    set(assimp_PREBUILT_DIR "mac64_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")
+    #message(STATUS "assimp_LINK_DIR ${assimp_LINK_DIR}")
+
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${assimp_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+
+        if( NOT EXISTS "${assimp_DIR}" )
+            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
+        endif()
+    endif ()
+
+    set(assimp_LIBS
+            ${assimp_LIBS}
+            optimized libassimp.dylib
+            debug libassimpd.dylib)
+
+    file(GLOB assimp_LIBS_to_copy_debug
+            ${assimp_LIBS_to_copy_debug}
+            ${assimp_DIR}/Debug/libassimpd*.dylib
+            ${assimp_DIR}/Debug/libIrrXMLd.dylib
+            )
+    file(GLOB assimp_LIBS_to_copy_release
+            ${assimp_LIBS_to_copy_release}
+            ${assimp_DIR}/Release/libassimp*.dylib
+            ${assimp_DIR}/Release/libIrrXML.dylib
+            )
+
+    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
+
+    # Copy plist file with camera access description beside executable
+    # This is needed for security purpose since MacOS Mohave
+    set(MACOS_PLIST_FILE
+            ${SL_PROJECT_ROOT}/data/config/info.plist)
+
+    #message(STATUS "MACOS_PLIST_FILE: ${MACOS_PLIST_FILE}")
+    #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    else()
+        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
+    endif()
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
@@ -355,3 +463,4 @@ endif()
 
 link_directories(${OpenCV_LINK_DIR})
 link_directories(${g2o_LINK_DIR})
+link_directories(${assimp_LINK_DIR})
