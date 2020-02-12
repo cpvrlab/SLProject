@@ -60,10 +60,11 @@ private:
     //ACameraManager_AvailabilityCallbacks* getManagerListener();
     ACameraManager_AvailabilityCallbacks _cameraManagerAvailabilityCallbacks;
 
+    /*
     static void onSessionActive(void* ctx, ACameraCaptureSession* ses);
     static void onSessionClosed(void* ctx, ACameraCaptureSession* ses);
     static void onSessionReady(void* ctx, ACameraCaptureSession* ses);
-
+*/
     static cv::Mat convertToYuv(AImage* image);
     SENSFramePtr   processNewYuvImg(cv::Mat yuvImg);
     //run routine for asynchronous adjustment

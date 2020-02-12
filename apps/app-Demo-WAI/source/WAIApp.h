@@ -207,6 +207,17 @@ struct WAIEventDownloadCalibrationFiles : WAIEvent
     WAIEventDownloadCalibrationFiles() { type = WAIEventType_DownloadCalibrationFiles; }
 };
 
+//class WAIAppStateMachine
+//{
+//public:
+//    enum class State
+//    {
+//        STARTUP,
+//
+//    };
+//private:
+//
+//};
 //-----------------------------------------------------------------------------
 class WAIApp : public SLInputEventInterface
 {
@@ -234,25 +245,7 @@ public:
     void showErrorMsg(std::string msg);
 
     //todo: replace when we are independent of SLApplication
-    std::string name();
-    void        setDeviceParameter(const std::string& parameter,
-                                   std::string        value);
-
-    //sensor stuff (todo: move out of waiapp?)
-    //void setRotationQuat(float quatX,
-    //                     float quatY,
-    //                     float quatZ,
-    //                     float quatW);
-    //void setLocationLLA(float latitudeDEG,
-    //                    float longitudeDEG,
-    //                    float altitudeM,
-    //                    float accuracyM);
-    //bool usesRotationSensor();
-    //bool usesLocationSensor();
-
-    //set path for external writable directory for mobile devices
-    //todo: is this still needed?
-    //void                   initExternalDataDirectory(std::string path);
+    std::string            name();
     const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
     const CVCalibration&   getCalibration() const { return _calibration; }
     const cv::Size&        getFrameSize() const { return _videoFrameSize; }
@@ -274,7 +267,6 @@ private:
     void setupDefaultErlebARDirTo(std::string dir);
     //!download all remote files to transferred directory
     void downloadCalibrationFilesTo(std::string dir);
-    //bool checkCalibration(const std::string& calibDir, const std::string& calibFileName);
     bool updateSceneViews();
 
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
@@ -292,7 +284,7 @@ private:
                           float            scale);
     // video writer
     void saveVideo(std::string filename);
-    void saveGPSData(std::string videofile);
+    //void saveGPSData(std::string videofile);
 
     void handleEvents();
 
@@ -311,9 +303,9 @@ private:
     std::string    _calibDir;
 
     //sensor stuff
-    ofstream _gpsDataStream;
-    SLQuat4f _lastKnowPoseQuaternion;
-    SLQuat4f _IMUQuaternion;
+    //ofstream _gpsDataStream;
+    //SLQuat4f _lastKnowPoseQuaternion;
+    //SLQuat4f _IMUQuaternion;
 
     //load function has been called
     bool _loaded  = false;

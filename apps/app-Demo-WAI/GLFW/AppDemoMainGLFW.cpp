@@ -378,9 +378,7 @@ static void onKeyPress(GLFWwindow* window,
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     }
-    else
-      // Toggle fullscreen mode
-      if (key == K_F9 && action == GLFW_PRESS)
+    else if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
     {
         fullscreen = !fullscreen;
 

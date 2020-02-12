@@ -17,11 +17,11 @@
 /*
  * Camera Manager Listener object
  */
-void OnCameraAvailable(void* ctx, const char* id)
+void onCameraAvailable(void* ctx, const char* id)
 {
     reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, true);
 }
-void OnCameraUnavailable(void* ctx, const char* id)
+void onCameraUnavailable(void* ctx, const char* id)
 {
     reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, false);
 }
@@ -40,21 +40,21 @@ void onDeviceErrorChanges(void* ctx, ACameraDevice* dev, int err)
 }
 
 // CaptureSession state callbacks
-void SENSNdkCamera::onSessionClosed(void* ctx, ACameraCaptureSession* ses)
+void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
 {
     LOG_CAM_WARN("CaptureSession state: session %p closed", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::CLOSED);
 }
 
-void SENSNdkCamera::onSessionReady(void* ctx, ACameraCaptureSession* ses)
+void onSessionReady(void* ctx, ACameraCaptureSession* ses)
 {
     LOG_CAM_WARN("CaptureSession state: session %p ready", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::READY);
 }
 
-void SENSNdkCamera::onSessionActive(void* ctx, ACameraCaptureSession* ses)
+void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 {
     LOG_CAM_WARN("CaptureSession state: session %p active", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
@@ -115,8 +115,8 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     //register callbacks
     _cameraManagerAvailabilityCallbacks = {
       .context             = this,
-      .onCameraAvailable   = OnCameraAvailable,
-      .onCameraUnavailable = OnCameraUnavailable,
+      .onCameraAvailable   = onCameraAvailable,
+      .onCameraUnavailable = onCameraUnavailable,
     };
     ACameraManager_registerAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
 
@@ -264,9 +264,9 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
         _captureSessionState                                              = CaptureSessionState::READY;
         ACameraCaptureSession_stateCallbacks captureSessionStateCallbacks = {
           .context  = this,
-          .onActive = SENSNdkCamera::onSessionActive,
-          .onReady  = SENSNdkCamera::onSessionReady,
-          .onClosed = SENSNdkCamera::onSessionClosed};
+          .onActive = ::onSessionActive,
+          .onReady  = ::onSessionReady,
+          .onClosed = ::onSessionClosed};
         if (ACameraDevice_createCaptureSession(_cameraDevice,
                                                _captureSessionOutputContainer,
                                                &captureSessionStateCallbacks,
