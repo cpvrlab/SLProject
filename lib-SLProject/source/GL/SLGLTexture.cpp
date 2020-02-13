@@ -883,9 +883,8 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         return TT_ambientOcc;
 
     // if nothing was detected so far we interpret it as a color texture
-    SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s",
-                                       filename.c_str());
-    SL_WARN_MSG(msg.c_str());
+    //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
+    //SL_WARN_MSG(msg.c_str());
 
     return TT_color;
 }

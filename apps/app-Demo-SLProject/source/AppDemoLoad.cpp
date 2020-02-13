@@ -436,7 +436,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_OS_ANDROID
         SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
 #else
-        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
 #endif
         if (Utils::fileExists(largeFile))
         {
@@ -2641,19 +2641,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Augusta Raurica AR");
         s->info("Augmented Reality for Augusta Raurica");
 
-        // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f);
         cam1->focalDist(150);
-        cam1->background().texture(videoTexture);
 
-        // Turn on main video
-        CVCapture::instance()->videoType(VT_MAIN);
+        // Create video texture and turn on live video
+        //videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        //cam1->background().texture(videoTexture);
+        //CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(5.0f);
@@ -2669,9 +2667,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load("GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
-                                                          true,    // only meshes
-                                                          nullptr, // no replacement material
-                                                          0.4f);   // 40% ambient reflection
+                                                 true,    // only meshes
+                                                 nullptr, // no replacement material
+                                                 0.4f);   // 40% ambient reflection
+        TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
@@ -2691,11 +2690,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.originLLA(47.53319, 7.72207, 442.0);        // Zentrum Theater 3
-        SLApplication::devLoc.defaultLLA(47.53294, 7.72084, 446.0 + 1.7); // Eingangtor Tempel
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                       // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLLA(47.53319, 7.72207, 442);      // Zentrum Theater 3
+        SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 455); // Eingangtor Tempel
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                 // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                     // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
@@ -2723,9 +2722,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Aventicum AR");
         s->info("Augmented Reality for Aventicum");
 
-        // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
@@ -2733,9 +2729,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(1000.0f);
         cam1->focalDist(150);
         cam1->setInitialState();
-        cam1->background().texture(videoTexture);
 
-        // Turn on main video
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
