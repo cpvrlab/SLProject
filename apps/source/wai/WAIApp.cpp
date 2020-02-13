@@ -130,11 +130,27 @@ void WAIApp::initIntroScene()
     light1->specular(SLCol4f(1, 1, 1));
     light1->attenuation(1, 0, 0);
 
+    // Because all text objects get their sizes in pixels we have to scale them down
+    SLfloat  scale = 0.01f;
+    SLstring txt   = "This is text in 3D with font07";
+    SLVec2f  size  = SLTexFont::font07->calcTextSize(txt);
+    SLNode*  t07   = new SLText(txt, SLTexFont::font07);
+    t07->translate(-size.x * 0.5f * scale, 1.0f, 0);
+    t07->scale(scale);
+
+    txt         = "This is text in 3D with font22";
+    size        = SLTexFont::font22->calcTextSize(txt);
+    SLNode* t22 = new SLText(txt, SLTexFont::font22);
+    t22->translate(-size.x * 0.5f * scale, -1.2f, 0);
+    t22->scale(scale);
+
     // Assemble 3D scene as usual with camera and light
     SLNode* scene3D = new SLNode("root3D");
     scene3D->addChild(cam1);
     scene3D->addChild(light1);
     scene3D->addChild(new SLNode(new SLSphere(0.5f, 32, 32, "Sphere", m1)));
+    scene3D->addChild(t07);
+    scene3D->addChild(t22);
 
     _sv->camera(cam1);
     _sv->doWaitOnIdle(false);
@@ -243,13 +259,12 @@ WAIAppStateHandler::WAIAppStateHandler(CloseAppCallback cb)
 bool WAIAppStateHandler::update()
 {
     WAIAPPSTATE_DEBUG("update");
-    /*
+
     if (_goBackRequested && _closeAppCallback)
     {
         _closeAppCallback();
         _goBackRequested = false;
     }
-     */
 
     checkStateTransition();
     return processState();
