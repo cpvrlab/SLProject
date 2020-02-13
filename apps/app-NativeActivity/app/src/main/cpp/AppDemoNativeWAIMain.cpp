@@ -39,43 +39,807 @@
 #include <Utils.h>
 #include <WAIApp.h>
 #include <android/SENSNdkCamera.h>
+#include <CV/CVImage.h>
 
-SENSNdkCamera*      ndkCamera     = nullptr;
-bool                cameraGranted = false;
-struct android_app* androidApp    = nullptr;
+#define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
+#define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
+#define ENGINE_WARN(...) Utils::log("Engine", __VA_ARGS__)
 
-struct Engine
+//#define ENGINE_DEBUG(...) // nothing
+//#define ENGINE_INFO(...)  // nothing
+//#define ENGINE_WARN(...)  // nothing
+
+//SENSNdkCamera* ndkCamera = nullptr;
+//bool         _cameraGranted = false;
+//struct android_app* androidApp = nullptr;
+
+//if this is set true by wai app the native activity has to initiate closing of the activity
+bool closeActivity = false;
+
+class Engine
 {
-    SensorsHandler* sensorsHandler;
-    EGLDisplay      display;
-    EGLSurface      surface;
-    EGLContext      context;
-    int32_t         width;
-    int32_t         height;
+public:
+    explicit Engine(android_app* app);
 
-    WAIApp waiApp;
+    void update();
+
+    void onInit();
+    void onTerminate();
+    void onDestroy();
+    void onBackButtonDown();
+
+    static uint64_t millisecondsSinceEpoch();
+    void            handleTouchMove(AInputEvent* event);
+    void            handleTouchUp(AInputEvent* event);
+    void            handleTouchDown(AInputEvent* event);
+
+    //this callback can be called by the wrapped app to make native activity shutdown
+    static void closeAppCallback();
+
+private:
+    void initDisplay();
+    void terminateDisplay();
+
+    std::string getInternalDir();
+    std::string getExternalDir();
+    void        extractAPKFolder(std::string internalPath, std::string assetDirPath);
+
+    android_app*       _app;
+    WAIAppStateHandler _waiAppState;
+
+    EGLDisplay _display;
+    EGLSurface _surface;
+    EGLContext _context;
+    int32_t    _width;
+    int32_t    _height;
 
     // input stuff
-    int32_t  pointersDown;
-    uint64_t lastTouchMS;
+    int32_t  _pointersDown;
+    uint64_t _lastTouchMS;
+
+    /*
+    SensorsHandler* sensorsHandler;
+    */
 };
 
-void checkAndRequestAndroidPermissions(struct android_app* app)
+static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
 {
-    JNIEnv*          env;
-    ANativeActivity* activity = app->activity;
-    activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-
-    activity->vm->AttachCurrentThread(&env, NULL);
-
-    jobject activityObj = env->NewGlobalRef(activity->clazz);
-    jclass  clz         = env->GetObjectClass(activityObj);
-    env->CallVoidMethod(activityObj,
-                        env->GetMethodID(clz, "RequestCamera", "()V"));
-    env->DeleteGlobalRef(activityObj);
-
-    activity->vm->DetachCurrentThread();
+    ENGINE_DEBUG("handleLifecycleEvent: called");
+    Engine* engine = reinterpret_cast<Engine*>(app->userData);
+    switch (cmd)
+    {
+        case APP_CMD_INPUT_CHANGED:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_INPUT_CHANGED");
+            break;
+        case APP_CMD_INIT_WINDOW:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_INIT_WINDOW");
+            engine->onInit();
+            break;
+        case APP_CMD_TERM_WINDOW:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_TERM_WINDOW");
+            engine->onTerminate();
+            engine->onDestroy();
+            break;
+        case APP_CMD_WINDOW_RESIZED:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_WINDOW_RESIZED");
+            break;
+        case APP_CMD_WINDOW_REDRAW_NEEDED:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_WINDOW_REDRAW_NEEDED");
+            break;
+        case APP_CMD_CONTENT_RECT_CHANGED:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_CONTENT_RECT_CHANGED");
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_GAINED_FOCUS");
+            break;
+        case APP_CMD_LOST_FOCUS:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_LOST_FOCUS");
+            break;
+        case APP_CMD_CONFIG_CHANGED:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_CONFIG_CHANGED");
+            break;
+        case APP_CMD_LOW_MEMORY:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_LOW_MEMORY");
+            break;
+        case APP_CMD_START:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_START");
+            break;
+        case APP_CMD_RESUME:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_RESUME");
+            break;
+        case APP_CMD_SAVE_STATE:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_SAVE_STATE");
+            break;
+        case APP_CMD_PAUSE:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_PAUSE");
+            break;
+        case APP_CMD_STOP:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_STOP");
+            break;
+        case APP_CMD_DESTROY:
+            ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_DESTROY");
+            break;
+    }
 }
+
+static int32_t handleInput(struct android_app* app, AInputEvent* event)
+{
+    Engine* engine = reinterpret_cast<Engine*>(app->userData);
+    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
+    {
+        int action     = AMotionEvent_getAction(event);
+        int actionCode = action & AMOTION_EVENT_ACTION_MASK;
+
+        switch (actionCode)
+        {
+            case AMOTION_EVENT_ACTION_DOWN:
+            case AMOTION_EVENT_ACTION_POINTER_DOWN:
+            {
+                engine->handleTouchDown(event);
+            }
+            break;
+
+            case AMOTION_EVENT_ACTION_UP:
+            case AMOTION_EVENT_ACTION_POINTER_UP:
+            {
+                engine->handleTouchUp(event);
+            }
+            break;
+
+            case AMOTION_EVENT_ACTION_MOVE:
+            {
+                engine->handleTouchMove(event);
+            }
+        }
+
+        return 1;
+    }
+    else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
+    {
+        if (AKeyEvent_getKeyCode(event) == AKEYCODE_BACK && AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN)
+        {
+            // actions on back key
+            engine->onBackButtonDown();
+            return 1; // <-- prevent default handler
+        }
+    }
+
+    return 0;
+}
+
+Engine::Engine(android_app* app)
+  : _app(app),
+    _waiAppState(std::bind(&Engine::closeAppCallback))
+{
+}
+
+void Engine::update()
+{
+    if (_display)
+    {
+        //ENGINE_DEBUG("eglSwapBuffers");
+        _waiAppState.update();
+        eglSwapBuffers(_display, _surface);
+    }
+}
+
+void Engine::onInit()
+{
+    ENGINE_DEBUG("onInit");
+    initDisplay();
+
+    std::string path = getInternalDir();
+    extractAPKFolder(path, "images");
+    extractAPKFolder(path, "images/fonts");
+    extractAPKFolder(path, "images/textures");
+    extractAPKFolder(path, "videos");
+    extractAPKFolder(path, "models");
+    extractAPKFolder(path, "shaders");
+    extractAPKFolder(path, "calibrations");
+    extractAPKFolder(path, "config");
+    extractAPKFolder(path, "voc");
+
+    std::string externalPath = getExternalDir();
+
+    AppDirectories dirs;
+    dirs.slDataRoot    = path;
+    dirs.waiDataRoot   = path + "/";
+    dirs.writableDir   = externalPath + "/";
+    dirs.vocabularyDir = path + "/voc/";
+    dirs.logFileDir    = externalPath + "/log/";
+
+    AConfiguration* appConfig = AConfiguration_new();
+    AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
+    int32_t dpi = AConfiguration_getDensity(appConfig);
+    AConfiguration_delete(appConfig);
+
+    _waiAppState.init(_width, _height, 1.0, 1.0, dpi, dirs);
+}
+
+void Engine::onTerminate()
+{
+    ENGINE_DEBUG("onTerminate");
+    terminateDisplay();
+    _waiAppState.hide();
+}
+
+void Engine::onDestroy()
+{
+    ENGINE_DEBUG("onDestroy");
+    _waiAppState.close();
+}
+
+void Engine::onBackButtonDown()
+{
+    ENGINE_DEBUG("onBackButtonDown");
+    _waiAppState.goBack();
+}
+
+void Engine::initDisplay()
+{
+    assert(_app->window);
+    ANativeWindow* window = _app->window;
+    /*
+     * Here specify the attributes of the desired configuration.
+     * Below, we select an EGLConfig with at least 8 bits per color
+     * component compatible with on-screen windows
+     */
+    const EGLint attribs[] = {EGL_BLUE_SIZE,
+                              8,
+                              EGL_GREEN_SIZE,
+                              8,
+                              EGL_RED_SIZE,
+                              8,
+                              EGL_DEPTH_SIZE,
+                              16,
+                              EGL_STENCIL_SIZE,
+                              0,
+                              EGL_NONE};
+
+    EGLint     w, h, format;
+    EGLint     numConfigs;
+    EGLConfig  config;
+    EGLSurface surface;
+    EGLContext context;
+
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+
+    eglInitialize(display, 0, 0);
+
+    /* Here, the application chooses the configuration it desires.
+     * find the best match if possible, otherwise use the very first one
+     */
+    eglChooseConfig(display, attribs, nullptr, 0, &numConfigs);
+    std::unique_ptr<EGLConfig[]> supportedConfigs(new EGLConfig[numConfigs]);
+    assert(supportedConfigs);
+    eglChooseConfig(display, attribs, supportedConfigs.get(), numConfigs, &numConfigs);
+    assert(numConfigs);
+    int i;
+    for (i = 0; i < numConfigs; i++)
+    {
+        auto&  cfg = supportedConfigs[i];
+        EGLint r, g, b, d;
+        if (eglGetConfigAttrib(display, cfg, EGL_RED_SIZE, &r) &&
+            eglGetConfigAttrib(display, cfg, EGL_GREEN_SIZE, &g) &&
+            eglGetConfigAttrib(display, cfg, EGL_BLUE_SIZE, &b) &&
+            eglGetConfigAttrib(display, cfg, EGL_DEPTH_SIZE, &d) &&
+            r == 8 && g == 8 && b == 8 && d == 0)
+        {
+            config = supportedConfigs[i];
+            break;
+        }
+    }
+    if (i == numConfigs)
+    {
+        config = supportedConfigs[0];
+    }
+
+    /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
+     * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
+     * As soon as we picked a EGLConfig, we can safely reconfigure the
+     * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
+    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+    surface = eglCreateWindowSurface(display, config, window, NULL);
+
+    EGLint contextArgs[] = {
+      EGL_CONTEXT_MAJOR_VERSION,
+      3,
+      EGL_CONTEXT_MINOR_VERSION,
+      1,
+      EGL_NONE};
+    context = eglCreateContext(display, config, NULL, contextArgs);
+
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
+    {
+        Utils::log("WAInative", "onInit Unable to eglMakeCurrent");
+        return;
+    }
+
+    eglQuerySurface(display, surface, EGL_WIDTH, &w);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+
+    _display = display;
+    _context = context;
+    _surface = surface;
+    _width   = w;
+    _height  = h;
+
+    // Check openGL on the system
+    /*
+    auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
+    for (auto name : opengl_info)
+    {
+        auto info = glGetString(name);
+        Utils::log("WAInative","OpenGL Info: %s", info);
+    }
+     */
+}
+
+void Engine::terminateDisplay()
+{
+    if (_display != EGL_NO_DISPLAY)
+    {
+        eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if (_context != EGL_NO_CONTEXT)
+        {
+            eglDestroyContext(_display, _context);
+        }
+        if (_surface != EGL_NO_SURFACE)
+        {
+            eglDestroySurface(_display, _surface);
+        }
+        eglTerminate(_display);
+    }
+
+    _display = EGL_NO_DISPLAY;
+    _context = EGL_NO_CONTEXT;
+    _surface = EGL_NO_SURFACE;
+}
+
+std::string Engine::getInternalDir()
+{
+    JavaVM* jvm            = _app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK:
+        {
+        }
+        break;
+        case JNI_EDETACHED:
+        {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                Utils::log("WAInative", "Could not attach thread to jvm");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION:
+        {
+            //TODO(dgj1): error handling
+            Utils::log("WAInative", "unsupported java version");
+            Utils::log("WAInative", "unsupported java version");
+            return "";
+        }
+    }
+
+    jobject objectActivity = _app->activity->clazz;
+    // Get File object for the external storage directory.
+    jclass classContext = env->FindClass("android/app/Activity");
+    if (!classContext)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get classContext\n");
+        return "";
+    }
+    jmethodID methodIDgetFilesDir = env->GetMethodID(classContext, "getFilesDir", "()Ljava/io/File;");
+    if (!methodIDgetFilesDir)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get methodIDgetExternalFilesDir\n");
+        return "";
+    }
+    jobject    objectFile = env->CallObjectMethod(objectActivity, methodIDgetFilesDir);
+    jthrowable exception  = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    // Call method on File object to retrieve String object.
+    jclass classFile = env->GetObjectClass(objectFile);
+    if (!classFile)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get classFile\n");
+        return "";
+    }
+    jmethodID methodIDgetAbsolutePath = env->GetMethodID(classFile, "getAbsolutePath", "()Ljava/lang/String;");
+    if (!methodIDgetAbsolutePath)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get methodIDgetAbsolutePath\n");
+        return "";
+    }
+    jstring stringPath = (jstring)env->CallObjectMethod(objectFile, methodIDgetAbsolutePath);
+    exception          = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    jboolean    isCopy;
+    const char* absPath = env->GetStringUTFChars(stringPath, &isCopy);
+    std::string path    = std::string(absPath);
+
+    env->ReleaseStringUTFChars(stringPath, absPath);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+
+    return path;
+}
+
+std::string Engine::getExternalDir()
+{
+    JavaVM* jvm            = _app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK:
+        {
+        }
+        break;
+        case JNI_EDETACHED:
+        {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                Utils::log("WAInative", "Could not attach thread to jvm\n");
+                return "";
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION:
+        {
+            //TODO(dgj1): error handling
+            Utils::log("WAInative", "unsupported java version\n");
+            return "";
+        }
+    }
+
+    jobject objectActivity = _app->activity->clazz;
+    // Get File object for the external storage directory.
+    jclass classContext = env->FindClass("android/app/Activity");
+    if (!classContext)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get classContext\n");
+        return "";
+    }
+    jmethodID methodIDgetExternalFilesDir = env->GetMethodID(classContext, "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
+    if (!methodIDgetExternalFilesDir)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get methodIDgetExternalFilesDir\n");
+        return "";
+    }
+    std::string s;
+    jstring     jS         = env->NewStringUTF(s.c_str());
+    jobject     objectFile = env->CallObjectMethod(objectActivity, methodIDgetExternalFilesDir, jS);
+    jthrowable  exception  = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    // Call method on File object to retrieve String object.
+    jclass classFile = env->GetObjectClass(objectFile);
+    if (!classFile)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get classFile\n");
+        return "";
+    }
+    jmethodID methodIDgetAbsolutePath = env->GetMethodID(classFile, "getAbsolutePath", "()Ljava/lang/String;");
+    if (!methodIDgetAbsolutePath)
+    {
+        //TODO(dgj1): error handling
+        Utils::log("WAInative", "could not get methodIDgetAbsolutePath\n");
+        return "";
+    }
+    jstring stringPath = (jstring)env->CallObjectMethod(objectFile, methodIDgetAbsolutePath);
+    exception          = env->ExceptionOccurred();
+    if (exception)
+    {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+    jboolean    isCopy;
+    const char* absPath = env->GetStringUTFChars(stringPath, &isCopy);
+    std::string path    = std::string(absPath);
+
+    env->ReleaseStringUTFChars(stringPath, absPath);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+
+    return path;
+}
+
+void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath)
+{
+    JavaVM* jvm            = _app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK:
+        {
+        }
+        break;
+        case JNI_EDETACHED:
+        {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                Utils::log("WAI", "Could not attach thread to jvm\n");
+                return;
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION:
+        {
+            //TODO(dgj1): error handling
+            Utils::log("WAInative", "unsupported java version\n");
+            return;
+        }
+    }
+
+    std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath + "/");
+    if (Utils::dirExists(outputPath))
+    {
+        //stop here, we assume everything is installed (uninstall the app if you added assets)
+        return;
+    }
+
+    Utils::makeDir(outputPath);
+
+    AAssetManager* mgr      = _app->activity->assetManager;
+    AAssetDir*     assetDir = AAssetManager_openDir(mgr, assetDirPath.c_str());
+    const char*    filename = (const char*)NULL;
+    while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL)
+    {
+        std::string inputFilename = assetDirPath + "/" + std::string(filename);
+        AAsset*     asset         = AAssetManager_open(mgr, inputFilename.c_str(), AASSET_MODE_STREAMING);
+        int         nb_read       = 0;
+        char        buf[BUFSIZ];
+        std::string outputFilename = outputPath + std::string(filename);
+        FILE*       out            = fopen(outputFilename.c_str(), "w");
+        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+        {
+            fwrite(buf, nb_read, 1, out);
+        }
+        fclose(out);
+        AAsset_close(asset);
+    }
+    AAssetDir_close(assetDir);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+}
+
+uint64_t Engine::millisecondsSinceEpoch()
+{
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch());
+    uint64_t result = ms.count();
+
+    return result;
+}
+
+void Engine::handleTouchDown(AInputEvent* event)
+{
+    int     sceneViewIndex = 0; //TODO(dgj1): get this from SLProject
+    int32_t x0             = AMotionEvent_getX(event, 0);
+    int32_t y0             = AMotionEvent_getY(event, 0);
+    int32_t touchCount     = AMotionEvent_getPointerCount(event);
+
+    // just got a new single touch
+    if (touchCount == 1)
+    {
+        // get time to detect double taps
+        uint64_t touchNowMS   = millisecondsSinceEpoch();
+        uint64_t touchDeltaMS = touchNowMS - _lastTouchMS;
+        _lastTouchMS          = touchNowMS;
+
+        if (touchDeltaMS < 250)
+        {
+            //Utils::log("WAInative","double click");
+            _waiAppState.doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
+        }
+        else
+        {
+            //Utils::log("WAInative","mouse down");
+            _waiAppState.mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
+        }
+    }
+
+    // it's two fingers but one delayed (already executed mouse down)
+    else if (touchCount == 2 && _pointersDown == 1)
+    {
+        //Utils::log("WAInative","mouse up + touch 2 down");
+        int x1 = AMotionEvent_getX(event, 1);
+        int y1 = AMotionEvent_getY(event, 1);
+        _waiAppState.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _waiAppState.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+    }
+
+    // it's two fingers at the same time
+    else if (touchCount == 2)
+    {
+        // get time to detect double taps
+        uint64_t touchNowMS   = millisecondsSinceEpoch();
+        uint64_t touchDeltaMS = touchNowMS - _lastTouchMS;
+        _lastTouchMS          = touchNowMS;
+
+        int x1 = AMotionEvent_getX(event, 1);
+        int y1 = AMotionEvent_getY(event, 1);
+
+        //Utils::log("WAInative","touch 2 down");
+        _waiAppState.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+    }
+
+    _pointersDown = touchCount;
+}
+
+void Engine::handleTouchUp(AInputEvent* event)
+{
+    int     sceneViewIndex = 0; //TODO(dgj1): get this from SLProject
+    int32_t x0             = AMotionEvent_getX(event, 0);
+    int32_t y0             = AMotionEvent_getY(event, 0);
+    int32_t touchCount     = AMotionEvent_getPointerCount(event);
+
+    if (touchCount == 1)
+    {
+        //Utils::log("WAInative","mouse up");
+        _waiAppState.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+    }
+    else if (touchCount == 2)
+    {
+        int32_t x1 = AMotionEvent_getX(event, 1);
+        int32_t y1 = AMotionEvent_getY(event, 1);
+
+        //Utils::log("WAInative","touch 2 up");
+        _waiAppState.touch2Up(sceneViewIndex, x0, y0, x1, y1);
+    }
+
+    _pointersDown = touchCount;
+}
+
+void Engine::handleTouchMove(AInputEvent* event)
+{
+    int     sceneViewIndex = 0; //TODO(dgj1): get this from SLProject
+    int32_t x0             = AMotionEvent_getX(event, 0);
+    int32_t y0             = AMotionEvent_getY(event, 0);
+    int32_t touchCount     = AMotionEvent_getPointerCount(event);
+
+    if (touchCount == 1)
+    {
+        //Utils::log("WAInative","mouse move");
+        _waiAppState.mouseMove(sceneViewIndex, x0, y0);
+    }
+    else if (touchCount == 2)
+    {
+        int32_t x1 = AMotionEvent_getX(event, 1);
+        int32_t y1 = AMotionEvent_getY(event, 1);
+
+        //Utils::log("WAInative","touch 2 move");
+        _waiAppState.touch2Move(sceneViewIndex, x0, y0, x1, y1);
+    }
+}
+
+void Engine::closeAppCallback()
+{
+    Utils::log("Engine", "closeAppCallback");
+    closeActivity = true;
+}
+
+/**
+ * This is the main entry point of a native application that is using
+ * android_native_app_glue.  It runs in its own thread, with its own
+ * event loop for receiving input events and doing other things.
+ */
+void android_main(struct android_app* app)
+{
+    Engine engine(app);
+
+    app->userData     = reinterpret_cast<void*>(&engine);
+    app->onAppCmd     = handleLifecycleEvent;
+    app->onInputEvent = handleInput;
+    app->userData     = &engine;
+
+    try
+    {
+        while (true)
+        {
+            // The identifier of source (May be LOOPER_ID_MAIN, LOOPER_ID_INPUT or LOOPER_ID_USER).
+            int                         ident;
+            int                         events;
+            struct android_poll_source* source;
+
+            // We loop until all events are read
+            while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
+            {
+                if (source != NULL)
+                {
+                    source->process(app, source);
+                }
+
+                // Check if we are exiting.
+                if (app->destroyRequested != 0)
+                {
+                    return;
+                }
+
+                //if this is set true by wai app the native activity has to initiate closing of the activity
+                if (closeActivity)
+                {
+                    closeActivity = false;
+                    ANativeActivity_finish(app->activity);
+                }
+            }
+
+            engine.update();
+        }
+    }
+    catch (std::exception& e)
+    {
+        Utils::log("WAInative", e.what());
+    }
+}
+
+/*
+
+     void checkAndRequestAndroidPermissions(struct android_app* app)
+    {
+        JNIEnv*          env;
+        ANativeActivity* activity = app->activity;
+        activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+
+        activity->vm->AttachCurrentThread(&env, NULL);
+
+        jobject activityObj = env->NewGlobalRef(activity->clazz);
+        jclass  clz         = env->GetObjectClass(activityObj);
+        env->CallVoidMethod(activityObj,
+                            env->GetMethodID(clz, "RequestCamera", "()V"));
+        env->DeleteGlobalRef(activityObj);
+
+        activity->vm->DetachCurrentThread();
+    }
 
 void startCamera()
 {
@@ -516,126 +1280,7 @@ void requestPermission(struct android_app* app)
     }
 }
 
-static void initDisplay(Engine* engine, ANativeWindow* window)
-{
-    /*
-     * Here specify the attributes of the desired configuration.
-     * Below, we select an EGLConfig with at least 8 bits per color
-     * component compatible with on-screen windows
-     */
-    const EGLint attribs[] = {EGL_BLUE_SIZE,
-                              8,
-                              EGL_GREEN_SIZE,
-                              8,
-                              EGL_RED_SIZE,
-                              8,
-                              EGL_DEPTH_SIZE,
-                              16,
-                              EGL_STENCIL_SIZE,
-                              0,
-                              EGL_NONE};
 
-    EGLint     w, h, format;
-    EGLint     numConfigs;
-    EGLConfig  config;
-    EGLSurface surface;
-    EGLContext context;
-
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-    eglInitialize(display, 0, 0);
-
-    /* Here, the application chooses the configuration it desires.
-     * find the best match if possible, otherwise use the very first one
-     */
-    eglChooseConfig(display, attribs, nullptr, 0, &numConfigs);
-    std::unique_ptr<EGLConfig[]> supportedConfigs(new EGLConfig[numConfigs]);
-    assert(supportedConfigs);
-    eglChooseConfig(display, attribs, supportedConfigs.get(), numConfigs, &numConfigs);
-    assert(numConfigs);
-    int i;
-    for (i = 0; i < numConfigs; i++)
-    {
-        auto&  cfg = supportedConfigs[i];
-        EGLint r, g, b, d;
-        if (eglGetConfigAttrib(display, cfg, EGL_RED_SIZE, &r) &&
-            eglGetConfigAttrib(display, cfg, EGL_GREEN_SIZE, &g) &&
-            eglGetConfigAttrib(display, cfg, EGL_BLUE_SIZE, &b) &&
-            eglGetConfigAttrib(display, cfg, EGL_DEPTH_SIZE, &d) &&
-            r == 8 && g == 8 && b == 8 && d == 0)
-        {
-            config = supportedConfigs[i];
-            break;
-        }
-    }
-    if (i == numConfigs)
-    {
-        config = supportedConfigs[0];
-    }
-
-    /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
-     * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
-     * As soon as we picked a EGLConfig, we can safely reconfigure the
-     * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-    surface = eglCreateWindowSurface(display, config, window, NULL);
-
-    EGLint contextArgs[] = {
-      EGL_CONTEXT_MAJOR_VERSION,
-      3,
-      EGL_CONTEXT_MINOR_VERSION,
-      1,
-      EGL_NONE};
-    context = eglCreateContext(display, config, NULL, contextArgs);
-
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
-    {
-        Utils::log("WAInative", "onInit Unable to eglMakeCurrent");
-        return;
-    }
-
-    eglQuerySurface(display, surface, EGL_WIDTH, &w);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
-
-    engine->display = display;
-    engine->context = context;
-    engine->surface = surface;
-    engine->width   = w;
-    engine->height  = h;
-
-    // Check openGL on the system
-    /*
-    auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
-    for (auto name : opengl_info)
-    {
-        auto info = glGetString(name);
-        Utils::log("WAInative","OpenGL Info: %s", info);
-    }
-     */
-
-    //glViewport(0, 0, w, h);
-}
-
-static void terminateDisplay(Engine* engine)
-{
-    if (engine->display != EGL_NO_DISPLAY)
-    {
-        eglMakeCurrent(engine->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (engine->context != EGL_NO_CONTEXT)
-        {
-            eglDestroyContext(engine->display, engine->context);
-        }
-        if (engine->surface != EGL_NO_SURFACE)
-        {
-            eglDestroySurface(engine->display, engine->surface);
-        }
-        eglTerminate(engine->display);
-    }
-
-    engine->display = EGL_NO_DISPLAY;
-    engine->context = EGL_NO_CONTEXT;
-    engine->surface = EGL_NO_SURFACE;
-}
 
 static void onInit(void* usrPtr, struct android_app* app)
 {
@@ -901,11 +1546,7 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
     }
 }
 
-/**
- * This is the main entry point of a native application that is using
- * android_native_app_glue.  It runs in its own thread, with its own
- * event loop for receiving input events and doing other things.
- */
+
 void android_main(struct android_app* app)
 {
     try
@@ -968,3 +1609,4 @@ void android_main(struct android_app* app)
         Utils::log("WAInative", e.what());
     }
 }
+*/
