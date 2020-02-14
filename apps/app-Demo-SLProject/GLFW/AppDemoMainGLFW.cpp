@@ -558,9 +558,14 @@ int main(int argc, char* argv[])
 
     // Set your own physical screen dpi
     int dpi = (int)(142 * scr2fbX);
-    cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
-    cout << "DPI             : " << dpi << endl;
+    Utils::log("SLProject", "------------------------------------------------------------------");
+    Utils::log("SLProject",
+               "GUI-Framwork     : GLFW (Version: %d.%d.%d",
+               GLFW_VERSION_MAJOR,
+               GLFW_VERSION_MINOR,
+               GLFW_VERSION_REVISION);
+    Utils::log("SLProject",
+               "Resolution (DPI) : d", dpi);
 
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);

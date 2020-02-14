@@ -452,7 +452,7 @@ void slSetupExternalDir(const SLstring& externalPath)
 {
     if (Utils::dirExists(externalPath))
     {
-        SL_LOG("External directory: %s", externalPath.c_str());
+        SL_LOG("Ext. directory   : %s", externalPath.c_str());
         SLApplication::externalPath = externalPath;
     }
     else

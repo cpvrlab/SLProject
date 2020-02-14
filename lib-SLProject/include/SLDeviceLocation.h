@@ -14,6 +14,7 @@
 
 #include <SLLightDirect.h>
 #include <HighResTimer.h>
+#include <CVImage.h>
 
 class SLNode;
 
@@ -45,7 +46,7 @@ class SLNode;
 */
 class SLDeviceLocation
 {
-    public:
+public:
     SLDeviceLocation() { init(); }
     void init();
     void onLocationLLA(SLdouble latDEG,
@@ -70,6 +71,7 @@ class SLDeviceLocation
                     SLdouble altM);
     void locMaxDistanceM(SLfloat maxDist) { _locMaxDistanceM = maxDist; }
     void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
+    void loadGeoTiff(SLstring geoTiffFile);
 
     // Getters
     SLbool  isUsed() const { return _isUsed; }
@@ -89,7 +91,7 @@ class SLDeviceLocation
     SLfloat originSolarZenit() const { return _originSolarZenit; }
     SLfloat originSolarAzimut() const { return _originSolarAzimut; }
 
-    private:
+private:
     SLbool       _isUsed;             //!< Flag if the devices GPS Sensor is used
     SLbool       _isFirstSensorValue; //!< Flag for the first sensor values
     SLVec3d      _locLLA;             //!< Earth location in latitudeDEG, longitudeDEG & AltitudeM on WGS84 geoid
@@ -112,6 +114,7 @@ class SLDeviceLocation
     HighResTimer _improveTimer;       //!< Timer to measure the improve time.
     SLMat3d      _wRecef;             //!< ECEF frame to world frame rotation: rotates a point defined in ecef
     SLNode*      _sunLightNode;       //!< Pointer to directional light node to be changed if solar angles are calculated
+    CVImage      _demGeoTiff;         //!< Digial Elevation Model from a Geo Tiff image
 };
 //-----------------------------------------------------------------------------
 #endif
