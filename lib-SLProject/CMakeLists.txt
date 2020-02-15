@@ -16,6 +16,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImageGeoTiff.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVRaulMurExtNode.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVRaulMurOrb.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTracked.h
@@ -124,6 +125,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImageGeoTiff.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVRaulMurExtNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVRaulMurOrb.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTracked.cpp
@@ -266,6 +268,7 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
         ${OpenCV_INCLUDE_DIR}
         ${assimp_INCLUDE_DIR}
+        ${SL_PROJECT_ROOT}/externals
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE

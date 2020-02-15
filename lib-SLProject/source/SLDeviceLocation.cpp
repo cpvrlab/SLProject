@@ -271,19 +271,8 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     return (result == 0);
 }
 //------------------------------------------------------------------------------
-void SLDeviceLocation::loadGeoTiff(SLstring geoTiffFile)
+void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 {
-    // Load the file directly
-    if (!Utils::fileExists(geoTiffFile))
-    {
-        geoTiffFile = SLImporter::defaultPath + geoTiffFile;
-        if (!Utils::fileExists(geoTiffFile))
-        {
-            SLstring msg = "SLGLTexture: File not found: " + geoTiffFile;
-            SL_EXIT_MSG(msg.c_str());
-        }
-    }
-
-    cv::Mat dem = cv::imread(geoTiffFile, cv::IMREAD_LOAD_GDAL | cv::IMREAD_ANYDEPTH );
+    _demGeoTiff.loadGeoTiff(geoTiffFile);
 }
 //------------------------------------------------------------------------------

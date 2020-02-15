@@ -119,7 +119,7 @@ class CVImage
 
     static string defaultPath; //!< Default path for images
 
-    private:
+    protected:
     uint bytesPerPixel(CVPixFormat pixelFormat);
     uint bytesPerLine(uint        width,
                       CVPixFormat pixelFormat,
@@ -137,3 +137,4 @@ class CVImage
 typedef std::vector<CVImage*> CVVImage;
 //-----------------------------------------------------------------------------
 #endif
+
