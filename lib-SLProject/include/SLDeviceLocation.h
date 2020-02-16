@@ -26,9 +26,10 @@ class SLNode;
  that it gets from its GPS (global positioning system) sensor. The device location can
  be used in the active camera to apply it to the scene camera
  (s. SLCamera::setView).\n
-  - LLA: The device location from GPS comes as a latitude (deg.), longitude
- (deg.) and altitude (m) LLA-tripple. These two angles are a position and height
- on the WGS84 ellipsoid (World Geodetic System 1984).\n
+  - LLA: The device location from GPS comes as a latitude (deg. north-south),
+  longitude (deg. east-west) and altitude (m) LLA-tripple.
+  These two angles are a position and height on the WGS84 ellipsoid
+  (World Geodetic System 1984).\n
   - ECEF (Earth Centered Earth Fixed) are right-handed cartesian world
  coordinates with the z-axis at the north pole the x-axis at the prime meridian
  (0 deg. longitude) and the y-axis at 90 deg. longitude. x- and y-axis form the

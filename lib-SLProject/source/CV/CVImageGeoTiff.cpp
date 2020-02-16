@@ -46,26 +46,35 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
     }
 
     // Read the geo tiff image with OpenCV
-    cv::Mat imgGeoTiff = cv::imread(geoTiffFile, cv::IMREAD_LOAD_GDAL | cv::IMREAD_ANYDEPTH);
+    cv::Mat imgGeoTiff = cv::imread(geoTiffFile,
+                                    cv::IMREAD_LOAD_GDAL | cv::IMREAD_ANYDEPTH);
+
+    if (imgGeoTiff.type() != CV_32FC1)
+        Utils::exitMsg(appTag.c_str(),
+                       "GEOTiff image must be of 32-bit float type.",
+                       __LINE__,
+                       __FILE__);
 
     // Read the JSON file
     ifstream       jsonFile(jsonFileName);
-    json           json;
+    json           jsonData;
     string         description;
     string         geocsc;
     vector<int>    size;
     vector<double> upperLeft;
     vector<double> lowerRight;
+    double         noDataValue;
 
     try // Reading values from json
     {
-        jsonFile >> json;
-        cout << json.dump(4);
-        description = json["description"].get<string>();
-        geocsc      = json["coordinateSystem"]["wkt"].get<string>();
-        size        = json["size"].get<vector<int>>();
-        upperLeft   = json["cornerCoordinates"]["upperLeft"].get<vector<double>>();
-        lowerRight  = json["cornerCoordinates"]["lowerRight"].get<vector<double>>();
+        jsonFile >> jsonData;
+        cout << jsonData.dump(4);
+        description = jsonData["description"].get<string>();
+        geocsc      = jsonData["coordinateSystem"]["wkt"].get<string>();
+        size        = jsonData["size"].get<vector<int>>();
+        upperLeft   = jsonData["cornerCoordinates"]["upperLeft"].get<vector<double>>();
+        lowerRight  = jsonData["cornerCoordinates"]["lowerRight"].get<vector<double>>();
+        noDataValue = jsonData["bands"][0]["noDataValue"].get<double>();
     }
     catch (json::exception& e)
     {
@@ -93,11 +102,30 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
         Utils::exitMsg(appTag.c_str(), msg.c_str(), __LINE__, __FILE__);
     }
 
-    _cvMat = imgGeoTiff.clone();
+    _cvMat  = imgGeoTiff.clone();
     _format = cv2glPixelFormat(imgGeoTiff.type());
-    _upperleftLLA[0] = upperLeft[0];
-    _upperleftLLA[1] = upperLeft[1];
-    _lowerRightLLA[0] = lowerRight[0];
-    _lowerRightLLA[1] = lowerRight[1];
+    fillNoDataValues(noDataValue);
+
+    _upperleftLLA[0] = upperLeft[1];           // we store first latitude in degrees!
+    _upperleftLLA[1] = upperLeft[0];           // and then longitude in degrees
+    _upperleftLLA[2] = _cvMat.at<float>(0, 0); // and then altitude in m from the image
+
+    _lowerRightLLA[0] = lowerRight[1]; // we store first latitude in degrees!
+    _lowerRightLLA[1] = lowerRight[0]; // and then longitude in degrees
+    _lowerRightLLA[2] = _cvMat.at<float>(_cvMat.rows - 1, _cvMat.cols - 1);
+}
+//-----------------------------------------------------------------------------
+void CVImageGeoTiff::fillNoDataValues(float noDataValue)
+{
+    for( int y=0; y<_cvMat.rows; y++ )
+    {
+        for (int x = 0; x < _cvMat.cols; x++)
+        {
+            if (_cvMat.at<float>(x,y) == noDataValue)
+            {
+                
+            }
+        }
+    }
 }
 //-----------------------------------------------------------------------------

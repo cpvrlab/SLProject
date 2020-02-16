@@ -2690,8 +2690,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.loadGeoTiff(SLImporter::defaultPath +
-                                          "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif");
         SLApplication::devLoc.useOriginAltitude(false);
         SLApplication::devLoc.originLLA(47.53319, 7.72207, 442);      // Zentrum Theater 3
         SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 455); // Eingangtor Tempel
@@ -2699,6 +2697,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.improveOrigin(false);                   // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
+        SLApplication::devLoc.loadGeoTiff(SLImporter::defaultPath +
+                                          "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif");
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         SLApplication::devLoc.isUsed(true);

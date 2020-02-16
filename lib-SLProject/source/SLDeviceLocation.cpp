@@ -273,6 +273,10 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
 //------------------------------------------------------------------------------
 void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 {
+    assert(!_defaultLLA.isZero() &&
+           !_originLLA.isZero() &&
+           "Set first defaultLLA and originLLA before you add a GeoTiff.");
+
     _demGeoTiff.loadGeoTiff("SLProject",geoTiffFile);
 }
 //------------------------------------------------------------------------------

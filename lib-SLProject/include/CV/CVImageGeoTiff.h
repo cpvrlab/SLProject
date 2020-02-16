@@ -31,6 +31,7 @@ public:
     ~CVImageGeoTiff();
 
     void    loadGeoTiff(const string& appTag, const string& filename);
+    void    fillNoDataValues(float noDataValue);
     CVVec3d upperLeftLLA() { return _upperleftLLA; }
     CVVec3d lowerRightLLA() { return _lowerRightLLA; }
 
