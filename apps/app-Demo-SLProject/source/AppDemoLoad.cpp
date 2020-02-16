@@ -2691,7 +2691,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         SLApplication::devLoc.loadGeoTiff(SLImporter::defaultPath +
-                                          "GLTF/AugustaRaurica/DTM-Theater-Tempel.tif");
+                                          "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif");
         SLApplication::devLoc.useOriginAltitude(false);
         SLApplication::devLoc.originLLA(47.53319, 7.72207, 442);      // Zentrum Theater 3
         SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 455); // Eingangtor Tempel
