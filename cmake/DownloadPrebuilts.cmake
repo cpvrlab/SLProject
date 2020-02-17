@@ -68,6 +68,12 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
     set(g2o_LIBS ${g2o_LINK_LIBS})
 
+    set(assimp_VERSION "v5.0.0")
+    set(assimp_DIR ${PREBUILT_PATH}/linux_assimp_${assimp_VERSION})
+    set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
+    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
+    set(assimp_LIBS assimp)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     #OpenCV
     set(OpenCV_VERSION "4.1.2")
@@ -458,6 +464,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
             lib_${lib}
         )
     endforeach(lib)
+
+    #assimp
+    set(assimp_VERSION "v5.0.0")
+    set(assimp_PREBUILT_DIR "andV8_assimp_${assimp_VERSION}")
+    set(assimp_DIR ${PREBUILT_PATH}/${assimp_PREBUILT_DIR})
+    set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
+    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${assimp_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+    endif ()
+
+    foreach(lib ${assimp_LINK_LIBS})
+        add_library(lib_${lib} SHARED IMPORTED)
+        set_target_properties(lib_${lib} PROPERTIES
+            IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.so"
+        )
+        set(assimp_LIBS
+            ${assimp_LIBS}
+            lib_${lib}
+        )
+    endforeach(lib)
+
 endif()
 #==============================================================================
 
