@@ -84,9 +84,11 @@ private:
     std::string getExternalDir();
     void        extractAPKFolder(std::string internalPath, std::string assetDirPath);
 
-    android_app*       _app;
-    WAIAppStateHandler _waiAppState;
+    android_app* _app;
+    //instantiated in fist call to onInit()
+    std::unique_ptr<WAIAppStateHandler> _waiAppState;
 
+    EGLConfig  _config;
     EGLDisplay _display;
     EGLSurface _surface;
     EGLContext _context;
@@ -118,7 +120,7 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
         case APP_CMD_TERM_WINDOW:
             ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_TERM_WINDOW");
             engine->onTerminate();
-            engine->onDestroy();
+            //engine->onDestroy();
             break;
         case APP_CMD_WINDOW_RESIZED:
             ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_WINDOW_RESIZED");
@@ -158,6 +160,7 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
             break;
         case APP_CMD_DESTROY:
             ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_DESTROY");
+            engine->onDestroy();
             break;
     }
 }
@@ -194,6 +197,7 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
 
         return 1;
     }
+    /*
     else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
     {
         if (AKeyEvent_getKeyCode(event) == AKEYCODE_BACK && AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN)
@@ -203,22 +207,23 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
             return 1; // <-- prevent default handler
         }
     }
+    */
 
     return 0;
 }
 
 Engine::Engine(android_app* app)
-  : _app(app),
-    _waiAppState(std::bind(&Engine::closeAppCallback))
+  : _app(app)
+//_waiAppState(std::bind(&Engine::closeAppCallback))
 {
 }
 
 void Engine::update()
 {
-    if (_display)
+    if (_display && _waiAppState)
     {
         //ENGINE_DEBUG("eglSwapBuffers");
-        _waiAppState.update();
+        _waiAppState->update();
         eglSwapBuffers(_display, _surface);
     }
 }
@@ -226,59 +231,76 @@ void Engine::update()
 void Engine::onInit()
 {
     ENGINE_DEBUG("onInit");
-    initDisplay();
 
-    std::string path = getInternalDir();
-    extractAPKFolder(path, "images");
-    extractAPKFolder(path, "images/fonts");
-    extractAPKFolder(path, "images/textures");
-    extractAPKFolder(path, "videos");
-    extractAPKFolder(path, "models");
-    extractAPKFolder(path, "shaders");
-    extractAPKFolder(path, "calibrations");
-    extractAPKFolder(path, "config");
-    extractAPKFolder(path, "voc");
+    if (!_waiAppState)
+    {
+        initDisplay();
 
-    std::string externalPath = getExternalDir();
+        std::string path = getInternalDir();
+        extractAPKFolder(path, "images");
+        extractAPKFolder(path, "images/fonts");
+        extractAPKFolder(path, "images/textures");
+        extractAPKFolder(path, "videos");
+        extractAPKFolder(path, "models");
+        extractAPKFolder(path, "shaders");
+        extractAPKFolder(path, "calibrations");
+        extractAPKFolder(path, "config");
+        extractAPKFolder(path, "voc");
 
-    AppDirectories dirs;
-    dirs.slDataRoot    = path;
-    dirs.waiDataRoot   = path + "/";
-    dirs.writableDir   = externalPath + "/";
-    dirs.vocabularyDir = path + "/voc/";
-    dirs.logFileDir    = externalPath + "/log/";
+        std::string externalPath = getExternalDir();
 
-    AConfiguration* appConfig = AConfiguration_new();
-    AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
-    int32_t dpi = AConfiguration_getDensity(appConfig);
-    AConfiguration_delete(appConfig);
+        AppDirectories dirs;
+        dirs.slDataRoot    = path;
+        dirs.waiDataRoot   = path + "/";
+        dirs.writableDir   = externalPath + "/";
+        dirs.vocabularyDir = path + "/voc/";
+        dirs.logFileDir    = externalPath + "/log/";
 
-    _waiAppState.init(_width, _height, 1.0, 1.0, dpi, dirs);
+        AConfiguration* appConfig = AConfiguration_new();
+        AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
+        int32_t dpi = AConfiguration_getDensity(appConfig);
+        AConfiguration_delete(appConfig);
+
+        _waiAppState = std::make_unique<WAIAppStateHandler>(std::bind(&Engine::closeAppCallback));
+        _waiAppState->init(_width, _height, 1.0, 1.0, dpi, dirs);
+    }
+    else
+    {
+        ANativeWindow* window  = _app->window;
+        _surface = eglCreateWindowSurface(_display, _config, window, NULL);
+
+        if (eglMakeCurrent(_display, _surface, _surface, _context) == EGL_FALSE)
+        {
+            Utils::log("WAInative", "onInit Unable to eglMakeCurrent");
+            return;
+        }
+        _waiAppState->show();
+    }
 }
 
 void Engine::onTerminate()
 {
     ENGINE_DEBUG("onTerminate");
-    terminateDisplay();
-    _waiAppState.hide();
+    //terminateDisplay();
+    _waiAppState->hide();
 }
 
 void Engine::onDestroy()
 {
     ENGINE_DEBUG("onDestroy");
-    _waiAppState.close();
+    _waiAppState->close();
+    terminateDisplay();
 }
 
 void Engine::onBackButtonDown()
 {
     ENGINE_DEBUG("onBackButtonDown");
-    _waiAppState.goBack();
+    _waiAppState->goBack();
 }
 
 void Engine::initDisplay()
 {
     assert(_app->window);
-    ANativeWindow* window = _app->window;
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -296,25 +318,20 @@ void Engine::initDisplay()
                               0,
                               EGL_NONE};
 
-    EGLint     w, h, format;
-    EGLint     numConfigs;
-    EGLConfig  config;
-    EGLSurface surface;
-    EGLContext context;
-
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
     eglInitialize(display, 0, 0);
 
     /* Here, the application chooses the configuration it desires.
      * find the best match if possible, otherwise use the very first one
      */
+    EGLint numConfigs;
     eglChooseConfig(display, attribs, nullptr, 0, &numConfigs);
     std::unique_ptr<EGLConfig[]> supportedConfigs(new EGLConfig[numConfigs]);
     assert(supportedConfigs);
     eglChooseConfig(display, attribs, supportedConfigs.get(), numConfigs, &numConfigs);
     assert(numConfigs);
-    int i;
+    int       i;
+    EGLConfig config;
     for (i = 0; i < numConfigs; i++)
     {
         auto&  cfg = supportedConfigs[i];
@@ -338,8 +355,10 @@ void Engine::initDisplay()
      * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
      * As soon as we picked a EGLConfig, we can safely reconfigure the
      * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
+    EGLint format;
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-    surface = eglCreateWindowSurface(display, config, window, NULL);
+    ANativeWindow* window  = _app->window;
+    EGLSurface     surface = eglCreateWindowSurface(display, config, window, NULL);
 
     EGLint contextArgs[] = {
       EGL_CONTEXT_MAJOR_VERSION,
@@ -347,7 +366,7 @@ void Engine::initDisplay()
       EGL_CONTEXT_MINOR_VERSION,
       1,
       EGL_NONE};
-    context = eglCreateContext(display, config, NULL, contextArgs);
+    EGLContext context = eglCreateContext(display, config, NULL, contextArgs);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
     {
@@ -355,9 +374,11 @@ void Engine::initDisplay()
         return;
     }
 
+    EGLint w, h;
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
+    _config  = config;
     _display = display;
     _context = context;
     _surface = surface;
@@ -365,14 +386,12 @@ void Engine::initDisplay()
     _height  = h;
 
     // Check openGL on the system
-    /*
     auto opengl_info = {GL_VENDOR, GL_RENDERER, GL_VERSION, GL_EXTENSIONS};
     for (auto name : opengl_info)
     {
         auto info = glGetString(name);
-        Utils::log("WAInative","OpenGL Info: %s", info);
+        ENGINE_DEBUG("WAInative", "OpenGL Info: %s", info);
     }
-     */
 }
 
 void Engine::terminateDisplay()
@@ -679,12 +698,12 @@ void Engine::handleTouchDown(AInputEvent* event)
         if (touchDeltaMS < 250)
         {
             //Utils::log("WAInative","double click");
-            _waiAppState.doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
+            _waiAppState->doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
         }
         else
         {
             //Utils::log("WAInative","mouse down");
-            _waiAppState.mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
+            _waiAppState->mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
         }
     }
 
@@ -694,8 +713,8 @@ void Engine::handleTouchDown(AInputEvent* event)
         //Utils::log("WAInative","mouse up + touch 2 down");
         int x1 = AMotionEvent_getX(event, 1);
         int y1 = AMotionEvent_getY(event, 1);
-        _waiAppState.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
-        _waiAppState.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+        _waiAppState->mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _waiAppState->touch2Down(sceneViewIndex, x0, y0, x1, y1);
     }
 
     // it's two fingers at the same time
@@ -710,7 +729,7 @@ void Engine::handleTouchDown(AInputEvent* event)
         int y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 down");
-        _waiAppState.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+        _waiAppState->touch2Down(sceneViewIndex, x0, y0, x1, y1);
     }
 
     _pointersDown = touchCount;
@@ -726,7 +745,7 @@ void Engine::handleTouchUp(AInputEvent* event)
     if (touchCount == 1)
     {
         //Utils::log("WAInative","mouse up");
-        _waiAppState.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _waiAppState->mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
     }
     else if (touchCount == 2)
     {
@@ -734,7 +753,7 @@ void Engine::handleTouchUp(AInputEvent* event)
         int32_t y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 up");
-        _waiAppState.touch2Up(sceneViewIndex, x0, y0, x1, y1);
+        _waiAppState->touch2Up(sceneViewIndex, x0, y0, x1, y1);
     }
 
     _pointersDown = touchCount;
@@ -750,7 +769,7 @@ void Engine::handleTouchMove(AInputEvent* event)
     if (touchCount == 1)
     {
         //Utils::log("WAInative","mouse move");
-        _waiAppState.mouseMove(sceneViewIndex, x0, y0);
+        _waiAppState->mouseMove(sceneViewIndex, x0, y0);
     }
     else if (touchCount == 2)
     {
@@ -758,7 +777,7 @@ void Engine::handleTouchMove(AInputEvent* event)
         int32_t y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 move");
-        _waiAppState.touch2Move(sceneViewIndex, x0, y0, x1, y1);
+        _waiAppState->touch2Move(sceneViewIndex, x0, y0, x1, y1);
     }
 }
 
@@ -802,12 +821,14 @@ void android_main(struct android_app* app)
                 // Check if we are exiting.
                 if (app->destroyRequested != 0)
                 {
+                    Utils::log("android_main", "destroyRequested");
                     return;
                 }
 
                 //if this is set true by wai app the native activity has to initiate closing of the activity
                 if (closeActivity)
                 {
+                    Utils::log("android_main", "closeActivity");
                     closeActivity = false;
                     ANativeActivity_finish(app->activity);
                 }
@@ -818,7 +839,7 @@ void android_main(struct android_app* app)
     }
     catch (std::exception& e)
     {
-        Utils::log("WAInative", e.what());
+        Utils::log("android_main", e.what());
     }
 }
 

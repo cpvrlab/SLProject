@@ -28,8 +28,8 @@ public:
     //initialize SLScene, SLSceneView and UI
     void initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void initIntroScene();
-
-    void deleteSceneGraphe();
+    void enableSceneGraph();
+    void deleteSceneGraph();
     //camera start is initiated
     //void startCamera() {}
     //void stopCamera() {}
@@ -73,12 +73,12 @@ public:
     void goBack();
 
 private:
-    void checkStateTransition();
+    //void checkStateTransition();
     //returns true if screen needs an update
-    bool processState();
+    //bool processState();
 
     std::unique_ptr<WAIApp> _waiApp;
-    State                   _state = State::STARTUP;
+    //State                   _state = State::STARTUP;
 
     //implanted callback from WaiApp to system to
     CloseAppCallback _closeAppCallback;

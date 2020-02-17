@@ -28,7 +28,7 @@
 
 bool WAIApp::render()
 {
-    WAIAPP_DEBUG("render");
+    //WAIAPP_DEBUG("render");
     if (SLApplication::scene)
     {
         //update scene
@@ -93,7 +93,7 @@ void WAIApp::initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float sc
     }
 }
 
-void WAIApp::deleteSceneGraphe()
+void WAIApp::deleteSceneGraph()
 {
     // Deletes all remaining sceneviews the current scene instance
     if (SLApplication::scene)
@@ -121,7 +121,8 @@ void WAIApp::initIntroScene()
     cam1->translation(0, 0, 5);
     cam1->lookAt(0, 0, 0);
     cam1->focalDist(5);
-    cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+    cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                              SLCol4f(0.2f, 0.2f, 0.2f));
     cam1->setInitialState();
 
     SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
@@ -248,6 +249,16 @@ void WAIApp::initIntroScene()
     */
 }
 
+void WAIApp::enableSceneGraph()
+{
+    /*
+    SLScene* s = SLApplication::scene;
+    for (auto sceneView : s->sceneViews())
+        if (sceneView != nullptr)
+            sceneView->onInitialize();
+            */
+}
+
 WAIAppStateHandler::WAIAppStateHandler(CloseAppCallback cb)
   : SLInputEventInterface(SLApplication::inputManager),
     _closeAppCallback(cb)
@@ -258,7 +269,7 @@ WAIAppStateHandler::WAIAppStateHandler(CloseAppCallback cb)
 
 bool WAIAppStateHandler::update()
 {
-    WAIAPPSTATE_DEBUG("update");
+    //WAIAPPSTATE_DEBUG("update");
 
     if (_goBackRequested && _closeAppCallback)
     {
@@ -266,10 +277,20 @@ bool WAIAppStateHandler::update()
         _goBackRequested = false;
     }
 
-    checkStateTransition();
-    return processState();
+    if (_initIntroSceneDone)
+    {
+        if (_initIntroSceneDone)
+        {
+            _waiApp->render();
+        }
+    }
+
+    return true;
+    //checkStateTransition();
+    //return processState();
 }
 
+/*
 void WAIAppStateHandler::checkStateTransition()
 {
     WAIAPPSTATE_DEBUG("checkStateTransition");
@@ -328,22 +349,31 @@ bool WAIAppStateHandler::processState()
 
     return updateScreen;
 }
+ */
 
 void WAIAppStateHandler::init(int screenWidth, int screenHeight, float scr2fbX, float scr2fbY, int screenDpi, AppDirectories directories)
 {
     WAIAPPSTATE_DEBUG("init");
-    Utils::initFileLog(directories.logFileDir, true);
+    //Utils::initFileLog(directories.logFileDir, true);
 
-    _waiApp->initDirectories(directories);
-    _waiApp->initSceneGraph(screenWidth, screenHeight, scr2fbX, scr2fbY, screenDpi);
-    _initSceneGraphDone = true;
-    _waiApp->initIntroScene();
-    _initIntroSceneDone = true;
+    if (!_initSceneGraphDone)
+    {
+        _waiApp->initDirectories(directories);
+        _waiApp->initSceneGraph(screenWidth, screenHeight, scr2fbX, scr2fbY, screenDpi);
+        _initSceneGraphDone = true;
+    }
+    if (!_initIntroSceneDone)
+    {
+        _waiApp->initIntroScene();
+        _initIntroSceneDone = true;
+    }
 }
 
 void WAIAppStateHandler::show()
 {
     WAIAPPSTATE_DEBUG("show");
+    //_waiApp->enableSceneGraph();
+    //_waiApp->initIntroScene();
 }
 
 void WAIAppStateHandler::hide()
@@ -353,9 +383,10 @@ void WAIAppStateHandler::hide()
 
 void WAIAppStateHandler::close()
 {
-    _waiApp->deleteSceneGraphe();
-    _state = State::STARTUP;
     WAIAPPSTATE_DEBUG("close");
+    _waiApp->deleteSceneGraph();
+    _initSceneGraphDone = false;
+    _initIntroSceneDone = false;
 }
 
 //back button was pressed
