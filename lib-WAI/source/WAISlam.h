@@ -254,6 +254,14 @@ public:
         return _extractor;
     };
 
+    int getMapPointMatchesCount();
+
+    std::string getLoopCloseStatus();
+
+    int getLoopCloseCount();
+
+    int getKeyFramesInLoopCloseQueueCount();
+
 protected:
     std::mutex    _mutexStates;
     bool          _retainImg;
@@ -262,4 +270,5 @@ protected:
     bool          _serial;
     bool          _trackingOnly;
     KPextractor*  _extractor;
+    int           _infoMatchedInliners;
 };

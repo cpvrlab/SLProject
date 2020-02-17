@@ -1608,9 +1608,13 @@ bool WAISlam::update(cv::Mat& imageGray)
                     serialMapping(_globalMap, _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                 else
                     mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+
+                _infoMatchedInliners = inliers;
             }
             else
+            {
                 _state = TrackingState_TrackingLost;
+            }
         }
         break;
         case TrackingState_TrackingLost: {
@@ -1624,6 +1628,8 @@ bool WAISlam::update(cv::Mat& imageGray)
                 else
                     mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
 
+
+                _infoMatchedInliners = inliers;
                 _state = TrackingState_TrackingOK;
             }
         }
@@ -1740,3 +1746,24 @@ void WAISlam::setMap(WAIMap* globalMap)
     _initialized = true;
     resume();
 }
+
+int WAISlam::getMapPointMatchesCount()
+{
+    return _infoMatchedInliners;
+}
+
+std::string WAISlam::getLoopCloseStatus()
+{
+    return _loopClosing->getStatusString();
+}
+
+int WAISlam::getLoopCloseCount()
+{
+    return _globalMap->getNumLoopClosings();
+}
+
+int WAISlam::getKeyFramesInLoopCloseQueueCount()
+{
+    return _loopClosing->numOfKfsInQueue();
+}
+

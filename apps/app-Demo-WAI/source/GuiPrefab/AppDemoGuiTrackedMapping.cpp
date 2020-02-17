@@ -42,6 +42,7 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
         {
             mode->enableMapping();
         }
+        */
 
         //add tracking state
         ImGui::Text("Tracking State : %s ", mode->getPrintableState().c_str());
@@ -51,14 +52,13 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Text("Num Map Pts: %d ", mode->getMapPointCount());
         //add number of keyframes
         ImGui::Text("Number of Keyframes : %d ", mode->getKeyFrameCount());
-        ImGui::InputInt("Min. frames before next KF", &mode->mMinFrames, 5, 0);
+        //ImGui::InputInt("Min. frames before next KF", &mode->mMinFrames, 5, 0);
 
         //add loop closings counter
         ImGui::Text("Number of LoopClosings : %d ", mode->getLoopCloseCount());
         //ImGui::Text("Number of LoopClosings : %d ", _wai->mpLoopCloser->numOfLoopClosings());
         ImGui::Text("Loop closing status : %s ", mode->getLoopCloseStatus().c_str());
         ImGui::Text("Keyframes in Loop closing queue : %d", mode->getKeyFramesInLoopCloseQueueCount());
-        */
 
         /*
         //show 2D key points in video image
