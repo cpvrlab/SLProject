@@ -15,6 +15,11 @@
 using json = nlohmann::json;
 
 //-----------------------------------------------------------------------------
+CVImageGeoTiff::CVImageGeoTiff()
+{
+    _noDataValue = 0.0;
+}
+//-----------------------------------------------------------------------------
 CVImageGeoTiff::~CVImageGeoTiff()
 {
     clearData();
@@ -68,13 +73,13 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
     try // Reading values from json
     {
         jsonFile >> jsonData;
-        cout << jsonData.dump(4);
-        description = jsonData["description"].get<string>();
-        geocsc      = jsonData["coordinateSystem"]["wkt"].get<string>();
-        size        = jsonData["size"].get<vector<int>>();
-        upperLeft   = jsonData["cornerCoordinates"]["upperLeft"].get<vector<double>>();
-        lowerRight  = jsonData["cornerCoordinates"]["lowerRight"].get<vector<double>>();
-        noDataValue = jsonData["bands"][0]["noDataValue"].get<double>();
+        //cout << jsonData.dump(4);
+        description  = jsonData["description"].get<string>();
+        geocsc       = jsonData["coordinateSystem"]["wkt"].get<string>();
+        size         = jsonData["size"].get<vector<int>>();
+        upperLeft    = jsonData["cornerCoordinates"]["upperLeft"].get<vector<double>>();
+        lowerRight   = jsonData["cornerCoordinates"]["lowerRight"].get<vector<double>>();
+        _noDataValue = jsonData["bands"][0]["noDataValue"].get<double>();
     }
     catch (json::exception& e)
     {
@@ -104,28 +109,30 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
 
     _cvMat  = imgGeoTiff.clone();
     _format = cv2glPixelFormat(imgGeoTiff.type());
-    fillNoDataValues(noDataValue);
 
-    _upperleftLLA[0] = upperLeft[1];           // we store first latitude in degrees!
-    _upperleftLLA[1] = upperLeft[0];           // and then longitude in degrees
-    _upperleftLLA[2] = _cvMat.at<float>(0, 0); // and then altitude in m from the image
-
-    _lowerRightLLA[0] = lowerRight[1]; // we store first latitude in degrees!
-    _lowerRightLLA[1] = lowerRight[0]; // and then longitude in degrees
+    _upperleftLLA[0]  = upperLeft[1];           // We store first latitude in degrees! (N)
+    _upperleftLLA[1]  = upperLeft[0];           // and then longitude in degrees (W)
+    _upperleftLLA[2]  = _cvMat.at<float>(0, 0); // and then altitude in m from the image
+    _lowerRightLLA[0] = lowerRight[1];          // we store first latitude in degrees! (S)
+    _lowerRightLLA[1] = lowerRight[0];          // and then longitude in degrees (E)
     _lowerRightLLA[2] = _cvMat.at<float>(_cvMat.rows - 1, _cvMat.cols - 1);
 }
 //-----------------------------------------------------------------------------
-void CVImageGeoTiff::fillNoDataValues(float noDataValue)
+//! Returns the height in m at the given position in WGS84 latitude-longitude
+double CVImageGeoTiff::getHeightAtLatLon(float lat, float lon)
 {
-    for( int y=0; y<_cvMat.rows; y++ )
-    {
-        for (int x = 0; x < _cvMat.cols; x++)
-        {
-            if (_cvMat.at<float>(x,y) == noDataValue)
-            {
-                
-            }
-        }
-    }
+    double dLat      = _upperleftLLA[0] - _lowerRightLLA[0];
+    double dLon      = _lowerRightLLA[1] - _upperleftLLA[1];
+    double latPerPix = dLat / (double)_cvMat.rows;
+    double lonPerPix = dLon / (double)_cvMat.cols;
+
+    double offsetLat = lat - _lowerRightLLA[0];
+    double offsetLon = lon - _upperleftLLA[1];
+
+    int pixPosLat = (int)lround(offsetLat / latPerPix); // pixels from bottom
+    int pixPosLon = (int)lround(offsetLon / lonPerPix); // pixels from
+
+    // pixels are top-left coordinates in OpenCV
+    return _cvMat.at<float>(_cvMat.rows - pixPosLat, pixPosLon);
 }
 //-----------------------------------------------------------------------------

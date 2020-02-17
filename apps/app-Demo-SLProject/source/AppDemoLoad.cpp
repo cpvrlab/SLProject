@@ -2690,13 +2690,15 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(47.53319, 7.72207, 442);      // Zentrum Theater 3
-        SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 455); // Eingangtor Tempel
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);               // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                   // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.useOriginAltitude(false);             // Use
+        SLApplication::devLoc.originLLA(47.53319, 7.72207, 0);      // At the center of the theater
+        SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);             // Max. allowed distance to origin
+        SLApplication::devLoc.improveOrigin(false);                 // No autom. origin improvement
         SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        SLApplication::devRot.zeroYawAtStart(false);                // Use the real yaw from the IMU
+
+        // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
         SLApplication::devLoc.loadGeoTiff(SLImporter::defaultPath +
                                           "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif");
 

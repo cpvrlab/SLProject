@@ -58,7 +58,6 @@ public:
     SLbool calculateSolarAngles(SLdouble latDEG,
                                 SLdouble lonDEG,
                                 SLdouble altM);
-
     // Setters
     void isUsed(SLbool isUsed);
     void useOriginAltitude(SLbool useGLA) { _useOriginAltitude = useGLA; }
@@ -73,6 +72,7 @@ public:
     void locMaxDistanceM(SLfloat maxDist) { _locMaxDistanceM = maxDist; }
     void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
     void loadGeoTiff(const SLstring& geoTiffFile);
+    bool geoTiffIsValid();
 
     // Getters
     SLbool  isUsed() const { return _isUsed; }
@@ -91,6 +91,8 @@ public:
     SLfloat improveTime() { return std::max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f); }
     SLfloat originSolarZenit() const { return _originSolarZenit; }
     SLfloat originSolarAzimut() const { return _originSolarAzimut; }
+    SLfloat altDemM() const { return _altDemM; }
+    SLfloat altGpsM() const { return _altGpsM; }
 
 private:
     SLbool         _isUsed;             //!< Flag if the devices GPS Sensor is used
@@ -110,6 +112,9 @@ private:
     SLfloat        _originSolarAzimut;  //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
     SLbool         _hasOrigin;          //!< Flag if this scene has a global reference location
     SLbool         _useOriginAltitude;  //!< Flag if global reference altitude should be used
+    SLfloat        _altDemM;            //!< Altitude in m from Digital Elevation Model
+    SLfloat        _altGpsM;            //!< Altitude in m from GPS
+    const SLfloat  _eyesHeightM = 1.6f; //!< Height from ground to the eyes in m
     SLbool         _improveOrigin;      //!< Flag if origin should be improved over time & accuracy
     SLfloat        _improveTimeSEC;     //!< Max. time in seconds for the origin improvement.
     HighResTimer   _improveTimer;       //!< Timer to measure the improve time.

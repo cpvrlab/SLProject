@@ -42,6 +42,8 @@ void SLDeviceLocation::init()
     _improveOrigin     = true;
     _improveTimeSEC    = 10.0f;
     _sunLightNode      = nullptr;
+    _altDemM           = 0.0f;
+    _altGpsM           = 0.0f;
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
@@ -58,16 +60,23 @@ void SLDeviceLocation::hasOrigin(SLbool hasOrigin)
 //! Event handler for mobile device location update.
 /*! Global event handler for device GPS location with longitude and latitude in
 degrees and altitude in meters. This location uses the World Geodetic System
-1984 (WGS 84). The accuracy in meters is a radius in which the location is with
+1984 (WGS84). The accuracy in meters is a radius in which the location is with
 a probability of 68% (2 sigma). The altitude in m is the most inaccurate
 information. The option _useOriginAltitude allows to overwrite the current
 altitude with the origins altitude.
 */
-void SLDeviceLocation::onLocationLLA(SLdouble latDEG,
-                                     SLdouble lonDEG,
-                                     SLdouble altM,
+void SLDeviceLocation::onLocationLLA(SLdouble gpsLatDEG,
+                                     SLdouble gpsLonDEG,
+                                     SLdouble gpsAltM,
                                      SLfloat  accuracyM)
 {
+    // Set altitude to use
+    _altGpsM        = gpsAltM;
+    double altToUse = gpsAltM;
+    if (geoTiffIsValid())
+        altToUse = _altDemM = _demGeoTiff.getHeightAtLatLon(gpsLatDEG, gpsLonDEG) +
+                              _eyesHeightM;
+
     // Init origin if it is not set yet or if the origin should be improved
     if (!_hasOrigin || _improveOrigin)
     {
@@ -83,12 +92,12 @@ void SLDeviceLocation::onLocationLLA(SLdouble latDEG,
             _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
         {
             _originAccuracyM = accuracyM;
-            originLLA(latDEG, lonDEG, altM);
-            defaultLLA(latDEG, lonDEG, altM);
+            originLLA(gpsLatDEG, gpsLonDEG, altToUse);
+            defaultLLA(gpsLatDEG, gpsLonDEG, altToUse);
         }
     }
 
-    _locLLA.set(latDEG, lonDEG, _useOriginAltitude ? _originLLA.alt : altM);
+    _locLLA.set(gpsLatDEG, gpsLonDEG, _useOriginAltitude ? _originLLA.alt : altToUse);
 
     _locAccuracyM = accuracyM;
 
@@ -271,12 +280,55 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     return (result == 0);
 }
 //------------------------------------------------------------------------------
+//! Loads a GeoTiff DEM (Digital Elevation Model) Image
+/* Loads a GeoTiff DEM (Digital Elevation Model) Image that must be in WGS84
+ * coordinates. For more info see CVImageGeoTiff.
+ * If the 32-bit image file and its JSON info file gets successfully loaded,
+ * we can set the altitudes from the _originLLA and _defaultLLA by the DEM.
+ */
 void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 {
     assert(!_defaultLLA.isZero() &&
            !_originLLA.isZero() &&
            "Set first defaultLLA and originLLA before you add a GeoTiff.");
 
-    _demGeoTiff.loadGeoTiff("SLProject",geoTiffFile);
+    _demGeoTiff.loadGeoTiff("SLProject", geoTiffFile);
+
+    // Check that default and origin location is withing the GeoTiff extends
+    if (geoTiffIsValid())
+    {
+        // Overwrite the altitudes
+        originLLA(_originLLA.lat,
+                  _originLLA.lon,
+                  _demGeoTiff.getHeightAtLatLon(_originLLA.lat, _originLLA.lon));
+
+        defaultLLA(_defaultLLA.lat,
+                   _defaultLLA.lon,
+                   _demGeoTiff.getHeightAtLatLon(_defaultLLA.lat, _defaultLLA.lon) +
+                   _eyesHeightM);
+    }
+    else
+    {
+        string msg = "SLDeviceLocation::loadGeoTiff: Either the geotiff file ";
+        msg += "could not be loaded or the origin or default position lies ";
+        msg += "not within the extends of the geotiff file.";
+        SL_EXIT_MSG(msg.c_str());
+    }
+}
+//------------------------------------------------------------------------------
+/* Returns true if a geoTiff files is loaded and the origin and default
+ * positions are within the extends of the image.
+*/
+bool SLDeviceLocation::geoTiffIsValid()
+{
+    return (!_demGeoTiff.cvMat().empty() &&
+            _originLLA.lat < _demGeoTiff.upperLeftLLA()[0] &&
+            _originLLA.lat > _demGeoTiff.lowerRightLLA()[0] &&
+            _originLLA.lon > _demGeoTiff.upperLeftLLA()[1] &&
+            _originLLA.lon < _demGeoTiff.lowerRightLLA()[1] &&
+            _defaultLLA.lat < _demGeoTiff.upperLeftLLA()[0] &&
+            _defaultLLA.lat > _demGeoTiff.lowerRightLLA()[0] &&
+            _defaultLLA.lon > _demGeoTiff.upperLeftLLA()[1] &&
+            _defaultLLA.lon < _demGeoTiff.lowerRightLLA()[1]);
 }
 //------------------------------------------------------------------------------

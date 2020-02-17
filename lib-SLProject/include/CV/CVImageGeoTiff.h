@@ -24,20 +24,21 @@
  separate json file with the same name. They are generated with the gdaltool as
  follows: gdaltool geotifffile.tif -json > geotifffile.json
 */
-class CVImageGeoTiff : CVImage
+class CVImageGeoTiff : public CVImage
 {
 public:
-    CVImageGeoTiff() = default;
+    CVImageGeoTiff();
     ~CVImageGeoTiff();
 
     void    loadGeoTiff(const string& appTag, const string& filename);
-    void    fillNoDataValues(float noDataValue);
     CVVec3d upperLeftLLA() { return _upperleftLLA; }
     CVVec3d lowerRightLLA() { return _lowerRightLLA; }
+    double  getHeightAtLatLon(float lat, float lon);
 
 private:
     CVVec3d _upperleftLLA;  //! Upper-left corner of DEM in WGS84 coords
     CVVec3d _lowerRightLLA; //! Lower-right corner of DEM in WGS84 coords
+    double  _noDataValue;   //! double pixel value that stands for no data
 };
 //-----------------------------------------------------------------------------
 #endif
