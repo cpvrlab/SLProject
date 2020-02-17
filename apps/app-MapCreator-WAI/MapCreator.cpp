@@ -317,7 +317,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             if (!mapLoadingSuccess)
             {
                 std::cout << ("MapCreator::createNewDenseWaiMap: Could not load map from file " + mapDir + "/" + mapFile) << std::endl;
-                return;
+                return false;
             }
         }
         else
