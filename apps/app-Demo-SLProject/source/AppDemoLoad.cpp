@@ -2649,9 +2649,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(150);
 
         // Create video texture and turn on live video
-        //videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-        //cam1->background().texture(videoTexture);
-        //CVCapture::instance()->videoType(VT_MAIN);
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(5.0f);
@@ -2670,6 +2670,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
                                                  0.4f);   // 40% ambient reflection
+       
+        // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
 
         // Add axis object a world origin (Loeb Ecke)

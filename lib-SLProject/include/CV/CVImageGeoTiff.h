@@ -33,7 +33,7 @@ public:
     void    loadGeoTiff(const string& appTag, const string& filename);
     CVVec3d upperLeftLLA() { return _upperleftLLA; }
     CVVec3d lowerRightLLA() { return _lowerRightLLA; }
-    double  getHeightAtLatLon(float lat, float lon);
+    double  getHeightAtLatLon(double lat, double lon);
 
 private:
     CVVec3d _upperleftLLA;  //! Upper-left corner of DEM in WGS84 coords
