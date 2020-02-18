@@ -39,7 +39,10 @@ public:
     SLPolyline* spanningTreeMesh          = nullptr;
     SLPolyline* loopEdgesMesh             = nullptr;
 
+    SLNode* augmentationRoot = nullptr;
+
     void rebuild(std::string location, std::string area);
+    void adjustAugmentationTransparency(float kt);
 };
 
 #endif

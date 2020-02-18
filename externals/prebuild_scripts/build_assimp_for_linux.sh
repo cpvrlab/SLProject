@@ -45,6 +45,8 @@ cd $BUILD_D
 cmake \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Debug \
+    -DASSIMP_BUILD_TESTS=OFF \
+    -DINJECT_DEBUG_POSTFIX=OFF \
     ..
 
 # finally build it
@@ -63,6 +65,8 @@ cd $BUILD_R
 cmake \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Release \
+    -DASSIMP_BUILD_TESTS=OFF \
+    -DINJECT_DEBUG_POSTFIX=OFF \
     ..
 
 # finally build it
@@ -85,8 +89,8 @@ cp -R $BUILD_D/install/lib       $ZIPFOLDER/Debug
 cp LICENSE $ZIPFOLDER
 cp Readme.md $ZIPFOLDER
 
-if [ -d "../prebuilt/$ZIPFILE" ]; then
-    rm -rf ../prebuilt/$ZIPFILE
+if [ -d "../../prebuilt/$ZIPFILE" ]; then
+    rm -rf ../../prebuilt/$ZIPFILE
 fi
 
 mv $ZIPFOLDER ../../prebuilt/
