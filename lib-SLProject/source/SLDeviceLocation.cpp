@@ -71,11 +71,14 @@ void SLDeviceLocation::onLocationLLA(SLdouble gpsLatDEG,
                                      SLfloat  accuracyM)
 {
     // Set altitude to use
-    _altGpsM        = gpsAltM;
-    double altToUse = gpsAltM;
+    _altGpsM       = (float)gpsAltM;
+    float altToUse = (float)gpsAltM;
     if (geoTiffIsValid())
-        altToUse = _altDemM = _demGeoTiff.getHeightAtLatLon(gpsLatDEG, gpsLonDEG) +
-                              _eyesHeightM;
+    {
+        _altDemM = (float)_demGeoTiff.getHeightAtLatLon(gpsLatDEG, gpsLonDEG) +
+                   _eyesHeightM;
+        altToUse = _altDemM;
+    }
 
     // Init origin if it is not set yet or if the origin should be improved
     if (!_hasOrigin || _improveOrigin)
@@ -157,7 +160,8 @@ void SLDeviceLocation::originLLA(SLdouble latDEG,
 /*! It must be called after setting the origin. If no origin is set with it
 will be automatically set in onLocationLLA. The default location is used by
 the camera in SLCamera::setView if the current distance between _locENU and
-_originENU is greater than _locMaxDistanceM.
+_originENU is greater than _locMaxDistanceM. Witch means that you are in real
+not near the location.
 */
 void SLDeviceLocation::defaultLLA(SLdouble latDEG,
                                   SLdouble lonDEG,
@@ -305,7 +309,7 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
         defaultLLA(_defaultLLA.lat,
                    _defaultLLA.lon,
                    _demGeoTiff.getHeightAtLatLon(_defaultLLA.lat, _defaultLLA.lon) +
-                   _eyesHeightM);
+                     _eyesHeightM);
     }
     else
     {
