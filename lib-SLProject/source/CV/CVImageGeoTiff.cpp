@@ -68,12 +68,11 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
     vector<int>    size;
     vector<double> upperLeft;
     vector<double> lowerRight;
-    double         noDataValue;
 
-    try // Reading values from json
+    // Reading values from json
+    try 
     {
         jsonFile >> jsonData;
-        //cout << jsonData.dump(4);
         description  = jsonData["description"].get<string>();
         geocsc       = jsonData["coordinateSystem"]["wkt"].get<string>();
         size         = jsonData["size"].get<vector<int>>();
@@ -119,7 +118,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
 }
 //-----------------------------------------------------------------------------
 //! Returns the height in m at the given position in WGS84 latitude-longitude
-double CVImageGeoTiff::getHeightAtLatLon(float lat, float lon)
+double CVImageGeoTiff::getHeightAtLatLon(double lat, double lon)
 {
     double dLat      = _upperleftLLA[0] - _lowerRightLLA[0];
     double dLon      = _lowerRightLLA[1] - _upperleftLLA[1];

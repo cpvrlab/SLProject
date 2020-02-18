@@ -44,6 +44,9 @@ set(g2o_LINK_LIBS
 set(assimp_DIR)
 set(assimp_LINK_DIR)
 set(assimp_INCLUDE_DIR)
+set(assimp_LINK_LIBS
+    assimp
+    IrrXML)
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
@@ -482,9 +485,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
     endif ()
 
     foreach(lib ${assimp_LINK_LIBS})
-        add_library(lib_${lib} SHARED IMPORTED)
+        add_library(lib_${lib} STATIC IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES
-            IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.so"
+            IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
         )
         set(assimp_LIBS
             ${assimp_LIBS}

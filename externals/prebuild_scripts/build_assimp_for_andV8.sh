@@ -48,6 +48,8 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Debug \
     -DASSIMP_BUILD_TESTS=OFF \
+    -DINJECT_DEBUG_POSTFIX=OFF \
+    -DBUILD_SHARED_LIBS=OFF \
     ..
 
 # finally build it
@@ -69,6 +71,8 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Release \
     -DASSIMP_BUILD_TESTS=OFF \
+    -DINJECT_DEBUG_POSTFIX=OFF \
+    -DBUILD_SHARED_LIBS=OFF \
     ..
 
 # finally build it
@@ -80,11 +84,13 @@ cd .. # back to assimp
 
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER
-mkdir $ZIPFOLDER
+mkdir -p $ZIPFOLDER/include
+mkdir -p $ZIPFOLDER/Release/arm64-v8a
+mkdir -p $ZIPFOLDER/Debug/arm64-v8a
 
 cp -R $BUILD_R/install/include   $ZIPFOLDER/
-cp -R $BUILD_R/install/lib       $ZIPFOLDER/Release
-cp -R $BUILD_D/install/lib       $ZIPFOLDER/Debug
+cp -R $BUILD_R/install/lib/*.a       $ZIPFOLDER/Release/arm64-v8a
+cp -R $BUILD_D/install/lib/*.a       $ZIPFOLDER/Debug/arm64-v8a
 cp LICENSE $ZIPFOLDER
 cp Readme.md $ZIPFOLDER
 

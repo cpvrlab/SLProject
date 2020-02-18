@@ -1232,6 +1232,14 @@ void WAIApp::handleEvents()
             }
             break;
 
+            case WAIEventType_AdjustTransparency: {
+                WAIEventAdjustTransparency* adjustTransparencyEvent = (WAIEventAdjustTransparency*)event;
+                _waiScene.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
+
+                delete adjustTransparencyEvent;
+            }
+            break;
+
             case WAIEventType_None:
             default: {
             }

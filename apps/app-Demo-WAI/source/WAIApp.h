@@ -154,6 +154,7 @@ enum WAIEventType
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
+    WAIEventType_AdjustTransparency
 };
 
 struct WAIEvent
@@ -205,6 +206,13 @@ struct WAIEventMapNodeTransform : WAIEvent
 struct WAIEventDownloadCalibrationFiles : WAIEvent
 {
     WAIEventDownloadCalibrationFiles() { type = WAIEventType_DownloadCalibrationFiles; }
+};
+
+struct WAIEventAdjustTransparency : WAIEvent
+{
+    WAIEventAdjustTransparency() { type = WAIEventType_AdjustTransparency; }
+
+    float kt;
 };
 
 //-----------------------------------------------------------------------------
