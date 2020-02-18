@@ -106,6 +106,7 @@ void WAIApp::loadSlam()
 {
     if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
     {
+        loadWAISceneView(SLApplication::scene, _sv, _currentSlamParams.location, _currentSlamParams.area);
         startOrbSlam(_currentSlamParams);
         _guiSlamLoad->setSlamParams(_currentSlamParams);
         _gui->uiPrefs->showSlamLoad = false;
@@ -477,7 +478,8 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
                         map,
                         slamParams.params.onlyTracking,
                         slamParams.params.serial,
-                        slamParams.params.retainImg);
+                        slamParams.params.retainImg,
+                        slamParams.params.cullRedundantPerc);
 
     // 6. save current params
     _currentSlamParams = slamParams;
@@ -1002,11 +1004,20 @@ void WAIApp::saveMap(std::string location,
         if (!Utils::dirExists(imgDir))
             Utils::makeDir(imgDir);
     }
-    /*
+
     if (!marker.empty())
     {
+        ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
+        voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+
         cv::Mat nodeTransform;
-        if (!_mode->doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker, nodeTransform, 0.75f))
+        if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
+                                                    nodeTransform,
+                                                    0.75f,
+                                                    _mode->getKPextractor(),
+                                                    _mode->getMap(),
+                                                    _calibration.cameraMat(),
+                                                    voc))
         {
             showErrorMsg("Failed to do marker map preprocessing");
         }
@@ -1025,15 +1036,14 @@ void WAIApp::saveMap(std::string location,
     }
     else
     {
-        */
-    if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                _waiScene.mapNode,
-                                mapDir + filename,
-                                imgDir))
-    {
-        showErrorMsg("Failed to save map " + mapDir + filename);
+        if (!WAIMapStorage::saveMap(_mode->getMap(),
+                                    _waiScene.mapNode,
+                                    mapDir + filename,
+                                    imgDir))
+        {
+            showErrorMsg("Failed to save map " + mapDir + filename);
+        }
     }
-    //}
 
     _mode->resume();
 }

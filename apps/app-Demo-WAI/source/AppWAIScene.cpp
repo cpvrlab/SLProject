@@ -42,7 +42,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             SLAssimpImporter importer;
             SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple.fbx");
 
-#if 0
+#if 1
             for (SLNode* child : temple->children())
             {
                 for (SLMesh* mesh : child->meshes())
@@ -68,8 +68,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             SLAssimpImporter importer;
             SLNode*          theater = importer.load("FBX/AugustaRaurica/Theater.fbx");
             theater->scale(0.01f);
-
-            /*
+#if 1
             for (SLNode* child : theater->children())
             {
                 for (SLMesh* mesh : child->meshes())
@@ -79,7 +78,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                     mesh->init(child);
                 }
             }
-            */
+#endif
 
             SLLightSpot* light1 = new SLLightSpot(1, 10, 1, 0.3f);
             light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));

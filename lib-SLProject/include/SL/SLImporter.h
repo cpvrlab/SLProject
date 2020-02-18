@@ -60,7 +60,7 @@ typedef std::map<int, SLMesh*> SLMeshMap;
 //! Interface for 3D file format importer implementations
 class SLImporter
 {
-    public:
+public:
     SLImporter();
     explicit SLImporter(SLLogVerbosity consoleVerb);
     explicit SLImporter(const SLstring& logFile,
@@ -74,6 +74,7 @@ class SLImporter
     virtual SLNode* load(SLstring    pathFilename,
                          SLbool      loadMeshesOnly = true,
                          SLMaterial* overrideMat    = nullptr,
+                         float       ambientFactor  = 0.0f,
                          SLuint      flags =
                            SLProcess_Triangulate |
                            SLProcess_JoinIdenticalVertices |
@@ -110,7 +111,7 @@ class SLImporter
 
     static SLstring defaultPath;
 
-    protected:
+protected:
     ofstream       _log;                 //!< log stream
     SLstring       _logFile;             //!< name of the log file
     SLLogVerbosity _logConsoleVerbosity; //!< verbosity level of log output to the console

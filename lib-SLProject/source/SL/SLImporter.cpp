@@ -15,7 +15,7 @@
 #endif
 
 #include <SLImporter.h>
-#include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
+#include <cstdarg> // only needed because we wrap printf in logMessage, read the todo and fix it!
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.

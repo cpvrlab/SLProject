@@ -213,9 +213,9 @@ bool CVCalibration::load(const string& calibDir,
             buildUndistortionMaps();
     }
 
-    Utils::log("SLProject", "Calib. loaded  : %s", fullPathAndFilename.c_str());
-    Utils::log("SLProject", "Calib. created : %s", _calibrationTime.c_str());
-    Utils::log("SLProject", "Camera FOV H/V : %3.1f/%3.1f", _cameraFovVDeg, _cameraFovHDeg);
+    Utils::log("SLProject", "Calib. loaded   : %s", fullPathAndFilename.c_str());
+    Utils::log("SLProject", "Calib. created  : %s", _calibrationTime.c_str());
+    Utils::log("SLProject", "Camera FOV H/V  : %3.1f/%3.1f", _cameraFovVDeg, _cameraFovHDeg);
 
     _cameraMatOrig = _cameraMat.clone();
     _imageSizeOrig = _imageSize;

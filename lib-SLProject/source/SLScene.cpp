@@ -439,9 +439,13 @@ void SLScene::onLoadAsset(const SLstring& assetFile,
     // Try to load assed and add it to the scene root node
     SLAssimpImporter importer;
 
-    ///////////////////////////////////////////////////////////////////////
-    SLNode* loaded = importer.load(assetFile, true, nullptr, processFlags);
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////
+    SLNode* loaded = importer.load(assetFile,
+                                   true,
+                                   nullptr,
+                                   0.0f,
+                                   processFlags);
+    /////////////////////////////////////////////
 
     // Add root node on empty scene
     if (!_root3D)

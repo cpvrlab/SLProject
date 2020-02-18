@@ -754,6 +754,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLLA().x);
             sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLLA().y);
             sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLLA().z);
+            sprintf(m + strlen(m), "Altitude GPS (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
             sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
             sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
             sprintf(m + strlen(m), "Max. Dist. (m)      : %6.1f\n", SLApplication::devLoc.locMaxDistanceM());
@@ -1094,6 +1096,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
+
+                    SLstring modelAR = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+                    if (Utils::fileExists(modelAR))
+                        if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
+                            s->onLoad(s, sv, SID_VideoAugustaRaurica);
+
+                    SLstring modelAV = SLImporter::defaultPath + "DAE/Aventicum/Aventicum01.dae";
+                    if (Utils::fileExists(modelAV))
+                        if (ImGui::MenuItem("Aventicum AR (Main)", nullptr, sid == SID_VideoAventicum))
+                            s->onLoad(s, sv, SID_VideoAventicum);
 
                     ImGui::EndMenu();
                 }

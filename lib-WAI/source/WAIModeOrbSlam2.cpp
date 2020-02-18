@@ -1172,6 +1172,7 @@ bool WAI::ModeOrbSlam2::needNewKeyFrame()
     const int nKFs = _map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
+    // unless less than 30 keyframes are in the map
     if (mCurrentFrame.mnId < mnLastRelocFrameId + mMaxFrames && nKFs > mMaxFrames)
         return false;
 
