@@ -808,6 +808,7 @@ void LocalMapping::KeyFrameCulling()
         {
             pKF->SetBadFlag();
             mpMap->EraseKeyFrame(pKF);
+            mpMap->GetKeyFrameDB()->erase(pKF);
         }
     }
 }

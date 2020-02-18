@@ -106,8 +106,6 @@ void LoopClosing::Run()
 
         ResetIfRequested();
 
-        std::cout << "loopClosing status: " << getStatusString() << std::endl;
-
         if (CheckFinish())
             break;
     }
