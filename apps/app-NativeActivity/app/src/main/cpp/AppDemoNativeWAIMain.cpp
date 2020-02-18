@@ -44,17 +44,18 @@
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_WARN(...) Utils::log("Engine", __VA_ARGS__)
+#define ASSERT(cond, fmt, ...) \
+    if (!(cond)) \
+    { \
+        __android_log_assert(#cond, "Engine", fmt, ##__VA_ARGS__); \
+    }
 
 //#define ENGINE_DEBUG(...) // nothing
 //#define ENGINE_INFO(...)  // nothing
 //#define ENGINE_WARN(...)  // nothing
 
-//SENSNdkCamera* ndkCamera = nullptr;
 //bool         _cameraGranted = false;
 //struct android_app* androidApp = nullptr;
-
-//if this is set true by wai app the native activity has to initiate closing of the activity
-bool closeActivity = false;
 
 class Engine
 {
@@ -73,12 +74,23 @@ public:
     void            handleTouchUp(AInputEvent* event);
     void            handleTouchDown(AInputEvent* event);
 
+    bool isReady();
+
+    void onPermissionGranted(jboolean granted);
+
+    bool closeAppRequested() const;
+    void closeAppRequested(bool state);
     //this callback can be called by the wrapped app to make native activity shutdown
     static void closeAppCallback();
 
 private:
     void initDisplay();
+    bool resumeDisplay();
     void terminateDisplay();
+
+    void startCamera();
+    void stopCamera();
+    void checkAndRequestAndroidPermissions();
 
     std::string getInternalDir();
     std::string getExternalDir();
@@ -86,7 +98,11 @@ private:
 
     android_app* _app;
     //instantiated in fist call to onInit()
-    std::unique_ptr<WAIAppStateHandler> _waiAppState;
+    WAIApp _waiApp;
+    bool   _waiAppIsInitialized = false;
+
+    AppDirectories _dirs;
+    int32_t        _dpi;
 
     EGLConfig  _config;
     EGLDisplay _display;
@@ -95,14 +111,28 @@ private:
     int32_t    _width;
     int32_t    _height;
 
+    bool _hasFocus = false;
+    //if this is set true by wai app the native activity has to initiate closing of the activity
+    bool _closeAppRequest = false;
+
     // input stuff
     int32_t  _pointersDown;
     uint64_t _lastTouchMS;
+
+    SENSNdkCamera* ndkCamera      = nullptr;
+    bool           _cameraGranted = false;
 
     /*
     SensorsHandler* sensorsHandler;
     */
 };
+
+static Engine* pEngineObj = nullptr;
+Engine*        GetEngine(void)
+{
+    ASSERT(pEngineObj, "Engine has not been initialized");
+    return pEngineObj;
+}
 
 static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
 {
@@ -197,7 +227,6 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
 
         return 1;
     }
-    /*
     else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
     {
         if (AKeyEvent_getKeyCode(event) == AKEYCODE_BACK && AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN)
@@ -207,23 +236,21 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
             return 1; // <-- prevent default handler
         }
     }
-    */
 
     return 0;
 }
 
 Engine::Engine(android_app* app)
   : _app(app)
-//_waiAppState(std::bind(&Engine::closeAppCallback))
 {
 }
 
 void Engine::update()
 {
-    if (_display && _waiAppState)
+    if (_display)
     {
         //ENGINE_DEBUG("eglSwapBuffers");
-        _waiAppState->update();
+        _waiApp.update();
         eglSwapBuffers(_display, _surface);
     }
 }
@@ -232,7 +259,9 @@ void Engine::onInit()
 {
     ENGINE_DEBUG("onInit");
 
-    if (!_waiAppState)
+    startCamera();
+
+    if (!_waiAppIsInitialized)
     {
         initDisplay();
 
@@ -249,53 +278,56 @@ void Engine::onInit()
 
         std::string externalPath = getExternalDir();
 
-        AppDirectories dirs;
-        dirs.slDataRoot    = path;
-        dirs.waiDataRoot   = path + "/";
-        dirs.writableDir   = externalPath + "/";
-        dirs.vocabularyDir = path + "/voc/";
-        dirs.logFileDir    = externalPath + "/log/";
+        _dirs.slDataRoot    = path;
+        _dirs.waiDataRoot   = path + "/";
+        _dirs.writableDir   = externalPath + "/";
+        _dirs.vocabularyDir = path + "/voc/";
+        _dirs.logFileDir    = externalPath + "/log/";
 
         AConfiguration* appConfig = AConfiguration_new();
         AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
-        int32_t dpi = AConfiguration_getDensity(appConfig);
+        _dpi = AConfiguration_getDensity(appConfig);
         AConfiguration_delete(appConfig);
 
-        _waiAppState = std::make_unique<WAIAppStateHandler>(std::bind(&Engine::closeAppCallback));
-        _waiAppState->init(_width, _height, 1.0, 1.0, dpi, dirs);
+        _waiApp.initCloseAppCallback(std::bind(&Engine::closeAppCallback));
+        _waiApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs);
+        _waiAppIsInitialized = true;
     }
     else
     {
-        ANativeWindow* window  = _app->window;
-        _surface = eglCreateWindowSurface(_display, _config, window, NULL);
-
-        if (eglMakeCurrent(_display, _surface, _surface, _context) == EGL_FALSE)
+        if (!resumeDisplay())
         {
-            Utils::log("WAInative", "onInit Unable to eglMakeCurrent");
-            return;
+            _waiApp.close();
+            terminateDisplay();
+            initDisplay();
+            _waiApp.initCloseAppCallback(std::bind(&Engine::closeAppCallback));
+            _waiApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs);
         }
-        _waiAppState->show();
     }
+
+    _hasFocus = true;
 }
 
 void Engine::onTerminate()
 {
     ENGINE_DEBUG("onTerminate");
     //terminateDisplay();
-    _waiAppState->hide();
+    //_waiApp.hide();
+    stopCamera();
+    _hasFocus = false;
 }
 
 void Engine::onDestroy()
 {
     ENGINE_DEBUG("onDestroy");
-    _waiAppState->close();
+    _waiApp.close();
     terminateDisplay();
 }
 
 void Engine::onBackButtonDown()
 {
     ENGINE_DEBUG("onBackButtonDown");
-    _waiAppState->goBack();
+    _waiApp.goBack();
 }
 
 void Engine::initDisplay()
@@ -394,6 +426,19 @@ void Engine::initDisplay()
     }
 }
 
+bool Engine::resumeDisplay()
+{
+    ANativeWindow* window = _app->window;
+    _surface              = eglCreateWindowSurface(_display, _config, window, NULL);
+
+    if (eglMakeCurrent(_display, _surface, _surface, _context) == EGL_FALSE)
+    {
+        Utils::log("WAInative", "onInit Unable to eglMakeCurrent");
+        return false;
+    }
+    return true;
+}
+
 void Engine::terminateDisplay()
 {
     if (_display != EGL_NO_DISPLAY)
@@ -413,6 +458,92 @@ void Engine::terminateDisplay()
     _display = EGL_NO_DISPLAY;
     _context = EGL_NO_CONTEXT;
     _surface = EGL_NO_SURFACE;
+}
+
+void Engine::startCamera()
+{
+    if (_cameraGranted)
+    {
+        try
+        {
+            if (ndkCamera)
+                delete ndkCamera;
+
+            //get all information about available cameras
+            ndkCamera = new SENSNdkCamera(SENSCamera::Facing::BACK);
+            //start continious captureing request with certain configuration
+            SENSCamera::Config camConfig;
+            camConfig.targetWidth          = 640;
+            camConfig.targetHeight         = 360;
+            camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+            camConfig.convertToGray        = true;
+            camConfig.adjustAsynchronously = true;
+            ndkCamera->start(camConfig);
+
+            _waiApp.initCamera(ndkCamera);
+        }
+        catch (std::exception& e)
+        {
+            Utils::log("SENSNdkCamera", e.what());
+        }
+    }
+    else
+    {
+        checkAndRequestAndroidPermissions();
+    }
+}
+
+void Engine::stopCamera()
+{
+    try
+    {
+        if (ndkCamera)
+        {
+            delete ndkCamera;
+            ndkCamera = nullptr;
+        }
+    }
+    catch (std::exception& e)
+    {
+        Utils::log("SENSNdkCamera", e.what());
+    }
+}
+
+void Engine::checkAndRequestAndroidPermissions()
+{
+    ANativeActivity* activity = _app->activity;
+    JNIEnv*          env;
+    activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+
+    activity->vm->AttachCurrentThread(&env, NULL);
+
+    jobject activityObj = env->NewGlobalRef(activity->clazz);
+    jclass  clz         = env->GetObjectClass(activityObj);
+    env->CallVoidMethod(activityObj,
+                        env->GetMethodID(clz, "RequestCamera", "()V"));
+    env->DeleteGlobalRef(activityObj);
+
+    activity->vm->DetachCurrentThread();
+}
+
+void Engine::onPermissionGranted(jboolean granted)
+{
+    _cameraGranted = (granted != JNI_FALSE);
+
+    if (_cameraGranted)
+    {
+        startCamera();
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_ch_cpvr_nativewai_WAIActivity_notifyCameraPermission(
+  JNIEnv*  env,
+  jclass   type,
+  jboolean permission)
+{
+    std::thread permissionHandler(&Engine::onPermissionGranted, GetEngine(), permission);
+    permissionHandler.detach();
 }
 
 std::string Engine::getInternalDir()
@@ -698,12 +829,12 @@ void Engine::handleTouchDown(AInputEvent* event)
         if (touchDeltaMS < 250)
         {
             //Utils::log("WAInative","double click");
-            _waiAppState->doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
+            _waiApp.doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
         }
         else
         {
             //Utils::log("WAInative","mouse down");
-            _waiAppState->mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
+            _waiApp.mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
         }
     }
 
@@ -713,8 +844,8 @@ void Engine::handleTouchDown(AInputEvent* event)
         //Utils::log("WAInative","mouse up + touch 2 down");
         int x1 = AMotionEvent_getX(event, 1);
         int y1 = AMotionEvent_getY(event, 1);
-        _waiAppState->mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
-        _waiAppState->touch2Down(sceneViewIndex, x0, y0, x1, y1);
+        _waiApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _waiApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
     }
 
     // it's two fingers at the same time
@@ -729,10 +860,15 @@ void Engine::handleTouchDown(AInputEvent* event)
         int y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 down");
-        _waiAppState->touch2Down(sceneViewIndex, x0, y0, x1, y1);
+        _waiApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
     }
 
     _pointersDown = touchCount;
+}
+
+bool Engine::isReady()
+{
+    return _hasFocus;
 }
 
 void Engine::handleTouchUp(AInputEvent* event)
@@ -745,7 +881,7 @@ void Engine::handleTouchUp(AInputEvent* event)
     if (touchCount == 1)
     {
         //Utils::log("WAInative","mouse up");
-        _waiAppState->mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _waiApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
     }
     else if (touchCount == 2)
     {
@@ -753,7 +889,7 @@ void Engine::handleTouchUp(AInputEvent* event)
         int32_t y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 up");
-        _waiAppState->touch2Up(sceneViewIndex, x0, y0, x1, y1);
+        _waiApp.touch2Up(sceneViewIndex, x0, y0, x1, y1);
     }
 
     _pointersDown = touchCount;
@@ -769,7 +905,7 @@ void Engine::handleTouchMove(AInputEvent* event)
     if (touchCount == 1)
     {
         //Utils::log("WAInative","mouse move");
-        _waiAppState->mouseMove(sceneViewIndex, x0, y0);
+        _waiApp.mouseMove(sceneViewIndex, x0, y0);
     }
     else if (touchCount == 2)
     {
@@ -777,14 +913,24 @@ void Engine::handleTouchMove(AInputEvent* event)
         int32_t y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 move");
-        _waiAppState->touch2Move(sceneViewIndex, x0, y0, x1, y1);
+        _waiApp.touch2Move(sceneViewIndex, x0, y0, x1, y1);
     }
+}
+
+bool Engine::closeAppRequested() const
+{
+    return _closeAppRequest;
+}
+
+void Engine::closeAppRequested(bool state)
+{
+    _closeAppRequest = state;
 }
 
 void Engine::closeAppCallback()
 {
     Utils::log("Engine", "closeAppCallback");
-    closeActivity = true;
+    GetEngine()->closeAppRequested(true);
 }
 
 /**
@@ -795,6 +941,7 @@ void Engine::closeAppCallback()
 void android_main(struct android_app* app)
 {
     Engine engine(app);
+    pEngineObj = &engine;
 
     app->userData     = reinterpret_cast<void*>(&engine);
     app->onAppCmd     = handleLifecycleEvent;
@@ -811,7 +958,7 @@ void android_main(struct android_app* app)
             struct android_poll_source* source;
 
             // We loop until all events are read
-            while ((ident = ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0)
+            while ((ident = ALooper_pollAll(engine.isReady() ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
             {
                 if (source != NULL)
                 {
@@ -822,19 +969,23 @@ void android_main(struct android_app* app)
                 if (app->destroyRequested != 0)
                 {
                     Utils::log("android_main", "destroyRequested");
+                    //todo: is there a reason to destroy here instead of in handleLifecycleEvent?
                     return;
-                }
-
-                //if this is set true by wai app the native activity has to initiate closing of the activity
-                if (closeActivity)
-                {
-                    Utils::log("android_main", "closeActivity");
-                    closeActivity = false;
-                    ANativeActivity_finish(app->activity);
                 }
             }
 
-            engine.update();
+            //if this is set true by wai app the native activity has to initiate closing of the activity
+            if (engine.closeAppRequested())
+            {
+                Utils::log("android_main", "closeActivity");
+                engine.closeAppRequested(false);
+                ANativeActivity_finish(app->activity);
+            }
+
+            if (engine.isReady())
+            {
+                engine.update();
+            }
         }
     }
     catch (std::exception& e)

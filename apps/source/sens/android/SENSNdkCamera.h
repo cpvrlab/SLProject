@@ -55,7 +55,7 @@ public:
     void imageCallback(AImageReader* reader);
 
 private:
-    void                                  initOptimalCamera(SENSCamera::Facing facing);
+    void initOptimalCamera(SENSCamera::Facing facing);
     //ACameraDevice_stateCallbacks*         getDeviceListener();
     //ACameraManager_AvailabilityCallbacks* getManagerListener();
     ACameraManager_AvailabilityCallbacks _cameraManagerAvailabilityCallbacks;

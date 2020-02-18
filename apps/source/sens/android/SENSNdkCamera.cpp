@@ -106,7 +106,8 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
   : SENSCamera(facing),
     _threadException("SENSNdkCamera: empty default exception")
 {
-    _valid = false;
+    _valid      = false;
+    _stopThread = false;
     //init camera manager
     _cameraManager = ACameraManager_create();
     if (!_cameraManager)
@@ -144,7 +145,21 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
 
 SENSNdkCamera::~SENSNdkCamera()
 {
+    LOG_CAM_DEBUG("~SENSNdkCamera: terminate the thread...");
+    if (_thread)
+    {
+        _stopThread = true;
+        _waitCondition.notify_one();
+        if (_thread->joinable())
+        {
+            _thread->join();
+            LOG_CAM_DEBUG("~SENSNdkCamera: thread joined");
+        }
+        _thread.release();
+    }
+
     _valid = false;
+
     LOG_CAM_DEBUG("~SENSNdkCamera: stopping repeating request...");
     if (_captureSessionState == CaptureSessionState::ACTIVE)
     {
@@ -184,16 +199,6 @@ SENSNdkCamera::~SENSNdkCamera()
     {
         AImageReader_delete(_imageReader);
         _imageReader = nullptr;
-    }
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: terminate the thread...");
-    if (_thread)
-    {
-        _stopThread = true;
-        _waitCondition.notify_all();
-        if (_thread->joinable())
-            _thread->join();
-        _thread.release();
     }
 
     LOG_CAM_INFO("~SENSNdkCamera: Camera destructor finished");
@@ -240,7 +245,8 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
         AImageReader_setImageListener(_imageReader, &listener);
 
         //start the thread
-        _thread = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
+        _stopThread = false;
+        _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
     }
 
     //create session
@@ -428,27 +434,32 @@ void SENSNdkCamera::run()
 {
     try
     {
+        LOG_CAM_INFO("run: thread started");
         while (!_stopThread)
         {
             cv::Mat yuv;
             {
                 std::unique_lock<std::mutex> lock(_threadInputMutex);
                 //wait until _yuvImgToProcess is valid or stop thread is required
-                auto condition = [&] { return (!_yuvImgToProcess.empty() || _stopThread); };
+                auto condition = [&] {
+                    return (!_yuvImgToProcess.empty() || _stopThread);
+                };
                 _waitCondition.wait(lock, condition);
-                //stop processing
-                if (_stopThread)
-                    return;
 
-                yuv = _yuvImgToProcess;
+                if (_stopThread)
+                {
+                    return;
+                }
+
+                if (!_yuvImgToProcess.empty())
+                    yuv = _yuvImgToProcess;
             }
 
             //static int imageConsumed = 0;
             //LOG_CAM_INFO("run: imageConsumed %d", imageConsumed++)
-            //do the processing
-            SENSFramePtr sensFrame;
+
             //make yuv to rgb conversion, cropping, scaling, mirroring, gray conversion
-            sensFrame = processNewYuvImg(yuv);
+            SENSFramePtr sensFrame = processNewYuvImg(yuv);
 
             //move processing result to worker thread output
             {
@@ -459,15 +470,22 @@ void SENSNdkCamera::run()
     }
     catch (std::exception& e)
     {
+        LOG_CAM_INFO("run: exception");
         std::unique_lock<std::mutex> lock(_threadOutputMutex);
         _threadException    = std::runtime_error(e.what());
         _threadHasException = true;
     }
     catch (...)
     {
+        LOG_CAM_INFO("run: exception");
         std::unique_lock<std::mutex> lock(_threadOutputMutex);
         _threadException    = SENSException(SENSType::CAM, "Exception in worker thread!", __LINE__, __FILE__);
         _threadHasException = true;
+    }
+
+    if (_stopThread)
+    {
+        LOG_CAM_INFO("run: stopped thread");
     }
 }
 
@@ -477,19 +495,18 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
     media_status_t status = AImageReader_acquireLatestImage(reader, &image);
     if (status == AMEDIA_OK && image)
     {
-        //static int newImage = 0;
-        //LOG_CAM_INFO("imageCallback: new image %d", newImage++);
-
         cv::Mat yuv = convertToYuv(image);
 
         AImage_delete(image);
 
         //move yuv image to worker thread input
         {
-            std::unique_lock<std::mutex> lock(_threadInputMutex);
+            static int newImage = 0;
+            //LOG_CAM_INFO("imageCallback: new image %d", newImage++);
+            std::lock_guard<std::mutex> lock(_threadInputMutex);
             _yuvImgToProcess = yuv;
         }
-        _waitCondition.notify_all();
+        _waitCondition.notify_one();
     }
 }
 

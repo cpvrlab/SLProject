@@ -9,6 +9,7 @@
 #include <SL/SLTexFont.h>
 #include <SLSphere.h>
 #include <SLText.h>
+#include <SENSCamera.h>
 
 #define WAIAPP_DEBUG(...) Utils::log("WAIApp", __VA_ARGS__)
 #define WAIAPP_INFO(...) Utils::log("WAIApp", __VA_ARGS__)
@@ -26,27 +27,54 @@
 //#define WAIAPPSTATE_INFO(...)  // nothing
 //#define WAIAPPSTATE_WARN(...)  // nothing
 
-bool WAIApp::render()
+WAIApp::WAIApp()
+  : SLInputEventInterface(SLApplication::inputManager)
 {
-    //WAIAPP_DEBUG("render");
-    if (SLApplication::scene)
-    {
-        //update scene
-        SLApplication::scene->onUpdate();
+}
 
-        //update sceneviews
-        bool needUpdate = false;
-        for (auto sv : SLApplication::scene->sceneViews())
-            if (sv->onPaint() && !needUpdate)
-                needUpdate = true;
+void WAIApp::init(int screenWidth, int screenHeight, float scr2fbX, float scr2fbY, int screenDpi, AppDirectories directories)
+{
+    WAIAPPSTATE_DEBUG("init");
+    //Utils::initFileLog(directories.logFileDir, true);
 
-        return needUpdate;
-    }
-    else
+    if (!_initSceneGraphDone)
     {
-        WAIAPP_WARN("render: SLScene not initialized!");
-        return false;
+        initDirectories(directories);
+        initSceneGraph(screenWidth, screenHeight, scr2fbX, scr2fbY, screenDpi);
+        _initSceneGraphDone = true;
     }
+    if (!_initIntroSceneDone)
+    {
+        initIntroScene();
+        _initIntroSceneDone = true;
+    }
+}
+
+void WAIApp::initCloseAppCallback(CloseAppCallback cb)
+{
+    _closeAppCallback = cb;
+}
+
+void WAIApp::initCamera(SENSCamera* camera)
+{
+    _camera = camera;
+
+    /*
+    if (_sv)
+        _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+
+    if (_sceneCamera)
+    {
+        //make sure scene camera is initialized
+        initSceneCamera();
+    }
+
+    if (!_videoImage)
+    {
+        _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        _sceneCamera->background().texture(_videoImage);
+    }
+     */
 }
 
 void WAIApp::initDirectories(AppDirectories directories)
@@ -93,6 +121,84 @@ void WAIApp::initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float sc
     }
 }
 
+bool WAIApp::update()
+{
+    if (_goBackRequested && _closeAppCallback)
+    {
+        _closeAppCallback();
+        _goBackRequested = false;
+    }
+
+    if (!_initSceneGraphDone)
+        return false;
+
+    //WAIAPP_DEBUG("render");
+    if (_initIntroSceneDone)
+    {
+        if (_camera)
+        {
+            if (!_videoImage)
+            {
+                if (_sceneCamera)
+                {
+                    //make sure scene camera is initialized
+                    initSceneCamera();
+                }
+
+                if (_sv)
+                    _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+
+                _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+                _sceneCamera->background().texture(_videoImage);
+            }
+
+            //copy video image to background
+            SENSFramePtr frame = _camera->getLatestFrame();
+            if (frame)
+            {
+                WAIAPP_DEBUG("valid frame");
+                cv::Mat& img = frame->imgRGB;
+                _videoImage->copyVideoImage(img.cols,
+                                            img.rows,
+                                            CVImage::cv2glPixelFormat(img.type()),
+                                            img.data,
+                                            img.isContinuous(),
+                                            true);
+            }
+        }
+
+        //update scene
+        SLApplication::scene->onUpdate();
+
+        //update sceneviews
+        bool needUpdate = false;
+        for (auto sv : SLApplication::scene->sceneViews())
+            if (sv->onPaint() && !needUpdate)
+                needUpdate = true;
+
+        return needUpdate;
+    }
+    else
+    {
+        WAIAPP_WARN("render: SLScene not initialized!");
+        return false;
+    }
+}
+
+void WAIApp::close()
+{
+    deleteSceneGraph();
+    _initSceneGraphDone = false;
+    _initIntroSceneDone = false;
+}
+
+void WAIApp::goBack()
+{
+    WAIAPP_DEBUG("goBack");
+    //todo: enqueue event
+    _goBackRequested = true;
+}
+
 void WAIApp::deleteSceneGraph()
 {
     // Deletes all remaining sceneviews the current scene instance
@@ -100,6 +206,22 @@ void WAIApp::deleteSceneGraph()
     {
         delete SLApplication::scene;
         SLApplication::scene = nullptr;
+    }
+}
+
+void WAIApp::initSceneCamera()
+{
+    if (!_sceneCamera)
+    {
+        _sceneCamera = new SLCamera("Camera 1");
+        _sceneCamera->clipNear(0.1f);
+        _sceneCamera->clipFar(100);
+        _sceneCamera->translation(0, 0, 5);
+        _sceneCamera->lookAt(0, 0, 0);
+        _sceneCamera->focalDist(5);
+        _sceneCamera->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                          SLCol4f(0.2f, 0.2f, 0.2f));
+        _sceneCamera->setInitialState();
     }
 }
 
@@ -115,15 +237,7 @@ void WAIApp::initIntroScene()
 
     SLMaterial* m1 = new SLMaterial("m1", SLCol4f::RED);
 
-    SLCamera* cam1 = new SLCamera("Camera 1");
-    cam1->clipNear(0.1f);
-    cam1->clipFar(100);
-    cam1->translation(0, 0, 5);
-    cam1->lookAt(0, 0, 0);
-    cam1->focalDist(5);
-    cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
-                              SLCol4f(0.2f, 0.2f, 0.2f));
-    cam1->setInitialState();
+    initSceneCamera(); //_sceneCamera is valid now
 
     SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
     light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -147,13 +261,13 @@ void WAIApp::initIntroScene()
 
     // Assemble 3D scene as usual with camera and light
     SLNode* scene3D = new SLNode("root3D");
-    scene3D->addChild(cam1);
+    scene3D->addChild(_sceneCamera);
     scene3D->addChild(light1);
     scene3D->addChild(new SLNode(new SLSphere(0.5f, 32, 32, "Sphere", m1)));
     scene3D->addChild(t07);
     scene3D->addChild(t22);
 
-    _sv->camera(cam1);
+    _sv->camera(_sceneCamera);
     _sv->doWaitOnIdle(false);
 
     s->root3D(scene3D);
@@ -249,16 +363,18 @@ void WAIApp::initIntroScene()
     */
 }
 
+/*
 void WAIApp::enableSceneGraph()
 {
-    /*
     SLScene* s = SLApplication::scene;
     for (auto sceneView : s->sceneViews())
         if (sceneView != nullptr)
             sceneView->onInitialize();
-            */
-}
 
+}
+*/
+
+/*
 WAIAppStateHandler::WAIAppStateHandler(CloseAppCallback cb)
   : SLInputEventInterface(SLApplication::inputManager),
     _closeAppCallback(cb)
@@ -289,6 +405,7 @@ bool WAIAppStateHandler::update()
     //checkStateTransition();
     //return processState();
 }
+ */
 
 /*
 void WAIAppStateHandler::checkStateTransition()
@@ -351,6 +468,8 @@ bool WAIAppStateHandler::processState()
 }
  */
 
+/*
+
 void WAIAppStateHandler::init(int screenWidth, int screenHeight, float scr2fbX, float scr2fbY, int screenDpi, AppDirectories directories)
 {
     WAIAPPSTATE_DEBUG("init");
@@ -368,7 +487,9 @@ void WAIAppStateHandler::init(int screenWidth, int screenHeight, float scr2fbX, 
         _initIntroSceneDone = true;
     }
 }
+/*
 
+/*
 void WAIAppStateHandler::show()
 {
     WAIAPPSTATE_DEBUG("show");
@@ -380,7 +501,9 @@ void WAIAppStateHandler::hide()
 {
     WAIAPPSTATE_DEBUG("hide");
 }
+ */
 
+/*
 void WAIAppStateHandler::close()
 {
     WAIAPPSTATE_DEBUG("close");
@@ -396,3 +519,4 @@ void WAIAppStateHandler::goBack()
     //todo: enqueue event
     _goBackRequested = true;
 }
+*/
