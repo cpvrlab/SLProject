@@ -210,9 +210,7 @@ bool LoopClosing::DetectLoop()
         float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
 
         if (score < minScore)
-        {
             minScore = score;
-        }
     }
 
     // Query the database imposing the minimum score
