@@ -1,13 +1,19 @@
 #include "SENSWebCamera.h"
 #include <SENSException.h>
 #include <SENSUtils.h>
-SENSWebCamera::SENSWebCamera(SENSCamera::Facing facing)
-  : SENSCamera(facing)
-{
-}
+#include <Utils.h>
+
+#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+#define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+#define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 
 SENSWebCamera::~SENSWebCamera()
 {
+}
+
+void SENSWebCamera::init(SENSCamera::Facing facing)
+{
+    LOG_WEBCAM_INFO("init: called but is has no effect in SENSWebCamera");
 }
 
 void SENSWebCamera::start(const Config config)

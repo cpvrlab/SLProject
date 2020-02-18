@@ -512,11 +512,12 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>(SENSCamera::Facing::BACK);
+        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
         SENSCamera::Config             config;
         config.targetWidth   = 640;
         config.targetHeight  = 480;
         config.convertToGray = true;
+
         camera->start(config);
 
         AppDirectories dirs;

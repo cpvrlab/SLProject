@@ -83,6 +83,7 @@ set(sources
 		#${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     #${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
     #${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp

@@ -8,12 +8,13 @@
 #include <android/log.h>
 #include <opencv2/opencv.hpp>
 #include <Utils.h>
+#include <HighResTimer.h>
 #include "SENSNdkCameraUtils.h"
 #include "SENSUtils.h"
 
-#define LOG_CAM_WARN(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
-#define LOG_CAM_INFO(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
-#define LOG_CAM_DEBUG(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
+#define LOG_NDKCAM_WARN(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
+#define LOG_NDKCAM_INFO(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
+#define LOG_NDKCAM_DEBUG(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
 /*
  * Camera Manager Listener object
  */
@@ -42,69 +43,53 @@ void onDeviceErrorChanges(void* ctx, ACameraDevice* dev, int err)
 // CaptureSession state callbacks
 void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
 {
-    LOG_CAM_WARN("CaptureSession state: session %p closed", ses);
+    LOG_NDKCAM_WARN("CaptureSession state: session %p closed", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::CLOSED);
 }
 
 void onSessionReady(void* ctx, ACameraCaptureSession* ses)
 {
-    LOG_CAM_WARN("CaptureSession state: session %p ready", ses);
+    LOG_NDKCAM_WARN("CaptureSession state: session %p ready", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::READY);
 }
 
 void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 {
-    LOG_CAM_WARN("CaptureSession state: session %p active", ses);
+    LOG_NDKCAM_WARN("CaptureSession state: session %p active", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::ACTIVE);
 }
 
-//searches for best machting size and returns it
-cv::Size AvailableStreamConfigs::findBestMatchingSize(cv::Size requiredSize)
+SENSNdkCamera::SENSNdkCamera()
+  : _threadException("SENSNdkCamera: empty default exception")
 {
-    if (_streamSizes.size() == 0)
-        throw SENSException(SENSType::CAM, "No stream configuration available!", __LINE__, __FILE__);
-
-    std::vector<std::pair<float, int>> matchingSizes;
-
-    //calculate score for
-    for (int i = 0; i < _streamSizes.size(); ++i)
-    {
-        //stream size has to have minimum the size of the required size
-        if (_streamSizes[i].width >= requiredSize.width && _streamSizes[i].height >= requiredSize.height)
-        {
-            float crop = 0.f;
-            //calculate necessary crop to adjust stream image to required size
-            if (((float)requiredSize.width / (float)requiredSize.height) > ((float)_streamSizes[i].width / (float)_streamSizes[i].height))
-            {
-                float scaleFactor  = (float)requiredSize.width / (float)_streamSizes[i].width;
-                float heightScaled = _streamSizes[i].height * scaleFactor;
-                crop += heightScaled - requiredSize.height;
-                crop += (float)_streamSizes[i].width - (float)requiredSize.width;
-            }
-            else
-            {
-                float scaleFactor = (float)requiredSize.height / (float)_streamSizes[i].height;
-                float widthScaled = _streamSizes[i].width * scaleFactor;
-                crop += widthScaled - requiredSize.width;
-                crop += (float)_streamSizes[i].height - (float)requiredSize.height;
-            }
-
-            float cropScaleScore = crop;
-            matchingSizes.push_back(std::make_pair(cropScaleScore, i));
-        }
-    }
-    //sort by crop
-    std::sort(matchingSizes.begin(), matchingSizes.end());
-
-    return _streamSizes[matchingSizes.front().second];
+    LOG_NDKCAM_INFO("Camera instantiated");
 }
 
-SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
-  : SENSCamera(facing),
-    _threadException("SENSNdkCamera: empty default exception")
+SENSNdkCamera::~SENSNdkCamera()
+{
+    stop();
+    LOG_NDKCAM_INFO("~SENSNdkCamera: Camera destructor finished");
+}
+
+/**
+ * ImageReader listener: called by AImageReader for every frame captured
+ * We pass the event to ImageReader class, so it could do some housekeeping
+ * about
+ * the loaded queue. For example, we could keep a counter to track how many
+ * buffers are full and idle in the queue. If camera almost has no buffer to
+ * capture
+ * we could release ( skip ) some frames by AImageReader_getNextImage() and
+ * AImageReader_delete().
+ */
+void onImageCallback(void* ctx, AImageReader* reader)
+{
+    reinterpret_cast<SENSNdkCamera*>(ctx)->imageCallback(reader);
+}
+
+void SENSNdkCamera::init(SENSCamera::Facing facing)
 {
     _valid      = false;
     _stopThread = false;
@@ -124,9 +109,9 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     //PrintCameras(_cameraManager);
 
     //find camera device that fits our needs and retrieve required camera charakteristics
-    initOptimalCamera(facing);
+    initOptimalCamera(_facing);
 
-    LOG_CAM_INFO("Opening camera ...");
+    LOG_NDKCAM_INFO("Opening camera ...");
     //open the so found camera with _cameraId
     ACameraDevice_stateCallbacks cameraDeviceListener = {
       .context        = this,
@@ -140,83 +125,6 @@ SENSNdkCamera::SENSNdkCamera(SENSCamera::Facing facing)
     }
 
     _valid = true;
-    LOG_CAM_INFO("Camera instantiated");
-}
-
-SENSNdkCamera::~SENSNdkCamera()
-{
-    LOG_CAM_DEBUG("~SENSNdkCamera: terminate the thread...");
-    if (_thread)
-    {
-        _stopThread = true;
-        _waitCondition.notify_one();
-        if (_thread->joinable())
-        {
-            _thread->join();
-            LOG_CAM_DEBUG("~SENSNdkCamera: thread joined");
-        }
-        _thread.release();
-    }
-
-    _valid = false;
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: stopping repeating request...");
-    if (_captureSessionState == CaptureSessionState::ACTIVE)
-    {
-        ACameraCaptureSession_stopRepeating(_captureSession);
-    }
-    else
-        LOG_CAM_WARN("~SENSNdkCamera: CaptureSessionState NOT ACTIVE");
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: closing capture session...");
-    //todo: it is recommended not to close before creating a new session
-    ACameraCaptureSession_close(_captureSession);
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: free request stuff...");
-    ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
-    ACaptureRequest_free(_captureRequest);
-    _captureRequest = nullptr;
-    ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer, _captureSessionOutput);
-    ACaptureSessionOutput_free(_captureSessionOutput);
-    ANativeWindow_release(_surface);
-    ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
-    _captureSessionOutputContainer = nullptr;
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: closing camera...");
-    ACameraDevice_close(_cameraDevice);
-    _cameraDevice = nullptr;
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: deleting camera manager...");
-    if (_cameraManager)
-    {
-        ACameraManager_unregisterAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
-        ACameraManager_delete(_cameraManager);
-        _cameraManager = nullptr;
-    }
-
-    LOG_CAM_DEBUG("~SENSNdkCamera: free image reader...");
-    if (_imageReader)
-    {
-        AImageReader_delete(_imageReader);
-        _imageReader = nullptr;
-    }
-
-    LOG_CAM_INFO("~SENSNdkCamera: Camera destructor finished");
-}
-
-/**
- * ImageReader listener: called by AImageReader for every frame captured
- * We pass the event to ImageReader class, so it could do some housekeeping
- * about
- * the loaded queue. For example, we could keep a counter to track how many
- * buffers are full and idle in the queue. If camera almost has no buffer to
- * capture
- * we could release ( skip ) some frames by AImageReader_getNextImage() and
- * AImageReader_delete().
- */
-void onImageCallback(void* ctx, AImageReader* reader)
-{
-    reinterpret_cast<SENSNdkCamera*>(ctx)->imageCallback(reader);
 }
 
 void SENSNdkCamera::start(const SENSCamera::Config config)
@@ -227,7 +135,7 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
     //todo: find best fitting image format in _availableStreamConfig
     cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
 
-    LOG_CAM_INFO("start: captureSize (%d, %d)", captureSize.width, captureSize.height);
+    LOG_NDKCAM_INFO("start: captureSize (%d, %d)", captureSize.width, captureSize.height);
     //create request with necessary parameters
 
     //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
@@ -309,7 +217,61 @@ void SENSNdkCamera::start(int width, int height)
 
 void SENSNdkCamera::stop()
 {
-    //todo
+    LOG_NDKCAM_DEBUG("stop: terminate the thread...");
+    if (_thread)
+    {
+        _stopThread = true;
+        _waitCondition.notify_one();
+        if (_thread->joinable())
+        {
+            _thread->join();
+            LOG_NDKCAM_DEBUG("stop: thread joined");
+        }
+        _thread.release();
+    }
+
+    _valid = false;
+
+    LOG_NDKCAM_DEBUG("stop: stopping repeating request...");
+    if (_captureSessionState == CaptureSessionState::ACTIVE)
+    {
+        ACameraCaptureSession_stopRepeating(_captureSession);
+    }
+    else
+        LOG_NDKCAM_WARN("stop: CaptureSessionState NOT ACTIVE");
+
+    LOG_NDKCAM_DEBUG("stop: closing capture session...");
+    //todo: it is recommended not to close before creating a new session
+    ACameraCaptureSession_close(_captureSession);
+
+    LOG_NDKCAM_DEBUG("stop: free request stuff...");
+    ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
+    ACaptureRequest_free(_captureRequest);
+    _captureRequest = nullptr;
+    ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer, _captureSessionOutput);
+    ACaptureSessionOutput_free(_captureSessionOutput);
+    ANativeWindow_release(_surface);
+    ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
+    _captureSessionOutputContainer = nullptr;
+
+    LOG_NDKCAM_DEBUG("stop: closing camera...");
+    ACameraDevice_close(_cameraDevice);
+    _cameraDevice = nullptr;
+
+    LOG_NDKCAM_DEBUG("stop: deleting camera manager...");
+    if (_cameraManager)
+    {
+        ACameraManager_unregisterAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
+        ACameraManager_delete(_cameraManager);
+        _cameraManager = nullptr;
+    }
+
+    LOG_NDKCAM_DEBUG("stop: free image reader...");
+    if (_imageReader)
+    {
+        AImageReader_delete(_imageReader);
+        _imageReader = nullptr;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -402,7 +364,7 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
             //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
             sensFrame = std::move(_processedFrame);
             //static int getFrameN = 0;
-            //LOG_CAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
+            //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
         }
         if (_threadHasException)
         {
@@ -416,7 +378,7 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
         if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
         {
             //static int getFrameN = 0;
-            //LOG_CAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
+            //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
 
             cv::Mat yuv = convertToYuv(image);
             //now that the data is copied we have to delete the image
@@ -434,7 +396,7 @@ void SENSNdkCamera::run()
 {
     try
     {
-        LOG_CAM_INFO("run: thread started");
+        LOG_NDKCAM_INFO("run: thread started");
         while (!_stopThread)
         {
             cv::Mat yuv;
@@ -456,7 +418,7 @@ void SENSNdkCamera::run()
             }
 
             //static int imageConsumed = 0;
-            //LOG_CAM_INFO("run: imageConsumed %d", imageConsumed++)
+            //LOG_NDKCAM_INFO("run: imageConsumed %d", imageConsumed++)
 
             //make yuv to rgb conversion, cropping, scaling, mirroring, gray conversion
             SENSFramePtr sensFrame = processNewYuvImg(yuv);
@@ -470,14 +432,14 @@ void SENSNdkCamera::run()
     }
     catch (std::exception& e)
     {
-        LOG_CAM_INFO("run: exception");
+        LOG_NDKCAM_INFO("run: exception");
         std::unique_lock<std::mutex> lock(_threadOutputMutex);
         _threadException    = std::runtime_error(e.what());
         _threadHasException = true;
     }
     catch (...)
     {
-        LOG_CAM_INFO("run: exception");
+        LOG_NDKCAM_INFO("run: exception");
         std::unique_lock<std::mutex> lock(_threadOutputMutex);
         _threadException    = SENSException(SENSType::CAM, "Exception in worker thread!", __LINE__, __FILE__);
         _threadHasException = true;
@@ -485,7 +447,7 @@ void SENSNdkCamera::run()
 
     if (_stopThread)
     {
-        LOG_CAM_INFO("run: stopped thread");
+        LOG_NDKCAM_INFO("run: stopped thread");
     }
 }
 
@@ -502,7 +464,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
         //move yuv image to worker thread input
         {
             static int newImage = 0;
-            //LOG_CAM_INFO("imageCallback: new image %d", newImage++);
+            //LOG_NDKCAM_INFO("imageCallback: new image %d", newImage++);
             std::lock_guard<std::mutex> lock(_threadInputMutex);
             _yuvImgToProcess = yuv;
         }
@@ -646,7 +608,7 @@ void SENSNdkCamera::onDeviceDisconnected(ACameraDevice* dev)
     if (dev == _cameraDevice)
     {
         std::string id(ACameraDevice_getId(dev));
-        LOG_CAM_WARN("device %s is disconnected", id.c_str());
+        LOG_NDKCAM_WARN("device %s is disconnected", id.c_str());
 
         _cameraAvailable = false;
         ACameraDevice_close(_cameraDevice);
@@ -686,7 +648,7 @@ void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
         }
         _cameraAvailable = false;
         std::string id(ACameraDevice_getId(dev));
-        LOG_CAM_INFO("CameraDevice %s is in error %s", id.c_str(), errStr.c_str());
+        LOG_NDKCAM_INFO("CameraDevice %s is in error %s", id.c_str(), errStr.c_str());
     }
 }
 
@@ -713,11 +675,11 @@ ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
  */
 void SENSNdkCamera::onCameraStatusChanged(const char* id, bool available)
 {
-    LOG_CAM_INFO("onCameraStatusChanged: called: valid %s id: %s", available ? "true" : "false", id);
+    LOG_NDKCAM_INFO("onCameraStatusChanged: called: valid %s id: %s", available ? "true" : "false", id);
     if (_valid && std::string(id) == _cameraId)
     {
         _cameraAvailable = available ? true : false;
-        LOG_CAM_INFO("onCameraStatusChanged: camera available %s", available ? "true" : "false");
+        LOG_NDKCAM_INFO("onCameraStatusChanged: camera available %s", available ? "true" : "false");
     }
 }
 
@@ -741,19 +703,19 @@ std::string getPrintableState(CaptureSessionState state)
 void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
                                    CaptureSessionState    state)
 {
-    LOG_CAM_WARN("CaptureSession state: entered");
+    LOG_NDKCAM_WARN("CaptureSession state: entered");
 
     if (!_captureSession)
-        LOG_CAM_WARN("CaptureSession state: CaptureSession is NULL");
+        LOG_NDKCAM_WARN("CaptureSession state: CaptureSession is NULL");
 
     /*
     if (!ses || ses != _captureSession)
     {
-        LOG_CAM_WARN("CaptureSession state: CaptureSession is %s", (ses ? "NOT our session" : "NULL"));
+        LOG_NDKCAM_WARN("CaptureSession state: CaptureSession is %s", (ses ? "NOT our session" : "NULL"));
         return;
     }
     else
-        LOG_CAM_WARN("CaptureSession state state: CaptureSession is %s", (ses ? "our session" : "NULL"));
+        LOG_NDKCAM_WARN("CaptureSession state state: CaptureSession is %s", (ses ? "our session" : "NULL"));
 */
 
     if (state >= CaptureSessionState::MAX_STATE)
@@ -761,6 +723,6 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
         throw SENSException(SENSType::CAM, "Wrong state " + std::to_string((int)state), __LINE__, __FILE__);
     }
 
-    LOG_CAM_WARN("CaptureSession state: %s", getPrintableState(state).c_str());
+    LOG_NDKCAM_WARN("CaptureSession state: %s", getPrintableState(state).c_str());
     _captureSessionState = state;
 }

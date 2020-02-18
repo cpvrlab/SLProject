@@ -21,27 +21,13 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-class AvailableStreamConfigs
-{
-public:
-    void add(cv::Size size)
-    {
-        _streamSizes.push_back(size);
-    }
-
-    //searches for best matching size and returns it
-    cv::Size findBestMatchingSize(cv::Size requiredSize);
-
-private:
-    std::vector<cv::Size> _streamSizes;
-};
-
 class SENSNdkCamera : public SENSCamera
 {
 public:
-    SENSNdkCamera(SENSCamera::Facing facing);
+    SENSNdkCamera();
     ~SENSNdkCamera();
 
+    void         init(SENSCamera::Facing facing) override;
     void         start(const SENSCamera::Config config) override;
     void         start(int width, int height) override;
     void         stop() override;
@@ -72,12 +58,11 @@ private:
 
     ACameraManager* _cameraManager = nullptr;
 
-    std::string            _cameraId;
-    ACameraDevice*         _cameraDevice    = nullptr;
-    bool                   _cameraAvailable = false; // free to use ( no other apps are using )
-    std::vector<float>     _focalLenghts;
-    cv::Size2f             _physicalSensorSizeMM;
-    AvailableStreamConfigs _availableStreamConfig;
+    std::string        _cameraId;
+    ACameraDevice*     _cameraDevice    = nullptr;
+    bool               _cameraAvailable = false; // free to use ( no other apps are using )
+    std::vector<float> _focalLenghts;
+    cv::Size2f         _physicalSensorSizeMM;
 
     //std::map<std::string, CameraId> _cameras;
     AImageReader*                   _imageReader                   = nullptr;

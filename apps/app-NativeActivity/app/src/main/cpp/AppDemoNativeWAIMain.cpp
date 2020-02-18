@@ -40,6 +40,7 @@
 #include <WAIApp.h>
 #include <android/SENSNdkCamera.h>
 #include <CV/CVImage.h>
+#include <HighResTimer.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
@@ -470,7 +471,11 @@ void Engine::startCamera()
                 delete ndkCamera;
 
             //get all information about available cameras
-            ndkCamera = new SENSNdkCamera(SENSCamera::Facing::BACK);
+            HighResTimer t;
+
+            ndkCamera = new SENSNdkCamera();
+            ndkCamera->init(SENSCamera::Facing::BACK);
+
             //start continious captureing request with certain configuration
             SENSCamera::Config camConfig;
             camConfig.targetWidth          = 640;
@@ -479,6 +484,7 @@ void Engine::startCamera()
             camConfig.convertToGray        = true;
             camConfig.adjustAsynchronously = true;
             ndkCamera->start(camConfig);
+            ENGINE_DEBUG("startCamera: %fms", t.elapsedTimeInMilliSec());
 
             _waiApp.initCamera(ndkCamera);
         }
