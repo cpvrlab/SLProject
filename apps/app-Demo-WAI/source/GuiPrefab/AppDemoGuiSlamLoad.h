@@ -51,6 +51,7 @@ private:
     const std::vector<std::string>& _extractorIdToNames;
 
     SlamParams _p;
+    float      _kt;
 
     std::queue<WAIEvent*>* _eventQueue;
 };

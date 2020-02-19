@@ -436,7 +436,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_OS_ANDROID
         SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
 #else
-        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
 #endif
         if (Utils::fileExists(largeFile))
         {
@@ -1518,7 +1518,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
-        SLMaterial* pink = new SLMaterial("cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* pink = new SLMaterial("cream",
+                                          SLCol4f(1, 0.35f, 0.65f),
+                                          SLCol4f::BLACK,
+                                          100.f,
+                                          0.f,
+                                          0.f,
+                                          1.f,
+                                          s->programs()[SP_perPixBlinn]);
 
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
@@ -2591,9 +2598,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLNode*     box2m  = new SLNode(new SLBox(0, 0, 0, 2, 2, 2, "Box2m", yellow));
+
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
+        scene->addChild(box2m);
         scene->addChild(bern);
         scene->addChild(cam1);
 
@@ -2616,6 +2627,174 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoAugustaRaurica) //.......................................
+    {
+        s->name("Augusta Raurica AR");
+        s->info("Augmented Reality for Augusta Raurica");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->focalDist(150);
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(5.0f);
+        light->ambient(SLCol4f(1, 1, 1));
+        light->diffuse(SLCol4f(1, 1, 1));
+        light->specular(SLCol4f(1, 1, 1));
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLAssimpImporter importer;
+        SLNode*          TheaterAndTempel = importer.load("GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                                 true,    // only meshes
+                                                 nullptr, // no replacement material
+                                                 0.4f);   // 40% ambient reflection
+       
+        // Rotate to the true geographic rotation
+        TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin (Loeb Ecke)
+        SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        // Set some ambient light
+        for (auto child : TheaterAndTempel->children())
+            for (auto mesh : child->meshes())
+                mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(TheaterAndTempel);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);             // Use
+        SLApplication::devLoc.originLLA(47.53319, 7.72207, 0);      // At the center of the theater
+        SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);             // Max. allowed distance to origin
+        SLApplication::devLoc.improveOrigin(false);                 // No autom. origin improvement
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);                // Use the real yaw from the IMU
+
+        // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
+        SLstring tif = SLImporter::defaultPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
+        if (!Utils::fileExists(tif))
+            tif = SLImporter::defaultPath + "DTM-Theater-Tempel-WGS84.tif"; //Android path
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoAventicum) //............................................
+    {
+        s->name("Aventicum AR");
+        s->info("Augmented Reality for Aventicum");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(5.0f);
+        light->ambient(SLCol4f(1, 1, 1));
+        light->diffuse(SLCol4f(1, 1, 1));
+        light->specular(SLCol4f(1, 1, 1));
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLAssimpImporter importer;
+        SLNode*          theater = importer.load("DAE/Aventicum/Aventicum01.dae");
+
+        // Add axis object a world origin (Loeb Ecke)
+        SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        // Set some ambient light
+        for (auto child : theater->children())
+            for (auto mesh : child->meshes())
+                mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.23f));
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(theater);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
+        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
 #endif
@@ -2634,7 +2813,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* sp2 = new SLGLGenericProgram("RefractReflect.vert", "RefractReflect.frag");
 
         // Create cube mapping texture
-        SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png", "MuttenzerBox-X0512_C.png", "MuttenzerBox+Y0512_C.png", "MuttenzerBox-Y0512_C.png", "MuttenzerBox+Z0512_C.png", "MuttenzerBox-Z0512_C.png");
+        SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png",
+                                            "MuttenzerBox-X0512_C.png",
+                                            "MuttenzerBox+Y0512_C.png",
+                                            "MuttenzerBox-Y0512_C.png",
+                                            "MuttenzerBox+Z0512_C.png",
+                                            "MuttenzerBox-Z0512_C.png");
 
         SLCol4f lightEmisRGB(7.0f, 7.0f, 7.0f);
         SLCol4f grayRGB(0.75f, 0.75f, 0.75f);

@@ -116,7 +116,6 @@ void LocalMapping::Run()
                 }
             }
 
-            //(LuluSLAM refactor) Must be change back or move somewhere else later
             mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
 
             if (stopRequested())
@@ -809,6 +808,7 @@ void LocalMapping::KeyFrameCulling()
         {
             pKF->SetBadFlag();
             mpMap->EraseKeyFrame(pKF);
+            mpMap->GetKeyFrameDB()->erase(pKF);
         }
     }
 }

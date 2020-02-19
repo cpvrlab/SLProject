@@ -40,13 +40,14 @@ class SLGLState;
 enum SLTextureType
 {
     TT_unknown,   // will be handled as color maps
-    TT_color,     //*_C.{ext}
-    TT_normal,    //*_N.{ext}
-    TT_height,    //*_H.{ext}
-    TT_gloss,     //*_G.{ext}
-    TT_roughness, //*_R.{ext} Cook-Torrance roughness 0-1
-    TT_metallic,  //*_M.{ext} Cook-Torrance metallic 0-1
-    TT_font       //*_F.{ext}
+    TT_color,    // diffuse color map (aka albedo or just color map)
+    TT_normal,    // normal map for normal bump mapping
+    TT_height,    // height map for height map bump or parallax mapping
+    TT_gloss,     // specular gloss map
+    TT_roughness, // roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,  // metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_font,      // texture map for fonts
+    TT_ambientOcc // ambient occlusion map
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
@@ -70,7 +71,7 @@ public:
                          SLint           min_filter = GL_LINEAR,
                          SLint           mag_filter = GL_LINEAR,
                          SLint           wrapS      = GL_REPEAT,
-                         const SLstring& name       = "1D-Texture");
+                         const SLstring& name       = "2D-Texture");
 
     //! ctor for empty 2D textures
     explicit SLGLTexture(SLint min_filter,
@@ -117,7 +118,7 @@ public:
                 SLint           mag_filter = GL_LINEAR,
                 SLTextureType   type       = TT_unknown);
 
-    virtual ~SLGLTexture();
+    ~SLGLTexture() override;
 
     void clearData();
     void build(SLint texID = 0);
@@ -141,7 +142,7 @@ public:
     SLTextureType texType() { return _texType; }
     SLfloat       bumpScale() { return _bumpScale; }
     SLCol4f       getTexelf(SLfloat s, SLfloat t, SLuint imgIndex = 0);
-    SLCol4f       getTexelf(SLVec3f cubemapDir);
+    SLCol4f       getTexelf(const SLVec3f& cubemapDir);
     SLbool        hasAlpha() { return (!_images.empty() &&
                                 ((_images[0]->format() == PF_rgba ||
                                   _images[0]->format() == PF_bgra) ||
@@ -155,16 +156,16 @@ public:
     SLstring      typeName();
 
     // Misc
-    SLTextureType detectType(SLstring filename);
-    SLuint        closestPowerOf2(SLuint num);
-    SLuint        nextPowerOf2(SLuint num);
-    void          build2DMipmaps(SLint target, SLuint index);
-    SLbool        copyVideoImage(SLint       camWidth,
-                                 SLint       camHeight,
-                                 CVPixFormat glFormat,
-                                 SLuchar*    data,
-                                 SLbool      isContinuous,
-                                 SLbool      isTopLeft);
+    static SLTextureType detectType(const SLstring& filename);
+    static SLuint        closestPowerOf2(SLuint num);
+    static SLuint        nextPowerOf2(SLuint num);
+    void                 build2DMipmaps(SLint target, SLuint index);
+    SLbool               copyVideoImage(SLint       camWidth,
+                                        SLint       camHeight,
+                                        CVPixFormat glFormat,
+                                        SLuchar*    data,
+                                        SLbool      isContinuous,
+                                        SLbool      isTopLeft);
 
     SLbool copyVideoImage(SLint       camWidth,
                           SLint       camHeight,

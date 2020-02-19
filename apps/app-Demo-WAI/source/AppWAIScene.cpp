@@ -1,5 +1,6 @@
 #include <AppWAIScene.h>
 #include <SLBox.h>
+#include <SLLightDirect.h>
 #include <SLLightSpot.h>
 #include <SLCoordAxis.h>
 #include <SLPoints.h>
@@ -33,53 +34,40 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
     yellowMat = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-    //SLfloat     l = 0.593f, b = 0.466f, h = 0.257f;
 
     if (location == "augst")
     {
         if (area == "templeHill-marker")
         {
             SLAssimpImporter importer;
-            SLNode*          temple = importer.load("FBX/AugustaRaurica/Temple.fbx");
+            augmentationRoot = importer.load("FBX/AugustaRaurica/Temple.fbx");
+            /*augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Meshroom.gltf",
+                                             true,
+                                             nullptr,
+                                             0.4f);
 
-#if 0
-            for (SLNode* child : temple->children())
-            {
-                for (SLMesh* mesh : child->meshes())
-                {
-                    mesh->mat()->kt(0.5f);
-                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                    mesh->init(child);
-                }
-            }
-#endif
+            // Set some ambient light
+            for (auto child : augmentationRoot->children())
+                for (auto mesh : child->meshes())
+                    mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));*/
 
-            SLLightSpot* light1 = new SLLightSpot(121, 230, 231, 0.3f);
-            light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-            light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-            light1->specular(SLCol4f(1, 1, 1));
-            light1->attenuation(1, 0, 0);
+            // Create directional light for the sun light
+            SLLightDirect* light = new SLLightDirect(5.0f);
+            light->ambient(SLCol4f(1, 1, 1));
+            light->diffuse(SLCol4f(1, 1, 1));
+            light->specular(SLCol4f(1, 1, 1));
+            light->attenuation(1, 0, 0);
+            light->translation(0, 10, 0);
+            light->lookAt(10, 0, 10);
 
-            rootNode->addChild(temple);
-            rootNode->addChild(light1);
+            rootNode->addChild(augmentationRoot);
+            rootNode->addChild(light);
         }
         else if (area == "templeHillTheaterBottom")
         {
             SLAssimpImporter importer;
-            SLNode*          theater = importer.load("FBX/AugustaRaurica/Theater.fbx");
-            theater->scale(0.01f);
-
-            /*
-            for (SLNode* child : theater->children())
-            {
-                for (SLMesh* mesh : child->meshes())
-                {
-                    mesh->mat()->kt(0.5f);
-                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                    mesh->init(child);
-                }
-            }
-            */
+            augmentationRoot = importer.load("FBX/AugustaRaurica/Theater.fbx");
+            augmentationRoot->scale(0.01f);
 
             SLLightSpot* light1 = new SLLightSpot(1, 10, 1, 0.3f);
             light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -87,7 +75,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             light1->specular(SLCol4f(1, 1, 1));
             light1->attenuation(1, 0, 0);
 
-            rootNode->addChild(theater);
+            rootNode->addChild(augmentationRoot);
             rootNode->addChild(light1);
         }
     }
@@ -218,4 +206,20 @@ void AppWAIScene::loadScene(std::string location, std::string area)
 
     //setup scene
     rootNode->addChild(mapNode);
+}
+
+void AppWAIScene::adjustAugmentationTransparency(float kt)
+{
+    if (augmentationRoot)
+    {
+        for (SLNode* child : augmentationRoot->children())
+        {
+            for (SLMesh* mesh : child->meshes())
+            {
+                mesh->mat()->kt(kt);
+                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                mesh->init(child);
+            }
+        }
+    }
 }

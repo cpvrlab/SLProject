@@ -245,7 +245,6 @@ bool CVImage::load(int         width,
                                         height,
                                         dstPixelFormatGL,
                                         false);
-
     uint dstBPL = _bytesPerLine;
     uint dstBPP = _bytesPerPixel;
     uint srcBPP = bytesPerPixel(srcPixelFormatGL);
@@ -394,9 +393,9 @@ bool CVImage::load(int         width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void CVImage::load(const string filename,
-                   bool         flipVertical,
-                   bool         loadGrayscaleIntoAlpha)
+void CVImage::load(const string& filename,
+                   bool          flipVertical,
+                   bool          loadGrayscaleIntoAlpha)
 {
     string ext = Utils::getFileExt(filename);
     _name      = Utils::getFileName(filename);
@@ -492,7 +491,7 @@ CVPixFormat CVImage::cv2glPixelFormat(int cvType)
         case CV_32SC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC2 not supported", __LINE__, __FILE__); break;
         case CV_32SC3: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC3 not supported", __LINE__, __FILE__); break;
         case CV_32SC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC4 not supported", __LINE__, __FILE__); break;
-        case CV_32FC1: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC1 not supported", __LINE__, __FILE__); break;
+        case CV_32FC1: return PF_r32f;
         case CV_32FC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC2 not supported", __LINE__, __FILE__); break;
         case CV_32FC3: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC3 not supported", __LINE__, __FILE__); break;
         case CV_32FC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC4 not supported", __LINE__, __FILE__); break;
@@ -536,10 +535,10 @@ string CVImage::formatString()
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void CVImage::savePNG(const string filename,
-                      const int    compressionLevel,
-                      const bool   flipY,
-                      const bool   convertBGR2RGB)
+void CVImage::savePNG(const string& filename,
+                      const int     compressionLevel,
+                      const bool    flipY,
+                      const bool    convertBGR2RGB)
 {
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
@@ -871,5 +870,35 @@ void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
             break;
         default: Utils::exitMsg("SLProject", "CVImage::fill(r,g,b,a): Wrong format!", __LINE__, __FILE__);
     }
+}
+//-----------------------------------------------------------------------------
+//! Returns the cv::Mat.type()) as string
+string CVImage::typeString(int cvMatTypeInt)
+{
+    // 7 base types, with five channel options each (none or C1, ..., C4)
+    // clang-format off
+    int numImgTypes = 35;
+    int enum_ints[] =       {CV_8U,  CV_8UC1,  CV_8UC2,  CV_8UC3,  CV_8UC4,
+                             CV_8S,  CV_8SC1,  CV_8SC2,  CV_8SC3,  CV_8SC4,
+                             CV_16U, CV_16UC1, CV_16UC2, CV_16UC3, CV_16UC4,
+                             CV_16S, CV_16SC1, CV_16SC2, CV_16SC3, CV_16SC4,
+                             CV_32S, CV_32SC1, CV_32SC2, CV_32SC3, CV_32SC4,
+                             CV_32F, CV_32FC1, CV_32FC2, CV_32FC3, CV_32FC4,
+                             CV_64F, CV_64FC1, CV_64FC2, CV_64FC3, CV_64FC4};
+
+    string enum_strings[] = {"CV_8U",  "CV_8UC1",  "CV_8UC2",  "CV_8UC3",  "CV_8UC4",
+                             "CV_8S",  "CV_8SC1",  "CV_8SC2",  "CV_8SC3",  "CV_8SC4",
+                             "CV_16U", "CV_16UC1", "CV_16UC2", "CV_16UC3", "CV_16UC4",
+                             "CV_16S", "CV_16SC1", "CV_16SC2", "CV_16SC3", "CV_16SC4",
+                             "CV_32S", "CV_32SC1", "CV_32SC2", "CV_32SC3", "CV_32SC4",
+                             "CV_32F", "CV_32FC1", "CV_32FC2", "CV_32FC3", "CV_32FC4",
+                             "CV_64F", "CV_64FC1", "CV_64FC2", "CV_64FC3", "CV_64FC4"};
+    // clang-format on
+
+    for (int i = 0; i < numImgTypes; i++)
+    {
+        if (cvMatTypeInt == enum_ints[i]) return enum_strings[i];
+    }
+    return "unknown image type";
 }
 //-----------------------------------------------------------------------------

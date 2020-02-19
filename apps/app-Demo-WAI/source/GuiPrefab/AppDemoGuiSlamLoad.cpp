@@ -31,7 +31,8 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
     _extractorIdToNames(extractorIdToNames),
-    _changeSlamParams(true)
+    _changeSlamParams(true),
+    _kt(0.5f)
 {
     _p.params.retainImg    = true;
     _p.params.serial       = false;
@@ -162,6 +163,16 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Separator();
 
         ImGui::Text("Calibration: %s", Utils::getFileName(_p.calibrationFile).c_str());
+
+        ImGui::Separator();
+
+        if (ImGui::SliderFloat("Transparency", &_kt, 0.0f, 1.0f))
+        {
+            WAIEventAdjustTransparency* event = new WAIEventAdjustTransparency();
+            event->kt                         = _kt;
+
+            _eventQueue->push(event);
+        }
 
         ImGui::Separator();
 

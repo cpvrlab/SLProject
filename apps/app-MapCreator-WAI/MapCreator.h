@@ -60,12 +60,10 @@ public:
     void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
     void loadMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
 
-    WAIFrame createMarkerFrame(std::string  markerFile,
-                               KPextractor* markerExtractor);
-    bool     findMarkerHomography(WAIFrame&    markerFrame,
-                                  WAIKeyFrame* kfCand,
-                                  cv::Mat&     homography,
-                                  int          minMatches);
+    bool createMarkerMap(AreaConfig&        areaConfig,
+                         const std::string& mapFile,
+                         const std::string& mapDir,
+                         const float        cullRedundantPerc);
 
 private:
     MapCreator() {}
@@ -74,13 +72,6 @@ private:
     std::string               _vocFile;
     std::string               _calibrationsDir;
     std::string               _outputDir;
-
-    bool doMarkerMapPreprocessing(const std::string& mapDir,
-                                  const std::string& inputMapFile,
-                                  std::string        markerFile,
-                                  float              markerWidthInM,
-                                  CVCalibration&     calib,
-                                  const float        cullRedundantPerc);
 
     WAIMapPoint* _mpUL;
     WAIMapPoint* _mpUR;

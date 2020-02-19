@@ -75,7 +75,7 @@ SLSceneView::~SLSceneView()
 \param screenHeight Height of the OpenGL frame buffer.
 \param onWndUpdateCallback Callback for ray tracing update
 \param onSelectNodeMeshCallback Callback on node and mesh selection
-\param onImGuiBuild Callback for the external ImGui build function
+\param SLUiInterface Interface for the external Gui build function
 */
 void SLSceneView::init(SLstring       name,
                        SLint          screenWidth,

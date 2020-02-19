@@ -16,6 +16,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImageGeoTiff.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVRaulMurExtNode.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVRaulMurOrb.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTracked.h
@@ -124,6 +125,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImageGeoTiff.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVRaulMurExtNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVRaulMurOrb.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTracked.cpp
@@ -264,19 +266,9 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/include
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/clipper
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/irrXML
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/poly2tri
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/code/BoostWorkaround
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
-        ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
+        ${assimp_INCLUDE_DIR}
+        ${SL_PROJECT_ROOT}/externals
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
@@ -307,7 +299,7 @@ target_link_libraries(${target}
         ${PlatformLinkLibs}
         ${OpenCV_LIBS}
         ${META_PROJECT_NAME}::lib-SLExternal
-        ${META_PROJECT_NAME}::lib-assimp
+        ${assimp_LIBS}
         lib-Utils
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
