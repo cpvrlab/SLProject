@@ -63,7 +63,9 @@ void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 }
 
 SENSNdkCamera::SENSNdkCamera()
-  : _threadException("SENSNdkCamera: empty default exception")
+  : _threadException("SENSNdkCamera: empty default exception"),
+    _initialized(false),
+    _cameraDeviceOpened(false)
 {
     LOG_NDKCAM_INFO("Camera instantiated");
 }
@@ -91,8 +93,9 @@ void onImageCallback(void* ctx, AImageReader* reader)
 
 void SENSNdkCamera::init(SENSCamera::Facing facing)
 {
-    _valid      = false;
-    _stopThread = false;
+    //stop old camera device
+    stop();
+
     //init camera manager
     _cameraManager = ACameraManager_create();
     if (!_cameraManager)
@@ -110,25 +113,44 @@ void SENSNdkCamera::init(SENSCamera::Facing facing)
 
     //find camera device that fits our needs and retrieve required camera charakteristics
     initOptimalCamera(_facing);
+    _initialized = true;
 
-    LOG_NDKCAM_INFO("Opening camera ...");
+    //open the camera asynchronously to make sure that it is available
+    _openCameraThread = std::thread(&SENSNdkCamera::openCamera, this);
+}
+
+//start camera selected in initOptimalCamera as soon as it is available
+void SENSNdkCamera::openCamera()
+{
+    auto condition = [&] {
+        return (_initialized && _cameraAvailability[_cameraId]);
+    };
+    std::unique_lock<std::mutex> lock(_cameraAvailabilityMutex);
+    //wait here before opening the required camera device until it is available
+    _openCameraCV.wait(lock, condition);
+
+    LOG_NDKCAM_DEBUG("openCamera: Opening camera ...");
     //open the so found camera with _cameraId
     ACameraDevice_stateCallbacks cameraDeviceListener = {
       .context        = this,
       .onDisconnected = ::onDeviceDisconnected,
       .onError        = ::onDeviceErrorChanges,
     };
-    camera_status_t openResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), &cameraDeviceListener, &_cameraDevice);
-    if (openResult != ACAMERA_OK)
+    _cameraDeviceOpenResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), &cameraDeviceListener, &_cameraDevice);
     {
-        throw SENSException(SENSType::CAM, "Could not open camera! Already opened?", __LINE__, __FILE__);
+        std::lock_guard<std::mutex> lock(_cameraDeviceOpenedMutex);
+        _cameraDeviceOpened = true;
     }
-
-    _valid = true;
+    _cameraDeviceOpenedCV.notify_one();
 }
 
 void SENSNdkCamera::start(const SENSCamera::Config config)
 {
+    if (!_initialized)
+        throw SENSException(SENSType::CAM, "Camera is not initialized (call init function)!", __LINE__, __FILE__);
+
+    //todo: how do we track if a camera is started twice?
+
     _config      = config;
     _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
@@ -157,49 +179,64 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
         _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
     }
 
-    //create session
+    auto condition = [&] {
+        return _cameraDeviceOpened;
+    };
+    std::unique_lock<std::mutex> lock(_cameraDeviceOpenedMutex);
+    //wait until camera is opened
+    _cameraDeviceOpenedCV.wait(lock, condition);
+
+    if (_cameraDeviceOpenResult != ACAMERA_OK)
     {
-        //Get the pointer to a surface from the image reader (Surface from java is like nativeWindow in ndk)
-        AImageReader_getWindow(_imageReader, &_surface);
+        throw SENSException(SENSType::CAM, "Could not open camera! Already opened?", __LINE__, __FILE__);
+    }
 
-        // Avoid surface to be deleted
-        ANativeWindow_acquire(_surface);
-        //create a capture session and provide the surfaces to it
-        ACaptureSessionOutput_create(_surface, &_captureSessionOutput);
-        //create an output container for capture session and add it to the session
-        ACaptureSessionOutputContainer_create(&_captureSessionOutputContainer);
-        ACaptureSessionOutputContainer_add(_captureSessionOutputContainer, _captureSessionOutput);
+    createCaptureSession();
+}
 
-        ACameraOutputTarget_create(_surface, &_cameraOutputTarget);
-        ACameraDevice_createCaptureRequest(_cameraDevice, TEMPLATE_PREVIEW, &_captureRequest);
+void SENSNdkCamera::createCaptureSession()
+{
+    //Get the pointer to a surface from the image reader (Surface from java is like nativeWindow in ndk)
+    AImageReader_getWindow(_imageReader, &_surface);
 
-        ACaptureRequest_addTarget(_captureRequest, _cameraOutputTarget);
+    // Avoid surface to be deleted
+    ANativeWindow_acquire(_surface);
+    //create a capture session and provide the surfaces to it
+    ACaptureSessionOutput_create(_surface, &_captureSessionOutput);
+    //create an output container for capture session and add it to the session
+    ACaptureSessionOutputContainer_create(&_captureSessionOutputContainer);
+    ACaptureSessionOutputContainer_add(_captureSessionOutputContainer, _captureSessionOutput);
 
-        _captureSessionState                                              = CaptureSessionState::READY;
-        ACameraCaptureSession_stateCallbacks captureSessionStateCallbacks = {
-          .context  = this,
-          .onActive = ::onSessionActive,
-          .onReady  = ::onSessionReady,
-          .onClosed = ::onSessionClosed};
-        if (ACameraDevice_createCaptureSession(_cameraDevice,
-                                               _captureSessionOutputContainer,
-                                               &captureSessionStateCallbacks,
-                                               &_captureSession) != AMEDIA_OK)
-            throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
+    ACameraOutputTarget_create(_surface, &_cameraOutputTarget);
+    ACameraDevice_createCaptureRequest(_cameraDevice, TEMPLATE_PREVIEW, &_captureRequest);
 
-        //adjust capture request properties
-        if (_config.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
-        {
-            uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
-            ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
-            float focusDistance = 0.0f;
-            ACaptureRequest_setEntry_float(_captureRequest, ACAMERA_LENS_FOCUS_DISTANCE, 1, &focusDistance);
-        }
-        else
-        {
-            uint8_t afMode = ACAMERA_CONTROL_AF_MODE_CONTINUOUS_VIDEO;
-            ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
-        }
+    ACaptureRequest_addTarget(_captureRequest, _cameraOutputTarget);
+
+    _captureSessionState = CaptureSessionState::READY;
+
+    ACameraCaptureSession_stateCallbacks captureSessionStateCallbacks = {
+      .context  = this,
+      .onActive = ::onSessionActive,
+      .onReady  = ::onSessionReady,
+      .onClosed = ::onSessionClosed};
+    if (ACameraDevice_createCaptureSession(_cameraDevice,
+                                           _captureSessionOutputContainer,
+                                           &captureSessionStateCallbacks,
+                                           &_captureSession) != AMEDIA_OK)
+        throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
+
+    //adjust capture request properties
+    if (_config.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
+    {
+        uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
+        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
+        float focusDistance = 0.0f;
+        ACaptureRequest_setEntry_float(_captureRequest, ACAMERA_LENS_FOCUS_DISTANCE, 1, &focusDistance);
+    }
+    else
+    {
+        uint8_t afMode = ACAMERA_CONTROL_AF_MODE_CONTINUOUS_VIDEO;
+        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
     }
 
     //install repeating request
@@ -217,9 +254,83 @@ void SENSNdkCamera::start(int width, int height)
 
 void SENSNdkCamera::stop()
 {
-    LOG_NDKCAM_DEBUG("stop: terminate the thread...");
+    if (_initialized)
+    {
+        _openCameraThread.detach();
+        _initialized = false;
+        _availableStreamConfig.clear();
+    }
+
+    if (_captureSession)
+    {
+        LOG_NDKCAM_DEBUG("stop: stopping repeating request...");
+        if (_captureSessionState == CaptureSessionState::ACTIVE)
+        {
+            ACameraCaptureSession_stopRepeating(_captureSession);
+        }
+        else
+            LOG_NDKCAM_WARN("stop: CaptureSessionState NOT ACTIVE");
+
+        LOG_NDKCAM_DEBUG("stop: closing capture session...");
+        //todo: it is recommended not to close before creating a new session
+        ACameraCaptureSession_close(_captureSession);
+        _captureSession = nullptr;
+    }
+
+    if (_captureRequest)
+    {
+        LOG_NDKCAM_DEBUG("stop: free request stuff...");
+        ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
+        ACaptureRequest_free(_captureRequest);
+        _captureRequest = nullptr;
+    }
+
+    if (_captureSessionOutput)
+    {
+        ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer,
+                                              _captureSessionOutput);
+        ACaptureSessionOutput_free(_captureSessionOutput);
+        _captureSessionOutput = nullptr;
+    }
+
+    if (_surface)
+    {
+        ANativeWindow_release(_surface);
+        _surface = nullptr;
+    }
+
+    if (_captureSessionOutputContainer)
+    {
+        ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
+        _captureSessionOutputContainer = nullptr;
+    }
+
+    if (_cameraDevice)
+    {
+        LOG_NDKCAM_DEBUG("stop: closing camera...");
+        ACameraDevice_close(_cameraDevice);
+        _cameraDevice       = nullptr;
+        _cameraDeviceOpened = false;
+    }
+
+    if (_cameraManager)
+    {
+        LOG_NDKCAM_DEBUG("stop: deleting camera manager...");
+        ACameraManager_unregisterAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
+        ACameraManager_delete(_cameraManager);
+        _cameraManager = nullptr;
+    }
+
+    if (_imageReader)
+    {
+        LOG_NDKCAM_DEBUG("stop: free image reader...");
+        AImageReader_delete(_imageReader);
+        _imageReader = nullptr;
+    }
+
     if (_thread)
     {
+        LOG_NDKCAM_DEBUG("stop: terminate the thread...");
         _stopThread = true;
         _waitCondition.notify_one();
         if (_thread->joinable())
@@ -228,49 +339,7 @@ void SENSNdkCamera::stop()
             LOG_NDKCAM_DEBUG("stop: thread joined");
         }
         _thread.release();
-    }
-
-    _valid = false;
-
-    LOG_NDKCAM_DEBUG("stop: stopping repeating request...");
-    if (_captureSessionState == CaptureSessionState::ACTIVE)
-    {
-        ACameraCaptureSession_stopRepeating(_captureSession);
-    }
-    else
-        LOG_NDKCAM_WARN("stop: CaptureSessionState NOT ACTIVE");
-
-    LOG_NDKCAM_DEBUG("stop: closing capture session...");
-    //todo: it is recommended not to close before creating a new session
-    ACameraCaptureSession_close(_captureSession);
-
-    LOG_NDKCAM_DEBUG("stop: free request stuff...");
-    ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
-    ACaptureRequest_free(_captureRequest);
-    _captureRequest = nullptr;
-    ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer, _captureSessionOutput);
-    ACaptureSessionOutput_free(_captureSessionOutput);
-    ANativeWindow_release(_surface);
-    ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
-    _captureSessionOutputContainer = nullptr;
-
-    LOG_NDKCAM_DEBUG("stop: closing camera...");
-    ACameraDevice_close(_cameraDevice);
-    _cameraDevice = nullptr;
-
-    LOG_NDKCAM_DEBUG("stop: deleting camera manager...");
-    if (_cameraManager)
-    {
-        ACameraManager_unregisterAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
-        ACameraManager_delete(_cameraManager);
-        _cameraManager = nullptr;
-    }
-
-    LOG_NDKCAM_DEBUG("stop: free image reader...");
-    if (_imageReader)
-    {
-        AImageReader_delete(_imageReader);
-        _imageReader = nullptr;
+        _stopThread = false;
     }
 }
 
@@ -610,7 +679,12 @@ void SENSNdkCamera::onDeviceDisconnected(ACameraDevice* dev)
         std::string id(ACameraDevice_getId(dev));
         LOG_NDKCAM_WARN("device %s is disconnected", id.c_str());
 
-        _cameraAvailable = false;
+        {
+            std::lock_guard<std::mutex> lock(_cameraAvailabilityMutex);
+            _cameraAvailability[id] = false;
+        }
+
+        _cameraDeviceOpened = false;
         ACameraDevice_close(_cameraDevice);
         _cameraDevice = nullptr;
     }
@@ -646,28 +720,17 @@ void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
             default:
                 errStr = "Unknown Error";
         }
-        _cameraAvailable = false;
+
         std::string id(ACameraDevice_getId(dev));
+        {
+            std::lock_guard<std::mutex> lock(_cameraAvailabilityMutex);
+            _cameraAvailability[id] = false;
+        }
+        _cameraDeviceOpened = false;
+
         LOG_NDKCAM_INFO("CameraDevice %s is in error %s", id.c_str(), errStr.c_str());
     }
 }
-
-/**
- * Construct a camera manager listener on the fly and return to caller
- *
- * @return ACameraManager_AvailabilityCallback
- */
-/*
-ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
-{
-    static ACameraManager_AvailabilityCallbacks cameraMgrListener = {
-      .context             = this,
-      .onCameraAvailable   = OnCameraAvailable,
-      .onCameraUnavailable = OnCameraUnavailable,
-    };
-    return &cameraMgrListener;
-}
-*/
 
 /**
  * OnCameraStatusChanged()
@@ -675,11 +738,11 @@ ACameraManager_AvailabilityCallbacks* SENSNdkCamera::getManagerListener()
  */
 void SENSNdkCamera::onCameraStatusChanged(const char* id, bool available)
 {
-    LOG_NDKCAM_INFO("onCameraStatusChanged: called: valid %s id: %s", available ? "true" : "false", id);
-    if (_valid && std::string(id) == _cameraId)
+    LOG_NDKCAM_INFO("onCameraStatusChanged: id: %s available: %s ", id, available ? "true" : "false");
     {
-        _cameraAvailable = available ? true : false;
-        LOG_NDKCAM_INFO("onCameraStatusChanged: camera available %s", available ? "true" : "false");
+        std::lock_guard<std::mutex> lock(_cameraAvailabilityMutex);
+        _cameraAvailability[std::string(id)] = available;
+        _openCameraCV.notify_one();
     }
 }
 
@@ -703,20 +766,10 @@ std::string getPrintableState(CaptureSessionState state)
 void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
                                    CaptureSessionState    state)
 {
-    LOG_NDKCAM_WARN("CaptureSession state: entered");
+    LOG_NDKCAM_DEBUG("CaptureSession state: entered");
 
     if (!_captureSession)
         LOG_NDKCAM_WARN("CaptureSession state: CaptureSession is NULL");
-
-    /*
-    if (!ses || ses != _captureSession)
-    {
-        LOG_NDKCAM_WARN("CaptureSession state: CaptureSession is %s", (ses ? "NOT our session" : "NULL"));
-        return;
-    }
-    else
-        LOG_NDKCAM_WARN("CaptureSession state state: CaptureSession is %s", (ses ? "our session" : "NULL"));
-*/
 
     if (state >= CaptureSessionState::MAX_STATE)
     {
@@ -725,4 +778,12 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
 
     LOG_NDKCAM_WARN("CaptureSession state: %s", getPrintableState(state).c_str());
     _captureSessionState = state;
+    if (_captureSessionState == CaptureSessionState::ACTIVE)
+    {
+        _started = true;
+    }
+    else
+    {
+        _started = false;
+    }
 }

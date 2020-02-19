@@ -18,6 +18,11 @@ public:
         return _streamSizes;
     }
 
+    void clear()
+    {
+        _streamSizes.clear();
+    }
+
     //searches for best matching size and returns it
     cv::Size findBestMatchingSize(cv::Size requiredSize);
 
@@ -32,6 +37,21 @@ public:
     {
         FRONT = 0,
         BACK
+    };
+
+    enum class Type
+    {
+        NORMAL = 0,
+        MACRO,
+        TELE
+    };
+
+    enum class State
+    {
+        IDLE,
+        INITIALIZED,     //!init() was called
+        START_REQUESTED, //!start() and camera is asynchronously starting up
+        STARTED          //!camera is giving images in requested size
     };
 
     enum class FocusMode
@@ -68,18 +88,21 @@ public:
     virtual void start(int width, int height)    = 0;
     virtual void stop(){};
 
-    virtual SENSFramePtr                 getLatestFrame()       = 0;
+    virtual SENSFramePtr getLatestFrame() = 0;
 
     const std::vector<cv::Size>& getStreamSizes() const { return _availableStreamConfig.getStreamSizes(); }
-    cv::Size getFrameSize() { return cv::Size(_config.targetWidth, _config.targetHeight); }
+    cv::Size                     getFrameSize() { return cv::Size(_config.targetWidth, _config.targetHeight); }
+    bool                         started() const { return _started; }
 
 protected:
     float  _targetWdivH = -1.0f;
     Config _config;
+    bool   _started;
 
-    SENSCamera::Facing _facing = SENSCamera::Facing::BACK;
-
+    SENSCamera::Facing      _facing = SENSCamera::Facing::BACK;
     SENSCameraStreamConfigs _availableStreamConfig;
+
+    State _state = State::IDLE;
 };
 
 #endif //SENS_CAMERA_H
