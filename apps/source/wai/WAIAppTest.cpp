@@ -1,4 +1,4 @@
-#include "WAIApp.h"
+#include "WAIAppTest.h"
 
 #include <SLApplication.h>
 #include <SLGLTexture.h>

@@ -1062,20 +1062,20 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
 
     // Pass the event to imgui
     if (_gui)
+    {
         _gui->onMouseDown(button, x, y);
 
 #ifdef SL_GLES
-    // Touch devices on iOS or Android have no mouse move event when the
-    // finger isn't touching the screen. Therefore imgui can not detect hovering
-    // over an imgui window. Without this extra frame you would have to touch
-    // the display twice to open e.g. a menu.
-    if (_gui)
+        // Touch devices on iOS or Android have no mouse move event when the
+        // finger isn't touching the screen. Therefore imgui can not detect hovering
+        // over an imgui window. Without this extra frame you would have to touch
+        // the display twice to open e.g. a menu.
         _gui->renderExtraFrame(s, this, x, y);
 #endif
 
-    if (_gui)
         if (_gui->doNotDispatchMouse())
             return true;
+    }
     //if (ImGui::GetIO().WantCaptureMouse)
     //    return true;
 
@@ -1130,7 +1130,11 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
 
     // Pass the event to imgui
     if (_gui)
+    {
         _gui->onMouseUp(button, x, y);
+        if (_gui->doNotDispatchMouse())
+            return true;
+    }
 
     _mouseDownL = false;
     _mouseDownR = false;
@@ -1247,11 +1251,6 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
             return true;
         }
     }
-    //if (ImGui::GetIO().WantCaptureMouse)
-    //{
-    //    _gui->onMouseWheel((SLfloat)delta);
-    //    return true;
-    //}
 
     // Handle mouse wheel in RT mode
     if (_renderType == RT_rt && !_raytracer.doContinuous() &&

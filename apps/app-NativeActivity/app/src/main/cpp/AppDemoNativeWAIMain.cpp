@@ -37,7 +37,7 @@
 #include <android_native_app_glue.h>
 #include <AppDemoNativeSensorsInterface.h>
 #include <Utils.h>
-#include <WAIApp.h>
+#include <WAIAppTest.h>
 #include <android/SENSNdkCamera.h>
 #include <CV/CVImage.h>
 #include <HighResTimer.h>
@@ -543,7 +543,7 @@ void Engine::onPermissionGranted(jboolean granted)
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_ch_cpvr_wai_WAIActivity_notifyCameraPermission(
+Java_ch_cpvr_nativewai_WAIActivity_notifyCameraPermission(
   JNIEnv*  env,
   jclass   type,
   jboolean permission)

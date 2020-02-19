@@ -1,5 +1,5 @@
-#ifndef WAI_APP_H
-#define WAI_APP_H
+#ifndef WAI_APP_TEST_H
+#define WAI_APP_TEST_H
 
 #include <string>
 #include <SL/SLInputEventInterface.h>
@@ -61,4 +61,4 @@ private:
     bool _initIntroSceneDone = false;
 };
 
-#endif //WAI_APP_H
+#endif //WAI_APP_TEST_H

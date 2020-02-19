@@ -131,7 +131,6 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
         if (ImGui::BeginMenu("Video/GPS"))
         {
             ImGui::MenuItem("Video/GPS Storage", nullptr, &uiPrefs->showVideoStorage);
-            ImGui::MenuItem("Video Controls", nullptr, &uiPrefs->showVideoControls);
 
             ImGui::EndMenu();
         }

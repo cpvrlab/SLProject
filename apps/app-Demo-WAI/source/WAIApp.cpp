@@ -270,6 +270,7 @@ void WAIApp::close()
     _camera = nullptr;
     if (_mode)
         _currentSlamParams.save(_dirs.writableDir + "SlamParams.json");
+    terminate();
 }
 //-----------------------------------------------------------------------------
 void WAIApp::terminate()
