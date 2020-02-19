@@ -137,25 +137,33 @@ bool WAIApp::update()
     {
         if (_camera)
         {
-            if (!_videoImage)
-            {
-                if (_sceneCamera)
-                {
-                    //make sure scene camera is initialized
-                    initSceneCamera();
-                }
+            //if (_camera->started())
+            //{
 
-                if (_sv)
-                    _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
-
-                _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-                _sceneCamera->background().texture(_videoImage);
-            }
+            //}
 
             //copy video image to background
             SENSFramePtr frame = _camera->getLatestFrame();
             if (frame)
             {
+                if (!_videoImage)
+                {
+                    if (!_sceneCamera)
+                    {
+                        //make sure scene camera is initialized
+                        initSceneCamera();
+                    }
+
+                    if (_sv)
+                        _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width,
+                                                          _camera->getFrameSize().height),
+                                                  SLViewportAlign::VA_center,
+                                                  true);
+
+                    _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+                    _sceneCamera->background().texture(_videoImage);
+                }
+
                 WAIAPP_DEBUG("valid frame");
                 cv::Mat& img = frame->imgRGB;
                 _videoImage->copyVideoImage(img.cols,

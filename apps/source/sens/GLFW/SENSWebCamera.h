@@ -12,7 +12,7 @@ public:
     void         init(SENSCamera::Facing facing) override;
     void         start(const Config config) override;
     void         start(int width, int height) override;
-    void         stop(){};
+    void         stop() { _started = false; }
     SENSFramePtr getLatestFrame() override;
 
 private:
