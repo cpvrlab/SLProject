@@ -521,6 +521,7 @@ void MapCreator::cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs,
             {
                 pKF->SetBadFlag();
                 waiMode->getMap()->EraseKeyFrame(pKF);
+                waiMode->getMap()->GetKeyFrameDB()->erase(pKF);
             }
         }
     }

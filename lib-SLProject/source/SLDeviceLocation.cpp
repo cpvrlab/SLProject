@@ -260,14 +260,14 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
         _originSolarAzimut = (SLfloat)spa.azimuth;
 
         SLfloat minSR = (SLfloat)(60.0 * (spa.sunrise - (int)(spa.sunrise)));
-        SLfloat secSR = (SLfloat)(60.0 * (minSR - (int)minSR));
+        SLfloat secSR = (SLfloat)(60.0 * (minSR - floor(minSR)));
         SLfloat minSS = (SLfloat)(60.0 * (spa.sunset - (int)(spa.sunset)));
-        SLfloat secSS = (SLfloat)(60.0 * (minSS - (int)minSS));
+        SLfloat secSS = (SLfloat)(60.0 * (minSS - floor(minSS)));
 
         SL_LOG("Zenith          : %.6f degrees", _originSolarZenit);
         SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimut);
         SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(spa.sunrise), (int)minSR, (int)secSR);
-        SL_LOG("Sunset          : %02d:%02d:%02d Local Time\n", (int)(spa.sunset), (int)minSS, (int)secSS);
+        SL_LOG("Sunset          : %02d:%02d:%02d Local Time", (int)(spa.sunset), (int)minSS, (int)secSS);
     }
     else
         SL_LOG("SPA Error Code: %d", result);

@@ -158,12 +158,10 @@ std::string getInternalDir(android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -174,8 +172,7 @@ std::string getInternalDir(android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version");
             Utils::log("WAInative", "unsupported java version");
@@ -189,7 +186,7 @@ std::string getInternalDir(android_app* app)
     if (!classContext)
     {
         //TODO(dgj1): error handling
-        Utils::log("WAInative", "could not get classContext\n");
+        Utils::log("WAI", "could not get classContext\n");
         return "";
     }
     jmethodID methodIDgetFilesDir = env->GetMethodID(classContext, "getFilesDir", "()Ljava/io/File;");
@@ -252,12 +249,10 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -268,8 +263,7 @@ void extractAPKFolder(android_app* app, std::string internalPath, std::string as
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return;
@@ -319,12 +313,10 @@ std::string getExternalDir(android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -423,12 +415,10 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -439,8 +429,7 @@ bool isPermissionGranted(struct android_app* app, const char* permissionName)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return "";
@@ -476,12 +465,10 @@ void requestPermission(struct android_app* app)
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -492,8 +479,7 @@ void requestPermission(struct android_app* app)
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return;
@@ -518,6 +504,7 @@ void requestPermission(struct android_app* app)
 
 static void initDisplay(Engine* engine, ANativeWindow* window)
 {
+        Utils::log("WAI", "onInit handle return");
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -849,14 +836,12 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
             break;
 
             case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP:
-            {
+            case AMOTION_EVENT_ACTION_POINTER_UP: {
                 handleTouchUp(engine, event);
             }
             break;
 
-            case AMOTION_EVENT_ACTION_MOVE:
-            {
+            case AMOTION_EVENT_ACTION_MOVE: {
                 handleTouchMove(engine, event);
             }
         }

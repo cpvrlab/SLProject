@@ -35,17 +35,12 @@ target_include_directories(
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${SL_PROJECT_ROOT}/lib-SLProject/include
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/include
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/clipper
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/irrXML
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/poly2tri
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/code/BoostWorkaround
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
         ${OpenCV_INCLUDE_DIR}
+        ${assimp_INCLUDE_DIR}
         ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
@@ -54,6 +49,7 @@ target_link_libraries(
         ${DEFAULT_LIBRARIES}
         libc++_shared.so
         ${OpenCV_LIBS}
+        ${assimp_LIBS}
         ${META_PROJECT_NAME}::lib-SLProject
     )
 

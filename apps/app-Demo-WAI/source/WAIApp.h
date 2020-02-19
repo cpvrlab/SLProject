@@ -154,6 +154,7 @@ enum WAIEventType
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
+    WAIEventType_AdjustTransparency
 };
 
 struct WAIEvent
@@ -207,17 +208,13 @@ struct WAIEventDownloadCalibrationFiles : WAIEvent
     WAIEventDownloadCalibrationFiles() { type = WAIEventType_DownloadCalibrationFiles; }
 };
 
-//class WAIAppStateMachine
-//{
-//public:
-//    enum class State
-//    {
-//        STARTUP,
-//
-//    };
-//private:
-//
-//};
+struct WAIEventAdjustTransparency : WAIEvent
+{
+    WAIEventAdjustTransparency() { type = WAIEventType_AdjustTransparency; }
+
+    float kt;
+};
+
 //-----------------------------------------------------------------------------
 class WAIApp : public SLInputEventInterface
 {
