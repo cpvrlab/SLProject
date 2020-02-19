@@ -73,12 +73,13 @@ WAIApp::~WAIApp()
 //-----------------------------------------------------------------------------
 int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
+    if (_loaded)
+        return _sv->index();
+
+    Utils::log("WAInative", "loading");
     _dirs = directories;
 
     Utils::initFileLog(_dirs.logFileDir, true);
-
-    SLApplication::devRot.isUsed(true);
-    SLApplication::devLoc.isUsed(true);
 
     videoDir  = _dirs.writableDir + "erleb-AR/locations/";
     _calibDir = _dirs.writableDir + "calibrations/";
@@ -162,6 +163,14 @@ bool WAIApp::update()
 {
     if (!_loaded)
         return false;
+    if (!_camera)
+        return false;
+
+    if (!_started)
+    {
+        _started = true;
+        loadSlam();
+    }
 
     try
     {
@@ -183,8 +192,8 @@ bool WAIApp::update()
 
             if (iKnowWhereIAm)
             {
-                _lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-                _IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
+                //_lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
+                //_IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
 
                 // TODO(dgj1): maybe make this API cleaner
                 cv::Mat pose = cv::Mat(4, 4, CV_32F);
@@ -222,6 +231,7 @@ bool WAIApp::update()
 
                 _waiScene.cameraNode->om(om);
             }
+            /*
             else
             {
                 SLQuat4f q1 = _lastKnowPoseQuaternion;
@@ -235,6 +245,7 @@ bool WAIApp::update()
                 SLMat4f cameraMat = _waiScene.cameraNode->om();
                 _waiScene.cameraNode->om(cameraMat * imuRot);
             }
+             */
 
             //AVERAGE_TIMING_STOP("WAIAppUpdate");
         }
@@ -256,11 +267,21 @@ bool WAIApp::update()
 //-----------------------------------------------------------------------------
 void WAIApp::close()
 {
-    // Deletes all remaining sceneviews the current scene instance
-    SLApplication::deleteAppAndScene();
-    _currentSlamParams.save(_dirs.writableDir + "SlamParams.json");
+    _camera = nullptr;
+    if (_mode)
+        _currentSlamParams.save(_dirs.writableDir + "SlamParams.json");
 }
-
+//-----------------------------------------------------------------------------
+void WAIApp::terminate()
+{
+    // Deletes all remaining sceneviews the current scene instance
+    if (SLApplication::scene)
+    {
+        delete SLApplication::scene;
+        SLApplication::scene = nullptr;
+    }
+    _loaded = false;
+}
 //-----------------------------------------------------------------------------
 /*
 videoFile: path to a video or empty if live video should be used
@@ -483,60 +504,6 @@ std::string WAIApp::name()
 {
     return SLApplication::name;
 }
-
-//-----------------------------------------------------------------------------
-void WAIApp::setDeviceParameter(const std::string& parameter,
-                                std::string        value)
-{
-    SLApplication::deviceParameter[parameter] = std::move(value);
-}
-//-----------------------------------------------------------------------------
-void WAIApp::setRotationQuat(float quatX,
-                             float quatY,
-                             float quatZ,
-                             float quatW)
-{
-    //todo: replace
-    SLApplication::devRot.onRotationQUAT(quatX, quatY, quatZ, quatW);
-}
-
-//-----------------------------------------------------------------------------
-bool WAIApp::usesRotationSensor()
-{
-    //todo: replace
-    return SLApplication::devRot.isUsed();
-}
-
-//-----------------------------------------------------------------------------
-void WAIApp::setLocationLLA(float latitudeDEG, float longitudeDEG, float altitudeM, float accuracyM)
-{
-    //todo: replace
-    SLApplication::devLoc.onLocationLLA(latitudeDEG,
-                                        longitudeDEG,
-                                        altitudeM,
-                                        accuracyM);
-}
-//-----------------------------------------------------------------------------
-bool WAIApp::usesLocationSensor()
-{
-    //todo: replace
-    return SLApplication::devLoc.isUsed();
-}
-
-//-----------------------------------------------------------------------------
-void WAIApp::initExternalDataDirectory(std::string path)
-{
-    if (Utils::dirExists(path))
-    {
-        Utils::log("External directory: %s", path.c_str());
-        SLApplication::externalPath = path;
-    }
-    else
-    {
-        Utils::log("ERROR: external directory does not exists: %s", path.c_str());
-    }
-}
-
 //-----------------------------------------------------------------------------
 bool WAIApp::updateTracking(SENSFramePtr frame)
 {
@@ -549,18 +516,18 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
 
     iKnowWhereIAm = _mode->update(frame->imgGray);
 
-    if (_gpsDataStream.is_open())
-    {
-        if (SLApplication::devLoc.isUsed())
-        {
-            SLVec3d v = SLApplication::devLoc.locLLA();
-            _gpsDataStream << SLApplication::devLoc.locAccuracyM();
-            _gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-            _gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
-            _gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
-            _gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
-        }
-    }
+    //if (_gpsDataStream.is_open())
+    //{
+    //    if (SLApplication::devLoc.isUsed())
+    //    {
+    //        SLVec3d v = SLApplication::devLoc.locLLA();
+    //        _gpsDataStream << SLApplication::devLoc.locAccuracyM();
+    //        _gpsDataStream << std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+    //        _gpsDataStream << std::to_string(SLApplication::devRot.yawRAD());
+    //        _gpsDataStream << std::to_string(SLApplication::devRot.pitchRAD());
+    //        _gpsDataStream << std::to_string(SLApplication::devRot.rollRAD());
+    //    }
+    //}
 
     return iKnowWhereIAm;
 }
@@ -633,7 +600,7 @@ void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location,
 void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInch)
 {
     _gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dotsPerInch);
-    //aboutDial = new AppDemoGuiAbout("about", cpvrLogo, &uiPrefs.showAbout);
+
     _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &_gui->uiPrefs->showInfosFrameworks));
     _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
                                                                           &_gui->uiPrefs->showInfosMapNodeTransform,
@@ -667,7 +634,6 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
 
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &_gui->uiPrefs->showError);
     _gui->addInfoDialog(_errorDial);
-    //TODO: AppDemoGuiInfosDialog are never deleted. Why not use smart pointer when the reponsibility for an object is not clear?
 }
 
 //-----------------------------------------------------------------------------
@@ -727,20 +693,6 @@ void WAIApp::downloadCalibrationFilesTo(std::string dir)
         this->showErrorMsg(errorMsg);
     }
 }
-//-----------------------------------------------------------------------------
-//bool WAIApp::checkCalibration(const std::string& calibDir, const std::string& calibFileName)
-//{
-//    CVCalibration testCalib(CVCameraType::FRONTFACING, "");
-//    testCalib.load(calibDir, calibFileName, false);
-//    if (testCalib.cameraMat().empty() || testCalib.distortion().empty()) //app will crash if distortion is empty
-//        return false;
-//    if (testCalib.numCapturedImgs() == 0) //if this is 0 then the calibration is automatically invalidated in load()
-//        return false;
-//    if (testCalib.imageSize() == cv::Size(0, 0))
-//        return false;
-//
-//    return true;
-//}
 
 //-----------------------------------------------------------------------------
 bool WAIApp::updateSceneViews()
@@ -760,7 +712,8 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     //undistort image and copy image to video texture
     if (_videoImage)
     {
-        _mode->drawInfo(imgRGB, true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
+        if (_mode)
+            _mode->drawInfo(imgRGB, true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
 
         if (_calibration.state() == CS_calibrated && _showUndistorted)
         {
@@ -783,6 +736,9 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
                                     _undistortedLastFrame[_lastFrameIdx].isContinuous(),
                                     true);
     }
+
+    if (!_mode)
+        return;
 
     //update map point visualization:
     //if we still want to visualize the point cloud
@@ -1136,15 +1092,15 @@ void WAIApp::saveVideo(std::string filename)
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
 
-void WAIApp::saveGPSData(std::string videofile)
-{
-    if (_gpsDataStream.is_open())
-        _gpsDataStream.close();
-
-    std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
-    std::string path     = videoDir + filename;
-    _gpsDataStream.open(path);
-}
+//void WAIApp::saveGPSData(std::string videofile)
+//{
+//    if (_gpsDataStream.is_open())
+//        _gpsDataStream.close();
+//
+//    std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
+//    std::string path     = videoDir + filename;
+//    _gpsDataStream.open(path);
+//}
 
 void WAIApp::transformMapNode(SLTransformSpace tSpace,
                               SLVec3f          rotation,
@@ -1199,17 +1155,17 @@ void WAIApp::handleEvents()
                 WAIEventVideoRecording* videoRecordingEvent = (WAIEventVideoRecording*)event;
 
                 //if videoWriter is opened we assume that recording was started before
-                if (_videoWriter && _videoWriter->isOpened() || _gpsDataStream.is_open())
+                if (_videoWriter && _videoWriter->isOpened() /*|| _gpsDataStream.is_open()*/)
                 {
                     if (_videoWriter && _videoWriter->isOpened())
                         _videoWriter->release();
-                    if (_gpsDataStream.is_open())
-                        _gpsDataStream.close();
+                    //if (_gpsDataStream.is_open())
+                    //    _gpsDataStream.close();
                 }
                 else
                 {
                     saveVideo(videoRecordingEvent->filename);
-                    saveGPSData(videoRecordingEvent->filename);
+                    //saveGPSData(videoRecordingEvent->filename);
                 }
 
                 delete videoRecordingEvent;

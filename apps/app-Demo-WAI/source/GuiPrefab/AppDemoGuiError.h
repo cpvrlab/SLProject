@@ -6,14 +6,14 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiError : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiError(string name, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     void setErrorMsg(std::string msg) { _errorMsg = msg; }
 
-    private:
+private:
     std::string _errorMsg = "";
 };
 
