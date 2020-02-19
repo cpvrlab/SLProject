@@ -37,19 +37,20 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
     if (location == "augst")
     {
+        /*
         if (area == "templeHill-marker")
         {
             SLAssimpImporter importer;
             augmentationRoot = importer.load("FBX/AugustaRaurica/Temple.fbx");
-            /*augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Meshroom.gltf",
-                                             true,
-                                             nullptr,
-                                             0.4f);
+            //augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Meshroom.gltf",
+            //                                 true,
+            //                                 nullptr,
+            //                                 0.4f);
 
             // Set some ambient light
-            for (auto child : augmentationRoot->children())
-                for (auto mesh : child->meshes())
-                    mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));*/
+            //for (auto child : augmentationRoot->children())
+            //    for (auto mesh : child->meshes())
+            //        mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));
 
             // Create directional light for the sun light
             SLLightDirect* light = new SLLightDirect(5.0f);
@@ -78,6 +79,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             rootNode->addChild(augmentationRoot);
             rootNode->addChild(light1);
         }
+        */
     }
 #if 0 // office table boxes scene
     //SLBox*      box1     = new SLBox(0.0f, 0.0f, 0.0f, l, h, b, "Box 1", yellow);
