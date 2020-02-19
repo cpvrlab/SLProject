@@ -1,3 +1,5 @@
+#ifndef WAISLAM_H
+#define WAISLAM_H
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
@@ -272,3 +274,5 @@ protected:
     KPextractor*  _extractor;
     int           _infoMatchedInliners;
 };
+
+#endif
