@@ -1083,7 +1083,7 @@ void onPermissionGranted(jboolean granted)
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_ch_cpvr_nativewai_WAIActivity_notifyCameraPermission(
+Java_ch_cpvr_wai_WAIActivity_notifyCameraPermission(
   JNIEnv*  env,
   jclass   type,
   jboolean permission)
