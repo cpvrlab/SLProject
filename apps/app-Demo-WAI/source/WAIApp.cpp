@@ -556,7 +556,7 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
         if (!SLApplication::dpi)
             SLApplication::dpi = dpi;
 
-        _sv = new SLSceneView();
+        _sv = new SLSceneView(SLApplication::scene, dpi);
         _sv->init("SceneView",
                   screenWidth,
                   screenHeight,

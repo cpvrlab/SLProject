@@ -23,6 +23,7 @@ using namespace std::chrono;
 #include <SLLightRect.h>
 #include <SLPathtracer.h>
 #include <SLSceneView.h>
+#include <GlobalTimer.h>
 
 extern SLfloat rnd01();
 
@@ -58,7 +59,7 @@ SLPathtracer::render(SLSceneView* sv)
     _images.push_back(new CVImage(_sv->viewportW(), _sv->viewportH(), PF_rgb, "Pathtracer"));
 
     // Measure time
-    double t1 = SLApplication::timeS();
+    double t1 = GlobalTimer::timeS();
 
     // Bind the renderSlices method to a function object
     auto renderSlicesFunction = bind(&SLPathtracer::renderSlices, this, _1, _2);
@@ -85,7 +86,7 @@ SLPathtracer::render(SLSceneView* sv)
         _pcRendered = (SLint)((SLfloat)currentSample / (SLfloat)_aaSamples * 100.0f);
     }
 
-    _renderSec = SLApplication::timeS() - (SLfloat)t1;
+    _renderSec = GlobalTimer::timeS() - (SLfloat)t1;
 
     SL_LOG("\nTime to render image: %6.3fsec", _renderSec);
 
@@ -156,11 +157,11 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
             // update image after 500 ms
             if (isMainThread)
             {
-                if (SLApplication::timeS() - t1 > 0.5f)
+                if (GlobalTimer::timeS() - t1 > 0.5f)
                 {
                     renderUIBeforeUpdate();
                     _sv->onWndUpdate(); // update window
-                    t1 = SLApplication::timeS();
+                    t1 = GlobalTimer::timeS();
                 }
             }
         }

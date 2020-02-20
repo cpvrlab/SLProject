@@ -471,9 +471,9 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppDemoSceneView()
+SLuint createAppDemoSceneView(SLScene* scene, int dpi)
 {
-    SLSceneView* appDemoSV = new AppDemoSceneView();
+    SLSceneView* appDemoSV = new AppDemoSceneView(scene, dpi);
     return appDemoSV->index();
 }
 //-----------------------------------------------------------------------------
@@ -596,7 +596,8 @@ int main(int argc, char* argv[])
     AppDemoGui::loadConfig(dpi);
 
     /////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
+    svIndex = slCreateSceneView(SLApplication::scene,
+                                (int)(scrWidth * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi,
                                 (SLSceneID)SL_STARTSCENE,

@@ -18,6 +18,7 @@
 #include <SLApplication.h>
 #include <SLScene.h>
 #include <utility>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 //! Global static objects
@@ -62,7 +63,6 @@ string                      SLApplication::_jobProgressMsg = "";
 atomic<int>                 SLApplication::_jobProgressNum(0);
 atomic<int>                 SLApplication::_jobProgressMax(0);
 mutex                       SLApplication::_jobMutex;
-HighResTimer                SLApplication::_timer;
 
 const string SLApplication::CALIB_FTP_HOST = "pallas.bfh.ch:21";
 const string SLApplication::CALIB_FTP_USER = "upload";
@@ -91,7 +91,7 @@ void SLApplication::createAppAndScene(SLstring appName,
 
     name  = std::move(appName);
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
-    _timer.start();
+    GlobalTimer::timerStart();
 }
 //-----------------------------------------------------------------------------
 //! Calls the destructor of the single scene instance.

@@ -15,12 +15,12 @@
 #endif
 
 #include <SLAnimManager.h>
-#include <SLApplication.h>
 #include <SLCamera.h>
 #include <SLInterface.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLSceneView.h>
+#include <GlobalTimer.h>
 
 #include <utility>
 
@@ -34,32 +34,34 @@ SLScene. If an in between element in the vector is zero (from previous sceneview
 it will be replaced. The sceneviews _index is the index in the sceneview vector.
 It never changes throughout the life of a sceneview. 
 */
-SLSceneView::SLSceneView() : SLObject()
+SLSceneView::SLSceneView(SLScene* s, int dpi)
+  : SLObject(),
+    _s(s),
+    _dpi(dpi)
 {
-    SLScene* s = SLApplication::scene;
-    assert(s && "No SLApplication::scene instance.");
+    assert(_s && "No scene instance.");
 
     // Find first a zero pointer gap in
-    for (SLulong i = 0; i < s->sceneViews().size(); ++i)
+    for (SLulong i = 0; i < _s->sceneViews().size(); ++i)
     {
-        if (s->sceneViews()[i] == nullptr)
+        if (_s->sceneViews()[i] == nullptr)
         {
-            s->sceneViews()[i] = this;
-            _index             = (SLuint)i;
+            _s->sceneViews()[i] = this;
+            _index              = (SLuint)i;
             return;
         }
     }
 
     // No gaps, so add it and get the index back.
-    s->sceneViews().push_back(this);
-    _index = (SLuint)s->sceneViews().size() - 1;
+    _s->sceneViews().push_back(this);
+    _index = (SLuint)_s->sceneViews().size() - 1;
 }
 //-----------------------------------------------------------------------------
 SLSceneView::~SLSceneView()
 {
     // Set pointer in SLScene::sceneViews vector to zero but leave it.
     // The remaining sceneviews must keep their index in the vector
-    SLApplication::scene->sceneViews()[(SLuint)_index] = nullptr;
+    _s->sceneViews()[(SLuint)_index] = nullptr;
 
     if (_gui)
     {
@@ -153,11 +155,10 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.projection(proj);
 
     // fit scenes bounding box in view frustum
-    SLScene* s = SLApplication::scene;
-    if (s->root3D())
+    if (_s->root3D())
     {
         // we want to fit the scenes combined aabb in the view frustum
-        SLAABBox* sceneBounds = s->root3D()->aabb();
+        SLAABBox* sceneBounds = _s->root3D()->aabb();
 
         _sceneViewCamera.translation(sceneBounds->centerWS(), TS_world);
         _sceneViewCamera.lookAt(sceneBounds->centerWS() + dir, SLVec3f::AXISY, TS_parent);
@@ -268,7 +269,7 @@ void SLSceneView::switchToSceneViewCamera()
 //! Sets the active camera to the next in the scene
 void SLSceneView::switchToNextCameraInScene()
 {
-    SLCamera* nextCam = SLApplication::scene->nextCameraInScene(this);
+    SLCamera* nextCam = _s->nextCameraInScene(this);
 
     if (nextCam == nullptr)
         return;
@@ -357,7 +358,6 @@ void SLSceneView::onInitialize()
 {
     postSceneLoad();
 
-    SLScene*   s       = SLApplication::scene;
     SLGLState* stateGL = SLGLState::instance();
 
     if (_camera)
@@ -376,38 +376,38 @@ void SLSceneView::onInitialize()
     _isFirstFrame = true;
 
     // init 3D scene with initial depth 1
-    if (s->root3D() && s->root3D()->aabb()->radiusOS() < 0.0001f)
+    if (_s->root3D() && _s->root3D()->aabb()->radiusOS() < 0.0001f)
     {
         // Init camera so that its frustum is set
         _camera->setProjection(this, ET_center);
 
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
-        s->root3D()->updateAABBRec();
+        _s->root3D()->updateAABBRec();
 
-        for (auto mesh : s->meshes())
+        for (auto mesh : _s->meshes())
             mesh->updateAccelStruct();
 
         SL_LOG("Time for AABBs  : %5.3f sec.",
                (SLfloat)(clock() - t) / (SLfloat)CLOCKS_PER_SEC);
 
         // Collect node statistics
-        s->root3D()->statsRec(_stats3D);
+        _s->root3D()->statsRec(_stats3D);
 
         // Warn if there are no light in scene
-        if (s->lights().empty())
+        if (_s->lights().empty())
             SL_LOG("**** No Lights found in scene! ****");
     }
 
     // init 2D scene with initial depth 1
-    if (s->root2D() && s->root2D()->aabb()->radiusOS() < 0.0001f)
+    if (_s->root2D() && _s->root2D()->aabb()->radiusOS() < 0.0001f)
     {
         // build axis aligned bounding box hierarchy after init
-        s->root2D()->updateAABBRec();
+        _s->root2D()->updateAABBRec();
 
         // Collect node statistics
         _stats2D.clear();
-        s->root2D()->statsRec(_stats2D);
+        _s->root2D()->statsRec(_stats2D);
     }
 
     initSceneViewCamera();
@@ -415,7 +415,10 @@ void SLSceneView::onInitialize()
     // init conetracer if possible:
 #if defined(GL_VERSION_4_4)
     if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
-        _conetracer.init(_scrW, _scrH);
+    {
+        // The world's bounding box should not change during runtime.
+        _conetracer.init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
+    }
 #endif
 
     if (_gui)
@@ -428,8 +431,6 @@ rendering and whenever the window changes its size.
 */
 void SLSceneView::onResize(SLint width, SLint height)
 {
-    SLScene* s = SLApplication::scene;
-
     // On OSX and Qt this can be called with invalid values > so exit
     if (width == 0 || height == 0) return;
 
@@ -448,9 +449,9 @@ void SLSceneView::onResize(SLint width, SLint height)
         // Resize Oculus framebuffer
         if (_camera && _camera->projection() == P_stereoSideBySideD)
         {
-            _oculusFB.updateSize((SLint)(s->oculus()->resolutionScale() * (SLfloat)_viewportRect.width),
-                                 (SLint)(s->oculus()->resolutionScale() * (SLfloat)_viewportRect.height));
-            s->oculus()->renderResolution(_viewportRect.width, _viewportRect.height);
+            _oculusFB.updateSize((SLint)(_s->oculus()->resolutionScale() * (SLfloat)_viewportRect.width),
+                                 (SLint)(_s->oculus()->resolutionScale() * (SLfloat)_viewportRect.height));
+            _s->oculus()->renderResolution(_viewportRect.width, _viewportRect.height);
         }
 
         // Stop raytracing & pathtracing on resize
@@ -471,14 +472,13 @@ the 2D or 3D graph was updated or waitEvents is false.
 */
 SLbool SLSceneView::onPaint()
 {
-    SLScene* s          = SLApplication::scene;
-    SLbool   camUpdated = false;
+    SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
     if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_gui)
-            _gui->onInitNewFrame(s, this);
+            _gui->onInitNewFrame(_s, this);
     }
 
     // Clear NO. of draw calls afer UI creation
@@ -488,7 +488,7 @@ SLbool SLSceneView::onPaint()
     { // Render the 3D scenegraph by raytracing, pathtracing or OpenGL
         switch (_renderType)
         {
-            case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
+            case RT_gl: camUpdated = draw3DGL(_s->elapsedTimeMS()); break;
             case RT_ct: camUpdated = draw3DCT(); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
@@ -502,10 +502,10 @@ SLbool SLSceneView::onPaint()
 
     // Finish Oculus framebuffer
     if (_camera && _camera->projection() == P_stereoSideBySideD)
-        s->oculus()->renderDistortion(_scrW,
-                                      _scrH,
-                                      _oculusFB.texID(),
-                                      _camera->background().colors()[0]);
+        _s->oculus()->renderDistortion(_scrW,
+                                       _scrH,
+                                       _oculusFB.texID(),
+                                       _camera->background().colors()[0]);
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType == RT_gl || raytracer()->state() != rtBusy;
@@ -569,7 +569,6 @@ is drawn.
 */
 SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
-    SLScene*   s       = SLApplication::scene;
     SLGLState* stateGL = SLGLState::instance();
 
     preDraw();
@@ -578,7 +577,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 1. Do camera Update //
     /////////////////////////
 
-    SLfloat startMS = SLApplication::timeMS();
+    SLfloat startMS = GlobalTimer::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
@@ -590,9 +589,9 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Render into framebuffer if Oculus stereo projection is used
     if (_camera->projection() == P_stereoSideBySideD)
     {
-        s->oculus()->beginFrame();
-        _oculusFB.bindFramebuffer((SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrW),
-                                  (SLint)(s->oculus()->resolutionScale() * (SLfloat)_scrH));
+        _s->oculus()->beginFrame();
+        _oculusFB.bindFramebuffer((SLint)(_s->oculus()->resolutionScale() * (SLfloat)_scrW),
+                                  (SLint)(_s->oculus()->resolutionScale() * (SLfloat)_scrH));
     }
 
     // Clear color buffer
@@ -644,9 +643,9 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes();
     _nodesBlended.clear();
     _nodesVisible.clear();
-    if (s->root3D())
-        s->root3D()->cull3DRec(this);
-    _cullTimeMS = SLApplication::timeMS() - startMS;
+    if (_s->root3D())
+        _s->root3D()->cull3DRec(this);
+    _cullTimeMS = GlobalTimer::timeMS() - startMS;
 
     ////////////////////
     // 6. Draw skybox //
@@ -659,7 +658,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 7. Draw Opaque & Blended Nodes //
     ////////////////////////////////////
 
-    startMS = SLApplication::timeMS();
+    startMS = GlobalTimer::timeMS();
 
     draw3DGLAll();
 
@@ -681,7 +680,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Enable all color channels again
     stateGL->colorMask(1, 1, 1, 1);
 
-    _draw3DTimeMS = SLApplication::timeMS() - startMS;
+    _draw3DTimeMS = GlobalTimer::timeMS() - startMS;
 
     postDraw();
 
@@ -713,7 +712,7 @@ void SLSceneView::draw3DGLAll()
     draw3DGLLinesOverlay(_nodesBlended);
 
     // 4) Draw visualization lines of animation curves
-    SLApplication::scene->animManager().drawVisuals(this);
+    _s->animManager().drawVisuals(this);
 
     // 5) Turn blending off again for correct anaglyph stereo modes
     SLGLState* stateGL = SLGLState::instance();
@@ -802,13 +801,12 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             // Draw AABB for selected shapes
             if (node->drawBit(SL_DB_SELECTED))
             {
-                SLScene* s = SLApplication::scene;
-                if (node == s->selectedNode() || !s->selectedRect().isEmpty())
+                if (node == _s->selectedNode() || !_s->selectedRect().isEmpty())
                     node->aabb()->drawWS(SLCol3f(1, 1, 0));
                 else
                 {
                     // delete selection bits from previous rectangle selection
-                    if (node != s->selectedNode() && s->selectedRect().isEmpty())
+                    if (node != _s->selectedNode() && _s->selectedRect().isEmpty())
                         node->drawBits()->off(SL_DB_SELECTED);
                 }
             }
@@ -889,9 +887,8 @@ update is done to the 2D scenegraph.
 */
 void SLSceneView::draw2DGL()
 {
-    SLScene*   s       = SLApplication::scene;
     SLGLState* stateGL = SLGLState::instance();
-    SLfloat    startMS = SLApplication::timeMS();
+    SLfloat    startMS = GlobalTimer::timeMS();
 
     SLfloat w2 = (SLfloat)_scrWdiv2;
     SLfloat h2 = (SLfloat)_scrHdiv2;
@@ -905,8 +902,8 @@ void SLSceneView::draw2DGL()
 
         // 2. Pseudo 2D Frustum Culling
         _nodesVisible2D.clear();
-        if (s->root2D())
-            s->root2D()->cull2DRec(this);
+        if (_s->root2D())
+            _s->root2D()->cull2DRec(this);
 
         // 3. Draw all 2D nodes opaque
         draw2DGLNodes();
@@ -919,7 +916,7 @@ void SLSceneView::draw2DGL()
         drawing in SLMesh::draw and is only valid for the current frame.
         All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
 
-        if (!s->selectedRect().isEmpty())
+        if (!_s->selectedRect().isEmpty())
         {
             stateGL->pushModelViewMatrix();
             stateGL->modelViewMatrix.identity();
@@ -930,7 +927,7 @@ void SLSceneView::draw2DGL()
             stateGL->blend(true); // Enable blending
             //stateGL->polygonLine(false);       // Only filled polygons
 
-            s->selectedRect().drawGL(SLCol4f::WHITE);
+            _s->selectedRect().drawGL(SLCol4f::WHITE);
 
             stateGL->blend(false); // turn off blending
             //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
@@ -951,7 +948,7 @@ void SLSceneView::draw2DGL()
         }
     }
 
-    _draw2DTimeMS = SLApplication::timeMS() - startMS;
+    _draw2DTimeMS = GlobalTimer::timeMS() - startMS;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1053,8 +1050,6 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLint         scrY,
                                 SLKey         mod)
 {
-    SLScene* s = SLApplication::scene;
-
     // Correct viewport offset
     // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
@@ -1085,10 +1080,10 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     _mouseMod   = mod;
 
     SLbool result = false;
-    if (_camera && s->root3D())
+    if (_camera && _s->root3D())
     {
         result = _camera->onMouseDown(button, x, y, mod);
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onMouseDown(button, x, y, mod))
                 result = true;
@@ -1106,7 +1101,6 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
                               SLint         scrY,
                               SLKey         mod)
 {
-    SLScene* s  = SLApplication::scene;
     _touchDowns = 0;
 
     // Correct viewport offset
@@ -1140,10 +1134,10 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     _mouseDownR = false;
     _mouseDownM = false;
 
-    if (_camera && s->root3D())
+    if (_camera && _s->root3D())
     {
         SLbool result = _camera->onMouseUp(button, x, y, mod);
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onMouseUp(button, x, y, mod))
                 result = true;
@@ -1159,8 +1153,6 @@ SLSceneView::onMouseMove gets called whenever the mouse is moved.
 */
 SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
 {
-    SLScene* s = SLApplication::scene;
-
     // Correct viewport offset
     // mouse corrds are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
@@ -1176,7 +1168,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     //if (ImGui::GetIO().WantCaptureMouse)
     //    return true;
 
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     _touchDowns   = 0;
     SLbool result = false;
@@ -1209,7 +1201,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
 
         result = _camera->onMouseMove(btn, x, y, _mouseMod);
 
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onMouseMove(btn, x, y, _mouseMod))
                 result = true;
@@ -1224,8 +1216,7 @@ The parameter wheelPos is an increasing or decreeing counter number.
 */
 SLbool SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     static SLint lastMouseWheelPos = 0;
     SLint        delta             = wheelPos - lastMouseWheelPos;
@@ -1239,8 +1230,7 @@ The parameter delta is positive/negative depending on the wheel direction
 */
 SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     // Pass the event to imgui
     if (_gui)
@@ -1259,7 +1249,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 
     SLbool result = _camera->onMouseWheel(delta, mod);
 
-    for (auto eh : s->eventHandlers())
+    for (auto eh : _s->eventHandlers())
     {
         if (eh->onMouseWheel(delta, mod))
             result = true;
@@ -1276,8 +1266,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
                                   SLint         scrY,
                                   SLKey         mod)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     // Correct viewport offset
     // mouse corrds are top-left, viewport is bottom-left)
@@ -1295,24 +1284,24 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
         if (_camera)
         {
             _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-            s->root3D()->hitRec(&pickRay);
+            _s->root3D()->hitRec(&pickRay);
             if (pickRay.hitNode)
                 cout << "NODE HIT: " << pickRay.hitNode->name() << endl;
         }
 
         if (pickRay.length < FLT_MAX)
         {
-            s->selectedRect().setZero();
-            s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            _s->selectedRect().setZero();
+            _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
             if (onSelectedNodeMesh)
-                onSelectedNodeMesh(s->selectedNode(), s->selectedMesh());
+                onSelectedNodeMesh(_s->selectedNode(), _s->selectedMesh());
             result = true;
         }
     }
     else
     {
         result = _camera->onDoubleClick(button, x, y, mod);
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onDoubleClick(button, x, y, mod))
                 result = true;
@@ -1342,8 +1331,7 @@ screen.
 */
 SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     // Correct viewport offset
     // mouse corrds are top-left, viewport is bottom-left)
@@ -1358,7 +1346,7 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 
     SLbool result = _camera->onTouch2Down(x1, y1, x2, y2);
 
-    for (auto eh : s->eventHandlers())
+    for (auto eh : _s->eventHandlers())
     {
         if (eh->onTouch2Down(x1, y1, x2, y2))
             result = true;
@@ -1372,8 +1360,7 @@ screen.
 */
 SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     // Correct viewport offset
     SLint x1 = scrX1 - _viewportRect.x;
@@ -1388,7 +1375,7 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
     if (_touchDowns == 2)
     {
         result = _camera->onTouch2Move(x1, y1, x2, y2);
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onTouch2Move(x1, y1, x2, y2))
                 result = true;
@@ -1403,8 +1390,7 @@ screen.
 */
 SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     // Correct viewport offset
     SLint x1 = scrX1 - _viewportRect.x;
@@ -1417,7 +1403,7 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     _touchDowns = 0;
 
     SLbool result = _camera->onTouch2Up(x1, y1, x2, y2);
-    for (auto eh : s->eventHandlers())
+    for (auto eh : _s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
             result = true;
@@ -1432,8 +1418,7 @@ forwarding them to onCommand.
 */
 SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {
-    SLScene* s = SLApplication::scene;
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     // Pass the event to imgui
     if (_gui->doNotDispatchKeyboard())
@@ -1453,7 +1438,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='I') {doWaitOnIdle(!doWaitOnIdle()); return true;}
     if (key=='F') {doFrustumCulling(!doFrustumCulling()); return true;}
     if (key=='T') {doDepthTest(!doDepthTest()); return true;}
-    if (key=='O') {s->stopAnimations(!s->stopAnimations()); return true;}
+    if (key=='O') {_s->stopAnimations(!_s->stopAnimations()); return true;}
 
     if (key=='G') {renderType(RT_gl); return true;}
     if (key=='R') {startRaytracing(5);}
@@ -1498,7 +1483,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
         result = _camera->onKeyPress(key, mod);
 
         // 2) pass it to any other eventhandler
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onKeyPress(key, mod))
                 result = true;
@@ -1512,21 +1497,14 @@ SLSceneView::onKeyRelease get called whenever a key is released.
 */
 SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {
-    SLScene* s = SLApplication::scene;
-
     // Pass the event to imgui
     if (_gui->doNotDispatchKeyboard())
     {
         _gui->onKeyPress(key, mod);
         return true;
     }
-    //if (ImGui::GetIO().WantCaptureKeyboard)
-    //{
-    //    _gui->onKeyRelease(key, mod);
-    //    return true;
-    //}
 
-    if (!s->root3D()) return false;
+    if (!_s->root3D()) return false;
 
     SLbool result = false;
 
@@ -1536,7 +1514,7 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
         result = _camera->onKeyRelease(key, mod);
 
         // 2) pass it to any other eventhandler
-        for (auto eh : s->eventHandlers())
+        for (auto eh : _s->eventHandlers())
         {
             if (eh->onKeyRelease(key, mod))
                 result = true;
@@ -1556,11 +1534,6 @@ SLbool SLSceneView::onCharInput(SLuint c)
         return true;
     }
 
-    //if (ImGui::GetIO().WantCaptureKeyboard)
-    //{
-    //    _gui->onCharInput(c);
-    //    return true;
-    //}
     return false;
 }
 //-----------------------------------------------------------------------------
@@ -1569,8 +1542,7 @@ Returns the window title with name & FPS
 */
 SLstring SLSceneView::windowTitle()
 {
-    SLScene* s = SLApplication::scene;
-    SLchar   title[255];
+    SLchar title[255];
 
     if (_renderType == RT_rt)
     {
@@ -1578,15 +1550,15 @@ SLstring SLSceneView::windowTitle()
         {
             sprintf(title,
                     "%s (fps: %4.1f, Threads: %d)",
-                    s->name().c_str(),
-                    s->fps(),
+                    _s->name().c_str(),
+                    _s->fps(),
                     _raytracer.numThreads());
         }
         else
         {
             sprintf(title,
                     "%s (%d%%, Threads: %d)",
-                    s->name().c_str(),
+                    _s->name().c_str(),
                     _raytracer.pcRendered(),
                     _raytracer.numThreads());
         }
@@ -1595,25 +1567,25 @@ SLstring SLSceneView::windowTitle()
     {
         sprintf(title,
                 "%s (%d%%, Threads: %d)",
-                s->name().c_str(),
+                _s->name().c_str(),
                 _pathtracer.pcRendered(),
                 _pathtracer.numThreads());
     }
     else
     {
         SLuint nr = (uint)_nodesVisible.size();
-        if (s->fps() > 5)
+        if (_s->fps() > 5)
             sprintf(title,
                     "%s (fps: %4.0f, %u nodes of %u rendered)",
-                    s->name().c_str(),
-                    s->fps(),
+                    _s->name().c_str(),
+                    _s->fps(),
                     nr,
                     _stats3D.numNodes);
         else
             sprintf(title,
                     "%s (fps: %4.1f, %u nodes of %u rendered)",
-                    s->name().c_str(),
-                    s->fps(),
+                    _s->name().c_str(),
+                    _s->fps(),
                     nr,
                     _stats3D.numNodes);
     }
@@ -1628,7 +1600,7 @@ void SLSceneView::startRaytracing(SLint maxDepth)
     _renderType = RT_rt;
     _stopRT     = false;
     _raytracer.maxDepth(maxDepth);
-    _raytracer.aaSamples(_doMultiSampling && SLApplication::dpi < 200 ? 3 : 1);
+    _raytracer.aaSamples(_doMultiSampling && _dpi < 200 ? 3 : 1);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1643,14 +1615,12 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state() == rtReady)
     {
-        SLScene* s = SLApplication::scene;
-
         // Update transforms and aabbs
         // @Todo: causes multithreading bug in RT
         //s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
-        for (auto mesh : s->meshes())
+        for (auto mesh : _s->meshes())
             mesh->updateAccelStruct();
 
         // Start raytracing
@@ -1696,14 +1666,12 @@ SLbool SLSceneView::draw3DPT()
     // if the pathtracer not yet got started
     if (_pathtracer.state() == rtReady)
     {
-        SLScene* s = SLApplication::scene;
-
         // Update transforms and AABBs
         // @Todo: causes multithreading bug in RT
         //s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
-        for (auto mesh : s->meshes())
+        for (auto mesh : _s->meshes())
             mesh->updateAccelStruct();
 
         // Start raytracing
@@ -1737,12 +1705,11 @@ SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
 SLbool SLSceneView::draw3DCT()
 {
     //SL_LOG("Rendering VXC ");
-    SLScene* s       = SLApplication::scene;
-    SLfloat  startMS = SLApplication::timeMS();
+    SLfloat startMS = GlobalTimer::timeMS();
 
     SLbool rendered = _conetracer.render(this);
 
-    _draw3DTimeMS = SLApplication::timeMS() - startMS;
+    _draw3DTimeMS = GlobalTimer::timeMS() - startMS;
 
     return true;
 }

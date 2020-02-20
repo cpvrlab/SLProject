@@ -49,7 +49,7 @@ void SLGLOculus::dispose()
 //-----------------------------------------------------------------------------
 /*! Initialization of the Oculus Rift SDK and the device recognition.
 */
-void SLGLOculus::init()
+void SLGLOculus::init(SLScene* s)
 {
     _resolutionScale = 1.25f;
     _resolution.set(1920, 1080);
@@ -66,8 +66,8 @@ void SLGLOculus::init()
         _projection[i].translate(-_viewAdjust[i]);
     }
 
-    createSLDistortionMesh(ET_left, _distortionMeshVAO[0]);
-    createSLDistortionMesh(ET_right, _distortionMeshVAO[1]);
+    createSLDistortionMesh(s, ET_left, _distortionMeshVAO[0]);
+    createSLDistortionMesh(s, ET_right, _distortionMeshVAO[1]);
 }
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
@@ -85,7 +85,8 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    sp->beginUse();
+    //todo: this does not work anymore
+    sp->beginUse(nullptr, SLCol4f());
 
     for (int eye = 0; eye < 2; eye++)
     {

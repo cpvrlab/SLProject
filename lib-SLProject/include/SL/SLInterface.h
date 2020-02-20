@@ -15,6 +15,8 @@
 #include <SLEnums.h>
 #include <SLGLEnums.h>
 
+class SLScene;
+
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h
 The SLInterface.h has all declarations of the SLProject C-Interface.
@@ -39,7 +41,8 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);
 
-int slCreateSceneView(int       screenWidth,
+int slCreateSceneView(SLScene*  scene,
+                      int       screenWidth,
                       int       screenHeight,
                       int       dotsPerInch,
                       SLSceneID initScene,
@@ -48,7 +51,7 @@ int slCreateSceneView(int       screenWidth,
                       void*     onNewSceneViewCallback   = nullptr,
                       void*     onImGuiBuild             = nullptr);
 
-int  slNewSceneView();
+int  slNewSceneView(SLScene* s, int dotsPerInch);
 bool slShouldClose();
 void slShouldClose(bool val);
 void slTerminate();

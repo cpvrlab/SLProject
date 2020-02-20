@@ -98,7 +98,8 @@ See examples usages in:
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 */
-int slCreateSceneView(int       screenWidth,
+int slCreateSceneView(SLScene*  scene,
+                      int       screenWidth,
                       int       screenHeight,
                       int       dotsPerInch,
                       SLSceneID initScene,
@@ -107,7 +108,7 @@ int slCreateSceneView(int       screenWidth,
                       void*     onNewSceneViewCallback,
                       void*     onImGuiBuild)
 {
-    assert(SLApplication::scene && "No SLApplication::scene!");
+    assert(scene && "No valid scene!");
 
     // Use our own sceneview creator callback or the the passed one.
     cbOnNewSceneView newSVCallback;
@@ -117,8 +118,8 @@ int slCreateSceneView(int       screenWidth,
         newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
 
     // Create the sceneview & get the pointer with the sceneview index
-    SLuint       index = (SLuint)newSVCallback();
-    SLSceneView* sv    = SLApplication::scene->sceneView(index);
+    SLuint       index = (SLuint)newSVCallback(scene, dotsPerInch);
+    SLSceneView* sv    = scene->sceneView(index);
 
     SLGLImGui* gui = new SLGLImGui();
     // Load GUI fonts depending on the resolution
@@ -132,19 +133,16 @@ int slCreateSceneView(int       screenWidth,
              onSelectNodeMeshCallback,
              gui);
 
-    // Set default font sizes depending on the dpi no matter if ImGui is used
-    if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
-
     // Load GUI fonts depending on the resolution
     //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
-    if (!SLApplication::scene->root3D())
+    if (!scene->root3D())
     {
         if (SLApplication::sceneID == SID_Empty)
-            SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
+            scene->onLoad(SLApplication::scene, sv, initScene);
         else
-            SLApplication::scene->onLoad(SLApplication::scene, sv, SLApplication::sceneID);
+            scene->onLoad(scene, sv, SLApplication::sceneID);
     }
     else
         sv->onInitialize();
@@ -158,9 +156,9 @@ sceneview instance. If you have a custom SLSceneView inherited class you
 have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
-int slNewSceneView()
+int slNewSceneView(SLScene* s, int dotsPerInch)
 {
-    SLSceneView* sv = new SLSceneView();
+    SLSceneView* sv = new SLSceneView(s, dotsPerInch);
     return (SLint)sv->index();
 }
 //-----------------------------------------------------------------------------

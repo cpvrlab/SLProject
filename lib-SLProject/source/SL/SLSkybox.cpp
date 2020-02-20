@@ -31,7 +31,8 @@ SLSkybox::SLSkybox(SLstring name) : SLNode(name)
 /*! All resources allocated are stored in the SLScene vectors for textures,
 materials, programs and meshes and get deleted at scene destruction.
 */
-SLSkybox::SLSkybox(SLstring cubeMapXPos,
+SLSkybox::SLSkybox(SLScene* s,
+                   SLstring cubeMapXPos,
                    SLstring cubeMapXNeg,
                    SLstring cubeMapYPos,
                    SLstring cubeMapYNeg,
@@ -48,7 +49,7 @@ SLSkybox::SLSkybox(SLstring cubeMapXPos,
                                            cubeMapZNeg);
     SLMaterial*  matCubeMap = new SLMaterial("matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
-    SLGLProgram* sp = new SLGLGenericProgram("SkyBox.vert", "SkyBox.frag");
+    SLGLProgram* sp = new SLGLGenericProgram(s, "SkyBox.vert", "SkyBox.frag");
     matCubeMap->program(sp);
 
     // Create a box with max. point at min. parameter and vice versa.

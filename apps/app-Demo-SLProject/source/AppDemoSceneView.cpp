@@ -13,6 +13,10 @@
 #include <CVCalibration.h>
 #include "AppDemoSceneView.h"
 
+AppDemoSceneView::AppDemoSceneView(SLScene* s, int dpi)
+  : SLSceneView(s, dpi)
+{
+}
 //-----------------------------------------------------------------------------
 /*! This method overrides the same method from the base class SLSceneView.
  Most events such as all mouse and keyboard events from the OS is forwarded to

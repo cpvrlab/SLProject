@@ -21,6 +21,7 @@ using namespace std::chrono;
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()
@@ -65,7 +66,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    float t1     = SLApplication::timeS();
+    float t1     = GlobalTimer::timeS();
     float tStart = t1;
 
     for (SLuint y = 0; y < _images[0]->height(); ++y)
@@ -93,17 +94,17 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         }
 
         // Update image after 500 ms
-        double t2 = SLApplication::timeS();
+        double t2 = GlobalTimer::timeS();
         if (t2 - t1 > 0.5)
         {
             _pcRendered = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
             renderUIBeforeUpdate();
             _sv->onWndUpdate();
-            t1 = SLApplication::timeS();
+            t1 = GlobalTimer::timeS();
         }
     }
 
-    _renderSec  = SLApplication::timeS() - tStart;
+    _renderSec  = GlobalTimer::timeS() - tStart;
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -130,7 +131,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     prepareImage();       // Setup image & precalculations
 
     // Measure time
-    float t1 = SLApplication::timeS();
+    float t1 = GlobalTimer::timeS();
 
     // Bind render functions to be called multithreaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
@@ -173,7 +174,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
             thread.join();
     }
 
-    _renderSec  = SLApplication::timeS() - t1;
+    _renderSec  = GlobalTimer::timeS() - t1;
     _pcRendered = 100;
 
     if (_doContinuous)
@@ -229,14 +230,14 @@ void SLRaytracer::renderSlices(const bool isMainThread)
             // Update image after 500 ms
             if (isMainThread && !_doContinuous)
             {
-                if (SLApplication::timeS() - t1 > 0.5)
+                if (GlobalTimer::timeS() - t1 > 0.5)
                 {
                     _pcRendered = (SLint)((SLfloat)y /
                                           (SLfloat)_images[0]->height() * 100);
                     if (_aaSamples > 0) _pcRendered /= 2;
                     renderUIBeforeUpdate();
                     _sv->onWndUpdate();
-                    t1 = SLApplication::timeS();
+                    t1 = GlobalTimer::timeS();
                 }
             }
         }
@@ -318,11 +319,11 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
 
             if (isMainThread && !_doContinuous)
             {
-                if (SLApplication::timeS() - t1 > 0.5)
+                if (GlobalTimer::timeS() - t1 > 0.5)
                 {
                     renderUIBeforeUpdate();
                     _sv->onWndUpdate();
-                    t1 = SLApplication::timeS();
+                    t1 = GlobalTimer::timeS();
                 }
             }
         }
@@ -654,13 +655,13 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
 
         if (isMainThread && !_doContinuous)
         {
-            t2 = SLApplication::timeS();
+            t2 = GlobalTimer::timeS();
             if (t2 - t1 > 0.5)
             {
                 _pcRendered = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
                 renderUIBeforeUpdate();
                 _sv->onWndUpdate();
-                t1 = SLApplication::timeS();
+                t1 = GlobalTimer::timeS();
             }
         }
     }

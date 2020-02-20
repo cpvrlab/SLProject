@@ -28,7 +28,7 @@ public:
     SLGLConetracer();
     ~SLGLConetracer();
 
-    void   init(SLint scrW, SLint scrH);
+    void   init(SLint scrW, SLint scrH, const SLVec3f& minWs, const SLVec3f& maxWs);
     SLbool render(SLSceneView* sv);
 
     // Getters
@@ -76,7 +76,7 @@ private:
     void    renderSceneGraph(SLGLProgram* sp);
     void    uploadRenderSettings(SLGLProgram* sp);
     void    uploadLights(SLGLProgram* sp);
-    void    calcWS2VoxelSpaceTransform();
+    void    calcWS2VoxelSpaceTransform(const SLVec3f& minWs, const SLVec3f& maxWs);
     void    voxelSpaceTransform(SLfloat l,
                                 SLfloat r,
                                 SLfloat b,
@@ -96,6 +96,8 @@ private:
     SLbool _doDiffuseIllum  = true;
     SLbool _doSpecularIllum = true;
     SLbool _doShadows       = true;
+
+    std::vector<SLGLProgram*> _programs;
 
     SLMat4f* _wsToVoxelSpace = new SLMat4f();
 };

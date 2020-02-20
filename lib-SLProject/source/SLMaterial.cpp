@@ -89,7 +89,8 @@ SLMaterial::SLMaterial(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 // Ctor for cone tracer
-SLMaterial::SLMaterial(const SLchar* name,
+SLMaterial::SLMaterial(SLScene*      s,
+                       const SLchar* name,
                        SLGLProgram*  shaderProg) : SLObject(name)
 {
     _program      = shaderProg;
@@ -99,7 +100,8 @@ SLMaterial::SLMaterial(const SLchar* name,
     _translucency = 0.0f;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->materials().push_back(this);
+    if (s)
+        s->materials().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -170,14 +172,15 @@ void SLMaterial::activate(SLDrawBits drawBits)
     current = this;
 
     // If no shader program is attached add the default shader program
+    //todo: this should not happen... then we would not have to do magic
     if (!_program)
     {
         if (!_textures.empty())
         {
             //if (_textures.size() == 1)
-                program(s->programs(SP_perVrtBlinnTex));
+            program(s->programs(SP_perVrtBlinnTex));
             //if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
-                //program(s->programs(SP_bumpNormal));
+            //program(s->programs(SP_bumpNormal));
         }
         else
             program(s->programs(SP_perVrtBlinn));
@@ -201,7 +204,7 @@ void SLMaterial::activate(SLDrawBits drawBits)
     }
 
     // Activate the shader program now
-    program()->beginUse(this);
+    program()->beginUse(this, s->globalAmbiLight());
 }
 //-----------------------------------------------------------------------------
 void SLMaterial::passToUniforms(SLGLProgram* program)

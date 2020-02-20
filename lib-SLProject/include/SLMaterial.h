@@ -68,7 +68,8 @@ public:
                         const SLchar*  name = (const char*)"Uniform color");
 
     //! Ctor for cone tracer
-    SLMaterial(const SLchar* name,
+    SLMaterial(SLScene*      s,
+               const SLchar* name,
                SLGLProgram*  program);
 
     ~SLMaterial() final;
@@ -76,7 +77,7 @@ public:
     //! Sets the material states and passes all variables to the shader program
     void activate(SLDrawBits drawBits);
 
-	//! Passes the material paramters to shader programs uniform variables
+    //! Passes the material paramters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
@@ -172,7 +173,7 @@ protected:
     SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
     SLfloat      _kn{};         //!< refraction index
     SLVGLTexture _textures;     //!< vector of texture pointers
-    SLGLProgram* _program{};    //!< pointer to a GLSL shader program
+    SLGLProgram* _program;      //!< pointer to a GLSL shader program
 
 private:
     static SLMaterial* _defaultGray;   //!< Global default gray color material for meshes that don't define their own.

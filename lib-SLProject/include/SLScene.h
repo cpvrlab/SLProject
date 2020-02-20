@@ -44,7 +44,6 @@ typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint scene
  get deleted in the method unInit.\n
  A scene could have multiple scene views. A pointer of each is stored in the
  vector _sceneViews.\n
- A single instance of this SLScene class is holded by the SLApplication.
  The scene assembly takes place outside of the library in function of the application.
  A pointer for this function must be passed to the SLScene constructor. For the
  demo project this function is in AppDemoSceneLoad.cpp.
@@ -53,7 +52,7 @@ class SLScene : public SLObject
 {
     friend class SLNode;
 
-    public:
+public:
     SLScene(SLstring      name,
             cbOnSceneLoad onSceneLoadCallback);
     ~SLScene() final;
@@ -112,7 +111,7 @@ class SLScene : public SLObject
     bool         removeMesh(SLMesh* mesh);
     bool         deleteTexture(SLGLTexture* texture);
 
-    protected:
+protected:
     SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
     SLVMesh         _meshes;        //!< Vector of all meshes
     SLVMaterial     _materials;     //!< Vector of all materials pointers

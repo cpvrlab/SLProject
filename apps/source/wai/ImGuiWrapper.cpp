@@ -20,6 +20,7 @@
 #include <SLSceneView.h>
 #include <ImGuiWrapper.h>
 #include <SLScene.h>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 ImGuiWrapper::ImGuiWrapper()
@@ -332,7 +333,7 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     ImGuiIO& io = ImGui::GetIO();
 
     // Setup time step
-    SLfloat nowSec = SLApplication::timeS();
+    SLfloat nowSec = GlobalTimer::timeS();
     io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
     _timeSec = nowSec;

@@ -27,6 +27,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/HighResTimer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
     )
 set(sources
@@ -35,6 +36,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FileLog.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
     )
 	

@@ -23,6 +23,7 @@
 #include <SLSceneView.h>
 #include <SLText.h>
 #include <SLKeyframeCamera.h>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as
@@ -67,8 +68,6 @@ SLScene::SLScene(SLstring      name,
     _updateAABBTimesMS(60, 0.0f),
     _updateAnimTimesMS(60, 0.0f)
 {
-    SLApplication::scene = this;
-
     onLoad = onSceneLoadCallback;
 
     _root3D           = nullptr;
@@ -84,28 +83,28 @@ SLScene::SLScene(SLstring      name,
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
     // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
-    new SLGLGenericProgram("ColorAttribute.vert", "Color.frag");
-    new SLGLGenericProgram("ColorUniform.vert", "Color.frag");
-    new SLGLGenericProgram("PerVrtBlinn.vert", "PerVrtBlinn.frag");
-    new SLGLGenericProgram("PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
-    new SLGLGenericProgram("PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
-    new SLGLGenericProgram("TextureOnly.vert", "TextureOnly.frag");
-    new SLGLGenericProgram("PerPixBlinn.vert", "PerPixBlinn.frag");
-    new SLGLGenericProgram("PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
-    new SLGLGenericProgram("PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
-    new SLGLGenericProgram("PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
-    new SLGLGenericProgram("BumpNormal.vert", "BumpNormal.frag");
-    new SLGLGenericProgram("BumpNormal.vert", "BumpNormalParallax.frag");
-    new SLGLGenericProgram("FontTex.vert", "FontTex.frag");
-    new SLGLGenericProgram("StereoOculus.vert", "StereoOculus.frag");
-    new SLGLGenericProgram("StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+    new SLGLGenericProgram(this, "ColorAttribute.vert", "Color.frag");
+    new SLGLGenericProgram(this, "ColorUniform.vert", "Color.frag");
+    new SLGLGenericProgram(this, "PerVrtBlinn.vert", "PerVrtBlinn.frag");
+    new SLGLGenericProgram(this, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
+    new SLGLGenericProgram(this, "PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
+    new SLGLGenericProgram(this, "TextureOnly.vert", "TextureOnly.frag");
+    new SLGLGenericProgram(this, "PerPixBlinn.vert", "PerPixBlinn.frag");
+    new SLGLGenericProgram(this, "PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
+    new SLGLGenericProgram(this, "PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
+    new SLGLGenericProgram(this, "PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
+    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormal.frag");
+    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormalParallax.frag");
+    new SLGLGenericProgram(this, "FontTex.vert", "FontTex.frag");
+    new SLGLGenericProgram(this, "StereoOculus.vert", "StereoOculus.frag");
+    new SLGLGenericProgram(this, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
 
     _numProgsPreload = (SLint)_programs.size();
 
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
 
-    _oculus.init();
+    _oculus.init(this);
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -271,8 +270,8 @@ bool SLScene::onUpdate()
 
     // Calculate the elapsed time for the animation
     // todo: If slowdown on idle is enabled the delta time will be wrong!
-    _frameTimeMS      = SLApplication::timeMS() - _lastUpdateTimeMS;
-    _lastUpdateTimeMS = SLApplication::timeMS();
+    _frameTimeMS      = GlobalTimer::timeMS() - _lastUpdateTimeMS;
+    _lastUpdateTimeMS = GlobalTimer::timeMS();
 
     // Sum up all timings of all sceneviews
     SLfloat sumCullTimeMS   = 0.0f;
@@ -305,7 +304,7 @@ bool SLScene::onUpdate()
     else
         _fps = 0.0f;
 
-    SLfloat startUpdateMS = SLApplication::timeMS();
+    SLfloat startUpdateMS = GlobalTimer::timeMS();
 
     //////////////////////////////
     // 2) Process queued events //
@@ -318,7 +317,7 @@ bool SLScene::onUpdate()
     // 3) Update all animations //
     //////////////////////////////
 
-    SLfloat startAnimUpdateMS = SLApplication::timeMS();
+    SLfloat startAnimUpdateMS = GlobalTimer::timeMS();
 
     if (_root3D)
         _root3D->update();
@@ -343,24 +342,24 @@ bool SLScene::onUpdate()
             mesh->updateAccelStruct();
     }
 
-    _updateAnimTimesMS.set(SLApplication::timeMS() - startAnimUpdateMS);
+    _updateAnimTimesMS.set(GlobalTimer::timeMS() - startAnimUpdateMS);
 
     /////////////////////
     // 4) Update AABBs //
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
-    SLfloat startAAABBUpdateMS = SLApplication::timeMS();
+    SLfloat startAAABBUpdateMS = GlobalTimer::timeMS();
     SLNode::numWMUpdates       = 0;
     SLGLState::instance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
     if (_root2D)
         _root2D->updateAABBRec();
-    _updateAABBTimesMS.set(SLApplication::timeMS() - startAAABBUpdateMS);
+    _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
 
     // Finish total update time
-    SLfloat updateTimeMS = SLApplication::timeMS() - startUpdateMS;
+    SLfloat updateTimeMS = GlobalTimer::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 
     //SL_LOG("SLScene::onUpdate");

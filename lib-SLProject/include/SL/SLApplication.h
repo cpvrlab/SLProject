@@ -52,9 +52,6 @@ public:
     static int      jobProgressNum() { return _jobProgressNum; }
     static int      jobProgressMax() { return _jobProgressMax; }
     static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
-    static void     timerStart() { _timer.start(); }
-    static SLfloat  timeS() { return _timer.elapsedTimeInSec(); }
-    static SLfloat  timeMS() { return _timer.elapsedTimeInMilliSec(); }
 
     static SLScene*         scene;        //!< scene pointer
     static SLInputManager   inputManager; //!< Input events manager
@@ -96,11 +93,10 @@ public:
     static const string CALIB_FTP_DIR;  //!< ftp directory for calibration up and download
 
 private:
-    static HighResTimer _timer;          //!< high precision timer
-    static string       _jobProgressMsg; //!< Text message to show during progress
-    static atomic<int>  _jobProgressNum; //!< Integer value to show progess
-    static atomic<int>  _jobProgressMax; //!< Max. integer progress value
-    static mutex        _jobMutex;       //!< Mutex to protect parallel access
+    static string      _jobProgressMsg; //!< Text message to show during progress
+    static atomic<int> _jobProgressNum; //!< Integer value to show progess
+    static atomic<int> _jobProgressMax; //!< Max. integer progress value
+    static mutex       _jobMutex;       //!< Mutex to protect parallel access
 };
 //-----------------------------------------------------------------------------
 #endif

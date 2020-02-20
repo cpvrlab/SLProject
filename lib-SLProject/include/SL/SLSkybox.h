@@ -26,9 +26,10 @@ pointer of SLSceneView. See the Skybox shader example.
 */
 class SLSkybox : public SLNode
 {
-    public:
+public:
     SLSkybox(SLstring name = "Default Skybox");
-    SLSkybox(SLstring cubeMapXPos,
+    SLSkybox(SLScene* s,
+             SLstring cubeMapXPos,
              SLstring cubeMapXNeg,
              SLstring cubeMapYPos,
              SLstring cubeMapYNeg,

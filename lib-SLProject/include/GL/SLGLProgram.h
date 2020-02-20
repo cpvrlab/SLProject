@@ -50,7 +50,9 @@ Android applications they are copied to the appropriate file system locations.
 class SLGLProgram : public SLObject
 {
 public:
-    SLGLProgram(SLstring vertShaderFile,
+    //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
+    SLGLProgram(SLScene* s,
+                SLstring vertShaderFile,
                 SLstring fragShaderFile,
                 SLstring geomShaderFile = "");
 
@@ -60,10 +62,10 @@ public:
     void init(); //!< create, attach & link shaders
     void initRaw();
 
-    virtual void beginShader(SLMaterial* mat) = 0; //!< starter for derived classes
-    virtual void endShader()                  = 0;
+    virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) = 0; //!< starter for derived classes
+    virtual void endShader()                                                     = 0;
 
-    void beginUse(SLMaterial* mat = nullptr); //!< begin using shader
+    void beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight); //!< begin using shader
     void endUse();
     void useProgram();
 

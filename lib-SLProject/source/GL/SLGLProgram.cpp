@@ -15,7 +15,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLScene.h>
@@ -29,7 +28,8 @@ SLstring SLGLProgram::defaultPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders";
 extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
 //! Ctor with a vertex and a fragment shader filename.
-SLGLProgram::SLGLProgram(SLstring vertShaderFile,
+SLGLProgram::SLGLProgram(SLScene* s,
+                         SLstring vertShaderFile,
                          SLstring fragShaderFile,
                          SLstring geomShaderFile) : SLObject("")
 {
@@ -43,7 +43,8 @@ SLGLProgram::SLGLProgram(SLstring vertShaderFile,
         addShader(new SLGLShader(defaultPath + geomShaderFile, ST_geometry));
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->programs().push_back(this);
+    if (s)
+        s->programs().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor detaches all shader objects and deletes them
@@ -242,7 +243,7 @@ void SLGLProgram::useProgram()
 the standard light and material parameter as uniform variables. It also passes 
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
-void SLGLProgram::beginUse(SLMaterial* mat)
+void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
 {
     assert(mat != nullptr && "SLGLProgram::beginUse: No material passed.");
 
@@ -256,7 +257,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         stateGL->useProgram(_progID);
 
         // 2: Pass light & material parameters
-        stateGL->globalAmbientLight = SLApplication::scene->globalAmbiLight();
+        stateGL->globalAmbientLight = globalAmbientLight;
         SLint loc                   = uniform4fv("u_globalAmbient", 1, (const SLfloat*)stateGL->globalAmbient());
         loc                         = uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
 

@@ -231,8 +231,7 @@ struct LensConfig
             case Distortion_RecipPoly4:
                 scale = 1.0f / (K[0] + rsq * (K[1] + rsq * (K[2] + rsq * K[3])));
                 break;
-            case Distortion_CatmullRom10:
-            {
+            case Distortion_CatmullRom10: {
                 // A Catmull-Rom spline through the values 1.0, K[1], K[2] ... K[10]
                 // evenly spaced in R^2 from 0.0 to MaxR^2
                 // K[0] controls the slope at radius=0.0, rather than the actual value.
@@ -320,8 +319,7 @@ struct LensConfig
             case Distortion_RecipPoly4:
                 scale = 1.0f / (InvK[0] + rsq * (InvK[1] + rsq * (InvK[2] + rsq * InvK[3])));
                 break;
-            case Distortion_CatmullRom10:
-            {
+            case Distortion_CatmullRom10: {
                 // A Catmull-Rom spline through the values 1.0, K[1], K[2] ... K[9]
                 // evenly spaced in R^2 from 0.0 to MaxR^2
                 // K[0] controls the slope at radius=0.0, rather than the actual value.
@@ -348,8 +346,7 @@ struct LensConfig
                 // Deprecated
                 assert(false);
                 break;
-            case Distortion_RecipPoly4:
-            {
+            case Distortion_RecipPoly4: {
 
                 float sampleR[4];
                 float sampleRSq[4];
@@ -389,8 +386,7 @@ struct LensConfig
 #endif
             }
             break;
-            case Distortion_CatmullRom10:
-            {
+            case Distortion_CatmullRom10: {
 
                 const int NumSegments = NumCoefficients;
                 assert(NumSegments <= NumCoefficients);
@@ -997,7 +993,7 @@ void createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
 }
 
 //-------------------------------------------------------------------------------------
-void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
+void createSLDistortionMesh(SLScene* s, SLEyeType eye, SLGLVertexArray& vao)
 {
     // fill the variables below with useful data from dk2
     HmdRenderInfo hmdri;
@@ -1187,7 +1183,7 @@ void createSLDistortionMesh(SLEyeType eye, SLGLVertexArray& vao)
     for (SLuint i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
-    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
+    SLGLProgram* sp = s->programs(SP_stereoOculusDistortion);
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array

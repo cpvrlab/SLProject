@@ -20,6 +20,7 @@
 #include <SLGLVertexArrayExt.h>
 #include <SLLightSpot.h>
 #include <SLTexFont.h>
+#include <GlobalTimer.h>
 
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
@@ -103,8 +104,9 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView()
-  : _modifiers(K_none),
+AppNodeSceneView::AppNodeSceneView(SLScene* s, int dpi)
+  : SLSceneView(s, dpi),
+    _modifiers(K_none),
     _continuousInput(true),
     _curMode(TranslationMode),
     _curObject(nullptr),
@@ -158,8 +160,8 @@ void AppNodeSceneView::postSceneLoad()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::preDraw()
 {
-    static SLfloat lastTime    = SLApplication::timeS();
-    SLfloat        currentTime = SLApplication::timeS();
+    static SLfloat lastTime    = GlobalTimer::timeS();
+    SLfloat        currentTime = GlobalTimer::timeS();
     _deltaTime                 = currentTime - lastTime;
     lastTime                   = currentTime;
 

@@ -36,11 +36,11 @@ for devkit2 under windows.
 */
 class SLGLOculus
 {
-    public:
+public:
     SLGLOculus();
     ~SLGLOculus();
 
-    void init();
+    void init(SLScene* s);
 
     const SLQuat4f& orientation(SLEyeType eye);
     const SLVec3f&  position(SLEyeType eye);
@@ -71,7 +71,7 @@ class SLGLOculus
     SLbool isLowPersistanceEnabled() { return _lowPersistanceEnabled; }
     SLbool isTimeWarpEnabled() { return _timeWarpEnabled; }
 
-    private:
+private:
     void dispose();
     void calculateHmdValues(); //!< recalculate HMD settings changed
 

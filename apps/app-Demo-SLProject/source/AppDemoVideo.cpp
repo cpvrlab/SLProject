@@ -18,6 +18,7 @@
 #include <AppDemoSceneView.h>
 #include <SLApplication.h>
 #include <FtpUtils.h>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -205,7 +206,7 @@ bool onUpdateVideo()
 
     if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
     {
-        SLfloat trackingTimeStartMS = SLApplication::timeMS();
+        SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 
         CVCamera* ac = CVCapture::instance()->activeCamera;
 
@@ -306,7 +307,7 @@ bool onUpdateVideo()
         else
             SL_WARN_MSG("No video texture to copy to.");
 
-        CVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
+        CVTracked::trackingTimesMS.set(GlobalTimer::timeMS() - trackingTimeStartMS);
         return true;
     }
 
