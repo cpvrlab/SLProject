@@ -28,6 +28,18 @@
 class SLSceneView;
 class SLCamera;
 
+class SLAssetManager
+{
+public:
+    SLVGLProgram& programs() { return _programs; }
+    SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
+    SLVMaterial&  materials() { return _materials; }
+
+protected:
+    SLVGLProgram _programs;  //!< Vector of all shader program pointers
+    SLVMaterial  _materials; //!< Vector of all materials pointers
+};
+
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 //-----------------------------------------------------------------------------
@@ -49,6 +61,7 @@ typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint scene
  demo project this function is in AppDemoSceneLoad.cpp.
 */
 class SLScene : public SLObject
+  , public SLAssetManager
 {
     friend class SLNode;
 
@@ -112,11 +125,10 @@ public:
     bool         deleteTexture(SLGLTexture* texture);
 
 protected:
-    SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
-    SLVMesh         _meshes;        //!< Vector of all meshes
-    SLVMaterial     _materials;     //!< Vector of all materials pointers
-    SLVGLTexture    _textures;      //!< Vector of all texture pointers
-    SLVGLProgram    _programs;      //!< Vector of all shader program pointers
+    SLVSceneView _sceneViews; //!< Vector of all sceneview pointers
+    SLVMesh      _meshes;     //!< Vector of all meshes
+    SLVGLTexture _textures;   //!< Vector of all texture pointers
+
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
     SLAnimManager   _animManager;   //!< Animation manager instance

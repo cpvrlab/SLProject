@@ -268,11 +268,12 @@ added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
 materials within the file are ignored.
 */
-SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path or on default path
-                               SLbool      loadMeshesOnly, //!< Only load nodes with meshes
-                               SLMaterial* overrideMat,    //!< Override material
-                               float       ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLuint      flags           //!< Import flags (see postprocess.h)
+SLNode* SLAssimpImporter::load(SLAssetManager* assetMgr,
+                               SLstring        file,           //!< File with path or on default path
+                               SLbool          loadMeshesOnly, //!< Only load nodes with meshes
+                               SLMaterial*     overrideMat,    //!< Override material
+                               float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
+                               SLuint          flags           //!< Import flags (see postprocess.h)
 )
 {
     // clear the intermediate data
@@ -316,7 +317,8 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     if (!overrideMat)
     {
         for (SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
-            materials.push_back(loadMaterial(i,
+            materials.push_back(loadMaterial(assetMgr,
+                                             i,
                                              scene->mMaterials[i],
                                              modelPath,
                                              ambientFactor));
@@ -651,7 +653,8 @@ SLAssimpImporter::loadMaterial loads the AssImp material an returns the SLMateri
 The materials and textures are added to the SLScene material and texture 
 vectors.
 */
-SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
+SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
+                                           SLint           index,
                                            aiMaterial*     material,
                                            const SLstring& modelPath,
                                            float           ambientFactor)
@@ -663,7 +666,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
     if (name.empty()) name = "Import Material";
 
     // Create SLMaterial instance. It is also added to the SLScene::_materials vector
-    SLMaterial* mat = new SLMaterial(name.c_str());
+    SLMaterial* mat = new SLMaterial(s, name.c_str());
 
     // set the texture types to import into our material
     const SLint   textureCount = 5;

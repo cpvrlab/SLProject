@@ -248,7 +248,6 @@ static void onMouseButton(GLFWwindow* window,
             SLfloat mouseDeltaTime = (SLfloat)glfwGetTime() - lastMouseDownTime;
             lastMouseDownTime      = (SLfloat)glfwGetTime();
 
-            std::cout << "double click" << std::endl;
             // handle double click
             if (mouseDeltaTime < 0.3f)
             {
@@ -270,7 +269,7 @@ static void onMouseButton(GLFWwindow* window,
             {
                 // Start timer for the long touch detection
                 HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
-                std::cout << "normal mouse click" << std::endl;
+
                 switch (button)
                 {
                     case GLFW_MOUSE_BUTTON_LEFT:

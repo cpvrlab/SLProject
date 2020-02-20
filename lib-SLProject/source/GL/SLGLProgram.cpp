@@ -28,10 +28,10 @@ SLstring SLGLProgram::defaultPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders";
 extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
 //! Ctor with a vertex and a fragment shader filename.
-SLGLProgram::SLGLProgram(SLScene* s,
-                         SLstring vertShaderFile,
-                         SLstring fragShaderFile,
-                         SLstring geomShaderFile) : SLObject("")
+SLGLProgram::SLGLProgram(SLAssetManager* s,
+                         SLstring        vertShaderFile,
+                         SLstring        fragShaderFile,
+                         SLstring        geomShaderFile) : SLObject("")
 {
     _isLinked = false;
     _progID   = 0;

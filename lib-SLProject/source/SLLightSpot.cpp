@@ -33,7 +33,8 @@ SLLightSpot::SLLightSpot(SLfloat radius,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial("LightSpot Mesh Mat",
+        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+                                         "LightSpot Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         if (spotAngleDEG < 180.0f)
@@ -51,7 +52,7 @@ SLLightSpot::SLLightSpot(SLfloat radius,
                                   16,
                                   16,
                                   "LightSpot Back Mesh",
-                                  SLMaterial::defaultGray()));
+                                  SLMaterial::defaultGray(SLApplication::scene)));
         }
         else
             addMesh(new SLSphere(radius, 16, 16, "LightSpot Mesh", mat));
@@ -80,7 +81,8 @@ SLLightSpot::SLLightSpot(SLfloat posx,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial("LightSpot Mesh Mat",
+        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+                                         "LightSpot Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         if (spotAngleDEG < 180.0f)
@@ -98,7 +100,7 @@ SLLightSpot::SLLightSpot(SLfloat posx,
                                   16,
                                   16,
                                   "LightSpot Back Mesh",
-                                  SLMaterial::defaultGray()));
+                                  SLMaterial::defaultGray(SLApplication::scene)));
         }
         else
             addMesh(new SLSphere(radius, 16, 16, "LightSpot Mesh", mat));
@@ -167,7 +169,7 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
     {
         // Set the OpenGL light states
         SLLightSpot::setState();
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL     = SLGLState::instance();
         stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
 
         // Set emissive light material to the lights diffuse color
@@ -370,7 +372,7 @@ void SLLightSpot::setState()
 {
     if (_id != -1)
     {
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL            = SLGLState::instance();
         stateGL->lightIsOn[_id]       = _isOn;
         stateGL->lightPosWS[_id]      = positionWS();
         stateGL->lightSpotDirWS[_id]  = spotDirWS();

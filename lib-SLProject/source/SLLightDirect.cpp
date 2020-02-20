@@ -33,7 +33,8 @@ SLLightDirect::SLLightDirect(SLfloat arrowLength,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial("LightDirect Mesh Mat",
+        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+                                         "LightDirect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         addMesh(new SLArrow(_arrowRadius,
@@ -65,7 +66,8 @@ SLLightDirect::SLLightDirect(SLfloat posx,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial("LightDirect Mesh Mat",
+        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+                                         "LightDirect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         addMesh(new SLArrow(_arrowRadius,
@@ -213,7 +215,7 @@ void SLLightDirect::setState()
 {
     if (_id != -1)
     {
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL      = SLGLState::instance();
         stateGL->lightIsOn[_id] = _isOn;
 
         // For directional lights the position vector is in infinite distance

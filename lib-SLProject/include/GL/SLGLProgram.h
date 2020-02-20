@@ -20,6 +20,7 @@ class SLGLShader;
 class SLScene;
 class SLMaterial;
 class SLGLState;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers
@@ -51,10 +52,10 @@ class SLGLProgram : public SLObject
 {
 public:
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
-    SLGLProgram(SLScene* s,
-                SLstring vertShaderFile,
-                SLstring fragShaderFile,
-                SLstring geomShaderFile = "");
+    SLGLProgram(SLAssetManager* s,
+                SLstring        vertShaderFile,
+                SLstring        fragShaderFile,
+                SLstring        geomShaderFile = "");
 
     virtual ~SLGLProgram();
 

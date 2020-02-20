@@ -15,6 +15,7 @@
 #include <SLNode.h>
 
 class SLSceneView;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Skybox node class with a SLBox mesh
@@ -28,14 +29,14 @@ class SLSkybox : public SLNode
 {
 public:
     SLSkybox(SLstring name = "Default Skybox");
-    SLSkybox(SLScene* s,
-             SLstring cubeMapXPos,
-             SLstring cubeMapXNeg,
-             SLstring cubeMapYPos,
-             SLstring cubeMapYNeg,
-             SLstring cubeMapZPos,
-             SLstring cubeMapZNeg,
-             SLstring name = "Default Skybox");
+    SLSkybox(SLAssetManager* s,
+             SLstring        cubeMapXPos,
+             SLstring        cubeMapXNeg,
+             SLstring        cubeMapYPos,
+             SLstring        cubeMapYNeg,
+             SLstring        cubeMapZPos,
+             SLstring        cubeMapZNeg,
+             SLstring        name = "Default Skybox");
     ~SLSkybox() { ; }
 
     SLCol4f colorAtDir(const SLVec3f& dir);

@@ -100,7 +100,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
-        SLMaterial*  m1   = new SLMaterial("m1", texC);
+        SLMaterial*  m1   = new SLMaterial(s, "m1", texC);
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -135,8 +135,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Hierarchical scenegraph with multiple subgroups.");
 
         // Create textures and materials
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE * 0.3f, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
+        SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f::WHITE * 0.3f, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
 
         SLuint  res         = 20;
         SLMesh* rectangle   = new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "rectangle", m2);
@@ -178,10 +178,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mesh 3D Loader Test");
         s->info("3D file import test for: 3DS, DAE & FBX");
 
-        SLMaterial* matBlu = new SLMaterial("Blue", SLCol4f(0, 0, 0.2f), SLCol4f(1, 1, 1), 100, 0.8f, 0);
-        SLMaterial* matRed = new SLMaterial("Red", SLCol4f(0.2f, 0, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
-        SLMaterial* matGre = new SLMaterial("Green", SLCol4f(0, 0.2f, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
-        SLMaterial* matGra = new SLMaterial("Gray", SLCol4f(0.3f, 0.3f, 0.3f), SLCol4f(1, 1, 1), 100, 0, 0);
+        SLMaterial* matBlu = new SLMaterial(s, "Blue", SLCol4f(0, 0, 0.2f), SLCol4f(1, 1, 1), 100, 0.8f, 0);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.2f, 0, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
+        SLMaterial* matGre = new SLMaterial(s, "Green", SLCol4f(0, 0.2f, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
+        SLMaterial* matGra = new SLMaterial(s, "Gray", SLCol4f(0.3f, 0.3f, 0.3f), SLCol4f(1, 1, 1), 100, 0, 0);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(.1f);
@@ -213,9 +213,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
         SLAssimpImporter importer;
-        SLNode*          mesh3DS = importer.load("3DS/Halloween/jackolan.3ds");
-        SLNode*          meshFBX = importer.load("FBX/Duck/duck.fbx");
-        SLNode*          meshDAE = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLNode*          mesh3DS = importer.load(s, "3DS/Halloween/jackolan.3ds");
+        SLNode*          meshFBX = importer.load(s, "FBX/Duck/duck.fbx");
+        SLNode*          meshDAE = importer.load(s, "DAE/AstroBoy/AstroBoy.dae");
 
         // Start animation
         SLAnimPlayback* charAnim = s->animManager().lastAnimPlayback();
@@ -283,32 +283,32 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Test map material
         SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
-        SLMaterial*  mat1 = new SLMaterial("mat1", tex1);
+        SLMaterial*  mat1 = new SLMaterial(s, "mat1", tex1);
 
         // floor material
         SLGLTexture* tex2 = new SLGLTexture("wood0_0512_C.jpg");
-        SLMaterial*  mat2 = new SLMaterial("mat2", tex2);
+        SLMaterial*  mat2 = new SLMaterial(s, "mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
         // Back wall material
         SLGLTexture* tex3 = new SLGLTexture("bricks1_0256_C.jpg");
-        SLMaterial*  mat3 = new SLMaterial("mat3", tex3);
+        SLMaterial*  mat3 = new SLMaterial(s, "mat3", tex3);
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
         SLGLTexture* tex4 = new SLGLTexture("wood2_0512_C.jpg");
-        SLMaterial*  mat4 = new SLMaterial("mat4", tex4);
+        SLMaterial*  mat4 = new SLMaterial(s, "mat4", tex4);
         mat4->specular(SLCol4f::BLACK);
 
         // Glass material
         SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg", "gray_0256_C.jpg", "wood0_0256_C.jpg", "gray_0256_C.jpg", "bricks1_0256_C.jpg");
-        SLMaterial*  mat5 = new SLMaterial("glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
+        SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
         SLGLProgram* sp1 = new SLGLGenericProgram(s, "RefractReflect.vert", "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
-        SLMaterial* mat6 = new SLMaterial("wine", SLCol4f(0.4f, 0.0f, 0.2f), SLCol4f::BLACK, 255, 0.2f, 0.7f, 1.3f);
+        SLMaterial* mat6 = new SLMaterial(s, "wine", SLCol4f(0.4f, 0.0f, 0.2f), SLCol4f::BLACK, 255, 0.2f, 0.7f, 1.3f);
         mat6->textures().push_back(tex5);
         mat6->program(sp1);
 
@@ -462,11 +462,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             SLAssimpImporter importer;
             SLfloat          timeStart  = GlobalTimer::timeS();
-            SLNode*          largeModel = importer.load("PLY/xyzrgb_dragon.ply",
+            SLNode*          largeModel = importer.load(s,
+                                               "PLY/xyzrgb_dragon.ply",
                                                true,
                                                nullptr,
+                                               0.0f,
                                                SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
-            SLfloat          timeEnd    = GlobalTimer::timeS();
+
+            SLfloat timeEnd = GlobalTimer::timeS();
             SL_LOG("Time to load  : %4.2f sec.", timeEnd - timeStart);
             SLNode* scene = new SLNode("Scene");
             scene->addChild(light1);
@@ -492,8 +495,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                                           GL_LINEAR_MIPMAP_LINEAR,
                                           GL_LINEAR);
 
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
+        SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
         m1->program(s->programs()[SP_TextureOnly]);
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
@@ -606,10 +609,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texR = new SLGLTexture("brick0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
 
         // define materials with textureOnly shader, no light needed
-        SLMaterial* matB = new SLMaterial("matB", texB, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
-        SLMaterial* matL = new SLMaterial("matL", texL, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
-        SLMaterial* matT = new SLMaterial("matT", texT, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
-        SLMaterial* matR = new SLMaterial("matR", texR, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
+        SLMaterial* matB = new SLMaterial(s, "matB", texB, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
+        SLMaterial* matL = new SLMaterial(s, "matL", texL, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
+        SLMaterial* matT = new SLMaterial(s, "matT", texT, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
+        SLMaterial* matR = new SLMaterial(s, "matR", texR, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
 
         // build polygons for bottom, left, top & right side
         SLVVec3f VB;
@@ -650,7 +653,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
         SLGLTexture* tex3D = new SLGLTexture(tex3DFiles);
         SLGLProgram* spr3D = new SLGLGenericProgram(s, "TextureOnly3D.vert", "TextureOnly3D.frag");
-        SLMaterial*  mat3D = new SLMaterial("mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
+        SLMaterial*  mat3D = new SLMaterial(s, "mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
 
         // Create 3D textured pyramid mesh and node
         SLMesh* pyramid = new SLMesh("Pyramid");
@@ -687,7 +690,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // create texture
         SLGLTexture* tex  = new SLGLTexture("earth1024_C.jpg");
-        SLMaterial*  mat1 = new SLMaterial("mat1", tex);
+        SLMaterial*  mat1 = new SLMaterial(s, "mat1", tex);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
@@ -743,7 +746,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("2D & 3D Text Test");
         s->info("All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.");
 
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::RED);
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::RED);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
@@ -855,7 +858,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // create new materials for every sphere
         SLGLTexture* texC = new SLGLTexture("earth2048_C.jpg"); // color map
         SLGLTexture* texN = new SLGLTexture("earth2048_N.jpg"); // normal map
-        SLMaterial*  mat  = new SLMaterial("mat1", texC, texN, nullptr, nullptr, sp);
+        SLMaterial*  mat  = new SLMaterial(s, "mat1", texC, texN, nullptr, nullptr, sp);
 
         // create spheres around the center sphere
         SLint size = 8;
@@ -899,14 +902,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->specular(SLCol4f(1, 1, 1));
         light1->attenuation(1, 0, 0);
 
-        SLMaterial* pcMat1 = new SLMaterial("Red", SLCol4f::RED);
+        SLMaterial* pcMat1 = new SLMaterial(s, "Red", SLCol4f::RED);
         pcMat1->program(new SLGLGenericProgram(s, "ColorUniformPoint.vert", "Color.frag"));
         pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
         SLRnd3fNormal rndN(SLVec3f(0, 0, 0), SLVec3f(5, 2, 1));
         SLNode*       pc1 = new SLNode(new SLPoints(1000, rndN, "PC1", pcMat1));
         pc1->translate(-5, 0, 0);
 
-        SLMaterial* pcMat2 = new SLMaterial("Green", SLCol4f::GREEN);
+        SLMaterial* pcMat2 = new SLMaterial(s, "Green", SLCol4f::GREEN);
         pcMat2->program(new SLGLGenericProgram(s, "ColorUniform.vert", "Color.frag"));
         SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
         SLNode*        pc2 = new SLNode(new SLPoints(1000, rndU, "PC2", pcMat2));
@@ -931,18 +934,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
-            m1 = new SLMaterial("m1",
-                                nullptr,
-                                nullptr,
-                                nullptr,
-                                nullptr,
-                                s->programs()[SP_perPixBlinn]);
+            m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, s->programs()[SP_perPixBlinn]);
         }
         else
         {
             s->name("Blinn-Phong per vertex lighting");
             s->info("Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex.");
-            m1 = new SLMaterial("m1", nullptr, nullptr);
+            m1 = new SLMaterial(s, "m1", nullptr, nullptr);
         }
 
         m1->shininess(500);
@@ -1060,20 +1058,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 if (m == nrRows / 2 && r == nrCols / 2)
                 {
                     // The center sphere has roughness and metallic encoded in textures
-                    mat[i] = new SLMaterial("CookTorranceMatTex",
-                                            new SLGLTexture("rusty-metal_2048C.png"),
-                                            new SLGLTexture("rusty-metal_2048N.png"),
-                                            new SLGLTexture("rusty-metal_2048M.png"),
-                                            new SLGLTexture("rusty-metal_2048R.png"),
-                                            s->programs()[SP_perPixCookTorranceTex]);
+                    mat[i] = new SLMaterial(s, "CookTorranceMatTex", new SLGLTexture("rusty-metal_2048C.png"), new SLGLTexture("rusty-metal_2048N.png"), new SLGLTexture("rusty-metal_2048M.png"), new SLGLTexture("rusty-metal_2048R.png"), s->programs()[SP_perPixCookTorranceTex]);
                 }
                 else
                 {
                     // Cook-Torrance material without textures
-                    mat[i] = new SLMaterial("CookTorranceMat",
-                                            SLCol4f::RED * 0.5f,
-                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
-                                            (float)m * deltaM);
+                    SLGLProgram* program = s->programs(SP_perPixCookTorrance);
+                    mat[i]               = new SLMaterial(s, program, "CookTorranceMat", SLCol4f::RED * 0.5f, Utils::clamp((float)r * deltaR, 0.05f, 1.0f), (float)m * deltaM);
                 }
 
                 SLNode* node = new SLNode(new SLSpheric(1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
@@ -1125,9 +1116,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(new SLGLUniform1f(UT_incDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
 
         // Create materials
-        SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f, 0.65f, 0.70f), SLCol4f::WHITE, 300);
+        SLMaterial* matWater = new SLMaterial(s, "matWater", SLCol4f(0.45f, 0.65f, 0.70f), SLCol4f::WHITE, 300);
         matWater->program(sp);
-        SLMaterial* matRed = new SLMaterial("matRed", SLCol4f(1.00f, 0.00f, 0.00f));
+        SLMaterial* matRed = new SLMaterial(s, "matRed", SLCol4f(1.00f, 0.00f, 0.00f));
 
         // water rectangle in the y=0 plane
         SLNode* wave = new SLNode(new SLRectangle(SLVec2f(-Utils::PI,
@@ -1182,11 +1173,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(new SLGLUniform1f(UT_incDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
 
         // Create materials
-        SLMaterial* matWater = new SLMaterial("matWater", SLCol4f(0.45f, 0.65f, 0.70f), SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
+        SLMaterial* matWater = new SLMaterial(s, "matWater", SLCol4f(0.45f, 0.65f, 0.70f), SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
         matWater->program(sp);
         matWater->textures().push_back(tex1);
-        SLMaterial* matRed  = new SLMaterial("matRed", SLCol4f(1.00f, 0.00f, 0.00f));
-        SLMaterial* matTile = new SLMaterial("matTile");
+        SLMaterial* matRed  = new SLMaterial(s, "matRed", SLCol4f(1.00f, 0.00f, 0.00f));
+        SLMaterial* matTile = new SLMaterial(s, "matTile");
         matTile->textures().push_back(tex2);
 
         // water rectangle in the y=0 plane
@@ -1246,7 +1237,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texN = new SLGLTexture("brickwall0512_N.jpg");
 
         // Create materials
-        SLMaterial* m1 = new SLMaterial("m1", texC, texN, nullptr, nullptr, s->programs()[SP_bumpNormal]);
+        SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN, nullptr, nullptr, s->programs()[SP_bumpNormal]);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 20);
@@ -1298,7 +1289,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texH = new SLGLTexture("brickwall0512_H.jpg");
 
         // Create materials
-        SLMaterial* m1 = new SLMaterial("mat1", texC, texN, texH, nullptr, sp);
+        SLMaterial* m1 = new SLMaterial(s, "mat1", texC, texN, texH, nullptr, sp);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 20);
@@ -1338,12 +1329,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
 
         // Material for mirror
-        SLMaterial* refl = new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
+        SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
         refl->program(new SLGLGenericProgram(s, "Reflect.vert", "Reflect.frag"));
 
         // Material for glass
-        SLMaterial* refr = new SLMaterial("refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
+        SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissiv(SLCol4f::WHITE);
         refr->textures().push_back(skyboxTex);
@@ -1374,12 +1365,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // load teapot
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load("FBX/Teapot/Teapot.fbx", true, refl);
+        SLNode*          teapot = importer.load(s, "FBX/Teapot/Teapot.fbx", true, refl);
         teapot->translate(-1.5f, -0.5f, 0);
         scene->addChild(teapot);
 
         // load Suzanne
-        SLNode* suzanne = importer.load("FBX/Suzanne/Suzanne.fbx", true, refr);
+        SLNode* suzanne = importer.load(s, "FBX/Suzanne/Suzanne.fbx", true, refr);
         suzanne->translate(1.5f, -0.5f, 0);
         scene->addChild(suzanne);
 
@@ -1428,7 +1419,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texClA = new SLGLTexture("earthCloud1024_A.jpg"); // cloud alpha map
 
         // Create materials
-        SLMaterial* matEarth = new SLMaterial("matEarth", texC, texN, texH, texG, sp);
+        SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
         matEarth->textures().push_back(texClC);
         matEarth->textures().push_back(texClA);
         matEarth->textures().push_back(texNC);
@@ -1486,20 +1477,20 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCol4f blueRGB(0.25f, 0.25f, 0.75f);
         SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
 
-        SLMaterial* cream     = new SLMaterial("cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
-        SLMaterial* teapotMat = new SLMaterial("teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
 
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load("FBX/Teapot/Teapot.fbx", true, teapotMat);
+        SLNode*          teapot = importer.load(s, "FBX/Teapot/Teapot.fbx", true, teapotMat);
 
         teapot->scale(0.5);
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
         scene->addChild(teapot);
 
-        SLMaterial* red    = new SLMaterial("red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
-        SLMaterial* yellow = new SLMaterial("yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
         // Material for mirror sphere
-        SLMaterial* refl = new SLMaterial("refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
+        SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
 
         SLNode* sphere = new SLNode(new SLSphere(0.3f, 32, 32, "Sphere1", refl));
         scene->addChild(sphere);
@@ -1519,21 +1510,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
-        SLMaterial* pink = new SLMaterial("cream",
-                                          SLCol4f(1, 0.35f, 0.65f),
-                                          SLCol4f::BLACK,
-                                          100.f,
-                                          0.f,
-                                          0.f,
-                                          1.f,
-                                          s->programs()[SP_perPixBlinn]);
+        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
 
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
         SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
         SLfloat pN = 0.99f, pF = -0.99f; // near/far
 
-        SLMaterial* blue = new SLMaterial("blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
 
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
@@ -1618,7 +1602,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(volZ);
 
         // Create volume rendering material
-        SLMaterial* matVR = new SLMaterial("matVR", texMRI, tf, nullptr, nullptr, sp);
+        SLMaterial* matVR = new SLMaterial(s, "matVR", texMRI, tf, nullptr, nullptr, sp);
 
         // Create camera
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1684,7 +1668,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(volZ);
 
         // Create volume rendering material
-        SLMaterial* matVR = new SLMaterial("matVR", texMRI, tf, nullptr, nullptr, sp);
+        SLMaterial* matVR = new SLMaterial(s, "matVR", texMRI, tf, nullptr, nullptr, sp);
 
         // Create camera
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1740,19 +1724,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Floor grid
-        SLMaterial* m2   = new SLMaterial(SLCol4f::WHITE);
+        SLMaterial* m2   = new SLMaterial(s, "m2", SLCol4f::WHITE);
         SLGrid*     grid = new SLGrid(SLVec3f(-5, 0, -5), SLVec3f(5, 0, 5), 20, 20, "Grid", m2);
         scene->addChild(new SLNode(grid, "grid"));
 
         // Astro boy character
-        SLNode* char1 = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLNode* char1 = importer.load(s, "DAE/AstroBoy/AstroBoy.dae");
         char1->translate(-1, 0, 0);
         SLAnimPlayback* char1Anim = s->animManager().lastAnimPlayback();
         char1Anim->playForward();
         scene->addChild(char1);
 
         // Sintel character
-        SLNode* char2 = importer.load("DAE/Sintel/SintelLowResOwnRig.dae"
+        SLNode* char2 = importer.load(s, "DAE/Sintel/SintelLowResOwnRig.dae"
                                       //,true
                                       //,SLProcess_JoinIdenticalVertices
                                       //|SLProcess_RemoveRedundantMaterials
@@ -1767,7 +1751,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(char2);
 
         // Skinned cube 1
-        SLNode* cube1 = importer.load("DAE/SkinnedCube/skinnedcube2.dae");
+        SLNode* cube1 = importer.load(s, "DAE/SkinnedCube/skinnedcube2.dae");
         cube1->translate(3, 0, 0);
         SLAnimPlayback* cube1Anim = s->animManager().lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
@@ -1775,7 +1759,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube1);
 
         // Skinned cube 2
-        SLNode* cube2 = importer.load("DAE/SkinnedCube/skinnedcube4.dae");
+        SLNode* cube2 = importer.load(s, "DAE/SkinnedCube/skinnedcube4.dae");
         cube2->translate(-3, 0, 0);
         SLAnimPlayback* cube2Anim = s->animManager().lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
@@ -1783,7 +1767,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube2);
 
         // Skinned cube 3
-        SLNode* cube3 = importer.load("DAE/SkinnedCube/skinnedcube5.dae");
+        SLNode* cube3 = importer.load(s, "DAE/SkinnedCube/skinnedcube5.dae");
         cube3->translate(0, 3, 0);
         SLAnimPlayback* cube3Anim = s->animManager().lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
@@ -1802,9 +1786,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLGLTexture* tex1 = new SLGLTexture("Checkerboard0512_C.png");
-        SLMaterial*  m1   = new SLMaterial("m1", tex1);
+        SLMaterial*  m1   = new SLMaterial(s, "m1", tex1);
         m1->kr(0.5f);
-        SLMaterial* m2 = new SLMaterial("m2", SLCol4f::WHITE * 0.5, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
+        SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f::WHITE * 0.5, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
 
         SLMesh* floorMesh = new SLRectangle(SLVec2f(-5, -5), SLVec2f(5, 5), 20, 20, "FloorMesh", m1);
         SLNode* floorRect = new SLNode(floorMesh);
@@ -1914,7 +1898,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->translate(0, 10, 0);
 
         // build a basic scene to have a reference for the occuring rotations
-        SLMaterial* genericMat = new SLMaterial("some material");
+        SLMaterial* genericMat = new SLMaterial(s, "some material");
 
         // we use the same mesh to viasualize all the nodes
         SLBox* box = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "box", genericMat);
@@ -1985,7 +1969,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Mass animation scene of identitcal Astroboy models");
 
         // Create materials
-        SLMaterial* m1 = new SLMaterial("m1", SLCol4f::GRAY);
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::GRAY);
         m1->specular(SLCol4f::BLACK);
 
         // Define a light
@@ -2015,7 +1999,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->rotate(90, -1, 0, 0);
 
         SLAssimpImporter importer;
-        SLNode*          center = importer.load("DAE/AstroBoy/AstroBoy.dae");
+        SLNode*          center = importer.load(s, "DAE/AstroBoy/AstroBoy.dae");
         s->animManager().lastAnimPlayback()->playForward();
 
         // Assemble scene
@@ -2075,7 +2059,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-        SLMaterial* m1 = new SLMaterial("VideoMat", videoTexture);
+        SLMaterial* m1 = new SLMaterial(s, "VideoMat", videoTexture);
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");
@@ -2171,7 +2155,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
 
         // set the edge length of a chessboard square
         SLfloat e1 = 0.028f;
@@ -2253,8 +2237,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* cyan   = new SLMaterial("mY", SLCol4f(0, 1, 1, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.5f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2352,7 +2336,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         // Yellow center box
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
         SLNode*     box    = new SLNode(new SLBox(0, 0, 0, 100, 100, 100, "Box", yellow), "Box Node");
         box->rotate(-90, 1, 0, 0);
 
@@ -2417,7 +2401,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load sunglasses
         SLAssimpImporter importer;
-        SLNode*          glasses = importer.load("FBX/Sunglasses.fbx");
+        SLNode*          glasses = importer.load(s, "FBX/Sunglasses.fbx");
         glasses->scale(0.01f);
 
         // Add axis arrows at world center
@@ -2479,7 +2463,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         // Yellow center box
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
         SLNode*     box    = new SLNode(new SLBox(-.5f, -.5f, -.5f, .5f, .5f, .5f, "Box", yellow), "Box Node");
 
         // Scene structure
@@ -2538,7 +2522,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          bern = importer.load("FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+        SLNode*          bern = importer.load(s, "FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -2598,7 +2582,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
         SLNode*     box2m  = new SLNode(new SLBox(0, 0, 0, 2, 2, 2, "Box2m", yellow));
 
         SLNode* scene = new SLNode("Scene");
@@ -2666,7 +2650,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          TheaterAndTempel = importer.load("GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+        SLNode*          TheaterAndTempel = importer.load(s, "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
                                                  0.4f);   // 40% ambient reflection
@@ -2756,7 +2740,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          theater = importer.load("DAE/Aventicum/Aventicum01.dae");
+        SLNode*          theater = importer.load(s, "DAE/Aventicum/Aventicum01.dae");
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
@@ -2827,17 +2811,17 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
 
         // create materials
-        SLMaterial* cream = new SLMaterial("cream", grayRGB, SLCol4f::BLACK, 0);
-        SLMaterial* red   = new SLMaterial("red", redRGB, SLCol4f::BLACK, 0);
-        SLMaterial* blue  = new SLMaterial("blue", blueRGB, SLCol4f::BLACK, 0);
+        SLMaterial* cream = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 0);
+        SLMaterial* red   = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 0);
+        SLMaterial* blue  = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 0);
 
         // Material for mirror sphere
-        SLMaterial* refl = new SLMaterial("refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
+        SLMaterial* refl = new SLMaterial(s, "refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(tex1);
         refl->program(sp1);
 
         // Material for glass sphere
-        SLMaterial* refr = new SLMaterial("refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
+        SLMaterial* refr = new SLMaterial(s, "refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
         refr->transmissiv(SLCol4f::WHITE);
         refr->textures().push_back(tex1);
@@ -2927,9 +2911,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
 
         // define materials
-        SLMaterial* matGla = new SLMaterial("Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.4f, 0.6f, 1.5f);
-        SLMaterial* matRed = new SLMaterial("Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
-        SLMaterial* matYel = new SLMaterial("Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial* matGla = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.4f, 0.6f, 1.5f);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.5f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera();
         cam1->translation(0, 0.1f, 2.5f);
@@ -2971,9 +2955,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // define materials
         SLCol4f     spec(0.8f, 0.8f, 0.8f);
-        SLMaterial* matBlk = new SLMaterial("Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
-        SLMaterial* matRed = new SLMaterial("Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
-        SLMaterial* matYel = new SLMaterial("Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
+        SLMaterial* matBlk = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 0.1f, 6);
@@ -3020,14 +3004,14 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
-        SLMaterial*  mT   = new SLMaterial("mT", texC, nullptr, nullptr, nullptr);
+        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
         mT->kr(0.5f);
-        SLMaterial* mW = new SLMaterial("mW", SLCol4f::WHITE);
-        SLMaterial* mB = new SLMaterial("mB", SLCol4f::GRAY);
-        SLMaterial* mY = new SLMaterial("mY", SLCol4f::YELLOW);
-        SLMaterial* mR = new SLMaterial("mR", SLCol4f::RED);
-        SLMaterial* mG = new SLMaterial("mG", SLCol4f::GREEN);
-        SLMaterial* mM = new SLMaterial("mM", SLCol4f::MAGENTA);
+        SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
+        SLMaterial* mB = new SLMaterial(s, "mB", SLCol4f::GRAY);
+        SLMaterial* mY = new SLMaterial(s, "mY", SLCol4f::YELLOW);
+        SLMaterial* mR = new SLMaterial(s, "mR", SLCol4f::RED);
+        SLMaterial* mG = new SLMaterial(s, "mG", SLCol4f::GREEN);
+        SLMaterial* mM = new SLMaterial(s, "mM", SLCol4f::MAGENTA);
 
 #ifndef SL_GLES
         SLuint numSamples = 10;
@@ -3098,12 +3082,12 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texC = new SLGLTexture("VisionExample.png");
         //SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
 
-        SLMaterial* mT = new SLMaterial("mT", texC, nullptr, nullptr, nullptr);
+        SLMaterial* mT = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
         mT->kr(0.5f);
 
         // Glass material
         // name, ambient, specular,	shininess, kr(reflectivity), kt(transparency), kn(refraction)
-        SLMaterial* matLens = new SLMaterial("lens", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
+        SLMaterial* matLens = new SLMaterial(s, "lens", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
         //SLGLShaderProg* sp1 = new SLGLShaderProgGeneric("RefractReflect.vert", "RefractReflect.frag");
         //matLens->shaderProg(sp1);
 
@@ -3185,11 +3169,11 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->name("light node");
 
         // Material for glass sphere
-        SLMaterial* matBox1  = new SLMaterial("matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
+        SLMaterial* matBox1  = new SLMaterial(s, "matBox1", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.5f);
         SLMesh*     boxMesh1 = new SLBox(-0.8f, -1, 0.02f, 1.2f, 1, 1, "boxMesh1", matBox1);
         SLNode*     boxNode1 = new SLNode(boxMesh1, "BoxNode1");
 
-        SLMaterial* matBox2  = new SLMaterial("matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
+        SLMaterial* matBox2  = new SLMaterial(s, "matBox2", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.0f, 0.9f, 1.3f);
         SLMesh*     boxMesh2 = new SLBox(-1.2f, -1, -1, 0.8f, 1, -0.02f, "BoxMesh2", matBox2);
         SLNode*     boxNode2 = new SLNode(boxMesh2, "BoxNode2");
 

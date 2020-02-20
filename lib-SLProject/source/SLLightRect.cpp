@@ -42,7 +42,8 @@ SLLightRect::SLLightRect(SLfloat w,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial("LightRect Mesh Mat",
+        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+                                         "LightRect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         addMesh(new SLPolygon(w, h, "LightRect Mesh", mat));
@@ -70,7 +71,7 @@ void SLLightRect::init()
 
     // Set the OpenGL light states
     setState();
-    SLGLState* stateGL = SLGLState::instance();
+    SLGLState* stateGL     = SLGLState::instance();
     stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
 
     // Set emissive light material to the lights diffuse color
@@ -89,7 +90,7 @@ void SLLightRect::drawRec(SLSceneView* sv)
     {
         // Set the OpenGL light states
         setState();
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL     = SLGLState::instance();
         stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
 
         // Set emissive light material to the lights diffuse color
@@ -135,7 +136,7 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
     {
         // Set the OpenGL light states
         setState();
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL     = SLGLState::instance();
         stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
 
         // Set emissive light material to the lights diffuse color
@@ -295,7 +296,7 @@ void SLLightRect::setState()
 {
     if (_id != -1)
     {
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL            = SLGLState::instance();
         stateGL->lightIsOn[_id]       = _isOn;
         stateGL->lightPosWS[_id]      = positionWS();
         stateGL->lightSpotDirWS[_id]  = spotDirWS();

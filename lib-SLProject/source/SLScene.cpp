@@ -211,8 +211,8 @@ void SLScene::unInit()
     _textures.clear();
 
     // manually clear the default materials (it will get deleted below)
-    SLMaterial::defaultGray(nullptr);
-    SLMaterial::diffuseAttrib(nullptr);
+    SLMaterial::defaultGray(this, nullptr);
+    SLMaterial::diffuseAttrib(this, nullptr);
 
     // delete materials
     for (auto m : _materials)
@@ -439,7 +439,8 @@ void SLScene::onLoadAsset(const SLstring& assetFile,
     SLAssimpImporter importer;
 
     /////////////////////////////////////////////
-    SLNode* loaded = importer.load(assetFile,
+    SLNode* loaded = importer.load(this,
+                                   assetFile,
                                    true,
                                    nullptr,
                                    0.0f,

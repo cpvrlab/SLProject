@@ -16,6 +16,7 @@
 #include "SLObject.h"
 
 class SLMaterial;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Generic Shader Program class inherited from SLGLProgram
@@ -27,15 +28,15 @@ class SLGLGenericProgram : public SLGLProgram
 {
 public:
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
-    SLGLGenericProgram(SLScene*    s,
-                       const char* vertShaderFile,
-                       const char* fragShaderFile)
+    SLGLGenericProgram(SLAssetManager* s,
+                       const char*     vertShaderFile,
+                       const char*     fragShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile) { ; }
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
-    SLGLGenericProgram(SLScene*    s,
-                       const char* vertShaderFile,
-                       const char* fragShaderFile,
-                       const char* geomShaderFile)
+    SLGLGenericProgram(SLAssetManager* s,
+                       const char*     vertShaderFile,
+                       const char*     fragShaderFile,
+                       const char*     geomShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile, geomShaderFile) { ; }
 
     void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }

@@ -20,6 +20,7 @@
 #include <SLMaterial.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -31,14 +32,14 @@ SLSkybox::SLSkybox(SLstring name) : SLNode(name)
 /*! All resources allocated are stored in the SLScene vectors for textures,
 materials, programs and meshes and get deleted at scene destruction.
 */
-SLSkybox::SLSkybox(SLScene* s,
-                   SLstring cubeMapXPos,
-                   SLstring cubeMapXNeg,
-                   SLstring cubeMapYPos,
-                   SLstring cubeMapYNeg,
-                   SLstring cubeMapZPos,
-                   SLstring cubeMapZNeg,
-                   SLstring name) : SLNode(name)
+SLSkybox::SLSkybox(SLAssetManager* s,
+                   SLstring        cubeMapXPos,
+                   SLstring        cubeMapXNeg,
+                   SLstring        cubeMapYPos,
+                   SLstring        cubeMapYNeg,
+                   SLstring        cubeMapZPos,
+                   SLstring        cubeMapZNeg,
+                   SLstring        name) : SLNode(name)
 {
     // Create texture, material and program
     SLGLTexture* cubeMap    = new SLGLTexture(cubeMapXPos,
@@ -47,7 +48,7 @@ SLSkybox::SLSkybox(SLScene* s,
                                            cubeMapYNeg,
                                            cubeMapZPos,
                                            cubeMapZNeg);
-    SLMaterial*  matCubeMap = new SLMaterial("matCubeMap");
+    SLMaterial*  matCubeMap = new SLMaterial(s, "matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
     SLGLProgram* sp = new SLGLGenericProgram(s, "SkyBox.vert", "SkyBox.frag");
     matCubeMap->program(sp);

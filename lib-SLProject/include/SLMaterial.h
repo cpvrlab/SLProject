@@ -18,6 +18,7 @@
 
 class SLSceneView;
 class SLNode;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Defines a standard CG material with textures and a shader program
@@ -40,42 +41,48 @@ class SLMaterial : public SLObject
 {
 public:
     //! Default ctor
-    explicit SLMaterial(const SLchar*  name,
-                        const SLCol4f& amdi      = SLCol4f::WHITE,
-                        const SLCol4f& spec      = SLCol4f::WHITE,
-                        SLfloat        shininess = 100.0f,
-                        SLfloat        kr        = 0.0,
-                        SLfloat        kt        = 0.0f,
-                        SLfloat        kn        = 1.0f,
-                        SLGLProgram*   program   = nullptr);
+    explicit SLMaterial(SLAssetManager* s,
+                        const SLchar*   name,
+                        const SLCol4f&  amdi      = SLCol4f::WHITE,
+                        const SLCol4f&  spec      = SLCol4f::WHITE,
+                        SLfloat         shininess = 100.0f,
+                        SLfloat         kr        = 0.0,
+                        SLfloat         kt        = 0.0f,
+                        SLfloat         kn        = 1.0f,
+                        SLGLProgram*    program   = nullptr);
 
     //! Ctor for textures
-    SLMaterial(const SLchar* name,
-               SLGLTexture*  texture1,
-               SLGLTexture*  texture2 = nullptr,
-               SLGLTexture*  texture3 = nullptr,
-               SLGLTexture*  texture4 = nullptr,
-               SLGLProgram*  program  = nullptr);
+    SLMaterial(SLAssetManager* s,
+               const SLchar*   name,
+               SLGLTexture*    texture1,
+               SLGLTexture*    texture2 = nullptr,
+               SLGLTexture*    texture3 = nullptr,
+               SLGLTexture*    texture4 = nullptr,
+               SLGLProgram*    program  = nullptr);
 
     //! Ctor for Cook-Torrance shading
-    SLMaterial(const SLchar*  name,
-               const SLCol4f& diffuse,
-               SLfloat        roughness,
-               SLfloat        metalness);
+    SLMaterial(SLAssetManager* s,
+               SLGLProgram*    perPixCookTorranceProgram,
+               const SLchar*   name,
+               const SLCol4f&  diffuse,
+               SLfloat         roughness,
+               SLfloat         metalness);
 
     //! Ctor for uniform color material without lighting
-    explicit SLMaterial(const SLCol4f& uniformColor,
-                        const SLchar*  name = (const char*)"Uniform color");
+    explicit SLMaterial(SLAssetManager* s,
+                        SLGLProgram*    colorUniformProgram,
+                        const SLCol4f&  uniformColor,
+                        const SLchar*   name = (const char*)"Uniform color");
 
     //! Ctor for cone tracer
-    SLMaterial(SLScene*      s,
-               const SLchar* name,
-               SLGLProgram*  program);
+    SLMaterial(SLAssetManager* s,
+               const SLchar*   name,
+               SLGLProgram*    program);
 
     ~SLMaterial() final;
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLDrawBits drawBits);
+    void activate(SLDrawBits drawBits, SLScene* s);
 
     //! Passes the material paramters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
@@ -149,10 +156,10 @@ public:
     SLVGLTexture& textures() { return _textures; }
     SLGLProgram*  program() { return _program; }
 
-    static SLMaterial* defaultGray();
-    static void        defaultGray(SLMaterial* mat);
-    static SLMaterial* diffuseAttrib();
-    static void        diffuseAttrib(SLMaterial* mat);
+    static SLMaterial* defaultGray(SLAssetManager* assetMgr);
+    static void        defaultGray(SLAssetManager* assetMgr, SLMaterial* mat);
+    static SLMaterial* diffuseAttrib(SLAssetManager* assetMgr);
+    static void        diffuseAttrib(SLAssetManager* assetMgr, SLMaterial* mat);
 
     // Static variables & functions
     static SLMaterial* current; //!< Current material during scene traversal
@@ -173,7 +180,7 @@ protected:
     SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
     SLfloat      _kn{};         //!< refraction index
     SLVGLTexture _textures;     //!< vector of texture pointers
-    SLGLProgram* _program;      //!< pointer to a GLSL shader program
+    SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
 private:
     static SLMaterial* _defaultGray;   //!< Global default gray color material for meshes that don't define their own.

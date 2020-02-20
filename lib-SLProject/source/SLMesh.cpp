@@ -258,9 +258,9 @@ void SLMesh::init(SLNode* node)
     if (!mat())
     {
         if (!C.empty())
-            mat(SLMaterial::diffuseAttrib());
+            mat(SLMaterial::diffuseAttrib(SLApplication::scene));
         else
-            mat(SLMaterial::defaultGray());
+            mat(SLMaterial::defaultGray(SLApplication::scene));
     }
 
     // set transparent flag of the node if mesh contains alpha material
@@ -351,7 +351,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // 2.a) Apply mesh material if exists & differs from current
     if (mat() != SLMaterial::current || SLMaterial::current->program() == nullptr)
-        mat()->activate(*node->drawBits());
+        mat()->activate(*node->drawBits(), &sv->s());
 
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = SLMaterial::current->program();
