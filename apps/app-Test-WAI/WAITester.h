@@ -17,16 +17,29 @@ class Tester
     typedef std::string Area;
     typedef struct TestData 
     {
-        std::string map;
+        std::string mapFile;
         std::string videoFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
     } TestData;
     typedef std::vector<TestData> Datas;
     typedef std::map<Area, Datas> Areas;
 
+    struct RelocalizationTestResult
+    {
+        bool  wasSuccessful;
+        int   frameCount;
+        int   relocalizationFrameCount;
+        float ratio;
+    };
+
 public:
     Tester(std::string erlebARDir, std::string configFile, std::string vocFile);
     ~Tester();
+
+    RelocalizationTestResult runRelocalizationTest(std::string videoFile,
+                                                   std::string mapFile,
+                                                   std::string vocFile,
+                                                   CVCalibration &calibration);
 
     void launchTrackingTest(const Location& location, const Area& area, Datas& datas);
 
@@ -45,9 +58,7 @@ private:
     std::string               _erlebARDir;
     std::string               _vocFile;
     std::string               _calibrationsDir;
-
-    std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
-    std::unique_ptr<KPextractor> _kpExtractor       = nullptr;
+    FeatureExtractorFactory   _factory;
 };
 
 #endif

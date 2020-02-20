@@ -608,8 +608,6 @@ GLuint GLSLHessian::buildShaderFromSource(string source, GLenum shaderType)
     Utils::replaceString(completeSrc, "$THRESHOLD_HIGH", highThresholdStr);
     Utils::replaceString(completeSrc, "$THRESHOLD_LOW", lowThresholdStr);
 
-    std::cout << "nb keypoints " << nbKeypointsBigSigmaStr << "  high thrs " << highThresholdStr << "  low thrs " << lowThresholdStr << std::endl;
-
     const char* src = completeSrc.c_str();
 
     glShaderSource(shaderHandle, 1, &src, nullptr);

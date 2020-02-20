@@ -58,36 +58,12 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
     return result;
 }
 
-struct RelocalizationTestResult
-{
-    bool  wasSuccessful;
-    int   frameCount;
-    int   relocalizationFrameCount;
-    float ratio;
-};
 
-struct RelocalizationTestCase
-{
-    std::string videoFileName;
-    std::string calibrationFileName;
-};
 
-struct RelocalizationTestBench
-{
-    std::string location;
-    std::string weatherConditions;
-
-    std::string mapFileName;
-    std::string vocFileName;
-
-    std::vector<RelocalizationTestCase>   testCases;
-    std::vector<RelocalizationTestResult> testResults;
-};
-
-RelocalizationTestResult runRelocalizationTest(std::string videoFile,
-                                               std::string mapFile,
-                                               std::string vocFile,
-                                               CVCalibration &calibration)
+Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string videoFile,
+                                                               std::string mapFile,
+                                                               std::string vocFile,
+                                                               CVCalibration &calibration)
 {
     RelocalizationTestResult result = {};
 
@@ -96,9 +72,8 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
     WAIFrame::mbInitialComputations = true;
 
     WAIOrbVocabulary::initialize(vocFile);
-    ORB_SLAM2::ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
-    ORB_SLAM2::KPextractor*   extractor  = new ORB_SLAM2::SURFextractor(800);
-    WAIKeyFrameDB*            keyFrameDB = new WAIKeyFrameDB(*orbVoc);
+    ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
+    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*orbVoc);
 
     WAIMap* map = new WAIMap(keyFrameDB);
     WAIMapStorage::loadMap(map, nullptr, orbVoc, mapFile, false, true);
@@ -109,6 +84,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
 
     CVSize2i videoSize       = CVCapture::instance()->openFile();
     float    widthOverHeight = (float)videoSize.width / (float)videoSize.height;
+    std::unique_ptr<KPextractor> extractor  = _factory.make(7, {videoSize.width, videoSize.height});
 
     unsigned int lastRelocFrameId         = 0;
     int          frameCount               = 0;
@@ -119,7 +95,7 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
         cv::Mat distortion = calibration.distortion();
         WAIFrame currentFrame = WAIFrame(CVCapture::instance()->lastFrameGray,
                                          0.0f,
-                                         extractor,
+                                         extractor.get(),
                                          intrinsic, 
                                          distortion,
                                          orbVoc,
@@ -127,6 +103,9 @@ RelocalizationTestResult runRelocalizationTest(std::string videoFile,
 
         int inliers;
         LocalMap localMap;
+        localMap.keyFrames.clear();
+        localMap.mapPoints.clear();
+        localMap.refKF = nullptr;
         if (WAISlam::relocalization(currentFrame, map, localMap, inliers))
         {
             relocalizationFrameCount++;
@@ -148,13 +127,13 @@ void printHelp()
 {
     std::stringstream ss;
     ss << "app-Test-WAI for creation of Erleb-AR maps!" << std::endl;
-    ss << "Example1 (win):  app-MapCreator.exe -erlebARDir C:/Erleb-AR -configFile testConfig.json" << std::endl;
-    ss << "Example2 (unix): ./app-MapCreator -erlebARDir C:/Erleb-AR -configFile testConfig.json" << std::endl;
+    ss << "Example1 (win):  app-Test-WAI.exe -erlebARDir C:/Erleb-AR -configFile testConfig.json" << std::endl;
+    ss << "Example2 (unix): ./app-Test-WAI -erlebARDir ~/Erleb-AR -configFile testConfig.json" << std::endl;
     ss << "" << std::endl;
     ss << "Options: " << std::endl;
     ss << "  -h/-help        print this help, e.g. -h" << std::endl;
     ss << "  -erlebARDir     Path to Erleb-AR root directory" << std::endl;
-    ss << "  -configFile     Path and name to MapCreatorConfig.json" << std::endl;
+    ss << "  -configFile     Path and name to TestConfig.json" << std::endl;
     ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
 
     std::cout << ss.str() << std::endl;
@@ -198,7 +177,7 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
             throw std::runtime_error("Tester::loadSites: Could not open configFile: " + configFile);
 
         //helper for areas that have been enabled
-        std::set<Area> enabledAreas;
+        std::set<std::string> enabledAreas;
 
         std::string erlebARDirUnified = Utils::unifySlashes(erlebARDir);
 
@@ -211,14 +190,14 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
             Areas        areas;
             for (auto itAreas = areasNode.begin(); itAreas != areasNode.end(); ++itAreas)
             {
-                std::string area    = (*itAreas)["area"];
-                bool        enabled = false;
+                Area area = (*itAreas)["area"];
+                bool        enabled  = false;
                 (*itAreas)["enabled"] >> enabled;
                 if (enabled)
                 {
-                    WAI_DEBUG("MapCreator::loadSites: enabling %s %s", location.c_str(), area.c_str());
-                    Areas&     areas      = _erlebAR[location];
-                    Datas datas = Datas();
+                    WAI_DEBUG("Tester::loadSites: enabling %s %s", location.c_str(), area.c_str());
+                    Areas& areas = _erlebAR[location];
+                    Datas  datas = Datas();
 
                     //insert empty Videos vector
                     areas.insert(std::pair<Area, Datas>(area, datas));
@@ -231,8 +210,17 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
         cv::FileNode videoAreasNode = fs["mappingVideos"];
         for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
         {
-            Location location = (*itVideoAreas)["location"];
-            Area     area     = (*itVideoAreas)["area"];
+            Location     location  = (*itVideoAreas)["location"];
+            cv::FileNode areasNode = (*itVideoAreas)["area"];
+            Area         area;
+            std::string  map;
+            std::string  mapFile;
+            areasNode["name"] >> area;
+            areasNode["map"] >> map;
+            mapFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "maps/" + map;
+            if (!Utils::fileExists(mapFile))
+                throw std::runtime_error("Tester::loadSites: Map file does not exist: " + mapFile);
+
             if (enabledAreas.find(area) != enabledAreas.end())
             {
                 cv::FileNode videosNode = (*itVideoAreas)["videos"];
@@ -242,6 +230,7 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
                     std::string   name = *itVideos;
                     TestData testData;
                     testData.videoFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
+                    testData.mapFile = mapFile;
 
                     if (!Utils::fileExists(testData.videoFile))
                         throw std::runtime_error("Tester::loadSites: Video file does not exist: " + testData.videoFile);
@@ -273,6 +262,7 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
                             testData.calibration.imageSize().height != height)
                         {
                             testData.calibration.adaptForNewResolution(CVSize(width, height), true);
+
                             //throw std::runtime_error("Resolutions of video and calibration do not fit together. Using: " + calibFile + " and " + name);
                         }
                     }
@@ -289,11 +279,11 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
     }
     catch (std::exception& e)
     {
-        throw std::runtime_error("Exception in MapCreator::loadSites: " + std::string(e.what()));
+        throw std::runtime_error("Exception in Tester::loadSites: " + std::string(e.what()));
     }
     catch (...)
     {
-        throw std::runtime_error("Unknown exception catched in MapCreator::loadSites!");
+        throw std::runtime_error("Unknown exception catched in Tester::loadSites!");
     }
 }
 
@@ -373,11 +363,6 @@ Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFi
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
     loadSites(erlebARDir, configFile);
-
-    //init keypoint extractors
-    //TODO(lulu) create extractor depending on video resolution especially if different for each video!
-    FeatureExtractorFactory factory;
-    _kpExtractor = factory.make(7, {640, 320});
 }
 
 void Tester::launchRelocalizationTest(const Location& location, const Area& area, Datas& datas)
@@ -395,15 +380,12 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
         //select one calibration (we need one to instantiate mode and we need mode to load map)
         for (TestData testData : datas)
         {
-            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.map, _vocFile, testData.calibration);
+            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration);
 
-            printf("%s;%s;%s;%s;%s;%s;%i;%i;%.2f\n",
+            printf("%s;%s;%s;%i;%i;%.2f\n",
                    location.c_str(),
-                   b.weatherConditions.c_str(),
-                   c.videoFileName.c_str(),
-                   c.calibrationFileName.c_str(),
-                   b.mapFileName.c_str(),
-                   b.vocFileName.c_str(),
+                   testData.videoFile.c_str(),
+                   testData.mapFile.c_str(),
                    r.frameCount,
                    r.relocalizationFrameCount,
                    r.ratio);
@@ -411,10 +393,10 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
     }
     else
     {
-        WAI_WARN("MapCreator::createNewWaiMap: No map created for area: %s", area.c_str());
+        WAI_WARN("Tester::launchRelocalizationTest: No relocalization test for area: %s", area.c_str());
     }
 
-    WAI_INFO("MapCreator::createNewWaiMap: Finished map creation for area: %s", area.c_str());
+    WAI_INFO("Tester::launchRelocalizationTest: Finished relocalization test for area: %s", area.c_str());
 }
 
 void Tester::execute()
@@ -432,11 +414,11 @@ void Tester::execute()
     }
     catch (std::exception& e)
     {
-        throw std::runtime_error("Exception in MapCreator::execute: " + std::string(e.what()));
+        throw std::runtime_error("Exception in Tester::execute: " + std::string(e.what()));
     }
     catch (...)
     {
-        throw std::runtime_error("Unknown exception catched in MapCreator::execute!");
+        throw std::runtime_error("Unknown exception catched in Tester::execute!");
     }
 }
 
@@ -452,104 +434,22 @@ int main(int argc, char* argv[])
 
         //initialize logger
         std::string cwd = Utils::getCurrentWorkingDir();
-        Utils::initFileLog(Utils::unifySlashes(config.erlebARDir) + "MapCreator/", true);
-        Utils::log("Main", "MapCreator");
+        Utils::initFileLog(Utils::unifySlashes(config.erlebARDir) + "Tester/", true);
+        Utils::log("Main", "Tester");
 
         //init map creator
-        Tester Tester(config.erlebARDir, config.configFile, config.vocFile);
-        //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
-        //input and output directories have to be defined together with json file which is always scanned during construction
+        DUtils::Random::SeedRandOnce(1337);
+        Tester tester(config.erlebARDir, config.configFile, config.vocFile);
+        tester.execute();
+        
     }
     catch (std::exception& e)
     {
-        Utils::log("Main", "Exception catched during map creation: %s", e.what());
+        Utils::log("Main", "Exception catched during test: %s", e.what());
     }
     catch (...)
     {
-        Utils::log("Main", "Unknown exception during map creation!");
-    }
-
-    DUtils::Random::SeedRandOnce(1337);
-
-    std::vector<RelocalizationTestBench> testBenches;
-    /*
-    addRelocalizationTestCase(southwallBench, "160919-143001_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143003_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143004_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "160919-143001_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench, "200919-154459_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-
-    //testBenches.push_back(southwallBench);
-
-/*
-    RelocalizationTestBench southwallBench2 = createRelocalizationTestBench("southwall",
-                                                                            "shade",
-                                                                            "160919-143001_android-mcrd1-35-ASUS-A002.json",
-                                                                            "voc_southwall_200919_154459_android-mcrd1-35-ASUS-A002_640.bin");
-
-    addRelocalizationTestCase(southwallBench2, "160919-143001_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143003_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143004_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143003_cm-cm-build-c25-TA-1021_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "160919-143004_cm-cm-build-c25-TA-1021_640.mp4");
-    //addRelocalizationTestCase(southwallBench2, "160919-143001_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "200919-154459_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "011019-164748_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "011019-164844_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallBench2, "011019-165120_cm-cm-build-c25-TA-1021_640.mp4");
-
-    addRelocalizationTestCase(southwallBench2, "160919-143001_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143003_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143004_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "160919-143001_test-whe505af1e71561618241641-2786283903-9c5cl-CLT-AL01_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallBench2, "200919-154459_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-
-    //testBenches.push_back(southwallBench2);
-
-    RelocalizationTestBench augstBench = createRelocalizationTestBench("augst",
-                                                                       "sunny",
-                                                                       "map_augst_021019-115200_android-mcrd1-35-ASUS-A002.json",
-                                                                       "ORBvoc.bin");
-
-    addRelocalizationTestCase(augstBench, "021019-115146_cm-cm-build-c25-TA-1021_640.mp4");
-    addRelocalizationTestCase(augstBench, "021019-115233_android-mcrd1-35-ASUS-A002_640.mp4");
-
-    testBenches.push_back(augstBench);
-
-    RelocalizationTestBench southwallMarkerMapBench = createRelocalizationTestBench("southwall",
-                                                                                    "shade",
-                                                                                    "marker_map.json",
-                                                                                    "ORBvoc.bin");
-
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143003_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143004_android-mcrd1-35-ASUS-A002_640.mp4");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_android-mcrd1-35-ASUS-A002_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143001_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-    addRelocalizationTestCase(southwallMarkerMapBench, "160919-143002_cm-cm-build-c25-TA-1021_640.mp4", "camCalib_generic_smartphone.xml");
-
-    testBenches.push_back(southwallMarkerMapBench);
-    */
-
-    for (int benchIndex = 0; benchIndex < testBenches.size(); benchIndex++)
-    {
-        RelocalizationTestBench b = testBenches[benchIndex];
-        runRelocalizationTestBench(b);
+        Utils::log("Main", "Unknown exception during test");
     }
 
     return 0;
