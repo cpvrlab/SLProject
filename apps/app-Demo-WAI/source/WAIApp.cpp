@@ -76,10 +76,10 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     if (_loaded)
         return _sv->index();
 
+    Utils::initFileLog(_dirs.logFileDir, true);
+
     Utils::log("WAInative", "loading");
     _dirs = directories;
-
-    Utils::initFileLog(_dirs.logFileDir, true);
 
     videoDir  = _dirs.writableDir + "erleb-AR/locations/";
     _calibDir = _dirs.writableDir + "calibrations/";
@@ -270,6 +270,7 @@ void WAIApp::close()
     _camera = nullptr;
     if (_mode)
         _currentSlamParams.save(_dirs.writableDir + "SlamParams.json");
+    terminate();
 }
 //-----------------------------------------------------------------------------
 void WAIApp::terminate()
@@ -532,7 +533,7 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
     return iKnowWhereIAm;
 }
 //-----------------------------------------------------------------------------
-bool WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
+int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
 {
     if (!SLApplication::scene)
     {

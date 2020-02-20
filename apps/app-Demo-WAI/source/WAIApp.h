@@ -257,7 +257,7 @@ public:
 
 private:
     bool updateTracking(SENSFramePtr frame);
-    bool initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
+    int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
