@@ -32,14 +32,27 @@ class Tester
         float ratio;
     };
 
+    struct TrackingTestResult
+    {
+        bool  wasSuccessful;
+        int   frameCount;
+        int   trackingFrameCount;
+        float ratio;
+    };
+
 public:
-    Tester(std::string erlebARDir, std::string configFile, std::string vocFile);
+    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags);
     ~Tester();
 
     RelocalizationTestResult runRelocalizationTest(std::string videoFile,
                                                    std::string mapFile,
                                                    std::string vocFile,
                                                    CVCalibration &calibration);
+
+    TrackingTestResult runTrackingTest(std::string videoFile,
+                                       std::string mapFile,
+                                       std::string vocFile,
+                                       CVCalibration &calibration);
 
     void launchTrackingTest(const Location& location, const Area& area, Datas& datas);
 
@@ -57,6 +70,7 @@ private:
     std::map<Location, Areas> _erlebAR;
     std::string               _erlebARDir;
     std::string               _vocFile;
+    int                       _testFlags;
     std::string               _calibrationsDir;
     FeatureExtractorFactory   _factory;
 };

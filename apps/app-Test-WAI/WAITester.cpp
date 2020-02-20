@@ -20,11 +20,15 @@
 #include <GLFW/glfw3.h>
 #include <WAITester.h>
 
+#define TRACKING_FLAG 1
+#define RELOC_FLAG 2
+
 struct Config
 {
     std::string erlebARDir;
     std::string configFile;
     std::string vocFile;
+    int         testFlags;
 };
 
 struct SlamVideoInfos
@@ -57,8 +61,6 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
 
     return result;
 }
-
-
 
 Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string videoFile,
                                                                std::string mapFile,
@@ -122,11 +124,104 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string video
     return result;
 }
 
+Tester::TrackingTestResult Tester::runTrackingTest(std::string videoFile,
+                                                   std::string mapFile,
+                                                   std::string vocFile,
+                                                   CVCalibration &calibration)
+{
+    TrackingTestResult result = {};
+
+    WAIFrame::mbInitialComputations = true;
+
+    WAIOrbVocabulary::initialize(vocFile);
+    ORBVocabulary* voc     = WAIOrbVocabulary::get();
+    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*voc);
+
+    WAIMap* map = new WAIMap(keyFrameDB);
+    WAIMapStorage::loadMap(map, nullptr, voc, mapFile, false, true);
+
+    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1, voc, 0.95);
+    LoopClosing*  loopClosing  = new ORB_SLAM2::LoopClosing(map, voc, false, false);
+
+    localMapping->SetLoopCloser(loopClosing);
+    loopClosing->SetLocalMapper(localMapping);
+
+    CVCapture::instance()->videoType(VT_FILE);
+    CVCapture::instance()->videoFilename = videoFile;
+    CVCapture::instance()->videoLoops    = false;
+
+    CVSize2i videoSize       = CVCapture::instance()->openFile();
+    float    widthOverHeight = (float)videoSize.width / (float)videoSize.height;
+    std::unique_ptr<KPextractor> extractor = _factory.make(7, {videoSize.width, videoSize.height});
+
+    cv::Mat extrinsic;
+    cv::Mat intrinsic  = calibration.cameraMat();
+    cv::Mat distortion = calibration.distortion();
+    cv::Mat velocity;
+    unsigned long lastKeyFrameFrameId = 0;
+    unsigned int  lastRelocFrameId    = 0;
+    int           inliers             = 0;
+    int           frameCount          = 0;
+    int           trackingFrameCount  = 0;
+
+    bool isTracking = false;
+    bool relocalizeOnce = false;
+    LocalMap localMap;
+    localMap.keyFrames.clear();
+    localMap.mapPoints.clear();
+    localMap.refKF = nullptr;
+
+    WAIFrame lastFrame = WAIFrame();
+
+    while (CVCapture::instance()->grabAndAdjustForSL(widthOverHeight))
+    {
+        WAIFrame frame = WAIFrame(CVCapture::instance()->lastFrameGray,
+                                  0.0f,
+                                  extractor.get(),
+                                  intrinsic, 
+                                  distortion,
+                                  voc,
+                                  false);
+        if (isTracking)
+        {
+            if (WAISlamTools::tracking(map, localMap, frame, lastFrame, lastRelocFrameId, velocity, inliers))
+            {
+                trackingFrameCount++;
+                WAISlamTools::motionModel(frame, lastFrame, velocity, extrinsic);
+                WAISlamTools::serialMapping(map, localMap, localMapping, loopClosing, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId);
+            }
+            else
+                isTracking == false;
+        }
+        else
+        {
+            int inliers;
+            if (WAISlam::relocalization(frame, map, localMap, inliers))
+            {
+                isTracking = true;
+                relocalizeOnce = true;
+            }
+        }
+
+        lastFrame = frame;
+        frameCount++;
+    }
+
+    result.frameCount         = frameCount;
+    result.trackingFrameCount = trackingFrameCount;
+    result.ratio              = ((float)trackingFrameCount / (float)frameCount);
+    result.wasSuccessful      = relocalizeOnce;
+
+    free(localMapping);
+    free(loopClosing);
+
+    return result;
+}
 
 void printHelp()
 {
     std::stringstream ss;
-    ss << "app-Test-WAI for creation of Erleb-AR maps!" << std::endl;
+    ss << "app-Test-WAI for testing relocalization or tracking!" << std::endl;
     ss << "Example1 (win):  app-Test-WAI.exe -erlebARDir C:/Erleb-AR -configFile testConfig.json" << std::endl;
     ss << "Example2 (unix): ./app-Test-WAI -erlebARDir ~/Erleb-AR -configFile testConfig.json" << std::endl;
     ss << "" << std::endl;
@@ -135,12 +230,16 @@ void printHelp()
     ss << "  -erlebARDir     Path to Erleb-AR root directory" << std::endl;
     ss << "  -configFile     Path and name to TestConfig.json" << std::endl;
     ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
+    ss << "  -t              test tracking only" << std::endl;
+    ss << "  -r              test relocalization only" << std::endl;
+    ss << "  -rt             test tracking and relocalization" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
 
 void readArgs(int argc, char* argv[], Config& config)
 {
+    config.testFlags = TRACKING_FLAG;
     for (int i = 1; i < argc; ++i)
     {
         if (!strcmp(argv[i], "-erlebARDir"))
@@ -154,6 +253,14 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-vocFile"))
         {
             config.vocFile = argv[++i];
+        }
+        else if (!strcmp(argv[i], "-rt"))
+        {
+            config.testFlags = TRACKING_FLAG | RELOC_FLAG;
+        }
+        else if (!strcmp(argv[i], "-r"))
+        {
+            config.testFlags = RELOC_FLAG;
         }
         else
         {
@@ -354,11 +461,12 @@ Tester::~Tester()
 {
 }
 
-Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFile)
+Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
     _vocFile         = vocFile;
+    _testFlags       = testFlags;
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
@@ -399,6 +507,49 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
     WAI_INFO("Tester::launchRelocalizationTest: Finished relocalization test for area: %s", area.c_str());
 }
 
+void Tester::launchTrackingTest(const Location& location, const Area& area, Datas& datas)
+{
+    WAI_INFO("Tester::lauchTest: Starting relocalization test for area: %s", area.c_str());
+    //the lastly saved map file (only valid if initialized is true)
+    bool        initialized = false;
+    std::string currentMapFileName;
+
+    const float cullRedundantPerc = 0.99f;
+
+    if (datas.size())
+    {
+        const float cullRedundantPerc = 0.95f;
+        //select one calibration (we need one to instantiate mode and we need mode to load map)
+        for (TestData testData : datas)
+        {
+            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration);
+
+            if (r.wasSuccessful)
+            {
+                printf("%s;%s;%s;%i;%i;%.2f\n",
+                       location.c_str(),
+                       testData.videoFile.c_str(),
+                       testData.mapFile.c_str(),
+                       r.frameCount,
+                       r.trackingFrameCount,
+                       r.ratio);
+            }
+            else
+            {
+                printf("Never able to start traking\n");
+            }
+        }
+    }
+    else
+    {
+        WAI_WARN("Tester::launchTrackingTest: No tracking test for area: %s", area.c_str());
+    }
+
+    WAI_INFO("Tester::launchTrackingTest: Finished tracking test for area: %s", area.c_str());
+}
+
+
+
 void Tester::execute()
 {
     try
@@ -408,7 +559,10 @@ void Tester::execute()
             Areas& areas = itLocations->second;
             for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
             {
-                launchRelocalizationTest(itLocations->first, itAreas->first, itAreas->second);
+                if (_testFlags & RELOC_FLAG)
+                    launchRelocalizationTest(itLocations->first, itAreas->first, itAreas->second);
+                if (_testFlags & TRACKING_FLAG)
+                    launchTrackingTest(itLocations->first, itAreas->first, itAreas->second);
             }
         }
     }
@@ -439,7 +593,7 @@ int main(int argc, char* argv[])
 
         //init map creator
         DUtils::Random::SeedRandOnce(1337);
-        Tester tester(config.erlebARDir, config.configFile, config.vocFile);
+        Tester tester(config.erlebARDir, config.configFile, config.vocFile, config.testFlags);
         tester.execute();
         
     }
