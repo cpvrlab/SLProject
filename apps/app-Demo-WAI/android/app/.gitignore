@@ -1,4 +1,2 @@
 /build
-/release
-CMakeCache.txt
-CMakeFiles
+src/main/assets

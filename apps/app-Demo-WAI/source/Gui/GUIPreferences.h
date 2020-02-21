@@ -35,7 +35,6 @@ public:
     bool showInfosFrameworks  = false; //!< Flag if frameworks info should be shown
     bool showInfosTracking    = false; //!< Flag if frameworks info should be shown
     bool showUIPrefs          = false; //!< Flag if UI preferences
-    bool showAbout            = true;  //!< Flag if about info should be shown
 
     //dialogue AppDemoGuiInfosTracking
     int  minNumOfCovisibles    = 50;

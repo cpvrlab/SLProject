@@ -11,6 +11,7 @@
 #ifndef SLINPUTMANAGER_H
 #define SLINPUTMANAGER_H
 
+#include <mutex>
 #include <SLInputDevice.h>
 #include <SLInputEvent.h>
 
@@ -38,6 +39,7 @@ public:
     SLVInputDevice& devices() { return _devices; }
 
 private:
+    std::mutex     _queueMutex;
     SLQInputEvent  _systemEvents; //!< queue for known system events
     SLVInputDevice _devices;      //!< list of activated SLInputDevices
 

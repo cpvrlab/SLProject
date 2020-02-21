@@ -116,8 +116,6 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
                 fs["showInfosTracking"] >> showInfosTracking;
             if (!fs["showUIPrefs"].empty())
                 fs["showUIPrefs"] >> showUIPrefs;
-            if (!fs["showAbout"].empty())
-                fs["showAbout"] >> showAbout;
 
             //dialogue AppDemoGuiInfosTracking
             if (!fs["minNumOfCovisibles"].empty())
@@ -226,7 +224,6 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     fs << "showInfosFrameworks" << showInfosFrameworks;
     fs << "showInfosTracking" << showInfosTracking;
     fs << "showUIPrefs" << showUIPrefs;
-    fs << "showAbout" << showAbout;
 
     //dialogue AppDemoGuiInfosTracking
     fs << "minNumOfCovisibles" << minNumOfCovisibles;

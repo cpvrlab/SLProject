@@ -1,0 +1,36 @@
+{
+	"locationsEnabling": [
+		{
+			"location": "augst",
+			"areas": [
+				{ "area": "templeHillTheaterBottom", "enabled": true },
+				{ "area": "templeHill-marker", "enabled": false}
+			]
+		}
+	],
+	"mappingVideos": [
+		{
+			"location": "augst",
+			"area": { "name":"templeHillTheaterBottom", "map": "DEVELOPMENT-map_20200121-111048_augst_templeHillTheaterBottom_GLSL.json" },
+			"videos": [
+				"20191009-102457_rainy_NOKIA6-1_relocalization_640x360.mp4",
+				"20191009-102554_rainy_ASUSAR-1_relocalization_640x360.mp4",
+				"20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
+				"20200122-094650_cloudy_PIXEL3-1_relocalization_640x360.mp4",
+				"20200122-094711_cloudy_PIXEL3-2_relocalization_640x360.mp4",
+				"20200122-094750_cloudy_ASUSAR-1_relocalization_640x360.mp4",
+				"20200122-094822_cloudy_PIXEL3-1_relocalization_640x360.mp4",
+				"20200122-094843_cloudy_NOKIA6-1_relocalization_640x360.mp4",
+				"20200122-094950_cloudy_PIXEL3-1_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "augst",
+			"area": { "name":"templeHill-marker", "map":"t-marker-map_20200121-150644_augst_templeHill-marker_GLSL.json" },
+			"videos": [
+				"cut-20191009-103333_rainy_ASUSAR-1_markerMap_640x360.mp4"
+			]
+		}
+	]
+}
+

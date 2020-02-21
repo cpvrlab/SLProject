@@ -380,9 +380,7 @@ static void onKeyPress(GLFWwindow* window,
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     }
-    else
-      // Toggle fullscreen mode
-      if (key == K_F9 && action == GLFW_PRESS)
+    else if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
     {
         fullscreen = !fullscreen;
 
@@ -516,11 +514,12 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>(SENSCamera::Facing::BACK);
+        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
         SENSCamera::Config             config;
         config.targetWidth   = 640;
         config.targetHeight  = 480;
         config.convertToGray = true;
+
         camera->start(config);
 
         AppDirectories dirs;
@@ -532,7 +531,7 @@ int main(int argc, char* argv[])
 
         svIndex = waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
         waiApp.setCamera(camera.get());
-        waiApp.loadSlam();
+        //waiApp.loadSlam();
         // Event loop
         while (!appShouldClose)
         {

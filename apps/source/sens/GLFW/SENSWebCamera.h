@@ -7,16 +7,17 @@
 class SENSWebCamera : public SENSCamera
 {
 public:
-    SENSWebCamera(SENSCamera::Facing facing);
     ~SENSWebCamera();
 
+    void         init(SENSCamera::Facing facing) override;
     void         start(const Config config) override;
     void         start(int width, int height) override;
-    void         stop(){};
+    void         stop() { _started = false; }
     SENSFramePtr getLatestFrame() override;
 
 private:
-    cv::VideoCapture _videoCapture;
+    cv::VideoCapture      _videoCapture;
+    std::vector<cv::Size> _streamSizes;
 };
 
 #endif //SENS_WEBCAMERA_H

@@ -52,6 +52,7 @@ to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
 void SLInputManager::queueEvent(const SLInputEvent* e)
 {
+    std::lock_guard<std::mutex> lock(_queueMutex);
     _systemEvents.push(e);
 }
 //-----------------------------------------------------------------------------
@@ -66,8 +67,12 @@ SLbool SLInputManager::processQueuedEvents(SLScene* s)
 
     while (!q.empty())
     {
-        const SLInputEvent* e = q.front();
-        q.pop();
+        const SLInputEvent* e;
+        {
+            std::lock_guard<std::mutex> lock(_queueMutex);
+            e = q.front();
+            q.pop();
+        }
 
         SLSceneView* sv = s->sceneView((SLuint)e->svIndex);
 
