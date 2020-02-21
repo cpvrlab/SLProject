@@ -41,7 +41,7 @@ class Tester
     };
 
 public:
-    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags);
+    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate);
     ~Tester();
 
     RelocalizationTestResult runRelocalizationTest(std::string videoFile,
@@ -73,6 +73,7 @@ private:
     int                       _testFlags;
     std::string               _calibrationsDir;
     FeatureExtractorFactory   _factory;
+    int                       _framerate; // (#frames/s)
 };
 
 #endif

@@ -29,6 +29,7 @@ struct Config
     std::string configFile;
     std::string vocFile;
     int         testFlags;
+    int         frameRate;
 };
 
 struct SlamVideoInfos
@@ -173,6 +174,10 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string videoFile,
 
     WAIFrame lastFrame = WAIFrame();
 
+ //TODO(LULUC) Think about a realistic model to skip frames
+    int videoFPS = 30;
+    int wantedFPS = 25;
+
     while (CVCapture::instance()->grabAndAdjustForSL(widthOverHeight))
     {
         WAIFrame frame = WAIFrame(CVCapture::instance()->lastFrameGray,
@@ -230,6 +235,7 @@ void printHelp()
     ss << "  -erlebARDir     Path to Erleb-AR root directory" << std::endl;
     ss << "  -configFile     Path and name to TestConfig.json" << std::endl;
     ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
+    ss << "  -f [fps]        Specify number of frames per seconds" << std::endl;
     ss << "  -t              test tracking only" << std::endl;
     ss << "  -r              test relocalization only" << std::endl;
     ss << "  -rt             test tracking and relocalization" << std::endl;
@@ -240,6 +246,7 @@ void printHelp()
 void readArgs(int argc, char* argv[], Config& config)
 {
     config.testFlags = TRACKING_FLAG;
+    config.frameRate = 0;
     for (int i = 1; i < argc; ++i)
     {
         if (!strcmp(argv[i], "-erlebARDir"))
@@ -261,6 +268,11 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-r"))
         {
             config.testFlags = RELOC_FLAG;
+        }
+        else if (!strcmp(argv[i], "-f") && i+1 < argc)
+        {
+            config.frameRate = atoi(argv[i+1]);
+            i++;
         }
         else
         {
@@ -461,12 +473,13 @@ Tester::~Tester()
 {
 }
 
-Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags)
+Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
     _vocFile         = vocFile;
     _testFlags       = testFlags;
+    _framerate       = frameRate;
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
@@ -591,9 +604,9 @@ int main(int argc, char* argv[])
         Utils::initFileLog(Utils::unifySlashes(config.erlebARDir) + "Tester/", true);
         Utils::log("Main", "Tester");
 
-        //init map creator
+        //init wai tester
         DUtils::Random::SeedRandOnce(1337);
-        Tester tester(config.erlebARDir, config.configFile, config.vocFile, config.testFlags);
+        Tester tester(config.erlebARDir, config.configFile, config.vocFile, config.testFlags, config.frameRate);
         tester.execute();
         
     }
