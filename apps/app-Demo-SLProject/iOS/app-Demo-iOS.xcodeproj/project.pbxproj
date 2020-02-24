@@ -622,6 +622,43 @@
 		41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7B18D431B50045FD2D /* Icon_72.png */; };
 		41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D61F096ABB00CA36C9 /* Decompose.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EDF72402FBF00063FDA1 /* FileLog.cpp */; };
+		41E6EDFB2402FECB0063FDA1 /* CVImageGeoTiff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EDFA2402FECB0063FDA1 /* CVImageGeoTiff.cpp */; };
+		41E6EE02240304910063FDA1 /* CVCalibrationEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE00240304910063FDA1 /* CVCalibrationEstimator.cpp */; };
+		41E6EE03240304910063FDA1 /* CVCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE01240304910063FDA1 /* CVCamera.cpp */; };
+		41E6EE07240305EF0063FDA1 /* SLGLConetracerTex3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE04240305EE0063FDA1 /* SLGLConetracerTex3D.cpp */; };
+		41E6EE08240305EF0063FDA1 /* SLGLFbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE05240305EE0063FDA1 /* SLGLFbo.cpp */; };
+		41E6EE09240305EF0063FDA1 /* SLGLConetracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE06240305EE0063FDA1 /* SLGLConetracer.cpp */; };
+		41E6EE15240306E40063FDA1 /* FtpUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE10240306E40063FDA1 /* FtpUtils.cpp */; };
+		41E6EE16240306E40063FDA1 /* AverageTiming.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE14240306E40063FDA1 /* AverageTiming.cpp */; };
+		41E6EE35240307840063FDA1 /* Tiles05_NRM_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE19240307840063FDA1 /* Tiles05_NRM_2K.jpg */; };
+		41E6EE36240307840063FDA1 /* OldRooftiles_1K_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1A240307840063FDA1 /* OldRooftiles_1K_normal.png */; };
+		41E6EE37240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1B240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg */; };
+		41E6EE38240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1C240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif */; };
+		41E6EE39240307840063FDA1 /* CreamPietraSerena_NORM.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1D240307840063FDA1 /* CreamPietraSerena_NORM.jpg */; };
+		41E6EE3A240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1E240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png */; };
+		41E6EE3B240307840063FDA1 /* MediavalStoneWall2K_diff.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1F240307840063FDA1 /* MediavalStoneWall2K_diff.jpg */; };
+		41E6EE3C240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE20240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg */; };
+		41E6EE3D240307840063FDA1 /* Rundbogen_norm.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE21240307840063FDA1 /* Rundbogen_norm.png */; };
+		41E6EE3E240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE22240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg */; };
+		41E6EE3F240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE23240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png */; };
+		41E6EE40240307840063FDA1 /* Torch_Diff.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE24240307840063FDA1 /* Torch_Diff.png */; };
+		41E6EE41240307840063FDA1 /* PineRawWood_DIFF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE25240307840063FDA1 /* PineRawWood_DIFF.jpg */; };
+		41E6EE42240307840063FDA1 /* GroundClay002_DIFF_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE26240307840063FDA1 /* GroundClay002_DIFF_2K.jpg */; };
+		41E6EE43240307840063FDA1 /* OldRooftiles_1K_albedo.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE27240307840063FDA1 /* OldRooftiles_1K_albedo.png */; };
+		41E6EE44240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE28240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg */; };
+		41E6EE45240307840063FDA1 /* Rundbogen_diff.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE29240307840063FDA1 /* Rundbogen_diff.jpg */; };
+		41E6EE46240307840063FDA1 /* MediavalStoneWall2K_norm.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2A240307840063FDA1 /* MediavalStoneWall2K_norm.jpg */; };
+		41E6EE47240307840063FDA1 /* CreamPietraSerena_DIFF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2B240307840063FDA1 /* CreamPietraSerena_DIFF.jpg */; };
+		41E6EE48240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2C240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg */; };
+		41E6EE49240307840063FDA1 /* Torch_Norm.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2D240307840063FDA1 /* Torch_Norm.png */; };
+		41E6EE4A240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2E240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png */; };
+		41E6EE4B240307840063FDA1 /* Tempel-Theater-02.gltf in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2F240307840063FDA1 /* Tempel-Theater-02.gltf */; };
+		41E6EE4C240307840063FDA1 /* PineRawWood_NORM.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE30240307840063FDA1 /* PineRawWood_NORM.jpg */; };
+		41E6EE4D240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE31240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json */; };
+		41E6EE4E240307840063FDA1 /* Torch_Metal.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE32240307840063FDA1 /* Torch_Metal.png */; };
+		41E6EE4F240307840063FDA1 /* Tempel-Theater-02.bin in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE33240307840063FDA1 /* Tempel-Theater-02.bin */; };
+		41E6EE50240307840063FDA1 /* Tiles05_Strong_NRM_2K.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE34240307840063FDA1 /* Tiles05_Strong_NRM_2K.png */; };
 		41E9843A1E3BABB1003D5CCF /* CVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* CVImage.cpp */; };
 		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
 		41EAAE0B2067BB3C00F7E9B9 /* CVTrackedFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EAAE0A2067BB3C00F7E9B9 /* CVTrackedFaces.cpp */; };
@@ -1553,6 +1590,57 @@
 		41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EulerAngles.cpp; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.cpp"; sourceTree = SOURCE_ROOT; };
 		41CF01D91F096ABB00CA36C9 /* EulerAngles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EulerAngles.h; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.h"; sourceTree = SOURCE_ROOT; };
 		41CF01DA1F096ABB00CA36C9 /* TypeDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TypeDefs.h; path = "../../../externals/lib-SLExternal/Shoemake/TypeDefs.h"; sourceTree = SOURCE_ROOT; };
+		41E6EDF72402FBF00063FDA1 /* FileLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileLog.cpp; path = "../../../externals/utils/lib-Utils/source/FileLog.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EDF82402FBF00063FDA1 /* FileLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileLog.h; path = "../../../externals/utils/lib-Utils/source/FileLog.h"; sourceTree = SOURCE_ROOT; };
+		41E6EDFA2402FECB0063FDA1 /* CVImageGeoTiff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVImageGeoTiff.cpp; path = "../../../lib-SLProject/source/CV/CVImageGeoTiff.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EDFC2402FEDE0063FDA1 /* CVImageGeoTiff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVImageGeoTiff.h; path = "../../../lib-SLProject/include/CV/CVImageGeoTiff.h"; sourceTree = SOURCE_ROOT; };
+		41E6EDFD2403046F0063FDA1 /* CVTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTypes.h; path = "../../../lib-SLProject/include/CV/CVTypes.h"; sourceTree = SOURCE_ROOT; };
+		41E6EDFE2403046F0063FDA1 /* CVCalibrationEstimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVCalibrationEstimator.h; path = "../../../lib-SLProject/include/CV/CVCalibrationEstimator.h"; sourceTree = SOURCE_ROOT; };
+		41E6EDFF2403046F0063FDA1 /* CVCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVCamera.h; path = "../../../lib-SLProject/include/CV/CVCamera.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE00240304910063FDA1 /* CVCalibrationEstimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVCalibrationEstimator.cpp; path = "../../../lib-SLProject/source/CV/CVCalibrationEstimator.cpp"; sourceTree = "<group>"; };
+		41E6EE01240304910063FDA1 /* CVCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVCamera.cpp; path = "../../../lib-SLProject/source/CV/CVCamera.cpp"; sourceTree = "<group>"; };
+		41E6EE04240305EE0063FDA1 /* SLGLConetracerTex3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLConetracerTex3D.cpp; path = "../../../lib-SLProject/source/GL/SLGLConetracerTex3D.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EE05240305EE0063FDA1 /* SLGLFbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLFbo.cpp; path = "../../../lib-SLProject/source/GL/SLGLFbo.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EE06240305EE0063FDA1 /* SLGLConetracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLConetracer.cpp; path = "../../../lib-SLProject/source/GL/SLGLConetracer.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EE0A240306040063FDA1 /* SLGLFbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLFbo.h; path = "../../../lib-SLProject/include/GL/SLGLFbo.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE0B240306040063FDA1 /* SLGLConetracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLConetracer.h; path = "../../../lib-SLProject/include/GL/SLGLConetracer.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE0C240306050063FDA1 /* SLGLConetracerTex3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLConetracerTex3D.h; path = "../../../lib-SLProject/include/GL/SLGLConetracerTex3D.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE0D240306050063FDA1 /* SLGLProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLProgram.h; path = "../../../lib-SLProject/include/GL/SLGLProgram.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE0E240306050063FDA1 /* SLGLGenericProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLGenericProgram.h; path = "../../../lib-SLProject/include/GL/SLGLGenericProgram.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE0F240306050063FDA1 /* SLGLUniform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLUniform.h; path = "../../../lib-SLProject/include/GL/SLGLUniform.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE10240306E40063FDA1 /* FtpUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FtpUtils.cpp; path = "../../../externals/utils/lib-Utils/source/FtpUtils.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EE11240306E40063FDA1 /* FtpUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FtpUtils.h; path = "../../../externals/utils/lib-Utils/source/FtpUtils.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE12240306E40063FDA1 /* Averaged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Averaged.h; path = "../../../externals/utils/lib-Utils/source/Averaged.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE13240306E40063FDA1 /* AverageTiming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AverageTiming.h; path = "../../../externals/utils/lib-Utils/source/AverageTiming.h"; sourceTree = SOURCE_ROOT; };
+		41E6EE14240306E40063FDA1 /* AverageTiming.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AverageTiming.cpp; path = "../../../externals/utils/lib-Utils/source/AverageTiming.cpp"; sourceTree = SOURCE_ROOT; };
+		41E6EE19240307840063FDA1 /* Tiles05_NRM_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_NRM_2K.jpg; sourceTree = "<group>"; };
+		41E6EE1A240307840063FDA1 /* OldRooftiles_1K_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OldRooftiles_1K_normal.png; sourceTree = "<group>"; };
+		41E6EE1B240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_COL_VAR1_2K.jpg; sourceTree = "<group>"; };
+		41E6EE1C240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "DTM-Theater-Tempel-WGS84.tif"; sourceTree = "<group>"; };
+		41E6EE1D240307840063FDA1 /* CreamPietraSerena_NORM.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CreamPietraSerena_NORM.jpg; sourceTree = "<group>"; };
+		41E6EE1E240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Tiles05_NRM_VAR3_2K.png; sourceTree = "<group>"; };
+		41E6EE1F240307840063FDA1 /* MediavalStoneWall2K_diff.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MediavalStoneWall2K_diff.jpg; sourceTree = "<group>"; };
+		41E6EE20240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_COL_VAR3_2K.jpg; sourceTree = "<group>"; };
+		41E6EE21240307840063FDA1 /* Rundbogen_norm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Rundbogen_norm.png; sourceTree = "<group>"; };
+		41E6EE22240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sandstone_blocks_05_diff_2k.jpg; sourceTree = "<group>"; };
+		41E6EE23240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pavement_SlateSquare2_2K_albedo.png; sourceTree = "<group>"; };
+		41E6EE24240307840063FDA1 /* Torch_Diff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Torch_Diff.png; sourceTree = "<group>"; };
+		41E6EE25240307840063FDA1 /* PineRawWood_DIFF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = PineRawWood_DIFF.jpg; sourceTree = "<group>"; };
+		41E6EE26240307840063FDA1 /* GroundClay002_DIFF_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GroundClay002_DIFF_2K.jpg; sourceTree = "<group>"; };
+		41E6EE27240307840063FDA1 /* OldRooftiles_1K_albedo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OldRooftiles_1K_albedo.png; sourceTree = "<group>"; };
+		41E6EE28240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_COL_VAR2_2K.jpg; sourceTree = "<group>"; };
+		41E6EE29240307840063FDA1 /* Rundbogen_diff.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Rundbogen_diff.jpg; sourceTree = "<group>"; };
+		41E6EE2A240307840063FDA1 /* MediavalStoneWall2K_norm.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MediavalStoneWall2K_norm.jpg; sourceTree = "<group>"; };
+		41E6EE2B240307840063FDA1 /* CreamPietraSerena_DIFF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CreamPietraSerena_DIFF.jpg; sourceTree = "<group>"; };
+		41E6EE2C240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sandstone_blocks_05_nor_2k.jpg; sourceTree = "<group>"; };
+		41E6EE2D240307840063FDA1 /* Torch_Norm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Torch_Norm.png; sourceTree = "<group>"; };
+		41E6EE2E240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pavement_SlateSquare2_2K_normal.png; sourceTree = "<group>"; };
+		41E6EE2F240307840063FDA1 /* Tempel-Theater-02.gltf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Tempel-Theater-02.gltf"; sourceTree = "<group>"; };
+		41E6EE30240307840063FDA1 /* PineRawWood_NORM.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = PineRawWood_NORM.jpg; sourceTree = "<group>"; };
+		41E6EE31240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "DTM-Theater-Tempel-WGS84.json"; sourceTree = "<group>"; };
+		41E6EE32240307840063FDA1 /* Torch_Metal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Torch_Metal.png; sourceTree = "<group>"; };
+		41E6EE33240307840063FDA1 /* Tempel-Theater-02.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "Tempel-Theater-02.bin"; sourceTree = "<group>"; };
+		41E6EE34240307840063FDA1 /* Tiles05_Strong_NRM_2K.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Tiles05_Strong_NRM_2K.png; sourceTree = "<group>"; };
 		41E984381E3BAB7D003D5CCF /* CVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVImage.h; path = "../../../lib-SLProject/include/CV/CVImage.h"; sourceTree = SOURCE_ROOT; };
 		41E984391E3BABB1003D5CCF /* CVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVImage.cpp; path = "../../../lib-SLProject/source/CV/CVImage.cpp"; sourceTree = SOURCE_ROOT; };
 		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../../../data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
@@ -1653,15 +1741,20 @@
 		4143336B1DE03D130027E1C3 /* CV */ = {
 			isa = PBXGroup;
 			children = (
-				4124202A23102B7F0091BDE1 /* CVTypedefs.h */,
 				414333751DE03D590027E1C3 /* CVCalibration.cpp */,
 				4143337D1DE03DAD0027E1C3 /* CVCalibration.h */,
+				41E6EE00240304910063FDA1 /* CVCalibrationEstimator.cpp */,
+				41E6EDFE2403046F0063FDA1 /* CVCalibrationEstimator.h */,
+				41E6EE01240304910063FDA1 /* CVCamera.cpp */,
+				41E6EDFF2403046F0063FDA1 /* CVCamera.h */,
 				414333761DE03D590027E1C3 /* CVCapture.cpp */,
 				4143337E1DE03DAD0027E1C3 /* CVCapture.h */,
 				414AC5371F52A8070003867A /* CVFeatureManager.cpp */,
 				414AC5401F52A8430003867A /* CVFeatureManager.h */,
 				41E984391E3BABB1003D5CCF /* CVImage.cpp */,
 				41E984381E3BAB7D003D5CCF /* CVImage.h */,
+				41E6EDFA2402FECB0063FDA1 /* CVImageGeoTiff.cpp */,
+				41E6EDFC2402FEDE0063FDA1 /* CVImageGeoTiff.h */,
 				414AC5381F52A8070003867A /* CVRaulMurExtNode.cpp */,
 				414AC5411F52A8430003867A /* CVRaulMurExtNode.h */,
 				414AC5391F52A8070003867A /* CVRaulMurOrb.cpp */,
@@ -1676,6 +1769,8 @@
 				41EAAE092067BB2800F7E9B9 /* CVTrackedFaces.h */,
 				414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */,
 				414AC5431F52A8430003867A /* CVTrackedFeatures.h */,
+				4124202A23102B7F0091BDE1 /* CVTypedefs.h */,
+				41E6EDFD2403046F0063FDA1 /* CVTypes.h */,
 			);
 			name = CV;
 			sourceTree = SOURCE_ROOT;
@@ -1683,27 +1778,36 @@
 		414ABBEC148A629B0061231A /* GL */ = {
 			isa = PBXGroup;
 			children = (
-				41C48E8E1F0124AE0059B48C /* SLGLImGui.h */,
-				41C48E8A1F0124750059B48C /* SLGLImGui.cpp */,
-				41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */,
+				41E6EE06240305EE0063FDA1 /* SLGLConetracer.cpp */,
+				41E6EE0B240306040063FDA1 /* SLGLConetracer.h */,
+				41E6EE04240305EE0063FDA1 /* SLGLConetracerTex3D.cpp */,
+				41E6EE0C240306050063FDA1 /* SLGLConetracerTex3D.h */,
 				41B86C5D1C4FE23A00BB409D /* SLGLEnums.h */,
-				41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */,
-				41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */,
-				41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */,
-				4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */,
-				4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */,
-				41A032D319F7C3BF00F9DB43 /* SLGLState.h */,
-				41FC947819F7D6410026919B /* SLGLState.cpp */,
-				41A354E71A7E628300791841 /* SLGLProgram.cpp */,
+				41E6EE05240305EE0063FDA1 /* SLGLFbo.cpp */,
+				41E6EE0A240306040063FDA1 /* SLGLFbo.h */,
+				41E6EE0E240306050063FDA1 /* SLGLGenericProgram.h */,
+				41C48E8A1F0124750059B48C /* SLGLImGui.cpp */,
+				41C48E8E1F0124AE0059B48C /* SLGLImGui.h */,
 				41FC947419F7D6410026919B /* SLGLOculus.cpp */,
-				41FC947519F7D6410026919B /* SLGLOculusFB.cpp */,
-				41FC947619F7D6410026919B /* SLGLShader.cpp */,
-				41FC947919F7D6410026919B /* SLGLTexture.cpp */,
-				41A032D419F7C3BF00F9DB43 /* SLGLTexture.h */,
 				41A032CC19F7C3BF00F9DB43 /* SLGLOculus.h */,
+				41FC947519F7D6410026919B /* SLGLOculusFB.cpp */,
 				41A032CD19F7C3BF00F9DB43 /* SLGLOculusFB.h */,
 				41A032CE19F7C3BF00F9DB43 /* SLGLOVRWorkaround.h */,
+				41A354E71A7E628300791841 /* SLGLProgram.cpp */,
+				41E6EE0D240306050063FDA1 /* SLGLProgram.h */,
+				41FC947619F7D6410026919B /* SLGLShader.cpp */,
 				41A032CF19F7C3BF00F9DB43 /* SLGLShader.h */,
+				41FC947819F7D6410026919B /* SLGLState.cpp */,
+				41A032D319F7C3BF00F9DB43 /* SLGLState.h */,
+				41FC947919F7D6410026919B /* SLGLTexture.cpp */,
+				41A032D419F7C3BF00F9DB43 /* SLGLTexture.h */,
+				41E6EE0F240306050063FDA1 /* SLGLUniform.h */,
+				4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */,
+				4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */,
+				41EBB5E21C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp */,
+				41EBB5E01C44D96900C9BAA5 /* SLGLVertexArrayExt.h */,
+				41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */,
+				41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */,
 			);
 			name = GL;
 			sourceTree = "<group>";
@@ -1847,6 +1951,7 @@
 		417E0E44148A6EBC0015B5B0 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				41E6EE17240307840063FDA1 /* GLTF */,
 				41901CFB1959C5BB006795A8 /* 3DS */,
 				41901CF91959C5AC006795A8 /* DAE */,
 				41901CF71959C58D006795A8 /* FBX */,
@@ -2145,9 +2250,16 @@
 		418152C022A00FBD0080ED72 /* lib-Utils */ = {
 			isa = PBXGroup;
 			children = (
-				4124201B230FF83C0091BDE1 /* HighResTimer.h */,
+				41E6EE12240306E40063FDA1 /* Averaged.h */,
+				41E6EE14240306E40063FDA1 /* AverageTiming.cpp */,
+				41E6EE13240306E40063FDA1 /* AverageTiming.h */,
+				41E6EDF72402FBF00063FDA1 /* FileLog.cpp */,
+				41E6EDF82402FBF00063FDA1 /* FileLog.h */,
 				418152C622A010760080ED72 /* ftplib.cpp */,
 				418152C522A010760080ED72 /* ftplib.h */,
+				41E6EE10240306E40063FDA1 /* FtpUtils.cpp */,
+				41E6EE11240306E40063FDA1 /* FtpUtils.h */,
+				4124201B230FF83C0091BDE1 /* HighResTimer.h */,
 				418152C222A00FEE0080ED72 /* Utils.cpp */,
 				418152C122A00FEE0080ED72 /* Utils.h */,
 			);
@@ -2777,6 +2889,50 @@
 			path = "../../../externals/lib-SLExternal";
 			sourceTree = "<group>";
 		};
+		41E6EE17240307840063FDA1 /* GLTF */ = {
+			isa = PBXGroup;
+			children = (
+				41E6EE18240307840063FDA1 /* AugustaRaurica */,
+			);
+			name = GLTF;
+			path = ../../../data/models/GLTF;
+			sourceTree = "<group>";
+		};
+		41E6EE18240307840063FDA1 /* AugustaRaurica */ = {
+			isa = PBXGroup;
+			children = (
+				41E6EE19240307840063FDA1 /* Tiles05_NRM_2K.jpg */,
+				41E6EE1A240307840063FDA1 /* OldRooftiles_1K_normal.png */,
+				41E6EE1B240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg */,
+				41E6EE1C240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif */,
+				41E6EE1D240307840063FDA1 /* CreamPietraSerena_NORM.jpg */,
+				41E6EE1E240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png */,
+				41E6EE1F240307840063FDA1 /* MediavalStoneWall2K_diff.jpg */,
+				41E6EE20240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg */,
+				41E6EE21240307840063FDA1 /* Rundbogen_norm.png */,
+				41E6EE22240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg */,
+				41E6EE23240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png */,
+				41E6EE24240307840063FDA1 /* Torch_Diff.png */,
+				41E6EE25240307840063FDA1 /* PineRawWood_DIFF.jpg */,
+				41E6EE26240307840063FDA1 /* GroundClay002_DIFF_2K.jpg */,
+				41E6EE27240307840063FDA1 /* OldRooftiles_1K_albedo.png */,
+				41E6EE28240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg */,
+				41E6EE29240307840063FDA1 /* Rundbogen_diff.jpg */,
+				41E6EE2A240307840063FDA1 /* MediavalStoneWall2K_norm.jpg */,
+				41E6EE2B240307840063FDA1 /* CreamPietraSerena_DIFF.jpg */,
+				41E6EE2C240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg */,
+				41E6EE2D240307840063FDA1 /* Torch_Norm.png */,
+				41E6EE2E240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png */,
+				41E6EE2F240307840063FDA1 /* Tempel-Theater-02.gltf */,
+				41E6EE30240307840063FDA1 /* PineRawWood_NORM.jpg */,
+				41E6EE31240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json */,
+				41E6EE32240307840063FDA1 /* Torch_Metal.png */,
+				41E6EE33240307840063FDA1 /* Tempel-Theater-02.bin */,
+				41E6EE34240307840063FDA1 /* Tiles05_Strong_NRM_2K.png */,
+			);
+			path = AugustaRaurica;
+			sourceTree = "<group>";
+		};
 		41F365142008E47600782F42 /* Videos */ = {
 			isa = PBXGroup;
 			children = (
@@ -2884,12 +3040,14 @@
 				417981D31F13833000EB5315 /* i0191_0000b.png in Resources */,
 				417981561F13833000EB5315 /* i0066_0000b.png in Resources */,
 				41901CFA1959C5AC006795A8 /* DAE in Resources */,
+				41E6EE44240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg in Resources */,
 				417981411F13833000EB5315 /* i0045_0000b.png in Resources */,
 				41C48E9A1F01254A0059B48C /* Cousine-Regular.ttf in Resources */,
 				41C48E9B1F01254A0059B48C /* DroidSans.ttf in Resources */,
 				4179819A1F13833000EB5315 /* i0134_0000b.png in Resources */,
 				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
 				411BA72918C0716700F10475 /* Icon_76.png in Resources */,
+				41E6EE48240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg in Resources */,
 				414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */,
 				412F897B1FF58D94004D5982 /* ADS.vert in Resources */,
 				418BF4681B8B0D500049E387 /* TextureOnly.vert in Resources */,
@@ -2911,10 +3069,12 @@
 				417981741F13833000EB5315 /* i0096_0000b.png in Resources */,
 				419808AA1959BA670048085E /* SmoothingGroups.inl in Resources */,
 				417981871F13833000EB5315 /* i0115_0000b.png in Resources */,
+				41E6EE35240307840063FDA1 /* Tiles05_NRM_2K.jpg in Resources */,
 				417981961F13833000EB5315 /* i0130_0000b.png in Resources */,
 				417981171F13833000EB5315 /* i0003_0000b.png in Resources */,
 				417981901F13833000EB5315 /* i0124_0000b.png in Resources */,
 				41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */,
+				41E6EE36240307840063FDA1 /* OldRooftiles_1K_normal.png in Resources */,
 				417981B11F13833000EB5315 /* i0157_0000b.png in Resources */,
 				41FD9D171E523AD70063A1B7 /* Font16.png in Resources */,
 				418BF44D1B8B0D500049E387 /* FontTex.frag in Resources */,
@@ -2957,12 +3117,14 @@
 				4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */,
 				41421AF02146A53400554495 /* earth2048_G.jpg in Resources */,
 				417981441F13833000EB5315 /* i0048_0000b.png in Resources */,
+				41E6EE39240307840063FDA1 /* CreamPietraSerena_NORM.jpg in Resources */,
 				417981981F13833000EB5315 /* i0132_0000b.png in Resources */,
 				417981B41F13833000EB5315 /* i0160_0000b.png in Resources */,
 				417E0EBD148A70DE0015B5B0 /* brickwall0512_G.jpg in Resources */,
 				417E0EBE148A70DE0015B5B0 /* brickwall0512_H.jpg in Resources */,
 				417E0EBF148A70DE0015B5B0 /* brickwall0512_N.jpg in Resources */,
 				418BF4571B8B0D500049E387 /* PerVrtBlinnSkinned.vert in Resources */,
+				41E6EE3D240307840063FDA1 /* Rundbogen_norm.png in Resources */,
 				414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */,
 				417981BE1F13833000EB5315 /* i0170_0000b.png in Resources */,
 				417981921F13833000EB5315 /* i0126_0000b.png in Resources */,
@@ -2976,16 +3138,21 @@
 				417981421F13833000EB5315 /* i0046_0000b.png in Resources */,
 				417981311F13833000EB5315 /* i0029_0000b.png in Resources */,
 				414D37ED1EE6A72C009DB259 /* PerPixCookTorrance.vert in Resources */,
+				41E6EE41240307840063FDA1 /* PineRawWood_DIFF.jpg in Resources */,
+				41E6EE47240307840063FDA1 /* CreamPietraSerena_DIFF.jpg in Resources */,
 				417981991F13833000EB5315 /* i0133_0000b.png in Resources */,
 				417981791F13833000EB5315 /* i0101_0000b.png in Resources */,
 				414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */,
 				417981CB1F13833000EB5315 /* i0183_0000b.png in Resources */,
 				4179814A1F13833000EB5315 /* i0054_0000b.png in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
+				41E6EE4F240307840063FDA1 /* Tempel-Theater-02.bin in Resources */,
 				41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */,
+				41E6EE46240307840063FDA1 /* MediavalStoneWall2K_norm.jpg in Resources */,
 				417981A41F13833000EB5315 /* i0144_0000b.png in Resources */,
 				417981B31F13833000EB5315 /* i0159_0000b.png in Resources */,
 				417981751F13833000EB5315 /* i0097_0000b.png in Resources */,
+				41E6EE42240307840063FDA1 /* GroundClay002_DIFF_2K.jpg in Resources */,
 				41FD9D181E523AD70063A1B7 /* Font18.png in Resources */,
 				418BF44F1B8B0D500049E387 /* PerPixBlinn.frag in Resources */,
 				4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */,
@@ -3001,13 +3168,16 @@
 				417981481F13833000EB5315 /* i0052_0000b.png in Resources */,
 				41F365182008E49B00782F42 /* street3.mp4 in Resources */,
 				417981D11F13833000EB5315 /* i0189_0000b.png in Resources */,
+				41E6EE3F240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png in Resources */,
 				417981941F13833000EB5315 /* i0128_0000b.png in Resources */,
 				417981841F13833000EB5315 /* i0112_0000b.png in Resources */,
 				41FD9D151E523AD70063A1B7 /* Font12.png in Resources */,
 				4179816B1F13833000EB5315 /* i0087_0000b.png in Resources */,
+				41E6EE3A240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png in Resources */,
 				417981361F13833000EB5315 /* i0034_0000b.png in Resources */,
 				417981471F13833000EB5315 /* i0051_0000b.png in Resources */,
 				417981391F13833000EB5315 /* i0037_0000b.png in Resources */,
+				41E6EE4E240307840063FDA1 /* Torch_Metal.png in Resources */,
 				418BF44B1B8B0D4F0049E387 /* ErrorTex.frag in Resources */,
 				4179816D1F13833000EB5315 /* i0089_0000b.png in Resources */,
 				4179819B1F13833000EB5315 /* i0135_0000b.png in Resources */,
@@ -3015,6 +3185,7 @@
 				417981911F13833000EB5315 /* i0125_0000b.png in Resources */,
 				41421AEE2146A53400554495 /* earth1024_C.jpg in Resources */,
 				4179813B1F13833000EB5315 /* i0039_0000b.png in Resources */,
+				41E6EE4C240307840063FDA1 /* PineRawWood_NORM.jpg in Resources */,
 				417E0EC6148A70DE0015B5B0 /* earthCloud1024_A.jpg in Resources */,
 				417981A51F13833000EB5315 /* i0145_0000b.png in Resources */,
 				41421AEB2146A53400554495 /* earth1024_G.jpg in Resources */,
@@ -3030,6 +3201,8 @@
 				417981581F13833000EB5315 /* i0068_0000b.png in Resources */,
 				417E0ECC148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png in Resources */,
 				412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */,
+				41E6EE49240307840063FDA1 /* Torch_Norm.png in Resources */,
+				41E6EE3E240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg in Resources */,
 				417981721F13833000EB5315 /* i0094_0000b.png in Resources */,
 				418BF4541B8B0D500049E387 /* PerPixBlinnTexSkinned.vert in Resources */,
 				417E0ECD148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png in Resources */,
@@ -3042,6 +3215,7 @@
 				417E0ED0148A70DE0015B5B0 /* MuttenzerBox+Z0512_C.png in Resources */,
 				4179817D1F13833000EB5315 /* i0105_0000b.png in Resources */,
 				4179816C1F13833000EB5315 /* i0088_0000b.png in Resources */,
+				41E6EE40240307840063FDA1 /* Torch_Diff.png in Resources */,
 				417E0ED1148A70DE0015B5B0 /* Testmap_0512_C.png in Resources */,
 				412F89751FF58D94004D5982 /* ADSTex.frag in Resources */,
 				417E0ED2148A70DE0015B5B0 /* tile1_0256_C.jpg in Resources */,
@@ -3066,6 +3240,7 @@
 				4179818B1F13833000EB5315 /* i0119_0000b.png in Resources */,
 				417981A21F13833000EB5315 /* i0142_0000b.png in Resources */,
 				417981A61F13833000EB5315 /* i0146_0000b.png in Resources */,
+				41E6EE3B240307840063FDA1 /* MediavalStoneWall2K_diff.jpg in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
 				412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */,
 				417981661F13833000EB5315 /* i0082_0000b.png in Resources */,
@@ -3086,6 +3261,7 @@
 				417981E01F13833000EB5315 /* i0204_0000b.png in Resources */,
 				417981B81F13833000EB5315 /* i0164_0000b.png in Resources */,
 				4179815A1F13833000EB5315 /* i0070_0000b.png in Resources */,
+				41E6EE37240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg in Resources */,
 				417981461F13833000EB5315 /* i0050_0000b.png in Resources */,
 				4179818A1F13833000EB5315 /* i0118_0000b.png in Resources */,
 				4166CE0E22A1B0D20040E992 /* Wave_radial10_256C.jpg in Resources */,
@@ -3110,6 +3286,7 @@
 				417981C51F13833000EB5315 /* i0177_0000b.png in Resources */,
 				414D37EF1EE6A72C009DB259 /* PerPixCookTorranceTex.vert in Resources */,
 				4179812C1F13833000EB5315 /* i0024_0000b.png in Resources */,
+				41E6EE4B240307840063FDA1 /* Tempel-Theater-02.gltf in Resources */,
 				417981C01F13833000EB5315 /* i0172_0000b.png in Resources */,
 				41421AED2146A53400554495 /* earth1024_H.jpg in Resources */,
 				418BF45F1B8B0D500049E387 /* RefractReflectDisp.frag in Resources */,
@@ -3124,6 +3301,7 @@
 				417981491F13833000EB5315 /* i0053_0000b.png in Resources */,
 				4166ED0B200260D700B42D17 /* Desert-Y1024_C.jpg in Resources */,
 				417981321F13833000EB5315 /* i0030_0000b.png in Resources */,
+				41E6EE45240307840063FDA1 /* Rundbogen_diff.jpg in Resources */,
 				4179817E1F13833000EB5315 /* i0106_0000b.png in Resources */,
 				4179816A1F13833000EB5315 /* i0086_0000b.png in Resources */,
 				4179812E1F13833000EB5315 /* i0026_0000b.png in Resources */,
@@ -3135,6 +3313,7 @@
 				4179814B1F13833000EB5315 /* i0055_0000b.png in Resources */,
 				418BF4461B8B0D4F0049E387 /* ColorAttribute.vert in Resources */,
 				417981B61F13833000EB5315 /* i0162_0000b.png in Resources */,
+				41E6EE38240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif in Resources */,
 				4179811C1F13833000EB5315 /* i0008_0000b.png in Resources */,
 				417E0EE1148A71220015B5B0 /* Pool+X0512_C.png in Resources */,
 				417981C71F13833000EB5315 /* i0179_0000b.png in Resources */,
@@ -3153,10 +3332,12 @@
 				417981291F13833000EB5315 /* i0021_0000b.png in Resources */,
 				417E0EE2148A71220015B5B0 /* Pool+Y0512_C.png in Resources */,
 				4179812D1F13833000EB5315 /* i0025_0000b.png in Resources */,
+				41E6EE4A240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png in Resources */,
 				417981D61F13833000EB5315 /* i0194_0000b.png in Resources */,
 				418BF4521B8B0D500049E387 /* PerPixBlinnTex.frag in Resources */,
 				418BF4611B8B0D500049E387 /* ShadowMapping.frag in Resources */,
 				417981331F13833000EB5315 /* i0031_0000b.png in Resources */,
+				41E6EE43240307840063FDA1 /* OldRooftiles_1K_albedo.png in Resources */,
 				417981AB1F13833000EB5315 /* i0151_0000b.png in Resources */,
 				418BF4561B8B0D500049E387 /* PerVrtBlinn.vert in Resources */,
 				417E0EE3148A71220015B5B0 /* Pool+Z0512_C.png in Resources */,
@@ -3199,8 +3380,10 @@
 				417981511F13833000EB5315 /* i0061_0000b.png in Resources */,
 				417981891F13833000EB5315 /* i0117_0000b.png in Resources */,
 				418BF4471B8B0D4F0049E387 /* ColorUniform.vert in Resources */,
+				41E6EE4D240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json in Resources */,
 				417981341F13833000EB5315 /* i0032_0000b.png in Resources */,
 				417981231F13833000EB5315 /* i0015_0000b.png in Resources */,
+				41E6EE3C240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg in Resources */,
 				418BF45A1B8B0D500049E387 /* PerVrtBlinnTexSkinned.vert in Resources */,
 				4153D4F018D43FF000F47146 /* Default-568h@2x.png in Resources */,
 				412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */,
@@ -3235,6 +3418,7 @@
 				CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */,
 				4179817C1F13833000EB5315 /* i0104_0000b.png in Resources */,
 				4179814C1F13833000EB5315 /* i0056_0000b.png in Resources */,
+				41E6EE50240307840063FDA1 /* Tiles05_Strong_NRM_2K.png in Resources */,
 				417981611F13833000EB5315 /* i0077_0000b.png in Resources */,
 				417981681F13833000EB5315 /* i0084_0000b.png in Resources */,
 				417981D41F13833000EB5315 /* i0192_0000b.png in Resources */,
@@ -3292,9 +3476,11 @@
 				4198089C1959BA670048085E /* OgreXmlSerializer.cpp in Sources */,
 				4198087F1959BA670048085E /* FindInstancesProcess.cpp in Sources */,
 				419808601959BA670048085E /* ACLoader.cpp in Sources */,
+				41E6EE09240305EF0063FDA1 /* SLGLConetracer.cpp in Sources */,
 				DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */,
 				4198088E1959BA670048085E /* MakeVerboseFormat.cpp in Sources */,
 				419808981959BA670048085E /* OFFLoader.cpp in Sources */,
+				41E6EE03240304910063FDA1 /* CVCamera.cpp in Sources */,
 				419808CB1959BA670048085E /* FBXModel.cpp in Sources */,
 				418E0C48148929C800C6274F /* SLMaterial.cpp in Sources */,
 				419808751959BA670048085E /* FBXBinaryTokenizer.cpp in Sources */,
@@ -3343,6 +3529,7 @@
 				419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */,
 				419808EC1959BA670048085E /* SplitLargeMeshes.cpp in Sources */,
 				419808D71959BA670048085E /* JoinVerticesProcess.cpp in Sources */,
+				41E6EDFB2402FECB0063FDA1 /* CVImageGeoTiff.cpp in Sources */,
 				419808CE1959BA670048085E /* FBXUtil.cpp in Sources */,
 				414AC53D1F52A8070003867A /* CVRaulMurOrb.cpp in Sources */,
 				419808D21959BA670048085E /* IFCGeometry.cpp in Sources */,
@@ -3359,10 +3546,12 @@
 				419808871959BA670048085E /* Importer.cpp in Sources */,
 				419808C61959BA670048085E /* ComputeUVMappingProcess.cpp in Sources */,
 				41FC8AAE1959BFBA004A9E57 /* irrXML.cpp in Sources */,
+				41E6EE16240306E40063FDA1 /* AverageTiming.cpp in Sources */,
 				419808991959BA670048085E /* OgreBinarySerializer.cpp in Sources */,
 				419808831959BA670048085E /* IFCBoolean.cpp in Sources */,
 				419808EB1959BA670048085E /* SMDLoader.cpp in Sources */,
 				419808841959BA670048085E /* IFCMaterial.cpp in Sources */,
+				41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */,
 				41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */,
 				419808AE1959BA670048085E /* STEPFileReader.cpp in Sources */,
 				41EAAE0B2067BB3C00F7E9B9 /* CVTrackedFaces.cpp in Sources */,
@@ -3389,6 +3578,7 @@
 				4143338C1DE041310027E1C3 /* SLTriangle.cpp in Sources */,
 				419808C81959BA670048085E /* CSMLoader.cpp in Sources */,
 				419808BF1959BA670048085E /* BaseImporter.cpp in Sources */,
+				41E6EE15240306E40063FDA1 /* FtpUtils.cpp in Sources */,
 				41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */,
 				419F43471959C083009D9E2E /* ConvertUTF.c in Sources */,
 				4198088C1959BA670048085E /* LWOAnimation.cpp in Sources */,
@@ -3398,6 +3588,7 @@
 				4198086E1959BA670048085E /* ColladaExporter.cpp in Sources */,
 				4198089E1959BA670048085E /* OptimizeMeshes.cpp in Sources */,
 				41A354EB1A7E634F00791841 /* SLImporter.cpp in Sources */,
+				41E6EE07240305EF0063FDA1 /* SLGLConetracerTex3D.cpp in Sources */,
 				419808761959BA670048085E /* FBXConverter.cpp in Sources */,
 				4143337C1DE03D590027E1C3 /* CVTrackedChessboard.cpp in Sources */,
 				419808E31959BA670048085E /* OgreSkeleton.cpp in Sources */,
@@ -3432,6 +3623,7 @@
 				418152C322A00FEE0080ED72 /* Utils.cpp in Sources */,
 				419808E91959BA670048085E /* RemoveComments.cpp in Sources */,
 				419808AB1959BA670048085E /* SortByPTypeProcess.cpp in Sources */,
+				41E6EE08240305EF0063FDA1 /* SLGLFbo.cpp in Sources */,
 				4198089B1959BA670048085E /* OgreMaterial.cpp in Sources */,
 				419808911959BA670048085E /* MD5Parser.cpp in Sources */,
 				419808B01959BA670048085E /* TerragenLoader.cpp in Sources */,
@@ -3459,6 +3651,7 @@
 				4156501A148AA64F00A3CAA6 /* main.m in Sources */,
 				4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */,
 				414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */,
+				41E6EE02240304910063FDA1 /* CVCalibrationEstimator.cpp in Sources */,
 				413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */,
 				413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */,
 				414AC53C1F52A8070003867A /* CVRaulMurExtNode.cpp in Sources */,
@@ -3604,7 +3797,14 @@
 				HEADER_SEARCH_PATHS = (
 					"include/**",
 					"../../../externals/utils/thirdparty/asio/include/**",
-					../../../externals/prebuilt/iosV8_opencv_3.4.0/include,
+					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
+					"../../../externals/nlohmann/**",
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"include/**",
+					"../../../externals/utils/thirdparty/asio/include/**",
+					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
+					"../../../externals/nlohmann/**",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3700,7 +3900,14 @@
 				HEADER_SEARCH_PATHS = (
 					"include/**",
 					"../../../externals/utils/thirdparty/asio/include/**",
-					../../../externals/prebuilt/iosV8_opencv_3.4.0/include,
+					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
+					"../../../externals/nlohmann/**",
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"include/**",
+					"../../../externals/utils/thirdparty/asio/include/**",
+					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
+					"../../../externals/nlohmann/**",
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3719,7 +3926,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -3780,6 +3987,18 @@
 					../../../externals/utils/thirdparty/asio/include,
 					"../../../externals/utils/lib-Utils/source",
 					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					../include,
+					"../../../lib-SLProject/include/**",
+					"../../../externals/lib-assimp/**",
+					"../../../externals/lib-SLExternal/**",
+					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3800,7 +4019,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -3858,6 +4077,18 @@
 					../../../externals/utils/thirdparty/asio/include,
 					"../../../externals/utils/lib-Utils/source",
 					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					../include,
+					"../../../lib-SLProject/include/**",
+					"../../../externals/lib-assimp/**",
+					"../../../externals/lib-SLExternal/**",
+					"../../../externals/prebuilt/iosV8_opencv_3.4.0/include/**",
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

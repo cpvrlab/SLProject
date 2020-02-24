@@ -336,12 +336,32 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     endforeach(lib)
 
     #assimp for macos
+    # Download first for iOS
+    set(assimp_VERSION "5.0")
+    set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${assimp_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+
+        if( NOT EXISTS "${assimp_DIR}" )
+            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
+        endif()
+    endif ()
+
+
+    # Download now for macos
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "mac64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")
-    #message(STATUS "assimp_LINK_DIR ${assimp_LINK_DIR}")
-
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 

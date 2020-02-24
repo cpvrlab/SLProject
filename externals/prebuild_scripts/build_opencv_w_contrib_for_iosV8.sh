@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for OpenCV with contributions for MacOS
+# Build script for OpenCV with contributions for iOS
 # ####################################################
 
 CV_VERSION=$1
@@ -77,6 +77,7 @@ cmake \
 -GXcode \
 -DAPPLE_FRAMEWORK=ON \
 -DIOS_ARCH=arm64 \
+-DIPHONEOS_DEPLOYMENT_TARGET=8.0 \
 -DCMAKE_TOOLCHAIN_FILE=../../platforms/ios/cmake/Toolchains/Toolchain-iPhoneOS_Xcode.cmake \
 -DENABLE_NEON=ON \
 ../..
