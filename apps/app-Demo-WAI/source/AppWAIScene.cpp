@@ -35,6 +35,44 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
     yellowMat = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
 
+    if (location == "avenches")
+    {
+        if (area == "entrance")
+        {
+            SLAssimpImporter importer;
+            augmentationRoot = importer.load("GLTF/Avenches/AvenchesEntrance.gltf",
+                                             true,
+                                             nullptr,
+                                             0.4f);
+
+            // Set some ambient light
+            for (auto child : augmentationRoot->children())
+            {
+                for (auto mesh : child->meshes())
+                {
+                    mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
+                    mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
+                    mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
+                }
+            }
+
+            SLNode * n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
+            n->drawBits()->set(SL_DB_CULLOFF, true);
+
+            // Create directional light for the sun light
+            SLLightDirect* light = new SLLightDirect(1.0f);
+            light->ambient(SLCol4f(1, 1, 1));
+            light->diffuse(SLCol4f(1, 1, 1));
+            light->specular(SLCol4f(1, 1, 1));
+            light->attenuation(1, 0, 0);
+            light->translation(0, 10, 0);
+            light->lookAt(10, 0, 10);
+
+            rootNode->addChild(augmentationRoot);
+            rootNode->addChild(light);
+        }
+    }
+
     if (location == "augst")
     {
         /*
