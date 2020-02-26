@@ -14,7 +14,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLBackground.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
@@ -227,7 +226,6 @@ void SLBackground::renderInScene(SLVec3f LT,
                                  SLVec3f RB)
 {
     SLGLState* stateGL = SLGLState::instance();
-    SLScene*   s       = SLApplication::scene;
 
     // Get shader program
     SLGLProgram* sp = _texture

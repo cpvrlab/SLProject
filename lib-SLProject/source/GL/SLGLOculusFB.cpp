@@ -15,7 +15,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLGLOculusFB.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
@@ -141,7 +140,7 @@ void SLGLOculusFB::updateSize(SLint scrWidth,
 /*! Draws the intermediate render target (the texture) into the real
  * framebuffer.
  */
-void SLGLOculusFB::drawFramebuffer()
+void SLGLOculusFB::drawFramebuffer(SLGLProgram* stereoOculusProgram)
 {
     glViewport(0, 0, _width, _height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -149,7 +148,7 @@ void SLGLOculusFB::drawFramebuffer()
     glDisable(GL_DEPTH_TEST);
 
     //bind the rift shader
-    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculus);
+    SLGLProgram* sp = stereoOculusProgram;
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
 

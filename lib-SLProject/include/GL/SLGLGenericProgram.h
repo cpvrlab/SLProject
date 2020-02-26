@@ -27,6 +27,7 @@ simple GLSL shader programs with standard types of uniform variables.
 class SLGLGenericProgram : public SLGLProgram
 {
 public:
+    virtual ~SLGLGenericProgram() {}
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLGenericProgram(SLAssetManager* s,
                        const char*     vertShaderFile,
@@ -39,8 +40,25 @@ public:
                        const char*     geomShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile, geomShaderFile) { ; }
 
-    void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }
-    void endShader() { endUse(); }
+    virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }
+    virtual void endShader() { endUse(); }
 };
 //-----------------------------------------------------------------------------
+
+class SLGLColorUniformProgram : public SLGLGenericProgram
+{
+public:
+    static SLGLColorUniformProgram* instance()
+    {
+        static SLGLColorUniformProgram instance;
+        return &instance;
+    }
+
+private:
+    SLGLColorUniformProgram()
+      : SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")
+    {
+    }
+};
+
 #endif

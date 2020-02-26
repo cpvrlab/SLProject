@@ -24,6 +24,7 @@
 #include <SLVec4.h>
 #include <utility>
 #include <vector>
+#include <SLGLGenericProgram.h>
 
 class SLSceneView;
 class SLCamera;
@@ -46,12 +47,15 @@ public:
         _programs.clear();
     }
 
+    //SLVGLProgram& defaultPrograms() { return _defaultPrograms; }
+    //SLGLProgram*  defaultPrograms(SLShaderProg i) { return _defaultPrograms[i]; }
     SLVGLProgram& programs() { return _programs; }
     SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
     SLVMaterial&  materials() { return _materials; }
     SLVGLTexture& textures() { return _textures; }
 
 protected:
+    //SLVGLProgram _defaultPrograms; //!< Vector of all shader program pointers
     SLVGLProgram _programs;  //!< Vector of all shader program pointers
     SLVMaterial  _materials; //!< Vector of all materials pointers
     SLVGLTexture _textures;  //!< Vector of all texture pointers
