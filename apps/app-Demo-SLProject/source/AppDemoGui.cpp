@@ -208,7 +208,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
  SLSceneView::onPaint in SLSceneView::draw2DGL by calling ImGui::Render.\n
  See also the comments on SLGLImGui.
  */
-void AppDemoGui::build(SLScene* s, SLSceneView* sv)
+void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
     ///////////////////////////////////
     // Show modeless fullscreen dialogs

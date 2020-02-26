@@ -993,7 +993,7 @@ void createSLDistortionMesh(DistortionMeshVertexData**  ppVertices,
 }
 
 //-------------------------------------------------------------------------------------
-void createSLDistortionMesh(SLScene* s, SLEyeType eye, SLGLVertexArray& vao)
+void createSLDistortionMesh(SLGLProgram* stereoOculusDistProgram, SLEyeType eye, SLGLVertexArray& vao)
 {
     // fill the variables below with useful data from dk2
     HmdRenderInfo hmdri;
@@ -1183,7 +1183,7 @@ void createSLDistortionMesh(SLScene* s, SLEyeType eye, SLGLVertexArray& vao)
     for (SLuint i = 0; i < indexCount; i++)
         tempIndex.push_back(indexData[i]);
 
-    SLGLProgram* sp = s->programs(SP_stereoOculusDistortion);
+    SLGLProgram* sp = stereoOculusDistProgram;
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array

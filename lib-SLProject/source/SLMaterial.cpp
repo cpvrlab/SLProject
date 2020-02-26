@@ -172,7 +172,9 @@ SLMaterial::~SLMaterial() = default;
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void SLMaterial::activate(SLDrawBits drawBits, SLScene* s)
+void SLMaterial::activate(SLDrawBits      drawBits,
+                          const SLCol4f&  globalAmbiLight,
+                          SLAssetManager* assetMgr)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -190,19 +192,19 @@ void SLMaterial::activate(SLDrawBits drawBits, SLScene* s)
         if (!_textures.empty())
         {
             //if (_textures.size() == 1)
-            program(s->programs(SP_perVrtBlinnTex));
+            program(assetMgr->programs(SP_perVrtBlinnTex));
             //if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
             //program(s->programs(SP_bumpNormal));
         }
         else
-            program(s->programs(SP_perVrtBlinn));
+            program(assetMgr->programs(SP_perVrtBlinn));
     }
 
     // Check if shader had compile error and the error texture should be shown
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
         _textures.clear();
-        _textures.push_back(new SLGLTexture("CompileError.png"));
+        _textures.push_back(new SLGLTexture(assetMgr, "CompileError.png"));
     }
 
     // Determine use of shaders & textures
@@ -216,7 +218,7 @@ void SLMaterial::activate(SLDrawBits drawBits, SLScene* s)
     }
 
     // Activate the shader program now
-    program()->beginUse(this, s->globalAmbiLight());
+    program()->beginUse(this, globalAmbiLight);
 }
 //-----------------------------------------------------------------------------
 void SLMaterial::passToUniforms(SLGLProgram* program)

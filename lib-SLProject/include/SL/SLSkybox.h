@@ -29,7 +29,7 @@ class SLSkybox : public SLNode
 {
 public:
     SLSkybox(SLstring name = "Default Skybox");
-    SLSkybox(SLAssetManager* s,
+    SLSkybox(SLAssetManager* assetMgr,
              SLstring        cubeMapXPos,
              SLstring        cubeMapXNeg,
              SLstring        cubeMapYPos,

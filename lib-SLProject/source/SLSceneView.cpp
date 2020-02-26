@@ -34,7 +34,7 @@ SLScene. If an in between element in the vector is zero (from previous sceneview
 it will be replaced. The sceneviews _index is the index in the sceneview vector.
 It never changes throughout the life of a sceneview. 
 */
-SLSceneView::SLSceneView(SLScene* s, int dpi)
+SLSceneView::SLSceneView(SLProjectScene* s, int dpi)
   : SLObject(),
     _s(s),
     _dpi(dpi)

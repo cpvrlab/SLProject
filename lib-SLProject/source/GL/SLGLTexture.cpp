@@ -54,10 +54,11 @@ SLGLTexture::SLGLTexture()
 
 //-----------------------------------------------------------------------------
 //! ctor for empty 2D textures
-SLGLTexture::SLGLTexture(SLint min_filter,
-                         SLint mag_filter,
-                         SLint wrapS,
-                         SLint wrapT)
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLint           wrapT)
 {
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
@@ -73,20 +74,22 @@ SLGLTexture::SLGLTexture(SLint min_filter,
     _texType      = TT_unknown;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
 //! ctor for 2D textures from byte pointer
-SLGLTexture::SLGLTexture(unsigned char* data,
-                         int            width,
-                         int            height,
-                         int            cvtype,
-                         SLint          min_filter,
-                         SLint          mag_filter,
-                         SLTextureType  type,
-                         SLint          wrapS,
-                         SLint          wrapT)
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         unsigned char*  data,
+                         int             width,
+                         int             height,
+                         int             cvtype,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT)
 {
 
     CVImage* image = new CVImage();
@@ -107,12 +110,14 @@ SLGLTexture::SLGLTexture(unsigned char* data,
 
     _images.push_back(image);
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(const SLstring& filename,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& filename,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLTextureType   type,
@@ -139,11 +144,13 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 3D texture
-SLGLTexture::SLGLTexture(const SLVstring& files,
+SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
+                         const SLVstring& files,
                          SLint            min_filter,
                          SLint            mag_filter,
                          SLint            wrapS,
@@ -171,11 +178,13 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 1D texture
-SLGLTexture::SLGLTexture(const SLVCol4f& colors,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLVCol4f& colors,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
@@ -203,11 +212,13 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for cube mapping with internal image allocation
-SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& filenameXPos,
                          const SLstring& filenameXNeg,
                          const SLstring& filenameYPos,
                          const SLstring& filenameYNeg,
@@ -245,7 +256,8 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
 
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 SLGLTexture::~SLGLTexture()

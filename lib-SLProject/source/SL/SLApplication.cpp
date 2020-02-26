@@ -23,7 +23,7 @@
 //-----------------------------------------------------------------------------
 //! Global static objects
 SLInputManager   SLApplication::inputManager;
-SLScene*         SLApplication::scene = nullptr;
+SLProjectScene*  SLApplication::scene = nullptr;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
 SLstring         SLApplication::name    = "SLProjectApp";
@@ -90,7 +90,7 @@ void SLApplication::createAppAndScene(SLstring appName,
            "You can create only one SLApplication");
 
     name  = std::move(appName);
-    scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+    scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     GlobalTimer::timerStart();
 }
 //-----------------------------------------------------------------------------

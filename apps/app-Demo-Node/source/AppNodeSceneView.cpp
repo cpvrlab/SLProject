@@ -104,7 +104,7 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView(SLScene* s, int dpi)
+AppNodeSceneView::AppNodeSceneView(SLProjectScene* s, int dpi)
   : SLSceneView(s, dpi),
     _modifiers(K_none),
     _continuousInput(true),
@@ -124,8 +124,8 @@ AppNodeSceneView::~AppNodeSceneView()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::postSceneLoad()
 {
-    SLMaterial* rMat = new SLMaterial("rMat", SLCol4f(1.0f, 0.7f, 0.7f));
-    SLMaterial* gMat = new SLMaterial("gMat", SLCol4f(0.7f, 1.0f, 0.7f));
+    SLMaterial* rMat = new SLMaterial(SLApplication::scene, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
+    SLMaterial* gMat = new SLMaterial(SLApplication::scene, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
 
     // build parent box
     _moveBox = new SLNode("Parent");
@@ -144,7 +144,7 @@ void AppNodeSceneView::postSceneLoad()
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
-    _axesNode = importer.load("FBX/Axes/axes_blender.fbx");
+    _axesNode = importer.load(SLApplication::scene, "FBX/Axes/axes_blender.fbx");
 
     SLApplication::scene->root3D()->addChild(_moveBox);
     SLApplication::scene->root3D()->addChild(_axesNode);

@@ -31,13 +31,30 @@ class SLCamera;
 class SLAssetManager
 {
 public:
+    ~SLAssetManager()
+    {
+        // delete materials
+        for (auto m : _materials) delete m;
+        _materials.clear();
+
+        // delete textures
+        for (auto t : _textures) delete t;
+        _textures.clear();
+
+        // delete shader programs
+        for (auto p : _programs) delete p;
+        _programs.clear();
+    }
+
     SLVGLProgram& programs() { return _programs; }
     SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
     SLVMaterial&  materials() { return _materials; }
+    SLVGLTexture& textures() { return _textures; }
 
 protected:
     SLVGLProgram _programs;  //!< Vector of all shader program pointers
     SLVMaterial  _materials; //!< Vector of all materials pointers
+    SLVGLTexture _textures;  //!< Vector of all texture pointers
 };
 
 //-----------------------------------------------------------------------------
@@ -61,14 +78,13 @@ typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint scene
  demo project this function is in AppDemoSceneLoad.cpp.
 */
 class SLScene : public SLObject
-  , public SLAssetManager
 {
     friend class SLNode;
 
 public:
     SLScene(SLstring      name,
             cbOnSceneLoad onSceneLoadCallback);
-    ~SLScene() final;
+    ~SLScene();
 
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
@@ -88,46 +104,37 @@ public:
     SLfloat          elapsedTimeSec() { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
 
-    SLCol4f       globalAmbiLight() const { return _globalAmbiLight; }
-    SLVLight&     lights() { return _lights; }
-    SLfloat       fps() { return _fps; }
-    AvgFloat&     frameTimesMS() { return _frameTimesMS; }
-    AvgFloat&     updateTimesMS() { return _updateTimesMS; }
-    AvgFloat&     updateAnimTimesMS() { return _updateAnimTimesMS; }
-    AvgFloat&     updateAABBTimesMS() { return _updateAABBTimesMS; }
-    AvgFloat&     cullTimesMS() { return _cullTimesMS; }
-    AvgFloat&     draw2DTimesMS() { return _draw2DTimesMS; }
-    AvgFloat&     draw3DTimesMS() { return _draw3DTimesMS; }
-    SLVMaterial&  materials() { return _materials; }
-    SLVMesh&      meshes() { return _meshes; }
-    SLVGLTexture& textures() { return _textures; }
-    SLVGLProgram& programs() { return _programs; }
-    SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
-    SLNode*       selectedNode() { return _selectedNode; }
-    SLMesh*       selectedMesh() { return _selectedMesh; }
-    SLRectf&      selectedRect() { return _selectedRect; }
-    SLbool        stopAnimations() const { return _stopAnimations; }
-    SLGLOculus*   oculus() { return &_oculus; }
-    SLint         numSceneCameras();
-    SLCamera*     nextCameraInScene(SLSceneView* activeSV);
+    SLCol4f   globalAmbiLight() const { return _globalAmbiLight; }
+    SLVLight& lights() { return _lights; }
+    SLfloat   fps() { return _fps; }
+    AvgFloat& frameTimesMS() { return _frameTimesMS; }
+    AvgFloat& updateTimesMS() { return _updateTimesMS; }
+    AvgFloat& updateAnimTimesMS() { return _updateAnimTimesMS; }
+    AvgFloat& updateAABBTimesMS() { return _updateAABBTimesMS; }
+    AvgFloat& cullTimesMS() { return _cullTimesMS; }
+    AvgFloat& draw2DTimesMS() { return _draw2DTimesMS; }
+    AvgFloat& draw3DTimesMS() { return _draw3DTimesMS; }
+    SLVMesh&  meshes() { return _meshes; }
+    SLNode*   selectedNode() { return _selectedNode; }
+    SLMesh*   selectedMesh() { return _selectedMesh; }
+    SLRectf&  selectedRect() { return _selectedRect; }
+    SLbool    stopAnimations() const { return _stopAnimations; }
+    SLint     numSceneCameras();
+    SLCamera* nextCameraInScene(SLSceneView* activeSV);
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    virtual void onLoadAsset(const SLstring& assetFile,
-                             SLuint          processFlags);
-    bool         onUpdate();
-    void         init();
-    void         unInit();
-    void         selectNode(SLNode* nodeToSelect);
-    void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
-    bool         removeMesh(SLMesh* mesh);
-    bool         deleteTexture(SLGLTexture* texture);
+    bool onUpdate();
+    void init();
+    void unInit();
+    void selectNode(SLNode* nodeToSelect);
+    void selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
+    bool removeMesh(SLMesh* mesh);
 
 protected:
     SLVSceneView _sceneViews; //!< Vector of all sceneview pointers
     SLVMesh      _meshes;     //!< Vector of all meshes
-    SLVGLTexture _textures;   //!< Vector of all texture pointers
 
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
@@ -142,7 +149,6 @@ protected:
 
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
     SLbool  _rootInitialized; //!< Flag if scene is initialized
-    SLint   _numProgsPreload; //!< No. of preloaded shaderProgs
 
     SLfloat _frameTimeMS;      //!< Last frame time in ms
     SLfloat _lastUpdateTimeMS; //!< Last time after update in ms
@@ -158,8 +164,26 @@ protected:
     AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
+};
 
-    SLGLOculus _oculus; //!< Oculus Rift interface
+//-----------------------------------------------------------------------------
+class SLProjectScene : public SLScene
+  , public SLAssetManager
+{
+public:
+    SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback);
+
+    void        unInit();
+    bool        deleteTexture(SLGLTexture* texture);
+    SLGLOculus* oculus() { return &_oculus; }
+
+    virtual void onLoadAsset(const SLstring& assetFile,
+                             SLuint          processFlags);
+
+private:
+    SLGLOculus _oculus;          //!< Oculus Rift interface
+    SLint      _numProgsPreload; //!< No. of preloaded shaderProgs
 };
 //-----------------------------------------------------------------------------
+
 #endif

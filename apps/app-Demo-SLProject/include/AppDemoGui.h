@@ -17,6 +17,7 @@ class SLScene;
 class SLSceneView;
 class SLNode;
 class SLGLTexture;
+class SLProjectScene;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -29,8 +30,8 @@ integrated in the SLProject.<br>
 */
 class AppDemoGui
 {
-    public:
-    static void build(SLScene* s, SLSceneView* sv);
+public:
+    static void build(SLProjectScene* s, SLSceneView* sv);
 
     static void buildMenuBar(SLScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);

@@ -30,7 +30,7 @@ enum TransformMode
 class AppNodeSceneView : public SLSceneView
 {
 public:
-    AppNodeSceneView(SLScene* s, int dpi);
+    AppNodeSceneView(SLProjectScene* s, int dpi);
     ~AppNodeSceneView();
 
     // From SLSceneView overwritten

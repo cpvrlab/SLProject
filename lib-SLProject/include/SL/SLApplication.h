@@ -23,6 +23,7 @@
 using namespace std;
 
 class SLScene;
+class SLProjectScene;
 class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
@@ -53,7 +54,7 @@ public:
     static int      jobProgressMax() { return _jobProgressMax; }
     static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
-    static SLScene*         scene;        //!< scene pointer
+    static SLProjectScene*  scene;        //!< scene pointer
     static SLInputManager   inputManager; //!< Input events manager
     static SLDeviceRotation devRot;       //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;       //!< Mobile device location from GPS

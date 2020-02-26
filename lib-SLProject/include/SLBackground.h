@@ -15,7 +15,7 @@
 #include <SLObject.h>
 
 class SLGLTexture;
-
+class SLGLProgram;
 //-----------------------------------------------------------------------------
 //! Defines a 2D-Background for the OpenGL framebuffer background.
 /*! The background can either be defined with a texture or with 4 colors for
@@ -27,8 +27,10 @@ camera or in SLCamera::drawMeshes for inactive ones.
 */
 class SLBackground : public SLObject
 {
-    public:
-    SLBackground();
+public:
+    //SLBackground();
+    SLBackground(SLGLProgram* textureOnlyProgram, SLGLProgram* colorAttributeProgram);
+    ~SLBackground();
 
     void    render(SLint widthPX, SLint heightPX);
     void    renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB);
@@ -49,7 +51,7 @@ class SLBackground : public SLObject
     SLbool       isUniform() { return _isUniform; }
     SLGLTexture* texture() { return _texture; }
 
-    private:
+private:
     SLbool          _isUniform;    //!< Flag if background has uniform color
     SLVCol4f        _colors;       //!< Vector of 4 corner colors {TL,BL,TR,BR}
     SLGLTexture*    _texture;      //!< Pointer to a background texture
@@ -57,6 +59,10 @@ class SLBackground : public SLObject
     SLint           _resX;         //!< Background resolution in x-dir.
     SLint           _resY;         //!< Background resolution in y-dir.
     SLGLVertexArray _vao;          //!< OpenGL Vertex Array Object for drawing
+
+    SLGLProgram* _textureOnlyProgram    = nullptr;
+    SLGLProgram* _colorAttributeProgram = nullptr;
+    bool         _deletePrograms        = false;
 };
 //-----------------------------------------------------------------------------
 #endif

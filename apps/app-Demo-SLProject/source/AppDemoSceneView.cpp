@@ -13,7 +13,7 @@
 #include <CVCalibration.h>
 #include "AppDemoSceneView.h"
 
-AppDemoSceneView::AppDemoSceneView(SLScene* s, int dpi)
+AppDemoSceneView::AppDemoSceneView(SLProjectScene* s, int dpi)
   : SLSceneView(s, dpi)
 {
 }

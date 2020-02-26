@@ -66,7 +66,7 @@ SLNode* BuildFigureGroup(SLMaterial* mat, SLbool withAnimation = false);
  (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
  example of the different steps.
 */
-void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
+void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
@@ -99,7 +99,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Minimal texture mapping example with one light source.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture("earth1024_C.jpg");
+        SLGLTexture* texC = new SLGLTexture(s, "earth1024_C.jpg");
         SLMaterial*  m1   = new SLMaterial(s, "m1", texC);
 
         // Create a scene group node
@@ -282,26 +282,26 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
 
         // Test map material
-        SLGLTexture* tex1 = new SLGLTexture("Testmap_0512_C.png");
+        SLGLTexture* tex1 = new SLGLTexture(s, "Testmap_0512_C.png");
         SLMaterial*  mat1 = new SLMaterial(s, "mat1", tex1);
 
         // floor material
-        SLGLTexture* tex2 = new SLGLTexture("wood0_0512_C.jpg");
+        SLGLTexture* tex2 = new SLGLTexture(s, "wood0_0512_C.jpg");
         SLMaterial*  mat2 = new SLMaterial(s, "mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
         // Back wall material
-        SLGLTexture* tex3 = new SLGLTexture("bricks1_0256_C.jpg");
+        SLGLTexture* tex3 = new SLGLTexture(s, "bricks1_0256_C.jpg");
         SLMaterial*  mat3 = new SLMaterial(s, "mat3", tex3);
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
-        SLGLTexture* tex4 = new SLGLTexture("wood2_0512_C.jpg");
+        SLGLTexture* tex4 = new SLGLTexture(s, "wood2_0512_C.jpg");
         SLMaterial*  mat4 = new SLMaterial(s, "mat4", tex4);
         mat4->specular(SLCol4f::BLACK);
 
         // Glass material
-        SLGLTexture* tex5 = new SLGLTexture("wood2_0256_C.jpg", "wood2_0256_C.jpg", "gray_0256_C.jpg", "wood0_0256_C.jpg", "gray_0256_C.jpg", "bricks1_0256_C.jpg");
+        SLGLTexture* tex5 = new SLGLTexture(s, "wood2_0256_C.jpg", "wood2_0256_C.jpg", "gray_0256_C.jpg", "wood0_0256_C.jpg", "gray_0256_C.jpg", "bricks1_0256_C.jpg");
         SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
         SLGLProgram* sp1 = new SLGLGenericProgram(s, "RefractReflect.vert", "RefractReflect.frag");
@@ -485,15 +485,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Texture Blending Test");
         s->info("Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
 
-        SLGLTexture* t1 = new SLGLTexture("tree1_1024_C.png",
-                                          GL_LINEAR_MIPMAP_LINEAR,
-                                          GL_LINEAR,
-                                          TT_color,
-                                          GL_CLAMP_TO_EDGE,
-                                          GL_CLAMP_TO_EDGE);
-        SLGLTexture* t2 = new SLGLTexture("grass0512_C.jpg",
-                                          GL_LINEAR_MIPMAP_LINEAR,
-                                          GL_LINEAR);
+        SLGLTexture* t1 = new SLGLTexture(s, "tree1_1024_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, TT_color, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+        SLGLTexture* t2 = new SLGLTexture(s, "grass0512_C.jpg", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
@@ -603,10 +596,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
 
         // Create 4 textures with different filter modes
-        SLGLTexture* texB = new SLGLTexture("brick0512_C.png", GL_NEAREST, GL_NEAREST);
-        SLGLTexture* texL = new SLGLTexture("brick0512_C.png", GL_LINEAR, GL_LINEAR);
-        SLGLTexture* texT = new SLGLTexture("brick0512_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-        SLGLTexture* texR = new SLGLTexture("brick0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLGLTexture* texB = new SLGLTexture(s, "brick0512_C.png", GL_NEAREST, GL_NEAREST);
+        SLGLTexture* texL = new SLGLTexture(s, "brick0512_C.png", GL_LINEAR, GL_LINEAR);
+        SLGLTexture* texT = new SLGLTexture(s, "brick0512_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        SLGLTexture* texR = new SLGLTexture(s, "brick0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
 
         // define materials with textureOnly shader, no light needed
         SLMaterial* matB = new SLMaterial(s, "matB", texB, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
@@ -651,7 +644,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
         for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back("Wave_radial10_256C.jpg");
-        SLGLTexture* tex3D = new SLGLTexture(tex3DFiles);
+        SLGLTexture* tex3D = new SLGLTexture(s, tex3DFiles);
         SLGLProgram* spr3D = new SLGLGenericProgram(s, "TextureOnly3D.vert", "TextureOnly3D.frag");
         SLMaterial*  mat3D = new SLMaterial(s, "mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
 
@@ -689,7 +682,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
 
         // create texture
-        SLGLTexture* tex  = new SLGLTexture("earth1024_C.jpg");
+        SLGLTexture* tex  = new SLGLTexture(s, "earth1024_C.jpg");
         SLMaterial*  mat1 = new SLMaterial(s, "mat1", tex);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -856,8 +849,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // create new materials for every sphere
-        SLGLTexture* texC = new SLGLTexture("earth2048_C.jpg"); // color map
-        SLGLTexture* texN = new SLGLTexture("earth2048_N.jpg"); // normal map
+        SLGLTexture* texC = new SLGLTexture(s, "earth2048_C.jpg"); // color map
+        SLGLTexture* texN = new SLGLTexture(s, "earth2048_N.jpg"); // normal map
         SLMaterial*  mat  = new SLMaterial(s, "mat1", texC, texN, nullptr, nullptr, sp);
 
         // create spheres around the center sphere
@@ -1058,7 +1051,13 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                 if (m == nrRows / 2 && r == nrCols / 2)
                 {
                     // The center sphere has roughness and metallic encoded in textures
-                    mat[i] = new SLMaterial(s, "CookTorranceMatTex", new SLGLTexture("rusty-metal_2048C.png"), new SLGLTexture("rusty-metal_2048N.png"), new SLGLTexture("rusty-metal_2048M.png"), new SLGLTexture("rusty-metal_2048R.png"), s->programs()[SP_perPixCookTorranceTex]);
+                    mat[i] = new SLMaterial(s,
+                                            "CookTorranceMatTex",
+                                            new SLGLTexture(s, "rusty-metal_2048C.png"),
+                                            new SLGLTexture(s, "rusty-metal_2048N.png"),
+                                            new SLGLTexture(s, "rusty-metal_2048M.png"),
+                                            new SLGLTexture(s, "rusty-metal_2048R.png"),
+                                            s->programs()[SP_perPixCookTorranceTex]);
                 }
                 else
                 {
@@ -1160,8 +1159,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
 
         // create texture
-        SLGLTexture* tex1 = new SLGLTexture("Pool+X0512_C.png", "Pool-X0512_C.png", "Pool+Y0512_C.png", "Pool-Y0512_C.png", "Pool+Z0512_C.png", "Pool-Z0512_C.png");
-        SLGLTexture* tex2 = new SLGLTexture("tile1_0256_C.jpg");
+        SLGLTexture* tex1 = new SLGLTexture(s, "Pool+X0512_C.png", "Pool-X0512_C.png", "Pool+Y0512_C.png", "Pool-Y0512_C.png", "Pool+Z0512_C.png", "Pool-Z0512_C.png");
+        SLGLTexture* tex2 = new SLGLTexture(s, "tile1_0256_C.jpg");
 
         // Create generic shader program with 4 custom uniforms
         SLGLProgram*   sp  = new SLGLGenericProgram(s, "WaveRefractReflect.vert", "RefractReflect.frag");
@@ -1233,8 +1232,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Normal map bump mapping combined with a per pixel spot lighting.");
 
         // Create textures
-        SLGLTexture* texC = new SLGLTexture("brickwall0512_C.jpg");
-        SLGLTexture* texN = new SLGLTexture("brickwall0512_N.jpg");
+        SLGLTexture* texC = new SLGLTexture(s, "brickwall0512_C.jpg");
+        SLGLTexture* texN = new SLGLTexture(s, "brickwall0512_N.jpg");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN, nullptr, nullptr, s->programs()[SP_bumpNormal]);
@@ -1284,9 +1283,9 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // Create textures
-        SLGLTexture* texC = new SLGLTexture("brickwall0512_C.jpg");
-        SLGLTexture* texN = new SLGLTexture("brickwall0512_N.jpg");
-        SLGLTexture* texH = new SLGLTexture("brickwall0512_H.jpg");
+        SLGLTexture* texC = new SLGLTexture(s, "brickwall0512_C.jpg");
+        SLGLTexture* texN = new SLGLTexture(s, "brickwall0512_N.jpg");
+        SLGLTexture* texH = new SLGLTexture(s, "brickwall0512_H.jpg");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s, "mat1", texC, texN, texH, nullptr, sp);
@@ -1403,20 +1402,20 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 
 // Create textures
 #ifndef SL_GLES
-        SLGLTexture* texC  = new SLGLTexture("earth2048_C.jpg");      // color map
-        SLGLTexture* texN  = new SLGLTexture("earth2048_N.jpg");      // normal map
-        SLGLTexture* texH  = new SLGLTexture("earth2048_H.jpg");      // height map
-        SLGLTexture* texG  = new SLGLTexture("earth2048_G.jpg");      // gloss map
-        SLGLTexture* texNC = new SLGLTexture("earthNight2048_C.jpg"); // night color  map
+        SLGLTexture* texC  = new SLGLTexture(s, "earth2048_C.jpg");      // color map
+        SLGLTexture* texN  = new SLGLTexture(s, "earth2048_N.jpg");      // normal map
+        SLGLTexture* texH  = new SLGLTexture(s, "earth2048_H.jpg");      // height map
+        SLGLTexture* texG  = new SLGLTexture(s, "earth2048_G.jpg");      // gloss map
+        SLGLTexture* texNC = new SLGLTexture(s, "earthNight2048_C.jpg"); // night color  map
 #else
-        SLGLTexture* texC      = new SLGLTexture("earth1024_C.jpg");      // color map
-        SLGLTexture* texN      = new SLGLTexture("earth1024_N.jpg");      // normal map
-        SLGLTexture* texH      = new SLGLTexture("earth1024_H.jpg");      // height map
-        SLGLTexture* texG      = new SLGLTexture("earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC     = new SLGLTexture("earthNight1024_C.jpg"); // night color  map
+        SLGLTexture* texC      = new SLGLTexture(s, "earth1024_C.jpg");      // color map
+        SLGLTexture* texN      = new SLGLTexture(s, "earth1024_N.jpg");      // normal map
+        SLGLTexture* texH      = new SLGLTexture(s, "earth1024_H.jpg");      // height map
+        SLGLTexture* texG      = new SLGLTexture(s, "earth1024_G.jpg");      // gloss map
+        SLGLTexture* texNC     = new SLGLTexture(s, "earthNight1024_C.jpg"); // night color  map
 #endif
-        SLGLTexture* texClC = new SLGLTexture("earthCloud1024_C.jpg"); // cloud color map
-        SLGLTexture* texClA = new SLGLTexture("earthCloud1024_A.jpg"); // cloud alpha map
+        SLGLTexture* texClC = new SLGLTexture(s, "earthCloud1024_C.jpg"); // cloud color map
+        SLGLTexture* texClA = new SLGLTexture(s, "earthCloud1024_A.jpg"); // cloud alpha map
 
         // Create materials
         SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
@@ -1579,7 +1578,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (SLGLState::instance()->getSLVersionNO() > "320")
             clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
 
-        SLGLTexture* texMRI = new SLGLTexture(mriImages,
+        SLGLTexture* texMRI = new SLGLTexture(s,
+                                              mriImages,
                                               GL_LINEAR,
                                               GL_LINEAR,
                                               clamping3D,
@@ -1643,7 +1643,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (SLGLState::instance()->getSLVersionNO() > "320")
             clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
 
-        SLGLTexture* texMRI = new SLGLTexture(mriImages,
+        SLGLTexture* texMRI = new SLGLTexture(s,
+                                              mriImages,
                                               GL_LINEAR,
                                               GL_LINEAR,
                                               clamping3D,
@@ -1785,7 +1786,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Node animations with different easing curves.");
 
         // Create textures and materials
-        SLGLTexture* tex1 = new SLGLTexture("Checkerboard0512_C.png");
+        SLGLTexture* tex1 = new SLGLTexture(s, "Checkerboard0512_C.png");
         SLMaterial*  m1   = new SLMaterial(s, "m1", tex1);
         m1->kr(0.5f);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f::WHITE * 0.5, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
@@ -2058,7 +2059,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->viewportSameAsVideo(true);
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture   = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture   = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         SLMaterial* m1 = new SLMaterial(s, "VideoMat", videoTexture);
 
         // Create a root scene group for all nodes
@@ -2152,7 +2153,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2234,7 +2235,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
@@ -2300,7 +2301,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file data/calibrations/vuforia_markers.pdf");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
@@ -2384,7 +2385,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Face and facial landmark detection.");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 0.5f);
@@ -2433,7 +2434,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
@@ -2498,7 +2499,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Augmented Reality Christoffel Tower");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
@@ -2633,7 +2634,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(150);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
@@ -2723,7 +2724,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
@@ -2797,7 +2798,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* sp2 = new SLGLGenericProgram(s, "RefractReflect.vert", "RefractReflect.frag");
 
         // Create cube mapping texture
-        SLGLTexture* tex1 = new SLGLTexture("MuttenzerBox+X0512_C.png",
+        SLGLTexture* tex1 = new SLGLTexture(s,
+                                            "MuttenzerBox+X0512_C.png",
                                             "MuttenzerBox-X0512_C.png",
                                             "MuttenzerBox+Y0512_C.png",
                                             "MuttenzerBox-Y0512_C.png",
@@ -3003,7 +3005,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Ray tracing depth of field");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
+        SLGLTexture* texC = new SLGLTexture(s, "Checkerboard0512_C.png");
         SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
@@ -3079,8 +3081,8 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing lens test scene.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture("VisionExample.png");
-        //SLGLTexture* texC = new SLGLTexture("Checkerboard0512_C.png");
+        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.png");
+        //SLGLTexture* texC = new SLGLTexture(s, "Checkerboard0512_C.png");
 
         SLMaterial* mT = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
         mT->kr(0.5f);

@@ -30,7 +30,7 @@
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
-extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
@@ -470,7 +470,7 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppDemoSceneView(SLScene* scene, int dpi)
+SLuint createAppDemoSceneView(SLProjectScene* scene, int dpi)
 {
     SLSceneView* appDemoSV = new AppDemoSceneView(scene, dpi);
     return appDemoSV->index();

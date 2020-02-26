@@ -351,7 +351,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // 2.a) Apply mesh material if exists & differs from current
     if (mat() != SLMaterial::current || SLMaterial::current->program() == nullptr)
-        mat()->activate(*node->drawBits(), &sv->s());
+        mat()->activate(*node->drawBits(), sv->s().globalAmbiLight(), &sv->s());
 
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = SLMaterial::current->program();

@@ -80,31 +80,8 @@ SLScene::SLScene(SLstring      name,
     _frameTimeMS      = 0;
     _lastUpdateTimeMS = 0;
 
-    // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
-    // In the constructor they are added the _shaderProgs vector
-    // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
-    new SLGLGenericProgram(this, "ColorAttribute.vert", "Color.frag");
-    new SLGLGenericProgram(this, "ColorUniform.vert", "Color.frag");
-    new SLGLGenericProgram(this, "PerVrtBlinn.vert", "PerVrtBlinn.frag");
-    new SLGLGenericProgram(this, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
-    new SLGLGenericProgram(this, "PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
-    new SLGLGenericProgram(this, "TextureOnly.vert", "TextureOnly.frag");
-    new SLGLGenericProgram(this, "PerPixBlinn.vert", "PerPixBlinn.frag");
-    new SLGLGenericProgram(this, "PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
-    new SLGLGenericProgram(this, "PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
-    new SLGLGenericProgram(this, "PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
-    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormal.frag");
-    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormalParallax.frag");
-    new SLGLGenericProgram(this, "FontTex.vert", "FontTex.frag");
-    new SLGLGenericProgram(this, "StereoOculus.vert", "StereoOculus.frag");
-    new SLGLGenericProgram(this, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
-
-    _numProgsPreload = (SLint)_programs.size();
-
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts();
-
-    _oculus.init(this);
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -125,20 +102,8 @@ SLScene::~SLScene()
     _lights.clear();
 
     // delete materials
-    for (auto m : _materials) delete m;
-    _materials.clear();
-
-    // delete materials
     for (auto m : _meshes) delete m;
     _meshes.clear();
-
-    // delete textures
-    for (auto t : _textures) delete t;
-    _textures.clear();
-
-    // delete shader programs
-    for (auto p : _programs) delete p;
-    _programs.clear();
 
     // delete fonts
     SLTexFont::deleteFonts();
@@ -204,20 +169,20 @@ void SLScene::unInit()
     // clear light pointers
     _lights.clear();
 
-    // delete textures that where allocated during scene construction.
-    // The video & raytracing textures are not in this vector and are not dealocated
-    for (auto t : _textures)
-        delete t;
-    _textures.clear();
+    //// delete textures that where allocated during scene construction.
+    //// The video & raytracing textures are not in this vector and are not dealocated
+    //for (auto t : _textures)
+    //    delete t;
+    //_textures.clear();
 
-    // manually clear the default materials (it will get deleted below)
-    SLMaterial::defaultGray(this, nullptr);
-    SLMaterial::diffuseAttrib(this, nullptr);
+    //// manually clear the default materials (it will get deleted below)
+    //SLMaterial::defaultGray(this, nullptr);
+    //SLMaterial::diffuseAttrib(this, nullptr);
 
-    // delete materials
-    for (auto m : _materials)
-        delete m;
-    _materials.clear();
+    //// delete materials
+    //for (auto m : _materials)
+    //    delete m;
+    //_materials.clear();
 
     // delete meshes
     for (auto m : _meshes)
@@ -226,13 +191,13 @@ void SLScene::unInit()
 
     SLMaterial::current = nullptr;
 
-    // delete custom shader programs but not default shaders
-    while (_programs.size() > (SLuint)_numProgsPreload)
-    {
-        SLGLProgram* sp = _programs.back();
-        delete sp;
-        _programs.pop_back();
-    }
+    //// delete custom shader programs but not default shaders
+    //while (_programs.size() > (SLuint)_numProgsPreload)
+    //{
+    //    SLGLProgram* sp = _programs.back();
+    //    delete sp;
+    //    _programs.pop_back();
+    //}
 
     _eventHandlers.clear();
 
@@ -426,8 +391,144 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect,
     }
 }
 //-----------------------------------------------------------------------------
-void SLScene::onLoadAsset(const SLstring& assetFile,
-                          SLuint          processFlags)
+//! Returns the number of camera nodes in the scene
+SLint SLScene::numSceneCameras()
+{
+    if (!_root3D) return 0;
+    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+    return (SLint)cams.size();
+}
+//-----------------------------------------------------------------------------
+//! Returns the next camera in the scene if there is one
+SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
+{
+    if (!_root3D) return nullptr;
+
+    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+
+    if (cams.empty()) return nullptr;
+    if (cams.size() == 1) return cams[0];
+
+    SLint activeIndex = 0;
+    for (SLulong i = 0; i < cams.size(); ++i)
+    {
+        if (cams[i] == activeSV->camera())
+        {
+            activeIndex = (SLint)i;
+            break;
+        }
+    }
+
+    // find next camera, that is not of type SLKeyframeCamera
+    // and if allowAsActiveCam is deactivated
+    do
+    {
+        activeIndex = activeIndex > cams.size() - 2 ? 0 : ++activeIndex;
+    } while (dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex]) &&
+             !dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex])->allowAsActiveCam());
+
+    return cams[(uint)activeIndex];
+}
+//-----------------------------------------------------------------------------
+/*! Removes the specified mesh from the meshes resource vector.
+*/
+bool SLScene::removeMesh(SLMesh* mesh)
+{
+    assert(mesh);
+    for (SLulong i = 0; i < _meshes.size(); ++i)
+    {
+        if (_meshes[i] == mesh)
+        {
+            _meshes.erase(_meshes.begin() + i);
+            return true;
+        }
+    }
+    return false;
+}
+
+//-----------------------------------------------------------------------------
+SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
+  : SLScene(name, onSceneLoadCallback)
+{
+
+    // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
+    // In the constructor they are added the _shaderProgs vector
+    // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
+    new SLGLGenericProgram(this, "ColorAttribute.vert", "Color.frag");
+    new SLGLGenericProgram(this, "ColorUniform.vert", "Color.frag");
+    new SLGLGenericProgram(this, "PerVrtBlinn.vert", "PerVrtBlinn.frag");
+    new SLGLGenericProgram(this, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
+    new SLGLGenericProgram(this, "PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
+    new SLGLGenericProgram(this, "TextureOnly.vert", "TextureOnly.frag");
+    new SLGLGenericProgram(this, "PerPixBlinn.vert", "PerPixBlinn.frag");
+    new SLGLGenericProgram(this, "PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
+    new SLGLGenericProgram(this, "PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
+    new SLGLGenericProgram(this, "PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
+    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormal.frag");
+    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormalParallax.frag");
+    new SLGLGenericProgram(this, "FontTex.vert", "FontTex.frag");
+    new SLGLGenericProgram(this, "StereoOculus.vert", "StereoOculus.frag");
+    new SLGLGenericProgram(this, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+
+    _numProgsPreload = (SLint)_programs.size();
+
+    _oculus.init(this->programs(SP_stereoOculusDistortion));
+}
+//-----------------------------------------------------------------------------
+/*! Removes the specified texture from the textures resource vector.
+*/
+bool SLProjectScene::deleteTexture(SLGLTexture* texture)
+{
+    assert(texture);
+    for (SLulong i = 0; i < _textures.size(); ++i)
+    {
+        if (_textures[i] == texture)
+        {
+            delete _textures[i];
+            _textures.erase(_textures.begin() + i);
+            return true;
+        }
+    }
+    return false;
+}
+//----------------------------------------------------------------------------
+void SLProjectScene::unInit()
+{
+    SLScene::unInit();
+
+    // delete textures that where allocated during scene construction.
+    // The video & raytracing textures are not in this vector and are not dealocated
+    for (auto t : _textures)
+        delete t;
+    _textures.clear();
+
+    // manually clear the default materials (it will get deleted below)
+    SLMaterial::defaultGray(this, nullptr);
+    SLMaterial::diffuseAttrib(this, nullptr);
+
+    // delete materials
+    for (auto m : _materials)
+        delete m;
+    _materials.clear();
+
+    //// delete meshes
+    //for (auto m : _meshes)
+    //    delete m;
+    //_meshes.clear();
+
+    //SLMaterial::current = nullptr;
+
+    // delete custom shader programs but not default shaders
+    while (_programs.size() > (SLuint)_numProgsPreload)
+    {
+        SLGLProgram* sp = _programs.back();
+        delete sp;
+        _programs.pop_back();
+    }
+}
+//-----------------------------------------------------------------------------
+void SLProjectScene::onLoadAsset(const SLstring& assetFile,
+                                 SLuint          processFlags)
 {
     SLApplication::sceneID = SID_FromFile;
 
@@ -485,76 +586,3 @@ void SLScene::onLoadAsset(const SLstring& assetFile,
         }
     }
 }
-//-----------------------------------------------------------------------------
-//! Returns the number of camera nodes in the scene
-SLint SLScene::numSceneCameras()
-{
-    if (!_root3D) return 0;
-    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
-    return (SLint)cams.size();
-}
-//-----------------------------------------------------------------------------
-//! Returns the next camera in the scene if there is one
-SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
-{
-    if (!_root3D) return nullptr;
-
-    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
-
-    if (cams.empty()) return nullptr;
-    if (cams.size() == 1) return cams[0];
-
-    SLint activeIndex = 0;
-    for (SLulong i = 0; i < cams.size(); ++i)
-    {
-        if (cams[i] == activeSV->camera())
-        {
-            activeIndex = (SLint)i;
-            break;
-        }
-    }
-
-    // find next camera, that is not of type SLKeyframeCamera
-    // and if allowAsActiveCam is deactivated
-    do
-    {
-        activeIndex = activeIndex > cams.size() - 2 ? 0 : ++activeIndex;
-    } while (dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex]) &&
-             !dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex])->allowAsActiveCam());
-
-    return cams[(uint)activeIndex];
-}
-//-----------------------------------------------------------------------------
-/*! Removes the specified mesh from the meshes resource vector.
-*/
-bool SLScene::removeMesh(SLMesh* mesh)
-{
-    assert(mesh);
-    for (SLulong i = 0; i < _meshes.size(); ++i)
-    {
-        if (_meshes[i] == mesh)
-        {
-            _meshes.erase(_meshes.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
-//-----------------------------------------------------------------------------
-/*! Removes the specified texture from the textures resource vector.
-*/
-bool SLScene::deleteTexture(SLGLTexture* texture)
-{
-    assert(texture);
-    for (SLulong i = 0; i < _textures.size(); ++i)
-    {
-        if (_textures[i] == texture)
-        {
-            delete _textures[i];
-            _textures.erase(_textures.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
-//----------------------------------------------------------------------------

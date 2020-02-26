@@ -40,7 +40,7 @@ public:
     SLGLOculus();
     ~SLGLOculus();
 
-    void init(SLScene* s);
+    void init(SLGLProgram* stereoOculusDistProgram);
 
     const SLQuat4f& orientation(SLEyeType eye);
     const SLVec3f&  position(SLEyeType eye);
@@ -102,6 +102,8 @@ private:
     SLVec2i _rtSize;     //!< Required resolution for the render target
 
     SLbool _hmdSettingsChanged; //!< settings need to be updated flag
+
+    SLGLProgram* _stereoOculusDistProgram = nullptr;
 };
 //-----------------------------------------------------------------------------
 

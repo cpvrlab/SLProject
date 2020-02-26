@@ -98,15 +98,15 @@ See examples usages in:
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 */
-int slCreateSceneView(SLScene*  scene,
-                      int       screenWidth,
-                      int       screenHeight,
-                      int       dotsPerInch,
-                      SLSceneID initScene,
-                      void*     onWndUpdateCallback,
-                      void*     onSelectNodeMeshCallback,
-                      void*     onNewSceneViewCallback,
-                      void*     onImGuiBuild)
+int slCreateSceneView(SLProjectScene* scene,
+                      int             screenWidth,
+                      int             screenHeight,
+                      int             dotsPerInch,
+                      SLSceneID       initScene,
+                      void*           onWndUpdateCallback,
+                      void*           onSelectNodeMeshCallback,
+                      void*           onNewSceneViewCallback,
+                      void*           onImGuiBuild)
 {
     assert(scene && "No valid scene!");
 
@@ -156,7 +156,7 @@ sceneview instance. If you have a custom SLSceneView inherited class you
 have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
-int slNewSceneView(SLScene* s, int dotsPerInch)
+int slNewSceneView(SLProjectScene* s, int dotsPerInch)
 {
     SLSceneView* sv = new SLSceneView(s, dotsPerInch);
     return (SLint)sv->index();

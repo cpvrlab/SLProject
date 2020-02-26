@@ -760,7 +760,8 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
             return i;
 
     // Create the new texture. It is also push back to SLScene::_textures
-    SLGLTexture* texture = new SLGLTexture(textureFile,
+    SLGLTexture* texture = new SLGLTexture(SLApplication::scene,
+                                           textureFile,
                                            GL_LINEAR_MIPMAP_LINEAR,
                                            GL_LINEAR,
                                            texType);

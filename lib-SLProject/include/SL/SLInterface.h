@@ -16,6 +16,7 @@
 #include <SLGLEnums.h>
 
 class SLScene;
+class SLProjectScene;
 
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h
@@ -41,17 +42,17 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);
 
-int slCreateSceneView(SLScene*  scene,
-                      int       screenWidth,
-                      int       screenHeight,
-                      int       dotsPerInch,
-                      SLSceneID initScene,
-                      void*     onWndUpdateCallback,
-                      void*     onSelectNodeMeshCallback = nullptr,
-                      void*     onNewSceneViewCallback   = nullptr,
-                      void*     onImGuiBuild             = nullptr);
+int slCreateSceneView(SLProjectScene* scene,
+                      int             screenWidth,
+                      int             screenHeight,
+                      int             dotsPerInch,
+                      SLSceneID       initScene,
+                      void*           onWndUpdateCallback,
+                      void*           onSelectNodeMeshCallback = nullptr,
+                      void*           onNewSceneViewCallback   = nullptr,
+                      void*           onImGuiBuild             = nullptr);
 
-int  slNewSceneView(SLScene* s, int dotsPerInch);
+int  slNewSceneView(SLProjectScene* s, int dotsPerInch);
 bool slShouldClose();
 void slShouldClose(bool val);
 void slTerminate();

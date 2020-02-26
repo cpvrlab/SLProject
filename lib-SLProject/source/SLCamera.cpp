@@ -24,17 +24,20 @@ SLProjection SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(const SLstring& name) : SLNode(name),
-                                           _movedLastFrame(false),
-                                           _trackballSize(0.8f),
-                                           _moveDir(0, 0, 0),
-                                           _drag(0.05f),
-                                           _maxSpeed(2.0f),
-                                           _velocity(0.0f, 0.0f, 0.0f),
-                                           _acceleration(0, 0, 0),
-                                           _brakeAccel(16.0f),
-                                           _moveAccel(16.0f),
-                                           _unitScaling(1.0f)
+SLCamera::SLCamera(const SLstring& name)
+  : SLNode(name),
+    _movedLastFrame(false),
+    _trackballSize(0.8f),
+    _moveDir(0, 0, 0),
+    _drag(0.05f),
+    _maxSpeed(2.0f),
+    _velocity(0.0f, 0.0f, 0.0f),
+    _acceleration(0, 0, 0),
+    _brakeAccel(16.0f),
+    _moveAccel(16.0f),
+    _unitScaling(1.0f),
+    _background(SLApplication::scene->programs(SP_TextureOnly),
+                SLApplication::scene->programs(SP_colorAttribute))
 {
     _fovInit       = 0;
     _viewportW     = 640;
@@ -582,8 +585,8 @@ nodes inverse world matrix.
 */
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
-    SLScene*   s       = SLApplication::scene;
-    SLGLState* stateGL = SLGLState::instance();
+    SLProjectScene* s       = SLApplication::scene;
+    SLGLState*      stateGL = SLGLState::instance();
 
     if (_camAnim == CA_deviceRotYUp)
     {

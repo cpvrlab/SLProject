@@ -49,9 +49,10 @@ void SLGLOculus::dispose()
 //-----------------------------------------------------------------------------
 /*! Initialization of the Oculus Rift SDK and the device recognition.
 */
-void SLGLOculus::init(SLScene* s)
+void SLGLOculus::init(SLGLProgram* stereoOculusDistProgram)
 {
-    _resolutionScale = 1.25f;
+    _stereoOculusDistProgram = stereoOculusDistProgram;
+    _resolutionScale         = 1.25f;
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);
 
@@ -66,15 +67,16 @@ void SLGLOculus::init(SLScene* s)
         _projection[i].translate(-_viewAdjust[i]);
     }
 
-    createSLDistortionMesh(s, ET_left, _distortionMeshVAO[0]);
-    createSLDistortionMesh(s, ET_right, _distortionMeshVAO[1]);
+    createSLDistortionMesh(stereoOculusDistProgram, ET_left, _distortionMeshVAO[0]);
+    createSLDistortionMesh(stereoOculusDistProgram, ET_right, _distortionMeshVAO[1]);
 }
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
 */
 void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f background)
 {
-    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
+    assert(_stereoOculusDistProgram && "SLGLOculus::renderDistortion: shader program not set");
+    SLGLProgram* sp = _stereoOculusDistProgram;
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
