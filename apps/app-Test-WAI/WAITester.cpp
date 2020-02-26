@@ -165,6 +165,8 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string videoFile,
     int           frameCount          = 0;
     int           trackingFrameCount  = 0;
 
+    int           maxTrackingFrameCount = 0;
+
     bool isTracking = false;
     bool relocalizeOnce = false;
     LocalMap localMap;
@@ -196,7 +198,12 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string videoFile,
                 WAISlamTools::serialMapping(map, localMap, localMapping, loopClosing, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId);
             }
             else
+            {   
+                if (trackingFrameCount > maxTrackingFrameCount)
+                    maxTrackingFrameCount = trackingFrameCount;
+                trackingFrameCount = 0;
                 isTracking == false;
+            }
         }
         else
         {
@@ -212,9 +219,12 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string videoFile,
         frameCount++;
     }
 
+    if (trackingFrameCount > maxTrackingFrameCount)
+        maxTrackingFrameCount = trackingFrameCount;
+
     result.frameCount         = frameCount;
-    result.trackingFrameCount = trackingFrameCount;
-    result.ratio              = ((float)trackingFrameCount / (float)frameCount);
+    result.trackingFrameCount = maxTrackingFrameCount;
+    result.ratio              = ((float)maxTrackingFrameCount / (float)frameCount);
     result.wasSuccessful      = relocalizeOnce;
 
     free(localMapping);
@@ -522,7 +532,7 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
 
 void Tester::launchTrackingTest(const Location& location, const Area& area, Datas& datas)
 {
-    WAI_INFO("Tester::lauchTest: Starting relocalization test for area: %s", area.c_str());
+    WAI_INFO("Tester::lauchTest: Starting tracking test for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
     bool        initialized = false;
     std::string currentMapFileName;
