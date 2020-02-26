@@ -79,9 +79,6 @@ SLScene::SLScene(SLstring      name,
     _fps              = 0;
     _frameTimeMS      = 0;
     _lastUpdateTimeMS = 0;
-
-    // font and video texture are not added to the _textures vector
-    SLTexFont::generateFonts();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -450,7 +447,6 @@ bool SLScene::removeMesh(SLMesh* mesh)
 SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
   : SLScene(name, onSceneLoadCallback)
 {
-
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
     // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
@@ -473,6 +469,9 @@ SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
     _numProgsPreload = (SLint)_programs.size();
 
     _oculus.init(this->programs(SP_stereoOculusDistortion));
+
+    // font and video texture are not added to the _textures vector
+    SLTexFont::generateFonts(*this->programs(SP_fontTex));
 }
 //-----------------------------------------------------------------------------
 /*! Removes the specified texture from the textures resource vector.

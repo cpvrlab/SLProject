@@ -14,6 +14,8 @@
 
 #include <SLGLTexture.h>
 
+class SLGLProgram;
+
 //-----------------------------------------------------------------------------
 //! Texture Font class inherits SLGLTexture for alpha blended font rendering.
 /*!
@@ -38,9 +40,9 @@ file SLTexFont.cpp.
 */
 class SLTexFont : public SLGLTexture
 {
-    public:
-    SLTexFont(SLstring fontFilename);
-    ~SLTexFont() { ; }
+public:
+    SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram);
+    ~SLTexFont();
 
     void      create(SLstring fontFilename);
     SLVec2f   calcTextSize(const SLstring& text,
@@ -67,7 +69,7 @@ class SLTexFont : public SLGLTexture
     SLint         charsHeight; //<! height of characters
 
     // Static method & font pointers
-    static void       generateFonts();
+    static void       generateFonts(SLGLProgram& fontTexProgram);
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
 
@@ -82,6 +84,9 @@ class SLTexFont : public SLGLTexture
     static SLTexFont* font20;
     static SLTexFont* font22;
     static SLTexFont* font24;
+
+    SLGLProgram* _fontTexProgram = nullptr;
+    bool         _deleteProgram  = false;
 };
 //-----------------------------------------------------------------------------
 #endif

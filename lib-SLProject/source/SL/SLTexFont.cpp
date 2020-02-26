@@ -14,9 +14,9 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLTexFont.h>
+#include <SLGLProgram.h>
 #include <Utils.h>
 
 #include <utility>
@@ -35,8 +35,19 @@ SLTexFont* SLTexFont::font20 = nullptr;
 SLTexFont* SLTexFont::font22 = nullptr;
 SLTexFont* SLTexFont::font24 = nullptr;
 //-----------------------------------------------------------------------------
-SLTexFont::SLTexFont(SLstring fontFilename)
+SLTexFont::SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram)
 {
+    if (fontTexProgram)
+    {
+        _fontTexProgram = fontTexProgram;
+        _deleteProgram  = false;
+    }
+    else
+    {
+        _fontTexProgram = new SLGLGenericProgram(nullptr, "FontTex.vert", "FontTex.frag");
+        _deleteProgram  = true;
+    }
+
     // Init texture members
     _texType    = TT_font;
     _wrap_s     = GL_CLAMP_TO_EDGE;
@@ -55,6 +66,14 @@ SLTexFont::SLTexFont(SLstring fontFilename)
     charsHeight = 0;
 
     create(std::move(fontFilename));
+}
+//-----------------------------------------------------------------------------
+SLTexFont::~SLTexFont()
+{
+    if (_deleteProgram && _fontTexProgram)
+    {
+        delete _fontTexProgram;
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -412,7 +431,7 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     }
 
     // create buffers on GPU
-    SLGLProgram* sp = SLApplication::scene->programs(SP_fontTex);
+    SLGLProgram* sp = _fontTexProgram;
     sp->useProgram();
     vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
     vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
@@ -421,29 +440,29 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
 }
 //-----------------------------------------------------------------------------
 //! Generates all static fonts
-void SLTexFont::generateFonts()
+void SLTexFont::generateFonts(SLGLProgram& fontTexProgram)
 {
-    font07 = new SLTexFont("Font07.png");
+    font07 = new SLTexFont("Font07.png", &fontTexProgram);
     assert(font07);
-    font08 = new SLTexFont("Font08.png");
+    font08 = new SLTexFont("Font08.png", &fontTexProgram);
     assert(font08);
-    font09 = new SLTexFont("Font09.png");
+    font09 = new SLTexFont("Font09.png", &fontTexProgram);
     assert(font09);
-    font10 = new SLTexFont("Font10.png");
+    font10 = new SLTexFont("Font10.png", &fontTexProgram);
     assert(font10);
-    font12 = new SLTexFont("Font12.png");
+    font12 = new SLTexFont("Font12.png", &fontTexProgram);
     assert(font12);
-    font14 = new SLTexFont("Font14.png");
+    font14 = new SLTexFont("Font14.png", &fontTexProgram);
     assert(font14);
-    font16 = new SLTexFont("Font16.png");
+    font16 = new SLTexFont("Font16.png", &fontTexProgram);
     assert(font16);
-    font18 = new SLTexFont("Font18.png");
+    font18 = new SLTexFont("Font18.png", &fontTexProgram);
     assert(font18);
-    font20 = new SLTexFont("Font20.png");
+    font20 = new SLTexFont("Font20.png", &fontTexProgram);
     assert(font20);
-    font22 = new SLTexFont("Font22.png");
+    font22 = new SLTexFont("Font22.png", &fontTexProgram);
     assert(font22);
-    font24 = new SLTexFont("Font24.png");
+    font24 = new SLTexFont("Font24.png", &fontTexProgram);
     assert(font24);
 }
 //-----------------------------------------------------------------------------
