@@ -7,8 +7,9 @@
 class SENSVideoStream
 {
 public:
-    SENSVideoStream(std::string videoFileName, bool videoLoops, bool mirrorH, bool mirrorV);
+    SENSVideoStream(std::string videoFileName, bool videoLoops, bool mirrorH, bool mirrorV, float targetFps = 0);
     SENSFramePtr grabNextFrame();
+    SENSFramePtr grabNextResampledFrame();
     SENSFramePtr grabPreviousFrame();
 
     cv::Size getFrameSize() const { return _videoFrameSize; }
@@ -28,9 +29,13 @@ private:
 
     bool  _videoLoops = false;
     float _fps        = 0.f;
+    float _targetFps  = 0.f;
 
     bool _mirrorH = false;
     bool _mirrorV = false;
+
+    float _lastFrameTime = 0;
+    int   _frameId       = 0;
 };
 
 #endif //SENS_VIDEOSTREAM_H
