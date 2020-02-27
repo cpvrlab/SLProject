@@ -11,6 +11,7 @@ struct Config
     std::string configFile;
     std::string vocFile;
     std::string mapOutputDir;
+    int         featureId;
 };
 
 void printHelp()
@@ -49,6 +50,28 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-mapOutputDir"))
         {
             config.mapOutputDir = argv[++i];
+        }
+        else if (!strcmp(argv[i], "-feature"))
+        {
+            i++;
+            if (!strcmp(argv[i], "SURF_BRIEF_500"))
+                config.featureId = 0;
+            else if (!strcmp(argv[i], "SURF_BRIEF_800"))
+                config.featureId = 1;
+            else if (!strcmp(argv[i], "SURF_BRIEF_1000"))
+                config.featureId = 2;
+            else if (!strcmp(argv[i], "SURF_BRIEF_1200"))
+                config.featureId = 3;
+            else if (!strcmp(argv[i], "FAST_ORBS_1000"))
+                config.featureId = 4;
+            else if (!strcmp(argv[i], "FAST_ORBS_2000"))
+                config.featureId = 5;
+            else if (!strcmp(argv[i], "FAST_ORBS_4000"))
+                config.featureId = 6;
+            else if (!strcmp(argv[i], "GLSL_1"))
+                config.featureId = 7;
+            else if (!strcmp(argv[i], "GLSL"))
+                config.featureId = 8;
         }
         else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help"))
         {
@@ -136,7 +159,7 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.configFile, config.vocFile);
+        MapCreator mapCreator(config.erlebARDir, config.configFile, config.vocFile, config.featureId);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

@@ -7,6 +7,19 @@
 
 #include <KPextractor.h>
 
+enum FeatureType
+{
+    SURF_BRIEF_500,
+    SURF_BRIEF_800,
+    SURF_BRIEF_1000,
+    SURF_BRIEF_1200,
+    FAST_ORBS_1000,
+    FAST_ORBS_2000,
+    FAST_ORBS_4000,
+    GLSL_1,
+    GLSL
+};
+
 class FeatureExtractorFactory
 {
 public:

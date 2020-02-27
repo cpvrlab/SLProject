@@ -41,22 +41,24 @@ class Tester
     };
 
 public:
-    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate);
+    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate, int featureId);
     ~Tester();
 
-    RelocalizationTestResult runRelocalizationTest(std::string videoFile,
-                                                   std::string mapFile,
-                                                   std::string vocFile,
-                                                   CVCalibration &calibration);
+    RelocalizationTestResult runRelocalizationTest(std::string    videoFile,
+                                                   std::string    mapFile,
+                                                   std::string    vocFile,
+                                                   CVCalibration& calibration,
+                                                   int            featureId);
 
-    TrackingTestResult runTrackingTest(std::string videoFile,
-                                       std::string mapFile,
-                                       std::string vocFile,
-                                       CVCalibration &calibration);
+    TrackingTestResult runTrackingTest(std::string    videoFile,
+                                       std::string    mapFile,
+                                       std::string    vocFile,
+                                       CVCalibration& calibration,
+                                       int            featureId);
 
-    void launchTrackingTest(const Location& location, const Area& area, Datas& datas);
+    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, int featureId);
 
-    void launchRelocalizationTest(const Location& location, const Area& area, Datas& datas);
+    void launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, int featureId);
 
     void execute();
 
@@ -74,6 +76,7 @@ private:
     std::string               _calibrationsDir;
     FeatureExtractorFactory   _factory;
     int                       _framerate; // (#frames/s)
+    int                       _featureId;
 };
 
 #endif

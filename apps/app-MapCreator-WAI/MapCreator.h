@@ -35,7 +35,7 @@ class MapCreator
     typedef std::map<Area, AreaConfig> Areas;
 
 public:
-    MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile);
+    MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile, int featureId);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -43,18 +43,21 @@ public:
     //! check that all files (video and calibration) exist.
     void loadSites(const std::string& erlebARDir, const std::string& configFile);
     //! create dense map using all videos for this location/area and thin out overall resulting map using keyframe culling
-    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig);
+    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, int featureId);
 
     bool createNewDenseWaiMap(Videos&            videos,
                               const std::string& mapFile,
                               const std::string& mapDir,
                               const float        cullRedundantPerc,
-                              std::string&       currentMapFileName);
+                              std::string&       currentMapFileName,
+                              int                featureId);
+
     void thinOutNewWaiMap(const std::string& mapDir,
                           const std::string& inputMapFile,
                           const std::string  outputMapFile,
                           CVCalibration&     calib,
-                          const float        cullRedundantPerc);
+                          const float        cullRedundantPerc,
+                          int                featureId);
     void cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc);
     void decorateDebug(WAISlam* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs);
     void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
@@ -63,7 +66,8 @@ public:
     bool createMarkerMap(AreaConfig&        areaConfig,
                          const std::string& mapFile,
                          const std::string& mapDir,
-                         const float        cullRedundantPerc);
+                         const float        cullRedundantPerc,
+                         int                featureId);
 
 private:
     MapCreator() {}
@@ -78,9 +82,13 @@ private:
     WAIMapPoint* _mpLL;
     WAIMapPoint* _mpLR;
 
+    int _featureId;
+
+    /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
     std::unique_ptr<KPextractor> _kpExtractor       = nullptr;
     std::unique_ptr<KPextractor> _kpMarkerExtractor = nullptr;
+    */
 };
 
 #endif //MAP_CREATOR_H
