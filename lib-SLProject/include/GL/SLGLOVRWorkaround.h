@@ -12,7 +12,6 @@
 #ifndef SLOVRWORKAROUND_H
 #define SLOVRWORKAROUND_H
 
-#include <SLApplication.h>
 #include <SLGLOculus.h>
 #include <SLGLVertexArray.h>
 #include <SLScene.h>
