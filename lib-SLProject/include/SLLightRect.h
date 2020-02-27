@@ -17,6 +17,7 @@
 class SLSceneView;
 class SLRay;
 class SLAssetManager;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
@@ -42,12 +43,13 @@ class SLLightRect : public SLNode
 {
 public:
     SLLightRect(SLAssetManager* assetMgr,
+                SLScene*        s,
                 SLfloat         width   = 1,
                 SLfloat         height  = 1,
                 SLbool          hasMesh = true);
     ~SLLightRect() { ; }
 
-    void init();
+    void init(SLScene* s);
     void drawRec(SLSceneView* sv);
     bool hitRec(SLRay* ray);
     void statsRec(SLNodeStats& stats);
@@ -56,10 +58,12 @@ public:
     void    setState();
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       SLfloat        lightDist);
+                       SLfloat        lightDist,
+                       SLNode*        root3D);
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         SLfloat        lightDist);
+                         SLfloat        lightDist,
+                         SLNode*        root3D);
 
     // Setters
     void width(const SLfloat w)

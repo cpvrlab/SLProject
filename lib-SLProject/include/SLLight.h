@@ -15,6 +15,7 @@
 #include <SLVec4.h>
 
 class SLRay;
+class SLNode;
 
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
@@ -69,14 +70,16 @@ public:
     SLfloat attenuation(SLfloat dist) { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
 
     // some virtuals needed for ray tracing
-    virtual SLVec4f positionWS() const              = 0;
-    virtual SLVec3f spotDirWS()                     = 0;
+    virtual SLVec4f positionWS() const           = 0;
+    virtual SLVec3f spotDirWS()                  = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
-                               SLfloat        lightDist)   = 0;
+                               SLfloat        lightDist,
+                               SLNode*        root3D)   = 0;
     virtual SLfloat shadowTestMC(SLRay*         ray,
                                  const SLVec3f& L,
-                                 SLfloat        lightDist) = 0;
+                                 SLfloat        lightDist,
+                                 SLNode*        root3D) = 0;
 
 protected:
     SLint   _id;               //!< OpenGL light number (0-7)

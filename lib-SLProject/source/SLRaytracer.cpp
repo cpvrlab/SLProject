@@ -345,7 +345,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLi
 
     if (ray->length < FLT_MAX)
     {
-        color = shade(ray, globalAmbiLight, lights);
+        color = shade(ray, root, globalAmbiLight, lights);
 
         SLfloat kt = ray->hitMesh->mat()->kt();
         SLfloat kr = ray->hitMesh->mat()->kr();
@@ -439,7 +439,7 @@ color = material emission +
         ambient, diffuse, and specular contributions from all lights, 
         properly attenuated
 */
-SLCol4f SLRaytracer::shade(SLRay* ray, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+SLCol4f SLRaytracer::shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
 {
     SLCol4f       localColor = SLCol4f::BLACK;
     SLMaterial*   mat        = ray->hitMesh->mat();
@@ -478,7 +478,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray, const SLCol4f& globalAmbiLight, const SLV
             LdN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdN > 0) ? light->shadowTest(ray, L, lightDist) : 0;
+            lighted = (LdN > 0) ? light->shadowTest(ray, L, lightDist, root) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();

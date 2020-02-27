@@ -64,7 +64,7 @@ public:
     void           renderSlices(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
     void           renderSlicesMS(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
     SLCol4f        trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
-    static SLCol4f shade(SLRay* ray, const SLCol4f& globalAmbiLight, const SLVLight& lights);
+    static SLCol4f shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
     void           sampleAAPixels(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
     void           renderUIBeforeUpdate();
 

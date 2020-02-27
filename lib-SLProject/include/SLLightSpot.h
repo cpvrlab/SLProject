@@ -17,6 +17,7 @@
 
 class SLSceneView;
 class SLRay;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
@@ -39,10 +40,12 @@ class SLLightSpot : public SLNode
 {
 public:
     explicit SLLightSpot(SLAssetManager* assetMgr,
+                         SLScene*        s,
                          SLfloat         radius       = 0.3f,
                          SLfloat         spotAngleDEG = 180.0f,
                          SLbool          hasMesh      = true);
     SLLightSpot(SLAssetManager* assetMgr,
+                SLScene*        s,
                 SLfloat         posx,
                 SLfloat         posy,
                 SLfloat         posz,
@@ -53,7 +56,7 @@ public:
                 SLfloat         specPower    = 10.0f,
                 SLbool          hasMesh      = true);
 
-    void init();
+    void init(SLScene* s);
     bool hitRec(SLRay* ray);
     void statsRec(SLNodeStats& stats);
     void drawMeshes(SLSceneView* sv);
@@ -61,10 +64,12 @@ public:
     void    setState();
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       SLfloat        lightDist);
+                       SLfloat        lightDist,
+                       SLNode*        root3D);
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         SLfloat        lightDist);
+                         SLfloat        lightDist,
+                         SLNode*        root3D);
 
     // Setters
     void samples(SLuint x, SLuint y)

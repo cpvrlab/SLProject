@@ -14,7 +14,6 @@
 #    include <nvwa/debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLArrow.h>
 #include <SLLightDirect.h>
 #include <SLRay.h>
@@ -25,6 +24,7 @@
 
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
+                             SLScene*        s,
                              SLfloat         arrowLength,
                              SLbool          hasMesh)
   : SLNode("LightDirect Node")
@@ -48,10 +48,11 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                             mat));
     }
 
-    init();
+    init(s);
 }
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
+                             SLScene*        s,
                              SLfloat         posx,
                              SLfloat         posy,
                              SLfloat         posz,
@@ -82,7 +83,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                             "LightDirect Mesh",
                             mat));
     }
-    init();
+    init(s);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -90,22 +91,22 @@ SLLightDirect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
-void SLLightDirect::init()
+void SLLightDirect::init(SLScene* s)
 {
     // Check if OpenGL lights are available
-    if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
+    if (s->lights().size() >= SL_MAX_LIGHTS)
         SL_EXIT_MSG("Max. NO. of lights is exceeded!");
 
     // Add the light to the lights array of the scene
     if (_id == -1)
     {
-        _id = (SLint)SLApplication::scene->lights().size();
-        SLApplication::scene->lights().push_back(this);
+        _id = (SLint)s->lights().size();
+        s->lights().push_back(this);
     }
 
     // Set the OpenGL light states
     setState();
-    SLGLState::instance()->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+    SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
 
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
@@ -145,7 +146,7 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
     {
         // Set the OpenGL light states
         SLLightDirect::setState();
-        SLGLState::instance()->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+        SLGLState::instance()->numLightsUsed = (SLint)sv->s().lights().size();
 
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
@@ -161,13 +162,14 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
 SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and 
 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
-SLfloat SLLightDirect::shadowTest(SLRay*         ray, // ray of hit point
-                                  const SLVec3f& L,   // vector from hit point to light
-                                  SLfloat        lightDist)  // distance to light
+SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point
+                                  const SLVec3f& L,         // vector from hit point to light
+                                  SLfloat        lightDist, // distance to light
+                                  SLNode*        root3D)
 {
     // define shadow ray and shoot
     SLRay shadowRay(lightDist, L, ray);
-    SLApplication::scene->root3D()->hitRec(&shadowRay);
+    root3D->hitRec(&shadowRay);
 
     if (shadowRay.length < lightDist)
     {
@@ -189,13 +191,14 @@ SLfloat SLLightDirect::shadowTest(SLRay*         ray, // ray of hit point
 SLLightDirect::shadowTestMC returns 0.0 if the hit point is completely shaded 
 and 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
-SLfloat SLLightDirect::shadowTestMC(SLRay*         ray, // ray of hit point
-                                    const SLVec3f& L,   // vector from hit point to light
-                                    SLfloat        lightDist)  // distance to light
+SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit point
+                                    const SLVec3f& L,         // vector from hit point to light
+                                    SLfloat        lightDist, // distance to light
+                                    SLNode*        root3D)
 {
     // define shadow ray and shoot
     SLRay shadowRay(lightDist, L, ray);
-    SLApplication::scene->root3D()->hitRec(&shadowRay);
+    root3D->hitRec(&shadowRay);
 
     if (shadowRay.length < lightDist)
     {

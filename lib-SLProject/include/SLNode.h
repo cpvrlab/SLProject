@@ -159,7 +159,6 @@ public:
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
     bool         removeMesh(SLstring name);
-    bool         deleteMesh(SLMesh* mesh);
     SLMesh*      findMesh(const SLstring& name,
                           SLbool          recursive = false);
     void         setAllMeshMaterials(SLMaterial* mat,

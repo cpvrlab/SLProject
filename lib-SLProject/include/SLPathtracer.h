@@ -24,7 +24,7 @@ public:
     SLbool  render(SLSceneView* sv);
     void    renderSlices(const bool isMainThread, SLint currentSample, SLNode* root, const SLVLight& lights);
     SLCol4f trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight& lights);
-    SLCol4f shade(SLRay* ray, SLCol4f* mat, const SLVLight& lights);
+    SLCol4f shade(SLRay* ray, SLNode* root, SLCol4f* mat, const SLVLight& lights);
     void    saveImage();
 
     // Setters

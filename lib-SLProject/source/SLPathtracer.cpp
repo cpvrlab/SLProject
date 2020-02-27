@@ -223,7 +223,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
         }
 
         if (_calcDirect)
-            finalColor += shade(ray, &objectColor, lights) * scaleBy;
+            finalColor += shade(ray, root, &objectColor, lights) * scaleBy;
 
         if (_calcIndirect)
         {
@@ -335,7 +335,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
 /*!
 Calculates direct illumination for intersection point of ray
 */
-SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor, const SLVLight& lights)
+SLCol4f SLPathtracer::shade(SLRay* ray, SLNode* root, SLCol4f* objectColor, const SLVLight& lights)
 {
     SLCol4f color        = SLCol4f::BLACK;
     SLCol4f diffuseColor = SLCol4f::BLACK;
@@ -354,7 +354,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* objectColor, const SLVLight& li
             LdN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray, L, lightDist) : 0);
+            lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray, L, lightDist, root) : 0);
 
             // calculate spot effect if light is a spotlight
             if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)

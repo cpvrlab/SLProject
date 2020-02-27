@@ -17,6 +17,7 @@
 
 class SLSceneView;
 class SLRay;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
@@ -44,9 +45,11 @@ class SLLightDirect
 {
 public:
     SLLightDirect(SLAssetManager* assetMgr,
+                  SLScene*        s,
                   SLfloat         arrowLength = 0.5f,
                   SLbool          hasMesh     = true);
     SLLightDirect(SLAssetManager* assetMgr,
+                  SLScene*        s,
                   SLfloat         posx,
                   SLfloat         posy,
                   SLfloat         posz,
@@ -57,7 +60,7 @@ public:
                   SLbool          hasMesh     = true);
     ~SLLightDirect() { ; }
 
-    void init();
+    void init(SLScene* s);
     bool hitRec(SLRay* ray);
     void statsRec(SLNodeStats& stats);
     void drawMeshes(SLSceneView* sv);
@@ -65,10 +68,12 @@ public:
     void    setState();
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       const SLfloat  lightDist);
+                       const SLfloat  lightDist,
+                       SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         const SLfloat  lightDist);
+                         const SLfloat  lightDist,
+                         SLNode*        root3D) override;
 
     // Getters
     SLfloat radius() { return _arrowRadius; }

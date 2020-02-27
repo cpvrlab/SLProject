@@ -547,7 +547,7 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
         SLfloat  arrowLength = boundingBox.radiusWS() > FLT_EPSILON
                                 ? boundingBox.radiusWS() * 0.1f
                                 : 0.5f;
-        SLLightDirect* light = new SLLightDirect(this, 0, 0, 0, arrowLength, 1.0f, 1.0f, 1.0f);
+        SLLightDirect* light = new SLLightDirect(this, this, 0, 0, 0, arrowLength, 1.0f, 1.0f, 1.0f);
         SLVec3f        pos   = boundingBox.maxWS().isZero()
                         ? SLVec3f(1, 1, 1)
                         : boundingBox.maxWS() * 1.1f;

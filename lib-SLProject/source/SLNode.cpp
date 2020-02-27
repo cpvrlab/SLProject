@@ -15,7 +15,6 @@
 #endif
 
 #include <SLAnimation.h>
-#include <SLApplication.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -174,25 +173,26 @@ bool SLNode::removeMesh(SLstring name)
 Returns true if the node contains the provided mesh. Removes and deletes the
 mesh. The mesh is also removed from scene
 */
-SLbool SLNode::deleteMesh(SLMesh* mesh)
-{
-    assert(mesh);
-    for (SLulong i = 0; i < _meshes.size(); ++i)
-    {
-        if (_meshes[i] == mesh)
-        {
-            _meshes.erase(_meshes.begin() + i);
-
-            //also delete mesh from scene
-            SLApplication::scene->removeMesh(mesh);
-            delete mesh;
-            mesh = nullptr;
-
-            return true;
-        }
-    }
-    return false;
-}
+// todo: use removeMesh and delete it outside
+//SLbool SLNode::deleteMesh(SLMesh* mesh)
+//{
+//    assert(mesh);
+//    for (SLulong i = 0; i < _meshes.size(); ++i)
+//    {
+//        if (_meshes[i] == mesh)
+//        {
+//            _meshes.erase(_meshes.begin() + i);
+//
+//            //also delete mesh from scene
+//            SLApplication::scene->removeMesh(mesh);
+//            delete mesh;
+//            mesh = nullptr;
+//
+//            return true;
+//        }
+//    }
+//    return false;
+//}
 //-----------------------------------------------------------------------------
 /*! Finds a mesh by name and returns its pointer. Optionally you can search
 the node hierarchy recursively.
