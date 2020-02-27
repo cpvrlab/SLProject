@@ -1195,3 +1195,26 @@ void SLNode::update()
         child->update();
 }
 //-----------------------------------------------------------------------------
+//update all meshes recursively
+bool SLNode::updateMeshes(bool updateAccelStruct)
+{
+    bool hasChanges = false;
+    for (auto mesh : _meshes)
+    {
+        // Do software skinning on all changed skeletons
+        if (mesh->skeleton() && mesh->skeleton()->changed())
+        {
+            mesh->transformSkin();
+            hasChanges = true;
+        }
+
+        // update any out of date acceleration structure for RT or if they're being rendered.
+        if (updateAccelStruct)
+            mesh->updateAccelStruct();
+    }
+
+    for (auto child : _children)
+        hasChanges |= child->updateMeshes(updateAccelStruct);
+
+    return hasChanges;
+}

@@ -289,6 +289,8 @@ public:
     //CVTracked*      tracker() { return _tracker; }
     void         update();
     virtual void doUpdate() {}
+    //update all meshes recursively: Do software skinning on all changed skeletons && update any out of date acceleration structure for RT or if they're being rendered.
+    bool updateMeshes(bool updateAccelStruct);
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 

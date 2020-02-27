@@ -284,11 +284,11 @@ bool SLScene::onUpdate()
     if (_root3D)
         _root3D->update();
 
-    // reset the dirty flag on all skeletons
-    for (auto skeleton : _animManager.skeletons())
-        skeleton->changed(false);
-
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
+
+    // Do software skinning on all changed skeletons. Update any out of date acceleration structure for RT or if they're being rendered.
+    if (_root3D)
+        sceneHasChanged |= _root3D->updateMeshes(renderTypeIsRT || voxelsAreShown);
 
     // Do software skinning on all changed skeletons
     //for (auto mesh : _meshes)

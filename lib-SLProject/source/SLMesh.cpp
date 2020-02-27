@@ -472,7 +472,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     // 7: Draw selected mesh with points
     ////////////////////////////////////
-    SLScene* s = SLApplication::scene;
+    SLScene* s = &sv->s();
 
     if (s->selectedNode() == node &&
         s->selectedMesh() == this)

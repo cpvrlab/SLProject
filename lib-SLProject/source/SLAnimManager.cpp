@@ -103,6 +103,10 @@ SLAnimPlayback* SLAnimManager::nodeAnimPlayback(const SLstring& name)
 //! Advances the time of all enabled animation plays.
 SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
 {
+    // reset the dirty flag on all skeletons
+    for (auto skeleton : _skeletons)
+        skeleton->changed(false);
+
     SLbool updated = false;
 
     // advance time for node animations and apply them
