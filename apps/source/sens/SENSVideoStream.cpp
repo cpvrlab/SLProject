@@ -75,13 +75,17 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     cv::Mat      rgbImg;
     cv::Mat      grayImg;
 
-    int nextFrame = _frameId;
+    int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
+    int skippedFrame = 0;
     float frameTime;
     do
     {
-        frameTime = nextFrame / _fps;
+        frameTime = frameIndex + skippedFrame / _fps;
+        skippedFrame++;
     }
-    while (frameTime < _lastFrameTime < 1.0 / _targetFps)
+    while ((frameTime - _lastFrameTime) < 1.0 / _targetFps);
+
+    moveCapturePosition(skippedFrame);
 
     if (_cap.read(rgbImg))
     {
@@ -100,6 +104,26 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     }
 
     return std::move(sensFrame);
+}
+
+SENSFramePtr SENSVideoStream::grabPreviousResampledFrame()
+{
+    int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
+    int skippedFrame = 0;
+    float frameTime;
+    float currentFrameTime = frameIndex / _fps;
+
+    do
+    {
+        frameTime = frameIndex - skippedFrame / _fps;
+        skippedFrame++;
+    }
+    while ((currentFrameTime - frameTime) > 1.0 / _targetFps);
+
+    _lastFrameTime = frameTime;
+
+    moveCapturePosition(-skippedFrame+1);
+    return std::move(grabNextFrame());
 }
 
 SENSFramePtr SENSVideoStream::grabPreviousFrame()
