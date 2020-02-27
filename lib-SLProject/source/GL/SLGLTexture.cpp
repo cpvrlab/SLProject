@@ -14,7 +14,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
 #include <Utils.h>
@@ -745,7 +744,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLVushort I = {0, 1, 2, 3};
 
-        SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
+        SLGLProgram* sp = SLGLTextureOnlyProgram::instance();
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
         _vaoSprite.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
@@ -759,7 +758,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     // Draw the character triangles
     SLGLState*   stateGL = SLGLState::instance();
     SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-    SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
+    SLGLProgram* sp = SLGLTextureOnlyProgram::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);

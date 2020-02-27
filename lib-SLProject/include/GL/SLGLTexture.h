@@ -19,6 +19,7 @@
 
 class SLGLState;
 class SLAssetManager;
+class SLGLProgram;
 
 //-----------------------------------------------------------------------------
 // Special constants for anisotropic filtering

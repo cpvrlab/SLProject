@@ -273,25 +273,6 @@ bool CVCalibration::save(const string& calibDir,
     fs << "cameraFovHDeg" << _cameraFovHDeg;
     fs << "camSizeIndex" << _camSizeIndex;
     fs << "computerInfos" << _computerInfos;
-    /*
-    SLGLState* stateGL = SLGLState::instance();
-    fs << "computerUser" << SLApplication::computerUser;
-    fs << "computerName" << SLApplication::computerName;
-    fs << "computerBrand" << SLApplication::computerBrand;
-    fs << "computerArch" << SLApplication::computerArch;
-    fs << "computerOS" << SLApplication::computerOS;
-    fs << "computerOSVer" << SLApplication::computerOSVer;
-    fs << "OpenGLVersion" << stateGL->glVersionNO();
-    fs << "OpenGLVendor" << stateGL->glVendor();
-    fs << "OpenGLRenderer" << stateGL->glRenderer();
-    fs << "GLSLVersion" << stateGL->glSLVersionNO();
-    fs << "SLProjectVersion" << SLApplication::version;
-    fs << "DeviceLensAperture" << SLApplication::deviceParameter["DeviceLensAperture"];
-    fs << "DeviceLensFocusDistanceCalibration" << SLApplication::deviceParameter["DeviceLensFocusDistanceCalibration"];
-    fs << "DeviceLensMinimumFocusDistance" << SLApplication::deviceParameter["DeviceLensMinimumFocusDistance"];
-    fs << "DeviceSensorActiveArraySizeW" << SLApplication::deviceParameter["DeviceSensorActiveArraySizeW"];
-    fs << "DeviceSensorActiveArraySizeH" << SLApplication::deviceParameter["DeviceSensorActiveArraySizeH"];
-    */
 
     // close file
     fs.release();

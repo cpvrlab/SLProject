@@ -10,13 +10,13 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLTransferFunction.h>
 
 //-----------------------------------------------------------------------------
 //! ctor with vector of alpha values and a predefined color LUT scheme
-SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
+SLTransferFunction::SLTransferFunction(SLAssetManager*  assetMgr,
+                                       SLVTransferAlpha alphaValues,
                                        SLColorLUT       lut,
                                        SLuint           length)
 {
@@ -36,10 +36,12 @@ SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
     generateTexture();
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 } //-----------------------------------------------------------------------------
 //! ctor with vector of alpha and color values
-SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
+SLTransferFunction::SLTransferFunction(SLAssetManager*  assetMgr,
+                                       SLVTransferAlpha alphaValues,
                                        SLVTransferColor colorValues,
                                        SLuint           length)
 {
@@ -60,7 +62,8 @@ SLTransferFunction::SLTransferFunction(SLVTransferAlpha alphaValues,
     generateTexture();
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 SLTransferFunction::~SLTransferFunction()
@@ -262,7 +265,7 @@ SLVfloat SLTransferFunction::allAlphas()
     for (SLuint i = 0; i < _length; ++i)
     {
         CVVec4f c4f = _images[0]->getPixeli((SLint)i, 0);
-        allA[i] = c4f[3];
+        allA[i]     = c4f[3];
     }
 
     return allA;

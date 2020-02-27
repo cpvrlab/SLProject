@@ -1585,7 +1585,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
                                      SLTransferAlpha(0.01f, 0.75f),
                                      SLTransferAlpha(1.00f, 1.00f)};
-        SLTransferFunction* tf       = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
+        SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLGenericProgram(s, "VolumeRenderingRayCast.vert", "VolumeRenderingRayCast.frag");
@@ -1652,7 +1652,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
                                      SLTransferAlpha(0.01f, 0.75f),
                                      SLTransferAlpha(1.00f, 1.00f)};
-        SLTransferFunction* tf       = new SLTransferFunction(tfAlphas, CLUT_BCGYR);
+        SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLGenericProgram(s, "VolumeRenderingRayCast.vert", "VolumeRenderingRayCastLighted.frag");

@@ -43,6 +43,7 @@ public:
     virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }
     virtual void endShader() { endUse(); }
 };
+
 //-----------------------------------------------------------------------------
 
 class SLGLColorUniformProgram : public SLGLGenericProgram
@@ -57,6 +58,22 @@ public:
 private:
     SLGLColorUniformProgram()
       : SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")
+    {
+    }
+};
+//-----------------------------------------------------------------------------
+class SLGLTextureOnlyProgram : public SLGLGenericProgram
+{
+public:
+    static SLGLTextureOnlyProgram* instance()
+    {
+        static SLGLTextureOnlyProgram instance;
+        return &instance;
+    }
+
+private:
+    SLGLTextureOnlyProgram()
+      : SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag")
     {
     }
 };
