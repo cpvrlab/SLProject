@@ -268,7 +268,8 @@ added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
 materials within the file are ignored.
 */
-SLNode* SLAssimpImporter::load(SLAssetManager* assetMgr,
+SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
+                               SLAssetManager* assetMgr,
                                SLstring        file,           //!< File with path or on default path
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
@@ -309,7 +310,7 @@ SLNode* SLAssimpImporter::load(SLAssetManager* assetMgr,
     performInitialScan(scene);
 
     // load skeleton
-    loadSkeleton(nullptr, _skeletonRoot);
+    loadSkeleton(aniMan, nullptr, _skeletonRoot);
 
     // load materials
     SLstring    modelPath = Utils::getPath(file);
@@ -350,7 +351,7 @@ SLNode* SLAssimpImporter::load(SLAssetManager* assetMgr,
     // load animations
     vector<SLAnimation*> animations;
     for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
-        animations.push_back(loadAnimation(scene->mAnimations[i]));
+        animations.push_back(loadAnimation(aniMan, scene->mAnimations[i]));
 
     logMessage(LV_minimal, "\n---------------------------\n\n");
 
@@ -594,7 +595,7 @@ void SLAssimpImporter::findSkeletonRoot()
 }
 //-----------------------------------------------------------------------------
 //! Loads the skeleton
-void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
+void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node)
 {
     if (!node)
         return;
@@ -605,7 +606,8 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     if (!parent)
     {
         logMessage(LV_normal, "Loading skeleton skeleton.\n");
-        _skeleton   = new SLSkeleton;
+        _skeleton = new SLSkeleton;
+        animManager.skeletons().push_back(_skeleton);
         _jointIndex = 0;
 
         joint = _skeleton->createJoint(name, _jointIndex++);
@@ -645,7 +647,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     joint->setInitialState();
 
     for (SLuint i = 0; i < node->mNumChildren; i++)
-        loadSkeleton(joint, node->mChildren[i]);
+        loadSkeleton(animManager, joint, node->mChildren[i]);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1063,7 +1065,7 @@ SLNode* SLAssimpImporter::loadNodesRec(
 /*!
 SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
-SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
+SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnimation* anim)
 {
     ostringstream oss;
     oss << "unnamed_anim_" << SLApplication::scene->animManager().allAnimNames().size();
@@ -1090,10 +1092,10 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     // create the animation
     SLAnimation* result;
     if (_skeleton)
-        result = _skeleton->createAnimation(animName, animDuration);
+        result = _skeleton->createAnimation(animManager, animName, animDuration);
     else
     {
-        result = SLApplication::scene->animManager().createNodeAnimation(animName, animDuration);
+        result = animManager.createNodeAnimation(animName, animDuration);
         _nodeAnimations.push_back(result);
     }
 

@@ -522,7 +522,8 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
     SLAssimpImporter importer;
 
     /////////////////////////////////////////////
-    SLNode* loaded = importer.load(this,
+    SLNode* loaded = importer.load(_animManager,
+                                   this,
                                    assetFile,
                                    true,
                                    nullptr,

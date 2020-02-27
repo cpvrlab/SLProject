@@ -22,6 +22,7 @@ struct aiAnimation;
 struct aiMesh;
 
 class SLAssetManager;
+class SLAnimManager;
 
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
@@ -41,7 +42,8 @@ public:
                               SLLogVerbosity logFileVerb    = LV_diagnostic)
       : SLImporter(logFile, logConsoleVerb, logFileVerb) {}
 
-    SLNode* load(SLAssetManager* assetMgr,
+    SLNode* load(SLAnimManager&  aniMan,
+                 SLAssetManager* assetMgr,
                  SLstring        pathFilename,
                  SLbool          loadMeshesOnly = true,
                  SLMaterial*     overrideMat    = nullptr,
@@ -102,7 +104,7 @@ protected:
     void findJoints(const aiScene* scene); // scans all meshes in the assimp scene and populates nameToJoint and jointGroups
     void findSkeletonRoot();               // finds the common ancestor for each remaining group in jointGroups, these are our final skeleton roots
 
-    void                loadSkeleton(SLJoint* parent, aiNode* node);
+    void                loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node);
     static SLMaterial*  loadMaterial(SLAssetManager* s,
                                      SLint           index,
                                      aiMaterial*     material,
@@ -115,7 +117,7 @@ protected:
                                      aiNode*    aiNode,
                                      SLMeshMap& meshes,
                                      SLbool     loadMeshesOnly = true);
-    SLAnimation*        loadAnimation(aiAnimation* anim);
+    SLAnimation*        loadAnimation(SLAnimManager& animManager, aiAnimation* anim);
     static SLstring     checkFilePath(const SLstring& modelPath, SLstring texFile);
     SLbool              aiNodeHasMesh(aiNode* node);
 
