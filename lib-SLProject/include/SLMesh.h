@@ -25,6 +25,7 @@ class SLRay;
 class SLSkeleton;
 class SLGLState;
 class SLGLProgram;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
@@ -119,7 +120,7 @@ transformed vertices and normals are stored in _finalP and _finalN.
 class SLMesh : public SLObject
 {
 public:
-    explicit SLMesh(const SLstring& name = "Mesh");
+    explicit SLMesh(SLAssetManager* assetMgr, const SLstring& name = "Mesh");
     ~SLMesh() override;
 
     virtual void init(SLNode* node);

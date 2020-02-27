@@ -16,6 +16,7 @@
 
 class SLSceneView;
 class SLRay;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
@@ -39,10 +40,11 @@ following shaders: \n
 class SLLightRect : public SLNode
   , public SLLight
 {
-    public:
-    SLLightRect(SLfloat width   = 1,
-                SLfloat height  = 1,
-                SLbool  hasMesh = true);
+public:
+    SLLightRect(SLAssetManager* assetMgr,
+                SLfloat         width   = 1,
+                SLfloat         height  = 1,
+                SLbool          hasMesh = true);
     ~SLLightRect() { ; }
 
     void init();
@@ -82,7 +84,7 @@ class SLLightRect : public SLNode
                                          _wm.m(10)) *
                                  -1.0; }
 
-    private:
+private:
     SLfloat _width;      //!< Width of square light in x direction
     SLfloat _height;     //!< Lenght of square light in y direction
     SLfloat _halfWidth;  //!< Half width of square light in x dir

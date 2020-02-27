@@ -23,9 +23,10 @@
 #include <SLSpheric.h>
 
 //-----------------------------------------------------------------------------
-SLLightSpot::SLLightSpot(SLfloat radius,
-                         SLfloat spotAngleDEG,
-                         SLbool  hasMesh) : SLNode("LightSpot Node")
+SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
+                         SLfloat         radius,
+                         SLfloat         spotAngleDEG,
+                         SLbool          hasMesh) : SLNode("LightSpot Node")
 {
     _radius = radius;
     _samples.samples(1, 1, false);
@@ -33,20 +34,22 @@ SLLightSpot::SLLightSpot(SLfloat radius,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+        SLMaterial* mat = new SLMaterial(assetMgr,
                                          "LightSpot Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         if (spotAngleDEG < 180.0f)
         {
-            addMesh(new SLSpheric(radius,
+            addMesh(new SLSpheric(assetMgr,
+                                  radius,
                                   0.0f,
                                   spotAngleDEG,
                                   16,
                                   16,
                                   "LightSpot Mesh",
                                   mat));
-            addMesh(new SLSpheric(radius,
+            addMesh(new SLSpheric(assetMgr,
+                                  radius,
                                   spotAngleDEG,
                                   180.0f,
                                   16,
@@ -55,21 +58,22 @@ SLLightSpot::SLLightSpot(SLfloat radius,
                                   SLMaterial::defaultGray(SLApplication::scene)));
         }
         else
-            addMesh(new SLSphere(radius, 16, 16, "LightSpot Mesh", mat));
+            addMesh(new SLSphere(assetMgr, radius, 16, 16, "LightSpot Mesh", mat));
     }
 
     init();
 }
 //-----------------------------------------------------------------------------
-SLLightSpot::SLLightSpot(SLfloat posx,
-                         SLfloat posy,
-                         SLfloat posz,
-                         SLfloat radius,
-                         SLfloat spotAngleDEG,
-                         SLfloat ambiPower,
-                         SLfloat diffPower,
-                         SLfloat specPower,
-                         SLbool  hasMesh)
+SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
+                         SLfloat         posx,
+                         SLfloat         posy,
+                         SLfloat         posz,
+                         SLfloat         radius,
+                         SLfloat         spotAngleDEG,
+                         SLfloat         ambiPower,
+                         SLfloat         diffPower,
+                         SLfloat         specPower,
+                         SLbool          hasMesh)
   : SLNode("LightSpot Node"),
     SLLight(ambiPower, diffPower, specPower)
 {
@@ -87,14 +91,16 @@ SLLightSpot::SLLightSpot(SLfloat posx,
                                          SLCol4f::BLACK);
         if (spotAngleDEG < 180.0f)
         {
-            addMesh(new SLSpheric(radius,
+            addMesh(new SLSpheric(assetMgr,
+                                  radius,
                                   0.0f,
                                   spotAngleDEG,
                                   16,
                                   16,
                                   "LightSpot Mesh",
                                   mat));
-            addMesh(new SLSpheric(radius,
+            addMesh(new SLSpheric(assetMgr,
+                                  radius,
                                   spotAngleDEG,
                                   180.0f,
                                   16,
@@ -103,7 +109,7 @@ SLLightSpot::SLLightSpot(SLfloat posx,
                                   SLMaterial::defaultGray(SLApplication::scene)));
         }
         else
-            addMesh(new SLSphere(radius, 16, 16, "LightSpot Mesh", mat));
+            addMesh(new SLSphere(assetMgr, radius, 16, 16, "LightSpot Mesh", mat));
     }
     init();
 }

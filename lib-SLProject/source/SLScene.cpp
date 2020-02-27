@@ -98,9 +98,9 @@ SLScene::~SLScene()
     // clear light pointers
     _lights.clear();
 
-    // delete materials
-    for (auto m : _meshes) delete m;
-    _meshes.clear();
+    //// delete materials
+    //for (auto m : _meshes) delete m;
+    //_meshes.clear();
 
     // delete fonts
     SLTexFont::deleteFonts();
@@ -182,9 +182,9 @@ void SLScene::unInit()
     //_materials.clear();
 
     // delete meshes
-    for (auto m : _meshes)
-        delete m;
-    _meshes.clear();
+    //for (auto m : _meshes)
+    //    delete m;
+    //_meshes.clear();
 
     SLMaterial::current = nullptr;
 
@@ -291,18 +291,18 @@ bool SLScene::onUpdate()
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
 
     // Do software skinning on all changed skeletons
-    for (auto mesh : _meshes)
-    {
-        if (mesh->skeleton() && mesh->skeleton()->changed())
-        {
-            mesh->transformSkin();
-            sceneHasChanged = true;
-        }
+    //for (auto mesh : _meshes)
+    //{
+    //    if (mesh->skeleton() && mesh->skeleton()->changed())
+    //    {
+    //        mesh->transformSkin();
+    //        sceneHasChanged = true;
+    //    }
 
-        // update any out of date acceleration structure for RT or if they're being rendered.
-        if (renderTypeIsRT || voxelsAreShown)
-            mesh->updateAccelStruct();
-    }
+    //    // update any out of date acceleration structure for RT or if they're being rendered.
+    //    if (renderTypeIsRT || voxelsAreShown)
+    //        mesh->updateAccelStruct();
+    //}
 
     _updateAnimTimesMS.set(GlobalTimer::timeMS() - startAnimUpdateMS);
 
@@ -426,23 +426,6 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
     return cams[(uint)activeIndex];
 }
-//-----------------------------------------------------------------------------
-/*! Removes the specified mesh from the meshes resource vector.
-*/
-bool SLScene::removeMesh(SLMesh* mesh)
-{
-    assert(mesh);
-    for (SLulong i = 0; i < _meshes.size(); ++i)
-    {
-        if (_meshes[i] == mesh)
-        {
-            _meshes.erase(_meshes.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
-
 //-----------------------------------------------------------------------------
 SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
   : SLScene(name, onSceneLoadCallback)

@@ -328,7 +328,7 @@ SLNode* SLAssimpImporter::load(SLAssetManager* assetMgr,
     std::map<int, SLMesh*> meshMap; // map from the ai index to our mesh
     for (SLint i = 0; i < (SLint)scene->mNumMeshes; i++)
     {
-        SLMesh* mesh = loadMesh(scene->mMeshes[i]);
+        SLMesh* mesh = loadMesh(assetMgr, scene->mMeshes[i]);
         if (mesh != nullptr)
         {
             if (overrideMat)
@@ -773,7 +773,7 @@ SLAssimpImporter::loadMesh creates a new SLMesh an copies the meshs vertex data 
 triangle face indices. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
-SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
+SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
 {
     // Count first the NO. of triangles in the mesh
     SLuint numPoints    = 0;
@@ -831,7 +831,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
     // create a new mesh.
     // The mesh pointer is added automatically to the SLScene::meshes vector.
     SLstring name = mesh->mName.data;
-    SLMesh*  m    = new SLMesh(name.empty() ? "Imported Mesh" : name);
+    SLMesh*  m    = new SLMesh(assetMgr, name.empty() ? "Imported Mesh" : name);
 
     // Set primitive type
     if (numTriangles) m->primitive(SLGLPrimitiveType::PT_triangles);

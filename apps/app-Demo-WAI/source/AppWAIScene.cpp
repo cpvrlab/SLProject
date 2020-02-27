@@ -24,11 +24,11 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     spanningTree      = new SLNode("SpanningTree");
     loopEdges         = new SLNode("LoopEdges");
 
-    redMat = new SLMaterial(SLCol4f::RED, "Red");
-    redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    redMat = new SLMaterial(s, SLCol4f::RED, "Red");
+    redMat->program(new SLGLGenericProgram(s, "ColorUniformPoint.vert", "Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
     greenMat = new SLMaterial(SLCol4f::GREEN, "Green");
-    greenMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    greenMat->program(new SLGLGenericProgram(s, "ColorUniformPoint.vert", "Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
     blueMat = new SLMaterial(SLCol4f::BLUE, "Blue");
     blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));

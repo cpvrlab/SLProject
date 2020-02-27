@@ -33,6 +33,11 @@ SLGLConetracer::~SLGLConetracer()
     if (_conetraceMat)
         delete _conetraceMat;
 
+    if (_quadMesh)
+        delete _quadMesh;
+    if (_cubeMesh)
+        delete _cubeMesh;
+
     for (SLGLProgram* p : _programs)
         delete p;
 }
@@ -95,8 +100,9 @@ void SLGLConetracer::init(SLint scrW, SLint scrH, const SLVec3f& minWs, const SL
     _visualizeBackfaceFBO  = new SLGLFbo(scrW, scrH);
     _visualizeFrontfaceFBO = new SLGLFbo(scrW, scrH);
 
-    _quadMesh = new SLRectangle(SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
-    _cubeMesh = new SLBox(-1, -1, -1);
+    //SLGLConetracer manages the livetime of the following meshes
+    _quadMesh = new SLRectangle(nullptr, SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
+    _cubeMesh = new SLBox(nullptr, -1, -1, -1);
 
     // The world's bounding box should not change during runtime.
     calcWS2VoxelSpaceTransform(minWs, maxWs);

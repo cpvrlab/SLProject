@@ -20,13 +20,14 @@
 /*!
 SLCone::SLCone ctor for conic revolution object around the z-axis
 */
-SLCone::SLCone(SLfloat     coneRadius,
-               SLfloat     coneHeight,
-               SLuint      stacks,
-               SLuint      slices,
-               SLbool      hasBottom,
-               SLstring    name,
-               SLMaterial* mat) : SLRevolver(name)
+SLCone::SLCone(SLAssetManager* assetMgr,
+               SLfloat         coneRadius,
+               SLfloat         coneHeight,
+               SLuint          stacks,
+               SLuint          slices,
+               SLbool          hasBottom,
+               SLstring        name,
+               SLMaterial*     mat) : SLRevolver(assetMgr, name)
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");

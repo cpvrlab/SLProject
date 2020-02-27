@@ -18,8 +18,8 @@
 
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor with corner points vector
-SLPolygon::SLPolygon(SLVVec3f corners, SLstring name, SLMaterial* mat)
-  : SLMesh(name)
+SLPolygon::SLPolygon(SLAssetManager* assetMgr, SLVVec3f corners, SLstring name, SLMaterial* mat)
+  : SLMesh(assetMgr, name)
 {
     assert(corners.size() > 2);
     _corners = corners;
@@ -27,10 +27,11 @@ SLPolygon::SLPolygon(SLVVec3f corners, SLstring name, SLMaterial* mat)
 }
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor with corner points and its texture coords vector
-SLPolygon::SLPolygon(SLVVec3f    corners,
-                     SLVVec2f    texCoords,
-                     SLstring    name,
-                     SLMaterial* mat) : SLMesh(name)
+SLPolygon::SLPolygon(SLAssetManager* assetMgr,
+                     SLVVec3f        corners,
+                     SLVVec2f        texCoords,
+                     SLstring        name,
+                     SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(corners.size() > 2 && texCoords.size() == corners.size());
     _corners  = corners;
@@ -39,10 +40,11 @@ SLPolygon::SLPolygon(SLVVec3f    corners,
 }
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor for centered light rectangle in x/y-plane w. N=-z
-SLPolygon::SLPolygon(SLfloat     width,
-                     SLfloat     height,
-                     SLstring    name,
-                     SLMaterial* mat) : SLMesh(name)
+SLPolygon::SLPolygon(SLAssetManager* assetMgr,
+                     SLfloat         width,
+                     SLfloat         height,
+                     SLstring        name,
+                     SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(width > 0 && height > 0);
     SLfloat hw = width * 0.5f;

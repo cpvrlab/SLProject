@@ -42,17 +42,19 @@ class SLLightDirect
   : public SLNode
   , public SLLight
 {
-    public:
-    SLLightDirect(SLfloat arrowLength = 0.5f,
-                  SLbool  hasMesh     = true);
-    SLLightDirect(SLfloat posx,
-                  SLfloat posy,
-                  SLfloat posz,
-                  SLfloat arrowLength = 0.5f,
-                  SLfloat ambiPower   = 1.0f,
-                  SLfloat diffPower   = 10.0f,
-                  SLfloat specPower   = 10.0f,
-                  SLbool  hasMesh     = true);
+public:
+    SLLightDirect(SLAssetManager* assetMgr,
+                  SLfloat         arrowLength = 0.5f,
+                  SLbool          hasMesh     = true);
+    SLLightDirect(SLAssetManager* assetMgr,
+                  SLfloat         posx,
+                  SLfloat         posy,
+                  SLfloat         posz,
+                  SLfloat         arrowLength = 0.5f,
+                  SLfloat         ambiPower   = 1.0f,
+                  SLfloat         diffPower   = 10.0f,
+                  SLfloat         specPower   = 10.0f,
+                  SLbool          hasMesh     = true);
     ~SLLightDirect() { ; }
 
     void init();
@@ -83,7 +85,7 @@ class SLLightDirect
 
     SLVec3f spotDirWS() { return forwardOS(); }
 
-    private:
+private:
     SLfloat _arrowRadius; //!< The sphere lights radius
     SLfloat _arrowLength; //!< Length of direction line
 };

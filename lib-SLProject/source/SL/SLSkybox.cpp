@@ -56,7 +56,8 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
 
     // Create a box with max. point at min. parameter and vice versa.
     // Like this the boxes normals will point to the inside.
-    this->addMesh(new SLBox(10, 10, 10, -10, -10, -10, "box", matCubeMap));
+    assert(assetMgr && "SLSkybox: asset manager is currently mandandory for skyboxes! Alternatively the livetime of the box has to be managed in the skybox!");
+    this->addMesh(new SLBox(assetMgr, 10, 10, 10, -10, -10, -10, "box", matCubeMap));
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.

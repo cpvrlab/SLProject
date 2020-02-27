@@ -23,7 +23,7 @@
  (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
  example of the different steps.
  */
-void appNodeLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sid)
+void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid)
 {
     s->init();
 
@@ -33,7 +33,7 @@ void appNodeLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sid)
     cam1->focalDist(6);
     cam1->background().colors(SLCol4f(0.8f, 0.8f, 0.8f));
 
-    SLLightSpot* light1 = new SLLightSpot(0.3f);
+    SLLightSpot* light1 = new SLLightSpot(s, 0.3f);
     light1->translation(10, 10, 10);
 
     SLNode* scene = new SLNode;

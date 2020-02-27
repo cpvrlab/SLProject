@@ -28,7 +28,7 @@ The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
 in SLScene::unInit().
 */
-SLMesh::SLMesh(const SLstring& name) : SLObject(name)
+SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
 {
     _primitive = PT_triangles;
     mat(nullptr);
@@ -44,7 +44,8 @@ SLMesh::SLMesh(const SLstring& name) : SLObject(name)
     _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
-    SLApplication::scene->meshes().push_back(this);
+    if (assetMgr)
+        assetMgr->meshes().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor deletes everything by calling deleteData.

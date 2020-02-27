@@ -110,7 +110,7 @@ protected:
                                      float           ambientFactor = 0.0f);
     static SLGLTexture* loadTexture(SLstring&     path,
                                     SLTextureType texType);
-    SLMesh*             loadMesh(aiMesh* mesh);
+    SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
     SLNode*             loadNodesRec(SLNode*    curNode,
                                      aiNode*    aiNode,
                                      SLMeshMap& meshes,

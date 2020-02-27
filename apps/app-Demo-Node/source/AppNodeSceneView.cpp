@@ -124,14 +124,14 @@ AppNodeSceneView::~AppNodeSceneView()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::postSceneLoad()
 {
-    SLMaterial* rMat = new SLMaterial(SLApplication::scene, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
-    SLMaterial* gMat = new SLMaterial(SLApplication::scene, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
+    SLMaterial* rMat = new SLMaterial(_s, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
+    SLMaterial* gMat = new SLMaterial(_s, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
 
     // build parent box
     _moveBox = new SLNode("Parent");
     _moveBox->translation(0, 0, 2);
     _moveBox->rotation(22.5f, SLVec3f(0, -1, 0));
-    _moveBox->addMesh(new SLBox(-0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
+    _moveBox->addMesh(new SLBox(&this->s(), -0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
     _moveBox->setInitialState();
 
     // build child box
@@ -139,20 +139,20 @@ void AppNodeSceneView::postSceneLoad()
     _moveBoxChild->translation(0, 1, 0);
     _moveBoxChild->rotation(22.5f, SLVec3f(0, -1, 0));
     _moveBoxChild->setInitialState();
-    _moveBoxChild->addMesh(new SLBox(-0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
+    _moveBoxChild->addMesh(new SLBox(_s, -0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
     _moveBox->addChild(_moveBoxChild);
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
-    _axesNode = importer.load(SLApplication::scene, "FBX/Axes/axes_blender.fbx");
+    _axesNode = importer.load(_s, "FBX/Axes/axes_blender.fbx");
 
-    SLApplication::scene->root3D()->addChild(_moveBox);
-    SLApplication::scene->root3D()->addChild(_axesNode);
+    _s->root3D()->addChild(_moveBox);
+    _s->root3D()->addChild(_axesNode);
 
     if (!_curObject)
     {
         _curObject = _moveBoxChild;
-        SLApplication::scene->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+        _s->selectNodeMesh(_curObject, _curObject->meshes()[0]);
     }
     updateInfoText();
     updateCurOrigin();

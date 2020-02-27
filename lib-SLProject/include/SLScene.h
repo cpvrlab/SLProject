@@ -42,9 +42,31 @@ public:
         for (auto t : _textures) delete t;
         _textures.clear();
 
+        // delete meshes
+        for (auto m : _meshes)
+            delete m;
+        _meshes.clear();
+
         // delete shader programs
         for (auto p : _programs) delete p;
         _programs.clear();
+    }
+
+    //-----------------------------------------------------------------------------
+    /*! Removes the specified mesh from the meshes resource vector.
+*/
+    bool removeMesh(SLMesh* mesh)
+    {
+        assert(mesh);
+        for (SLulong i = 0; i < _meshes.size(); ++i)
+        {
+            if (_meshes[i] == mesh)
+            {
+                _meshes.erase(_meshes.begin() + i);
+                return true;
+            }
+        }
+        return false;
     }
 
     //SLVGLProgram& defaultPrograms() { return _defaultPrograms; }
@@ -53,12 +75,14 @@ public:
     SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
     SLVMaterial&  materials() { return _materials; }
     SLVGLTexture& textures() { return _textures; }
+    SLVMesh&      meshes() { return _meshes; }
 
 protected:
     //SLVGLProgram _defaultPrograms; //!< Vector of all shader program pointers
     SLVGLProgram _programs;  //!< Vector of all shader program pointers
     SLVMaterial  _materials; //!< Vector of all materials pointers
     SLVGLTexture _textures;  //!< Vector of all texture pointers
+    SLVMesh      _meshes;    //!< Vector of all meshes
 };
 
 //-----------------------------------------------------------------------------
@@ -118,7 +142,7 @@ public:
     AvgFloat& cullTimesMS() { return _cullTimesMS; }
     AvgFloat& draw2DTimesMS() { return _draw2DTimesMS; }
     AvgFloat& draw3DTimesMS() { return _draw3DTimesMS; }
-    SLVMesh&  meshes() { return _meshes; }
+    //SLVMesh&  meshes() { return _meshes; }
     SLNode*   selectedNode() { return _selectedNode; }
     SLMesh*   selectedMesh() { return _selectedMesh; }
     SLRectf&  selectedRect() { return _selectedRect; }
@@ -134,11 +158,10 @@ public:
     void unInit();
     void selectNode(SLNode* nodeToSelect);
     void selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
-    bool removeMesh(SLMesh* mesh);
 
 protected:
     SLVSceneView _sceneViews; //!< Vector of all sceneview pointers
-    SLVMesh      _meshes;     //!< Vector of all meshes
+    //SLVMesh      _meshes;     //!< Vector of all meshes
 
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler

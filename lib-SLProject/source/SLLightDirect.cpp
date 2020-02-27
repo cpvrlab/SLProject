@@ -24,8 +24,9 @@
 #include <SLSpheric.h>
 
 //-----------------------------------------------------------------------------
-SLLightDirect::SLLightDirect(SLfloat arrowLength,
-                             SLbool  hasMesh)
+SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
+                             SLfloat         arrowLength,
+                             SLbool          hasMesh)
   : SLNode("LightDirect Node")
 {
     _arrowRadius = arrowLength * 0.1f;
@@ -33,11 +34,12 @@ SLLightDirect::SLLightDirect(SLfloat arrowLength,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+        SLMaterial* mat = new SLMaterial(assetMgr,
                                          "LightDirect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
-        addMesh(new SLArrow(_arrowRadius,
+        addMesh(new SLArrow(assetMgr,
+                            _arrowRadius,
                             _arrowLength,
                             _arrowLength * 0.3f,
                             _arrowRadius * 2.0f,
@@ -49,14 +51,15 @@ SLLightDirect::SLLightDirect(SLfloat arrowLength,
     init();
 }
 //-----------------------------------------------------------------------------
-SLLightDirect::SLLightDirect(SLfloat posx,
-                             SLfloat posy,
-                             SLfloat posz,
-                             SLfloat arrowLength,
-                             SLfloat ambiPower,
-                             SLfloat diffPower,
-                             SLfloat specPower,
-                             SLbool  hasMesh)
+SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
+                             SLfloat         posx,
+                             SLfloat         posy,
+                             SLfloat         posz,
+                             SLfloat         arrowLength,
+                             SLfloat         ambiPower,
+                             SLfloat         diffPower,
+                             SLfloat         specPower,
+                             SLbool          hasMesh)
   : SLNode("Directional Light"),
     SLLight(ambiPower, diffPower, specPower)
 {
@@ -66,11 +69,12 @@ SLLightDirect::SLLightDirect(SLfloat posx,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+        SLMaterial* mat = new SLMaterial(assetMgr,
                                          "LightDirect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
-        addMesh(new SLArrow(_arrowRadius,
+        addMesh(new SLArrow(assetMgr,
+                            _arrowRadius,
                             _arrowLength,
                             _arrowLength * 0.3f,
                             _arrowRadius * 2.0f,

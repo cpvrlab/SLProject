@@ -15,6 +15,8 @@
 
 #include <utility>
 
+class SLAssetManager;
+
 //-----------------------------------------------------------------------------
 //! SLRevolver is an SLMesh object built out of revolving points.
 /*! 
@@ -27,25 +29,29 @@ hard edge. Texture coords. are cylindrically mapped.
 */
 class SLRevolver : public SLMesh
 {
-    public:
+public:
     //! ctor for generic revolver mesh
-    SLRevolver(SLVVec3f    revolvePoints,
-               SLVec3f     revolveAxis,
-               SLuint      slices      = 36,
-               SLbool      smoothFirst = false,
-               SLbool      smoothLast  = false,
-               SLstring    name        = "revolver mesh",
-               SLMaterial* mat         = nullptr);
+    SLRevolver(SLAssetManager* assetMgr,
+               SLVVec3f        revolvePoints,
+               SLVec3f         revolveAxis,
+               SLuint          slices      = 36,
+               SLbool          smoothFirst = false,
+               SLbool          smoothLast  = false,
+               SLstring        name        = "revolver mesh",
+               SLMaterial*     mat         = nullptr);
 
     //! ctor for derived revolver shapes
-    SLRevolver(SLstring name) : SLMesh(std::move(name)) { ; }
-    SLRevolver() { ; }
+    SLRevolver(SLAssetManager* assetMgr, SLstring name) : SLMesh(assetMgr, std::move(name)) { ; }
+    //SLRevolver(SLAssetManager* assetMgr) : SLMesh(assetMgr)
+    //{
+    //    ;
+    //}
 
-    void buildMesh(SLMaterial* mat = nullptr);
-    SLuint  stacks() { return _stacks; }
-    SLuint  slices() { return _slices; }
+    void   buildMesh(SLMaterial* mat = nullptr);
+    SLuint stacks() { return _stacks; }
+    SLuint slices() { return _slices; }
 
-    protected:
+protected:
     SLVVec3f _revPoints; //!< Array revolving points
     SLVec3f  _revAxis;   //!< axis of revolution
     SLuint   _stacks;    //!< No. of stacks (mostly used)

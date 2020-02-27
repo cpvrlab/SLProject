@@ -22,12 +22,13 @@
 /*!
 SLDisk::SLDisk ctor for disk revolution object around the z-axis
 */
-SLDisk::SLDisk(SLfloat        radius,
-               const SLVec3f& revolveAxis,
-               SLuint         slices,
-               SLbool         doubleSided,
-               SLstring       name,
-               SLMaterial*    mat) : SLRevolver(std::move(name))
+SLDisk::SLDisk(SLAssetManager* assetMgr,
+               SLfloat         radius,
+               const SLVec3f&  revolveAxis,
+               SLuint          slices,
+               SLbool          doubleSided,
+               SLstring        name,
+               SLMaterial*     mat) : SLRevolver(assetMgr, std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
 

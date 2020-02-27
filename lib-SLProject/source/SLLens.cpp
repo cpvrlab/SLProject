@@ -46,14 +46,15 @@ From the diopter, the radius (R1, R2) can be calculated: <br>
 radiusFront = (LensMaterial - OutsideMaterial) / FrontDiopter) * diameter;<br>
 radiusBack = (OutsideMaterial - LensMaterial) / BackDiopter) * diameter;<br>
 */
-SLLens::SLLens(double      sphere,
-               double      cylinder,
-               SLfloat     diameter,
-               SLfloat     thickness,
-               SLuint      stacks,
-               SLuint      slices,
-               SLstring    name,
-               SLMaterial* mat) : SLRevolver(name)
+SLLens::SLLens(SLAssetManager* assetMgr,
+               double          sphere,
+               double          cylinder,
+               SLfloat         diameter,
+               SLfloat         thickness,
+               SLuint          stacks,
+               SLuint          slices,
+               SLstring        name,
+               SLMaterial*     mat) : SLRevolver(assetMgr, name)
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");
@@ -85,14 +86,15 @@ Negative radius creates a concave lens side. <br>
 Setting the radius to 0 creates a plane. <br>
 Combine the two radius to get the required lens.
 */
-SLLens::SLLens(SLfloat     radiusBot,
-               SLfloat     radiusTop,
-               SLfloat     diameter,
-               SLfloat     thickness,
-               SLuint      stacks,
-               SLuint      slices,
-               SLstring    name,
-               SLMaterial* mat) : SLRevolver(std::move(name))
+SLLens::SLLens(SLAssetManager* assetMgr,
+               SLfloat         radiusBot,
+               SLfloat         radiusTop,
+               SLfloat         diameter,
+               SLfloat         thickness,
+               SLuint          stacks,
+               SLuint          slices,
+               SLstring        name,
+               SLMaterial*     mat) : SLRevolver(assetMgr, std::move(name))
 {
     SLfloat nOut       = 1.00;      // kn material outside lens
     SLfloat nLens      = mat->kn(); // kn material of the lens

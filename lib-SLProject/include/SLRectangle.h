@@ -21,28 +21,30 @@ the x-y-plane. The normal is [0,0,1].
 */
 class SLRectangle : public SLMesh
 {
-    public:
+public:
     //! ctor for rectangle w. min & max corner
-    SLRectangle(const SLVec2f& min,
-                const SLVec2f& max,
-                SLuint         resX,
-                SLuint         resY,
-                SLstring       name = "rectangle mesh",
-                SLMaterial*    mat  = nullptr);
+    SLRectangle(SLAssetManager* assetMgr,
+                const SLVec2f&  min,
+                const SLVec2f&  max,
+                SLuint          resX,
+                SLuint          resY,
+                SLstring        name = "rectangle mesh",
+                SLMaterial*     mat  = nullptr);
 
     //! ctor for rectangle w. min & max corner & texCoord
-    SLRectangle(const SLVec2f& min,
-                const SLVec2f& max,
-                const SLVec2f& tmin,
-                const SLVec2f& tmax,
-                SLuint         resX,
-                SLuint         resY,
-                SLstring       name = "rectangle mesh",
-                SLMaterial*    mat  = nullptr);
+    SLRectangle(SLAssetManager* assetMgr,
+                const SLVec2f&  min,
+                const SLVec2f&  max,
+                const SLVec2f&  tmin,
+                const SLVec2f&  tmax,
+                SLuint          resX,
+                SLuint          resY,
+                SLstring        name = "rectangle mesh",
+                SLMaterial*     mat  = nullptr);
 
     void buildMesh(SLMaterial* mat);
 
-    protected:
+protected:
     SLVec3f _min;  //!< min corner
     SLVec3f _max;  //!< max corner
     SLVec2f _tmin; //!< min corner texCoord

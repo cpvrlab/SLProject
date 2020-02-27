@@ -17,14 +17,15 @@
 //! SLArrow is creates an arrow mesh based on its SLRevolver methods
 class SLArrow : public SLRevolver
 {
-    public:
-    SLArrow(SLfloat         arrowCylinderRadius,
+public:
+    SLArrow(SLAssetManager* assetMgr,
+            SLfloat         arrowCylinderRadius,
             SLfloat         length,
             SLfloat         headLength,
             SLfloat         headWidth,
             SLuint          slices,
             const SLstring& name = "arrow mesh",
-            SLMaterial*     mat  = nullptr)
+            SLMaterial*     mat  = nullptr) : SLRevolver(assetMgr, name)
     {
         assert(slices >= 3 && "Error: Not enough slices.");
         assert(headLength < length);
@@ -51,7 +52,7 @@ class SLArrow : public SLRevolver
         buildMesh(mat);
     }
 
-    private:
+private:
     SLfloat _radius;     //!< radius of arrow cylinder
     SLfloat _length;     //!< length of arrow
     SLfloat _headLength; //!< length of arrow head

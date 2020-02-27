@@ -17,21 +17,22 @@
 //! SLCone creates a cone mesh based on SLRevolver
 class SLCone : public SLRevolver
 {
-    public:
-    SLCone(SLfloat     coneRadius,
-           SLfloat     coneHeight,
-           SLuint      stacks    = 36,
-           SLuint      slices    = 36,
-           SLbool      hasBottom = true,
-           SLstring    name      = "cone mesh",
-           SLMaterial* mat       = nullptr);
+public:
+    SLCone(SLAssetManager* assetMgr,
+           SLfloat         coneRadius,
+           SLfloat         coneHeight,
+           SLuint          stacks    = 36,
+           SLuint          slices    = 36,
+           SLbool          hasBottom = true,
+           SLstring        name      = "cone mesh",
+           SLMaterial*     mat       = nullptr);
 
     // Getters
     SLfloat radius() { return _radius; }
     SLfloat height() { return _height; }
     SLbool  hasBottom() { return _hasBottom; }
 
-    protected:
+protected:
     SLfloat _radius;    //!< radius of cone
     SLfloat _height;    //!< height of cone
     SLbool  _hasBottom; //!< Flag if cone has a bottom

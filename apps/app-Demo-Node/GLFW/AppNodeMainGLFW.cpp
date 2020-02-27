@@ -21,7 +21,7 @@
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 
-extern void appNodeLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sid);
+extern void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables

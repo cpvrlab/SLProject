@@ -37,19 +37,21 @@ following shaders: \n
 class SLLightSpot : public SLNode
   , public SLLight
 {
-    public:
-    explicit SLLightSpot(SLfloat radius       = 0.3f,
-                         SLfloat spotAngleDEG = 180.0f,
-                         SLbool  hasMesh      = true);
-    SLLightSpot(SLfloat posx,
-                SLfloat posy,
-                SLfloat posz,
-                SLfloat radius       = 0.3f,
-                SLfloat spotAngleDEG = 180.0f,
-                SLfloat ambiPower    = 1.0f,
-                SLfloat diffPower    = 10.0f,
-                SLfloat specPower    = 10.0f,
-                SLbool  hasMesh      = true);
+public:
+    explicit SLLightSpot(SLAssetManager* assetMgr,
+                         SLfloat         radius       = 0.3f,
+                         SLfloat         spotAngleDEG = 180.0f,
+                         SLbool          hasMesh      = true);
+    SLLightSpot(SLAssetManager* assetMgr,
+                SLfloat         posx,
+                SLfloat         posy,
+                SLfloat         posz,
+                SLfloat         radius       = 0.3f,
+                SLfloat         spotAngleDEG = 180.0f,
+                SLfloat         ambiPower    = 1.0f,
+                SLfloat         diffPower    = 10.0f,
+                SLfloat         specPower    = 10.0f,
+                SLbool          hasMesh      = true);
 
     void init();
     bool hitRec(SLRay* ray);
@@ -76,7 +78,7 @@ class SLLightSpot : public SLNode
     SLVec4f positionWS() { return translationWS(); }
     SLVec3f spotDirWS() { return forwardWS(); }
 
-    private:
+private:
     SLfloat     _radius;  //!< The sphere lights radius
     SLSamples2D _samples; //!< 2D samplepoints for soft shadows
 };

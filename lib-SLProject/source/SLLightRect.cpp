@@ -24,9 +24,10 @@
 extern SLfloat rnd01();
 
 //-----------------------------------------------------------------------------
-SLLightRect::SLLightRect(SLfloat w,
-                         SLfloat h,
-                         SLbool  hasMesh) : SLNode("LightRect Node")
+SLLightRect::SLLightRect(SLAssetManager* assetMgr,
+                         SLfloat         w,
+                         SLfloat         h,
+                         SLbool          hasMesh) : SLNode("LightRect Node")
 {
     width(w);
     height(h);
@@ -42,11 +43,11 @@ SLLightRect::SLLightRect(SLfloat w,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial(SLApplication::scene,
+        SLMaterial* mat = new SLMaterial(assetMgr,
                                          "LightRect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
-        addMesh(new SLPolygon(w, h, "LightRect Mesh", mat));
+        addMesh(new SLPolygon(assetMgr, w, h, "LightRect Mesh", mat));
     }
     init();
 }

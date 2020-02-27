@@ -19,14 +19,15 @@
 
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. coords. of the axis aligned box
-SLBox::SLBox(SLfloat     minx,
-             SLfloat     miny,
-             SLfloat     minz,
-             SLfloat     maxx,
-             SLfloat     maxy,
-             SLfloat     maxz,
-             SLstring    name,
-             SLMaterial* mat) : SLMesh(name)
+SLBox::SLBox(SLAssetManager* assetMgr,
+             SLfloat         minx,
+             SLfloat         miny,
+             SLfloat         minz,
+             SLfloat         maxx,
+             SLfloat         maxy,
+             SLfloat         maxz,
+             SLstring        name,
+             SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     _min.set(minx, miny, minz);
     _max.set(maxx, maxy, maxz);
@@ -36,10 +37,11 @@ SLBox::SLBox(SLfloat     minx,
 }
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. vectors of the axis aligned box
-SLBox::SLBox(SLVec3f     min,
-             SLVec3f     max,
-             SLstring    name,
-             SLMaterial* mat) : SLMesh(name)
+SLBox::SLBox(SLAssetManager* assetMgr,
+             SLVec3f         min,
+             SLVec3f         max,
+             SLstring        name,
+             SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     _min.set(min);
     _max.set(max);

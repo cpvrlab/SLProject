@@ -22,13 +22,14 @@
 /*!
 SLSpheric::SLSpheric ctor for spheric revolution object around the z-axis.
 */
-SLSpheric::SLSpheric(SLfloat     sphereRadius,
-                     SLfloat     thetaStartDEG,
-                     SLfloat     thetaEndDEG,
-                     SLuint      stacks,
-                     SLuint      slices,
-                     SLstring    name,
-                     SLMaterial* mat) : SLRevolver(std::move(name))
+SLSpheric::SLSpheric(SLAssetManager* assetMgr,
+                     SLfloat         sphereRadius,
+                     SLfloat         thetaStartDEG,
+                     SLfloat         thetaEndDEG,
+                     SLuint          stacks,
+                     SLuint          slices,
+                     SLstring        name,
+                     SLMaterial*     mat) : SLRevolver(assetMgr, std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");
