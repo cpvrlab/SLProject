@@ -16,7 +16,6 @@
 using namespace std::placeholders;
 using namespace std::chrono;
 
-#include <SLApplication.h>
 #include <SLLightRect.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
@@ -81,7 +80,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 #endif
 
             ///////////////////////////////////
-            SLCol4f color = trace(&primaryRay);
+            SLCol4f color = trace(&primaryRay, sv->s().root3D(), sv->s().globalAmbiLight(), sv->s().lights());
             ///////////////////////////////////
 
             color.gammaCorrect(_oneOverGamma);
@@ -134,22 +133,23 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     float t1 = GlobalTimer::timeS();
 
     // Bind render functions to be called multithreaded
-    auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
+    auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1, _2, _3, _4);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1
-                                  ? bind(&SLRaytracer::renderSlices, this, _1)
-                                  : bind(&SLRaytracer::renderSlicesMS, this, _1);
+                                  ? bind(&SLRaytracer::renderSlices, this, _1, _2, _3, _4)
+                                  : bind(&SLRaytracer::renderSlicesMS, this, _1, _2, _3, _4);
 
     // Do multithreading only in release config
     // Render image without antialiasing
     vector<thread> threads; // vector for additional threads
     _next = 0;              // init _next=0. _next should be atomic
 
+    SLScene& s = sv->s();
     // Start additional threads on the renderSlices function
     for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-        threads.emplace_back(renderSlicesFunction, false);
+        threads.emplace_back(renderSlicesFunction, false, s.root3D(), s.globalAmbiLight(), s.lights());
 
     // Do the same work in the main thread
-    renderSlicesFunction(true);
+    renderSlicesFunction(true, s.root3D(), s.globalAmbiLight(), s.lights());
 
     // Wait for the other threads to finish
     for (auto& thread : threads)
@@ -164,10 +164,10 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 
         // Start additional threads on the sampleAAPixelFunction function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.emplace_back(sampleAAPixelsFunction, false);
+            threads.emplace_back(sampleAAPixelsFunction, false, s.root3D(), s.globalAmbiLight(), s.lights());
 
         // Do the same work in the main thread
-        sampleAAPixelsFunction(true);
+        sampleAAPixelsFunction(true, s.root3D(), s.globalAmbiLight(), s.lights());
 
         // Wait for the other threads to finish
         for (auto& thread : threads)
@@ -195,7 +195,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlices(const bool isMainThread)
+void SLRaytracer::renderSlices(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
 {
     // Time points
     double t1 = 0;
@@ -215,7 +215,7 @@ void SLRaytracer::renderSlices(const bool isMainThread)
                 setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
                 ///////////////////////////////////
-                SLCol4f color = trace(&primaryRay);
+                SLCol4f color = trace(&primaryRay, root, globalAmbiLight, lights);
                 ///////////////////////////////////
 
                 color.gammaCorrect(_oneOverGamma);
@@ -253,7 +253,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlicesMS(const bool isMainThread)
+void SLRaytracer::renderSlicesMS(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
 {
     // Time points
     double t1 = 0;
@@ -299,7 +299,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         SLRay primaryRay(lensPos, lensToFP, (SLfloat)x, (SLfloat)y, backColor, _sv);
 
                         ////////////////////////////
-                        color += trace(&primaryRay);
+                        color += trace(&primaryRay, root, globalAmbiLight, lights);
                         ////////////////////////////
 
                         SLRay::avgDepth += SLRay::depthReached;
@@ -337,16 +337,15 @@ if the material is reflective and/or transparent new rays are created and
 passed to this trace method again. If no object got intersected the
 background color is return.
 */
-SLCol4f SLRaytracer::trace(SLRay* ray)
+SLCol4f SLRaytracer::trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
 {
-    SLScene* s = SLApplication::scene;
-    SLCol4f  color(ray->backgroundColor);
+    SLCol4f color(ray->backgroundColor);
 
-    s->root3D()->hitRec(ray);
+    root->hitRec(ray);
 
     if (ray->length < FLT_MAX)
     {
-        color = shade(ray);
+        color = shade(ray, globalAmbiLight, lights);
 
         SLfloat kt = ray->hitMesh->mat()->kt();
         SLfloat kr = ray->hitMesh->mat()->kr();
@@ -359,13 +358,13 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
                 {
                     SLRay refracted(_sv);
                     ray->refract(&refracted);
-                    color += kt * trace(&refracted);
+                    color += kt * trace(&refracted, root, globalAmbiLight, lights);
                 }
                 if (kr > 0.0f)
                 {
                     SLRay reflected(_sv);
                     ray->reflect(&reflected);
-                    color += kr * trace(&reflected);
+                    color += kr * trace(&reflected, root, globalAmbiLight, lights);
                 }
             }
             else
@@ -375,8 +374,8 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
                     SLRay refracted(_sv), reflected(_sv);
                     ray->refract(&refracted);
                     ray->reflect(&reflected);
-                    SLCol4f refrCol = trace(&refracted);
-                    SLCol4f reflCol = trace(&reflected);
+                    SLCol4f refrCol = trace(&refracted, root, globalAmbiLight, lights);
+                    SLCol4f reflCol = trace(&reflected, root, globalAmbiLight, lights);
 
                     // Apply Schlick's Fresnel aproximation
                     SLfloat F0      = kr;
@@ -390,7 +389,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
                     {
                         SLRay reflected(_sv);
                         ray->reflect(&reflected);
-                        color += kr * trace(&reflected);
+                        color += kr * trace(&reflected, root, globalAmbiLight, lights);
                     }
                 }
             }
@@ -440,9 +439,8 @@ color = material emission +
         ambient, diffuse, and specular contributions from all lights, 
         properly attenuated
 */
-SLCol4f SLRaytracer::shade(SLRay* ray)
+SLCol4f SLRaytracer::shade(SLRay* ray, const SLCol4f& globalAmbiLight, const SLVLight& lights)
 {
-    SLScene*      s          = SLApplication::scene;
     SLCol4f       localColor = SLCol4f::BLACK;
     SLMaterial*   mat        = ray->hitMesh->mat();
     SLVGLTexture& texture    = mat->textures();
@@ -451,11 +449,11 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
 
-    localColor = mat->emissive() + (mat->ambient() & s->globalAmbiLight());
+    localColor = mat->emissive() + (mat->ambient() & globalAmbiLight);
 
     ray->hitMesh->preShade(ray);
 
-    for (auto light : s->lights())
+    for (auto light : lights)
     {
         if (light && light->isOn())
         {
@@ -606,7 +604,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::sampleAAPixels(const bool isMainThread)
+void SLRaytracer::sampleAAPixels(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2 = 0;
@@ -640,7 +638,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
                     {
                         SLRay primaryRay(_sv);
                         setPrimaryRay(xpos + i * f, ypos + i * f, &primaryRay);
-                        color += trace(&primaryRay);
+                        color += trace(&primaryRay, root, globalAmbiLight, lights);
                     }
                 }
                 ypos += f;

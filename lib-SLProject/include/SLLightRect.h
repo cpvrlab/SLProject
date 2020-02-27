@@ -78,7 +78,7 @@ public:
     // Getters
     SLfloat width() { return _width; }
     SLfloat height() { return _height; }
-    SLVec4f positionWS() { return updateAndGetWM().translation(); }
+    SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
     SLVec3f spotDirWS() { return SLVec3f(_wm.m(8),
                                          _wm.m(9),
                                          _wm.m(10)) *

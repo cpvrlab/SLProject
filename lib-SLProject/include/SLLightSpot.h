@@ -75,7 +75,7 @@ public:
     // Getters
     SLfloat radius() { return _radius; }
     SLuint  samples() { return _samples.samples(); }
-    SLVec4f positionWS() { return translationWS(); }
+    SLVec4f positionWS() const override { return translationWS(); }
     SLVec3f spotDirWS() { return forwardWS(); }
 
 private:

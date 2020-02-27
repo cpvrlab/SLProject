@@ -76,7 +76,7 @@ public:
 
     // For directional lights the position vector is interpreted as a
     // direction with the homogeneous component equls zero:
-    SLVec4f positionWS()
+    SLVec4f positionWS() const override
     {
         SLVec4f pos(updateAndGetWM().translation());
         pos.w = 0.0f;
