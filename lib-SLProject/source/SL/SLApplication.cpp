@@ -90,7 +90,7 @@ void SLApplication::createAppAndScene(SLstring appName,
            "You can create only one SLApplication");
 
     name  = std::move(appName);
-    scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+    scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback, SLApplication::inputManager);
     GlobalTimer::timerStart();
 }
 //-----------------------------------------------------------------------------

@@ -110,8 +110,9 @@ protected:
                                      aiMaterial*     material,
                                      const SLstring& modelPath,
                                      float           ambientFactor = 0.0f);
-    static SLGLTexture* loadTexture(SLstring&     path,
-                                    SLTextureType texType);
+    static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
+                                    SLstring&       path,
+                                    SLTextureType   texType);
     SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
     SLNode*             loadNodesRec(SLNode*    curNode,
                                      aiNode*    aiNode,

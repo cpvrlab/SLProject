@@ -28,6 +28,7 @@
 
 class SLSceneView;
 class SLCamera;
+class SLInputManager;
 
 class SLAssetManager
 {
@@ -110,8 +111,9 @@ class SLScene : public SLObject
     friend class SLNode;
 
 public:
-    SLScene(SLstring      name,
-            cbOnSceneLoad onSceneLoadCallback);
+    SLScene(SLstring        name,
+            cbOnSceneLoad   onSceneLoadCallback,
+            SLInputManager& inputManager);
     ~SLScene();
 
     // Setters
@@ -153,11 +155,11 @@ public:
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    bool onUpdate();
-    void init();
-    void unInit();
-    void selectNode(SLNode* nodeToSelect);
-    void selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
+    bool         onUpdate();
+    void         init();
+    virtual void unInit();
+    void         selectNode(SLNode* nodeToSelect);
+    void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
 
 protected:
     SLVSceneView _sceneViews; //!< Vector of all sceneview pointers
@@ -191,6 +193,8 @@ protected:
     AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
+
+    SLInputManager& _inputManager;
 };
 
 //-----------------------------------------------------------------------------
@@ -198,9 +202,9 @@ class SLProjectScene : public SLScene
   , public SLAssetManager
 {
 public:
-    SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback);
+    SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager);
 
-    void        unInit();
+    void        unInit() override;
     bool        deleteTexture(SLGLTexture* texture);
     SLGLOculus* oculus() { return &_oculus; }
 

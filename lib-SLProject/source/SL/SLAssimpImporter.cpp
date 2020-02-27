@@ -14,7 +14,6 @@
 #include <Utils.h>
 
 #include <SLAnimation.h>
-#include <SLApplication.h>
 #include <SLAssimpImporter.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
@@ -703,7 +702,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             // For normal maps we have to adjust first the normal and tangent generation
             if (texType == TT_color || texType == TT_normal)
             {
-                SLGLTexture* tex = loadTexture(texFile, texType);
+                SLGLTexture* tex = loadTexture(s, texFile, texType);
                 mat->textures().push_back(tex);
             }
         }
@@ -751,10 +750,11 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 /*!
 SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
-SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
-                                           SLTextureType texType)
+SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
+                                           SLstring&       textureFile,
+                                           SLTextureType   texType)
 {
-    SLVGLTexture& sceneTex = SLApplication::scene->textures();
+    SLVGLTexture& sceneTex = assetMgr->textures();
 
     // return if a texture with the same file already exists
     for (auto& i : sceneTex)
@@ -762,7 +762,7 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
             return i;
 
     // Create the new texture. It is also push back to SLScene::_textures
-    SLGLTexture* texture = new SLGLTexture(SLApplication::scene,
+    SLGLTexture* texture = new SLGLTexture(assetMgr,
                                            textureFile,
                                            GL_LINEAR_MIPMAP_LINEAR,
                                            GL_LINEAR,
@@ -1068,7 +1068,7 @@ SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnimation* anim)
 {
     ostringstream oss;
-    oss << "unnamed_anim_" << SLApplication::scene->animManager().allAnimNames().size();
+    oss << "unnamed_anim_" << animManager.allAnimNames().size();
     SLstring animName        = oss.str();
     SLfloat  animTicksPerSec = (anim->mTicksPerSecond < 0.0001f)
                                 ? 30.0f

@@ -81,6 +81,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     // Initialize all preloaded stuff from SLScene
     s->init();
+    // Deactivate in general the device sensors
+    SLApplication::devRot.isUsed(false);
+    SLApplication::devLoc.isUsed(false);
 
     if (SLApplication::sceneID == SID_Empty) //..........................................................
     {

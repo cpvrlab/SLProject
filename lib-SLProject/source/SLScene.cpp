@@ -15,7 +15,6 @@
 #endif
 
 #include <Utils.h>
-#include <SLApplication.h>
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLLightDirect.h>
@@ -57,9 +56,11 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-SLScene::SLScene(SLstring      name,
-                 cbOnSceneLoad onSceneLoadCallback)
+SLScene::SLScene(SLstring        name,
+                 cbOnSceneLoad   onSceneLoadCallback,
+                 SLInputManager& inputManager)
   : SLObject(name),
+    _inputManager(inputManager),
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
@@ -129,10 +130,6 @@ void SLScene::init()
     _draw2DTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
-
-    // Deactivate in general the device sensors
-    SLApplication::devRot.isUsed(false);
-    SLApplication::devLoc.isUsed(false);
 
     _selectedRect.setZero();
 }
@@ -273,7 +270,7 @@ bool SLScene::onUpdate()
     //////////////////////////////
 
     // Process queued up system events and poll custom input devices
-    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents(this);
+    SLbool sceneHasChanged = _inputManager.pollAndProcessEvents(this);
 
     //////////////////////////////
     // 3) Update all animations //
@@ -427,8 +424,8 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     return cams[(uint)activeIndex];
 }
 //-----------------------------------------------------------------------------
-SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
-  : SLScene(name, onSceneLoadCallback)
+SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager)
+  : SLScene(name, onSceneLoadCallback, inputManager)
 {
     // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
     // In the constructor they are added the _shaderProgs vector
@@ -493,10 +490,10 @@ void SLProjectScene::unInit()
         delete m;
     _materials.clear();
 
-    //// delete meshes
-    //for (auto m : _meshes)
-    //    delete m;
-    //_meshes.clear();
+    // delete meshes
+    for (auto m : _meshes)
+        delete m;
+    _meshes.clear();
 
     //SLMaterial::current = nullptr;
 
@@ -512,7 +509,8 @@ void SLProjectScene::unInit()
 void SLProjectScene::onLoadAsset(const SLstring& assetFile,
                                  SLuint          processFlags)
 {
-    SLApplication::sceneID = SID_FromFile;
+    assert(false && "I commented the following lines! What influence does this have? I could not test this!");
+    //SLApplication::sceneID = SID_FromFile;
 
     // Set scene name for new scenes
     if (!_root3D)
