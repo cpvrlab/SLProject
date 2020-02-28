@@ -30,6 +30,124 @@ class SLSceneView;
 class SLCamera;
 class SLInputManager;
 
+//-----------------------------------------------------------------------------
+
+class SLGLColorUniformProgram : public SLGLGenericProgram
+{
+public:
+    static SLGLColorUniformProgram* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLColorUniformProgram;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLGLColorUniformProgram()
+      : SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")
+    {
+    }
+
+    static SLGLColorUniformProgram* _instance;
+};
+
+//-----------------------------------------------------------------------------
+//! Global default gray color material for meshes that don't define their own.
+class SLMaterialDefaultGray : public SLMaterial
+{
+public:
+    static SLMaterialDefaultGray* instance()
+    {
+        if (!_instance)
+            _instance = new SLMaterialDefaultGray;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLMaterialDefaultGray()
+      : SLMaterial(nullptr, "default", SLVec4f::GRAY, SLVec4f::WHITE)
+    {
+        ambient({0.2f, 0.2f, 0.2f});
+    }
+
+    static SLMaterialDefaultGray* _instance;
+};
+//-----------------------------------------------------------------------------
+//! Global diffuse reflection material for meshes with color vertex attributes.
+class SLMaterialDiffuseAttribute : public SLMaterial
+{
+public:
+    static SLMaterialDiffuseAttribute* instance()
+    {
+        if (!_instance)
+            _instance = new SLMaterialDiffuseAttribute;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLMaterialDiffuseAttribute()
+      : SLMaterial(nullptr, "diffuseAttrib"),
+        _program(nullptr, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag")
+    {
+        specular(SLCol4f::BLACK);
+        program(&_program);
+    }
+
+    SLGLGenericProgram                 _program;
+    static SLMaterialDiffuseAttribute* _instance;
+};
+
+//-----------------------------------------------------------------------------
+class SLGLTextureOnlyProgram : public SLGLGenericProgram
+{
+public:
+    static SLGLTextureOnlyProgram* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLTextureOnlyProgram;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLGLTextureOnlyProgram()
+      : SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag")
+    {
+    }
+    static SLGLTextureOnlyProgram* _instance;
+};
+
 class SLAssetManager
 {
 public:
@@ -151,6 +269,8 @@ public:
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
     SLCamera* nextCameraInScene(SLSceneView* activeSV);
+    //notify all nodes that contain the transfered mesh, that the aabb changed
+    void notifyNodesAABBUpdate(SLMesh* mesh);
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 

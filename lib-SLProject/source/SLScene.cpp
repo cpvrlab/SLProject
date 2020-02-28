@@ -25,6 +25,12 @@
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
+SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
+SLMaterialDefaultGray*      SLMaterialDefaultGray::_instance      = nullptr;
+SLGLColorUniformProgram*    SLGLColorUniformProgram::_instance    = nullptr;
+SLGLTextureOnlyProgram*     SLGLTextureOnlyProgram::_instance     = nullptr;
+
+//-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as
 loading the standard shader programs from which the pointers are stored in
 the vector _shaderProgs. Custom shader programs that are loaded in a
@@ -286,7 +292,19 @@ bool SLScene::onUpdate()
 
     // Do software skinning on all changed skeletons. Update any out of date acceleration structure for RT or if they're being rendered.
     if (_root3D)
-        sceneHasChanged |= _root3D->updateMeshes(renderTypeIsRT || voxelsAreShown);
+    {
+        //we use a lambda to inform nodes that share a mesh that the mesh got updated
+        using namespace std::placeholders;
+        //sceneHasChanged |= _root3D->updateMeshSkins(std::bind(&SLScene::notifyNodesAABBUpdate, this, _1));
+        sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh) {
+            SLVNode nodes = _root3D->findChildren(mesh, true);
+            for (auto node : nodes)
+                node->needAABBUpdate();
+        });
+
+        if (renderTypeIsRT || voxelsAreShown)
+            _root3D->updateMeshAccelStructs();
+    }
 
     // Do software skinning on all changed skeletons
     //for (auto mesh : _meshes)
@@ -424,6 +442,14 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
 
     return cams[(uint)activeIndex];
 }
+//-----------------------------------------------------------------------------
+void SLScene::notifyNodesAABBUpdate(SLMesh* mesh)
+{
+    SLVNode nodes = _root3D->findChildren(mesh, true);
+    for (auto node : nodes)
+        node->needAABBUpdate();
+}
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager)
   : SLScene(name, onSceneLoadCallback, inputManager)

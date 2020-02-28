@@ -289,7 +289,8 @@ public:
     void         update();
     virtual void doUpdate() {}
     //update all meshes recursively: Do software skinning on all changed skeletons && update any out of date acceleration structure for RT or if they're being rendered.
-    bool updateMeshes(bool updateAccelStruct);
+    bool updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes);
+    void updateMeshAccelStructs();
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 

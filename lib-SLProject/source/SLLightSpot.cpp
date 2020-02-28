@@ -55,7 +55,7 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                   16,
                                   16,
                                   "LightSpot Back Mesh",
-                                  &SLMaterialDefaultGray::instance()));
+                                  SLMaterialDefaultGray::instance()));
         }
         else
             addMesh(new SLSphere(assetMgr, radius, 16, 16, "LightSpot Mesh", mat));
@@ -107,7 +107,7 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                   16,
                                   16,
                                   "LightSpot Back Mesh",
-                                  &SLMaterialDefaultGray::instance()));
+                                  SLMaterialDefaultGray::instance()));
         }
         else
             addMesh(new SLSphere(assetMgr, radius, 16, 16, "LightSpot Mesh", mat));

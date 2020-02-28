@@ -1196,7 +1196,7 @@ void SLNode::update()
 }
 //-----------------------------------------------------------------------------
 //update all meshes recursively
-bool SLNode::updateMeshes(bool updateAccelStruct)
+bool SLNode::updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes)
 {
     bool hasChanges = false;
     for (auto mesh : _meshes)
@@ -1204,17 +1204,26 @@ bool SLNode::updateMeshes(bool updateAccelStruct)
         // Do software skinning on all changed skeletons
         if (mesh->skeleton() && mesh->skeleton()->changed())
         {
-            mesh->transformSkin();
+            mesh->transformSkin(cbInformNodes);
             hasChanges = true;
         }
-
-        // update any out of date acceleration structure for RT or if they're being rendered.
-        if (updateAccelStruct)
-            mesh->updateAccelStruct();
     }
 
     for (auto child : _children)
-        hasChanges |= child->updateMeshes(updateAccelStruct);
+        hasChanges |= child->updateMeshSkins(cbInformNodes);
 
     return hasChanges;
 }
+//-----------------------------------------------------------------------------
+void SLNode::updateMeshAccelStructs()
+{
+    for (auto mesh : _meshes)
+    {
+        // update any out of date acceleration structure for RT or if they're being rendered.
+        mesh->updateAccelStruct();
+    }
+
+    for (auto child : _children)
+        child->updateMeshAccelStructs();
+}
+//-----------------------------------------------------------------------------

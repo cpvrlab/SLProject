@@ -44,38 +44,4 @@ public:
     virtual void endShader() { endUse(); }
 };
 
-//-----------------------------------------------------------------------------
-
-class SLGLColorUniformProgram : public SLGLGenericProgram
-{
-public:
-    static SLGLColorUniformProgram* instance()
-    {
-        static SLGLColorUniformProgram instance;
-        return &instance;
-    }
-
-private:
-    SLGLColorUniformProgram()
-      : SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")
-    {
-    }
-};
-//-----------------------------------------------------------------------------
-class SLGLTextureOnlyProgram : public SLGLGenericProgram
-{
-public:
-    static SLGLTextureOnlyProgram* instance()
-    {
-        static SLGLTextureOnlyProgram instance;
-        return &instance;
-    }
-
-private:
-    SLGLTextureOnlyProgram()
-      : SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag")
-    {
-    }
-};
-
 #endif

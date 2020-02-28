@@ -141,7 +141,7 @@ public:
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO(SLGLProgram* sp);
-    void         transformSkin();
+    void         transformSkin(std::function<void(SLMesh*)> cbInformNodes);
 
     // Getters
     SLMaterial*       mat() const { return _mat; }
@@ -197,7 +197,7 @@ protected:
     SLVVec3f*   _finalP;        //!< Pointer to final vertex position vector
     SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
 
-    void notifyParentNodesAABBUpdate() const;
+    void notifyParentNodesAABBUpdate(std::function<void(void)> cbInformNodes) const;
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*> SLVMesh;

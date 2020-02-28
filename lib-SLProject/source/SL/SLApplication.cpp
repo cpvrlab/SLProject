@@ -107,6 +107,14 @@ void SLApplication::deleteAppAndScene()
 
     delete scene;
     scene = nullptr;
+
+    //delete default stuff:
+    //programs:
+    SLGLColorUniformProgram::deleteInstance();
+    SLGLTextureOnlyProgram::deleteInstance();
+    //materials:
+    SLMaterialDefaultGray::deleteInstance();
+    SLMaterialDiffuseAttribute::deleteInstance();
 }
 //-----------------------------------------------------------------------------
 //! Starts parallel job if one is queued.

@@ -261,45 +261,4 @@ protected:
 //! STL vector of material pointers
 typedef std::vector<SLMaterial*> SLVMaterial;
 
-//-----------------------------------------------------------------------------
-//! Global default gray color material for meshes that don't define their own.
-class SLMaterialDefaultGray : public SLMaterial
-{
-public:
-    static SLMaterialDefaultGray& instance()
-    {
-        static SLMaterialDefaultGray instance;
-        return instance;
-    }
-
-private:
-    SLMaterialDefaultGray()
-      : SLMaterial(nullptr, "default", SLVec4f::GRAY, SLVec4f::WHITE)
-    {
-        ambient({0.2f, 0.2f, 0.2f});
-    }
-};
-//-----------------------------------------------------------------------------
-//! Global diffuse reflection material for meshes with color vertex attributes.
-class SLMaterialDiffuseAttribute : public SLMaterial
-{
-public:
-    static SLMaterialDiffuseAttribute& instance()
-    {
-        static SLMaterialDiffuseAttribute instance;
-        return instance;
-    }
-
-private:
-    SLMaterialDiffuseAttribute()
-      : SLMaterial(nullptr, "diffuseAttrib"),
-        _program(nullptr, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag")
-    {
-        specular(SLCol4f::BLACK);
-        program(&_program);
-    }
-
-    SLGLGenericProgram _program;
-};
-
 #endif

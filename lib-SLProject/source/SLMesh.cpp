@@ -259,9 +259,9 @@ void SLMesh::init(SLNode* node)
     if (!mat())
     {
         if (!C.empty())
-            mat(&SLMaterialDiffuseAttribute::instance());
+            mat(SLMaterialDiffuseAttribute::instance());
         else
-            mat(&SLMaterialDefaultGray::instance());
+            mat(SLMaterialDefaultGray::instance());
     }
 
     // set transparent flag of the node if mesh contains alpha material
@@ -1196,7 +1196,7 @@ a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
 This software skinning is also needed for ray or path tracing.  
 */
-void SLMesh::transformSkin()
+void SLMesh::transformSkin(std::function<void(SLMesh*)> cbInformNodes)
 {
     // create the secondary buffers for P and N once
     if (skinnedP.empty())
@@ -1222,7 +1222,8 @@ void SLMesh::transformSkin()
     // update the joint matrix array
     _skeleton->getJointMatrices(_jointMatrices);
 
-    notifyParentNodesAABBUpdate();
+    //notify Parent Nodes to update AABB
+    cbInformNodes(this);
 
     // temporarily set finalP and finalN
     _finalP = &skinnedP;
@@ -1264,12 +1265,5 @@ void SLMesh::transformSkin()
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);
     }
-}
-//-----------------------------------------------------------------------------
-void SLMesh::notifyParentNodesAABBUpdate() const
-{
-    SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
-    for (auto node : nodes)
-        node->needAABBUpdate();
 }
 //-----------------------------------------------------------------------------
