@@ -30,7 +30,7 @@ private:
 
     bool  _videoLoops = false;
     float _fps        = 0.f;
-    float _targetFps  = 0.f;
+    float _targetFps;
 
     bool _mirrorH = false;
     bool _mirrorV = false;

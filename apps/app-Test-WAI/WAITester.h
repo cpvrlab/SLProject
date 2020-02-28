@@ -54,9 +54,10 @@ public:
                                        std::string    mapFile,
                                        std::string    vocFile,
                                        CVCalibration& calibration,
-                                       int            featureId);
+                                       int            featureId,
+                                       int            framerate = 0); //0 means same as the video
 
-    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, int featureId);
+    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, int featureId, int framerate = 0);
 
     void launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, int featureId);
 

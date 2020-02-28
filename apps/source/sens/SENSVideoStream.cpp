@@ -4,7 +4,11 @@
 #include <Utils.h>
 #include "SENSUtils.h"
 
-SENSVideoStream::SENSVideoStream(std::string videoFileName, bool videoLoops, bool mirrorH, bool mirrorV, float targetFps)
+SENSVideoStream::SENSVideoStream(std::string videoFileName, 
+                                 bool videoLoops, 
+                                 bool mirrorH, 
+                                 bool mirrorV, 
+                                 float targetFps)
   : _videoLoops(videoLoops),
     _mirrorH(mirrorH),
     _mirrorV(mirrorV)
@@ -21,8 +25,13 @@ SENSVideoStream::SENSVideoStream(std::string videoFileName, bool videoLoops, boo
     _videoFrameSize = {(int)_cap.get(cv::CAP_PROP_FRAME_WIDTH), (int)_cap.get(cv::CAP_PROP_FRAME_HEIGHT)};
     _frameCount     = (int)_cap.get(cv::CAP_PROP_FRAME_COUNT);
     _fps            = (float)_cap.get(cv::CAP_PROP_FPS);
-    if (_targetFps == 0)
+
+    if (targetFps == 0)
         _targetFps = _fps;
+    else
+        _targetFps = targetFps;
+
+
     _videoFileName  = videoFileName;
 }
 
@@ -78,12 +87,15 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
     int skippedFrame = 0;
     float frameTime;
+
+    _lastFrameTime = frameIndex / _fps;
+
     do
     {
-        frameTime = frameIndex + skippedFrame / _fps;
         skippedFrame++;
+        frameTime = (frameIndex + skippedFrame) / _fps;
     }
-    while ((frameTime - _lastFrameTime) < 1.0 / _targetFps);
+    while ((frameTime - _lastFrameTime) < (1.0 / _targetFps));
 
     moveCapturePosition(skippedFrame);
 
