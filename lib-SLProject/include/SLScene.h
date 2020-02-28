@@ -258,9 +258,9 @@ public:
     AvgFloat& draw2DTimesMS() { return _draw2DTimesMS; }
     AvgFloat& draw3DTimesMS() { return _draw3DTimesMS; }
 
-    SLNode*   selectedNode() { return _selectedNode; }
-    SLMesh*   selectedMesh() { return _selectedMesh; }
-    SLRectf&  selectedRect() { return _selectedRect; }
+    SLNode* selectedNode() { return _selectedNode; }
+    SLMesh* selectedMesh() { return _selectedMesh; }
+    //SLRectf&  selectedRect() { return _selectedRect; }
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
     SLCamera* nextCameraInScene(SLSceneView* activeSV);
@@ -273,6 +273,8 @@ public:
     virtual void unInit();
     void         selectNode(SLNode* nodeToSelect);
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
+
+    SLGLOculus* oculus() { return &_oculus; }
 
 protected:
     SLVSceneView _sceneViews; //!< Vector of all sceneview pointers
@@ -287,7 +289,6 @@ protected:
     SLstring _info;         //!< scene info string
     SLNode*  _selectedNode; //!< Pointer to the selected node
     SLMesh*  _selectedMesh; //!< Pointer to the selected mesh
-    SLRectf  _selectedRect; //!< Mouse selection rectangle
 
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
     SLbool  _rootInitialized; //!< Flag if scene is initialized
@@ -319,9 +320,8 @@ class SLProjectScene : public SLScene
 public:
     SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager);
 
-    void        unInit() override;
-    bool        deleteTexture(SLGLTexture* texture);
-    SLGLOculus* oculus() { return &_oculus; }
+    void unInit() override;
+    bool deleteTexture(SLGLTexture* texture);
 
     virtual void onLoadAsset(const SLstring& assetFile,
                              SLuint          processFlags);

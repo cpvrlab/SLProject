@@ -486,7 +486,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         stateGL->depthMask(true);
         stateGL->depthTest(true);
     }
-    else if (!s->selectedRect().isEmpty())
+    else if (!sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
          drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
@@ -507,7 +507,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         for (SLulong i = 0; i < P.size(); ++i)
         {
             SLVec3f p = v_mvp * P[i];
-            if (s->selectedRect().contains(SLVec2f(p.x, p.y)))
+            if (sv->camera()->selectedRect().contains(SLVec2f(p.x, p.y)))
                 IS32.push_back(i);
         }
 
@@ -537,7 +537,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             IS32.clear();
         }
 
-        if (s->selectedNode() == nullptr && s->selectedRect().isEmpty())
+        if (s->selectedNode() == nullptr && sv->camera()->selectedRect().isEmpty())
             node->drawBits()->off(SL_DB_SELECTED);
     }
 

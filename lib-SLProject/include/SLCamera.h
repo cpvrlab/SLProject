@@ -19,6 +19,7 @@
 #include <SLPlane.h>
 #include <SLRay.h>
 #include <SLSamples2D.h>
+#include <SLRect.h>
 
 class SLSceneView;
 class SLDeviceRotation;
@@ -156,6 +157,7 @@ public:
     SLfloat        brakeAccel() const { return _brakeAccel; }
     SLfloat        drag() const { return _drag; }
     SLstring       toString() const;
+    SLRectf&       selectedRect() { return _selectedRect; }
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -220,6 +222,8 @@ protected:
 
     SLDeviceRotation* _devRot = nullptr;
     SLDeviceLocation* _devLoc = nullptr;
+
+    SLRectf _selectedRect; //!< Mouse selection rectangle
 };
 //-----------------------------------------------------------------------------
 #endif

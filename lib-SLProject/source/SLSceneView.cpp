@@ -803,12 +803,12 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             // Draw AABB for selected shapes
             if (node->drawBit(SL_DB_SELECTED))
             {
-                if (node == _s->selectedNode() || !_s->selectedRect().isEmpty())
+                if (node == _s->selectedNode() || !_camera->selectedRect().isEmpty())
                     node->aabb()->drawWS(SLCol3f(1, 1, 0));
                 else
                 {
                     // delete selection bits from previous rectangle selection
-                    if (node != _s->selectedNode() && _s->selectedRect().isEmpty())
+                    if (node != _s->selectedNode() && _camera->selectedRect().isEmpty())
                         node->drawBits()->off(SL_DB_SELECTED);
                 }
             }
@@ -918,7 +918,7 @@ void SLSceneView::draw2DGL()
         drawing in SLMesh::draw and is only valid for the current frame.
         All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
 
-        if (!_s->selectedRect().isEmpty())
+        if (!_camera->selectedRect().isEmpty())
         {
             stateGL->pushModelViewMatrix();
             stateGL->modelViewMatrix.identity();
@@ -929,7 +929,7 @@ void SLSceneView::draw2DGL()
             stateGL->blend(true); // Enable blending
             //stateGL->polygonLine(false);       // Only filled polygons
 
-            _s->selectedRect().drawGL(SLCol4f::WHITE);
+            _camera->selectedRect().drawGL(SLCol4f::WHITE);
 
             stateGL->blend(false); // turn off blending
             //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
@@ -1293,7 +1293,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 
         if (pickRay.length < FLT_MAX)
         {
-            _s->selectedRect().setZero();
+            _camera->selectedRect().setZero();
             _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
             if (onSelectedNodeMesh)
                 onSelectedNodeMesh(_s->selectedNode(), _s->selectedMesh());

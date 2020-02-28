@@ -14,8 +14,9 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLSceneView.h>
+#include <SLDeviceLocation.h>
+#include <SLDeviceRotation.h>
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
@@ -822,9 +823,8 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     // Start selection rectangle
     if (mod == K_ctrl)
     {
-        SLScene* s = SLApplication::scene;
-        s->selectNodeMesh(nullptr, nullptr);
-        s->selectedRect().tl(_oldTouchPos1);
+        //s->selectNodeMesh(nullptr, nullptr);
+        _selectedRect.tl(_oldTouchPos1);
     }
 
     if (_camAnim == CA_trackball)
@@ -850,8 +850,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
          */
         if (mod == K_ctrl)
         {
-            SLScene* s = SLApplication::scene;
-            s->selectedRect().setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
+            _selectedRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
         }
         else // normal camera animations
         {    // new vars needed

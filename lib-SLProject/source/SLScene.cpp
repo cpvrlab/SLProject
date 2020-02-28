@@ -142,7 +142,7 @@ void SLScene::init()
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
 
-    _selectedRect.setZero();
+    //_selectedRect.setZero();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -337,7 +337,7 @@ void SLScene::selectNode(SLNode* nodeToSelect)
             _selectedNode = nodeToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
-        _selectedRect.setZero();
+        //_selectedRect.setZero();
     }
     else
         _selectedNode = nullptr;
@@ -360,7 +360,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect,
         {
             _selectedNode = nullptr;
             _selectedMesh = nullptr;
-            _selectedRect.setZero();
+            //_selectedRect.setZero();
         }
         else
         {
@@ -373,7 +373,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect,
     {
         _selectedNode = nullptr;
         _selectedMesh = nullptr;
-        _selectedRect.setZero();
+        //_selectedRect.setZero();
     }
 }
 //-----------------------------------------------------------------------------

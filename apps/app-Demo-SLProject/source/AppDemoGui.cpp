@@ -778,7 +778,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
         if (showProperties)
         {
-            buildProperties(s);
+            buildProperties(s, sv);
         }
 
         if (showUIPrefs)
@@ -1941,14 +1941,14 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 }
 //-----------------------------------------------------------------------------
 //! Builds the properties dialog once per frame
-void AppDemoGui::buildProperties(SLScene* s)
+void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-    if (node && s->selectedRect().isEmpty())
+    if (node && sv->camera()->selectedRect().isEmpty())
     {
 
         ImGui::Begin("Properties of Selection", &showProperties);
@@ -2362,7 +2362,7 @@ void AppDemoGui::buildProperties(SLScene* s)
         ImGui::PopStyleColor();
         ImGui::End();
     }
-    else if (!node && !s->selectedRect().isEmpty())
+    else if (!node && !sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
