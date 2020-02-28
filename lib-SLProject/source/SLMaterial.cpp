@@ -187,12 +187,12 @@ void SLMaterial::activate(SLDrawBits      drawBits,
         if (!_textures.empty())
         {
             //if (_textures.size() == 1)
-            program(assetMgr->programs(SP_perVrtBlinnTex));
+            program(SLGLProgramManager::get(SP_perVrtBlinnTex));
             //if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
             //program(s->programs(SP_bumpNormal));
         }
         else
-            program(assetMgr->programs(SP_perVrtBlinn));
+            program(SLGLProgramManager::get(SP_perVrtBlinn));
     }
 
     // Check if shader had compile error and the error texture should be shown

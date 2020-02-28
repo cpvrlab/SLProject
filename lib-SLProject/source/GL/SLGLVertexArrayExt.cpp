@@ -32,7 +32,7 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
     assert(elementSize);
     assert(numVertices);
 
-    SLGLProgram* sp = SLGLColorUniformProgram::instance();
+    SLGLProgram* sp = SLGLProgramManager::get(SP_colorUniform);
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
 
@@ -64,7 +64,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
 
     // Prepare shader
     SLMaterial::current = nullptr;
-    SLGLProgram* sp     = SLGLColorUniformProgram::instance();
+    SLGLProgram* sp     = SLGLProgramManager::get(SP_colorUniform);
     SLGLState*   state  = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
@@ -111,7 +111,7 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
 
     // Prepare shader
     SLMaterial::current = nullptr;
-    SLGLProgram* sp     = SLGLColorUniformProgram::instance();
+    SLGLProgram* sp     = SLGLProgramManager::get(SP_colorUniform);
     SLGLState*   state  = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());

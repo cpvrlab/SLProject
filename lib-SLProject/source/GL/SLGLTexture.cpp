@@ -744,7 +744,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLVushort I = {0, 1, 2, 3};
 
-        SLGLProgram* sp = SLGLTextureOnlyProgram::instance();
+        SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
         _vaoSprite.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
@@ -758,7 +758,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     // Draw the character triangles
     SLGLState*   stateGL = SLGLState::instance();
     SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-    SLGLProgram* sp = SLGLTextureOnlyProgram::instance();
+    SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);

@@ -240,7 +240,9 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
     // if no camera exists or in VR mode use the sceneViewCamera
     if (_camera == nullptr)
+    {
         _camera = &_sceneViewCamera;
+    }
 
     _camera->needUpdate();
 }

@@ -24,6 +24,7 @@
 #include <SLVec4.h>
 #include <utility>
 #include <vector>
+#include <map>
 #include <SLGLGenericProgram.h>
 #include <SLAssetManager.h>
 
@@ -32,38 +33,109 @@ class SLCamera;
 class SLInputManager;
 
 //-----------------------------------------------------------------------------
-class SLGLDefaultPrograms
+//! Enumeration for standard preloaded shader programs in SLScene::_shaderProgs
+enum SLShaderProg
 {
-public:
-private:
+    SP_colorAttribute,
+    SP_colorUniform,
+    SP_perVrtBlinn,
+    SP_perVrtBlinnColorAttrib,
+    SP_perVrtBlinnTex,
+    SP_TextureOnly,
+    SP_perPixBlinn,
+    SP_perPixBlinnTex,
+    SP_perPixCookTorrance,
+    SP_perPixCookTorranceTex,
+    SP_bumpNormal,
+    SP_bumpNormalParallax,
+    SP_fontTex,
+    SP_stereoOculus,
+    SP_stereoOculusDistortion
 };
-//-----------------------------------------------------------------------------
 
-class SLGLColorUniformProgram : public SLGLGenericProgram
+class SLGLProgramManager
 {
 public:
-    static SLGLColorUniformProgram* instance()
+    static SLGLGenericProgram* get(SLShaderProg id)
     {
-        if (!_instance)
-            _instance = new SLGLColorUniformProgram;
-        return _instance;
-    }
-    static void deleteInstance()
-    {
-        if (_instance)
+        auto it = _programs.find(id);
+        if (_programs.find(id) == _programs.end())
         {
-            delete _instance;
-            _instance = nullptr;
+            makeProgram(id);
+        }
+
+        return _programs[id];
+    }
+
+    static void deletePrograms()
+    {
+        for (auto it : _programs)
+            delete it.second;
+        _programs.clear();
+    }
+
+    ~SLGLProgramManager()
+    {
+        if (_programs.size())
+            SL_WARN_MSG("SLGLProgramManager: you have to call deletePrograms() before closing the program!");
+    }
+
+private:
+    static void makeProgram(SLShaderProg id)
+    {
+        switch (id)
+        {
+            case SP_colorAttribute:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "ColorAttribute.vert", "Color.frag")});
+                break;
+            case SP_colorUniform:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")});
+                break;
+            case SP_perVrtBlinn:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerVrtBlinn.vert", "PerVrtBlinn.frag")});
+                break;
+            case SP_perVrtBlinnColorAttrib:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag")});
+                break;
+            case SP_perVrtBlinnTex:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag")});
+                break;
+            case SP_TextureOnly:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag")});
+                break;
+            case SP_perPixBlinn:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixBlinn.vert", "PerPixBlinn.frag")});
+                break;
+            case SP_perPixBlinnTex:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixBlinnTex.vert", "PerPixBlinnTex.frag")});
+                break;
+            case SP_perPixCookTorrance:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixCookTorrance.vert", "PerPixCookTorrance.frag")});
+                break;
+            case SP_perPixCookTorranceTex:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag")});
+                break;
+            case SP_bumpNormal:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "BumpNormal.vert", "BumpNormal.frag")});
+                break;
+            case SP_bumpNormalParallax:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "BumpNormal.vert", "BumpNormalParallax.frag")});
+                break;
+            case SP_fontTex:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "FontTex.vert", "FontTex.frag")});
+                break;
+            case SP_stereoOculus:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "StereoOculus.vert", "StereoOculus.frag")});
+                break;
+            case SP_stereoOculusDistortion:
+                _programs.insert({id, new SLGLGenericProgram(nullptr, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag")});
+                break;
+            default:
+                SL_EXIT_MSG("SLGLProgramManager: unknown shader id!");
         }
     }
 
-private:
-    SLGLColorUniformProgram()
-      : SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")
-    {
-    }
-
-    static SLGLColorUniformProgram* _instance;
+    static std::map<SLShaderProg, SLGLGenericProgram*> _programs;
 };
 
 //-----------------------------------------------------------------------------
@@ -95,6 +167,7 @@ private:
 
     static SLMaterialDefaultGray* _instance;
 };
+
 //-----------------------------------------------------------------------------
 //! Global diffuse reflection material for meshes with color vertex attributes.
 class SLMaterialDiffuseAttribute : public SLMaterial
@@ -117,42 +190,13 @@ public:
 
 private:
     SLMaterialDiffuseAttribute()
-      : SLMaterial(nullptr, "diffuseAttrib"),
-        _program(nullptr, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag")
+      : SLMaterial(nullptr, "diffuseAttrib")
     {
         specular(SLCol4f::BLACK);
-        program(&_program);
+        program(SLGLProgramManager::get(SP_perVrtBlinnColorAttrib));
     }
 
-    SLGLGenericProgram                 _program;
     static SLMaterialDiffuseAttribute* _instance;
-};
-
-//-----------------------------------------------------------------------------
-class SLGLTextureOnlyProgram : public SLGLGenericProgram
-{
-public:
-    static SLGLTextureOnlyProgram* instance()
-    {
-        if (!_instance)
-            _instance = new SLGLTextureOnlyProgram;
-        return _instance;
-    }
-    static void deleteInstance()
-    {
-        if (_instance)
-        {
-            delete _instance;
-            _instance = nullptr;
-        }
-    }
-
-private:
-    SLGLTextureOnlyProgram()
-      : SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag")
-    {
-    }
-    static SLGLTextureOnlyProgram* _instance;
 };
 
 //-----------------------------------------------------------------------------
@@ -283,7 +327,7 @@ public:
                              SLuint          processFlags);
 
 private:
-    SLint _numProgsPreload; //!< No. of preloaded shaderProgs
+    //SLint _numProgsPreload; //!< No. of preloaded shaderProgs
 };
 //-----------------------------------------------------------------------------
 

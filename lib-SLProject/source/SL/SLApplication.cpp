@@ -109,10 +109,7 @@ void SLApplication::deleteAppAndScene()
     scene = nullptr;
 
     //delete default stuff:
-    //programs:
-    SLGLColorUniformProgram::deleteInstance();
-    SLGLTextureOnlyProgram::deleteInstance();
-    //materials:
+    SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
     SLMaterialDiffuseAttribute::deleteInstance();
 }

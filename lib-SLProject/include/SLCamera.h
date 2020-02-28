@@ -21,6 +21,8 @@
 #include <SLSamples2D.h>
 
 class SLSceneView;
+class SLDeviceRotation;
+class SLDeviceLocation;
 
 //-----------------------------------------------------------------------------
 //! Active or visible camera node class
@@ -215,6 +217,9 @@ protected:
     // Stereo rendering
     SLfloat _eyeSeparation; //!< eye separation for stereo mode
     SLfloat _unitScaling;   //!< indicate what the current unit scaling is to adjust movement and stereo rendering correctly
+
+    SLDeviceRotation* _devRot = nullptr;
+    SLDeviceLocation* _devLoc = nullptr;
 };
 //-----------------------------------------------------------------------------
 #endif

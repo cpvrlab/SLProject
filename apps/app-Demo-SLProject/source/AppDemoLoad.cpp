@@ -494,7 +494,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
-        m1->program(s->programs()[SP_TextureOnly]);
+        //m1->program(s->programs()[SP_TextureOnly]);
+        m1->program(SLGLProgramManager::get(SP_TextureOnly));
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
 
@@ -1066,7 +1067,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 else
                 {
                     // Cook-Torrance material without textures
-                    SLGLProgram* program = s->programs(SP_perPixCookTorrance);
+                    SLGLProgram* program = SLGLProgramManager::get(SP_perPixCookTorrance);
                     mat[i]               = new SLMaterial(s, program, "CookTorranceMat", SLCol4f::RED * 0.5f, Utils::clamp((float)r * deltaR, 0.05f, 1.0f), (float)m * deltaM);
                 }
 

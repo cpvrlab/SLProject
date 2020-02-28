@@ -279,26 +279,6 @@ enum SLShaderType
     ST_tesselation
 };
 //-----------------------------------------------------------------------------
-//! Enumeration for standard preloaded shader programs in SLScene::_shaderProgs
-enum SLShaderProg
-{
-    SP_colorAttribute,
-    SP_colorUniform,
-    SP_perVrtBlinn,
-    SP_perVrtBlinnColorAttrib,
-    SP_perVrtBlinnTex,
-    SP_TextureOnly,
-    SP_perPixBlinn,
-    SP_perPixBlinnTex,
-    SP_perPixCookTorrance,
-    SP_perPixCookTorranceTex,
-    SP_bumpNormal,
-    SP_bumpNormalParallax,
-    SP_fontTex,
-    //SP_stereoOculus,
-    //SP_stereoOculusDistortion
-};
-//-----------------------------------------------------------------------------
 //! Type definition for GLSL uniform1f variables that change per frame.
 enum SLUniformType
 {

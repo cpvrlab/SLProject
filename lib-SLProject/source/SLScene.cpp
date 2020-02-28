@@ -27,8 +27,8 @@
 //-----------------------------------------------------------------------------
 SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
 SLMaterialDefaultGray*      SLMaterialDefaultGray::_instance      = nullptr;
-SLGLColorUniformProgram*    SLGLColorUniformProgram::_instance    = nullptr;
-SLGLTextureOnlyProgram*     SLGLTextureOnlyProgram::_instance     = nullptr;
+
+std::map<SLShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
 
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as
@@ -88,6 +88,9 @@ SLScene::SLScene(SLstring        name,
     _lastUpdateTimeMS = 0;
 
     _oculus.init();
+
+    // font and video texture are not added to the _textures vector
+    SLTexFont::generateFonts(*SLGLProgramManager::get(SP_fontTex));
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -171,39 +174,9 @@ void SLScene::unInit()
     // clear light pointers
     _lights.clear();
 
-    //// delete textures that where allocated during scene construction.
-    //// The video & raytracing textures are not in this vector and are not dealocated
-    //for (auto t : _textures)
-    //    delete t;
-    //_textures.clear();
-
-    //// manually clear the default materials (it will get deleted below)
-    //SLMaterial::defaultGray(this, nullptr);
-    //SLMaterial::diffuseAttrib(this, nullptr);
-
-    //// delete materials
-    //for (auto m : _materials)
-    //    delete m;
-    //_materials.clear();
-
-    // delete meshes
-    //for (auto m : _meshes)
-    //    delete m;
-    //_meshes.clear();
-
-    //todo: is this really necessary?
     SLMaterial::current = nullptr;
 
-    //// delete custom shader programs but not default shaders
-    //while (_programs.size() > (SLuint)_numProgsPreload)
-    //{
-    //    SLGLProgram* sp = _programs.back();
-    //    delete sp;
-    //    _programs.pop_back();
-    //}
-
     _eventHandlers.clear();
-
     _animManager.clear();
 }
 //-----------------------------------------------------------------------------
@@ -443,40 +416,9 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     return cams[(uint)activeIndex];
 }
 //-----------------------------------------------------------------------------
-//void SLScene::notifyNodesAABBUpdate(SLMesh* mesh)
-//{
-//    SLVNode nodes = _root3D->findChildren(mesh, true);
-//    for (auto node : nodes)
-//        node->needAABBUpdate();
-//}
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager)
   : SLScene(name, onSceneLoadCallback, inputManager)
 {
-    // Load std. shader programs in order as defined in SLShaderProgs enum in SLenum
-    // In the constructor they are added the _shaderProgs vector
-    // If you add a new shader here you have to update the SLShaderProgs enum accordingly.
-    new SLGLGenericProgram(this, "ColorAttribute.vert", "Color.frag");
-    new SLGLGenericProgram(this, "ColorUniform.vert", "Color.frag");
-    new SLGLGenericProgram(this, "PerVrtBlinn.vert", "PerVrtBlinn.frag");
-    new SLGLGenericProgram(this, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag");
-    new SLGLGenericProgram(this, "PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag");
-    new SLGLGenericProgram(this, "TextureOnly.vert", "TextureOnly.frag");
-    new SLGLGenericProgram(this, "PerPixBlinn.vert", "PerPixBlinn.frag");
-    new SLGLGenericProgram(this, "PerPixBlinnTex.vert", "PerPixBlinnTex.frag");
-    new SLGLGenericProgram(this, "PerPixCookTorrance.vert", "PerPixCookTorrance.frag");
-    new SLGLGenericProgram(this, "PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag");
-    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormal.frag");
-    new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormalParallax.frag");
-    new SLGLGenericProgram(this, "FontTex.vert", "FontTex.frag");
-    //new SLGLGenericProgram(this, "StereoOculus.vert", "StereoOculus.frag");
-    //new SLGLGenericProgram(this, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
-
-    _numProgsPreload = (SLint)_programs.size();
-
-    // font and video texture are not added to the _textures vector
-    SLTexFont::generateFonts(*this->programs(SP_fontTex));
 }
 //-----------------------------------------------------------------------------
 /*! Removes the specified texture from the textures resource vector.
@@ -499,32 +441,7 @@ bool SLProjectScene::deleteTexture(SLGLTexture* texture)
 void SLProjectScene::unInit()
 {
     SLScene::unInit();
-
-    // delete textures that where allocated during scene construction.
-    // The video & raytracing textures are not in this vector and are not dealocated
-    for (auto t : _textures)
-        delete t;
-    _textures.clear();
-
-    // delete materials
-    for (auto m : _materials)
-        delete m;
-    _materials.clear();
-
-    // delete meshes
-    for (auto m : _meshes)
-        delete m;
-    _meshes.clear();
-
-    //SLMaterial::current = nullptr;
-
-    // delete custom shader programs but not default shaders
-    while (_programs.size() > (SLuint)_numProgsPreload)
-    {
-        SLGLProgram* sp = _programs.back();
-        delete sp;
-        _programs.pop_back();
-    }
+    SLAssetManager::clear();
 }
 //-----------------------------------------------------------------------------
 void SLProjectScene::onLoadAsset(const SLstring& assetFile,
