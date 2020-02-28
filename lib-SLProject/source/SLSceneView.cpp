@@ -84,7 +84,8 @@ void SLSceneView::init(SLstring       name,
                        SLint          screenHeight,
                        void*          onWndUpdateCallback,
                        void*          onSelectNodeMeshCallback,
-                       SLUiInterface* gui)
+                       SLUiInterface* gui,
+                       std::string    configPath)
 {
     _gui        = gui;
     _name       = std::move(name);
@@ -133,7 +134,7 @@ void SLSceneView::init(SLstring       name,
     _skybox = nullptr;
 
     if (_gui)
-        _gui->init();
+        _gui->init(configPath);
 
     onStartup();
 }

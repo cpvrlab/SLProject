@@ -16,7 +16,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
@@ -33,7 +32,7 @@ SLGLImGui::SLGLImGui()
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void SLGLImGui::init()
+void SLGLImGui::init(std::string configPath)
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -56,7 +55,7 @@ void SLGLImGui::init()
     _mousePressed[2] = false;
 
     ImGuiIO&              io      = ImGui::GetIO();
-    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
+    static const SLstring inifile = configPath + "imgui.ini";
     io.IniFilename                = inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]        = K_tab;

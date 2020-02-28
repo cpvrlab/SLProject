@@ -131,7 +131,8 @@ int slCreateSceneView(SLProjectScene* scene,
              screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             gui);
+             gui,
+             SLApplication::configPath);
 
     // Load GUI fonts depending on the resolution
     //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);

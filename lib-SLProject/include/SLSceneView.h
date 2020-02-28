@@ -78,7 +78,8 @@ public:
               SLint          screenHeight,
               void*          onWndUpdateCallback,
               void*          onSelectNodeMeshCallback,
-              SLUiInterface* gui);
+              SLUiInterface* gui,
+              std::string    configPath);
 
     // Not overridable event handlers
     void   onInitialize();

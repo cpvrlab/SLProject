@@ -45,7 +45,7 @@ void SLAnimation::lengthSec(SLfloat lengthSec)
 SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
-    SLfloat     result = _lengthSec;
+    SLfloat         result = _lengthSec;
     SLAnimKeyframe* kf1;
     SLAnimKeyframe* kf2;
 
@@ -64,7 +64,7 @@ SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
-    SLfloat     result = 0.0;
+    SLfloat         result = 0.0;
     SLAnimKeyframe* kf1;
     SLAnimKeyframe* kf2;
 
@@ -176,19 +176,19 @@ void SLAnimation::resetNodes()
 /*! Creates new SLAnimation istance for node animations. It will already create and set parameters
 for the respective SLAnimPlayback.
 */
-SLAnimation* SLAnimation::create(const SLstring& name,
-                                 SLfloat         duration,
-                                 SLbool          enabled,
-                                 SLEasingCurve   easing,
-                                 SLAnimLooping   looping)
-{
-    SLAnimation*    anim     = SLApplication::scene->animManager().createNodeAnimation(name, duration);
-    SLAnimPlayback* playback = SLApplication::scene->animManager().nodeAnimPlayback(anim->name());
-    playback->enabled(enabled);
-    playback->easing(easing);
-    playback->loop(looping);
-    return anim;
-}
+//SLAnimation* SLAnimation::create(const SLstring& name,
+//                                 SLfloat         duration,
+//                                 SLbool          enabled,
+//                                 SLEasingCurve   easing,
+//                                 SLAnimLooping   looping)
+//{
+//    SLAnimation*    anim     = SLApplication::scene->animManager().createNodeAnimation(name, duration);
+//    SLAnimPlayback* playback = SLApplication::scene->animManager().nodeAnimPlayback(anim->name());
+//    playback->enabled(enabled);
+//    playback->easing(easing);
+//    playback->loop(looping);
+//    return anim;
+//}
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a two keyframe translation animation
 */

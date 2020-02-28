@@ -67,6 +67,23 @@ SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
     return createNodeAnimation(oss.str(), duration);
 }
 //-----------------------------------------------------------------------------
+/*! Creates new SLAnimation istance for node animations. It will already create and set parameters
+for the respective SLAnimPlayback.
+*/
+SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name,
+                                                SLfloat         duration,
+                                                SLbool          enabled,
+                                                SLEasingCurve   easing,
+                                                SLAnimLooping   looping)
+{
+    SLAnimation*    anim     = createNodeAnimation(name, duration);
+    SLAnimPlayback* playback = nodeAnimPlayback(name);
+    playback->enabled(enabled);
+    playback->easing(easing);
+    playback->loop(looping);
+    return anim;
+}
+//-----------------------------------------------------------------------------
 /*! Creates a new node animation
     @param  name        the animation name
     @param  duration    length of the animation

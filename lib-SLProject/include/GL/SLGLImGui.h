@@ -53,7 +53,7 @@ class SLGLImGui : public SLUiInterface
 {
 public:
     SLGLImGui();
-    void init() override;
+    void init(std::string configPath) override;
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH) override;
