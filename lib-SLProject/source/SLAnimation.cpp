@@ -171,25 +171,6 @@ void SLAnimation::resetNodes()
         it.second->animatedNode()->resetToInitialState();
 }
 //-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-/*! Creates new SLAnimation istance for node animations. It will already create and set parameters
-for the respective SLAnimPlayback.
-*/
-//SLAnimation* SLAnimation::create(const SLstring& name,
-//                                 SLfloat         duration,
-//                                 SLbool          enabled,
-//                                 SLEasingCurve   easing,
-//                                 SLAnimLooping   looping)
-//{
-//    SLAnimation*    anim     = SLApplication::scene->animManager().createNodeAnimation(name, duration);
-//    SLAnimPlayback* playback = SLApplication::scene->animManager().nodeAnimPlayback(anim->name());
-//    playback->enabled(enabled);
-//    playback->easing(easing);
-//    playback->loop(looping);
-//    return anim;
-//}
-//-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a two keyframe translation animation
 */
 SLNodeAnimTrack* SLAnimation::createSimpleTranslationNodeTrack(SLNode*        target,
