@@ -156,6 +156,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(22);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 5, 0, 5, 0.5f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -198,6 +199,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->eyeSeparation(cam1->focalDist() / 30.0f);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2.5f, 2.5f, 2.5f, 0.2f);
         light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -323,6 +325,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(17);
         cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0, 4, 0, 0.3f);
@@ -456,6 +459,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             cam1->focalDist(220);
             cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
             cam1->setInitialState();
+            cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
             SLLightSpot* light1 = new SLLightSpot(s, s, 200, 200, 200, 1);
             light1->ambient(SLCol4f(1, 1, 1));
@@ -505,6 +509,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(25);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 1));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
         light->translation(5, 5, 5);
@@ -670,6 +675,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(2.2f);
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLNode* scene = new SLNode();
         scene->addChild(polyB);
@@ -698,6 +704,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -754,6 +761,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -833,6 +841,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -893,6 +902,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(15);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -952,6 +962,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // Define 5 light sources
@@ -1034,6 +1045,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->focalDist(28);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // Create spheres and materials with roughness & metallic values between 0 and 1
@@ -1109,6 +1121,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create generic shader program with 4 custom uniforms
         SLGLProgram*   sp  = new SLGLGenericProgram(s, "Wave.vert", "Wave.frag");
@@ -1156,6 +1169,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // create texture
         SLGLTexture* tex1 = new SLGLTexture(s, "Pool+X0512_C.png", "Pool-X0512_C.png", "Pool+Y0512_C.png", "Pool-Y0512_C.png", "Pool+Z0512_C.png", "Pool-Z0512_C.png");
@@ -1244,6 +1258,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
         light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -1296,6 +1311,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
         light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -1346,6 +1362,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 5);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // There is no light needed in this scene. All reflections come from cube maps
@@ -1431,6 +1448,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(4);
         cam1->background().colors(SLCol4f(0, 0, 0));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* sun = new SLLightSpot(s, s);
         sun->ambient(SLCol4f(0, 0, 0));
@@ -1467,6 +1485,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->fov(75.0f);
         cam1->focalDist(1.8f);
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         scene->addChild(cam1);
 
@@ -1611,6 +1630,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(3);
         cam1->background().colors(SLCol4f(0, 0, 0));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Set light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -1678,6 +1698,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(3);
         cam1->background().colors(SLCol4f(0, 0, 0));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Set light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -1714,6 +1735,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // light
@@ -1827,6 +1849,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLCamera* cam2 = new SLCamera("Camera 2");
         cam2->translation(5, 0, 0);
@@ -1835,6 +1858,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam2->clipFar(10);
         cam2->background().colors(SLCol4f(0, 0, 0.6f), SLCol4f(0, 0, 0.3f));
         cam2->setInitialState();
+        cam2->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLCamera* cam3 = new SLCamera("Camera 3");
         cam3->translation(-5, -2, 0);
@@ -1843,6 +1867,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam3->clipFar(10);
         cam3->background().colors(SLCol4f(0.6f, 0, 0), SLCol4f(0.3f, 0, 0));
         cam3->setInitialState();
+        cam3->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0, 2, 0, 0.5f);
         light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
@@ -1987,6 +2012,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Floor rectangle
         SLNode* rect = new SLNode(new SLRectangle(s,
@@ -2073,6 +2099,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // Create rectangle meshe and nodes
@@ -2177,6 +2204,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2252,6 +2280,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // Create a light source node
@@ -2310,6 +2339,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
@@ -2393,6 +2423,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 1);
@@ -2444,6 +2475,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
 
         // Turn on main video
@@ -2508,6 +2540,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(500.0f);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
 
         // Turn on main video
@@ -2633,6 +2666,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f);
         cam1->focalDist(150);
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -2725,6 +2759,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(1000.0f);
         cam1->focalDist(150);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -2867,6 +2902,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.0f, 0.0f, 0.0f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // assemble scene
         SLNode* scene = new SLNode;
@@ -2928,6 +2964,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-3, -3), SLVec2f(5, 4), 20, 20, "Floor", matYel));
         rect->rotate(90, -1, 0, 0);
@@ -2972,6 +3009,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLuint  res  = 30;
         SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-3, -3), SLVec2f(5, 4), res, res, "Rect", matYel));
@@ -3038,6 +3076,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLuint  res  = 30;
         SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
@@ -3113,6 +3152,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Light
         //SLLightSpot* light1 = new SLLightSpot(s,s,15, 20, 15, 0.1f);
@@ -3168,6 +3208,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
