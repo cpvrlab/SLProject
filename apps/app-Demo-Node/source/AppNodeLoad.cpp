@@ -33,7 +33,7 @@ void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid)
     cam1->focalDist(6);
     cam1->background().colors(SLCol4f(0.8f, 0.8f, 0.8f));
 
-    SLLightSpot* light1 = new SLLightSpot(s, 0.3f);
+    SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
     light1->translation(10, 10, 10);
 
     SLNode* scene = new SLNode;
