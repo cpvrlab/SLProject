@@ -1065,7 +1065,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         // finger isn't touching the screen. Therefore imgui can not detect hovering
         // over an imgui window. Without this extra frame you would have to touch
         // the display twice to open e.g. a menu.
-        _gui->renderExtraFrame(s, this, x, y);
+        _gui->renderExtraFrame(_s, this, x, y);
 #endif
 
         if (_gui->doNotDispatchMouse())

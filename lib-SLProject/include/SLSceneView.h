@@ -37,7 +37,7 @@ framework. All other function calls are downwards from the GUI framework
 into the SLProject library.
 */
 //! Callback function typedef for custom SLSceneView derived creator function
-typedef int (*cbOnNewSceneView)(SLProjectScene* s, int dotsPerInch);
+typedef int(SL_STDCALL* cbOnNewSceneView)(SLProjectScene* s, int dotsPerInch);
 
 //! Callback function typedef for GUI window update
 typedef SLbool(SL_STDCALL* cbOnWndUpdate)();

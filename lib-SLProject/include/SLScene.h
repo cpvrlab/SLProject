@@ -270,7 +270,7 @@ public:
     SLint     numSceneCameras();
     SLCamera* nextCameraInScene(SLSceneView* activeSV);
     //notify all nodes that contain the transfered mesh, that the aabb changed
-    void notifyNodesAABBUpdate(SLMesh* mesh);
+    //void notifyNodesAABBUpdate(SLMesh* mesh);
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 

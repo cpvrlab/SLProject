@@ -13,7 +13,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLSkeleton.h>
