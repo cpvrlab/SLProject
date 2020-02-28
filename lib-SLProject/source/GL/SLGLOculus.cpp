@@ -39,6 +39,12 @@ SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
 SLGLOculus::~SLGLOculus()
 {
     dispose();
+
+    if (_stereoOculusDistProgram)
+    {
+        delete _stereoOculusDistProgram;
+        _stereoOculusDistProgram = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------
 /*! Deletes the buffer object
@@ -49,9 +55,9 @@ void SLGLOculus::dispose()
 //-----------------------------------------------------------------------------
 /*! Initialization of the Oculus Rift SDK and the device recognition.
 */
-void SLGLOculus::init(SLGLProgram* stereoOculusDistProgram)
+void SLGLOculus::init()
 {
-    _stereoOculusDistProgram = stereoOculusDistProgram;
+    _stereoOculusDistProgram = new SLGLGenericProgram(nullptr, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
     _resolutionScale         = 1.25f;
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);
@@ -67,8 +73,8 @@ void SLGLOculus::init(SLGLProgram* stereoOculusDistProgram)
         _projection[i].translate(-_viewAdjust[i]);
     }
 
-    createSLDistortionMesh(stereoOculusDistProgram, ET_left, _distortionMeshVAO[0]);
-    createSLDistortionMesh(stereoOculusDistProgram, ET_right, _distortionMeshVAO[1]);
+    createSLDistortionMesh(_stereoOculusDistProgram, ET_left, _distortionMeshVAO[0]);
+    createSLDistortionMesh(_stereoOculusDistProgram, ET_right, _distortionMeshVAO[1]);
 }
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation

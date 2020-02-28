@@ -40,7 +40,7 @@ public:
     SLGLOculus();
     ~SLGLOculus();
 
-    void init(SLGLProgram* stereoOculusDistProgram);
+    void init();
 
     const SLQuat4f& orientation(SLEyeType eye);
     const SLVec3f&  position(SLEyeType eye);

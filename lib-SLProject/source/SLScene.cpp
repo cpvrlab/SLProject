@@ -86,6 +86,8 @@ SLScene::SLScene(SLstring        name,
     _fps              = 0;
     _frameTimeMS      = 0;
     _lastUpdateTimeMS = 0;
+
+    _oculus.init();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -468,12 +470,10 @@ SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback,
     new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormal.frag");
     new SLGLGenericProgram(this, "BumpNormal.vert", "BumpNormalParallax.frag");
     new SLGLGenericProgram(this, "FontTex.vert", "FontTex.frag");
-    new SLGLGenericProgram(this, "StereoOculus.vert", "StereoOculus.frag");
-    new SLGLGenericProgram(this, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+    //new SLGLGenericProgram(this, "StereoOculus.vert", "StereoOculus.frag");
+    //new SLGLGenericProgram(this, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
 
     _numProgsPreload = (SLint)_programs.size();
-
-    _oculus.init(this->programs(SP_stereoOculusDistortion));
 
     // font and video texture are not added to the _textures vector
     SLTexFont::generateFonts(*this->programs(SP_fontTex));

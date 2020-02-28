@@ -69,6 +69,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimPlayback.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimTrack.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLArrow.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAssetManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
@@ -160,6 +161,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimPlayback.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimTrack.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAssetManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBackground.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCamera.cpp

@@ -25,11 +25,18 @@
 #include <utility>
 #include <vector>
 #include <SLGLGenericProgram.h>
+#include <SLAssetManager.h>
 
 class SLSceneView;
 class SLCamera;
 class SLInputManager;
 
+//-----------------------------------------------------------------------------
+class SLGLDefaultPrograms
+{
+public:
+private:
+};
 //-----------------------------------------------------------------------------
 
 class SLGLColorUniformProgram : public SLGLGenericProgram
@@ -148,62 +155,6 @@ private:
     static SLGLTextureOnlyProgram* _instance;
 };
 
-class SLAssetManager
-{
-public:
-    ~SLAssetManager()
-    {
-        // delete materials
-        for (auto m : _materials) delete m;
-        _materials.clear();
-
-        // delete textures
-        for (auto t : _textures) delete t;
-        _textures.clear();
-
-        // delete meshes
-        for (auto m : _meshes)
-            delete m;
-        _meshes.clear();
-
-        // delete shader programs
-        for (auto p : _programs) delete p;
-        _programs.clear();
-    }
-
-    //-----------------------------------------------------------------------------
-    /*! Removes the specified mesh from the meshes resource vector.
-*/
-    bool removeMesh(SLMesh* mesh)
-    {
-        assert(mesh);
-        for (SLulong i = 0; i < _meshes.size(); ++i)
-        {
-            if (_meshes[i] == mesh)
-            {
-                _meshes.erase(_meshes.begin() + i);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //SLVGLProgram& defaultPrograms() { return _defaultPrograms; }
-    //SLGLProgram*  defaultPrograms(SLShaderProg i) { return _defaultPrograms[i]; }
-    SLVGLProgram& programs() { return _programs; }
-    SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
-    SLVMaterial&  materials() { return _materials; }
-    SLVGLTexture& textures() { return _textures; }
-    SLVMesh&      meshes() { return _meshes; }
-
-protected:
-    //SLVGLProgram _defaultPrograms; //!< Vector of all shader program pointers
-    SLVGLProgram _programs;  //!< Vector of all shader program pointers
-    SLVMaterial  _materials; //!< Vector of all materials pointers
-    SLVGLTexture _textures;  //!< Vector of all texture pointers
-    SLVMesh      _meshes;    //!< Vector of all meshes
-};
-
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 //-----------------------------------------------------------------------------
@@ -262,15 +213,13 @@ public:
     AvgFloat& cullTimesMS() { return _cullTimesMS; }
     AvgFloat& draw2DTimesMS() { return _draw2DTimesMS; }
     AvgFloat& draw3DTimesMS() { return _draw3DTimesMS; }
-    //SLVMesh&  meshes() { return _meshes; }
+
     SLNode*   selectedNode() { return _selectedNode; }
     SLMesh*   selectedMesh() { return _selectedMesh; }
     SLRectf&  selectedRect() { return _selectedRect; }
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
     SLCamera* nextCameraInScene(SLSceneView* activeSV);
-    //notify all nodes that contain the transfered mesh, that the aabb changed
-    //void notifyNodesAABBUpdate(SLMesh* mesh);
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
@@ -315,6 +264,8 @@ protected:
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 
     SLInputManager& _inputManager;
+
+    SLGLOculus _oculus; //!< Oculus Rift interface
 };
 
 //-----------------------------------------------------------------------------
@@ -332,8 +283,7 @@ public:
                              SLuint          processFlags);
 
 private:
-    SLGLOculus _oculus;          //!< Oculus Rift interface
-    SLint      _numProgsPreload; //!< No. of preloaded shaderProgs
+    SLint _numProgsPreload; //!< No. of preloaded shaderProgs
 };
 //-----------------------------------------------------------------------------
 
