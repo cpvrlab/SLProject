@@ -79,7 +79,7 @@ public:
                const SLchar*   name,
                SLGLProgram*    program);
 
-    ~SLMaterial() final;
+    virtual ~SLMaterial();
 
     //! Sets the material states and passes all variables to the shader program
     void activate(SLDrawBits      drawBits,
@@ -236,11 +236,6 @@ public:
         return _program;
     }
 
-    static SLMaterial* defaultGray(SLAssetManager* assetMgr);
-    static void        defaultGray(SLAssetManager* assetMgr, SLMaterial* mat);
-    static SLMaterial* diffuseAttrib(SLAssetManager* assetMgr);
-    static void        diffuseAttrib(SLAssetManager* assetMgr, SLMaterial* mat);
-
     // Static variables & functions
     static SLMaterial* current; //!< Current material during scene traversal
     static SLfloat     K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
@@ -261,13 +256,50 @@ protected:
     SLfloat      _kn{};         //!< refraction index
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
-
-private:
-    static SLMaterial* _defaultGray;   //!< Global default gray color material for meshes that don't define their own.
-    static SLMaterial* _diffuseAttrib; //!< Global diffuse reflection material for meshes with color vertex attributes.
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers
 typedef std::vector<SLMaterial*> SLVMaterial;
+
 //-----------------------------------------------------------------------------
+//! Global default gray color material for meshes that don't define their own.
+class SLMaterialDefaultGray : public SLMaterial
+{
+public:
+    static SLMaterialDefaultGray& instance()
+    {
+        static SLMaterialDefaultGray instance;
+        return instance;
+    }
+
+private:
+    SLMaterialDefaultGray()
+      : SLMaterial(nullptr, "default", SLVec4f::GRAY, SLVec4f::WHITE)
+    {
+        ambient({0.2f, 0.2f, 0.2f});
+    }
+};
+//-----------------------------------------------------------------------------
+//! Global diffuse reflection material for meshes with color vertex attributes.
+class SLMaterialDiffuseAttribute : public SLMaterial
+{
+public:
+    static SLMaterialDiffuseAttribute& instance()
+    {
+        static SLMaterialDiffuseAttribute instance;
+        return instance;
+    }
+
+private:
+    SLMaterialDiffuseAttribute()
+      : SLMaterial(nullptr, "diffuseAttrib"),
+        _program(nullptr, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag")
+    {
+        specular(SLCol4f::BLACK);
+        program(&_program);
+    }
+
+    SLGLGenericProgram _program;
+};
+
 #endif

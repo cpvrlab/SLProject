@@ -42,10 +42,6 @@ public:
 
     //! ctor for derived revolver shapes
     SLRevolver(SLAssetManager* assetMgr, SLstring name) : SLMesh(assetMgr, std::move(name)) { ; }
-    //SLRevolver(SLAssetManager* assetMgr) : SLMesh(assetMgr)
-    //{
-    //    ;
-    //}
 
     void   buildMesh(SLMaterial* mat = nullptr);
     SLuint stacks() { return _stacks; }

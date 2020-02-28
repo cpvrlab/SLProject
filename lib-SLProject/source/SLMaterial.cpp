@@ -22,9 +22,6 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
 SLMaterial* SLMaterial::current = nullptr;
 //-----------------------------------------------------------------------------
-SLMaterial* SLMaterial::_defaultGray   = nullptr;
-SLMaterial* SLMaterial::_diffuseAttrib = nullptr;
-//-----------------------------------------------------------------------------
 // Default ctor
 SLMaterial::SLMaterial(SLAssetManager* s,
                        const SLchar*   name,
@@ -128,7 +125,6 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _kt           = 0.0f;
     _kn           = 1.0f;
     _program      = perPixCookTorranceProgram;
-    //_program      = s->programs(SP_perPixCookTorrance);
 
     // Add pointer to the global resource vectors for deallocation
     if (s)
@@ -236,70 +232,5 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     loc = program->uniform1f("u_matKt", _kt);
     loc = program->uniform1f("u_matKn", _kn);
     loc = program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
-}
-//-----------------------------------------------------------------------------
-/*! 
-Getter for the global default gray material
-*/
-SLMaterial* SLMaterial::defaultGray(SLAssetManager* assetMgr)
-{
-    if (!_defaultGray)
-    {
-        _defaultGray = new SLMaterial(assetMgr, "default", SLVec4f::GRAY, SLVec4f::WHITE);
-        _defaultGray->ambient({0.2f, 0.2f, 0.2f});
-    }
-    return _defaultGray;
-}
-//-----------------------------------------------------------------------------
-/*! 
-The destructor doesn't delete attached the textures or shader program because
-Such shared resources get deleted in the arrays of SLScene.
-*/
-void SLMaterial::defaultGray(SLAssetManager* assetMgr, SLMaterial* mat)
-{
-    if (mat == _defaultGray)
-        return;
-
-    if (_defaultGray)
-    {
-        SLVMaterial& list = assetMgr->materials();
-        list.erase(remove(list.begin(), list.end(), _defaultGray), list.end());
-        delete _defaultGray;
-    }
-
-    _defaultGray = mat;
-}
-//-----------------------------------------------------------------------------
-/*! 
-Getter for the global diffuse per vertex color attribute material
-*/
-SLMaterial* SLMaterial::diffuseAttrib(SLAssetManager* assetMgr)
-{
-    if (!_diffuseAttrib)
-    {
-        _diffuseAttrib = new SLMaterial(assetMgr, "diffuseAttrib");
-        _diffuseAttrib->specular(SLCol4f::BLACK);
-        _diffuseAttrib->program(assetMgr->programs(SP_perVrtBlinnColorAttrib));
-    }
-    return _diffuseAttrib;
-}
-//-----------------------------------------------------------------------------
-/*! 
-The destructor doesn't delete attached the textures or shader program because
-Such shared resources get deleted in the arrays of SLScene.
-*/
-void SLMaterial::diffuseAttrib(SLAssetManager* assetMgr, SLMaterial* mat)
-{
-    if (mat == _diffuseAttrib)
-        return;
-
-    if (_diffuseAttrib)
-    {
-        SLVMaterial& list = assetMgr->materials();
-        list.erase(remove(list.begin(), list.end(), _diffuseAttrib), list.end());
-        delete _diffuseAttrib;
-    }
-
-    _diffuseAttrib = mat;
 }
 //-----------------------------------------------------------------------------

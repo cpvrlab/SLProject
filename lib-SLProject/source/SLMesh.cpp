@@ -259,9 +259,9 @@ void SLMesh::init(SLNode* node)
     if (!mat())
     {
         if (!C.empty())
-            mat(SLMaterial::diffuseAttrib(SLApplication::scene));
+            mat(&SLMaterialDiffuseAttribute::instance());
         else
-            mat(SLMaterial::defaultGray(SLApplication::scene));
+            mat(&SLMaterialDefaultGray::instance());
     }
 
     // set transparent flag of the node if mesh contains alpha material

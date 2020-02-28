@@ -183,6 +183,7 @@ void SLScene::unInit()
     //    delete m;
     //_meshes.clear();
 
+    //todo: is this really necessary?
     SLMaterial::current = nullptr;
 
     //// delete custom shader programs but not default shaders
@@ -480,10 +481,6 @@ void SLProjectScene::unInit()
     for (auto t : _textures)
         delete t;
     _textures.clear();
-
-    // manually clear the default materials (it will get deleted below)
-    SLMaterial::defaultGray(this, nullptr);
-    SLMaterial::diffuseAttrib(this, nullptr);
 
     // delete materials
     for (auto m : _materials)
