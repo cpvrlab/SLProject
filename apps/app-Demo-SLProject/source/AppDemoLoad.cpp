@@ -612,10 +612,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texR = new SLGLTexture(s, "brick0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
 
         // define materials with textureOnly shader, no light needed
-        SLMaterial* matB = new SLMaterial(s, "matB", texB, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
-        SLMaterial* matL = new SLMaterial(s, "matL", texL, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
-        SLMaterial* matT = new SLMaterial(s, "matT", texT, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
-        SLMaterial* matR = new SLMaterial(s, "matR", texR, nullptr, nullptr, nullptr, s->programs()[SP_TextureOnly]);
+        SLMaterial* matB = new SLMaterial(s, "matB", texB, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_TextureOnly));
+        SLMaterial* matL = new SLMaterial(s, "matL", texL, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_TextureOnly));
+        SLMaterial* matT = new SLMaterial(s, "matT", texT, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_TextureOnly));
+        SLMaterial* matR = new SLMaterial(s, "matR", texR, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_TextureOnly));
 
         // build polygons for bottom, left, top & right side
         SLVVec3f VB;
@@ -942,7 +942,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
-            m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, s->programs()[SP_perPixBlinn]);
+            m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_perPixBlinn));
         }
         else
         {
@@ -1074,7 +1074,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             new SLGLTexture(s, "rusty-metal_2048N.png"),
                                             new SLGLTexture(s, "rusty-metal_2048M.png"),
                                             new SLGLTexture(s, "rusty-metal_2048R.png"),
-                                            s->programs()[SP_perPixCookTorranceTex]);
+                                            SLGLProgramManager::get(SP_perPixCookTorranceTex));
                 }
                 else
                 {
@@ -1250,7 +1250,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texN = new SLGLTexture(s, "brickwall0512_N.jpg");
 
         // Create materials
-        SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN, nullptr, nullptr, s->programs()[SP_bumpNormal]);
+        SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN, nullptr, nullptr, SLGLProgramManager::get(SP_bumpNormal));
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 20);
@@ -1495,8 +1495,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCol4f blueRGB(0.25f, 0.25f, 0.75f);
         SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
 
-        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
-        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
+        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
 
         SLAssimpImporter importer;
         SLNode*          teapot = importer.load(s->animManager(), s, "FBX/Teapot/Teapot.fbx", true, teapotMat);
@@ -1505,8 +1505,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
         scene->addChild(teapot);
 
-        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
-        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
+        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
         // Material for mirror sphere
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
 
@@ -1528,14 +1528,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
-        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
 
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
         SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
         SLfloat pN = 0.99f, pF = -0.99f; // near/far
 
-        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, s->programs()[SP_perPixBlinn]);
+        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
 
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(s, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
@@ -2228,7 +2228,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create OpenCV Tracker for the camera node for AR camera.
-        tracker = new CVTrackedChessboard();
+        tracker = new CVTrackedChessboard(SLApplication::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -2304,7 +2304,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedAruco(9);
+        tracker = new CVTrackedAruco(9, SLApplication::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = boxNode1;
 
@@ -2450,7 +2450,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker     = new CVTrackedFaces(3);
+        tracker     = new CVTrackedFaces(SLApplication::calibIniPath, 3);
         trackedNode = cam1;
         tracker->drawDetection(true);
 

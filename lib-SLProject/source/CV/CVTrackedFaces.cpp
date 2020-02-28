@@ -18,7 +18,6 @@ for a good top down information.
 */
 #include <CVTrackedFaces.h>
 #include <Utils.h>
-#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for the facial landmark tracker
@@ -30,14 +29,15 @@ used for pose estimation.
 \param faceClassifierFilename Name of the cascaded face training file
 \param faceMarkModelFilename Name of the facial landmark training file
 */
-CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
-                               string faceClassifierFilename,
-                               string faceMarkModelFilename)
+CVTrackedFaces::CVTrackedFaces(std::string calibIniPath,
+                               int         smoothLenght,
+                               string      faceClassifierFilename,
+                               string      faceMarkModelFilename)
 {
     // Load Haar cascade training file for the face detection
     if (!Utils::fileExists(faceClassifierFilename))
     {
-        faceClassifierFilename = SLApplication::calibIniPath + faceClassifierFilename;
+        faceClassifierFilename = calibIniPath + faceClassifierFilename;
         if (!Utils::fileExists(faceClassifierFilename))
         {
             string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
@@ -49,7 +49,7 @@ CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
     // Load facemark model file for the facial landmark detection
     if (!Utils::fileExists(faceMarkModelFilename))
     {
-        faceMarkModelFilename = SLApplication::calibIniPath + faceMarkModelFilename;
+        faceMarkModelFilename = calibIniPath + faceMarkModelFilename;
         if (!Utils::fileExists(faceMarkModelFilename))
         {
             string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
