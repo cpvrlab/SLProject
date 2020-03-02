@@ -84,18 +84,25 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     cv::Mat      rgbImg;
     cv::Mat      grayImg;
 
+    float frameDuration = 1.0 / _targetFps;
     int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
     int skippedFrame = 0;
     float frameTime;
-
-    _lastFrameTime = frameIndex / _fps;
-
+    float lastFrameTime = frameIndex / _fps;
     do
     {
         skippedFrame++;
         frameTime = (frameIndex + skippedFrame) / _fps;
     }
-    while ((frameTime - _lastFrameTime) + 0.01 < (1.0 / _targetFps));
+    while ((frameTime - lastFrameTime) < frameDuration);
+
+    float frameError = (frameTime - lastFrameTime - frameDuration);  //Compute overflow
+    int nbFrame = (int)(frameIndex * _targetFps / _fps);             //Expected number of frames
+    float totalError = (nbFrame * frameError);                       //Total cumulated error
+    if ((fmod(totalError, frameDuration) + frameError) > frameDuration && skippedFrame > 1)
+    {
+        skippedFrame--;
+    }
 
     moveCapturePosition(skippedFrame);
 
@@ -131,8 +138,6 @@ SENSFramePtr SENSVideoStream::grabPreviousResampledFrame()
         skippedFrame++;
     }
     while ((currentFrameTime - frameTime) > 1.0 / _targetFps);
-
-    _lastFrameTime = frameTime;
 
     moveCapturePosition(-skippedFrame+1);
     return std::move(grabNextFrame());

@@ -34,8 +34,6 @@ private:
 
     bool _mirrorH = false;
     bool _mirrorV = false;
-
-    float _lastFrameTime = 0;
 };
 
 #endif //SENS_VIDEOSTREAM_H
