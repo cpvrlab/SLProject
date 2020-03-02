@@ -95,7 +95,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
         skippedFrame++;
         frameTime = (frameIndex + skippedFrame) / _fps;
     }
-    while ((frameTime - _lastFrameTime) < (1.0 / _targetFps));
+    while ((frameTime - _lastFrameTime) + 0.01 < (1.0 / _targetFps));
 
     moveCapturePosition(skippedFrame);
 
