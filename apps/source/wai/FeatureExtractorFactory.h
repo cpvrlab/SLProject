@@ -7,6 +7,20 @@
 
 #include <KPextractor.h>
 
+enum ExtractorType
+{
+    ExtractorType_SURF_BRIEF_500  = 0,
+    ExtractorType_SURF_BRIEF_800  = 1,
+    ExtractorType_SURF_BRIEF_1000 = 2,
+    ExtractorType_SURF_BRIEF_1200 = 3,
+    ExtractorType_FAST_ORBS_1000  = 4,
+    ExtractorType_FAST_ORBS_2000  = 5,
+    ExtractorType_FAST_ORBS_4000  = 6,
+    ExtractorType_GLSL_1          = 7,
+    ExtractorType_GLSL            = 8,
+    ExtractorType_Last            = 9
+};
+
 class FeatureExtractorFactory
 {
 public:

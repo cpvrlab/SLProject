@@ -4,6 +4,8 @@
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
 
+#define DEFAULT_EXTRACTOR_TYPE (ExtractorType_FAST_ORBS_2000)
+
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
@@ -25,7 +27,7 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::stri
     //init keypoint extractors
     //TODO(lulu) create extractor depending on video resolution especially if different for each video!
     FeatureExtractorFactory factory;
-    _kpExtractor = factory.make(7, {640, 320});
+    _kpExtractor = factory.make(DEFAULT_EXTRACTOR_TYPE, {640, 360});
     //_kpIniExtractor    = factory.make(8, {640, 360});
     //_kpMarkerExtractor = factory.make(8, {640, 360});
 }
@@ -202,7 +204,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     cv::Mat markerImgGray = cv::imread(areaConfig.markerFile, cv::IMREAD_GRAYSCALE);
 
     FeatureExtractorFactory      factory;
-    std::unique_ptr<KPextractor> kpExtractor = factory.make(7, {markerImgGray.cols, markerImgGray.rows});
+    std::unique_ptr<KPextractor> kpExtractor = factory.make(DEFAULT_EXTRACTOR_TYPE, {markerImgGray.cols, markerImgGray.rows});
 
     bool result = WAISlamTools::doMarkerMapPreprocessing(areaConfig.markerFile,
                                                          nodeTransform,
@@ -292,7 +294,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             throw std::runtime_error("MapCreator::createNewDenseWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
         FeatureExtractorFactory factory;
-        _kpExtractor = factory.make(7, {capturedSize.width, capturedSize.height});
+        _kpExtractor = factory.make(DEFAULT_EXTRACTOR_TYPE, {capturedSize.width, capturedSize.height});
 
         ORBVocabulary* voc = new ORBVocabulary();
         if (!voc->loadFromBinaryFile(_vocFile))

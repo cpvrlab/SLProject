@@ -7,38 +7,39 @@ using namespace ORB_SLAM2;
 
 FeatureExtractorFactory::FeatureExtractorFactory()
 {
-    _extractorIdToNames.push_back("SURF-BRIEF-500");
-    _extractorIdToNames.push_back("SURF-BRIEF-800");
-    _extractorIdToNames.push_back("SURF-BRIEF-1000");
-    _extractorIdToNames.push_back("SURF-BRIEF-1200");
-    _extractorIdToNames.push_back("FAST-ORBS-1000");
-    _extractorIdToNames.push_back("FAST-ORBS-2000");
-    _extractorIdToNames.push_back("FAST-ORBS-4000");
-    _extractorIdToNames.push_back("GLSL-1");
-    _extractorIdToNames.push_back("GLSL");
+    _extractorIdToNames.resize(ExtractorType_Last);
+    _extractorIdToNames[ExtractorType_SURF_BRIEF_500]  = "SURF-BRIEF-500";
+    _extractorIdToNames[ExtractorType_SURF_BRIEF_800]  = "SURF-BRIEF-800";
+    _extractorIdToNames[ExtractorType_SURF_BRIEF_1000] = "SURF-BRIEF-1000";
+    _extractorIdToNames[ExtractorType_SURF_BRIEF_1200] = "SURF-BRIEF-1200";
+    _extractorIdToNames[ExtractorType_FAST_ORBS_1000]  = "FAST-ORBS-1000";
+    _extractorIdToNames[ExtractorType_FAST_ORBS_2000]  = "FAST-ORBS-2000";
+    _extractorIdToNames[ExtractorType_FAST_ORBS_4000]  = "FAST-ORBS-4000";
+    _extractorIdToNames[ExtractorType_GLSL_1]          = "GLSL-1";
+    _extractorIdToNames[ExtractorType_GLSL]            = "GLSL";
 }
 
 std::unique_ptr<KPextractor> FeatureExtractorFactory::make(int id, cv::Size videoFrameSize)
 {
     switch (id)
     {
-        case 0:
+        case ExtractorType_SURF_BRIEF_500:
             return std::move(surfExtractor(500));
-        case 1:
+        case ExtractorType_SURF_BRIEF_800:
             return std::move(surfExtractor(800));
-        case 2:
+        case ExtractorType_SURF_BRIEF_1000:
             return std::move(surfExtractor(1000));
-        case 3:
+        case ExtractorType_SURF_BRIEF_1200:
             return std::move(surfExtractor(1200));
-        case 4:
+        case ExtractorType_FAST_ORBS_1000:
             return std::move(orbExtractor(1000));
-        case 5:
+        case ExtractorType_FAST_ORBS_2000:
             return std::move(orbExtractor(2000));
-        case 6:
+        case ExtractorType_FAST_ORBS_4000:
             return std::move(orbExtractor(4000));
-        case 7:
+        case ExtractorType_GLSL_1:
             return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.25, 1.9, 1.4));
-        case 8:
+        case ExtractorType_GLSL:
             return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.25, 1.8, 1.2));
         default:
             return std::move(surfExtractor(1000));

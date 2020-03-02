@@ -40,16 +40,22 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         if (area == "templeHill-marker")
         {
             SLAssimpImporter importer;
-            augmentationRoot = importer.load("FBX/AugustaRaurica/Temple.fbx");
-            /*augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Meshroom.gltf",
+            augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
                                              true,
                                              nullptr,
                                              0.4f);
 
-            // Set some ambient light
-            for (auto child : augmentationRoot->children())
-                for (auto mesh : child->meshes())
-                    mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));*/
+            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
+            if (portikusSockel)
+            {
+                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
+            if (boden)
+            {
+                boden->drawBits()->set(SL_DB_HIDDEN, true);
+            }
 
             // Create directional light for the sun light
             SLLightDirect* light = new SLLightDirect(5.0f);
@@ -66,17 +72,34 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         else if (area == "templeHillTheaterBottom")
         {
             SLAssimpImporter importer;
-            augmentationRoot = importer.load("FBX/AugustaRaurica/Theater.fbx");
-            augmentationRoot->scale(0.01f);
+            augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                             true,
+                                             nullptr,
+                                             0.4f);
 
-            SLLightSpot* light1 = new SLLightSpot(1, 10, 1, 0.3f);
-            light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-            light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-            light1->specular(SLCol4f(1, 1, 1));
-            light1->attenuation(1, 0, 0);
+            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
+            if (portikusSockel)
+            {
+                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
+            if (boden)
+            {
+                boden->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            // Create directional light for the sun light
+            SLLightDirect* light = new SLLightDirect(5.0f);
+            light->ambient(SLCol4f(1, 1, 1));
+            light->diffuse(SLCol4f(1, 1, 1));
+            light->specular(SLCol4f(1, 1, 1));
+            light->attenuation(1, 0, 0);
+            light->translation(0, 10, 0);
+            light->lookAt(10, 0, 10);
 
             rootNode->addChild(augmentationRoot);
-            rootNode->addChild(light1);
+            rootNode->addChild(light);
         }
     }
 #if 0 // office table boxes scene
