@@ -436,7 +436,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_OS_ANDROID
         SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
 #else
-        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
 #endif
         if (Utils::fileExists(largeFile))
         {
@@ -2674,7 +2674,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
 
-        // Add axis object a world origin (Loeb Ecke)
+        // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(10);
@@ -2701,8 +2701,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);                // Use the real yaw from the IMU
 
         // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
-        SLApplication::devLoc.loadGeoTiff(SLImporter::defaultPath +
-                                          "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif");
+        SLstring tif = SLImporter::defaultPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
+        if (!Utils::fileExists(tif))
+            tif = SLImporter::defaultPath + "DTM-Theater-Tempel-WGS84.tif"; //Android path
+        SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         SLApplication::devLoc.isUsed(true);

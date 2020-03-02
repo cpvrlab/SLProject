@@ -19,7 +19,7 @@ FeatureExtractorFactory::FeatureExtractorFactory()
     _extractorIdToNames[ExtractorType_GLSL]            = "GLSL";
 }
 
-std::unique_ptr<KPextractor> FeatureExtractorFactory::make(int id, cv::Size videoFrameSize)
+std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, cv::Size videoFrameSize)
 {
     switch (id)
     {

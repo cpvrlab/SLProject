@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for OpenCV with contributions for MacOS
+# Build script for OpenCV with contributions for iOS
 # ####################################################
 
 CV_VERSION=$1
@@ -58,7 +58,7 @@ rm -rf $BUILD_D
 mkdir $BUILD_D
 cd $BUILD_D
 
-
+echo "====================================================== cmake"
 # Run cmake to configure and generate for iosV8 debug
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
@@ -73,14 +73,20 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=true \
+-DWITH_OPENCL=OFF \
+-DWITH_OPENCLAMDFFT=OFF \
+-DWITH_OPENCLAMDBLAS=OFF \
+-DWITH_VA_INTEL=OFF \
 -GXcode \
 -DAPPLE_FRAMEWORK=ON \
--DIOS_ARCH=arm64 \
--DCMAKE_TOOLCHAIN_FILE=../../platforms/ios/cmake/Toolchains/Toolchain-iPhoneOS_Xcode.cmake \
+-DARCHS=arm64 \
+-DIPHONEOS_DEPLOYMENT_TARGET=8.0 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
 -DENABLE_NEON=ON \
 ../..
 
+
+echo "================================================= xcodebuild"
 xcodebuild \
 IPHONEOS_DEPLOYMENT_TARGET=8.0 \
 ARCHS=arm64 \
@@ -91,14 +97,17 @@ ARCHS=arm64 \
 -parallelizeTargets \
 build
 
-: '
+
+echo "======================================================= make"
 # finally build it
 make -j8
 
+echo "=============================================== make install"
 # copy all into install folder
 make install
 cd ../.. # back to opencv
 
+: '
 # Make build folder for release version
 echo "============================================================"
 rm -rf $BUILD_R

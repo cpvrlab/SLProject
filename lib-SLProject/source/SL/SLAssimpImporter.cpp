@@ -278,7 +278,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     // clear the intermediate data
     clear();
 
-    // Check existance
+    // Check existence
     if (!Utils::fileExists(file))
     {
         file = defaultPath + file;

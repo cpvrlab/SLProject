@@ -6,7 +6,7 @@
 
 ARCH=linux
 ZIPFILE="$ARCH"_g2o
-ZIPFOLDER=build/$ZIPFILE
+ZIPFOLDER="build/$ZIPFILE"
 BUILD_D=build/"$ARCH"_debug
 BUILD_R=build/"$ARCH"_release
 
@@ -17,8 +17,8 @@ cd ../g2o
 # Make build folder for debug version
 mkdir build
 rm -rf $BUILD_D
-mkdir $BUILD_D
-cd $BUILD_D
+mkdir "$BUILD_D"
+cd "$BUILD_D"
 
 # Run cmake to configure and generate the make files
 cmake \
@@ -64,15 +64,12 @@ cd ../.. # back to g2o
 #linux_debug/install/lib/
 
 # Create zip folder for debug and release version
-rm -rf $ZIPFOLDER
-mkdir $ZIPFOLDER
+rm -rf "$ZIPFOLDER"
+mkdir "$ZIPFOLDER"
 
-echo $ZIPFOLDER
-echo $(pwd)
-
-cp -R $BUILD_R/install/include   $ZIPFOLDER/
-cp -R $BUILD_R/install/lib       $ZIPFOLDER/Release
-cp -R $BUILD_D/install/lib       $ZIPFOLDER/Debug
+cp -R $BUILD_R/install/include   "$ZIPFOLDER/"
+cp -R $BUILD_R/install/lib       "$ZIPFOLDER/Release"
+cp -R $BUILD_D/install/lib       "$ZIPFOLDER/Debug"
 #cp doc/license* $ZIPFOLDER
 #cp README.md $ZIPFOLDER
 
@@ -80,4 +77,5 @@ if [ -d "../prebuilt/$ZIPFILE" ]; then
     rm -rf ../prebuilt/$ZIPFILE
 fi
 
-mv $ZIPFOLDER ../prebuilt/
+mv "$ZIPFOLDER" ../prebuilt/
+

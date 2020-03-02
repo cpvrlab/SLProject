@@ -51,7 +51,7 @@ void WAIMap::AddKeyFrame(WAIKeyFrame* pKF)
     mspKeyFrames.insert(pKF);
     if (pKF->mnId > mnMaxKFid)
         mnMaxKFid = pKF->mnId;
-    mKfDB->add(pKF);
+    //mKfDB->add(pKF);
 }
 //-----------------------------------------------------------------------------
 void WAIMap::AddMapPoint(WAIMapPoint* pMP)

@@ -849,7 +849,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     if (!Utils::fileExists(fullPathAndFilename))
     {
         //todo: move this download call out of cvcaputure (during refactoring of this class)
-        std::string errorMsg;
+        string errorMsg;
         if (!FtpUtils::downloadFileLatestVersion(SLApplication::calibFilePath,
                                                  mainCalibFilename,
                                                  SLApplication::CALIB_FTP_HOST,
@@ -870,7 +870,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     hasSecondaryCamera = false;
 #else
     //todo: move this download call out of cvcaputure (during refactoring of this class)
-    std::string errorMsg;
+    string errorMsg;
     if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
                                 mainCalibFilename,
                                 SLApplication::CALIB_FTP_HOST,

@@ -219,6 +219,38 @@
             endingLineNumber = "1950"
             landmarkName = "appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)"
             landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "986CBEE3-CAAD-4F9E-BA80-AB1B33A46181 - bf9df5ba4423709e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "appDemoLoadScene(SLScene*, SLSceneView*, SLSceneID)"
+                  moduleName = "SLProject"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/apps/app-Demo-SLProject/source/AppDemoLoad.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1955"
+                  endingLineNumber = "1955"
+                  offsetFromSymbolStart = "47716">
+               </Location>
+               <Location
+                  uuid = "986CBEE3-CAAD-4F9E-BA80-AB1B33A46181 - bf9df5ba4423709e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "appDemoLoadScene(SLScene*, SLSceneView*, SLSceneID)"
+                  moduleName = "SLProject"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/apps/app-Demo-SLProject/source/AppDemoLoad.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1955"
+                  endingLineNumber = "1955"
+                  offsetFromSymbolStart = "48316">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -235,40 +267,6 @@
             startingLineNumber = "520"
             endingLineNumber = "520"
             landmarkName = "SLSceneView::draw3DGL(SLfloat elapsedTimeMS)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "C9229D14-0F2C-45D0-8F6B-C444D4547637"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../lib-SLProject/source/SLBackground.cpp"
-            timestampString = "588091134.182373"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
-            landmarkName = "SLBackground::render(SLint widthPX, SLint heightPX)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "52D3115E-2735-433A-ABBE-656D2C5736C3"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../lib-SLProject/source/SLBackground.cpp"
-            timestampString = "588091134.182695"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "SLBackground::render(SLint widthPX, SLint heightPX)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

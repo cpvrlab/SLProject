@@ -10,12 +10,20 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
+    ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     )
 
 file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
     ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     )
 
 # Group source files

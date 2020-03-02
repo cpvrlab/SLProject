@@ -73,7 +73,7 @@ string getDateTime2String();
 string getHostName();
 
 //! Returns a formatted string as sprintf
-string formatString(string fmt_str, ...);
+string formatString(const string& fmt_str, ...);
 
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);
@@ -144,7 +144,7 @@ bool deleteFile(string& pathfilename);
 //! will also output into this file. Instantiate it with initFileLog function.
 static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
-void initFileLog(const std::string logDir, bool forceFlush);
+void initFileLog(const std::string& logDir, bool forceFlush);
 
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);

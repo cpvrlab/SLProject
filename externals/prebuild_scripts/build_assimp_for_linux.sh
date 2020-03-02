@@ -37,9 +37,9 @@ else
 fi
 
 # Make build folder for debug version
-rm -rf $BUILD_D
-mkdir $BUILD_D
-cd $BUILD_D
+rm -rf "$BUILD_D"
+mkdir "$BUILD_D"
+cd "$BUILD_D"
 
 # Run cmake to configure and generate the make files
 cmake \
@@ -57,9 +57,9 @@ make install
 cd .. # back to assimp
 
 # Make build folder for release version
-rm -rf $BUILD_R
-mkdir $BUILD_R
-cd $BUILD_R
+rm -rf "$BUILD_R"
+mkdir "$BUILD_R"
+cd "$BUILD_R"
 
 # Run cmake to configure and generate the make files
 cmake \
@@ -77,20 +77,18 @@ make install
 cd .. # back to assimp
 
 # Create zip folder for debug and release version
-rm -rf $ZIPFOLDER
-mkdir $ZIPFOLDER
+rm -rf "$ZIPFOLDER"
+mkdir "$ZIPFOLDER"
 
-echo $ZIPFOLDER
-echo $(pwd)
-
-cp -R $BUILD_R/install/include   $ZIPFOLDER/
-cp -R $BUILD_R/install/lib       $ZIPFOLDER/Release
-cp -R $BUILD_D/install/lib       $ZIPFOLDER/Debug
-cp LICENSE $ZIPFOLDER
-cp Readme.md $ZIPFOLDER
+cp -R "$BUILD_R/install/include"       "$ZIPFOLDER/"
+cp -R "$BUILD_R/install/lib"           "$ZIPFOLDER/Release"
+cp -R "$BUILD_D/install/lib"           "$ZIPFOLDER/Debug"
+cp LICENSE "$ZIPFOLDER"
+cp Readme.md "$ZIPFOLDER"
 
 if [ -d "../../prebuilt/$ZIPFILE" ]; then
     rm -rf ../../prebuilt/$ZIPFILE
 fi
 
-mv $ZIPFOLDER ../../prebuilt/
+mv "$ZIPFOLDER" "../../prebuilt/"
+

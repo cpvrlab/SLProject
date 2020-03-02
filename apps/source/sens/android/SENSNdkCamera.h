@@ -11,8 +11,6 @@
 #include <media/NdkImageReader.h>
 #include <SENSException.h>
 
-class CameraId;
-
 enum class CaptureSessionState
 {
     READY = 0, // session is ready
@@ -21,27 +19,13 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-class AvailableStreamConfigs
-{
-public:
-    void add(cv::Size size)
-    {
-        _streamSizes.push_back(size);
-    }
-
-    //searches for best matching size and returns it
-    cv::Size findBestMatchingSize(cv::Size requiredSize);
-
-private:
-    std::vector<cv::Size> _streamSizes;
-};
-
 class SENSNdkCamera : public SENSCamera
 {
 public:
-    SENSNdkCamera(SENSCamera::Facing facing);
+    SENSNdkCamera();
     ~SENSNdkCamera();
 
+    void         init(SENSCamera::Facing facing) override;
     void         start(const SENSCamera::Config config) override;
     void         start(int width, int height) override;
     void         stop() override;
@@ -55,10 +39,13 @@ public:
     void imageCallback(AImageReader* reader);
 
 private:
-    void                                  initOptimalCamera(SENSCamera::Facing facing);
-    ACameraDevice_stateCallbacks*         getDeviceListener();
-    ACameraManager_AvailabilityCallbacks* getManagerListener();
-    ACameraCaptureSession_stateCallbacks* getSessionListener();
+    //select camera id to open
+    void initOptimalCamera(SENSCamera::Facing facing);
+    //start camera selected in initOptimalCamera as soon as it is available
+    void openCamera();
+    void createCaptureSession();
+
+    ACameraManager_AvailabilityCallbacks _cameraManagerAvailabilityCallbacks;
 
     static cv::Mat convertToYuv(AImage* image);
     SENSFramePtr   processNewYuvImg(cv::Mat yuvImg);
@@ -67,25 +54,39 @@ private:
 
     ACameraManager* _cameraManager = nullptr;
 
-    std::string            _cameraId;
-    ACameraDevice*         _cameraDevice    = nullptr;
-    bool                   _cameraAvailable = false; // free to use ( no other apps are using )
-    std::vector<float>     _focalLenghts;
-    cv::Size2f             _physicalSensorSizeMM;
-    AvailableStreamConfigs _availableStreamConfig;
+    std::string        _cameraId;
+    ACameraDevice*     _cameraDevice = nullptr;
+    std::vector<float> _focalLenghts;
+    cv::Size2f         _physicalSensorSizeMM;
 
-    //std::map<std::string, CameraId> _cameras;
-    AImageReader*                   _imageReader = nullptr;
-    ANativeWindow*                  _surface;
-    ACaptureSessionOutput*          _captureSessionOutput;
-    ACaptureSessionOutputContainer* _captureSessionOutputContainer;
-    ACameraOutputTarget*            _cameraOutputTarget;
-    ACaptureRequest*                _captureRequest;
-    ACameraCaptureSession*          _captureSession;
-    CaptureSessionState             _captureSessionState;
+    AImageReader*                   _imageReader                   = nullptr;
+    ANativeWindow*                  _surface                       = nullptr;
+    ACaptureSessionOutput*          _captureSessionOutput          = nullptr;
+    ACaptureSessionOutputContainer* _captureSessionOutputContainer = nullptr;
+    ACameraOutputTarget*            _cameraOutputTarget            = nullptr;
+    ACaptureRequest*                _captureRequest                = nullptr;
+    ACameraCaptureSession*          _captureSession                = nullptr;
+    CaptureSessionState             _captureSessionState           = CaptureSessionState::MAX_STATE;
 
-    volatile bool _valid = false;
+    //! initialized is true as soon as init was run. After that we selected a desired camera device id and can retrieve stream configuration sizes.
+    volatile bool _initialized = false;
+    //! flags if our camera device is available (selected by _cameraId)
 
+    //map to track, which cameras are available (we start our camera () as soon as it is available and
+    // stop it as soon as it becomes unavailable)
+    std::map<std::string, bool> _cameraAvailability;
+    std::mutex                  _cameraAvailabilityMutex;
+    //async camera start
+    std::thread             _openCameraThread;
+    std::condition_variable _openCameraCV;
+
+    //wait in start() until camera is opened
+    bool                    _cameraDeviceOpened = false; // free to use ( no other apps are using it)
+    std::mutex              _cameraDeviceOpenedMutex;
+    std::condition_variable _cameraDeviceOpenedCV;
+    camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
+
+    //async image processing
     std::condition_variable      _waitCondition;
     cv::Mat                      _yuvImgToProcess;
     std::mutex                   _threadInputMutex;

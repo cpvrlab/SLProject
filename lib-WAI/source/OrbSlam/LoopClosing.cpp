@@ -106,8 +106,6 @@ void LoopClosing::Run()
 
         ResetIfRequested();
 
-        std::cout << "loopClosing status: " << getStatusString() << std::endl;
-
         if (CheckFinish())
             break;
     }
@@ -210,9 +208,7 @@ bool LoopClosing::DetectLoop()
         float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
 
         if (score < minScore)
-        {
             minScore = score;
-        }
     }
 
     // Query the database imposing the minimum score

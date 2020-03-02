@@ -7,10 +7,11 @@
 //app parameter
 struct Config
 {
-    std::string erlebARDir;
-    std::string configFile;
-    std::string vocFile;
-    std::string mapOutputDir;
+    std::string   erlebARDir;
+    std::string   configFile;
+    std::string   vocFile;
+    std::string   mapOutputDir;
+    ExtractorType extractorType;
 };
 
 void printHelp()
@@ -49,6 +50,28 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-mapOutputDir"))
         {
             config.mapOutputDir = argv[++i];
+        }
+        else if (!strcmp(argv[i], "-feature"))
+        {
+            i++;
+            if (!strcmp(argv[i], "SURF_BRIEF_500"))
+                config.extractorType = ExtractorType_SURF_BRIEF_500;
+            else if (!strcmp(argv[i], "SURF_BRIEF_800"))
+                config.extractorType = ExtractorType_SURF_BRIEF_800;
+            else if (!strcmp(argv[i], "SURF_BRIEF_1000"))
+                config.extractorType = ExtractorType_SURF_BRIEF_1000;
+            else if (!strcmp(argv[i], "SURF_BRIEF_1200"))
+                config.extractorType = ExtractorType_SURF_BRIEF_1200;
+            else if (!strcmp(argv[i], "FAST_ORBS_1000"))
+                config.extractorType = ExtractorType_FAST_ORBS_1000;
+            else if (!strcmp(argv[i], "FAST_ORBS_2000"))
+                config.extractorType = ExtractorType_FAST_ORBS_2000;
+            else if (!strcmp(argv[i], "FAST_ORBS_4000"))
+                config.extractorType = ExtractorType_FAST_ORBS_4000;
+            else if (!strcmp(argv[i], "GLSL_1"))
+                config.extractorType = ExtractorType_GLSL_1;
+            else if (!strcmp(argv[i], "GLSL"))
+                config.extractorType = ExtractorType_GLSL;
         }
         else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help"))
         {
@@ -136,7 +159,7 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.configFile, config.vocFile);
+        MapCreator mapCreator(config.erlebARDir, config.configFile, config.vocFile, config.extractorType);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

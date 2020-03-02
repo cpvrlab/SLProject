@@ -219,7 +219,7 @@ string getHostName()
 }
 //-----------------------------------------------------------------------------
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...)
+string formatString(const string& fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
     int                final_n, n = ((int)fmt_str.size()) * 2;
@@ -533,7 +533,7 @@ vector<string> getDirNamesInDir(const string& dirName)
 
             if (name != "." && name != "..")
             {
-                struct stat path_stat;
+                struct stat path_stat {};
                 stat((dirName + name).c_str(), &path_stat);
                 if (S_ISDIR(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
@@ -614,7 +614,7 @@ vector<string> getFileNamesInDir(const string& dirName)
             string name(dirContent->d_name);
             if (name != "." && name != "..")
             {
-                struct stat path_stat;
+                struct stat path_stat{};
                 stat((dirName + name).c_str(), &path_stat);
                 if (S_ISREG(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
@@ -786,7 +786,7 @@ bool deleteFile(string& pathfilename)
 // Logging Functions //
 ///////////////////////
 //-----------------------------------------------------------------------------
-void initFileLog(const std::string logDir, bool forceFlush)
+void initFileLog(const string& logDir, bool forceFlush)
 {
     fileLog = std::make_unique<FileLog>(logDir, forceFlush);
 }

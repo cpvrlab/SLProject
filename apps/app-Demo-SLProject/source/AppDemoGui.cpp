@@ -1097,13 +1097,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
 
-                    SLstring modelAR = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-                    if (Utils::fileExists(modelAR))
+                    SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
+                    SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+                    if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
                         if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
                             s->onLoad(s, sv, SID_VideoAugustaRaurica);
 
-                    SLstring modelAV = SLImporter::defaultPath + "DAE/Aventicum/Aventicum01.dae";
-                    if (Utils::fileExists(modelAV))
+                    SLstring modelAV1 = SLImporter::defaultPath + "Aventicum01.dae"; // Android
+                    SLstring modelAV2 = SLImporter::defaultPath + "DAE/Aventicum/Aventicum01.dae";
+                    if (Utils::fileExists(modelAV1) || Utils::fileExists(modelAV2))
                         if (ImGui::MenuItem("Aventicum AR (Main)", nullptr, sid == SID_VideoAventicum))
                             s->onLoad(s, sv, SID_VideoAventicum);
 
