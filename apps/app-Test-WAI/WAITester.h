@@ -54,9 +54,10 @@ public:
                                        std::string    mapFile,
                                        std::string    vocFile,
                                        CVCalibration& calibration,
-                                       ExtractorType  extractorType);
+                                       ExtractorType  extractorType,
+                                       int            framerate = 0);
 
-    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType);
+    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType, int framerate = 0);
 
     void launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType);
 

@@ -11,6 +11,7 @@
 #include <WAISlam.h>
 #include <WAIKeyFrameDB.h>
 #include <Utils.h>
+#include <SENSVideoStream.h>
 
 #include <FeatureExtractorFactory.h>
 #include <ORBextractor.h>
@@ -83,22 +84,20 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    vi
     WAIMap* map = new WAIMap(keyFrameDB);
     WAIMapStorage::loadMap(map, nullptr, orbVoc, mapFile, false, true);
 
-    CVCapture::instance()->videoType(VT_FILE);
-    CVCapture::instance()->videoFilename = videoFile;
-    CVCapture::instance()->videoLoops    = false;
+    SENSVideoStream vstream(videoFile, false, false, false);
 
-    CVSize2i                     videoSize       = CVCapture::instance()->openFile();
+    CVSize2i                     videoSize       = vstream.getFrameSize();
     float                        widthOverHeight = (float)videoSize.width / (float)videoSize.height;
     std::unique_ptr<KPextractor> extractor       = _factory.make(extractorType, {videoSize.width, videoSize.height});
 
     unsigned int lastRelocFrameId         = 0;
     int          frameCount               = 0;
     int          relocalizationFrameCount = 0;
-    while (CVCapture::instance()->grabAndAdjustForSL(widthOverHeight))
+    while (SENSFramePtr sensFrame = vstream.grabNextFrame())
     {
         cv::Mat  intrinsic    = calibration.cameraMat();
         cv::Mat  distortion   = calibration.distortion();
-        WAIFrame currentFrame = WAIFrame(CVCapture::instance()->lastFrameGray,
+        WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgGray,
                                          0.0f,
                                          extractor.get(),
                                          intrinsic,
@@ -131,7 +130,8 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
                                                    std::string    mapFile,
                                                    std::string    vocFile,
                                                    CVCalibration& calibration,
-                                                   ExtractorType  extractorType)
+                                                   ExtractorType  extractorType,
+                                                   int            framerate)
 {
     TrackingTestResult result = {};
 
@@ -150,11 +150,8 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
     localMapping->SetLoopCloser(loopClosing);
     loopClosing->SetLocalMapper(localMapping);
 
-    CVCapture::instance()->videoType(VT_FILE);
-    CVCapture::instance()->videoFilename = videoFile;
-    CVCapture::instance()->videoLoops    = false;
-
-    CVSize2i                     videoSize       = CVCapture::instance()->openFile();
+    SENSVideoStream              vstream(videoFile, false, false, false, framerate);
+    CVSize2i                     videoSize       = vstream.getFrameSize();
     float                        widthOverHeight = (float)videoSize.width / (float)videoSize.height;
     std::unique_ptr<KPextractor> extractor       = _factory.make(extractorType, {videoSize.width, videoSize.height});
 
@@ -179,13 +176,9 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
 
     WAIFrame lastFrame = WAIFrame();
 
-    //TODO(LULUC) Think about a realistic model to skip frames
-    int videoFPS  = 30;
-    int wantedFPS = 25;
-
-    while (CVCapture::instance()->grabAndAdjustForSL(widthOverHeight))
+    while (SENSFramePtr sensFrame = vstream.grabNextResampledFrame())
     {
-        WAIFrame frame = WAIFrame(CVCapture::instance()->lastFrameGray,
+        WAIFrame frame = WAIFrame(sensFrame.get()->imgGray,
                                   0.0f,
                                   extractor.get(),
                                   intrinsic,
@@ -287,6 +280,7 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.frameRate = atoi(argv[i + 1]);
             i++;
+            std::cout << "framerate " << config.frameRate << std::endl;
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -557,7 +551,7 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
     WAI_INFO("Tester::launchRelocalizationTest: Finished relocalization test for area: %s", area.c_str());
 }
 
-void Tester::launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType)
+void Tester::launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType, int framerate)
 {
     WAI_INFO("Tester::lauchTest: Starting tracking test for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
@@ -572,7 +566,7 @@ void Tester::launchTrackingTest(const Location& location, const Area& area, Data
         //select one calibration (we need one to instantiate mode and we need mode to load map)
         for (TestData testData : datas)
         {
-            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, extractorType);
+            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, extractorType, _framerate);
 
             if (r.wasSuccessful)
             {
@@ -610,7 +604,7 @@ void Tester::execute()
                 if (_testFlags & RELOC_FLAG)
                     launchRelocalizationTest(itLocations->first, itAreas->first, itAreas->second, _extractorType);
                 if (_testFlags & TRACKING_FLAG)
-                    launchTrackingTest(itLocations->first, itAreas->first, itAreas->second, _extractorType);
+                    launchTrackingTest(itLocations->first, itAreas->first, itAreas->second, _extractorType, _framerate);
             }
         }
     }
