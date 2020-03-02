@@ -26,12 +26,12 @@
 
 struct Config
 {
-    std::string erlebARDir;
-    std::string configFile;
-    std::string vocFile;
-    int         testFlags;
-    int         frameRate;
-    int         featureId;
+    std::string   erlebARDir;
+    std::string   configFile;
+    std::string   vocFile;
+    int           testFlags;
+    int           frameRate;
+    ExtractorType extractorType;
 };
 
 struct SlamVideoInfos
@@ -69,7 +69,7 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    vi
                                                                std::string    mapFile,
                                                                std::string    vocFile,
                                                                CVCalibration& calibration,
-                                                               int            featureId)
+                                                               ExtractorType  extractorType)
 {
     RelocalizationTestResult result = {};
 
@@ -86,26 +86,26 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    vi
 
     SENSVideoStream vstream(videoFile, false, false, false);
 
-    CVSize2i videoSize       = vstream.getFrameSize();
-    float    widthOverHeight = (float)videoSize.width / (float)videoSize.height;
-    std::unique_ptr<KPextractor> extractor  = _factory.make(featureId, {videoSize.width, videoSize.height});
+    CVSize2i                     videoSize       = vstream.getFrameSize();
+    float                        widthOverHeight = (float)videoSize.width / (float)videoSize.height;
+    std::unique_ptr<KPextractor> extractor       = _factory.make(extractorType, {videoSize.width, videoSize.height});
 
     unsigned int lastRelocFrameId         = 0;
     int          frameCount               = 0;
     int          relocalizationFrameCount = 0;
     while (SENSFramePtr sensFrame = vstream.grabNextFrame())
     {
-        cv::Mat intrinsic = calibration.cameraMat();
-        cv::Mat distortion = calibration.distortion();
+        cv::Mat  intrinsic    = calibration.cameraMat();
+        cv::Mat  distortion   = calibration.distortion();
         WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgGray,
                                          0.0f,
                                          extractor.get(),
-                                         intrinsic, 
+                                         intrinsic,
                                          distortion,
                                          orbVoc,
                                          false);
 
-        int inliers;
+        int      inliers;
         LocalMap localMap;
         localMap.keyFrames.clear();
         localMap.mapPoints.clear();
@@ -130,7 +130,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
                                                    std::string    mapFile,
                                                    std::string    vocFile,
                                                    CVCalibration& calibration,
-                                                   int            featureId,
+                                                   ExtractorType  extractorType,
                                                    int            framerate)
 {
     TrackingTestResult result = {};
@@ -138,7 +138,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
     WAIFrame::mbInitialComputations = true;
 
     WAIOrbVocabulary::initialize(vocFile);
-    ORBVocabulary* voc     = WAIOrbVocabulary::get();
+    ORBVocabulary* voc        = WAIOrbVocabulary::get();
     WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*voc);
 
     WAIMap* map = new WAIMap(keyFrameDB);
@@ -150,25 +150,25 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
     localMapping->SetLoopCloser(loopClosing);
     loopClosing->SetLocalMapper(localMapping);
 
-    SENSVideoStream vstream(videoFile, false, false, false, framerate);
-    CVSize2i videoSize       = vstream.getFrameSize();
-    float    widthOverHeight = (float)videoSize.width / (float)videoSize.height;
-    std::unique_ptr<KPextractor> extractor = _factory.make(featureId, {videoSize.width, videoSize.height});
+    SENSVideoStream              vstream(videoFile, false, false, false, framerate);
+    CVSize2i                     videoSize       = vstream.getFrameSize();
+    float                        widthOverHeight = (float)videoSize.width / (float)videoSize.height;
+    std::unique_ptr<KPextractor> extractor       = _factory.make(extractorType, {videoSize.width, videoSize.height});
 
-    cv::Mat extrinsic;
-    cv::Mat intrinsic  = calibration.cameraMat();
-    cv::Mat distortion = calibration.distortion();
-    cv::Mat velocity;
+    cv::Mat       extrinsic;
+    cv::Mat       intrinsic  = calibration.cameraMat();
+    cv::Mat       distortion = calibration.distortion();
+    cv::Mat       velocity;
     unsigned long lastKeyFrameFrameId = 0;
     unsigned int  lastRelocFrameId    = 0;
     int           inliers             = 0;
     int           frameCount          = 0;
     int           trackingFrameCount  = 0;
 
-    int           maxTrackingFrameCount = 0;
+    int maxTrackingFrameCount = 0;
 
-    bool isTracking = false;
-    bool relocalizeOnce = false;
+    bool     isTracking     = false;
+    bool     relocalizeOnce = false;
     LocalMap localMap;
     localMap.keyFrames.clear();
     localMap.mapPoints.clear();
@@ -181,7 +181,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
         WAIFrame frame = WAIFrame(sensFrame.get()->imgGray,
                                   0.0f,
                                   extractor.get(),
-                                  intrinsic, 
+                                  intrinsic,
                                   distortion,
                                   voc,
                                   false);
@@ -194,7 +194,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
                 WAISlamTools::serialMapping(map, localMap, localMapping, loopClosing, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId);
             }
             else
-            {   
+            {
                 if (trackingFrameCount > maxTrackingFrameCount)
                     maxTrackingFrameCount = trackingFrameCount;
                 trackingFrameCount = 0;
@@ -206,7 +206,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
             int inliers;
             if (WAISlam::relocalization(frame, map, localMap, inliers))
             {
-                isTracking = true;
+                isTracking     = true;
                 relocalizeOnce = true;
             }
         }
@@ -251,20 +251,20 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.testFlags = TRACKING_FLAG;
-    config.frameRate = 0;
-    config.featureId = GLSL;
+    config.testFlags     = TRACKING_FLAG;
+    config.frameRate     = 0;
+    config.extractorType = ExtractorType_GLSL_1;
     for (int i = 1; i < argc; ++i)
     {
-        if (!strcmp(argv[i], "-erlebARDir") && i+1 < argc)
+        if (!strcmp(argv[i], "-erlebARDir") && i + 1 < argc)
         {
             config.erlebARDir = argv[++i];
         }
-        else if (!strcmp(argv[i], "-configFile") && i+1 < argc)
+        else if (!strcmp(argv[i], "-configFile") && i + 1 < argc)
         {
             config.configFile = argv[++i];
         }
-        else if (!strcmp(argv[i], "-vocFile") && i+1 < argc)
+        else if (!strcmp(argv[i], "-vocFile") && i + 1 < argc)
         {
             config.vocFile = argv[++i];
         }
@@ -276,16 +276,33 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.testFlags = RELOC_FLAG;
         }
-        else if (!strcmp(argv[i], "-f") && i+1 < argc)
+        else if (!strcmp(argv[i], "-f") && i + 1 < argc)
         {
-            config.frameRate = atoi(argv[i+1]);
+            config.frameRate = atoi(argv[i + 1]);
             i++;
             std::cout << "framerate " << config.frameRate << std::endl;
         }
-        else if (!strcmp(argv[i], "-feature") && i+1 < argc)
+        else if (!strcmp(argv[i], "-feature"))
         {
-            config.featureId = atoi(argv[i+1]);
             i++;
+            if (!strcmp(argv[i], "SURF_BRIEF_500"))
+                config.extractorType = ExtractorType_SURF_BRIEF_500;
+            else if (!strcmp(argv[i], "SURF_BRIEF_800"))
+                config.extractorType = ExtractorType_SURF_BRIEF_800;
+            else if (!strcmp(argv[i], "SURF_BRIEF_1000"))
+                config.extractorType = ExtractorType_SURF_BRIEF_1000;
+            else if (!strcmp(argv[i], "SURF_BRIEF_1200"))
+                config.extractorType = ExtractorType_SURF_BRIEF_1200;
+            else if (!strcmp(argv[i], "FAST_ORBS_1000"))
+                config.extractorType = ExtractorType_FAST_ORBS_1000;
+            else if (!strcmp(argv[i], "FAST_ORBS_2000"))
+                config.extractorType = ExtractorType_FAST_ORBS_2000;
+            else if (!strcmp(argv[i], "FAST_ORBS_4000"))
+                config.extractorType = ExtractorType_FAST_ORBS_4000;
+            else if (!strcmp(argv[i], "GLSL_1"))
+                config.extractorType = ExtractorType_GLSL_1;
+            else if (!strcmp(argv[i], "GLSL"))
+                config.extractorType = ExtractorType_GLSL;
         }
         else
         {
@@ -302,7 +319,8 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
         //parse config file
         cv::FileStorage fs;
         std::cout << "erlebBarDir " << erlebARDir << std::endl;
-        std::cout << "configFile " << configFile << std::endl << std::endl;
+        std::cout << "configFile " << configFile << std::endl
+                  << std::endl;
 
         fs.open(configFile, cv::FileStorage::READ);
         if (!fs.isOpened())
@@ -322,8 +340,8 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
             Areas        areas;
             for (auto itAreas = areasNode.begin(); itAreas != areasNode.end(); ++itAreas)
             {
-                Area area = (*itAreas)["area"];
-                bool        enabled  = false;
+                Area area    = (*itAreas)["area"];
+                bool enabled = false;
                 (*itAreas)["enabled"] >> enabled;
                 if (enabled)
                 {
@@ -359,10 +377,10 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
                 for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
                 {
                     //check if this is enabled
-                    std::string   name = *itVideos;
-                    TestData testData;
+                    std::string name = *itVideos;
+                    TestData    testData;
                     testData.videoFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
-                    testData.mapFile = mapFile;
+                    testData.mapFile   = mapFile;
 
                     if (!Utils::fileExists(testData.videoFile))
                         throw std::runtime_error("Tester::loadSites: Video file does not exist: " + testData.videoFile);
@@ -418,7 +436,6 @@ void Tester::loadSites(const std::string& erlebARDir, const std::string& configF
         throw std::runtime_error("Unknown exception catched in Tester::loadSites!");
     }
 }
-
 
 static GLFWwindow* window;          //!< The global glfw window handle
 static SLint       svIndex;         //!< SceneView index
@@ -486,21 +503,21 @@ Tester::~Tester()
 {
 }
 
-Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate, int featureId)
+Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate, ExtractorType extractorType)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
     _vocFile         = vocFile;
     _testFlags       = testFlags;
     _framerate       = frameRate;
-    _featureId       = featureId;
+    _extractorType   = extractorType;
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
     loadSites(erlebARDir, configFile);
 }
 
-void Tester::launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, int featureId)
+void Tester::launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType)
 {
     WAI_INFO("Tester::lauchTest: Starting relocalization test for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
@@ -515,7 +532,7 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
         //select one calibration (we need one to instantiate mode and we need mode to load map)
         for (TestData testData : datas)
         {
-            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, featureId);
+            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, extractorType);
 
             printf("%s;%s;%s;%i;%i;%.2f\n",
                    location.c_str(),
@@ -534,7 +551,7 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
     WAI_INFO("Tester::launchRelocalizationTest: Finished relocalization test for area: %s", area.c_str());
 }
 
-void Tester::launchTrackingTest(const Location& location, const Area& area, Datas& datas, int featureId, int framerate)
+void Tester::launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType, int framerate)
 {
     WAI_INFO("Tester::lauchTest: Starting tracking test for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
@@ -549,7 +566,7 @@ void Tester::launchTrackingTest(const Location& location, const Area& area, Data
         //select one calibration (we need one to instantiate mode and we need mode to load map)
         for (TestData testData : datas)
         {
-            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, featureId, framerate);
+            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, extractorType, _framerate);
 
             if (r.wasSuccessful)
             {
@@ -585,9 +602,9 @@ void Tester::execute()
             for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
             {
                 if (_testFlags & RELOC_FLAG)
-                    launchRelocalizationTest(itLocations->first, itAreas->first, itAreas->second, _featureId);
+                    launchRelocalizationTest(itLocations->first, itAreas->first, itAreas->second, _extractorType);
                 if (_testFlags & TRACKING_FLAG)
-                    launchTrackingTest(itLocations->first, itAreas->first, itAreas->second, _featureId, _framerate);
+                    launchTrackingTest(itLocations->first, itAreas->first, itAreas->second, _extractorType, _framerate);
             }
         }
     }
@@ -618,9 +635,8 @@ int main(int argc, char* argv[])
 
         //init wai tester
         DUtils::Random::SeedRandOnce(1337);
-        Tester tester(config.erlebARDir, config.configFile, config.vocFile, config.testFlags, config.frameRate, config.featureId);
+        Tester tester(config.erlebARDir, config.configFile, config.vocFile, config.testFlags, config.frameRate, config.extractorType);
         tester.execute();
-        
     }
     catch (std::exception& e)
     {

@@ -11,7 +11,7 @@
 	"mappingVideos": [
 		{
 			"location": "augst",
-			"area": { "name":"templeHillTheaterBottom", "map": "DEVELOPMENT-map_20200121-111048_augst_templeHillTheaterBottom_GLSL.json" },
+			"area": { "name":"templeHillTheaterBottom", "map": "map_20200121-140754_augst_templeHillTheaterBottom_GLSL.json" },
 			"videos": [
 				"20191009-102457_rainy_NOKIA6-1_relocalization_640x360.mp4",
 				"20191009-102554_rainy_ASUSAR-1_relocalization_640x360.mp4",

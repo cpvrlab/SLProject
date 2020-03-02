@@ -11,14 +11,14 @@
 #define WAI_INFO(...) Utils::log("[INFO ]", __VA_ARGS__)
 #define WAI_WARN(...) Utils::log("[WARN ]", __VA_ARGS__)
 
-class Tester 
+class Tester
 {
     typedef std::string Location;
     typedef std::string Area;
-    typedef struct TestData 
+    typedef struct TestData
     {
-        std::string mapFile;
-        std::string videoFile;
+        std::string   mapFile;
+        std::string   videoFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
     } TestData;
     typedef std::vector<TestData> Datas;
@@ -41,25 +41,25 @@ class Tester
     };
 
 public:
-    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate, int featureId);
+    Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate, ExtractorType extractorType);
     ~Tester();
 
     RelocalizationTestResult runRelocalizationTest(std::string    videoFile,
                                                    std::string    mapFile,
                                                    std::string    vocFile,
                                                    CVCalibration& calibration,
-                                                   int            featureId);
+                                                   ExtractorType  extractorType);
 
     TrackingTestResult runTrackingTest(std::string    videoFile,
                                        std::string    mapFile,
                                        std::string    vocFile,
                                        CVCalibration& calibration,
-                                       int            featureId,
-                                       int            framerate = 0); //0 means same as the video
+                                       ExtractorType  extractorType,
+                                       int            framerate = 0);
 
-    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, int featureId, int framerate = 0);
+    void launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType, int framerate = 0);
 
-    void launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, int featureId);
+    void launchRelocalizationTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType);
 
     void execute();
 
@@ -77,7 +77,7 @@ private:
     std::string               _calibrationsDir;
     FeatureExtractorFactory   _factory;
     int                       _framerate; // (#frames/s)
-    int                       _featureId;
+    ExtractorType             _extractorType;
 };
 
 #endif

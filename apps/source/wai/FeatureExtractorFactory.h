@@ -7,24 +7,25 @@
 
 #include <KPextractor.h>
 
-enum FeatureType
+enum ExtractorType
 {
-    SURF_BRIEF_500,
-    SURF_BRIEF_800,
-    SURF_BRIEF_1000,
-    SURF_BRIEF_1200,
-    FAST_ORBS_1000,
-    FAST_ORBS_2000,
-    FAST_ORBS_4000,
-    GLSL_1,
-    GLSL
+    ExtractorType_SURF_BRIEF_500  = 0,
+    ExtractorType_SURF_BRIEF_800  = 1,
+    ExtractorType_SURF_BRIEF_1000 = 2,
+    ExtractorType_SURF_BRIEF_1200 = 3,
+    ExtractorType_FAST_ORBS_1000  = 4,
+    ExtractorType_FAST_ORBS_2000  = 5,
+    ExtractorType_FAST_ORBS_4000  = 6,
+    ExtractorType_GLSL_1          = 7,
+    ExtractorType_GLSL            = 8,
+    ExtractorType_Last            = 9
 };
 
 class FeatureExtractorFactory
 {
 public:
     FeatureExtractorFactory();
-    std::unique_ptr<ORB_SLAM2::KPextractor> make(int id, cv::Size videoFrameSize);
+    std::unique_ptr<ORB_SLAM2::KPextractor> make(ExtractorType id, cv::Size videoFrameSize);
 
     const std::vector<std::string>& getExtractorIdToNames() const
     {
