@@ -208,10 +208,13 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
             {
                 isTracking     = true;
                 relocalizeOnce = true;
+
+                WAISlamTools::motionModel(frame, lastFrame, velocity, extrinsic);
+                WAISlamTools::serialMapping(map, localMap, localMapping, loopClosing, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId);
             }
         }
 
-        lastFrame = frame;
+        lastFrame = WAIFrame(frame);
         frameCount++;
     }
 
