@@ -130,8 +130,8 @@
             timestampString = "589708122.752417"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "700"
-            endingLineNumber = "700"
+            startingLineNumber = "702"
+            endingLineNumber = "702"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -147,8 +147,8 @@
             timestampString = "589708122.752864"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "678"
-            endingLineNumber = "678"
+            startingLineNumber = "680"
+            endingLineNumber = "680"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -164,8 +164,8 @@
             timestampString = "589708122.753107"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "660"
-            endingLineNumber = "660"
+            startingLineNumber = "662"
+            endingLineNumber = "662"
             landmarkName = "-onDeviceMotionUpdate:"
             landmarkType = "7">
          </BreakpointContent>
@@ -181,8 +181,8 @@
             timestampString = "589708122.7533441"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "691"
-            endingLineNumber = "691"
+            startingLineNumber = "693"
+            endingLineNumber = "693"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -198,8 +198,8 @@
             timestampString = "589708122.753575"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "666"
-            endingLineNumber = "666"
+            startingLineNumber = "668"
+            endingLineNumber = "668"
             landmarkName = "-onDeviceMotionUpdate:"
             landmarkType = "7">
          </BreakpointContent>
@@ -217,40 +217,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1950"
             endingLineNumber = "1950"
-            landmarkName = "appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)"
+            landmarkName = "appDemoLoadScene(s, sv, sceneID)"
             landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "986CBEE3-CAAD-4F9E-BA80-AB1B33A46181 - bf9df5ba4423709e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "appDemoLoadScene(SLScene*, SLSceneView*, SLSceneID)"
-                  moduleName = "SLProject"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/apps/app-Demo-SLProject/source/AppDemoLoad.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1955"
-                  endingLineNumber = "1955"
-                  offsetFromSymbolStart = "47716">
-               </Location>
-               <Location
-                  uuid = "986CBEE3-CAAD-4F9E-BA80-AB1B33A46181 - bf9df5ba4423709e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "appDemoLoadScene(SLScene*, SLSceneView*, SLSceneID)"
-                  moduleName = "SLProject"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/apps/app-Demo-SLProject/source/AppDemoLoad.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1955"
-                  endingLineNumber = "1955"
-                  offsetFromSymbolStart = "48316">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -267,6 +235,38 @@
             startingLineNumber = "520"
             endingLineNumber = "520"
             landmarkName = "SLSceneView::draw3DGL(SLfloat elapsedTimeMS)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "264B404B-530F-4518-9C71-011A5D00FF05"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../lib-SLProject/source/CV/CVTrackedFaces.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "CVTrackedFaces::CVTrackedFaces(smoothLenght, faceClassifierFilename, faceMarkModelFilename)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "160AF82A-F2AC-4B3C-81AB-668AD73DFBCB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ViewController.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
+            landmarkName = "-viewDidLoad"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
