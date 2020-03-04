@@ -79,35 +79,29 @@ cmake \
 -DWITH_VA_INTEL=OFF \
 -GXcode \
 -DAPPLE_FRAMEWORK=ON \
--DARCHS=arm64 \
--DIPHONEOS_DEPLOYMENT_TARGET=8.0 \
+-DPLATFORM=OS64 \
 -DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
 -DENABLE_NEON=ON \
+-DENABLE_ARC=false \
 ../..
 
+cmake --build . --config Debug --target install
 
+: '
 echo "================================================= xcodebuild"
 xcodebuild \
 IPHONEOS_DEPLOYMENT_TARGET=8.0 \
 ARCHS=arm64 \
 -sdk=phoneos \
 -configuration=Debug \
--jobs=8 \
+-jobs=1 \
 -target=ALL_BUILD \
 -parallelizeTargets \
 build
+'
 
-
-echo "======================================================= make"
-# finally build it
-make -j8
-
-echo "=============================================== make install"
-# copy all into install folder
-make install
 cd ../.. # back to opencv
 
-: '
 # Make build folder for release version
 echo "============================================================"
 rm -rf $BUILD_R
@@ -128,14 +122,21 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DWITH_OPENCL=OFF \
+-DWITH_OPENCLAMDFFT=OFF \
+-DWITH_OPENCLAMDBLAS=OFF \
+-DWITH_VA_INTEL=OFF \
+-GXcode \
+-DAPPLE_FRAMEWORK=ON \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=ON \
+-DENABLE_ARC=false \
 ../..
 
-# finally build it
-make -j8
+cmake --build . --config Release --target install
 
-# copy all into install folder
-make install
-cd ../.. # back to opencv
+cd ../.. # Back to opencv
 
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER
@@ -145,4 +146,3 @@ cp -R $BUILD_R/install/lib     $ZIPFOLDER/release
 cp -R $BUILD_D/install/lib     $ZIPFOLDER/debug
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER
-'
