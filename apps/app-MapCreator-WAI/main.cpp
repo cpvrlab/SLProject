@@ -33,6 +33,10 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
+    config.extractorType = ExtractorType_GLSL;
+    config.erlebARDir = Utils::getAppsWritableDir() + "/erleb-AR/";
+    config.vocFile = config.erlebARDir + "voc/ORBvoc.bin";
+
     for (int i = 1; i < argc; ++i)
     {
         if (!strcmp(argv[i], "-erlebARDir"))
@@ -49,7 +53,7 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-mapOutputDir"))
         {
-            config.mapOutputDir = argv[++i];
+            config.mapOutputDir = argv[++i]; //Not used
         }
         else if (!strcmp(argv[i], "-feature"))
         {
