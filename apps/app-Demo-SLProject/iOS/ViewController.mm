@@ -158,6 +158,8 @@ float GetSeconds()
     
     SLApplication::calibIniPath  = exeDir + "data/calibrations/"; // for calibInitPath
     
+    //Utils::dumpFileSystemRec("SLProject", exeDir);
+    
     CVImage::defaultPath = exeDir;
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
                                             configDir, // for stored calibrations

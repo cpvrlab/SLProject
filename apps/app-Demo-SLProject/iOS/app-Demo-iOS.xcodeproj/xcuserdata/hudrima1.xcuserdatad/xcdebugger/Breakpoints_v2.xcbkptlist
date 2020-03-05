@@ -149,8 +149,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "680"
             endingLineNumber = "680"
-            landmarkName = "-setupLocationManager"
-            landmarkType = "7">
+            landmarkName = "ViewController"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -257,17 +257,49 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "160AF82A-F2AC-4B3C-81AB-668AD73DFBCB"
+            uuid = "4666E218-2EA8-4CFC-B267-0195A6E48EC6"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ViewController.mm"
+            filePath = "../../../externals/utils/lib-Utils/source/Utils.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "162"
-            endingLineNumber = "162"
-            landmarkName = "-viewDidLoad"
-            landmarkType = "7">
+            startingLineNumber = "811"
+            endingLineNumber = "811"
+            landmarkName = "dumpFileSystemRec(logtag, folderPath, depth)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "4666E218-2EA8-4CFC-B267-0195A6E48EC6 - 98712b36e61de718"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Utils::dumpFileSystemRec(char const*, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;, int)"
+                  moduleName = "SLProject"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/externals/utils/lib-Utils/source/Utils.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "812"
+                  endingLineNumber = "812"
+                  offsetFromSymbolStart = "468">
+               </Location>
+               <Location
+                  uuid = "4666E218-2EA8-4CFC-B267-0195A6E48EC6 - 98712b36e61de718"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Utils::dumpFileSystemRec(char const*, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;, int)"
+                  moduleName = "SLProject"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/hudrima1/Documents/GitHub/SLProject/externals/utils/lib-Utils/source/Utils.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "812"
+                  endingLineNumber = "812"
+                  offsetFromSymbolStart = "520">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

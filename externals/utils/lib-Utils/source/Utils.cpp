@@ -36,8 +36,8 @@ namespace fs = std::experimental::filesystem;
 #    endif
 #elif defined(__APPLE__)
 #    include <dirent.h>
-#    include <unistd.h>   //getcwd
 #    include <sys/stat.h> //dirent
+#    include <unistd.h>   //getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <android/log.h>
 #    include <dirent.h>
@@ -500,9 +500,8 @@ string getFileExt(const string& filename)
         return toLowerString(filename.substr(i + 1, filename.length() - i));
     return ("");
 }
-
 //-----------------------------------------------------------------------------
-//! Returns a vector directory names with path in dir
+//! Returns a vector of unsorted directory names with path in dir
 vector<string> getDirNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -533,7 +532,9 @@ vector<string> getDirNamesInDir(const string& dirName)
 
             if (name != "." && name != "..")
             {
-                struct stat path_stat {};
+                struct stat path_stat
+                {
+                };
                 stat((dirName + name).c_str(), &path_stat);
                 if (S_ISDIR(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
@@ -546,7 +547,7 @@ vector<string> getDirNamesInDir(const string& dirName)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted names (files and directories) with path in dir
+//! Returns a vector of unsorted names (files and directories) with path in dir
 vector<string> getAllNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -583,7 +584,7 @@ vector<string> getAllNamesInDir(const string& dirName)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted filesnames with path in dir
+//! Returns a vector of unsorted filesnames with path in dir
 vector<string> getFileNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -614,7 +615,9 @@ vector<string> getFileNamesInDir(const string& dirName)
             string name(dirContent->d_name);
             if (name != "." && name != "..")
             {
-                struct stat path_stat{};
+                struct stat path_stat
+                {
+                };
                 stat((dirName + name).c_str(), &path_stat);
                 if (S_ISREG(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
@@ -781,6 +784,46 @@ bool deleteFile(string& pathfilename)
         return remove(pathfilename.c_str()) != 0;
     return false;
 }
+//-----------------------------------------------------------------------------
+//! Dumps all files and folders on stdout recursively naturally sorted
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderPath,
+                       const int     depth)
+{
+    const char* tab = "    ";
+
+    // be sure that the folder slashes are correct
+    string folder = unifySlashes(folderPath);
+
+    if (dirExists(folder))
+    {
+        string indent;
+        for (int d = 0; d < depth; ++d)
+            indent += tab;
+
+        // log current folder name
+        string folderName       = getFileName(Utils::trimString(folder, "/"));
+        string indentFolderName = indent + "[" + folderName + "]";
+        Utils::log(logtag, "%s", indentFolderName.c_str());
+
+        vector<string> unsortedNames = getAllNamesInDir(folder);
+        sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
+
+        for (const auto& fileOrFolder : unsortedNames)
+        {
+            if (dirExists(fileOrFolder))
+                dumpFileSystemRec(logtag, fileOrFolder, depth + 1);
+            else
+            {
+                // log current file name
+                string fileName       = tab + getFileName(fileOrFolder);
+                string indentFileName = indent + fileName;
+                Utils::log(logtag, "%s", indentFileName.c_str());
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 
 ///////////////////////
 // Logging Functions //
