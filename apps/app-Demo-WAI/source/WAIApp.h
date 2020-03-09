@@ -27,6 +27,7 @@
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
+#include <SLInputManager.h>
 
 class SLMaterial;
 class SLPoints;
@@ -288,8 +289,6 @@ private:
     //get new frame from live video or video file stream
     SENSFramePtr updateVideoOrCamera();
 
-    //todo: we dont need a pointer
-    AppWAIScene _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
     WAISlam*     _mode       = nullptr;
     SLSceneView* _sv         = nullptr;
@@ -335,6 +334,12 @@ private:
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _markerExtractor;
+
+    //todo: we dont need a pointer
+    AppWAIScene* _waiScene = nullptr;
+    //SLProjectScene* _scene;
+    std::string    _name;
+    SLInputManager _inputManager;
 };
 
 #endif

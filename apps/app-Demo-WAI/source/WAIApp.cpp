@@ -1,6 +1,5 @@
 #include <WAIApp.h>
 
-#include <SLApplication.h>
 #include <SLInterface.h>
 #include <SLKeyframeCamera.h>
 #include <Utils.h>
@@ -57,7 +56,8 @@
 
 //-----------------------------------------------------------------------------
 WAIApp::WAIApp()
-  : SLInputEventInterface(SLApplication::inputManager) //todo: local input manager
+  : SLInputEventInterface(_inputManager),
+    _name("WAI Demo App")
 {
 }
 //-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void WAIApp::loadSlam()
 {
     if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
     {
-        loadWAISceneView(SLApplication::scene, _sv, _currentSlamParams.location, _currentSlamParams.area);
+        loadWAISceneView(_waiScene, _sv, _currentSlamParams.location, _currentSlamParams.area);
         startOrbSlam(_currentSlamParams);
         _guiSlamLoad->setSlamParams(_currentSlamParams);
         _gui->uiPrefs->showSlamLoad = false;
@@ -229,7 +229,7 @@ bool WAIApp::update()
                              -PoseInv.at<float>(3, 2),
                              PoseInv.at<float>(3, 3));
 
-                _waiScene.cameraNode->om(om);
+                _waiScene->cameraNode->om(om);
             }
             /*
             else
@@ -242,8 +242,8 @@ bool WAIApp::update()
                 SLMat4f imuRot          = _IMUQuaternion.toMat4();
                 _lastKnowPoseQuaternion = q2;
 
-                SLMat4f cameraMat = _waiScene.cameraNode->om();
-                _waiScene.cameraNode->om(cameraMat * imuRot);
+                SLMat4f cameraMat = _waiScene->cameraNode->om();
+                _waiScene->cameraNode->om(cameraMat * imuRot);
             }
              */
 
@@ -260,7 +260,7 @@ bool WAIApp::update()
     }
 
     //update scene (before it was slUpdateScene)
-    SLApplication::scene->onUpdate();
+    _waiScene->onUpdate();
     return updateSceneViews();
 }
 
@@ -276,10 +276,10 @@ void WAIApp::close()
 void WAIApp::terminate()
 {
     // Deletes all remaining sceneviews the current scene instance
-    if (SLApplication::scene)
+    if (_waiScene)
     {
-        delete SLApplication::scene;
-        SLApplication::scene = nullptr;
+        delete _waiScene;
+        _waiScene = nullptr;
     }
     _loaded = false;
 }
@@ -342,7 +342,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         }
         else
         {
-            computerInfo = SLApplication::getComputerInfos();
+            computerInfo = Utils::getComputerInfos();
         }
 
         calibrationFileName        = "camCalib_" + computerInfo + "_main.xml";
@@ -418,17 +418,17 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         _calibration.buildUndistortionMaps();
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _waiScene.cameraNode->fov(_calibration.cameraFovVDeg());
+    _waiScene->cameraNode->fov(_calibration.cameraFovVDeg());
     // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     cv::Mat scMat = _calibration.cameraMatUndistorted();
     std::cout << "scMat: " << scMat << std::endl;
-    _waiScene.cameraNode->intrinsics(scMat.at<double>(0, 0),
-                                     scMat.at<double>(1, 1),
-                                     scMat.at<double>(0, 2),
-                                     scMat.at<double>(1, 2));
+    _waiScene->cameraNode->intrinsics(scMat.at<double>(0, 0),
+                                      scMat.at<double>(1, 1),
+                                      scMat.at<double>(0, 2),
+                                      scMat.at<double>(1, 2));
 
     //enable projection -> intrinsics mode
-    _waiScene.cameraNode->projection(P_monoIntrinsic);
+    _waiScene->cameraNode->projection(P_monoIntrinsic);
 
     // 4. Create new mode ORBSlam
     if (!slamParams.markerFile.empty())
@@ -456,7 +456,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
         map                    = new WAIMap(kfdb);
         bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
-                                                        _waiScene.mapNode,
+                                                        _waiScene->mapNode,
                                                         voc,
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
@@ -503,7 +503,7 @@ void WAIApp::showErrorMsg(std::string msg)
 //-----------------------------------------------------------------------------
 std::string WAIApp::name()
 {
-    return SLApplication::name;
+    return _name;
 }
 //-----------------------------------------------------------------------------
 bool WAIApp::updateTracking(SENSFramePtr frame)
@@ -535,37 +535,32 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
 //-----------------------------------------------------------------------------
 int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
 {
-    if (!SLApplication::scene)
+    if (!_waiScene)
     {
         // Default paths for all loaded resources
         SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
         SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
         SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
         SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
-        SLApplication::configPath     = _dirs.writableDir;
+        //SLApplication::configPath     = _dirs.writableDir;
 
-        SLApplication::name  = "WAI Demo App";
-        SLApplication::scene = new SLProjectScene("WAI Demo App", nullptr, SLApplication::inputManager);
+        _waiScene = new AppWAIScene(_name, _inputManager);
 
         int screenWidth  = (int)(scrWidth * scr2fbX);
         int screenHeight = (int)(scrHeight * scr2fbY);
 
-        setupGUI(SLApplication::name, SLApplication::configPath, dpi);
-        // Set default font sizes depending on the dpi no matter if ImGui is used
-        //todo: is this still needed?
-        if (!SLApplication::dpi)
-            SLApplication::dpi = dpi;
+        setupGUI(_name, _dirs.writableDir, dpi);
 
-        _sv = new SLSceneView(SLApplication::scene, dpi);
+        _sv = new SLSceneView(_waiScene, dpi);
         _sv->init("SceneView",
                   screenWidth,
                   screenHeight,
                   nullptr,
                   nullptr,
                   _gui.get(),
-                  SLApplication::configPath);
+                  _dirs.writableDir);
 
-        loadWAISceneView(SLApplication::scene, _sv, "default", "default");
+        loadWAISceneView(_waiScene, _sv, "default", "default");
     }
 
     return (SLint)_sv->index();
@@ -575,7 +570,7 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
 void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area)
 {
     s->init();
-    _waiScene.rebuild(location, area);
+    _waiScene->rebuild(location, area);
 
     // Set scene name and info string
     s->name("Track Keyframe based Features");
@@ -583,13 +578,13 @@ void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location,
 
     // Save no energy
     sv->doWaitOnIdle(false); //for constant video feed
-    sv->camera(_waiScene.cameraNode);
+    sv->camera(_waiScene->cameraNode);
 
-    _videoImage = new SLGLTexture(SLApplication::scene, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _videoImage = new SLGLTexture(&_waiScene->assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    _waiScene.cameraNode->background().texture(_videoImage);
+    _waiScene->cameraNode->background().texture(_videoImage);
 
-    s->root3D(_waiScene.rootNode);
+    s->root3D(_waiScene->rootNode);
 
     sv->onInitialize();
     sv->doWaitOnIdle(false);
@@ -601,7 +596,7 @@ void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location,
 //-----------------------------------------------------------------------------
 void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInch)
 {
-    _gui = std::make_unique<AppDemoWaiGui>(SLApplication::name, SLApplication::configPath, dotsPerInch);
+    _gui = std::make_unique<AppDemoWaiGui>(_name, _dirs.writableDir, dotsPerInch);
 
     _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &_gui->uiPrefs->showInfosFrameworks));
     _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
@@ -701,7 +696,7 @@ bool WAIApp::updateSceneViews()
 {
     bool needUpdate = false;
 
-    for (auto sv : SLApplication::scene->sceneViews())
+    for (auto sv : _waiScene->sceneViews())
         if (sv->onPaint() && !needUpdate)
             needUpdate = true;
 
@@ -749,41 +744,41 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
         //get new points and add them
         renderMapPoints("MapPoints",
                         _mode->getMapPoints(),
-                        _waiScene.mapPC,
-                        _waiScene.mappointsMesh,
-                        _waiScene.redMat);
+                        _waiScene->mapPC,
+                        _waiScene->mappointsMesh,
+                        _waiScene->redMat);
 
         /*
         //get new points and add them
         renderMapPoints("MarkerCornerMapPoints",
                         _mode->getMarkerCornerMapPoints(),
-                        _waiScene.mapMarkerCornerPC,
-                        _waiScene.mappointsMarkerCornerMesh,
-                        _waiScene.blueMat);
+                        _waiScene->mapMarkerCornerPC,
+                        _waiScene->mappointsMarkerCornerMesh,
+                        _waiScene->blueMat);
         */
     }
     else
     {
-        if (_waiScene.mappointsMesh)
+        if (_waiScene->mappointsMesh)
         {
             //delete mesh if we do not want do visualize it anymore
-            //_waiScene.mapPC->deleteMesh(_waiScene.mappointsMesh);
-            if (_waiScene.mapPC->removeMesh(_waiScene.mappointsMesh))
+            //_waiScene->mapPC->deleteMesh(_waiScene->mappointsMesh);
+            if (_waiScene->mapPC->removeMesh(_waiScene->mappointsMesh))
             {
-                SLApplication::scene->removeMesh(_waiScene.mappointsMesh);
-                delete _waiScene.mappointsMesh;
-                _waiScene.mappointsMesh = nullptr;
+                _waiScene->assets.removeMesh(_waiScene->mappointsMesh);
+                delete _waiScene->mappointsMesh;
+                _waiScene->mappointsMesh = nullptr;
             }
         }
-        if (_waiScene.mappointsMarkerCornerMesh)
+        if (_waiScene->mappointsMarkerCornerMesh)
         {
 
             //delete mesh if we do not want do visualize it anymore
-            if (_waiScene.mapMarkerCornerPC->removeMesh(_waiScene.mappointsMarkerCornerMesh))
+            if (_waiScene->mapMarkerCornerPC->removeMesh(_waiScene->mappointsMarkerCornerMesh))
             {
-                SLApplication::scene->removeMesh(_waiScene.mappointsMarkerCornerMesh);
-                delete _waiScene.mappointsMarkerCornerMesh;
-                _waiScene.mappointsMarkerCornerMesh = nullptr;
+                _waiScene->assets.removeMesh(_waiScene->mappointsMarkerCornerMesh);
+                delete _waiScene->mappointsMarkerCornerMesh;
+                _waiScene->mappointsMarkerCornerMesh = nullptr;
             }
         }
     }
@@ -794,18 +789,18 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     {
         renderMapPoints("LocalMapPoints",
                         _mode->getLocalMapPoints(),
-                        _waiScene.mapLocalPC,
-                        _waiScene.mappointsLocalMesh,
-                        _waiScene.blueMat);
+                        _waiScene->mapLocalPC,
+                        _waiScene->mappointsLocalMesh,
+                        _waiScene->blueMat);
     }
-    else if (_waiScene.mappointsLocalMesh)
+    else if (_waiScene->mappointsLocalMesh)
     {
         //delete mesh if we do not want do visualize it anymore
-        if (_waiScene.mapLocalPC->removeMesh(_waiScene.mappointsLocalMesh))
+        if (_waiScene->mapLocalPC->removeMesh(_waiScene->mappointsLocalMesh))
         {
-            SLApplication::scene->removeMesh(_waiScene.mappointsLocalMesh);
-            delete _waiScene.mappointsLocalMesh;
-            _waiScene.mappointsLocalMesh = nullptr;
+            _waiScene->assets.removeMesh(_waiScene->mappointsLocalMesh);
+            delete _waiScene->mappointsLocalMesh;
+            _waiScene->mappointsLocalMesh = nullptr;
         }
     }
 
@@ -815,24 +810,24 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     {
         renderMapPoints("MatchedMapPoints",
                         _mode->getMatchedMapPoints(_mode->getLastFrame()),
-                        _waiScene.mapMatchedPC,
-                        _waiScene.mappointsMatchedMesh,
-                        _waiScene.greenMat);
+                        _waiScene->mapMatchedPC,
+                        _waiScene->mappointsMatchedMesh,
+                        _waiScene->greenMat);
     }
-    else if (_waiScene.mappointsMatchedMesh)
+    else if (_waiScene->mappointsMatchedMesh)
     {
         //delete mesh if we do not want do visualize it anymore
 
-        if (_waiScene.mapMatchedPC->removeMesh(_waiScene.mappointsMatchedMesh))
+        if (_waiScene->mapMatchedPC->removeMesh(_waiScene->mappointsMatchedMesh))
         {
-            SLApplication::scene->removeMesh(_waiScene.mappointsMatchedMesh);
-            delete _waiScene.mappointsMatchedMesh;
-            _waiScene.mappointsMatchedMesh = nullptr;
+            _waiScene->assets.removeMesh(_waiScene->mappointsMatchedMesh);
+            delete _waiScene->mappointsMatchedMesh;
+            _waiScene->mappointsMatchedMesh = nullptr;
         }
     }
 
     //update keyframe visualization
-    _waiScene.keyFrameNode->deleteChildren();
+    _waiScene->keyFrameNode->deleteChildren();
     if (_gui->uiPrefs->showKeyFrames)
     {
         renderKeyframes();
@@ -854,7 +849,7 @@ void WAIApp::renderMapPoints(std::string                      name,
     {
         if (node->removeMesh(mesh))
         {
-            SLApplication::scene->removeMesh(mesh);
+            _waiScene->assets.removeMesh(mesh);
             delete mesh;
             mesh = nullptr;
         }
@@ -873,7 +868,7 @@ void WAIApp::renderMapPoints(std::string                      name,
             normals.push_back(SLVec3f(wN.x, wN.y, wN.z));
         }
 
-        mesh = new SLPoints(SLApplication::scene, points, normals, name, material);
+        mesh = new SLPoints(&_waiScene->assets, points, normals, name, material);
         node->addMesh(mesh);
         node->updateAABBRec();
     }
@@ -934,7 +929,7 @@ void WAIApp::renderKeyframes()
         cam->clipNear(0.1f);
         cam->clipFar(1000.0f);
 
-        _waiScene.keyFrameNode->addChild(cam);
+        _waiScene->keyFrameNode->addChild(cam);
     }
 }
 //-----------------------------------------------------------------------------
@@ -986,55 +981,55 @@ void WAIApp::renderGraphs()
         }
     }
 
-    if (_waiScene.covisibilityGraphMesh)
+    if (_waiScene->covisibilityGraphMesh)
     {
-        if (_waiScene.covisibilityGraph->removeMesh(_waiScene.covisibilityGraphMesh))
+        if (_waiScene->covisibilityGraph->removeMesh(_waiScene->covisibilityGraphMesh))
         {
-            SLApplication::scene->removeMesh(_waiScene.covisibilityGraphMesh);
-            delete _waiScene.covisibilityGraphMesh;
-            _waiScene.covisibilityGraphMesh = nullptr;
+            _waiScene->assets.removeMesh(_waiScene->covisibilityGraphMesh);
+            delete _waiScene->covisibilityGraphMesh;
+            _waiScene->covisibilityGraphMesh = nullptr;
         }
     }
 
     if (covisGraphPts.size() && _gui->uiPrefs->showCovisibilityGraph)
     {
-        _waiScene.covisibilityGraphMesh = new SLPolyline(SLApplication::scene, covisGraphPts, false, "CovisibilityGraph", _waiScene.covisibilityGraphMat);
-        _waiScene.covisibilityGraph->addMesh(_waiScene.covisibilityGraphMesh);
-        _waiScene.covisibilityGraph->updateAABBRec();
+        _waiScene->covisibilityGraphMesh = new SLPolyline(&_waiScene->assets, covisGraphPts, false, "CovisibilityGraph", _waiScene->covisibilityGraphMat);
+        _waiScene->covisibilityGraph->addMesh(_waiScene->covisibilityGraphMesh);
+        _waiScene->covisibilityGraph->updateAABBRec();
     }
 
-    if (_waiScene.spanningTreeMesh)
+    if (_waiScene->spanningTreeMesh)
     {
-        if (_waiScene.spanningTree->removeMesh(_waiScene.spanningTreeMesh))
+        if (_waiScene->spanningTree->removeMesh(_waiScene->spanningTreeMesh))
         {
-            SLApplication::scene->removeMesh(_waiScene.spanningTreeMesh);
-            delete _waiScene.spanningTreeMesh;
-            _waiScene.spanningTreeMesh = nullptr;
+            _waiScene->assets.removeMesh(_waiScene->spanningTreeMesh);
+            delete _waiScene->spanningTreeMesh;
+            _waiScene->spanningTreeMesh = nullptr;
         }
     }
 
     if (spanningTreePts.size() && _gui->uiPrefs->showSpanningTree)
     {
-        _waiScene.spanningTreeMesh = new SLPolyline(SLApplication::scene, spanningTreePts, false, "SpanningTree", _waiScene.spanningTreeMat);
-        _waiScene.spanningTree->addMesh(_waiScene.spanningTreeMesh);
-        //_waiScene.spanningTree->updateAABBRec();
+        _waiScene->spanningTreeMesh = new SLPolyline(&_waiScene->assets, spanningTreePts, false, "SpanningTree", _waiScene->spanningTreeMat);
+        _waiScene->spanningTree->addMesh(_waiScene->spanningTreeMesh);
+        //_waiScene->spanningTree->updateAABBRec();
     }
 
-    if (_waiScene.loopEdgesMesh)
+    if (_waiScene->loopEdgesMesh)
     {
-        if (_waiScene.loopEdges->removeMesh(_waiScene.loopEdgesMesh))
+        if (_waiScene->loopEdges->removeMesh(_waiScene->loopEdgesMesh))
         {
-            SLApplication::scene->removeMesh(_waiScene.loopEdgesMesh);
-            delete _waiScene.loopEdgesMesh;
-            _waiScene.loopEdgesMesh = nullptr;
+            _waiScene->assets.removeMesh(_waiScene->loopEdgesMesh);
+            delete _waiScene->loopEdgesMesh;
+            _waiScene->loopEdgesMesh = nullptr;
         }
     }
 
     if (loopEdgesPts.size() && _gui->uiPrefs->showLoopEdges)
     {
-        _waiScene.loopEdgesMesh = new SLPolyline(SLApplication::scene, loopEdgesPts, false, "LoopEdges", _waiScene.loopEdgesMat);
-        _waiScene.loopEdges->addMesh(_waiScene.loopEdgesMesh);
-        _waiScene.loopEdges->updateAABBRec();
+        _waiScene->loopEdgesMesh = new SLPolyline(&_waiScene->assets, loopEdgesPts, false, "LoopEdges", _waiScene->loopEdgesMat);
+        _waiScene->loopEdges->addMesh(_waiScene->loopEdgesMesh);
+        _waiScene->loopEdges->updateAABBRec();
     }
 }
 
@@ -1077,9 +1072,9 @@ void WAIApp::saveMap(std::string location,
         else
         {
             std::cout << "nodeTransform: " << nodeTransform << std::endl;
-            //_waiScene.mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
+            //_waiScene->mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
             if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                        _waiScene.mapNode,
+                                        _waiScene->mapNode,
                                         mapDir + filename,
                                         imgDir))
             {
@@ -1090,7 +1085,7 @@ void WAIApp::saveMap(std::string location,
     else
     {
         if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                    _waiScene.mapNode,
+                                    _waiScene->mapNode,
                                     mapDir + filename,
                                     imgDir))
         {
@@ -1160,13 +1155,13 @@ void WAIApp::transformMapNode(SLTransformSpace tSpace,
                               SLVec3f          translation,
                               float            scale)
 {
-    _waiScene.mapNode->rotate(rotation.x, 1, 0, 0, tSpace);
-    _waiScene.mapNode->rotate(rotation.y, 0, 1, 0, tSpace);
-    _waiScene.mapNode->rotate(rotation.z, 0, 0, 1, tSpace);
-    _waiScene.mapNode->translate(translation.x, 0, 0, tSpace);
-    _waiScene.mapNode->translate(0, translation.y, 0, tSpace);
-    _waiScene.mapNode->translate(0, 0, translation.z, tSpace);
-    _waiScene.mapNode->scale(scale);
+    _waiScene->mapNode->rotate(rotation.x, 1, 0, 0, tSpace);
+    _waiScene->mapNode->rotate(rotation.y, 0, 1, 0, tSpace);
+    _waiScene->mapNode->rotate(rotation.z, 0, 0, 1, tSpace);
+    _waiScene->mapNode->translate(translation.x, 0, 0, tSpace);
+    _waiScene->mapNode->translate(0, translation.y, 0, tSpace);
+    _waiScene->mapNode->translate(0, 0, translation.z, tSpace);
+    _waiScene->mapNode->scale(scale);
 }
 
 void WAIApp::handleEvents()
@@ -1180,7 +1175,7 @@ void WAIApp::handleEvents()
         {
             case WAIEventType_StartOrbSlam: {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
-                loadWAISceneView(SLApplication::scene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
+                loadWAISceneView(_waiScene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
                 startOrbSlam(startOrbSlamEvent->params);
 
                 delete startOrbSlamEvent;
@@ -1243,7 +1238,7 @@ void WAIApp::handleEvents()
 
             case WAIEventType_AdjustTransparency: {
                 WAIEventAdjustTransparency* adjustTransparencyEvent = (WAIEventAdjustTransparency*)event;
-                _waiScene.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
+                _waiScene->adjustAugmentationTransparency(adjustTransparencyEvent->kt);
 
                 delete adjustTransparencyEvent;
             }

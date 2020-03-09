@@ -1,16 +1,18 @@
 #ifndef APP_WAI_SCENE
 #define APP_WAI_SCENE
 
+#include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLPoints.h>
 #include <SLPolyline.h>
+#include <SLAssetManager.h>
 
 #include <CVCalibration.h>
 
-class AppWAIScene
+class AppWAIScene : public SLScene
 {
 public:
-    AppWAIScene();
+    AppWAIScene(SLstring name, SLInputManager& inputManager);
     SLNode*   rootNode          = nullptr;
     SLCamera* cameraNode        = nullptr;
     SLNode*   mapNode           = nullptr;
@@ -43,6 +45,10 @@ public:
 
     void rebuild(std::string location, std::string area);
     void adjustAugmentationTransparency(float kt);
+
+    SLAssetManager assets;
+
+private:
 };
 
 #endif

@@ -42,7 +42,7 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
         {
             const cv::Size& size     = _waiApp.getFrameSize();
             std::string     filename = Utils::getDateTime2String() + "_" +
-                                   SLApplication::getComputerInfos() + "_" +
+                                   Utils::getComputerInfos() + "_" +
                                    std::to_string(size.width) + "x" + std::to_string(size.height) + ".avi";
 
             event->filename = filename;

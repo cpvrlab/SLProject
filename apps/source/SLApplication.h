@@ -41,18 +41,17 @@ class CVCalibrationEstimator;
 class SLApplication
 {
 public:
-    static void     createAppAndScene(SLstring appName,
-                                      void*    onSceneLoadCallback);
-    static void     deleteAppAndScene();
-    static SLstring getComputerInfos();
-    static void     handleParallelJob();
-    static void     jobProgressMsg(string msg);
-    static void     jobProgressNum(int num) { _jobProgressNum = num; }
-    static void     jobProgressMax(int max) { _jobProgressMax = max; }
-    static string   jobProgressMsg();
-    static int      jobProgressNum() { return _jobProgressNum; }
-    static int      jobProgressMax() { return _jobProgressMax; }
-    static SLfloat  dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
+    static void    createAppAndScene(SLstring appName,
+                                     void*    onSceneLoadCallback);
+    static void    deleteAppAndScene();
+    static void    handleParallelJob();
+    static void    jobProgressMsg(string msg);
+    static void    jobProgressNum(int num) { _jobProgressNum = num; }
+    static void    jobProgressMax(int max) { _jobProgressMax = max; }
+    static string  jobProgressMsg();
+    static int     jobProgressNum() { return _jobProgressNum; }
+    static int     jobProgressMax() { return _jobProgressMax; }
+    static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
     static SLProjectScene*  scene;        //!< scene pointer
     static SLInputManager   inputManager; //!< Input events manager
@@ -62,14 +61,6 @@ public:
     static SLstring  name;          //!< Applcation name
     static SLstring  version;       //!< SLProject version string
     static SLstring  configuration; //!< Debug or Release configuration
-    static SLstring  computerUser;  //!< Computer Name (= env-var USER)
-    static SLstring  computerName;  //!< Computer Name (= env-var HOSTNAME)
-    static SLstring  computerBrand; //!< Computer brand name
-    static SLstring  computerModel; //!< Computer model name
-    static SLstring  computerOS;    //!< Computer OS name
-    static SLstring  computerOSVer; //!< Computer OS version
-    static SLstring  computerArch;  //!< Computer Architecture
-    static SLstring  computerID;    //!< Computer identification string
     static SLstring  gitBranch;     //!< Current GIT branch
     static SLstring  gitCommit;     //!< Current GIT commit short hash id
     static SLstring  gitDate;       //!< Current GIT commit date

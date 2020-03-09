@@ -62,7 +62,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                                                                              ac->mirrorH(),
                                                                              ac->mirrorV(),
                                                                              ac->type(),
-                                                                             SLApplication::getComputerInfos(),
+                                                                             Utils::getComputerInfos(),
                                                                              SLApplication::calibIniPath,
                                                                              SLApplication::externalPath);
 
@@ -103,7 +103,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                     processedCalibResult = true;
                     ac->calibration      = SLApplication::calibrationEstimator->getCalibration();
 
-                    std::string computerInfo      = SLApplication::getComputerInfos();
+                    std::string computerInfo      = Utils::getComputerInfos();
                     string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
                     string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
                     std::string errorMsg;
@@ -178,7 +178,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
                                             ac->mirrorH(),
                                             ac->mirrorV(),
                                             ac->type(),
-                                            SLApplication::getComputerInfos());
+                                            Utils::getComputerInfos());
         }
         else
         {
@@ -189,7 +189,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
                                             ac->mirrorH(),
                                             ac->mirrorV(),
                                             ac->type(),
-                                            SLApplication::getComputerInfos());
+                                            Utils::getComputerInfos());
         }
     }
 }

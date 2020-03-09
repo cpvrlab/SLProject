@@ -33,7 +33,7 @@ void WAICalibration::reset()
     _cameraFovDeg    = fov;
     _calibrationPath = std::string("");
     _state           = CalibrationState_Guess;
-    _computerInfo    = SLApplication::getComputerInfos();
+    _computerInfo    = Utils::getComputerInfos();
 }
 
 void WAICalibration::computeMatrix(cv::Mat& mat, float fov)
@@ -117,7 +117,7 @@ bool WAICalibration::loadFromFile(std::string path)
             _computerInfo = stringParts[1];
         else
         {
-            _computerInfo = SLApplication::getComputerInfos();
+            _computerInfo = Utils::getComputerInfos();
             std::cout << "Assuming calibration is for current device" << std::endl;
         }
     }

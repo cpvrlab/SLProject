@@ -577,7 +577,7 @@ int main(int argc, char* argv[])
     SLApplication::calibFilePath = configDir;
     CVImage::defaultPath         = projectRoot + "/data/images/textures/";
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
-    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(),
+    CVCapture::instance()->loadCalibrations(Utils::getComputerInfos(),
                                             SLApplication::calibFilePath,   // for calibrations made
                                             projectRoot + "/data/videos/"); // for videos
 

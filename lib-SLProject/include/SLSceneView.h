@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------------
 class SLCamera;
 class SLLight;
-class SLProjectScene;
+class SLScene;
 //-----------------------------------------------------------------------------
 /*
 There are only a very few callbacks from the SLProject library up to the GUI
@@ -37,7 +37,7 @@ framework. All other function calls are downwards from the GUI framework
 into the SLProject library.
 */
 //! Callback function typedef for custom SLSceneView derived creator function
-typedef int(SL_STDCALL* cbOnNewSceneView)(SLProjectScene* s, int dotsPerInch);
+typedef int(SL_STDCALL* cbOnNewSceneView)(SLScene* s, int dotsPerInch);
 
 //! Callback function typedef for GUI window update
 typedef SLbool(SL_STDCALL* cbOnWndUpdate)();
@@ -70,7 +70,7 @@ class SLSceneView : public SLObject
     friend class SLPathtracer;
 
 public:
-    SLSceneView(SLProjectScene* s, int dpi);
+    SLSceneView(SLScene* s, int dpi);
     ~SLSceneView() override;
 
     void init(SLstring       name,
@@ -191,7 +191,7 @@ public:
     SLfloat         draw2DTimeMS() const { return _draw2DTimeMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
-    SLProjectScene& s() { return *_s; }
+    SLScene&        s() { return *_s; }
 
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
@@ -249,8 +249,8 @@ protected:
     SLbool         _stopPT;     //!< Flag to stop the PT
     SLGLConetracer _conetracer; //!< Conetracer CT
 
-    SLProjectScene* _s;   //!< Pointer scene observed by this scene view
-    int             _dpi; //! dots per inch of screen
+    SLScene* _s;   //!< Pointer scene observed by this scene view
+    int      _dpi; //! dots per inch of screen
 };
 //-----------------------------------------------------------------------------
 #endif
