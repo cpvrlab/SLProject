@@ -713,13 +713,13 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 #else
             sprintf(m + strlen(m), "Build Config.    : Release\n");
 #endif
-            sprintf(m + strlen(m), "Computer User    : %s\n", SLApplication::computerUser.c_str());
-            sprintf(m + strlen(m), "Computer Name    : %s\n", SLApplication::computerName.c_str());
-            sprintf(m + strlen(m), "Computer Brand   : %s\n", SLApplication::computerBrand.c_str());
-            sprintf(m + strlen(m), "Computer Model   : %s\n", SLApplication::computerModel.c_str());
-            sprintf(m + strlen(m), "Computer Arch.   : %s\n", SLApplication::computerArch.c_str());
-            sprintf(m + strlen(m), "Computer OS      : %s\n", SLApplication::computerOS.c_str());
-            sprintf(m + strlen(m), "Computer OS Ver. : %s\n", SLApplication::computerOSVer.c_str());
+            sprintf(m + strlen(m), "Computer User    : %s\n", Utils::computerUser.c_str());
+            sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::computerName.c_str());
+            sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::computerBrand.c_str());
+            sprintf(m + strlen(m), "Computer Model   : %s\n", Utils::computerModel.c_str());
+            sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::computerArch.c_str());
+            sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::computerOS.c_str());
+            sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::computerOSVer.c_str());
             sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
             sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
             sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());

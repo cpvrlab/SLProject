@@ -157,7 +157,7 @@ sceneview instance. If you have a custom SLSceneView inherited class you
 have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
-int slNewSceneView(SLProjectScene* s, int dotsPerInch)
+int slNewSceneView(SLScene* s, int dotsPerInch)
 {
     SLSceneView* sv = new SLSceneView(s, dotsPerInch);
     return (SLint)sv->index();

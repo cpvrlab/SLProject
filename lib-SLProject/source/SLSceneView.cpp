@@ -386,9 +386,7 @@ void SLSceneView::onInitialize()
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
         _s->root3D()->updateAABBRec();
-
-        for (auto mesh : _s->meshes())
-            mesh->updateAccelStruct();
+        _s->root3D()->updateMeshAccelStructs();
 
         SL_LOG("Time for AABBs  : %5.3f sec.",
                (SLfloat)(clock() - t) / (SLfloat)CLOCKS_PER_SEC);
@@ -419,7 +417,8 @@ void SLSceneView::onInitialize()
     if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
     {
         // The world's bounding box should not change during runtime.
-        _conetracer.init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
+        if (_s->root3D())
+            _conetracer.init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
     }
 #endif
 
@@ -1622,8 +1621,7 @@ SLbool SLSceneView::draw3DRT()
         //s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
-        for (auto mesh : _s->meshes())
-            mesh->updateAccelStruct();
+        _s->root3D()->updateMeshAccelStructs();
 
         // Start raytracing
         if (_raytracer.doDistributed())
@@ -1673,8 +1671,7 @@ SLbool SLSceneView::draw3DPT()
         //s->root3D()->needUpdate();
 
         // Do software skinning on all changed skeletons
-        for (auto mesh : _s->meshes())
-            mesh->updateAccelStruct();
+        _s->root3D()->updateMeshAccelStructs();
 
         // Start raytracing
         _pathtracer.render(this);

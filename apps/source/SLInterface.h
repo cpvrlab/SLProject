@@ -52,7 +52,7 @@ int slCreateSceneView(SLProjectScene* scene,
                       void*           onNewSceneViewCallback   = nullptr,
                       void*           onImGuiBuild             = nullptr);
 
-int  slNewSceneView(SLProjectScene* s, int dotsPerInch);
+int  slNewSceneView(SLScene* s, int dotsPerInch);
 bool slShouldClose();
 void slShouldClose(bool val);
 void slTerminate();

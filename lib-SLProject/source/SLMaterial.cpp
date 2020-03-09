@@ -161,15 +161,21 @@ SLMaterial::SLMaterial(SLAssetManager* s,
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
-SLMaterial::~SLMaterial() = default;
+SLMaterial::~SLMaterial()
+{
+    if (_errorTexture)
+    {
+        delete _errorTexture;
+        _errorTexture = nullptr;
+    }
+}
 //-----------------------------------------------------------------------------
 /*!
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void SLMaterial::activate(SLDrawBits      drawBits,
-                          const SLCol4f&  globalAmbiLight,
-                          SLAssetManager* assetMgr)
+void SLMaterial::activate(SLDrawBits     drawBits,
+                          const SLCol4f& globalAmbiLight)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -199,7 +205,8 @@ void SLMaterial::activate(SLDrawBits      drawBits,
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
         _textures.clear();
-        _textures.push_back(new SLGLTexture(assetMgr, "CompileError.png"));
+        _errorTexture = new SLGLTexture(nullptr, "CompileError.png");
+        _textures.push_back(_errorTexture);
     }
 
     // Determine use of shaders & textures

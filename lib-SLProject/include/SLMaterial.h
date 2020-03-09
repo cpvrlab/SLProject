@@ -79,12 +79,11 @@ public:
                const SLchar*   name,
                SLGLProgram*    program);
 
-    virtual ~SLMaterial();
+    ~SLMaterial();
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLDrawBits      drawBits,
-                  const SLCol4f&  globalAmbiLight,
-                  SLAssetManager* assetMgr);
+    void activate(SLDrawBits     drawBits,
+                  const SLCol4f& globalAmbiLight);
 
     //! Passes the material paramters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
@@ -256,6 +255,8 @@ protected:
     SLfloat      _kn{};         //!< refraction index
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
+
+    SLGLTexture* _errorTexture = nullptr;
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers
