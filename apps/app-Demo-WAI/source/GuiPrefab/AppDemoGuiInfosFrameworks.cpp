@@ -1,7 +1,6 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiInfosFrameworks.h>
 
@@ -18,7 +17,7 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     SLchar     m[2550]; // message character array
     m[0] = 0;           // set zero length
 
-    sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
+    //sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
 #ifdef _DEBUG
     sprintf(m + strlen(m), "Build Config.    : Debug\n");
 #else

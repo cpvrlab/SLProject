@@ -147,9 +147,12 @@ public:
     SLMaterial*       mat() const { return _mat; }
     SLMaterial*       matOut() const { return _matOut; }
     SLGLPrimitiveType primitive() const { return _primitive; }
-    const SLSkeleton* skeleton() const { return _skeleton; }
-    SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
-    SLGLVertexArray&  vao() { return _vao; }
+    const SLSkeleton* skeleton() const
+    {
+        return _skeleton;
+    }
+    SLuint           numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLGLVertexArray& vao() { return _vao; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }

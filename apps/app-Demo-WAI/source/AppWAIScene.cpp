@@ -5,6 +5,8 @@
 #include <SLCoordAxis.h>
 #include <SLPoints.h>
 #include <SLAssimpImporter.h>
+#include <SLApplication.h>
+#include <SLVec4.h>
 
 AppWAIScene::AppWAIScene()
 {
@@ -24,23 +26,23 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     spanningTree      = new SLNode("SpanningTree");
     loopEdges         = new SLNode("LoopEdges");
 
-    redMat = new SLMaterial(s, SLCol4f::RED, "Red");
-    redMat->program(new SLGLGenericProgram(s, "ColorUniformPoint.vert", "Color.frag"));
+    redMat = new SLMaterial(SLApplication::scene, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
+    redMat->program(new SLGLGenericProgram(SLApplication::scene, "ColorUniformPoint.vert", "Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-    greenMat = new SLMaterial(SLCol4f::GREEN, "Green");
-    greenMat->program(new SLGLGenericProgram(s, "ColorUniformPoint.vert", "Color.frag"));
+    greenMat = new SLMaterial(SLApplication::scene, SLGLProgramManager::get(SP_colorUniform), SLCol4f::GREEN, "Green");
+    greenMat->program(new SLGLGenericProgram(SLApplication::scene, "ColorUniformPoint.vert", "Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
-    blueMat = new SLMaterial(SLCol4f::BLUE, "Blue");
-    blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    blueMat = new SLMaterial(SLApplication::scene, SLGLProgramManager::get(SP_colorUniform), SLCol4f::BLUE, "Blue");
+    blueMat->program(new SLGLGenericProgram(SLApplication::scene, "ColorUniformPoint.vert", "Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-    yellowMat = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+    yellowMat = new SLMaterial(SLApplication::scene, "mY", SLCol4f(1, 1, 0, 0.5f));
 
     if (location == "augst")
     {
         if (area == "templeHill-marker")
         {
             SLAssimpImporter importer;
-            augmentationRoot = importer.load("FBX/AugustaRaurica/Temple.fbx");
+            augmentationRoot = importer.load(SLApplication::scene->animManager(), SLApplication::scene, "FBX/AugustaRaurica/Temple.fbx");
             /*augmentationRoot = importer.load("GLTF/AugustaRaurica/Tempel-Meshroom.gltf",
                                              true,
                                              nullptr,
@@ -52,7 +54,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                     mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));*/
 
             // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(5.0f);
+            SLLightDirect* light = new SLLightDirect(SLApplication::scene, SLApplication::scene, 5.0f);
             light->ambient(SLCol4f(1, 1, 1));
             light->diffuse(SLCol4f(1, 1, 1));
             light->specular(SLCol4f(1, 1, 1));
@@ -66,10 +68,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         else if (area == "templeHillTheaterBottom")
         {
             SLAssimpImporter importer;
-            augmentationRoot = importer.load("FBX/AugustaRaurica/Theater.fbx");
+            augmentationRoot = importer.load(SLApplication::scene->animManager(), SLApplication::scene, "FBX/AugustaRaurica/Theater.fbx");
             augmentationRoot->scale(0.01f);
 
-            SLLightSpot* light1 = new SLLightSpot(1, 10, 1, 0.3f);
+            SLLightSpot* light1 = new SLLightSpot(SLApplication::scene, SLApplication::scene, 1, 10, 1, 0.3f);
             light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
             light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
             light1->specular(SLCol4f(1, 1, 1));
@@ -181,9 +183,9 @@ void AppWAIScene::loadScene(std::string location, std::string area)
 
     //boxNode->addChild(axisNode);
 
-    covisibilityGraphMat = new SLMaterial("YellowLines", SLCol4f::YELLOW);
-    spanningTreeMat      = new SLMaterial("GreenLines", SLCol4f::GREEN);
-    loopEdgesMat         = new SLMaterial("RedLines", SLCol4f::RED);
+    covisibilityGraphMat = new SLMaterial(SLApplication::scene, "YellowLines", SLCol4f::YELLOW);
+    spanningTreeMat      = new SLMaterial(SLApplication::scene, "GreenLines", SLCol4f::GREEN);
+    loopEdgesMat         = new SLMaterial(SLApplication::scene, "RedLines", SLCol4f::RED);
 
     cameraNode->translation(0, 0, 0.1f);
     cameraNode->lookAt(0, 0, 0);

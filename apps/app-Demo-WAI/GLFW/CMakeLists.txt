@@ -51,6 +51,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
     ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
+    ${SL_PROJECT_ROOT}/apps/source/SLApplication.h
     )
 
 set(sources
@@ -87,6 +88,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
+    ${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 
@@ -115,6 +117,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
     ${SL_PROJECT_ROOT}/apps/source/wai/
     ${SL_PROJECT_ROOT}/apps/source/sens/
+    ${SL_PROJECT_ROOT}/apps/source/
     INTERFACE
     )
 

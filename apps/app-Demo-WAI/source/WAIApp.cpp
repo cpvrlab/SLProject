@@ -545,7 +545,7 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
         SLApplication::configPath     = _dirs.writableDir;
 
         SLApplication::name  = "WAI Demo App";
-        SLApplication::scene = new SLScene("WAI Demo App", nullptr);
+        SLApplication::scene = new SLProjectScene("WAI Demo App", nullptr, SLApplication::inputManager);
 
         int screenWidth  = (int)(scrWidth * scr2fbX);
         int screenHeight = (int)(scrHeight * scr2fbY);
@@ -562,7 +562,8 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
                   screenHeight,
                   nullptr,
                   nullptr,
-                  _gui.get());
+                  _gui.get(),
+                  SLApplication::configPath);
 
         loadWAISceneView(SLApplication::scene, _sv, "default", "default");
     }
@@ -584,7 +585,7 @@ void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location,
     sv->doWaitOnIdle(false); //for constant video feed
     sv->camera(_waiScene.cameraNode);
 
-    _videoImage = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _videoImage = new SLGLTexture(SLApplication::scene, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     _waiScene.cameraNode->background().texture(_videoImage);
 
@@ -766,12 +767,24 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
         if (_waiScene.mappointsMesh)
         {
             //delete mesh if we do not want do visualize it anymore
-            _waiScene.mapPC->deleteMesh(_waiScene.mappointsMesh);
+            //_waiScene.mapPC->deleteMesh(_waiScene.mappointsMesh);
+            if (_waiScene.mapPC->removeMesh(_waiScene.mappointsMesh))
+            {
+                SLApplication::scene->removeMesh(_waiScene.mappointsMesh);
+                delete _waiScene.mappointsMesh;
+                _waiScene.mappointsMesh = nullptr;
+            }
         }
         if (_waiScene.mappointsMarkerCornerMesh)
         {
+
             //delete mesh if we do not want do visualize it anymore
-            _waiScene.mapMarkerCornerPC->deleteMesh(_waiScene.mappointsMarkerCornerMesh);
+            if (_waiScene.mapMarkerCornerPC->removeMesh(_waiScene.mappointsMarkerCornerMesh))
+            {
+                SLApplication::scene->removeMesh(_waiScene.mappointsMarkerCornerMesh);
+                delete _waiScene.mappointsMarkerCornerMesh;
+                _waiScene.mappointsMarkerCornerMesh = nullptr;
+            }
         }
     }
 
@@ -788,7 +801,12 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     else if (_waiScene.mappointsLocalMesh)
     {
         //delete mesh if we do not want do visualize it anymore
-        _waiScene.mapLocalPC->deleteMesh(_waiScene.mappointsLocalMesh);
+        if (_waiScene.mapLocalPC->removeMesh(_waiScene.mappointsLocalMesh))
+        {
+            SLApplication::scene->removeMesh(_waiScene.mappointsLocalMesh);
+            delete _waiScene.mappointsLocalMesh;
+            _waiScene.mappointsLocalMesh = nullptr;
+        }
     }
 
     //update visualization of matched map points
@@ -804,7 +822,13 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     else if (_waiScene.mappointsMatchedMesh)
     {
         //delete mesh if we do not want do visualize it anymore
-        _waiScene.mapMatchedPC->deleteMesh(_waiScene.mappointsMatchedMesh);
+
+        if (_waiScene.mapMatchedPC->removeMesh(_waiScene.mappointsMatchedMesh))
+        {
+            SLApplication::scene->removeMesh(_waiScene.mappointsMatchedMesh);
+            delete _waiScene.mappointsMatchedMesh;
+            _waiScene.mappointsMatchedMesh = nullptr;
+        }
     }
 
     //update keyframe visualization
@@ -827,7 +851,14 @@ void WAIApp::renderMapPoints(std::string                      name,
 {
     //remove old mesh, if it exists
     if (mesh)
-        node->deleteMesh(mesh);
+    {
+        if (node->removeMesh(mesh))
+        {
+            SLApplication::scene->removeMesh(mesh);
+            delete mesh;
+            mesh = nullptr;
+        }
+    }
 
     //instantiate and add new mesh
     if (pts.size())
@@ -842,7 +873,7 @@ void WAIApp::renderMapPoints(std::string                      name,
             normals.push_back(SLVec3f(wN.x, wN.y, wN.z));
         }
 
-        mesh = new SLPoints(points, normals, name, material);
+        mesh = new SLPoints(SLApplication::scene, points, normals, name, material);
         node->addMesh(mesh);
         node->updateAABBRec();
     }
@@ -956,31 +987,52 @@ void WAIApp::renderGraphs()
     }
 
     if (_waiScene.covisibilityGraphMesh)
-        _waiScene.covisibilityGraph->deleteMesh(_waiScene.covisibilityGraphMesh);
+    {
+        if (_waiScene.covisibilityGraph->removeMesh(_waiScene.covisibilityGraphMesh))
+        {
+            SLApplication::scene->removeMesh(_waiScene.covisibilityGraphMesh);
+            delete _waiScene.covisibilityGraphMesh;
+            _waiScene.covisibilityGraphMesh = nullptr;
+        }
+    }
 
     if (covisGraphPts.size() && _gui->uiPrefs->showCovisibilityGraph)
     {
-        _waiScene.covisibilityGraphMesh = new SLPolyline(covisGraphPts, false, "CovisibilityGraph", _waiScene.covisibilityGraphMat);
+        _waiScene.covisibilityGraphMesh = new SLPolyline(SLApplication::scene, covisGraphPts, false, "CovisibilityGraph", _waiScene.covisibilityGraphMat);
         _waiScene.covisibilityGraph->addMesh(_waiScene.covisibilityGraphMesh);
         _waiScene.covisibilityGraph->updateAABBRec();
     }
 
     if (_waiScene.spanningTreeMesh)
-        _waiScene.spanningTree->deleteMesh(_waiScene.spanningTreeMesh);
+    {
+        if (_waiScene.spanningTree->removeMesh(_waiScene.spanningTreeMesh))
+        {
+            SLApplication::scene->removeMesh(_waiScene.spanningTreeMesh);
+            delete _waiScene.spanningTreeMesh;
+            _waiScene.spanningTreeMesh = nullptr;
+        }
+    }
 
     if (spanningTreePts.size() && _gui->uiPrefs->showSpanningTree)
     {
-        _waiScene.spanningTreeMesh = new SLPolyline(spanningTreePts, false, "SpanningTree", _waiScene.spanningTreeMat);
+        _waiScene.spanningTreeMesh = new SLPolyline(SLApplication::scene, spanningTreePts, false, "SpanningTree", _waiScene.spanningTreeMat);
         _waiScene.spanningTree->addMesh(_waiScene.spanningTreeMesh);
-        _waiScene.spanningTree->updateAABBRec();
+        //_waiScene.spanningTree->updateAABBRec();
     }
 
     if (_waiScene.loopEdgesMesh)
-        _waiScene.loopEdges->deleteMesh(_waiScene.loopEdgesMesh);
+    {
+        if (_waiScene.loopEdges->removeMesh(_waiScene.loopEdgesMesh))
+        {
+            SLApplication::scene->removeMesh(_waiScene.loopEdgesMesh);
+            delete _waiScene.loopEdgesMesh;
+            _waiScene.loopEdgesMesh = nullptr;
+        }
+    }
 
     if (loopEdgesPts.size() && _gui->uiPrefs->showLoopEdges)
     {
-        _waiScene.loopEdgesMesh = new SLPolyline(loopEdgesPts, false, "LoopEdges", _waiScene.loopEdgesMat);
+        _waiScene.loopEdgesMesh = new SLPolyline(SLApplication::scene, loopEdgesPts, false, "LoopEdges", _waiScene.loopEdgesMat);
         _waiScene.loopEdges->addMesh(_waiScene.loopEdgesMesh);
         _waiScene.loopEdges->updateAABBRec();
     }

@@ -17,8 +17,6 @@
 
 #include <AppDemoWaiGui.h>
 #include <SLAnimPlayback.h>
-#include <SLApplication.h>
-#include <SLInterface.h>
 #include <AverageTiming.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
@@ -28,7 +26,6 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiTrackedMapping.h>
 #include <SLImporter.h>
-#include <SLInterface.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <SLNode.h>

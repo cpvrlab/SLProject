@@ -4,7 +4,6 @@
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
 #include <SLTransferFunction.h>
@@ -24,7 +23,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-    if (node && s->selectedRect().isEmpty())
+    if (node && sv->camera()->selectedRect().isEmpty())
     {
         ImGui::Begin("Properties of Selection", _activator);
 
@@ -432,7 +431,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor();
         ImGui::End();
     }
-    else if (!node && !s->selectedRect().isEmpty())
+    else if (!node && !sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is

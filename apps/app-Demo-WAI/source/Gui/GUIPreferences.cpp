@@ -1,6 +1,5 @@
 #include <SL.h>
 
-#include <SLApplication.h>
 #include <GUIPreferences.h>
 #include <opencv2/core/core.hpp>
 #include <Utils.h>
@@ -193,7 +192,6 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     fs << "configTime" << Utils::getLocalTimeString();
     fs << "fontPropDots" << (SLint)fontPropDots;
     fs << "fontFixedDots" << (SLint)fontFixedDots;
-    fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "ScrollbarSize" << (SLint)style.ScrollbarSize;

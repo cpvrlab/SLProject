@@ -54,7 +54,7 @@ class ImGuiWrapper : public SLUiInterface
 public:
     ImGuiWrapper();
     ImGuiWrapper(SLfloat fontPropDots, SLfloat fontFixedDots);
-    void init() override;
+    void init(std::string configPath) override;
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH) override;
@@ -103,6 +103,8 @@ private:
     SLuint  _elementsHandle;        //!< OpenGL handle for vertex indexes
     SLfloat _fontPropDots  = 16.0f; //!< Active font size of proportional font
     SLfloat _fontFixedDots = 13.0f; //!< Active font size of fixed size font
+
+    std::string _inifile;
 };
 //-----------------------------------------------------------------------------
 #endif

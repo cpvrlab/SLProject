@@ -34,7 +34,7 @@ ImGuiWrapper::ImGuiWrapper(SLfloat fontPropDots, SLfloat fontFixedDots)
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void ImGuiWrapper::init()
+void ImGuiWrapper::init(std::string configPath)
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -56,9 +56,9 @@ void ImGuiWrapper::init()
     _mousePressed[1] = false;
     _mousePressed[2] = false;
 
-    ImGuiIO&              io      = ImGui::GetIO();
-    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
-    io.IniFilename                = inifile.c_str();
+    ImGuiIO& io    = ImGui::GetIO();
+    _inifile       = configPath + "imgui.ini";
+    io.IniFilename = _inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
