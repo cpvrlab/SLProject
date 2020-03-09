@@ -229,14 +229,6 @@ int gcd(int a, int b);
 int lcm(int a, int b);
 //-----------------------------------------------------------------------------
 
-//static std::string  computerUser;  //!< Computer Name (= env-var USER)
-//static std::string  computerName;  //!< Computer Name (= env-var HOSTNAME)
-//static std::string  computerBrand; //!< Computer brand name
-//static std::string  computerModel; //!< Computer model name
-//static std::string  computerOS;    //!< Computer OS name
-//static std::string  computerOSVer; //!< Computer OS version
-//static std::string  computerArch;  //!< Computer Architecture
-//static std::string  computerID;    //!< Computer identification string
 static std::string computerUser  = "USER?";
 static std::string computerName  = "NAME?";
 static std::string computerBrand = "BRAND?";

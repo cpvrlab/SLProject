@@ -65,5 +65,6 @@ public:
     TransformMode    _curMode;   //!< current transform mode
     SLNode*          _curObject; //!< current object to transform
     SLTransformSpace _curSpace;  //!< current transform space
+    SLAssetManager   _assets;
 };
 //-----------------------------------------------------------------------------

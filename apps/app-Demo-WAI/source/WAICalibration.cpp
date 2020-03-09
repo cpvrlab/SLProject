@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <WAICalibration.h>
-#include <SLApplication.h>
 #include <Utils.h>
 
 using namespace std;
@@ -75,7 +74,7 @@ bool WAICalibration::saveToFile(std::string path)
     fs << "calibrationTime" << _calibrationTime;
     fs << "camSizeIndex" << _camSizeIndex;
     fs << "FOV" << calcCameraHorizontalFOV();
-    fs << "ComputerModel" << SLApplication::computerModel;
+    fs << "ComputerModel" << Utils::computerModel;
     fs << "CreationDate" << Utils::getDateTime2String();
 
     fs.release();

@@ -1121,18 +1121,9 @@ int lcm(int a, int b)
     return (a * b) / Utils::gcd(a, b);
 }
 //-----------------------------------------------------------------------------
-//std::string computerUser  = "USER?";
-//std::string computerName  = "NAME?";
-//std::string computerBrand = "BRAND?";
-//std::string computerModel = "MODEL?";
-//std::string computerOS    = "OS?";
-//std::string computerOSVer = "OSVER?";
-//std::string computerArch  = "ARCH?";
-//std::string computerID    = "ID?";
-//-----------------------------------------------------------------------------
 std::string getComputerInfos()
 {
-#if defined(SL_OS_WINDOWS) //..................................................
+#if defined(_WIN32) //..................................................
 
     // Computer user name
     const char* envvar = std::getenv("USER");
@@ -1171,8 +1162,20 @@ std::string getComputerInfos()
     computerModel = "MODEL?";
     computerOS    = "Windows";
 
-#elif defined(SL_OS_MACOS) //..................................................
-
+#elif defined(__APPLE__)
+#    if TARGET_OS_IOS
+    // Model and architecture are retrieved before in iOS under Objective C
+    computerBrand      = "Apple";
+    computerOS         = "iOS";
+    const char* envvar = std::getenv("USER");
+    computerUser       = envvar ? string(envvar) : "USER?";
+    if (computerUser == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        computerUser       = envvar ? string(envvar) : "USER?";
+    }
+    computerName = Utils::getHostName();
+#    else
     // Computer user name
     const char* envvar = std::getenv("USER");
     computerUser       = envvar ? string(envvar) : "USER?";
@@ -1203,8 +1206,9 @@ std::string getComputerInfos()
     computerModel = model;
 
     computerArch = "ARCH?";
+#    endif
 
-#elif defined(SL_OS_LINUX) //..................................................
+#elif defined(linux) || defined(__linux) || defined(__linux__) //..................................................
 
     computerOS    = "Linux";
     computerUser  = "USER?";
@@ -1214,21 +1218,7 @@ std::string getComputerInfos()
     computerOSVer = "OSVER?";
     computerArch  = "ARCH?";
 
-#elif defined(SL_OS_MACIOS) //.................................................
-
-    // Model and architecture are retrieved before in iOS under Objective C
-    computerBrand      = "Apple";
-    computerOS         = "iOS";
-    const char* envvar = std::getenv("USER");
-    computerUser       = envvar ? string(envvar) : "USER?";
-    if (computerUser == "USER?")
-    {
-        const char* envvar = std::getenv("USERNAME");
-        computerUser       = envvar ? string(envvar) : "USER?";
-    }
-    computerName = Utils::getHostName();
-
-#elif defined(SL_OS_ANDROID) //................................................
+#elif defined(ANDROID) //................................................
 
     computerOS = "Android";
 

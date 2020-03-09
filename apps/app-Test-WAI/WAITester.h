@@ -2,7 +2,6 @@
 #ifndef TESTER_H
 #define TESTER_H
 
-#include <CVCapture.h>
 #include <Utils.h>
 #include <WAISlam.h>
 #include <WAIMapStorage.h>
