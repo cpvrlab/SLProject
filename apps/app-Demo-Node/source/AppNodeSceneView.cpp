@@ -144,7 +144,7 @@ void AppNodeSceneView::postSceneLoad()
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
-    _axesNode = importer.load(_s, "FBX/Axes/axes_blender.fbx");
+    _axesNode = importer.load(_s->animManager(), _s, "FBX/Axes/axes_blender.fbx");
 
     _s->root3D()->addChild(_moveBox);
     _s->root3D()->addChild(_axesNode);

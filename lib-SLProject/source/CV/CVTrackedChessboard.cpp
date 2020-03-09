@@ -16,7 +16,7 @@ All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
-#include <CVCapture.h>
+
 #include <CVTrackedChessboard.h>
 #include <Utils.h>
 

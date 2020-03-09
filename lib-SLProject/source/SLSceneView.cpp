@@ -16,7 +16,6 @@
 
 #include <SLAnimManager.h>
 #include <SLCamera.h>
-#include <SLInterface.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLSceneView.h>

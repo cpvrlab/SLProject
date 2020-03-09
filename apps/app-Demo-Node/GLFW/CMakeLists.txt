@@ -9,12 +9,16 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/include/AppNodeGui.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/include/AppNodeSceneView.h
+        ${SL_PROJECT_ROOT}/apps/source/SLApplication.h
+        ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     )
 
 file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/source/AppNodeGui.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/source/AppNodeLoad.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/source/AppNodeSceneView.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeMainGLFW.cpp
     )
 
@@ -42,6 +46,7 @@ target_include_directories(
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glfw3/include
+        ${SL_PROJECT_ROOT}/apps/source
         ${OpenCV_INCLUDE_DIR}
         PUBLIC
         INTERFACE
