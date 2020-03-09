@@ -61,9 +61,12 @@ SLSceneView::~SLSceneView()
     // The remaining sceneviews must keep their index in the vector
     SLApplication::scene->sceneViews()[(SLuint)_index] = nullptr;
 
-    _gui.deleteOpenGLObjects();
+    if (_gui)
+    {
+        _gui->onClose();
+    }
 
-    SL_LOG("Destructor      : ~SLSceneView\n");
+    SL_LOG("Destructor      : ~SLSceneView");
 }
 //-----------------------------------------------------------------------------
 /*! SLSceneView::init initializes default values for an empty scene
@@ -72,15 +75,16 @@ SLSceneView::~SLSceneView()
 \param screenHeight Height of the OpenGL frame buffer.
 \param onWndUpdateCallback Callback for ray tracing update
 \param onSelectNodeMeshCallback Callback on node and mesh selection
-\param onImGuiBuild Callback for the external ImGui build function
+\param SLUiInterface Interface for the external Gui build function
 */
-void SLSceneView::init(SLstring name,
-                       SLint    screenWidth,
-                       SLint    screenHeight,
-                       void*    onWndUpdateCallback,
-                       void*    onSelectNodeMeshCallback,
-                       void*    onImGuiBuild)
+void SLSceneView::init(SLstring       name,
+                       SLint          screenWidth,
+                       SLint          screenHeight,
+                       void*          onWndUpdateCallback,
+                       void*          onSelectNodeMeshCallback,
+                       SLUiInterface* gui)
 {
+    _gui        = gui;
     _name       = std::move(name);
     _scrW       = screenWidth;
     _scrH       = screenHeight;
@@ -99,7 +103,7 @@ void SLSceneView::init(SLstring name,
     onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
 
     // Set the ImGui build function. Every sceneview could have it's own GUI.
-    _gui.build = (cbOnImGuiBuild)onImGuiBuild;
+    //_gui.build = (cbOnImGuiBuild)onImGuiBuild;
 
     _camera = nullptr;
 
@@ -126,7 +130,8 @@ void SLSceneView::init(SLstring name,
 
     _skybox = nullptr;
 
-    _gui.init();
+    if (_gui)
+        _gui->init();
 
     onStartup();
 }
@@ -279,12 +284,12 @@ void SLSceneView::switchToNextCameraInScene()
 //! Sets the viewport ratio and the viewport rectangle
 void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
                                        SLViewportAlign vpAlign,
-                                       SLbool vpSameAsVideo)
+                                       SLbool          vpSameAsVideo)
 {
     assert(_scrW > 0 && _scrH > 0 && "SLSceneView::setViewportFromRatio: Invalid screen size");
 
-    _viewportRatio = vpRatio;
-    _viewportAlign = vpAlign;
+    _viewportRatio       = vpRatio;
+    _viewportAlign       = vpAlign;
     _viewportSameAsVideo = vpSameAsVideo;
 
     // Shortcut if viewport is the same as the screen
@@ -292,7 +297,8 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
-        _gui.onResize(_viewportRect.width, _viewportRect.height);
+        if (_gui)
+            _gui->onResize(_viewportRect.width, _viewportRect.height);
         return;
     }
 
@@ -335,7 +341,8 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     if (SLRecti(_scrW, _scrH).contains(vpRect))
     {
         _viewportRect = vpRect;
-        _gui.onResize(_viewportRect.width, _viewportRect.height);
+        if (_gui)
+            _gui->onResize(_viewportRect.width, _viewportRect.height);
     }
     else
         SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
@@ -381,7 +388,7 @@ void SLSceneView::onInitialize()
         for (auto mesh : s->meshes())
             mesh->updateAccelStruct();
 
-        SL_LOG("Time for AABBs  : %5.3f sec.\n",
+        SL_LOG("Time for AABBs  : %5.3f sec.",
                (SLfloat)(clock() - t) / (SLfloat)CLOCKS_PER_SEC);
 
         // Collect node statistics
@@ -389,7 +396,7 @@ void SLSceneView::onInitialize()
 
         // Warn if there are no light in scene
         if (s->lights().empty())
-            SL_LOG("\n**** No Lights found in scene! ****\n");
+            SL_LOG("**** No Lights found in scene! ****");
     }
 
     // init 2D scene with initial depth 1
@@ -405,7 +412,14 @@ void SLSceneView::onInitialize()
 
     initSceneViewCamera();
 
-    _gui.onResize(_viewportRect.width, _viewportRect.height);
+    // init conetracer if possible:
+#if defined(GL_VERSION_4_4)
+    if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+        _conetracer.init(_scrW, _scrH);
+#endif
+
+    if (_gui)
+        _gui->onResize(_viewportRect.width, _viewportRect.height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -462,7 +476,10 @@ SLbool SLSceneView::onPaint()
 
     // Init and build GUI for all projections except distorted stereo
     if (_camera && _camera->projection() != P_stereoSideBySideD)
-        _gui.onInitNewFrame(s, this);
+    {
+        if (_gui)
+            _gui->onInitNewFrame(s, this);
+    }
 
     // Clear NO. of draw calls afer UI creation
     SLGLVertexArray::totalDrawCalls = 0;
@@ -472,6 +489,7 @@ SLbool SLSceneView::onPaint()
         switch (_renderType)
         {
             case RT_gl: camUpdated = draw3DGL(s->elapsedTimeMS()); break;
+            case RT_ct: camUpdated = draw3DCT(); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
         }
@@ -921,11 +939,15 @@ void SLSceneView::draw2DGL()
             stateGL->popModelViewMatrix();
         }
 
-        // 4. Draw ImGui UI
-        if (_gui.build)
+        // 4. Draw UI
+        //if (_gui.build)
+        //{
+        //    ImGui::Render();
+        //    _gui.onPaint(ImGui::GetDrawData(), _viewportRect);
+        //}
+        if (_gui)
         {
-            ImGui::Render();
-            _gui.onPaint(ImGui::GetDrawData(), _viewportRect);
+            _gui->onPaint(_viewportRect);
         }
     }
 
@@ -1039,18 +1061,23 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Pass the event to imgui
-    _gui.onMouseDown(button, x, y);
+    if (_gui)
+    {
+        _gui->onMouseDown(button, x, y);
 
 #ifdef SL_GLES
-    // Touch devices on iOS or Android have no mouse move event when the
-    // finger isn't touching the screen. Therefore imgui can not detect hovering
-    // over an imgui window. Without this extra frame you would have to touch
-    // the display twice to open e.g. a menu.
-    _gui.renderExtraFrame(s, this, x, y);
+        // Touch devices on iOS or Android have no mouse move event when the
+        // finger isn't touching the screen. Therefore imgui can not detect hovering
+        // over an imgui window. Without this extra frame you would have to touch
+        // the display twice to open e.g. a menu.
+        _gui->renderExtraFrame(s, this, x, y);
 #endif
 
-    if (ImGui::GetIO().WantCaptureMouse)
-        return true;
+        if (_gui->doNotDispatchMouse())
+            return true;
+    }
+    //if (ImGui::GetIO().WantCaptureMouse)
+    //    return true;
 
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);
@@ -1102,8 +1129,12 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     }
 
     // Pass the event to imgui
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
-    _gui.onMouseUp(button, x, y);
+    if (_gui)
+    {
+        _gui->onMouseUp(button, x, y);
+        if (_gui->doNotDispatchMouse())
+            return true;
+    }
 
     _mouseDownL = false;
     _mouseDownR = false;
@@ -1136,9 +1167,14 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
     // Pass the event to imgui
-    _gui.onMouseMove(x, y);
-    if (ImGui::GetIO().WantCaptureMouse)
-        return true;
+    if (_gui)
+    {
+        _gui->onMouseMove(x, y);
+        if (_gui->doNotDispatchMouse())
+            return true;
+    }
+    //if (ImGui::GetIO().WantCaptureMouse)
+    //    return true;
 
     if (!s->root3D()) return false;
 
@@ -1207,10 +1243,13 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (!s->root3D()) return false;
 
     // Pass the event to imgui
-    if (ImGui::GetIO().WantCaptureMouse)
+    if (_gui)
     {
-        _gui.onMouseWheel((SLfloat)delta);
-        return true;
+        if (_gui->doNotDispatchMouse())
+        {
+            _gui->onMouseWheel((SLfloat)delta);
+            return true;
+        }
     }
 
     // Handle mouse wheel in RT mode
@@ -1287,7 +1326,7 @@ more than 500ms and has not moved.
 */
 SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
 {
-    //SL_LOG("onLongTouch(%d, %d)\n", x, y);
+    //SL_LOG("onLongTouch(%d, %d)", x, y);
 
     // Correct viewport offset
     // mouse corrds are top-left, viewport is bottom-left)
@@ -1397,11 +1436,16 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (!s->root3D()) return false;
 
     // Pass the event to imgui
-    if (ImGui::GetIO().WantCaptureKeyboard)
+    if (_gui->doNotDispatchKeyboard())
     {
-        _gui.onKeyPress(key, mod);
+        _gui->onKeyPress(key, mod);
         return true;
     }
+    //if (ImGui::GetIO().WantCaptureKeyboard)
+    //{
+    //    _gui->onKeyPress(key, mod);
+    //    return true;
+    //}
 
     // clang-format off
     // We have to coordinate these shortcuts in SLDemoGui::buildMenuBar
@@ -1413,6 +1457,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key=='G') {renderType(RT_gl); return true;}
     if (key=='R') {startRaytracing(5);}
+    if (key=='C') {startConetracing();}
 
     if (key=='P') {drawBits()->toggle(SL_DB_WIREMESH); return true;}
     if (key=='N') {drawBits()->toggle(SL_DB_NORMALS); return true;}
@@ -1470,11 +1515,16 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
     SLScene* s = SLApplication::scene;
 
     // Pass the event to imgui
-    if (ImGui::GetIO().WantCaptureKeyboard)
+    if (_gui->doNotDispatchKeyboard())
     {
-        _gui.onKeyRelease(key, mod);
+        _gui->onKeyPress(key, mod);
         return true;
     }
+    //if (ImGui::GetIO().WantCaptureKeyboard)
+    //{
+    //    _gui->onKeyRelease(key, mod);
+    //    return true;
+    //}
 
     if (!s->root3D()) return false;
 
@@ -1500,11 +1550,17 @@ SLSceneView::onCharInput get called whenever a new charcter comes in
 */
 SLbool SLSceneView::onCharInput(SLuint c)
 {
-    if (ImGui::GetIO().WantCaptureKeyboard)
+    if (_gui->doNotDispatchKeyboard())
     {
-        _gui.onCharInput(c);
+        _gui->onCharInput(c);
         return true;
     }
+
+    //if (ImGui::GetIO().WantCaptureKeyboard)
+    //{
+    //    _gui->onCharInput(c);
+    //    return true;
+    //}
     return false;
 }
 //-----------------------------------------------------------------------------
@@ -1665,5 +1721,29 @@ SLbool SLSceneView::draw3DPT()
     }
 
     return updated;
+}
+//-----------------------------------------------------------------------------
+/*!
+Starts the voxel cone tracing
+*/
+void SLSceneView::startConetracing()
+{
+    _renderType = RT_ct;
+}
+//-----------------------------------------------------------------------------
+/*!
+SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
+*/
+SLbool SLSceneView::draw3DCT()
+{
+    //SL_LOG("Rendering VXC ");
+    SLScene* s       = SLApplication::scene;
+    SLfloat  startMS = SLApplication::timeMS();
+
+    SLbool rendered = _conetracer.render(this);
+
+    _draw3DTimeMS = SLApplication::timeMS() - startMS;
+
+    return true;
 }
 //-----------------------------------------------------------------------------

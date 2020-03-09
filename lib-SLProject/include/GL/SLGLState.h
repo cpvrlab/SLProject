@@ -12,7 +12,6 @@
 #ifndef SLGLSTATE_H
 #define SLGLSTATE_H
 
-//#include <SLStack.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <SLMat4.h>
@@ -74,15 +73,6 @@ class SLGLState
     SLVec3f lightAtt[SL_MAX_LIGHTS];        //!< att. factor (const,linear,quadratic)
     SLint   lightDoAtt[SL_MAX_LIGHTS];      //!< Flag if att. must be calculated
     SLCol4f globalAmbientLight;             //!< global ambient light intensity
-
-    // material
-    SLCol4f matAmbient;   //!< ambient color reflection (ka)
-    SLCol4f matDiffuse;   //!< diffuse color reflection (kd)
-    SLCol4f matSpecular;  //!< specular color reflection (ks)
-    SLCol4f matEmissive;  //!< emissive color (ke)
-    SLfloat matShininess; //!< shininess exponent for Blinn-Phong lighting
-    SLfloat matRoughness; //!< roughness for Cook-Torrance lighting
-    SLfloat matMetallic;  //!< metallic for Cook-Torrance lighing
 
     // fog
     SLbool  fogIsOn;      //!< Flag if fog blending is enabled
@@ -157,6 +147,7 @@ class SLGLState
     SLbool   glIsES2() { return _glIsES2; }
     SLbool   glIsES3() { return _glIsES3; }
     SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
+    SLVec4i  getViewport() { return _viewport; }
 
     // stack operations
     inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }

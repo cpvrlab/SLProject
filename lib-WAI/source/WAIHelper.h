@@ -56,9 +56,9 @@
 #    error "WAI has not been ported to this OS"
 #endif
 
-typedef void (*DebugLogCallback)(const char* str);
-void registerDebugCallback(DebugLogCallback callback);
-void WAI_API WAI_LOG(const char* format, ...);
+//typedef void (*DebugLogCallback)(const char* str);
+//void         registerDebugCallback(DebugLogCallback callback);
+//void WAI_API WAI_LOG(const char* format, ...);
 
 #ifdef WAI_BUILD_DEBUG
 #    define wai_assert(expression) \

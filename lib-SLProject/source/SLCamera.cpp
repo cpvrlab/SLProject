@@ -213,7 +213,7 @@ void SLCamera::drawMeshes(SLSceneView* sv)
 
             _vao.generateVertexPos(&P);
         }
-        else if (_projection == P_monoPerspective)
+        else if (_projection == P_monoPerspective || _projection == P_monoIntrinsic)
         {
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
@@ -466,6 +466,17 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             stateGL->projectionMatrix.perspective(_fov, _viewportRatio, _clipNear, _clipFar);
             break;
 
+        case P_monoIntrinsic:
+            stateGL->projectionMatrix.perspectiveCenteredPP((float)_viewportW,
+                                                            (float)_viewportH,
+                                                            _fx,
+                                                            _fy,
+                                                            _cx,
+                                                            _cy,
+                                                            _clipNear,
+                                                            _clipFar);
+            break;
+
         case P_monoOrthographic:
             top    = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
             bottom = -top;
@@ -715,7 +726,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 SLfloat rotX, rotY, rotZ;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
                 /*
-                SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f\n",
+                SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f",
                        rotX * SL_RAD2DEG,
                        rotY * SL_RAD2DEG,
                        rotZ * SL_RAD2DEG);
@@ -757,7 +768,7 @@ void SLCamera::lookFrom(const SLVec3f& fromDir,
                         const SLVec3f& upDir)
 {
     SLVec3f lookAt = focalPointWS();
-    this->translation(lookAt + _focalDist * fromDir);
+    translation(lookAt + _focalDist * fromDir);
     this->lookAt(lookAt, upDir);
 }
 //-----------------------------------------------------------------------------

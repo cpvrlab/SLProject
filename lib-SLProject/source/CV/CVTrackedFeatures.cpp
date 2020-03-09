@@ -74,34 +74,34 @@ CVTrackedFeatures::CVTrackedFeatures(string markerFilename)
 CVTrackedFeatures::~CVTrackedFeatures()
 {
 #if DO_FEATURE_BENCHMARKING
-    Utils::log(" \n");
-    Utils::log(" \n");
-    Utils::log("------------------------------------------------------------------\n");
-    Utils::log("CVTrackedFeatures statistics \n");
-    Utils::log("------------------------------------------------------------------\n");
-    Utils::log("Avg calculation time per frame                   : %f ms\n", _trackingTimesMS().average());
-    Utils::log(" \n");
-    Utils::log("Settings for Pose estimation: ------------------------------------\n");
-    Utils::log("Features                                         : %d\n", nFeatures);
-    Utils::log("Minimal ratio for 2 best matches                 : %f\n", minRatio);
-    Utils::log("RANSAC iterations                                : %d\n", iterations);
-    Utils::log("RANSAC mean reprojection error                   : %f\n", reprojection_error);
-    Utils::log("RANSAC confidence                                : %d\n", confidence);
-    Utils::log("Repose frequency                                 : Each %d point\n", reposeFrequency);
-    Utils::log("Initial patch size for Pose optimization         : %d pixels\n", initialPatchSize);
-    Utils::log("Maximal patch size for Pose optimization         : %d pixels\n", maxPatchSize);
-    Utils::log(" \n");
-    Utils::log("Pose information: ------------------------------------------------\n");
-    Utils::log("Avg allmatches to inliers proposition            : %f\n", sum_allmatches_to_inliers / _frameCount);
-    Utils::log("Avg reprojection error (only if POSE)            : %f\n", sum_reprojection_error / frames_with_pose);
-    Utils::log("Pose found                                       : %d of %d frames\n", frames_with_pose, _frameCount);
-    Utils::log("Avg matches                                      : %f\n", sum_matches / frames_with_pose);
-    Utils::log("Avg inlier matches                               : %f\n", sum_inlier_matches / frames_with_pose);
-    Utils::log("Avg more matches with Pose optimization          : %f\n", sum_poseopt_difference / frames_with_pose);
+    Utils::log("");
+    Utils::log("");
+    Utils::log("------------------------------------------------------------------");
+    Utils::log("CVTrackedFeatures statistics");
+    Utils::log("------------------------------------------------------------------");
+    Utils::log("Avg calculation time per frame                   : %f ms", _trackingTimesMS().average());
+    Utils::log("");
+    Utils::log("Settings for Pose estimation: ------------------------------------");
+    Utils::log("Features                                         : %d", nFeatures);
+    Utils::log("Minimal ratio for 2 best matches                 : %f", minRatio);
+    Utils::log("RANSAC iterations                                : %d", iterations);
+    Utils::log("RANSAC mean reprojection error                   : %f", reprojection_error);
+    Utils::log("RANSAC confidence                                : %d", confidence);
+    Utils::log("Repose frequency                                 : Each %d point", reposeFrequency);
+    Utils::log("Initial patch size for Pose optimization         : %d pixels", initialPatchSize);
+    Utils::log("Maximal patch size for Pose optimization         : %d pixels", maxPatchSize);
+    Utils::log("");
+    Utils::log("Pose information: ------------------------------------------------");
+    Utils::log("Avg allmatches to inliers proposition            : %f", sum_allmatches_to_inliers / _frameCount);
+    Utils::log("Avg reprojection error (only if POSE)            : %f", sum_reprojection_error / frames_with_pose);
+    Utils::log("Pose found                                       : %d of %d frames", frames_with_pose, _frameCount);
+    Utils::log("Avg matches                                      : %f", sum_matches / frames_with_pose);
+    Utils::log("Avg inlier matches                               : %f", sum_inlier_matches / frames_with_pose);
+    Utils::log("Avg more matches with Pose optimization          : %f", sum_poseopt_difference / frames_with_pose);
 
 // Only used for testing with slight movements
-//Utils::log("Avg Rotation error                               : %f deg\n", rotationError / frames_with_pose);
-//Utils::log("Avg Translation error                            : %f px\n", translationError / frames_with_pose);
+//Utils::log("Avg Rotation error                               : %f deg", rotationError / frames_with_pose);
+//Utils::log("Avg Translation error                            : %f px", translationError / frames_with_pose);
 #endif //DO_FEATURE_BENCHMARKING
 }
 //-----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void CVTrackedFeatures::loadMarker(string markerFilename)
         if (!Utils::fileExists(markerFilename))
         {
             string msg = "CVTrackedFeatures::loadMarker: File not found: " + markerFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
     }
 

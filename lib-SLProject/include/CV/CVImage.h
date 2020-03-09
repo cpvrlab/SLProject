@@ -42,6 +42,7 @@ enum CVPixFormat
     PF_rgba_integer    = 0x8D99, //     ES3         GL4
     PF_bgr_integer     = 0x8D9A, //                 GL4
     PF_bgra_integer    = 0x8D9B, //                 GL4
+    PF_r32f            = 0x822E  //     ES3     GL3 GL4
 };
 //-----------------------------------------------------------------------------
 //! OpenCV image class with the same interface as the former SLImage class
@@ -53,7 +54,7 @@ http://docs.opencv.org/2.4.10/modules/core/doc/basic_structures.html#mat
 */
 class CVImage
 {
-    public:
+public:
     CVImage();
     CVImage(int         width,
             int         height,
@@ -73,7 +74,7 @@ class CVImage
                                 int         height,
                                 CVPixFormat format,
                                 bool        isContinuous = true);
-    void               load(string filename,
+    void               load(const string& filename,
                             bool   flipVertical           = true,
                             bool   loadGrayscaleIntoAlpha = false);
     bool               load(int         inWidth,
@@ -83,7 +84,7 @@ class CVImage
                             uchar*      data,
                             bool        isContinuous,
                             bool        isTopLeft);
-    void               savePNG(string filename,
+    void               savePNG(const string& filename,
                                int    compressionLevel = 6,
                                bool   flipY            = true,
                                bool   convertBGR2RGB   = true);
@@ -105,25 +106,26 @@ class CVImage
     static CVPixFormat cv2glPixelFormat(int cvType);
 
     // Getters
-    string      name() { return _name; }
-    CVMat       cvMat() { return _cvMat; }
-    uchar*      data() { return _cvMat.data; }
-    uint        width() { return (uint)_cvMat.cols; }
-    uint        height() { return (uint)_cvMat.rows; }
-    uint        bytesPerPixel() { return _bytesPerPixel; }
-    uint        bytesPerLine() { return _bytesPerLine; }
-    uint        bytesPerImage() { return _bytesPerImage; }
-    CVPixFormat format() { return _format; }
-    string      formatString();
-    string      path() { return _path; }
+    string        name() { return _name; }
+    CVMat         cvMat() { return _cvMat; }
+    uchar*        data() { return _cvMat.data; }
+    uint          width() { return (uint)_cvMat.cols; }
+    uint          height() { return (uint)_cvMat.rows; }
+    uint          bytesPerPixel() { return _bytesPerPixel; }
+    uint          bytesPerLine() { return _bytesPerLine; }
+    uint          bytesPerImage() { return _bytesPerImage; }
+    CVPixFormat   format() { return _format; }
+    string        formatString();
+    string        path() { return _path; }
+    static string typeString(int cvMatTypeInt);
 
     static string defaultPath; //!< Default path for images
 
-    private:
-    uint bytesPerPixel(CVPixFormat pixelFormat);
-    uint bytesPerLine(uint        width,
-                      CVPixFormat pixelFormat,
-                      bool        isContinuous = false);
+protected:
+    static uint bytesPerPixel(CVPixFormat pixelFormat);
+    static uint bytesPerLine(uint        width,
+                             CVPixFormat pixelFormat,
+                             bool        isContinuous = false);
 
     string      _name;          //!< Image name (e.g. from the filename)
     CVMat       _cvMat;         //!< OpenCV mat matrix image type

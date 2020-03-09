@@ -9,7 +9,7 @@
 
 class AppWAIScene
 {
-    public:
+public:
     AppWAIScene();
     SLNode*   rootNode          = nullptr;
     SLCamera* cameraNode        = nullptr;
@@ -17,6 +17,7 @@ class AppWAIScene
     SLNode*   mapPC             = nullptr;
     SLNode*   mapMatchedPC      = nullptr;
     SLNode*   mapLocalPC        = nullptr;
+    SLNode*   mapMarkerCornerPC = nullptr;
     SLNode*   keyFrameNode      = nullptr;
     SLNode*   covisibilityGraph = nullptr;
     SLNode*   spanningTree      = nullptr;
@@ -25,18 +26,23 @@ class AppWAIScene
     SLMaterial* redMat               = nullptr;
     SLMaterial* greenMat             = nullptr;
     SLMaterial* blueMat              = nullptr;
+    SLMaterial* yellowMat            = nullptr;
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;
 
-    SLPoints*   mappointsMesh         = nullptr;
-    SLPoints*   mappointsMatchedMesh  = nullptr;
-    SLPoints*   mappointsLocalMesh    = nullptr;
-    SLPolyline* covisibilityGraphMesh = nullptr;
-    SLPolyline* spanningTreeMesh      = nullptr;
-    SLPolyline* loopEdgesMesh         = nullptr;
+    SLPoints*   mappointsMesh             = nullptr;
+    SLPoints*   mappointsMatchedMesh      = nullptr;
+    SLPoints*   mappointsLocalMesh        = nullptr;
+    SLPoints*   mappointsMarkerCornerMesh = nullptr;
+    SLPolyline* covisibilityGraphMesh     = nullptr;
+    SLPolyline* spanningTreeMesh          = nullptr;
+    SLPolyline* loopEdgesMesh             = nullptr;
 
-    void rebuild();
+    SLNode* augmentationRoot = nullptr;
+
+    void rebuild(std::string location, std::string area);
+    void adjustAugmentationTransparency(float kt);
 };
 
 #endif

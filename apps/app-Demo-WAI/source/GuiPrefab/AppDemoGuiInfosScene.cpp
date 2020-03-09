@@ -2,8 +2,8 @@
 #include <imgui_internal.h>
 
 #include <SLApplication.h>
-#include <CVCapture.h>
 #include <AppDemoGuiInfosScene.h>
+#include <SLGLImGui.h>
 //-----------------------------------------------------------------------------
 AppDemoGuiInfosScene::AppDemoGuiInfosScene(string name, bool* activator)
   : AppDemoGuiInfosDialog(name, activator)

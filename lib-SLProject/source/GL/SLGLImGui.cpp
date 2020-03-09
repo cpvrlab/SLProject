@@ -99,22 +99,16 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
     // Load proportional font for menue and text displays
     SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
     if (Utils::fileExists(DroidSans))
-    {
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("SLGLImGui::loadFonts: %f\n", fontPropDots);
-    }
     else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
     if (Utils::fileExists(ProggyClean))
-    {
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("SLGLImGui::loadFonts: %f\n", fontFixedDots);
-    }
     else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 
     deleteOpenGLObjects();
     createOpenGLObjects();
@@ -309,9 +303,9 @@ void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
                            sizeof(log),
                            nullptr,
                            &log[0]);
-        SL_LOG("*** COMPILER ERROR ***\n");
-        SL_LOG("%s\n---\n", log);
-        SL_LOG("%s\n", src);
+        SL_LOG("*** COMPILER ERROR ***");
+        SL_LOG("%s\n---", log);
+        SL_LOG("%s", src);
     }
 }
 //-----------------------------------------------------------------------------
@@ -360,8 +354,11 @@ void SLGLImGui::onResize(SLint scrW, SLint scrH)
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void SLGLImGui::onPaint(ImDrawData* draw_data, const SLRecti& viewportRect)
+void SLGLImGui::onPaint(const SLRecti& viewportRect)
 {
+    ImGui::Render();
+    ImDrawData* draw_data = ImGui::GetDrawData();
+
     ImGuiIO& io = ImGui::GetIO();
 
     // Avoid rendering when minimized, scale coordinates for retina displays
@@ -542,14 +539,15 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = true;
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
-    //SL_LOG("D\n");
+    //SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
 void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGuiIO& io             = ImGui::GetIO();
+    io.MousePos             = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
@@ -560,7 +558,7 @@ void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 void SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
-    //SL_LOG("M\n");
+    //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement
@@ -614,7 +612,7 @@ void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLin
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);
         ImGui::Render();
-        onPaint(ImGui::GetDrawData(), sv->viewportRect());
+        onPaint(sv->viewportRect());
     }
 }
 //-----------------------------------------------------------------------------

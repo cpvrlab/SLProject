@@ -49,14 +49,16 @@ Android applications they are copied to the appropriate file system locations.
 //-----------------------------------------------------------------------------
 class SLGLProgram : public SLObject
 {
-    public:
-    SLGLProgram(SLstring vertShaderFile = nullptr,
-                SLstring fragShaderFile = nullptr);
+public:
+    SLGLProgram(SLstring vertShaderFile,
+                SLstring fragShaderFile,
+                SLstring geomShaderFile = "");
+
     virtual ~SLGLProgram();
 
-    void  addShader(SLGLShader* shader);
-    void  init();         //!< create, attach & link shaders
-    char* getLinkerLog(); //!< get linker messages
+    void addShader(SLGLShader* shader);
+    void init(); //!< create, attach & link shaders
+    void initRaw();
 
     virtual void beginShader(SLMaterial* mat) = 0; //!< starter for derived classes
     virtual void endShader()                  = 0;
@@ -69,7 +71,7 @@ class SLGLProgram : public SLObject
     void addUniform1i(SLGLUniform1i* u); //!< add int uniform
 
     //Getters
-    SLuint       programObjectGL() { return _objectGL; }
+    SLuint       progID() { return _progID; }
     SLVGLShader& shaders() { return _shaders; }
 
     //Variable location getters
@@ -124,8 +126,8 @@ class SLGLProgram : public SLObject
     // statics
     static SLstring defaultPath; //!< default path for GLSL programs
 
-    private:
-    SLuint       _objectGL;   //!< OpenGL shader program object
+private:
+    SLuint       _progID;     //!< OpenGL shader program object ID
     SLbool       _isLinked;   //!< Flag if program is linked
     SLVGLShader  _shaders;    //!< Vector of all shader objects
     SLVUniform1f _uniforms1f; //!< Vector of uniform1f variables

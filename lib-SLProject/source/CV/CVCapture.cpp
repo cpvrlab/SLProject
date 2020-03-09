@@ -18,17 +18,22 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVCalibration.h>
+#include <CVCamera.h>
+#include <algorithm> // std::max
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <Utils.h>
-#include <algorithm> // std::max
+#include <FtpUtils.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;
 //-----------------------------------------------------------------------------
 //! Private constructor
 CVCapture::CVCapture()
+  : mainCam(CVCameraType::FRONTFACING),
+    scndCam(CVCameraType::BACKFACING),
+    videoFileCam(CVCameraType::VIDEOFILE)
 {
     startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
@@ -38,7 +43,7 @@ CVCapture::CVCapture()
     fps                = 1.0f;
     frameCount         = 0;
     activeCamSizeIndex = -1;
-    activeCalib        = nullptr;
+    activeCamera       = nullptr;
     _captureTimesMS.init(60, 0);
 }
 //-----------------------------------------------------------------------------
@@ -67,12 +72,13 @@ CVSize2i CVCapture::open(int deviceNum)
         if (!_captureDevice.isOpened())
             return CVSize2i(0, 0);
 
-        Utils::log("Capture devices created.\n");
-
+        Utils::log("SLProject", "Capture devices created.");
+        //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1440);
+        //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -87,7 +93,7 @@ CVSize2i CVCapture::open(int deviceNum)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation\n");
+        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -106,7 +112,7 @@ CVSize2i CVCapture::openFile()
             if (!Utils::fileExists(videoFilename))
             {
                 string msg = "CVCapture::openFile: File not found: " + videoFilename;
-                Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
             }
         }
 
@@ -114,16 +120,16 @@ CVSize2i CVCapture::openFile()
 
         if (!_captureDevice.isOpened())
         {
-            Utils::log("CVCapture::openFile: Failed to open video file.");
+            Utils::log("SLProject", "CVCapture::openFile: Failed to open video file.");
             return CVSize2i(0, 0);
         }
 
-        //Utils::log("Capture devices created with video.\n");
+        //Utils::log("SLProject", "Capture devices created with video.");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("CV_CAP_PROP_FRAME_WIDTH : %d\n", w);
-        //Utils::log("CV_CAP_PROP_FRAME_HEIGHT: %d\n", h);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
+        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -133,7 +139,7 @@ CVSize2i CVCapture::openFile()
     }
     catch (exception& e)
     {
-        Utils::log("CVCapture::openFile: Exception during OpenCV video capture creation with video file\n");
+        Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s", e.what());
     }
     return CVSize2i(0, 0);
 }
@@ -204,7 +210,6 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
                 else
                     return false;
             }
-
 #if defined(ANDROID)
             // Convert BGR to RGB on mobile phones
             cvtColor(CVCapture::lastFrame, CVCapture::lastFrame, cv::COLOR_BGR2RGB, 3);
@@ -216,7 +221,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
             static bool logOnce = true;
             if (logOnce)
             {
-                Utils::log("OpenCV: Capture device or video file is not open!\n");
+                Utils::log("SLProject", "OpenCV: Capture device or video file is not open!");
                 logOnce = false;
                 return false;
             }
@@ -224,7 +229,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
     }
     catch (exception& e)
     {
-        Utils::log("Exception during OpenCV video capture creation\n");
+        Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
         return false;
     }
 
@@ -265,37 +270,32 @@ void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
 
         switch (format)
         {
-            case PF_luminance:
-            {
+            case PF_luminance: {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr:
-            {
+            case PF_bgr: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb:
-            {
+            case PF_rgb: {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra:
-            {
+            case PF_bgra: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba:
-            {
+            case PF_rgba: {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            default: Utils::exitMsg("Pixel format not supported", __LINE__, __FILE__);
+            default: Utils::exitMsg("SLProject", "Pixel format not supported", __LINE__, __FILE__);
         }
 
         // calculate padding NO. of bgrRowOffset bytes (= step in OpenCV terminology)
@@ -371,7 +371,6 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // So this is Android image copy loop #2
 
     float inWdivH = (float)lastFrame.cols / (float)lastFrame.rows;
-
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = viewportWdivH < 0.0f ? inWdivH : viewportWdivH;
 
@@ -428,19 +427,19 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // Mirroring is done for most selfie cameras.
     // So this is Android image copy loop #3
 
-    if (activeCalib->isMirroredH())
+    if (activeCamera->calibration.isMirroredH())
     {
         CVMat mirrored;
-        if (activeCalib->isMirroredV())
+        if (activeCamera->calibration.isMirroredV())
             cv::flip(lastFrame, mirrored, -1);
         else
             cv::flip(lastFrame, mirrored, 1);
         lastFrame = mirrored;
     }
-    else if (activeCalib->isMirroredV())
+    else if (activeCamera->calibration.isMirroredV())
     {
         CVMat mirrored;
-        if (activeCalib->isMirroredH())
+        if (activeCamera->calibration.isMirroredH())
             cv::flip(lastFrame, mirrored, -1);
         else
             cv::flip(lastFrame, mirrored, 0);
@@ -458,8 +457,10 @@ void CVCapture::adjustForSL(float viewportWdivH)
     cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
 
     // Reset calibrated image size
-    if (lastFrame.size() != activeCalib->imageSize())
-        activeCalib->imageSize(lastFrame.size());
+    if (lastFrame.size() != activeCamera->calibration.imageSize())
+    {
+        activeCamera->calibration.adaptForNewResolution(lastFrame.size(), true);
+    }
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
 }
@@ -677,8 +678,8 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     }
 
     // Get the infos if the destination image must be mirrored
-    bool mirrorH = CVCapture::activeCalib->isMirroredH();
-    bool mirrorV = CVCapture::activeCalib->isMirroredV();
+    bool mirrorH = CVCapture::activeCamera->mirrorH();
+    bool mirrorV = CVCapture::activeCamera->mirrorV();
 
     // Create output color (BGR) and grayscale images
     lastFrame     = CVMat(dstH, dstW, CV_8UC(3));
@@ -798,9 +799,9 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
 //-----------------------------------------------------------------------------
 //! Setter for video type also sets the active calibration
 /*! The CVCapture instance has up to three video camera calibrations, one
-for a main camera (CVCapture::calibMainCam), one for the selfie camera on
-mobile devices (CVCapture::calibScndCam) and one for video file simulation
-(CVCapture::calibVideoFile). The member CVCapture::activeCalib
+for a main camera (CVCapture::mainCam), one for the selfie camera on
+mobile devices (CVCapture::scndCam) and one for video file simulation
+(CVCapture::videoFileCam). The member CVCapture::activeCamera
 references the active one.
 */
 void CVCapture::videoType(CVVideoType vt)
@@ -811,18 +812,18 @@ void CVCapture::videoType(CVVideoType vt)
     if (vt == VT_SCND)
     {
         if (hasSecondaryCamera)
-            activeCalib = &calibScndCam;
+            activeCamera = &scndCam;
         else //fallback if there is no secondary camera we use main setup
         {
-            _videoType  = VT_MAIN;
-            activeCalib = &calibMainCam;
+            _videoType   = VT_MAIN;
+            activeCamera = &mainCam;
         }
     }
     else if (vt == VT_FILE)
-        activeCalib = &calibVideoFile;
+        activeCamera = &videoFileCam;
     else
     {
-        activeCalib = &calibMainCam;
+        activeCamera = &mainCam;
         if (vt == VT_NONE)
         {
             release();
@@ -833,28 +834,67 @@ void CVCapture::videoType(CVVideoType vt)
 //-----------------------------------------------------------------------------
 void CVCapture::loadCalibrations(const string& computerInfo,
                                  const string& configPath,
-                                 const string& calibInitPath,
                                  const string& videoPath)
 {
 
-    videoDefaultPath            = videoPath;
-    CVCalibration::calibIniPath = calibInitPath;
+    videoDefaultPath = videoPath;
 
     string mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
     string scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
 
     // load opencv camera calibration for main and secondary camera
 #if defined(APP_USES_CVCAPTURE)
-    calibMainCam.load(configPath, mainCalibFilename, true, false);
-    calibMainCam.loadCalibParams();
-    activeCalib        = &calibMainCam;
+    // try to download from ftp if no calibration exists locally
+    string fullPathAndFilename = Utils::unifySlashes(configPath) + mainCalibFilename;
+    if (!Utils::fileExists(fullPathAndFilename))
+    {
+        //todo: move this download call out of cvcaputure (during refactoring of this class)
+        string errorMsg;
+        if (!FtpUtils::downloadFileLatestVersion(SLApplication::calibFilePath,
+                                                 mainCalibFilename,
+                                                 SLApplication::CALIB_FTP_HOST,
+                                                 SLApplication::CALIB_FTP_USER,
+                                                 SLApplication::CALIB_FTP_PWD,
+                                                 SLApplication::CALIB_FTP_DIR,
+                                                 errorMsg))
+        {
+            Utils::log("SLProject", errorMsg.c_str());
+        }
+    }
+    if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
+    {
+        //instantiate a guessed calibration
+        //mainCam.calibration = CVCalibration()
+    }
+    activeCamera       = &mainCam;
     hasSecondaryCamera = false;
 #else
-    calibMainCam.load(configPath, mainCalibFilename, false, false);
-    calibMainCam.loadCalibParams();
-    calibScndCam.load(configPath, scndCalibFilename, true, false);
-    calibScndCam.loadCalibParams();
-    activeCalib        = &calibMainCam;
+    //todo: move this download call out of cvcaputure (during refactoring of this class)
+    string errorMsg;
+    if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
+                                mainCalibFilename,
+                                SLApplication::CALIB_FTP_HOST,
+                                SLApplication::CALIB_FTP_USER,
+                                SLApplication::CALIB_FTP_PWD,
+                                SLApplication::CALIB_FTP_DIR,
+                                errorMsg))
+    {
+        Utils::log("SLProject", errorMsg.c_str());
+    }
+    //todo: move this download call out of cvcaputure (during refactoring of this class)
+    if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
+                                scndCalibFilename,
+                                SLApplication::CALIB_FTP_HOST,
+                                SLApplication::CALIB_FTP_USER,
+                                SLApplication::CALIB_FTP_PWD,
+                                SLApplication::CALIB_FTP_DIR,
+                                errorMsg))
+    {
+        Utils::log("SLProject", errorMsg.c_str());
+    }
+    mainCam.calibration.load(configPath, mainCalibFilename, true);
+    scndCam.calibration.load(configPath, scndCalibFilename, true);
+    activeCamera       = &mainCam;
     hasSecondaryCamera = true;
 #endif
 }
@@ -899,6 +939,18 @@ int CVCapture::nextFrameIndex()
     if (_videoType == VT_FILE)
     {
         result = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
+    }
+
+    return result;
+}
+//-----------------------------------------------------------------------------
+int CVCapture::videoLength()
+{
+    int result = 0;
+
+    if (_videoType == VT_FILE)
+    {
+        result = (int)_captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
     }
 
     return result;

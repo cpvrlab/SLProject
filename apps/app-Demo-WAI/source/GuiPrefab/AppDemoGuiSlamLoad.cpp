@@ -12,43 +12,45 @@
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <Utils.h>
 #include <AppDemoGuiSlamLoad.h>
-#include <CVCapture.h>
-#include <AppWaiSlamParamHelper.h>
+#include <AppWAISlamParamHelper.h>
 #include <WAIMapStorage.h>
 
-AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string& name,
-                                       std::string        slamRootDir,
-                                       std::string        calibrationsDir,
-                                       std::string        vocabulariesDir,
-                                       SLNode*            mapNode,
-                                       bool*              activator)
+AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
+                                       std ::queue<WAIEvent*>*         eventQueue,
+                                       std::string                     slamRootDir,
+                                       std::string                     calibrationsDir,
+                                       std::string                     vocabulariesDir,
+                                       const std::vector<std::string>& extractorIdToNames,
+                                       bool*                           activator)
   : AppDemoGuiInfosDialog(name, activator),
+    _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
-    _mapNode(mapNode)
+    _extractorIdToNames(extractorIdToNames),
+    _changeSlamParams(true),
+    _kt(0.5f)
 {
-    _changeSlamParams   = true;
-    _storeKeyFrameImage = true;
-    _serial             = false;
-    _trackingOnly       = false;
-    _trackOpticalFlow   = false;
-
-    _currentLocation    = "";
-    _currentArea        = "";
-    _currentVideo       = "";
-    _currentCalibration = "";
-    _currentMap         = "";
-    _currentVoc         = "ORBvoc.bin";
+    _p.params.retainImg    = true;
+    _p.params.serial       = false;
+    _p.params.onlyTracking = false;
+    _p.params.trackOptFlow = false;
+    _p.params.onlyTracking = false;
+    _p.params.fixOldKfs    = false;
 
     _videoExtensions.push_back(".mp4");
     _videoExtensions.push_back(".avi");
     _mapExtensions.push_back(".json");
     _calibExtensions.push_back(".xml");
     _vocExtensions.push_back(".bin");
+    _markerExtensions.push_back(".jpg");
+
+    _p.extractorIds.trackingExtractorId       = ExtractorType_GLSL;
+    _p.extractorIds.initializationExtractorId = ExtractorType_GLSL;
+    _p.extractorIds.markerExtractorId         = ExtractorType_GLSL;
 }
 
 void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
@@ -115,15 +117,15 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
     if (!_changeSlamParams)
     {
-        ImGui::Text("Location: %s", _currentLocation.c_str());
-        ImGui::Text("Area: %s", _currentArea.c_str());
+        ImGui::Text("Location: %s", _p.location.c_str());
+        ImGui::Text("Area: %s", _p.area.c_str());
 
         ImGui::Separator();
 
-        if (!WAIApp::currentSlamParams->videoFile.empty())
+        if (!_p.videoFile.empty())
         {
             SlamVideoInfos slamVideoInfos;
-            std::string    videoFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile);
+            std::string    videoFileName = Utils::getFileNameWOExt(_p.videoFile);
             extractSlamVideoInfosFromFileName(videoFileName,
                                               &slamVideoInfos);
 
@@ -142,10 +144,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        if (!WAIApp::currentSlamParams->mapFile.empty())
+        if (!_p.mapFile.empty())
         {
             SlamMapInfos slamMapInfos;
-            std::string  mapFileName = Utils::getFileNameWOExt(WAIApp::currentSlamParams->mapFile);
+            std::string  mapFileName = Utils::getFileNameWOExt(_p.mapFile);
             extractSlamMapInfosFromFileName(mapFileName,
                                             &slamMapInfos);
 
@@ -160,7 +162,17 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        ImGui::Text("Calibration: %s", Utils::getFileName(WAIApp::currentSlamParams->calibrationFile).c_str());
+        ImGui::Text("Calibration: %s", Utils::getFileName(_p.calibrationFile).c_str());
+
+        ImGui::Separator();
+
+        if (ImGui::SliderFloat("Transparency", &_kt, 0.0f, 1.0f))
+        {
+            WAIEventAdjustTransparency* event = new WAIEventAdjustTransparency();
+            event->kt                         = _kt;
+
+            _eventQueue->push(event);
+        }
 
         ImGui::Separator();
 
@@ -170,51 +182,22 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         }
         if (ImGui::Button("Save map"))
         {
-            if (!_currentLocation.empty() && !_currentArea.empty() && WAIApp::mode)
-            {
-                std::string mapDir = constructSlamMapDir(_slamRootDir, _currentLocation, _currentArea);
-                if (!Utils::dirExists(mapDir))
-                    Utils::makeDir(mapDir);
+            WAIEventSaveMap* event = new WAIEventSaveMap();
+            event->location        = _p.location;
+            event->area            = _p.area;
+            event->marker          = _p.markerFile;
 
-                std::string mapDateTime = "";
-                if (!WAIApp::currentSlamParams->videoFile.empty())
-                {
-                    SlamVideoInfos videoInfos;
-                    if (extractSlamVideoInfosFromFileName(Utils::getFileNameWOExt(WAIApp::currentSlamParams->videoFile), &videoInfos))
-                    {
-                        mapDateTime = videoInfos.dateTime;
-                    }
-                }
-
-                std::string filename = constructSlamMapFileName(_currentLocation, _currentArea, mapDateTime);
-                std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
-
-                if (WAIApp::mode->retainImage())
-                {
-                    if (!Utils::dirExists(imgDir))
-                        Utils::makeDir(imgDir);
-                }
-
-                if (!WAIMapStorage::saveMap(WAIApp::mode->getMap(),
-                                            _mapNode,
-                                            mapDir + filename,
-                                            imgDir))
-                {
-                    WAIApp::errorDial->setErrorMsg("Failed to save map");
-                    WAIApp::uiPrefs.showError = true;
-                }
-            }
-            else
-            {
-
-                WAIApp::errorDial->setErrorMsg("Failed to save map - No location and/or area selected.");
-                WAIApp::uiPrefs.showError = true;
-            }
+            _eventQueue->push(event);
         }
     }
     else
     {
-        if (ImGui::BeginCombo("Location", _currentLocation.c_str())) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::Button("Download calibration files", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            _eventQueue->push(new WAIEventDownloadCalibrationFiles());
+        }
+
+        if (ImGui::BeginCombo("Location", _p.location.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             std::vector<std::string> availableLocations;
             loadDirNamesInVector(_slamRootDir,
@@ -222,13 +205,14 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
             for (int n = 0; n < availableLocations.size(); n++)
             {
-                bool isSelected = (_currentLocation == availableLocations[n]); // You can store your selection however you want, outside or inside your objects
+                bool isSelected = (_p.location == availableLocations[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(availableLocations[n].c_str(), isSelected))
                 {
-                    _currentLocation = availableLocations[n];
-                    _currentArea     = "";
-                    _currentVideo    = "";
-                    _currentMap      = "";
+                    _p.location   = availableLocations[n];
+                    _p.area       = "";
+                    _p.videoFile  = "";
+                    _p.mapFile    = "";
+                    _p.markerFile = "";
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -236,26 +220,26 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        if (!_currentLocation.empty())
+        if (!_p.location.empty())
         {
-            if (ImGui::BeginCombo("Area", _currentArea.c_str())) // The second parameter is the label previewed before opening the combo.
+            if (ImGui::BeginCombo("Area", _p.area.c_str())) // The second parameter is the label previewed before opening the combo.
             {
                 std::vector<std::string> availableAreas;
                 std::vector<std::string> extensions;
                 extensions.push_back("");
-                loadFileNamesInVector(_slamRootDir + _currentLocation + "/",
+                loadFileNamesInVector(constructSlamLocationDir(_slamRootDir, _p.location),
                                       availableAreas,
                                       extensions,
                                       false);
 
                 for (int n = 0; n < availableAreas.size(); n++)
                 {
-                    bool isSelected = (_currentArea == availableAreas[n]); // You can store your selection however you want, outside or inside your objects
+                    bool isSelected = (_p.area == availableAreas[n]); // You can store your selection however you want, outside or inside your objects
                     if (ImGui::Selectable(availableAreas[n].c_str(), isSelected))
                     {
-                        _currentArea  = availableAreas[n];
-                        _currentVideo = "";
-                        _currentMap   = "";
+                        _p.area      = availableAreas[n];
+                        _p.videoFile = "";
+                        _p.mapFile   = "";
                     }
                     if (isSelected)
                         ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -263,22 +247,22 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 ImGui::EndCombo();
             }
 
-            if (!_currentArea.empty())
+            if (!_p.area.empty())
             {
-                if (ImGui::BeginCombo("Video", _currentVideo.c_str())) // The second parameter is the label previewed before opening the combo.
+                if (ImGui::BeginCombo("Video", _p.videoFile.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableVideos;
-                    loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/videos/",
+                    loadFileNamesInVector(constructSlamVideoDir(_slamRootDir, _p.location, _p.area),
                                           availableVideos,
                                           _videoExtensions,
                                           true);
 
                     for (int n = 0; n < availableVideos.size(); n++)
                     {
-                        bool isSelected = (_currentVideo == availableVideos[n]); // You can store your selection however you want, outside or inside your objects
+                        bool isSelected = (_p.videoFile == availableVideos[n]); // You can store your selection however you want, outside or inside your objects
                         if (ImGui::Selectable(availableVideos[n].c_str(), isSelected))
                         {
-                            _currentVideo = availableVideos[n];
+                            _p.videoFile = availableVideos[n];
                         }
                         if (isSelected)
                             ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -286,20 +270,41 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                     ImGui::EndCombo();
                 }
 
-                if (ImGui::BeginCombo("Map", _currentMap.c_str())) // The second parameter is the label previewed before opening the combo.
+                if (ImGui::BeginCombo("Map", _p.mapFile.c_str())) // The second parameter is the label previewed before opening the combo.
                 {
                     std::vector<std::string> availableMaps;
-                    loadFileNamesInVector(_slamRootDir + _currentLocation + "/" + _currentArea + "/maps/",
+                    loadFileNamesInVector(constructSlamMapDir(_slamRootDir, _p.location, _p.area),
                                           availableMaps,
                                           _mapExtensions,
                                           true);
 
                     for (int n = 0; n < availableMaps.size(); n++)
                     {
-                        bool isSelected = (_currentMap == availableMaps[n]); // You can store your selection however you want, outside or inside your objects
+                        bool isSelected = (_p.mapFile == availableMaps[n]); // You can store your selection however you want, outside or inside your objects
                         if (ImGui::Selectable(availableMaps[n].c_str(), isSelected))
                         {
-                            _currentMap = availableMaps[n];
+                            _p.mapFile = availableMaps[n];
+                        }
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("Marker", _p.markerFile.c_str())) // The second parameter is the label previewed before opening the combo.
+                {
+                    std::vector<std::string> availableMarkers;
+                    loadFileNamesInVector(constructSlamMarkerDir(_slamRootDir, _p.location, _p.area),
+                                          availableMarkers,
+                                          _markerExtensions,
+                                          true);
+
+                    for (int n = 0; n < availableMarkers.size(); n++)
+                    {
+                        bool isSelected = (_p.markerFile == availableMarkers[n]); // You can store your selection however you want, outside or inside your objects
+                        if (ImGui::Selectable(availableMarkers[n].c_str(), isSelected))
+                        {
+                            _p.markerFile = availableMarkers[n];
                         }
                         if (isSelected)
                             ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -311,7 +316,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
         ImGui::Separator();
 
-        if (ImGui::BeginCombo("Calibration", _currentCalibration.c_str())) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("Calibration", _p.calibrationFile.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             std::vector<std::string> availableCalibrations;
             loadFileNamesInVector(_calibrationsDir,
@@ -321,10 +326,10 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
             for (int n = 0; n < availableCalibrations.size(); n++)
             {
-                bool isSelected = (_currentCalibration == availableCalibrations[n]); // You can store your selection however you want, outside or inside your objects
+                bool isSelected = (_p.calibrationFile == availableCalibrations[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(availableCalibrations[n].c_str(), isSelected))
                 {
-                    _currentCalibration = availableCalibrations[n];
+                    _p.calibrationFile = availableCalibrations[n];
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -332,7 +337,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        if (ImGui::BeginCombo("Vocabulary", _currentVoc.c_str()))
+        if (ImGui::BeginCombo("Vocabulary", _p.vocabularyFile.c_str()))
         {
             std::vector<std::string> availableVocabularies;
             loadFileNamesInVector(_vocabulariesDir,
@@ -342,10 +347,37 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
             for (int i = 0; i < availableVocabularies.size(); i++)
             {
-                bool isSelected = (_currentVoc == availableVocabularies[i]); // You can store your selection however you want, outside or inside your objects
+                bool isSelected = (_p.vocabularyFile == availableVocabularies[i]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(availableVocabularies[i].c_str(), isSelected))
                 {
-                    _currentVoc = availableVocabularies[i];
+                    _p.vocabularyFile = availableVocabularies[i];
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::BeginCombo("Extractor", _extractorIdToNames.at(_p.extractorIds.trackingExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_p.extractorIds.trackingExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                    _p.extractorIds.trackingExtractorId = (ExtractorType)i;
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
+        if (ImGui::BeginCombo("Init extractor", _extractorIdToNames.at(_p.extractorIds.initializationExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_p.extractorIds.initializationExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                {
+                    _p.extractorIds.initializationExtractorId = (ExtractorType)i;
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -353,41 +385,61 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
-        ImGui::Checkbox("store keyframes image", &_storeKeyFrameImage);
-        ImGui::Checkbox("track optical flow", &_trackOpticalFlow);
-        ImGui::Checkbox("tracking only", &_trackingOnly);
-        ImGui::Checkbox("serial", &_serial);
+        // TODO(dgj1): display this only if a markerfile has been selected
+        if (ImGui::BeginCombo("Marker extractor", _extractorIdToNames.at(_p.extractorIds.markerExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_p.extractorIds.markerExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                {
+                    _p.extractorIds.markerExtractorId = (ExtractorType)i;
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::Checkbox("store/load keyframes image", &_p.params.retainImg);
+        ImGui::Checkbox("track optical flow", &_p.params.trackOptFlow);
+        ImGui::Checkbox("tracking only", &_p.params.onlyTracking);
+        ImGui::Checkbox("serial", &_p.params.serial);
+        ImGui::Checkbox("fix Kfs and MPts loaded from map\n(disables loop closing)", &_p.params.fixOldKfs);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
-            if (_currentLocation.empty() || _currentArea.empty())
+            if (_p.location.empty() || _p.area.empty())
             {
-                WAIApp::errorDial->setErrorMsg("Choose location and area");
-                WAIApp::uiPrefs.showError = true;
+                //_waiApp.showErrorMsg("Choose location and area");
+                //TODO(dgj1): reactivate error handling
             }
             else
             {
-                SlamParams params = {
-                  (_currentVideo.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/videos/" + _currentVideo),
-                  (_currentMap.empty() ? "" : _slamRootDir + _currentLocation + "/" + _currentArea + "/maps/" + _currentMap),
-                  (_currentCalibration.empty() ? "" : _calibrationsDir + _currentCalibration),
-                  (_currentVoc.empty() ? "" : _vocabulariesDir + _currentVoc),
-                  _storeKeyFrameImage,
-                  _trackOpticalFlow,
-                  _trackingOnly,
-                  _serial};
-                OrbSlamStartResult startResult = WAIApp::startOrbSlam(&params);
-                sv->setViewportFromRatio(SLVec2i(WAIApp::videoFrameSize.width, WAIApp::videoFrameSize.height), SLViewportAlign::VA_center, true);
+                WAIEventStartOrbSlam* event = new WAIEventStartOrbSlam();
 
-                if (!startResult.wasSuccessful)
-                {
-                    WAIApp::errorDial->setErrorMsg(startResult.errorString);
-                    WAIApp::uiPrefs.showError = true;
-                }
-                else
-                {
-                    _changeSlamParams = false;
-                }
+                event->params.area     = _p.area;
+                event->params.location = _p.location;
+
+                event->params.videoFile           = _p.videoFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/videos/" + _p.videoFile;
+                event->params.mapFile             = _p.mapFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/maps/" + _p.mapFile;
+                event->params.calibrationFile     = _p.calibrationFile.empty() ? "" : _calibrationsDir + _p.calibrationFile;
+                event->params.vocabularyFile      = _p.vocabularyFile.empty() ? "" : _vocabulariesDir + _p.vocabularyFile;
+                event->params.markerFile          = _p.markerFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/markers/" + _p.markerFile;
+                event->params.params.retainImg    = _p.params.retainImg;
+                event->params.params.trackOptFlow = _p.params.trackOptFlow;
+                event->params.params.onlyTracking = _p.params.onlyTracking;
+                event->params.params.serial       = _p.params.serial;
+                event->params.params.fixOldKfs    = _p.params.fixOldKfs;
+
+                event->params.extractorIds.trackingExtractorId       = _p.extractorIds.trackingExtractorId;
+                event->params.extractorIds.initializationExtractorId = _p.extractorIds.initializationExtractorId;
+                event->params.extractorIds.markerExtractorId         = _p.extractorIds.markerExtractorId;
+
+                //event->params = _p;
+                _eventQueue->push(event);
+
+                _changeSlamParams = false;
             }
         }
         if (ImGui::Button("Cancel", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
@@ -397,4 +449,16 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+}
+
+void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)
+{
+    _p                 = params;
+    _p.videoFile       = _p.videoFile.empty() ? "" : Utils::getFileName(_p.videoFile);
+    _p.mapFile         = _p.mapFile.empty() ? "" : Utils::getFileName(_p.mapFile);
+    _p.calibrationFile = _p.calibrationFile.empty() ? "" : Utils::getFileName(_p.calibrationFile);
+    _p.vocabularyFile  = _p.vocabularyFile.empty() ? "" : Utils::getFileName(_p.vocabularyFile);
+    _p.markerFile      = _p.markerFile.empty() ? "" : Utils::getFileName(_p.markerFile);
+
+    _changeSlamParams = false;
 }

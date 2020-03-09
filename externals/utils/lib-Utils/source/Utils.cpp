@@ -36,8 +36,8 @@ namespace fs = std::experimental::filesystem;
 #    endif
 #elif defined(__APPLE__)
 #    include <dirent.h>
-#    include <unistd.h>   //getcwd
 #    include <sys/stat.h> //dirent
+#    include <unistd.h>   //getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <android/log.h>
 #    include <dirent.h>
@@ -52,10 +52,6 @@ namespace fs = std::experimental::filesystem;
 
 using namespace std;
 using asio::ip::tcp;
-
-//-----------------------------------------------------------------------------
-string logAppName;
-//-----------------------------------------------------------------------------
 
 namespace Utils
 {
@@ -223,7 +219,7 @@ string getHostName()
 }
 //-----------------------------------------------------------------------------
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...)
+string formatString(const string& fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
     int                final_n, n = ((int)fmt_str.size()) * 2;
@@ -504,9 +500,8 @@ string getFileExt(const string& filename)
         return toLowerString(filename.substr(i + 1, filename.length() - i));
     return ("");
 }
-
 //-----------------------------------------------------------------------------
-//! Returns a vector directory names with path in dir
+//! Returns a vector of unsorted directory names with path in dir
 vector<string> getDirNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -537,9 +532,11 @@ vector<string> getDirNamesInDir(const string& dirName)
 
             if (name != "." && name != "..")
             {
-                struct stat path_stat;
-                stat(name.c_str(), &path_stat);
-                if (!S_ISREG(path_stat.st_mode))
+                struct stat path_stat
+                {
+                };
+                stat((dirName + name).c_str(), &path_stat);
+                if (S_ISDIR(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
             }
         }
@@ -550,7 +547,7 @@ vector<string> getDirNamesInDir(const string& dirName)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted names (files and directories) with path in dir
+//! Returns a vector of unsorted names (files and directories) with path in dir
 vector<string> getAllNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -587,7 +584,7 @@ vector<string> getAllNamesInDir(const string& dirName)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted filesnames with path in dir
+//! Returns a vector of unsorted filesnames with path in dir
 vector<string> getFileNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -618,8 +615,10 @@ vector<string> getFileNamesInDir(const string& dirName)
             string name(dirContent->d_name);
             if (name != "." && name != "..")
             {
-                struct stat path_stat;
-                stat(name.c_str(), &path_stat);
+                struct stat path_stat
+                {
+                };
+                stat((dirName + name).c_str(), &path_stat);
                 if (S_ISREG(path_stat.st_mode))
                     filePathNames.push_back(dirName + name);
             }
@@ -785,43 +784,102 @@ bool deleteFile(string& pathfilename)
         return remove(pathfilename.c_str()) != 0;
     return false;
 }
+//-----------------------------------------------------------------------------
+//! Dumps all files and folders on stdout recursively naturally sorted
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderPath,
+                       const int     depth)
+{
+    const char* tab = "    ";
+
+    // be sure that the folder slashes are correct
+    string folder = unifySlashes(folderPath);
+
+    if (dirExists(folder))
+    {
+        string indent;
+        for (int d = 0; d < depth; ++d)
+            indent += tab;
+
+        // log current folder name
+        string folderName       = getFileName(Utils::trimString(folder, "/"));
+        string indentFolderName = indent + "[" + folderName + "]";
+        Utils::log(logtag, "%s", indentFolderName.c_str());
+
+        vector<string> unsortedNames = getAllNamesInDir(folder);
+        sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
+
+        for (const auto& fileOrFolder : unsortedNames)
+        {
+            if (dirExists(fileOrFolder))
+                dumpFileSystemRec(logtag, fileOrFolder, depth + 1);
+            else
+            {
+                // log current file name
+                string fileName       = tab + getFileName(fileOrFolder);
+                string indentFileName = indent + fileName;
+                Utils::log(logtag, "%s", indentFileName.c_str());
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 
 ///////////////////////
 // Logging Functions //
 ///////////////////////
+//-----------------------------------------------------------------------------
+void initFileLog(const string& logDir, bool forceFlush)
+{
+    fileLog = std::make_unique<FileLog>(logDir, forceFlush);
+}
 
 //-----------------------------------------------------------------------------
 //! logs a formatted string platform independently
-void log(const char* format, ...)
+void log(const char* tag, const char* format, ...)
 {
-    char    log[4096];
+    char log[4096];
+
     va_list argptr;
     va_start(argptr, format);
     vsprintf(log, format, argptr);
     va_end(argptr);
 
+    char msg[4096];
+    strcpy(msg, tag);
+    strcat(msg, ": ");
+    strcat(msg, log);
+    strcat(msg, "\n");
+
+    if (fileLog)
+    {
+        fileLog->post(msg);
+    }
+
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO, logAppName.c_str(), log);
+    __android_log_print(ANDROID_LOG_INFO, tag, msg);
 #else
-    cout << log << std::flush;
+    cout << msg << std::flush;
 #endif
 }
 //-----------------------------------------------------------------------------
 //! Terminates the application with a message. No leak checking.
-void exitMsg(const char* msg,
+void exitMsg(const char* tag,
+             const char* msg,
              const int   line,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO,
-                        logAppName.c_str(),
+    __android_log_print(ANDROID_LOG_FATAL,
+                        tag,
                         "Exit %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
-    log("%s: Exit %s at line %d in %s\n",
-        logAppName.c_str(),
+
+    log(tag,
+        "Exit %s at line %d in %s\n",
         msg,
         line,
         file);
@@ -831,20 +889,43 @@ void exitMsg(const char* msg,
 }
 //-----------------------------------------------------------------------------
 //! Warn message output
-void warnMsg(const char* msg,
+void warnMsg(const char* tag,
+             const char* msg,
              const int   line,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO,
-                        logAppName.c_str(),
+    __android_log_print(ANDROID_LOG_WARN,
+                        tag,
                         "Warning: %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
-    log("%s: Warning %s at line %d in %s\n",
-        logAppName.c_str(),
+    log(tag,
+        "Warning %s at line %d in %s\n",
+        msg,
+        line,
+        file);
+#endif
+}
+//-----------------------------------------------------------------------------
+//! Error message output (same as warn but with another tag for android)
+void errorMsg(const char* tag,
+              const char* msg,
+              const int   line,
+              const char* file)
+{
+#if defined(ANDROID) || defined(ANDROID_NDK)
+    __android_log_print(ANDROID_LOG_ERROR,
+                        tag,
+                        "Error: %s at line %d in %s\n",
+                        msg,
+                        line,
+                        file);
+#else
+    log(tag,
+        "Error %s at line %d in %s\n",
         msg,
         line,
         file);
@@ -928,7 +1009,8 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
         // Check HTTP response status (400 means bad request)
         if (statusCode != 200)
         {
-            log("httpGet: HTTP Response returned status code: %d (%s)\n",
+            log("httpGet",
+                "httpGet: HTTP Response returned status code: %d (%s)\n",
                 statusCode,
                 statusMsg.c_str());
             return 0;
@@ -963,7 +1045,7 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
             else
             {
                 string msg = "Outfolder not found: " + outFolder;
-                exitMsg(msg.c_str(), __LINE__, __FILE__);
+                exitMsg("httpGet", msg.c_str(), __LINE__, __FILE__);
             }
         }
 

@@ -11,6 +11,7 @@
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
 
+#include <SLObject.h>
 #include <CVImage.h>
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
@@ -39,18 +40,19 @@ class SLGLState;
 enum SLTextureType
 {
     TT_unknown,   // will be handled as color maps
-    TT_color,     //*_C.{ext}
-    TT_normal,    //*_N.{ext}
-    TT_height,    //*_H.{ext}
-    TT_gloss,     //*_G.{ext}
-    TT_roughness, //*_R.{ext} Cook-Torrance roughness 0-1
-    TT_metallic,  //*_M.{ext} Cook-Torrance metallic 0-1
-    TT_font       //*_F.{ext}
+    TT_color,    // diffuse color map (aka albedo or just color map)
+    TT_normal,    // normal map for normal bump mapping
+    TT_height,    // height map for height map bump or parallax mapping
+    TT_gloss,     // specular gloss map
+    TT_roughness, // roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,  // metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_font,      // texture map for fonts
+    TT_ambientOcc // ambient occlusion map
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
-/*!      
-The SLGLTexture class implements an OpenGL texture object that can be used by the 
+/*!
+The SLGLTexture class implements an OpenGL texture object that can be used by the
 SLMaterial class. A texture can have 1-n CVImages in the vector _images.
 A simple 2D texture has just a single texture image (_images[0]). For cube maps
 you will need 6 images (_images[0-5]). For 3D textures you can have as much
@@ -60,7 +62,7 @@ for ray tracing.
 */
 class SLGLTexture : public SLObject
 {
-    public:
+public:
     //! Default ctor for all stack instances (not created with new)
     SLGLTexture();
 
@@ -69,7 +71,24 @@ class SLGLTexture : public SLObject
                          SLint           min_filter = GL_LINEAR,
                          SLint           mag_filter = GL_LINEAR,
                          SLint           wrapS      = GL_REPEAT,
-                         const SLstring& name       = "1D-Texture");
+                         const SLstring& name       = "2D-Texture");
+
+    //! ctor for empty 2D textures
+    explicit SLGLTexture(SLint min_filter,
+                         SLint mag_filter,
+                         SLint wrapS,
+                         SLint wrapT);
+
+    //! ctor for 2D textures from byte pointer
+    explicit SLGLTexture(unsigned char* data,
+                         int            width,
+                         int            height,
+                         int            cvtype,
+                         SLint          min_filter,
+                         SLint          mag_filter,
+                         SLTextureType  type,
+                         SLint          wrapS,
+                         SLint          wrapT);
 
     //! ctor for 2D textures with internal image allocation
     explicit SLGLTexture(const SLstring& imageFilename,
@@ -119,11 +138,11 @@ class SLGLTexture : public SLObject
     // Getters
     CVVImage&     images() { return _images; }
     SLenum        target() { return _target; }
-    SLuint        texName() { return _texName; }
+    SLuint        texID() { return _texID; }
     SLTextureType texType() { return _texType; }
     SLfloat       bumpScale() { return _bumpScale; }
     SLCol4f       getTexelf(SLfloat s, SLfloat t, SLuint imgIndex = 0);
-    SLCol4f       getTexelf(SLVec3f cubemapDir);
+    SLCol4f       getTexelf(const SLVec3f& cubemapDir);
     SLbool        hasAlpha() { return (!_images.empty() &&
                                 ((_images[0]->format() == PF_rgba ||
                                   _images[0]->format() == PF_bgra) ||
@@ -137,18 +156,27 @@ class SLGLTexture : public SLObject
     SLstring      typeName();
 
     // Misc
-    SLTextureType detectType(SLstring filename);
-    SLuint        closestPowerOf2(SLuint num);
-    SLuint        nextPowerOf2(SLuint num);
-    void          build2DMipmaps(SLint target, SLuint index);
-    SLbool        copyVideoImage(SLint       camWidth,
-                                 SLint       camHeight,
-                                 CVPixFormat glFormat,
-                                 SLuchar*    data,
-                                 SLbool      isContinuous,
-                                 SLbool      isTopLeft);
-    void          calc3DGradients(SLint sampleRadius);
-    void          smooth3DGradients(SLint smoothRadius);
+    static SLTextureType detectType(const SLstring& filename);
+    static SLuint        closestPowerOf2(SLuint num);
+    static SLuint        nextPowerOf2(SLuint num);
+    void                 build2DMipmaps(SLint target, SLuint index);
+    SLbool               copyVideoImage(SLint       camWidth,
+                                        SLint       camHeight,
+                                        CVPixFormat glFormat,
+                                        SLuchar*    data,
+                                        SLbool      isContinuous,
+                                        SLbool      isTopLeft);
+
+    SLbool copyVideoImage(SLint       camWidth,
+                          SLint       camHeight,
+                          CVPixFormat srcFormat,
+                          CVPixFormat dstFormat,
+                          SLuchar*    data,
+                          SLbool      isContinuous,
+                          SLbool      isTopLeft);
+
+    void calc3DGradients(SLint sampleRadius);
+    void smooth3DGradients(SLint smoothRadius);
 
     // Bumpmap methods
     SLVec2f dsdt(SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
@@ -159,7 +187,7 @@ class SLGLTexture : public SLObject
     static SLfloat  maxAnisotropy;      //!< max. anisotropy available
     static SLuint   numBytesInTextures; //!< NO. of texture bytes on GPU
 
-    protected:
+protected:
     // loading the image files
     void load(SLstring filename,
               SLbool   flipVertical           = true,
@@ -167,7 +195,7 @@ class SLGLTexture : public SLObject
     void load(const SLVCol4f& colors);
 
     CVVImage        _images;        //!< vector of CVImage pointers
-    SLuint          _texName;       //!< OpenGL texture "name" (= ID)
+    SLuint          _texID;         //!< OpenGL texture ID
     SLTextureType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
     SLint           _min_filter;    //!< Minification filter
     SLint           _mag_filter;    //!< Magnification filter

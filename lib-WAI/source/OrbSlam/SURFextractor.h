@@ -48,6 +48,7 @@ class WAI_API SURFextractor : public KPextractor
     void operator()(cv::InputArray             image,
                     std::vector<cv::KeyPoint>& keypoints,
                     cv::OutputArray            descriptors);
+    void computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors);
 
     std::vector<cv::Mat> mvImagePyramid;
 

@@ -35,14 +35,45 @@ enum TrackingState
 
 class WAI_API ModeOrbSlam2
 {
-    public:
-    ModeOrbSlam2(cv::Mat     cameraMat,
-                 cv::Mat     distortionMat,
-                 bool        serial,
-                 bool        retainImg,
-                 bool        onlyTracking,
-                 bool        trackOptFlow,
-                 std::string orbVocFile);
+public:
+    struct Params
+    {
+        //run local mapper and loopclosing serial to tracking
+        bool serial = false;
+        //retain the images in the keyframes, so we can store them later
+        bool retainImg = false;
+        //in onlyTracking mode we do not use local mapping and loop closing
+        bool onlyTracking = false;
+        //If true, keyframes loaded from a map will not be culled and the pose will not be changed. Local bundle adjustment is applied only on newly added kfs.
+        //Also, the loop closing will be disabled so that there will be no optimization of the essential graph and no global bundle adjustment.
+        bool fixOldKfs = false;
+        //use lucas canade optical flow tracking
+        bool trackOptFlow = false;
+
+        //keyframe culling strategy params:
+        // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
+        // in at least other 3 keyframes (in the same or finer scale)
+        float cullRedundantPerc = 0.95f; //originally it was 0.9
+    };
+
+    ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
+                 ORB_SLAM2::KPextractor* kpIniExtractor,
+                 cv::Mat                 cameraMat,
+                 cv::Mat                 distortionMat,
+                 const Params&           params,
+                 std::string             orbVocFile,
+                 bool                    applyMinAccScoreFilter = false);
+
+    ModeOrbSlam2(ORB_SLAM2::KPextractor* kpExtractor,
+                 ORB_SLAM2::KPextractor* kpIniExtractor,
+                 ORB_SLAM2::KPextractor* kpMarkerExtractor,
+                 std::string             markerFile,
+                 cv::Mat                 cameraMat,
+                 cv::Mat                 distortionMat,
+                 const Params&           params,
+                 std::string             orbVocFile,
+                 bool                    applyMinAccScoreFilter = false);
+
     ~ModeOrbSlam2();
     bool getPose(cv::Mat* pose);
     bool update(cv::Mat& imageGray, cv::Mat& imageRGB);
@@ -51,13 +82,13 @@ class WAI_API ModeOrbSlam2
                                WAIKeyFrameDB* keyFrameDB,
                                unsigned int*  lastRelocFrameId,
                                WAIMap&        waiMap,
-                               bool           relocWithAllKFs = false);
+                               bool           applyMinAccScoreFilter = true,
+                               bool           relocWithAllKFs        = false);
 
     void reset();
     bool isInitialized();
 
     void disableMapping();
-
     void enableMapping();
 
     WAIMap*        getMap() { return _map; }
@@ -66,42 +97,33 @@ class WAI_API ModeOrbSlam2
     // New KeyFrame rules (according to fps)
     // Max/Min Frames to insert keyframes and to check relocalisation
     int mMinFrames = 0;
-    int mMaxFrames = 30; //= fps
+    int mMaxFrames = 30; //= fps (max number of frames between keyframes)
 
     // Debug functions
     std::string   getPrintableState();
     TrackingState getTrackingState() { return _state; }
-    std::string
-    getPrintableType();
-    uint32_t getMapPointCount();
-    uint32_t getMapPointMatchesCount();
-    uint32_t getKeyFrameCount();
-    int      getNMapMatches();
-    int      getNumKeyFrames();
-    float    poseDifference();
-    float    getMeanReprojectionError();
-    void     findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
+    std::string   getPrintableType();
+    int           getKeyPointCount();
+    int           getMapPointCount();
+    int           getMapPointMatchesCount();
+    int           getKeyFrameCount();
+    int           getNMapMatches();
+    int           getNumKeyFrames();
+    float         poseDifference();
+    float         getMeanReprojectionError();
+    void          findMatches(std::vector<cv::Point2f>& vP2D, std::vector<cv::Point3f>& vP3Dw);
 
     std::string getLoopCloseStatus();
-    uint32_t    getLoopCloseCount();
-    uint32_t    getKeyFramesInLoopCloseQueueCount();
+    int         getLoopCloseCount();
+    int         getKeyFramesInLoopCloseQueueCount();
 
     std::vector<WAIMapPoint*>                                 getMapPoints();
     std::vector<WAIMapPoint*>                                 getMatchedMapPoints();
     std::vector<WAIMapPoint*>                                 getLocalMapPoints();
+    std::vector<WAIMapPoint*>                                 getMarkerCornerMapPoints();
     std::vector<WAIKeyFrame*>                                 getKeyFrames();
     std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances();
     std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getCorrespondances();
-
-    void showKeyPointsMatched(const bool flag)
-    {
-        _showKeyPointsMatched = flag;
-    }
-
-    void showKeyPoints(const bool flag)
-    {
-        _showKeyPoints = flag;
-    }
 
     KPextractor* getKPextractor()
     {
@@ -116,15 +138,22 @@ class WAI_API ModeOrbSlam2
     void resume();
     void requestStateIdle();
     bool hasStateIdle();
-    bool retainImage() { return _retainImg; }
+    bool retainImage() { return _params.retainImg; }
     void setInitialized(bool initialized) { _initialized = initialized; }
 
-    void setExtractor(KPextractor* extractor, KPextractor* iniExtractor);
     void setVocabulary(std::string orbVocFile);
 
     WAIFrame getCurrentFrame();
 
-    private:
+    bool doMarkerMapPreprocessing(std::string markerFile, cv::Mat& nodeTransform, float markerWidthInM);
+    void decorateVideoWithKeyPoints(cv::Mat& image);
+    void decorateVideoWithKeyPointMatches(cv::Mat& image);
+
+    // marker correction stuff
+    WAIFrame createMarkerFrame(std::string  markerFile,
+                               KPextractor* markerExtractor);
+
+private:
     enum TrackingType
     {
         TrackingType_None,
@@ -134,7 +163,7 @@ class WAI_API ModeOrbSlam2
     };
 
     void initialize(cv::Mat& imageGray, cv::Mat& imageRGB);
-    bool createInitialMapMonocular();
+    bool createInitialMapMonocular(int mapPointsNeeded);
     void track3DPts(cv::Mat& imageGray, cv::Mat& imageRGB);
 
     //bool        relocalization();
@@ -153,18 +182,16 @@ class WAI_API ModeOrbSlam2
     void updateLocalPoints();
     void searchLocalPoints();
     void updateLastFrame();
-    void globalBundleAdjustment();
+    //void globalBundleAdjustment();
 
     WAIKeyFrame* currentKeyFrame();
 
     cv::Mat _pose;
 
-    bool _poseSet = false;
-    bool _serial;
-    bool _retainImg;
-    bool _initialized;
-    bool _onlyTracking;
-    bool _trackOptFlow;
+    bool   _applyMinAccScoreFilter;
+    bool   _poseSet = false;
+    bool   _initialized;
+    Params _params;
 
     cv::Mat _cameraMat;
     cv::Mat _distortionMat;
@@ -177,9 +204,6 @@ class WAI_API ModeOrbSlam2
     ORB_SLAM2::ORBVocabulary* mpVocabulary   = nullptr;
     ORB_SLAM2::KPextractor*   mpExtractor    = nullptr;
     ORB_SLAM2::KPextractor*   mpIniExtractor = nullptr;
-
-    ORB_SLAM2::KPextractor* mpDefaultExtractor    = nullptr;
-    ORB_SLAM2::KPextractor* mpIniDefaultExtractor = nullptr;
 
     ORB_SLAM2::LocalMapping* mpLocalMapper = nullptr;
     ORB_SLAM2::LoopClosing*  mpLoopCloser  = nullptr;
@@ -200,7 +224,7 @@ class WAI_API ModeOrbSlam2
     std::vector<int>         mvIniMatches;
     std::vector<cv::Point2f> mvbPrevMatched;
     std::vector<cv::Point3f> mvIniP3D;
-    bool                     _bOK;
+    bool                     _bOK           = false;
     bool                     _mapHasChanged = false;
 
     // In case of performing only localization, this flag is true when there are no matches to
@@ -254,13 +278,9 @@ class WAI_API ModeOrbSlam2
     void decorate(cv::Mat& image);
     void calculateMeanReprojectionError();
     void calculatePoseDifference();
-    void decorateVideoWithKeyPoints(cv::Mat& image);
-    void decorateVideoWithKeyPointMatches(cv::Mat& image);
 
     double _meanReprojectionError = -1.0;
     double _poseDifference        = -1.0;
-    bool   _showKeyPoints         = false;
-    bool   _showKeyPointsMatched  = true;
     bool   _showMapPC             = true;
     bool   _showMatchesPC         = true;
     bool   _showLocalMapPC        = false;
@@ -270,6 +290,24 @@ class WAI_API ModeOrbSlam2
     bool   _showLoopEdges         = true;
     bool   _renderKfBackground    = false;
     bool   _allowKfsAsActiveCam   = false;
+
+    // marker correction stuff
+    bool findMarkerHomography(WAIFrame&    markerFrame,
+                              WAIKeyFrame* kfCand,
+                              cv::Mat&     homography,
+                              int          minMatches);
+
+    //bool        _createMarkerMap;
+    //std::string _markerFile;
+
+    //std::string             _markerFile;
+    WAIFrame                _markerFrame;
+    ORB_SLAM2::KPextractor* _markerExtractor = nullptr;
+
+    WAIMapPoint* _mpUL = nullptr;
+    WAIMapPoint* _mpUR = nullptr;
+    WAIMapPoint* _mpLL = nullptr;
+    WAIMapPoint* _mpLR = nullptr;
 };
 }
 

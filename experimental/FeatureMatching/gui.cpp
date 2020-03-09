@@ -500,6 +500,10 @@ void start_gui(App& app)
     app.method           = SURF_BRIEF;
     app.inspectionMode   = InspectionMode::MATCHED_POINT_SIMILIARITY;
     app.num_next_matches = 10;
+
+    app.clahe = cv::createCLAHE();
+    app.clahe->setClipLimit(2.0);
+    app.clahe->setTilesGridSize(cv::Size(8,8));
     //-----------------------------------------------------------------------------
 
     update_detection(app);

@@ -16,9 +16,9 @@
 //! Classic Monte Carlo Pathtracing algorithm for real global illumination
 class SLPathtracer : public SLRaytracer
 {
-    public:
+public:
     SLPathtracer();
-    ~SLPathtracer() { SL_LOG("Destructor      : ~SLPathtracer\n"); }
+    ~SLPathtracer() { SL_LOG("Destructor      : ~SLPathtracer"); }
 
     // classic ray tracer functions
     SLbool  render(SLSceneView* sv);
@@ -35,7 +35,7 @@ class SLPathtracer : public SLRaytracer
     SLbool calcDirect() { return _calcDirect; }
     SLbool calcIndirect() { return _calcIndirect; }
 
-    private:
+private:
     SLbool _calcDirect;   //!< flag to calculate direct illum.
     SLbool _calcIndirect; //!< flag to calculate indirect illum.
 };

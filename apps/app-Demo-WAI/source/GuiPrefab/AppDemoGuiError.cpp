@@ -4,6 +4,7 @@
 #include <AppDemoGuiError.h>
 
 #include <utility>
+#include <SLGLImGui.h>
 //-----------------------------------------------------------------------------
 AppDemoGuiError::AppDemoGuiError(string name, bool* activator)
   : AppDemoGuiInfosDialog(std::move(name), activator)

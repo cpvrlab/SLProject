@@ -16,11 +16,30 @@
 
 long unsigned int WAIMapPoint::nNextId = 0;
 mutex             WAIMapPoint::mGlobalMutex;
+mutex             WAIMapPoint::mMutexMapPointCreation;
 
 //-----------------------------------------------------------------------------
 //!constructor used during map loading
-WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
-  : mnId(id), mnFirstKFid(-1), /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0), mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(NULL), mnVisible(1), mnFound(1), mbBad(false), mpReplaced(static_cast<WAIMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp)
+  : mnId(id),
+    mnFirstKFid(-1),
+    /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0),
+    mnTrackReferenceForFrame(0),
+    mnLastFrameSeen(0),
+    mnBALocalForKF(0),
+    mnFuseCandidateForKF(0),
+    mnLoopPointForKF(0),
+    mnCorrectedByKF(0),
+    mnCorrectedReference(0),
+    mnBAGlobalForKF(0),
+    mpRefKF(NULL),
+    mnVisible(1),
+    mnFound(1),
+    mbBad(false),
+    mpReplaced(static_cast<WAIMapPoint*>(NULL)),
+    mfMinDistance(0),
+    mfMaxDistance(0),
+    _fixed(fixMp)
 {
     SetWorldPos(Pos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
@@ -30,14 +49,35 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap)
         nNextId = id + 1;
 }
 //-----------------------------------------------------------------------------
-WAIMapPoint::WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap) : mnFirstKFid(pRefKF->mnId), /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0), mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false), mpReplaced(static_cast<WAIMapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
+                         WAIKeyFrame*   pRefKF)
+  : mnFirstKFid(pRefKF->mnId),
+    /* mnFirstFrame(pRefKF->mnFrameId), */
+    nObs(0),
+    mnTrackReferenceForFrame(0),
+    mnLastFrameSeen(0),
+    mnBALocalForKF(0),
+    mnFuseCandidateForKF(0),
+    mnLoopPointForKF(0),
+    mnCorrectedByKF(0),
+    mnCorrectedReference(0),
+    mnBAGlobalForKF(0),
+    mpRefKF(pRefKF),
+    mnVisible(1),
+    mnFound(1),
+    mbBad(false),
+    mpReplaced(static_cast<WAIMapPoint*>(NULL)),
+    mfMinDistance(0),
+    mfMaxDistance(0),
+    _fixed(false)
 {
     SetWorldPos(Pos);
     //Pos.copyTo(mWorldPos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
 
+    //TODO(Luluc) remove mMutexPointCreaton on WAIMap
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
-    unique_lock<mutex> lock(mpMap->mMutexPointCreation);
+    unique_lock<mutex> lock(mMutexMapPointCreation);
     mnId = nNextId++;
 
     refKfSource = RefKfSource_Constructor;
@@ -167,8 +207,6 @@ void WAIMapPoint::SetBadFlag()
         WAIKeyFrame* pKF = mit->first;
         pKF->EraseMapPointMatch(mit->second);
     }
-
-    mpMap->EraseMapPoint(this);
 }
 //-----------------------------------------------------------------------------
 WAIMapPoint* WAIMapPoint::GetReplaced()
@@ -214,8 +252,6 @@ void WAIMapPoint::Replace(WAIMapPoint* pMP)
     pMP->IncreaseFound(nfound);
     pMP->IncreaseVisible(nvisible);
     pMP->ComputeDistinctiveDescriptors();
-
-    mpMap->EraseMapPoint(this);
 }
 //-----------------------------------------------------------------------------
 bool WAIMapPoint::isBad()

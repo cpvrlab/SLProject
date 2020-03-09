@@ -31,7 +31,25 @@
 namespace ORB_SLAM2
 {
 
-LoopClosing::LoopClosing(WAIMap* pMap, WAIKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose) : mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap), mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true), mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _attemptLoopClose(!manualLoopClose), _manualLoopClose(manualLoopClose)
+LoopClosing::LoopClosing(WAIMap*        pMap,
+                         ORBVocabulary* pVoc,
+                         const bool     bFixScale,
+                         const bool     manualLoopClose)
+  : mbResetRequested(false),
+    mbFinishRequested(false),
+    mbFinished(true),
+    mpMap(pMap),
+    mpORBVocabulary(pVoc),
+    mpMatchedKF(NULL),
+    mLastLoopKFid(0),
+    mbRunningGBA(false),
+    mbFinishedGBA(true),
+    mbStopGBA(false),
+    mpThreadGBA(NULL),
+    mbFixScale(bFixScale),
+    mnFullBAIdx(0),
+    _attemptLoopClose(!manualLoopClose),
+    _manualLoopClose(manualLoopClose)
 {
     mnCovisibilityConsistencyTh = 3;
 }
@@ -157,7 +175,7 @@ bool LoopClosing::DetectLoop()
 
     if (!shouldLoopCloseBeAttempted())
     {
-        mpKeyFrameDB->add(mpCurrentKF);
+        mpMap->GetKeyFrameDB()->add(mpCurrentKF);
         mpCurrentKF->SetErase();
         return false;
     }
@@ -166,7 +184,7 @@ bool LoopClosing::DetectLoop()
     if (mpCurrentKF->mnId < mLastLoopKFid + 10)
     {
         status(LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES);
-        mpKeyFrameDB->add(mpCurrentKF);
+        mpMap->GetKeyFrameDB()->add(mpCurrentKF);
         mpCurrentKF->SetErase();
         return false;
     }
@@ -190,14 +208,12 @@ bool LoopClosing::DetectLoop()
         float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
 
         if (score < minScore)
-        {
             minScore = score;
-        }
     }
 
     // Query the database imposing the minimum score
     int                  loopCandidateDetectionError = WAIKeyFrameDB::LOOP_DETECTION_ERROR_NONE;
-    vector<WAIKeyFrame*> vpCandidateKFs              = mpKeyFrameDB->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
+    vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
     {
         std::lock_guard<std::mutex> lock(mMutexNumCandidates);
         _numOfCandidates = vpCandidateKFs.size();
@@ -216,7 +232,7 @@ bool LoopClosing::DetectLoop()
                 break;
         }
 
-        mpKeyFrameDB->add(mpCurrentKF);
+        mpMap->GetKeyFrameDB()->add(mpCurrentKF);
         {
             std::lock_guard<std::mutex> lock(mMutexNumConsistentGroups);
             mvConsistentGroups.clear();
@@ -295,7 +311,7 @@ bool LoopClosing::DetectLoop()
     }
 
     // Add Current Keyframe to database
-    mpKeyFrameDB->add(mpCurrentKF);
+    mpMap->GetKeyFrameDB()->add(mpCurrentKF);
 
     if (mvpEnoughConsistentCandidates.empty())
     {
@@ -582,7 +598,10 @@ void LoopClosing::doCorrectLoop()
                 WAIMapPoint* pLoopMP = mvpCurrentMatchedPoints[i];
                 WAIMapPoint* pCurMP  = mpCurrentKF->GetMapPoint(i);
                 if (pCurMP)
+                {
                     pCurMP->Replace(pLoopMP);
+                    mpMap->EraseMapPoint(pCurMP);
+                }
                 else
                 {
                     mpCurrentKF->AddMapPoint(pLoopMP, i);
@@ -642,8 +661,6 @@ void LoopClosing::doCorrectLoop()
 
 void LoopClosing::CorrectLoop()
 {
-    cout << "Loop detected!" << endl;
-
     // Send a stop signal to Local Mapping
     // Avoid new keyframes are inserted while correcting the loop
     mpLocalMapper->RequestStop();
@@ -695,6 +712,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
             if (pRep)
             {
                 pRep->Replace(mvpLoopMapPoints[i]);
+                mpMap->EraseMapPoint(pRep);
             }
         }
     }

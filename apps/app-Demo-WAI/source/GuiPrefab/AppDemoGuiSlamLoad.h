@@ -13,28 +13,26 @@
 
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAICalibration.h>
 #include <SLMat4.h>
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiSlamLoad(const std::string& name,
-                       std::string        slamRootDir,
-                       std::string        calibrationsDir,
-                       std::string        vocabulariesDir,
-                       SLNode*            mapNode,
-                       bool*              activator);
+public:
+    AppDemoGuiSlamLoad(const std::string&              name,
+                       std ::queue<WAIEvent*>*         eventQueue,
+                       std::string                     slamRootDir,
+                       std::string                     calibrationsDir,
+                       std::string                     vocabulariesDir,
+                       const std::vector<std::string>& extractorIdToNames,
+                       bool*                           activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
+    void setSlamParams(const SlamParams& params);
 
-    private:
-    void loadFileNamesInVector(std::string               directory,
-                               std::vector<std::string>& fileNames,
-                               std::vector<std::string>& extensions,
-                               bool                      addEmpty);
+private:
+    void loadFileNamesInVector(std::string directory, std::vector<std::string>& fileNames, std::vector<std::string>& extensions, bool addEmpty);
     void loadDirNamesInVector(std::string               directory,
                               std::vector<std::string>& dirNames);
 
@@ -46,22 +44,16 @@ class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 
     std::vector<std::string> _videoExtensions;
     std::vector<std::string> _mapExtensions;
+    std::vector<std::string> _markerExtensions;
     std::vector<std::string> _calibExtensions;
     std::vector<std::string> _vocExtensions;
 
-    std::string _currentLocation;
-    std::string _currentArea;
-    std::string _currentVideo;
-    std::string _currentCalibration;
-    std::string _currentMap;
-    std::string _currentVoc;
+    const std::vector<std::string>& _extractorIdToNames;
 
-    bool _storeKeyFrameImage;
-    bool _trackOpticalFlow;
-    bool _serial;
-    bool _trackingOnly;
+    SlamParams _p;
+    float      _kt;
 
-    SLNode* _mapNode;
+    std::queue<WAIEvent*>* _eventQueue;
 };
 
 #endif

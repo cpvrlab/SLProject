@@ -116,10 +116,11 @@ void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv *env, jclass obj, jint wi
     string device_path_msg = "Device path:" + devicePath;
     SL_LOG(device_path_msg.c_str(),0);
 
+    SLApplication::calibFilePath = devicePath + "/config/"; //thats where calibrations are stored an loaded from
+    SLApplication::calibIniPath = devicePath + "/calibrations/";
     CVImage::defaultPath = devicePath + "/textures/";
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
-                                            devicePath + "/config/",           // for calibrations made
-                                            devicePath + "/calibrations/",     // for calibInitPath
+                                            SLApplication::calibFilePath,           // for calibrations made
                                             devicePath + "/videos/");          // for videos
 
     ////////////////////////////////////////////////////
@@ -254,7 +255,7 @@ jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv *env, jclass obj)
 extern "C" JNIEXPORT
 jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv *env, jclass obj)
 {
-    return CVCapture::instance()->activeCalib->camSizeIndex();
+    return CVCapture::instance()->activeCamera->camSizeIndex();
 }
 //-----------------------------------------------------------------------------
 //! Grabs a frame from a video file using OpenCV

@@ -7,12 +7,16 @@ set(target lib-SLProject)
 set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
-file(GLOB headers
+set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCamera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibrationEstimator.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypes.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImageGeoTiff.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVRaulMurExtNode.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVRaulMurOrb.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTracked.h
@@ -20,7 +24,10 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedChessboard.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFaces.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFeatures.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracerTex3D.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLFbo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLImGui.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculus.h
@@ -47,13 +54,13 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAverageTiming.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInputEventInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/stdafx.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLUiInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
@@ -111,11 +118,14 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
         )
 
-file(GLOB sources
+set(sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibration.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibrationEstimator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImageGeoTiff.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVRaulMurExtNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVRaulMurOrb.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTracked.cpp
@@ -123,6 +133,9 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedChessboard.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFaces.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFeatures.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracerTex3D.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLFbo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
@@ -137,9 +150,9 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAverageTiming.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInputEventInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimation.cpp
@@ -190,12 +203,13 @@ file(GLOB sources
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
+        ${SL_PROJECT_ROOT}/data/shaders/*.geom
         )
 
 # Group source files
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/include" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
-source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert$" "Shaders" ${shaders})
+source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert|\\\\.geom$" "Shaders" ${shaders})
 
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
@@ -252,19 +266,9 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/include
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/clipper
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/irrXML
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/contrib/poly2tri
-        ${SL_PROJECT_ROOT}/externals/lib-assimp/code/BoostWorkaround
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/zlib
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
-        ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
+        ${assimp_INCLUDE_DIR}
+        ${SL_PROJECT_ROOT}/externals/nlohmann
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
@@ -295,7 +299,7 @@ target_link_libraries(${target}
         ${PlatformLinkLibs}
         ${OpenCV_LIBS}
         ${META_PROJECT_NAME}::lib-SLExternal
-        ${META_PROJECT_NAME}::lib-assimp
+        ${assimp_LIBS}
         lib-Utils
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
