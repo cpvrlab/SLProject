@@ -157,8 +157,7 @@ float GetSeconds()
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
     SLApplication::calibIniPath  = exeDir + "data/calibrations/"; // for calibInitPath
-    
-    //Utils::dumpFileSystemRec("SLProject", exeDir);
+    Utils::dumpFileSystemRec("SLProject", exeDir);
     
     CVImage::defaultPath = exeDir;
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string

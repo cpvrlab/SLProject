@@ -35,6 +35,9 @@ namespace fs = std::experimental::filesystem;
 #        include <direct.h> //_getcwd
 #    endif
 #elif defined(__APPLE__)
+#    if TARGET_OS_IOS
+#        include "Utils_iOS.h"
+#    endif
 #    include <dirent.h>
 #    include <sys/stat.h> //dirent
 #    include <unistd.h>   //getcwd
@@ -562,6 +565,9 @@ vector<string> getAllNamesInDir(const string& dirName)
         }
     }
 #else
+#    if TARGET_OS_IOS
+    return Utils_iOS::getAllNamesInDir(dirName);
+#    else
     DIR* dir;
     dir = opendir(dirName.c_str());
 
@@ -579,6 +585,7 @@ vector<string> getAllNamesInDir(const string& dirName)
         }
         closedir(dir);
     }
+#    endif
 #endif
 
     return filePathNames;
