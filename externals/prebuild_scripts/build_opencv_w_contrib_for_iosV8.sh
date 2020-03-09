@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for OpenCV with contributions for MacOS
+# Build script for OpenCV with contributions for iOS
 # ####################################################
 
 CV_VERSION=$1
@@ -58,7 +58,7 @@ rm -rf $BUILD_D
 mkdir $BUILD_D
 cd $BUILD_D
 
-
+echo "====================================================== cmake"
 # Run cmake to configure and generate for iosV8 debug
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
@@ -73,30 +73,33 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=true \
+-DWITH_OPENCL=false \
+-DWITH_OPENCLAMDFFT=false \
+-DWITH_OPENCLAMDBLAS=false \
+-DWITH_VA_INTEL=false \
 -GXcode \
--DAPPLE_FRAMEWORK=ON \
--DIOS_ARCH=arm64 \
--DCMAKE_TOOLCHAIN_FILE=../../platforms/ios/cmake/Toolchains/Toolchain-iPhoneOS_Xcode.cmake \
--DENABLE_NEON=ON \
+-DAPPLE_FRAMEWORK=true \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=true \
+-DENABLE_ARC=false \
 ../..
 
+cmake --build . --config Debug --target install
+
+: '
+echo "================================================= xcodebuild"
 xcodebuild \
 IPHONEOS_DEPLOYMENT_TARGET=8.0 \
 ARCHS=arm64 \
 -sdk=phoneos \
 -configuration=Debug \
--jobs=8 \
+-jobs=1 \
 -target=ALL_BUILD \
 -parallelizeTargets \
 build
+'
 
-: '
-# finally build it
-make -j8
-
-# copy all into install folder
-make install
 cd ../.. # back to opencv
 
 # Make build folder for release version
@@ -119,14 +122,21 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DWITH_OPENCL=false \
+-DWITH_OPENCLAMDFFT=false \
+-DWITH_OPENCLAMDBLAS=false \
+-DWITH_VA_INTEL=false \
+-GXcode \
+-DAPPLE_FRAMEWORK=true \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=true \
+-DENABLE_ARC=false \
 ../..
 
-# finally build it
-make -j8
+cmake --build . --config Release --target install
 
-# copy all into install folder
-make install
-cd ../.. # back to opencv
+cd ../.. # Back to opencv
 
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER
@@ -136,4 +146,3 @@ cp -R $BUILD_R/install/lib     $ZIPFOLDER/release
 cp -R $BUILD_D/install/lib     $ZIPFOLDER/debug
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER
-'

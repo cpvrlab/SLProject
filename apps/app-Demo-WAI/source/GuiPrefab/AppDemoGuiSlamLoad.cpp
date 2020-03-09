@@ -48,9 +48,9 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
     _vocExtensions.push_back(".bin");
     _markerExtensions.push_back(".jpg");
 
-    _p.extractorIds.trackingExtractorId       = 8;
-    _p.extractorIds.initializationExtractorId = 8;
-    _p.extractorIds.markerExtractorId         = 8;
+    _p.extractorIds.trackingExtractorId       = ExtractorType_GLSL;
+    _p.extractorIds.initializationExtractorId = ExtractorType_GLSL;
+    _p.extractorIds.markerExtractorId         = ExtractorType_GLSL;
 }
 
 void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
@@ -363,7 +363,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             {
                 bool isSelected = (_p.extractorIds.trackingExtractorId == i); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
-                    _p.extractorIds.trackingExtractorId = i;
+                    _p.extractorIds.trackingExtractorId = (ExtractorType)i;
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
             }
@@ -377,7 +377,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 bool isSelected = (_p.extractorIds.initializationExtractorId == i); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
                 {
-                    _p.extractorIds.initializationExtractorId = i;
+                    _p.extractorIds.initializationExtractorId = (ExtractorType)i;
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -393,7 +393,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 bool isSelected = (_p.extractorIds.markerExtractorId == i); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
                 {
-                    _p.extractorIds.markerExtractorId = i;
+                    _p.extractorIds.markerExtractorId = (ExtractorType)i;
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)

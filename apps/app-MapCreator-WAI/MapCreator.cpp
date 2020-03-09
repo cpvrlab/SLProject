@@ -4,7 +4,7 @@
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
 
-MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile)
+MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile, ExtractorType extractorType)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
@@ -18,14 +18,14 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::stri
     _mpLL = nullptr;
     _mpLR = nullptr;
 
+    _extractorType = extractorType;
+
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
     loadSites(erlebARDir, configFile);
 
     //init keypoint extractors
     //TODO(lulu) create extractor depending on video resolution especially if different for each video!
-    FeatureExtractorFactory factory;
-    _kpExtractor = factory.make(7, {640, 320});
     //_kpIniExtractor    = factory.make(8, {640, 360});
     //_kpMarkerExtractor = factory.make(8, {640, 360});
 }
@@ -166,7 +166,8 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
 bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
                                  const std::string& mapFile,
                                  const std::string& mapDir,
-                                 const float        cullRedundantPerc)
+                                 const float        cullRedundantPerc,
+                                 ExtractorType      extractorType)
 {
     //wai mode config
     WAI::ModeOrbSlam2::Params modeParams;
@@ -202,7 +203,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     cv::Mat markerImgGray = cv::imread(areaConfig.markerFile, cv::IMREAD_GRAYSCALE);
 
     FeatureExtractorFactory      factory;
-    std::unique_ptr<KPextractor> kpExtractor = factory.make(7, {markerImgGray.cols, markerImgGray.rows});
+    std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {markerImgGray.cols, markerImgGray.rows});
 
     bool result = WAISlamTools::doMarkerMapPreprocessing(areaConfig.markerFile,
                                                          nodeTransform,
@@ -215,23 +216,28 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     return result;
 }
 
-void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig)
+void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType)
 {
     WAI_INFO("MapCreator::createNewWaiMap: Starting map creation for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
-    std::string mapFile     = constructSlamMapFileName(location, area, _kpExtractor->GetName(), Utils::getDateTime2String());
+    FeatureExtractorFactory factory;
+    //std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {markerImgGray.cols, markerImgGray.rows});
+    std::string mapFile     = constructSlamMapFileName(location,
+                                                   area,
+                                                   factory.getExtractorIdToNames()[extractorType],
+                                                   Utils::getDateTime2String());
     std::string mapDir      = _outputDir + area + "/";
     bool        initialized = false;
     std::string currentMapFileName;
 
     const float cullRedundantPerc = 0.99f;
-    initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName);
+    initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType);
 
     if (areaConfig.videos.size() && initialized)
     {
         if (!areaConfig.markerFile.empty())
         {
-            if (!createMarkerMap(areaConfig, currentMapFileName, mapDir, cullRedundantPerc))
+            if (!createMarkerMap(areaConfig, currentMapFileName, mapDir, cullRedundantPerc, extractorType))
             {
                 WAI_WARN("MapCreator::createNewWaiMap: Could not do marker map preprocessing for %s %s", location.c_str(), area.c_str());
             }
@@ -239,7 +245,7 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
 
         const float cullRedundantPerc = 0.95f;
         //select one calibration (we need one to instantiate mode and we need mode to load map)
-        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, areaConfig.videos.front().calibration, cullRedundantPerc);
+        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, areaConfig.videos.front().calibration, cullRedundantPerc, extractorType);
     }
     else
     {
@@ -253,7 +259,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                                       const std::string& mapFile,
                                       const std::string& mapDir,
                                       const float        cullRedundantPerc,
-                                      std::string&       currentMapFileName)
+                                      std::string&       currentMapFileName,
+                                      ExtractorType      extractorType)
 {
     bool initialized = false;
     //wai mode config
@@ -291,8 +298,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             capturedSize.height != cap->activeCamera->calibration.imageSize().height)
             throw std::runtime_error("MapCreator::createNewDenseWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
 
-        FeatureExtractorFactory factory;
-        _kpExtractor = factory.make(7, {capturedSize.width, capturedSize.height});
+        FeatureExtractorFactory      factory;
+        std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {capturedSize.width, capturedSize.height});
 
         ORBVocabulary* voc = new ORBVocabulary();
         if (!voc->loadFromBinaryFile(_vocFile))
@@ -330,7 +337,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
           std::make_unique<WAISlam>(cap->activeCamera->calibration.cameraMat(),
                                     cap->activeCamera->calibration.distortion(),
                                     voc,
-                                    _kpExtractor.get(),
+                                    kpExtractor.get(),
                                     map,
                                     modeParams.onlyTracking,
                                     modeParams.serial,
@@ -405,7 +412,8 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                   const std::string& inputMapFile,
                                   const std::string  outputMapFile,
                                   CVCalibration&     calib,
-                                  const float        cullRedundantPerc)
+                                  const float        cullRedundantPerc,
+                                  ExtractorType      extractorType)
 {
     //wai mode config
     WAI::ModeOrbSlam2::Params modeParams;
@@ -426,6 +434,9 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     //load the map (currentMapFileName is valid if initialized is true)
     SLNode mapNode = SLNode();
 
+    FeatureExtractorFactory      factory;
+    std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, calib.imageSize());
+
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                     &mapNode,
                                                     voc,
@@ -442,7 +453,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
       std::make_unique<WAISlam>(calib.cameraMat(),
                                 calib.distortion(),
                                 voc,
-                                _kpExtractor.get(),
+                                kpExtractor.get(),
                                 map,
                                 modeParams.onlyTracking,
                                 modeParams.serial,
@@ -593,7 +604,7 @@ void MapCreator::execute()
             Areas& areas = itLocations->second;
             for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
             {
-                createNewWaiMap(itLocations->first, itAreas->first, itAreas->second);
+                createNewWaiMap(itLocations->first, itAreas->first, itAreas->second, _extractorType);
             }
         }
     }

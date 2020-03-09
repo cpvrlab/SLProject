@@ -17,6 +17,7 @@ set(compile_definitions
     ASIO_HAS_STD_ADDRESSOF
     NOSSL
     NOLFS
+    _CRT_NO_VA_START_VALIDATION
 )
 
 set(headers

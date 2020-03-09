@@ -130,8 +130,8 @@
             timestampString = "589708122.752417"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "700"
-            endingLineNumber = "700"
+            startingLineNumber = "702"
+            endingLineNumber = "702"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -147,8 +147,8 @@
             timestampString = "589708122.752864"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "678"
-            endingLineNumber = "678"
+            startingLineNumber = "680"
+            endingLineNumber = "680"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -164,8 +164,8 @@
             timestampString = "589708122.753107"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "660"
-            endingLineNumber = "660"
+            startingLineNumber = "662"
+            endingLineNumber = "662"
             landmarkName = "-onDeviceMotionUpdate:"
             landmarkType = "7">
          </BreakpointContent>
@@ -181,8 +181,8 @@
             timestampString = "589708122.7533441"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "691"
-            endingLineNumber = "691"
+            startingLineNumber = "693"
+            endingLineNumber = "693"
             landmarkName = "-setupLocationManager"
             landmarkType = "7">
          </BreakpointContent>
@@ -198,8 +198,8 @@
             timestampString = "589708122.753575"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "666"
-            endingLineNumber = "666"
+            startingLineNumber = "668"
+            endingLineNumber = "668"
             landmarkName = "-onDeviceMotionUpdate:"
             landmarkType = "7">
          </BreakpointContent>
@@ -217,7 +217,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1950"
             endingLineNumber = "1950"
-            landmarkName = "appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)"
+            landmarkName = "appDemoLoadScene(s, sv, sceneID)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -241,34 +241,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C9229D14-0F2C-45D0-8F6B-C444D4547637"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../../lib-SLProject/source/SLBackground.cpp"
-            timestampString = "588091134.182373"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
-            landmarkName = "SLBackground::render(SLint widthPX, SLint heightPX)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "52D3115E-2735-433A-ABBE-656D2C5736C3"
+            uuid = "264B404B-530F-4518-9C71-011A5D00FF05"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../../../lib-SLProject/source/SLBackground.cpp"
-            timestampString = "588091134.182695"
+            filePath = "../../../lib-SLProject/source/CV/CVTrackedFaces.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "SLBackground::render(SLint widthPX, SLint heightPX)"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "CVTrackedFaces::CVTrackedFaces(smoothLenght, faceClassifierFilename, faceMarkModelFilename)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

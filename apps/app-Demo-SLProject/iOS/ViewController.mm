@@ -156,10 +156,12 @@ float GetSeconds()
     SLApplication::computerOSVer = std::string([osver UTF8String]);
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
+    SLApplication::calibIniPath  = exeDir + "data/calibrations/"; // for calibInitPath
+    Utils::dumpFileSystemRec("SLProject", exeDir);
+    
     CVImage::defaultPath = exeDir;
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
                                             configDir, // for stored calibrations
-                                            exeDir,    // for calibIniPath
                                             exeDir);   // for videos
     
     /////////////////////////////////////////////
@@ -222,7 +224,7 @@ float GetSeconds()
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     [self setVideoType:CVCapture::instance()->videoType()
-          videoSizeIndex:CVCapture::instance()->activeCalib->camSizeIndex()];
+          videoSizeIndex:CVCapture::instance()->activeCamera->camSizeIndex()];
     
     if (slUsesLocation())
          [self startLocationManager];

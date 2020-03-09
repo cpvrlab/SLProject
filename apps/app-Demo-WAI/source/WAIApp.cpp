@@ -76,7 +76,7 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     if (_loaded)
         return _sv->index();
 
-    Utils::initFileLog(_dirs.logFileDir, true);
+    //Utils::initFileLog(_dirs.logFileDir, true);
 
     Utils::log("WAInative", "loading");
     _dirs = directories;

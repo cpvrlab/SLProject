@@ -5,7 +5,7 @@
 #    define _LARGEFILE64_SOURCE
 #endif
 
-//#define NOSSL
+#define NOSSL
 #ifndef NOSSL
 #    include <openssl/ssl.h>
 #endif

@@ -10,12 +10,31 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
+    ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
     )
 
 file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
     ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
     )
 
 # Group source files
@@ -40,6 +59,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/apps/app-Test-WAI/
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
     ${SL_PROJECT_ROOT}/apps/source/wai/
+    ${SL_PROJECT_ROOT}/apps/source/sens/
     PUBLIC
 
     INTERFACE

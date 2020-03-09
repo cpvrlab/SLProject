@@ -18,6 +18,9 @@ class Utils_iOS
     public:
     //! Returns true if a file exists.
     static bool fileExists(std::string& pathfilename);
+    
+    //! Returns all files and folders in a directory as a vector
+    static std::vector<std::string> getAllNamesInDir(const std::string& dirName);
 
     //! Returns the writable configuration directory
     static std::string getAppsWritableDir();

@@ -21,45 +21,81 @@ C++/ObjectiveC mix.
 */
 bool Utils_iOS::fileExists(string& pathfilename)
 {  
-   // This stat compare is done casesensitive only on ARM hardware
-   struct stat stFileInfo;
-   if (stat(pathfilename.c_str(), &stFileInfo) == 0)
+    // This stat compare is done casesensitive only on ARM hardware
+    struct stat stFileInfo;
+    if (stat(pathfilename.c_str(), &stFileInfo) == 0)
       return true;
-   
-   // Get path and file name seperately and as NSString
-   std::string path = Utils::getPath(pathfilename);
-   std::string file = Utils::getFileName(pathfilename);
-   NSString *nsPath = [NSString stringWithCString:path.c_str() 
+
+    // Get path and file name seperately and as NSString
+    std::string path = Utils::getPath(pathfilename);
+    std::string file = Utils::getFileName(pathfilename);
+    NSString *nsPath = [NSString stringWithCString:path.c_str()
                        encoding:[NSString defaultCStringEncoding]];
-   NSString *nsFile = [NSString stringWithCString:file.c_str() 
+    NSString *nsFile = [NSString stringWithCString:file.c_str()
                        encoding:[NSString defaultCStringEncoding]];
                
-   NSFileManager *fileManager = [NSFileManager defaultManager];
-   if ([fileManager fileExistsAtPath:nsPath]) 
-   {  BOOL isDir = NO;
-      [fileManager fileExistsAtPath:nsPath isDirectory:(&isDir)];
-      if (isDir == YES) 
-      {  NSArray *contents;
-         contents = [fileManager contentsOfDirectoryAtPath:nsPath error:nil];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:nsPath])
+    {
+        BOOL isDir = NO;
+        [fileManager fileExistsAtPath:nsPath isDirectory:(&isDir)];
+        if (isDir == YES)
+        {
+            NSArray *contents;
+            contents = [fileManager contentsOfDirectoryAtPath:nsPath error:nil];
          
-         // Loop over all files of directory and compare caseinsensitive
-         for (NSString *entity in contents) 
-         {
-            //NSLog(@"filesystemname = %@, searchname = %@", entity, nsFile);
+            // Loop over all files of directory and compare caseinsensitive
+            for (NSString *entity in contents)
+            {
+                //NSLog(@"filesystemname = %@, searchname = %@", entity, nsFile);
                     
-            if ([entity length] == [nsFile length])
-            {  
-               if ([entity caseInsensitiveCompare: nsFile] == NSOrderedSame) 
-               {
-                  // update the pathfilename with the real filename
-                  pathfilename = path + [entity UTF8String];
-                  return true;
-               }
+                if ([entity length] == [nsFile length])
+                {
+                    if ([entity caseInsensitiveCompare: nsFile] == NSOrderedSame)
+                    {
+                      // update the pathfilename with the real filename
+                      pathfilename = path + [entity UTF8String];
+                      return true;
+                    }
+                }
             }
-         }
-      }
-   }
-   return false;
+        }
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------
+vector<string> Utils_iOS::getAllNamesInDir(const string& dirName)
+{
+    vector<string> folderContent;
+    
+    // Get path and file name seperately and as NSString
+    std::string path   = Utils::getPath(dirName);
+    std::string folder = Utils::getFileName(dirName);
+    
+    NSString *nsPath   = [NSString stringWithCString:path.c_str()
+                          encoding:[NSString defaultCStringEncoding]];
+    NSString *nsFolder = [NSString stringWithCString:folder.c_str()
+                          encoding:[NSString defaultCStringEncoding]];
+               
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:nsPath])
+    {
+        BOOL isDir = NO;
+        [fileManager fileExistsAtPath:nsPath isDirectory:(&isDir)];
+        
+        if (isDir == YES)
+        {
+            NSArray *contents;
+            contents = [fileManager contentsOfDirectoryAtPath:nsPath error:nil];
+         
+            for (NSString *entity in contents)
+            {
+                folderContent.emplace_back(path + [entity UTF8String]);
+            }
+        }
+    }
+    return folderContent;
 }
 //-----------------------------------------------------------------------------
 std::string Utils_iOS::getAppsWritableDir()

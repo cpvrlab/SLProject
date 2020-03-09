@@ -21,10 +21,10 @@ namespace FtpUtils
 //! Uploads the file to the ftp server. checks if the filename already exists and adds a version number
 bool uploadFileLatestVersion(const string& fileDir,
                              const string& fileName,
-                             const string  ftpHost,
-                             const string  ftpUser,
-                             const string  ftpPwd,
-                             const string  ftpDir,
+                             const string& ftpHost,
+                             const string& ftpUser,
+                             const string& ftpPwd,
+                             const string& ftpDir,
                              string&       errorMsg)
 {
     string fullPathAndFilename = fileDir + fileName;
@@ -95,11 +95,11 @@ bool uploadFileLatestVersion(const string& fileDir,
 //-----------------------------------------------------------------------------
 //! Downlad the file from the ftp server which has the latest version and store it as fileName locally
 bool downloadFileLatestVersion(const string& fileDir,
-                               const string  fileName,
-                               const string  ftpHost,
-                               const string  ftpUser,
-                               const string  ftpPwd,
-                               const string  ftpDir,
+                               const string& fileName,
+                               const string& ftpHost,
+                               const string& ftpUser,
+                               const string& ftpPwd,
+                               const string& ftpDir,
                                string&       errorMsg)
 {
     bool   success = true;
@@ -160,10 +160,10 @@ bool downloadFileLatestVersion(const string& fileDir,
 //! Uploads file to the ftp server
 bool uploadFile(const string& fileDir,
                 const string& fileName,
-                const string  ftpHost,
-                const string  ftpUser,
-                const string  ftpPwd,
-                const string  ftpDir,
+                const string& ftpHost,
+                const string& ftpUser,
+                const string& ftpPwd,
+                const string& ftpDir,
                 string&       errorMsg)
 {
     string fullPathAndFilename = fileDir + fileName;
@@ -215,11 +215,11 @@ bool uploadFile(const string& fileDir,
 //-----------------------------------------------------------------------------
 //! Download file from the ftp server
 bool downloadFile(const string& fileDir,
-                  const string  fileName,
-                  const string  ftpHost,
-                  const string  ftpUser,
-                  const string  ftpPwd,
-                  const string  ftpDir,
+                  const string& fileName,
+                  const string& ftpHost,
+                  const string& ftpUser,
+                  const string& ftpPwd,
+                  const string& ftpDir,
                   string&       errorMsg)
 {
     bool   success = true;
@@ -277,10 +277,10 @@ bool downloadFile(const string& fileDir,
 }
 //-----------------------------------------------------------------------------
 bool downloadAllFilesFromDir(const string& fileDir,
-                             const string  ftpHost,
-                             const string  ftpUser,
-                             const string  ftpPwd,
-                             const string  ftpDir,
+                             const string& ftpHost,
+                             const string& ftpUser,
+                             const string& ftpPwd,
+                             const string& ftpDir,
                              string&       errorMsg)
 {
     bool   success = true;
@@ -296,18 +296,18 @@ bool downloadAllFilesFromDir(const string& fileDir,
                 vector<string> retrievedFileNames;
                 if (success = getAllFileNamesWithTag(ftp, fileDir, "xml", retrievedFileNames, errorMsg))
                 {
-                    for (auto it = retrievedFileNames.begin(); it != retrievedFileNames.end(); ++it)
+                    for (auto& retrievedFileName : retrievedFileNames)
                     {
                         int remoteSize = 0;
-                        ftp.Size(it->c_str(),
+                        ftp.Size(retrievedFileName.c_str(),
                                  &remoteSize,
                                  ftplib::transfermode::image);
 
                         if (remoteSize > 0)
                         {
-                            string targetFilename = fileDir + *it;
+                            string targetFilename = fileDir + retrievedFileName;
                             if (!ftp.Get(targetFilename.c_str(),
-                                         it->c_str(),
+                                         retrievedFileName.c_str(),
                                          ftplib::transfermode::image))
                             {
                                 errorMsg = "*** ERROR: ftp.Get failed. ***\n";
@@ -340,8 +340,8 @@ bool downloadAllFilesFromDir(const string& fileDir,
 }
 //-----------------------------------------------------------------------------
 bool getAllFileNamesWithTag(ftplib&         ftp,
-                            string          localDir,
-                            const string    searchFileTag,
+                            const string&   localDir,
+                            const string&   searchFileTag,
                             vector<string>& retrievedFileNames,
                             string&         errorMsg)
 {

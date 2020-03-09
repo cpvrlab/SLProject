@@ -270,7 +270,7 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
         ${OpenCV_INCLUDE_DIR}
         ${assimp_INCLUDE_DIR}
-        ${SL_PROJECT_ROOT}/externals
+        ${SL_PROJECT_ROOT}/externals/nlohmann
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE

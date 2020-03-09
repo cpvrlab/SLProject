@@ -36,9 +36,9 @@ class AppDemoGuiSlamLoad;
 
 struct ExtractorIds
 {
-    int trackingExtractorId;
-    int initializationExtractorId;
-    int markerExtractorId;
+    ExtractorType trackingExtractorId;
+    ExtractorType initializationExtractorId;
+    ExtractorType markerExtractorId;
 };
 
 struct SlamParams

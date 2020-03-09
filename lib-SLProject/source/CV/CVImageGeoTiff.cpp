@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <CVImageGeoTiff.h>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 #include <Utils.h>
 
 using json = nlohmann::json;
