@@ -30,7 +30,6 @@
 		41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */; };
 		413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B362D156CF93100B8284A /* SLCurveBezier.cpp */; };
 		413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 413B3634156CF97900B8284A /* SLAnimation.cpp */; };
-		413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 413F1C492067DCD900AEF871 /* lbfmodel.yaml */; };
 		41421AEA2146A53400554495 /* earth2048_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE22146A53300554495 /* earth2048_C.jpg */; };
 		41421AEB2146A53400554495 /* earth1024_G.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE32146A53300554495 /* earth1024_G.jpg */; };
 		41421AEC2146A53400554495 /* earth1024_N.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41421AE42146A53300554495 /* earth1024_N.jpg */; };
@@ -56,7 +55,6 @@
 		414AC53E1F52A8070003867A /* CVTrackedFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */; };
 		414B3FEB148AAE520074D939 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FE8148AAE520074D939 /* Default.png */; };
 		414B3FED148AAE520074D939 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FEA148AAE520074D939 /* Icon.png */; };
-		414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */; };
 		414C14A3207FAFC6007587D8 /* liblibwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148E207FAFC3007587D8 /* liblibwebp.a */; };
 		414C14A4207FAFC6007587D8 /* libopencv_videoio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148F207FAFC3007587D8 /* libopencv_videoio.a */; };
 		414C14A6207FAFC6007587D8 /* libopencv_face.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1491207FAFC4007587D8 /* libopencv_face.a */; };
@@ -432,7 +430,6 @@
 		419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3F14865C0800D576F1 /* CoreGraphics.framework */; };
 		419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4114865C0800D576F1 /* GLKit.framework */; };
 		419BCD4414865C0800D576F1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD4314865C0800D576F1 /* OpenGLES.framework */; };
-		419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = 419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */; };
 		419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E11A71B74AF0000203E70 /* SLBackground.cpp */; };
 		419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */ = {isa = PBXBuildFile; fileRef = 419E11A91B74B02000203E70 /* LiveVideoError.png */; };
 		41A16C3C1B836835001EA07E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A16C3B1B836835001EA07E /* CoreMotion.framework */; };
@@ -448,6 +445,10 @@
 		41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355081A7E676800791841 /* SLInputDevice.cpp */; };
 		41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A355091A7E676800791841 /* SLInputManager.cpp */; };
 		41A6A0801FF5887200C795A4 /* SLSkybox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */; };
+		41AD92602416543A008D8A79 /* calib_in_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = 41AD925F2416543A008D8A79 /* calib_in_params.yml */; };
+		41AD926424165452008D8A79 /* lbfmodel.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 41AD926124165452008D8A79 /* lbfmodel.yaml */; };
+		41AD926524165452008D8A79 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */; };
+		41AD926624165452008D8A79 /* aruco_detector_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = 41AD926324165452008D8A79 /* aruco_detector_params.yml */; };
 		41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDC1E49B4BC007B8B39 /* cursor.png */; };
 		41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41B7BDDF1E49B553007B8B39 /* Images.xcassets */; };
 		41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */; };
@@ -580,7 +581,6 @@
 		413B3630156CF93100B8284A /* SLQuat4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLQuat4.h; path = "../../../lib-SLProject/include/math/SLQuat4.h"; sourceTree = SOURCE_ROOT; };
 		413B3633156CF96F00B8284A /* SLAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimation.h; path = "../../../lib-SLProject/include/SLAnimation.h"; sourceTree = SOURCE_ROOT; };
 		413B3634156CF97900B8284A /* SLAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAnimation.cpp; path = "../../../lib-SLProject/source/SLAnimation.cpp"; sourceTree = SOURCE_ROOT; };
-		413F1C492067DCD900AEF871 /* lbfmodel.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = lbfmodel.yaml; sourceTree = "<group>"; };
 		41421AE22146A53300554495 /* earth2048_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth2048_C.jpg; path = ../../../data/images/textures/earth2048_C.jpg; sourceTree = "<group>"; };
 		41421AE32146A53300554495 /* earth1024_G.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_G.jpg; path = ../../../data/images/textures/earth1024_G.jpg; sourceTree = "<group>"; };
 		41421AE42146A53300554495 /* earth1024_N.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = earth1024_N.jpg; path = ../../../data/images/textures/earth1024_N.jpg; sourceTree = "<group>"; };
@@ -616,7 +616,6 @@
 		414AC5431F52A8430003867A /* CVTrackedFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedFeatures.h; path = "../../../lib-SLProject/include/CV/CVTrackedFeatures.h"; sourceTree = SOURCE_ROOT; };
 		414B3FE8148AAE520074D939 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = images/Default.png; sourceTree = SOURCE_ROOT; };
 		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
-		414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = SOURCE_ROOT; };
 		414C1468207FA96E007587D8 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		414C148E207FAFC3007587D8 /* liblibwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibwebp.a; path = ../../../externals/prebuilt/iosV8_opencv_4.2.0/release/opencv4/3rdparty/liblibwebp.a; sourceTree = SOURCE_ROOT; };
 		414C148F207FAFC3007587D8 /* libopencv_videoio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_videoio.a; path = ../../../externals/prebuilt/iosV8_opencv_4.2.0/release/libopencv_videoio.a; sourceTree = SOURCE_ROOT; };
@@ -1045,7 +1044,6 @@
 		419BCD3F14865C0800D576F1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		419BCD4114865C0800D576F1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		419BCD4314865C0800D576F1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = aruco_detector_params.yml; sourceTree = "<group>"; };
 		419E11A51B74AED200203E70 /* SLBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLBackground.h; path = "../../../lib-SLProject/include/SLBackground.h"; sourceTree = SOURCE_ROOT; };
 		419E11A71B74AF0000203E70 /* SLBackground.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLBackground.cpp; path = "../../../lib-SLProject/source/SLBackground.cpp"; sourceTree = SOURCE_ROOT; };
 		419E11A91B74B02000203E70 /* LiveVideoError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LiveVideoError.png; path = ../../../data/images/textures/LiveVideoError.png; sourceTree = "<group>"; };
@@ -1069,6 +1067,10 @@
 		41A355091A7E676800791841 /* SLInputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLInputManager.cpp; path = "../../../lib-SLProject/source/SLInputManager.cpp"; sourceTree = SOURCE_ROOT; };
 		41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLSkybox.cpp; path = "../../../lib-SLProject/source/SL/SLSkybox.cpp"; sourceTree = SOURCE_ROOT; };
 		41A6A0811FF588A400C795A4 /* SLSkybox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLSkybox.h; path = "../../../lib-SLProject/include/SL/SLSkybox.h"; sourceTree = SOURCE_ROOT; };
+		41AD925F2416543A008D8A79 /* calib_in_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; name = calib_in_params.yml; path = ../../../data/calibrations/calib_in_params.yml; sourceTree = "<group>"; };
+		41AD926124165452008D8A79 /* lbfmodel.yaml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; name = lbfmodel.yaml; path = ../../../data/calibrations/lbfmodel.yaml; sourceTree = "<group>"; };
+		41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = haarcascade_frontalface_alt2.xml; path = ../../../data/calibrations/haarcascade_frontalface_alt2.xml; sourceTree = "<group>"; };
+		41AD926324165452008D8A79 /* aruco_detector_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; name = aruco_detector_params.yml; path = ../../../data/calibrations/aruco_detector_params.yml; sourceTree = "<group>"; };
 		41B3821E18D593D1000F37CC /* Averaged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Averaged.h; path = "../../../lib-SLProject/include/Averaged.h"; sourceTree = SOURCE_ROOT; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../../../data/images/textures/cursor.png; sourceTree = "<group>"; };
 		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
@@ -1242,24 +1244,6 @@
 				41C48E911F01250E0059B48C /* imgui.h */,
 			);
 			name = "lib-SLExternal";
-			sourceTree = "<group>";
-		};
-		413C5F1D24165009008A6ECA /* data */ = {
-			isa = PBXGroup;
-			children = (
-				413C5F2024165162008A6ECA /* calibrations */,
-			);
-			path = data;
-			sourceTree = "<group>";
-		};
-		413C5F2024165162008A6ECA /* calibrations */ = {
-			isa = PBXGroup;
-			children = (
-				414C1422207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml */,
-				413F1C492067DCD900AEF871 /* lbfmodel.yaml */,
-				419BEFC61DE5EE9300C3E171 /* aruco_detector_params.yml */,
-			);
-			path = calibrations;
 			sourceTree = "<group>";
 		};
 		4143336B1DE03D130027E1C3 /* CV */ = {
@@ -1916,7 +1900,7 @@
 				417E0E99148A6F910015B5B0 /* Textures */,
 				41F365142008E47600782F42 /* Videos */,
 				417E0E44148A6EBC0015B5B0 /* Models */,
-				413C5F1D24165009008A6ECA /* data */,
+				41AD925B241653CB008D8A79 /* data */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2004,6 +1988,25 @@
 			);
 			name = Animation;
 			sourceTree = "<group>";
+		};
+		41AD925B241653CB008D8A79 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				41AD925E241653F7008D8A79 /* calibrations */,
+			);
+			name = data;
+			sourceTree = SOURCE_ROOT;
+		};
+		41AD925E241653F7008D8A79 /* calibrations */ = {
+			isa = PBXGroup;
+			children = (
+				41AD926324165452008D8A79 /* aruco_detector_params.yml */,
+				41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */,
+				41AD926124165452008D8A79 /* lbfmodel.yaml */,
+				41AD925F2416543A008D8A79 /* calib_in_params.yml */,
+			);
+			name = calibrations;
+			sourceTree = SOURCE_ROOT;
 		};
 		41B849FF148B2C3700305DB5 /* Images */ = {
 			isa = PBXGroup;
@@ -2193,12 +2196,12 @@
 				414D37F51EE6A7DC009DB259 /* rusty-metal_2048C.png in Resources */,
 				4179814E1F13833000EB5315 /* i0058_0000b.png in Resources */,
 				417981971F13833000EB5315 /* i0131_0000b.png in Resources */,
-				419BEFC71DE5EE9300C3E171 /* aruco_detector_params.yml in Resources */,
 				4166ED0F200260D700B42D17 /* Desert+Z1024_C.jpg in Resources */,
 				41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */,
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
 				41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */,
+				41AD92602416543A008D8A79 /* calib_in_params.yml in Resources */,
 				417981781F13833000EB5315 /* i0100_0000b.png in Resources */,
 				4179817B1F13833000EB5315 /* i0103_0000b.png in Resources */,
 				411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */,
@@ -2224,12 +2227,12 @@
 				411BA72B18C071CA00F10475 /* Icon_152.png in Resources */,
 				417981E71F13836300EB5315 /* VolumeRenderingRayCast.vert in Resources */,
 				417981521F13833000EB5315 /* i0062_0000b.png in Resources */,
-				413F1C4B2067DCD900AEF871 /* lbfmodel.yaml in Resources */,
 				418BF4411B8B0D4F0049E387 /* BumpNormal.frag in Resources */,
 				418BF4451B8B0D4F0049E387 /* Color.frag in Resources */,
 				411BA72718C0702600F10475 /* Icon_120.png in Resources */,
 				417981E11F13833000EB5315 /* i0205_0000b.png in Resources */,
 				417E0EB9148A70DE0015B5B0 /* brick0512_C.png in Resources */,
+				41AD926624165452008D8A79 /* aruco_detector_params.yml in Resources */,
 				417981431F13833000EB5315 /* i0047_0000b.png in Resources */,
 				417981741F13833000EB5315 /* i0096_0000b.png in Resources */,
 				417981871F13833000EB5315 /* i0115_0000b.png in Resources */,
@@ -2266,6 +2269,7 @@
 				418BF4651B8B0D500049E387 /* StereoOculusDistortionMesh.frag in Resources */,
 				417E0EBC148A70DE0015B5B0 /* brickwall0512_C.jpg in Resources */,
 				417981BB1F13833000EB5315 /* i0167_0000b.png in Resources */,
+				41AD926524165452008D8A79 /* haarcascade_frontalface_alt2.xml in Resources */,
 				417981B01F13833000EB5315 /* i0156_0000b.png in Resources */,
 				412F89721FF58D94004D5982 /* ADSTex.vert in Resources */,
 				417981861F13833000EB5315 /* i0114_0000b.png in Resources */,
@@ -2441,7 +2445,6 @@
 				418BF4531B8B0D500049E387 /* PerPixBlinnTex.vert in Resources */,
 				417E0ED6148A70DE0015B5B0 /* wood2_0256_C.jpg in Resources */,
 				417981161F13833000EB5315 /* i0002_0000b.png in Resources */,
-				414C1423207F8BB3007587D8 /* haarcascade_frontalface_alt2.xml in Resources */,
 				417E0ED7148A70DE0015B5B0 /* wood2_0512_C.jpg in Resources */,
 				417981BA1F13833000EB5315 /* i0166_0000b.png in Resources */,
 				4179817F1F13833000EB5315 /* i0107_0000b.png in Resources */,
@@ -2459,6 +2462,7 @@
 				417981C31F13833000EB5315 /* i0175_0000b.png in Resources */,
 				417981BD1F13833000EB5315 /* i0169_0000b.png in Resources */,
 				4179811B1F13833000EB5315 /* i0007_0000b.png in Resources */,
+				41AD926424165452008D8A79 /* lbfmodel.yaml in Resources */,
 				417E0EDE148A71220015B5B0 /* Pool-X0512_C.png in Resources */,
 				417E0EDF148A71220015B5B0 /* Pool-Y0512_C.png in Resources */,
 				417981491F13833000EB5315 /* i0053_0000b.png in Resources */,
