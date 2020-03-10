@@ -38,9 +38,9 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, cv:
         case ExtractorType_FAST_ORBS_4000:
             return std::move(orbExtractor(4000));
         case ExtractorType_GLSL_1:
-            return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.25, 1.9, 1.4));
+            return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.10, 1.9, 1.3));
         case ExtractorType_GLSL:
-            return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.25, 1.8, 1.2));
+            return std::move(glslExtractor(videoFrameSize, 16, 16, 0.5, 0.10, 1.9, 1.4));
         default:
             return std::move(surfExtractor(1000));
     }
