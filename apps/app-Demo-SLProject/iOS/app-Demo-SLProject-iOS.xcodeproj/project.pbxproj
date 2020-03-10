@@ -1863,19 +1863,13 @@
 			name = "Accelerator & Animation";
 			sourceTree = SOURCE_ROOT;
 		};
-		41901CF41959C478006795A8 /* AppDemo_iOS */ = {
+		41901CF41959C478006795A8 /* iOS-Specific */ = {
 			isa = PBXGroup;
 			children = (
-				41FBDBCA232636CA0055338A /* AppDemoVideo.cpp */,
-				41C7582C230D7CD90083A25D /* AppDemoSceneView.h */,
-				41C75828230D7CCD0083A25D /* AppDemoSceneView.cpp */,
-				41565011148AA64F00A3CAA6 /* AppDelegate.h */,
 				41565012148AA64F00A3CAA6 /* AppDelegate.mm */,
-				416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */,
-				416DA7D22021B8FD00406B83 /* AppDemoGui.h */,
-				416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */,
-				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
+				41565011148AA64F00A3CAA6 /* AppDelegate.h */,
 				41565014148AA64F00A3CAA6 /* comgr-Prefix.pch */,
+				41B849FF148B2C3700305DB5 /* Images */,
 				41565015148AA64F00A3CAA6 /* main.m */,
 				41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */,
 				41394E8E22A13F8600C2448F /* Utils_iOS.h */,
@@ -1884,15 +1878,15 @@
 				4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */,
 				41565016148AA64F00A3CAA6 /* ViewController.h */,
 				41565017148AA64F00A3CAA6 /* ViewController.mm */,
-				41B849FF148B2C3700305DB5 /* Images */,
 			);
-			name = AppDemo_iOS;
+			name = "iOS-Specific";
 			sourceTree = SOURCE_ROOT;
 		};
 		419BCD2C14865C0800D576F1 = {
 			isa = PBXGroup;
 			children = (
-				41901CF41959C478006795A8 /* AppDemo_iOS */,
+				41A3549524179D23004520DF /* AppDemo */,
+				41901CF41959C478006795A8 /* iOS-Specific */,
 				419BCD4514865C0800D576F1 /* SLProject */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
 				419BCD3814865C0800D576F1 /* Products */,
@@ -1973,6 +1967,19 @@
 			path = "../../../lib-SLProject";
 			sourceTree = SOURCE_ROOT;
 		};
+		41A3549524179D23004520DF /* AppDemo */ = {
+			isa = PBXGroup;
+			children = (
+				416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */,
+				416DA7D22021B8FD00406B83 /* AppDemoGui.h */,
+				416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */,
+				41C75828230D7CCD0083A25D /* AppDemoSceneView.cpp */,
+				41C7582C230D7CD90083A25D /* AppDemoSceneView.h */,
+				41FBDBCA232636CA0055338A /* AppDemoVideo.cpp */,
+			);
+			name = AppDemo;
+			sourceTree = "<group>";
+		};
 		41A354ED1A7E638200791841 /* Animation */ = {
 			isa = PBXGroup;
 			children = (
@@ -2000,6 +2007,7 @@
 		41AD925E241653F7008D8A79 /* calibrations */ = {
 			isa = PBXGroup;
 			children = (
+				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
 				41AD926324165452008D8A79 /* aruco_detector_params.yml */,
 				41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */,
 				41AD926124165452008D8A79 /* lbfmodel.yaml */,
@@ -2151,7 +2159,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-iOS" */;
+			buildConfigurationList = 419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-SLProject-iOS" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -3008,7 +3016,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-iOS" */ = {
+		419BCD3114865C0800D576F1 /* Build configuration list for PBXProject "app-Demo-SLProject-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				419BCD5E14865C0800D576F1 /* Debug */,
