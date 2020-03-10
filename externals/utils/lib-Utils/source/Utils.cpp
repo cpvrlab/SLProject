@@ -1120,33 +1120,45 @@ int lcm(int a, int b)
 {
     return (a * b) / Utils::gcd(a, b);
 }
+
 //-----------------------------------------------------------------------------
-std::string getComputerInfos()
+//ComputerInfos
+//-----------------------------------------------------------------------------
+std::string ComputerInfos::user  = "USER?";
+std::string ComputerInfos::name  = "NAME?";
+std::string ComputerInfos::brand = "BRAND?";
+std::string ComputerInfos::model = "MODEL?";
+std::string ComputerInfos::os    = "OS?";
+std::string ComputerInfos::osVer = "OSVER?";
+std::string ComputerInfos::arch  = "ARCH?";
+std::string ComputerInfos::id    = "ID?";
+
+//-----------------------------------------------------------------------------
+std::string ComputerInfos::get()
 {
 #if defined(_WIN32) //..................................................
 
     // Computer user name
     const char* envvar = std::getenv("USER");
-    computerUser       = envvar ? string(envvar) : "USER?";
-    if (computerUser == "USER?")
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
     {
         const char* envvar = std::getenv("USERNAME");
-        computerUser       = envvar ? string(envvar) : "USER?";
+        user               = envvar ? string(envvar) : "USER?";
     }
-
-    computerName = Utils::getHostName();
+    name = Utils::getHostName();
 
     // Get architecture
     SYSTEM_INFO siSysInfo;
     GetSystemInfo(&siSysInfo);
     switch (siSysInfo.wProcessorArchitecture)
     {
-        case PROCESSOR_ARCHITECTURE_AMD64: computerArch = "x64"; break;
-        case PROCESSOR_ARCHITECTURE_ARM: computerArch = "ARM"; break;
-        case PROCESSOR_ARCHITECTURE_ARM64: computerArch = "ARM64"; break;
-        case PROCESSOR_ARCHITECTURE_IA64: computerArch = "IA64"; break;
-        case PROCESSOR_ARCHITECTURE_INTEL: computerArch = "x86"; break;
-        default: computerArch = "???";
+        case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
+        case PROCESSOR_ARCHITECTURE_ARM64: arch = "ARM64"; break;
+        case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
+        default: arch = "???";
     }
 
     // Windows OS version
@@ -1154,40 +1166,40 @@ std::string getComputerInfos()
     ZeroMemory(&osInfo, sizeof(OSVERSIONINFO));
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osInfo);
-    char osVer[50];
-    sprintf(osVer, "%u.%u", osInfo.dwMajorVersion, osInfo.dwMinorVersion);
-    computerOSVer = string(osVer);
+    char osVersion[50];
+    sprintf(osVersion, "%u.%u", osInfo.dwMajorVersion, osInfo.dwMinorVersion);
+    osVer = string(osVersion);
 
-    computerBrand = "BRAND?";
-    computerModel = "MODEL?";
-    computerOS    = "Windows";
+    brand = "BRAND?";
+    model = "MODEL?";
+    os    = "Windows";
 
 #elif defined(__APPLE__)
 #    if TARGET_OS_IOS
     // Model and architecture are retrieved before in iOS under Objective C
-    computerBrand      = "Apple";
-    computerOS         = "iOS";
+    brand              = "Apple";
+    os                 = "iOS";
     const char* envvar = std::getenv("USER");
-    computerUser       = envvar ? string(envvar) : "USER?";
-    if (computerUser == "USER?")
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
     {
         const char* envvar = std::getenv("USERNAME");
-        computerUser       = envvar ? string(envvar) : "USER?";
+        user               = envvar ? string(envvar) : "USER?";
     }
-    computerName = Utils::getHostName();
+    name = Utils::getHostName();
 #    else
     // Computer user name
     const char* envvar = std::getenv("USER");
-    computerUser       = envvar ? string(envvar) : "USER?";
-    if (computerUser == "USER?")
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
     {
         const char* envvar = std::getenv("USERNAME");
-        computerUser       = envvar ? string(envvar) : "USER?";
+        user               = envvar ? string(envvar) : "USER?";
     }
 
-    computerName  = Utils::getHostName();
-    computerBrand = "Apple";
-    computerOS    = "MacOS";
+    name  = Utils::getHostName();
+    brand = "Apple";
+    os    = "MacOS";
 
     // Get MacOS version
     SInt32 majorV, minorV, bugfixV;
@@ -1196,31 +1208,31 @@ std::string getComputerInfos()
     Gestalt(gestaltSystemVersionBugFix, &bugfixV);
     char osVer[50];
     sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
-    computerOSVer = string(osVer);
+    osVer = string(osVer);
 
     // Get model
     size_t len = 0;
     sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
     char model[255];
     sysctlbyname("hw.model", model, &len, nullptr, 0);
-    computerModel = model;
+    model = model;
 
-    computerArch = "ARCH?";
+    arch = "ARCH?";
 #    endif
 
 #elif defined(linux) || defined(__linux) || defined(__linux__) //..................................................
 
-    computerOS    = "Linux";
-    computerUser  = "USER?";
-    computerName  = Utils::getHostName();
-    computerBrand = "BRAND?";
-    computerModel = "MODEL?";
-    computerOSVer = "OSVER?";
-    computerArch  = "ARCH?";
+    os    = "Linux";
+    user  = "USER?";
+    name  = Utils::getHostName();
+    brand = "BRAND?";
+    model = "MODEL?";
+    osVer = "OSVER?";
+    arch  = "ARCH?";
 
 #elif defined(ANDROID) //................................................
 
-    computerOS = "Android";
+    os = "Android";
 
     /*
     "ro.build.version.release"     // * The user-visible version string. E.g., "1.0" or "3.4b5".
@@ -1249,35 +1261,35 @@ std::string getComputerInfos()
     int len;
 
     char host[PROP_VALUE_MAX];
-    len          = __system_property_get("ro.build.host", host);
-    computerName = host ? string(host) : "NAME?";
+    len  = __system_property_get("ro.build.host", host);
+    name = host ? string(host) : "NAME?";
 
     char user[PROP_VALUE_MAX];
-    len          = __system_property_get("ro.build.user", user);
-    computerUser = user ? string(user) : "USER?";
+    len  = __system_property_get("ro.build.user", user);
+    user = user ? string(user) : "USER?";
 
     char brand[PROP_VALUE_MAX];
-    len           = __system_property_get("ro.product.brand", brand);
-    computerBrand = string(brand);
+    len   = __system_property_get("ro.product.brand", brand);
+    brand = string(brand);
 
     char model[PROP_VALUE_MAX];
-    len           = __system_property_get("ro.product.model", model);
-    computerModel = string(model);
+    len   = __system_property_get("ro.product.model", model);
+    model = string(model);
 
     char osVer[PROP_VALUE_MAX];
-    len           = __system_property_get("ro.build.version.release", osVer);
-    computerOSVer = string(osVer);
+    len   = __system_property_get("ro.build.version.release", osVer);
+    osVer = string(osVer);
 
     char arch[PROP_VALUE_MAX];
-    len          = __system_property_get("ro.product.cpu.abi", arch);
-    computerArch = string(arch);
+    len  = __system_property_get("ro.product.cpu.abi", arch);
+    arch = string(arch);
 
 #endif
 
     // build a unique as possible ID string that can be used in a filename
-    computerID = computerUser + "-" + computerName + "-" + computerModel;
-    computerID = Utils::replaceNonFilenameChars(computerID);
-    std::replace(computerID.begin(), computerID.end(), '_', '-');
-    return computerID;
+    id = user + "-" + name + "-" + model;
+    id = Utils::replaceNonFilenameChars(id);
+    std::replace(id.begin(), id.end(), '_', '-');
+    return id;
 }
 };

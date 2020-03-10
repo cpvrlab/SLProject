@@ -342,7 +342,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         }
         else
         {
-            computerInfo = Utils::getComputerInfos();
+            computerInfo = Utils::ComputerInfos::get();
         }
 
         calibrationFileName        = "camCalib_" + computerInfo + "_main.xml";

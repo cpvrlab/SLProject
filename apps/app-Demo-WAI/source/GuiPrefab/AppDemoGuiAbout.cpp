@@ -48,7 +48,7 @@ void AppDemoGuiAbout::buildInfos(SLScene* s, SLSceneView* sv)
     //ImGui::Image((ImTextureID)(intptr_t)_cpvrLogo->texName(), ImVec2(iconSize, iconSize), ImVec2(0, 1), ImVec2(1, 0));
     //ImGui::SameLine();
     //ImGui::Text("Version: %s", SLApplication::version.c_str());
-    ImGui::Text("Device: %s", Utils::getComputerInfos().c_str());
+    ImGui::Text("Device: %s", Utils::ComputerInfos::get().c_str());
     ImGui::Separator();
     //ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
     //ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());

@@ -337,7 +337,6 @@ private:
 
     //todo: we dont need a pointer
     AppWAIScene* _waiScene = nullptr;
-    //SLProjectScene* _scene;
     std::string    _name;
     SLInputManager _inputManager;
 };

@@ -325,9 +325,6 @@ public:
 
     virtual void onLoadAsset(const SLstring& assetFile,
                              SLuint          processFlags);
-
-private:
-    //SLint _numProgsPreload; //!< No. of preloaded shaderProgs
 };
 //-----------------------------------------------------------------------------
 
