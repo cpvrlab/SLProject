@@ -46,6 +46,8 @@ namespace fs = std::experimental::filesystem;
 #    include <dirent.h>
 #    include <unistd.h> //getcwd
 #    include <sys/stat.h>
+#    include <sys/time.h>
+#    include <sys/system_properties.h>
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #    include <dirent.h>
 #    include <unistd.h> //getcwd
@@ -1220,16 +1222,6 @@ std::string ComputerInfos::get()
     arch = "ARCH?";
 #    endif
 
-#elif defined(linux) || defined(__linux) || defined(__linux__) //..................................................
-
-    os    = "Linux";
-    user  = "USER?";
-    name  = Utils::getHostName();
-    brand = "BRAND?";
-    model = "MODEL?";
-    osVer = "OSVER?";
-    arch  = "ARCH?";
-
 #elif defined(ANDROID) //................................................
 
     os = "Android";
@@ -1260,30 +1252,39 @@ std::string ComputerInfos::get()
 
     int len;
 
-    char host[PROP_VALUE_MAX];
-    len  = __system_property_get("ro.build.host", host);
-    name = host ? string(host) : "NAME?";
+    char hostC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.build.host", hostC);
+    name = hostC ? string(hostC) : "NAME?";
 
-    char user[PROP_VALUE_MAX];
-    len  = __system_property_get("ro.build.user", user);
-    user = user ? string(user) : "USER?";
+    char userC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.build.user", userC);
+    user = userC ? string(userC) : "USER?";
 
-    char brand[PROP_VALUE_MAX];
-    len   = __system_property_get("ro.product.brand", brand);
-    brand = string(brand);
+    char brandC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.product.brand", brandC);
+    brand = string(brandC);
 
-    char model[PROP_VALUE_MAX];
-    len   = __system_property_get("ro.product.model", model);
-    model = string(model);
+    char modelC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.product.model", modelC);
+    model = string(modelC);
 
-    char osVer[PROP_VALUE_MAX];
-    len   = __system_property_get("ro.build.version.release", osVer);
-    osVer = string(osVer);
+    char osVerC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.build.version.release", osVerC);
+    osVer = string(osVerC);
 
-    char arch[PROP_VALUE_MAX];
-    len  = __system_property_get("ro.product.cpu.abi", arch);
-    arch = string(arch);
+    char archC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.product.cpu.abi", archC);
+    arch = string(archC);
 
+#elif defined(linux) || defined(__linux) || defined(__linux__) //..................................................
+
+    os    = "Linux";
+    user  = "USER?";
+    name  = Utils::getHostName();
+    brand = "BRAND?";
+    model = "MODEL?";
+    osVer = "OSVER?";
+    arch  = "ARCH?";
 #endif
 
     // build a unique as possible ID string that can be used in a filename
