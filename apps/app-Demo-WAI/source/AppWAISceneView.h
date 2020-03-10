@@ -5,6 +5,15 @@
 
 struct WAIEvent;
 
+enum WAINodeEditMode
+{
+    WAINodeEditMode_None,
+    WAINodeEditMode_Translate,
+    WAINodeEditMode_TranslateX,
+    WAINodeEditMode_TranslateY,
+    WAINodeEditMode_TranslateZ
+};
+
 class WAISceneView : public SLSceneView
 {
 public:
@@ -18,13 +27,15 @@ public:
 protected:
     std::queue<WAIEvent*>* _eventQueue;
 
-    bool _editMode;
-    bool _mouseIsDown;
+    WAINodeEditMode _editMode;
 
-    SLVec2i _mouseDownCoordinates;
+    bool    _mouseIsDown;
     SLVec3f _hitCoordinate;
 
     SLNode* _editGizmos = nullptr;
+    SLNode* _xAxisNode  = nullptr;
+    SLNode* _yAxisNode  = nullptr;
+    SLNode* _zAxisNode  = nullptr;
     SLNode* _mapNode    = nullptr;
 };
 

@@ -1,14 +1,14 @@
 #include <AppWAISceneView.h>
 
 #include <SLApplication.h>
-#include <SLCoordAxis.h>
+#include <SLCoordAxisArrow.h>
 #include <SLVec3.h>
 
 #include <WAIApp.h>
 
 WAISceneView::WAISceneView(std::queue<WAIEvent*>* eventQueue) : SLSceneView(),
                                                                 _eventQueue(eventQueue),
-                                                                _editMode(false),
+                                                                _editMode(WAINodeEditMode_None),
                                                                 _mouseIsDown(false)
 {
 }
@@ -21,35 +21,49 @@ void WAISceneView::toggleEditMode()
     {
         if (s->root3D())
         {
-            //_mapNode = s->root3D()->findChild<SLNode>("map");
-
             SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
             if (mapNode)
             {
                 if (!_editGizmos)
                 {
-                    _editGizmos = new SLNode("Gizmos");
-                    _editGizmos->translation(mapNode->updateAndGetWM().translation());
+                    SLScene* s = SLApplication::scene;
 
-                    SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");
-                    _editGizmos->addChild(axisNode);
+                    _editGizmos = new SLNode("Gizmos");
+
+                    _xAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::RED), "x-axis node");
+                    _xAxisNode->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
+                    _yAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::GREEN), "y-axis node");
+                    _zAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
+                    _zAxisNode->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+                    _editGizmos->addChild(_xAxisNode);
+                    _editGizmos->addChild(_yAxisNode);
+                    _editGizmos->addChild(_zAxisNode);
                     s->root3D()->addChild(_editGizmos);
 
-                    //_mapNode->updateAABBRec();
                     s->root3D()->updateAABBRec();
                 }
 
-                _editMode = true;
+                _editGizmos->translation(mapNode->updateAndGetWM().translation());
+
+                _editGizmos->drawBits()->set(SL_DB_HIDDEN, false);
+                for (SLNode* child : _editGizmos->children())
+                {
+                    child->drawBits()->set(SL_DB_HIDDEN, false);
+                }
+
+                _editMode = WAINodeEditMode_Translate;
             }
         }
     }
     else
     {
-        //_mapNode->deleteChild(_editGizmos);
-        s->root3D()->deleteChild(_editGizmos);
-        _editGizmos = nullptr;
+        _editGizmos->drawBits()->set(SL_DB_HIDDEN, true);
+        for (SLNode* child : _editGizmos->children())
+        {
+            child->drawBits()->set(SL_DB_HIDDEN, true);
+        }
 
-        _editMode = false;
+        _editMode = WAINodeEditMode_None;
     }
 }
 
@@ -93,8 +107,20 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
                 _editGizmos->hitRec(&pickRay);
                 if (pickRay.hitNode)
                 {
-                    _mouseIsDown          = true;
-                    _mouseDownCoordinates = SLVec2i(x, y);
+                    if (pickRay.hitNode == _xAxisNode)
+                    {
+                        _editMode = WAINodeEditMode_TranslateX;
+                    }
+                    else if (pickRay.hitNode == _yAxisNode)
+                    {
+                        _editMode = WAINodeEditMode_TranslateY;
+                    }
+                    else if (pickRay.hitNode == _zAxisNode)
+                    {
+                        _editMode = WAINodeEditMode_TranslateZ;
+                    }
+
+                    _mouseIsDown = true;
 
                     _hitCoordinate = pickRay.origin + (pickRay.dir * pickRay.length);
                 }
@@ -130,6 +156,10 @@ SLbool WAISceneView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLK
 
         if (_mouseIsDown)
         {
+            SLScene* s       = SLApplication::scene;
+            SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
+            _editGizmos->translation(mapNode->updateAndGetWM().translation());
+
             _mouseIsDown = false;
         }
     }
@@ -171,43 +201,56 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                 // http://www.realtimerendering.com/intersections.html
                 SLVec3f pickRayO   = pickRay.origin;
                 SLVec3f pickRayDir = pickRay.dir;
-                SLVec3f xRayO      = gizmoMat.translation();
-                SLVec3f xRayDir    = gizmoMat.axisX();
+                SLVec3f axisRayO   = gizmoMat.translation();
+                SLVec3f axisRayDir;
+
+                switch (_editMode)
+                {
+                    case WAINodeEditMode_TranslateX: {
+                        axisRayDir = gizmoMat.axisX();
+                    }
+                    break;
+
+                    case WAINodeEditMode_TranslateY: {
+                        axisRayDir = gizmoMat.axisY();
+                    }
+                    break;
+
+                    case WAINodeEditMode_TranslateZ: {
+                        axisRayDir = gizmoMat.axisZ();
+                    }
+                    break;
+                }
 
                 // Check if lines are parallel
                 SLVec3f cross;
-                cross.cross(pickRayDir, xRayDir);
+                cross.cross(pickRayDir, axisRayDir);
                 float den = cross.lengthSqr();
 
                 if (den > FLT_EPSILON)
                 {
-                    SLVec3f diffO = xRayO - pickRayO;
+                    SLVec3f diffO = axisRayO - pickRayO;
 
                     SLMat3f mX = SLMat3f(diffO.x, pickRayDir.x, cross.x, diffO.y, pickRayDir.y, cross.y, diffO.z, pickRayDir.z, cross.z);
 
                     float detX = mX.det();
                     float tX   = detX / den;
 
-                    SLVec3f xPoint = xRayO + (xRayDir * tX);
+                    SLVec3f xPoint = axisRayO + (axisRayDir * tX);
 
                     SLVec3f translationDiff = xPoint - _hitCoordinate;
 
                     WAIEventMapNodeTransform* event = new WAIEventMapNodeTransform();
-
-                    SLVec3f translation = SLVec3f(0, 0, 0);
-                    translation.x       = translationDiff.x;
-
-                    event->translation = translation;
-                    event->scale       = 1.0f;
-                    event->tSpace      = TS_world;
+                    event->translation              = translationDiff;
+                    event->rotation                 = SLVec3f(0, 0, 0);
+                    event->scale                    = 1.0f;
+                    event->tSpace                   = TS_world;
 
                     _eventQueue->push(event);
 
                     _hitCoordinate = xPoint;
                 }
             }
-
-            _mouseDownCoordinates = SLVec2i(x, y);
         }
 
         result = true;
