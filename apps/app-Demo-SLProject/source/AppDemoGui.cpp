@@ -922,6 +922,44 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+CVCalibration guessCalibration(bool         mirroredH,
+                               bool         mirroredV,
+                               CVCameraType camType)
+{
+    // Try to read device lens and sensor information
+    string strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
+    string strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
+    string strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+    if (!strF.empty() && !strW.empty() && !strH.empty())
+    {
+        float devF = strF.empty() ? 0.0f : stof(strF);
+        float devW = strW.empty() ? 0.0f : stof(strW);
+        float devH = strH.empty() ? 0.0f : stof(strH);
+
+        // Changes the state to CS_guessed
+        return CVCalibration(devW,
+                             devH,
+                             devF,
+                             cv::Size(CVCapture::instance()->lastFrame.cols,
+                                      CVCapture::instance()->lastFrame.rows),
+                             mirroredH,
+                             mirroredV,
+                             camType,
+                             SLApplication::getComputerInfos());
+    }
+    else
+    {
+        //make a guess using frame size and a guessed field of view
+        return CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
+                                      CVCapture::instance()->lastFrame.rows),
+                             60.0,
+                             mirroredH,
+                             mirroredV,
+                             camType,
+                             SLApplication::getComputerInfos());
+    }
+}
+//-----------------------------------------------------------------------------
 //! Builds the entire menu bar once per frame
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
@@ -1297,10 +1335,18 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Mirror Camera"))
                 {
                     if (ImGui::MenuItem("Horizontally", nullptr, ac->mirrorH()))
+                    {
                         ac->toggleMirrorH();
+                        //make a guessed calibration, if there was a calibrated camera it is not valid anymore
+                        ac->calibration = guessCalibration(ac->mirrorH(), ac->mirrorV(), ac->type());
+                    }
 
                     if (ImGui::MenuItem("Vertically", nullptr, ac->mirrorV()))
+                    {
                         ac->toggleMirrorV();
+                        //make a guessed calibration, if there was a calibrated camera it is not valid anymore
+                        ac->calibration = guessCalibration(ac->mirrorH(), ac->mirrorV(), ac->type());
+                    }
 
                     ImGui::EndMenu();
                 }
