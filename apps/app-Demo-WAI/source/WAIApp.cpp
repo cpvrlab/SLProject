@@ -105,7 +105,7 @@ void WAIApp::loadSlam()
 {
     if (_currentSlamParams.load(_dirs.writableDir + "SlamParams.json"))
     {
-        loadWAISceneView(_waiScene, _sv, _currentSlamParams.location, _currentSlamParams.area);
+        loadWAISceneView(_currentSlamParams.location, _currentSlamParams.area);
         startOrbSlam(_currentSlamParams);
         _guiSlamLoad->setSlamParams(_currentSlamParams);
         _gui->uiPrefs->showSlamLoad = false;
@@ -195,40 +195,10 @@ bool WAIApp::update()
                 //_IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
 
                 // TODO(dgj1): maybe make this API cleaner
-                cv::Mat pose = cv::Mat(4, 4, CV_32F);
-                pose         = _mode->getPose();
+                //cv::Mat pose = cv::Mat(4, 4, CV_32F);
+                //pose         = _mode->getPose();
 
-                // update camera node position
-                cv::Mat Rwc(3, 3, CV_32F);
-                cv::Mat twc(3, 1, CV_32F);
-
-                Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
-                twc = -Rwc * pose.rowRange(0, 3).col(3);
-
-                cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
-
-                Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
-                twc.copyTo(PoseInv.rowRange(0, 3).col(3));
-                SLMat4f om;
-
-                om.setMatrix(PoseInv.at<float>(0, 0),
-                             -PoseInv.at<float>(0, 1),
-                             -PoseInv.at<float>(0, 2),
-                             PoseInv.at<float>(0, 3),
-                             PoseInv.at<float>(1, 0),
-                             -PoseInv.at<float>(1, 1),
-                             -PoseInv.at<float>(1, 2),
-                             PoseInv.at<float>(1, 3),
-                             PoseInv.at<float>(2, 0),
-                             -PoseInv.at<float>(2, 1),
-                             -PoseInv.at<float>(2, 2),
-                             PoseInv.at<float>(2, 3),
-                             PoseInv.at<float>(3, 0),
-                             -PoseInv.at<float>(3, 1),
-                             -PoseInv.at<float>(3, 2),
-                             PoseInv.at<float>(3, 3));
-
-                _waiScene->cameraNode->om(om);
+                _waiScene->updateCameraPose(_mode->getPose());
             }
             /*
             else
@@ -417,17 +387,18 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         _calibration.buildUndistortionMaps();
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _waiScene->cameraNode->fov(_calibration.cameraFovVDeg());
-    // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
-    cv::Mat scMat = _calibration.cameraMatUndistorted();
-    std::cout << "scMat: " << scMat << std::endl;
-    _waiScene->cameraNode->intrinsics(scMat.at<double>(0, 0),
-                                      scMat.at<double>(1, 1),
-                                      scMat.at<double>(0, 2),
-                                      scMat.at<double>(1, 2));
+    _waiScene->updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
+    //  _waiScene->cameraNode->fov(_calibration.cameraFovVDeg());
+    //// Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
+    //cv::Mat scMat = _calibration.cameraMatUndistorted();
+    //std::cout << "scMat: " << scMat << std::endl;
+    //_waiScene->cameraNode->intrinsics(scMat.at<double>(0, 0),
+    //                                  scMat.at<double>(1, 1),
+    //                                  scMat.at<double>(0, 2),
+    //                                  scMat.at<double>(1, 2));
 
-    //enable projection -> intrinsics mode
-    _waiScene->cameraNode->projection(P_monoIntrinsic);
+    ////enable projection -> intrinsics mode
+    //_waiScene->cameraNode->projection(P_monoIntrinsic);
 
     // 4. Create new mode ORBSlam
     if (!slamParams.markerFile.empty())
@@ -559,37 +530,32 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
                   _gui.get(),
                   _dirs.writableDir);
 
-        loadWAISceneView(_waiScene, _sv, "default", "default");
+        loadWAISceneView("default", "default");
     }
 
     return (SLint)_sv->index();
 }
 
 //-----------------------------------------------------------------------------
-void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area)
+void WAIApp::loadWAISceneView(std::string location, std::string area)
 {
-    s->init();
     _waiScene->rebuild(location, area);
 
-    // Set scene name and info string
-    s->name("Track Keyframe based Features");
-    s->info("Example for loading an existing pose graph with map points.");
-
     // Save no energy
-    sv->doWaitOnIdle(false); //for constant video feed
-    sv->camera(_waiScene->cameraNode);
+    _sv->doWaitOnIdle(false); //for constant video feed
+    _sv->camera(_waiScene->cameraNode);
 
-    _videoImage = new SLGLTexture(&_waiScene->assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    //_videoImage = new SLGLTexture(&_waiScene->assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    _waiScene->cameraNode->background().texture(_videoImage);
+    //_waiScene->cameraNode->background().texture(_videoImage);
 
-    s->root3D(_waiScene->rootNode);
+    //_waiScene->root3D(_waiScene->rootNode);
 
-    sv->onInitialize();
-    sv->doWaitOnIdle(false);
+    _sv->onInitialize();
+    _sv->doWaitOnIdle(false);
 
     if (_camera)
-        sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+        _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -706,7 +672,7 @@ bool WAIApp::updateSceneViews()
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
 {
     //undistort image and copy image to video texture
-    if (_videoImage)
+    //if (_videoImage)
     {
         if (_mode)
             _mode->drawInfo(imgRGB, true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
@@ -725,12 +691,8 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
             _lastFrameIdx = (_lastFrameIdx + 1) % 2;
         }
 
-        _videoImage->copyVideoImage(_undistortedLastFrame[_lastFrameIdx].cols,
-                                    _undistortedLastFrame[_lastFrameIdx].rows,
-                                    CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()),
-                                    _undistortedLastFrame[_lastFrameIdx].data,
-                                    _undistortedLastFrame[_lastFrameIdx].isContinuous(),
-                                    true);
+        _waiScene->updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
+                                    CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
     }
 
     if (!_mode)
@@ -741,295 +703,55 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
     if (_gui->uiPrefs->showMapPC)
     {
         //get new points and add them
-        renderMapPoints("MapPoints",
-                        _mode->getMapPoints(),
-                        _waiScene->mapPC,
-                        _waiScene->mappointsMesh,
-                        _waiScene->redMat);
-
-        /*
-        //get new points and add them
-        renderMapPoints("MarkerCornerMapPoints",
-                        _mode->getMarkerCornerMapPoints(),
-                        _waiScene->mapMarkerCornerPC,
-                        _waiScene->mappointsMarkerCornerMesh,
-                        _waiScene->blueMat);
-        */
+        _waiScene->renderMapPoints(_mode->getMapPoints());
+        //todo: fix? mode has no member getMarmerCornerMapPoints
+        //_waiScene->renderMarkerCornerMapPoints(_mode->getMarkerCornerMapPoints());
     }
     else
     {
-        if (_waiScene->mappointsMesh)
-        {
-            //delete mesh if we do not want do visualize it anymore
-            //_waiScene->mapPC->deleteMesh(_waiScene->mappointsMesh);
-            if (_waiScene->mapPC->removeMesh(_waiScene->mappointsMesh))
-            {
-                _waiScene->assets.removeMesh(_waiScene->mappointsMesh);
-                delete _waiScene->mappointsMesh;
-                _waiScene->mappointsMesh = nullptr;
-            }
-        }
-        if (_waiScene->mappointsMarkerCornerMesh)
-        {
-
-            //delete mesh if we do not want do visualize it anymore
-            if (_waiScene->mapMarkerCornerPC->removeMesh(_waiScene->mappointsMarkerCornerMesh))
-            {
-                _waiScene->assets.removeMesh(_waiScene->mappointsMarkerCornerMesh);
-                delete _waiScene->mappointsMarkerCornerMesh;
-                _waiScene->mappointsMarkerCornerMesh = nullptr;
-            }
-        }
+        _waiScene->removeMapPoints();
+        _waiScene->removeMarkerCornerMapPoints();
     }
 
     //update visualization of local map points:
     //only update them with a valid pose from WAI
     if (_gui->uiPrefs->showLocalMapPC && iKnowWhereIAm)
     {
-        renderMapPoints("LocalMapPoints",
-                        _mode->getLocalMapPoints(),
-                        _waiScene->mapLocalPC,
-                        _waiScene->mappointsLocalMesh,
-                        _waiScene->blueMat);
+        _waiScene->renderLocalMapPoints(_mode->getLocalMapPoints());
     }
-    else if (_waiScene->mappointsLocalMesh)
+    else
     {
         //delete mesh if we do not want do visualize it anymore
-        if (_waiScene->mapLocalPC->removeMesh(_waiScene->mappointsLocalMesh))
-        {
-            _waiScene->assets.removeMesh(_waiScene->mappointsLocalMesh);
-            delete _waiScene->mappointsLocalMesh;
-            _waiScene->mappointsLocalMesh = nullptr;
-        }
+        _waiScene->removeLocalMapPoints();
     }
 
     //update visualization of matched map points
     //only update them with a valid pose from WAI
     if (_gui->uiPrefs->showMatchesPC && iKnowWhereIAm)
     {
-        renderMapPoints("MatchedMapPoints",
-                        _mode->getMatchedMapPoints(_mode->getLastFrame()),
-                        _waiScene->mapMatchedPC,
-                        _waiScene->mappointsMatchedMesh,
-                        _waiScene->greenMat);
+        _waiScene->renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
     }
-    else if (_waiScene->mappointsMatchedMesh)
+    else
     {
-        //delete mesh if we do not want do visualize it anymore
-
-        if (_waiScene->mapMatchedPC->removeMesh(_waiScene->mappointsMatchedMesh))
-        {
-            _waiScene->assets.removeMesh(_waiScene->mappointsMatchedMesh);
-            delete _waiScene->mappointsMatchedMesh;
-            _waiScene->mappointsMatchedMesh = nullptr;
-        }
+        _waiScene->removeMatchedMapPoints();
     }
 
     //update keyframe visualization
-    _waiScene->keyFrameNode->deleteChildren();
     if (_gui->uiPrefs->showKeyFrames)
     {
-        renderKeyframes();
+        _waiScene->renderKeyframes(_mode->getKeyFrames());
+    }
+    else
+    {
+        _waiScene->removeKeyframes();
     }
 
     //update pose graph visualization
-    renderGraphs();
-}
-
-//-----------------------------------------------------------------------------
-void WAIApp::renderMapPoints(std::string                      name,
-                             const std::vector<WAIMapPoint*>& pts,
-                             SLNode*&                         node,
-                             SLPoints*&                       mesh,
-                             SLMaterial*&                     material)
-{
-    //remove old mesh, if it exists
-    if (mesh)
-    {
-        if (node->removeMesh(mesh))
-        {
-            _waiScene->assets.removeMesh(mesh);
-            delete mesh;
-            mesh = nullptr;
-        }
-    }
-
-    //instantiate and add new mesh
-    if (pts.size())
-    {
-        //get points as Vec3f
-        std::vector<SLVec3f> points, normals;
-        for (auto mapPt : pts)
-        {
-            WAI::V3 wP = mapPt->worldPosVec();
-            WAI::V3 wN = mapPt->normalVec();
-            points.push_back(SLVec3f(wP.x, wP.y, wP.z));
-            normals.push_back(SLVec3f(wN.x, wN.y, wN.z));
-        }
-
-        mesh = new SLPoints(&_waiScene->assets, points, normals, name, material);
-        node->addMesh(mesh);
-        node->updateAABBRec();
-    }
-}
-//-----------------------------------------------------------------------------
-void WAIApp::renderKeyframes()
-{
-    std::vector<WAIKeyFrame*> keyframes = _mode->getKeyFrames();
-
-    // TODO(jan): delete keyframe textures
-    for (WAIKeyFrame* kf : keyframes)
-    {
-        if (kf->isBad())
-            continue;
-
-        SLKeyframeCamera* cam = new SLKeyframeCamera("KeyFrame " + std::to_string(kf->mnId));
-        //set background
-        if (kf->getTexturePath().size())
-        {
-            // TODO(jan): textures are saved in a global textures vector (scene->textures)
-            // and should be deleted from there. Otherwise we have a yuuuuge memory leak.
-#if 0
-        SLGLTexture* texture = new SLGLTexture(kf->getTexturePath());
-        _kfTextures.push_back(texture);
-        cam->background().texture(texture);
-#endif
-        }
-
-        cv::Mat Twc = kf->getObjectMatrix();
-
-        SLMat4f om;
-        om.setMatrix(Twc.at<float>(0, 0),
-                     -Twc.at<float>(0, 1),
-                     -Twc.at<float>(0, 2),
-                     Twc.at<float>(0, 3),
-                     Twc.at<float>(1, 0),
-                     -Twc.at<float>(1, 1),
-                     -Twc.at<float>(1, 2),
-                     Twc.at<float>(1, 3),
-                     Twc.at<float>(2, 0),
-                     -Twc.at<float>(2, 1),
-                     -Twc.at<float>(2, 2),
-                     Twc.at<float>(2, 3),
-                     Twc.at<float>(3, 0),
-                     -Twc.at<float>(3, 1),
-                     -Twc.at<float>(3, 2),
-                     Twc.at<float>(3, 3));
-        //om.rotate(180, 1, 0, 0);
-
-        cam->om(om);
-
-        //calculate vertical field of view
-        SLfloat fy     = (SLfloat)kf->fy;
-        SLfloat cy     = (SLfloat)kf->cy;
-        SLfloat fovDeg = 2 * (SLfloat)atan2(cy, fy) * Utils::RAD2DEG;
-        cam->fov(fovDeg);
-        cam->focalDist(0.11f);
-        cam->clipNear(0.1f);
-        cam->clipFar(1000.0f);
-
-        _waiScene->keyFrameNode->addChild(cam);
-    }
-}
-//-----------------------------------------------------------------------------
-void WAIApp::renderGraphs()
-{
-    std::vector<WAIKeyFrame*> kfs = _mode->getKeyFrames();
-
-    SLVVec3f covisGraphPts;
-    SLVVec3f spanningTreePts;
-    SLVVec3f loopEdgesPts;
-    for (auto* kf : kfs)
-    {
-        cv::Mat Ow = kf->GetCameraCenter();
-
-        //covisibility graph
-        const std::vector<WAIKeyFrame*> vCovKFs = kf->GetBestCovisibilityKeyFrames(_gui->uiPrefs->minNumOfCovisibles);
-
-        if (!vCovKFs.empty())
-        {
-            for (vector<WAIKeyFrame*>::const_iterator vit = vCovKFs.begin(), vend = vCovKFs.end(); vit != vend; vit++)
-            {
-                if ((*vit)->mnId < kf->mnId)
-                    continue;
-                cv::Mat Ow2 = (*vit)->GetCameraCenter();
-
-                covisGraphPts.push_back(SLVec3f(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2)));
-                covisGraphPts.push_back(SLVec3f(Ow2.at<float>(0), Ow2.at<float>(1), Ow2.at<float>(2)));
-            }
-        }
-
-        //spanning tree
-        WAIKeyFrame* parent = kf->GetParent();
-        if (parent)
-        {
-            cv::Mat Owp = parent->GetCameraCenter();
-            spanningTreePts.push_back(SLVec3f(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2)));
-            spanningTreePts.push_back(SLVec3f(Owp.at<float>(0), Owp.at<float>(1), Owp.at<float>(2)));
-        }
-
-        //loop edges
-        std::set<WAIKeyFrame*> loopKFs = kf->GetLoopEdges();
-        for (set<WAIKeyFrame*>::iterator sit = loopKFs.begin(), send = loopKFs.end(); sit != send; sit++)
-        {
-            if ((*sit)->mnId < kf->mnId)
-                continue;
-            cv::Mat Owl = (*sit)->GetCameraCenter();
-            loopEdgesPts.push_back(SLVec3f(Ow.at<float>(0), Ow.at<float>(1), Ow.at<float>(2)));
-            loopEdgesPts.push_back(SLVec3f(Owl.at<float>(0), Owl.at<float>(1), Owl.at<float>(2)));
-        }
-    }
-
-    if (_waiScene->covisibilityGraphMesh)
-    {
-        if (_waiScene->covisibilityGraph->removeMesh(_waiScene->covisibilityGraphMesh))
-        {
-            _waiScene->assets.removeMesh(_waiScene->covisibilityGraphMesh);
-            delete _waiScene->covisibilityGraphMesh;
-            _waiScene->covisibilityGraphMesh = nullptr;
-        }
-    }
-
-    if (covisGraphPts.size() && _gui->uiPrefs->showCovisibilityGraph)
-    {
-        _waiScene->covisibilityGraphMesh = new SLPolyline(&_waiScene->assets, covisGraphPts, false, "CovisibilityGraph", _waiScene->covisibilityGraphMat);
-        _waiScene->covisibilityGraph->addMesh(_waiScene->covisibilityGraphMesh);
-        _waiScene->covisibilityGraph->updateAABBRec();
-    }
-
-    if (_waiScene->spanningTreeMesh)
-    {
-        if (_waiScene->spanningTree->removeMesh(_waiScene->spanningTreeMesh))
-        {
-            _waiScene->assets.removeMesh(_waiScene->spanningTreeMesh);
-            delete _waiScene->spanningTreeMesh;
-            _waiScene->spanningTreeMesh = nullptr;
-        }
-    }
-
-    if (spanningTreePts.size() && _gui->uiPrefs->showSpanningTree)
-    {
-        _waiScene->spanningTreeMesh = new SLPolyline(&_waiScene->assets, spanningTreePts, false, "SpanningTree", _waiScene->spanningTreeMat);
-        _waiScene->spanningTree->addMesh(_waiScene->spanningTreeMesh);
-        //_waiScene->spanningTree->updateAABBRec();
-    }
-
-    if (_waiScene->loopEdgesMesh)
-    {
-        if (_waiScene->loopEdges->removeMesh(_waiScene->loopEdgesMesh))
-        {
-            _waiScene->assets.removeMesh(_waiScene->loopEdgesMesh);
-            delete _waiScene->loopEdgesMesh;
-            _waiScene->loopEdgesMesh = nullptr;
-        }
-    }
-
-    if (loopEdgesPts.size() && _gui->uiPrefs->showLoopEdges)
-    {
-        _waiScene->loopEdgesMesh = new SLPolyline(&_waiScene->assets, loopEdgesPts, false, "LoopEdges", _waiScene->loopEdgesMat);
-        _waiScene->loopEdges->addMesh(_waiScene->loopEdgesMesh);
-        _waiScene->loopEdges->updateAABBRec();
-    }
+    _waiScene->renderGraphs(_mode->getKeyFrames(),
+                            _gui->uiPrefs->minNumOfCovisibles,
+                            _gui->uiPrefs->showCovisibilityGraph,
+                            _gui->uiPrefs->showSpanningTree,
+                            _gui->uiPrefs->showLoopEdges);
 }
 
 void WAIApp::saveMap(std::string location,
@@ -1174,7 +896,7 @@ void WAIApp::handleEvents()
         {
             case WAIEventType_StartOrbSlam: {
                 WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
-                loadWAISceneView(_waiScene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
+                loadWAISceneView(startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
                 startOrbSlam(startOrbSlamEvent->params);
 
                 delete startOrbSlamEvent;

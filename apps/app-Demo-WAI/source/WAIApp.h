@@ -259,7 +259,7 @@ public:
 private:
     bool updateTracking(SENSFramePtr frame);
     int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
-    void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
+    void loadWAISceneView(std::string location, std::string area);
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
     void setupDefaultErlebARDirTo(std::string dir);
@@ -268,11 +268,6 @@ private:
     bool updateSceneViews();
 
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
-    void renderMapPoints(std::string                      name,
-                         const std::vector<WAIMapPoint*>& pts,
-                         SLNode*&                         node,
-                         SLPoints*&                       mesh,
-                         SLMaterial*&                     material);
     void renderKeyframes();
     void renderGraphs();
     void saveMap(std::string location, std::string area, std::string marker);
@@ -290,9 +285,8 @@ private:
     SENSFramePtr updateVideoOrCamera();
 
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam*     _mode       = nullptr;
-    SLSceneView* _sv         = nullptr;
-    SLGLTexture* _videoImage = nullptr;
+    WAISlam*     _mode = nullptr;
+    SLSceneView* _sv   = nullptr;
 
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;
@@ -336,7 +330,7 @@ private:
     std::unique_ptr<KPextractor> _markerExtractor;
 
     //todo: we dont need a pointer
-    AppWAIScene* _waiScene = nullptr;
+    AppWAIScene*   _waiScene = nullptr;
     std::string    _name;
     SLInputManager _inputManager;
 };
