@@ -142,8 +142,8 @@ float GetSeconds()
     else dpi = 160 * screenScale;
    
     SLVstring cmdLineArgs;
-    SLstring exeDir = Utils_iOS::getCurrentWorkingDir();
-    SLstring configDir = Utils_iOS::getAppsWritableDir();
+    SLApplication::exePath = Utils_iOS::getCurrentWorkingDir();
+    SLApplication::configPath = Utils_iOS::getAppsWritableDir();
     
     // Some some computer informations
     struct utsname systemInfo; uname(&systemInfo);
@@ -156,21 +156,21 @@ float GetSeconds()
     SLApplication::computerOSVer = std::string([osver UTF8String]);
     SLApplication::computerArch  = std::string([arch UTF8String]);
     
-    SLApplication::calibIniPath  = exeDir + "data/calibrations/"; // for calibInitPath
-    Utils::dumpFileSystemRec("SLProject", exeDir);
+    SLApplication::calibIniPath  = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
+    //Utils::dumpFileSystemRec("SLProject", SLApplication::exePath);
     
-    CVImage::defaultPath = exeDir;
+    CVImage::defaultPath = SLApplication::exePath;
     CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
-                                            configDir, // for stored calibrations
-                                            exeDir);   // for videos
+                                            SLApplication::configPath, // for stored calibrations
+                                            SLApplication::exePath);   // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        exeDir,
-                        exeDir,
-                        exeDir,
-                        exeDir,
-                        configDir,
+                        SLApplication::exePath,
+                        SLApplication::exePath,
+                        SLApplication::exePath,
+                        SLApplication::exePath,
+                        SLApplication::configPath,
                         "AppDemo_iOS",
                         (void*)appDemoLoadScene);
     /////////////////////////////////////////////

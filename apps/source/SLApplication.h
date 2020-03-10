@@ -59,12 +59,14 @@ public:
     static SLDeviceLocation devLoc;       //!< Mobile device location from GPS
 
     static SLstring  name;          //!< Applcation name
+    static SLstring  appTag;        //!< Tag string used in logging
     static SLstring  version;       //!< SLProject version string
     static SLstring  configuration; //!< Debug or Release configuration
     static SLstring  gitBranch;     //!< Current GIT branch
     static SLstring  gitCommit;     //!< Current GIT commit short hash id
     static SLstring  gitDate;       //!< Current GIT commit date
     static SLint     dpi;           //!< Current UI dot per inch resolution
+    static SLstring  exePath;       //!< executable root path
     static SLstring  configPath;    //!< Default path for calibration files
     static SLstring  externalPath;  //!< Default path for external file storage
     static SLSceneID sceneID;       //!< ID of last loaded scene

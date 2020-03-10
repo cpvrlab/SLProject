@@ -27,6 +27,7 @@ SLProjectScene*  SLApplication::scene = nullptr;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
 SLstring         SLApplication::name    = "SLProjectApp";
+SLstring         SLApplication::appTag  = "SLProject";
 SLstring         SLApplication::version = "2.5.000";
 #ifdef _DEBUG
 SLstring SLApplication::configuration = "Debug";
@@ -45,6 +46,7 @@ SLstring                     SLApplication::calibIniPath;
 SLstring                     SLApplication::calibFilePath;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
+SLstring                    SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
 SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLSceneID                   SLApplication::sceneID      = SID_Empty;

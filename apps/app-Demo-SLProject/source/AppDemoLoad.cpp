@@ -2450,7 +2450,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker     = new CVTrackedFaces(SLApplication::calibIniPath, 3);
+        tracker     = new CVTrackedFaces(SLApplication::calibIniPath, SLApplication::exePath, 3);
         trackedNode = cam1;
         tracker->drawDetection(true);
 
@@ -2726,7 +2726,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLstring tif = SLImporter::defaultPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
         if (!Utils::fileExists(tif))
             tif = SLImporter::defaultPath + "DTM-Theater-Tempel-WGS84.tif"; //Android path
-        SLApplication::devLoc.loadGeoTiff(tif);
+        SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         SLApplication::devLoc.isUsed(true);

@@ -35,6 +35,7 @@ class CVTrackedFaces : public CVTracked
 {
 public:
     explicit CVTrackedFaces(std::string calibIniPath,
+                            std::string exePath,
                             int         smoothLength           = 5,
                             string      faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
                             string      faceMarkModelFilename  = "lbfmodel.yaml");

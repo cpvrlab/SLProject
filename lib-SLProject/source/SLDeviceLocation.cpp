@@ -290,13 +290,13 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
  * If the 32-bit image file and its JSON info file gets successfully loaded,
  * we can set the altitudes from the _originLLA and _defaultLLA by the DEM.
  */
-void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
+void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile, const SLstring& appTag)
 {
     assert(!_defaultLLA.isZero() &&
            !_originLLA.isZero() &&
            "Set first defaultLLA and originLLA before you add a GeoTiff.");
 
-    _demGeoTiff.loadGeoTiff("SLProject", geoTiffFile);
+    _demGeoTiff.loadGeoTiff(appTag, geoTiffFile);
 
     // Check that default and origin location is withing the GeoTiff extends
     if (geoTiffIsValid())
