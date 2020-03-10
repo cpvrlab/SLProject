@@ -534,7 +534,6 @@
 		41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D101E523AD70063A1B7 /* Font24.png */; };
 		CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* CVTracked.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
-		CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */ = {isa = PBXBuildFile; fileRef = CF3F57211DE5945F00928DDD /* calib_in_params.yml */; };
 		DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE38C74719EFCB420069B8BB /* SLGrid.cpp */; };
 /* End PBXBuildFile section */
 
@@ -1038,7 +1037,7 @@
 		4197E73914C85C6C00AE1D23 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape~ipad.png"; path = "images/Default-Landscape~ipad.png"; sourceTree = SOURCE_ROOT; };
 		4198070B1959B63C0048085E /* SLScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLScene.h; path = "../../../lib-SLProject/include/SLScene.h"; sourceTree = SOURCE_ROOT; };
 		4198070E1959B91C0048085E /* SLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEnums.h; path = "../../../lib-SLProject/include/SLEnums.h"; sourceTree = SOURCE_ROOT; };
-		419BCD3714865C0800D576F1 /* SLProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SLProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		419BCD3714865C0800D576F1 /* Demo-SL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Demo-SL.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		419BCD3B14865C0800D576F1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		419BCD3D14865C0800D576F1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		419BCD3F14865C0800D576F1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -1077,7 +1076,7 @@
 		41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexBuffer.cpp; path = "../../../lib-SLProject/source/GL/SLGLVertexBuffer.cpp"; sourceTree = SOURCE_ROOT; };
 		41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexBuffer.h; path = "../../../lib-SLProject/include/GL/SLGLVertexBuffer.h"; sourceTree = SOURCE_ROOT; };
 		41B86C5D1C4FE23A00BB409D /* SLGLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLEnums.h; path = "../../../lib-SLProject/include/GL/SLGLEnums.h"; sourceTree = SOURCE_ROOT; };
-		41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SceneLib-Info.plist"; sourceTree = SOURCE_ROOT; };
+		41B9939A148AAD2B00D98AB7 /* AppInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppInfo.plist; sourceTree = SOURCE_ROOT; };
 		41BEFC061B78F84F009EF31F /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		41BEFC091B78F85A009EF31F /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41BEFC0B1B78F865009EF31F /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
@@ -1186,7 +1185,6 @@
 		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../../../externals/lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
 		CF3F57191DE5906C00928DDD /* CVTracked.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = CVTracked.cpp; path = "../../../lib-SLProject/source/CV/CVTracked.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../../../data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
-		CF3F57211DE5945F00928DDD /* calib_in_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = calib_in_params.yml; path = ../../../data/calibrations/calib_in_params.yml; sourceTree = "<group>"; };
 		DE38C74619EFCA5B0069B8BB /* SLGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGrid.h; path = "../../../lib-SLProject/include/SLGrid.h"; sourceTree = SOURCE_ROOT; };
 		DE38C74719EFCB420069B8BB /* SLGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGrid.cpp; path = "../../../lib-SLProject/source/SLGrid.cpp"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1871,7 +1869,7 @@
 				41565014148AA64F00A3CAA6 /* comgr-Prefix.pch */,
 				41B849FF148B2C3700305DB5 /* Images */,
 				41565015148AA64F00A3CAA6 /* main.m */,
-				41B9939A148AAD2B00D98AB7 /* SceneLib-Info.plist */,
+				41B9939A148AAD2B00D98AB7 /* AppInfo.plist */,
 				41394E8E22A13F8600C2448F /* Utils_iOS.h */,
 				41394E8A22A13E2A00C2448F /* Utils_iOS.mm */,
 				41565008148AA62400A3CAA6 /* ViewController_iPad.xib */,
@@ -1885,7 +1883,7 @@
 		419BCD2C14865C0800D576F1 = {
 			isa = PBXGroup;
 			children = (
-				41A3549524179D23004520DF /* AppDemo */,
+				41A3549524179D23004520DF /* App */,
 				41901CF41959C478006795A8 /* iOS-Specific */,
 				419BCD4514865C0800D576F1 /* SLProject */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
@@ -1894,14 +1892,14 @@
 				417E0E99148A6F910015B5B0 /* Textures */,
 				41F365142008E47600782F42 /* Videos */,
 				417E0E44148A6EBC0015B5B0 /* Models */,
-				41AD925B241653CB008D8A79 /* data */,
+				41AD925E241653F7008D8A79 /* calibrations */,
 			);
 			sourceTree = "<group>";
 		};
 		419BCD3814865C0800D576F1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				419BCD3714865C0800D576F1 /* SLProject.app */,
+				419BCD3714865C0800D576F1 /* Demo-SL.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1967,7 +1965,7 @@
 			path = "../../../lib-SLProject";
 			sourceTree = SOURCE_ROOT;
 		};
-		41A3549524179D23004520DF /* AppDemo */ = {
+		41A3549524179D23004520DF /* App */ = {
 			isa = PBXGroup;
 			children = (
 				416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */,
@@ -1977,7 +1975,7 @@
 				41C7582C230D7CD90083A25D /* AppDemoSceneView.h */,
 				41FBDBCA232636CA0055338A /* AppDemoVideo.cpp */,
 			);
-			name = AppDemo;
+			name = App;
 			sourceTree = "<group>";
 		};
 		41A354ED1A7E638200791841 /* Animation */ = {
@@ -1996,18 +1994,9 @@
 			name = Animation;
 			sourceTree = "<group>";
 		};
-		41AD925B241653CB008D8A79 /* data */ = {
-			isa = PBXGroup;
-			children = (
-				41AD925E241653F7008D8A79 /* calibrations */,
-			);
-			name = data;
-			sourceTree = SOURCE_ROOT;
-		};
 		41AD925E241653F7008D8A79 /* calibrations */ = {
 			isa = PBXGroup;
 			children = (
-				CF3F57211DE5945F00928DDD /* calib_in_params.yml */,
 				41AD926324165452008D8A79 /* aruco_detector_params.yml */,
 				41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */,
 				41AD926124165452008D8A79 /* lbfmodel.yaml */,
@@ -2128,9 +2117,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		419BCD3614865C0800D576F1 /* SLProject */ = {
+		419BCD3614865C0800D576F1 /* Demo-SL */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 419BCD6014865C0800D576F1 /* Build configuration list for PBXNativeTarget "SLProject" */;
+			buildConfigurationList = 419BCD6014865C0800D576F1 /* Build configuration list for PBXNativeTarget "Demo-SL" */;
 			buildPhases = (
 				419BCD3314865C0800D576F1 /* Sources */,
 				419BCD3414865C0800D576F1 /* Frameworks */,
@@ -2140,9 +2129,9 @@
 			);
 			dependencies = (
 			);
-			name = SLProject;
+			name = "Demo-SL";
 			productName = comgr;
-			productReference = 419BCD3714865C0800D576F1 /* SLProject.app */;
+			productReference = 419BCD3714865C0800D576F1 /* Demo-SL.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2178,7 +2167,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				419BCD3614865C0800D576F1 /* SLProject */,
+				419BCD3614865C0800D576F1 /* Demo-SL */,
 			);
 		};
 /* End PBXProject section */
@@ -2589,7 +2578,6 @@
 				418BF46B1B8B0D500049E387 /* Wave.frag in Resources */,
 				4179816F1F13833000EB5315 /* i0091_0000b.png in Resources */,
 				41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */,
-				CF3F57221DE5945F00928DDD /* calib_in_params.yml in Resources */,
 				4179817C1F13833000EB5315 /* i0104_0000b.png in Resources */,
 				4179814C1F13833000EB5315 /* i0056_0000b.png in Resources */,
 				41E6EE50240307840063FDA1 /* Tiles05_Strong_NRM_2K.png in Resources */,
@@ -2934,7 +2922,7 @@
 					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
 				);
-				INFOPLIST_FILE = "SceneLib-Info.plist";
+				INFOPLIST_FILE = AppInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
 				LIBRARY_SEARCH_PATHS = (
@@ -2942,8 +2930,9 @@
 					../../../externals/prebuilt/iosV8_opencv_4.2.0/debug/opencv4/3rdparty,
 					../../../externals/prebuilt/iosV8_assimp_5.0/Release,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.21;
-				PRODUCT_NAME = SLProject;
+				MARKETING_VERSION = 2.50;
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.cpvrLab.AppDemoSLProject;
+				PRODUCT_NAME = "Demo-SL";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
@@ -2996,7 +2985,7 @@
 					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
 				);
-				INFOPLIST_FILE = "SceneLib-Info.plist";
+				INFOPLIST_FILE = AppInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				IPHONE_OPTIMIZE_OPTIONS = "-skip-PNGs";
 				LIBRARY_SEARCH_PATHS = (
@@ -3004,8 +2993,9 @@
 					../../../externals/prebuilt/iosV8_opencv_4.2.0/release/opencv4/3rdparty,
 					../../../externals/prebuilt/iosV8_assimp_5.0/Release,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.slproject.2.21;
-				PRODUCT_NAME = SLProject;
+				MARKETING_VERSION = 2.50;
+				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.cpvrLab.AppDemoSLProject;
+				PRODUCT_NAME = "Demo-SL";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
@@ -3025,7 +3015,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		419BCD6014865C0800D576F1 /* Build configuration list for PBXNativeTarget "SLProject" */ = {
+		419BCD6014865C0800D576F1 /* Build configuration list for PBXNativeTarget "Demo-SL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				419BCD6114865C0800D576F1 /* Debug */,

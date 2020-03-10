@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "419BCD3614865C0800D576F1"
-               BuildableName = "SLProject.app"
-               BlueprintName = "SLProject"
+               BuildableName = "AppDemoSLProject.app"
+               BlueprintName = "Demo-SL"
                ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -31,8 +31,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "SLProject.app"
-            BlueprintName = "SLProject"
+            BuildableName = "AppDemoSLProject.app"
+            BlueprintName = "Demo-SL"
             ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -54,8 +54,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "SLProject.app"
-            BlueprintName = "SLProject"
+            BuildableName = "AppDemoSLProject.app"
+            BlueprintName = "Demo-SL"
             ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -71,8 +71,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "SLProject.app"
-            BlueprintName = "SLProject"
+            BuildableName = "AppDemoSLProject.app"
+            BlueprintName = "Demo-SL"
             ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
