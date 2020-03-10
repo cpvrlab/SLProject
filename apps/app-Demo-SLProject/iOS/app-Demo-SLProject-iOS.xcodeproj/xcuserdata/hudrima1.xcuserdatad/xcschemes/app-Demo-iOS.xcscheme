@@ -17,7 +17,7 @@
                BlueprintIdentifier = "419BCD3614865C0800D576F1"
                BuildableName = "SLProject.app"
                BlueprintName = "SLProject"
-               ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
+               ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,7 +33,7 @@
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
             BuildableName = "SLProject.app"
             BlueprintName = "SLProject"
-            ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
+            ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -56,7 +56,7 @@
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
             BuildableName = "SLProject.app"
             BlueprintName = "SLProject"
-            ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
+            ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -73,7 +73,7 @@
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
             BuildableName = "SLProject.app"
             BlueprintName = "SLProject"
-            ReferencedContainer = "container:app-Demo-iOS.xcodeproj">
+            ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
