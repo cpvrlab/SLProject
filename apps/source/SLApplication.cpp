@@ -94,7 +94,6 @@ any SLProject application.
 */
 void SLApplication::deleteAppAndScene()
 {
-    PROP_VALUE_MAX;
     assert(SLApplication::scene != nullptr &&
            "You can delete an  only once");
 
