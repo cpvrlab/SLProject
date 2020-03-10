@@ -1,5 +1,5 @@
-#ifndef APP_WAI_SCENE
-#define APP_WAI_SCENE
+#ifndef APP_WAI_SCENE_H
+#define APP_WAI_SCENE_H
 
 #include <SLSceneView.h>
 #include <SLPoints.h>

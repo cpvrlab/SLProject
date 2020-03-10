@@ -33,6 +33,7 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISceneView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
 	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
@@ -78,6 +79,7 @@ set(sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISceneView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp

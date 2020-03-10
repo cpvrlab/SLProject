@@ -39,7 +39,6 @@
 #include <GUIPreferences.h>
 
 #include <GLSLextractor.h>
-#include <SLSceneView.h>
 #include <SLPoints.h>
 #include <SLQuat4.h>
 #include <SLPolyline.h>
@@ -556,7 +555,7 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
         if (!SLApplication::dpi)
             SLApplication::dpi = dpi;
 
-        _sv = new SLSceneView();
+        _sv = new WAISceneView(&_eventQueue);
         _sv->init("SceneView",
                   screenWidth,
                   screenHeight,
@@ -1194,6 +1193,12 @@ void WAIApp::handleEvents()
                 _waiScene.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
 
                 delete adjustTransparencyEvent;
+            }
+            break;
+
+            case WAIEventType_EnterEditMode: {
+                //_waiScene.displayEditGizmos();
+                _sv->toggleEditMode();
             }
             break;
 

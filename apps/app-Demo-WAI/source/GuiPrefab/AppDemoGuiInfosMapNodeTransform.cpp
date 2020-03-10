@@ -142,5 +142,12 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
         _eventQueue->push(event);
     }
 
+    if (ImGui::Button("Enter edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+
+        _eventQueue->push(event);
+    }
+
     ImGui::End();
 }

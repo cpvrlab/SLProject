@@ -10,8 +10,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef APP_WAI_SCENE_VIEW
-#define APP_WAI_SCENE_VIEW
+#ifndef WAI_APP_H
+#define WAI_APP_H
 
 #include <vector>
 #include "AppWAIScene.h"
@@ -27,6 +27,7 @@
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
+#include <AppWAISceneView.h>
 
 class SLMaterial;
 class SLPoints;
@@ -154,7 +155,8 @@ enum WAIEventType
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
-    WAIEventType_AdjustTransparency
+    WAIEventType_AdjustTransparency,
+    WAIEventType_EnterEditMode
 };
 
 struct WAIEvent
@@ -213,6 +215,11 @@ struct WAIEventAdjustTransparency : WAIEvent
     WAIEventAdjustTransparency() { type = WAIEventType_AdjustTransparency; }
 
     float kt;
+};
+
+struct WAIEventEnterEditMode : WAIEvent
+{
+    WAIEventEnterEditMode() { type = WAIEventType_EnterEditMode; }
 };
 
 //-----------------------------------------------------------------------------
@@ -291,9 +298,9 @@ private:
     //todo: we dont need a pointer
     AppWAIScene _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam*     _mode       = nullptr;
-    SLSceneView* _sv         = nullptr;
-    SLGLTexture* _videoImage = nullptr;
+    WAISlam*      _mode       = nullptr;
+    WAISceneView* _sv         = nullptr;
+    SLGLTexture*  _videoImage = nullptr;
 
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;

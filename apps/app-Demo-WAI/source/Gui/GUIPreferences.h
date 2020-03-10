@@ -1,7 +1,7 @@
 #ifndef GUI_PREFERENCES_H
 #define GUI_PREFERENCES_H
 
-class ImGuiStyle;
+struct ImGuiStyle;
 
 class GUIPreferences
 {

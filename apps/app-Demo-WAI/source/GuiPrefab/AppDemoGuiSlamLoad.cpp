@@ -26,12 +26,12 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
                                        const std::vector<std::string>& extractorIdToNames,
                                        bool*                           activator)
   : AppDemoGuiInfosDialog(name, activator),
-    _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
+    _eventQueue(eventQueue),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
-    _extractorIdToNames(extractorIdToNames),
     _changeSlamParams(true),
+    _extractorIdToNames(extractorIdToNames),
     _kt(0.5f)
 {
     _p.params.retainImg    = true;
