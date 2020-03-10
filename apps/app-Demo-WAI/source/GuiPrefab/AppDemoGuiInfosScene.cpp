@@ -1,7 +1,6 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <SLApplication.h>
 #include <AppDemoGuiInfosScene.h>
 #include <SLGLImGui.h>
 //-----------------------------------------------------------------------------

@@ -16,7 +16,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <ImGuiWrapper.h>
 #include <SLScene.h>

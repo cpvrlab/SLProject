@@ -1,6 +1,5 @@
 #include <WAIApp.h>
 
-#include <SLInterface.h>
 #include <SLKeyframeCamera.h>
 #include <Utils.h>
 #include <AverageTiming.h>
