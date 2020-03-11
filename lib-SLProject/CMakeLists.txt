@@ -72,6 +72,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCircle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
@@ -164,6 +165,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBackground.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCamera.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCircle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCone.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCompactGrid.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxis.cpp

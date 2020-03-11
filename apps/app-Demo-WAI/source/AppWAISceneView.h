@@ -41,11 +41,16 @@ private:
     // Scale stuff
     SLNode* _scaleSphere;
 
-    bool getClosestPointOnAxis(const SLVec3f& pickRayO,
-                               const SLVec3f& pickRayDir,
-                               const SLVec3f& axisRayO,
-                               const SLVec3f& axisRayDir,
-                               SLVec3f&       axisPoint);
+    float _sphereRayDist;
+
+    bool  getClosestPointOnAxis(const SLVec3f& pickRayO,
+                                const SLVec3f& pickRayDir,
+                                const SLVec3f& axisRayO,
+                                const SLVec3f& axisRayDir,
+                                SLVec3f&       axisPoint);
+    float raySphereDist(const SLVec3f& rayO,
+                        const SLVec3f& rayDir,
+                        const SLVec3f& sphereO);
 };
 
 #endif

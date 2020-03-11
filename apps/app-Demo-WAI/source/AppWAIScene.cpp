@@ -12,7 +12,9 @@ AppWAIScene::AppWAIScene()
 
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
-    rootNode          = new SLNode("scene");
+    rootNode   = new SLNode("scene");
+    root2DNode = new SLNode("2D root");
+
     cameraNode        = new SLCamera("Camera 1");
     mapNode           = new SLNode("map");
     mapPC             = new SLNode("MapPC");

@@ -588,6 +588,7 @@ void WAIApp::loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location,
     _waiScene.cameraNode->background().texture(_videoImage);
 
     s->root3D(_waiScene.rootNode);
+    s->root2D(_waiScene.root2DNode);
 
     sv->onInitialize();
     sv->doWaitOnIdle(false);

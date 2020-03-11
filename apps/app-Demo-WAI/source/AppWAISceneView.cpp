@@ -4,6 +4,7 @@
 #include <SLVec3.h>
 #include <SLCoordAxisArrow.h>
 #include <SLSphere.h>
+#include <SLCircle.h>
 
 #include <WAIApp.h>
 
@@ -39,11 +40,13 @@ void WAISceneView::toggleEditMode()
                     _editGizmos->addChild(_yAxisNode);
                     _editGizmos->addChild(_zAxisNode);
 
-                    _scaleSphere = new SLNode(new SLSphere(1.0f, 0.1f, 1, 16, false, false), "Scale sphere");
+                    //_scaleSphere = new SLNode(new SLSphere(1.0f), "Scale sphere");
+                    _scaleSphere = new SLCircle(200.0f);
 
-                    _editGizmos->addChild(_scaleSphere);
+                    //_editGizmos->addChild(_scaleSphere);
 
                     s->root3D()->addChild(_editGizmos);
+                    s->root2D()->addChild(_scaleSphere);
 
                     s->root3D()->updateAABBRec();
                 }
@@ -165,6 +168,15 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
                 if (_camera)
                 {
                     _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+                    SLMat4f sphereMat = _scaleSphere->updateAndGetWM();
+                    SLVec3f sphereO   = sphereMat.translation();
+                    SLVec3f rayO      = pickRay.origin;
+                    SLVec3f rayDir    = pickRay.dir.normalize();
+
+                    _sphereRayDist = raySphereDist(rayO, rayDir, sphereO);
+
+                    _mouseIsDown = true;
                 }
             }
             break;
@@ -262,6 +274,33 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                     }
                     break;
 
+                    case WAINodeEditMode_Scale: {
+                        SLRay pickRay(this);
+                        if (_camera)
+                        {
+                            _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+                            SLMat4f sphereMat = _scaleSphere->updateAndGetWM();
+                            SLVec3f sphereO   = sphereMat.translation();
+                            SLVec3f rayO      = pickRay.origin;
+                            SLVec3f rayDir    = pickRay.dir.normalize();
+
+                            float newSphereRayDist = raySphereDist(rayO, rayDir, sphereO);
+
+                            float scaleFactor = newSphereRayDist / _sphereRayDist;
+                            _sphereRayDist    = newSphereRayDist;
+
+                            printf("scalefactor %f\n", scaleFactor);
+
+                            SLScene* s       = SLApplication::scene;
+                            SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
+                            mapNode->scale(scaleFactor);
+
+                            _scaleSphere->scale(scaleFactor);
+                        }
+                    }
+                    break;
+
                     case WAINodeEditMode_None:
                     default: {
                     }
@@ -301,5 +340,16 @@ bool WAISceneView::getClosestPointOnAxis(const SLVec3f& pickRayO,
         result    = true;
     }
 
+    return result;
+}
+
+float WAISceneView::raySphereDist(const SLVec3f& rayO, const SLVec3f& rayDir, const SLVec3f& sphereO)
+{
+    SLVec3f diffV = sphereO - rayO;
+    float   t     = rayDir * diffV;
+
+    SLVec3f scalePoint = rayO + (rayDir * t);
+
+    float result = (sphereO - scalePoint).length();
     return result;
 }
