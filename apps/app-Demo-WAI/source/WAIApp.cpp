@@ -31,7 +31,7 @@
 #include <AppDemoGuiTestWrite.h>
 #include <AppDemoGuiError.h>
 
-#include <AppDirectories.h>
+#include <DeviceData.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
 #include <GUIPreferences.h>
@@ -72,26 +72,40 @@ WAIApp::~WAIApp()
 //-----------------------------------------------------------------------------
 int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
-    if (_loaded)
-        return _sv->index();
-
-    //Utils::initFileLog(_dirs.logFileDir, true);
-
-    Utils::log("WAInative", "loading");
     _dirs = directories;
+    //todo ghm1: load sets state to startup: we can visualize
+    //videoDir  = _dirs.writableDir + "erleb-AR/locations/";
+    //_calibDir = _dirs.writableDir + "calibrations/";
+    //mapDir    = _dirs.writableDir + "maps/";
 
-    videoDir  = _dirs.writableDir + "erleb-AR/locations/";
-    _calibDir = _dirs.writableDir + "calibrations/";
-    mapDir    = _dirs.writableDir + "maps/";
+    _deviceData = std::make_unique<DeviceData>(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, directories);
+    // setup magic paths
+    SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
+    SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
+    SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
+    SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
 
-    //init scene as soon as possible to allow visualization of error msgs
-    int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
+    _startUpRequested = true;
+    return 0;
+    //if (_loaded) return _sv->index();
 
-    setupDefaultErlebARDirTo(_dirs.writableDir);
+    ////Utils::initFileLog(_dirs.logFileDir, true);
 
-    _loaded = true;
+    //Utils::log("WAInative", "loading");
+    //_dirs = directories;
 
-    return svIndex;
+    //videoDir = _dirs.writableDir + "erleb-AR/locations/";
+    //_calibDir = _dirs.writableDir + "calibrations/";
+    //mapDir    = _dirs.writableDir + "maps/";
+
+    ////init scene as soon as possible to allow visualization of error msgs
+    //int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
+
+    //setupDefaultErlebARDirTo(_dirs.writableDir);
+
+    //_loaded = true;
+
+    //return svIndex;
 }
 
 void WAIApp::setCamera(SENSCamera* camera)
@@ -116,7 +130,7 @@ void WAIApp::loadSlam()
     }
 }
 
-SENSFramePtr WAIApp::updateVideoOrCamera()
+SENSFramePtr WAIApp::getVideoFrame()
 {
     SENSFramePtr frame;
 
@@ -145,79 +159,231 @@ SENSFramePtr WAIApp::updateVideoOrCamera()
             frame = _videoFileStream->grabNextFrame();
         }
     }
-
-    else if (_camera)
-    {
-        frame = _camera->getLatestFrame();
-    }
     else
     {
-        Utils::log("WAI WARN", "WAIApp::updateVideoOrCamera: No active video stream or camera available!");
+        Utils::log("WAI WARN", "WAIApp::getVideoFrame: No active video stream available!");
     }
 
-    return frame;
+    return std::move(frame);
+}
+
+SENSFramePtr WAIApp::getCameraFrame()
+{
+    SENSFramePtr frame;
+
+    if (_camera)
+        frame = _camera->getLatestFrame();
+    else
+        Utils::log("WAI WARN", "WAIApp::updateVideoOrCamera: No active camera available!");
+
+    return std::move(frame);
+}
+
+//SENSFramePtr WAIApp::updateVideoOrCamera()
+//{
+//    SENSFramePtr frame;
+//
+//    if (_videoFileStream)
+//    {
+//        while (_videoCursorMoveIndex < 0)
+//        {
+//            frame = _videoFileStream->grabPreviousFrame();
+//            if (frame)
+//                updateTracking(frame);
+//
+//            _videoCursorMoveIndex++;
+//        }
+//
+//        while (_videoCursorMoveIndex > 0)
+//        {
+//            frame = _videoFileStream->grabNextFrame();
+//            if (frame)
+//                updateTracking(frame);
+//
+//            _videoCursorMoveIndex--;
+//        }
+//
+//        if (!_pauseVideo)
+//        {
+//            frame = _videoFileStream->grabNextFrame();
+//        }
+//    }
+//
+//    else if (_camera)
+//    {
+//        frame = _camera->getLatestFrame();
+//    }
+//    else
+//    {
+//        Utils::log("WAI WARN", "WAIApp::updateVideoOrCamera: No active camera available!");
+//    }
+//
+//    return std::move(frame);
+//}
+
+void WAIApp::reset()
+{
+    _startUpRequested = false;
+    _startErlebAR     = false;
+}
+
+void WAIApp::checkStateTransition()
+{
+    switch (_state)
+    {
+        case State::IDLE: {
+            if (_selectErlebAR)
+            {
+                //start selection state
+                if (_selectionState && _selectionState->started())
+                    _state = State::SELECTION;
+            }
+            else
+            {
+                //directly go to start up
+                if (_startUpState.started())
+                    _state = State::START_UP;
+            }
+            break;
+        }
+        case State::SELECTION: {
+
+            if (_selectionState->ready() && _startUpState.started())
+            {
+                _state = State::START_UP;
+            }
+            break;
+        }
+        case State::START_UP: {
+            //if (_mapState.started() && _slamState.started())
+            {
+                //  _state = State::MAP_SCENE
+            }
+
+            break;
+        }
+        case State::MAP_SCENE: {
+            handleEvents();
+            break;
+        }
+        case State::TRACKING_SCENE: {
+            handleEvents();
+            break;
+        }
+    }
+}
+
+bool WAIApp::updateState()
+{
+    bool doUpdate = false;
+    switch (_state)
+    {
+        case State::IDLE: {
+            if (_startUpRequested)
+            {
+                _startUpRequested = false;
+                if (_selectErlebAR)
+                {
+                    //start up can be done as soon we have access to resouces
+                    _selectionState = new SelectionState(_inputManager,
+                                                         _deviceData->scrWidth(),
+                                                         _deviceData->scrHeight(),
+                                                         _deviceData->dpi(),
+                                                         _deviceData->fontDir(),
+                                                         _deviceData->dirs().writableDir);
+                    _selectionState->start();
+                    _startUpState.start();
+                }
+                else
+                {
+                    //directly start selected erlebAR scene
+                    _startUpState.start();
+                }
+            }
+            break;
+        }
+        case State::SELECTION: {
+
+            doUpdate = _selectionState->update();
+            if (_selectionState->ready())
+            {
+                //start erlebar scene
+            }
+            break;
+        }
+        case State::START_UP: {
+            doUpdate = _startUpState.update();
+
+            if (_startErlebAR)
+            {
+                _startErlebAR = false;
+                //start erleb-AR scene
+                //_erlebARState.start()
+            }
+            break;
+        }
+        case State::MAP_SCENE: {
+            break;
+        }
+        case State::TRACKING_SCENE: {
+
+            //bool iKnowWhereIAm = false;
+            ////get new frame: in case of video this may already call updateTracking several times
+            //SENSFramePtr frame = getCameraFrame();
+
+            //if (frame)
+            //{
+            //    iKnowWhereIAm = updateTracking(frame);
+
+            //    //update tracking infos visualization
+            //    updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+
+            //    if (iKnowWhereIAm)
+            //        _waiScene->updateCameraPose(_mode->getPose());
+            //}
+
+            ////update scene (before it was slUpdateScene)
+            //_waiScene->onUpdate();
+            //doUpdate = _sv->onPaint();
+
+            break;
+        }
+        case State::TRACKING_VIDEO_SCENE: {
+
+            //bool iKnowWhereIAm = false;
+            ////get new frame: in case of video this may already call updateTracking several times
+            //SENSFramePtr frame = getVideoFrame();
+
+            //if (frame)
+            //{
+            //    iKnowWhereIAm = updateTracking(frame);
+
+            //    //update tracking infos visualization
+            //    updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+
+            //    if (iKnowWhereIAm)
+            //        _waiScene->updateCameraPose(_mode->getPose());
+            //}
+
+            ////update scene (before it was slUpdateScene)
+            //_waiScene->onUpdate();
+            //doUpdate = _sv->onPaint();
+
+            break;
+        }
+    }
+
+    return doUpdate;
 }
 
 bool WAIApp::update()
 {
-    if (!_loaded)
-        return false;
-    if (!_camera)
-        return false;
-
-    if (!_started)
-    {
-        _started = true;
-        loadSlam();
-    }
+    bool doUpdate = false;
 
     try
     {
-        handleEvents();
-
-        if (_mode)
-        {
-            bool iKnowWhereIAm = false;
-            //get new frame: in case of video this may already call updateTracking several times
-            SENSFramePtr frame = updateVideoOrCamera();
-
-            if (frame)
-            {
-                iKnowWhereIAm = updateTracking(frame);
-
-                //update tracking infos visualization
-                updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
-            }
-
-            if (iKnowWhereIAm)
-            {
-                //_lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
-                //_IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
-
-                // TODO(dgj1): maybe make this API cleaner
-                //cv::Mat pose = cv::Mat(4, 4, CV_32F);
-                //pose         = _mode->getPose();
-
-                _waiScene->updateCameraPose(_mode->getPose());
-            }
-            /*
-            else
-            {
-                SLQuat4f q1 = _lastKnowPoseQuaternion;
-                SLQuat4f q2 = SLApplication::devRot.quaternion();
-                q1.invert();
-                SLQuat4f q              = q1 * q2;
-                _IMUQuaternion          = SLQuat4f(q.y(), -q.x(), -q.z(), -q.w());
-                SLMat4f imuRot          = _IMUQuaternion.toMat4();
-                _lastKnowPoseQuaternion = q2;
-
-                SLMat4f cameraMat = _waiScene->cameraNode->om();
-                _waiScene->cameraNode->om(cameraMat * imuRot);
-            }
-             */
-
-            //AVERAGE_TIMING_STOP("WAIAppUpdate");
-        }
+        checkStateTransition();
+        doUpdate = updateState();
     }
     catch (std::exception& e)
     {
@@ -228,12 +394,9 @@ bool WAIApp::update()
         Utils::log("WAIApp", "Unknown exception catched in update()");
     }
 
-    //update scene (before it was slUpdateScene)
-    _waiScene->onUpdate();
-    return updateSceneViews();
+    return doUpdate;
 }
 
-//-----------------------------------------------------------------------------
 void WAIApp::close()
 {
     _camera = nullptr;
@@ -241,7 +404,7 @@ void WAIApp::close()
         _currentSlamParams.save(_dirs.writableDir + "SlamParams.json");
     terminate();
 }
-//-----------------------------------------------------------------------------
+
 void WAIApp::terminate()
 {
     // Deletes all remaining sceneviews the current scene instance
@@ -250,9 +413,15 @@ void WAIApp::terminate()
         delete _waiScene;
         _waiScene = nullptr;
     }
-    _loaded = false;
+    //_loaded = false;
+
+    if (_selectionState)
+    {
+        delete _selectionState;
+        _selectionState = nullptr;
+    }
 }
-//-----------------------------------------------------------------------------
+
 /*
 videoFile: path to a video or empty if live video should be used
 calibrationFile: path to a calibration or empty if calibration should be searched automatically
@@ -315,7 +484,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         }
 
         calibrationFileName        = "camCalib_" + computerInfo + "_main.xml";
-        slamParams.calibrationFile = _calibDir + calibrationFileName;
+        slamParams.calibrationFile = _deviceData->calibDir() + calibrationFileName;
     }
     else
     {
@@ -372,7 +541,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    if (!_calibration.load(_calibDir, Utils::getFileName(slamParams.calibrationFile), false))
+    if (!_calibration.load(_deviceData->calibDir(), Utils::getFileName(slamParams.calibrationFile), false))
     {
         showErrorMsg("Error when loading calibration from file: " +
                      slamParams.calibrationFile);
@@ -461,7 +630,6 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     _undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
 }
 
-//-----------------------------------------------------------------------------
 void WAIApp::showErrorMsg(std::string msg)
 {
     assert(_errorDial && "errorDial is not initialized");
@@ -470,12 +638,11 @@ void WAIApp::showErrorMsg(std::string msg)
     _gui->uiPrefs->showError = true;
 }
 
-//-----------------------------------------------------------------------------
 std::string WAIApp::name()
 {
     return _name;
 }
-//-----------------------------------------------------------------------------
+
 bool WAIApp::updateTracking(SENSFramePtr frame)
 {
     bool iKnowWhereIAm = false;
@@ -502,7 +669,7 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
 
     return iKnowWhereIAm;
 }
-//-----------------------------------------------------------------------------
+
 int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
 {
     if (!_waiScene)
@@ -512,7 +679,6 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
         SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
         SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
         SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
-        //SLApplication::configPath     = _dirs.writableDir;
 
         _waiScene = new AppWAIScene(_name, _inputManager);
 
@@ -530,38 +696,25 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
                   _gui.get(),
                   _dirs.writableDir);
 
-        loadWAISceneView("default", "default");
+        //loadWAISceneView("default", "default");
     }
 
     return (SLint)_sv->index();
 }
 
-//-----------------------------------------------------------------------------
 void WAIApp::loadWAISceneView(std::string location, std::string area)
 {
     _waiScene->rebuild(location, area);
 
-    // Save no energy
-    _sv->doWaitOnIdle(false); //for constant video feed
-    _sv->camera(_waiScene->cameraNode);
-
-    //_videoImage = new SLGLTexture(&_waiScene->assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    //_testTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    //_waiScene->cameraNode->background().texture(_videoImage);
-
-    //_waiScene->root3D(_waiScene->rootNode);
-
-    _sv->onInitialize();
     _sv->doWaitOnIdle(false);
-
-    if (_camera)
-        _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+    _sv->camera(_waiScene->cameraNode);
+    _sv->onInitialize();
+    _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 }
 
-//-----------------------------------------------------------------------------
 void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInch)
 {
-    _gui = std::make_unique<AppDemoWaiGui>(_name, _dirs.writableDir, dotsPerInch);
+    _gui = std::make_unique<AppDemoWaiGui>(_name, _dirs.writableDir, dotsPerInch, _dirs.slDataRoot + "/images/fonts/");
 
     _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &_gui->uiPrefs->showInfosFrameworks));
     _gui->addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
@@ -598,7 +751,6 @@ void WAIApp::setupGUI(std::string appName, std::string configDir, int dotsPerInc
     _gui->addInfoDialog(_errorDial);
 }
 
-//-----------------------------------------------------------------------------
 void WAIApp::setupDefaultErlebARDirTo(std::string dir)
 {
     dir = Utils::unifySlashes(dir);
@@ -636,7 +788,7 @@ void WAIApp::setupDefaultErlebARDirTo(std::string dir)
         Utils::makeDir(dir);
     }
 }
-//-----------------------------------------------------------------------------
+
 void WAIApp::downloadCalibrationFilesTo(std::string dir)
 {
     const std::string ftpHost = "pallas.bfh.ch:21";
@@ -656,53 +808,25 @@ void WAIApp::downloadCalibrationFilesTo(std::string dir)
     }
 }
 
-//-----------------------------------------------------------------------------
-bool WAIApp::updateSceneViews()
-{
-    bool needUpdate = false;
-
-    for (auto sv : _waiScene->sceneViews())
-        if (sv->onPaint() && !needUpdate)
-            needUpdate = true;
-
-    return needUpdate;
-}
-
-//-----------------------------------------------------------------------------
 void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
 {
     //undistort image and copy image to video texture
-    //if (_videoImage)
-    {
-        if (_mode)
-            _mode->drawInfo(imgRGB, true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
+    _mode->drawInfo(imgRGB, true, _gui->uiPrefs->showKeyPoints, _gui->uiPrefs->showKeyPointsMatched);
 
-        if (_calibration.state() == CS_calibrated && _showUndistorted)
-        {
-            _calibration.remap(imgRGB, _undistortedLastFrame[_lastFrameIdx]);
-        }
-        else
-        {
-            _undistortedLastFrame[_lastFrameIdx] = imgRGB;
-        }
+    if (_calibration.state() == CS_calibrated && _showUndistorted)
+        _calibration.remap(imgRGB, _undistortedLastFrame[_lastFrameIdx]);
+    else
+        _undistortedLastFrame[_lastFrameIdx] = imgRGB;
 
-        if (_doubleBufferedOutput)
-        {
-            _lastFrameIdx = (_lastFrameIdx + 1) % 2;
-        }
+    if (_doubleBufferedOutput)
+        _lastFrameIdx = (_lastFrameIdx + 1) % 2;
 
-        _waiScene->updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
-                                    CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
-    }
+    _waiScene->updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
+                                CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
 
-    if (!_mode)
-        return;
-
-    //update map point visualization:
-    //if we still want to visualize the point cloud
+    //update map point visualization
     if (_gui->uiPrefs->showMapPC)
     {
-        //get new points and add them
         _waiScene->renderMapPoints(_mode->getMapPoints());
         //todo: fix? mode has no member getMarmerCornerMapPoints
         //_waiScene->renderMarkerCornerMapPoints(_mode->getMarkerCornerMapPoints());
@@ -713,38 +837,23 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
         _waiScene->removeMarkerCornerMapPoints();
     }
 
-    //update visualization of local map points:
-    //only update them with a valid pose from WAI
+    //update visualization of local map points (when WAI pose is valid)
     if (_gui->uiPrefs->showLocalMapPC && iKnowWhereIAm)
-    {
         _waiScene->renderLocalMapPoints(_mode->getLocalMapPoints());
-    }
     else
-    {
-        //delete mesh if we do not want do visualize it anymore
         _waiScene->removeLocalMapPoints();
-    }
 
-    //update visualization of matched map points
-    //only update them with a valid pose from WAI
+    //update visualization of matched map points (when WAI pose is valid)
     if (_gui->uiPrefs->showMatchesPC && iKnowWhereIAm)
-    {
         _waiScene->renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
-    }
     else
-    {
         _waiScene->removeMatchedMapPoints();
-    }
 
     //update keyframe visualization
     if (_gui->uiPrefs->showKeyFrames)
-    {
         _waiScene->renderKeyframes(_mode->getKeyFrames());
-    }
     else
-    {
         _waiScene->removeKeyframes();
-    }
 
     //update pose graph visualization
     _waiScene->renderGraphs(_mode->getKeyFrames(),
@@ -819,13 +928,13 @@ void WAIApp::saveMap(std::string location,
 
 void WAIApp::saveVideo(std::string filename)
 {
-    std::string infoDir  = videoDir + "info/";
+    std::string infoDir  = _deviceData->videoDir() + "info/";
     std::string infoPath = infoDir + filename;
-    std::string path     = videoDir + filename;
+    std::string path     = _deviceData->videoDir() + filename;
 
-    if (!Utils::dirExists(videoDir))
+    if (!Utils::dirExists(_deviceData->videoDir()))
     {
-        Utils::makeDir(videoDir);
+        Utils::makeDir(_deviceData->videoDir());
     }
     else
     {
@@ -953,7 +1062,7 @@ void WAIApp::handleEvents()
             case WAIEventType_DownloadCalibrationFiles: {
                 WAIEventDownloadCalibrationFiles* downloadEvent = (WAIEventDownloadCalibrationFiles*)event;
                 delete downloadEvent;
-                downloadCalibrationFilesTo(_calibDir);
+                downloadCalibrationFilesTo(_deviceData->calibDir());
             }
             break;
 

@@ -89,7 +89,7 @@ void ImGuiWrapper::init(std::string configPath)
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
+void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
 {
     _fontPropDots  = fontPropDots;
     _fontFixedDots = fontFixedDots;
@@ -98,7 +98,7 @@ void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
     io.Fonts->Clear();
 
     // Load proportional font for menue and text displays
-    SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
+    SLstring DroidSans = fontPath + "DroidSans.ttf";
     if (Utils::fileExists(DroidSans))
     {
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
@@ -108,7 +108,7 @@ void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
-    SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
+    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
     if (Utils::fileExists(ProggyClean))
     {
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);

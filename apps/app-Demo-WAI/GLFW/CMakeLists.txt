@@ -14,6 +14,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
@@ -37,9 +38,16 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/DeviceData.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/StartUpState.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/SelectionScene.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/sceneViews/SelectionSceneView.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
@@ -57,6 +65,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
@@ -80,6 +89,11 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/StartUpState.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/SelectionScene.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/sceneViews/SelectionSceneView.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp

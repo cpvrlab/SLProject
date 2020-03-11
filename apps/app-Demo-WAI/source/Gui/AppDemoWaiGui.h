@@ -45,7 +45,7 @@ integrated in the SLProject.<br>
 class AppDemoWaiGui : public ImGuiWrapper
 {
 public:
-    AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch);
+    AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch, std::string fontPath);
     ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not
     void addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog);

@@ -520,7 +520,7 @@ int main(int argc, char* argv[])
         config.targetHeight  = 480;
         config.convertToGray = true;
 
-        camera->start(config);
+        //camera->start(config);
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";

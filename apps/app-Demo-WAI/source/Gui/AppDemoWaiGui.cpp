@@ -38,14 +38,14 @@
 //map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch)
+AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch, std::string fontPath)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
     _prefsFileName = Utils::unifySlashes(configDir) + appName + ".yml";
     uiPrefs->load(_prefsFileName, ImGui::GetStyle());
     //load fonts
-    loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots);
+    loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()

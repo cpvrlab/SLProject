@@ -71,7 +71,7 @@ public:
     void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) override;
     bool doNotDispatchKeyboard() override { return ImGui::GetIO().WantCaptureKeyboard; }
     bool doNotDispatchMouse() override { return ImGui::GetIO().WantCaptureMouse; }
-    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots);
+    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
     // gui build function pattern
     virtual void build(SLScene* s, SLSceneView* sv) = 0;
 
