@@ -1,13 +1,13 @@
 #include <AppWAISceneView.h>
 
 #include <SLApplication.h>
-#include <SLCoordAxisArrow.h>
 #include <SLVec3.h>
+#include <SLCoordAxisArrow.h>
+#include <SLSphere.h>
 
 #include <WAIApp.h>
 
 WAISceneView::WAISceneView(std::queue<WAIEvent*>* eventQueue) : SLSceneView(),
-                                                                _eventQueue(eventQueue),
                                                                 _editMode(WAINodeEditMode_None),
                                                                 _mouseIsDown(false)
 {
@@ -15,10 +15,9 @@ WAISceneView::WAISceneView(std::queue<WAIEvent*>* eventQueue) : SLSceneView(),
 
 void WAISceneView::toggleEditMode()
 {
-    SLScene* s = SLApplication::scene;
-
     if (!_editMode)
     {
+        SLScene* s = SLApplication::scene;
         if (s->root3D())
         {
             SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
@@ -35,9 +34,15 @@ void WAISceneView::toggleEditMode()
                     _yAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::GREEN), "y-axis node");
                     _zAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
                     _zAxisNode->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+
                     _editGizmos->addChild(_xAxisNode);
                     _editGizmos->addChild(_yAxisNode);
                     _editGizmos->addChild(_zAxisNode);
+
+                    _scaleSphere = new SLNode(new SLSphere(1.0f, 0.1f, 1, 16, false, false), "Scale sphere");
+
+                    _editGizmos->addChild(_scaleSphere);
+
                     s->root3D()->addChild(_editGizmos);
 
                     s->root3D()->updateAABBRec();
@@ -45,13 +50,31 @@ void WAISceneView::toggleEditMode()
 
                 _editGizmos->translation(mapNode->updateAndGetWM().translation());
 
-                _editGizmos->drawBits()->set(SL_DB_HIDDEN, false);
                 for (SLNode* child : _editGizmos->children())
                 {
-                    child->drawBits()->set(SL_DB_HIDDEN, false);
+                    child->drawBits()->set(SL_DB_HIDDEN, true);
                 }
 
-                _editMode = WAINodeEditMode_Translate;
+                _editMode = WAINodeEditMode_Scale;
+                switch (_editMode)
+                {
+                    case WAINodeEditMode_Translate: {
+                        _xAxisNode->drawBits()->set(SL_DB_HIDDEN, false);
+                        _yAxisNode->drawBits()->set(SL_DB_HIDDEN, false);
+                        _zAxisNode->drawBits()->set(SL_DB_HIDDEN, false);
+                    }
+                    break;
+
+                    case WAINodeEditMode_Scale: {
+                        _scaleSphere->drawBits()->set(SL_DB_HIDDEN, false);
+                    }
+                    break;
+
+                    case WAINodeEditMode_None:
+                    default: {
+                    }
+                    break;
+                }
             }
         }
     }
@@ -98,33 +121,58 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
 #endif
         }
 
-        if (_editGizmos)
+        switch (_editMode)
         {
-            SLRay pickRay(this);
-            if (_camera)
-            {
-                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-                _editGizmos->hitRec(&pickRay);
-                if (pickRay.hitNode)
+            case WAINodeEditMode_Translate: {
+                SLRay pickRay(this);
+                if (_camera)
                 {
-                    if (pickRay.hitNode == _xAxisNode)
-                    {
-                        _editMode = WAINodeEditMode_TranslateX;
-                    }
-                    else if (pickRay.hitNode == _yAxisNode)
-                    {
-                        _editMode = WAINodeEditMode_TranslateY;
-                    }
-                    else if (pickRay.hitNode == _zAxisNode)
-                    {
-                        _editMode = WAINodeEditMode_TranslateZ;
-                    }
+                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                    _editGizmos->hitRec(&pickRay);
 
-                    _mouseIsDown = true;
+                    if (pickRay.hitNode)
+                    {
+                        SLMat4f gizmoMat = _editGizmos->updateAndGetWM();
+                        _axisRayO        = gizmoMat.translation();
 
-                    _hitCoordinate = pickRay.origin + (pickRay.dir * pickRay.length);
+                        if (pickRay.hitNode == _xAxisNode)
+                        {
+                            _axisRayDir = gizmoMat.axisX();
+                        }
+                        else if (pickRay.hitNode == _yAxisNode)
+                        {
+                            _axisRayDir = gizmoMat.axisY();
+                        }
+                        else if (pickRay.hitNode == _zAxisNode)
+                        {
+                            _axisRayDir = gizmoMat.axisZ();
+                        }
+
+                        SLVec3f axisPoint;
+                        if (getClosestPointOnAxis(pickRay.origin, pickRay.dir, _axisRayO, _axisRayDir, axisPoint))
+                        {
+                            _hitCoordinate = axisPoint;
+
+                            _mouseIsDown = true;
+                        }
+                    }
                 }
             }
+            break;
+
+            case WAINodeEditMode_Scale: {
+                SLRay pickRay(this);
+                if (_camera)
+                {
+                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                }
+            }
+            break;
+
+            case WAINodeEditMode_None:
+            default: {
+            }
+            break;
         }
     }
 
@@ -192,68 +240,65 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
         {
             if (_camera)
             {
-                SLRay pickRay(this);
-                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
-                SLMat4f gizmoMat = _editGizmos->updateAndGetWM();
-
-                // NOTE(dgj1): ray-ray-intersection according to
-                // http://www.realtimerendering.com/intersections.html
-                SLVec3f pickRayO   = pickRay.origin;
-                SLVec3f pickRayDir = pickRay.dir;
-                SLVec3f axisRayO   = gizmoMat.translation();
-                SLVec3f axisRayDir;
-
                 switch (_editMode)
                 {
-                    case WAINodeEditMode_TranslateX: {
-                        axisRayDir = gizmoMat.axisX();
+                    case WAINodeEditMode_Translate: {
+                        SLRay pickRay(this);
+                        _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+                        SLVec3f axisPoint;
+                        if (getClosestPointOnAxis(pickRay.origin, pickRay.dir, _axisRayO, _axisRayDir, axisPoint))
+                        {
+                            SLVec3f translationDiff = axisPoint - _hitCoordinate;
+
+                            SLScene* s       = SLApplication::scene;
+                            SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
+                            mapNode->translate(translationDiff, TS_world);
+
+                            _editGizmos->translation(mapNode->updateAndGetWM().translation());
+
+                            _hitCoordinate = axisPoint;
+                        }
                     }
                     break;
 
-                    case WAINodeEditMode_TranslateY: {
-                        axisRayDir = gizmoMat.axisY();
+                    case WAINodeEditMode_None:
+                    default: {
                     }
                     break;
-
-                    case WAINodeEditMode_TranslateZ: {
-                        axisRayDir = gizmoMat.axisZ();
-                    }
-                    break;
-                }
-
-                // Check if lines are parallel
-                SLVec3f cross;
-                cross.cross(pickRayDir, axisRayDir);
-                float den = cross.lengthSqr();
-
-                if (den > FLT_EPSILON)
-                {
-                    SLVec3f diffO = axisRayO - pickRayO;
-
-                    SLMat3f mX = SLMat3f(diffO.x, pickRayDir.x, cross.x, diffO.y, pickRayDir.y, cross.y, diffO.z, pickRayDir.z, cross.z);
-
-                    float detX = mX.det();
-                    float tX   = detX / den;
-
-                    SLVec3f xPoint = axisRayO + (axisRayDir * tX);
-
-                    SLVec3f translationDiff = xPoint - _hitCoordinate;
-
-                    WAIEventMapNodeTransform* event = new WAIEventMapNodeTransform();
-                    event->translation              = translationDiff;
-                    event->rotation                 = SLVec3f(0, 0, 0);
-                    event->scale                    = 1.0f;
-                    event->tSpace                   = TS_world;
-
-                    _eventQueue->push(event);
-
-                    _hitCoordinate = xPoint;
                 }
             }
         }
 
         result = true;
+    }
+
+    return result;
+}
+
+bool WAISceneView::getClosestPointOnAxis(const SLVec3f& pickRayO,
+                                         const SLVec3f& pickRayDir,
+                                         const SLVec3f& axisRayO,
+                                         const SLVec3f& axisRayDir,
+                                         SLVec3f&       axisPoint)
+{
+    bool result = false;
+    // Check if lines are parallel
+    SLVec3f cross;
+    cross.cross(pickRayDir, axisRayDir);
+    float den = cross.lengthSqr();
+
+    if (den > FLT_EPSILON)
+    {
+        SLVec3f diffO = axisRayO - pickRayO;
+
+        SLMat3f m = SLMat3f(diffO.x, pickRayDir.x, cross.x, diffO.y, pickRayDir.y, cross.y, diffO.z, pickRayDir.z, cross.z);
+
+        float det = m.det();
+        float t   = det / den;
+
+        axisPoint = axisRayO + (axisRayDir * t);
+        result    = true;
     }
 
     return result;

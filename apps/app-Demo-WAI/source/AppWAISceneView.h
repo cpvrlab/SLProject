@@ -9,9 +9,7 @@ enum WAINodeEditMode
 {
     WAINodeEditMode_None,
     WAINodeEditMode_Translate,
-    WAINodeEditMode_TranslateX,
-    WAINodeEditMode_TranslateY,
-    WAINodeEditMode_TranslateZ
+    WAINodeEditMode_Scale,
 };
 
 class WAISceneView : public SLSceneView
@@ -24,19 +22,30 @@ public:
     virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint scrX, SLint scrY);
 
-protected:
-    std::queue<WAIEvent*>* _eventQueue;
-
+private:
     WAINodeEditMode _editMode;
 
     bool    _mouseIsDown;
     SLVec3f _hitCoordinate;
 
     SLNode* _editGizmos = nullptr;
-    SLNode* _xAxisNode  = nullptr;
-    SLNode* _yAxisNode  = nullptr;
-    SLNode* _zAxisNode  = nullptr;
-    SLNode* _mapNode    = nullptr;
+
+    // Translation stuff
+    SLNode* _xAxisNode = nullptr;
+    SLNode* _yAxisNode = nullptr;
+    SLNode* _zAxisNode = nullptr;
+
+    SLVec3f _axisRayO;
+    SLVec3f _axisRayDir;
+
+    // Scale stuff
+    SLNode* _scaleSphere;
+
+    bool getClosestPointOnAxis(const SLVec3f& pickRayO,
+                               const SLVec3f& pickRayDir,
+                               const SLVec3f& axisRayO,
+                               const SLVec3f& axisRayDir,
+                               SLVec3f&       axisPoint);
 };
 
 #endif
