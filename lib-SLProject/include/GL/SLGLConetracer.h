@@ -100,4 +100,4 @@ private:
     SLMat4f* _wsToVoxelSpace = new SLMat4f();
 };
 //-----------------------------------------------------------------------------
-#endif SLCONETRACER_H
+#endif // SLCONETRACER_H

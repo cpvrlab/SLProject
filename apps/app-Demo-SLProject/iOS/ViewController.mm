@@ -22,8 +22,8 @@
 #include "Utils_iOS.h"
 #include <SLInterface.h>
 #include <CVCapture.h>
-#include <AppDemoGui.h>
 #include <SLApplication.h>
+#include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 #include <mach/mach_time.h>
 #import <sys/utsname.h>
