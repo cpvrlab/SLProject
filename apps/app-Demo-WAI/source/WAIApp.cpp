@@ -224,7 +224,7 @@ SENSFramePtr WAIApp::getCameraFrame()
 void WAIApp::reset()
 {
     _startUpRequested = false;
-    _startErlebAR     = false;
+    _initStartUp      = false;
 }
 
 void WAIApp::checkStateTransition()
@@ -232,7 +232,7 @@ void WAIApp::checkStateTransition()
     switch (_state)
     {
         case State::IDLE: {
-            if (_selectErlebAR)
+            if (_appMode == AppMode::NONE)
             {
                 //start selection state
                 if (_selectionState && _selectionState->started())
@@ -241,33 +241,61 @@ void WAIApp::checkStateTransition()
             else
             {
                 //directly go to start up
-                if (_startUpState.started())
+                if (_startUpState && _startUpState->started())
                     _state = State::START_UP;
             }
             break;
         }
         case State::SELECTION: {
 
-            if (_selectionState->ready() && _startUpState.started())
+            if (_appMode != AppMode::NONE && _startUpState->started())
             {
-                _state = State::START_UP;
+                _state       = State::START_UP;
+                _initStartUp = true;
             }
             break;
         }
         case State::START_UP: {
-            //if (_mapState.started() && _slamState.started())
+            if (_appMode == AppMode::CAMERA_TEST)
+            {
+                if (_cameraTestState && _cameraTestState->started())
+                {
+                    _state = State::CAMERA_TEST;
+                }
+            }
+            else if (_appMode == AppMode::TEST)
+            {
+                if (_testState && _testState->started())
+                {
+                    _state = State::TEST;
+                }
+            }
+            else //(_appMode > AppMode::TEST)
+            {
+                if (_locationMapState && _areaTrackingState && _locationMapState->started() && _areaTrackingState->started())
+                {
+                    _state = State::LOCATION_MAP;
+                }
+            }
+            break;
+        }
+        case State::LOCATION_MAP: {
+            //if (_mapState.ready() && _slamState.started())
             {
                 //  _state = State::MAP_SCENE
             }
-
             break;
         }
-        case State::MAP_SCENE: {
-            handleEvents();
+        case State::AREA_TRACKING: {
             break;
         }
-        case State::TRACKING_SCENE: {
-            handleEvents();
+        case State::TEST: {
+            break;
+        }
+        case State::CAMERA_TEST: {
+            break;
+        }
+        case State::TUTORIAL: {
             break;
         }
     }
@@ -282,9 +310,10 @@ bool WAIApp::updateState()
             if (_startUpRequested)
             {
                 _startUpRequested = false;
-                if (_selectErlebAR)
+                if (_appMode == AppMode::NONE)
                 {
-                    //start up can be done as soon we have access to resouces
+                    //select AppMode
+                    //(start up can be done as soon we have access to resouces)
                     _selectionState = new SelectionState(_inputManager,
                                                          _deviceData->scrWidth(),
                                                          _deviceData->scrHeight(),
@@ -292,40 +321,65 @@ bool WAIApp::updateState()
                                                          _deviceData->fontDir(),
                                                          _deviceData->dirs().writableDir);
                     _selectionState->start();
-                    _startUpState.start();
                 }
-                else
-                {
-                    //directly start selected erlebAR scene
-                    _startUpState.start();
-                }
+
+                _startUpState = new StartUpState;
+                _startUpState->start();
             }
             break;
         }
         case State::SELECTION: {
-
             doUpdate = _selectionState->update();
             if (_selectionState->ready())
             {
-                //start erlebar scene
+                _appMode = _selectionState->getSelection();
             }
             break;
         }
         case State::START_UP: {
-            doUpdate = _startUpState.update();
+            //show loading screen
+            doUpdate = _startUpState->update();
 
-            if (_startErlebAR)
+            if (_initStartUp)
             {
-                _startErlebAR = false;
-                //start erleb-AR scene
-                //_erlebARState.start()
+                _initStartUp = false;
+                _appMode     = _selectionState->getSelection();
+
+                if (_appMode == AppMode::TEST)
+                {
+                    _testState = new TestState;
+                    _testState->start();
+                }
+                else if (_appMode == AppMode::CAMERA_TEST)
+                {
+                    _cameraTestState = new CameraTestState;
+                    _cameraTestState->start();
+                }
+                else
+                {
+                    if (_appMode == AppMode::AUGST)
+                        _locationMapState = new AugstMapState;
+                    else if (_appMode == AppMode::AVANCHES)
+                        _locationMapState = new AvanchesMapState;
+                    else if (_appMode == AppMode::BIEL)
+                        _locationMapState = new BielMapState;
+                    else if (_appMode == AppMode::CHRISTOFFELTOWER)
+                        _locationMapState = new ChristoffelMapState;
+
+                    _locationMapState->start();
+                }
             }
             break;
         }
-        case State::MAP_SCENE: {
+        case State::LOCATION_MAP: {
+            //if (_mapState->ready())
+            {
+                //_area = _mapState->getTargetArea();
+                _switchToTracking = true;
+            }
             break;
         }
-        case State::TRACKING_SCENE: {
+        case State::AREA_TRACKING: {
 
             //bool iKnowWhereIAm = false;
             ////get new frame: in case of video this may already call updateTracking several times
@@ -348,27 +402,13 @@ bool WAIApp::updateState()
 
             break;
         }
-        case State::TRACKING_VIDEO_SCENE: {
-
-            //bool iKnowWhereIAm = false;
-            ////get new frame: in case of video this may already call updateTracking several times
-            //SENSFramePtr frame = getVideoFrame();
-
-            //if (frame)
-            //{
-            //    iKnowWhereIAm = updateTracking(frame);
-
-            //    //update tracking infos visualization
-            //    updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
-
-            //    if (iKnowWhereIAm)
-            //        _waiScene->updateCameraPose(_mode->getPose());
-            //}
-
-            ////update scene (before it was slUpdateScene)
-            //_waiScene->onUpdate();
-            //doUpdate = _sv->onPaint();
-
+        case State::TEST: {
+            break;
+        }
+        case State::CAMERA_TEST: {
+            break;
+        }
+        case State::TUTORIAL: {
             break;
         }
     }
@@ -413,12 +453,41 @@ void WAIApp::terminate()
         delete _waiScene;
         _waiScene = nullptr;
     }
-    //_loaded = false;
 
     if (_selectionState)
     {
         delete _selectionState;
         _selectionState = nullptr;
+    }
+    if (_startUpState)
+    {
+        delete _startUpState;
+        _startUpState = nullptr;
+    }
+    if (_areaTrackingState)
+    {
+        delete _areaTrackingState;
+        _areaTrackingState = nullptr;
+    }
+    if (_cameraTestState)
+    {
+        delete _cameraTestState;
+        _cameraTestState = nullptr;
+    }
+    if (_locationMapState)
+    {
+        delete _locationMapState;
+        _locationMapState = nullptr;
+    }
+    if (_testState)
+    {
+        delete _testState;
+        _testState = nullptr;
+    }
+    if (_tutorialState)
+    {
+        delete _tutorialState;
+        _tutorialState = nullptr;
     }
 }
 
@@ -670,37 +739,37 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
     return iKnowWhereIAm;
 }
 
-int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
-{
-    if (!_waiScene)
-    {
-        // Default paths for all loaded resources
-        SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
-        SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
-        SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
-        SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
-
-        _waiScene = new AppWAIScene(_name, _inputManager);
-
-        int screenWidth  = (int)(scrWidth * scr2fbX);
-        int screenHeight = (int)(scrHeight * scr2fbY);
-
-        setupGUI(_name, _dirs.writableDir, dpi);
-
-        _sv = new SLSceneView(_waiScene, dpi);
-        _sv->init("SceneView",
-                  screenWidth,
-                  screenHeight,
-                  nullptr,
-                  nullptr,
-                  _gui.get(),
-                  _dirs.writableDir);
-
-        //loadWAISceneView("default", "default");
-    }
-
-    return (SLint)_sv->index();
-}
+//int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
+//{
+//    if (!_waiScene)
+//    {
+//        // Default paths for all loaded resources
+//        SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
+//        SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
+//        SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
+//        SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
+//
+//        _waiScene = new AppWAIScene(_name, _inputManager);
+//
+//        int screenWidth  = (int)(scrWidth * scr2fbX);
+//        int screenHeight = (int)(scrHeight * scr2fbY);
+//
+//        setupGUI(_name, _dirs.writableDir, dpi);
+//
+//        _sv = new SLSceneView(_waiScene, dpi);
+//        _sv->init("SceneView",
+//                  screenWidth,
+//                  screenHeight,
+//                  nullptr,
+//                  nullptr,
+//                  _gui.get(),
+//                  _dirs.writableDir);
+//
+//        //loadWAISceneView("default", "default");
+//    }
+//
+//    return (SLint)_sv->index();
+//}
 
 void WAIApp::loadWAISceneView(std::string location, std::string area)
 {

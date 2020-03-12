@@ -8,6 +8,7 @@
 #include <SL/SLTexFont.h>
 #include <SLSphere.h>
 #include <SLText.h>
+#include <SelectionGui.h>
 
 SelectionState::SelectionState(SLInputManager& inputManager,
                                int             screenWidth,
@@ -72,6 +73,13 @@ SelectionState::SelectionState(SLInputManager& inputManager,
 
 bool SelectionState::update()
 {
+    //check if selection was done
+    if (_gui.getSelection() != AppMode::NONE)
+    {
+        _selection = _gui.getSelection();
+        setStateReady();
+    }
+
     _s.onUpdate();
     return _sv.onPaint();
 }

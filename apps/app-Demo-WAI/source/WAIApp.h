@@ -33,6 +33,11 @@
 
 #include <states/SelectionState.h>
 #include <states/StartUpState.h>
+#include <states/AreaTrackingState.h>
+#include <states/CameraTestState.h>
+#include <states/LocationMapState.h>
+#include <states/TestState.h>
+#include <states/TutorialState.h>
 
 class SLMaterial;
 class SLPoints;
@@ -45,12 +50,21 @@ class WAIApp : public SLInputEventInterface
 public:
     enum class State
     {
+        /*!Wait for _startUpRequested to become true. When it is true start SelectionState for scene selection and when it is
+        started switch to START_UP state or directly start StartUpScene if AppMode is already not AppMode::NONE.
+        */
         IDLE,
+        /*!In this state the user has to select a an AppMode. When selection is not NONE, we switch to state START_UP
+        */
         SELECTION,
+        /*!We start up the states depending on selected AppMode
+        */
         START_UP,
-        MAP_SCENE,
-        TRACKING_SCENE,
-        TRACKING_VIDEO_SCENE
+        LOCATION_MAP,
+        AREA_TRACKING,
+        TEST,
+        CAMERA_TEST,
+        TUTORIAL
     };
 
     WAIApp();
@@ -90,7 +104,7 @@ private:
     bool updateState();
 
     bool updateTracking(SENSFramePtr frame);
-    int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
+    //int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void loadWAISceneView(std::string location, std::string area);
 
     void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
@@ -164,18 +178,29 @@ private:
     std::string    _name;
     SLInputManager _inputManager;
 
-    State           _state          = State::IDLE;
-    SelectionState* _selectionState = nullptr;
-    StartUpState    _startUpState;
+    State              _state             = State::IDLE;
+    SelectionState*    _selectionState    = nullptr;
+    StartUpState*      _startUpState      = nullptr;
+    AreaTrackingState* _areaTrackingState = nullptr;
+    CameraTestState*   _cameraTestState   = nullptr;
+    LocationMapState*  _locationMapState  = nullptr;
+    TestState*         _testState         = nullptr;
+    TutorialState*     _tutorialState     = nullptr;
 
-    //load was called, we can switch to startup state
-    bool _startUpRequested = false;
     //defines if ErlebAR scene was already selected or if user has to choose
-    bool _selectErlebAR = true;
-    //call start of erlebar state
-    bool _startErlebAR = false;
+    AppMode _appMode = AppMode::NONE;
+    //Location _location = Location::NONE;
+    Area _area = Area::NONE;
 
-    std::unique_ptr<DeviceData> _deviceData;
+    //Sub-States (we dont want to add a state machine for everything):
+    //set to true as soon as we have access to app resouces
+    bool _startUpRequested = false;
+    //do initialize startup (true when first updated START_UP state)
+    bool _initStartUp      = false;
+    bool _switchToTracking = false;
+
+    std::unique_ptr<DeviceData>
+      _deviceData;
 };
 
 #endif

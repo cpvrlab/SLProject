@@ -24,6 +24,7 @@ public:
     bool started() { return _started; }
     //! signalizes that state is ready and wants caller to switch to another state
     bool ready() { return _ready; }
+    void setStateReady() { _ready = true; }
 
     //! update this state
     virtual bool update() = 0;
@@ -34,10 +35,11 @@ protected:
 
     //set to true if startup is done
     bool _started = false;
+
+private:
     //! signalizes that state is ready and wants caller to switch to another state
     bool _ready = false;
 
-private:
     std::thread _startThread;
 };
 

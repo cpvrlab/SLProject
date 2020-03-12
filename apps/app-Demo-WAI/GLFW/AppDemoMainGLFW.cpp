@@ -490,7 +490,7 @@ void GLFWInit()
     GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    dpi = (int)(142 * scr2fbX);
+    dpi = (int)(96 * scr2fbX);
     cout << "------------------------------------------------------------------" << endl;
     cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
     cout << "DPI             : " << dpi << endl;

@@ -6,6 +6,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLAssetManager.h>
+#include <ErlebAR.h>
 
 class SLInputManager;
 
@@ -22,6 +23,11 @@ public:
 
     bool update() override;
 
+    AppMode getSelection() const
+    {
+        return _selection;
+    }
+
 protected:
     void doStart() override;
 
@@ -29,6 +35,8 @@ protected:
     SLScene        _s;
     SLSceneView    _sv;
     SLAssetManager _assets;
+
+    AppMode _selection = AppMode::NONE;
 };
 
 #endif //SELECTION_STATE_H
