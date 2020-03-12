@@ -2,14 +2,19 @@
 #define LOCATION_MAP_STATE_H
 
 #include <states/State.h>
+#include <ErlebAR.h>
 
 class LocationMapState : public State
 {
 public:
     bool update() override;
 
+    Area getTargetArea() const { return _selectedArea; }
+
 protected:
     void doStart() override;
+
+    Area _selectedArea;
 };
 
 class BielMapState : public LocationMapState

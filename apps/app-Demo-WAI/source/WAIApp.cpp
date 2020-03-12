@@ -85,7 +85,7 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
 
-    _startUpRequested = true;
+    _startFromIdle = true;
     return 0;
     //if (_loaded) return _sv->index();
 
@@ -223,8 +223,8 @@ SENSFramePtr WAIApp::getCameraFrame()
 
 void WAIApp::reset()
 {
-    _startUpRequested = false;
-    _initStartUp      = false;
+    _startFromIdle    = false;
+    _startFromStartUp = false;
 }
 
 void WAIApp::checkStateTransition()
@@ -250,8 +250,8 @@ void WAIApp::checkStateTransition()
 
             if (_appMode != AppMode::NONE && _startUpState->started())
             {
-                _state       = State::START_UP;
-                _initStartUp = true;
+                _state            = State::START_UP;
+                _startFromStartUp = true;
             }
             break;
         }
@@ -307,9 +307,9 @@ bool WAIApp::updateState()
     switch (_state)
     {
         case State::IDLE: {
-            if (_startUpRequested)
+            if (_startFromIdle)
             {
-                _startUpRequested = false;
+                _startFromIdle = false;
                 if (_appMode == AppMode::NONE)
                 {
                     //select AppMode
@@ -340,10 +340,10 @@ bool WAIApp::updateState()
             //show loading screen
             doUpdate = _startUpState->update();
 
-            if (_initStartUp)
+            if (_startFromStartUp)
             {
-                _initStartUp = false;
-                _appMode     = _selectionState->getSelection();
+                _startFromStartUp = false;
+                _appMode          = _selectionState->getSelection();
 
                 if (_appMode == AppMode::TEST)
                 {
@@ -372,33 +372,22 @@ bool WAIApp::updateState()
             break;
         }
         case State::LOCATION_MAP: {
-            //if (_mapState->ready())
+
+            doUpdate = _locationMapState->update();
+            if (_locationMapState->ready())
             {
-                //_area = _mapState->getTargetArea();
+                _area             = _locationMapState->getTargetArea();
                 _switchToTracking = true;
             }
             break;
         }
         case State::AREA_TRACKING: {
+            doUpdate = _areaTrackingState->update();
 
-            //bool iKnowWhereIAm = false;
-            ////get new frame: in case of video this may already call updateTracking several times
-            //SENSFramePtr frame = getCameraFrame();
-
-            //if (frame)
-            //{
-            //    iKnowWhereIAm = updateTracking(frame);
-
-            //    //update tracking infos visualization
-            //    updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
-
-            //    if (iKnowWhereIAm)
-            //        _waiScene->updateCameraPose(_mode->getPose());
-            //}
-
-            ////update scene (before it was slUpdateScene)
-            //_waiScene->onUpdate();
-            //doUpdate = _sv->onPaint();
+            if (_areaTrackingState->ready())
+            {
+                //todo:
+            }
 
             break;
         }

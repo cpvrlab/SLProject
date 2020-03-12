@@ -50,7 +50,7 @@ class WAIApp : public SLInputEventInterface
 public:
     enum class State
     {
-        /*!Wait for _startUpRequested to become true. When it is true start SelectionState for scene selection and when it is
+        /*!Wait for _startFromIdle to become true. When it is true start SelectionState for scene selection and when it is
         started switch to START_UP state or directly start StartUpScene if AppMode is already not AppMode::NONE.
         */
         IDLE,
@@ -178,6 +178,8 @@ private:
     std::string    _name;
     SLInputManager _inputManager;
 
+    std::unique_ptr<DeviceData> _deviceData;
+
     State              _state             = State::IDLE;
     SelectionState*    _selectionState    = nullptr;
     StartUpState*      _startUpState      = nullptr;
@@ -187,20 +189,18 @@ private:
     TestState*         _testState         = nullptr;
     TutorialState*     _tutorialState     = nullptr;
 
+    //Sub-States that lead to state start() call:
+    //set to true as soon as we have access to app resouces, then we can first visualize something
+    bool _startFromIdle = false;
+    //done after AppMode was selected, then we know what to start up
+    bool _startFromStartUp = false;
+
     //defines if ErlebAR scene was already selected or if user has to choose
     AppMode _appMode = AppMode::NONE;
-    //Location _location = Location::NONE;
+    //
     Area _area = Area::NONE;
 
-    //Sub-States (we dont want to add a state machine for everything):
-    //set to true as soon as we have access to app resouces
-    bool _startUpRequested = false;
-    //do initialize startup (true when first updated START_UP state)
-    bool _initStartUp      = false;
     bool _switchToTracking = false;
-
-    std::unique_ptr<DeviceData>
-      _deviceData;
 };
 
 #endif
