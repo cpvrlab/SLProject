@@ -20,6 +20,7 @@
 #include <SLGLImGui.h>
 #include <utility>
 #include <GlobalTimer.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 //! Global static objects

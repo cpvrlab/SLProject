@@ -16,6 +16,8 @@
 
 #include <SLMaterial.h>
 #include <SLSceneView.h>
+#include <SLGLProgramManager.h>
+#include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLMaterial::PERFECT = 1000.0f;
@@ -241,3 +243,9 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     loc = program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
+SLMaterialDiffuseAttribute::SLMaterialDiffuseAttribute()
+  : SLMaterial(nullptr, "diffuseAttrib")
+{
+    specular(SLCol4f::BLACK);
+    program(SLGLProgramManager::get(SP_perVrtBlinnColorAttrib));
+}

@@ -10,8 +10,8 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLScene.h>
 #include <SLTransferFunction.h>
+#include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
 //! ctor with vector of alpha values and a predefined color LUT scheme

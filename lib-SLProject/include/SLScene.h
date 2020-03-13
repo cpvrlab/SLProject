@@ -17,81 +17,18 @@
 #include <map>
 #include <SLAnimManager.h>
 #include <Averaged.h>
-#include <SLEventHandler.h>
 #include <SLGLOculus.h>
 #include <SLLight.h>
-#include <SLMaterial.h>
 #include <SLMesh.h>
-#include <SLRect.h>
-#include <SLVec3.h>
-#include <SLVec4.h>
-#include <SLAssetManager.h>
-#include <SLGLProgramManager.h>
+//#include <SLRect.h>
+//#include <SLVec3.h>
+//#include <SLVec4.h>
+//#include <SLAssetManager.h>
+//#include <SLGLProgramManager.h>
 
 class SLSceneView;
 class SLCamera;
 class SLInputManager;
-
-//-----------------------------------------------------------------------------
-//! Global default gray color material for meshes that don't define their own.
-class SLMaterialDefaultGray : public SLMaterial
-{
-public:
-    static SLMaterialDefaultGray* instance()
-    {
-        if (!_instance)
-            _instance = new SLMaterialDefaultGray;
-        return _instance;
-    }
-    static void deleteInstance()
-    {
-        if (_instance)
-        {
-            delete _instance;
-            _instance = nullptr;
-        }
-    }
-
-private:
-    SLMaterialDefaultGray()
-      : SLMaterial(nullptr, "default", SLVec4f::GRAY, SLVec4f::WHITE)
-    {
-        ambient({0.2f, 0.2f, 0.2f});
-    }
-
-    static SLMaterialDefaultGray* _instance;
-};
-
-//-----------------------------------------------------------------------------
-//! Global diffuse reflection material for meshes with color vertex attributes.
-class SLMaterialDiffuseAttribute : public SLMaterial
-{
-public:
-    static SLMaterialDiffuseAttribute* instance()
-    {
-        if (!_instance)
-            _instance = new SLMaterialDiffuseAttribute;
-        return _instance;
-    }
-    static void deleteInstance()
-    {
-        if (_instance)
-        {
-            delete _instance;
-            _instance = nullptr;
-        }
-    }
-
-private:
-    SLMaterialDiffuseAttribute()
-      : SLMaterial(nullptr, "diffuseAttrib")
-    {
-        specular(SLCol4f::BLACK);
-        program(SLGLProgramManager::get(SP_perVrtBlinnColorAttrib));
-    }
-
-    static SLMaterialDiffuseAttribute* _instance;
-};
 
 //-----------------------------------------------------------------------------
 typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
@@ -152,9 +89,8 @@ public:
     AvgFloat& draw2DTimesMS() { return _draw2DTimesMS; }
     AvgFloat& draw3DTimesMS() { return _draw3DTimesMS; }
 
-    SLNode* selectedNode() { return _selectedNode; }
-    SLMesh* selectedMesh() { return _selectedMesh; }
-    //SLRectf&  selectedRect() { return _selectedRect; }
+    SLNode*   selectedNode() { return _selectedNode; }
+    SLMesh*   selectedMesh() { return _selectedMesh; }
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
     SLCamera* nextCameraInScene(SLSceneView* activeSV);

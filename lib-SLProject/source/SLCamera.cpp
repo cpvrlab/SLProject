@@ -17,6 +17,7 @@
 #include <SLSceneView.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras

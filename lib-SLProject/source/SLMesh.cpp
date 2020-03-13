@@ -20,6 +20,7 @@
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
 /*! 

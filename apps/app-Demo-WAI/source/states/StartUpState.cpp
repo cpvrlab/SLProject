@@ -6,6 +6,7 @@
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SelectionGui.h>
+#include <SLGLProgramManager.h>
 
 StartUpState::StartUpState(SLInputManager& inputManager,
                            int             screenWidth,

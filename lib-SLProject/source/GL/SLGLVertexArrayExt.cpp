@@ -17,7 +17,8 @@
 
 #include <SLGLProgram.h>
 #include <SLGLVertexArrayExt.h>
-#include <SLScene.h>
+#include <SLGLProgramManager.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 /*! Helper function that sets the vertex position attribute and generates or 

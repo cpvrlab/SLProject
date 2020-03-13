@@ -7,6 +7,7 @@
 #include <SLAssimpImporter.h>
 #include <SLVec4.h>
 #include <SLKeyframeCamera.h>
+#include <SLGLProgramManager.h>
 
 AppWAIScene::AppWAIScene(SLstring name, SLInputManager& inputManager)
   : SLScene(name, nullptr, inputManager)

@@ -16,6 +16,8 @@
 
 #include <SLGLTexture.h>
 #include <SLScene.h>
+#include <SLGLProgramManager.h>
+#include <SLAssetManager.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------

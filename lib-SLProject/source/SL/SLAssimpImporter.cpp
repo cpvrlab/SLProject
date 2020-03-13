@@ -18,8 +18,10 @@
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
-#include <SLScene.h>
 #include <SLSkeleton.h>
+#include <SLGLTexture.h>
+#include <SLAssetManager.h>
+#include <SLAnimManager.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>

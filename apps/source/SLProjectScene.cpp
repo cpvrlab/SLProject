@@ -15,6 +15,8 @@
 #include <SLAssimpImporter.h>
 #include <SLLightDirect.h>
 #include <SLSceneView.h>
+#include <SLGLProgramManager.h>
+
 //-----------------------------------------------------------------------------
 // Initialize static font pointers
 SLTexFont* SLProjectScene::font07 = nullptr;

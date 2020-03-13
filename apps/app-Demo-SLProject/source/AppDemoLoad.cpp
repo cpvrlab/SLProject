@@ -45,6 +45,7 @@
 #include <SLText.h>
 #include <SLTransferFunction.h>
 #include <SLProjectScene.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo

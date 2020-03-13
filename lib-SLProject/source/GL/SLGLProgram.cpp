@@ -18,6 +18,7 @@
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLScene.h>
+#include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for shader files used when only filename is passed in load.
