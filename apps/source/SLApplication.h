@@ -23,6 +23,7 @@
 using namespace std;
 
 class SLScene;
+class SLGLImGui;
 class SLProjectScene;
 class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
@@ -54,6 +55,7 @@ public:
     static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
     static SLProjectScene*  scene;        //!< scene pointer
+    static SLGLImGui*       gui;          //!< gui pointer
     static SLInputManager   inputManager; //!< Input events manager
     static SLDeviceRotation devRot;       //!< Mobile device rotation from IMU
     static SLDeviceLocation devLoc;       //!< Mobile device location from GPS

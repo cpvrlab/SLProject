@@ -121,17 +121,17 @@ int slCreateSceneView(SLProjectScene* scene,
     SLuint       index = (SLuint)newSVCallback(scene, dotsPerInch);
     SLSceneView* sv    = scene->sceneView(index);
 
-    SLGLImGui* gui = new SLGLImGui();
+    SLApplication::gui = new SLGLImGui();
     // Load GUI fonts depending on the resolution
-    gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
-    gui->build = (cbOnImGuiBuild)onImGuiBuild;
+    SLApplication::gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    SLApplication::gui->build = (cbOnImGuiBuild)onImGuiBuild;
 
     sv->init("SceneView",
              screenWidth,
              screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             gui,
+             SLApplication::gui,
              SLApplication::configPath);
 
     // Load GUI fonts depending on the resolution

@@ -17,6 +17,7 @@
 #include <SL.h>
 #include <SLApplication.h>
 #include <SLScene.h>
+#include <SLGLImGui.h>
 #include <utility>
 #include <GlobalTimer.h>
 
@@ -24,6 +25,7 @@
 //! Global static objects
 SLInputManager   SLApplication::inputManager;
 SLProjectScene*  SLApplication::scene = nullptr;
+SLGLImGui*       SLApplication::gui   = nullptr;
 SLDeviceRotation SLApplication::devRot;
 SLDeviceLocation SLApplication::devLoc;
 SLstring         SLApplication::name    = "SLProjectApp";
@@ -101,6 +103,11 @@ void SLApplication::deleteAppAndScene()
 
     delete scene;
     scene = nullptr;
+    if (gui)
+    {
+        delete gui;
+        gui = nullptr;
+    }
 
     //delete default stuff:
     SLGLProgramManager::deletePrograms();
