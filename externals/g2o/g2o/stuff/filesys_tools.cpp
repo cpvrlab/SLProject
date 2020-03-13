@@ -123,7 +123,9 @@ std::vector<std::string> getFilesByPattern(const char* pattern)
 {
   std::vector<std::string> result;
 
-#ifdef WINDOWS
+        #if (defined(__APPLE__) && defined(__MACH__))
+        return result;
+    #elif (defined (WINDOWS))
 
   HANDLE hFind;
   WIN32_FIND_DATA FData;
