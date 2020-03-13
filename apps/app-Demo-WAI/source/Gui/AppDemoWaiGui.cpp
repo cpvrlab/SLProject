@@ -84,39 +84,6 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 {
     if (ImGui::BeginMainMenuBar())
     {
-        //if (ImGui::BeginMenu("Preferences"))
-        //{
-        //if (ImGui::BeginMenu("Rotation Sensor"))
-        //{
-        //    if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
-        //        SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
-
-        //    if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
-        //        SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
-
-        //    if (ImGui::MenuItem("Reset Zero Yaw"))
-        //        SLApplication::devRot.hasStarted(true);
-
-        //    ImGui::EndMenu();
-        //}
-
-        //if (ImGui::BeginMenu("Location Sensor"))
-        //{
-        //    if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
-        //        SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
-
-        //    if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
-        //        SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
-
-        //    if (ImGui::MenuItem("Reset Origin to here"))
-        //        SLApplication::devLoc.hasOrigin(false);
-
-        //    ImGui::EndMenu();
-        //}
-
-        //ImGui::EndMenu();
-        //}
-
         if (ImGui::BeginMenu("Slam"))
         {
             ImGui::MenuItem("Start", nullptr, &uiPrefs->showSlamLoad);

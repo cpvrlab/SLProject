@@ -8,15 +8,14 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <AppDemoGuiSlamLoad.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <WAIApp.h>
 #include <Utils.h>
-#include <AppDemoGuiSlamLoad.h>
 #include <AppWAISlamParamHelper.h>
-#include <WAIMapStorage.h>
+#include <WAIEvent.h>
 
 AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
                                        std ::queue<WAIEvent*>*         eventQueue,

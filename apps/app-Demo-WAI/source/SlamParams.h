@@ -1,6 +1,9 @@
 #ifndef SLAMPARAMS_H
 #define SLAMPARAMS_H
 
+#include <FeatureExtractorFactory.h>
+#include <WAISlam.h>
+
 struct ExtractorIds
 {
     ExtractorType trackingExtractorId;
@@ -101,15 +104,15 @@ struct SlamParams
         Utils::log("WAIApp", "SlamParams saved to %s", fileName.c_str());
     }
 
-    std::string               videoFile;
-    std::string               mapFile;
-    std::string               calibrationFile;
-    std::string               vocabularyFile;
-    std::string               markerFile;
-    std::string               location;
-    std::string               area;
-    WAI::ModeOrbSlam2::Params params;
-    ExtractorIds              extractorIds;
+    std::string     videoFile;
+    std::string     mapFile;
+    std::string     calibrationFile;
+    std::string     vocabularyFile;
+    std::string     markerFile;
+    std::string     location;
+    std::string     area;
+    WAISlam::Params params;
+    ExtractorIds    extractorIds;
 };
 
 #endif //SLAMPARAMS_H

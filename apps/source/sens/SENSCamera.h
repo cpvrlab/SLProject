@@ -91,8 +91,11 @@ public:
     virtual SENSFramePtr getLatestFrame() = 0;
 
     const std::vector<cv::Size>& getStreamSizes() const { return _availableStreamConfig.getStreamSizes(); }
-    cv::Size                     getFrameSize() { return cv::Size(_config.targetWidth, _config.targetHeight); }
-    bool                         started() const { return _started; }
+    cv::Size                     getFrameSize()
+    {
+        return cv::Size(_config.targetWidth, _config.targetHeight);
+    }
+    bool started() const { return _started; }
 
 protected:
     float  _targetWdivH = -1.0f;

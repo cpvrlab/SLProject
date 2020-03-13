@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <SENSCamera.h>
+#include <thread>
 
 class SENSWebCamera : public SENSCamera
 {
@@ -16,8 +17,12 @@ public:
     SENSFramePtr getLatestFrame() override;
 
 private:
+    void openCamera();
+
     cv::VideoCapture      _videoCapture;
     std::vector<cv::Size> _streamSizes;
+
+    std::thread _thread;
 };
 
 #endif //SENS_WEBCAMERA_H

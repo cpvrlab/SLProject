@@ -9,6 +9,7 @@
 
 SENSWebCamera::~SENSWebCamera()
 {
+    _thread.detach();
 }
 
 void SENSWebCamera::init(SENSCamera::Facing facing)
@@ -23,16 +24,7 @@ void SENSWebCamera::start(const Config config)
     _config      = config;
     _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
-    _videoCapture.open(0);
-    if (!_videoCapture.isOpened())
-        throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
-
-    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    int w = (int)_videoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
-    int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
-
-    _started = true;
+    _thread = std::thread(&SENSWebCamera::openCamera, this);
 }
 
 void SENSWebCamera::start(int width, int height)
@@ -47,10 +39,13 @@ void SENSWebCamera::start(int width, int height)
 
 SENSFramePtr SENSWebCamera::getLatestFrame()
 {
+    SENSFramePtr sensFrame;
+
+    if (!_started)
+        return std::move(sensFrame);
+
     if (!_videoCapture.isOpened())
         throw SENSException(SENSType::CAM, "Capture device is not open!", __LINE__, __FILE__);
-
-    SENSFramePtr sensFrame;
 
     cv::Mat rgbImg;
     if (_videoCapture.read(rgbImg))
@@ -77,4 +72,21 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
           _config.mirrorV);
     }
     return std::move(sensFrame);
+}
+
+void SENSWebCamera::openCamera()
+{
+    _videoCapture.open(0);
+    //if (!_videoCapture.isOpened())
+    //throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
+
+    if (_videoCapture.isOpened())
+    {
+        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+        int w = (int)_videoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
+        int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
+    }
+
+    _started = true;
 }

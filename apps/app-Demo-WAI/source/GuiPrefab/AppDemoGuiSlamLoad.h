@@ -15,7 +15,9 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <SLMat4.h>
 #include <SLNode.h>
+#include <SlamParams.h>
 
+class WAIEvent;
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {

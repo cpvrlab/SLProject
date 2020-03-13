@@ -170,7 +170,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
                                  ExtractorType      extractorType)
 {
     //wai mode config
-    WAI::ModeOrbSlam2::Params modeParams;
+    WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = true;
     modeParams.fixOldKfs         = false;
@@ -264,7 +264,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
 {
     bool initialized = false;
     //wai mode config
-    WAI::ModeOrbSlam2::Params modeParams;
+    WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = true;
     modeParams.fixOldKfs         = false;
@@ -416,7 +416,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                   ExtractorType      extractorType)
 {
     //wai mode config
-    WAI::ModeOrbSlam2::Params modeParams;
+    WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = true;
     modeParams.fixOldKfs         = false;

@@ -85,7 +85,7 @@ bool StartUpState::update()
         _timer.start();
     }
 
-    if (_timer.elapsedTimeInMilliSec() > 5000.f)
+    if (_timer.elapsedTimeInMilliSec() > 1000.f)
         setStateReady();
 
     _s.onUpdate();

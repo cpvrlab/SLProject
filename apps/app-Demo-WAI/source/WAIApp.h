@@ -19,7 +19,6 @@
 #include <CVCalibration.h>
 #include <WAIAutoCalibration.h>
 #include <DeviceData.h>
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
 #include <WAISlam.h>
@@ -72,6 +71,7 @@ public:
     //call load to correctly initialize wai app
     int  load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
     void setCamera(SENSCamera* camera);
+
     //try to load last slam configuration, else open loading dialog
     void loadSlam();
 
@@ -81,59 +81,61 @@ public:
     void terminate();
 
     //initialize wai orb slam with transferred parameters
-    void startOrbSlam(SlamParams slamParams);
-    void showErrorMsg(std::string msg);
+    //void startOrbSlam(SlamParams slamParams);
+    //void showErrorMsg(std::string msg);
 
     //todo: replace when we are independent of SLApplication
-    std::string            name();
-    const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
-    const CVCalibration&   getCalibration() const { return _calibration; }
-    const cv::Size&        getFrameSize() const { return _videoFrameSize; }
+    std::string name();
+    //const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
+    //const CVCalibration&   getCalibration() const { return _calibration; }
+    //const cv::Size&        getFrameSize() const { return _videoFrameSize; }
 
-    WAISlam* mode()
-    {
-        return _mode;
-    }
+    //WAISlam* mode()
+    //{
+    //    return _mode;
+    //}
 
     //std::string videoDir;
     //std::string mapDir;
 
 private:
+    SENSCamera* getCamera();
+
     void reset();
     void checkStateTransition();
     bool updateState();
 
-    bool updateTracking(SENSFramePtr frame);
+    //bool updateTracking(SENSFramePtr frame);
     //int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
-    void loadWAISceneView(std::string location, std::string area);
+    //void loadWAISceneView(std::string location, std::string area);
 
-    void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
+    //void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
     void setupDefaultErlebARDirTo(std::string dir);
     //!download all remote files to transferred directory
-    void downloadCalibrationFilesTo(std::string dir);
+    //void downloadCalibrationFilesTo(std::string dir);
 
-    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
-    void saveMap(std::string location, std::string area, std::string marker);
-    void transformMapNode(SLTransformSpace tSpace,
-                          SLVec3f          rotation,
-                          SLVec3f          translation,
-                          float            scale);
+    //void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
+    //void saveMap(std::string location, std::string area, std::string marker);
+    //void transformMapNode(SLTransformSpace tSpace,
+    //SLVec3f          rotation,
+    //SLVec3f          translation,
+    //float            scale);
     // video writer
-    void saveVideo(std::string filename);
+    /*void saveVideo(std::string filename);*/
     //void saveGPSData(std::string videofile);
 
-    void handleEvents();
+    //void handleEvents();
 
     //get new frame from live video or video file stream
     //SENSFramePtr updateVideoOrCamera();
     SENSFramePtr getCameraFrame();
-    SENSFramePtr getVideoFrame();
+    //SENSFramePtr getVideoFrame();
 
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam*     _mode = nullptr;
-    SLSceneView* _sv   = nullptr;
+    //WAISlam*     _mode = nullptr;
+    //SLSceneView* _sv   = nullptr;
 
-    SlamParams     _currentSlamParams;
+    //SlamParams     _currentSlamParams;
     AppDirectories _dirs;
     //std::string    _calibDir;
 
@@ -146,35 +148,36 @@ private:
     //bool _loaded  = false;
     //bool _started = false;
 
-    cv::VideoWriter*                 _videoWriter = nullptr;
-    std::unique_ptr<SENSVideoStream> _videoFileStream;
-    SENSCamera*                      _camera = nullptr;
+    //cv::VideoWriter*                 _videoWriter = nullptr;
+    //std::unique_ptr<SENSVideoStream> _videoFileStream;
+    SENSCamera* _camera = nullptr;
+    //std::mutex  _cameraSetMutex;
 
-    cv::Size2i _videoFrameSize;
+    //cv::Size2i _videoFrameSize;
 
-    std::unique_ptr<AppDemoWaiGui>      _gui;
-    std::shared_ptr<AppDemoGuiError>    _errorDial;
-    std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
-    int                                 _lastFrameIdx;
-    cv::Mat                             _undistortedLastFrame[2];
-    bool                                _doubleBufferedOutput;
+    //std::unique_ptr<AppDemoWaiGui>      _gui;
+    //std::shared_ptr<AppDemoGuiError> _errorDial;
+    //std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
+    //int     _lastFrameIdx;
+    //cv::Mat _undistortedLastFrame[2];
+    //bool    _doubleBufferedOutput;
 
-    // video controls
-    bool _pauseVideo           = false;
-    int  _videoCursorMoveIndex = 0;
+    //// video controls
+    //bool _pauseVideo           = false;
+    //int  _videoCursorMoveIndex = 0;
 
     // event queue
-    std::queue<WAIEvent*> _eventQueue;
+    //std::queue<WAIEvent*> _eventQueue;
 
-    CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
-    bool          _showUndistorted = true;
+    //CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
+    //bool          _showUndistorted = true;
 
-    FeatureExtractorFactory      _featureExtractorFactory;
-    std::unique_ptr<KPextractor> _trackingExtractor;
-    std::unique_ptr<KPextractor> _initializationExtractor;
-    std::unique_ptr<KPextractor> _markerExtractor;
+    //FeatureExtractorFactory      _featureExtractorFactory;
+    //std::unique_ptr<KPextractor> _trackingExtractor;
+    //std::unique_ptr<KPextractor> _initializationExtractor;
+    //std::unique_ptr<KPextractor> _markerExtractor;
 
-    AppWAIScene*   _waiScene = nullptr;
+    //AppWAIScene*   _waiScene = nullptr;
     std::string    _name;
     SLInputManager _inputManager;
 
