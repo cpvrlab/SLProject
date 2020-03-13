@@ -20,11 +20,6 @@
 #include <SLGLOculus.h>
 #include <SLLight.h>
 #include <SLMesh.h>
-//#include <SLRect.h>
-//#include <SLVec3.h>
-//#include <SLVec4.h>
-//#include <SLAssetManager.h>
-//#include <SLGLProgramManager.h>
 
 class SLSceneView;
 class SLCamera;

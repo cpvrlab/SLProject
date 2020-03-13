@@ -14,11 +14,10 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
+#include <SLScene.h>
 #include <Utils.h>
 #include <SLInputManager.h>
-#include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLText.h>
 #include <SLKeyframeCamera.h>
 #include <GlobalTimer.h>
 
@@ -103,13 +102,6 @@ SLScene::~SLScene()
     // clear light pointers
     _lights.clear();
 
-    //// delete materials
-    //for (auto m : _meshes) delete m;
-    //_meshes.clear();
-
-    //// delete fonts
-    //SLTexFont::deleteFonts();
-
     SL_LOG("Destructor      : ~SLScene");
     SL_LOG("------------------------------------------------------------------");
 }
@@ -134,8 +126,6 @@ void SLScene::init()
     _draw2DTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
-
-    //_selectedRect.setZero();
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -272,20 +262,6 @@ bool SLScene::onUpdate()
             _root3D->updateMeshAccelStructs();
     }
 
-    // Do software skinning on all changed skeletons
-    //for (auto mesh : _meshes)
-    //{
-    //    if (mesh->skeleton() && mesh->skeleton()->changed())
-    //    {
-    //        mesh->transformSkin();
-    //        sceneHasChanged = true;
-    //    }
-
-    //    // update any out of date acceleration structure for RT or if they're being rendered.
-    //    if (renderTypeIsRT || voxelsAreShown)
-    //        mesh->updateAccelStruct();
-    //}
-
     _updateAnimTimesMS.set(GlobalTimer::timeMS() - startAnimUpdateMS);
 
     /////////////////////
@@ -330,7 +306,6 @@ void SLScene::selectNode(SLNode* nodeToSelect)
             _selectedNode = nodeToSelect;
             _selectedNode->drawBits()->on(SL_DB_SELECTED);
         }
-        //_selectedRect.setZero();
     }
     else
         _selectedNode = nullptr;
@@ -353,7 +328,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect,
         {
             _selectedNode = nullptr;
             _selectedMesh = nullptr;
-            //_selectedRect.setZero();
         }
         else
         {
@@ -366,7 +340,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect,
     {
         _selectedNode = nullptr;
         _selectedMesh = nullptr;
-        //_selectedRect.setZero();
     }
 }
 //-----------------------------------------------------------------------------
