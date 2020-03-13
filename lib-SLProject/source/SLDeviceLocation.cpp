@@ -17,6 +17,7 @@
 #include <SLDeviceLocation.h>
 #include <spa.h>
 #include <SLImporter.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 void SLDeviceLocation::init()
@@ -296,7 +297,7 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
            !_originLLA.isZero() &&
            "Set first defaultLLA and originLLA before you add a GeoTiff.");
 
-    _demGeoTiff.loadGeoTiff("SLProject", geoTiffFile);
+    _demGeoTiff.loadGeoTiff(SLApplication::appTag, geoTiffFile);
 
     // Check that default and origin location is withing the GeoTiff extends
     if (geoTiffIsValid())

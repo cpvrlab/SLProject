@@ -30,7 +30,7 @@ bool uploadFileLatestVersion(const string& fileDir,
     string fullPathAndFilename = fileDir + fileName;
     if (!Utils::fileExists(fullPathAndFilename))
     {
-        errorMsg = "File doesn't exist: %s\n", fullPathAndFilename.c_str();
+        errorMsg = "File doesn't exist: " + fullPathAndFilename;
         return false;
     }
 
@@ -169,7 +169,7 @@ bool uploadFile(const string& fileDir,
     string fullPathAndFilename = fileDir + fileName;
     if (!Utils::fileExists(fullPathAndFilename))
     {
-        errorMsg = "File doesn't exist: %s\n", fullPathAndFilename.c_str();
+        errorMsg = "File doesn't exist: " + fullPathAndFilename;
         return false;
     }
 
@@ -294,7 +294,11 @@ bool downloadAllFilesFromDir(const string& fileDir,
             {
                 //get all names in directory
                 vector<string> retrievedFileNames;
-                if (success = getAllFileNamesWithTag(ftp, fileDir, "xml", retrievedFileNames, errorMsg))
+                if ((success = getAllFileNamesWithTag(ftp,
+                                                      fileDir,
+                                                      "xml",
+                                                      retrievedFileNames,
+                                                      errorMsg)))
                 {
                     for (auto& retrievedFileName : retrievedFileNames)
                     {
@@ -348,7 +352,8 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
     bool   success              = true;
     string ftpDirResult         = localDir + "ftpDirResult.txt";
     string searchDirAndFileType = "*." + searchFileTag;
-    // Get result of ftp.Dir into the textfile ftpDirResult
+
+    // Get result of ftp.Dir into the text file ftpDirResult
     if (ftp.Dir(ftpDirResult.c_str(), searchDirAndFileType.c_str()))
     {
         //analyse ftpDirResult content

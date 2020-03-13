@@ -137,6 +137,11 @@ string getCurrentWorkingDir();
 //! Deletes a file on the filesystem
 bool deleteFile(string& pathfilename);
 
+//! Dumps all folders and files recursovely
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderpath,
+                       int           depth = 0);
+
 ///////////////////////
 // Logging Functions //
 ///////////////////////

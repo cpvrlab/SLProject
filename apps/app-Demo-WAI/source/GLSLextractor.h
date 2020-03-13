@@ -1,3 +1,5 @@
+#ifndef TARGET_OS_IOS
+
 #ifndef GLSLEXTRACTOR
 #define GLSLEXTRACTOR
 
@@ -30,3 +32,5 @@ protected:
 };
 
 #endif
+
+#endif // TARGET_OS_IOS

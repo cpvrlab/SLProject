@@ -27,12 +27,25 @@ cmake \
 -DG2O_BUILD_APPS=off \
 -DG2O_BUILD_EXAMPLES=off \
 -DCMAKE_BUILD_TYPE=Debug \
--DCMAKE_DEBUG_POSTFIX="" \
--DEIGEN3_INCLUDE_DIR=../eigen \
--DG2O_USE_OPENGL=off \
+-DBUILD_WITH_DEBUG_INFO=true \
+-DCMAKE_INSTALL_PREFIX=./install \
+-DBUILD_opencv_python_bindings_generator=false \
+-DBUILD_opencv_python2=false \
+-DBUILD_opencv_java_bindings_generator=false \
+-DBUILD_opencv_world=false \
+-DBUILD_PERF_TESTS=false \
+-DBUILD_TESTS=false \
+-DWITH_MATLAB=false \
+-DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DWITH_OPENCL=false \
+-DWITH_OPENCLAMDFFT=false \
+-DWITH_OPENCLAMDBLAS=false \
+-DWITH_VA_INTEL=false \
 -GXcode \
+-DAPPLE_FRAMEWORK=true \
 -DPLATFORM=OS64 \
--DCMAKE_TOOLCHAIN_FILE=../../../prebuild_scripts/ios.toolchain.cmake \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=true \
 -DENABLE_ARC=false \
 ../..
 
@@ -52,12 +65,34 @@ cmake \
 -DG2O_BUILD_APPS=off \
 -DG2O_BUILD_EXAMPLES=off \
 -DCMAKE_BUILD_TYPE=Release \
+<<<<<<< HEAD
 -DCMAKE_DEBUG_POSTFIX="" \
 -DEIGEN3_INCLUDE_DIR=../eigen \
 -DG2O_USE_OPENGL=off \
 -GXcode \
 -DPLATFORM=OS64 \
 -DCMAKE_TOOLCHAIN_FILE=../../../prebuild_scripts/ios.toolchain.cmake \
+=======
+-DBUILD_WITH_DEBUG_INFO=false \
+-DCMAKE_INSTALL_PREFIX=./install \
+-DBUILD_opencv_python_bindings_generator=false \
+-DBUILD_opencv_python2=false \
+-DBUILD_opencv_java_bindings_generator=false \
+-DBUILD_opencv_world=false \
+-DBUILD_PERF_TESTS=false \
+-DBUILD_TESTS=false \
+-DWITH_MATLAB=false \
+-DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DWITH_OPENCL=false \
+-DWITH_OPENCLAMDFFT=false \
+-DWITH_OPENCLAMDBLAS=false \
+-DWITH_VA_INTEL=false \
+-GXcode \
+-DAPPLE_FRAMEWORK=true \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=true \
+>>>>>>> 36f995c12cc97cd8b074ee7af8f3f4793f23bb15
 -DENABLE_ARC=false \
 ../..
 

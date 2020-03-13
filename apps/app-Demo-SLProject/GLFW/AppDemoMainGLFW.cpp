@@ -571,6 +571,7 @@ int main(int argc, char* argv[])
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir(projectRoot + "/data/");
+    //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
     SLApplication::calibFilePath = configDir;
     CVImage::defaultPath         = projectRoot + "/data/images/textures/";
