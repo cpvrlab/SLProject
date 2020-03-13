@@ -34,6 +34,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculusFB.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOVRWorkaround.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgram.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgramManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLShader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLState.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLTexture.h
@@ -141,6 +142,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgram.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgramManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLState.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLTexture.cpp

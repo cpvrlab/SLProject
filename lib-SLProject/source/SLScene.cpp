@@ -26,8 +26,6 @@
 SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
 SLMaterialDefaultGray*      SLMaterialDefaultGray::_instance      = nullptr;
 
-std::map<SLShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
-
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as
 loading the standard shader programs from which the pointers are stored in
