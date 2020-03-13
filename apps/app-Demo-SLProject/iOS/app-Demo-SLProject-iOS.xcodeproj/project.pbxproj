@@ -104,6 +104,22 @@
 		4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */; };
 		4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */; };
 		4166ED0F200260D700B42D17 /* Desert+Z1024_C.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */; };
+		416A8686241B8FC5009D63B0 /* BowVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A867C241B8FC4009D63B0 /* BowVector.cpp */; };
+		416A8687241B8FC5009D63B0 /* FeatureVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A867D241B8FC4009D63B0 /* FeatureVector.cpp */; };
+		416A8688241B8FC5009D63B0 /* FORB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8682241B8FC4009D63B0 /* FORB.cpp */; };
+		416A8689241B8FC5009D63B0 /* ScoringObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8683241B8FC5009D63B0 /* ScoringObject.cpp */; };
+		416A868F241B8FF9009D63B0 /* Timestamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A868B241B8FF9009D63B0 /* Timestamp.cpp */; };
+		416A8690241B8FF9009D63B0 /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A868D241B8FF9009D63B0 /* Random.cpp */; };
+		416A86A8241B9044009D63B0 /* ORBextractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8692241B9043009D63B0 /* ORBextractor.cpp */; };
+		416A86A9241B9044009D63B0 /* LocalMapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8696241B9043009D63B0 /* LocalMapping.cpp */; };
+		416A86AA241B9044009D63B0 /* SURFextractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8699241B9043009D63B0 /* SURFextractor.cpp */; };
+		416A86AB241B9044009D63B0 /* LoopClosing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A869A241B9043009D63B0 /* LoopClosing.cpp */; };
+		416A86AC241B9044009D63B0 /* Converter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A869B241B9043009D63B0 /* Converter.cpp */; };
+		416A86AD241B9044009D63B0 /* PnPsolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A869F241B9044009D63B0 /* PnPsolver.cpp */; };
+		416A86AE241B9044009D63B0 /* Sim3Solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A86A2241B9044009D63B0 /* Sim3Solver.cpp */; };
+		416A86AF241B9044009D63B0 /* Optimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A86A5241B9044009D63B0 /* Optimizer.cpp */; };
+		416A86B0241B9044009D63B0 /* Initializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A86A6241B9044009D63B0 /* Initializer.cpp */; };
+		416A86B1241B9044009D63B0 /* ORBmatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A86A7241B9044009D63B0 /* ORBmatcher.cpp */; };
 		416DA7D32021B8FD00406B83 /* AppDemoLoad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */; };
 		416DA7D42021B8FD00406B83 /* AppDemoGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */; };
 		4178D6672020A9C100F4F699 /* SLApplication.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178D6662020A9C000F4F699 /* SLApplication.cpp */; };
@@ -466,6 +482,14 @@
 		41C48E9E1F01254A0059B48C /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E981F01254A0059B48C /* ProggyTiny.ttf */; };
 		41C48E9F1F01254A0059B48C /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41C48E991F01254A0059B48C /* Roboto-Medium.ttf */; };
 		41C7582A230D7CCE0083A25D /* AppDemoSceneView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C75828230D7CCD0083A25D /* AppDemoSceneView.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		41C7A681241A3D200017EE82 /* WAIMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A66C241A3D1F0017EE82 /* WAIMap.cpp */; };
+		41C7A682241A3D200017EE82 /* WAISlam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A66E241A3D1F0017EE82 /* WAISlam.cpp */; };
+		41C7A683241A3D200017EE82 /* WAIFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A66F241A3D1F0017EE82 /* WAIFrame.cpp */; };
+		41C7A684241A3D200017EE82 /* WAIMapPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A670241A3D1F0017EE82 /* WAIMapPoint.cpp */; };
+		41C7A686241A3D200017EE82 /* WAIKeyFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A674241A3D1F0017EE82 /* WAIKeyFrame.cpp */; };
+		41C7A689241A3D200017EE82 /* WAIKeyFrameDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67B241A3D1F0017EE82 /* WAIKeyFrameDB.cpp */; };
+		41C7A68A241A3D200017EE82 /* WAIHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67C241A3D1F0017EE82 /* WAIHelper.cpp */; };
+		41C7A68B241A3D200017EE82 /* WAIOrbVocabulary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */; };
 		41C99E7818D4316A0045FD2D /* Icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7518D4316A0045FD2D /* Icon_57.png */; };
 		41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7618D4316A0045FD2D /* Icon_114.png */; };
 		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
@@ -684,6 +708,42 @@
 		4166ED07200260D600B42D17 /* Desert+Y1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Y1024_C.jpg"; path = "../../../data/images/textures/Desert+Y1024_C.jpg"; sourceTree = "<group>"; };
 		4166ED08200260D700B42D17 /* Desert-Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert-Z1024_C.jpg"; path = "../../../data/images/textures/Desert-Z1024_C.jpg"; sourceTree = "<group>"; };
 		4166ED09200260D700B42D17 /* Desert+Z1024_C.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Desert+Z1024_C.jpg"; path = "../../../data/images/textures/Desert+Z1024_C.jpg"; sourceTree = "<group>"; };
+		416A867C241B8FC4009D63B0 /* BowVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BowVector.cpp; path = ../../../externals/DBoW2/DBoW2/BowVector.cpp; sourceTree = "<group>"; };
+		416A867D241B8FC4009D63B0 /* FeatureVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FeatureVector.cpp; path = ../../../externals/DBoW2/DBoW2/FeatureVector.cpp; sourceTree = "<group>"; };
+		416A867E241B8FC4009D63B0 /* TemplatedVocabulary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TemplatedVocabulary.h; path = ../../../externals/DBoW2/DBoW2/TemplatedVocabulary.h; sourceTree = "<group>"; };
+		416A867F241B8FC4009D63B0 /* FeatureVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FeatureVector.h; path = ../../../externals/DBoW2/DBoW2/FeatureVector.h; sourceTree = "<group>"; };
+		416A8680241B8FC4009D63B0 /* BowVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BowVector.h; path = ../../../externals/DBoW2/DBoW2/BowVector.h; sourceTree = "<group>"; };
+		416A8681241B8FC4009D63B0 /* FClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FClass.h; path = ../../../externals/DBoW2/DBoW2/FClass.h; sourceTree = "<group>"; };
+		416A8682241B8FC4009D63B0 /* FORB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FORB.cpp; path = ../../../externals/DBoW2/DBoW2/FORB.cpp; sourceTree = "<group>"; };
+		416A8683241B8FC5009D63B0 /* ScoringObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScoringObject.cpp; path = ../../../externals/DBoW2/DBoW2/ScoringObject.cpp; sourceTree = "<group>"; };
+		416A8684241B8FC5009D63B0 /* ScoringObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScoringObject.h; path = ../../../externals/DBoW2/DBoW2/ScoringObject.h; sourceTree = "<group>"; };
+		416A8685241B8FC5009D63B0 /* FORB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FORB.h; path = ../../../externals/DBoW2/DBoW2/FORB.h; sourceTree = "<group>"; };
+		416A868B241B8FF9009D63B0 /* Timestamp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timestamp.cpp; path = ../../../externals/DBoW2/DUtils/Timestamp.cpp; sourceTree = "<group>"; };
+		416A868C241B8FF9009D63B0 /* Timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timestamp.h; path = ../../../externals/DBoW2/DUtils/Timestamp.h; sourceTree = "<group>"; };
+		416A868D241B8FF9009D63B0 /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Random.cpp; path = ../../../externals/DBoW2/DUtils/Random.cpp; sourceTree = "<group>"; };
+		416A868E241B8FF9009D63B0 /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Random.h; path = ../../../externals/DBoW2/DUtils/Random.h; sourceTree = "<group>"; };
+		416A8692241B9043009D63B0 /* ORBextractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ORBextractor.cpp; path = "../../../lib-WAI/source/OrbSlam/ORBextractor.cpp"; sourceTree = "<group>"; };
+		416A8693241B9043009D63B0 /* KPextractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KPextractor.h; path = "../../../lib-WAI/source/OrbSlam/KPextractor.h"; sourceTree = "<group>"; };
+		416A8694241B9043009D63B0 /* ORBextractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORBextractor.h; path = "../../../lib-WAI/source/OrbSlam/ORBextractor.h"; sourceTree = "<group>"; };
+		416A8695241B9043009D63B0 /* PnPsolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PnPsolver.h; path = "../../../lib-WAI/source/OrbSlam/PnPsolver.h"; sourceTree = "<group>"; };
+		416A8696241B9043009D63B0 /* LocalMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LocalMapping.cpp; path = "../../../lib-WAI/source/OrbSlam/LocalMapping.cpp"; sourceTree = "<group>"; };
+		416A8697241B9043009D63B0 /* Converter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Converter.h; path = "../../../lib-WAI/source/OrbSlam/Converter.h"; sourceTree = "<group>"; };
+		416A8698241B9043009D63B0 /* ORBVocabulary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORBVocabulary.h; path = "../../../lib-WAI/source/OrbSlam/ORBVocabulary.h"; sourceTree = "<group>"; };
+		416A8699241B9043009D63B0 /* SURFextractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SURFextractor.cpp; path = "../../../lib-WAI/source/OrbSlam/SURFextractor.cpp"; sourceTree = "<group>"; };
+		416A869A241B9043009D63B0 /* LoopClosing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoopClosing.cpp; path = "../../../lib-WAI/source/OrbSlam/LoopClosing.cpp"; sourceTree = "<group>"; };
+		416A869B241B9043009D63B0 /* Converter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Converter.cpp; path = "../../../lib-WAI/source/OrbSlam/Converter.cpp"; sourceTree = "<group>"; };
+		416A869C241B9043009D63B0 /* ORBmatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORBmatcher.h; path = "../../../lib-WAI/source/OrbSlam/ORBmatcher.h"; sourceTree = "<group>"; };
+		416A869D241B9044009D63B0 /* Initializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Initializer.h; path = "../../../lib-WAI/source/OrbSlam/Initializer.h"; sourceTree = "<group>"; };
+		416A869E241B9044009D63B0 /* Optimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Optimizer.h; path = "../../../lib-WAI/source/OrbSlam/Optimizer.h"; sourceTree = "<group>"; };
+		416A869F241B9044009D63B0 /* PnPsolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PnPsolver.cpp; path = "../../../lib-WAI/source/OrbSlam/PnPsolver.cpp"; sourceTree = "<group>"; };
+		416A86A0241B9044009D63B0 /* Sim3Solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sim3Solver.h; path = "../../../lib-WAI/source/OrbSlam/Sim3Solver.h"; sourceTree = "<group>"; };
+		416A86A1241B9044009D63B0 /* LoopClosing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoopClosing.h; path = "../../../lib-WAI/source/OrbSlam/LoopClosing.h"; sourceTree = "<group>"; };
+		416A86A2241B9044009D63B0 /* Sim3Solver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sim3Solver.cpp; path = "../../../lib-WAI/source/OrbSlam/Sim3Solver.cpp"; sourceTree = "<group>"; };
+		416A86A3241B9044009D63B0 /* SURFextractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SURFextractor.h; path = "../../../lib-WAI/source/OrbSlam/SURFextractor.h"; sourceTree = "<group>"; };
+		416A86A4241B9044009D63B0 /* LocalMapping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LocalMapping.h; path = "../../../lib-WAI/source/OrbSlam/LocalMapping.h"; sourceTree = "<group>"; };
+		416A86A5241B9044009D63B0 /* Optimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Optimizer.cpp; path = "../../../lib-WAI/source/OrbSlam/Optimizer.cpp"; sourceTree = "<group>"; };
+		416A86A6241B9044009D63B0 /* Initializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Initializer.cpp; path = "../../../lib-WAI/source/OrbSlam/Initializer.cpp"; sourceTree = "<group>"; };
+		416A86A7241B9044009D63B0 /* ORBmatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ORBmatcher.cpp; path = "../../../lib-WAI/source/OrbSlam/ORBmatcher.cpp"; sourceTree = "<group>"; };
 		416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoLoad.cpp; path = ../source/AppDemoLoad.cpp; sourceTree = "<group>"; };
 		416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoGui.cpp; path = ../source/AppDemoGui.cpp; sourceTree = "<group>"; };
 		416DA7D22021B8FD00406B83 /* AppDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDemoGui.h; path = ../include/AppDemoGui.h; sourceTree = "<group>"; };
@@ -1096,6 +1156,24 @@
 		41C5EEE0175B1A340005A588 /* SLParallel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SLParallel.h; path = "../../../lib-SLProject/include/SLParallel.h"; sourceTree = SOURCE_ROOT; };
 		41C75828230D7CCD0083A25D /* AppDemoSceneView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoSceneView.cpp; path = ../source/AppDemoSceneView.cpp; sourceTree = SOURCE_ROOT; };
 		41C7582C230D7CD90083A25D /* AppDemoSceneView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDemoSceneView.h; path = ../include/AppDemoSceneView.h; sourceTree = SOURCE_ROOT; };
+		41C7A66B241A3D1F0017EE82 /* WAIHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIHelper.h; path = "../../../lib-WAI/source/WAIHelper.h"; sourceTree = "<group>"; };
+		41C7A66C241A3D1F0017EE82 /* WAIMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIMap.cpp; path = "../../../lib-WAI/source/WAIMap.cpp"; sourceTree = "<group>"; };
+		41C7A66D241A3D1F0017EE82 /* WAIMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIMap.h; path = "../../../lib-WAI/source/WAIMap.h"; sourceTree = "<group>"; };
+		41C7A66E241A3D1F0017EE82 /* WAISlam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAISlam.cpp; path = "../../../lib-WAI/source/WAISlam.cpp"; sourceTree = "<group>"; };
+		41C7A66F241A3D1F0017EE82 /* WAIFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIFrame.cpp; path = "../../../lib-WAI/source/WAIFrame.cpp"; sourceTree = "<group>"; };
+		41C7A670241A3D1F0017EE82 /* WAIMapPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIMapPoint.cpp; path = "../../../lib-WAI/source/WAIMapPoint.cpp"; sourceTree = "<group>"; };
+		41C7A671241A3D1F0017EE82 /* WAIFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIFrame.h; path = "../../../lib-WAI/source/WAIFrame.h"; sourceTree = "<group>"; };
+		41C7A672241A3D1F0017EE82 /* WAIKeyFrameDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIKeyFrameDB.h; path = "../../../lib-WAI/source/WAIKeyFrameDB.h"; sourceTree = "<group>"; };
+		41C7A674241A3D1F0017EE82 /* WAIKeyFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIKeyFrame.cpp; path = "../../../lib-WAI/source/WAIKeyFrame.cpp"; sourceTree = "<group>"; };
+		41C7A677241A3D1F0017EE82 /* WAIPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIPlatform.h; path = "../../../lib-WAI/source/WAIPlatform.h"; sourceTree = "<group>"; };
+		41C7A678241A3D1F0017EE82 /* WAIKeyFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIKeyFrame.h; path = "../../../lib-WAI/source/WAIKeyFrame.h"; sourceTree = "<group>"; };
+		41C7A679241A3D1F0017EE82 /* WAIMapPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIMapPoint.h; path = "../../../lib-WAI/source/WAIMapPoint.h"; sourceTree = "<group>"; };
+		41C7A67A241A3D1F0017EE82 /* WAIMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIMath.h; path = "../../../lib-WAI/source/WAIMath.h"; sourceTree = "<group>"; };
+		41C7A67B241A3D1F0017EE82 /* WAIKeyFrameDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIKeyFrameDB.cpp; path = "../../../lib-WAI/source/WAIKeyFrameDB.cpp"; sourceTree = "<group>"; };
+		41C7A67C241A3D1F0017EE82 /* WAIHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIHelper.cpp; path = "../../../lib-WAI/source/WAIHelper.cpp"; sourceTree = "<group>"; };
+		41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIOrbVocabulary.cpp; path = "../../../lib-WAI/source/WAIOrbVocabulary.cpp"; sourceTree = "<group>"; };
+		41C7A67E241A3D1F0017EE82 /* WAIOrbVocabulary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIOrbVocabulary.h; path = "../../../lib-WAI/source/WAIOrbVocabulary.h"; sourceTree = "<group>"; };
+		41C7A680241A3D200017EE82 /* WAISlam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAISlam.h; path = "../../../lib-WAI/source/WAISlam.h"; sourceTree = "<group>"; };
 		41C99E7518D4316A0045FD2D /* Icon_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_57.png; path = images/Icon_57.png; sourceTree = SOURCE_ROOT; };
 		41C99E7618D4316A0045FD2D /* Icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_114.png; path = images/Icon_114.png; sourceTree = SOURCE_ROOT; };
 		41C99E7718D4316A0045FD2D /* Icon_144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_144.png; path = images/Icon_144.png; sourceTree = SOURCE_ROOT; };
@@ -1382,6 +1460,53 @@
 			);
 			name = Scene;
 			sourceTree = "<group>";
+		};
+		416A868A241B8FD0009D63B0 /* DUtils */ = {
+			isa = PBXGroup;
+			children = (
+				416A868D241B8FF9009D63B0 /* Random.cpp */,
+				416A868E241B8FF9009D63B0 /* Random.h */,
+				416A868B241B8FF9009D63B0 /* Timestamp.cpp */,
+				416A868C241B8FF9009D63B0 /* Timestamp.h */,
+			);
+			name = DUtils;
+			sourceTree = "<group>";
+		};
+		416A8691241B9024009D63B0 /* OrbSlam */ = {
+			isa = PBXGroup;
+			children = (
+				416A869B241B9043009D63B0 /* Converter.cpp */,
+				416A8697241B9043009D63B0 /* Converter.h */,
+				416A86A6241B9044009D63B0 /* Initializer.cpp */,
+				416A869D241B9044009D63B0 /* Initializer.h */,
+				416A8693241B9043009D63B0 /* KPextractor.h */,
+				416A8696241B9043009D63B0 /* LocalMapping.cpp */,
+				416A86A4241B9044009D63B0 /* LocalMapping.h */,
+				416A869A241B9043009D63B0 /* LoopClosing.cpp */,
+				416A86A1241B9044009D63B0 /* LoopClosing.h */,
+				416A86A5241B9044009D63B0 /* Optimizer.cpp */,
+				416A869E241B9044009D63B0 /* Optimizer.h */,
+				416A8692241B9043009D63B0 /* ORBextractor.cpp */,
+				416A8694241B9043009D63B0 /* ORBextractor.h */,
+				416A86A7241B9044009D63B0 /* ORBmatcher.cpp */,
+				416A869C241B9043009D63B0 /* ORBmatcher.h */,
+				416A8698241B9043009D63B0 /* ORBVocabulary.h */,
+				416A869F241B9044009D63B0 /* PnPsolver.cpp */,
+				416A8695241B9043009D63B0 /* PnPsolver.h */,
+				416A86A2241B9044009D63B0 /* Sim3Solver.cpp */,
+				416A86A0241B9044009D63B0 /* Sim3Solver.h */,
+				416A8699241B9043009D63B0 /* SURFextractor.cpp */,
+				416A86A3241B9044009D63B0 /* SURFextractor.h */,
+			);
+			name = OrbSlam;
+			sourceTree = "<group>";
+		};
+		416A86B2241B90BF009D63B0 /* g2o */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = g2o;
+			sourceTree = SOURCE_ROOT;
 		};
 		417E0E43148A6EA40015B5B0 /* Shaders */ = {
 			isa = PBXGroup;
@@ -1886,6 +2011,9 @@
 				41A3549524179D23004520DF /* App */,
 				41901CF41959C478006795A8 /* iOS-Specific */,
 				419BCD4514865C0800D576F1 /* SLProject */,
+				41C7A66A241A3CF10017EE82 /* WAI */,
+				41C7A68C241A415A0017EE82 /* DBoW2 */,
+				416A86B2241B90BF009D63B0 /* g2o */,
 				419BCD3A14865C0800D576F1 /* Frameworks */,
 				419BCD3814865C0800D576F1 /* Products */,
 				417E0E43148A6EA40015B5B0 /* Shaders */,
@@ -2040,6 +2168,50 @@
 			name = spa;
 			path = "../../../externals/lib-SLExternal/spa";
 			sourceTree = SOURCE_ROOT;
+		};
+		41C7A66A241A3CF10017EE82 /* WAI */ = {
+			isa = PBXGroup;
+			children = (
+				416A8691241B9024009D63B0 /* OrbSlam */,
+				41C7A66F241A3D1F0017EE82 /* WAIFrame.cpp */,
+				41C7A671241A3D1F0017EE82 /* WAIFrame.h */,
+				41C7A67C241A3D1F0017EE82 /* WAIHelper.cpp */,
+				41C7A66B241A3D1F0017EE82 /* WAIHelper.h */,
+				41C7A674241A3D1F0017EE82 /* WAIKeyFrame.cpp */,
+				41C7A678241A3D1F0017EE82 /* WAIKeyFrame.h */,
+				41C7A67B241A3D1F0017EE82 /* WAIKeyFrameDB.cpp */,
+				41C7A672241A3D1F0017EE82 /* WAIKeyFrameDB.h */,
+				41C7A66C241A3D1F0017EE82 /* WAIMap.cpp */,
+				41C7A66D241A3D1F0017EE82 /* WAIMap.h */,
+				41C7A670241A3D1F0017EE82 /* WAIMapPoint.cpp */,
+				41C7A679241A3D1F0017EE82 /* WAIMapPoint.h */,
+				41C7A67A241A3D1F0017EE82 /* WAIMath.h */,
+				41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */,
+				41C7A67E241A3D1F0017EE82 /* WAIOrbVocabulary.h */,
+				41C7A677241A3D1F0017EE82 /* WAIPlatform.h */,
+				41C7A66E241A3D1F0017EE82 /* WAISlam.cpp */,
+				41C7A680241A3D200017EE82 /* WAISlam.h */,
+			);
+			name = WAI;
+			sourceTree = "<group>";
+		};
+		41C7A68C241A415A0017EE82 /* DBoW2 */ = {
+			isa = PBXGroup;
+			children = (
+				416A868A241B8FD0009D63B0 /* DUtils */,
+				416A867C241B8FC4009D63B0 /* BowVector.cpp */,
+				416A8680241B8FC4009D63B0 /* BowVector.h */,
+				416A8681241B8FC4009D63B0 /* FClass.h */,
+				416A867D241B8FC4009D63B0 /* FeatureVector.cpp */,
+				416A867F241B8FC4009D63B0 /* FeatureVector.h */,
+				416A8682241B8FC4009D63B0 /* FORB.cpp */,
+				416A8685241B8FC5009D63B0 /* FORB.h */,
+				416A8683241B8FC5009D63B0 /* ScoringObject.cpp */,
+				416A8684241B8FC5009D63B0 /* ScoringObject.h */,
+				416A867E241B8FC4009D63B0 /* TemplatedVocabulary.h */,
+			);
+			name = DBoW2;
+			sourceTree = "<group>";
 		};
 		41CF01DB1F096ABB00CA36C9 /* Shoemake */ = {
 			isa = PBXGroup;
@@ -2596,11 +2768,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				414AC53E1F52A8070003867A /* CVTrackedFeatures.cpp in Sources */,
+				41C7A689241A3D200017EE82 /* WAIKeyFrameDB.cpp in Sources */,
 				41FC947B19F7D6410026919B /* SLGLOculus.cpp in Sources */,
 				41654BD914866F6B0003DF5E /* SLPlane.cpp in Sources */,
 				418152C722A010760080ED72 /* ftplib.cpp in Sources */,
+				416A8687241B8FC5009D63B0 /* FeatureVector.cpp in Sources */,
 				418E0C1B148927D700C6274F /* SLScene.cpp in Sources */,
 				418E0C1C148927D700C6274F /* SLSceneView.cpp in Sources */,
+				41C7A681241A3D200017EE82 /* WAIMap.cpp in Sources */,
 				41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */,
 				418E0C3F148929C800C6274F /* SLBox.cpp in Sources */,
 				41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */,
@@ -2608,6 +2783,7 @@
 				418E0C42148929C800C6274F /* SLCone.cpp in Sources */,
 				418E0C43148929C800C6274F /* SLCylinder.cpp in Sources */,
 				418E0C45148929C800C6274F /* SLLight.cpp in Sources */,
+				416A86B1241B9044009D63B0 /* ORBmatcher.cpp in Sources */,
 				418E0C46148929C800C6274F /* SLLightRect.cpp in Sources */,
 				41E6EE09240305EF0063FDA1 /* SLGLConetracer.cpp in Sources */,
 				DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */,
@@ -2616,6 +2792,7 @@
 				418E0C49148929C800C6274F /* SLMesh.cpp in Sources */,
 				4143338B1DE041310027E1C3 /* SLCoordAxis.cpp in Sources */,
 				414333871DE03F0C0027E1C3 /* SLSpheric.cpp in Sources */,
+				416A86B0241B9044009D63B0 /* Initializer.cpp in Sources */,
 				418E0C4A148929C800C6274F /* SLPolygon.cpp in Sources */,
 				41E9843A1E3BABB1003D5CCF /* CVImage.cpp in Sources */,
 				418E0C4B148929C800C6274F /* SLRay.cpp in Sources */,
@@ -2625,26 +2802,33 @@
 				418E0C4D148929C800C6274F /* SLRectangle.cpp in Sources */,
 				41483533182CBE2700312D36 /* SLPathtracer.cpp in Sources */,
 				414333851DE03F0C0027E1C3 /* SLLightDirect.cpp in Sources */,
+				416A86AB241B9044009D63B0 /* LoopClosing.cpp in Sources */,
 				418E0C50148929C800C6274F /* SLRevolver.cpp in Sources */,
 				41A355061A7E63E100791841 /* SLLens.cpp in Sources */,
 				418E0C51148929C800C6274F /* SLSamples2D.cpp in Sources */,
 				41A354E81A7E628300791841 /* SLGLProgram.cpp in Sources */,
 				418E0C54148929C800C6274F /* SLText.cpp in Sources */,
 				41A3550A1A7E676800791841 /* SLInputDevice.cpp in Sources */,
+				416A86AC241B9044009D63B0 /* Converter.cpp in Sources */,
 				416DA7D42021B8FD00406B83 /* AppDemoGui.cpp in Sources */,
 				411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */,
+				416A8686241B8FC5009D63B0 /* BowVector.cpp in Sources */,
 				414333791DE03D590027E1C3 /* CVCalibration.cpp in Sources */,
 				41C48E8B1F0124750059B48C /* SLGLImGui.cpp in Sources */,
 				41FC948019F7D6410026919B /* SLGLTexture.cpp in Sources */,
 				416DA7D32021B8FD00406B83 /* AppDemoLoad.cpp in Sources */,
+				416A86AE241B9044009D63B0 /* Sim3Solver.cpp in Sources */,
 				419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */,
+				41C7A68A241A3D200017EE82 /* WAIHelper.cpp in Sources */,
 				41E6EDFB2402FECB0063FDA1 /* CVImageGeoTiff.cpp in Sources */,
 				414AC53D1F52A8070003867A /* CVRaulMurOrb.cpp in Sources */,
 				41FBDBCB232636CA0055338A /* AppDemoVideo.cpp in Sources */,
 				41FC947C19F7D6410026919B /* SLGLOculusFB.cpp in Sources */,
 				41E6EE16240306E40063FDA1 /* AverageTiming.cpp in Sources */,
+				41C7A684241A3D200017EE82 /* WAIMapPoint.cpp in Sources */,
 				41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */,
 				41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */,
+				416A86AA241B9044009D63B0 /* SURFextractor.cpp in Sources */,
 				41EAAE0B2067BB3C00F7E9B9 /* CVTrackedFaces.cpp in Sources */,
 				414AC53B1F52A8070003867A /* CVFeatureManager.cpp in Sources */,
 				41A355031A7E63E100791841 /* SLAnimTrack.cpp in Sources */,
@@ -2653,22 +2837,28 @@
 				41C48E931F01250E0059B48C /* imgui.cpp in Sources */,
 				41394E8B22A13E2B00C2448F /* Utils_iOS.mm in Sources */,
 				41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */,
+				41C7A686241A3D200017EE82 /* WAIKeyFrame.cpp in Sources */,
 				41A6A0801FF5887200C795A4 /* SLSkybox.cpp in Sources */,
 				418178281FC5D68F00200D02 /* SLDeviceLocation.cpp in Sources */,
 				4143338C1DE041310027E1C3 /* SLTriangle.cpp in Sources */,
+				41C7A682241A3D200017EE82 /* WAISlam.cpp in Sources */,
 				41E6EE15240306E40063FDA1 /* FtpUtils.cpp in Sources */,
 				41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */,
+				416A868F241B8FF9009D63B0 /* Timestamp.cpp in Sources */,
 				41A354EC1A7E634F00791841 /* SLAssimpImporter.cpp in Sources */,
 				41A354EB1A7E634F00791841 /* SLImporter.cpp in Sources */,
 				41E6EE07240305EF0063FDA1 /* SLGLConetracerTex3D.cpp in Sources */,
 				4143337C1DE03D590027E1C3 /* CVTrackedChessboard.cpp in Sources */,
+				416A8690241B8FF9009D63B0 /* Random.cpp in Sources */,
 				4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */,
 				41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */,
+				416A86A8241B9044009D63B0 /* ORBextractor.cpp in Sources */,
 				41C48E921F01250E0059B48C /* imgui_draw.cpp in Sources */,
 				418015141959B51200D3226D /* SLNode.cpp in Sources */,
 				41C1FD621FD18EF800B1C190 /* spa.cpp in Sources */,
 				41B86C5A1C4FE21400BB409D /* SLGLVertexBuffer.cpp in Sources */,
 				4143337B1DE03D590027E1C3 /* CVTrackedAruco.cpp in Sources */,
+				416A86AF241B9044009D63B0 /* Optimizer.cpp in Sources */,
 				CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */,
 				418152C322A00FEE0080ED72 /* Utils.cpp in Sources */,
 				41E6EE08240305EF0063FDA1 /* SLGLFbo.cpp in Sources */,
@@ -2678,19 +2868,25 @@
 				41565018148AA64F00A3CAA6 /* AppDelegate.mm in Sources */,
 				4178D6672020A9C100F4F699 /* SLApplication.cpp in Sources */,
 				4156501A148AA64F00A3CAA6 /* main.m in Sources */,
+				416A8688241B8FC5009D63B0 /* FORB.cpp in Sources */,
 				4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */,
 				414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */,
 				41E6EE02240304910063FDA1 /* CVCalibrationEstimator.cpp in Sources */,
+				416A86AD241B9044009D63B0 /* PnPsolver.cpp in Sources */,
 				413B3631156CF93100B8284A /* SLCurveBezier.cpp in Sources */,
 				413B3635156CF97900B8284A /* SLAnimation.cpp in Sources */,
 				414AC53C1F52A8070003867A /* CVRaulMurExtNode.cpp in Sources */,
 				41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */,
 				414333861DE03F0C0027E1C3 /* SLLightSpot.cpp in Sources */,
 				41627EA515CA8CE70023B936 /* SLInterface.cpp in Sources */,
+				416A86A9241B9044009D63B0 /* LocalMapping.cpp in Sources */,
 				414FE8F11F1506BC00F2FD4D /* SLTransferFunction.cpp in Sources */,
+				416A8689241B8FC5009D63B0 /* ScoringObject.cpp in Sources */,
+				41C7A68B241A3D200017EE82 /* WAIOrbVocabulary.cpp in Sources */,
 				41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */,
 				41A355041A7E63E100791841 /* SLJoint.cpp in Sources */,
 				41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */,
+				41C7A683241A3D200017EE82 /* WAIFrame.cpp in Sources */,
 				41A355011A7E63E100791841 /* SLAnimManager.cpp in Sources */,
 				41C7582A230D7CCE0083A25D /* AppDemoSceneView.cpp in Sources */,
 			);
@@ -2774,18 +2970,38 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					"include/**",
-					"../../../externals/utils/thirdparty/asio/include/**",
+					../include,
+					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
+					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
-					"../../../externals/nlohmann/**",
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
-					"include/**",
-					"../../../externals/utils/thirdparty/asio/include/**",
+					../include,
+					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
+					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
-					"../../../externals/nlohmann/**",
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2848,18 +3064,38 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
-					"include/**",
-					"../../../externals/utils/thirdparty/asio/include/**",
+					../include,
+					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
+					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
-					"../../../externals/nlohmann/**",
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
-					"include/**",
-					"../../../externals/utils/thirdparty/asio/include/**",
+					../include,
+					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
+					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
-					"../../../externals/nlohmann/**",
+					../../../externals/utils/thirdparty/asio/include,
+					"../../../externals/utils/lib-Utils/source",
+					../../../externals/utils/thirdparty/ftplibpp,
+					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2903,6 +3139,8 @@
 				HEADER_SEARCH_PATHS = (
 					../include,
 					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
 					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
 					../../../externals/utils/thirdparty/asio/include,
@@ -2910,10 +3148,16 @@
 					../../../externals/utils/thirdparty/ftplibpp,
 					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					../include,
 					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
 					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
 					../../../externals/utils/thirdparty/asio/include,
@@ -2921,6 +3165,10 @@
 					../../../externals/utils/thirdparty/ftplibpp,
 					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				INFOPLIST_FILE = AppInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2929,6 +3177,7 @@
 					../../../externals/prebuilt/iosV8_opencv_4.2.0/debug,
 					../../../externals/prebuilt/iosV8_opencv_4.2.0/debug/opencv4/3rdparty,
 					../../../externals/prebuilt/iosV8_assimp_5.0/Release,
+					../../../externals/prebuilt/iosV8_g2o/Debug,
 				);
 				MARKETING_VERSION = 2.50;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.cpvrLab.AppDemoSLProject;
@@ -2966,6 +3215,8 @@
 				HEADER_SEARCH_PATHS = (
 					../include,
 					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
 					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
 					../../../externals/utils/thirdparty/asio/include,
@@ -2973,10 +3224,16 @@
 					../../../externals/utils/thirdparty/ftplibpp,
 					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					../include,
 					"../../../lib-SLProject/include/**",
+					"../../../lib-WAI/source",
+					"../../../lib-WAI/source/OrbSlam",
 					"../../../externals/lib-SLExternal/**",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/include/**",
 					../../../externals/utils/thirdparty/asio/include,
@@ -2984,6 +3241,10 @@
 					../../../externals/utils/thirdparty/ftplibpp,
 					../../../externals/nlohmann,
 					"../../../externals/prebuilt/iosV8_assimp_5.0/include/**",
+					"../../../externals/DBoW2/**",
+					../../../externals/g2o,
+					../../../externals/eigen,
+					../../../externals,
 				);
 				INFOPLIST_FILE = AppInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -2992,6 +3253,7 @@
 					../../../externals/prebuilt/iosV8_opencv_4.2.0/release,
 					../../../externals/prebuilt/iosV8_opencv_4.2.0/release/opencv4/3rdparty,
 					../../../externals/prebuilt/iosV8_assimp_5.0/Release,
+					../../../externals/prebuilt/iosV8_g2o/Release,
 				);
 				MARKETING_VERSION = 2.50;
 				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.cpvrLab.AppDemoSLProject;
