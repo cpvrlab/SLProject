@@ -30,6 +30,7 @@ TestState::TestState(SLInputManager& inputManager,
 
     _sv.onInitialize();
 
+    setupDefaultErlebARDirTo(_configDir);
     setupGUI();
     tryLoadLastSlam();
 }
@@ -66,11 +67,14 @@ bool TestState::update()
         if (_videoWriter && _videoWriter->isOpened())
             _videoWriter->write(frame->imgRGB);
 
-        bool iKnowWhereIAm = _mode->update(frame->imgGray);
-        if (iKnowWhereIAm)
-            _s.updateCameraPose(_mode->getPose());
+        if (_mode)
+        {
+            bool iKnowWhereIAm = _mode->update(frame->imgGray);
+            if (iKnowWhereIAm)
+                _s.updateCameraPose(_mode->getPose());
 
-        updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+            updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+        }
     }
 
     _s.onUpdate();
@@ -674,4 +678,42 @@ void TestState::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& i
                     _gui.uiPrefs->showCovisibilityGraph,
                     _gui.uiPrefs->showSpanningTree,
                     _gui.uiPrefs->showLoopEdges);
+}
+
+void TestState::setupDefaultErlebARDirTo(std::string dir)
+{
+    dir = Utils::unifySlashes(dir);
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+    //calibrations directory
+    if (!Utils::dirExists(dir + "calibrations/"))
+    {
+        Utils::makeDir(dir + "calibrations/");
+    }
+
+    dir += "erleb-AR/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "locations/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "default/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
+
+    dir += "default/";
+    if (!Utils::dirExists(dir))
+    {
+        Utils::makeDir(dir);
+    }
 }

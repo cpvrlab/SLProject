@@ -4,6 +4,7 @@
 #include <opencv2/core.hpp>
 #include <SENSFrame.h>
 #include <SENSException.h>
+#include <atomic>
 
 class SENSCameraStreamConfigs
 {
@@ -98,9 +99,9 @@ public:
     bool started() const { return _started; }
 
 protected:
-    float  _targetWdivH = -1.0f;
-    Config _config;
-    bool   _started;
+    float             _targetWdivH = -1.0f;
+    Config            _config;
+    std::atomic<bool> _started;
 
     SENSCamera::Facing      _facing = SENSCamera::Facing::BACK;
     SENSCameraStreamConfigs _availableStreamConfig;

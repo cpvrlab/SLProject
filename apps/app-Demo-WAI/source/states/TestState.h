@@ -51,6 +51,7 @@ protected:
     void downloadCalibrationFilesTo(std::string dir);
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
+    void setupDefaultErlebARDirTo(std::string dir);
 
     //video
     CVCalibration                    _calibration = {CVCameraType::FRONTFACING, ""};

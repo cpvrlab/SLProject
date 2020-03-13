@@ -109,7 +109,7 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
 
 void WAIApp::setCamera(SENSCamera* camera)
 {
-    //std::lock_guard<std::mutex> lock(_cameraSetMutex);
+    std::lock_guard<std::mutex> lock(_cameraSetMutex);
     _camera = camera;
     //if (_sv)
     //    _sv->setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
@@ -117,7 +117,7 @@ void WAIApp::setCamera(SENSCamera* camera)
 
 SENSCamera* WAIApp::getCamera()
 {
-    //std::lock_guard<std::mutex> lock(_cameraSetMutex);
+    std::lock_guard<std::mutex> lock(_cameraSetMutex);
     return _camera;
 }
 
@@ -832,43 +832,43 @@ std::string WAIApp::name()
 //    _gui->addInfoDialog(_errorDial);
 //}
 
-void WAIApp::setupDefaultErlebARDirTo(std::string dir)
-{
-    dir = Utils::unifySlashes(dir);
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-    //calibrations directory
-    if (!Utils::dirExists(dir + "calibrations/"))
-    {
-        Utils::makeDir(dir + "calibrations/");
-    }
-
-    dir += "erleb-AR/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-
-    dir += "locations/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-
-    dir += "default/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-
-    dir += "default/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
-    }
-}
+//void WAIApp::setupDefaultErlebARDirTo(std::string dir)
+//{
+//    dir = Utils::unifySlashes(dir);
+//    if (!Utils::dirExists(dir))
+//    {
+//        Utils::makeDir(dir);
+//    }
+//    //calibrations directory
+//    if (!Utils::dirExists(dir + "calibrations/"))
+//    {
+//        Utils::makeDir(dir + "calibrations/");
+//    }
+//
+//    dir += "erleb-AR/";
+//    if (!Utils::dirExists(dir))
+//    {
+//        Utils::makeDir(dir);
+//    }
+//
+//    dir += "locations/";
+//    if (!Utils::dirExists(dir))
+//    {
+//        Utils::makeDir(dir);
+//    }
+//
+//    dir += "default/";
+//    if (!Utils::dirExists(dir))
+//    {
+//        Utils::makeDir(dir);
+//    }
+//
+//    dir += "default/";
+//    if (!Utils::dirExists(dir))
+//    {
+//        Utils::makeDir(dir);
+//    }
+//}
 
 //void WAIApp::downloadCalibrationFilesTo(std::string dir)
 //{

@@ -110,7 +110,7 @@ private:
     //void loadWAISceneView(std::string location, std::string area);
 
     //void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
-    void setupDefaultErlebARDirTo(std::string dir);
+    //void setupDefaultErlebARDirTo(std::string dir);
     //!download all remote files to transferred directory
     //void downloadCalibrationFilesTo(std::string dir);
 
@@ -151,7 +151,7 @@ private:
     //cv::VideoWriter*                 _videoWriter = nullptr;
     //std::unique_ptr<SENSVideoStream> _videoFileStream;
     SENSCamera* _camera = nullptr;
-    //std::mutex  _cameraSetMutex;
+    std::mutex  _cameraSetMutex;
 
     //cv::Size2i _videoFrameSize;
 
