@@ -24,12 +24,12 @@
 //-----------------------------------------------------------------------------
 ImGuiWrapper::ImGuiWrapper()
 {
+    createOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
-ImGuiWrapper::ImGuiWrapper(SLfloat fontPropDots, SLfloat fontFixedDots)
-  : _fontPropDots(fontPropDots),
-    _fontFixedDots(fontFixedDots)
+ImGuiWrapper::~ImGuiWrapper()
 {
+    deleteOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
@@ -47,8 +47,6 @@ void ImGuiWrapper::init(std::string configPath)
     _vboHandle         = 0;
     _vaoHandle         = 0;
     _elementsHandle    = 0;
-    _fontPropDots      = 13.0f;
-    _fontFixedDots     = 16.0f;
 
     _mouseWheel      = 0.0f;
     _mousePressed[0] = false;
@@ -84,42 +82,42 @@ void ImGuiWrapper::init(std::string configPath)
     io.DisplayFramebufferScale = ImVec2(1, 1);
 
     // Change default style to show the widget border
-    ImGuiStyle& style     = ImGui::GetStyle();
-    style.FrameBorderSize = 1;
+    //ImGuiStyle& style     = ImGui::GetStyle();
+    //style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
-{
-    _fontPropDots  = fontPropDots;
-    _fontFixedDots = fontFixedDots;
-
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->Clear();
-
-    // Load proportional font for menue and text displays
-    SLstring DroidSans = fontPath + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-    {
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
-    }
-    else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
-
-    // Load fixed size font for statistics windows
-    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
-    if (Utils::fileExists(ProggyClean))
-    {
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
-    }
-    else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
-
-    deleteOpenGLObjects();
-    createOpenGLObjects();
-}
+//void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
+//{
+//    _fontPropDots  = fontPropDots;
+//    _fontFixedDots = fontFixedDots;
+//
+//    ImGuiIO& io = ImGui::GetIO();
+//    io.Fonts->Clear();
+//
+//    // Load proportional font for menue and text displays
+//    SLstring DroidSans = fontPath + "DroidSans.ttf";
+//    if (Utils::fileExists(DroidSans))
+//    {
+//        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
+//        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
+//    }
+//    else
+//        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
+//
+//    // Load fixed size font for statistics windows
+//    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
+//    if (Utils::fileExists(ProggyClean))
+//    {
+//        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
+//        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
+//    }
+//    else
+//        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
+//
+//    deleteOpenGLObjects();
+//    createOpenGLObjects();
+//}
 //-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
 void ImGuiWrapper::createOpenGLObjects()

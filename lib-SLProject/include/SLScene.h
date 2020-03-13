@@ -313,19 +313,4 @@ protected:
     SLGLOculus _oculus; //!< Oculus Rift interface
 };
 
-//-----------------------------------------------------------------------------
-class SLProjectScene : public SLScene
-  , public SLAssetManager
-{
-public:
-    SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager);
-
-    void unInit() override;
-    bool deleteTexture(SLGLTexture* texture);
-
-    virtual void onLoadAsset(const SLstring& assetFile,
-                             SLuint          processFlags);
-};
-//-----------------------------------------------------------------------------
-
 #endif

@@ -14,6 +14,7 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.h
 		${SL_PROJECT_ROOT}/apps/source/SLApplication.h
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
     )
 
 file(GLOB sources
@@ -24,6 +25,7 @@ file(GLOB sources
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 

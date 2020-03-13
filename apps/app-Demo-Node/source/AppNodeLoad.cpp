@@ -12,6 +12,7 @@
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLLightSpot.h>
+#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 //! appNodeLoadScene builds a scene from source code.

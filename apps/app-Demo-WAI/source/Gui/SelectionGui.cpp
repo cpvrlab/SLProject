@@ -14,7 +14,8 @@ SelectionGui::SelectionGui(int dotsPerInch, std::string fontPath)
     float fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
     //load fonts
-    loadFonts(fontPropDots, fontFixedDots, fontPath);
+    //loadFonts(fontPropDots, fontFixedDots, fontPath);
+    //loadFont(fontPropDots, fontFixedDots, fontPath);
 }
 
 void setStyleColors(ImGuiStyle* style)
@@ -68,13 +69,21 @@ void setStyleColors(ImGuiStyle* style)
 
 void SelectionGui::build(SLScene* s, SLSceneView* sv)
 {
-    static float  frameSize          = 0.f * _pixPerMM; //frame between dialog and window
-    static int    nButHoriz          = 2;               //number of buttons in horizontal direction
-    static int    nButVert           = 3;               //number of buttons in vertical direction
-    static float  buttonSpace        = 5.f * _pixPerMM; //space between buttons
-    static float  windowPadding      = 7.f * _pixPerMM; //space l, r, b, t between window and buttons (window padding left does not work as expected)
-    static ImVec4 buttonColor        = (ImVec4)ImColor(0.98 * 255, 0.647 * 255, 0 * 255, 0.8 * 255);
-    static ImVec4 buttonColorPressed = (ImVec4)ImColor(0.937f * 255.f, 0.945f * 255.f, 0.953 * 255.f, 0.8f * 255.f);
+    static float frameSize     = 0.f * _pixPerMM; //frame between dialog and window
+    static int   nButHoriz     = 2;               //number of buttons in horizontal direction
+    static int   nButVert      = 3;               //number of buttons in vertical direction
+    static float buttonSpace   = 5.f * _pixPerMM; //space between buttons
+    static float windowPadding = 7.f * _pixPerMM; //space l, r, b, t between window and buttons (window padding left does not work as expected)
+
+    static ImVec4 buttonColor = (ImVec4)ImColor(BFHColors::OrangePrimary.r,
+                                                BFHColors::OrangePrimary.g,
+                                                BFHColors::OrangePrimary.b,
+                                                BFHColors::OrangePrimary.a);
+
+    static ImVec4 buttonColorPressed = (ImVec4)ImColor(BFHColors::GrayLogo.r,
+                                                       BFHColors::GrayLogo.g,
+                                                       BFHColors::GrayLogo.b,
+                                                       BFHColors::GrayLogo.a);
 
     //calculate resulting sizes:
     float  dialogW = sv->scrW() - 2 * frameSize;

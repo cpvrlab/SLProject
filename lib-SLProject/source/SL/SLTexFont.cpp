@@ -22,19 +22,6 @@
 #include <utility>
 
 //-----------------------------------------------------------------------------
-// Initialize static font pointers
-SLTexFont* SLTexFont::font07 = nullptr;
-SLTexFont* SLTexFont::font08 = nullptr;
-SLTexFont* SLTexFont::font09 = nullptr;
-SLTexFont* SLTexFont::font10 = nullptr;
-SLTexFont* SLTexFont::font12 = nullptr;
-SLTexFont* SLTexFont::font14 = nullptr;
-SLTexFont* SLTexFont::font16 = nullptr;
-SLTexFont* SLTexFont::font18 = nullptr;
-SLTexFont* SLTexFont::font20 = nullptr;
-SLTexFont* SLTexFont::font22 = nullptr;
-SLTexFont* SLTexFont::font24 = nullptr;
-//-----------------------------------------------------------------------------
 SLTexFont::SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram)
 {
     if (fontTexProgram)
@@ -241,7 +228,7 @@ void SLTexFont::create(SLstring fontFilename)
 }
 //-----------------------------------------------------------------------------
 /*! Returns the size (width & height) of the full text in float pixels. If a
-max. width is passed text is first wrapped into multiple lines. For mulitline
+max. width is passed the text is first wrapped into multiple lines. For mulitline
 text the line height is calculate as the font height * lineHeightFactor.
 */
 SLVec2f SLTexFont::calcTextSize(const SLstring& text,
@@ -437,78 +424,5 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
     vao.setIndices(&I);
     vao.generate((SLuint)numP);
-}
-//-----------------------------------------------------------------------------
-//! Generates all static fonts
-void SLTexFont::generateFonts(SLGLProgram& fontTexProgram)
-{
-    font07 = new SLTexFont("Font07.png", &fontTexProgram);
-    assert(font07);
-    font08 = new SLTexFont("Font08.png", &fontTexProgram);
-    assert(font08);
-    font09 = new SLTexFont("Font09.png", &fontTexProgram);
-    assert(font09);
-    font10 = new SLTexFont("Font10.png", &fontTexProgram);
-    assert(font10);
-    font12 = new SLTexFont("Font12.png", &fontTexProgram);
-    assert(font12);
-    font14 = new SLTexFont("Font14.png", &fontTexProgram);
-    assert(font14);
-    font16 = new SLTexFont("Font16.png", &fontTexProgram);
-    assert(font16);
-    font18 = new SLTexFont("Font18.png", &fontTexProgram);
-    assert(font18);
-    font20 = new SLTexFont("Font20.png", &fontTexProgram);
-    assert(font20);
-    font22 = new SLTexFont("Font22.png", &fontTexProgram);
-    assert(font22);
-    font24 = new SLTexFont("Font24.png", &fontTexProgram);
-    assert(font24);
-}
-//-----------------------------------------------------------------------------
-//! Deletes all static fonts
-void SLTexFont::deleteFonts()
-{
-    delete font07;
-    font07 = nullptr;
-    delete font08;
-    font08 = nullptr;
-    delete font09;
-    font09 = nullptr;
-    delete font10;
-    font10 = nullptr;
-    delete font12;
-    font12 = nullptr;
-    delete font14;
-    font14 = nullptr;
-    delete font16;
-    font16 = nullptr;
-    delete font18;
-    font18 = nullptr;
-    delete font20;
-    font20 = nullptr;
-    delete font22;
-    font22 = nullptr;
-    delete font24;
-    font24 = nullptr;
-}
-//-----------------------------------------------------------------------------
-//! returns nearest font for a given height in mm
-SLTexFont* SLTexFont::getFont(SLfloat heightMM, SLint dpi)
-{
-    SLfloat dpmm       = (SLfloat)dpi / 25.4f;
-    SLfloat targetH_PX = dpmm * heightMM;
-
-    if (targetH_PX < 7) return font07;
-    if (targetH_PX < 8) return font08;
-    if (targetH_PX < 9) return font09;
-    if (targetH_PX < 10) return font10;
-    if (targetH_PX < 12) return font12;
-    if (targetH_PX < 14) return font14;
-    if (targetH_PX < 16) return font16;
-    if (targetH_PX < 18) return font18;
-    if (targetH_PX < 20) return font20;
-    if (targetH_PX < 24) return font22;
-    return font24;
 }
 //-----------------------------------------------------------------------------

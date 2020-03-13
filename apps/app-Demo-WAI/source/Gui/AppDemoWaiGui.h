@@ -56,6 +56,7 @@ public:
         buildInfosDialogs(s, sv);
         buildMenu(s, sv);
     }
+    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
 
     std::unique_ptr<GUIPreferences> uiPrefs;
 
@@ -63,6 +64,8 @@ private:
     void buildInfosDialogs(SLScene* s, SLSceneView* sv);
     void buildMenu(SLScene* s, SLSceneView* sv);
 
+    float       _fontPropDots  = 16.0f; //!< Active font size of proportional font
+    float       _fontFixedDots = 13.0f; //!< Active font size of fixed size font
     std::string _prefsFileName;
 
     //! Vector containing all info dialogs, that belong to special scenes

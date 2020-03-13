@@ -10,6 +10,7 @@
 
 #include <SLSceneView.h>
 
+class SLProjectScene;
 //-----------------------------------------------------------------------------
 /*!
  The SLSceneView class is inherited because we override here the default

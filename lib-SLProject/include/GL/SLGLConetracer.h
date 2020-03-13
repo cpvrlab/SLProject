@@ -58,16 +58,16 @@ public:
 protected:
     SLSceneView*         _sv;
     SLCamera*            _cam;
-    SLMaterial*          _voxelizeMat;
-    SLMaterial*          _worldMat;
-    SLMaterial*          _visualizeMat;
-    SLMaterial*          _conetraceMat;
+    SLMaterial*          _voxelizeMat  = nullptr;
+    SLMaterial*          _worldMat     = nullptr;
+    SLMaterial*          _visualizeMat = nullptr;
+    SLMaterial*          _conetraceMat = nullptr;
     SLGLConetracerTex3D* _voxelTex;
     SLuint               _voxelTexSize = 64; // power of 2
     SLGLFbo*             _visualizeBackfaceFBO;
     SLGLFbo*             _visualizeFrontfaceFBO;
-    SLRectangle*         _quadMesh;
-    SLBox*               _cubeMesh;
+    SLRectangle*         _quadMesh = nullptr;
+    SLBox*               _cubeMesh = nullptr;
 
 private:
     void    voxelize();

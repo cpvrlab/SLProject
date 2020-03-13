@@ -256,25 +256,28 @@ void WAIApp::checkStateTransition()
             break;
         }
         case State::START_UP: {
-            if (_appMode == AppMode::CAMERA_TEST)
+            if (_startUpState && _startUpState->ready())
             {
-                if (_cameraTestState && _cameraTestState->started())
+                if (_appMode == AppMode::CAMERA_TEST)
                 {
-                    _state = State::CAMERA_TEST;
+                    if (_cameraTestState && _cameraTestState->started())
+                    {
+                        _state = State::CAMERA_TEST;
+                    }
                 }
-            }
-            else if (_appMode == AppMode::TEST)
-            {
-                if (_testState && _testState->started())
+                else if (_appMode == AppMode::TEST)
                 {
-                    _state = State::TEST;
+                    if (_testState && _testState->started())
+                    {
+                        _state = State::TEST;
+                    }
                 }
-            }
-            else //(_appMode > AppMode::TEST)
-            {
-                if (_locationMapState && _areaTrackingState && _locationMapState->started() && _areaTrackingState->started())
+                else //(_appMode > AppMode::TEST)
                 {
-                    _state = State::LOCATION_MAP;
+                    if (_locationMapState && _areaTrackingState && _locationMapState->started() && _areaTrackingState->started())
+                    {
+                        _state = State::LOCATION_MAP;
+                    }
                 }
             }
             break;
@@ -323,7 +326,11 @@ bool WAIApp::updateState()
                     _selectionState->start();
                 }
 
-                _startUpState = new StartUpState;
+                _startUpState = new StartUpState(_inputManager,
+                                                 _deviceData->scrWidth(),
+                                                 _deviceData->scrHeight(),
+                                                 _deviceData->dpi(),
+                                                 _deviceData->dirs().writableDir);
                 _startUpState->start();
             }
             break;

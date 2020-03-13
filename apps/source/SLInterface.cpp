@@ -18,6 +18,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
+#include <SLProjectScene.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp

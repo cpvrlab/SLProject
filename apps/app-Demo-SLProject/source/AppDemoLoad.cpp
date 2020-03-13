@@ -44,6 +44,7 @@
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SLTransferFunction.h>
+#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo
@@ -772,39 +773,39 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Because all text objects get their sizes in pixels we have to scale them down
         SLfloat  scale = 0.01f;
         SLstring txt   = "This is text in 3D with font07";
-        SLVec2f  size  = SLTexFont::font07->calcTextSize(txt);
-        SLNode*  t07   = new SLText(txt, SLTexFont::font07);
+        SLVec2f  size  = SLProjectScene::font07->calcTextSize(txt);
+        SLNode*  t07   = new SLText(txt, SLProjectScene::font07);
         t07->translate(-size.x * 0.5f * scale, 1.0f, 0);
         t07->scale(scale);
 
         txt         = "This is text in 3D with font09";
-        size        = SLTexFont::font09->calcTextSize(txt);
-        SLNode* t09 = new SLText(txt, SLTexFont::font09);
+        size        = SLProjectScene::font09->calcTextSize(txt);
+        SLNode* t09 = new SLText(txt, SLProjectScene::font09);
         t09->translate(-size.x * 0.5f * scale, 0.8f, 0);
         t09->scale(scale);
 
         txt         = "This is text in 3D with font12";
-        size        = SLTexFont::font12->calcTextSize(txt);
-        SLNode* t12 = new SLText(txt, SLTexFont::font12);
+        size        = SLProjectScene::font12->calcTextSize(txt);
+        SLNode* t12 = new SLText(txt, SLProjectScene::font12);
         t12->translate(-size.x * 0.5f * scale, 0.6f, 0);
         t12->scale(scale);
 
         txt         = "This is text in 3D with font20";
-        size        = SLTexFont::font20->calcTextSize(txt);
-        SLNode* t20 = new SLText(txt, SLTexFont::font20);
+        size        = SLProjectScene::font20->calcTextSize(txt);
+        SLNode* t20 = new SLText(txt, SLProjectScene::font20);
         t20->translate(-size.x * 0.5f * scale, -0.8f, 0);
         t20->scale(scale);
 
         txt         = "This is text in 3D with font22";
-        size        = SLTexFont::font22->calcTextSize(txt);
-        SLNode* t22 = new SLText(txt, SLTexFont::font22);
+        size        = SLProjectScene::font22->calcTextSize(txt);
+        SLNode* t22 = new SLText(txt, SLProjectScene::font22);
         t22->translate(-size.x * 0.5f * scale, -1.2f, 0);
         t22->scale(scale);
 
         // Now create 2D text but don't scale it (all sizes in pixels)
         txt           = "This is text in 2D with font16";
-        size          = SLTexFont::font16->calcTextSize(txt);
-        SLNode* t2D16 = new SLText(txt, SLTexFont::font16);
+        size          = SLProjectScene::font16->calcTextSize(txt);
+        SLNode* t2D16 = new SLText(txt, SLProjectScene::font16);
         t2D16->translate(-size.x * 0.5f, 0, 0);
 
         // Assemble 3D scene as usual with camera and light

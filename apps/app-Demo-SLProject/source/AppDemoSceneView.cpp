@@ -12,6 +12,7 @@
 #include <CVCapture.h>
 #include <CVCalibration.h>
 #include "AppDemoSceneView.h"
+#include <SLProjectScene.h>
 
 AppDemoSceneView::AppDemoSceneView(SLProjectScene* s, int dpi)
   : SLSceneView(s, dpi)

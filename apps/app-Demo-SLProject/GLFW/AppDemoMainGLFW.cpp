@@ -27,6 +27,7 @@
 #include <SLInterface.h>
 #include <SLApplication.h>
 #include <SLSceneView.h>
+#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp

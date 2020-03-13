@@ -35,6 +35,7 @@
 #include <SLSceneView.h>
 #include <SLTransferFunction.h>
 #include <SLGLImGui.h>
+#include <SLProjectScene.h>
 #include <imgui.h>
 #include <ftplib.h>
 

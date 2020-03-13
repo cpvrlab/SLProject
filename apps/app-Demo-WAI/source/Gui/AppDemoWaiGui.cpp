@@ -266,3 +266,33 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
         ImGui::EndMainMenuBar();
     }
 }
+//-----------------------------------------------------------------------------
+//! Loads the proportional and fixed size font depending on the passed DPI
+void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
+{
+    _fontPropDots  = fontPropDots;
+    _fontFixedDots = fontFixedDots;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
+
+    // Load proportional font for menue and text displays
+    SLstring DroidSans = fontPath + "DroidSans.ttf";
+    if (Utils::fileExists(DroidSans))
+    {
+        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
+    }
+    else
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
+
+    // Load fixed size font for statistics windows
+    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
+    if (Utils::fileExists(ProggyClean))
+    {
+        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
+    }
+    else
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
+}

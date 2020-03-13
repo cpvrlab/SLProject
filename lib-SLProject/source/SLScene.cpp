@@ -15,9 +15,7 @@
 #endif
 
 #include <Utils.h>
-#include <SLAssimpImporter.h>
 #include <SLInputManager.h>
-#include <SLLightDirect.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLText.h>
@@ -88,9 +86,6 @@ SLScene::SLScene(SLstring        name,
     _lastUpdateTimeMS = 0;
 
     _oculus.init();
-
-    // font and video texture are not added to the _textures vector
-    SLTexFont::generateFonts(*SLGLProgramManager::get(SP_fontTex));
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -114,8 +109,8 @@ SLScene::~SLScene()
     //for (auto m : _meshes) delete m;
     //_meshes.clear();
 
-    // delete fonts
-    SLTexFont::deleteFonts();
+    //// delete fonts
+    //SLTexFont::deleteFonts();
 
     SL_LOG("Destructor      : ~SLScene");
     SL_LOG("------------------------------------------------------------------");
@@ -414,94 +409,4 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
              !dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex])->allowAsActiveCam());
 
     return cams[(uint)activeIndex];
-}
-//-----------------------------------------------------------------------------
-SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager)
-  : SLScene(name, onSceneLoadCallback, inputManager)
-{
-}
-//-----------------------------------------------------------------------------
-/*! Removes the specified texture from the textures resource vector.
-*/
-bool SLProjectScene::deleteTexture(SLGLTexture* texture)
-{
-    assert(texture);
-    for (SLulong i = 0; i < _textures.size(); ++i)
-    {
-        if (_textures[i] == texture)
-        {
-            delete _textures[i];
-            _textures.erase(_textures.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
-//----------------------------------------------------------------------------
-void SLProjectScene::unInit()
-{
-    SLScene::unInit();
-    SLAssetManager::clear();
-}
-//-----------------------------------------------------------------------------
-void SLProjectScene::onLoadAsset(const SLstring& assetFile,
-                                 SLuint          processFlags)
-{
-    assert(false && "I commented the following lines! What influence does this have? I could not test this!");
-    //SLApplication::sceneID = SID_FromFile;
-
-    // Set scene name for new scenes
-    if (!_root3D)
-        name(Utils::getFileName(assetFile));
-
-    // Try to load assed and add it to the scene root node
-    SLAssimpImporter importer;
-
-    /////////////////////////////////////////////
-    SLNode* loaded = importer.load(_animManager,
-                                   this,
-                                   assetFile,
-                                   true,
-                                   nullptr,
-                                   0.0f,
-                                   processFlags);
-    /////////////////////////////////////////////
-
-    // Add root node on empty scene
-    if (!_root3D)
-    {
-        SLNode* scene = new SLNode("Scene");
-        _root3D       = scene;
-    }
-
-    // Add loaded scene
-    if (loaded)
-        _root3D->addChild(loaded);
-
-    // Add directional light if no light was in loaded asset
-    if (_lights.empty())
-    {
-        SLAABBox boundingBox = _root3D->updateAABBRec();
-        SLfloat  arrowLength = boundingBox.radiusWS() > FLT_EPSILON
-                                ? boundingBox.radiusWS() * 0.1f
-                                : 0.5f;
-        SLLightDirect* light = new SLLightDirect(this, this, 0, 0, 0, arrowLength, 1.0f, 1.0f, 1.0f);
-        SLVec3f        pos   = boundingBox.maxWS().isZero()
-                        ? SLVec3f(1, 1, 1)
-                        : boundingBox.maxWS() * 1.1f;
-        light->translation(pos);
-        light->lookAt(pos - SLVec3f(1, 1, 1));
-        light->attenuation(1, 0, 0);
-        _root3D->addChild(light);
-        _root3D->aabb()->reset(); // rest aabb so that it is recalculated
-    }
-
-    // call onInitialize on all scene views
-    for (auto sv : _sceneViews)
-    {
-        if (sv != nullptr)
-        {
-            sv->onInitialize();
-        }
-    }
 }

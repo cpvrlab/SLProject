@@ -16,7 +16,7 @@
 
 #include <SL.h>
 #include <SLApplication.h>
-#include <SLScene.h>
+#include <SLProjectScene.h>
 #include <SLGLImGui.h>
 #include <utility>
 #include <GlobalTimer.h>

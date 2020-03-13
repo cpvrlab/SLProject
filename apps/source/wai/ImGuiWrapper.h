@@ -53,7 +53,7 @@ class ImGuiWrapper : public SLUiInterface
 {
 public:
     ImGuiWrapper();
-    ImGuiWrapper(SLfloat fontPropDots, SLfloat fontFixedDots);
+    ~ImGuiWrapper();
     void init(std::string configPath) override;
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv) override;
@@ -71,13 +71,8 @@ public:
     void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) override;
     bool doNotDispatchKeyboard() override { return ImGui::GetIO().WantCaptureKeyboard; }
     bool doNotDispatchMouse() override { return ImGui::GetIO().WantCaptureMouse; }
-    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
     // gui build function pattern
     virtual void build(SLScene* s, SLSceneView* sv) = 0;
-
-    // Default font dots
-    SLfloat fontPropDots  = 16.0f; //!< Default font size of proportional font
-    SLfloat fontFixedDots = 13.0f; //!< Default font size of fixed size font
 
 private:
     void deleteOpenGLObjects();
@@ -85,24 +80,22 @@ private:
     void printCompileErrors(SLint         shaderHandle,
                             const SLchar* src);
 
-    SLfloat _timeSec;               //!< Time in seconds
-    SLVec2f _mousePosPX;            //!< Mouse cursor position
-    SLfloat _mouseWheel;            //!< Mouse wheel position
-    SLbool  _mousePressed[3];       //!< Mouse button press state
-    SLuint  _fontTexture;           //!< OpenGL texture id for font
-    SLint   _progHandle;            //!< OpenGL handle for shader program
-    SLint   _vertHandle;            //!< OpenGL handle for vertex shader
-    SLint   _fragHandle;            //!< OpenGL handle for fragment shader
-    SLint   _attribLocTex;          //!< OpenGL attribute location for texture
-    SLint   _attribLocProjMtx;      //!< OpenGL attribute location for ???
-    SLint   _attribLocPosition;     //!< OpenGL attribute location for vertex pos.
-    SLint   _attribLocUV;           //!< OpenGL attribute location for texture coords
-    SLint   _attribLocColor;        //!< OpenGL attribute location for color
-    SLuint  _vboHandle;             //!< OpenGL handle for vertex buffer object
-    SLuint  _vaoHandle;             //!< OpenGL vertex array object handle
-    SLuint  _elementsHandle;        //!< OpenGL handle for vertex indexes
-    SLfloat _fontPropDots  = 16.0f; //!< Active font size of proportional font
-    SLfloat _fontFixedDots = 13.0f; //!< Active font size of fixed size font
+    SLfloat _timeSec;           //!< Time in seconds
+    SLVec2f _mousePosPX;        //!< Mouse cursor position
+    SLfloat _mouseWheel;        //!< Mouse wheel position
+    SLbool  _mousePressed[3];   //!< Mouse button press state
+    SLuint  _fontTexture;       //!< OpenGL texture id for font
+    SLint   _progHandle;        //!< OpenGL handle for shader program
+    SLint   _vertHandle;        //!< OpenGL handle for vertex shader
+    SLint   _fragHandle;        //!< OpenGL handle for fragment shader
+    SLint   _attribLocTex;      //!< OpenGL attribute location for texture
+    SLint   _attribLocProjMtx;  //!< OpenGL attribute location for ???
+    SLint   _attribLocPosition; //!< OpenGL attribute location for vertex pos.
+    SLint   _attribLocUV;       //!< OpenGL attribute location for texture coords
+    SLint   _attribLocColor;    //!< OpenGL attribute location for color
+    SLuint  _vboHandle;         //!< OpenGL handle for vertex buffer object
+    SLuint  _vaoHandle;         //!< OpenGL vertex array object handle
+    SLuint  _elementsHandle;    //!< OpenGL handle for vertex indexes
 
     std::string _inifile;
 };
