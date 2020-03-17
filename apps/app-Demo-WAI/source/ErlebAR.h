@@ -51,4 +51,6 @@ const SLVec4f OrangeGraphic = {250.f / 255.f, 165.f / 255.f, 0.f / 255.f, 1.f};
 const SLVec4f GrayDark      = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
 };
 
+using ButtonPressedCB = std::function<void(void)>;
+
 #endif //ERLEBAR_H

@@ -27,7 +27,8 @@ public:
               std::string     configDir,
               std::string     vocabularyDir,
               std::string     calibDir,
-              std::string     videoDir);
+              std::string     videoDir,
+              ButtonPressedCB backButtonPressedCB);
     ~TestState();
 
     bool update() override;

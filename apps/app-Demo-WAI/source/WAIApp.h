@@ -14,6 +14,7 @@
 #define APP_WAI_SCENE_VIEW
 
 #include <vector>
+#include <functional>
 #include "AppWAIScene.h"
 
 #include <CVCalibration.h>
@@ -47,6 +48,7 @@ class AppDemoGuiSlamLoad;
 class WAIApp : public SLInputEventInterface
 {
 public:
+    using CloseAppCallback = std::function<void(void)>;
     enum class State
     {
         /*!Wait for _startFromIdle to become true. When it is true start SelectionState for scene selection and when it is
@@ -71,32 +73,20 @@ public:
     //call load to correctly initialize wai app
     int  load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
     void setCamera(SENSCamera* camera);
-
-    //try to load last slam configuration, else open loading dialog
-    void loadSlam();
-
     //call update to update the frame, wai and visualization
     bool update();
     void close();
     void terminate();
 
-    //initialize wai orb slam with transferred parameters
-    //void startOrbSlam(SlamParams slamParams);
-    //void showErrorMsg(std::string msg);
-
-    //todo: replace when we are independent of SLApplication
     std::string name();
-    //const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
-    //const CVCalibration&   getCalibration() const { return _calibration; }
-    //const cv::Size&        getFrameSize() const { return _videoFrameSize; }
 
-    //WAISlam* mode()
-    //{
-    //    return _mode;
-    //}
-
-    //std::string videoDir;
-    //std::string mapDir;
+    //! set a callback function which can be used to inform caller that app wants to be closed
+    void setCloseAppCallback(CloseAppCallback cb) { _closeCB = cb; }
+    //! caller informs that app back button was pressed
+    void goBack()
+    {
+        _goBack = true;
+    }
 
 private:
     SENSCamera* getCamera();
@@ -105,51 +95,8 @@ private:
     void checkStateTransition();
     bool updateState();
 
-    //bool updateTracking(SENSFramePtr frame);
-    //int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
-    //void loadWAISceneView(std::string location, std::string area);
-
-    //void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
-    //void setupDefaultErlebARDirTo(std::string dir);
-    //!download all remote files to transferred directory
-    //void downloadCalibrationFilesTo(std::string dir);
-
-    //void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
-    //void saveMap(std::string location, std::string area, std::string marker);
-    //void transformMapNode(SLTransformSpace tSpace,
-    //SLVec3f          rotation,
-    //SLVec3f          translation,
-    //float            scale);
-    // video writer
-    /*void saveVideo(std::string filename);*/
-    //void saveGPSData(std::string videofile);
-
-    //void handleEvents();
-
-    //get new frame from live video or video file stream
-    //SENSFramePtr updateVideoOrCamera();
-    SENSFramePtr getCameraFrame();
-    //SENSFramePtr getVideoFrame();
-
-    //WAI::ModeOrbSlam2*           _mode;
-    //WAISlam*     _mode = nullptr;
-    //SLSceneView* _sv   = nullptr;
-
-    //SlamParams     _currentSlamParams;
     AppDirectories _dirs;
-    //std::string    _calibDir;
 
-    //sensor stuff
-    //ofstream _gpsDataStream;
-    //SLQuat4f _lastKnowPoseQuaternion;
-    //SLQuat4f _IMUQuaternion;
-
-    //load function has been called
-    //bool _loaded  = false;
-    //bool _started = false;
-
-    //cv::VideoWriter*                 _videoWriter = nullptr;
-    //std::unique_ptr<SENSVideoStream> _videoFileStream;
     SENSCamera* _camera = nullptr;
     std::mutex  _cameraSetMutex;
 
@@ -204,6 +151,9 @@ private:
     Area _area = Area::NONE;
 
     bool _switchToTracking = false;
+
+    CloseAppCallback _closeCB = nullptr;
+    bool             _goBack  = false;
 };
 
 #endif

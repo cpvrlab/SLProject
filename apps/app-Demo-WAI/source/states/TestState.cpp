@@ -15,8 +15,9 @@ TestState::TestState(SLInputManager& inputManager,
                      std::string     configDir,
                      std::string     vocabularyDir,
                      std::string     calibDir,
-                     std::string     videoDir)
-  : _gui("TestScene", configDir, dotsPerInch, fontPath),
+                     std::string     videoDir,
+                     ButtonPressedCB backButtonPressedCB)
+  : _gui("TestScene", configDir, dotsPerInch, fontPath, screenWidth, screenHeight, backButtonPressedCB),
     _s("TestScene", inputManager),
     _sv(&_s, dotsPerInch),
     _camera(camera),

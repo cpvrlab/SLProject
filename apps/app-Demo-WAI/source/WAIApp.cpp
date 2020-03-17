@@ -83,7 +83,7 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
     return 0;
     //if (_loaded) return _sv->index();
 
-    ////Utils::initFileLog(_dirs.logFileDir, true);
+    //Utils::initFileLog(_dirs.logFileDir, true);
 
     //Utils::log("WAInative", "loading");
     //_dirs = directories;
@@ -186,6 +186,13 @@ void WAIApp::checkStateTransition()
             break;
         }
         case State::TEST: {
+            if (_goBack)
+            {
+                _goBack  = false;
+                _state   = State::SELECTION;
+                _appMode = AppMode::NONE;
+                _selectionState->reset();
+            }
             break;
         }
         case State::CAMERA_TEST: {
@@ -210,13 +217,16 @@ bool WAIApp::updateState()
                 {
                     //select AppMode
                     //(start up can be done as soon we have access to resouces)
-                    _selectionState = new SelectionState(_inputManager,
-                                                         _deviceData->scrWidth(),
-                                                         _deviceData->scrHeight(),
-                                                         _deviceData->dpi(),
-                                                         _deviceData->fontDir(),
-                                                         _deviceData->dirs().writableDir);
-                    _selectionState->start();
+                    if (!_selectionState)
+                    {
+                        _selectionState = new SelectionState(_inputManager,
+                                                             _deviceData->scrWidth(),
+                                                             _deviceData->scrHeight(),
+                                                             _deviceData->dpi(),
+                                                             _deviceData->fontDir(),
+                                                             _deviceData->dirs().writableDir);
+                        _selectionState->start();
+                    }
                 }
 
                 _startUpState = new StartUpState(_inputManager,
@@ -247,17 +257,21 @@ bool WAIApp::updateState()
 
                 if (_appMode == AppMode::TEST)
                 {
-                    _testState = new TestState(_inputManager,
-                                               getCamera(),
-                                               _deviceData->scrWidth(),
-                                               _deviceData->scrHeight(),
-                                               _deviceData->dpi(),
-                                               _deviceData->fontDir(),
-                                               _deviceData->dirs().writableDir,
-                                               _deviceData->dirs().vocabularyDir,
-                                               _deviceData->calibDir(),
-                                               _deviceData->videoDir());
-                    _testState->start();
+                    if (!_testState)
+                    {
+                        _testState = new TestState(_inputManager,
+                                                   getCamera(),
+                                                   _deviceData->scrWidth(),
+                                                   _deviceData->scrHeight(),
+                                                   _deviceData->dpi(),
+                                                   _deviceData->fontDir(),
+                                                   _deviceData->dirs().writableDir,
+                                                   _deviceData->dirs().vocabularyDir,
+                                                   _deviceData->calibDir(),
+                                                   _deviceData->videoDir(),
+                                                   std::bind(&WAIApp::goBack, this));
+                        _testState->start();
+                    }
                 }
                 else if (_appMode == AppMode::CAMERA_TEST)
                 {

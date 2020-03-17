@@ -184,7 +184,7 @@ void Engine::onInit()
         _dpi = AConfiguration_getDensity(appConfig);
         AConfiguration_delete(appConfig);
 
-        //_waiApp.initCloseAppCallback(std::bind(&Engine::closeAppCallback));
+        _waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
         //todo: _waiApp.init
         _waiApp.load(_width, _height, 1.0, 1.0, _dpi, _dirs);
         _waiAppIsInitialized = true;
@@ -196,7 +196,7 @@ void Engine::onInit()
             _waiApp.close();
             terminateDisplay();
             initDisplay();
-            //_waiApp.initCloseAppCallback(std::bind(&Engine::closeAppCallback));
+            _waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
             //todo: _waiApp.init
             _waiApp.load(_width, _height, 1.0, 1.0, _dpi, _dirs);
         }
@@ -224,8 +224,7 @@ void Engine::onDestroy()
 void Engine::onBackButtonDown()
 {
     ENGINE_DEBUG("onBackButtonDown");
-    //todo: _waiApp.goBack
-    //_waiApp.goBack();
+    _waiApp.goBack();
 }
 
 void Engine::initDisplay()
@@ -383,8 +382,6 @@ void Engine::startCamera()
             ndkCamera->start(camConfig);
             ENGINE_DEBUG("startCamera: %fms", t.elapsedTimeInMilliSec());
 
-            //todo: _waiApp.initCamera
-            //_waiApp.initCamera(ndkCamera);
             _waiApp.setCamera(ndkCamera);
         }
         catch (std::exception& e)
@@ -838,7 +835,6 @@ void Engine::closeAppCallback()
     GetEngine()->closeAppRequested(true);
 }
 
-
 static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
 {
     ENGINE_DEBUG("handleLifecycleEvent: called");
@@ -932,8 +928,6 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
 
         return 1;
     }
-    //todo: back button usage
-    /*
     else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
     {
         if (AKeyEvent_getKeyCode(event) == AKEYCODE_BACK && AKeyEvent_getAction(event) == AKEY_EVENT_ACTION_DOWN)
@@ -943,7 +937,6 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
             return 1; // <-- prevent default handler
         }
     }
-     */
 
     return 0;
 }

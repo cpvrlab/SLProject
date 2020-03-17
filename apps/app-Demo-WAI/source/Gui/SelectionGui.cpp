@@ -18,9 +18,18 @@ SelectionGui::SelectionGui(int dotsPerInch, std::string fontPath)
     //loadFont(fontPropDots, fontFixedDots, fontPath);
 }
 
-void setStyleColors(ImGuiStyle* style)
+void SelectionGui::pushStyle()
 {
-    ImVec4* colors = style->Colors;
+    //setStyleColors();
+}
+
+void SelectionGui::popStyle()
+{
+}
+
+void SelectionGui::setStyleColors()
+{
+    ImVec4* colors = _guiStyle.Colors;
 
     colors[ImGuiCol_Text]                 = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
     colors[ImGuiCol_TextDisabled]         = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
@@ -92,26 +101,32 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     int    buttonH = (dialogH - 2 * windowPadding - (nButVert - 1) * buttonSpace) / nButVert;
     ImVec2 buttonSz(buttonW, buttonH);
 
-    ImGuiStyle& style     = ImGui::GetStyle();
-    style.FrameRounding   = 0.0f; //0.0f, 12.0f
-    style.FrameBorderSize = 0.f;
-    style.FramePadding    = ImVec2(0.f, 0.f);
-    style.FrameRounding   = 0.f;
-    style.WindowRounding  = 0.f;
-    style.WindowPadding   = ImVec2(0, windowPadding);         //space l, r, b, t between window and buttons (window padding left does not work as expected)
-    style.ItemSpacing     = ImVec2(buttonSpace, buttonSpace); //space between buttons
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, windowPadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(buttonSpace, buttonSpace));
 
-    setStyleColors(&style);
+    //ImGuiStyle& style = ImGui::GetStyle();
+    //style.FrameRounding   = 0.0f; //0.0f, 12.0f
+    //style.FrameBorderSize = 0.f;
+    //style.FramePadding   = ImVec2(0.f, 0.f);
+    //style.FrameRounding  = 0.f;
+    //style.WindowRounding = 0.f;
+    //style.WindowPadding  = ImVec2(0, windowPadding);         //space l, r, b, t between window and buttons (window padding left does not work as expected)
+    //style.ItemSpacing    = ImVec2(buttonSpace, buttonSpace); //space between buttons
+
+    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
 
     {
         ImGui::SetNextWindowPos(ImVec2(frameSize, frameSize), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(dialogW, dialogH), ImGuiCond_Always);
 
         ImGui::Begin("", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-
-        ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
 
         ImGui::NewLine();
         ImGui::SameLine(windowPadding);
@@ -149,8 +164,9 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
             _selection = AppMode::BIEL;
         }
 
-        ImGui::PopStyleColor(3);
-
         ImGui::End();
     }
+
+    ImGui::PopStyleVar(7);
+    ImGui::PopStyleColor(3);
 }

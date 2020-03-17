@@ -28,6 +28,13 @@ public:
         return _selection;
     }
 
+    void reset()
+    {
+        _gui.resetSelection();
+        _selection = AppMode::NONE;
+        _ready     = false;
+    }
+
 protected:
     void doStart() override;
 

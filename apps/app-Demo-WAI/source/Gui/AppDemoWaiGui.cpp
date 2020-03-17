@@ -38,7 +38,13 @@
 //map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch, std::string fontPath)
+AppDemoWaiGui::AppDemoWaiGui(std::string     appName,
+                             std::string     configDir,
+                             int             dotsPerInch,
+                             std::string     fontPath,
+                             int             windowWidthPix,
+                             int             windowHeightPix,
+                             ButtonPressedCB backButtonCB)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
@@ -46,6 +52,15 @@ AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dot
     uiPrefs->load(_prefsFileName, ImGui::GetStyle());
     //load fonts
     loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
+
+    _backButton = BackButton(dotsPerInch,
+                             windowWidthPix,
+                             windowHeightPix,
+                             GuiAlignment::BOTTOM_RIGHT,
+                             5.f,
+                             5.f,
+                             {10.f, 7.f},
+                             backButtonCB);
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()
@@ -67,6 +82,14 @@ void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)
 void AppDemoWaiGui::clearInfoDialogs()
 {
     _infoDialogs.clear();
+}
+//-----------------------------------------------------------------------------
+void AppDemoWaiGui::build(SLScene* s, SLSceneView* sv)
+{
+    _backButton.render();
+
+    buildInfosDialogs(s, sv);
+    buildMenu(s, sv);
 }
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
@@ -237,9 +260,6 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 //! Loads the proportional and fixed size font depending on the passed DPI
 void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
 {
-    _fontPropDots  = fontPropDots;
-    _fontFixedDots = fontFixedDots;
-
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->Clear();
 

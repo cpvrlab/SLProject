@@ -36,10 +36,10 @@ protected:
     //set to true if startup is done
     bool _started = false;
 
-private:
     //! signalizes that state is ready and wants caller to switch to another state
     bool _ready = false;
 
+private:
     std::thread _startThread;
 };
 

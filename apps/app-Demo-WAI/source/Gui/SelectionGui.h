@@ -19,10 +19,16 @@ public:
     void build(SLScene* s, SLSceneView* sv) override;
 
     AppMode getSelection() { return _selection; }
+    void    resetSelection() { _selection = AppMode::NONE; }
 
 private:
-    float   _pixPerMM;
-    AppMode _selection = AppMode::NONE;
+    void pushStyle();
+    void popStyle();
+    void setStyleColors();
+
+    ImGuiStyle _guiStyle;
+    float      _pixPerMM;
+    AppMode    _selection = AppMode::NONE;
 };
 
 #endif //SELECTION_GUI_H
