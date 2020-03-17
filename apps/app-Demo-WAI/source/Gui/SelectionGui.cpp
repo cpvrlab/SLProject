@@ -2,29 +2,59 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 
-SelectionGui::SelectionGui(int dotsPerInch, std::string fontPath)
+SelectionGui::SelectionGui(int         dotsPerInch,
+                           int         screenWidthPix,
+                           int         screenHeightPix,
+                           std::string fontPath)
 {
     _pixPerMM = (float)dotsPerInch / 25.4f;
-    // Scale for proportional and fixed size fonts
-    //float dpiScaleProp  = dotsPerInch / 120.0f;
-    //float dpiScaleFixed = dotsPerInch / 142.0f;
 
-    //// Default settings for the first time
-    //float fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
-    //float fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+    _windowPadding = 7.f * _pixPerMM;
+    _buttonSpace   = 5.f * _pixPerMM;
 
-    //load fonts
-    //loadFonts(fontPropDots, fontFixedDots, fontPath);
-    //loadFont(fontPropDots, fontFixedDots, fontPath);
+    _buttonColor = {BFHColors::OrangePrimary.r,
+                    BFHColors::OrangePrimary.g,
+                    BFHColors::OrangePrimary.b,
+                    BFHColors::OrangePrimary.a};
+
+    _buttonColorPressed = {BFHColors::GrayLogo.r,
+                           BFHColors::GrayLogo.g,
+                           BFHColors::GrayLogo.b,
+                           BFHColors::GrayLogo.a};
+
+    int nButHoriz = 2; //number of buttons in horizontal direction
+    int nButVert  = 3; //number of buttons in vertical direction
+
+    _frameSizePix = 0.f * _pixPerMM; //frame between dialog and window
+
+    //calculate resulting sizes:
+    _dialogW    = screenWidthPix - 2 * _frameSizePix;
+    _dialogH    = screenHeightPix - 2 * _frameSizePix;
+    int buttonW = (_dialogW - 2 * _windowPadding - (nButHoriz - 1) * _buttonSpace) / nButHoriz;
+    int buttonH = (_dialogH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
+    _buttonSz   = {(float)buttonW, (float)buttonH};
 }
 
 void SelectionGui::pushStyle()
 {
-    //setStyleColors();
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, _windowPadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
+
+    ImGui::PushStyleColor(ImGuiCol_Button, _buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _buttonColorPressed);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
 }
 
 void SelectionGui::popStyle()
 {
+    ImGui::PopStyleVar(7);
+    ImGui::PopStyleColor(4);
 }
 
 void SelectionGui::setStyleColors()
@@ -78,88 +108,45 @@ void SelectionGui::setStyleColors()
 
 void SelectionGui::build(SLScene* s, SLSceneView* sv)
 {
-    static float frameSize     = 0.f * _pixPerMM; //frame between dialog and window
-    static int   nButHoriz     = 2;               //number of buttons in horizontal direction
-    static int   nButVert      = 3;               //number of buttons in vertical direction
-    static float buttonSpace   = 5.f * _pixPerMM; //space between buttons
-    static float windowPadding = 7.f * _pixPerMM; //space l, r, b, t between window and buttons (window padding left does not work as expected)
-
-    static ImVec4 buttonColor = (ImVec4)ImColor(BFHColors::OrangePrimary.r,
-                                                BFHColors::OrangePrimary.g,
-                                                BFHColors::OrangePrimary.b,
-                                                BFHColors::OrangePrimary.a);
-
-    static ImVec4 buttonColorPressed = (ImVec4)ImColor(BFHColors::GrayLogo.r,
-                                                       BFHColors::GrayLogo.g,
-                                                       BFHColors::GrayLogo.b,
-                                                       BFHColors::GrayLogo.a);
-
-    //calculate resulting sizes:
-    float  dialogW = sv->scrW() - 2 * frameSize;
-    float  dialogH = sv->scrH() - 2 * frameSize;
-    int    buttonW = (dialogW - 2 * windowPadding - (nButHoriz - 1) * buttonSpace) / nButHoriz;
-    int    buttonH = (dialogH - 2 * windowPadding - (nButVert - 1) * buttonSpace) / nButVert;
-    ImVec2 buttonSz(buttonW, buttonH);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, windowPadding));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(buttonSpace, buttonSpace));
-
-    //ImGuiStyle& style = ImGui::GetStyle();
-    //style.FrameRounding   = 0.0f; //0.0f, 12.0f
-    //style.FrameBorderSize = 0.f;
-    //style.FramePadding   = ImVec2(0.f, 0.f);
-    //style.FrameRounding  = 0.f;
-    //style.WindowRounding = 0.f;
-    //style.WindowPadding  = ImVec2(0, windowPadding);         //space l, r, b, t between window and buttons (window padding left does not work as expected)
-    //style.ItemSpacing    = ImVec2(buttonSpace, buttonSpace); //space between buttons
-
-    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
-
+    pushStyle();
     {
-        ImGui::SetNextWindowPos(ImVec2(frameSize, frameSize), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(dialogW, dialogH), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(_frameSizePix, _frameSizePix), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_dialogW, _dialogH), ImGuiCond_Always);
 
         ImGui::Begin("", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
         ImGui::NewLine();
-        ImGui::SameLine(windowPadding);
-        if (ImGui::Button("Test", buttonSz))
+        ImGui::SameLine(_windowPadding);
+        if (ImGui::Button("Test", _buttonSz))
         {
             _selection = AppMode::TEST;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Camera Test", buttonSz))
+        if (ImGui::Button("Camera Test", _buttonSz))
         {
             _selection = AppMode::CAMERA_TEST;
         }
 
         ImGui::NewLine();
-        ImGui::SameLine(windowPadding);
-        if (ImGui::Button("Avanches", buttonSz))
+        ImGui::SameLine(_windowPadding);
+        if (ImGui::Button("Avanches", _buttonSz))
         {
             _selection = AppMode::AVANCHES;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Augst", buttonSz))
+        if (ImGui::Button("Augst", _buttonSz))
         {
             _selection = AppMode::AUGST;
         }
 
         ImGui::NewLine();
-        ImGui::SameLine(windowPadding);
-        if (ImGui::Button("Christoffel", buttonSz)) // Buttons return true when clicked (most widgets return true when edited/activated)
+        ImGui::SameLine(_windowPadding);
+        if (ImGui::Button("Christoffel", _buttonSz))
         {
             _selection = AppMode::CHRISTOFFELTOWER;
         }
-        ImGui::SameLine(/*buttonSpace + buttonW + buttonSpace*/);
-        if (ImGui::Button("Biel", buttonSz))
+        ImGui::SameLine();
+        if (ImGui::Button("Biel", _buttonSz))
         {
             _selection = AppMode::BIEL;
         }
@@ -167,6 +154,5 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImGui::End();
     }
 
-    ImGui::PopStyleVar(7);
-    ImGui::PopStyleColor(3);
+    popStyle();
 }

@@ -7,6 +7,7 @@
 #include <WAIMapStorage.h>
 #include <WAICalibration.h>
 #include <AppWAIScene.h>
+#include <SLGLProgramManager.h>
 
 //#include <AppDemoGuiInfosDialog.h>
 //#include <AppDemoGuiAbout.h>
@@ -66,13 +67,9 @@ WAIApp::~WAIApp()
 //-----------------------------------------------------------------------------
 int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
-    _dirs = directories;
-    //todo ghm1: load sets state to startup: we can visualize
-    //videoDir  = _dirs.writableDir + "erleb-AR/locations/";
-    //_calibDir = _dirs.writableDir + "calibrations/";
-    //mapDir    = _dirs.writableDir + "maps/";
-
+    _dirs       = directories;
     _deviceData = std::make_unique<DeviceData>(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, directories);
+
     // setup magic paths
     SLGLProgram::defaultPath      = _dirs.slDataRoot + "/shaders/";
     SLGLTexture::defaultPath      = _dirs.slDataRoot + "/images/textures/";
@@ -81,25 +78,6 @@ int WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int 
 
     _startFromIdle = true;
     return 0;
-    //if (_loaded) return _sv->index();
-
-    //Utils::initFileLog(_dirs.logFileDir, true);
-
-    //Utils::log("WAInative", "loading");
-    //_dirs = directories;
-
-    //videoDir = _dirs.writableDir + "erleb-AR/locations/";
-    //_calibDir = _dirs.writableDir + "calibrations/";
-    //mapDir    = _dirs.writableDir + "maps/";
-
-    ////init scene as soon as possible to allow visualization of error msgs
-    //int svIndex = initSLProject(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi);
-
-    //setupDefaultErlebARDirTo(_dirs.writableDir);
-
-    //_loaded = true;
-
-    //return svIndex;
 }
 
 void WAIApp::setCamera(SENSCamera* camera)
@@ -116,8 +94,15 @@ SENSCamera* WAIApp::getCamera()
 
 void WAIApp::reset()
 {
+    _state = State::IDLE;
     _startFromIdle    = false;
     _startFromStartUp = false;
+
+    _camera = nullptr;
+    _appMode = AppMode::NONE;
+    _area    = Area::NONE;
+    _switchToTracking = false;
+    _goBack = false;
 }
 
 void WAIApp::checkStateTransition()
@@ -141,7 +126,13 @@ void WAIApp::checkStateTransition()
         }
         case State::SELECTION: {
 
-            if (_appMode != AppMode::NONE && _startUpState->started())
+            if (_goBack)
+            {
+                _goBack = false;
+                if (_closeCB)
+                    _closeCB();
+            }
+            else if (_appMode != AppMode::NONE && _startUpState->started())
             {
                 _state            = State::START_UP;
                 _startFromStartUp = true;
@@ -353,6 +344,14 @@ bool WAIApp::update()
 void WAIApp::close()
 {
     terminate();
+    reset();
+
+    //ATTENTION: if we dont do this we get problems when opening the app the second time
+    //(e.g. "The position attribute has no variable location." from SLGLVertexArray)
+    //We still cannot get rid of this stupid singleton instance..
+    SLGLProgramManager::deletePrograms();
+    SLMaterialDefaultGray::deleteInstance();
+    SLMaterialDiffuseAttribute::deleteInstance();
 }
 
 void WAIApp::terminate()
@@ -398,13 +397,3 @@ std::string WAIApp::name()
 {
     return _name;
 }
-
-//void WAIApp::saveGPSData(std::string videofile)
-//{
-//    if (_gpsDataStream.is_open())
-//        _gpsDataStream.close();
-//
-//    std::string filename = Utils::getFileNameWOExt(videofile) + ".txt";
-//    std::string path     = videoDir + filename;
-//    _gpsDataStream.open(path);
-//}

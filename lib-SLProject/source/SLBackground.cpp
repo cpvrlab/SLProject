@@ -21,23 +21,23 @@
 
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
-//SLBackground::SLBackground()
-//  : SLObject("Background")
-//{
-//    _colors.push_back(SLCol4f::BLACK); // bottom left
-//    _colors.push_back(SLCol4f::BLACK); // bottom right
-//    _colors.push_back(SLCol4f::BLACK); // top right
-//    _colors.push_back(SLCol4f::BLACK); // top left
-//    _isUniform    = true;
-//    _texture      = nullptr;
-//    _textureError = nullptr;
-//    _resX         = -1;
-//    _resY         = -1;
-//
-//    _textureOnlyProgram    = new SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag");
-//    _colorAttributeProgram = new SLGLGenericProgram(nullptr, "ColorAttribute.vert", "Color.frag");
-//    _deletePrograms        = true;
-//}
+SLBackground::SLBackground()
+  : SLObject("Background")
+{
+    _colors.push_back(SLCol4f::BLACK); // bottom left
+    _colors.push_back(SLCol4f::BLACK); // bottom right
+    _colors.push_back(SLCol4f::BLACK); // top right
+    _colors.push_back(SLCol4f::BLACK); // top left
+    _isUniform    = true;
+    _texture      = nullptr;
+    _textureError = nullptr;
+    _resX         = -1;
+    _resY         = -1;
+
+    _textureOnlyProgram    = new SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag");
+    _colorAttributeProgram = new SLGLGenericProgram(nullptr, "ColorAttribute.vert", "Color.frag");
+    _deletePrograms        = true;
+}
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
 SLBackground::SLBackground(SLGLProgram* textureOnlyProgram, SLGLProgram* colorAttributeProgram)

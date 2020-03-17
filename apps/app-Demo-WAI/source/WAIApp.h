@@ -100,31 +100,6 @@ private:
     SENSCamera* _camera = nullptr;
     std::mutex  _cameraSetMutex;
 
-    //cv::Size2i _videoFrameSize;
-
-    //std::unique_ptr<AppDemoWaiGui>      _gui;
-    //std::shared_ptr<AppDemoGuiError> _errorDial;
-    //std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
-    //int     _lastFrameIdx;
-    //cv::Mat _undistortedLastFrame[2];
-    //bool    _doubleBufferedOutput;
-
-    //// video controls
-    //bool _pauseVideo           = false;
-    //int  _videoCursorMoveIndex = 0;
-
-    // event queue
-    //std::queue<WAIEvent*> _eventQueue;
-
-    //CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
-    //bool          _showUndistorted = true;
-
-    //FeatureExtractorFactory      _featureExtractorFactory;
-    //std::unique_ptr<KPextractor> _trackingExtractor;
-    //std::unique_ptr<KPextractor> _initializationExtractor;
-    //std::unique_ptr<KPextractor> _markerExtractor;
-
-    //AppWAIScene*   _waiScene = nullptr;
     std::string    _name;
     SLInputManager _inputManager;
 
@@ -147,8 +122,7 @@ private:
 
     //defines if ErlebAR scene was already selected or if user has to choose
     AppMode _appMode = AppMode::NONE;
-    //
-    Area _area = Area::NONE;
+    Area    _area    = Area::NONE;
 
     bool _switchToTracking = false;
 

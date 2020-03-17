@@ -382,7 +382,7 @@ void Engine::startCamera()
             ndkCamera->start(camConfig);
             ENGINE_DEBUG("startCamera: %fms", t.elapsedTimeInMilliSec());
 
-            _waiApp.setCamera(ndkCamera);
+            //_waiApp.setCamera(ndkCamera);
         }
         catch (std::exception& e)
         {

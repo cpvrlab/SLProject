@@ -16,7 +16,7 @@ SelectionState::SelectionState(SLInputManager& inputManager,
                                int             dotsPerInch,
                                std::string     fontPath,
                                std::string     imguiIniPath)
-  : _gui(dotsPerInch, fontPath),
+  : _gui(dotsPerInch, screenWidth, screenHeight, fontPath),
     _s("SelectionScene", nullptr, inputManager),
     _sv(&_s, dotsPerInch)
 {

@@ -14,7 +14,10 @@ class SLSceneView;
 class SelectionGui : public ImGuiWrapper
 {
 public:
-    SelectionGui(int dotsPerInch, std::string fontPath);
+    SelectionGui(int         dotsPerInch,
+                 int         screenWidthPix,
+                 int         screenHeightPix,
+                 std::string fontPath);
 
     void build(SLScene* s, SLSceneView* sv) override;
 
@@ -25,6 +28,16 @@ private:
     void pushStyle();
     void popStyle();
     void setStyleColors();
+
+    //stylevars and stylecolors
+    float  _windowPadding = 0.f; //space l, r, b, t between window and buttons (window padding left does not work as expected)
+    float  _buttonSpace   = 0.f; //space between buttons
+    ImVec4 _buttonColor;
+    ImVec4 _buttonColorPressed;
+    float  _dialogW      = 0.f;
+    float  _dialogH      = 0.f;
+    float  _frameSizePix = 0.f;
+    ImVec2 _buttonSz;
 
     ImGuiStyle _guiStyle;
     float      _pixPerMM;
