@@ -121,8 +121,9 @@ private:
     bool _startFromStartUp = false;
 
     //defines if ErlebAR scene was already selected or if user has to choose
-    AppMode _appMode = AppMode::NONE;
-    Area    _area    = Area::NONE;
+    AppMode _appMode            = AppMode::NONE;
+    Area    _area               = Area::NONE;
+    bool    _showSelectionState = false;
 
     bool _switchToTracking = false;
 

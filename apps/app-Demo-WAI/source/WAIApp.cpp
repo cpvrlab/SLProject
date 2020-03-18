@@ -110,7 +110,7 @@ void WAIApp::checkStateTransition()
     switch (_state)
     {
         case State::IDLE: {
-            if (_appMode == AppMode::NONE)
+            if (_showSelectionState)
             {
                 //start selection state
                 if (_selectionState && _selectionState->started())
@@ -208,7 +208,7 @@ bool WAIApp::updateState()
             if (_startFromIdle)
             {
                 _startFromIdle = false;
-                if (_appMode == AppMode::NONE)
+                if (_showSelectionState)
                 {
                     //select AppMode
                     //(start up can be done as soon we have access to resouces)
@@ -248,10 +248,14 @@ bool WAIApp::updateState()
             if (_startFromStartUp && getCamera() && _camera->started())
             {
                 _startFromStartUp = false;
-                if (_selectionState)
+                if (_showSelectionState)
                     _appMode = _selectionState->getSelection();
 
-                if (_appMode == AppMode::TEST)
+                if (_appMode == AppMode::NONE)
+                {
+                    Utils::warnMsg("WAIApp", "No AppMode selected!", __LINE__, __FILE__);
+                }
+                else if (_appMode == AppMode::TEST)
                 {
                     if (!_testState)
                     {

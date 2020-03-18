@@ -37,7 +37,7 @@ protected:
 
     //try to load last slam (without clicking for convenience)
     void tryLoadLastSlam();
-    void setupGUI();
+    //void setupGUI();
     void handleEvents();
     void loadWAISceneView(std::string location, std::string area);
     void saveMap(std::string location, std::string area, std::string marker);
@@ -82,7 +82,6 @@ protected:
 
     //gui
     AppDemoWaiGui _gui;
-    //std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
 
     SLAssetManager _assets;
 
