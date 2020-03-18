@@ -7,7 +7,6 @@
 #include <AppDemoWaiGui.h>
 #include <SlamParams.h>
 #include <AppDemoGuiSlamLoad.h>
-#include <AppDemoGuiError.h>
 #include <SENSVideoStream.h>
 #include <CVCalibration.h>
 
@@ -43,7 +42,6 @@ protected:
     void loadWAISceneView(std::string location, std::string area);
     void saveMap(std::string location, std::string area, std::string marker);
     void saveVideo(std::string filename);
-    void showErrorMsg(std::string msg);
     void startOrbSlam(SlamParams slamParams);
     void transformMapNode(SLTransformSpace tSpace,
                           SLVec3f          rotation,
@@ -72,14 +70,19 @@ protected:
     WAISlam*   _mode = nullptr;
     SlamParams _currentSlamParams;
 
+    FeatureExtractorFactory      _featureExtractorFactory;
+    std::unique_ptr<KPextractor> _trackingExtractor;
+    std::unique_ptr<KPextractor> _initializationExtractor;
+    std::unique_ptr<KPextractor> _markerExtractor;
+
+    std::queue<WAIEvent*> _eventQueue;
     //scene
     AppWAIScene _s;
     SLSceneView _sv;
 
     //gui
-    AppDemoWaiGui                       _gui;
-    std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
-    std::shared_ptr<AppDemoGuiError>    _errorDial;
+    AppDemoWaiGui _gui;
+    //std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
 
     SLAssetManager _assets;
 
@@ -87,13 +90,6 @@ protected:
     std::string _vocabularyDir;
     std::string _calibDir;
     std::string _videoDir;
-
-    std::queue<WAIEvent*> _eventQueue;
-
-    FeatureExtractorFactory      _featureExtractorFactory;
-    std::unique_ptr<KPextractor> _trackingExtractor;
-    std::unique_ptr<KPextractor> _initializationExtractor;
-    std::unique_ptr<KPextractor> _markerExtractor;
 };
 
 #endif //TEST_STATE_H

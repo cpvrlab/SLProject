@@ -16,9 +16,12 @@
 #include <map>
 #include <memory>
 #include <AppDemoGuiInfosDialog.h>
+#include <AppDemoGuiSlamLoad.h>
+
 #include <GUIPreferences.h>
 #include <ImGuiWrapper.h>
 #include <ErlebAR.h>
+#include <AppDemoGuiError.h>
 
 class SLScene;
 class SLSceneView;
@@ -53,9 +56,11 @@ public:
                float           distFrameHorizMM,
                float           distFrameVertMM,
                ImVec2          buttonSizeMM,
-               ButtonPressedCB pressedCB)
+               ButtonPressedCB pressedCB,
+               ImFont*         font)
       : _alignment(alignment),
-        _pressedCB(pressedCB)
+        _pressedCB(pressedCB),
+        _font(font)
     {
         float pixPerMM = (float)dotsPerInch / 25.4f;
 
@@ -101,7 +106,8 @@ public:
             ImGui::PushStyleColor(ImGuiCol_Button, _buttonColor);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _buttonColor);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, _buttonColorPressed);
-
+            if (_font)
+                ImGui::PushFont(_font);
             ImGui::NewLine();
             ImGui::SameLine(_windowPadding);
             if (ImGui::Button("back", _buttonSizePix))
@@ -111,6 +117,8 @@ public:
             }
 
             ImGui::PopStyleColor(3);
+            if (_font)
+                ImGui::PopFont();
 
             ImGui::End();
         }
@@ -137,6 +145,8 @@ private:
     int _windowPadding = 2.f;
 
     ButtonPressedCB _pressedCB = nullptr;
+
+    ImFont* _font = nullptr;
 };
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -150,26 +160,42 @@ integrated in the SLProject.<br>
 class AppDemoWaiGui : public ImGuiWrapper
 {
 public:
-    AppDemoWaiGui(std::string     appName,
-                  std::string     configDir,
-                  int             dotsPerInch,
-                  std::string     fontPath,
-                  int             windowWidthPix,
-                  int             windowHeightPix,
-                  ButtonPressedCB backButtonCB);
+    AppDemoWaiGui(std::string                     appName,
+                  int                             dotsPerInch,
+                  int                             windowWidthPix,
+                  int                             windowHeightPix,
+                  std::string                     configDir,
+                  std::string                     fontPath,
+                  std::string                     vocabularyDir,
+                  const std::vector<std::string>& extractorIdToNames,
+                  ButtonPressedCB                 backButtonCB,
+                  std ::queue<WAIEvent*>&         eventQueue);
     ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not
     void addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog);
     void clearInfoDialogs();
 
     void build(SLScene* s, SLSceneView* sv) override;
-    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
 
     std::unique_ptr<GUIPreferences> uiPrefs;
 
+    void clearErrorMsg();
+    void showErrorMsg(std::string msg);
+
+    void setSlamParams(const SlamParams& params)
+    {
+        if (_guiSlamLoad)
+            _guiSlamLoad->setSlamParams(params);
+    }
+
 private:
+    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
+
     void buildInfosDialogs(SLScene* s, SLSceneView* sv);
     void buildMenu(SLScene* s, SLSceneView* sv);
+
+    void pushStyle();
+    void popStyle();
 
     std::string _prefsFileName;
 
@@ -177,6 +203,12 @@ private:
     std::map<std::string, std::shared_ptr<AppDemoGuiInfosDialog>> _infoDialogs;
 
     BackButton _backButton;
+
+    std::shared_ptr<AppDemoGuiError>    _errorDial;
+    std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
+
+    ImFont* _fontPropDots  = nullptr;
+    ImFont* _fontFixedDots = nullptr;
 };
 //-----------------------------------------------------------------------------
 #endif

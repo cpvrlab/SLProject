@@ -22,13 +22,15 @@ class WAIEvent;
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiSlamLoad(const std::string&              name,
-                       std ::queue<WAIEvent*>*         eventQueue,
-                       std::string                     slamRootDir,
-                       std::string                     calibrationsDir,
-                       std::string                     vocabulariesDir,
-                       const std::vector<std::string>& extractorIdToNames,
-                       bool*                           activator);
+    AppDemoGuiSlamLoad(const std::string&               name,
+                       std ::queue<WAIEvent*>*          eventQueue,
+                       ImFont*                          font,
+                       std::string                      slamRootDir,
+                       std::string                      calibrationsDir,
+                       std::string                      vocabulariesDir,
+                       const std::vector<std::string>&  extractorIdToNames,
+                       bool*                            activator,
+                       std::function<void(std::string)> errorMsgCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
     void setSlamParams(const SlamParams& params);
@@ -37,6 +39,8 @@ private:
     void loadFileNamesInVector(std::string directory, std::vector<std::string>& fileNames, std::vector<std::string>& extensions, bool addEmpty);
     void loadDirNamesInVector(std::string               directory,
                               std::vector<std::string>& dirNames);
+    void pushStyle();
+    void popStyle();
 
     bool _changeSlamParams;
 
@@ -55,7 +59,9 @@ private:
     SlamParams _p;
     float      _kt;
 
-    std::queue<WAIEvent*>* _eventQueue;
+    std::queue<WAIEvent*>*           _eventQueue;
+    std::function<void(std::string)> _errorMsgCB = nullptr;
+    ImFont*                          _font       = nullptr;
 };
 
 #endif

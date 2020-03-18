@@ -79,51 +79,51 @@ void SelectionGui::popStyle()
 
 void SelectionGui::build(SLScene* s, SLSceneView* sv)
 {
+    //push styles at first
     pushStyle();
+
+    ImGui::SetNextWindowPos(ImVec2(_frameSizePix, _frameSizePix), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(_dialogW, _dialogH), ImGuiCond_Always);
+
+    ImGui::Begin("", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+
+    ImGui::NewLine();
+    ImGui::SameLine(_windowPadding);
+    if (ImGui::Button("Test", _buttonSz))
     {
-        ImGui::SetNextWindowPos(ImVec2(_frameSizePix, _frameSizePix), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_dialogW, _dialogH), ImGuiCond_Always);
-
-        ImGui::Begin("", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-
-        ImGui::NewLine();
-        ImGui::SameLine(_windowPadding);
-        if (ImGui::Button("Test", _buttonSz))
-        {
-            _selection = AppMode::TEST;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Camera Test", _buttonSz))
-        {
-            _selection = AppMode::CAMERA_TEST;
-        }
-
-        ImGui::NewLine();
-        ImGui::SameLine(_windowPadding);
-        if (ImGui::Button("Avanches", _buttonSz))
-        {
-            _selection = AppMode::AVANCHES;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Augst", _buttonSz))
-        {
-            _selection = AppMode::AUGST;
-        }
-
-        ImGui::NewLine();
-        ImGui::SameLine(_windowPadding);
-        if (ImGui::Button("Christoffel", _buttonSz))
-        {
-            _selection = AppMode::CHRISTOFFELTOWER;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Biel", _buttonSz))
-        {
-            _selection = AppMode::BIEL;
-        }
-
-        ImGui::End();
+        _selection = AppMode::TEST;
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Camera Test", _buttonSz))
+    {
+        _selection = AppMode::CAMERA_TEST;
+    }
+
+    ImGui::NewLine();
+    ImGui::SameLine(_windowPadding);
+    if (ImGui::Button("Avanches", _buttonSz))
+    {
+        _selection = AppMode::AVANCHES;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Augst", _buttonSz))
+    {
+        _selection = AppMode::AUGST;
+    }
+
+    ImGui::NewLine();
+    ImGui::SameLine(_windowPadding);
+    if (ImGui::Button("Christoffel", _buttonSz))
+    {
+        _selection = AppMode::CHRISTOFFELTOWER;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Biel", _buttonSz))
+    {
+        _selection = AppMode::BIEL;
+    }
+
+    ImGui::End();
 
     popStyle();
 }

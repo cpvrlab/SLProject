@@ -6,8 +6,9 @@
 #include <utility>
 #include <SLGLImGui.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiError::AppDemoGuiError(string name, bool* activator)
-  : AppDemoGuiInfosDialog(std::move(name), activator)
+AppDemoGuiError::AppDemoGuiError(string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(std::move(name), activator),
+    _font(font)
 {
 }
 
@@ -18,18 +19,24 @@ void AppDemoGuiError::buildInfos(SLScene* s, SLSceneView* sv)
     ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_NoTitleBar;
     window_flags |= ImGuiWindowFlags_NoResize;
-    SLfloat w    = (SLfloat)sv->viewportW() - 10;
+    SLfloat w = (SLfloat)sv->viewportW() - 10;
+
     ImVec2  size = ImGui::CalcTextSize(_errorMsg.c_str(), nullptr, true, w);
-    SLfloat h    = size.y + SLGLImGui::fontPropDots * 1.2f + 20;
+    SLfloat h    = size.y + _font->FontSize * 1.2f + 20;
 
     ImGui::SetNextWindowPos(ImVec2(5, (sv->scrH() * 0.5f) - (h * 0.5f)));
     ImGui::SetNextWindowSize(ImVec2(w, h));
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    if (_font)
+        ImGui::PushFont(_font);
     ImGui::Begin("Error", _activator, window_flags);
 
     ImGui::TextWrapped("%s", _errorMsg.c_str());
 
     ImGui::End();
+
     ImGui::PopStyleColor();
+    if (_font)
+        ImGui::PopFont();
 }

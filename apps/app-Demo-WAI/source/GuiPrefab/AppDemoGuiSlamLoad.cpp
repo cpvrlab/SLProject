@@ -17,20 +17,24 @@
 #include <AppWAISlamParamHelper.h>
 #include <WAIEvent.h>
 
-AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
-                                       std ::queue<WAIEvent*>*         eventQueue,
-                                       std::string                     slamRootDir,
-                                       std::string                     calibrationsDir,
-                                       std::string                     vocabulariesDir,
-                                       const std::vector<std::string>& extractorIdToNames,
-                                       bool*                           activator)
+AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
+                                       std ::queue<WAIEvent*>*          eventQueue,
+                                       ImFont*                          font,
+                                       std::string                      slamRootDir,
+                                       std::string                      calibrationsDir,
+                                       std::string                      vocabulariesDir,
+                                       const std::vector<std::string>&  extractorIdToNames,
+                                       bool*                            activator,
+                                       std::function<void(std::string)> errorMsgCB)
   : AppDemoGuiInfosDialog(name, activator),
     _eventQueue(eventQueue),
+    _font(font),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
     _extractorIdToNames(extractorIdToNames),
     _changeSlamParams(true),
+    _errorMsgCB(errorMsgCB),
     _kt(0.5f)
 {
     _p.params.retainImg    = true;
@@ -112,6 +116,8 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
 
 void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    pushStyle();
+
     ImGui::Begin("Slam Load", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (!_changeSlamParams)
@@ -410,6 +416,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (_p.location.empty() || _p.area.empty())
             {
+                if (_errorMsgCB)
+                    _errorMsgCB("Choose location and area");
                 //_waiApp.showErrorMsg("Choose location and area");
                 //TODO(dgj1): reactivate error handling
             }
@@ -448,6 +456,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+
+    popStyle();
 }
 
 void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)
@@ -460,4 +470,16 @@ void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)
     _p.markerFile      = _p.markerFile.empty() ? "" : Utils::getFileName(_p.markerFile);
 
     _changeSlamParams = false;
+}
+
+void AppDemoGuiSlamLoad::pushStyle()
+{
+    if (_font)
+        ImGui::PushFont(_font);
+}
+
+void AppDemoGuiSlamLoad::popStyle()
+{
+    if (_font)
+        ImGui::PopFont();
 }

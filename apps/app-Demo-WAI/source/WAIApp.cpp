@@ -94,15 +94,15 @@ SENSCamera* WAIApp::getCamera()
 
 void WAIApp::reset()
 {
-    _state = State::IDLE;
+    _state            = State::IDLE;
     _startFromIdle    = false;
     _startFromStartUp = false;
 
-    _camera = nullptr;
-    _appMode = AppMode::NONE;
-    _area    = Area::NONE;
+    _camera           = nullptr;
+    _appMode          = AppMode::NONE;
+    _area             = Area::NONE;
     _switchToTracking = false;
-    _goBack = false;
+    _goBack           = false;
 }
 
 void WAIApp::checkStateTransition()
@@ -120,7 +120,10 @@ void WAIApp::checkStateTransition()
             {
                 //directly go to start up
                 if (_startUpState && _startUpState->started())
-                    _state = State::START_UP;
+                {
+                    _state            = State::START_UP;
+                    _startFromStartUp = true;
+                }
             }
             break;
         }
@@ -182,7 +185,8 @@ void WAIApp::checkStateTransition()
                 _goBack  = false;
                 _state   = State::SELECTION;
                 _appMode = AppMode::NONE;
-                _selectionState->reset();
+                if (_selectionState)
+                    _selectionState->reset();
             }
             break;
         }
@@ -244,7 +248,8 @@ bool WAIApp::updateState()
             if (_startFromStartUp && getCamera() && _camera->started())
             {
                 _startFromStartUp = false;
-                _appMode          = _selectionState->getSelection();
+                if (_selectionState)
+                    _appMode = _selectionState->getSelection();
 
                 if (_appMode == AppMode::TEST)
                 {

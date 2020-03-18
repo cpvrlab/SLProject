@@ -17,7 +17,16 @@ TestState::TestState(SLInputManager& inputManager,
                      std::string     calibDir,
                      std::string     videoDir,
                      ButtonPressedCB backButtonPressedCB)
-  : _gui("TestScene", configDir, dotsPerInch, fontPath, screenWidth, screenHeight, backButtonPressedCB),
+  : _gui("TestScene",
+         dotsPerInch,
+         screenWidth,
+         screenHeight,
+         configDir,
+         fontPath,
+         vocabularyDir,
+         _featureExtractorFactory.getExtractorIdToNames(),
+         backButtonPressedCB,
+         _eventQueue),
     _s("TestScene", inputManager),
     _sv(&_s, dotsPerInch),
     _camera(camera),
@@ -93,7 +102,8 @@ void TestState::tryLoadLastSlam()
     {
         loadWAISceneView(_currentSlamParams.location, _currentSlamParams.area);
         startOrbSlam(_currentSlamParams);
-        _guiSlamLoad->setSlamParams(_currentSlamParams);
+        //_guiSlamLoad->setSlamParams(_currentSlamParams);
+        _gui.setSlamParams(_currentSlamParams);
         _gui.uiPrefs->showSlamLoad = false;
     }
     else
@@ -113,14 +123,14 @@ void TestState::setupGUI()
     //    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &_gui.uiPrefs->showInfosSensors));
     //    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking", *_gui.uiPrefs.get(), *this));
     //
-    _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
-                                                        &_eventQueue,
-                                                        _configDir + "erleb-AR/locations/",
-                                                        _configDir + "calibrations/",
-                                                        _vocabularyDir,
-                                                        _featureExtractorFactory.getExtractorIdToNames(),
-                                                        &_gui.uiPrefs->showSlamLoad);
-    _gui.addInfoDialog(_guiSlamLoad);
+    //_guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
+    //                                                    &_eventQueue,
+    //                                                    _configDir + "erleb-AR/locations/",
+    //                                                    _configDir + "calibrations/",
+    //                                                    _vocabularyDir,
+    //                                                    _featureExtractorFactory.getExtractorIdToNames(),
+    //                                                    &_gui.uiPrefs->showSlamLoad);
+    //_gui.addInfoDialog(_guiSlamLoad);
     //
     //    _gui.addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &_gui.uiPrefs->showProperties));
     //    _gui.addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &_gui.uiPrefs->showSceneGraph));
@@ -135,8 +145,8 @@ void TestState::setupGUI()
     //    _gui.addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &_gui.uiPrefs->showVideoStorage, &_eventQueue, *this));
     //    _gui.addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &_gui.uiPrefs->showVideoControls, &_eventQueue, *this));
     //
-    _errorDial = std::make_shared<AppDemoGuiError>("Error", &_gui.uiPrefs->showError);
-    _gui.addInfoDialog(_errorDial);
+    //_errorDial = std::make_shared<AppDemoGuiError>("Error", &_gui.uiPrefs->showError);
+    //_gui.addInfoDialog(_errorDial);
 }
 
 void TestState::handleEvents()
@@ -272,7 +282,7 @@ void TestState::saveMap(std::string location,
                                                     _calibration.cameraMat(),
                                                     voc))
         {
-            showErrorMsg("Failed to do marker map preprocessing");
+            _gui.showErrorMsg("Failed to do marker map preprocessing");
         }
         else
         {
@@ -283,7 +293,7 @@ void TestState::saveMap(std::string location,
                                         mapDir + filename,
                                         imgDir))
             {
-                showErrorMsg("Failed to save map " + mapDir + filename);
+                _gui.showErrorMsg("Failed to save map " + mapDir + filename);
             }
         }
     }
@@ -294,7 +304,7 @@ void TestState::saveMap(std::string location,
                                     mapDir + filename,
                                     imgDir))
         {
-            showErrorMsg("Failed to save map " + mapDir + filename);
+            _gui.showErrorMsg("Failed to save map " + mapDir + filename);
         }
     }
 
@@ -345,14 +355,6 @@ void TestState::saveVideo(std::string filename)
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
 
-void TestState::showErrorMsg(std::string msg)
-{
-    assert(_errorDial && "errorDial is not initialized");
-
-    _errorDial->setErrorMsg(msg);
-    _gui.uiPrefs->showError = true;
-}
-
 /*
 videoFile: path to a video or empty if live video should be used
 calibrationFile: path to a calibration or empty if calibration should be searched automatically
@@ -360,10 +362,9 @@ mapFile: path to a map or empty if no map should be used
 */
 void TestState::startOrbSlam(SlamParams slamParams)
 {
-    _errorDial->setErrorMsg("");
-    _gui.uiPrefs->showError = false;
-    _lastFrameIdx           = 0;
-    _doubleBufferedOutput   = false;
+    _gui.clearErrorMsg();
+    _lastFrameIdx         = 0;
+    _doubleBufferedOutput = false;
     if (_videoFileStream)
         _videoFileStream.release();
 
@@ -386,7 +387,7 @@ void TestState::startOrbSlam(SlamParams slamParams)
     // Check that files exist
     if (useVideoFile && !Utils::fileExists(slamParams.videoFile))
     {
-        showErrorMsg("Video file " + slamParams.videoFile + " does not exist.");
+        _gui.showErrorMsg("Video file " + slamParams.videoFile + " does not exist.");
         return;
     }
 
@@ -403,7 +404,7 @@ void TestState::startOrbSlam(SlamParams slamParams)
 
             if (!extractSlamVideoInfosFromFileName(videoFileName, &slamVideoInfos))
             {
-                showErrorMsg("Could not extract computer infos from video filename.");
+                _gui.showErrorMsg("Could not extract computer infos from video filename.");
                 return;
             }
 
@@ -424,33 +425,33 @@ void TestState::startOrbSlam(SlamParams slamParams)
 
     if (!Utils::fileExists(slamParams.calibrationFile))
     {
-        showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
+        _gui.showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
         return;
     }
 
     /*
     if (!checkCalibration(calibDir, calibrationFileName))
     {
-        showErrorMsg("Calibration file " + calibrationFile + " is incorrect.");
+        _gui.showErrorMsg("Calibration file " + calibrationFile + " is incorrect.");
         return;
     }
      */
 
     if (slamParams.vocabularyFile.empty())
     {
-        showErrorMsg("Select a vocabulary file!");
+        _gui.showErrorMsg("Select a vocabulary file!");
         return;
     }
 
     if (!Utils::fileExists(slamParams.vocabularyFile))
     {
-        showErrorMsg("Vocabulary file does not exist: " + slamParams.vocabularyFile);
+        _gui.showErrorMsg("Vocabulary file does not exist: " + slamParams.vocabularyFile);
         return;
     }
 
     if (useMapFile && !Utils::fileExists(slamParams.mapFile))
     {
-        showErrorMsg("Map file " + slamParams.mapFile + " does not exist.");
+        _gui.showErrorMsg("Map file " + slamParams.mapFile + " does not exist.");
         return;
     }
 
@@ -464,7 +465,7 @@ void TestState::startOrbSlam(SlamParams slamParams)
     {
         if (!_camera)
         {
-            showErrorMsg("Camera pointer is not set!");
+            _gui.showErrorMsg("Camera pointer is not set!");
             return;
         }
         _videoFrameSize = cv::Size2i(_camera->getFrameSize().width, _camera->getFrameSize().height);
@@ -474,8 +475,8 @@ void TestState::startOrbSlam(SlamParams slamParams)
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
     if (!_calibration.load(_calibDir, Utils::getFileName(slamParams.calibrationFile), false))
     {
-        showErrorMsg("Error when loading calibration from file: " +
-                     slamParams.calibrationFile);
+        _gui.showErrorMsg("Error when loading calibration from file: " +
+                          slamParams.calibrationFile);
         return;
     }
 
@@ -534,7 +535,7 @@ void TestState::startOrbSlam(SlamParams slamParams)
 
         if (!mapLoadingSuccess)
         {
-            showErrorMsg("Could not load map from file " + slamParams.mapFile);
+            _gui.showErrorMsg("Could not load map from file " + slamParams.mapFile);
             return;
         }
 
@@ -591,7 +592,7 @@ void TestState::downloadCalibrationFilesTo(std::string dir)
                                            errorMsg))
     {
         errorMsg = "Failed to download calibration files. Error: " + errorMsg;
-        this->showErrorMsg(errorMsg);
+        _gui.showErrorMsg(errorMsg);
     }
 }
 

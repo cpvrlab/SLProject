@@ -911,14 +911,14 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
             {
                 engine->handleTouchDown(event);
             }
-                break;
+            break;
 
             case AMOTION_EVENT_ACTION_UP:
             case AMOTION_EVENT_ACTION_POINTER_UP:
             {
                 engine->handleTouchUp(event);
             }
-                break;
+            break;
 
             case AMOTION_EVENT_ACTION_MOVE:
             {

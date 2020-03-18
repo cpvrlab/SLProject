@@ -24,7 +24,7 @@
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <AppDemoGuiInfosDialog.h>
-#include <AppDemoGuiTrackedMapping.h>
+//#include <AppDemoGuiTrackedMapping.h>
 #include <SLImporter.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
@@ -38,13 +38,16 @@
 //map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(std::string     appName,
-                             std::string     configDir,
-                             int             dotsPerInch,
-                             std::string     fontPath,
-                             int             windowWidthPix,
-                             int             windowHeightPix,
-                             ButtonPressedCB backButtonCB)
+AppDemoWaiGui::AppDemoWaiGui(std::string                     appName,
+                             int                             dotsPerInch,
+                             int                             windowWidthPix,
+                             int                             windowHeightPix,
+                             std::string                     configDir,
+                             std::string                     fontPath,
+                             std::string                     vocabularyDir,
+                             const std::vector<std::string>& extractorIdToNames,
+                             ButtonPressedCB                 backButtonCB,
+                             std ::queue<WAIEvent*>&         eventQueue)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
@@ -60,7 +63,22 @@ AppDemoWaiGui::AppDemoWaiGui(std::string     appName,
                              5.f,
                              5.f,
                              {10.f, 7.f},
-                             backButtonCB);
+                             backButtonCB,
+                             _fontPropDots);
+
+    _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
+                                                        &eventQueue,
+                                                        _fontPropDots,
+                                                        configDir + "erleb-AR/locations/",
+                                                        configDir + "calibrations/",
+                                                        vocabularyDir,
+                                                        extractorIdToNames,
+                                                        &uiPrefs->showSlamLoad,
+                                                        std::bind(&AppDemoWaiGui::showErrorMsg, this, std::placeholders::_1));
+    addInfoDialog(_guiSlamLoad);
+
+    _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _fontPropDots);
+    addInfoDialog(_errorDial);
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()
@@ -105,6 +123,9 @@ void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 {
+    //push styles before calling BeginMainMenuBar
+    pushStyle();
+
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("Slam"))
@@ -254,7 +275,21 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::EndMainMenuBar();
+
+        popStyle();
     }
+}
+
+void AppDemoWaiGui::pushStyle()
+{
+    if (_fontPropDots)
+        ImGui::PushFont(_fontPropDots);
+}
+
+void AppDemoWaiGui::popStyle()
+{
+    if (_fontPropDots)
+        ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
@@ -263,23 +298,40 @@ void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::
     ImGuiIO& io = ImGui::GetIO();
     //io.Fonts->Clear();
 
-    //// Load proportional font for menue and text displays
-    //SLstring DroidSans = fontPath + "DroidSans.ttf";
-    //if (Utils::fileExists(DroidSans))
-    //{
-    //    io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-    //    SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
-    //}
-    //else
-    //    SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
+    // Load proportional font for menue and text displays
+    SLstring DroidSans = fontPath + "DroidSans.ttf";
+    if (Utils::fileExists(DroidSans))
+    {
+        _fontPropDots = io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
+    }
+    else
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = fontPath + "ProggyClean.ttf";
     if (Utils::fileExists(ProggyClean))
     {
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
+        _fontFixedDots = io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
         SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
     }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
+}
+
+void AppDemoWaiGui::showErrorMsg(std::string msg)
+{
+    assert(_errorDial && "errorDial is not initialized");
+
+    _errorDial->setErrorMsg(msg);
+    uiPrefs->showError = true;
+}
+
+void AppDemoWaiGui::clearErrorMsg()
+{
+    if (_errorDial)
+    {
+        _errorDial->setErrorMsg("");
+        uiPrefs->showError = false;
+    }
 }
