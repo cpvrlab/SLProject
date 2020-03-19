@@ -529,16 +529,16 @@ int main(int argc, char* argv[])
         dirs.vocabularyDir = dirs.writableDir + "voc/";
         dirs.logFileDir    = dirs.writableDir + "log/";
 
-        svIndex = waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
-        waiApp.setCamera(camera.get());
+        waiApp.load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
+        //waiApp.setCamera(camera.get());
 
+        //glfwSetWindowTitle(window, waiApp.name().c_str());
         // Event loop
         while (!appShouldClose)
         {
             SLbool doRepaint = waiApp.update();
 
             glfwSwapBuffers(window);
-            glfwSetWindowTitle(window, waiApp.name().c_str());
 
             // if no updated occurred wait for the next event (power saving)
             if (!doRepaint)
@@ -547,7 +547,7 @@ int main(int argc, char* argv[])
                 glfwPollEvents();
         }
 
-        waiApp.close();
+        //waiApp.close();
     }
     catch (std::exception& e)
     {

@@ -31,13 +31,13 @@
 #include <WAIEvent.h>
 #include <SlamParams.h>
 
-#include <states/SelectionState.h>
-#include <states/StartUpState.h>
-#include <states/AreaTrackingState.h>
-#include <states/CameraTestState.h>
-#include <states/LocationMapState.h>
-#include <states/TestState.h>
-#include <states/TutorialState.h>
+//#include <states/SelectionState.h>
+//#include <states/StartUpState.h>
+//#include <states/AreaTrackingState.h>
+//#include <states/CameraTestState.h>
+//#include <states/LocationMapState.h>
+//#include <states/TestState.h>
+//#include <states/TutorialState.h>
 
 class SLMaterial;
 class SLPoints;
@@ -45,90 +45,350 @@ class SLNode;
 class AppDemoGuiError;
 class AppDemoGuiSlamLoad;
 
-class WAIApp : public SLInputEventInterface
+class View
 {
 public:
-    using CloseAppCallback = std::function<void(void)>;
-    enum class State
+    ~View()
     {
-        /*!Wait for _startFromIdle to become true. When it is true start SelectionState for scene selection and when it is
-        started switch to START_UP state or directly start StartUpScene if AppMode is already not AppMode::NONE.
-        */
-        IDLE,
-        /*!In this state the user has to select a an AppMode. When selection is not NONE, we switch to state START_UP
-        */
-        SELECTION,
-        /*!We start up the states depending on selected AppMode
-        */
-        START_UP,
-        LOCATION_MAP,
-        AREA_TRACKING,
-        TEST,
-        CAMERA_TEST,
-        TUTORIAL
+        _startThread.detach();
+    }
+    //! asynchronous start
+    void start()
+    {
+        if (_started)
+            return;
+
+        _startThread = std::thread(&View::doStart, this);
+    }
+
+    //! if ready the state machine can change to this state
+    bool started() { return _started; }
+    //! signalizes that state is ready and wants caller to switch to another state
+    bool ready() { return _ready; }
+    void setStateReady() { _ready = true; }
+
+    //! update this state
+    virtual bool update() = 0;
+
+protected:
+    //! implement startup functionality here. Set _started to true when done.
+    virtual void doStart(){};
+
+    //set to true if startup is done
+    bool _started = false;
+
+    //! signalizes that state is ready and wants caller to switch to another state
+    bool _ready = false;
+
+private:
+    std::thread _startThread;
+};
+
+namespace SM
+{
+
+class EventData
+{
+public:
+    virtual ~EventData() {}
+};
+
+//event base class
+class Event
+{
+public:
+    virtual ~Event(){};
+    virtual void handle() = 0;
+
+protected:
+    enum Proceeding
+    {
+        HANDLE,
+        DO_NOTHING,
+        FAIL
     };
 
-    WAIApp();
-    ~WAIApp();
-    //call load to correctly initialize wai app
-    int  load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
-    void setCamera(SENSCamera* camera);
-    //call update to update the frame, wai and visualization
-    bool update();
-    void close();
-    void terminate();
+    //maps state to proceeding
+    std::map<unsigned int, Proceeding> _transitions;
+};
 
-    std::string name();
-
-    //! set a callback function which can be used to inform caller that app wants to be closed
-    void setCloseAppCallback(CloseAppCallback cb) { _closeCB = cb; }
-    //! caller informs that app back button was pressed
-    void goBack()
+class EventHandler
+{
+public:
+    void addEvent(Event* e)
     {
-        _goBack = true;
+        _events.push(e);
+    }
+
+protected:
+    std::queue<Event*> _events;
+};
+
+//state is event sender
+class EventSender
+{
+public:
+    EventSender(EventHandler& handler)
+      : _handler(handler)
+    {
+    }
+    EventSender() = delete;
+    void sendEvent(Event* event)
+    {
+        _handler.addEvent(event);
     }
 
 private:
-    SENSCamera* getCamera();
+    EventHandler& _handler;
+};
 
-    void reset();
-    void checkStateTransition();
-    bool updateState();
+class StateMachine : public EventHandler
+{
+public:
+    virtual ~StateMachine(){};
+    virtual bool update() = 0;
 
-    AppDirectories _dirs;
+    unsigned int currentState() { return _currentStateName; }
 
-    SENSCamera* _camera = nullptr;
-    std::mutex  _cameraSetMutex;
+    void handleEvents()
+    {
+        while (_events.size())
+        {
+            Event* e = _events.front();
+            _events.pop();
+
+            //invoke state action of derived state machine
+            //transfer
+            //depending on in which state we are and what transition map of this event says, call state function of derived state machine
+            e->handle();
+        }
+    }
+
+protected:
+    unsigned int _currentStateName;
+};
+
+} //namespace SM
+
+//-----------------------------------------------------------------------------
+// Views
+//-----------------------------------------------------------------------------
+
+//ein state der einen event sendet
+class XYView : public View
+  , public SM::EventSender
+{
+public:
+    XYView(SM::EventHandler& handler)
+      : EventSender(handler)
+    {
+    }
+
+    bool update() override
+    {
+        return false;
+    }
+};
+
+//ein state der einen event sendet
+class ABCView : public View
+  , public SM::EventSender
+{
+public:
+    ABCView(SM::EventHandler& handler)
+      : SM::EventSender(handler)
+    {
+    }
+
+    bool update() override
+    {
+        return false;
+    }
+};
+
+//-----------------------------------------------------------------------------
+// State machine impl
+//-----------------------------------------------------------------------------
+
+class WAIApp : public SLInputEventInterface
+  , public SM::StateMachine
+{
+public:
+    enum class State
+    {
+        IDLE = 0,
+        INIT,
+        PROCESS_XY,
+        PROCESS_ABC
+    };
+
+    WAIApp()
+      : SLInputEventInterface(_inputManager)
+    {
+    }
+
+    //external events:
+
+    void load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
+
+    bool update() override
+    {
+        handleEvents();
+        return false;
+    }
+
+    std::string name()
+    {
+        return _name;
+    }
+
+private:
+    //state update functions corresponding to the states defined above
+    void stateIdle();
+    void stateInit();
+    void stateProcessXY();
+    void stateProcessABC();
 
     std::string    _name;
     SLInputManager _inputManager;
 
-    std::unique_ptr<DeviceData> _deviceData;
-
-    State              _state             = State::IDLE;
-    SelectionState*    _selectionState    = nullptr;
-    StartUpState*      _startUpState      = nullptr;
-    AreaTrackingState* _areaTrackingState = nullptr;
-    CameraTestState*   _cameraTestState   = nullptr;
-    LocationMapState*  _locationMapState  = nullptr;
-    TestState*         _testState         = nullptr;
-    TutorialState*     _tutorialState     = nullptr;
-
-    //Sub-States that lead to state start() call:
-    //set to true as soon as we have access to app resouces, then we can first visualize something
-    bool _startFromIdle = false;
-    //done after AppMode was selected, then we know what to start up
-    bool _startFromStartUp = false;
-
-    //defines if ErlebAR scene was already selected or if user has to choose
-    AppMode _appMode            = AppMode::NONE;
-    Area    _area               = Area::NONE;
-    bool    _showSelectionState = false;
-
-    bool _switchToTracking = false;
-
-    CloseAppCallback _closeCB = nullptr;
-    bool             _goBack  = false;
+    ABCView* _abcView = nullptr;
+    XYView*  _xyView  = nullptr;
 };
+
+//-----------------------------------------------------------------------------
+// Events
+//-----------------------------------------------------------------------------
+
+//go back from TestState leads to update call of
+class GoBackEvent : public SM::Event
+{
+public:
+    void handle() override
+    {
+        //define where to go
+    }
+};
+
+//go from idle to init state
+class InitEvent : public SM::Event
+{
+public:
+    InitEvent()
+    {
+        _transitions[(unsigned int)WAIApp::State::IDLE]       = HANDLE;
+        _transitions[(unsigned int)WAIApp::State::INIT]       = DO_NOTHING;
+        _transitions[(unsigned int)WAIApp::State::PROCESS_XY] = DO_NOTHING;
+        _transitions[(unsigned int)WAIApp::State::PROCESS_XY] = DO_NOTHING;
+    }
+
+    void handle() override
+    {
+        //define where to go
+    }
+};
+
+//a state wants to be finished
+class StateDoneEvent : public SM::Event
+{
+public:
+    StateDoneEvent()
+    {
+        //define where to go for every state
+        _transitions[(unsigned int)WAIApp::State::IDLE] = HANDLE;
+    }
+
+    void handle() override
+    {
+    }
+};
+
+//class WAIApp : public SLInputEventInterface
+//  , public StateMachine
+//{
+//public:
+//    using CloseAppCallback = std::function<void(void)>;
+//    enum class State
+//    {
+//        /*!Wait for _startFromIdle to become true. When it is true start SelectionState for scene selection and when it is
+//        started switch to START_UP state or directly start StartUpScene if AppMode is already not AppMode::NONE.
+//        */
+//        IDLE,
+//        /*!In this state the user has to select a an AppMode. When selection is not NONE, we switch to state START_UP
+//        */
+//        SELECTION,
+//        /*!We start up the states depending on selected AppMode
+//        */
+//        START_UP,
+//        LOCATION_MAP,
+//        AREA_TRACKING,
+//        TEST,
+//        CAMERA_TEST,
+//        TUTORIAL,
+//        TERMINATE
+//    };
+//
+//    WAIApp();
+//    ~WAIApp();
+//    //call load to correctly initialize wai app
+//    int  load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
+//    void setCamera(SENSCamera* camera);
+//    //call update to update the frame, wai and visualization
+//    bool update();
+//    void close();
+//    void terminate();
+//
+//    std::string name();
+//
+//    //! set a callback function which can be used to inform caller that app wants to be closed
+//    void setCloseAppCallback(CloseAppCallback cb) { _closeCB = cb; }
+//    //! caller informs that app back button was pressed
+//    void goBack()
+//    {
+//        _goBack = true;
+//    }
+//
+//private:
+//    SENSCamera* getCamera();
+//
+//    void reset();
+//    void checkStateTransition();
+//    bool updateState();
+//
+//    AppDirectories _dirs;
+//
+//    SENSCamera* _camera = nullptr;
+//    std::mutex  _cameraSetMutex;
+//
+//    std::string    _name;
+//    SLInputManager _inputManager;
+//
+//    std::unique_ptr<DeviceData> _deviceData;
+//
+//    State              _state             = State::IDLE;
+//    SelectionState*    _selectionState    = nullptr;
+//    StartUpState*      _startUpState      = nullptr;
+//    AreaTrackingState* _areaTrackingState = nullptr;
+//    CameraTestState*   _cameraTestState   = nullptr;
+//    LocationMapState*  _locationMapState  = nullptr;
+//    TestState*         _testState         = nullptr;
+//    TutorialState*     _tutorialState     = nullptr;
+//
+//    //Sub-States that lead to state start() call:
+//    //set to true as soon as we have access to app resouces, then we can first visualize something
+//    bool _startFromIdle = false;
+//    //done after AppMode was selected, then we know what to start up
+//    bool _startFromStartUp = false;
+//
+//    //defines if ErlebAR scene was already selected or if user has to choose
+//    AppMode _appMode            = AppMode::NONE;
+//    Area    _area               = Area::NONE;
+//    bool    _showSelectionState = false;
+//
+//    bool _switchToTracking = false;
+//
+//    CloseAppCallback _closeCB = nullptr;
+//    bool             _goBack  = false;
+//};
 
 #endif
