@@ -520,7 +520,7 @@ int main(int argc, char* argv[])
         config.targetHeight  = 360;
         config.convertToGray = true;
 
-        camera->start(config);
+        //camera->start(config);
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
@@ -533,11 +533,18 @@ int main(int argc, char* argv[])
         //waiApp.setCamera(camera.get());
 
         //glfwSetWindowTitle(window, waiApp.name().c_str());
+
+        int i = 0;
         // Event loop
         while (!appShouldClose)
         {
-            SLbool doRepaint = waiApp.update();
+            i++;
+            if (i == 20 || i == 30)
+            {
+                waiApp.goBack();
+            }
 
+            SLbool doRepaint = waiApp.update();
             glfwSwapBuffers(window);
 
             // if no updated occurred wait for the next event (power saving)

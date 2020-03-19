@@ -97,19 +97,30 @@ public:
 class Event
 {
 public:
-    virtual ~Event(){};
-    virtual void handle() = 0;
-
-protected:
-    enum Proceeding
+    //default states
+    enum
     {
-        HANDLE,
-        DO_NOTHING,
-        FAIL
+        EVENT_IGNORED = 0xFE,
+        CANNOT_HAPPEN
     };
 
-    //maps state to proceeding
-    std::map<unsigned int, Proceeding> _transitions;
+    virtual ~Event(){};
+
+    unsigned int getNewState(unsigned int currentState)
+    {
+        auto it = _transitions.find(currentState);
+        if (it != _transitions.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            return EVENT_IGNORED;
+        }
+    }
+
+protected:
+    std::map<unsigned int, unsigned int> _transitions;
 };
 
 class EventHandler
@@ -146,9 +157,8 @@ class StateMachine : public EventHandler
 {
 public:
     virtual ~StateMachine(){};
-    virtual bool update() = 0;
 
-    unsigned int currentState() { return _currentStateName; }
+    unsigned int currentState() { return _currentStateId; }
 
     void handleEvents()
     {
@@ -157,15 +167,23 @@ public:
             Event* e = _events.front();
             _events.pop();
 
-            //invoke state action of derived state machine
-            //transfer
-            //depending on in which state we are and what transition map of this event says, call state function of derived state machine
-            e->handle();
+            unsigned int newState = e->getNewState(_currentStateId);
+            if (newState != Event::EVENT_IGNORED)
+            {
+                _currentStateId = newState;
+            }
+            else
+            {
+                std::cout << "Event ignored" << std::endl;
+                //delete event data
+            }
+
+            delete e;
         }
     }
 
 protected:
-    unsigned int _currentStateName;
+    unsigned int _currentStateId = 0;
 };
 
 } //namespace SM
@@ -209,33 +227,66 @@ public:
 //-----------------------------------------------------------------------------
 // State machine impl
 //-----------------------------------------------------------------------------
+class InitEvent;
 
 class WAIApp : public SLInputEventInterface
   , public SM::StateMachine
 {
+    friend InitEvent;
+
 public:
-    enum class State
+    enum class StateId
     {
         IDLE = 0,
         INIT,
         PROCESS_XY,
-        PROCESS_ABC
+        PROCESS_ABC,
+        STOP
     };
+
+    //static std::map<StateId, std::function<void(void)>> state =
+    //{
+    //  {StateId::IDLE, std::bind(&WAIApp::stateIdle, this)},
+    //  {StateId::INIT, std::bind(&WAIApp::stateInit, this)},
+    //  {StateId::PROCESS_XY, std::bind(&WAIApp::stateProcessXY, this)},
+    //  {StateId::PROCESS_ABC, std::bind(&WAIApp::stateProcessABC, this)}};
 
     WAIApp()
       : SLInputEventInterface(_inputManager)
     {
+        _currentStateId = (unsigned int)StateId::IDLE;
+    }
+
+    bool update()
+    {
+        handleEvents();
+        StateId state = (StateId)_currentStateId;
+        switch (state)
+        {
+            case StateId::IDLE:
+                stateIdle();
+                break;
+            case StateId::INIT:
+                stateInit();
+                break;
+            case StateId::PROCESS_ABC:
+                stateProcessABC();
+                break;
+            case StateId::PROCESS_XY:
+                stateProcessXY();
+                break;
+            case StateId::STOP:
+                stateStop();
+                break;
+        }
+
+        return true;
     }
 
     //external events:
 
     void load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
-
-    bool update() override
-    {
-        handleEvents();
-        return false;
-    }
+    void goBack();
 
     std::string name()
     {
@@ -245,9 +296,10 @@ public:
 private:
     //state update functions corresponding to the states defined above
     void stateIdle();
-    void stateInit();
+    void stateInit(/*InitEventData* data*/);
     void stateProcessXY();
     void stateProcessABC();
+    void stateStop();
 
     std::string    _name;
     SLInputManager _inputManager;
@@ -264,9 +316,11 @@ private:
 class GoBackEvent : public SM::Event
 {
 public:
-    void handle() override
+    //definition of possible transitions
+    GoBackEvent()
     {
-        //define where to go
+        _transitions[(unsigned int)WAIApp::StateId::PROCESS_XY]  = (unsigned int)WAIApp::StateId::PROCESS_ABC;
+        _transitions[(unsigned int)WAIApp::StateId::PROCESS_ABC] = (unsigned int)WAIApp::StateId::STOP;
     }
 };
 
@@ -274,17 +328,10 @@ public:
 class InitEvent : public SM::Event
 {
 public:
+    //definition of possible transitions
     InitEvent()
     {
-        _transitions[(unsigned int)WAIApp::State::IDLE]       = HANDLE;
-        _transitions[(unsigned int)WAIApp::State::INIT]       = DO_NOTHING;
-        _transitions[(unsigned int)WAIApp::State::PROCESS_XY] = DO_NOTHING;
-        _transitions[(unsigned int)WAIApp::State::PROCESS_XY] = DO_NOTHING;
-    }
-
-    void handle() override
-    {
-        //define where to go
+        _transitions[(unsigned int)WAIApp::StateId::IDLE] = (unsigned int)WAIApp::StateId::INIT;
     }
 };
 
@@ -292,14 +339,12 @@ public:
 class StateDoneEvent : public SM::Event
 {
 public:
+    //definition of possible transitions
     StateDoneEvent()
     {
-        //define where to go for every state
-        _transitions[(unsigned int)WAIApp::State::IDLE] = HANDLE;
-    }
-
-    void handle() override
-    {
+        _transitions[(unsigned int)WAIApp::StateId::INIT]        = (unsigned int)WAIApp::StateId::PROCESS_ABC;
+        _transitions[(unsigned int)WAIApp::StateId::PROCESS_ABC] = (unsigned int)WAIApp::StateId::PROCESS_XY;
+        _transitions[(unsigned int)WAIApp::StateId::STOP]        = (unsigned int)WAIApp::StateId::IDLE;
     }
 };
 

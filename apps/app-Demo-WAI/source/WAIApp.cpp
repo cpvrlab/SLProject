@@ -3,8 +3,12 @@
 void WAIApp::load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories)
 {
     //create an event
-    InitEvent* e = new InitEvent();
-    addEvent(e);
+    addEvent(new InitEvent());
+}
+
+void WAIApp::goBack()
+{
+    addEvent(new GoBackEvent());
 }
 
 //state update functions
@@ -13,15 +17,15 @@ void WAIApp::stateIdle()
     //wait for init
     std::cout << "stateIdle" << std::endl;
 }
+
 void WAIApp::stateInit()
 {
     std::cout << "stateInit" << std::endl;
     //make internal event to proceed to state preocessXY
     //e.g.:
-    _abcView = new ABCView(*this);
+    //_abcView = new ABCView(*this);
 
-    SM::Event* e = new StateDoneEvent();
-    addEvent(e);
+    addEvent(new StateDoneEvent());
 }
 void WAIApp::stateProcessXY()
 {
@@ -30,6 +34,17 @@ void WAIApp::stateProcessXY()
 void WAIApp::stateProcessABC()
 {
     std::cout << "stateProcessABC" << std::endl;
+    static int i = 0;
+    i++;
+    if (i == 5)
+        addEvent(new StateDoneEvent());
+}
+
+void WAIApp::stateStop()
+{
+    std::cout << "stateStop" << std::endl;
+
+    addEvent(new StateDoneEvent());
 }
 
 //
