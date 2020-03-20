@@ -24,6 +24,7 @@
 #include <list>
 #include <condition_variable>
 #include <mutex>
+#include <queue>
 
 #include <opencv2/core.hpp>
 
@@ -49,8 +50,12 @@ public:
 
     void SetVocabulary(ORBVocabulary* voc);
 
+
     // Main function
     void Run();
+    void LocalOptimize();
+    void ProcessKeyFrames();
+
     //ghm1
     void RunOnce();
 
@@ -86,8 +91,11 @@ protected:
     void CreateNewMapPoints();
 
     void MapPointCulling();
+
+    void SearchInNeighbors(WAIKeyFrame* frame);
     void SearchInNeighbors();
 
+    void KeyFrameCulling(WAIKeyFrame* frame);
     void KeyFrameCulling();
 
     cv::Mat ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2);
@@ -106,6 +114,9 @@ protected:
     bool       mbFinishRequested;
     bool       mbFinished;
     std::mutex mMutexFinish;
+
+    std::queue<WAIKeyFrame*> toLocalAdjustment;
+    std::mutex mMutexMapping;
 
     //replacement for thread sleep:
     std::mutex              _mutexLoop;

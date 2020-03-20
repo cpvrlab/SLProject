@@ -1504,6 +1504,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _serial              = serial;
     _trackingOnly        = trackingOnly;
     _retainImg           = retainImg;
+    _serial              = serial;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
@@ -1538,9 +1539,10 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
 
-    if (!serial)
+    if (!_serial)
     {
-        _localMappingThread = new std::thread(&LocalMapping::Run, _localMapping);
+        _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
+        _mappingThread = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
         _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
@@ -1548,6 +1550,24 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _cameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
 
     _lastFrame = WAIFrame();
+}
+
+WAISlam::~WAISlam()
+{
+    if (!_serial)
+    {
+        _localMapping->RequestFinish();
+        _loopClosing->RequestFinish();
+
+        // Wait until all thread have effectively stopped
+        _processNewKeyFrameThread->join();
+        _mappingThread->join();
+        if (_loopClosingThread)
+            _loopClosingThread->join();
+    }
+
+    if (_localMapping) delete _localMapping;
+    if (_loopClosing) delete _loopClosing;
 }
 
 void WAISlam::reset()
