@@ -32,6 +32,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef TARGET_OS_IOS
+
 #include <vector>
 #include <AverageTiming.h>
 #include "GLSLextractor.h"
@@ -1200,3 +1202,5 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 
     AVERAGE_TIMING_STOP("GLSL Hessian");
 }
+
+#endif // TARGET_OS_IOS

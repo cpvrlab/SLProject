@@ -837,7 +837,7 @@ void SLRaytracer::renderImage()
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->viewport(vpRect.x, vpRect.y, (size_t)w, (size_t)h);
+    stateGL->viewport(vpRect.x, vpRect.y, (SLsizei)w, (SLsizei)h);
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->clearColorBuffer();

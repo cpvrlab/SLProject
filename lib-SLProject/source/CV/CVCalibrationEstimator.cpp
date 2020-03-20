@@ -426,6 +426,7 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
             }
             break;
         }
+        default: break;
     }
 }
 //-----------------------------------------------------------------------------
@@ -447,6 +448,7 @@ void CVCalibrationEstimator::updateOnlyCapture(bool found, bool grabFrame, cv::M
             }
             break;
         }
+        default: break;
     }
 }
 //-----------------------------------------------------------------------------
