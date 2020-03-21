@@ -62,8 +62,8 @@ int main()
             for (uint i = 0; i < landmarks.size(); i++)
             {
                 rectangle(frame, faces[i], cv::Scalar(255, 0, 0), 2);
-                for (uint j = 0; j < landmarks[i].size(); j++)
-                    circle(frame, landmarks[i][j], 3, cv::Scalar(0, 0, 255), -1);
+                for (auto& j : landmarks[i])
+                    circle(frame, j, 3, cv::Scalar(0, 0, 255), -1);
             }
         }
 
