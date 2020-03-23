@@ -69,6 +69,16 @@ void WAISceneView::toggleEditMode()
                     break;
 
                     case WAINodeEditMode_Scale: {
+                        _camera->setView(this, ET_center);
+
+                        SLVec4f worldPos     = SLVec4f(mapNode->translationWS().x,
+                                                   mapNode->translationWS().y,
+                                                   mapNode->translationWS().z,
+                                                   1.0f);
+                        SLVec2f mapNodeProj  = _camera->projectWorldToNDC(worldPos);
+                        SLVec2f screenOffset = SLVec2f(mapNodeProj.x * 0.5f * (float)_viewportRect.width,
+                                                       mapNodeProj.y * 0.5f * (float)_viewportRect.height);
+                        _scaleSphere->screenOffset(screenOffset);
                         _scaleSphere->drawBits()->set(SL_DB_HIDDEN, false);
                     }
                     break;
@@ -83,11 +93,10 @@ void WAISceneView::toggleEditMode()
     }
     else
     {
-        _editGizmos->drawBits()->set(SL_DB_HIDDEN, true);
-        for (SLNode* child : _editGizmos->children())
-        {
-            child->drawBits()->set(SL_DB_HIDDEN, true);
-        }
+        _xAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
+        _yAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
+        _zAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
+        _scaleSphere->drawBits()->set(SL_DB_HIDDEN, true);
 
         _editMode = WAINodeEditMode_None;
     }
@@ -167,16 +176,8 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
                 SLRay pickRay(this);
                 if (_camera)
                 {
-                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
-                    SLMat4f sphereMat = _scaleSphere->updateAndGetWM();
-                    SLVec3f sphereO   = sphereMat.translation();
-                    SLVec3f rayO      = pickRay.origin;
-                    SLVec3f rayDir    = pickRay.dir.normalize();
-
-                    _sphereRayDist = raySphereDist(rayO, rayDir, sphereO);
-
-                    _mouseIsDown = true;
+                    _oldMouseCoords = SLVec2f(x, y);
+                    _mouseIsDown    = true;
                 }
             }
             break;
@@ -275,28 +276,33 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                     break;
 
                     case WAINodeEditMode_Scale: {
-                        SLRay pickRay(this);
-                        if (_camera)
+                        SLScene* s = SLApplication::scene;
+                        if (s->root3D())
                         {
-                            _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                            SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
 
-                            SLMat4f sphereMat = _scaleSphere->updateAndGetWM();
-                            SLVec3f sphereO   = sphereMat.translation();
-                            SLVec3f rayO      = pickRay.origin;
-                            SLVec3f rayDir    = pickRay.dir.normalize();
+                            if (mapNode)
+                            {
+                                SLVec4f worldPos     = SLVec4f(mapNode->translationWS().x,
+                                                           mapNode->translationWS().y,
+                                                           mapNode->translationWS().z,
+                                                           1.0f);
+                                SLVec2f mapNodeProj  = _camera->projectWorldToNDC(worldPos);
+                                SLVec2f screenOffset = SLVec2f((mapNodeProj.x + 1.0f) * 0.5f * (float)_viewportRect.width,
+                                                               (mapNodeProj.y + 1.0f) * 0.5f * (float)_viewportRect.height);
 
-                            float newSphereRayDist = raySphereDist(rayO, rayDir, sphereO);
+                                SLVec2f newMouseCoords = SLVec2f(x, y);
 
-                            float scaleFactor = newSphereRayDist / _sphereRayDist;
-                            _sphereRayDist    = newSphereRayDist;
+                                float oldRadius = (_oldMouseCoords - screenOffset).length();
+                                float newRadius = (newMouseCoords - screenOffset).length();
 
-                            printf("scalefactor %f\n", scaleFactor);
+                                float scaleFactor = newRadius / oldRadius;
 
-                            SLScene* s       = SLApplication::scene;
-                            SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
-                            mapNode->scale(scaleFactor);
+                                mapNode->scale(scaleFactor);
+                                _scaleSphere->scaleRadius(scaleFactor);
 
-                            _scaleSphere->scale(scaleFactor);
+                                _oldMouseCoords = newMouseCoords;
+                            }
                         }
                     }
                     break;

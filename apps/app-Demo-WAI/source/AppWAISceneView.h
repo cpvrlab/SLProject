@@ -2,6 +2,7 @@
 #define APP_WAI_SCENEVIEW_H
 
 #include <SLSceneView.h>
+#include <SLCircle.h>
 
 struct WAIEvent;
 
@@ -39,9 +40,9 @@ private:
     SLVec3f _axisRayDir;
 
     // Scale stuff
-    SLNode* _scaleSphere;
+    SLCircle* _scaleSphere;
 
-    float _sphereRayDist;
+    SLVec2f _oldMouseCoords;
 
     bool  getClosestPointOnAxis(const SLVec3f& pickRayO,
                                 const SLVec3f& pickRayDir,

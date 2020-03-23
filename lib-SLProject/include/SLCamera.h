@@ -81,6 +81,7 @@ public:
     virtual SLbool onKeyRelease(SLKey key, SLKey mod);
 
     void    eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray);
+    SLVec2f projectWorldToNDC(SLVec4f worldPos);
     SLVec3f trackballVec(SLint x, SLint y);
     SLbool  isInFrustum(SLAABBox* aabb);
 
