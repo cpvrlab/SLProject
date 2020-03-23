@@ -12,35 +12,38 @@ void WAIApp::goBack()
 }
 
 //state update functions
-void WAIApp::stateIdle()
+void WAIApp::stateIdle(const SM::NoEventData* data)
 {
     //wait for init
     std::cout << "stateIdle" << std::endl;
 }
 
-void WAIApp::stateInit()
+void WAIApp::stateInit(const SM::NoEventData* data)
 {
     std::cout << "stateInit" << std::endl;
     //make internal event to proceed to state preocessXY
     //e.g.:
-    //_abcView = new ABCView(*this);
-
+    _abcView = new ABCView(*this);
+    _xyView  = new XYView(*this);
     addEvent(new StateDoneEvent());
 }
-void WAIApp::stateProcessXY()
+void WAIApp::stateProcessXY(const ABCEventData* data)
 {
     std::cout << "stateProcessXY" << std::endl;
+    if (data)
+    {
+        std::cout << "Message from ABC: " << data->msg << std::endl;
+        delete data;
+    }
 }
-void WAIApp::stateProcessABC()
+void WAIApp::stateProcessABC(const SM::NoEventData* data)
 {
     std::cout << "stateProcessABC" << std::endl;
-    static int i = 0;
-    i++;
-    if (i == 5)
-        addEvent(new StateDoneEvent());
+
+    _abcView->update();
 }
 
-void WAIApp::stateStop()
+void WAIApp::stateStop(const SM::NoEventData* data)
 {
     std::cout << "stateStop" << std::endl;
 

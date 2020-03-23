@@ -93,6 +93,14 @@ public:
     virtual ~EventData() {}
 };
 
+class NoEventData : public EventData
+{
+public:
+    NoEventData()
+    {
+    }
+};
+
 //event base class
 class Event
 {
@@ -119,8 +127,14 @@ public:
         }
     }
 
+    EventData* getEventData()
+    {
+        return _eventData;
+    }
+
 protected:
     std::map<unsigned int, unsigned int> _transitions;
+    EventData*                           _eventData = nullptr;
 };
 
 class EventHandler
@@ -153,6 +167,48 @@ private:
     EventHandler& _handler;
 };
 
+class StateMachine;
+
+/// @brief Abstract state base class that all states inherit from.
+class StateBase
+{
+public:
+    /// Called by the state machine engine to execute a state action. If a guard condition
+    /// exists and it evaluates to false, the state action will not execute.
+    /// @param[in] sm - A state machine instance.
+    /// @param[in] data - The event data.
+    virtual void InvokeStateAction(StateMachine* sm, const EventData* data) const {};
+};
+
+/// @brief StateAction takes three template arguments: A state machine class,
+/// a state function event data type (derived from EventData) and a state machine
+/// member function pointer.
+template<class SM, class Data, void (SM::*Func)(const Data*)>
+class StateAction : public StateBase
+{
+public:
+    /// @see StateBase::InvokeStateAction
+    virtual void InvokeStateAction(StateMachine* sm, const EventData* data) const
+    {
+        // Downcast the state machine and event data to the correct derived type
+        SM* derivedSM = static_cast<SM*>(sm);
+
+        // If this check fails, there is a mismatch between the STATE_DECLARE
+        // event data type and the data type being sent to the state function.
+        // For instance, given the following state defintion:
+        //    STATE_DECLARE(MyStateMachine, MyStateFunction, MyEventData)
+        // The following internal event transition is valid:
+        //    InternalEvent(ST_MY_STATE_FUNCTION, new MyEventData());
+        // This next internal event is not valid and causes the assert to fail:
+        //    InternalEvent(ST_MY_STATE_FUNCTION, new OtherEventData());
+        const Data* derivedData = dynamic_cast<const Data*>(data);
+        //assert(derivedData != NULL);
+
+        // Call the state function
+        (derivedSM->*Func)(derivedData);
+    }
+};
+
 class StateMachine : public EventHandler
 {
 public:
@@ -160,14 +216,17 @@ public:
 
     unsigned int currentState() { return _currentStateId; }
 
-    void handleEvents()
+    bool update()
     {
-        while (_events.size())
+        SM::EventData* data = nullptr;
+        //we only handle one event per update call!
+        if (_events.size())
         {
             Event* e = _events.front();
             _events.pop();
 
             unsigned int newState = e->getNewState(_currentStateId);
+            data                  = e->getEventData();
             if (newState != Event::EVENT_IGNORED)
             {
                 _currentStateId = newState;
@@ -180,60 +239,38 @@ public:
 
             delete e;
         }
+
+        const SM::StateBase* stateMap = getStateMap();
+        stateMap[_currentStateId].InvokeStateAction(this, data);
+
+        return true;
     }
 
 protected:
+    /// Gets the state map as defined in the derived class. The BEGIN_STATE_MAP,
+    /// STATE_MAP_ENTRY and END_STATE_MAP macros are used to assist in creating the
+    /// map. A state machine only needs to return a state map using either GetStateMap()
+    /// or GetStateMapEx() but not both.
+    /// @return An array of StateMapRow pointers with the array size MAX_STATES or
+    /// NULL if the state machine uses the GetStateMapEx().
+    virtual const StateBase* getStateMap() = 0;
+
     unsigned int _currentStateId = 0;
 };
 
 } //namespace SM
 
 //-----------------------------------------------------------------------------
-// Views
-//-----------------------------------------------------------------------------
-
-//ein state der einen event sendet
-class XYView : public View
-  , public SM::EventSender
-{
-public:
-    XYView(SM::EventHandler& handler)
-      : EventSender(handler)
-    {
-    }
-
-    bool update() override
-    {
-        return false;
-    }
-};
-
-//ein state der einen event sendet
-class ABCView : public View
-  , public SM::EventSender
-{
-public:
-    ABCView(SM::EventHandler& handler)
-      : SM::EventSender(handler)
-    {
-    }
-
-    bool update() override
-    {
-        return false;
-    }
-};
-
-//-----------------------------------------------------------------------------
 // State machine impl
 //-----------------------------------------------------------------------------
 class InitEvent;
+class ABCView;
+class XYView;
+class ABCEventData;
 
 class WAIApp : public SLInputEventInterface
   , public SM::StateMachine
 {
-    friend InitEvent;
-
 public:
     enum class StateId
     {
@@ -241,46 +278,14 @@ public:
         INIT,
         PROCESS_XY,
         PROCESS_ABC,
-        STOP
+        STOP,
+        StateId_END
     };
-
-    //static std::map<StateId, std::function<void(void)>> state =
-    //{
-    //  {StateId::IDLE, std::bind(&WAIApp::stateIdle, this)},
-    //  {StateId::INIT, std::bind(&WAIApp::stateInit, this)},
-    //  {StateId::PROCESS_XY, std::bind(&WAIApp::stateProcessXY, this)},
-    //  {StateId::PROCESS_ABC, std::bind(&WAIApp::stateProcessABC, this)}};
 
     WAIApp()
       : SLInputEventInterface(_inputManager)
     {
         _currentStateId = (unsigned int)StateId::IDLE;
-    }
-
-    bool update()
-    {
-        handleEvents();
-        StateId state = (StateId)_currentStateId;
-        switch (state)
-        {
-            case StateId::IDLE:
-                stateIdle();
-                break;
-            case StateId::INIT:
-                stateInit();
-                break;
-            case StateId::PROCESS_ABC:
-                stateProcessABC();
-                break;
-            case StateId::PROCESS_XY:
-                stateProcessXY();
-                break;
-            case StateId::STOP:
-                stateStop();
-                break;
-        }
-
-        return true;
     }
 
     //external events:
@@ -295,17 +300,50 @@ public:
 
 private:
     //state update functions corresponding to the states defined above
-    void stateIdle();
-    void stateInit(/*InitEventData* data*/);
-    void stateProcessXY();
-    void stateProcessABC();
-    void stateStop();
+    void stateIdle(const SM::NoEventData* data);
+    void stateInit(const SM::NoEventData* data);
+    void stateProcessXY(const ABCEventData* data);
+    void stateProcessABC(const SM::NoEventData* data);
+    void stateStop(const SM::NoEventData* data);
+
+    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateIdle>       Idle;
+    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateInit>       Init;
+    SM::StateAction<WAIApp, ABCEventData, &WAIApp::stateProcessXY>     ProcessXY;
+    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateProcessABC> ProcessABC;
+    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateStop>       Stop;
+
+    const SM::StateBase* getStateMap()
+    {
+        static const SM::StateBase* STATE_MAP[] = {
+          &Idle,
+          &Init,
+          &ProcessXY,
+          &ProcessABC,
+          &Stop};
+
+        //assert((sizeof(STATE_MAP) / sizeof(SM::StateBase*)) == StateId_END);
+        return STATE_MAP[0];
+    }
 
     std::string    _name;
     SLInputManager _inputManager;
 
     ABCView* _abcView = nullptr;
     XYView*  _xyView  = nullptr;
+};
+
+//-----------------------------------------------------------------------------
+// Eventdata
+//-----------------------------------------------------------------------------
+class ABCEventData : public SM::EventData
+{
+public:
+    ABCEventData(std::string msg)
+      : msg(msg)
+    {
+    }
+
+    std::string msg;
 };
 
 //-----------------------------------------------------------------------------
@@ -342,9 +380,63 @@ public:
     //definition of possible transitions
     StateDoneEvent()
     {
-        _transitions[(unsigned int)WAIApp::StateId::INIT]        = (unsigned int)WAIApp::StateId::PROCESS_ABC;
+        _transitions[(unsigned int)WAIApp::StateId::INIT] = (unsigned int)WAIApp::StateId::PROCESS_ABC;
+        _transitions[(unsigned int)WAIApp::StateId::STOP] = (unsigned int)WAIApp::StateId::IDLE;
+    }
+};
+
+//a state wants to be finished
+class StateABCDoneEvent : public SM::Event
+{
+public:
+    //definition of possible transitions
+    StateABCDoneEvent(std::string msg)
+    {
         _transitions[(unsigned int)WAIApp::StateId::PROCESS_ABC] = (unsigned int)WAIApp::StateId::PROCESS_XY;
-        _transitions[(unsigned int)WAIApp::StateId::STOP]        = (unsigned int)WAIApp::StateId::IDLE;
+
+        _eventData = new ABCEventData(msg);
+    }
+};
+
+//-----------------------------------------------------------------------------
+// Views
+//-----------------------------------------------------------------------------
+
+//ein state der einen event sendet
+class XYView : public View
+  , public SM::EventSender
+{
+public:
+    XYView(SM::EventHandler& handler)
+      : EventSender(handler)
+    {
+    }
+
+    bool update() override
+    {
+        return false;
+    }
+};
+
+//ein state der einen event sendet
+class ABCView : public View
+  , public SM::EventSender
+{
+public:
+    ABCView(SM::EventHandler& handler)
+      : SM::EventSender(handler)
+    {
+    }
+
+    bool update() override
+    {
+        static int i = 0;
+        i++;
+        if (i == 5)
+        {
+            sendEvent(new StateABCDoneEvent("Do something!"));
+        }
+        return false;
     }
 };
 

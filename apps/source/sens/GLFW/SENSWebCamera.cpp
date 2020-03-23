@@ -9,7 +9,8 @@
 
 SENSWebCamera::~SENSWebCamera()
 {
-    _thread.detach();
+    if (_thread.joinable())
+        _thread.join();
 }
 
 void SENSWebCamera::init(SENSCamera::Facing facing)
