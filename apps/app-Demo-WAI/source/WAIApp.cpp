@@ -15,12 +15,13 @@ void WAIApp::goBack()
 void WAIApp::stateIdle(const SM::NoEventData* data)
 {
     //wait for init
-    std::cout << "stateIdle" << std::endl;
+    Utils::log("WAIApp", "stateIdle");
 }
 
 void WAIApp::stateInit(const SM::NoEventData* data)
 {
-    std::cout << "stateInit" << std::endl;
+    Utils::log("WAIApp", "stateInit");
+
     //make internal event to proceed to state preocessXY
     //e.g.:
     _abcView = new ABCView(*this);
@@ -29,24 +30,22 @@ void WAIApp::stateInit(const SM::NoEventData* data)
 }
 void WAIApp::stateProcessXY(const ABCEventData* data)
 {
-    std::cout << "stateProcessXY" << std::endl;
+    Utils::log("WAIApp", "stateProcessXY");
     if (data)
     {
-        std::cout << "Message from ABC: " << data->msg << std::endl;
+        Utils::log("WAIApp", "Message from ABC: %s", data->msg.c_str());
         delete data;
     }
 }
 void WAIApp::stateProcessABC(const SM::NoEventData* data)
 {
-    std::cout << "stateProcessABC" << std::endl;
-
+    Utils::log("WAIApp", "stateProcessABC");
     _abcView->update();
 }
 
 void WAIApp::stateStop(const SM::NoEventData* data)
 {
-    std::cout << "stateStop" << std::endl;
-
+    Utils::log("WAIApp", "stateStop");
     addEvent(new StateDoneEvent());
 }
 

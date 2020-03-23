@@ -184,7 +184,8 @@ void Engine::onInit()
         _dpi = AConfiguration_getDensity(appConfig);
         AConfiguration_delete(appConfig);
 
-        _waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
+        //todo revert
+        //_waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
         //todo: _waiApp.init
         _waiApp.load(_width, _height, 1.0, 1.0, _dpi, _dirs);
         _waiAppIsInitialized = true;
@@ -193,10 +194,12 @@ void Engine::onInit()
     {
         if (!resumeDisplay())
         {
-            _waiApp.close();
+            //todo revert
+            //_waiApp.close();
             terminateDisplay();
             initDisplay();
-            _waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
+            //todo revert
+            //_waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
             //todo: _waiApp.init
             _waiApp.load(_width, _height, 1.0, 1.0, _dpi, _dirs);
         }
@@ -217,7 +220,8 @@ void Engine::onTerminate()
 void Engine::onDestroy()
 {
     ENGINE_DEBUG("onDestroy");
-    _waiApp.close();
+    //todo revert
+    //_waiApp.close();
     terminateDisplay();
 }
 
@@ -382,7 +386,8 @@ void Engine::startCamera()
             ndkCamera->start(camConfig);
             ENGINE_DEBUG("startCamera: %fms", t.elapsedTimeInMilliSec());
 
-            _waiApp.setCamera(ndkCamera);
+            //todo revert
+            //_waiApp.setCamera(ndkCamera);
         }
         catch (std::exception& e)
         {

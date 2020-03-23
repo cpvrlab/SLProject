@@ -180,29 +180,19 @@ public:
     virtual void InvokeStateAction(StateMachine* sm, const EventData* data) const {};
 };
 
-/// @brief StateAction takes three template arguments: A state machine class,
-/// a state function event data type (derived from EventData) and a state machine
-/// member function pointer.
-template<class SM, class Data, void (SM::*Func)(const Data*)>
+/* @brief StateAction takes three template arguments: A state machine class,
+          a state function event data type (derived from EventData) and a state machine
+*/
+member function pointer.template<class SM, class Data, void (SM::*Func)(const Data*)>
 class StateAction : public StateBase
 {
 public:
-    /// @see StateBase::InvokeStateAction
     virtual void InvokeStateAction(StateMachine* sm, const EventData* data) const
     {
         // Downcast the state machine and event data to the correct derived type
         SM* derivedSM = static_cast<SM*>(sm);
 
-        // If this check fails, there is a mismatch between the STATE_DECLARE
-        // event data type and the data type being sent to the state function.
-        // For instance, given the following state defintion:
-        //    STATE_DECLARE(MyStateMachine, MyStateFunction, MyEventData)
-        // The following internal event transition is valid:
-        //    InternalEvent(ST_MY_STATE_FUNCTION, new MyEventData());
-        // This next internal event is not valid and causes the assert to fail:
-        //    InternalEvent(ST_MY_STATE_FUNCTION, new OtherEventData());
         const Data* derivedData = dynamic_cast<const Data*>(data);
-        //assert(derivedData != NULL);
 
         // Call the state function
         (derivedSM->*Func)(derivedData);
@@ -212,9 +202,22 @@ public:
 class StateMachine : public EventHandler
 {
 public:
-    virtual ~StateMachine(){};
+    virtual ~StateMachine()
+    {
+        for (auto it : _stateActions)
+        {
+            delete it.second;
+        }
+    };
 
     unsigned int currentState() { return _currentStateId; }
+
+    template<class SM, class Data, void (SM::*Func)(const Data*)>
+    void registerState(unsigned int stateId)
+    {
+        StateBase* sb          = new StateAction<SM, Data, Func>();
+        _stateActions[stateId] = sb;
+    }
 
     bool update()
     {
@@ -233,15 +236,16 @@ public:
             }
             else
             {
-                std::cout << "Event ignored" << std::endl;
+                Utils::log("StateMachine", "Event ignored");
                 //delete event data
             }
 
             delete e;
         }
 
-        const SM::StateBase* stateMap = getStateMap();
-        stateMap[_currentStateId].InvokeStateAction(this, data);
+        _stateActions[_currentStateId]->InvokeStateAction(this, data);
+        //const SM::StateBase* stateMap = getStateMap();
+        //stateMap[_currentStateId].InvokeStateAction(this, data);
 
         return true;
     }
@@ -253,9 +257,11 @@ protected:
     /// or GetStateMapEx() but not both.
     /// @return An array of StateMapRow pointers with the array size MAX_STATES or
     /// NULL if the state machine uses the GetStateMapEx().
-    virtual const StateBase* getStateMap() = 0;
+    //virtual const StateBase* getStateMap() = 0;
 
-    unsigned int _currentStateId = 0;
+    unsigned int                           _currentStateId = 0;
+    std::map<unsigned int, SM::StateBase*> _stateActions;
+    //std::vector<SM::StateBase*> _stateActions;
 };
 
 } //namespace SM
@@ -286,6 +292,12 @@ public:
       : SLInputEventInterface(_inputManager)
     {
         _currentStateId = (unsigned int)StateId::IDLE;
+
+        registerState<WAIApp, SM::NoEventData, &WAIApp::stateIdle>((unsigned int)StateId::IDLE);
+        registerState<WAIApp, SM::NoEventData, &WAIApp::stateInit>((unsigned int)StateId::INIT);
+        registerState<WAIApp, ABCEventData, &WAIApp::stateProcessXY>((unsigned int)StateId::PROCESS_XY);
+        registerState<WAIApp, SM::NoEventData, &WAIApp::stateProcessABC>((unsigned int)StateId::PROCESS_ABC);
+        registerState<WAIApp, SM::NoEventData, &WAIApp::stateStop>((unsigned int)StateId::STOP);
     }
 
     //external events:
@@ -305,25 +317,6 @@ private:
     void stateProcessXY(const ABCEventData* data);
     void stateProcessABC(const SM::NoEventData* data);
     void stateStop(const SM::NoEventData* data);
-
-    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateIdle>       Idle;
-    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateInit>       Init;
-    SM::StateAction<WAIApp, ABCEventData, &WAIApp::stateProcessXY>     ProcessXY;
-    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateProcessABC> ProcessABC;
-    SM::StateAction<WAIApp, SM::NoEventData, &WAIApp::stateStop>       Stop;
-
-    const SM::StateBase* getStateMap()
-    {
-        static const SM::StateBase* STATE_MAP[] = {
-          &Idle,
-          &Init,
-          &ProcessXY,
-          &ProcessABC,
-          &Stop};
-
-        //assert((sizeof(STATE_MAP) / sizeof(SM::StateBase*)) == StateId_END);
-        return STATE_MAP[0];
-    }
 
     std::string    _name;
     SLInputManager _inputManager;

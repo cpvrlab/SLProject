@@ -534,16 +534,9 @@ int main(int argc, char* argv[])
 
         //glfwSetWindowTitle(window, waiApp.name().c_str());
 
-        int i = 0;
         // Event loop
         while (!appShouldClose)
         {
-            i++;
-            if (i == 20 || i == 30)
-            {
-                waiApp.goBack();
-            }
-
             SLbool doRepaint = waiApp.update();
             glfwSwapBuffers(window);
 
