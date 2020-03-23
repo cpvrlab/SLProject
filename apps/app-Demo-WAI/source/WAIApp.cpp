@@ -12,13 +12,13 @@ void WAIApp::goBack()
 }
 
 //state update functions
-void WAIApp::stateIdle(const SM::NoEventData* data)
+void WAIApp::stateIdle(const sm::NoEventData* data)
 {
     //wait for init
     Utils::log("WAIApp", "stateIdle");
 }
 
-void WAIApp::stateInit(const SM::NoEventData* data)
+void WAIApp::stateInit(const sm::NoEventData* data)
 {
     Utils::log("WAIApp", "stateInit");
 
@@ -34,16 +34,15 @@ void WAIApp::stateProcessXY(const ABCEventData* data)
     if (data)
     {
         Utils::log("WAIApp", "Message from ABC: %s", data->msg.c_str());
-        delete data;
     }
 }
-void WAIApp::stateProcessABC(const SM::NoEventData* data)
+void WAIApp::stateProcessABC(const sm::NoEventData* data)
 {
     Utils::log("WAIApp", "stateProcessABC");
     _abcView->update();
 }
 
-void WAIApp::stateStop(const SM::NoEventData* data)
+void WAIApp::stateStop(const sm::NoEventData* data)
 {
     Utils::log("WAIApp", "stateStop");
     addEvent(new StateDoneEvent());

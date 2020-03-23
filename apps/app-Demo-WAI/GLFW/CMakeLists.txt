@@ -63,6 +63,11 @@ set(headers
         ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
         ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
         ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
+        ${SL_PROJECT_ROOT}/apps/source/sm/Event.h
+        ${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
+        ${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
+        ${SL_PROJECT_ROOT}/apps/source/sm/EventSender.h
+        ${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.h
     )
 
 set(sources
@@ -108,6 +113,7 @@ set(sources
         ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
         ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
         ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
+        ${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 
