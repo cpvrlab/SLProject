@@ -30,6 +30,7 @@ set(headers
         #${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.h
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
+		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/DeviceData.h
@@ -59,6 +60,11 @@ set(headers
 		${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
+		${SL_PROJECT_ROOT}/apps/source/sm/Event.h
+		${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
+		${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
+		${SL_PROJECT_ROOT}/apps/source/sm/EventSender.h
+		${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.h
     )
 
 set(sources
@@ -88,6 +94,7 @@ set(sources
         #${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.cpp
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
+		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
 		${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
@@ -108,6 +115,7 @@ set(sources
 		${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
+		${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
     )
 
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -128,6 +136,7 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/
         ${SL_PROJECT_ROOT}/apps/source/wai/
 		${SL_PROJECT_ROOT}/apps/source/sens
+		${SL_PROJECT_ROOT}/apps/source/
     PUBLIC
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui

@@ -35,6 +35,7 @@ set(headers
         #${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.h
         #${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
+        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
@@ -97,6 +98,7 @@ set(sources
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
+        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.cpp

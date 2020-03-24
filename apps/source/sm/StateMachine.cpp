@@ -2,6 +2,11 @@
 
 namespace sm
 {
+StateMachine::StateMachine(unsigned int initialStateId)
+  : _currentStateId(initialStateId)
+{
+}
+
 StateMachine::~StateMachine()
 {
     for (auto it : _stateActions)
@@ -33,7 +38,7 @@ bool StateMachine::update()
         delete e;
     }
 
-    _stateActions[_currentStateId]->InvokeStateAction(this, data);
+    _stateActions[_currentStateId]->invokeStateAction(this, data);
 
     if (data)
         delete data;

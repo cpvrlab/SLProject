@@ -37,7 +37,7 @@
 #include <android_native_app_glue.h>
 #include <AppDemoNativeSensorsInterface.h>
 #include <Utils.h>
-#include <WAIApp.h>
+#include <ErlebARApp.h>
 #include <android/SENSNdkCamera.h>
 #include <CV/CVImage.h>
 #include <HighResTimer.h>
@@ -99,7 +99,7 @@ private:
 
     android_app* _app;
     //instantiated in fist call to onInit()
-    WAIApp _waiApp;
+    ErlebARApp _waiApp;
     bool   _waiAppIsInitialized = false;
 
     AppDirectories _dirs;
@@ -187,7 +187,7 @@ void Engine::onInit()
         //todo revert
         //_waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
         //todo: _waiApp.init
-        _waiApp.load(_width, _height, 1.0, 1.0, _dpi, _dirs);
+        _waiApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs);
         _waiAppIsInitialized = true;
     }
     else
@@ -201,7 +201,7 @@ void Engine::onInit()
             //todo revert
             //_waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
             //todo: _waiApp.init
-            _waiApp.load(_width, _height, 1.0, 1.0, _dpi, _dirs);
+            _waiApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs);
         }
     }
 

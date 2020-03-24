@@ -4,6 +4,7 @@
 #include <sm/EventData.h>
 #include <sm/EventHandler.h>
 #include <Utils.h>
+#include <assert.h>
 
 namespace sm
 {
@@ -17,7 +18,7 @@ public:
     /// Called by the state machine to execute a state action.
     /// @param[in] sm - A state machine instance.
     /// @param[in] data - The event data.
-    virtual void InvokeStateAction(StateMachine* sm, const EventData* data) const {};
+    virtual void invokeStateAction(StateMachine* sm, const EventData* data) const {};
 };
 
 //* @brief StateAction takes three template arguments: A state machine class,
@@ -27,7 +28,7 @@ template<class SM, class Data, void (SM::*Func)(const Data*)>
 class StateAction : public StateBase
 {
 public:
-    virtual void InvokeStateAction(StateMachine* sm, const EventData* data) const
+    virtual void invokeStateAction(StateMachine* sm, const EventData* data) const
     {
         // Downcast the state machine and event data to the correct derived type
         SM* derivedSM = static_cast<SM*>(sm);
@@ -39,14 +40,15 @@ public:
     }
 };
 
+/*!
+- Transfer id of initial state in constructor of StateMachine
+- Define state functions like: void <name>(const sm::EventData* data);
+- call registerState in constructor which maps a state function to an state id
+*/
 class StateMachine : public EventHandler
 {
 public:
-    StateMachine(unsigned int idleStateId)
-      : _currentStateId(idleStateId)
-    {
-    }
-
+    StateMachine(unsigned int initialStateId);
     virtual ~StateMachine();
     //!process events and update current state
     bool update();
