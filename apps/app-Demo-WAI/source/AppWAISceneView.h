@@ -11,6 +11,7 @@ enum WAINodeEditMode
     WAINodeEditMode_None,
     WAINodeEditMode_Translate,
     WAINodeEditMode_Scale,
+    WAINodeEditMode_Rotate
 };
 
 class WAISceneView : public SLSceneView
@@ -42,16 +43,41 @@ private:
     // Scale stuff
     SLCircle* _scaleSphere;
 
+    // Rotation stuff
+    SLMesh* _rotationCircleMeshX;
+    SLMesh* _rotationCircleMeshY;
+    SLMesh* _rotationCircleMeshZ;
+
+    SLNode* _rotationCircleX;
+    SLNode* _rotationCircleY;
+    SLNode* _rotationCircleZ;
+
+    float _rotationCircleRadius;
+
+    SLNode* _rotationCircleNode;
+    SLVec3f _rotationAxis;
+    SLVec3f _rotationStartPoint;
+    SLVec3f _rotationStartVec;
+
     SLVec2f _oldMouseCoords;
 
-    bool  getClosestPointOnAxis(const SLVec3f& pickRayO,
-                                const SLVec3f& pickRayDir,
-                                const SLVec3f& axisRayO,
-                                const SLVec3f& axisRayDir,
-                                SLVec3f&       axisPoint);
-    float raySphereDist(const SLVec3f& rayO,
-                        const SLVec3f& rayDir,
-                        const SLVec3f& sphereO);
+    bool getClosestPointOnAxis(const SLVec3f& pickRayO,
+                               const SLVec3f& pickRayDir,
+                               const SLVec3f& axisRayO,
+                               const SLVec3f& axisRayDir,
+                               SLVec3f&       axisPoint);
+    bool rayDiscIntersect(const SLVec3f& rayO,
+                          const SLVec3f& rayDir,
+                          const SLVec3f& discO,
+                          const SLVec3f& discN,
+                          const float&   distR,
+                          float&         t);
+    bool rayPlaneIntersect(const SLVec3f& rayO,
+                           const SLVec3f& rayDir,
+                           const SLVec3f& discO,
+                           const SLVec3f& discN,
+                           float&         t);
+    bool isCCW(SLVec2f a, SLVec2f b, SLVec2f c);
 };
 
 #endif

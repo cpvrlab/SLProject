@@ -1,8 +1,28 @@
 #include <SLCircle.h>
 #include <SLGLState.h>
 
+SLCircleMesh::SLCircleMesh(SLstring name, SLMaterial* material)
+  : SLPolyline(name)
+{
+    SLint   circlePoints = 60;
+    SLfloat deltaPhi     = Utils::TWOPI / (SLfloat)circlePoints;
+
+    SLVVec3f points;
+    for (SLint i = 0; i < circlePoints; ++i)
+    {
+        SLVec2f c;
+        c.fromPolar(1.0f, i * deltaPhi);
+        points.push_back(SLVec3f(c.x, c.y, 0));
+    }
+
+    buildMesh(points, true, material);
+}
+
 void SLCircle::drawMeshes(SLSceneView* sv)
 {
+    if (drawBit(SL_DB_HIDDEN))
+        return;
+
     SLGLState* stateGL = SLGLState::instance();
 
     stateGL->pushModelViewMatrix();
@@ -15,9 +35,6 @@ void SLCircle::drawMeshes(SLSceneView* sv)
     SLfloat deltaPhi     = Utils::TWOPI / (SLfloat)circlePoints;
 
     SLMat4f wm = updateAndGetWM();
-    /*SLVec2f scrCoords = SLVec2f(wm.translation().x,
-                                wm.translation().y);*/
-    //SLVec2f scrCoords = SLVec2f(960.0f, 0.0f);
 
     for (SLint i = 0; i < circlePoints; ++i)
     {

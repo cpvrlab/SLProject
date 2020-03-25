@@ -36,16 +36,50 @@ void WAISceneView::toggleEditMode()
                     _zAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
                     _zAxisNode->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
 
+                    _scaleSphere = new SLCircle(200.0f);
+
+                    SLMaterial* redMat = new SLMaterial(SLCol4f::RED, "Red");
+                    redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+                    SLMaterial* greenMat = new SLMaterial(SLCol4f::GREEN, "Green");
+                    greenMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
+                    SLMaterial* blueMat = new SLMaterial(SLCol4f::BLUE, "Blue");
+                    blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
+                    _rotationCircleMeshX = new SLCircleMesh("Rotation Circle X", redMat);
+                    _rotationCircleMeshY = new SLCircleMesh("Rotation Circle Y", greenMat);
+                    _rotationCircleMeshZ = new SLCircleMesh("Rotation Circle Z", blueMat);
+
+                    _rotationCircleX = new SLNode(_rotationCircleMeshX, "Rotation Circle X");
+                    _rotationCircleY = new SLNode(_rotationCircleMeshY, "Rotation Circle Y");
+                    _rotationCircleZ = new SLNode(_rotationCircleMeshZ, "Rotation Circle Z");
+
+                    _rotationCircleX->translation(mapNode->translationWS(), TS_world);
+                    _rotationCircleY->translation(mapNode->translationWS(), TS_world);
+                    _rotationCircleZ->translation(mapNode->translationWS(), TS_world);
+
+                    float scaleFactor     = mapNode->aabb()->radiusOS() * 0.5f;
+                    _rotationCircleRadius = scaleFactor;
+                    _rotationCircleX->scale(scaleFactor);
+                    _rotationCircleY->scale(scaleFactor);
+                    _rotationCircleZ->scale(scaleFactor);
+
+                    _rotationCircleNode = nullptr;
+
+                    _rotationCircleX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+                    _rotationCircleY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+
                     _editGizmos->addChild(_xAxisNode);
                     _editGizmos->addChild(_yAxisNode);
                     _editGizmos->addChild(_zAxisNode);
-
-                    //_scaleSphere = new SLNode(new SLSphere(1.0f), "Scale sphere");
-                    _scaleSphere = new SLCircle(200.0f);
-
-                    //_editGizmos->addChild(_scaleSphere);
+                    _editGizmos->addChild(_rotationCircleX);
+                    _editGizmos->addChild(_rotationCircleY);
+                    _editGizmos->addChild(_rotationCircleZ);
 
                     s->root3D()->addChild(_editGizmos);
+
                     s->root2D()->addChild(_scaleSphere);
 
                     s->root3D()->updateAABBRec();
@@ -57,8 +91,9 @@ void WAISceneView::toggleEditMode()
                 {
                     child->drawBits()->set(SL_DB_HIDDEN, true);
                 }
+                _scaleSphere->drawBits()->set(SL_DB_HIDDEN, true);
 
-                _editMode = WAINodeEditMode_Scale;
+                _editMode = WAINodeEditMode_Rotate;
                 switch (_editMode)
                 {
                     case WAINodeEditMode_Translate: {
@@ -79,7 +114,15 @@ void WAISceneView::toggleEditMode()
                         SLVec2f screenOffset = SLVec2f(mapNodeProj.x * 0.5f * (float)_viewportRect.width,
                                                        mapNodeProj.y * 0.5f * (float)_viewportRect.height);
                         _scaleSphere->screenOffset(screenOffset);
+
                         _scaleSphere->drawBits()->set(SL_DB_HIDDEN, false);
+                    }
+                    break;
+
+                    case WAINodeEditMode_Rotate: {
+                        _rotationCircleX->drawBits()->set(SL_DB_HIDDEN, false);
+                        _rotationCircleY->drawBits()->set(SL_DB_HIDDEN, false);
+                        _rotationCircleZ->drawBits()->set(SL_DB_HIDDEN, false);
                     }
                     break;
 
@@ -96,6 +139,9 @@ void WAISceneView::toggleEditMode()
         _xAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
         _yAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
         _zAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
+        _rotationCircleX->drawBits()->set(SL_DB_HIDDEN, true);
+        _rotationCircleY->drawBits()->set(SL_DB_HIDDEN, true);
+        _rotationCircleZ->drawBits()->set(SL_DB_HIDDEN, true);
         _scaleSphere->drawBits()->set(SL_DB_HIDDEN, true);
 
         _editMode = WAINodeEditMode_None;
@@ -173,11 +219,57 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
             break;
 
             case WAINodeEditMode_Scale: {
+                _oldMouseCoords = SLVec2f(x, y);
+                _mouseIsDown    = true;
+            }
+            break;
+
+            case WAINodeEditMode_Rotate: {
                 SLRay pickRay(this);
-                if (_camera)
+                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+                _rotationCircleNode = nullptr;
+
+                float t     = FLT_MAX;
+                float tCand = FLT_MAX;
+                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleX->translationWS(), _rotationCircleX->forwardWS(), _rotationCircleRadius, tCand))
                 {
-                    _oldMouseCoords = SLVec2f(x, y);
-                    _mouseIsDown    = true;
+                    _rotationCircleNode = _rotationCircleX;
+                    _rotationAxis       = SLVec3f(1.0f, 0.0f, 0.0f);
+                    t                   = tCand;
+                }
+
+                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleY->translationWS(), _rotationCircleY->forwardWS(), _rotationCircleRadius, tCand))
+                {
+                    if (tCand < t)
+                    {
+                        _rotationCircleNode = _rotationCircleY;
+                        _rotationAxis       = SLVec3f(0.0f, 1.0f, 0.0f);
+                        t                   = tCand;
+                    }
+                }
+
+                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleZ->translationWS(), _rotationCircleZ->forwardWS(), _rotationCircleRadius, tCand))
+                {
+                    if (tCand < t)
+                    {
+                        _rotationCircleNode = _rotationCircleZ;
+                        _rotationAxis       = SLVec3f(0.0f, 0.0f, 1.0f);
+                        t                   = tCand;
+                    }
+                }
+
+                if (_rotationCircleNode)
+                {
+                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
+                    _rotationStartPoint         = _rotationCircleNode->updateAndGetWMI() * intersectionPointWS;
+                    _rotationStartVec           = (_rotationStartPoint - _rotationCircleNode->translationOS()).normalize();
+
+                    _mouseIsDown = true;
+                }
+                else
+                {
+                    result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
                 }
             }
             break;
@@ -196,7 +288,7 @@ SLbool WAISceneView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLK
 {
     bool result = false;
 
-    if (!_editMode)
+    if (!_editMode || !_mouseIsDown)
     {
         result = SLSceneView::onMouseUp(button, scrX, scrY, mod);
     }
@@ -221,7 +313,8 @@ SLbool WAISceneView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLK
             SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
             _editGizmos->translation(mapNode->updateAndGetWM().translation());
 
-            _mouseIsDown = false;
+            _rotationCircleNode = nullptr;
+            _mouseIsDown        = false;
         }
     }
 
@@ -232,7 +325,7 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
 {
     bool result = false;
 
-    if (!_editMode)
+    if (!_editMode || !_mouseIsDown)
     {
         result = SLSceneView::onMouseMove(scrX, scrY);
     }
@@ -249,13 +342,13 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
             _gui->onMouseMove(x, y);
         }
 
-        if (_mouseIsDown)
+        if (_camera)
         {
-            if (_camera)
+            switch (_editMode)
             {
-                switch (_editMode)
-                {
-                    case WAINodeEditMode_Translate: {
+                case WAINodeEditMode_Translate: {
+                    if (_mouseIsDown)
+                    {
                         SLRay pickRay(this);
                         _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
@@ -273,9 +366,12 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                             _hitCoordinate = axisPoint;
                         }
                     }
-                    break;
+                }
+                break;
 
-                    case WAINodeEditMode_Scale: {
+                case WAINodeEditMode_Scale: {
+                    if (_mouseIsDown)
+                    {
                         SLScene* s = SLApplication::scene;
                         if (s->root3D())
                         {
@@ -300,18 +396,63 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
 
                                 mapNode->scale(scaleFactor);
                                 _scaleSphere->scaleRadius(scaleFactor);
+                                //_scaleSphere->scale(scaleFactor);
 
                                 _oldMouseCoords = newMouseCoords;
                             }
                         }
                     }
-                    break;
-
-                    case WAINodeEditMode_None:
-                    default: {
-                    }
-                    break;
                 }
+                break;
+
+                case WAINodeEditMode_Rotate: {
+                    SLScene* s = SLApplication::scene;
+                    if (s->root3D())
+                    {
+                        SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
+
+                        if (mapNode)
+                        {
+                            if (_rotationCircleNode)
+                            {
+                                SLRay pickRay(this);
+                                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+                                float t = FLT_MAX;
+                                if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _rotationCircleNode->translationWS(), _rotationCircleNode->forwardWS(), t))
+                                {
+                                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
+                                    SLVec3f intersectionPoint   = _rotationCircleNode->updateAndGetWMI() * intersectionPointWS;
+                                    SLVec3f rotationVec         = (intersectionPoint - _rotationCircleNode->translationOS()).normalize();
+
+                                    float angle = RAD2DEG * acos(rotationVec * _rotationStartVec);
+
+                                    if (angle > FLT_EPSILON || angle < -FLT_EPSILON)
+                                    {
+                                        // determine if we have to rotate ccw or cw
+                                        if (isCCW(SLVec2f(_rotationCircleNode->translationOS().x, _rotationCircleNode->translationOS().y),
+                                                  SLVec2f(_rotationStartPoint.x, _rotationStartPoint.y),
+                                                  SLVec2f(intersectionPoint.x, intersectionPoint.y)))
+                                        {
+                                            angle = -angle;
+                                        }
+
+                                        mapNode->rotate(angle, _rotationAxis, TS_world);
+
+                                        _rotationStartPoint = intersectionPoint;
+                                        _rotationStartVec   = rotationVec;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+                case WAINodeEditMode_None:
+                default: {
+                }
+                break;
             }
         }
 
@@ -349,13 +490,56 @@ bool WAISceneView::getClosestPointOnAxis(const SLVec3f& pickRayO,
     return result;
 }
 
-float WAISceneView::raySphereDist(const SLVec3f& rayO, const SLVec3f& rayDir, const SLVec3f& sphereO)
+bool WAISceneView::rayDiscIntersect(const SLVec3f& rayO,
+                                    const SLVec3f& rayDir,
+                                    const SLVec3f& discO,
+                                    const SLVec3f& discN,
+                                    const float&   discR,
+                                    float&         t)
 {
-    SLVec3f diffV = sphereO - rayO;
-    float   t     = rayDir * diffV;
+    bool result = false;
 
-    SLVec3f scalePoint = rayO + (rayDir * t);
+    if (rayPlaneIntersect(rayO, rayDir, discO, discN, t))
+    {
+        SLVec3f intersectPoint = rayO + rayDir * t;
+        SLVec3f discPointDist  = intersectPoint - discO;
 
-    float result = (sphereO - scalePoint).length();
+        result = (discPointDist.length() <= discR);
+    }
+
+    return result;
+}
+
+bool WAISceneView::rayPlaneIntersect(const SLVec3f& rayO,
+                                     const SLVec3f& rayDir,
+                                     const SLVec3f& planeO,
+                                     const SLVec3f& planeN,
+                                     float&         t)
+{
+    bool result = false;
+
+    float den = planeN * rayDir;
+    if (den > FLT_EPSILON || den < -FLT_EPSILON)
+    {
+        SLVec3f oDiff = planeO - rayO;
+        t             = (oDiff * planeN) / den;
+
+        result = (t >= 0);
+    }
+
+    return result;
+}
+
+// uses signed area to determine winding order
+// returns true if a,b,c are wound in ccw order, false otherwise
+// https://www.quora.com/What-is-the-signed-Area-of-the-triangle
+bool WAISceneView::isCCW(SLVec2f a, SLVec2f b, SLVec2f c)
+{
+    SLVec2f ac = a - c;
+    SLVec2f bc = b - c;
+
+    float signedArea = 0.5f * (bc.x * ac.y - ac.x * bc.y);
+    bool  result     = (signedArea > 0.0f);
+
     return result;
 }

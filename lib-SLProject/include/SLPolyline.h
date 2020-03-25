@@ -20,17 +20,25 @@ The SLPolyline node draws a polyline object
 */
 class SLPolyline : public SLMesh
 {
-    public:
+public:
     //! ctor for polyline with a vector of points
+    SLPolyline(SLstring name = "Polyline") : SLMesh(name) {}
     SLPolyline(SLVVec3f    points,
                SLbool      closed   = false,
                SLstring    name     = "Polyline",
                SLMaterial* material = nullptr) : SLMesh(name)
     {
+        buildMesh(points, closed, material);
+    }
+
+    void buildMesh(SLVVec3f    points,
+                   SLbool      closed   = false,
+                   SLMaterial* material = nullptr)
+    {
         assert(points.size() > 1);
         P          = points;
         _primitive = closed ? PT_lineLoop : PT_lines;
-            mat(material);
+        mat(material);
         if (P.size() < 65535)
             for (SLuint i = 0; i < P.size(); ++i)
                 I16.push_back((SLushort)i);

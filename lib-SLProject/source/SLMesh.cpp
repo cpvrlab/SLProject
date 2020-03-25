@@ -196,7 +196,7 @@ void SLMesh::deleteUnused()
 
     // A boolean for each vertex to flag it as used or not
     SLVbool used(P.size());
-    for (auto && u : used)
+    for (auto&& u : used)
         u = false;
 
     // Loop over all indexes and mark them as used
@@ -223,13 +223,13 @@ void SLMesh::deleteUnused()
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
             // decrease the indexes smaller than the deleted on
-            for (unsigned short & i : I16)
+            for (unsigned short& i : I16)
             {
                 if (i > ixDel)
                     i--;
             }
 
-            for (unsigned int & i : I32)
+            for (unsigned int& i : I32)
             {
                 if (i > ixDel)
                     i--;

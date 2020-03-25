@@ -1,7 +1,14 @@
 #ifndef SL_CIRCLE_H
 #define SL_CIRCLE_H
 
+#include <SLPolyline.h>
 #include <SLNode.h>
+
+class SLCircleMesh : public SLPolyline
+{
+public:
+    SLCircleMesh(SLstring name = "Circle", SLMaterial* material = nullptr);
+};
 
 class SLCircle : public SLNode
 {
