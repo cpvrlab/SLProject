@@ -14,9 +14,11 @@ WAISceneView::WAISceneView(std::queue<WAIEvent*>* eventQueue) : SLSceneView(),
 {
 }
 
-void WAISceneView::toggleEditMode()
+void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
 {
-    if (!_editMode)
+    _editMode = editMode;
+
+    if (_editMode)
     {
         SLScene* s = SLApplication::scene;
         if (s->root3D())
@@ -93,7 +95,6 @@ void WAISceneView::toggleEditMode()
                 }
                 _scaleSphere->drawBits()->set(SL_DB_HIDDEN, true);
 
-                _editMode = WAINodeEditMode_Rotate;
                 switch (_editMode)
                 {
                     case WAINodeEditMode_Translate: {
@@ -182,6 +183,7 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
         switch (_editMode)
         {
             case WAINodeEditMode_Translate: {
+                bool  axisHit = false;
                 SLRay pickRay(this);
                 if (_camera)
                 {
@@ -196,24 +198,38 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
                         if (pickRay.hitNode == _xAxisNode)
                         {
                             _axisRayDir = gizmoMat.axisX();
+
+                            axisHit = true;
                         }
                         else if (pickRay.hitNode == _yAxisNode)
                         {
                             _axisRayDir = gizmoMat.axisY();
+
+                            axisHit = true;
                         }
                         else if (pickRay.hitNode == _zAxisNode)
                         {
                             _axisRayDir = gizmoMat.axisZ();
+
+                            axisHit = true;
                         }
 
-                        SLVec3f axisPoint;
-                        if (getClosestPointOnAxis(pickRay.origin, pickRay.dir, _axisRayO, _axisRayDir, axisPoint))
+                        if (axisHit)
                         {
-                            _hitCoordinate = axisPoint;
+                            SLVec3f axisPoint;
+                            if (getClosestPointOnAxis(pickRay.origin, pickRay.dir, _axisRayO, _axisRayDir, axisPoint))
+                            {
+                                _hitCoordinate = axisPoint;
 
-                            _mouseIsDown = true;
+                                _mouseIsDown = true;
+                            }
                         }
                     }
+                }
+
+                if (!axisHit)
+                {
+                    result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
                 }
             }
             break;

@@ -1198,8 +1198,11 @@ void WAIApp::handleEvents()
             break;
 
             case WAIEventType_EnterEditMode: {
-                //_waiScene.displayEditGizmos();
-                _sv->toggleEditMode();
+                WAIEventEnterEditMode* enterEditModeEvent = (WAIEventEnterEditMode*)event;
+
+                _sv->toggleEditMode(enterEditModeEvent->editMode);
+
+                delete enterEditModeEvent;
             }
             break;
 

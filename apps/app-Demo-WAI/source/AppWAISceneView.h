@@ -18,7 +18,7 @@ class WAISceneView : public SLSceneView
 {
 public:
     WAISceneView(std::queue<WAIEvent*>* eventQueue);
-    void toggleEditMode();
+    void toggleEditMode(WAINodeEditMode editMode);
 
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);

@@ -142,9 +142,34 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
         _eventQueue->push(event);
     }
 
-    if (ImGui::Button("Enter edit mode", ImVec2(bW, 0.0f)))
+    if (ImGui::Button("Enter translation edit mode", ImVec2(bW, 0.0f)))
     {
         WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = WAINodeEditMode_Translate;
+
+        _eventQueue->push(event);
+    }
+
+    if (ImGui::Button("Enter scale edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = WAINodeEditMode_Scale;
+
+        _eventQueue->push(event);
+    }
+
+    if (ImGui::Button("Enter rotation edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = WAINodeEditMode_Rotate;
+
+        _eventQueue->push(event);
+    }
+
+    if (ImGui::Button("Exit edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = WAINodeEditMode_None;
 
         _eventQueue->push(event);
     }

@@ -220,6 +220,8 @@ struct WAIEventAdjustTransparency : WAIEvent
 struct WAIEventEnterEditMode : WAIEvent
 {
     WAIEventEnterEditMode() { type = WAIEventType_EnterEditMode; }
+
+    WAINodeEditMode editMode;
 };
 
 //-----------------------------------------------------------------------------
