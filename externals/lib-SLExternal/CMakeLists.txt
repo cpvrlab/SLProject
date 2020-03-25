@@ -161,9 +161,17 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         ${headers}
         ${include_path}/glew/include/GL/wglew.h
         ${include_path}/glfw3/src/win32_platform.h
-        ${include_path}/glfw3/src/win32_tls.h
-        ${include_path}/glfw3/src/winmm_joystick.h
+#        ${include_path}/glfw3/src/win32_thread.h
+        ${include_path}/glfw3/src/win32_joystick.h
+#        ${include_path}/glfw3/src/win32_monitor.h
+#        ${include_path}/glfw3/src/win32_time.h
+#        ${include_path}/glfw3/src/win32_init.h
         ${include_path}/glfw3/src/wgl_context.h
+        ${include_path}/glfw3/src/egl_context.h
+        ${include_path}/glfw3/src/osmesa_context.h
+        ${include_path}/glfw3/src/internal.h
+#        ${include_path}/glfw3/src/glx_context.h
+#        ${include_path}/glfw3/src/nsgl_context.h
         ${include_path}/nvwa/debug_new.h
         ${include_path}/zlib/ioapi.h
         ${include_path}/zlib/unzip.h
@@ -187,10 +195,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         ${source_path}/glfw3/src/win32_init.c
         ${source_path}/glfw3/src/win32_monitor.c
         ${source_path}/glfw3/src/win32_time.c
-        ${source_path}/glfw3/src/win32_tls.c
+        ${source_path}/glfw3/src/win32_thread.c
         ${source_path}/glfw3/src/win32_window.c
-        ${source_path}/glfw3/src/winmm_joystick.c
+        ${source_path}/glfw3/src/win32_joystick.c
         ${source_path}/glfw3/src/wgl_context.c
+        ${source_path}/glfw3/src/egl_context.c
+        ${source_path}/glfw3/src/osmesa_context.c
+        ${source_path}/glfw3/src/vulkan.c
+        #${source_path}/glfw3/src/init.c
+#        ${source_path}/glfw3/src/glx_context.c
+#        ${source_path}/glfw3/src/nsgl_context.c
         ${source_path}/nvwa/debug_new.cpp
         ${source_path}/zlib/zutil.c
         ${source_path}/zlib/uncompr.c

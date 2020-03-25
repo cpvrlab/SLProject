@@ -26,8 +26,14 @@ set(OpenCV_LINK_LIBS
         opencv_xfeatures2d
         opencv_core
         )
-
 set(OpenCV_LIBS)
+
+set(vk_DIR)
+set(vk_INCLUDE_DIR)
+set(vk_LINK_DIR)
+set(vk_LINK_LIBS
+	vulkan-1
+	)
 
 set(g2o_DIR)
 set(g2o_INCLUDE_DIR)
@@ -113,6 +119,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
 		file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
+
+	#Vulkan
+	set(vk_DIR ${PREBUILT_PATH}/win64_vulkanSDK_1.2.131.2)
+	set(vk_INCLUDE_DIR ${vk_DIR}/Include)
+	set(vk_LINK_DIR ${vk_DIR}/Lib)
+	
+	foreach(lib ${vk_LINK_LIBS})
+		add_library(${lib} SHARED IMPORTED)
+		set_target_properties(${lib} PROPERTIES
+			IMPORTED_IMPLIB "${vk_LINK_DIR}/${lib}.lib"
+			INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
+		)
+		set(vk_LIBS
+			${vk_LIBS}
+			${lib}
+		)
+		endforeach(lib)
+		
+	set(vk_PREBUILT_ZIP "win64_vulkanSDK_1.2.131.2.zip")
+	set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
+	
+	if (NOT EXISTS "${vk_DIR}")
+		file(DOWNLOAD "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+		execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+			"£{PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
+			WORKING_DIRECTORY "${PREBUILT_PATH}")
+		file(REMOVE "${PREBUILT_PATH/${vk_PREBUILT_ZIP}")
+	endif()	
 
     #G2O
     set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
@@ -354,4 +388,5 @@ endif()
 #==============================================================================
 
 link_directories(${OpenCV_LINK_DIR})
+link_directories(${vk_LINK_DIR})
 link_directories(${g2o_LINK_DIR})
