@@ -16,7 +16,7 @@ AppWAIScene::AppWAIScene(SLstring name, SLInputManager& inputManager)
 
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
-    init(); //uninitializes everything
+    //init(); //uninitializes everything
     //todo: is this necessary?
     assets.clear();
 

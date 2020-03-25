@@ -22,6 +22,7 @@
 #include <ImGuiWrapper.h>
 #include <ErlebAR.h>
 #include <AppDemoGuiError.h>
+#include <sm/EventSender.h>
 
 class SLScene;
 class SLSceneView;
@@ -49,15 +50,17 @@ enum class GuiAlignment
 class BackButton
 {
 public:
-    BackButton(int             dotsPerInch,
-               int             screenWidthPix,
-               int             screenHeightPix,
-               GuiAlignment    alignment,
-               float           distFrameHorizMM,
-               float           distFrameVertMM,
-               ImVec2          buttonSizeMM,
-               ButtonPressedCB pressedCB,
-               ImFont*         font)
+    using Callback = std::function<void(void)>;
+
+    BackButton(int          dotsPerInch,
+               int          screenWidthPix,
+               int          screenHeightPix,
+               GuiAlignment alignment,
+               float        distFrameHorizMM,
+               float        distFrameVertMM,
+               ImVec2       buttonSizeMM,
+               Callback     pressedCB,
+               ImFont*      font)
       : _alignment(alignment),
         _pressedCB(pressedCB),
         _font(font)
@@ -144,7 +147,7 @@ private:
     //distance between button border and window border
     int _windowPadding = 2.f;
 
-    ButtonPressedCB _pressedCB = nullptr;
+    Callback _pressedCB = nullptr;
 
     ImFont* _font = nullptr;
 };
@@ -158,9 +161,11 @@ The entire UI is configured and built on every frame. That is why it is called
 integrated in the SLProject.<br>
 */
 class AppDemoWaiGui : public ImGuiWrapper
+  , public sm::EventSender
 {
 public:
-    AppDemoWaiGui(std::string                     appName,
+    AppDemoWaiGui(sm::EventHandler&               eventHandler,
+                  std::string                     appName,
                   int                             dotsPerInch,
                   int                             windowWidthPix,
                   int                             windowHeightPix,
@@ -168,7 +173,6 @@ public:
                   std::string                     fontPath,
                   std::string                     vocabularyDir,
                   const std::vector<std::string>& extractorIdToNames,
-                  ButtonPressedCB                 backButtonCB,
                   std ::queue<WAIEvent*>&         eventQueue);
     ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not

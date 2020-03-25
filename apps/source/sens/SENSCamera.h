@@ -34,6 +34,12 @@ private:
 class SENSCamera
 {
 public:
+    SENSCamera()
+    {
+        _started           = false;
+        _permissionGranted = false;
+    }
+
     enum class Facing
     {
         FRONT = 0,
@@ -87,7 +93,7 @@ public:
     virtual void init(SENSCamera::Facing facing) = 0;
     virtual void start(const Config config)      = 0;
     virtual void start(int width, int height)    = 0;
-    virtual void stop(){};
+    virtual void stop()                          = 0;
 
     virtual SENSFramePtr getLatestFrame() = 0;
 
@@ -97,16 +103,22 @@ public:
         return cv::Size(_config.targetWidth, _config.targetHeight);
     }
     bool started() const { return _started; }
+    bool permissionGranted() const { return _permissionGranted; }
+    void setPermissionGranted()
+    {
+        _permissionGranted = true;
+    }
 
 protected:
     float             _targetWdivH = -1.0f;
     Config            _config;
     std::atomic<bool> _started;
+    std::atomic<bool> _permissionGranted;
 
     SENSCamera::Facing      _facing = SENSCamera::Facing::BACK;
     SENSCameraStreamConfigs _availableStreamConfig;
 
-    State _state = State::IDLE;
+    //State _state = State::IDLE;
 };
 
 #endif //SENS_CAMERA_H

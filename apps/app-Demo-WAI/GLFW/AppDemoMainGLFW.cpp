@@ -54,7 +54,7 @@ called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
 void onClose(GLFWwindow* window)
 {
-    appShouldClose = true;
+    app.destroy();
 }
 
 //-----------------------------------------------------------------------------
@@ -399,10 +399,24 @@ static void onKeyPress(GLFWwindow* window,
             glfwSetWindowPos(window, 10, 30);
         }
     }
+    else if (key == K_space && action == GLFW_PRESS)
+    {
+        app.goBack();
+    }
+    else if (GLFWKey == GLFW_KEY_H && action == GLFW_PRESS) //hold
+    {
+        app.hold();
+    }
+    else if (GLFWKey == GLFW_KEY_R && action == GLFW_PRESS) //resume
+    {
+        app.resume();
+    }
     else
     {
         if (action == GLFW_PRESS)
+        {
             app.keyPress(svIndex, key, modifiers);
+        }
         else if (action == GLFW_RELEASE)
             app.keyRelease(svIndex, key, modifiers);
     }
@@ -507,6 +521,12 @@ void GLFWInit()
     glfwSetWindowCloseCallback(window, onClose);
 }
 
+void closeAppCallback()
+{
+    Utils::log("Engine", "closeAppCallback");
+    appShouldClose = true;
+}
+
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -517,12 +537,6 @@ int main(int argc, char* argv[])
     try
     {
         std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
-        SENSCamera::Config             config;
-        config.targetWidth   = 640;
-        config.targetHeight  = 360;
-        config.convertToGray = true;
-
-        //camera->start(config);
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
@@ -531,10 +545,10 @@ int main(int argc, char* argv[])
         dirs.vocabularyDir = dirs.writableDir + "voc/";
         dirs.logFileDir    = dirs.writableDir + "log/";
 
-        app.init(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
-        //app.setCamera(camera.get());
+        app.init(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs, camera.get());
+        app.setCloseAppCallback(closeAppCallback);
 
-        //glfwSetWindowTitle(window, app.name().c_str());
+        glfwSetWindowTitle(window, "ErlebAR");
 
         // Event loop
         while (!appShouldClose)
@@ -548,8 +562,6 @@ int main(int argc, char* argv[])
             else
                 glfwPollEvents();
         }
-
-        //app.close();
     }
     catch (std::exception& e)
     {
@@ -559,7 +571,7 @@ int main(int argc, char* argv[])
     {
         std::cout << "main: Unknown exception catched!" << std::endl;
     }
-    //slTerminate();
+
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

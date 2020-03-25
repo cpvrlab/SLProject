@@ -38,7 +38,8 @@
 //map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(std::string                     appName,
+AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
+                             std::string                     appName,
                              int                             dotsPerInch,
                              int                             windowWidthPix,
                              int                             windowHeightPix,
@@ -46,8 +47,8 @@ AppDemoWaiGui::AppDemoWaiGui(std::string                     appName,
                              std::string                     fontPath,
                              std::string                     vocabularyDir,
                              const std::vector<std::string>& extractorIdToNames,
-                             ButtonPressedCB                 backButtonCB,
                              std ::queue<WAIEvent*>&         eventQueue)
+  : sm::EventSender(eventHandler)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
@@ -56,6 +57,10 @@ AppDemoWaiGui::AppDemoWaiGui(std::string                     appName,
     //load fonts
     loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
 
+    auto cb = [&]() {
+        sendEvent(new GoBackEvent());
+    };
+
     _backButton = BackButton(dotsPerInch,
                              windowWidthPix,
                              windowHeightPix,
@@ -63,7 +68,7 @@ AppDemoWaiGui::AppDemoWaiGui(std::string                     appName,
                              5.f,
                              5.f,
                              {10.f, 7.f},
-                             backButtonCB,
+                             std::bind(cb),
                              _fontPropDots);
 
     _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",

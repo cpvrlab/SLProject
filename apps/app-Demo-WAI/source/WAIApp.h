@@ -263,13 +263,13 @@ public:
 //    enum class State
 //    {
 //        /*!Wait for _startFromIdle to become true. When it is true start SelectionState for scene selection and when it is
-//        started switch to START_UP state or directly start StartUpScene if AppMode is already not AppMode::NONE.
+//        started switch to START_UP state or directly start StartUpScene if Selection is already not Selection::NONE.
 //        */
 //        IDLE,
-//        /*!In this state the user has to select a an AppMode. When selection is not NONE, we switch to state START_UP
+//        /*!In this state the user has to select a an Selection. When selection is not NONE, we switch to state START_UP
 //        */
 //        SELECTION,
-//        /*!We start up the states depending on selected AppMode
+//        /*!We start up the states depending on selected Selection
 //        */
 //        START_UP,
 //        LOCATION_MAP,
@@ -329,11 +329,11 @@ public:
 //    //Sub-States that lead to state start() call:
 //    //set to true as soon as we have access to app resouces, then we can first visualize something
 //    bool _startFromIdle = false;
-//    //done after AppMode was selected, then we know what to start up
+//    //done after Selection was selected, then we know what to start up
 //    bool _startFromStartUp = false;
 //
 //    //defines if ErlebAR scene was already selected or if user has to choose
-//    AppMode _appMode            = AppMode::NONE;
+//    Selection _appMode            = Selection::NONE;
 //    Area    _area               = Area::NONE;
 //    bool    _showSelectionState = false;
 //

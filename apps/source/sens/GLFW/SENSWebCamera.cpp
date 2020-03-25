@@ -16,16 +16,21 @@ SENSWebCamera::~SENSWebCamera()
 void SENSWebCamera::init(SENSCamera::Facing facing)
 {
     LOG_WEBCAM_INFO("init: called but is has no effect in SENSWebCamera");
-    _state   = State::INITIALIZED;
+    //_state   = State::INITIALIZED;
     _started = false;
 }
 
 void SENSWebCamera::start(const Config config)
 {
+    //todo: wait for camera to be granted
     _config      = config;
     _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
+    if (_thread.joinable())
+        _thread.join();
     _thread = std::thread(&SENSWebCamera::openCamera, this);
+
+    //SENSWebCamera::openCamera();
 }
 
 void SENSWebCamera::start(int width, int height)
@@ -36,6 +41,14 @@ void SENSWebCamera::start(int width, int height)
     config.targetHeight = height;
 
     start(config);
+}
+
+void SENSWebCamera::stop()
+{
+    if (_videoCapture.isOpened())
+        _videoCapture.release();
+
+    _started = false;
 }
 
 SENSFramePtr SENSWebCamera::getLatestFrame()

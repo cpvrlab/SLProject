@@ -1,3 +1,132 @@
+
+#definition of common erlebar source files
+
+set(erlebar_headers
+	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
+	${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
+	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
+	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
+	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
+	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
+	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
+	${SL_PROJECT_ROOT}/apps/source/sm/EventSender.h
+	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.h
+	
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiProperties.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSceneGraph.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamLoad.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsDebugTiming.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsTiming.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsVideo.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTrackedMapping.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTransform.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiUIPrefs.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/DeviceData.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/StartUpState.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/AreaTrackingState.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/CameraTestState.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/LocationMapState.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TestState.h
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TutorialState.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.h
+	)
+	
+set(erlebar_sources
+	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
+	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
+	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
+	
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiProperties.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSceneGraph.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamLoad.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsDebugTiming.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsTiming.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsVideo.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTrackedMapping.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTransform.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiUIPrefs.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/StartUpState.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/AreaTrackingState.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/CameraTestState.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/LocationMapState.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TestState.cpp
+	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TutorialState.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.cpp
+	)
+	
+set(erlebar_include_directories
+	${SL_PROJECT_ROOT}/apps/source
+	${SL_PROJECT_ROOT}/apps/source/wai
+	${SL_PROJECT_ROOT}/apps/source/sens
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab
+	)
+
+
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     set(IDE_FOLDER "Android")
     add_subdirectory(android/app)

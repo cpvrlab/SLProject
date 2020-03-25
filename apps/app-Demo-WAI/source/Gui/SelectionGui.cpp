@@ -1,11 +1,14 @@
 #include <SelectionGui.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <ErlebAR.h>
 
-SelectionGui::SelectionGui(int         dotsPerInch,
-                           int         screenWidthPix,
-                           int         screenHeightPix,
-                           std::string fontPath)
+SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
+                           int               dotsPerInch,
+                           int               screenWidthPix,
+                           int               screenHeightPix,
+                           std::string       fontPath)
+  : sm::EventSender(eventHandler)
 {
     _pixPerMM = (float)dotsPerInch / 25.4f;
 
@@ -91,36 +94,36 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     ImGui::SameLine(_windowPadding);
     if (ImGui::Button("Test", _buttonSz))
     {
-        _selection = AppMode::TEST;
+        sendEvent(new StartTestEvent());
     }
     ImGui::SameLine();
     if (ImGui::Button("Camera Test", _buttonSz))
     {
-        _selection = AppMode::CAMERA_TEST;
+        sendEvent(new StartCameraTestEvent());
     }
 
     ImGui::NewLine();
     ImGui::SameLine(_windowPadding);
     if (ImGui::Button("Avanches", _buttonSz))
     {
-        _selection = AppMode::AVANCHES;
+        sendEvent(new StartErlebarEvent(Location::AVANCHES));
     }
     ImGui::SameLine();
     if (ImGui::Button("Augst", _buttonSz))
     {
-        _selection = AppMode::AUGST;
+        sendEvent(new StartErlebarEvent(Location::AUGST));
     }
 
     ImGui::NewLine();
     ImGui::SameLine(_windowPadding);
     if (ImGui::Button("Christoffel", _buttonSz))
     {
-        _selection = AppMode::CHRISTOFFELTOWER;
+        sendEvent(new StartErlebarEvent(Location::CHRISTOFFEL));
     }
     ImGui::SameLine();
     if (ImGui::Button("Biel", _buttonSz))
     {
-        _selection = AppMode::BIEL;
+        sendEvent(new StartErlebarEvent(Location::BIEL));
     }
 
     ImGui::End();

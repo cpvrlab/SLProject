@@ -149,7 +149,7 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //    _startFromStartUp = false;
 //
 //    _camera           = nullptr;
-//    _appMode          = AppMode::NONE;
+//    _appMode          = Selection::NONE;
 //    _area             = Area::NONE;
 //    _switchToTracking = false;
 //    _goBack           = false;
@@ -185,7 +185,7 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //                if (_closeCB)
 //                    _closeCB();
 //            }
-//            else if (_appMode != AppMode::NONE && _startUpState->started())
+//            else if (_appMode != Selection::NONE && _startUpState->started())
 //            {
 //                _state            = State::START_UP;
 //                _startFromStartUp = true;
@@ -195,21 +195,21 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //        case State::START_UP: {
 //            if (_startUpState && _startUpState->ready())
 //            {
-//                if (_appMode == AppMode::CAMERA_TEST)
+//                if (_appMode == Selection::CAMERA_TEST)
 //                {
 //                    if (_cameraTestState && _cameraTestState->started())
 //                    {
 //                        _state = State::CAMERA_TEST;
 //                    }
 //                }
-//                else if (_appMode == AppMode::TEST)
+//                else if (_appMode == Selection::TEST)
 //                {
 //                    if (_testState && _testState->started())
 //                    {
 //                        _state = State::TEST;
 //                    }
 //                }
-//                else //(_appMode > AppMode::TEST)
+//                else //(_appMode > Selection::TEST)
 //                {
 //                    if (_locationMapState && _areaTrackingState && _locationMapState->started() && _areaTrackingState->started())
 //                    {
@@ -234,7 +234,7 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //            {
 //                _goBack  = false;
 //                _state   = State::SELECTION;
-//                _appMode = AppMode::NONE;
+//                _appMode = Selection::NONE;
 //                if (_selectionState)
 //                    _selectionState->reset();
 //            }
@@ -260,7 +260,7 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //                _startFromIdle = false;
 //                if (_showSelectionState)
 //                {
-//                    //select AppMode
+//                    //select Selection
 //                    //(start up can be done as soon we have access to resouces)
 //                    if (!_selectionState)
 //                    {
@@ -301,11 +301,11 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //                if (_showSelectionState)
 //                    _appMode = _selectionState->getSelection();
 //
-//                if (_appMode == AppMode::NONE)
+//                if (_appMode == Selection::NONE)
 //                {
-//                    Utils::warnMsg("WAIApp", "No AppMode selected!", __LINE__, __FILE__);
+//                    Utils::warnMsg("WAIApp", "No Selection selected!", __LINE__, __FILE__);
 //                }
-//                else if (_appMode == AppMode::TEST)
+//                else if (_appMode == Selection::TEST)
 //                {
 //                    if (!_testState)
 //                    {
@@ -323,20 +323,20 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //                        _testState->start();
 //                    }
 //                }
-//                else if (_appMode == AppMode::CAMERA_TEST)
+//                else if (_appMode == Selection::CAMERA_TEST)
 //                {
 //                    _cameraTestState = new CameraTestState;
 //                    _cameraTestState->start();
 //                }
 //                else
 //                {
-//                    if (_appMode == AppMode::AUGST)
+//                    if (_appMode == Selection::AUGST)
 //                        _locationMapState = new AugstMapState;
-//                    else if (_appMode == AppMode::AVANCHES)
+//                    else if (_appMode == Selection::AVANCHES)
 //                        _locationMapState = new AvanchesMapState;
-//                    else if (_appMode == AppMode::BIEL)
+//                    else if (_appMode == Selection::BIEL)
 //                        _locationMapState = new BielMapState;
-//                    else if (_appMode == AppMode::CHRISTOFFELTOWER)
+//                    else if (_appMode == Selection::CHRISTOFFELTOWER)
 //                        _locationMapState = new ChristoffelMapState;
 //
 //                    _locationMapState->start();

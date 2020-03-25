@@ -82,7 +82,7 @@ public:
     bool closeAppRequested() const;
     void closeAppRequested(bool state);
     //this callback can be called by the wrapped app to make native activity shutdown
-    static void closeAppCallback();
+    void closeAppCallback();
 
 private:
     void initDisplay();
@@ -99,8 +99,8 @@ private:
 
     android_app* _app;
     //instantiated in fist call to onInit()
-    ErlebARApp _waiApp;
-    bool   _waiAppIsInitialized = false;
+    ErlebARApp _earApp;
+    bool       _earAppIsInitialized = false;
 
     AppDirectories _dirs;
     int32_t        _dpi;
@@ -120,7 +120,7 @@ private:
     int32_t  _pointersDown;
     uint64_t _lastTouchMS;
 
-    SENSNdkCamera* ndkCamera      = nullptr;
+    SENSNdkCamera* _ndkCamera     = nullptr;
     bool           _cameraGranted = false;
 
     /*
@@ -145,7 +145,7 @@ void Engine::update()
     if (_display)
     {
         //ENGINE_DEBUG("eglSwapBuffers");
-        _waiApp.update();
+        _earApp.update();
         eglSwapBuffers(_display, _surface);
     }
 }
@@ -156,8 +156,10 @@ void Engine::onInit()
 
     startCamera();
 
-    if (!_waiAppIsInitialized)
+    if (!_earAppIsInitialized)
     {
+        ENGINE_DEBUG("earAppp NOT initialized");
+
         initDisplay();
 
         std::string path = getInternalDir();
@@ -185,23 +187,25 @@ void Engine::onInit()
         AConfiguration_delete(appConfig);
 
         //todo revert
-        //_waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
-        //todo: _waiApp.init
-        _waiApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs);
-        _waiAppIsInitialized = true;
+        _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
+        //todo: _earApp.init
+        _earApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs, _ndkCamera);
+        _earAppIsInitialized = true;
     }
     else
     {
+        ENGINE_DEBUG("earAppp initialized");
         if (!resumeDisplay())
         {
-            //todo revert
-            //_waiApp.close();
+            ENGINE_WARN("resume display failed");
+            _earApp.destroy();
             terminateDisplay();
             initDisplay();
-            //todo revert
-            //_waiApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback));
-            //todo: _waiApp.init
-            _waiApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs);
+            _earApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs, _ndkCamera);
+        }
+        else
+        {
+            _earApp.resume();
         }
     }
 
@@ -211,24 +215,21 @@ void Engine::onInit()
 void Engine::onTerminate()
 {
     ENGINE_DEBUG("onTerminate");
-    //terminateDisplay();
-    //_waiApp.hide();
-    stopCamera();
+    _earApp.hold();
     _hasFocus = false;
 }
 
 void Engine::onDestroy()
 {
     ENGINE_DEBUG("onDestroy");
-    //todo revert
-    //_waiApp.close();
+    _earApp.destroy();
     terminateDisplay();
 }
 
 void Engine::onBackButtonDown()
 {
     ENGINE_DEBUG("onBackButtonDown");
-    _waiApp.goBack();
+    _earApp.goBack();
 }
 
 void Engine::initDisplay()
@@ -363,18 +364,33 @@ void Engine::terminateDisplay()
 
 void Engine::startCamera()
 {
+    try
+    {
+        if (!_ndkCamera)
+            _ndkCamera = new SENSNdkCamera();
+    }
+    catch (std::exception& e)
+    {
+        Utils::log("SENSNdkCamera", e.what());
+    }
+
+    if (!_cameraGranted)
+    {
+        checkAndRequestAndroidPermissions();
+    }
+    /*
     if (_cameraGranted)
     {
         try
         {
-            if (ndkCamera)
-                delete ndkCamera;
+            if (_ndkCamera)
+                delete _ndkCamera;
 
             //get all information about available cameras
             HighResTimer t;
 
-            ndkCamera = new SENSNdkCamera();
-            ndkCamera->init(SENSCamera::Facing::BACK);
+            _ndkCamera = new SENSNdkCamera();
+            _ndkCamera->init(SENSCamera::Facing::BACK);
 
             //start continious captureing request with certain configuration
             SENSCamera::Config camConfig;
@@ -383,11 +399,11 @@ void Engine::startCamera()
             camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
             camConfig.convertToGray        = true;
             camConfig.adjustAsynchronously = true;
-            ndkCamera->start(camConfig);
+            _ndkCamera->start(camConfig);
             ENGINE_DEBUG("startCamera: %fms", t.elapsedTimeInMilliSec());
 
             //todo revert
-            //_waiApp.setCamera(ndkCamera);
+            //_earApp.setCamera(_ndkCamera);
         }
         catch (std::exception& e)
         {
@@ -398,16 +414,18 @@ void Engine::startCamera()
     {
         checkAndRequestAndroidPermissions();
     }
+     */
 }
 
 void Engine::stopCamera()
 {
     try
     {
-        if (ndkCamera)
+        if (_ndkCamera)
         {
-            delete ndkCamera;
-            ndkCamera = nullptr;
+            _ndkCamera->stop();
+            //delete _ndkCamera;
+            //_ndkCamera = nullptr;
         }
     }
     catch (std::exception& e)
@@ -439,7 +457,8 @@ void Engine::onPermissionGranted(jboolean granted)
 
     if (_cameraGranted)
     {
-        startCamera();
+        _ndkCamera->setPermissionGranted();
+        //startCamera();
     }
 }
 
@@ -736,12 +755,12 @@ void Engine::handleTouchDown(AInputEvent* event)
         if (touchDeltaMS < 250)
         {
             //Utils::log("WAInative","double click");
-            _waiApp.doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
+            _earApp.doubleClick(sceneViewIndex, MB_left, x0, y0, K_none);
         }
         else
         {
             //Utils::log("WAInative","mouse down");
-            _waiApp.mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
+            _earApp.mouseDown(sceneViewIndex, MB_left, x0, y0, K_none);
         }
     }
 
@@ -751,8 +770,8 @@ void Engine::handleTouchDown(AInputEvent* event)
         //Utils::log("WAInative","mouse up + touch 2 down");
         int x1 = AMotionEvent_getX(event, 1);
         int y1 = AMotionEvent_getY(event, 1);
-        _waiApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
-        _waiApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+        _earApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _earApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
     }
 
     // it's two fingers at the same time
@@ -767,7 +786,7 @@ void Engine::handleTouchDown(AInputEvent* event)
         int y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 down");
-        _waiApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
+        _earApp.touch2Down(sceneViewIndex, x0, y0, x1, y1);
     }
 
     _pointersDown = touchCount;
@@ -788,7 +807,7 @@ void Engine::handleTouchUp(AInputEvent* event)
     if (touchCount == 1)
     {
         //Utils::log("WAInative","mouse up");
-        _waiApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
+        _earApp.mouseUp(sceneViewIndex, MB_left, x0, y0, K_none);
     }
     else if (touchCount == 2)
     {
@@ -796,7 +815,7 @@ void Engine::handleTouchUp(AInputEvent* event)
         int32_t y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 up");
-        _waiApp.touch2Up(sceneViewIndex, x0, y0, x1, y1);
+        _earApp.touch2Up(sceneViewIndex, x0, y0, x1, y1);
     }
 
     _pointersDown = touchCount;
@@ -812,7 +831,7 @@ void Engine::handleTouchMove(AInputEvent* event)
     if (touchCount == 1)
     {
         //Utils::log("WAInative","mouse move");
-        _waiApp.mouseMove(sceneViewIndex, x0, y0);
+        _earApp.mouseMove(sceneViewIndex, x0, y0);
     }
     else if (touchCount == 2)
     {
@@ -820,7 +839,7 @@ void Engine::handleTouchMove(AInputEvent* event)
         int32_t y1 = AMotionEvent_getY(event, 1);
 
         //Utils::log("WAInative","touch 2 move");
-        _waiApp.touch2Move(sceneViewIndex, x0, y0, x1, y1);
+        _earApp.touch2Move(sceneViewIndex, x0, y0, x1, y1);
     }
 }
 
@@ -837,7 +856,7 @@ void Engine::closeAppRequested(bool state)
 void Engine::closeAppCallback()
 {
     Utils::log("Engine", "closeAppCallback");
-    GetEngine()->closeAppRequested(true);
+    closeAppRequested(true);
 }
 
 static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
@@ -856,7 +875,6 @@ static void handleLifecycleEvent(struct android_app* app, int32_t cmd)
         case APP_CMD_TERM_WINDOW:
             ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_TERM_WINDOW");
             engine->onTerminate();
-            //engine->onDestroy();
             break;
         case APP_CMD_WINDOW_RESIZED:
             ENGINE_DEBUG("handleLifecycleEvent: APP_CMD_WINDOW_RESIZED");

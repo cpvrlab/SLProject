@@ -2,14 +2,25 @@
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLAssimpImporter.h>
+#include <views/SelectionView.h>
+#include <views/TestView.h>
+#include <views/StartUpView.h>
+#include <SLGLProgramManager.h>
+
+#define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
+#define LOG_ERLEBAR_INFO(...) Utils::log("ErlebARApp", __VA_ARGS__);
+#define LOG_ERLEBAR_DEBUG(...) Utils::log("ErlebARApp", __VA_ARGS__);
 
 void ErlebARApp::init(int            scrWidth,
                       int            scrHeight,
                       float          scr2fbX,
                       float          scr2fbY,
                       int            dpi,
-                      AppDirectories dirs)
+                      AppDirectories dirs,
+                      SENSCamera*    camera)
 {
+    //store camera so we can stop on terminate
+    _camera = camera;
     addEvent(new InitEvent(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs));
 }
 
@@ -18,14 +29,33 @@ void ErlebARApp::goBack()
     addEvent(new GoBackEvent());
 }
 
-void ErlebARApp::IDLE(const sm::NoEventData* data)
+void ErlebARApp::destroy()
 {
+    addEvent(new DestroyEvent());
 }
 
-void ErlebARApp::INIT(const InitData* data)
+void ErlebARApp::hold()
 {
+    addEvent(new HoldEvent());
+}
+
+void ErlebARApp::resume()
+{
+    addEvent(new ResumeEvent());
+}
+
+void ErlebARApp::IDLE(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("IDLE");
+}
+
+void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("INIT");
+
     assert(data != nullptr);
 
+    const DeviceData&  dd         = data->deviceData;
     const std::string& slDataRoot = data->deviceData.dirs().slDataRoot;
     // setup magic paths
     SLGLProgram::defaultPath      = slDataRoot + "/shaders/";
@@ -34,17 +64,169 @@ void ErlebARApp::INIT(const InitData* data)
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
     //instantiation of views
+    _selectionView = new SelectionView(*this,
+                                       _inputManager,
+                                       dd.scrWidth(),
+                                       dd.scrHeight(),
+                                       dd.dpi(),
+                                       dd.fontDir(),
+                                       dd.dirs().writableDir);
+
+    _testView = new TestView(*this,
+                             _inputManager,
+                             _camera,
+                             dd.scrWidth(),
+                             dd.scrHeight(),
+                             dd.dpi(),
+                             dd.fontDir(),
+                             dd.dirs().writableDir,
+                             dd.dirs().vocabularyDir,
+                             dd.calibDir(),
+                             dd.videoDir());
+
+    _startUpView = new StartUpView(_inputManager,
+                                   dd.scrWidth(),
+                                   dd.scrHeight(),
+                                   dd.dpi(),
+                                   dd.dirs().writableDir);
+
+    addEvent(new DoneEvent());
 }
 
-void ErlebARApp::TERMINATE(const sm::NoEventData* data)
+void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
 {
-    addEvent(new StateDoneEvent());
+    LOG_ERLEBAR_DEBUG("DESTROY");
+
+    if (_selectionView)
+    {
+        delete _selectionView;
+        _selectionView = nullptr;
+    }
+    if (_testView)
+    {
+        delete _testView;
+        _testView = nullptr;
+    }
+
+    if (_startUpView)
+    {
+        delete _startUpView;
+        _startUpView = nullptr;
+    }
+
+    if (_camera)
+    {
+        if (_camera->started())
+            _camera->stop();
+    }
+
+    _currentView = nullptr;
+
+    //ATTENTION: if we dont do this we get problems when opening the app the second time
+    //(e.g. "The position attribute has no variable location." from SLGLVertexArray)
+    //We still cannot get rid of this stupid singleton instance..
+    SLGLProgramManager::deletePrograms();
+    SLMaterialDefaultGray::deleteInstance();
+    SLMaterialDiffuseAttribute::deleteInstance();
+
+    if (_closeCB)
+    {
+        LOG_ERLEBAR_DEBUG("Close Callback!");
+        _closeCB();
+    }
+
+    addEvent(new DoneEvent());
 }
 
-void ErlebARApp::SELECTION(const sm::NoEventData* data)
+void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry)
 {
+    LOG_ERLEBAR_DEBUG("SELECTION");
+    _selectionView->update();
 }
 
-void ErlebARApp::TEST(const sm::NoEventData* data)
+void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
+    LOG_ERLEBAR_DEBUG("START_TEST");
+
+    if (stateEntry)
+    {
+        //start camera
+        SENSCamera::Config config;
+        config.targetWidth   = 640;
+        config.targetHeight  = 360;
+        config.convertToGray = true;
+
+        _camera->init(SENSCamera::Facing::BACK);
+        _camera->start(config);
+    }
+
+    if (_camera->permissionGranted() && _camera->started())
+    {
+        _testView->start();
+        addEvent(new DoneEvent());
+    }
+
+    assert(_startUpView != nullptr);
+    _startUpView->update();
+}
+
+void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("TEST");
+    _testView->update();
+}
+
+void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("HOLD_TEST");
+    if (stateEntry)
+    {
+        _camera->stop();
+    }
+}
+
+void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("RESUME_TEST");
+
+    //start camera
+    SENSCamera::Config config;
+    config.targetWidth   = 640;
+    config.targetHeight  = 360;
+    config.convertToGray = true;
+
+    _camera->init(SENSCamera::Facing::BACK);
+    _camera->start(config);
+
+    addEvent(new DoneEvent());
+}
+
+void ErlebARApp::START_ERLEBAR(const ErlebarData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("START_ERLEBAR");
+}
+
+void ErlebARApp::MAP_VIEW(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("MAP_VIEW");
+}
+
+void ErlebARApp::AREA_TRACKING(const AreaData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("AREA_TRACKING");
+}
+
+void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("TUTORIAL");
+}
+
+void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("ABOUT");
+}
+
+void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry)
+{
+    LOG_ERLEBAR_DEBUG("CAMERA_TEST");
 }

@@ -8,12 +8,17 @@
 class SENSWebCamera : public SENSCamera
 {
 public:
+    SENSWebCamera()
+    {
+        _permissionGranted = true;
+    }
     ~SENSWebCamera();
 
-    void         init(SENSCamera::Facing facing) override;
-    void         start(const Config config) override;
-    void         start(int width, int height) override;
-    void         stop() { _started = false; }
+    void init(SENSCamera::Facing facing) override;
+    void start(const Config config) override;
+    void start(int width, int height) override;
+    void stop() override;
+
     SENSFramePtr getLatestFrame() override;
 
 private:

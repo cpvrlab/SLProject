@@ -7,22 +7,22 @@
 
 #include <ErlebAR.h>
 #include <ImGuiWrapper.h>
+#include <sm/EventSender.h>
 
 class SLScene;
 class SLSceneView;
 
 class SelectionGui : public ImGuiWrapper
+  , public sm::EventSender
 {
 public:
-    SelectionGui(int         dotsPerInch,
-                 int         screenWidthPix,
-                 int         screenHeightPix,
-                 std::string fontPath);
+    SelectionGui(sm::EventHandler& eventHandler,
+                 int               dotsPerInch,
+                 int               screenWidthPix,
+                 int               screenHeightPix,
+                 std::string       fontPath);
 
     void build(SLScene* s, SLSceneView* sv) override;
-
-    AppMode getSelection() { return _selection; }
-    void    resetSelection() { _selection = AppMode::NONE; }
 
 private:
     void pushStyle();
@@ -41,7 +41,6 @@ private:
 
     ImGuiStyle _guiStyle;
     float      _pixPerMM;
-    AppMode    _selection = AppMode::NONE;
 };
 
 #endif //SELECTION_GUI_H

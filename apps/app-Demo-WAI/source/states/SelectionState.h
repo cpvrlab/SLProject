@@ -10,40 +10,40 @@
 
 class SLInputManager;
 
-class SelectionState : public State
-{
-public:
-    SelectionState(SLInputManager& inputManager,
-                   int             screenWidth,
-                   int             screenHeight,
-                   int             dotsPerInch,
-                   std::string     fontPath,
-                   std::string     imguiIniPath);
-    SelectionState() = delete;
-
-    bool update() override;
-
-    AppMode getSelection() const
-    {
-        return _selection;
-    }
-
-    void reset()
-    {
-        _gui.resetSelection();
-        _selection = AppMode::NONE;
-        _ready     = false;
-    }
-
-protected:
-    void doStart() override;
-
-    SelectionGui   _gui;
-    SLScene        _s;
-    SLSceneView    _sv;
-    SLAssetManager _assets;
-
-    AppMode _selection = AppMode::NONE;
-};
+//class SelectionState : public State
+//{
+//public:
+//    SelectionState(SLInputManager& inputManager,
+//                   int             screenWidth,
+//                   int             screenHeight,
+//                   int             dotsPerInch,
+//                   std::string     fontPath,
+//                   std::string     imguiIniPath);
+//    SelectionState() = delete;
+//
+//    bool update() override;
+//
+//    Selection getSelection() const
+//    {
+//        return _selection;
+//    }
+//
+//    void reset()
+//    {
+//        _gui.resetSelection();
+//        _selection = Selection::NONE;
+//        _ready     = false;
+//    }
+//
+//protected:
+//    void doStart() override;
+//
+//    SelectionGui   _gui;
+//    SLScene        _s;
+//    SLSceneView    _sv;
+//    SLAssetManager _assets;
+//
+//    Selection _selection = Selection::NONE;
+//};
 
 #endif //SELECTION_STATE_H
