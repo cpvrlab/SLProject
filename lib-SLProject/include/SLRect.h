@@ -78,8 +78,12 @@ class SLRect
     SLbool  contains    (V v)                   {return (v.x>=x && v.x<=x+width && v.y>=y && v.y<=y+height);}
     SLbool  contains    (const SLRect& r)       {return (r.x>=x && r.x<=x+width && r.y>=y && r.y<=y+height && r.width <= width && r.height <= height);}
 
-    void    print       (const char* str=nullptr) {if (str) SL_LOG("%s",str);
-                                                  SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, width, height);}
+    void    print       (const char* str=nullptr) 
+    {
+        if (str) 
+            SL_LOG("%s",str);
+        SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f",x, y, width, height);
+    }
 
     // Draw rectangle with OpenGL VAO
     void drawGL(const SLCol4f& color)

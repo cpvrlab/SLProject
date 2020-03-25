@@ -28,6 +28,10 @@ class glUtils
     //! Loads an GLSL-shader file and returns the code as a string
     static string loadShader(const string& filename);
 
+    static GLuint buildShaderFromSource(string source,
+                                        GLenum shaderType,
+                                        bool&  return_value);
+
     //! Builds an GLSL-Shader object and returns the shader id
     static GLuint buildShader(const string& shaderFile,
                               GLenum        shaderType);

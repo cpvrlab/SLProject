@@ -54,7 +54,9 @@ class WAI_API ORBextractor : public KPextractor
 
     ORBextractor(int nfeatures, float scaleFactor, int nlevels, int iniThFAST, int minThFAST);
 
-    ~ORBextractor() {}
+    ~ORBextractor()
+    {
+    }
 
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
@@ -62,6 +64,7 @@ class WAI_API ORBextractor : public KPextractor
     void operator()(cv::InputArray             image,
                     std::vector<cv::KeyPoint>& keypoints,
                     cv::OutputArray            descriptors);
+    void computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors);
 
     std::vector<cv::Mat> mvImagePyramid;
 

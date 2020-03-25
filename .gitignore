@@ -23,9 +23,15 @@
 *.lnk
 *.xcuserstate
 *~
+<<<<<<< HEAD
 xyzrgb_dragon.ply
 
 data\models\PLY\xyzrgb_dragon.ply
+=======
+data/models/PLY/xyzrgb_dragon.ply
+data/models/DAE/Aventicum
+data/models/GLTF/AugustaRaurica
+>>>>>>> 54764bac507286a79926df0666ff18a4202c188b
 data/images/sequences/rgbd_dataset_freiburg1_desk
 data/calibrations/orb-slam-state-*
 data/calibrations/street*

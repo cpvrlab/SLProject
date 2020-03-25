@@ -34,7 +34,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLTransferFunction.h>
-
+#include <SLGLImGui.h>
 #include <imgui.h>
 #include <ftplib.h>
 
@@ -146,7 +146,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject\n\
 SLstring AppDemoGui::infoCredits =
   "Contributors since 2005 in alphabetic order: \
 Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, \
-Michael Goettlicher, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+Michael Goettlicher, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\
@@ -350,6 +350,46 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
                 sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
             }
+            else if (rType == RT_ct)
+            {
+                // Get averages from average variables (see Averaged)
+                SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
+                SLfloat updateTime     = s->updateTimesMS().average();
+                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
+                SLfloat detectTime     = CVTracked::detectTimesMS.average();
+                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
+                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
+                SLfloat matchTime      = CVTracked::matchTimesMS.average();
+                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
+                SLfloat poseTime       = CVTracked::poseTimesMS.average();
+                SLfloat updateAnimTime = s->updateAnimTimesMS().average();
+                SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                SLfloat cullTime       = s->cullTimesMS().average();
+                SLfloat draw3DTime     = s->draw3DTimesMS().average();
+                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+
+                // Calculate percentage from frame time
+                SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+
+                sprintf(m + strlen(m), "Renderer   : Conetracing (OpenGL)\n");
+                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+            }
             else if (rType == RT_rt)
             {
                 SLRaytracer* rt           = sv->raytracer();
@@ -484,7 +524,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             SLchar m[2550]; // message character array
             m[0] = 0;       // set zero length
 
-            CVCalibration* c        = CVCapture::instance()->activeCalib;
+            CVCamera*      ac       = CVCapture::instance()->activeCamera;
+            CVCalibration* c        = &CVCapture::instance()->activeCamera->calibration;
             CVSize         capSize  = CVCapture::instance()->captureSize;
             CVVideoType    vt       = CVCapture::instance()->videoType();
             SLstring       mirrored = "None";
@@ -498,17 +539,33 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
-            sprintf(m + strlen(m), "Size Index   : %d\n", c->camSizeIndex());
+            sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
             sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
             sprintf(m + strlen(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
-            sprintf(m + strlen(m), "Undistorted  : %s\n", c->showUndistorted() && c->state() == CS_calibrated ? "Yes" : "No");
+            sprintf(m + strlen(m), "Undistorted  : %s\n", ac->showUndistorted() ? "Yes" : "No");
+            sprintf(m + strlen(m), "Calibimg size: %d x %d\n", ac->calibration.imageSizeOriginal().width, ac->calibration.imageSizeOriginal().height);
             sprintf(m + strlen(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
             sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
             sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
-            sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1(), c->k2());
-            sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1(), c->p2());
+
+            int distortionSize = c->distortion().rows;
+            sprintf(m + strlen(m), "distortion (*10e-2):\n");
+            const float f = 100.f;
+            sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
+            sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
+            if (distortionSize >= 8)
+                sprintf(m + strlen(m), "k3,k4,k5,k6  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k3() * f, c->k4() * f, c->k5() * f, c->k6() * f);
+            else
+                sprintf(m + strlen(m), "k3           : %4.2f\n", c->k3() * f);
+
+            if (distortionSize >= 12)
+                sprintf(m + strlen(m), "s1,s2,s3,s4  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->s1() * f, c->s2() * f, c->s3() * f, c->s4() * f);
+            if (distortionSize >= 14)
+                sprintf(m + strlen(m), "tauX,tauY    : %4.2f,%4.2f\n", c->tauX() * f, c->tauY() * f);
+
             sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
             sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
+            sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
             if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
             {
@@ -697,6 +754,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLLA().x);
             sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLLA().y);
             sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLLA().z);
+            sprintf(m + strlen(m), "Altitude GPS (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
             sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
             sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
             sprintf(m + strlen(m), "Max. Dist. (m)      : %6.1f\n", SLApplication::devLoc.locMaxDistanceM());
@@ -863,6 +922,44 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+CVCalibration guessCalibration(bool         mirroredH,
+                               bool         mirroredV,
+                               CVCameraType camType)
+{
+    // Try to read device lens and sensor information
+    string strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
+    string strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
+    string strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+    if (!strF.empty() && !strW.empty() && !strH.empty())
+    {
+        float devF = strF.empty() ? 0.0f : stof(strF);
+        float devW = strW.empty() ? 0.0f : stof(strW);
+        float devH = strH.empty() ? 0.0f : stof(strH);
+
+        // Changes the state to CS_guessed
+        return CVCalibration(devW,
+                             devH,
+                             devF,
+                             cv::Size(CVCapture::instance()->lastFrame.cols,
+                                      CVCapture::instance()->lastFrame.rows),
+                             mirroredH,
+                             mirroredV,
+                             camType,
+                             SLApplication::getComputerInfos());
+    }
+    else
+    {
+        //make a guess using frame size and a guessed field of view
+        return CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
+                                      CVCapture::instance()->lastFrame.rows),
+                             60.0,
+                             mirroredH,
+                             mirroredV,
+                             camType,
+                             SLApplication::getComputerInfos());
+    }
+}
+//-----------------------------------------------------------------------------
 //! Builds the entire menu bar once per frame
 void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
@@ -888,7 +985,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-#ifndef SL_OS_ANDROID
+#if not defined(SL_OS_ANDROID) and not defined(SL_OS_IOS)
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
                         SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
@@ -922,19 +1019,19 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.ply",
                                                              ftplib::transfermode::image))
-                                                    SL_LOG("*** ERROR: ftp.Get failed. ***\n");
+                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
                                             }
                                             else
-                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***\n", plyDir.c_str());
+                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
                                         }
                                         else
-                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***\n");
+                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
                                     }
                                     else
-                                        SL_LOG("*** ERROR: ftp.Login failed. ***\n");
+                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
                                 }
                                 else
-                                    SL_LOG("*** ERROR: ftp.Connect failed. ***\n");
+                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
 
                                 ftp.Quit();
                                 SLApplication::jobIsRunning = false;
@@ -993,6 +1090,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
+                    if (ImGui::MenuItem("Voxel Cone Tracing Shader", nullptr, sid == SID_ShaderVoxelConeDemo))
+                        s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
 
                     ImGui::EndMenu();
                 }
@@ -1035,6 +1134,18 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
+
+                    SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
+                    SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+                    if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
+                        if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
+                            s->onLoad(s, sv, SID_VideoAugustaRaurica);
+
+                    SLstring modelAV1 = SLImporter::defaultPath + "Aventicum01.dae"; // Android
+                    SLstring modelAV2 = SLImporter::defaultPath + "DAE/Aventicum/Aventicum01.dae";
+                    if (Utils::fileExists(modelAV1) || Utils::fileExists(modelAV2))
+                        if (ImGui::MenuItem("Aventicum AR (Main)", nullptr, sid == SID_VideoAventicum))
+                            s->onLoad(s, sv, SID_VideoAventicum);
 
                     ImGui::EndMenu();
                 }
@@ -1090,7 +1201,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
-                        SL_LOG("%u\n", i);
+                        SL_LOG("%u", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
                         SLApplication::jobProgressNum(progressPC);
                     }
@@ -1103,15 +1214,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
-                        SL_LOG("%u\n", i);
+                        SL_LOG("%u", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
                         SLApplication::jobProgressNum(progressPC);
                     }
                     SLApplication::jobIsRunning = false;
                 };
 
-                auto jobToFollow1 = []() { SL_LOG("JobToFollow1\n"); };
-                auto jobToFollow2 = []() { SL_LOG("JobToFollow2\n"); };
+                auto jobToFollow1 = []() { SL_LOG("JobToFollow1"); };
+                auto jobToFollow2 = []() { SL_LOG("JobToFollow2"); };
 
                 SLApplication::jobsToBeThreaded.emplace_back(job1);
                 SLApplication::jobsToBeThreaded.emplace_back(job2);
@@ -1220,34 +1331,22 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Video Sensor"))
             {
-                CVCalibration* ac = capture->activeCalib;
-                CVCalibration* mc = &capture->calibMainCam;
-                CVCalibration* sc = &capture->calibScndCam;
-
-                CVTrackedFeatures* featureTracker = nullptr;
-                if (tracker != nullptr && typeid(*tracker) == typeid(CVTrackedFeatures))
-                    featureTracker = (CVTrackedFeatures*)tracker;
-
-                if (capture->videoType() == VT_MAIN &&
-                    ImGui::BeginMenu("Mirror Main Camera"))
+                CVCamera* ac = capture->activeCamera;
+                if (ImGui::BeginMenu("Mirror Camera"))
                 {
-                    if (ImGui::MenuItem("Horizontally", nullptr, mc->isMirroredH()))
-                        mc->toggleMirrorH();
+                    if (ImGui::MenuItem("Horizontally", nullptr, ac->mirrorH()))
+                    {
+                        ac->toggleMirrorH();
+                        //make a guessed calibration, if there was a calibrated camera it is not valid anymore
+                        ac->calibration = guessCalibration(ac->mirrorH(), ac->mirrorV(), ac->type());
+                    }
 
-                    if (ImGui::MenuItem("Vertically", nullptr, mc->isMirroredV()))
-                        mc->toggleMirrorV();
-
-                    ImGui::EndMenu();
-                }
-
-                if (capture->videoType() == VT_SCND &&
-                    ImGui::BeginMenu("Mirror Scnd. Camera", capture->hasSecondaryCamera))
-                {
-                    if (ImGui::MenuItem("Horizontally", nullptr, sc->isMirroredH()))
-                        sc->toggleMirrorH();
-
-                    if (ImGui::MenuItem("Vertically", nullptr, sc->isMirroredV()))
-                        sc->toggleMirrorV();
+                    if (ImGui::MenuItem("Vertically", nullptr, ac->mirrorV()))
+                    {
+                        ac->toggleMirrorV();
+                        //make a guessed calibration, if there was a calibrated camera it is not valid anymore
+                        ac->calibration = guessCalibration(ac->mirrorH(), ac->mirrorV(), ac->type());
+                    }
 
                     ImGui::EndMenu();
                 }
@@ -1265,7 +1364,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                 capture->camSizes[(uint)i].height);
                         if (ImGui::MenuItem(menuStr, nullptr, i == capture->activeCamSizeIndex))
                             if (i != capture->activeCamSizeIndex)
-                                capture->activeCalib->camSizeIndex(i);
+                                ac->camSizeIndex(i);
                     }
                     ImGui::EndMenu();
                 }
@@ -1275,31 +1374,44 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Start Calibration (Main Camera)"))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateMain);
-                        showHelpCalibration = true;
+                        showHelpCalibration = false;
                         showInfosScene      = true;
                     }
 
                     if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, capture->hasSecondaryCamera))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateScnd);
-                        showHelpCalibration = true;
+                        showHelpCalibration = false;
                         showInfosScene      = true;
                     }
 
-                    if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->state() == CS_calibrated))
+                    if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->calibration.state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
 
-                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, ac->calibZeroTangentDist()))
-                        ac->toggleZeroTangentDist();
+                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, SLApplication::calibrationEstimatorParams.zeroTangentDistortion))
+                        SLApplication::calibrationEstimatorParams.toggleZeroTangentDist();
 
-                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, ac->calibFixAspectRatio()))
-                        ac->toggleFixAspectRatio();
+                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, SLApplication::calibrationEstimatorParams.fixAspectRatio))
+                        SLApplication::calibrationEstimatorParams.toggleFixAspectRatio();
 
-                    if (ImGui::MenuItem("Fix Principal Point", nullptr, ac->calibFixPrincipalPoint()))
-                        ac->toggleFixPrincipalPoint();
+                    if (ImGui::MenuItem("Fix Principal Point", nullptr, SLApplication::calibrationEstimatorParams.fixPrincipalPoint))
+                        SLApplication::calibrationEstimatorParams.toggleFixPrincipalPoint();
+
+                    if (ImGui::MenuItem("Use rational model", nullptr, SLApplication::calibrationEstimatorParams.calibRationalModel))
+                        SLApplication::calibrationEstimatorParams.toggleRationalModel();
+
+                    if (ImGui::MenuItem("Use tilted model", nullptr, SLApplication::calibrationEstimatorParams.calibTiltedModel))
+                        SLApplication::calibrationEstimatorParams.toggleTiltedModel();
+
+                    if (ImGui::MenuItem("Use thin prism model", nullptr, SLApplication::calibrationEstimatorParams.calibThinPrismModel))
+                        SLApplication::calibrationEstimatorParams.toggleThinPrismModel();
 
                     ImGui::EndMenu();
                 }
+
+                CVTrackedFeatures* featureTracker = nullptr;
+                if (tracker != nullptr && typeid(*tracker) == typeid(CVTrackedFeatures))
+                    featureTracker = (CVTrackedFeatures*)tracker;
 
                 if (tracker != nullptr)
                     if (ImGui::MenuItem("Draw Detection", nullptr, tracker->drawDetection()))
@@ -1351,6 +1463,19 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Path Tracing (PT)", nullptr, rType == RT_pt))
                 sv->startPathtracing(5, 10);
+
+#if defined(GL_VERSION_4_4)
+            if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+            {
+                if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
+                    sv->startConetracing();
+            }
+            else
+#endif
+            {
+                if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
+                    sv->startConetracing();
+            }
 
             ImGui::EndMenu();
         }
@@ -1517,6 +1642,48 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->startPathtracing(5, 1);
                 }
                 ImGui::PopItemWidth();
+
+                ImGui::EndMenu();
+            }
+        }
+        else if (rType == RT_ct)
+        {
+            if (ImGui::BeginMenu("CT-Setting"))
+            {
+                if (ImGui::MenuItem("Show Voxelization", nullptr, sv->conetracer()->showVoxels()))
+                    sv->conetracer()->toggleVoxels();
+
+                if (ImGui::MenuItem("Direct illumination", nullptr, sv->conetracer()->doDirectIllum()))
+                    sv->conetracer()->toggleDirectIllum();
+
+                if (ImGui::MenuItem("Diffuse indirect illumination", nullptr, sv->conetracer()->doDiffuseIllum()))
+                    sv->conetracer()->toggleDiffuseIllum();
+
+                if (ImGui::MenuItem("Specular indirect illumination", nullptr, sv->conetracer()->doSpecularIllum()))
+                    sv->conetracer()->toggleSpecIllumination();
+
+                if (ImGui::MenuItem("Shadows", nullptr, sv->conetracer()->shadows()))
+                    sv->conetracer()->toggleShadows();
+
+                SLfloat angle = sv->conetracer()->diffuseConeAngle();
+                if (ImGui::SliderFloat("Diffuse cone angle (rad)", &angle, 0.f, 1.5f))
+                    sv->conetracer()->diffuseConeAngle(angle);
+
+                SLfloat specAngle = sv->conetracer()->specularConeAngle();
+                if (ImGui::SliderFloat("Specular cone angle (rad)", &specAngle, 0.004f, 0.5f))
+                    sv->conetracer()->specularConeAngle(specAngle);
+
+                SLfloat shadowAngle = sv->conetracer()->shadowConeAngle();
+                if (ImGui::SliderFloat("Shadow cone angle (rad)", &shadowAngle, 0.f, 1.5f))
+                    sv->conetracer()->shadowConeAngle(shadowAngle);
+
+                SLfloat lightSize = sv->conetracer()->lightMeshSize();
+                if (ImGui::SliderFloat("Max. size of a lightsource mesh", &lightSize, 0.0f, 100.0f))
+                    sv->conetracer()->lightMeshSize(lightSize);
+
+                SLfloat gamma = sv->conetracer()->gamma();
+                if (ImGui::SliderFloat("Gamma", &gamma, 1.0f, 3.0f))
+                    sv->conetracer()->gamma(gamma);
 
                 ImGui::EndMenu();
             }
@@ -2094,7 +2261,7 @@ void AppDemoGui::buildProperties(SLScene* s)
                         for (SLulong i = 0; i < m->textures().size(); ++i)
                         {
                             SLGLTexture* t      = m->textures()[i];
-                            void*        tid    = (ImTextureID)(intptr_t)t->texName();
+                            void*        tid    = (ImTextureID)(intptr_t)t->texID();
                             SLfloat      w      = (SLfloat)t->width();
                             SLfloat      h      = (SLfloat)t->height();
                             SLfloat      h_to_w = h / w;
@@ -2367,10 +2534,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             // clang-format on
 
             fs.release();
-            SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
-            SL_LOG("Config. date    : %s\n", AppDemoGui::configTime.c_str());
-            SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
-            SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
+            SL_LOG("Config. loaded  : %s", fullPathAndFilename.c_str());
+            SL_LOG("Config. date    : %s", AppDemoGui::configTime.c_str());
+            SL_LOG("fontPropDots    : %f", SLGLImGui::fontPropDots);
+            SL_LOG("fontFixedDots   : %f", SLGLImGui::fontFixedDots);
         }
         else
         {
@@ -2407,14 +2574,14 @@ void AppDemoGui::saveConfig()
                                    SLApplication::name + ".yml";
 
     if (!Utils::fileExists(fullPathAndFilename))
-        SL_LOG("New config file will be written: %s\n",
+        SL_LOG("New config file will be written: %s",
                fullPathAndFilename.c_str());
 
     CVFileStorage fs(fullPathAndFilename, CVFileStorage::WRITE);
 
     if (!fs.isOpened())
     {
-        SL_LOG("Failed to open file for writing: %s\n",
+        SL_LOG("Failed to open file for writing: %s",
                fullPathAndFilename.c_str());
         SL_EXIT_MSG("Exit in AppDemoGui::saveConfig");
     }
@@ -2439,6 +2606,6 @@ void AppDemoGui::saveConfig()
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
 
     fs.release();
-    SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
+    SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

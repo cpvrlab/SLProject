@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 #include <Utils.h>
 #include "CamCalibration.h"
@@ -18,23 +19,24 @@ std::string videoFileName;
 //full path of directory contining pictures of chessboard
 std::string pictureDir;
 //if videoLoops == 1 the video is repeated endlessly
-bool videoLoop           = false;
-bool helpRequired        = false;
-bool designMeAChessboard = false;
-
-bool calibFixAspectRatio        = false;
-bool calibZeroTangentDistortion = false;
-bool calibFixPrincipalPoint     = false;
+bool videoLoop            = false;
+bool helpRequired         = false;
+bool designMeAChessboard  = false;
+bool showExtractionResult = false;
+//bool calibFixAspectRatio        = false;
+//bool calibZeroTangentDistortion = false;
+//bool calibFixPrincipalPoint     = false;
 
 //cv::Size2i defaultCamResolution = cv::Size2i(640, 480);
-cv::Size2i defaultCamResolution = cv::Size2i(1920, 1080);
-std::string windowName = "Camera Calibration";
-cv::Size    chessboardSize(16, 9);
+cv::Size2i  defaultCamResolution = cv::Size2i(1920, 1080);
+std::string windowName           = "Camera Calibration";
+cv::Size    chessboardSize(8, 5);
 //cv::Size chessboardSize(10, 7);
 float squareLength = 0.168f;
 //float squareLength = 20.4f / 6.f;
 int defaultNumberOfPictures = 30;
 //cv::Size chessboardSize(8, 5);
+bool useReleaseObjectsMethod = true;
 
 std::unique_ptr<CamCalibrationManager> calibMgr;
 bool                                   calibrated = false;
@@ -59,13 +61,12 @@ void extractCorners(cv::Mat frame, std::string savePath)
         std::cout << "corners found" << std::endl;
         cv::Mat imgGray;
         cv::cvtColor(frame, imgGray, cv::COLOR_BGR2GRAY);
-        cornerSubPix(imgGray, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 30, 0.1));
+        cornerSubPix(imgGray, corners, cv::Size(31, 31), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 30, 0.0001));
         //copy corners to image collection
         calibMgr->addCorners(corners);
 
         std::stringstream ss;
         ss << savePath << "/img" << iImg << ".png";
-        //ss << sfv::Resource::path("test_data") << "/img" << iImg << ".png";
         cv::imwrite(ss.str(), frame);
         cv::drawChessboardCorners(frame, chessboardSize, cv::Mat(corners), foundCorners);
         std::stringstream sss;
@@ -74,10 +75,13 @@ void extractCorners(cv::Mat frame, std::string savePath)
         iImg++;
 
         //simulate a snapshot
-        cv::bitwise_not(frame, frame);
-        drawStatusMessage(frame);
-        cv::imshow(windowName, frame);
-        cv::waitKey(200);
+        if (showExtractionResult)
+        {
+            cv::bitwise_not(frame, frame);
+            drawStatusMessage(frame);
+            cv::imshow(windowName, frame);
+            cv::waitKey(200);
+        }
     }
     else
     {
@@ -107,11 +111,12 @@ void onMouseCallback(int event, int x, int y, int flags, void* param)
 
                 if (calibMgr->readyForCalibration())
                 {
-                    CamCalibration calib = calibMgr->calculateCalibration(
-                      calibFixAspectRatio, calibZeroTangentDistortion, calibFixPrincipalPoint);
-                    std::cout << "camera matrix: " << calib.getCameraMat() << std::endl;
-                    std::cout << "distortion coefficients: " << calib.getDistortion() << std::endl;
-                    calib.save("CameraCalibration.json");
+                    CVCalibration calib = calibMgr->calculateCalibration(
+                      false, false, false, false, false, false);
+                    std::cout << "camera matrix: " << calib.cameraMat() << std::endl;
+                    std::cout << "distortion coefficients: " << calib.distortion() << std::endl;
+                    //todo
+                    calib.save("", "CameraCalibration0.xml");
                     calibrated = true;
                 }
             }
@@ -172,9 +177,9 @@ void printHelp()
 
     ss << "  -pictureDir         path to directory containing images of chessboard, e.g. -pictureDir C:/calibImgs" << std::endl;
 
-    ss << "  -fixPrincipalPoint     sets flag cv::CALIB_FIX_PRINCIPAL_POINT (default: false, transferring -fixPrincipalPoint leads to true)" << std::endl;
-    ss << "  -zeroTangentDistortion sets flag cv::CALIB_ZERO_TANGENT_DIST (default: false, transferring -zeroTangentDistortion leads to true)" << std::endl;
-    ss << "  -fixAspectRatio        sets flag cv::CALIB_FIX_ASPECT_RATIO (default: false, transferring -fixAspectRatio leads to true)" << std::endl;
+    //ss << "  -fixPrincipalPoint     sets flag cv::CALIB_FIX_PRINCIPAL_POINT (default: false, transferring -fixPrincipalPoint leads to true)" << std::endl;
+    //ss << "  -zeroTangentDistortion sets flag cv::CALIB_ZERO_TANGENT_DIST (default: false, transferring -zeroTangentDistortion leads to true)" << std::endl;
+    //ss << "  -fixAspectRatio        sets flag cv::CALIB_FIX_ASPECT_RATIO (default: false, transferring -fixAspectRatio leads to true)" << std::endl;
 
     ss << "  -chessboardSize    number of inner corners of chessboard used for chessboard designer and chessboard identification in any case. Width has to be equal sized height unequal (default: " << chessboardSize << "), e.g. -chessboardSize 16 9" << std::endl;
     ss << "  -designChessboard  designs chessboard depending on chessboardSize (inner corners) and stores it beside executable as chessboard.png, e.g. -designChessboard" << std::endl;
@@ -212,18 +217,18 @@ void readArgs(int argc, char* argv[])
         {
             designMeAChessboard = true;
         }
-        else if (!strcmp(argv[i], "-zeroTangentDistortion"))
-        {
-            calibZeroTangentDistortion = true;
-        }
-        else if (!strcmp(argv[i], "-fixAspectRatio"))
-        {
-            calibFixAspectRatio = true;
-        }
-        else if (!strcmp(argv[i], "-fixPrincipalPoint"))
-        {
-            calibFixPrincipalPoint = true;
-        }
+        //else if (!strcmp(argv[i], "-zeroTangentDistortion"))
+        //{
+        //    calibZeroTangentDistortion = true;
+        //}
+        //else if (!strcmp(argv[i], "-fixAspectRatio"))
+        //{
+        //    calibFixAspectRatio = true;
+        //}
+        //else if (!strcmp(argv[i], "-fixPrincipalPoint"))
+        //{
+        //    calibFixPrincipalPoint = true;
+        //}
         else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help"))
         {
             helpRequired = true;
@@ -272,7 +277,57 @@ bool initCaptureTool()
     }
     return true;
 }
+//-----------------------------------------------------------------------------
+void calibAndSave(bool        fixAspectRatio,
+                  bool        zeroTangentDistortion,
+                  bool        fixPrincipalPoint,
+                  bool        calibRationalModel,
+                  bool        calibTiltedModel,
+                  bool        calibThinPrismModel,
+                  std::string outputDir,
+                  int         i,
+                  ofstream&   file)
+{
+    CVCalibration calib = calibMgr->calculateCalibration(
+      fixAspectRatio, zeroTangentDistortion, fixPrincipalPoint, calibRationalModel, calibTiltedModel, calibThinPrismModel);
+    std::cout << "camera matrix: " << calib.cameraMat() << std::endl;
+    std::cout << "distortion coefficients: " << calib.distortion() << std::endl;
+    calib.save(outputDir, "CameraCalibration" + std::to_string(i) + ".xml");
+    //file << "fixAspectRatio;zeroTangentDistortion;fixPrincipalPoint;calibRationalModel;calibTiltedModel;calibThinPrismModel;fx;fy;cx;cy;k1;k2;p1;p2;k3;k4;k5;k6;s1;s2;s3;s4;tauX;tauY;reprojError\n";
+    cv::Mat distortion = calib.distortion();
+    file << std::fixed << std::setprecision(9)
+         << fixAspectRatio << ","
+         << zeroTangentDistortion << ","
+         << fixPrincipalPoint << ","
+         << calibRationalModel << ","
+         << calibTiltedModel << ","
+         << calibThinPrismModel << ","
 
+         << calib.fx() << ","
+         << calib.fy() << ","
+         << calib.cx() << ","
+         << calib.cy() << ","
+
+         << calib.k1() << ","
+         << calib.k2() << ","
+         << calib.p1() << ","
+         << calib.p2() << ","
+
+         << calib.k3() << ","
+         << calib.k4() << ","
+         << calib.k5() << ","
+         << calib.k6() << ","
+
+         << calib.s1() << ","
+         << calib.s2() << ","
+         << calib.s3() << ","
+         << calib.s4() << ","
+
+         << calib.tauX() << ","
+         << calib.tauY() << ","
+         << calib.reprojectionError()
+         << "\n";
+}
 //-----------------------------------------------------------------------------
 /*! Camera calibration app using opencv HighGUI and camera calibration toolbox
 */
@@ -332,7 +387,11 @@ int main(int argc, char* argv[])
                 if (!frame.empty())
                 {
                     if (!calibMgr)
-                        calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize, frame.size(), squareLength, namesInDir.size());
+                        calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize,
+                                                                           frame.size(),
+                                                                           squareLength,
+                                                                           namesInDir.size(),
+                                                                           useReleaseObjectsMethod);
 
                     //extract corners and add them to manager
                     extractCorners(frame, outputDir);
@@ -341,18 +400,36 @@ int main(int argc, char* argv[])
 
             if (calibMgr)
             {
-                CamCalibration calib = calibMgr->calculateCalibration(
-                  calibFixAspectRatio, calibZeroTangentDistortion, calibFixPrincipalPoint);
-                std::cout << "camera matrix: " << calib.getCameraMat() << std::endl;
-                std::cout << "distortion coefficients: " << calib.getDistortion() << std::endl;
-                calib.save(outputDir + "CameraCalibration.json");
+                int           i = 0;
+                std::ofstream file;
+                file.open(outputDir + "stats.csv");
+                //write header
+                file << "fixAspectRatio,zeroTangentDistortion,fixPrincipalPoint,calibRationalModel,calibTiltedModel,calibThinPrismModel,fx,fy,cx,cy,k1,k2,p1,p2,k3,k4,k5,k6,s1,s2,s3,s4,tauX,tauY,reprojError\n";
+
+                calibAndSave(true, true, true, false, false, false, outputDir, i++, file);
+                calibAndSave(true, true, false, false, false, false, outputDir, i++, file);
+                calibAndSave(true, false, true, false, false, false, outputDir, i++, file);
+                calibAndSave(false, true, true, false, false, false, outputDir, i++, file);
+                calibAndSave(true, false, false, false, false, false, outputDir, i++, file);
+                calibAndSave(false, true, false, false, false, false, outputDir, i++, file);
+                calibAndSave(false, false, true, false, false, false, outputDir, i++, file);
+                calibAndSave(false, false, false, false, false, false, outputDir, i++, file);
+
+                calibAndSave(false, false, false, true, false, false, outputDir, i++, file);
+                calibAndSave(false, false, false, false, true, false, outputDir, i++, file);
+                calibAndSave(false, false, false, false, false, true, outputDir, i++, file);
+                calibAndSave(false, false, false, true, false, true, outputDir, i++, file);
+                calibAndSave(false, false, false, true, true, false, outputDir, i++, file);
+                calibAndSave(false, false, false, false, true, true, outputDir, i++, file);
+                calibAndSave(false, false, false, true, true, true, outputDir, i++, file);
+                file.close();
                 calibrated = true;
             }
         }
         else //we use opencv capture
         {
             //initialize calibration manager with default image size
-            calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize, defaultCamResolution, squareLength, defaultNumberOfPictures);
+            calibMgr = std::make_unique<CamCalibrationManager>(chessboardSize, defaultCamResolution, squareLength, defaultNumberOfPictures, useReleaseObjectsMethod);
 
             //try to instantiate video caputure tool with read arguments
             if (!initCaptureTool())
@@ -396,6 +473,8 @@ int main(int argc, char* argv[])
                 //display video image
                 cv::imshow(windowName, frame);
             }
+
+            cv::destroyWindow(windowName);
         }
     }
     catch (cv::Exception& e)
@@ -411,6 +490,5 @@ int main(int argc, char* argv[])
         std::cout << "Unknown exception!" << std::endl;
     }
 
-    cv::destroyWindow(windowName);
     return 0;
 }

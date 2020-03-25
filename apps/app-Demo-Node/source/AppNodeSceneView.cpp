@@ -20,7 +20,6 @@
 #include <SLGLVertexArrayExt.h>
 #include <SLLightSpot.h>
 #include <SLTexFont.h>
-#include <SLText.h>
 
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"

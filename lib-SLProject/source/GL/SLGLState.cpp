@@ -15,6 +15,7 @@
 
 #include <SLGLEnums.h>
 #include <SLGLState.h>
+#include <SLMaterial.h>
 #include <CVImage.h>
 
 //-----------------------------------------------------------------------------
@@ -65,11 +66,13 @@ void SLGLState::initAll()
         lightDoAtt[i] = 0;
     }
 
+	/*
     matAmbient   = SLCol4f::WHITE;
     matDiffuse   = SLCol4f::WHITE;
     matSpecular  = SLCol4f::WHITE;
     matEmissive  = SLCol4f::BLACK;
     matShininess = 100;
+	*/
 
     fogIsOn      = false;
     fogMode      = GL_LINEAR;
@@ -254,7 +257,7 @@ void SLGLState::calcLightDirVS(SLint nLights)
  */
 const SLCol4f* SLGLState::globalAmbient()
 {
-    _globalAmbient.set(globalAmbientLight & matAmbient);
+    _globalAmbient.set(globalAmbientLight & SLMaterial::current->ambient());
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------
@@ -480,7 +483,14 @@ void SLGLState::useProgram(SLuint progID)
  */
 void SLGLState::bindTexture(GLenum target, SLuint textureID)
 {
-    if (target != _textureTarget || textureID != _textureID)
+    // (luc) If there we call glActiveTexture and glBindTexture from outside,
+    // This will lead to problems as the global state in SLGLState will not be
+    // equivalent to the OpenGL state.
+    // We should solve this by querying opengl for the last binded texture.
+    // glGetIntegeriv(GL_ACTIVE_TEXTURE, active_texture)
+    // glGetIntegeriv(GL_TEXTURE_BINDING_2D, textureID)
+
+    //if (target != _textureTarget || textureID != _textureID)
     {
         glBindTexture(target, textureID);
 
@@ -497,7 +507,14 @@ void SLGLState::bindTexture(GLenum target, SLuint textureID)
  */
 void SLGLState::activeTexture(SLenum textureUnit)
 {
-    if (textureUnit != _textureUnit)
+    // (luc) If there we call glActiveTexture and glBindTexture from outside,
+    // This will lead to problems as the global state in SLGLState will not be
+    // equivalent to the OpenGL state.
+    // We should solve this by querying opengl for the last binded texture.
+    // glGetIntegeriv(GL_ACTIVE_TEXTURE, active_texture)
+    // glGetIntegeriv(GL_TEXTURE_BINDING_2D, textureID)
+
+    //if (textureUnit != _textureUnit)
     {
         glActiveTexture(textureUnit);
         _textureUnit = textureUnit;
@@ -654,14 +671,14 @@ SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
      #define SL_INTENSITY 0x8049         //         GL2
      #define SL_GREEN 0x1904             //         GL2
      #define SL_BLUE 0x1905              //         GL2
-     
+
      #define SL_RED  0x1903              //     ES3 GL2 GL3 GL4
      #define SL_RG   0x8227              //     ES3     GL3 GL4
      #define SL_RGB  0x1907              // ES2 ES3 GL2 GL3 GL4
      #define SL_RGBA 0x1908              // ES2 ES3 GL2 GL3 GL4
      #define SL_BGR  0x80E0              //         GL2 GL3 GL4
      #define SL_BGRA 0x80E1              //         GL2 GL3 GL4 (iOS defines it but it doesn't work)
-     
+
      #define SL_RG_INTEGER 0x8228        //     ES3         GL4
      #define SL_RED_INTEGER 0x8D94       //     ES3         GL4
      #define SL_RGB_INTEGER 0x8D98       //     ES3         GL4

@@ -14,7 +14,7 @@
 #include "AppNodeSceneView.h"
 #include <SLScene.h>
 #include <SLSceneView.h>
-
+#include <imgui.h>
 //-----------------------------------------------------------------------------
 SLstring AppNodeGui::infoText = "";
 //-----------------------------------------------------------------------------

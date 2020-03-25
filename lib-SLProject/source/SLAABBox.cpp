@@ -95,7 +95,7 @@ void SLAABBox::fromOStoWS(const SLVec3f& minOS,
     _axisZWS = wm.multVec(SLVec3f::AXISZ);
 
     // Delete OpenGL vertex array
-    if (_vao.id()) _vao.clearAttribs();
+    if (_vao.vaoID()) _vao.clearAttribs();
 
     setCenterAndRadius();
 }
@@ -137,7 +137,7 @@ void SLAABBox::fromWStoOS(const SLVec3f& minWS,
     }
 
     // Delete OpenGL vertex array
-    if (_vao.id()) _vao.clearAttribs();
+    if (_vao.vaoID()) _vao.clearAttribs();
 
     setCenterAndRadius();
 }
@@ -152,7 +152,7 @@ void SLAABBox::updateAxisWS(const SLMat4f& wm)
     _axisZWS = wm.multVec(SLVec3f::AXISZ);
 
     // Delete OpenGL vertex array
-    if (_vao.id()) _vao.clearAttribs();
+    if (_vao.vaoID()) _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Updates joints axis and the bone line from the parent to us
@@ -202,7 +202,7 @@ void SLAABBox::updateBoneWS(const SLMat4f& parentWM,
     _axisZWS = nodeWM.multVec(SLVec3f::AXISZ * axisScaleFactor);
 
     // Delete OpenGL vertex array
-    if (_vao.id()) _vao.clearAttribs();
+    if (_vao.vaoID()) _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
@@ -270,14 +270,14 @@ void SLAABBox::generateVAO()
 //! Draws the AABB in world space with lines in a color
 void SLAABBox::drawWS(const SLCol4f color)
 {
-    if (!_vao.id()) generateVAO();
+    if (!_vao.vaoID()) generateVAO();
     _vao.drawArrayAsColored(PT_lines, color, 1.0f, 0, 24);
 }
 //-----------------------------------------------------------------------------
 //! Draws the axis in world space with lines in a color
 void SLAABBox::drawAxisWS()
 {
-    if (!_vao.id()) generateVAO();
+    if (!_vao.vaoID()) generateVAO();
     _vao.drawArrayAsColored(PT_lines, SLCol3f::RED, 2.0f, 24, 2);
     _vao.drawArrayAsColored(PT_lines, SLCol3f::GREEN, 2.0f, 26, 2);
     _vao.drawArrayAsColored(PT_lines, SLCol3f::BLUE, 2.0f, 28, 2);
@@ -290,7 +290,7 @@ an offset displacement in magenta. See also SLAABBox::updateBoneWS.
 */
 void SLAABBox::drawBoneWS()
 {
-    if (!_vao.id()) generateVAO();
+    if (!_vao.vaoID()) generateVAO();
     _vao.drawArrayAsColored(PT_lines, SLCol3f::RED, 2.0f, 24, 2);
     _vao.drawArrayAsColored(PT_lines, SLCol3f::GREEN, 2.0f, 26, 2);
     _vao.drawArrayAsColored(PT_lines, SLCol3f::BLUE, 2.0f, 28, 2);

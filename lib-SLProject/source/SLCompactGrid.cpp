@@ -206,7 +206,7 @@ void SLCompactGrid::draw(SLSceneView* sv)
 {
     if (_voxelCnt > 0)
     {
-        if (!_vao.id())
+        if (!_vao.vaoID())
         {
             SLuint   x, y, z;
             SLuint   curVoxel = 0;

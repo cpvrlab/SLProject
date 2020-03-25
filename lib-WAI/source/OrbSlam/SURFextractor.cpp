@@ -123,7 +123,7 @@ static void computeBRIEFDescriptor(const KeyPoint& kpt,
 #undef GET_VALUE
 }
 
-static int bit_pattern_31_[256 * 4] =
+static const int bit_pattern_31_[256 * 4] =
   {
     8,
     -3,
@@ -1152,7 +1152,7 @@ static int bit_pattern_31_[256 * 4] =
 };
 
 SURFextractor::SURFextractor(double threshold)
-  : KPextractor("SURF_BRIEF_" + std::to_string(threshold))
+  : KPextractor("SURF-BRIEF-" + std::to_string((int)threshold), false)
 {
     mvScaleFactor.resize(1);
     mvLevelSigma2.resize(1);
@@ -1198,6 +1198,12 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 {
     for (size_t i = 0; i < keypoints.size(); i++)
         computeBRIEFDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
+}
+
+void SURFextractor::computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)
+{
+    descriptors.create(keypoints.size(), 32, CV_8U);
+    computeDescriptors(image, keypoints, descriptors, pattern);
 }
 
 void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)

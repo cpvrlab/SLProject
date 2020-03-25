@@ -25,7 +25,7 @@ for a good top down information.
 #include <CVImage.h>
 #include <Averaged.h>
 #include <opencv2/opencv.hpp>
-#include <CVCalibration.h>
+#include <CVCamera.h>
 #include <HighResTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ https://docs.opencv.org/3.0-beta/modules/videoio/doc/reading_and_writing_video.h
 */
 class CVCapture
 {
-    public: //! Public static instance getter for singleton pattern
+public: //! Public static instance getter for singleton pattern
     static CVCapture* instance()
     {
         if (!_instance)
@@ -99,19 +99,21 @@ class CVCapture
     void        videoType(CVVideoType vt);
     CVVideoType videoType() { return _videoType; }
     int         nextFrameIndex();
-    AvgFloat&   captureTimesMS() { return _captureTimesMS; }
-    void        loadCalibrations(const string& computerInfo,
-                                 const string& configPath,
-                                 const string& calibInitPath,
-                                 const string& videoPath);
-    void        setCameraSize(int sizeIndex,
-                              int sizeIndexMax,
-                              int width,
-                              int height);
+    //! get number of frames in video
+    int       videoLength();
+    AvgFloat& captureTimesMS() { return _captureTimesMS; }
+    void      loadCalibrations(const string& computerInfo,
+                               const string& configPath,
+                               const string& videoPath);
+    void      setCameraSize(int sizeIndex,
+                            int sizeIndexMax,
+                            int width,
+                            int height);
 
     void moveCapturePosition(int n);
 
     CVMat       lastFrame;          //!< last frame grabbed in RGB
+    CVMat       lastFrameFull;      //!< last frame grabbed in RGB and full resolution
     CVMat       lastFrameGray;      //!< last frame in grayscale
     CVPixFormat format;             //!< GL pixel format
     CVSize      captureSize;        //!< size of captured frame
@@ -128,12 +130,12 @@ class CVCapture
     CVVSize camSizes;           //!< All possible camera sizes
     int     activeCamSizeIndex; //!< Currently active camera size index
 
-    CVCalibration* activeCalib;    //!< Pointer to the active calibration
-    CVCalibration  calibMainCam;   //!< OpenCV calibration for main video camera
-    CVCalibration  calibScndCam;   //!< OpenCV calibration for secondary video camera
-    CVCalibration  calibVideoFile; //!< OpenCV calibration for simulation using a video file
+    CVCamera* activeCamera; //!< Pointer to the active camera
+    CVCamera  mainCam;      //!< camera representation for main video camera
+    CVCamera  scndCam;      //!< camera representation for secondary video camera
+    CVCamera  videoFileCam; //!< camera representation for simulation using a video file
 
-    private:
+private:
     CVCapture(); //!< private onetime constructor
     ~CVCapture();
     static CVCapture* _instance; //!< global singleton object

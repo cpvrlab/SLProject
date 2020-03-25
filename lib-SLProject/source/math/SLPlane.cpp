@@ -72,7 +72,7 @@ SLPlane::print prints the normal and the coefficent d
 */
 void SLPlane::print(const char* name)
 {
-    SL_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)\n",
+    SL_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)",
            name,
            N.x,
            N.y,

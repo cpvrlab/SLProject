@@ -4,11 +4,12 @@
 #include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiInfosFrameworks.h>
-#include <CVCapture.h>
+
 //-----------------------------------------------------------------------------
 AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name, bool* activator)
   : AppDemoGuiInfosDialog(name, activator)
-{ }
+{
+}
 
 //-----------------------------------------------------------------------------
 void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
@@ -40,4 +41,3 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::End();
     ImGui::PopFont();
 }
-

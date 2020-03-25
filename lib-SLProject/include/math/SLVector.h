@@ -29,7 +29,7 @@ done in _DEBUG mode within the access methods and operators.
 template<class T, class U>
 class SLVector
 {
-    public:
+public:
     SLVector();                  //!< creates empty array
     SLVector(SLuint size);       //!< creates array w. size
     SLVector(const SLVector& a); //!< creates a copy of array a
@@ -51,7 +51,7 @@ class SLVector
     void      resize(SLuint64 size = 0);       //!< deletes all, sets _size=size
     void      reserve(SLuint64 newSize);       //!< set capacity = newSize
 
-    private:
+private:
     U  _size;     //!< real size of array of type U
     U  _capacity; //!< internal size of array of type U
     T* _contents; //!< pointer to the array of type T
@@ -143,8 +143,7 @@ SLVector<T, U>::operator=(const SLVector* a)
 }
 //-----------------------------------------------------------------------------
 template<class T, class U>
-void
-SLVector<T, U>::set(const SLVector& a)
+void SLVector<T, U>::set(const SLVector& a)
 {
     SLuint i;
     if (&a != this)
@@ -175,8 +174,7 @@ can make adding much more faster. If s is smaller than the actual size, it
 will be ignored.
 */
 template<class T, class U>
-void
-SLVector<T, U>::reserve(SLuint64 newSize)
+void SLVector<T, U>::reserve(SLuint64 newSize)
 {
     T*     temp;
     SLuint i;
@@ -184,7 +182,7 @@ SLVector<T, U>::reserve(SLuint64 newSize)
 #ifdef _DEBUG
     if (newSize > MAXCAPACITY)
     {
-        SL_LOG("SLVector::reserve: newSize > Max. capacity\n");
+        SL_LOG("SLVector::reserve: newSize > Max. capacity");
         newSize = MAXCAPACITY;
     }
 #endif
@@ -201,8 +199,7 @@ SLVector<T, U>::reserve(SLuint64 newSize)
 }
 //-----------------------------------------------------------------------------
 template<class T, class U>
-void
-SLVector<T, U>::push_back(const T element)
+void SLVector<T, U>::push_back(const T element)
 {
     if (_capacity != 0)
     {
@@ -223,8 +220,7 @@ SLVector<T, U>::push_back(const T element)
 }
 //-----------------------------------------------------------------------------
 template<class T, class U>
-void
-SLVector<T, U>::erase(U index)
+void SLVector<T, U>::erase(U index)
 {
     if (index >= _size)
     {
@@ -253,8 +249,7 @@ SLVector<T, U>::erase(U index)
 }
 //-----------------------------------------------------------------------------
 template<class T, class U>
-void
-SLVector<T, U>::reverse()
+void SLVector<T, U>::reverse()
 {
     SLuint i;
     T      temp;
@@ -268,13 +263,12 @@ SLVector<T, U>::reverse()
 }
 //-----------------------------------------------------------------------------
 template<class T, class U>
-void
-SLVector<T, U>::resize(SLuint64 newSize)
+void SLVector<T, U>::resize(SLuint64 newSize)
 {
 #ifdef _DEBUG
     if (newSize > MAXCAPACITY)
     {
-        SL_LOG("SLVector::reserve: newSize > Max. capacity\n");
+        SL_LOG("SLVector::reserve: newSize > Max. capacity");
         newSize = MAXCAPACITY;
     }
 #endif
@@ -286,8 +280,7 @@ SLVector<T, U>::resize(SLuint64 newSize)
 }
 //-----------------------------------------------------------------------------
 template<class T, class U>
-void
-SLVector<T, U>::pop_back()
+void SLVector<T, U>::pop_back()
 {
     _size--;
 }

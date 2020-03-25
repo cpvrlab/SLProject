@@ -1,67 +1,31 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for OpenCV with contributions for MacOS
+# Build script for g2o for iOS
 # ####################################################
 
-CV_VERSION=$1
-ARCH="iosV8"
-ZIPFOLDER=build/"$ARCH"_opencv_"$CV_VERSION"
-BUILD_D=build/"$ARCH"_debug_"$CV_VERSION"
-BUILD_R=build/"$ARCH"_release_"$CV_VERSION"
+ARCH=linux
+ZIPFILE="$ARCH"_g2o
+ZIPFOLDER="build/$ZIPFILE"
+BUILD_D=build/"$ARCH"_debug
+BUILD_R=build/"$ARCH"_release
 
 clear
-echo "============================================================"
-echo "Building OpenCV Version: $CV_VERSION for architecture: $ARCH"
-echo "============================================================"
-
-# Check tag parameter
-if [ "$1" == "" ]; then
-    echo "No OpenCV tag passed as 1st parameter"
-    exit
-fi
-
-# Cloning OpenCV
-if [ ! -d "opencv/.git" ]; then
-    git clone https://github.com/Itseez/opencv.git
-fi
-
-# Cloning OpenCV contributions
-if [ ! -d "opencv_contrib/.git" ]; then
-    git clone https://github.com/Itseez/opencv_contrib.git
-fi
-
-# Get all OpenCV tags and check if the requested exists
-cd opencv
-git tag > opencv_tags.txt
-if grep -Fx "$CV_VERSION" opencv_tags.txt > /dev/null; then
-    git checkout $CV_VERSION
-    git pull origin $CV_VERSION
-    cd ..
-    cd opencv_contrib
-    git checkout $CV_VERSION
-    git pull origin $CV_VERSION
-    rm -f opencv_tags.txt
-    cd ..
-else
-    echo "No valid OpenCV tag passed as 1st parameter"
-    exit
-fi
+echo "Building g2o using the sources in the thirdparty directory"
+cd ../g2o
 
 # Make build folder for debug version
-echo "============================================================"
-cd opencv
-if [ ! -d "build" ]; then
-    mkdir build
-fi
+mkdir build
 rm -rf $BUILD_D
-mkdir $BUILD_D
-cd $BUILD_D
+mkdir "$BUILD_D"
+cd "$BUILD_D"
 
-
+echo "====================================================== cmake"
 # Run cmake to configure and generate for iosV8 debug
 cmake \
--DCMAKE_CONFIGURATION_TYPES=Debug \
+-DCMAKE_INSTALL_PREFIX=install \
+-DG2O_BUILD_APPS=off \
+-DG2O_BUILD_EXAMPLES=off \
 -DCMAKE_BUILD_TYPE=Debug \
 -DBUILD_WITH_DEBUG_INFO=true \
 -DCMAKE_INSTALL_PREFIX=./install \
@@ -73,30 +37,20 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=true \
+-DWITH_OPENCL=false \
+-DWITH_OPENCLAMDFFT=false \
+-DWITH_OPENCLAMDBLAS=false \
+-DWITH_VA_INTEL=false \
 -GXcode \
--DAPPLE_FRAMEWORK=ON \
--DIOS_ARCH=arm64 \
--DCMAKE_TOOLCHAIN_FILE=../../platforms/ios/cmake/Toolchains/Toolchain-iPhoneOS_Xcode.cmake \
--DENABLE_NEON=ON \
+-DAPPLE_FRAMEWORK=true \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=true \
+-DENABLE_ARC=false \
 ../..
 
-xcodebuild \
-IPHONEOS_DEPLOYMENT_TARGET=8.0 \
-ARCHS=arm64 \
--sdk=phoneos \
--configuration=Debug \
--jobs=8 \
--target=ALL_BUILD \
--parallelizeTargets \
-build
+cmake --build . --config Debug --target install
 
-: '
-# finally build it
-make -j8
-
-# copy all into install folder
-make install
 cd ../.. # back to opencv
 
 # Make build folder for release version
@@ -107,8 +61,18 @@ cd $BUILD_R
 
 # Run cmake to configure and generate the make files
 cmake \
--DCMAKE_CONFIGURATION_TYPES=Release \
+-DCMAKE_INSTALL_PREFIX=install \
+-DG2O_BUILD_APPS=off \
+-DG2O_BUILD_EXAMPLES=off \
 -DCMAKE_BUILD_TYPE=Release \
+<<<<<<< HEAD
+-DCMAKE_DEBUG_POSTFIX="" \
+-DEIGEN3_INCLUDE_DIR=../eigen \
+-DG2O_USE_OPENGL=off \
+-GXcode \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../prebuild_scripts/ios.toolchain.cmake \
+=======
 -DBUILD_WITH_DEBUG_INFO=false \
 -DCMAKE_INSTALL_PREFIX=./install \
 -DBUILD_opencv_python_bindings_generator=false \
@@ -119,14 +83,22 @@ cmake \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DWITH_OPENCL=false \
+-DWITH_OPENCLAMDFFT=false \
+-DWITH_OPENCLAMDBLAS=false \
+-DWITH_VA_INTEL=false \
+-GXcode \
+-DAPPLE_FRAMEWORK=true \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=true \
+>>>>>>> 36f995c12cc97cd8b074ee7af8f3f4793f23bb15
+-DENABLE_ARC=false \
 ../..
 
-# finally build it
-make -j8
+cmake --build . --config Release --target install
 
-# copy all into install folder
-make install
-cd ../.. # back to opencv
+cd ../.. # Back to opencv
 
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER
@@ -136,4 +108,3 @@ cp -R $BUILD_R/install/lib     $ZIPFOLDER/release
 cp -R $BUILD_D/install/lib     $ZIPFOLDER/debug
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER
-'

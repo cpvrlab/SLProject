@@ -114,14 +114,157 @@ bool Initializer::Initialize(const WAIFrame& CurrentFrame, const vector<int>& vM
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
     if (RH > 0.40)
     {
-        std::cout << "ReconstructH" << std::endl;
         return ReconstructH(vbMatchesInliersH, H, mK, R21, t21, vP3D, vbTriangulated, 1.0, 50);
     }
     else //if(pF_HF>0.6)
     {
-        std::cout << "ReconstructF" << std::endl;
         return ReconstructF(vbMatchesInliersF, F, mK, R21, t21, vP3D, vbTriangulated, 1.0, 50);
     }
+}
+
+bool Initializer::InitializeWithKnownPose(const std::vector<cv::KeyPoint>& mvKeysUnInitialFrame,
+                                          const std::vector<cv::KeyPoint>& mvKeysUnCurrentFrame,
+                                          const cv::Mat&                   mTcwInitialFrame,
+                                          const cv::Mat&                   mTcwCurrentFrame,
+                                          const cv::Mat&                   cameraMatInitialFrame,
+                                          const cv::Mat&                   cameraMatCurrentFrame,
+                                          const vector<int>&               vMatches12,
+                                          cv::Mat&                         R21,
+                                          cv::Mat&                         t21,
+                                          vector<cv::Point3f>&             vP3D,
+                                          vector<bool>&                    vbTriangulated,
+                                          int                              minTriangulated)
+{
+    bool result = true;
+
+    // Fill structures with current keypoints and matches with reference frame
+    // Reference Frame: 1, Current Frame: 2
+    mvKeys1 = mvKeysUnInitialFrame;
+    mvKeys2 = mvKeysUnCurrentFrame;
+
+    mvMatches12.clear();
+    mvMatches12.reserve(mvKeys2.size());
+    mvbMatched1.resize(mvKeys1.size());
+    for (size_t i = 0, iend = vMatches12.size(); i < iend; i++)
+    {
+        if (vMatches12[i] >= 0)
+        {
+            mvMatches12.push_back(make_pair(i, vMatches12[i]));
+            mvbMatched1[i] = true;
+        }
+        else
+        {
+            mvbMatched1[i] = false;
+        }
+    }
+
+    cv::Mat Tcw1 = mTcwInitialFrame.clone();
+    cv::Mat Rcw1 = mTcwInitialFrame.rowRange(0, 3).colRange(0, 3).clone();
+    cv::Mat Rwc1 = Rcw1.t();
+    cv::Mat tcw1 = mTcwInitialFrame.rowRange(0, 3).col(3).clone();
+    cv::Mat twc1 = -Rwc1 * tcw1;
+    cv::Mat Twc1 = cv::Mat::eye(4, 4, CV_32F);
+    Rwc1.copyTo(Twc1.rowRange(0, 3).colRange(0, 3));
+    twc1.copyTo(Twc1.rowRange(0, 3).col(3));
+
+    cv::Mat Rcw2 = mTcwCurrentFrame.rowRange(0, 3).colRange(0, 3).clone();
+    cv::Mat Rwc2 = Rcw2.t();
+    cv::Mat tcw2 = mTcwCurrentFrame.rowRange(0, 3).col(3).clone();
+
+    std::vector<bool> vMatchesInliers(vMatches12.size(), true);
+
+    // Compute Fundamental Matrix
+    cv::Mat F21;
+    {
+        R21 = Rcw2 * Rcw1.t();
+        t21 = -Rcw2 * Rcw1.t() * tcw1 + tcw2;
+
+        //std::cout << t21 << std::endl;
+
+        //cv::Mat t21x = SkewSymmetricMatrix(t12);
+        cv::Mat t21x = (cv::Mat_<float>(3, 3) << 0.0f, -t21.at<float>(2), t21.at<float>(1), t21.at<float>(2), 0.0f, -t21.at<float>(0), -t21.at<float>(1), t21.at<float>(0), 0.0f);
+
+        const cv::Mat& K1 = cameraMatInitialFrame;
+        const cv::Mat& K2 = cameraMatCurrentFrame;
+
+        F21 = K1.t().inv() * t21x * R21 * K2.inv();
+    }
+
+    // Normalize coordinates
+    vector<cv::Point2f> vPn1, vPn2;
+    cv::Mat             T1, T2;
+    Normalize(mvKeys1, vPn1, T1);
+    Normalize(mvKeys2, vPn2, T2);
+    cv::Mat T2t = T2.t();
+    //cv::Mat F21i = T2t * F21 * T1;
+    cv::Mat F21i = F21;
+
+    float score = CheckFundamental(F21i, vMatchesInliers, mSigma);
+    // TODO(dgj1): this makes no sense
+    if (score < 0.6f)
+    {
+        result = false;
+    }
+    else
+    {
+        float parallax;
+        int   nGood   = CheckRT(R21, t21, mvKeys1, mvKeys2, mvMatches12, vMatchesInliers, mK, vP3D, 4.0 * mSigma2, vbTriangulated, parallax);
+        int   maxGood = nGood;
+
+        int N = 0;
+        for (size_t i = 0, iend = mvMatches12.size(); i < iend; i++)
+        {
+            int pointIndex = mvMatches12[i].first;
+
+            if (/*vMatchesInliers[i] && */ vbTriangulated[pointIndex])
+            {
+                N++;
+
+                cv::Mat P4D         = cv::Mat(4, 1, CV_32F);
+                P4D.at<float>(0, 0) = vP3D[pointIndex].x;
+                P4D.at<float>(1, 0) = vP3D[pointIndex].y;
+                P4D.at<float>(2, 0) = vP3D[pointIndex].z;
+                P4D.at<float>(3, 0) = 1.0f;
+
+                cv::Mat P4Dw = Twc1 * P4D;
+
+                vP3D[pointIndex].x = P4Dw.at<float>(0, 0) / P4Dw.at<float>(3, 0);
+                vP3D[pointIndex].y = P4Dw.at<float>(1, 0) / P4Dw.at<float>(3, 0);
+                vP3D[pointIndex].z = P4Dw.at<float>(2, 0) / P4Dw.at<float>(3, 0);
+            }
+        }
+
+        int nMinGood = max(static_cast<int>(0.9 * N), minTriangulated);
+        //int nMinGood = minTriangulated;
+
+        //Utils::log("WAI","nGood, nMinGood, parallax: %i, %i, %f", nGood, nMinGood, parallax);
+
+        float minParallax = 10.0f; // min. angle in degrees between frames
+        if (maxGood < nMinGood || parallax <= minParallax)
+        {
+            result = false;
+        }
+    }
+
+    return result;
+}
+
+bool Initializer::InitializeWithKnownPose(const WAIFrame& InitialFrame, const WAIFrame& CurrentFrame, const vector<int>& vMatches12, cv::Mat& R21, cv::Mat& t21, vector<cv::Point3f>& vP3D, vector<bool>& vbTriangulated, int minTriangulated)
+{
+    bool result = InitializeWithKnownPose(InitialFrame.mvKeysUn,
+                                          CurrentFrame.mvKeysUn,
+                                          InitialFrame.mTcw,
+                                          CurrentFrame.mTcw,
+                                          InitialFrame.mK,
+                                          CurrentFrame.mK,
+                                          vMatches12,
+                                          R21,
+                                          t21,
+                                          vP3D,
+                                          vbTriangulated,
+                                          minTriangulated);
+
+    return result;
 }
 
 void Initializer::FindHomography(vector<bool>& vbMatchesInliers, float& score, cv::Mat& H21)
@@ -734,14 +877,18 @@ bool Initializer::ReconstructH(vector<bool>& vbMatchesInliers, cv::Mat& H21, cv:
     return false;
 }
 
-void Initializer::Triangulate(const cv::KeyPoint& kp1, const cv::KeyPoint& kp2, const cv::Mat& P1, const cv::Mat& P2, cv::Mat& x3D)
+void Initializer::Triangulate(const cv::Point& p1,
+                              const cv::Point& p2,
+                              const cv::Mat&   P1,
+                              const cv::Mat&   P2,
+                              cv::Mat&         x3D)
 {
     cv::Mat A(4, 4, CV_32F);
 
-    A.row(0) = kp1.pt.x * P1.row(2) - P1.row(0);
-    A.row(1) = kp1.pt.y * P1.row(2) - P1.row(1);
-    A.row(2) = kp2.pt.x * P2.row(2) - P2.row(0);
-    A.row(3) = kp2.pt.y * P2.row(2) - P2.row(1);
+    A.row(0) = p1.x * P1.row(2) - P1.row(0);
+    A.row(1) = p1.y * P1.row(2) - P1.row(1);
+    A.row(2) = p2.x * P2.row(2) - P2.row(0);
+    A.row(3) = p2.y * P2.row(2) - P2.row(1);
 
     cv::Mat u, w, vt;
     cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
@@ -836,7 +983,7 @@ int Initializer::CheckRT(const cv::Mat& R, const cv::Mat& t, const vector<cv::Ke
         const cv::KeyPoint& kp2 = vKeys2[vMatches12[i].second];
         cv::Mat             p3dC1;
 
-        Triangulate(kp1, kp2, P1, P2, p3dC1);
+        Triangulate(kp1.pt, kp2.pt, P1, P2, p3dC1);
 
         if (!isfinite(p3dC1.at<float>(0)) || !isfinite(p3dC1.at<float>(1)) || !isfinite(p3dC1.at<float>(2)))
         {

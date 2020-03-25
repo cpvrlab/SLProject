@@ -101,7 +101,7 @@ void SLMesh::deleteSelected(SLNode* node)
     // Loop over all rectangle selected indexes in IS32
     for (SLulong i = 0; i < IS32.size(); ++i)
     {
-        SLuint ixDel = IS32[i] - i;
+        SLulong ixDel = IS32[i] - i;
 
         if (ixDel < P.size()) P.erase(P.begin() + ixDel);
         if (ixDel < N.size()) N.erase(N.begin() + ixDel);
@@ -212,7 +212,7 @@ void SLMesh::deleteUnused()
         if (!used[u])
         {
             unused++;
-            SLuint ixDel = u - (unused - 1);
+            SLulong ixDel = u - (unused - 1);
 
             if (ixDel < P.size()) P.erase(P.begin() + ixDel);
             if (ixDel < N.size()) N.erase(N.begin() + ixDel);
@@ -223,16 +223,16 @@ void SLMesh::deleteUnused()
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
             // decrease the indexes smaller than the deleted on
-            for (SLulong i = 0; i < I16.size(); ++i)
+            for (unsigned short & i : I16)
             {
-                if (I16[i] > ixDel)
-                    I16[i]--;
+                if (i > ixDel)
+                    i--;
             }
 
-            for (SLulong i = 0; i < I32.size(); ++i)
+            for (unsigned int & i : I32)
             {
-                if (I32[i] > ixDel)
-                    I32[i]--;
+                if (i > ixDel)
+                    i--;
             }
         }
     }
@@ -392,18 +392,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 3) Generate Vertex Array Object once
     ///////////////////////////////////////
 
-    if (!_vao.id())
-    {
-        _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-        if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-        if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-        if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-        if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
-        if (!I16.empty()) _vao.setIndices(&I16);
-        if (!I32.empty()) _vao.setIndices(&I32);
-
-        _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
-    }
+    if (!_vao.vaoID())
+        generateVAO(sp);
 
     ///////////////////////////////
     // 4): Finally do the draw call
@@ -431,8 +421,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         V2.resize(P.size() * 2);
         for (SLulong i = 0; i < P.size(); ++i)
         {
-            V2[i << 1] = finalP(i);
-            V2[(i << 1) + 1].set(finalP(i) + finalN(i) * r);
+            V2[i << 1] = finalP((SLuint)i);
+            V2[(i << 1) + 1].set(finalP((SLuint)i) + finalN((SLuint)i) * r);
         }
 
         // Create or update VAO for normals
@@ -442,9 +432,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             for (SLulong i = 0; i < P.size(); ++i)
             {
-                V2[(i << 1) + 1].set(finalP(i).x + T[i].x * r,
-                                     finalP(i).y + T[i].y * r,
-                                     finalP(i).z + T[i].z * r);
+                V2[(i << 1) + 1].set(finalP((SLuint)i).x + T[i].x * r,
+                                     finalP((SLuint)i).y + T[i].y * r,
+                                     finalP((SLuint)i).z + T[i].z * r);
             }
 
             // Create or update VAO for tangents
@@ -457,8 +447,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     { // release buffer objects for normal & tangent rendering
-        if (_vaoN.id()) _vaoN.deleteGL();
-        if (_vaoT.id()) _vaoT.deleteGL();
+        if (_vaoN.vaoID()) _vaoN.deleteGL();
+        if (_vaoT.vaoID()) _vaoT.deleteGL();
     }
 
     //////////////////////////////////////////
@@ -518,7 +508,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             SLVec3f p = v_mvp * P[i];
             if (s->selectedRect().contains(SLVec2f(p.x, p.y)))
-                IS32.push_back(i);
+                IS32.push_back((SLuint)i);
         }
 
         if (!IS32.empty())
@@ -541,7 +531,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     {
-        if (_vaoS.id())
+        if (_vaoS.vaoID())
         {
             _vaoS.clearAttribs();
             IS32.clear();
@@ -552,6 +542,20 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
 
     if (blended) stateGL->blend(true);
+}
+//-----------------------------------------------------------------------------
+//! Generate the Vertex Array Object for a specific shader program
+void SLMesh::generateVAO(SLGLProgram* sp)
+{
+    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
+    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
+    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
+    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    if (!I16.empty()) _vao.setIndices(&I16);
+    if (!I32.empty()) _vao.setIndices(&I32);
+
+    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -623,12 +627,12 @@ void SLMesh::calcMinMax()
     // calc min and max point of all vertices
     for (SLulong i = 0; i < P.size(); ++i)
     {
-        if (finalP(i).x < minP.x) minP.x = finalP(i).x;
-        if (finalP(i).x > maxP.x) maxP.x = finalP(i).x;
-        if (finalP(i).y < minP.y) minP.y = finalP(i).y;
-        if (finalP(i).y > maxP.y) maxP.y = finalP(i).y;
-        if (finalP(i).z < minP.z) minP.z = finalP(i).z;
-        if (finalP(i).z > maxP.z) maxP.z = finalP(i).z;
+        if (finalP((SLuint)i).x < minP.x) minP.x = finalP((SLuint)i).x;
+        if (finalP((SLuint)i).x > maxP.x) maxP.x = finalP((SLuint)i).x;
+        if (finalP((SLuint)i).y < minP.y) minP.y = finalP((SLuint)i).y;
+        if (finalP((SLuint)i).y > maxP.y) maxP.y = finalP((SLuint)i).y;
+        if (finalP((SLuint)i).z < minP.z) minP.z = finalP((SLuint)i).z;
+        if (finalP((SLuint)i).z > maxP.z) maxP.z = finalP((SLuint)i).z;
     }
 }
 //-----------------------------------------------------------------------------
@@ -638,7 +642,7 @@ bounding sphere. Code by Jack Ritter from Graphic Gems.
 */
 void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
 {
-    SLulong  i;
+    SLulong i;
     SLfloat dx, dy, dz;
     SLfloat radius2, xspan, yspan, zspan, maxspan;
     SLfloat old_to_p, old_to_p_sq, old_to_new;
@@ -1254,7 +1258,7 @@ void SLMesh::transformSkin()
     }
 
     // update or create buffers
-    if (_vao.id())
+    if (_vao.vaoID())
     {
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);

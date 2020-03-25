@@ -21,7 +21,7 @@ for a good top down information.
 #include <CVFeatureManager.h>
 #include <CVRaulMurOrb.h>
 #include <Utils.h>
-#include <algorithm>    // std::max
+#include <algorithm> // std::max
 
 using namespace cv;
 using namespace std;
@@ -63,7 +63,7 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
             _descriptor = _detector;
             break;
         default:
-            Utils::exitMsg("Unknown detector-descriptor type.", __LINE__, __FILE__);
+            Utils::exitMsg("SLProject", "Unknown detector-descriptor type.", __LINE__, __FILE__);
     }
 
     _type = type;
@@ -71,18 +71,18 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
 //-----------------------------------------------------------------------------
 //! Sets the detector and decriptor to the passed ones
 void CVFeatureManager::setDetectorDescriptor(CVDetectDescribeType type,
-                                               cv::Ptr<CVFeature2D> detector,
-                                               cv::Ptr<CVFeature2D> descriptor)
+                                             cv::Ptr<CVFeature2D> detector,
+                                             cv::Ptr<CVFeature2D> descriptor)
 {
     _type       = type;
     _detector   = detector;
     _descriptor = descriptor;
 }
 //-----------------------------------------------------------------------------
-void CVFeatureManager::detectAndDescribe(CVInputArray    image,
-                                           CVVKeyPoint&  keypoints,
-                                           CVOutputArray  descriptors,
-                                           CVInputArray    mask)
+void CVFeatureManager::detectAndDescribe(CVInputArray  image,
+                                         CVVKeyPoint&  keypoints,
+                                         CVOutputArray descriptors,
+                                         CVInputArray  mask)
 {
     assert(_detector && "CVFeatureManager::detectAndDescribe: No detector!");
     assert(_descriptor && "CVFeatureManager::detectAndDescribe: No descriptor!");

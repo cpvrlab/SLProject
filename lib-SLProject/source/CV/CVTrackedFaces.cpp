@@ -18,6 +18,7 @@ for a good top down information.
 */
 #include <CVTrackedFaces.h>
 #include <Utils.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for the facial landmark tracker
@@ -34,42 +35,52 @@ CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
                                string faceMarkModelFilename)
 {
     // Load Haar cascade training file for the face detection
-    if (!Utils::fileExists(faceClassifierFilename))
+    string faceClassifier = faceClassifierFilename;
+    if (!Utils::fileExists(faceClassifier))
     {
-        faceClassifierFilename = CVCalibration::calibIniPath + faceClassifierFilename;
-        if (!Utils::fileExists(faceClassifierFilename))
+        faceClassifier = SLApplication::calibIniPath + faceClassifierFilename;
+        if (!Utils::fileExists(faceClassifier))
         {
-            string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+            faceClassifier = SLApplication::exePath + faceClassifierFilename;
+            if (!Utils::fileExists(faceClassifier))
+            {
+                string msg = "CVTrackedFaces: File not found: " + faceClassifier;
+                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+            }
         }
     }
-    _faceDetector = new CVCascadeClassifier(faceClassifierFilename);
+    _faceDetector = new CVCascadeClassifier(faceClassifier);
 
     // Load facemark model file for the facial landmark detection
-    if (!Utils::fileExists(faceMarkModelFilename))
+    string faceModel = faceMarkModelFilename;
+    if (!Utils::fileExists(faceModel))
     {
-        faceMarkModelFilename = CVCalibration::calibIniPath + faceMarkModelFilename;
-        if (!Utils::fileExists(faceMarkModelFilename))
+        faceModel = SLApplication::calibIniPath + faceMarkModelFilename;
+        if (!Utils::fileExists(faceModel))
         {
-            string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+            faceModel = SLApplication::exePath + faceMarkModelFilename;
+            if (!Utils::fileExists(faceModel))
+            {
+                string msg = "CVTrackedFaces: File not found: " + faceModel;
+                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+            }
         }
     }
 
     _facemark = cv::face::FacemarkLBF::create();
-    _facemark->loadModel(faceMarkModelFilename);
+    _facemark->loadModel(faceModel);
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose tip
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole left
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole right
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye left corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye right corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye left corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye right corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left mouth corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose tip
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose hole left
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose hole right
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right mouth corner
 
     _cvPosePoints2D.resize(_avgPosePoints2D.size(), CVPoint2f(0, 0));
 
@@ -118,7 +129,7 @@ bool CVTrackedFaces::track(CVMat          imageGray,
     // Detect Faces //
     //////////////////
 
-    float    startMS = _timer.elapsedTimeInMilliSec();
+    float startMS = _timer.elapsedTimeInMilliSec();
 
     // Detect faces
     CVVRect faces;

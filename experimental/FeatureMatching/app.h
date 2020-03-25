@@ -3,14 +3,21 @@
 
 #include "tools.h"
 
-#define EQUALIZE_HIST 0
 #define MERGE_SIMILAR_LOCATION 0
 
 #define STOCK_ORBSLAM 0
-#define TILDE_BRIEF 1
-#define SURF_BRIEF 2
-#define SURF_ORB 3
-#define END_METHOD 4
+#define STOCK_ORBSLAM_CLAHE 1
+#define TILDE_BRIEF 2
+#define TILDE_BRIEF_CLAHE 3
+#define SURF_BRIEF 4
+#define SURF_BRIEF_CLAHE 5
+#define SURF_ORB 6
+#define SURF_ORB_CLAHE 7
+
+#define END_METHOD 8
+
+#define USE_CLAHE 1
+
 
 enum class InspectionMode
 {
@@ -72,6 +79,8 @@ typedef struct App
     int method = SURF_BRIEF;
     //current inspection mode (changable with keyboard numbers)
     InspectionMode inspectionMode = InspectionMode::MATCHED_POINT_SIMILIARITY;
+
+    cv::Ptr<cv::CLAHE> clahe;
 
     //MATCHED_POINT_SIMILIARITY params:
     // number of best matches retrieved in MATCHED_POINT_SIMILIARITY

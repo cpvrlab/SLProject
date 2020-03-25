@@ -12,15 +12,16 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <AppWAI.h>
+#include <WAIApp.h>
 #include <AppDemoGuiInfosTracking.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string name,
-                                                 //WAI::ModeOrbSlam2* mode,
-                                                 GUIPreferences& preferences)
+AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string     name,
+                                                 GUIPreferences& preferences,
+                                                 WAIApp&         waiApp)
   : AppDemoGuiInfosDialog(name, &preferences.showInfosTracking),
-    _prefs(preferences)
+    _prefs(preferences),
+    _waiApp(waiApp)
 {
     _minNumCovisibleMapPts = _prefs.minNumOfCovisibles;
 }
@@ -31,23 +32,26 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::Begin("Tracking Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
-    if (!WAIApp::mode)
+    if (!_waiApp.mode())
     {
         ImGui::Text("SLAM not running.");
     }
     else
     {
+        auto mode = _waiApp.mode();
         //numbers
         //add tracking state
-        ImGui::Text("Tracking State : %s ", WAIApp::mode->getPrintableState().c_str());
+        ImGui::Text("Tracking State : %s ", mode->getPrintableState().c_str());
         //tracking type
-        ImGui::Text("Tracking Type : %s ", WAIApp::mode->getPrintableType().c_str());
+        /*
+        ImGui::Text("Tracking Type : %s ", mode->getPrintableType().c_str());
         //mean reprojection error
-        ImGui::Text("Mean Reproj. Error : %f ", WAIApp::mode->getMeanReprojectionError());
+        ImGui::Text("Mean Reproj. Error : %f ", mode->getMeanReprojectionError());
         //add number of matches map points in current frame
-        ImGui::Text("Num Map Matches : %d ", WAIApp::mode->getNMapMatches());
+        ImGui::Text("Num Map Matches : %d ", mode->getNMapMatches());
         //L2 norm of the difference between the last and the current camera pose
-        ImGui::Text("Pose Difference : %f ", WAIApp::mode->poseDifference());
+        ImGui::Text("Pose Difference : %f ", mode->poseDifference());
+        */
         ImGui::Separator();
 
         bool b;
@@ -55,6 +59,8 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         //keypoints infos
         if (ImGui::CollapsingHeader("KeyPoints"))
         {
+            //number of keypoints
+            ImGui::Text("Count : %d ", mode->getKeyPointCount());
             //show 2D key points in video image
             b = _prefs.showKeyPoints;
             if (ImGui::Checkbox("KeyPts", &b))
@@ -74,7 +80,7 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::CollapsingHeader("MapPoints"))
         {
             //number of map points
-            ImGui::Text("Count : %d ", WAIApp::mode->getMapPointCount());
+            ImGui::Text("Count : %d ", mode->getMapPointCount());
             //show and update all mappoints
             b = _prefs.showMapPC;
             ImGui::Checkbox("Show Map Pts", &b);
@@ -98,7 +104,7 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         if (ImGui::CollapsingHeader("KeyFrames"))
         {
             //add number of keyframes
-            ImGui::Text("Number of Keyframes : %d ", WAIApp::mode->getKeyFrameCount());
+            ImGui::Text("Number of Keyframes : %d ", mode->getKeyFrameCount());
             //show keyframe scene objects
             //show and update all mappoints
             b = _prefs.showKeyFrames;

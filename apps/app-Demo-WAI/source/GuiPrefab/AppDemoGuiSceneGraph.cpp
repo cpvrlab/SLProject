@@ -4,11 +4,12 @@
 #include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiSceneGraph.h>
-#include <CVCapture.h>
+
 //-----------------------------------------------------------------------------
 AppDemoGuiSceneGraph::AppDemoGuiSceneGraph(std::string name, bool* activator)
   : AppDemoGuiInfosDialog(name, activator)
-{ }
+{
+}
 
 //-----------------------------------------------------------------------------
 void AppDemoGuiSceneGraph::buildInfos(SLScene* s, SLSceneView* sv)

@@ -70,7 +70,8 @@ enum SLRenderType
 {
     RT_gl = 0, //!< OpenGL
     RT_rt = 1, //!< Ray Tracing
-    RT_pt = 2  //!< Path Tracing
+    RT_pt = 2, //!< Path Tracing
+    RT_ct = 3  //!< Voxel Cone Tracing
 };
 //-----------------------------------------------------------------------------
 //! Coordinate axis enumeration
@@ -110,6 +111,7 @@ enum SLSceneID
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
     SID_ShaderEarth,
+    SID_ShaderVoxelConeDemo,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
@@ -122,6 +124,8 @@ enum SLSceneID
     SID_VideoTextureLive,
     SID_VideoTextureFile,
     SID_VideoChristoffel,
+    SID_VideoAugustaRaurica,
+    SID_VideoAventicum,
     SID_VideoCalibrateMain,
     SID_VideoCalibrateScnd,
     SID_VideoTrackChessMain,
@@ -181,6 +185,7 @@ enum SLCamAnim
 enum SLProjection
 {
     P_monoPerspective,      //!< standard mono pinhole perspective projection
+    P_monoIntrinsic,        //!< standard mono pinhole perspective projection from intrinsic calibration
     P_monoOrthographic,     //!< standard mono orthographic projection
     P_stereoSideBySide,     //!< side-by-side
     P_stereoSideBySideP,    //!< side-by-side proportional for mirror stereoscopes

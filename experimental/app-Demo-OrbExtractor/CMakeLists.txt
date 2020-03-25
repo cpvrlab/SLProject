@@ -28,7 +28,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-    ${WAI_ROOT}/experimental/app-Demo-OrbExtractor
+    ${SL_PROJECT_ROOT}/experimental/app-Demo-OrbExtractor
 
     PUBLIC
     ${OpenCV_INCLUDE_DIR}

@@ -99,12 +99,12 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <sys/time.h>
 #    include <thread>
 #    include <CoreServices/CoreServices.h> // for system info
-#    include <sys/sysctl.h> // for system info
+#    include <sys/sysctl.h>                // for system info
 #elif defined(SL_OS_ANDROID)
 #    include <sys/time.h>
 #    include <sys/system_properties.h>
 #    ifdef SL_GLES3
-#        include <GLES3/gl3.h>
+#        include <GLES3/gl31.h>
 #        include <GLES3/gl3ext.h>
 #    endif
 #    include <chrono>
@@ -238,8 +238,8 @@ SL_sizeOfVector(const T& vector)
 
 //-----------------------------------------------------------------------------
 // Some debugging and error handling macros
-#define SL_LOG(...) Utils::log(__VA_ARGS__)
-#define SL_EXIT_MSG(M) Utils::exitMsg((M), __LINE__, __FILE__)
-#define SL_WARN_MSG(M) Utils::warnMsg((M), __LINE__, __FILE__)
+#define SL_LOG(...) Utils::log("SLProject", __VA_ARGS__)
+#define SL_EXIT_MSG(M) Utils::exitMsg("SLProject", (M), __LINE__, __FILE__)
+#define SL_WARN_MSG(M) Utils::warnMsg("SLProject", (M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 #endif

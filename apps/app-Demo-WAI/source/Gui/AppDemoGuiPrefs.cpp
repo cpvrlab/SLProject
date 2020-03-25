@@ -1,33 +1,31 @@
 #include <SL.h>
 
 #include <SLApplication.h>
-#include <SLGLImGui.h>
-#include <AppDemoGuiPrefs.h>
+#include <GUIPreferences.h>
 #include <opencv2/core/core.hpp>
 #include <Utils.h>
+#include <imgui.h>
 
-GUIPreferences::GUIPreferences(){};
-
-void GUIPreferences::setDPI(int dotsPerInch)
+GUIPreferences::GUIPreferences(int dotsPerInch)
+  : _dpi(dotsPerInch)
 {
-    dpi = dotsPerInch;
 }
 
-void GUIPreferences::load()
+void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
 {
-    ImGuiStyle& style               = ImGui::GetStyle();
-    SLstring    fullPathAndFilename = SLApplication::configPath +
-                                   SLApplication::name + ".yml";
+    //ImGuiStyle& style = ImGui::GetStyle();
+    //SLstring    fullPathAndFilename = SLApplication::configPath +
+    //                               SLApplication::name + ".yml";
 
-    if (!Utils::fileExists(fullPathAndFilename))
+    if (!Utils::fileExists(fileName))
     {
         // Scale for proportional and fixed size fonts
-        SLfloat dpiScaleProp  = dpi / 120.0f;
-        SLfloat dpiScaleFixed = dpi / 142.0f;
+        SLfloat dpiScaleProp  = _dpi / 120.0f;
+        SLfloat dpiScaleFixed = _dpi / 142.0f;
 
         // Default settings for the first time
-        SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
-        SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+        fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+        fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Adjust UI paddings on DPI
         style.FramePadding.x     = std::max(8.0f * dpiScaleFixed, 8.0f);
@@ -45,7 +43,7 @@ void GUIPreferences::load()
     cv::FileStorage fs;
     try
     {
-        fs.open(fullPathAndFilename, cv::FileStorage::READ);
+        fs.open(fileName, cv::FileStorage::READ);
         if (fs.isOpened())
         {
             SLint  i;
@@ -56,11 +54,11 @@ void GUIPreferences::load()
 
             if (!fs["fontPropDots"].empty())
                 fs["fontPropDots"] >> i;
-            SLGLImGui::fontPropDots = (SLfloat)i;
+            fontPropDots = (SLfloat)i;
 
             if (!fs["fontFixedDots"].empty())
                 fs["fontFixedDots"] >> i;
-            SLGLImGui::fontFixedDots = (SLfloat)i;
+            fontFixedDots = (SLfloat)i;
 
             if (!fs["ItemSpacingX"].empty())
                 fs["ItemSpacingX"] >> i;
@@ -154,55 +152,55 @@ void GUIPreferences::load()
                 fs["showLoopEdges"] >> showLoopEdges;
 
             fs.release();
-            SL_LOG("Config. loaded  : %s\n", fullPathAndFilename.c_str());
+            SL_LOG("Config. loaded  : %s\n", fileName.c_str());
             SL_LOG("Config. date    : %s\n", configTime.c_str());
-            SL_LOG("fontPropDots    : %f\n", SLGLImGui::fontPropDots);
-            SL_LOG("fontFixedDots   : %f\n", SLGLImGui::fontFixedDots);
+            SL_LOG("fontPropDots    : %f\n", fontPropDots);
+            SL_LOG("fontFixedDots   : %f\n", fontFixedDots);
         }
         else
         {
-            SL_LOG("****** Failed to open file for reading: %s", fullPathAndFilename.c_str());
+            SL_LOG("****** Failed to open file for reading: %s", fileName.c_str());
         }
     }
     catch (...)
     {
-        SL_LOG("****** Parsing of file failed: %s", fullPathAndFilename.c_str());
+        SL_LOG("****** Parsing of file failed: %s", fileName.c_str());
     }
 
     // check font sizes for HDPI displays
-    if (dpi > 300)
+    if (_dpi > 300)
     {
-        if (SLGLImGui::fontPropDots < 16.1f &&
-            SLGLImGui::fontFixedDots < 13.1)
+        if (fontPropDots < 16.1f &&
+            fontFixedDots < 13.1)
         {
             // Scale for proportional and fixed size fonts
-            SLfloat dpiScaleProp  = dpi / 120.0f;
-            SLfloat dpiScaleFixed = dpi / 142.0f;
+            SLfloat dpiScaleProp  = _dpi / 120.0f;
+            SLfloat dpiScaleFixed = _dpi / 142.0f;
 
             // Default settings for the first time
-            SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
-            SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+            fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+            fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
         }
     }
 }
 
-void GUIPreferences::save()
+void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
 {
-    ImGuiStyle& style               = ImGui::GetStyle();
-    SLstring    fullPathAndFilename = SLApplication::configPath +
-                                   SLApplication::name + ".yml";
-    cv::FileStorage fs(fullPathAndFilename, cv::FileStorage::WRITE);
+    //ImGuiStyle& style = ImGui::GetStyle();
+    //SLstring    fullPathAndFilename = SLApplication::configPath +
+    //                               SLApplication::name + ".yml";
+    cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
 
     if (!fs.isOpened())
     {
-        SL_LOG("Failed to open file for writing: %s", fullPathAndFilename.c_str());
+        SL_LOG("Failed to open file for writing: %s", fileName.c_str());
         SL_EXIT_MSG("Exit in AppDemoGui::saveConfig");
         return;
     }
 
     fs << "configTime" << Utils::getLocalTimeString();
-    fs << "fontPropDots" << (SLint)SLGLImGui::fontPropDots;
-    fs << "fontFixedDots" << (SLint)SLGLImGui::fontFixedDots;
+    fs << "fontPropDots" << (SLint)fontPropDots;
+    fs << "fontFixedDots" << (SLint)fontFixedDots;
     fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
@@ -253,5 +251,5 @@ void GUIPreferences::save()
     fs << "showLoopEdges" << showLoopEdges;
 
     fs.release();
-    SL_LOG("Config. saved   : %s\n", fullPathAndFilename.c_str());
+    SL_LOG("Config. saved   : %s\n", fileName.c_str());
 }

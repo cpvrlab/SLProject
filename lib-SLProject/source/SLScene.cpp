@@ -144,8 +144,8 @@ SLScene::~SLScene()
     // delete fonts
     SLTexFont::deleteFonts();
 
-    SL_LOG("Destructor      : ~SLScene\n");
-    SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("Destructor      : ~SLScene");
+    SL_LOG("------------------------------------------------------------------");
 }
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
@@ -312,7 +312,7 @@ bool SLScene::onUpdate()
     //////////////////////////////
 
     // Process queued up system events and poll custom input devices
-    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents();
+    SLbool sceneHasChanged = SLApplication::inputManager.pollAndProcessEvents(this);
 
     //////////////////////////////
     // 3) Update all animations //
@@ -363,7 +363,7 @@ bool SLScene::onUpdate()
     SLfloat updateTimeMS = SLApplication::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 
-    //SL_LOG("SLScene::onUpdate\n");
+    //SL_LOG("SLScene::onUpdate");
     return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------
@@ -439,9 +439,13 @@ void SLScene::onLoadAsset(const SLstring& assetFile,
     // Try to load assed and add it to the scene root node
     SLAssimpImporter importer;
 
-    ///////////////////////////////////////////////////////////////////////
-    SLNode* loaded = importer.load(assetFile, true, nullptr, processFlags);
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////
+    SLNode* loaded = importer.load(assetFile,
+                                   true,
+                                   nullptr,
+                                   0.0f,
+                                   processFlags);
+    /////////////////////////////////////////////
 
     // Add root node on empty scene
     if (!_root3D)

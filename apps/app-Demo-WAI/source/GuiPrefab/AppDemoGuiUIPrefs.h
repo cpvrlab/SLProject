@@ -5,17 +5,17 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <WAICalibration.h>
 #include <SL.h>
-#include <AppDemoGuiPrefs.h>
+#include <GUIPreferences.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiUIPrefs : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiUIPrefs(std::string name, GUIPreferences* prefs, bool* activator);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     GUIPreferences* _prefs;
 };
 

@@ -14,7 +14,7 @@
 
 BasedOnStyle: Mozilla
 BinPackParameters: false
-AccessModifierOffset: 0
+AccessModifierOffset: -4
 
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true

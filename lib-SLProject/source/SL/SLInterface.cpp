@@ -17,6 +17,7 @@
 #include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLGLImGui.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -30,8 +31,6 @@ by a native API such as Java Native Interface (JNI).
 //! global flag that determines if the application should be closed
 bool gShouldClose = false;
 
-//-----------------------------------------------------------------------------
-extern string logAppName;
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLScene instance. This function should be
 called only once per application. The SLScene constructor call is delayed until
@@ -64,35 +63,34 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath                  = shaderPath;
-    SLGLTexture::defaultPath                  = texturePath;
-    SLGLTexture::defaultPathFonts             = fontPath;
-    SLAssimpImporter::defaultPath             = modelPath;
-    SLApplication::configPath                 = configPath;
+    SLGLProgram::defaultPath      = shaderPath;
+    SLGLTexture::defaultPath      = texturePath;
+    SLGLTexture::defaultPathFonts = fontPath;
+    SLAssimpImporter::defaultPath = modelPath;
+    SLApplication::configPath     = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
-    logAppName = "SLProject";
-    SL_LOG("Path to Models  : %s\n", modelPath.c_str());
-    SL_LOG("Path to Shaders : %s\n", shaderPath.c_str());
-    SL_LOG("Path to Textures: %s\n", texturePath.c_str());
-    SL_LOG("Path to Fonts   : %s\n", fontPath.c_str());
-    SL_LOG("Path to Config. : %s\n", configPath.c_str());
-    SL_LOG("OpenCV Version  : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-    SL_LOG("CV has OpenCL   : %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
-    SL_LOG("OpenGL Version  : %s\n", stateGL->glVersion().c_str());
-    SL_LOG("Vendor          : %s\n", stateGL->glVendor().c_str());
-    SL_LOG("Renderer        : %s\n", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version    : %s (%s) \n", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
-    SL_LOG("------------------------------------------------------------------\n");
+    SL_LOG("Path to Models  : %s", modelPath.c_str());
+    SL_LOG("Path to Shaders : %s", shaderPath.c_str());
+    SL_LOG("Path to Textures: %s", texturePath.c_str());
+    SL_LOG("Path to Fonts   : %s", fontPath.c_str());
+    SL_LOG("Path to Config. : %s", configPath.c_str());
+    SL_LOG("OpenCV Version  : %d.%d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+    SL_LOG("CV has OpenCL   : %s", cv::ocl::haveOpenCL() ? "yes" : "no");
+    SL_LOG("OpenGL Version  : %s", stateGL->glVersion().c_str());
+    SL_LOG("Vendor          : %s", stateGL->glVendor().c_str());
+    SL_LOG("Renderer        : %s", stateGL->glRenderer().c_str());
+    SL_LOG("GLSL Version    : %s (%s) ", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
+    SL_LOG("------------------------------------------------------------------");
 
     SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
 }
 //-----------------------------------------------------------------------------
-/*! Global creation function for a SLSceneview instance returning the index of 
+/*! Global creation function for a SLSceneview instance returning the index of
 the sceneview. It creates the new SLSceneView instance by calling the callback
-function slNewSceneView. If you have a custom SLSceneView inherited class you 
-have to provide a similar function and pass it function pointer to 
+function slNewSceneView. If you have a custom SLSceneView inherited class you
+have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
@@ -122,18 +120,23 @@ int slCreateSceneView(int       screenWidth,
     SLuint       index = (SLuint)newSVCallback();
     SLSceneView* sv    = SLApplication::scene->sceneView(index);
 
+    SLGLImGui* gui = new SLGLImGui();
+    // Load GUI fonts depending on the resolution
+    gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    gui->build = (cbOnImGuiBuild)onImGuiBuild;
+
     sv->init("SceneView",
              screenWidth,
              screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             onImGuiBuild);
+             gui);
 
     // Set default font sizes depending on the dpi no matter if ImGui is used
     if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
 
     // Load GUI fonts depending on the resolution
-    sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!SLApplication::scene->root3D())
@@ -151,8 +154,8 @@ int slCreateSceneView(int       screenWidth,
 }
 //-----------------------------------------------------------------------------
 /*! Global sceneview construction function returning the index of the created
-sceneview instance. If you have a custom SLSceneView inherited class you 
-have to provide a similar function and pass it function pointer to 
+sceneview instance. If you have a custom SLSceneView inherited class you
+have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
 int slNewSceneView()
@@ -219,7 +222,7 @@ void slResize(int sceneViewIndex, int width, int height)
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for mouse button down events. 
+/*! Global event handler for mouse button down events.
 */
 void slMouseDown(int           sceneViewIndex,
                  SLMouseButton button,
@@ -294,7 +297,7 @@ void slLongTouch(int sceneViewIndex, int xpos, int ypos)
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for the two finger touch down events of touchscreen 
+/*! Global event handler for the two finger touch down events of touchscreen
 devices.
 */
 void slTouch2Down(int sceneViewIndex,
@@ -313,7 +316,7 @@ void slTouch2Down(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for the two finger move events of touchscreen devices. 
+/*! Global event handler for the two finger move events of touchscreen devices.
 */
 void slTouch2Move(int sceneViewIndex,
                   int xpos1,
@@ -330,8 +333,8 @@ void slTouch2Move(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for the two finger touch up events of touchscreen 
-devices. 
+/*! Global event handler for the two finger touch up events of touchscreen
+devices.
 */
 void slTouch2Up(int sceneViewIndex,
                 int xpos1,
@@ -348,7 +351,7 @@ void slTouch2Up(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for mouse wheel events. 
+/*! Global event handler for mouse wheel events.
 */
 void slMouseWheel(int   sceneViewIndex,
                   int   pos,
@@ -361,7 +364,7 @@ void slMouseWheel(int   sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for keyboard key press events. 
+/*! Global event handler for keyboard key press events.
 */
 void slKeyPress(int   sceneViewIndex,
                 SLKey key,
@@ -374,7 +377,7 @@ void slKeyPress(int   sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for keyboard key release events. 
+/*! Global event handler for keyboard key release events.
 */
 void slKeyRelease(int   sceneViewIndex,
                   SLKey key,
@@ -449,18 +452,18 @@ void slSetupExternalDir(const SLstring& externalPath)
 {
     if (Utils::dirExists(externalPath))
     {
-        SL_LOG("External directory: %s\n", externalPath.c_str());
+        SL_LOG("Ext. directory   : %s", externalPath.c_str());
         SLApplication::externalPath = externalPath;
     }
     else
     {
-        SL_LOG("ERROR: external directory does not exists: %s\n", externalPath.c_str());
+        SL_LOG("ERROR: external directory does not exists: %s", externalPath.c_str());
     }
 }
 //-----------------------------------------------------------------------------
 //! Adds a value to the applications device parameter map
 void slSetDeviceParameter(const SLstring& parameter,
-                          SLstring value)
+                          SLstring        value)
 {
     SLApplication::deviceParameter[parameter] = std::move(value);
 }

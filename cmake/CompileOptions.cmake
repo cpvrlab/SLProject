@@ -41,6 +41,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
             _CRT_SECURE_NO_WARNINGS  # Calling any one of the potentially unsafe methods in the CRT Library
             NOMINMAX #No min max makros (use the ones in std)
             )
+    set(MSVC_COMPILE_FLAGS "/MP")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
 endif ()
 
 set(DEFAULT_COMPILE_OPTIONS)

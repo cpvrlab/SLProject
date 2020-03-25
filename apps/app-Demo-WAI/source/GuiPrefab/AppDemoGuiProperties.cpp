@@ -7,7 +7,6 @@
 #include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
-//#include <CVCapture.h>
 #include <SLTransferFunction.h>
 #include <SLGLShader.h>
 #include <Utils.h>
@@ -291,7 +290,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                         for (SLuint i = 0; i < m->textures().size(); ++i)
                         {
                             SLGLTexture* t      = m->textures()[i];
-                            void*        tid    = (ImTextureID)(intptr_t)t->texName();
+                            void*        tid    = (ImTextureID)(intptr_t)t->texID();
                             SLfloat      w      = (SLfloat)t->width();
                             SLfloat      h      = (SLfloat)t->height();
                             SLfloat      h_to_w = h / w;
