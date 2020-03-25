@@ -51,11 +51,23 @@ struct SlamParams
                     fs["trackOptFlow"] >> params.trackOptFlow;
 
                 if (!fs["initializationExtractorId"].empty())
-                    fs["initializationExtractorId"] >> extractorIds.initializationExtractorId;
+                {
+                    int extractorId;
+                    fs["initializationExtractorId"] >> extractorId;
+                    extractorIds.initializationExtractorId = (ExtractorType)extractorId;
+                }
                 if (!fs["markerExtractorId"].empty())
-                    fs["markerExtractorId"] >> extractorIds.markerExtractorId;
+                {
+                    int extractorId;
+                    fs["markerExtractorId"] >> extractorId;
+                    extractorIds.markerExtractorId = (ExtractorType)extractorId;
+                }
                 if (!fs["trackingExtractorId"].empty())
-                    fs["trackingExtractorId"] >> extractorIds.trackingExtractorId;
+                {
+                    int extractorId;
+                    fs["trackingExtractorId"] >> extractorId;
+                    extractorIds.trackingExtractorId = (ExtractorType)extractorId;
+                }
 
                 fs.release();
                 Utils::log("WAIApp", "SlamParams loaded from %s", fileName.c_str());

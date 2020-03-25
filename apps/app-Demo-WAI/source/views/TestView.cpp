@@ -141,39 +141,18 @@ void TestView::tryLoadLastSlam()
 
 //void TestView::setupGUI()
 //{
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &_gui.uiPrefs->showInfosFrameworks));
+
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
 //                                                                          &_gui.uiPrefs->showInfosMapNodeTransform,
 //                                                                          &_eventQueue));
-//
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &_gui.uiPrefs->showInfosScene));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &_gui.uiPrefs->showInfosSensors));
+
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking", *_gui.uiPrefs.get(), *this));
-//
-//_guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
-//                                                    &_eventQueue,
-//                                                    _configDir + "erleb-AR/locations/",
-//                                                    _configDir + "calibrations/",
-//                                                    _vocabularyDir,
-//                                                    _featureExtractorFactory.getExtractorIdToNames(),
-//                                                    &_gui.uiPrefs->showSlamLoad);
-//_gui.addInfoDialog(_guiSlamLoad);
-//
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &_gui.uiPrefs->showProperties));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &_gui.uiPrefs->showSceneGraph));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &_gui.uiPrefs->showStatsDebugTiming));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &_gui.uiPrefs->showStatsTiming));
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &_gui.uiPrefs->showStatsVideo, *this));
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &_gui.uiPrefs->showTrackedMapping, *this));
-//
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &_gui.uiPrefs->showTransform));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", _gui.uiPrefs.get(), &_gui.uiPrefs->showUIPrefs));
-//
+
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &_gui.uiPrefs->showVideoStorage, &_eventQueue, *this));
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &_gui.uiPrefs->showVideoControls, &_eventQueue, *this));
 //
-//_errorDial = std::make_shared<AppDemoGuiError>("Error", &_gui.uiPrefs->showError);
-//_gui.addInfoDialog(_errorDial);
 //}
 
 void TestView::handleEvents()

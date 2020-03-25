@@ -23,8 +23,6 @@
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
-#include <AppDemoGuiInfosDialog.h>
-//#include <AppDemoGuiTrackedMapping.h>
 #include <SLImporter.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
@@ -35,7 +33,16 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-//map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
+#include <AppDemoGuiInfosDialog.h>
+#include <AppDemoGuiInfosScene.h>
+#include <AppDemoGuiInfosSensors.h>
+#include <AppDemoGuiProperties.h>
+#include <AppDemoGuiSceneGraph.h>
+#include <AppDemoGuiStatsDebugTiming.h>
+#include <AppDemoGuiInfosFrameworks.h>
+#include <AppDemoGuiUIPrefs.h>
+#include <AppDemoGuiStatsTiming.h>
+#include <AppDemoGuiTransform.h>
 
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
@@ -84,6 +91,16 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
 
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _fontPropDots);
     addInfoDialog(_errorDial);
+
+    addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors));
+    addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties));
+    addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks));
+    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming));
+    addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform));
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()

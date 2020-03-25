@@ -55,9 +55,6 @@
 //#define ENGINE_INFO(...)  // nothing
 //#define ENGINE_WARN(...)  // nothing
 
-//bool         _cameraGranted = false;
-//struct android_app* androidApp = nullptr;
-
 class Engine
 {
 public:
