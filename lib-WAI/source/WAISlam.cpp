@@ -1002,7 +1002,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
         }
 
         localMap.keyFrames.push_back(it->first);
-        pKF->mnTrackReferenceForFrame = frame.mnId; // <==== UHHH WHAT IS THAT???
+        pKF->mnMarker[TRACK_REF_FRAME] = frame.mnId;
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
@@ -1021,10 +1021,10 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
             WAIKeyFrame* pNeighKF = *itNeighKF;
             if (!pNeighKF->isBad())
             {
-                if (pNeighKF->mnTrackReferenceForFrame != frame.mnId) //to ensure not already added at previous step
+                if (pNeighKF->mnMarker[TRACK_REF_FRAME] != frame.mnId) //to ensure not already added at previous step
                 {
                     localMap.keyFrames.push_back(pNeighKF);
-                    pNeighKF->mnTrackReferenceForFrame = frame.mnId;
+                    pNeighKF->mnMarker[TRACK_REF_FRAME] = frame.mnId;
                     break;
                 }
             }
@@ -1036,10 +1036,10 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
             WAIKeyFrame* pChildKF = *sit;
             if (!pChildKF->isBad())
             {
-                if (pChildKF->mnTrackReferenceForFrame != frame.mnId)
+                if (pChildKF->mnMarker[TRACK_REF_FRAME] != frame.mnId)
                 {
                     localMap.keyFrames.push_back(pChildKF);
-                    pChildKF->mnTrackReferenceForFrame = frame.mnId;
+                    pChildKF->mnMarker[TRACK_REF_FRAME] = frame.mnId;
                     break;
                 }
             }
@@ -1048,10 +1048,10 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
         WAIKeyFrame* pParent = pKF->GetParent();
         if (pParent)
         {
-            if (pParent->mnTrackReferenceForFrame != frame.mnId)
+            if (pParent->mnMarker[TRACK_REF_FRAME] != frame.mnId)
             {
                 localMap.keyFrames.push_back(pParent);
-                pParent->mnTrackReferenceForFrame = frame.mnId;
+                pParent->mnMarker[TRACK_REF_FRAME] = frame.mnId;
                 break;
             }
         }
@@ -1068,12 +1068,12 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
             WAIMapPoint* pMP = *itMP;
             if (!pMP)
                 continue;
-            if (pMP->mnTrackReferenceForFrame == frame.mnId)
+            if (pMP->mnMarker[TRACK_REF_FRAME] == frame.mnId)
                 continue;
             if (!pMP->isBad())
             {
                 localMap.mapPoints.push_back(pMP);
-                pMP->mnTrackReferenceForFrame = frame.mnId;
+                pMP->mnMarker[TRACK_REF_FRAME] = frame.mnId;
             }
         }
     }
@@ -1606,7 +1606,16 @@ bool WAISlam::update(cv::Mat& imageGray)
     switch (_state)
     {
         case TrackingState_Initializing: {
-            //bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing,_voc, 100);
+            /*
+            bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing,_voc, 100, _lastKeyFrameFrameId);
+            if (ok)
+            {
+                _lastKeyFrameFrameId = frame.mnId;
+                _lastRelocFrameId = 0;
+                _state = TrackingState_TrackingOK;
+                _initialized = true;
+            }
+            */
             if (initialize(_iniData, frame, _voc, _localMap, 100, _lastKeyFrameFrameId))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))

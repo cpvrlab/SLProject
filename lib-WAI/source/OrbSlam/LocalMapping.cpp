@@ -18,6 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Utils.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/ORBmatcher.h>
 #include <OrbSlam/Optimizer.h>
@@ -70,34 +71,43 @@ void LocalMapping::LocalOptimize()
         //Loop begin
         {
             std::unique_lock<std::mutex> lock(_mutexLoop);
-            //_condVarLoop.wait(lock, [&] { return !_loopWait; });
             _condVarLoop.wait_for(lock, std::chrono::milliseconds(1000), [&] { return !_loopWait; });
         }
 
-        while (toLocalAdjustment.size() > 0)
+        while (1)
         {
             AVERAGE_TIMING_START("localAdjustment");
+            int kfInQueue;
+            WAIKeyFrame* frame;
 
-            std::unique_lock<std::mutex> lock(mMutexMapping);
+            {
+                std::unique_lock<std::mutex> lock(mMutexMapping);
 
-            WAIKeyFrame* frame = toLocalAdjustment.front();
-            toLocalAdjustment.pop();
+                kfInQueue = toLocalAdjustment.size();
+
+                if (kfInQueue == 0) { break; }
+
+                WAIKeyFrame* frame = toLocalAdjustment.front();
+                toLocalAdjustment.pop();
+            }
 
             SearchInNeighbors(frame);
 
-            if (frame && !stopRequested())
+            if (!stopRequested())
             {
                 if (mpMap->KeyFramesInMap() > 2)
                 {
+                    int id;
+                    unique_lock<mutex> newKFLock(mMutexNewKFs);
+                    id = mpCurrentKeyFrame->mnId;
+                    newKFLock.unlock();
+
                     mbAbortBA = false;
-                    Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
+                    Optimizer::LocalBundleAdjustment(frame, id, &mbAbortBA, mpMap);
                 }
             }
 
             KeyFrameCulling(frame);
-            mpLoopCloser->InsertKeyFrame(frame);
-
-            lock.unlock();
 
             AVERAGE_TIMING_STOP("localAdjustment");
 
@@ -136,7 +146,6 @@ void LocalMapping::ProcessKeyFrames()
     {
         {
             std::unique_lock<std::mutex> lock(_mutexLoop);
-            //_condVarLoop.wait(lock, [&] { return !_loopWait; });
             _condVarLoop.wait_for(lock, std::chrono::milliseconds(1000), [&] { return !_loopWait; });
         }
         //sleep again: if one participant is calling wake up in between the previous and the next call
@@ -150,19 +159,19 @@ void LocalMapping::ProcessKeyFrames()
         while (CheckNewKeyFrames())
         {
             AVERAGE_TIMING_START("process keyframe");
-            std::unique_lock<std::mutex> lock(mMutexMapping);
-            // BoW conversion and insertion in Map
+
             ProcessNewKeyFrame();
 
-            // Check recent MapPoints
             MapPointCulling();
 
-            // Triangulate new MapPoints
             CreateNewMapPoints();
 
-            toLocalAdjustment.push(mpCurrentKeyFrame);
+            mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
 
+            std::unique_lock<std::mutex> lock(mMutexMapping);
+            toLocalAdjustment.push(mpCurrentKeyFrame);
             lock.unlock();
+
             AVERAGE_TIMING_STOP("process keyframe");
 
             if (stopRequested())
@@ -373,15 +382,11 @@ void LocalMapping::ProcessNewKeyFrame()
             }
         }
     }
-
     // Update links in the Covisibility Graph
     mpCurrentKeyFrame->UpdateConnections();
 
     // Insert Keyframe in Map
     mpMap->AddKeyFrame(mpCurrentKeyFrame);
-    //TODO Now, when a keyframe is added to the map, it is added to the 
-    // keyFrameDatabase too. Before it was not the case. Why wasn't it added
-    // to the kfDB here?
 }
 
 void LocalMapping::MapPointCulling()
@@ -696,17 +701,17 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
     for (vector<WAIKeyFrame*>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKFi = *vit;
-        if (pKFi->isBad() || pKFi->mnFuseTargetForKF == frame->mnId)
+        if (pKFi->mnId == mpCurrentKeyFrame->mnId || pKFi->isBad() || pKFi->mnMarker[FUSE_TARGET_KF] == frame->mnId)
             continue;
         vpTargetKFs.push_back(pKFi);
-        pKFi->mnFuseTargetForKF = frame->mnId;
+        pKFi->mnMarker[FUSE_TARGET_KF] = frame->mnId;
 
         // Extend to some second neighbors
         const vector<WAIKeyFrame*> vpSecondNeighKFs = pKFi->GetBestCovisibilityKeyFrames(5);
         for (vector<WAIKeyFrame*>::const_iterator vit2 = vpSecondNeighKFs.begin(), vend2 = vpSecondNeighKFs.end(); vit2 != vend2; vit2++)
         {
             WAIKeyFrame* pKFi2 = *vit2;
-            if (pKFi2->isBad() || pKFi2->mnFuseTargetForKF == frame->mnId || pKFi2->mnId == frame->mnId)
+            if (pKFi->mnId == mpCurrentKeyFrame->mnId || pKFi2->isBad() || pKFi2->mnMarker[FUSE_TARGET_KF] == frame->mnId || pKFi2->mnId == frame->mnId)
                 continue;
             vpTargetKFs.push_back(pKFi2);
         }
@@ -718,7 +723,6 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
     for (vector<WAIKeyFrame*>::iterator vit = vpTargetKFs.begin(), vend = vpTargetKFs.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKFi = *vit;
-
         matcher.Fuse(mpMap, pKFi, vpMapPointMatches);
     }
 
@@ -737,14 +741,14 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
             WAIMapPoint* pMP = *vitMP;
             if (!pMP)
                 continue;
-            if (pMP->isBad() || pMP->mnFuseCandidateForKF == frame->mnId)
+            if (pMP->isBad() || pMP->mnMarker[FUSE_CANDIDATE_KF] == frame->mnId)
                 continue;
-            pMP->mnFuseCandidateForKF = frame->mnId;
+            pMP->mnMarker[FUSE_CANDIDATE_KF] = frame->mnId;
             vpFuseCandidates.push_back(pMP);
         }
     }
 
-    matcher.Fuse(mpMap, mpCurrentKeyFrame, vpFuseCandidates);
+    matcher.Fuse(mpMap, frame, vpFuseCandidates);
 
     // Update points
     vpMapPointMatches = frame->GetMapPointMatches();
@@ -778,17 +782,17 @@ void LocalMapping::SearchInNeighbors()
     for (vector<WAIKeyFrame*>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKFi = *vit;
-        if (pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->mnId)
+        if (pKFi->isBad() || pKFi->mnMarker[FUSE_TARGET_KF] == mpCurrentKeyFrame->mnId)
             continue;
         vpTargetKFs.push_back(pKFi);
-        pKFi->mnFuseTargetForKF = mpCurrentKeyFrame->mnId;
+        pKFi->mnMarker[FUSE_TARGET_KF] = mpCurrentKeyFrame->mnId;
 
         // Extend to some second neighbors
         const vector<WAIKeyFrame*> vpSecondNeighKFs = pKFi->GetBestCovisibilityKeyFrames(5);
         for (vector<WAIKeyFrame*>::const_iterator vit2 = vpSecondNeighKFs.begin(), vend2 = vpSecondNeighKFs.end(); vit2 != vend2; vit2++)
         {
             WAIKeyFrame* pKFi2 = *vit2;
-            if (pKFi2->isBad() || pKFi2->mnFuseTargetForKF == mpCurrentKeyFrame->mnId || pKFi2->mnId == mpCurrentKeyFrame->mnId)
+            if (pKFi2->isBad() || pKFi2->mnMarker[FUSE_TARGET_KF] == mpCurrentKeyFrame->mnId || pKFi2->mnId == mpCurrentKeyFrame->mnId)
                 continue;
             vpTargetKFs.push_back(pKFi2);
         }
@@ -819,9 +823,9 @@ void LocalMapping::SearchInNeighbors()
             WAIMapPoint* pMP = *vitMP;
             if (!pMP)
                 continue;
-            if (pMP->isBad() || pMP->mnFuseCandidateForKF == mpCurrentKeyFrame->mnId)
+            if (pMP->isBad() || pMP->mnMarker[FUSE_CANDIDATE_KF] == mpCurrentKeyFrame->mnId)
                 continue;
-            pMP->mnFuseCandidateForKF = mpCurrentKeyFrame->mnId;
+            pMP->mnMarker[FUSE_CANDIDATE_KF] = mpCurrentKeyFrame->mnId;
             vpFuseCandidates.push_back(pMP);
         }
     }
@@ -958,6 +962,8 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
     {
         WAIKeyFrame* pKF = *vit;
         //do not cull the first keyframe
+        if (pKF->mnId == mpCurrentKeyFrame->mnId)
+            continue;
         if (pKF->mnId == 0)
             continue;
         //do not cull fixed keyframes
@@ -992,7 +998,7 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
                         for (map<WAIKeyFrame*, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
                         {
                             WAIKeyFrame* pKFi = mit->first;
-                            if (pKFi == pKF)
+                            if (pKFi->mnId == mpCurrentKeyFrame->mnId || pKFi == pKF)
                                 continue;
                             const int& scaleLeveli = pKFi->mvKeysUn[mit->second].octave;
 

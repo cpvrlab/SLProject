@@ -24,14 +24,9 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp)
   : mnId(id),
     mnFirstKFid(-1),
     /* mnFirstFrame(pRefKF->mnFrameId), */ nObs(0),
-    mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0),
-    mnBALocalForKF(0),
-    mnFuseCandidateForKF(0),
-    mnLoopPointForKF(0),
     mnCorrectedByKF(0),
     mnCorrectedReference(0),
-    mnBAGlobalForKF(0),
     mpRefKF(NULL),
     mnVisible(1),
     mnFound(1),
@@ -41,6 +36,15 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp)
     mfMaxDistance(0),
     _fixed(fixMp)
 {
+
+    mnMarker[0] = 0;
+    mnMarker[1] = 0;
+    mnMarker[2] = 0;
+    mnMarker[3] = 0;
+    mnMarker[4] = 0;
+    mnMarker[5] = 0;
+    mnMarker[6] = 0;
+
     SetWorldPos(Pos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
 
@@ -54,14 +58,9 @@ WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
   : mnFirstKFid(pRefKF->mnId),
     /* mnFirstFrame(pRefKF->mnFrameId), */
     nObs(0),
-    mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0),
-    mnBALocalForKF(0),
-    mnFuseCandidateForKF(0),
-    mnLoopPointForKF(0),
     mnCorrectedByKF(0),
     mnCorrectedReference(0),
-    mnBAGlobalForKF(0),
     mpRefKF(pRefKF),
     mnVisible(1),
     mnFound(1),
@@ -71,6 +70,14 @@ WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
     mfMaxDistance(0),
     _fixed(false)
 {
+    mnMarker[0] = 0;
+    mnMarker[1] = 0;
+    mnMarker[2] = 0;
+    mnMarker[3] = 0;
+    mnMarker[4] = 0;
+    mnMarker[5] = 0;
+    mnMarker[6] = 0;
+
     SetWorldPos(Pos);
     //Pos.copyTo(mWorldPos);
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
@@ -302,7 +309,7 @@ void WAIMapPoint::ComputeDistinctiveDescriptors()
     {
         WAIKeyFrame* pKF = mit->first;
 
-        if (!pKF->isBad())
+        if (pKF && !pKF->isBad())
             vDescriptors.push_back(pKF->mDescriptors.row(mit->second));
     }
 

@@ -16,6 +16,7 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlam.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMap.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LoopClosing.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Optimizer.h

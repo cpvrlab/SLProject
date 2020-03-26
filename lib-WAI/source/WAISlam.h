@@ -10,6 +10,7 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <OrbSlam/Optimizer.h>
 #include <OrbSlam/PnPsolver.h>
+#include <LocalMap.h>
 #include <opencv2/core.hpp>
 
 enum TrackingState
@@ -21,12 +22,7 @@ enum TrackingState
     TrackingState_TrackingLost
 };
 
-struct LocalMap
-{
-    WAIKeyFrame*              refKF;
-    std::vector<WAIKeyFrame*> keyFrames;
-    std::vector<WAIMapPoint*> mapPoints;
-};
+
 
 struct InitializerData
 {
