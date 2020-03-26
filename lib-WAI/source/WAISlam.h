@@ -32,10 +32,9 @@ struct InitializerData
 {
     Initializer*             initializer;
     WAIFrame                 initialFrame;
-    WAIFrame                 secondFrame;
-    std::vector<cv::Point2f> prevMatched;
+    std::vector<cv::Point2f> prevMatched; //all keypoints in initialFrame
     std::vector<cv::Point3f> iniPoint3D;
-    std::vector<int>         iniMatches;
+    std::vector<int>         iniMatches; //has length of keypoints of initial frame and contains matched keypoint index in current frame
 };
 
 /* 

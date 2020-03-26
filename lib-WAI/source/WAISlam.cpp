@@ -105,6 +105,7 @@ bool WAISlamTools::initialize(InitializerData& iniData,
     {
         delete iniData.initializer;
         iniData.initializer = static_cast<Initializer*>(NULL);
+        fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
         return false;
     }
 
@@ -1628,9 +1629,8 @@ bool WAISlam::update(cv::Mat& imageGray)
                 else
                     mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
 
-
                 _infoMatchedInliners = inliers;
-                _state = TrackingState_TrackingOK;
+                _state               = TrackingState_TrackingOK;
             }
         }
         break;
@@ -1766,4 +1766,3 @@ int WAISlam::getKeyFramesInLoopCloseQueueCount()
 {
     return _loopClosing->numOfKfsInQueue();
 }
-
