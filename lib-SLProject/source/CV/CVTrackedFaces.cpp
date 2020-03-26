@@ -39,7 +39,7 @@ CVTrackedFaces::CVTrackedFaces(std::string calibIniPath,
     string faceClassifier = faceClassifierFilename;
     if (!Utils::fileExists(faceClassifier))
     {
-        faceClassifierFilename = calibIniPath + faceClassifierFilename;
+        faceClassifier = calibIniPath + faceClassifierFilename;
         if (!Utils::fileExists(faceClassifier))
         {
             faceClassifier = exePath + faceClassifierFilename;
@@ -56,7 +56,7 @@ CVTrackedFaces::CVTrackedFaces(std::string calibIniPath,
     string faceModel = faceMarkModelFilename;
     if (!Utils::fileExists(faceModel))
     {
-        faceMarkModelFilename = calibIniPath + faceMarkModelFilename;
+        faceModel = calibIniPath + faceMarkModelFilename;
         if (!Utils::fileExists(faceModel))
         {
             faceModel = exePath + faceMarkModelFilename;
