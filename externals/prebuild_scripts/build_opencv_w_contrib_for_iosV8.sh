@@ -63,26 +63,28 @@ echo "====================================================== cmake"
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
 -DCMAKE_BUILD_TYPE=Debug \
--DBUILD_WITH_DEBUG_INFO=true \
+-DBUILD_WITH_DEBUG_INFO=ON \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
--DBUILD_opencv_world=false \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
+-DBUILD_opencv_world=OFF \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DWITH_MATLAB=OFF \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=false \
--DWITH_OPENCLAMDFFT=false \
--DWITH_OPENCLAMDBLAS=false \
--DWITH_VA_INTEL=false \
+-DWITH_CUDA=OFF \
+-DWITH_OPENCL=OFF \
+-DWITH_OPENCL_SVM=OFF \
+-DWITH_OPENCLAMDFFT=OFF \
+-DWITH_OPENCLAMDBLAS=OFF \
+-DWITH_VA_INTEL=OFF \
 -GXcode \
--DAPPLE_FRAMEWORK=true \
+-DAPPLE_FRAMEWORK=ON \
 -DPLATFORM=OS64 \
 -DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
--DENABLE_NEON=true \
--DENABLE_ARC=false \
+-DENABLE_NEON=ON \
+-DENABLE_ARC=OFF \
 ../..
 
 cmake --build . --config Debug --target install
@@ -98,7 +100,6 @@ ARCHS=arm64 \
 -target=ALL_BUILD \
 -parallelizeTargets \
 build
-'
 
 cd ../.. # back to opencv
 
@@ -112,26 +113,25 @@ cd $BUILD_R
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Release \
 -DCMAKE_BUILD_TYPE=Release \
--DBUILD_WITH_DEBUG_INFO=false \
+-DBUILD_WITH_DEBUG_INFO=0 \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
--DBUILD_opencv_world=false \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
+-DBUILD_opencv_python_bindings_generator=0 \
+-DBUILD_opencv_python2=0 \
+-DBUILD_opencv_java_bindings_generator=0 \
+-DBUILD_opencv_world=0 \
+-DBUILD_PERF_TESTS=0 \
+-DBUILD_TESTS=0 \
+-DWITH_MATLAB=0 \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=false \
--DWITH_OPENCLAMDFFT=false \
--DWITH_OPENCLAMDBLAS=false \
--DWITH_VA_INTEL=false \
+-DWITH_OPENCL=0 \
+-DWITH_OPENCLAMDFFT=0 \
+-DWITH_OPENCLAMDBLAS=0 \
+-DWITH_VA_INTEL=0 \
 -GXcode \
--DAPPLE_FRAMEWORK=true \
 -DPLATFORM=OS64 \
 -DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
--DENABLE_NEON=true \
--DENABLE_ARC=false \
+-DENABLE_NEON=1 \
+-DENABLE_ARC=0 \
 ../..
 
 cmake --build . --config Release --target install
@@ -146,3 +146,4 @@ cp -R $BUILD_R/install/lib     $ZIPFOLDER/release
 cp -R $BUILD_D/install/lib     $ZIPFOLDER/debug
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER
+'

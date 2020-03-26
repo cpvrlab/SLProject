@@ -1,3 +1,5 @@
+#ifndef TARGET_OS_IOS
+
 #ifndef GLSL_HESSIAN3L
 #define GLSL_HESSIAN3L
 
@@ -116,3 +118,4 @@ public:
 };
 
 #endif
+#endif // TARGET_OS_IOS

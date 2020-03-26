@@ -228,7 +228,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
-    set(OpenCV_VERSION "3.4.0")
+    set(OpenCV_VERSION "4.2.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
@@ -305,7 +305,32 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
     endif()
 
-    #G2O
+    #g2o
+
+    #Download g2o for iOS
+    set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
+    set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
+    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
+    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
+
+    #message(STATUS "g2o_DIR: ${g2o_DIR}")
+    #message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
+    #message(STATUS "g2o_URL: ${g2o_URL}")
+
+    if (NOT EXISTS "${g2o_DIR}")
+        message(STATUS "g2o_DIR: ${g2o_DIR}")
+        message(STATUS "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}")
+        message(STATUS "Download to: ${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+    endif ()
+
+
+    #Download g2o for MacOS
     set(g2o_DIR ${PREBUILT_PATH}/mac64_g2o)
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})

@@ -1,3 +1,6 @@
+
+#ifndef TARGET_OS_IOS
+
 #include <AverageTiming.h>
 #include <GLSLHessian3L.h>
 #include <SLSceneView.h>
@@ -1187,3 +1190,4 @@ void GLSLHessian3L::readResult(std::vector<cv::KeyPoint> &kps)
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 }
 
+#endif //TARGET_OS_IOS

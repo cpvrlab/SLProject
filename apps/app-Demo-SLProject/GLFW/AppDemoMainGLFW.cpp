@@ -473,7 +473,9 @@ void onGLFWError(int error, const char* description)
 //! Alternative SceneView creation C-function passed by slCreateSceneView
 SLuint createAppDemoSceneView(SLProjectScene* scene, int dpi)
 {
+    // The sceneview will be deleted by SLScene::~SLScene()
     SLSceneView* appDemoSV = new AppDemoSceneView(scene, dpi);
+
     return appDemoSV->index();
 }
 //-----------------------------------------------------------------------------
