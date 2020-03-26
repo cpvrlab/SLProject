@@ -1,6 +1,7 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
+#include <GL/glew.h>    // OpenGL headers
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -13,8 +14,15 @@
 #include <cstdint>
 #include <set>
 #include <array>
+#include <glUtils.h>
+#include <Utils.h>
+#include <SL.h>
 #include <math/SLVec2.h>
 #include <math/SLVec3.h>
+#include <Utils.h>
+#include <SL.h>         // Basic SL type definitions
+#include <CVImage.h>    // Image class for image loading
+#include <glUtils.h> 
 
 #define IS_DEBUGMODE_ON true
 
@@ -82,6 +90,10 @@ private:
     VkDevice                     device;
     VkQueue                      graphicsQueue;
     VkQueue                      presentQueue;
+    VkBuffer                     vertexBuffer;
+    VkDeviceMemory               vertexBufferMemory;
+    VkBuffer                     indexBuffer;
+    VkDeviceMemory               indexBufferMemory;
     VkSwapchainKHR               swapchain;
     std::vector<VkImage>         swapchainImages;
     VkFormat                     swapchainImageFormat;
@@ -99,9 +111,11 @@ private:
     std::vector<VkFence>         imagesInFlight;
     size_t                       currentFrame = 0;
     bool                         framebufferResized = false;
-    const std::vector<Vertex>    vertices           = { {{ 0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                                        {{ 0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-                                                        {{-0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}} };
+    const std::vector<Vertex>    vertices           = { {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                                        {{ 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                                        {{ 0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},
+                                                        {{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}} };
+    const std::vector<uint16_t> indices = { 0, 1, 2, 2, 3, 0 };
 
 public:
     void run();
@@ -125,6 +139,10 @@ private:
     void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();
+    void createVertexBuffer();
+    void createIndexBuffer();
+    void createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
+    void copyBuffer(VkBuffer, VkBuffer, VkDeviceSize);
     void createCommandBuffers();
     void createSyncObjects();
     void drawFrame();
@@ -134,6 +152,7 @@ private:
     bool checkValidationLayerSupport();
     bool isDeviceSuitable(VkPhysicalDevice);
     bool checkDeviceExtensionSupport(VkPhysicalDevice);
+    uint32_t                 findMemoryType(uint32_t, VkMemoryPropertyFlags);
     VkShaderModule           createShaderModule(const std::vector<char>&);
     VkSurfaceFormatKHR       chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
     VkPresentModeKHR         chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&);     // Must be replaced

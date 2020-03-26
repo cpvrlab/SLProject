@@ -8,16 +8,16 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-#        ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
-#        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
-#        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
 		 ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.h
     )
 
 file(GLOB sources
-#        ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
-#        ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
-#        ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp
     )
@@ -41,16 +41,16 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-#    ${SL_PROJECT_ROOT}/lib-SLProject/include
-#    ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
-#    ${SL_PROJECT_ROOT}/lib-SLProject/include/GL
+    ${SL_PROJECT_ROOT}/lib-SLProject/include
+   ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
+    ${SL_PROJECT_ROOT}/lib-SLProject/include/GL
     ${SL_PROJECT_ROOT}/lib-SLProject/include/math
-#    ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
-#    ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-#    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
+    ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal
+    ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glfw3/include
-#    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
-#    ${OpenCV_INCLUDE_DIR}
+    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
+    ${OpenCV_INCLUDE_DIR}
 	${vk_INCLUDE_DIR}
     PUBLIC
     INTERFACE
@@ -62,8 +62,8 @@ target_link_libraries(${target}
     PRIVATE
     ${PlatformLinkLibs}
     lib-SLExternal
-#    lib-Utils
-#    ${OpenCV_LIBS}
+    lib-Utils
+    ${OpenCV_LIBS}
 	${vk_LIBS}
     PUBLIC
     INTERFACE
