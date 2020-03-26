@@ -23,6 +23,23 @@
 class SLScene;
 class SLSceneView;
 
+class ImGuiFontManager
+{
+public:
+    //possible fonts
+    enum Font
+    {
+
+    };
+
+    ImFont* getFont(std::string name)
+    {
+    }
+
+private:
+    std::map<std::string, ImFont*> _fonts;
+};
+
 //-----------------------------------------------------------------------------
 //! ImGui Interface class for forwarding all events to the ImGui Handlers
 /*! ImGui is a super easy GUI library for the rendering of a UI with OpenGL.

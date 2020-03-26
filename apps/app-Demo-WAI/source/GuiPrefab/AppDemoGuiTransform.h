@@ -10,10 +10,10 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiTransform : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiTransform(std::string name, bool* activator);
+public:
+    AppDemoGuiTransform(std::string name, bool* activator, ImFont* font);
 
-    void buildInfos(SLScene * s, SLSceneView * sv) override;
+    void buildInfos(SLScene* s, SLSceneView* sv) override;
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

@@ -11,7 +11,7 @@
 class AppDemoGuiUIPrefs : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiUIPrefs(std::string name, GUIPreferences* prefs, bool* activator);
+    AppDemoGuiUIPrefs(std::string name, GUIPreferences* prefs, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 

@@ -142,10 +142,6 @@ void TestView::tryLoadLastSlam()
 //void TestView::setupGUI()
 //{
 
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
-//                                                                          &_gui.uiPrefs->showInfosMapNodeTransform,
-//                                                                          &_eventQueue));
-
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking", *_gui.uiPrefs.get(), *this));
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &_gui.uiPrefs->showStatsVideo, *this));
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &_gui.uiPrefs->showTrackedMapping, *this));

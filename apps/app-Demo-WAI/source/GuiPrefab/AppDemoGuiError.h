@@ -14,7 +14,6 @@ public:
     void setErrorMsg(std::string msg) { _errorMsg = msg; }
 
 private:
-    ImFont*     _font     = nullptr;
     std::string _errorMsg = "";
 };
 

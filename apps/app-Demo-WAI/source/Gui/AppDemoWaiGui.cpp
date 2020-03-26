@@ -44,6 +44,8 @@
 #include <AppDemoGuiStatsTiming.h>
 #include <AppDemoGuiTransform.h>
 
+#include <AppDemoGuiInfosMapNodeTransform.h>
+
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
                              std::string                     appName,
@@ -88,19 +90,23 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
                                                         &uiPrefs->showSlamLoad,
                                                         std::bind(&AppDemoWaiGui::showErrorMsg, this, std::placeholders::_1));
     addInfoDialog(_guiSlamLoad);
+    addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
+                                                                    &uiPrefs->showInfosMapNodeTransform,
+                                                                    &eventQueue,
+                                                                    _fontPropDots));
 
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _fontPropDots);
     addInfoDialog(_errorDial);
 
-    addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene));
-    addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors));
-    addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties));
-    addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph));
-    addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming));
-    addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks));
-    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs));
-    addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming));
-    addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene, _fontPropDots));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs, _fontPropDots));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform, _fontPropDots));
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()

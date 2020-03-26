@@ -4,8 +4,8 @@
 #include <AppDemoGuiInfosScene.h>
 #include <SLGLImGui.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosScene::AppDemoGuiInfosScene(string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiInfosScene::AppDemoGuiInfosScene(string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -24,7 +24,9 @@ void AppDemoGuiInfosScene::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::SetNextWindowPos(ImVec2(0, sv->scrH() - h));
     ImGui::SetNextWindowSize(ImVec2(w, h));
 
+    ImGui::PushFont(_font);
     ImGui::Begin("Scene Information", _activator, window_flags);
     ImGui::TextWrapped("%s", info.c_str());
     ImGui::End();
+    ImGui::PopFont();
 }

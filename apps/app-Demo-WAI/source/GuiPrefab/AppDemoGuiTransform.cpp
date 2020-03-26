@@ -4,17 +4,17 @@
 #include <AppDemoGuiTransform.h>
 #include <AppDemoGuiAbout.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiTransform::AppDemoGuiTransform(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiTransform::AppDemoGuiTransform(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
 //-----------------------------------------------------------------------------
-void AppDemoGuiTransform::buildInfos(SLScene * s, SLSceneView * sv)
+void AppDemoGuiTransform::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
     ImGui::Begin("Transform Selected Node", _activator, window_flags);
 
     if (s->selectedNode())
@@ -106,4 +106,3 @@ void AppDemoGuiTransform::buildInfos(SLScene * s, SLSceneView * sv)
     ImGui::End();
     ImGui::PopFont();
 }
-

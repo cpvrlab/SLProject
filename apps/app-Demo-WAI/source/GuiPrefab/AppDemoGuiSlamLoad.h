@@ -39,8 +39,6 @@ private:
     void loadFileNamesInVector(std::string directory, std::vector<std::string>& fileNames, std::vector<std::string>& extensions, bool addEmpty);
     void loadDirNamesInVector(std::string               directory,
                               std::vector<std::string>& dirNames);
-    void pushStyle();
-    void popStyle();
 
     bool _changeSlamParams;
 
@@ -61,7 +59,6 @@ private:
 
     std::queue<WAIEvent*>*           _eventQueue;
     std::function<void(std::string)> _errorMsgCB = nullptr;
-    ImFont*                          _font       = nullptr;
 };
 
 #endif

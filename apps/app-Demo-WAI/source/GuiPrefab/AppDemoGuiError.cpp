@@ -7,8 +7,7 @@
 #include <SLGLImGui.h>
 //-----------------------------------------------------------------------------
 AppDemoGuiError::AppDemoGuiError(string name, bool* activator, ImFont* font)
-  : AppDemoGuiInfosDialog(std::move(name), activator),
-    _font(font)
+  : AppDemoGuiInfosDialog(std::move(name), activator, font)
 {
 }
 
@@ -28,8 +27,8 @@ void AppDemoGuiError::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::SetNextWindowSize(ImVec2(w, h));
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-    if (_font)
-        ImGui::PushFont(_font);
+    ImGui::PushFont(_font);
+
     ImGui::Begin("Error", _activator, window_flags);
 
     ImGui::TextWrapped("%s", _errorMsg.c_str());
@@ -37,6 +36,5 @@ void AppDemoGuiError::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::End();
 
     ImGui::PopStyleColor();
-    if (_font)
-        ImGui::PopFont();
+    ImGui::PopFont();
 }

@@ -4,14 +4,15 @@
 #include <AppDemoGuiStatsTiming.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiStatsTiming::AppDemoGuiStatsTiming(string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiStatsTiming::AppDemoGuiStatsTiming(string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
 //-----------------------------------------------------------------------------
 void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
     ImGui::Begin(_name.c_str(), _activator, _initMinDialogSize);
 
     SLRenderType rType = sv->renderType();
@@ -45,10 +46,8 @@ void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
     sprintf(m + strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
     sprintf(m + strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
 
-    //define ui elements
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::TextUnformatted(m);
-    ImGui::PopFont();
 
     ImGui::End();
+    ImGui::PopFont();
 }

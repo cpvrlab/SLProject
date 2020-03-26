@@ -22,7 +22,7 @@
 class AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiInfosDialog(std::string name, bool* activator);
+    AppDemoGuiInfosDialog(std::string name, bool* activator, ImFont* font);
 
     virtual ~AppDemoGuiInfosDialog() {}
     virtual void buildInfos(SLScene* s, SLSceneView* sv) = 0;
@@ -34,12 +34,17 @@ public:
     bool* activator() { return _activator; }
 
 protected:
+    //virtual void pushStyle();
+    //virtual void popStyle();
+
     bool* _activator;
     //! initial minimum dialog size
     static ImVec2 _initMinDialogSize;
 
     //! name in imgui menu entry for this infos dialogue
     std::string _name;
+    //! custom font
+    ImFont* _font = nullptr;
 };
 
 #endif // !AppDemoGui_INFOSDIALOG_H

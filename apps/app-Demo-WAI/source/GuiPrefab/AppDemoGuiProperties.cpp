@@ -10,8 +10,8 @@
 #include <SLGLShader.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiProperties::AppDemoGuiProperties(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiProperties::AppDemoGuiProperties(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -21,7 +21,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
 
     if (node && sv->camera()->selectedRect().isEmpty())
     {

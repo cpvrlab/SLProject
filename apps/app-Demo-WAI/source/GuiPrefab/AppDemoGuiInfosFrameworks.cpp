@@ -5,8 +5,8 @@
 #include <AppDemoGuiInfosFrameworks.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -34,7 +34,7 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
     // Switch to fixed font
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
     ImGui::Begin("Framework Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::TextUnformatted(m);
     ImGui::End();

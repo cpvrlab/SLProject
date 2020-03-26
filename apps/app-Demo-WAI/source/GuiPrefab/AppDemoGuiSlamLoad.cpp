@@ -26,9 +26,8 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
                                        const std::vector<std::string>&  extractorIdToNames,
                                        bool*                            activator,
                                        std::function<void(std::string)> errorMsgCB)
-  : AppDemoGuiInfosDialog(name, activator),
+  : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
-    _font(font),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
@@ -116,7 +115,7 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
 
 void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    pushStyle();
+    ImGui::PushFont(_font);
 
     ImGui::Begin("Slam Load", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -457,7 +456,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::End();
 
-    popStyle();
+    ImGui::PopFont();
 }
 
 void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)
@@ -470,16 +469,4 @@ void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)
     _p.markerFile      = _p.markerFile.empty() ? "" : Utils::getFileName(_p.markerFile);
 
     _changeSlamParams = false;
-}
-
-void AppDemoGuiSlamLoad::pushStyle()
-{
-    if (_font)
-        ImGui::PushFont(_font);
-}
-
-void AppDemoGuiSlamLoad::popStyle()
-{
-    if (_font)
-        ImGui::PopFont();
 }

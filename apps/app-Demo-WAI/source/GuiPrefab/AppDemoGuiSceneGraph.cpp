@@ -5,20 +5,22 @@
 #include <AppDemoGuiSceneGraph.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiSceneGraph::AppDemoGuiSceneGraph(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiSceneGraph::AppDemoGuiSceneGraph(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
 //-----------------------------------------------------------------------------
 void AppDemoGuiSceneGraph::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
     ImGui::Begin("Scenegraph", _activator);
 
     if (s->root3D())
         addSceneGraphNode(s, s->root3D());
 
     ImGui::End();
+    ImGui::PopFont();
 }
 
 void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)

@@ -8,8 +8,8 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiInfosFrameworks : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiInfosFrameworks(std::string name, bool* activator);
+public:
+    AppDemoGuiInfosFrameworks(std::string name, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 };

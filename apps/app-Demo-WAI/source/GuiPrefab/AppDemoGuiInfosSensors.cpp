@@ -6,8 +6,8 @@
 #include <AppDemoGuiInfosSensors.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosSensors::AppDemoGuiInfosSensors(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiInfosSensors::AppDemoGuiInfosSensors(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -40,7 +40,7 @@ void AppDemoGuiInfosSensors::buildInfos(SLScene* s, SLSceneView* sv)
     //    sprintf(m + strlen(m), "%s : %s\n", it->first.c_str(), it->second.c_str());
 
     // Switch to fixed font
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
     ImGui::Begin("Sensor Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::TextUnformatted(m);
     ImGui::End();
