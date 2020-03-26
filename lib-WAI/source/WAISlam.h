@@ -286,13 +286,13 @@ public:
 
 protected:
     std::mutex    _mutexStates;
-    bool          _retainImg;
-    unsigned long _lastRelocFrameId;
-    unsigned long _lastKeyFrameFrameId;
-    bool          _serial;
-    bool          _trackingOnly;
-    KPextractor*  _extractor;
-    int           _infoMatchedInliners;
+    bool          _retainImg           = false;
+    unsigned long _lastRelocFrameId    = 0;
+    unsigned long _lastKeyFrameFrameId = 0;
+    bool          _serial              = false;
+    bool          _trackingOnly        = false;
+    KPextractor*  _extractor           = nullptr;
+    int           _infoMatchedInliners = 0;
 };
 
 #endif

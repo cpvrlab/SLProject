@@ -17,16 +17,21 @@ TestView::TestView(sm::EventHandler& eventHandler,
                    std::string       vocabularyDir,
                    std::string       calibDir,
                    std::string       videoDir)
-  : _gui(eventHandler,
-         "TestScene",
-         dotsPerInch,
-         screenWidth,
-         screenHeight,
-         configDir,
-         fontPath,
-         vocabularyDir,
-         _featureExtractorFactory.getExtractorIdToNames(),
-         _eventQueue),
+  : _gui(
+      eventHandler,
+      "TestScene",
+      dotsPerInch,
+      screenWidth,
+      screenHeight,
+      configDir,
+      fontPath,
+      vocabularyDir,
+      _featureExtractorFactory.getExtractorIdToNames(),
+      _eventQueue,
+      [&]() { return _mode; },                   //getter callback for current mode
+      [&]() { return _camera; },                 //getter callback for current camera
+      [&]() { return &_calibration; },           //getter callback for current calibration
+      [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
     _s("TestScene", inputManager),
     _sv(&_s, dotsPerInch),
     _camera(camera),
@@ -142,7 +147,7 @@ void TestView::tryLoadLastSlam()
 //void TestView::setupGUI()
 //{
 
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking", *_gui.uiPrefs.get(), *this));
+//
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &_gui.uiPrefs->showStatsVideo, *this));
 //    _gui.addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &_gui.uiPrefs->showTrackedMapping, *this));
 

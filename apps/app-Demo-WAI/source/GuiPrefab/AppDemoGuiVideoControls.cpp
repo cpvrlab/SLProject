@@ -1,23 +1,26 @@
 #include <AppDemoGuiVideoControls.h>
-#include <WAIApp.h>
+#include <WAIEvent.h>
+#include <SENSVideoStream.h>
 
-AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string&      name,
-                                                 bool*                   activator,
-                                                 std ::queue<WAIEvent*>* eventQueue,
-                                                 WAIApp&                 waiApp)
-  : AppDemoGuiInfosDialog(name, activator),
+AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string&                    name,
+                                                 bool*                                 activator,
+                                                 std ::queue<WAIEvent*>*               eventQueue,
+                                                 ImFont*                               font,
+                                                 std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
+  : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
     _pauseVideo(false),
-    _waiApp(waiApp)
+    _getVideoFileStream(getVideoFileStreamCB)
 {
 }
 
 void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    const SENSVideoStream* vs = _waiApp.getVideoFileStream();
+    ImGui::PushFont(_font);
+    ImGui::Begin("Video controls", _activator, 0);
+    const SENSVideoStream* vs = _getVideoFileStream();
     if (vs)
     {
-        ImGui::Begin("Video controls", _activator, 0);
 
         std::string videoFilename = Utils::getFileName(vs->videoFilename());
         ImGui::Text("Current video file: %s", videoFilename.c_str());
@@ -81,8 +84,6 @@ void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
             eventOccured = true;
         }
 
-        ImGui::End();
-
         if (eventOccured)
         {
             WAIEventVideoControl* event = new WAIEventVideoControl();
@@ -92,4 +93,11 @@ void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
             _eventQueue->push(event);
         }
     }
+    else
+    {
+        ImGui::Text("No video running");
+    }
+
+    ImGui::End();
+    ImGui::PopFont();
 }

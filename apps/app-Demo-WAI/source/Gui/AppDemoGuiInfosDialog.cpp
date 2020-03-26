@@ -12,8 +12,6 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <SLGLImGui.h>
 
-ImVec2 AppDemoGuiInfosDialog::_initMinDialogSize = ImVec2(SLGLImGui::fontFixedDots * 10, SLGLImGui::fontFixedDots * 5);
-
 //-----------------------------------------------------------------------------
 AppDemoGuiInfosDialog::AppDemoGuiInfosDialog(std::string name, bool* activator, ImFont* font)
   : _name(name),
@@ -21,15 +19,3 @@ AppDemoGuiInfosDialog::AppDemoGuiInfosDialog(std::string name, bool* activator, 
     _font(font)
 {
 }
-
-//void AppDemoGuiInfosDialog::pushStyle()
-//{
-//    if (_font)
-//        ImGui::PushFont(_font);
-//}
-//
-//void AppDemoGuiInfosDialog::popStyle()
-//{
-//    if (_font)
-//        ImGui::PopFont();
-//}

@@ -8,29 +8,28 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <stdio.h>
-
-#include <WAIApp.h>
-#include <Utils.h>
 #include <AppDemoGuiVideoStorage.h>
-#include <WAIApp.h>
+#include <stdio.h>
+#include <Utils.h>
+#include <WAIEvent.h>
+#include <SENSCamera.h>
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string&     name,
-                                               bool*                  activator,
-                                               std::queue<WAIEvent*>* eventQueue,
-                                               WAIApp&                waiApp)
-  : AppDemoGuiInfosDialog(name, activator),
+AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string&               name,
+                                               bool*                            activator,
+                                               std::queue<WAIEvent*>*           eventQueue,
+                                               ImFont*                          font,
+                                               std::function<SENSCamera*(void)> getCameraCB)
+  : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
-    _waiApp(waiApp)
+    _getCamera(getCameraCB)
 {
 }
 //-----------------------------------------------------------------------------
 void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
     ImGui::Begin("Video/GPS storage", _activator, 0);
     ImGui::Separator();
     if (ImGui::Button(_recording ? "Stop recording" : "Start recording", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
@@ -39,12 +38,16 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
 
         if (!_recording)
         {
-            const cv::Size& size     = _waiApp.getFrameSize();
-            std::string     filename = Utils::getDateTime2String() + "_" +
-                                   Utils::ComputerInfos::get() + "_" +
-                                   std::to_string(size.width) + "x" + std::to_string(size.height) + ".avi";
+            SENSCamera* cam = _getCamera();
+            if (cam)
+            {
+                const cv::Size& size     = cam->getFrameSize();
+                std::string     filename = Utils::getDateTime2String() + "_" +
+                                       Utils::ComputerInfos::get() + "_" +
+                                       std::to_string(size.width) + "x" + std::to_string(size.height) + ".avi";
 
-            event->filename = filename;
+                event->filename = filename;
+            }
         }
 
         _eventQueue->push(event);
@@ -53,4 +56,5 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+    ImGui::PopFont();
 }

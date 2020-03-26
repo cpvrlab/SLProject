@@ -43,20 +43,29 @@
 #include <AppDemoGuiUIPrefs.h>
 #include <AppDemoGuiStatsTiming.h>
 #include <AppDemoGuiTransform.h>
+#include <AppDemoGuiInfosTracking.h>
+#include <AppDemoGuiStatsVideo.h>
+#include <AppDemoGuiTrackedMapping.h>
+#include <AppDemoGuiVideoStorage.h>
+#include <AppDemoGuiVideoControls.h>
 
 #include <AppDemoGuiInfosMapNodeTransform.h>
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
-                             std::string                     appName,
-                             int                             dotsPerInch,
-                             int                             windowWidthPix,
-                             int                             windowHeightPix,
-                             std::string                     configDir,
-                             std::string                     fontPath,
-                             std::string                     vocabularyDir,
-                             const std::vector<std::string>& extractorIdToNames,
-                             std ::queue<WAIEvent*>&         eventQueue)
+AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
+                             std::string                           appName,
+                             int                                   dotsPerInch,
+                             int                                   windowWidthPix,
+                             int                                   windowHeightPix,
+                             std::string                           configDir,
+                             std::string                           fontPath,
+                             std::string                           vocabularyDir,
+                             const std::vector<std::string>&       extractorIdToNames,
+                             std ::queue<WAIEvent*>&               eventQueue,
+                             std::function<WAISlam*(void)>         modeGetterCB,
+                             std::function<SENSCamera*(void)>      getCameraCB,
+                             std::function<CVCalibration*(void)>   getCalibrationCB,
+                             std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
   : sm::EventSender(eventHandler)
 {
     //load preferences
@@ -97,6 +106,15 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&               eventHandler,
 
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _fontPropDots);
     addInfoDialog(_errorDial);
+    addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking",
+                                                            *uiPrefs.get(),
+                                                            _fontPropDots,
+                                                            modeGetterCB));
+    addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _fontPropDots, modeGetterCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _fontPropDots, getCameraCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _fontPropDots, getVideoFileStreamCB));
+
+    addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _fontFixedDots, getCameraCB, getCalibrationCB));
 
     addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene, _fontPropDots));
     addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors, _fontFixedDots));

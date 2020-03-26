@@ -53,6 +53,7 @@ protected:
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
     void startAsync();
+
     //video
     CVCalibration                    _calibration = {CVCameraType::FRONTFACING, ""};
     SENSCamera*                      _camera      = nullptr;
@@ -81,9 +82,6 @@ protected:
     AppWAIScene _s;
     SLSceneView _sv;
 
-    //gui
-    AppDemoWaiGui _gui;
-
     SLAssetManager _assets;
 
     std::string _configDir;
@@ -92,6 +90,9 @@ protected:
     std::string _videoDir;
 
     std::thread _startThread;
+
+    //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
+    AppDemoWaiGui _gui;
 };
 
 #endif //TEST_VIEW_H

@@ -9,19 +9,20 @@
 //#############################################################################
 
 #include <stdafx.h>
-#include <imgui.h>
-#include <imgui_internal.h>
-
-#include <WAIApp.h>
 #include <AppDemoGuiInfosTracking.h>
 
+#include <imgui_internal.h>
+#include <GUIPreferences.h>
+#include <WAISlam.h>
+
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string     name,
-                                                 GUIPreferences& preferences,
-                                                 WAIApp&         waiApp)
-  : AppDemoGuiInfosDialog(name, &preferences.showInfosTracking),
+AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string                   name,
+                                                 GUIPreferences&               preferences,
+                                                 ImFont*                       font,
+                                                 std::function<WAISlam*(void)> modeGetterCB)
+  : AppDemoGuiInfosDialog(name, &preferences.showInfosTracking, font),
     _prefs(preferences),
-    _waiApp(waiApp)
+    _getMode(modeGetterCB)
 {
     _minNumCovisibleMapPts = _prefs.minNumOfCovisibles;
 }
@@ -29,16 +30,16 @@ AppDemoGuiInfosTracking::AppDemoGuiInfosTracking(std::string     name,
 void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
 {
     //-------------------------------------------------------------------------
-
+    ImGui::PushFont(_font);
     ImGui::Begin("Tracking Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
-    if (!_waiApp.mode())
+    WAISlam* mode = _getMode();
+    if (!mode)
     {
         ImGui::Text("SLAM not running.");
     }
     else
     {
-        auto mode = _waiApp.mode();
         //numbers
         //add tracking state
         ImGui::Text("Tracking State : %s ", mode->getPrintableState().c_str());
@@ -150,4 +151,5 @@ void AppDemoGuiInfosTracking::buildInfos(SLScene* s, SLSceneView* sv)
         }
     }
     ImGui::End();
+    ImGui::PopFont();
 }

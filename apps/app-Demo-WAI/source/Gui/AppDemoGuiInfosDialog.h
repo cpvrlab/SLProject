@@ -34,12 +34,7 @@ public:
     bool* activator() { return _activator; }
 
 protected:
-    //virtual void pushStyle();
-    //virtual void popStyle();
-
     bool* _activator;
-    //! initial minimum dialog size
-    static ImVec2 _initMinDialogSize;
 
     //! name in imgui menu entry for this infos dialogue
     std::string _name;
