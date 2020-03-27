@@ -29,11 +29,15 @@ void TextureMapping::initVulkan()
     createSwapchain();
     createImageViews();
     createRenderPass();
+    createDescriptorSetLayout();
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
     createVertexBuffer();
     createIndexBuffer();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
     createCommandBuffers();
     createSyncObjects();
 }
@@ -64,12 +68,21 @@ void TextureMapping::cleanupSwapchain()
         vkDestroyImageView(device, imageView, nullptr);
 
     vkDestroySwapchainKHR(device, swapchain, nullptr);
+
+    for (size_t i = 0; i < swapchainImages.size(); i++)
+    {
+        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+    }
+
+    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 }
 
 void TextureMapping::cleanup()
 {
     cleanupSwapchain();
 
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     vkDestroyBuffer(device, indexBuffer, nullptr);
     vkFreeMemory(device, indexBufferMemory, nullptr);
 
@@ -109,11 +122,15 @@ void TextureMapping::recreateSwapchain()
     vkDeviceWaitIdle(device);
 
     cleanupSwapchain();
+
     createSwapchain();
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
     createCommandBuffers();
 }
 
@@ -370,6 +387,24 @@ void TextureMapping::createRenderPass()
         throw std::runtime_error("failed to create render pass!");
 }
 
+void TextureMapping::createDescriptiorSetLayout()
+{
+    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+    uboLayoutBinding.binding                      = 0;
+    uboLayoutBinding.descriptorCount              = 1;
+    uboLayoutBinding.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.pImmutableSamplers           = nullptr;
+    uboLayoutBinding.stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount                    = 1;
+    layoutInfo.pBindings                       = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+        throw std::runtime_error("failed to create descriptor set layout!");
+}
+
 void TextureMapping::createGraphicsPipeline()
 {
     auto vertShaderCode = readFile("C:\\Users\\Dmytriy Pelts\\Documents\\Gitlab\\SLProject\\data\\shaders\\vertShader.spv");
@@ -418,7 +453,7 @@ void TextureMapping::createGraphicsPipeline()
     scissor.offset   = {0, 0};
     scissor.extent   = swapchainExtent;
 
-    VkPipelineViewportStateCreateInfo viewportState = {};
+   VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType                             = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount                     = 1;
     viewportState.pViewports                        = &viewport;
@@ -432,7 +467,7 @@ void TextureMapping::createGraphicsPipeline()
     rasterizer.polygonMode                            = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth                              = 1.0f;
     rasterizer.cullMode                               = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace                              = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable                        = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling = {};
@@ -457,13 +492,11 @@ void TextureMapping::createGraphicsPipeline()
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount             = 0;
-    pipelineLayoutInfo.pushConstantRangeCount     = 0;
+    pipelineLayoutInfo.setLayoutCount             = 1;
+    pipelineLayoutInfo.pSetLayouts                = &descriptorSetLayout;
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to create pipeline layout!");
-    }
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -514,6 +547,88 @@ void TextureMapping::createFramebuffers()
     }
 }
 
+void TextureMapping::createUniformBuffers()
+{
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    uniformBuffers.resize(swapchainImages.size());
+    uniformBuffersMemory.resize(swapchainImages.size());
+
+    for (size_t i = 0; i < swapchainImages.size(); i++)
+        createBuffer(bufferSize, 
+                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                    uniformBuffers[i], 
+                    uniformBuffersMemory[i]);
+}
+
+void TextureMapping::createDescriptorPool()
+{
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount      = static_cast<uint32_t>(swapchainImages.size());
+
+    VkDescriptorPoolCreateInfo poolInfo = {};
+    poolInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount              = 1;
+    poolInfo.pPoolSizes                 = &poolSize;
+    poolInfo.maxSets                    = static_cast<uint32_t>(swapchainImages.size());
+
+    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+        throw std::runtime_error("failed to create descriptor pool!");
+}
+
+void TextureMapping::createDescriptorSets()
+{
+    std::vector<VkDescriptorSetLayout> layouts(swapchainImages.size(), descriptorSetLayout);
+    VkDescriptorSetAllocateInfo        allocInfo = {};
+    allocInfo.sType                              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool                     = descriptorPool;
+    allocInfo.descriptorSetCount                 = static_cast<uint32_t>(swapchainImages.size());
+    allocInfo.pSetLayouts                        = layouts.data();
+
+    descriptorSets.resize(swapchainImages.size());
+    if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+        throw std::runtime_error("failed to allocate descriptor sets!");
+
+    for (size_t i = 0; i < swapchainImages.size(); i++)
+    {
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.buffer                 = uniformBuffers[i];
+        bufferInfo.offset                 = 0;
+        bufferInfo.range                  = sizeof(UniformBufferObject);
+
+        VkWriteDescriptorSet descriptorWrite = {};
+        descriptorWrite.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet               = descriptorSets[i];
+        descriptorWrite.dstBinding           = 0;
+        descriptorWrite.dstArrayElement      = 0;
+        descriptorWrite.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount      = 1;
+        descriptorWrite.pBufferInfo          = &bufferInfo;
+
+        vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    }
+}
+
+void TextureMapping::createDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+    uboLayoutBinding.binding                      = 0;
+    uboLayoutBinding.descriptorCount              = 1;
+    uboLayoutBinding.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.pImmutableSamplers           = nullptr;
+    uboLayoutBinding.stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount                    = 1;
+    layoutInfo.pBindings                       = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+        throw std::runtime_error("failed to create descriptor set layout!");
+}
+
 void TextureMapping::createCommandPool()
 {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
@@ -523,9 +638,7 @@ void TextureMapping::createCommandPool()
     poolInfo.queueFamilyIndex        = queueFamilyIndices.graphicsFamily;
 
     if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to create command pool!");
-    }
 }
 
 void TextureMapping::createVertexBuffer()
@@ -679,6 +792,8 @@ void TextureMapping::createCommandBuffers()
 
         vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
@@ -705,14 +820,29 @@ void TextureMapping::createSyncObjects()
     fenceInfo.flags             = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
         if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
-        }
-    }
+                throw std::runtime_error("failed to create synchronization objects for a frame!");
+}
+
+void TextureMapping::updateUniformBuffer(uint32_t currentImage)
+{
+    UniformBufferObject ubo = {};
+    ubo.model = SLMat4f();
+    ubo.view = SLMat4f();
+    ubo.view.lookAt(SLVec3f(2.0f, 2.0f, 2.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 1.0f));
+    ubo.proj.perspective(60.0f, (float)swapchainExtent.width / (float)swapchainExtent.height, 0.1f, 10.0f);
+
+    SLfloat value = ubo.proj.m(5);
+    value *= -1;
+    ubo.proj.setMatrix(5, value);
+
+
+    void* data;
+    vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 }
 
 void TextureMapping::drawFrame()
@@ -728,14 +858,12 @@ void TextureMapping::drawFrame()
         return;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-    {
         throw std::runtime_error("failed to acquire swap chain image!");
-    }
+
+    updateUniformBuffer(imageIndex);
 
     if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
-    {
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-    }
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
     VkSubmitInfo submitInfo = {};
@@ -757,9 +885,7 @@ void TextureMapping::drawFrame()
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to submit draw command buffer!");
-    }
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType            = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -767,9 +893,10 @@ void TextureMapping::drawFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores    = signalSemaphores;
 
-    VkSwapchainKHR swapchains[] = {swapchain};
+    VkSwapchainKHR swapChains[] = { swapchain };
     presentInfo.swapchainCount  = 1;
-    presentInfo.pSwapchains     = swapchains;
+    presentInfo.pSwapchains     = swapChains;
+
     presentInfo.pImageIndices = &imageIndex;
 
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
@@ -780,9 +907,7 @@ void TextureMapping::drawFrame()
         recreateSwapchain();
     }
     else if (result != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to present swap chain image!");
-    }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

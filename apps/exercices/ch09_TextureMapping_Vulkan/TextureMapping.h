@@ -16,9 +16,9 @@
 #include <array>
 #include <glUtils.h>
 #include <Utils.h>
-#include <SL.h>
 #include <math/SLVec2.h>
 #include <math/SLVec3.h>
+#include <chrono>
 #include <Utils.h>
 #include <SL.h>         // Basic SL type definitions
 #include <CVImage.h>    // Image class for image loading
@@ -37,6 +37,13 @@ struct SwapchainSupportDetails
     VkSurfaceCapabilitiesKHR        capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR>   presentModes;
+};
+
+struct UniformBufferObject
+{
+    SLMat4f model;
+    SLMat4f view;
+    SLMat4f proj;
 };
 
 struct Vertex
@@ -92,8 +99,6 @@ private:
     VkQueue                      presentQueue;
     VkBuffer                     vertexBuffer;
     VkDeviceMemory               vertexBufferMemory;
-    VkBuffer                     indexBuffer;
-    VkDeviceMemory               indexBufferMemory;
     VkSwapchainKHR               swapchain;
     std::vector<VkImage>         swapchainImages;
     VkFormat                     swapchainImageFormat;
@@ -101,9 +106,16 @@ private:
     std::vector<VkImageView>     swapchainImageViews;
     std::vector<VkFramebuffer>   swapchainFramebuffers;
     VkRenderPass                 renderPass;
+    VkDescriptorSetLayout        descriptorSetLayout;
+    VkDescriptorPool             descriptorPool;
     VkPipelineLayout             pipelineLayout;
     VkPipeline                   graphicsPipeline;
     VkCommandPool                commandPool;
+    VkBuffer                     indexBuffer;
+    VkDeviceMemory               indexBufferMemory;
+    std::vector<VkDescriptorSet> descriptorSets;
+    std::vector<VkBuffer>        uniformBuffers;
+    std::vector<VkDeviceMemory>  uniformBuffersMemory;
     std::vector<VkCommandBuffer> commandBuffers;
     std::vector<VkSemaphore>     imageAvailableSemaphores;
     std::vector<VkSemaphore>     renderFinishedSemaphores;
@@ -136,13 +148,19 @@ private:
     void createSwapchain();
     void createImageViews();
     void createRenderPass();
+    void createDescriptiorSetLayout();
     void createGraphicsPipeline();
     void createFramebuffers();
+    void createUniformBuffers();
+    void createDescriptorPool();
+    void createDescriptorSets();
+    void createDescriptorSetLayout();
     void createCommandPool();
     void createVertexBuffer();
     void createIndexBuffer();
     void createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
     void copyBuffer(VkBuffer, VkBuffer, VkDeviceSize);
+    void updateUniformBuffer(uint32_t);
     void createCommandBuffers();
     void createSyncObjects();
     void drawFrame();
