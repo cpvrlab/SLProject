@@ -92,7 +92,7 @@ protected:
 
     void MapPointCulling();
 
-    void SearchInNeighbors(WAIKeyFrame* frame);
+    void SearchInNeighbors(WAIKeyFrame* frame, int currKFID);
     void SearchInNeighbors();
 
     void KeyFrameCulling(WAIKeyFrame* frame);

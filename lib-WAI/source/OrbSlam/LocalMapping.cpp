@@ -74,6 +74,8 @@ void LocalMapping::LocalOptimize()
             _condVarLoop.wait_for(lock, std::chrono::milliseconds(1000), [&] { return !_loopWait; });
         }
 
+        bool emptyQueue = false;
+
         while (1)
         {
             AVERAGE_TIMING_START("localAdjustment");
@@ -82,26 +84,38 @@ void LocalMapping::LocalOptimize()
 
             {
                 std::unique_lock<std::mutex> lock(mMutexMapping);
-
                 kfInQueue = toLocalAdjustment.size();
-
                 if (kfInQueue == 0) { break; }
-
-                WAIKeyFrame* frame = toLocalAdjustment.front();
+                frame = toLocalAdjustment.front();
                 toLocalAdjustment.pop();
+                kfInQueue--;
             }
 
-            SearchInNeighbors(frame);
+            if (kfInQueue >= 9)
+            {
+                emptyQueue = true;
+            }
+            
+            if (emptyQueue)
+            {
+                if (kfInQueue % 3 > 0)
+                    continue;
+
+                if (kfInQueue == 0)
+                    emptyQueue = false;
+            }
+
+            int id;
+            unique_lock<mutex> newKFLock(mMutexNewKFs);
+            id = mpCurrentKeyFrame->mnId;
+            newKFLock.unlock();
+
+            SearchInNeighbors(frame, id);
 
             if (!stopRequested())
             {
                 if (mpMap->KeyFramesInMap() > 2)
                 {
-                    int id;
-                    unique_lock<mutex> newKFLock(mMutexNewKFs);
-                    id = mpCurrentKeyFrame->mnId;
-                    newKFLock.unlock();
-
                     mbAbortBA = false;
                     Optimizer::LocalBundleAdjustment(frame, id, &mbAbortBA, mpMap);
                 }
@@ -688,7 +702,7 @@ void LocalMapping::CreateNewMapPoints()
 }
 
 
-void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
+void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame, int currKFID)
 {
     //std::cout << "[LocalMapping] SearchInNeighbors" << std::endl;
     // Retrieve neighbor keyframes
@@ -701,7 +715,7 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
     for (vector<WAIKeyFrame*>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKFi = *vit;
-        if (pKFi->mnId == mpCurrentKeyFrame->mnId || pKFi->isBad() || pKFi->mnMarker[FUSE_TARGET_KF] == frame->mnId)
+        if (pKFi->mnId == currKFID || pKFi->isBad() || pKFi->mnMarker[FUSE_TARGET_KF] == frame->mnId)
             continue;
         vpTargetKFs.push_back(pKFi);
         pKFi->mnMarker[FUSE_TARGET_KF] = frame->mnId;
@@ -949,7 +963,7 @@ void LocalMapping::InterruptBA()
     mbAbortBA = true;
 }
 
-void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
+void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, int currKFID)
 {
     //std::cout << "[LocalMapping] KeyFrameCulling" << std::endl;
     // Check redundant keyframes (only local keyframes)
@@ -962,7 +976,7 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
     {
         WAIKeyFrame* pKF = *vit;
         //do not cull the first keyframe
-        if (pKF->mnId == mpCurrentKeyFrame->mnId)
+        if (pKF->mnId == currKFID)
             continue;
         if (pKF->mnId == 0)
             continue;
@@ -998,7 +1012,7 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
                         for (map<WAIKeyFrame*, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
                         {
                             WAIKeyFrame* pKFi = mit->first;
-                            if (pKFi->mnId == mpCurrentKeyFrame->mnId || pKFi == pKF)
+                            if (pKFi->mnId == currKFID || pKFi == pKF)
                                 continue;
                             const int& scaleLeveli = pKFi->mvKeysUn[mit->second].octave;
 
