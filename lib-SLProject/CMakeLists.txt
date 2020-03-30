@@ -200,6 +200,16 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
         )
 
+if (SL_BUILD_WAI)
+        set(headers
+                ${headers}
+                ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedWAI.h)
+
+        set(sources
+                ${sources}
+                ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedWAI.cpp)
+endif()
+
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
@@ -255,6 +265,12 @@ set_target_properties(${target}
         ${DEFAULT_PROJECT_OPTIONS}
         )
 
+if(SL_BUILD_WAI)
+set(DEFAULT_INCLUDE_DIRECTORIES
+        ${DEFAULT_INCLUDE_DIRECTORIES}
+        ${SL_PROJECT_ROOT}/lib-WAI/source)
+endif()
+
 target_include_directories(${target}
         PRIVATE
 
@@ -293,8 +309,15 @@ target_compile_options(${target}
         INTERFACE
         )
 
+if(SL_BUILD_WAI)
+set(PlatformLinkLibs
+        ${PlatformLinkLibs}
+        ${META_PROJECT_NAME}::lib-WAI)
+endif()
+
 target_link_libraries(${target}
         PRIVATE
+
         PUBLIC
         ${PlatformLinkLibs}
         ${OpenCV_LIBS}
@@ -302,5 +325,7 @@ target_link_libraries(${target}
         ${assimp_LIBS}
         lib-Utils
         ${DEFAULT_LINKER_OPTIONS}
+
         INTERFACE
+
         )
