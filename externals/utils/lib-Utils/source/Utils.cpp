@@ -1204,22 +1204,20 @@ std::string ComputerInfos::get()
     os    = "MacOS";
 
     // Get MacOS version
-    SInt32 majorV, minorV, bugfixV;
-    Gestalt(gestaltSystemVersionMajor, &majorV);
-    Gestalt(gestaltSystemVersionMinor, &minorV);
-    Gestalt(gestaltSystemVersionBugFix, &bugfixV);
-    char osVer[50];
-    sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
-    osVer = string(osVer);
+    //SInt32 majorV, minorV, bugfixV;
+    //Gestalt(gestaltSystemVersionMajor, &majorV);
+    //Gestalt(gestaltSystemVersionMinor, &minorV);
+    //Gestalt(gestaltSystemVersionBugFix, &bugfixV);
+    //char osVer[50];
+    //sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
+    //osVer = string(osVer);
 
     // Get model
-    size_t len = 0;
-    sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
-    char model[255];
-    sysctlbyname("hw.model", model, &len, nullptr, 0);
-    model = model;
-
-    arch = "ARCH?";
+    //size_t len = 0;
+    //sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
+    //char model[255];
+    //sysctlbyname("hw.model", model, &len, nullptr, 0);
+    //model = model;
 #    endif
 
 #elif defined(ANDROID) //................................................
