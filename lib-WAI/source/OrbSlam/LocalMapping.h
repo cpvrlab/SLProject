@@ -25,10 +25,9 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
-
 #include <opencv2/core.hpp>
-
 #include <OrbSlam/ORBVocabulary.h>
+#include <WorkingSet.h>
 
 class WAIKeyFrame;
 class WAIMap;
@@ -45,11 +44,8 @@ class LocalMapping
 {
 public:
     LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, float cullRedundantPerc = 0.9);
-
     void SetLoopCloser(LoopClosing* pLoopCloser);
-
     void SetVocabulary(ORBVocabulary* voc);
-
 
     // Main function
     void Run();
@@ -58,7 +54,6 @@ public:
 
     //ghm1
     void RunOnce();
-
     void InsertKeyFrame(WAIKeyFrame* pKF);
 
     // Thread Synch
@@ -86,21 +81,25 @@ public:
     }
 
 protected:
+
     bool CheckNewKeyFrames();
-    void ProcessNewKeyFrame();
-    void CreateNewMapPoints();
+    WAIKeyFrame* GetNewKeyFrame();
+    void ProcessNewKeyFrame(WAIKeyFrame * kf);
+    void CreateNewMapPoints(WAIKeyFrame * kf);
 
-    void MapPointCulling();
+    void MapPointCulling(WAIKeyFrame * kf);
 
-    void SearchInNeighbors(WAIKeyFrame* frame, int currKFID);
+    void SearchInNeighbors(WAIKeyFrame* frame, WorkingSet &ws);
     void SearchInNeighbors();
 
-    void KeyFrameCulling(WAIKeyFrame* frame);
+    void KeyFrameCulling(WAIKeyFrame* frame, WorkingSet &ws);
     void KeyFrameCulling();
 
     cv::Mat ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2);
 
     cv::Mat SkewSymmetricMatrix(const cv::Mat& v);
+
+    WorkingSet workingSet;
 
     WAIMap* mpMap;
     bool    mbMonocular;
@@ -129,7 +128,6 @@ protected:
     //Tracking* mpTracker;
 
     std::list<WAIKeyFrame*> mlNewKeyFrames;
-
     WAIKeyFrame* mpCurrentKeyFrame;
 
     std::list<WAIMapPoint*> mlpRecentAddedMapPoints;

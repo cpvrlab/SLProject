@@ -1004,7 +1004,7 @@ void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, unsigned int markerId)
     }
 }
 
-void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, int currID, unsigned int markerId)
+void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, WorkingSet &wc, unsigned int markerId)
 {
     lmap.refKF = pKF;
     lmap.keyFrames.push_back(pKF);
@@ -1014,7 +1014,7 @@ void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, int currID, unsigned int ma
     for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
     {
         WAIKeyFrame* pKFi = vNeighKFs[i];
-        if (pKFi->mnId == currID)
+        if (wc.isInUseSet(pKFi))
             continue;
 
         pKFi->mnMarker[markerId] = pKF->mnId;
@@ -1044,10 +1044,10 @@ void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, int currID, unsigned int ma
     }
 }
 
-void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, int currKFID, bool* pbStopFlag, WAIMap* pMap)
+void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pbStopFlag, WAIMap* pMap)
 {
     LocalMap lmap;
-    buildLocalMap(lmap, pKF, currKFID, BA_LOCAL_KF);
+    buildLocalMap(lmap, pKF, wc, BA_LOCAL_KF);
 
     // Fixed Keyframes. Keyframes that see Local MapPoints but that are not Local Keyframes
     vector<WAIKeyFrame*> lFixedCameras;
@@ -1058,7 +1058,10 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, int currKFID, bool* pbSt
         {
             WAIKeyFrame* pKFi = mit->first;
 
-            if (pKFi->mnId != currKFID, pKFi->mnMarker[BA_LOCAL_KF] != pKF->mnId && pKFi->mnMarker[BA_FIXED_KF] != pKF->mnId)
+            if (wc.isInUseSet(pKFi))
+                continue;
+
+            if (pKFi->mnMarker[BA_LOCAL_KF] != pKF->mnId && pKFi->mnMarker[BA_FIXED_KF] != pKF->mnId)
             {
                 pKFi->mnMarker[BA_FIXED_KF] = pKF->mnId;
                 if (!pKFi->isBad())
@@ -1152,7 +1155,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, int currKFID, bool* pbSt
         {
             WAIKeyFrame* pKFi = mit->first;
 
-            if (pKFi->mnId == currKFID)
+            if (wc.isInUseSet(pKFi))
                 continue;
 
             if (!pKFi->isBad())

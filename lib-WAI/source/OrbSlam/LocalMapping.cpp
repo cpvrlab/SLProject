@@ -64,66 +64,36 @@ void LocalMapping::SetVocabulary(ORBVocabulary* voc)
 {
     mpORBvocabulary = voc;
 }
+
 void LocalMapping::LocalOptimize()
 {
     while (1)
     {
-        //Loop begin
         {
             std::unique_lock<std::mutex> lock(_mutexLoop);
             _condVarLoop.wait_for(lock, std::chrono::milliseconds(1000), [&] { return !_loopWait; });
         }
 
         bool emptyQueue = false;
+        int kfInQueue;
+        WAIKeyFrame* frame;
 
-        while (1)
+        while ((kfInQueue = workingSet.popFromLocalAdjustment(&frame)) != 0)
         {
-            AVERAGE_TIMING_START("localAdjustment");
-            int kfInQueue;
-            WAIKeyFrame* frame;
-
-            {
-                std::unique_lock<std::mutex> lock(mMutexMapping);
-                kfInQueue = toLocalAdjustment.size();
-                if (kfInQueue == 0) { break; }
-                frame = toLocalAdjustment.front();
-                toLocalAdjustment.pop();
-                kfInQueue--;
-            }
-
-            if (kfInQueue >= 9)
-            {
-                emptyQueue = true;
-            }
-            
-            if (emptyQueue)
-            {
-                if (kfInQueue % 3 > 0)
-                    continue;
-
-                if (kfInQueue == 0)
-                    emptyQueue = false;
-            }
-
-            int id;
-            unique_lock<mutex> newKFLock(mMutexNewKFs);
-            id = mpCurrentKeyFrame->mnId;
-            newKFLock.unlock();
-
-            SearchInNeighbors(frame, id);
+            SearchInNeighbors(frame, workingSet);
 
             if (!stopRequested())
             {
                 if (mpMap->KeyFramesInMap() > 2)
                 {
                     mbAbortBA = false;
-                    Optimizer::LocalBundleAdjustment(frame, id, &mbAbortBA, mpMap);
+                    Optimizer::LocalBundleAdjustment(frame, workingSet, &mbAbortBA, mpMap);
                 }
             }
 
-            KeyFrameCulling(frame);
+            KeyFrameCulling(frame, workingSet);
 
-            AVERAGE_TIMING_STOP("localAdjustment");
+            workingSet.removeFromUseSet(frame);
 
             if (stopRequested())
                 break;
@@ -144,8 +114,6 @@ void LocalMapping::LocalOptimize()
 
         if (CheckFinish())
             break;
-
-        //Loop end
     }
 
     SetFinish();
@@ -173,18 +141,16 @@ void LocalMapping::ProcessKeyFrames()
         while (CheckNewKeyFrames())
         {
             AVERAGE_TIMING_START("process keyframe");
+            
+            WAIKeyFrame* frame = GetNewKeyFrame();
+            workingSet.addToUseSet(frame);
 
-            ProcessNewKeyFrame();
+            ProcessNewKeyFrame(frame);
+            MapPointCulling(frame);
+            CreateNewMapPoints(frame);
 
-            MapPointCulling();
-
-            CreateNewMapPoints();
-
-            mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
-
-            std::unique_lock<std::mutex> lock(mMutexMapping);
-            toLocalAdjustment.push(mpCurrentKeyFrame);
-            lock.unlock();
+            workingSet.addToLocalAdjustment(frame);
+            mpLoopCloser->InsertKeyFrame(frame);
 
             AVERAGE_TIMING_STOP("process keyframe");
 
@@ -235,14 +201,16 @@ void LocalMapping::Run()
         // Check if there are keyframes in the queue
         while (CheckNewKeyFrames())
         {
+            WAIKeyFrame* kf = GetNewKeyFrame();
+
             // BoW conversion and insertion in Map
-            ProcessNewKeyFrame();
+            ProcessNewKeyFrame(kf);
 
             // Check recent MapPoints
-            MapPointCulling();
+            MapPointCulling(kf);
 
             // Triangulate new MapPoints
-            CreateNewMapPoints();
+            CreateNewMapPoints(kf);
 
             if (!CheckNewKeyFrames())
             {
@@ -312,19 +280,21 @@ void LocalMapping::RunOnce()
     // Check if there are keyframes in the queue
     if (CheckNewKeyFrames())
     {
+        WAIKeyFrame* frame = GetNewKeyFrame();
+
         // BoW conversion and insertion in Map
-        ProcessNewKeyFrame();
+        ProcessNewKeyFrame(frame);
 
         // Check recent MapPoints
-        MapPointCulling();
+        MapPointCulling(frame);
 
         // Triangulate new MapPoints
-        CreateNewMapPoints();
+        CreateNewMapPoints(frame);
 
         if (!CheckNewKeyFrames())
         {
             // Find more matches in neighbor keyframes and fuse point duplications
-            SearchInNeighbors();
+            SearchInNeighbors(frame, workingSet);
         }
 
         mbAbortBA = false;
@@ -335,14 +305,14 @@ void LocalMapping::RunOnce()
             //if(mpMap->KeyFramesInMap()>2)
             if (mpMap->KeyFramesInMap() > 2)
             {
-                Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
+                Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
             }
 
             // Check redundant local Keyframes
             KeyFrameCulling();
         }
 
-        mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+        mpLoopCloser->InsertKeyFrame(frame);
     }
 }
 
@@ -362,19 +332,21 @@ bool LocalMapping::CheckNewKeyFrames()
     return (!mlNewKeyFrames.empty());
 }
 
-void LocalMapping::ProcessNewKeyFrame()
+WAIKeyFrame* LocalMapping::GetNewKeyFrame()
 {
-    {
-        unique_lock<mutex> lock(mMutexNewKFs);
-        mpCurrentKeyFrame = mlNewKeyFrames.front();
-        mlNewKeyFrames.pop_front();
-    }
+    unique_lock<mutex> lock(mMutexNewKFs);
+    WAIKeyFrame *kf = mlNewKeyFrames.front();
+    mlNewKeyFrames.pop_front();
+    return kf;
+}
 
+void LocalMapping::ProcessNewKeyFrame(WAIKeyFrame* kf)
+{
     // Compute Bags of Words structures
-    mpCurrentKeyFrame->ComputeBoW(mpORBvocabulary);
+    kf->ComputeBoW(mpORBvocabulary);
 
     // Associate MapPoints to the new keyframe and update normal and descriptor
-    const vector<WAIMapPoint*> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
+    const vector<WAIMapPoint*> vpMapPointMatches = kf->GetMapPointMatches();
 
     for (size_t i = 0; i < vpMapPointMatches.size(); i++)
     {
@@ -383,9 +355,9 @@ void LocalMapping::ProcessNewKeyFrame()
         {
             if (!pMP->isBad())
             {
-                if (!pMP->IsInKeyFrame(mpCurrentKeyFrame))
+                if (!pMP->IsInKeyFrame(kf))
                 {
-                    pMP->AddObservation(mpCurrentKeyFrame, i);
+                    pMP->AddObservation(kf, i);
                     pMP->UpdateNormalAndDepth();
                     pMP->ComputeDistinctiveDescriptors();
                 }
@@ -397,17 +369,17 @@ void LocalMapping::ProcessNewKeyFrame()
         }
     }
     // Update links in the Covisibility Graph
-    mpCurrentKeyFrame->UpdateConnections();
+    kf->UpdateConnections();
 
     // Insert Keyframe in Map
-    mpMap->AddKeyFrame(mpCurrentKeyFrame);
+    mpMap->AddKeyFrame(kf);
 }
 
-void LocalMapping::MapPointCulling()
+void LocalMapping::MapPointCulling(WAIKeyFrame* kf)
 {
     // Check Recent Added MapPoints
     list<WAIMapPoint*>::iterator lit          = mlpRecentAddedMapPoints.begin();
-    const unsigned long int      nCurrentKFid = mpCurrentKeyFrame->mnId;
+    const unsigned long int      nCurrentKFid = kf->mnId;
 
     int nThObs = 2;
     //int nThObs;
@@ -451,33 +423,33 @@ void LocalMapping::MapPointCulling()
     }
 }
 
-void LocalMapping::CreateNewMapPoints()
+void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
 {
     // Retrieve neighbor keyframes in covisibility graph
     int nn = 20;
     //int nn = 10;
     //if (mbMonocular)
     //        nn = 20;
-    const vector<WAIKeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
+    const vector<WAIKeyFrame*> vpNeighKFs = kf->GetBestCovisibilityKeyFrames(nn);
 
     ORBmatcher matcher(0.6, false);
 
-    cv::Mat Rcw1 = mpCurrentKeyFrame->GetRotation();
+    cv::Mat Rcw1 = kf->GetRotation();
     cv::Mat Rwc1 = Rcw1.t();
-    cv::Mat tcw1 = mpCurrentKeyFrame->GetTranslation();
+    cv::Mat tcw1 = kf->GetTranslation();
     cv::Mat Tcw1(3, 4, CV_32F);
     Rcw1.copyTo(Tcw1.colRange(0, 3));
     tcw1.copyTo(Tcw1.col(3));
-    cv::Mat Ow1 = mpCurrentKeyFrame->GetCameraCenter();
+    cv::Mat Ow1 = kf->GetCameraCenter();
 
-    const float& fx1    = mpCurrentKeyFrame->fx;
-    const float& fy1    = mpCurrentKeyFrame->fy;
-    const float& cx1    = mpCurrentKeyFrame->cx;
-    const float& cy1    = mpCurrentKeyFrame->cy;
-    const float& invfx1 = mpCurrentKeyFrame->invfx;
-    const float& invfy1 = mpCurrentKeyFrame->invfy;
+    const float& fx1    = kf->fx;
+    const float& fy1    = kf->fy;
+    const float& cx1    = kf->cx;
+    const float& cy1    = kf->cy;
+    const float& invfx1 = kf->invfx;
+    const float& invfy1 = kf->invfy;
 
-    const float ratioFactor = 1.5f * mpCurrentKeyFrame->mfScaleFactor;
+    const float ratioFactor = 1.5f * kf->mfScaleFactor;
 
     int nnew = 0;
 
@@ -510,11 +482,11 @@ void LocalMapping::CreateNewMapPoints()
         //}
 
         // Compute Fundamental Matrix
-        cv::Mat F12 = ComputeF12(mpCurrentKeyFrame, pKF2);
+        cv::Mat F12 = ComputeF12(kf, pKF2);
 
         // Search matches that fullfil epipolar constraint
         vector<pair<size_t, size_t>> vMatchedIndices;
-        matcher.SearchForTriangulation(mpCurrentKeyFrame, pKF2, F12, vMatchedIndices, false);
+        matcher.SearchForTriangulation(kf, pKF2, F12, vMatchedIndices, false);
 
         cv::Mat Rcw2 = pKF2->GetRotation();
         cv::Mat Rwc2 = Rcw2.t();
@@ -537,7 +509,7 @@ void LocalMapping::CreateNewMapPoints()
             const int& idx1 = vMatchedIndices[ikp].first;
             const int& idx2 = vMatchedIndices[ikp].second;
 
-            const cv::KeyPoint& kp1 = mpCurrentKeyFrame->mvKeysUn[idx1];
+            const cv::KeyPoint& kp1 = kf->mvKeysUn[idx1];
             //const float kp1_ur=mpCurrentKeyFrame->mvuRight[idx1];
             //bool bStereo1 = kp1_ur>=0;
             //bool bStereo1 = false;
@@ -610,7 +582,7 @@ void LocalMapping::CreateNewMapPoints()
                 continue;
 
             //Check reprojection error in first keyframe
-            const float& sigmaSquare1 = mpCurrentKeyFrame->mvLevelSigma2[kp1.octave];
+            const float& sigmaSquare1 = kf->mvLevelSigma2[kp1.octave];
             const float  x1           = Rcw1.row(0).dot(x3Dt) + tcw1.at<float>(0);
             const float  y1           = Rcw1.row(1).dot(x3Dt) + tcw1.at<float>(1);
             const float  invz1        = 1.0 / z1;
@@ -673,7 +645,7 @@ void LocalMapping::CreateNewMapPoints()
                 continue;
 
             const float ratioDist   = dist2 / dist1;
-            const float ratioOctave = mpCurrentKeyFrame->mvScaleFactors[kp1.octave] / pKF2->mvScaleFactors[kp2.octave];
+            const float ratioOctave = kf->mvScaleFactors[kp1.octave] / pKF2->mvScaleFactors[kp2.octave];
 
             /*if(fabs(ratioDist-ratioOctave)>ratioFactor)
                 continue;*/
@@ -681,12 +653,12 @@ void LocalMapping::CreateNewMapPoints()
                 continue;
 
             // Triangulation is succesfull
-            WAIMapPoint* pMP = new WAIMapPoint(x3D, mpCurrentKeyFrame);
+            WAIMapPoint* pMP = new WAIMapPoint(x3D, kf);
 
-            mpCurrentKeyFrame->AddMapPoint(pMP, idx1);
+            kf->AddMapPoint(pMP, idx1);
             pKF2->AddMapPoint(pMP, idx2);
 
-            pMP->AddObservation(mpCurrentKeyFrame, idx1);
+            pMP->AddObservation(kf, idx1);
             pMP->AddObservation(pKF2, idx2);
 
             pMP->ComputeDistinctiveDescriptors();
@@ -702,7 +674,7 @@ void LocalMapping::CreateNewMapPoints()
 }
 
 
-void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame, int currKFID)
+void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame, WorkingSet &ws)
 {
     //std::cout << "[LocalMapping] SearchInNeighbors" << std::endl;
     // Retrieve neighbor keyframes
@@ -715,7 +687,7 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame, int currKFID)
     for (vector<WAIKeyFrame*>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++)
     {
         WAIKeyFrame* pKFi = *vit;
-        if (pKFi->mnId == currKFID || pKFi->isBad() || pKFi->mnMarker[FUSE_TARGET_KF] == frame->mnId)
+        if (ws.isInUseSet(pKFi) || pKFi->isBad() || pKFi->mnMarker[FUSE_TARGET_KF] == frame->mnId)
             continue;
         vpTargetKFs.push_back(pKFi);
         pKFi->mnMarker[FUSE_TARGET_KF] = frame->mnId;
@@ -725,7 +697,7 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame, int currKFID)
         for (vector<WAIKeyFrame*>::const_iterator vit2 = vpSecondNeighKFs.begin(), vend2 = vpSecondNeighKFs.end(); vit2 != vend2; vit2++)
         {
             WAIKeyFrame* pKFi2 = *vit2;
-            if (pKFi->mnId == mpCurrentKeyFrame->mnId || pKFi2->isBad() || pKFi2->mnMarker[FUSE_TARGET_KF] == frame->mnId || pKFi2->mnId == frame->mnId)
+            if (ws.isInUseSet(pKFi) || pKFi2->isBad() || pKFi2->mnMarker[FUSE_TARGET_KF] == frame->mnId || pKFi2->mnId == frame->mnId)
                 continue;
             vpTargetKFs.push_back(pKFi2);
         }
@@ -963,7 +935,7 @@ void LocalMapping::InterruptBA()
     mbAbortBA = true;
 }
 
-void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, int currKFID)
+void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, WorkingSet &wc)
 {
     //std::cout << "[LocalMapping] KeyFrameCulling" << std::endl;
     // Check redundant keyframes (only local keyframes)
@@ -976,7 +948,7 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, int currKFID)
     {
         WAIKeyFrame* pKF = *vit;
         //do not cull the first keyframe
-        if (pKF->mnId == currKFID)
+        if (wc.isInUseSet(pKF))
             continue;
         if (pKF->mnId == 0)
             continue;
@@ -1012,7 +984,7 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, int currKFID)
                         for (map<WAIKeyFrame*, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
                         {
                             WAIKeyFrame* pKFi = mit->first;
-                            if (pKFi->mnId == currKFID || pKFi == pKF)
+                            if (wc.isInUseSet(pKFi) || pKFi == pKF)
                                 continue;
                             const int& scaleLeveli = pKFi->mvKeysUn[mit->second].octave;
 

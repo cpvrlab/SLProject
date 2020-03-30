@@ -1543,6 +1543,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     {
         _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
         _mappingThread = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
+        //_mappingThread2 = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
         _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 

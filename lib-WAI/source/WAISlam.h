@@ -166,6 +166,7 @@ protected:
     LoopClosing*  _loopClosing;
     std::thread*  _processNewKeyFrameThread = nullptr;
     std::thread*  _mappingThread = nullptr;
+    std::thread*  _mappingThread2 = nullptr;
     std::thread*  _loopClosingThread  = nullptr;
 };
 
