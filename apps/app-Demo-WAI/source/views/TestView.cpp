@@ -6,6 +6,10 @@
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
 
+#define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
+#define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
+#define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
+
 TestView::TestView(sm::EventHandler& eventHandler,
                    SLInputManager&   inputManager,
                    SENSCamera*       camera,
@@ -56,12 +60,13 @@ TestView::~TestView()
     {
         delete _mode;
         _mode = nullptr;
-
         _currentSlamParams.save(_configDir + "SlamParams.json");
     }
 
     if (_startThread.joinable())
+    {
         _startThread.join();
+    }
 }
 
 void TestView::start()

@@ -1422,10 +1422,13 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (!_s->root3D()) return false;
 
     // Pass the event to imgui
-    if (_gui->doNotDispatchKeyboard())
+    if (_gui)
     {
-        _gui->onKeyPress(key, mod);
-        return true;
+        if (_gui->doNotDispatchKeyboard())
+        {
+            _gui->onKeyPress(key, mod);
+            return true;
+        }
     }
     //if (ImGui::GetIO().WantCaptureKeyboard)
     //{
@@ -1499,10 +1502,13 @@ SLSceneView::onKeyRelease get called whenever a key is released.
 SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
 {
     // Pass the event to imgui
-    if (_gui->doNotDispatchKeyboard())
+    if (_gui)
     {
-        _gui->onKeyPress(key, mod);
-        return true;
+        if (_gui->doNotDispatchKeyboard())
+        {
+            _gui->onKeyPress(key, mod);
+            return true;
+        }
     }
 
     if (!_s->root3D()) return false;
@@ -1529,10 +1535,13 @@ SLSceneView::onCharInput get called whenever a new charcter comes in
 */
 SLbool SLSceneView::onCharInput(SLuint c)
 {
-    if (_gui->doNotDispatchKeyboard())
+    if (_gui)
     {
-        _gui->onCharInput(c);
-        return true;
+        if (_gui->doNotDispatchKeyboard())
+        {
+            _gui->onCharInput(c);
+            return true;
+        }
     }
 
     return false;

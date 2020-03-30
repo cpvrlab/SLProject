@@ -5,6 +5,10 @@
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
 
+#define LOG_WAISLAM_WARN(...) Utils::log("WAISlam", __VA_ARGS__);
+#define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
+#define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
+
 void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image)
 {
     //show rectangle for all keypoints in current image
@@ -1542,9 +1546,10 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
 
     if (!_serial)
     {
-        _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
-        _mappingThread = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
-        _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
+        //_processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
+        //_mappingThread            = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
+        _mappingThread            = new std::thread(&LocalMapping::Run, _localMapping);
+        _loopClosingThread        = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
     _iniData.initializer = nullptr;
@@ -1561,14 +1566,23 @@ WAISlam::~WAISlam()
         _loopClosing->RequestFinish();
 
         // Wait until all thread have effectively stopped
-        _processNewKeyFrameThread->join();
+        //_processNewKeyFrameThread->join();
         _mappingThread->join();
         if (_loopClosingThread)
+        {
             _loopClosingThread->join();
+        }
     }
 
-    if (_localMapping) delete _localMapping;
-    if (_loopClosing) delete _loopClosing;
+    if (_localMapping)
+    {
+        delete _localMapping;
+    }
+
+    if (_loopClosing)
+    {
+        delete _loopClosing;
+    }
 }
 
 void WAISlam::reset()

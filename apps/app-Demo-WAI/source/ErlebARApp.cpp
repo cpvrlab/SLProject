@@ -46,12 +46,14 @@ void ErlebARApp::resume()
 
 void ErlebARApp::IDLE(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("IDLE");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("IDLE");
 }
 
 void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("INIT");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("INIT");
 
     assert(data != nullptr);
 
@@ -95,7 +97,8 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
 
 void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("DESTROY");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("DESTROY");
 
     if (_selectionView)
     {
@@ -117,7 +120,9 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     if (_camera)
     {
         if (_camera->started())
+        {
             _camera->stop();
+        }
     }
 
     _currentView = nullptr;
@@ -140,13 +145,15 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("SELECTION");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("SELECTION");
     _selectionView->update();
 }
 
 void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("START_TEST");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("START_TEST");
 
     if (stateEntry)
     {
@@ -172,13 +179,16 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("TEST");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("TEST");
     _testView->update();
 }
 
 void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("HOLD_TEST");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("HOLD_TEST");
+
     if (stateEntry)
     {
         _camera->stop();
@@ -187,7 +197,8 @@ void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("RESUME_TEST");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("RESUME_TEST");
 
     //start camera
     SENSCamera::Config config;
@@ -203,30 +214,36 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::START_ERLEBAR(const ErlebarData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("START_ERLEBAR");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("START_ERLEBAR");
 }
 
 void ErlebARApp::MAP_VIEW(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("MAP_VIEW");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("MAP_VIEW");
 }
 
 void ErlebARApp::AREA_TRACKING(const AreaData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("AREA_TRACKING");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("AREA_TRACKING");
 }
 
 void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("TUTORIAL");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("TUTORIAL");
 }
 
 void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("ABOUT");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("ABOUT");
 }
 
 void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    LOG_ERLEBAR_DEBUG("CAMERA_TEST");
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("CAMERA_TEST");
 }

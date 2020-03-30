@@ -130,7 +130,6 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
 AppDemoWaiGui::~AppDemoWaiGui()
 {
     //save preferences
-    //todo: destructor not callled on android as expected (too late)
     uiPrefs->save(_prefsFileName, ImGui::GetStyle());
 }
 //-----------------------------------------------------------------------------
