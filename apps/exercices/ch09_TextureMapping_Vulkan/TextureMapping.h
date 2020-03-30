@@ -111,6 +111,10 @@ private:
     VkPipelineLayout             pipelineLayout;
     VkPipeline                   graphicsPipeline;
     VkCommandPool                commandPool;
+    VkBuffer                     stagingBuffer;
+    VkDeviceMemory               stagingBufferMemory;
+    VkImage                      textureImage;
+    VkDeviceMemory               textureImageMemory;
     VkBuffer                     indexBuffer;
     VkDeviceMemory               indexBufferMemory;
     std::vector<VkDescriptorSet> descriptorSets;
@@ -156,6 +160,10 @@ private:
     void createDescriptorSets();
     void createDescriptorSetLayout();
     void createCommandPool();
+    void createTextureImage();
+    void createImage(uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags, VkImage&, VkDeviceMemory&);
+    void transitionImageLayout(VkImage, VkFormat, VkImageLayout, VkImageLayout);
+    void copyBufferToImage(VkBuffer, VkImage, uint32_t, uint32_t);
     void createVertexBuffer();
     void createIndexBuffer();
     void createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
@@ -171,6 +179,8 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice);
     bool checkDeviceExtensionSupport(VkPhysicalDevice);
     uint32_t                 findMemoryType(uint32_t, VkMemoryPropertyFlags);
+    VkCommandBuffer          beginSingleTimeCommands();
+    void                     endSingleTimeCommands(VkCommandBuffer);
     VkShaderModule           createShaderModule(const std::vector<char>&);
     VkSurfaceFormatKHR       chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
     VkPresentModeKHR         chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&);     // Must be replaced
