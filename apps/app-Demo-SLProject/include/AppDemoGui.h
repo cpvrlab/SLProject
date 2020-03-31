@@ -37,6 +37,7 @@ public:
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
     static void buildProperties(SLScene* s, SLSceneView* sv);
+    static void createImGuiContext();
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
 

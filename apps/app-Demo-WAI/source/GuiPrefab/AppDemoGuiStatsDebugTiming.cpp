@@ -15,7 +15,8 @@ AppDemoGuiStatsDebugTiming::AppDemoGuiStatsDebugTiming(string name, bool* activa
 void AppDemoGuiStatsDebugTiming::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGui::PushFont(_font);
-    ImGui::Begin(_name.c_str(), _activator, ImVec2(100.f, 50.f));
+    //todo imgui update
+    ImGui::Begin(_name.c_str(), _activator /*, ImVec2(100.f, 50.f)*/);
 
     if (AverageTiming::instance().size())
     {

@@ -594,7 +594,8 @@ int main(int argc, char* argv[])
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);
     /////////////////////////////////////////////////////////
-
+    // create imgui context before you do any other imgui calls
+    AppDemoGui::createImGuiContext();
     // This load the GUI configs that are locally stored
     AppDemoGui::loadConfig(dpi);
 

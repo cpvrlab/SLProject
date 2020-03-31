@@ -107,7 +107,7 @@ public:
             ImGui::SetNextWindowPos(_windowPos, ImGuiCond_Always);
             ImGui::SetNextWindowSize(_windowSizePix, ImGuiCond_Always);
 
-            ImGui::Begin("", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Begin("AppDemoWaiGui", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
             ImGui::PushStyleColor(ImGuiCol_Button, _buttonColor);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _buttonColor);

@@ -88,7 +88,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     ImGui::SetNextWindowPos(ImVec2(_frameSizePix, _frameSizePix), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(_dialogW, _dialogH), ImGuiCond_Always);
 
-    ImGui::Begin("", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("SelectionGui", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
     ImGui::NewLine();
     ImGui::SameLine(_windowPadding);

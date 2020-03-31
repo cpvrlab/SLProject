@@ -600,7 +600,9 @@ void SLGLImGui::onCharInput(SLuint c)
 void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
-    ImGui::Shutdown();
+    //ImGui::Shutdown();
+    //todo imgui update
+    ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position

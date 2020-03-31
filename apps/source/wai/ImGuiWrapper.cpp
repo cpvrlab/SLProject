@@ -24,6 +24,9 @@
 //-----------------------------------------------------------------------------
 ImGuiWrapper::ImGuiWrapper()
 {
+    if (ImGui::GetCurrentContext() == nullptr)
+        ImGui::CreateContext();
+
     createOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
@@ -605,7 +608,9 @@ void ImGuiWrapper::onCharInput(SLuint c)
 void ImGuiWrapper::onClose()
 {
     deleteOpenGLObjects();
-    ImGui::Shutdown();
+    //ImGui::Shutdown();
+    //todo imgui update
+    ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position

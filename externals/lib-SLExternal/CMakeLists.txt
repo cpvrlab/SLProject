@@ -17,9 +17,9 @@ file(GLOB headers
     ${include_path}/imgui/imconfig.h
     ${include_path}/imgui/imgui_internal.h
     ${include_path}/imgui/imgui.h
-    ${include_path}/imgui/stb_rect_pack.h
-    ${include_path}/imgui/stb_textedit.h
-    ${include_path}/imgui/stb_truetype.h
+    ${include_path}/imgui/imstb_rectpack.h
+    ${include_path}/imgui/imstb_textedit.h
+    ${include_path}/imgui/imstb_truetype.h
     ${include_path}/spa/spa.h
 )
 
@@ -28,6 +28,7 @@ file(GLOB sources
     ${include_path}/Shoemake/Decompose.cpp
     ${include_path}/imgui/imgui_draw.cpp
     ${include_path}/imgui/imgui.cpp
+	${include_path}/imgui/imgui_widgets.cpp
     ${include_path}/spa/spa.cpp
     )
 
