@@ -25,10 +25,30 @@
 SLfloat SLGLImGui::fontPropDots  = 16.0f;
 SLfloat SLGLImGui::fontFixedDots = 13.0f;
 //-----------------------------------------------------------------------------
-SLGLImGui::SLGLImGui()
+SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
+                     cbOnImGuiLoadConfig loadConfigCB,
+                     cbOnImGuiSaveConfig saveConfigCB,
+                     int                 dpi)
 {
-    // init build function pointer to zero
-    build = nullptr;
+    _build      = buildCB;
+    _saveConfig = saveConfigCB;
+
+    //create imgui context
+    ImGui::CreateContext();
+
+    //load config
+    if (loadConfigCB)
+        loadConfigCB(dpi);
+    // Load GUI fonts depending on the resolution
+    loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+}
+//-----------------------------------------------------------------------------
+SLGLImGui::~SLGLImGui()
+{
+    if (_saveConfig)
+        _saveConfig();
+    // destroy imgui context after your last imgui call
+    ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
@@ -312,8 +332,8 @@ void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
 //! Inits a new frame for the ImGui system
 void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
-    // If no build function is provided there is no ImGui
-    if (!build) return;
+    // If no _build function is provided there is no ImGui
+    if (!_build) return;
 
     if ((SLint)SLGLImGui::fontPropDots != (SLint)_fontPropDots ||
         (SLint)SLGLImGui::fontFixedDots != (SLint)_fontFixedDots)
@@ -336,12 +356,12 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // Start the frame
     ImGui::NewFrame();
 
-    // Call the build function. The whole UI is constructed here
+    // Call the _build function. The whole UI is constructed here
     // This function is provided by the top-level project.
-    // For the SLProject demo apps this build function is implemented in the
+    // For the SLProject demo apps this _build function is implemented in the
     // class SLDemoGui.
-    if (build)
-        build(s, sv);
+    if (_build)
+        _build(s, sv);
 
     //SL_LOG(".");
 }
@@ -600,16 +620,13 @@ void SLGLImGui::onCharInput(SLuint c)
 void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
-    //ImGui::Shutdown();
-    //todo imgui update
-    ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position
 void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
 {
-    // If ImGui build function exists render the ImGui
-    if (build)
+    // If ImGui _build function exists render the ImGui
+    if (_build)
     {
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);

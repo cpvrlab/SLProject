@@ -22,23 +22,7 @@
 
 class SLScene;
 class SLSceneView;
-
-class ImGuiFontManager
-{
-public:
-    //possible fonts
-    enum Font
-    {
-
-    };
-
-    ImFont* getFont(std::string name)
-    {
-    }
-
-private:
-    std::map<std::string, ImFont*> _fonts;
-};
+class ImGuiContext;
 
 //-----------------------------------------------------------------------------
 //! ImGui Interface class for forwarding all events to the ImGui Handlers
@@ -115,6 +99,8 @@ private:
     SLuint  _elementsHandle;    //!< OpenGL handle for vertex indexes
 
     std::string _inifile;
+
+    //ImGuiContext* _context = nullptr;
 };
 //-----------------------------------------------------------------------------
 #endif

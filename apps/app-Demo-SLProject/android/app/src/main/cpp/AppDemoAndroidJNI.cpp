@@ -12,7 +12,7 @@
 #include <jni.h>
 #include <stdafx.h>
 #include <SLInterface.h>
-#include <SLScene.h>
+#include <SLProjectScene.h>
 #include <SLApplication.h>
 #include <CVCapture.h>
 #include <AppDemoGui.h>
@@ -126,10 +126,6 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env
                         devicePath + "/config/",
                         "AppDemoAndroid",
                         (void*)appDemoLoadScene);
-    ////////////////////////////////////////////////////
-
-    // This load the GUI configs that are locally stored
-    AppDemoGui::loadConfig(dpi);
 
     ////////////////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(SLApplication::scene,
@@ -140,7 +136,9 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env
                                 (void*)&Java_renderRaytracingCallback,
                                 0,
                                 (void*)createAppDemoSceneView,
-                                (void*)AppDemoGui::build);
+                                (void*)AppDemoGui::build,
+								(void*)AppDemoGui::loadConfig,
+                                (void*)AppDemoGui::saveConfig);
     ////////////////////////////////////////////////////////////////////
 
     delete cmdLineArgs;
@@ -148,7 +146,6 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate(JNIEnv* env, jclass obj)
 {
-    AppDemoGui::saveConfig();
     slTerminate();
 }
 //-----------------------------------------------------------------------------
@@ -215,9 +212,6 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNI
 extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv* env, jclass obj)
 {
     SL_LOG("onClose\n ");
-
-    // This saves the GUI configs
-    AppDemoGui::saveConfig();
 
     slTerminate();
 }

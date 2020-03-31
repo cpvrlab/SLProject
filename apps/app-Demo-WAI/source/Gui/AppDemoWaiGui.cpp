@@ -130,7 +130,7 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
 AppDemoWaiGui::~AppDemoWaiGui()
 {
     //save preferences
-    //uiPrefs->save(_prefsFileName, ImGui::GetStyle());
+    uiPrefs->save(_prefsFileName, ImGui::GetStyle());
 }
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)

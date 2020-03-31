@@ -107,7 +107,9 @@ int slCreateSceneView(SLProjectScene* scene,
                       void*           onWndUpdateCallback,
                       void*           onSelectNodeMeshCallback,
                       void*           onNewSceneViewCallback,
-                      void*           onImGuiBuild)
+                      void*           onImGuiBuild,
+                      void*           onImGuiLoadConfig,
+                      void*           onImGuiSaveConfig)
 {
     assert(scene && "No valid scene!");
 
@@ -122,10 +124,10 @@ int slCreateSceneView(SLProjectScene* scene,
     SLuint       index = (SLuint)newSVCallback(scene, dotsPerInch);
     SLSceneView* sv    = scene->sceneView(index);
 
-    SLApplication::gui = new SLGLImGui();
-    // Load GUI fonts depending on the resolution
-    SLApplication::gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
-    SLApplication::gui->build = (cbOnImGuiBuild)onImGuiBuild;
+    SLApplication::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
+                                       (cbOnImGuiLoadConfig)onImGuiLoadConfig,
+                                       (cbOnImGuiSaveConfig)onImGuiSaveConfig,
+                                       dotsPerInch);
 
     sv->init("SceneView",
              screenWidth,
@@ -134,9 +136,6 @@ int slCreateSceneView(SLProjectScene* scene,
              onSelectNodeMeshCallback,
              SLApplication::gui,
              SLApplication::configPath);
-
-    // Load GUI fonts depending on the resolution
-    //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 
     // Set active sceneview and load scene. This is done for the first sceneview
     if (!scene->root3D())

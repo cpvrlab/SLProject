@@ -88,11 +88,12 @@ void centerNextWindow(SLSceneView* sv,
                       SLfloat      widthPC  = 0.9f,
                       SLfloat      heightPC = 0.9f)
 {
-    SLfloat width  = (SLfloat)sv->viewportW() * widthPC;
-    SLfloat height = (SLfloat)sv->viewportH() * heightPC;
+    SLfloat width   = (SLfloat)sv->viewportW() * widthPC;
+    SLfloat height  = (SLfloat)sv->viewportH() * heightPC;
+    SLfloat offsetX = ((SLfloat)sv->viewportW() - width) * 0.5f;
+    SLfloat offsetY = ((SLfloat)sv->viewportH() - height) * 0.5f;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
-    //todo imgui update
-    ImGui::SetNextWindowPos(ImVec2(0.f, 0.f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(ImVec2(offsetX, offsetY), ImGuiCond_Always);
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
@@ -2459,11 +2460,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         ImGui::End();
     }
     ImGui::PopFont();
-}
-//-----------------------------------------------------------------------------
-void AppDemoGui::createImGuiContext()
-{
-    ImGui::CreateContext();
 }
 //-----------------------------------------------------------------------------
 //! Loads the UI configuration

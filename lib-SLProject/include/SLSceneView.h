@@ -14,7 +14,6 @@
 #include <SLAABBox.h>
 #include <SLDrawBits.h>
 #include <SLEventHandler.h>
-//#include <SLGLImGui.h>
 #include <SLGLOculusFB.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLNode.h>
@@ -30,11 +29,11 @@
 class SLCamera;
 class SLLight;
 class SLScene;
+
 //-----------------------------------------------------------------------------
 /*
-There are only a very few callbacks from the SLProject library up to the GUI
+There are only a very few callbacks from the SLInterface up to the GUI
 framework. All other function calls are downwards from the GUI framework
-into the SLProject library.
 */
 //! Callback function typedef for custom SLSceneView derived creator function
 typedef int(SL_STDCALL* cbOnNewSceneView)(SLScene* s, int dotsPerInch);
@@ -44,9 +43,6 @@ typedef SLbool(SL_STDCALL* cbOnWndUpdate)();
 
 //! Callback function typedef for select node
 typedef void(SL_STDCALL* cbOnSelectNodeMesh)(SLNode*, SLMesh*);
-
-//! Callback function typedef for ImGui build function
-typedef void(SL_STDCALL* cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
 
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.

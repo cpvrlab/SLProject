@@ -23,6 +23,15 @@
 class SLScene;
 class SLSceneView;
 
+//! Callback function typedef for ImGui build function
+typedef void(SL_STDCALL* cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
+
+//! Callback function typedef for ImGui load config function
+typedef void(SL_STDCALL* cbOnImGuiLoadConfig)(int dpi);
+
+//! Callback function typedef for ImGui save config function
+typedef void(SL_STDCALL* cbOnImGuiSaveConfig)();
+
 //-----------------------------------------------------------------------------
 //! ImGui Interface class for forwarding all events to the ImGui Handlers
 /*! ImGui is a super easy GUI library for the rendering of a UI with OpenGL.
@@ -52,7 +61,11 @@ The full call stack for rendering one frame is:\n
 class SLGLImGui : public SLUiInterface
 {
 public:
-    SLGLImGui();
+    SLGLImGui(cbOnImGuiBuild      buildCB,
+              cbOnImGuiLoadConfig loadConfigCB,
+              cbOnImGuiSaveConfig saveConfigCB,
+              int                 dpi);
+    ~SLGLImGui();
     void init(std::string configPath) override;
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv) override;
@@ -71,8 +84,6 @@ public:
     bool doNotDispatchKeyboard() override { return ImGui::GetIO().WantCaptureKeyboard; }
     bool doNotDispatchMouse() override { return ImGui::GetIO().WantCaptureMouse; }
     void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots);
-    // gui build function pattern
-    void(SL_STDCALL* build)(SLScene* s, SLSceneView* sv);
 
     // Default font dots
     static SLfloat fontPropDots;  //!< Default font size of proportional font
@@ -83,6 +94,11 @@ private:
     void createOpenGLObjects();
     void printCompileErrors(SLint         shaderHandle,
                             const SLchar* src);
+
+    // gui build function pattern
+    cbOnImGuiBuild _build = nullptr;
+    // save config callback
+    cbOnImGuiSaveConfig _saveConfig = nullptr;
 
     SLfloat _timeSec;           //!< Time in seconds
     SLVec2f _mousePosPX;        //!< Mouse cursor position

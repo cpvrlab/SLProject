@@ -7,6 +7,8 @@
 #include <views/StartUpView.h>
 #include <SLGLProgramManager.h>
 
+#include <imgui.h>
+
 #define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
 #define LOG_ERLEBAR_INFO(...) Utils::log("ErlebARApp", __VA_ARGS__);
 #define LOG_ERLEBAR_DEBUG(...) Utils::log("ErlebARApp", __VA_ARGS__);
@@ -64,6 +66,9 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     SLGLTexture::defaultPath      = slDataRoot + "/images/textures/";
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
+
+    //create global imgui context
+    ImGui::CreateContext();
 
     //instantiation of views
     _selectionView = new SelectionView(*this,
@@ -133,6 +138,9 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
     SLMaterialDiffuseAttribute::deleteInstance();
+
+    //destroy global imgui context
+    ImGui::DestroyContext();
 
     if (_closeCB)
     {

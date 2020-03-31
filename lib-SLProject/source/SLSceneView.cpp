@@ -63,9 +63,7 @@ SLSceneView::~SLSceneView()
     _s->sceneViews()[(SLuint)_index] = nullptr;
 
     if (_gui)
-    {
         _gui->onClose();
-    }
 
     SL_LOG("Destructor      : ~SLSceneView");
 }

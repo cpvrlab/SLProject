@@ -593,11 +593,6 @@ int main(int argc, char* argv[])
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);
-    /////////////////////////////////////////////////////////
-    // create imgui context before you do any other imgui calls
-    AppDemoGui::createImGuiContext();
-    // This load the GUI configs that are locally stored
-    AppDemoGui::loadConfig(dpi);
 
     /////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(SLApplication::scene,
@@ -608,7 +603,9 @@ int main(int argc, char* argv[])
                                 (void*)&onPaint,
                                 nullptr,
                                 (void*)createAppDemoSceneView,
-                                (void*)AppDemoGui::build);
+                                (void*)AppDemoGui::build,
+                                (void*)AppDemoGui::loadConfig,
+                                (void*)AppDemoGui::saveConfig);
     /////////////////////////////////////////////////////////
 
     // Set GLFW callback functions
@@ -634,9 +631,8 @@ int main(int argc, char* argv[])
             glfwPollEvents();
     }
 
-    AppDemoGui::saveConfig();
-
     slTerminate();
+
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

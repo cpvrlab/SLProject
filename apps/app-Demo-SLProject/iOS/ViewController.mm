@@ -173,10 +173,6 @@ float GetSeconds()
                         SLApplication::configPath,
                         "AppDemo_iOS",
                         (void*)appDemoLoadScene);
-    /////////////////////////////////////////////
-    
-    // This load the GUI configs that are locally stored
-    AppDemoGui::loadConfig(dpi);
    
     ///////////////////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
@@ -186,7 +182,9 @@ float GetSeconds()
                                 (void*)&onPaintRTGL,
                                 0,
                                 (void*)createAppDemoSceneView,
-                                (void*)AppDemoGui::build);
+                                (void*)AppDemoGui::build,
+								(void*)AppDemoGui::loadConfig,
+                                (void*)AppDemoGui::saveConfig);
     ///////////////////////////////////////////////////////////////////////
     
     [self setupMotionManager: 1.0/20.0];
@@ -240,7 +238,6 @@ float GetSeconds()
     
     if (slShouldClose())
     {
-        AppDemoGui::saveConfig();
         slTerminate();
         exit(0);
     }

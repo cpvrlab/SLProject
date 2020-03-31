@@ -13,8 +13,7 @@ AppDemoGuiStatsTiming::AppDemoGuiStatsTiming(string name, bool* activator, ImFon
 void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGui::PushFont(_font);
-    //todo imgui update
-    ImGui::Begin(_name.c_str(), _activator /*, ImVec2(100.f, 50.f)*/);
+    ImGui::Begin(_name.c_str(), _activator);
 
     SLRenderType rType = sv->renderType();
     SLfloat      ft    = s->frameTimesMS().average();

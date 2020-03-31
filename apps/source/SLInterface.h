@@ -50,7 +50,9 @@ int slCreateSceneView(SLProjectScene* scene,
                       void*           onWndUpdateCallback,
                       void*           onSelectNodeMeshCallback = nullptr,
                       void*           onNewSceneViewCallback   = nullptr,
-                      void*           onImGuiBuild             = nullptr);
+                      void*           onImGuiBuild             = nullptr,
+                      void*           onImGuiLoadConfig        = nullptr,
+                      void*           onImGuiSaveConfig        = nullptr);
 
 int  slNewSceneView(SLScene* s, int dotsPerInch);
 bool slShouldClose();

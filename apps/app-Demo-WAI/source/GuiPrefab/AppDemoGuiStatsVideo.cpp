@@ -67,8 +67,8 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
 
     // Switch to fixed font
     ImGui::PushFont(_font);
-    //todo imgui update
-    ImGui::Begin("Video", _activator /*, ImVec2(100.f, 50.f)*/);
+
+    ImGui::Begin("Video", _activator);
     ImGui::TextUnformatted(m);
     ImGui::End();
     ImGui::PopFont();
