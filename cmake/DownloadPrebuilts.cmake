@@ -227,7 +227,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # Download first for iOS
-    set(OpenCV_VERSION "3.4.0")
+    set(OpenCV_VERSION "4.2.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
@@ -318,6 +318,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     #message(STATUS "g2o_URL: ${g2o_URL}")
 
     if (NOT EXISTS "${g2o_DIR}")
+        message(STATUS "g2o_DIR: ${g2o_DIR}")
+        message(STATUS "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}")
+        message(STATUS "Download to: ${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"

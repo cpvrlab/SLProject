@@ -168,8 +168,10 @@ protected:
 
     LocalMapping* _localMapping;
     LoopClosing*  _loopClosing;
-    std::thread*  _localMappingThread = nullptr;
-    std::thread*  _loopClosingThread  = nullptr;
+    //std::thread*  _processNewKeyFrameThread = nullptr;
+    //std::thread*  _mappingThread = nullptr;
+    std::thread* _localMappingThread = nullptr;
+    std::thread* _loopClosingThread  = nullptr;
 };
 
 class WAISlam : public WAISlamTools
@@ -184,6 +186,8 @@ public:
             bool           serial            = false,
             bool           retainImg         = false,
             float          cullRedundantPerc = 0.95f);
+
+    ~WAISlam();
 
     virtual void reset();
     virtual bool update(cv::Mat& imageGray);

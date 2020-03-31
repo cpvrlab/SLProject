@@ -1504,6 +1504,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _serial              = serial;
     _trackingOnly        = trackingOnly;
     _retainImg           = retainImg;
+    _serial              = serial;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
@@ -1538,8 +1539,10 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
 
-    if (!serial)
+    if (!_serial)
     {
+        //_processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
+        //_mappingThread            = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
         _localMappingThread = new std::thread(&LocalMapping::Run, _localMapping);
         _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
     }
@@ -1548,6 +1551,26 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _cameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
 
     _lastFrame = WAIFrame();
+}
+
+WAISlam::~WAISlam()
+{
+    if (!_serial)
+    {
+        _localMapping->RequestFinish();
+        _loopClosing->RequestFinish();
+
+        // Wait until all thread have effectively stopped
+        //_processNewKeyFrameThread->join();
+        //_mappingThread->join();
+        if (_localMappingThread)
+            _localMappingThread->join();
+        if (_loopClosingThread)
+            _loopClosingThread->join();
+    }
+
+    if (_localMapping) delete _localMapping;
+    if (_loopClosing) delete _loopClosing;
 }
 
 void WAISlam::reset()
@@ -1586,7 +1609,16 @@ bool WAISlam::update(cv::Mat& imageGray)
     switch (_state)
     {
         case TrackingState_Initializing: {
-            //bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing,_voc, 100);
+#if 0
+            bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing, _voc, 100, _lastKeyFrameFrameId);
+            if (ok)
+            {
+                _lastKeyFrameFrameId = frame.mnId;
+                _lastRelocFrameId    = 0;
+                _state               = TrackingState_TrackingOK;
+                _initialized         = true;
+            }
+#else
             if (initialize(_iniData, frame, _voc, _localMap, 100, _lastKeyFrameFrameId))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
@@ -1597,6 +1629,7 @@ bool WAISlam::update(cv::Mat& imageGray)
                     _initialized         = true;
                 }
             }
+#endif
         }
         break;
         case TrackingState_TrackingOK: {
@@ -1628,9 +1661,8 @@ bool WAISlam::update(cv::Mat& imageGray)
                 else
                     mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
 
-
                 _infoMatchedInliners = inliers;
-                _state = TrackingState_TrackingOK;
+                _state               = TrackingState_TrackingOK;
             }
         }
         break;
@@ -1766,4 +1798,3 @@ int WAISlam::getKeyFramesInLoopCloseQueueCount()
 {
     return _loopClosing->numOfKfsInQueue();
 }
-

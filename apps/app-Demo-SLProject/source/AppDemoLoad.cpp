@@ -43,6 +43,10 @@
 #include <SLText.h>
 #include <SLTransferFunction.h>
 
+#ifdef SL_BUILD_WAI
+#    include <CVTrackedWAI.h>
+#endif
+
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo
 extern SLGLTexture* videoTexture;
@@ -436,7 +440,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_OS_ANDROID
         SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
 #else
-        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
 #endif
         if (Utils::fileExists(largeFile))
         {
@@ -2670,7 +2674,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
                                                  0.4f);   // 40% ambient reflection
-       
+
         // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
 
@@ -2698,7 +2702,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.locMaxDistanceM(1000.0f);             // Max. allowed distance to origin
         SLApplication::devLoc.improveOrigin(false);                 // No autom. origin improvement
         SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);                // Use the real yaw from the IMU
+        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
 
         // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
         SLstring tif = SLImporter::defaultPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
@@ -2803,6 +2807,69 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+#ifdef SL_BUILD_WAI
+    else if (SLApplication::sceneID == SID_VideoTrackWAI) //....................................................
+    {
+        CVCapture::instance()->videoType(VT_MAIN);
+        s->name("Track WAI (main cam.)");
+        s->info("Track the scene with a point cloud built with the WAI library.");
+
+        // Create video texture on global pointer updated in AppDemoVideo
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
+        // Material
+        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* cyan   = new SLMaterial("mY", SLCol4f(0, 1, 1, 0.5f));
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a camera node 1
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 5);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
+        cam1->background().texture(videoTexture);
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(0.02f);
+        light1->translation(0.12f, 0.12f, 0.12f);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Get the half edge length of the aruco marker
+        SLfloat edgeLen = 0.1f;
+        SLfloat he      = edgeLen * 0.5f;
+
+        // Build mesh & node that will be tracked by the 1st marker (camera)
+        SLBox*  box1      = new SLBox(-he, -he, -he, he, he, he, "Box 1", yellow);
+        SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
+        SLNode* axisNode1 = new SLNode(new SLCoordAxis(), "Axis Node 1");
+        axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode1->scale(edgeLen);
+        axisNode1->translate(-he, -he, -he, TS_parent);
+        boxNode1->addChild(axisNode1);
+        boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
+        boxNode1->translate(0.0f, 0.0f, 1.0f, TS_world);
+        scene->addChild(boxNode1);
+
+        // Create OpenCV Tracker for the box node
+        tracker = new CVTrackedWAI(SLApplication::calibIniPath + "/ORBvoc.bin");
+        tracker->drawDetection(true);
+        trackedNode = cam1;
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Set active camera
+        sv->camera(cam1);
+
+        // Turn on constant redraw
+        sv->doWaitOnIdle(false);
+    }
+#endif
     else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
     {
         s->name("Muttenzer Box (RT)");

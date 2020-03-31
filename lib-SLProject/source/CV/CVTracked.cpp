@@ -54,7 +54,7 @@ CVMatx44f CVTracked::createGLMatrix(const CVMat& tVec, const CVMat& rVec)
     Rodrigues(rVec, rMat);
 
     // 2) Create an OpenGL 4x4 column major matrix from the rotation matrix and 
-    // translation vector from openCV as discribed in this post:
+    // translation vector from openCV as described in this post:
     // www.morethantechnical.com/2015/02/17/
     // augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode
       
