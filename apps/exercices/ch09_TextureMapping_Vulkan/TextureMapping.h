@@ -41,15 +41,16 @@ struct SwapchainSupportDetails
 
 struct UniformBufferObject
 {
-    SLMat4f model;
-    SLMat4f view;
-    SLMat4f proj;
+    alignas(16) SLMat4f model;
+    alignas(16) SLMat4f view;
+    alignas(16) SLMat4f proj;
 };
 
 struct Vertex
 {
     SLVec2f pos;
     SLVec3f color;
+    SLVec3f texCoord;
 
     static VkVertexInputBindingDescription getBindingDescription()
     {
@@ -61,9 +62,9 @@ struct Vertex
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
     {
-        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 
         attributeDescriptions[0].binding  = 0;
         attributeDescriptions[0].location = 0;
@@ -74,6 +75,11 @@ struct Vertex
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[1].offset   = offsetof(Vertex, color);
+
+        attributeDescriptions[2].binding  = 0;
+        attributeDescriptions[2].location = 2;
+        attributeDescriptions[2].format   = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[2].offset   = offsetof(Vertex, texCoord);
 
         return attributeDescriptions;
     }
@@ -115,6 +121,8 @@ private:
     VkDeviceMemory               stagingBufferMemory;
     VkImage                      textureImage;
     VkDeviceMemory               textureImageMemory;
+    VkImageView                  textureImageView;
+    VkSampler                    textureSampler;
     VkBuffer                     indexBuffer;
     VkDeviceMemory               indexBufferMemory;
     std::vector<VkDescriptorSet> descriptorSets;
@@ -127,10 +135,11 @@ private:
     std::vector<VkFence>         imagesInFlight;
     size_t                       currentFrame = 0;
     bool                         framebufferResized = false;
-    const std::vector<Vertex>    vertices           = { {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                                        {{ 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                                                        {{ 0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},
-                                                        {{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}} };
+    const std::vector<Vertex>    vertices           = { {{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+                                                        {{ 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                                                        {{ 1.0f,  1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+                                                        {{-1.0f,  1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}} };
+                                                        
     const std::vector<uint16_t> indices = { 0, 1, 2, 2, 3, 0 };
 
 public:
@@ -152,7 +161,6 @@ private:
     void createSwapchain();
     void createImageViews();
     void createRenderPass();
-    void createDescriptiorSetLayout();
     void createGraphicsPipeline();
     void createFramebuffers();
     void createUniformBuffers();
@@ -161,6 +169,8 @@ private:
     void createDescriptorSetLayout();
     void createCommandPool();
     void createTextureImage();
+    void createTextureImageView();
+    void createTextureSampler();
     void createImage(uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags, VkImage&, VkDeviceMemory&);
     void transitionImageLayout(VkImage, VkFormat, VkImageLayout, VkImageLayout);
     void copyBufferToImage(VkBuffer, VkImage, uint32_t, uint32_t);
@@ -181,6 +191,7 @@ private:
     uint32_t                 findMemoryType(uint32_t, VkMemoryPropertyFlags);
     VkCommandBuffer          beginSingleTimeCommands();
     void                     endSingleTimeCommands(VkCommandBuffer);
+    VkImageView              createImageView(VkImage, VkFormat);
     VkShaderModule           createShaderModule(const std::vector<char>&);
     VkSurfaceFormatKHR       chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
     VkPresentModeKHR         chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&);     // Must be replaced
