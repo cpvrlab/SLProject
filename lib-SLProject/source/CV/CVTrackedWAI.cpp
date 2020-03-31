@@ -40,14 +40,11 @@ bool CVTrackedWAI::track(CVMat imageGray, CVMat imageRgb, CVCalibration* calib)
     {
         cv::Mat pose = _mode->getPose();
 
-        pose.at<float>(0, 1) = -pose.at<float>(1, 0);
-        pose.at<float>(1, 1) = -pose.at<float>(1, 1);
-        pose.at<float>(2, 1) = -pose.at<float>(1, 2);
-        pose.at<float>(3, 1) = -pose.at<float>(1, 3);
-        pose.at<float>(0, 2) = -pose.at<float>(2, 0);
-        pose.at<float>(1, 2) = -pose.at<float>(2, 1);
-        pose.at<float>(2, 2) = -pose.at<float>(2, 2);
-        pose.at<float>(3, 2) = -pose.at<float>(2, 3);
+        cv::Mat rot         = cv::Mat::eye(4, 4, CV_32F);
+        rot.at<float>(1, 1) = -1.0f;
+        rot.at<float>(2, 2) = -1.0f;
+
+        pose = rot * pose;
 
         pose.copyTo(_objectViewMat);
 

@@ -2840,17 +2840,19 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
-        SLfloat edgeLen = 1.0f;
+        SLfloat edgeLen = 0.1f;
         SLfloat he      = edgeLen * 0.5f;
 
         // Build mesh & node that will be tracked by the 1st marker (camera)
-        SLBox*  box1      = new SLBox(-he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
+        SLBox*  box1      = new SLBox(-he, -he, -he, he, he, he, "Box 1", yellow);
         SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
         SLNode* axisNode1 = new SLNode(new SLCoordAxis(), "Axis Node 1");
         axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
         axisNode1->scale(edgeLen);
+        axisNode1->translate(-he, -he, -he, TS_parent);
         boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
+        boxNode1->translate(0.0f, 0.0f, 1.0f, TS_world);
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
