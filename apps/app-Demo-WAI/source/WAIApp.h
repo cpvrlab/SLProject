@@ -290,7 +290,7 @@ private:
 
     //todo: we dont need a pointer
     AppWAIScene _waiScene;
-    //WAI::ModeOrbSlam2*           _mode;
+    //WAI::ModeOrbSlam2*           _waiSlamer;
     WAISlam*     _mode       = nullptr;
     SLSceneView* _sv         = nullptr;
     SLGLTexture* _videoImage = nullptr;

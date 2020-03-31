@@ -33,21 +33,21 @@ see the comments in CVTrackedFaces::track method.
 */
 class CVTrackedFaces : public CVTracked
 {
-    public:
-    explicit CVTrackedFaces(int    smoothLength           = 5,
-                            string faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
-                            string faceMarkModelFilename  = "lbfmodel.yaml");
-    ~CVTrackedFaces();
+public:
+    explicit CVTrackedFaces(int           smoothLength           = 5,
+                            const string& faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
+                            const string& faceMarkModelFilename  = "lbfmodel.yaml");
+    ~CVTrackedFaces() override;
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
                CVCalibration* calib) final;
 
-    void delaunayTriangulate(CVMat             imageRgb,
-                             const CVVPoint2f& points,
-                             bool              drawDetection);
+    static void delaunayTriangulate(CVMat             imageRgb,
+                                    const CVVPoint2f& points,
+                                    bool              drawDetection);
 
-    private:
+private:
     CVCascadeClassifier* _faceDetector;    //!< Viola-Jones face detector
     cv::Ptr<CVFacemark>  _facemark;        //!< Facial landmarks detector smart pointer
     vector<AvgCVVec2f>   _avgPosePoints2D; //!< vector of averaged facial landmark 2D points

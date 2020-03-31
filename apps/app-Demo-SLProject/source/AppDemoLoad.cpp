@@ -2812,7 +2812,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         CVCapture::instance()->videoType(VT_MAIN);
         s->name("Track WAI (main cam.)");
-        s->info("Track the scene with a point cloud built with the WAI library.");
+        s->info("Track the scene with a point cloud built with the WAI (Where Am I) library.");
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
