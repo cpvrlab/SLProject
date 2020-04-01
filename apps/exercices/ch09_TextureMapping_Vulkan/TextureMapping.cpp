@@ -403,8 +403,8 @@ void TextureMapping::createDescriptorSetLayout()
 
 void TextureMapping::createGraphicsPipeline()
 {
-    auto vertShaderCode = readFile("C:\\Users\\Dmytriy Pelts\\Documents\\Gitlab\\SLProject\\data\\shaders\\vertShader.spv");
-    auto fragShaderCode = readFile("C:\\Users\\Dmytriy Pelts\\Documents\\Gitlab\\SLProject\\data\\shaders\\fragShader.spv");
+    auto vertShaderCode = readFile(SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.spv");
+    auto fragShaderCode = readFile(SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -630,23 +630,15 @@ void TextureMapping::createCommandPool()
         throw std::runtime_error("failed to create command pool!");
 }
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 void TextureMapping::createTextureImage()
 {
-    int texWidth    = 0;
-    int texHeight   = 0; 
-    int texChannels;
-
-    stbi_uc* pixels = stbi_load("C:/Users/Dmytriy Pelts/Documents/Gitlab/SLProject/data/images/textures/earth1024_C.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    // CVImage pixels;
-    // pixels.load("C:/Users/Dmytriy Pelts/Documents/Gitlab/SLProject/data/images/textures/earth1024_C.jpg", false, false);
-    // texWidth = pixels.width();
-    // texHeight = pixels.height();
+    CVImage pixels;
+    pixels.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png", false, false);
+    uint texWidth = pixels.width();
+    uint texHeight = pixels.height();
     VkDeviceSize imageSize = texWidth * texHeight * 4;      // * 4 because of RGBA
 
-    if (!pixels)
+    if (texWidth == 0)
         throw std::runtime_error("failed to load texture image!");
 
     VkBuffer stagingBuffer;
@@ -655,11 +647,11 @@ void TextureMapping::createTextureImage()
 
     void* data;
     vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
-    memcpy(data, pixels, static_cast<size_t>(imageSize));
+    memcpy(data, pixels.data(), static_cast<size_t>(imageSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
-    stbi_image_free(pixels);
-
+    pixels.~CVImage();
+    
     createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
     transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -797,13 +789,9 @@ void TextureMapping::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t 
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount     = 1;
     region.imageOffset                     = {0, 0, 0};
-    region.imageExtent                     = {
-      width,
-      height,
-      1};
+    region.imageExtent                     = { width, height, 1 };
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
     endSingleTimeCommands(commandBuffer);
 }
 
@@ -1136,7 +1124,7 @@ bool TextureMapping::isDeviceSuitable(VkPhysicalDevice device)
     {
         SwapchainSupportDetails swapChainSupport = querySwapchainSupport(device);
         swapChainAdequate                        = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-    }
+    }   
 
     VkPhysicalDeviceFeatures supportedFeatures;
     vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
@@ -1155,10 +1143,8 @@ bool TextureMapping::checkDeviceExtensionSupport(VkPhysicalDevice device)
     std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
     for (const auto& extension : availableExtensions)
-    {
         requiredExtensions.erase(extension.extensionName);
-        std::cout << extension.extensionName << std::endl;
-    }
+
     return requiredExtensions.empty();
 }
 
