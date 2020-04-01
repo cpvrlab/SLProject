@@ -31,6 +31,7 @@ private:
     SLVec3f _hitCoordinate;
 
     SLNode* _editGizmos = nullptr;
+    float   _gizmoScale;
 
     // Translation stuff
     SLNode* _xAxisNode = nullptr;
@@ -41,18 +42,13 @@ private:
     SLVec3f _axisRayDir;
 
     // Scale stuff
-    SLCircle* _scaleSphere;
+    SLNode* _scaleCircle;
+    float   _oldScaleRadius;
 
     // Rotation stuff
-    SLMesh* _rotationCircleMeshX;
-    SLMesh* _rotationCircleMeshY;
-    SLMesh* _rotationCircleMeshZ;
-
     SLNode* _rotationCircleX;
     SLNode* _rotationCircleY;
     SLNode* _rotationCircleZ;
-
-    float _rotationCircleRadius;
 
     SLNode* _rotationCircleNode;
     SLVec3f _rotationAxis;
