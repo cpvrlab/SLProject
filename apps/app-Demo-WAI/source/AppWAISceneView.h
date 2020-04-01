@@ -42,13 +42,24 @@ private:
     SLVec3f _axisRayDir;
 
     // Scale stuff
+    SLNode* _scaleGizmos;
+    SLNode* _scaleDisk;
     SLNode* _scaleCircle;
     float   _oldScaleRadius;
 
     // Rotation stuff
+    SLNode* _rotationGizmos;
+
+    SLNode* _rotationGizmosX;
+    SLNode* _rotationGizmosY;
+    SLNode* _rotationGizmosZ;
+
     SLNode* _rotationCircleX;
+    SLNode* _rotationDiskX;
     SLNode* _rotationCircleY;
+    SLNode* _rotationDiskY;
     SLNode* _rotationCircleZ;
+    SLNode* _rotationDiskZ;
 
     SLNode* _rotationCircleNode;
     SLVec3f _rotationAxis;
@@ -74,6 +85,7 @@ private:
                            const SLVec3f& discN,
                            float&         t);
     bool isCCW(SLVec2f a, SLVec2f b, SLVec2f c);
+    void toggleHideRecursive(SLNode* node, bool hidden);
 };
 
 #endif

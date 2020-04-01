@@ -5,6 +5,7 @@
 #include <SLCoordAxisArrow.h>
 #include <SLSphere.h>
 #include <SLCircle.h>
+#include <SLDisk.h>
 
 #include <WAIApp.h>
 
@@ -45,41 +46,67 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                     SLMaterial* redMat = new SLMaterial(SLCol4f::RED, "Red");
                     redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
                     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+                    SLMaterial* redTransparentMat = new SLMaterial("Red Transparent", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    redTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
                     SLMaterial* greenMat = new SLMaterial(SLCol4f::GREEN, "Green");
                     greenMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
                     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
+                    SLMaterial* greenTransparentMat = new SLMaterial("Green Transparent", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    greenTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
                     SLMaterial* blueMat = new SLMaterial(SLCol4f::BLUE, "Blue");
                     blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
                     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+                    SLMaterial* blueTransparentMat = new SLMaterial("Blue Transparent", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    blueTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
                     SLMaterial* yellowMat = new SLMaterial(SLCol4f::YELLOW, "Yellow");
                     yellowMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
                     yellowMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+                    SLMaterial* yellowTransparentMat = new SLMaterial("Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+                    yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
-                    SLMesh* scaleCircleMesh = new SLCircleMesh("Scale Circle Mesh", yellowMat);
-                    _scaleCircle            = new SLNode(scaleCircleMesh, "Scale Circle");
+                    _scaleCircle = new SLNode(new SLCircle("Scale Circle Mesh", yellowMat), "Scale Circle");
+                    _scaleDisk   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", yellowTransparentMat), "Scale Disk");
 
-                    SLMesh* rotationCircleMeshX = new SLCircleMesh("Rotation Circle Mesh X", redMat);
-                    SLMesh* rotationCircleMeshY = new SLCircleMesh("Rotation Circle Mesh Y", greenMat);
-                    SLMesh* rotationCircleMeshZ = new SLCircleMesh("Rotation Circle Mesh Z", blueMat);
+                    _scaleGizmos = new SLNode("Scale Gizmos");
+                    _scaleGizmos->addChild(_scaleCircle);
+                    _scaleGizmos->addChild(_scaleDisk);
 
-                    _rotationCircleX = new SLNode(rotationCircleMeshX, "Rotation Circle X");
-                    _rotationCircleY = new SLNode(rotationCircleMeshY, "Rotation Circle Y");
-                    _rotationCircleZ = new SLNode(rotationCircleMeshZ, "Rotation Circle Z");
+                    _rotationCircleX = new SLNode(new SLCircle("Rotation Circle Mesh X", redMat), "Rotation Circle X");
+                    _rotationDiskX   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk X", redTransparentMat), "Rotation Disk X");
+                    _rotationCircleY = new SLNode(new SLCircle("Rotation Circle Mesh Y", greenMat), "Rotation Circle Y");
+                    _rotationDiskY   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Y", greenTransparentMat), "Rotation Disk Y");
+                    _rotationCircleZ = new SLNode(new SLCircle("Rotation Circle Mesh Z", blueMat), "Rotation Circle Z");
+                    _rotationDiskZ   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", blueTransparentMat), "Rotation Disk Z");
+
+                    _rotationGizmosX = new SLNode("Rotation Gizmos X");
+                    _rotationGizmosX->addChild(_rotationCircleX);
+                    _rotationGizmosX->addChild(_rotationDiskX);
+
+                    _rotationGizmosY = new SLNode("Rotation Gizmos Y");
+                    _rotationGizmosY->addChild(_rotationCircleY);
+                    _rotationGizmosY->addChild(_rotationDiskY);
+
+                    _rotationGizmosZ = new SLNode("Rotation Gizmos Z");
+                    _rotationGizmosZ->addChild(_rotationCircleZ);
+                    _rotationGizmosZ->addChild(_rotationDiskZ);
 
                     _rotationCircleNode = nullptr;
 
-                    _rotationCircleX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
-                    _rotationCircleY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+                    _rotationGizmosX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+                    _rotationGizmosY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+
+                    _rotationGizmos = new SLNode("Rotation Gizmos");
+                    _rotationGizmos->addChild(_rotationGizmosX);
+                    _rotationGizmos->addChild(_rotationGizmosY);
+                    _rotationGizmos->addChild(_rotationGizmosZ);
 
                     _editGizmos->scale(scaleFactor);
 
                     _editGizmos->addChild(_xAxisNode);
                     _editGizmos->addChild(_yAxisNode);
                     _editGizmos->addChild(_zAxisNode);
-                    _editGizmos->addChild(_scaleCircle);
-                    _editGizmos->addChild(_rotationCircleX);
-                    _editGizmos->addChild(_rotationCircleY);
-                    _editGizmos->addChild(_rotationCircleZ);
+                    _editGizmos->addChild(_scaleGizmos);
+                    _editGizmos->addChild(_rotationGizmos);
 
                     s->root3D()->addChild(_editGizmos);
 
@@ -88,10 +115,8 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
 
                 _editGizmos->translation(mapNode->updateAndGetWM().translation());
 
-                for (SLNode* child : _editGizmos->children())
-                {
-                    child->drawBits()->set(SL_DB_HIDDEN, true);
-                }
+                toggleHideRecursive(_editGizmos, true);
+                _editGizmos->drawBits()->set(SL_DB_HIDDEN, false);
 
                 switch (_editMode)
                 {
@@ -124,13 +149,8 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
     }
     else
     {
-        _xAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
-        _yAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
-        _zAxisNode->drawBits()->set(SL_DB_HIDDEN, true);
-        _rotationCircleX->drawBits()->set(SL_DB_HIDDEN, true);
-        _rotationCircleY->drawBits()->set(SL_DB_HIDDEN, true);
-        _rotationCircleZ->drawBits()->set(SL_DB_HIDDEN, true);
-        _scaleCircle->drawBits()->set(SL_DB_HIDDEN, true);
+        toggleHideRecursive(_editGizmos, true);
+        _editGizmos->drawBits()->set(SL_DB_HIDDEN, false);
 
         _editMode = WAINodeEditMode_None;
     }
@@ -394,31 +414,34 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                 case WAINodeEditMode_Scale: {
                     // TODO(dgj1): this is a lookat function, because the one in SLNode doesn't work
                     // or maybe I don't understand how to use it
-                    // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject
-                    SLVec3f nodePos    = _scaleCircle->translationWS();
+                    // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
+                    SLVec3f nodePos    = _scaleGizmos->translationWS();
                     SLVec3f nodeTarget = _camera->translationWS();
                     SLVec3f nodeDir    = (nodePos - nodeTarget).normalize();
                     SLVec3f up         = SLVec3f(0.0f, 1.0f, 0.0f);
                     SLVec3f nodeRight  = (up ^ nodeDir).normalize();
                     SLVec3f nodeUp     = (nodeDir ^ nodeRight).normalize();
 
-                    SLVec3f nodeTranslation = _scaleCircle->om().translation();
+                    SLVec3f nodeTranslation = _scaleGizmos->om().translation();
                     SLMat4f updatedOm       = SLMat4f(nodeRight.x, nodeUp.x, nodeDir.x, nodeTranslation.x, nodeRight.y, nodeUp.y, nodeDir.y, nodeTranslation.y, nodeRight.z, nodeUp.z, nodeDir.z, nodeTranslation.z, 0.0f, 0.0f, 0.0f, 1.0f);
 
-                    _scaleCircle->om(updatedOm);
+                    _scaleGizmos->om(updatedOm);
 
-                    if (_mouseIsDown)
+                    SLRay pickRay(this);
+                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+                    SLScene* s = SLApplication::scene;
+                    if (s->root3D())
                     {
-                        SLScene* s = SLApplication::scene;
-                        if (s->root3D())
+                        SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
+
+                        if (mapNode)
                         {
-                            SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
+                            SLRay pickRay(this);
+                            _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
-                            if (mapNode)
+                            if (_mouseIsDown)
                             {
-                                SLRay pickRay(this);
-                                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
                                 float t = FLT_MAX;
                                 if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _scaleCircle->translationWS(), _scaleCircle->forwardWS(), t))
                                 {
@@ -434,62 +457,106 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                                     _editGizmos->scale(scaleFactor);
                                 }
                             }
+                            else
+                            {
+                                float t = FLT_MAX;
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _scaleCircle->translationWS(), _scaleCircle->forwardWS(), _gizmoScale, t))
+                                {
+                                    _scaleDisk->drawBits()->set(SL_DB_HIDDEN, false);
+                                }
+                                else
+                                {
+                                    _scaleDisk->drawBits()->set(SL_DB_HIDDEN, true);
+                                }
+
+                                result = SLSceneView::onMouseMove(scrX, scrY);
+                            }
                         }
-                    }
-                    else
-                    {
-                        result = SLSceneView::onMouseMove(scrX, scrY);
                     }
                 }
                 break;
 
                 case WAINodeEditMode_Rotate: {
-                    if (_mouseIsDown)
+                    SLScene* s = SLApplication::scene;
+                    if (s->root3D())
                     {
-                        SLScene* s = SLApplication::scene;
-                        if (s->root3D())
+                        SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
+
+                        if (mapNode)
                         {
-                            SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
+                            SLRay pickRay(this);
+                            _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
-                            if (mapNode)
+                            if (_mouseIsDown && _rotationCircleNode)
                             {
-                                if (_rotationCircleNode)
+                                float t = FLT_MAX;
+                                if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _rotationCircleNode->translationWS(), _rotationCircleNode->forwardWS(), t))
                                 {
-                                    SLRay pickRay(this);
-                                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
+                                    SLVec3f intersectionPoint   = _rotationCircleNode->updateAndGetWMI() * intersectionPointWS;
+                                    SLVec3f rotationVec         = (intersectionPoint - _rotationCircleNode->translationOS()).normalize();
 
-                                    float t = FLT_MAX;
-                                    if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _rotationCircleNode->translationWS(), _rotationCircleNode->forwardWS(), t))
+                                    float angle = RAD2DEG * acos(rotationVec * _rotationStartVec);
+
+                                    if (angle > FLT_EPSILON || angle < -FLT_EPSILON)
                                     {
-                                        SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
-                                        SLVec3f intersectionPoint   = _rotationCircleNode->updateAndGetWMI() * intersectionPointWS;
-                                        SLVec3f rotationVec         = (intersectionPoint - _rotationCircleNode->translationOS()).normalize();
-
-                                        float angle = RAD2DEG * acos(rotationVec * _rotationStartVec);
-
-                                        if (angle > FLT_EPSILON || angle < -FLT_EPSILON)
+                                        // determine if we have to rotate ccw or cw
+                                        if (isCCW(SLVec2f(_rotationCircleNode->translationOS().x, _rotationCircleNode->translationOS().y),
+                                                  SLVec2f(_rotationStartPoint.x, _rotationStartPoint.y),
+                                                  SLVec2f(intersectionPoint.x, intersectionPoint.y)))
                                         {
-                                            // determine if we have to rotate ccw or cw
-                                            if (isCCW(SLVec2f(_rotationCircleNode->translationOS().x, _rotationCircleNode->translationOS().y),
-                                                      SLVec2f(_rotationStartPoint.x, _rotationStartPoint.y),
-                                                      SLVec2f(intersectionPoint.x, intersectionPoint.y)))
-                                            {
-                                                angle = -angle;
-                                            }
-
-                                            mapNode->rotate(angle, _rotationAxis, TS_world);
-
-                                            _rotationStartPoint = intersectionPoint;
-                                            _rotationStartVec   = rotationVec;
+                                            angle = -angle;
                                         }
+
+                                        mapNode->rotate(angle, _rotationAxis, TS_world);
+
+                                        _rotationStartPoint = intersectionPoint;
+                                        _rotationStartVec   = rotationVec;
                                     }
                                 }
                             }
+                            else
+                            {
+                                _rotationDiskX->drawBits()->set(SL_DB_HIDDEN, true);
+                                _rotationDiskY->drawBits()->set(SL_DB_HIDDEN, true);
+                                _rotationDiskZ->drawBits()->set(SL_DB_HIDDEN, true);
+
+                                SLNode* rotationDisk = nullptr;
+
+                                float t     = FLT_MAX;
+                                float tCand = FLT_MAX;
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleX->translationWS(), _rotationCircleX->forwardWS(), _gizmoScale, tCand))
+                                {
+                                    rotationDisk = _rotationDiskX;
+                                    t            = tCand;
+                                }
+
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleY->translationWS(), _rotationCircleY->forwardWS(), _gizmoScale, tCand))
+                                {
+                                    if (tCand < t)
+                                    {
+                                        rotationDisk = _rotationDiskY;
+                                        t            = tCand;
+                                    }
+                                }
+
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleZ->translationWS(), _rotationCircleZ->forwardWS(), _gizmoScale, tCand))
+                                {
+                                    if (tCand < t)
+                                    {
+                                        rotationDisk = _rotationDiskZ;
+                                        t            = tCand;
+                                    }
+                                }
+
+                                if (rotationDisk)
+                                {
+                                    rotationDisk->drawBits()->set(SL_DB_HIDDEN, false);
+                                }
+
+                                result = SLSceneView::onMouseMove(scrX, scrY);
+                            }
                         }
-                    }
-                    else
-                    {
-                        result = SLSceneView::onMouseMove(scrX, scrY);
                     }
                 }
                 break;
@@ -587,4 +654,14 @@ bool WAISceneView::isCCW(SLVec2f a, SLVec2f b, SLVec2f c)
     bool  result     = (signedArea > 0.0f);
 
     return result;
+}
+
+void WAISceneView::toggleHideRecursive(SLNode* node, bool hidden)
+{
+    node->drawBits()->set(SL_DB_HIDDEN, hidden);
+
+    for (SLNode* child : node->children())
+    {
+        toggleHideRecursive(child, hidden);
+    }
 }
