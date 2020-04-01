@@ -30,13 +30,18 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                 {
                     SLScene* s = SLApplication::scene;
 
+                    float scaleFactor = mapNode->aabb()->radiusOS() * 0.5f;
+
                     _editGizmos = new SLNode("Gizmos");
 
                     _xAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::RED), "x-axis node");
                     _xAxisNode->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
+                    _xAxisNode->scale(scaleFactor);
                     _yAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::GREEN), "y-axis node");
+                    _yAxisNode->scale(scaleFactor);
                     _zAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
                     _zAxisNode->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+                    _zAxisNode->scale(scaleFactor);
 
                     _scaleSphere = new SLCircle(200.0f);
 
@@ -58,11 +63,6 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                     _rotationCircleY = new SLNode(_rotationCircleMeshY, "Rotation Circle Y");
                     _rotationCircleZ = new SLNode(_rotationCircleMeshZ, "Rotation Circle Z");
 
-                    _rotationCircleX->translation(mapNode->translationWS(), TS_world);
-                    _rotationCircleY->translation(mapNode->translationWS(), TS_world);
-                    _rotationCircleZ->translation(mapNode->translationWS(), TS_world);
-
-                    float scaleFactor     = mapNode->aabb()->radiusOS() * 0.5f;
                     _rotationCircleRadius = scaleFactor;
                     _rotationCircleX->scale(scaleFactor);
                     _rotationCircleY->scale(scaleFactor);
