@@ -29,6 +29,7 @@ file(GLOB sources
     ${include_path}/imgui/imgui_draw.cpp
     ${include_path}/imgui/imgui.cpp
 	${include_path}/imgui/imgui_widgets.cpp
+	${include_path}/imgui/imgui_demo.cpp
     ${include_path}/spa/spa.cpp
     )
 

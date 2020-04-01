@@ -26,10 +26,10 @@
 //---- Don't define obsolete functions/enums/behaviors. Consider enabling from time to time after updating to avoid using soon-to-be obsolete function/names.
 //#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
-//---- Disable all of Dear ImGui or don't implement standard windows. 
+//---- Disable all of Dear ImGui or don't implement standard windows.
 // It is very strongly recommended to NOT disable the demo windows during development. Please read comments in imgui_demo.cpp.
-//#define IMGUI_DISABLE                                     // Disable everything: all headers and source files will be empty. 
-//#define IMGUI_DISABLE_DEMO_WINDOWS                        // Disable demo windows: ShowDemoWindow()/ShowStyleEditor() will be empty. Not recommended. 
+//#define IMGUI_DISABLE                                     // Disable everything: all headers and source files will be empty.
+//#define IMGUI_DISABLE_DEMO_WINDOWS                        // Disable demo windows: ShowDemoWindow()/ShowStyleEditor() will be empty. Not recommended.
 //#define IMGUI_DISABLE_METRICS_WINDOW                      // Disable debug/metrics window: ShowMetricsWindow() will be empty.
 
 //---- Don't implement some functions to reduce linkage requirements.
@@ -76,6 +76,9 @@
 // Another way to allow large meshes while keeping 16-bit indices is to handle ImDrawCmd::VtxOffset in your renderer.
 // Read about ImGuiBackendFlags_RendererHasVtxOffset for details.
 //#define ImDrawIdx unsigned int
+
+//---- Use 32-bit for ImWchar (default is 16-bit) to support full unicode code points.
+//#define ImWchar ImWchar32
 
 //---- Override ImDrawCallback signature (will need to modify renderer back-ends accordingly)
 //struct ImDrawList;

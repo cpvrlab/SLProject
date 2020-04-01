@@ -66,7 +66,7 @@ void SLGLState::initAll()
         lightDoAtt[i] = 0;
     }
 
-	/*
+    /*
     matAmbient   = SLCol4f::WHITE;
     matDiffuse   = SLCol4f::WHITE;
     matSpecular  = SLCol4f::WHITE;
@@ -481,7 +481,7 @@ void SLGLState::useProgram(SLuint progID)
 //-----------------------------------------------------------------------------
 /*! SLGLState::bindTexture sets the current active texture.
  */
-void SLGLState::bindTexture(GLenum target, SLuint textureID)
+void SLGLState::bindTexture(SLenum target, SLuint textureID)
 {
     // (luc) If there we call glActiveTexture and glBindTexture from outside,
     // This will lead to problems as the global state in SLGLState will not be

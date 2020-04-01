@@ -99,6 +99,7 @@ void centerNextWindow(SLSceneView* sv,
 // Init global static variables
 SLstring AppDemoGui::configTime          = "-";
 SLbool   AppDemoGui::showProgress        = false;
+SLbool   AppDemoGui::showDockSpace       = true;
 SLbool   AppDemoGui::showAbout           = false;
 SLbool   AppDemoGui::showHelp            = false;
 SLbool   AppDemoGui::showHelpCalibration = false;
@@ -106,6 +107,7 @@ SLbool   AppDemoGui::showCredits         = false;
 SLbool   AppDemoGui::showStatsTiming     = false;
 SLbool   AppDemoGui::showStatsScene      = false;
 SLbool   AppDemoGui::showStatsVideo      = false;
+SLbool   AppDemoGui::showImGuiMetrics    = false;
 SLbool   AppDemoGui::showInfosScene      = false;
 SLbool   AppDemoGui::showInfosSensors    = false;
 SLbool   AppDemoGui::showInfosDevice     = false;
@@ -246,6 +248,55 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
     }
     else
     {
+        if (showDockSpace)
+        {
+            static bool               opt_fullscreen_persistant = true;
+            bool                      opt_fullscreen            = opt_fullscreen_persistant;
+            static ImGuiDockNodeFlags dockspace_flags           = ImGuiDockNodeFlags_PassthruCentralNode;
+
+            // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+            // because it would be confusing to have two docking targets within each others.
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+            if (opt_fullscreen)
+            {
+                ImGuiViewport* viewport = ImGui::GetMainViewport();
+                ImGui::SetNextWindowPos(viewport->GetWorkPos());
+                ImGui::SetNextWindowSize(viewport->GetWorkSize());
+                ImGui::SetNextWindowViewport(viewport->ID);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+                window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+                window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+            }
+
+            // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+            // and handle the pass-thru hole, so we ask Begin() to not render a background.
+            if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+                window_flags |= ImGuiWindowFlags_NoBackground;
+
+            // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+            // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+            // all active windows docked into it will lose their parent and become undocked.
+            // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+            // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+            ImGui::Begin("DockSpace Demo", &showDockSpace, window_flags);
+            ImGui::PopStyleVar();
+
+            if (opt_fullscreen)
+                ImGui::PopStyleVar(2);
+
+            // DockSpace
+            ImGuiIO& io = ImGui::GetIO();
+            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+            {
+                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+            }
+
+            ImGui::End();
+        }
+
         if (showAbout)
         {
             centerNextWindow(sv);
@@ -595,6 +646,11 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PopFont();
         }
 
+        if (showImGuiMetrics)
+        {
+            ImGui::ShowMetricsWindow();
+        }
+
         if (showInfosScene)
         {
             // Calculate window position for dynamic status bar at the bottom of the main window
@@ -797,7 +853,10 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%0.0f"))
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+            ImGui::Separator();
 
+            if (ImGui::Checkbox("DockSpace enabled", &showDockSpace))
+                showDockSpace != showDockSpace;
             ImGui::Separator();
 
             SLchar reset[255];
@@ -1906,6 +1965,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+            ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Show Properties", nullptr, &showProperties);
@@ -2534,6 +2594,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
+            fs["showDockSpace"] >> b;       AppDemoGui::showDockSpace = b;
             // clang-format on
 
             fs.release();
@@ -2607,6 +2668,7 @@ void AppDemoGui::saveConfig()
     fs << "showProperties" << AppDemoGui::showProperties;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
+    fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
     fs.release();
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());

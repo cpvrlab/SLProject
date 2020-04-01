@@ -46,6 +46,7 @@ public:
     static SLstring infoHelp;            //!< Help info string
     static SLstring infoCalibrate;       //!< Calibration info string
     static SLbool   showProgress;        //!< Flag if about info should be shown
+    static SLbool   showDockSpace;       //!< Flag if dock space should be enabled
     static SLbool   showAbout;           //!< Flag if about info should be shown
     static SLbool   showHelp;            //!< Flag if help info should be shown
     static SLbool   showHelpCalibration; //!< Flag if calibration info should be shown
@@ -53,6 +54,7 @@ public:
     static SLbool   showStatsTiming;     //!< Flag if timing info should be shown
     static SLbool   showStatsScene;      //!< Flag if scene info should be shown
     static SLbool   showStatsVideo;      //!< Flag if video info should be shown
+    static SLbool   showImGuiMetrics;    //!< Flag if imgui metrics infor should be shown
     static SLbool   showInfosSensors;    //!< Flag if device sensors info should be shown
     static SLbool   showInfosDevice;     //!< Flag if device info should be shown
     static SLbool   showInfosScene;      //!< Flag if scene info should be shown
