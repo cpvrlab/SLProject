@@ -153,7 +153,7 @@ void TextureMapping::createInstance()
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName        = "SL_Project";
     appInfo.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion         = VK_API_VERSION_1_0;
+    appInfo.apiVersion         = VK_API_VERSION_1_1;
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType                = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -217,13 +217,11 @@ void TextureMapping::pickPhysicalDevice()
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
     for (const auto& device : devices)
-    {
         if (isDeviceSuitable(device))
         {
             physicalDevice = device;
             break;
         }
-    }
 
     if (physicalDevice == VK_NULL_HANDLE)
         throw std::runtime_error("failed to find a suitable GPU!");
@@ -441,9 +439,9 @@ void TextureMapping::createGraphicsPipeline()
 
     VkViewport viewport = {};
     viewport.x          = 0.0f;
-    viewport.y          = 0.0f;
+    viewport.y          = (float)swapchainExtent.height;
     viewport.width      = (float)swapchainExtent.width;
-    viewport.height     = (float)swapchainExtent.height;
+    viewport.height     = -((float)swapchainExtent.height);
     viewport.minDepth   = 0.0f;
     viewport.maxDepth   = 1.0f;
 
@@ -512,9 +510,7 @@ void TextureMapping::createGraphicsPipeline()
     pipelineInfo.basePipelineHandle           = VK_NULL_HANDLE;
 
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to create graphics pipeline!");
-    }
 
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
@@ -526,8 +522,7 @@ void TextureMapping::createFramebuffers()
 
     for (size_t i = 0; i < swapchainImageViews.size(); i++)
     {
-        VkImageView attachments[] = {
-          swapchainImageViews[i]};
+        VkImageView attachments[] = { swapchainImageViews[i] };
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -539,9 +534,7 @@ void TextureMapping::createFramebuffers()
         framebufferInfo.layers                  = 1;
 
         if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapchainFramebuffers[i]) != VK_SUCCESS)
-        {
             throw std::runtime_error("failed to create framebuffer!");
-        }
     }
 }
 
@@ -656,7 +649,7 @@ void TextureMapping::createTextureImage()
     if (!pixels)
         throw std::runtime_error("failed to load texture image!");
 
-    VkBuffer       stagingBuffer;
+    VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
@@ -700,9 +693,7 @@ void TextureMapping::createTextureSampler()
     samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
     if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to create texture sampler!");
-    }
 }
 
 void TextureMapping::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
@@ -776,9 +767,7 @@ void TextureMapping::transitionImageLayout(VkImage image, VkFormat format, VkIma
         destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     }
     else
-    {
         throw std::invalid_argument("unsupported layout transition!");
-    }
 
     vkCmdPipelineBarrier(
       commandBuffer,
@@ -970,18 +959,19 @@ void TextureMapping::createSyncObjects()
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
 }
 
+#include <chrono>
+
 void TextureMapping::updateUniformBuffer(uint32_t currentImage)
 {
+    static auto startTime   = std::chrono::high_resolution_clock::now();
+    auto        currentTime = std::chrono::high_resolution_clock::now();
+    float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
     UniformBufferObject ubo = {};
     ubo.model = SLMat4f(0.0f, 0.0f, 0.0f);
     ubo.view = SLMat4f();
-    ubo.view.lookAt(SLVec3f(0.0f, 0.0f, 6.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 1.0f));
-    ubo.proj.perspective(40.0f, (float)swapchainExtent.width / (float)swapchainExtent.height, 0.1f, 10.0f);
-
-    SLfloat value = ubo.proj.m(5);
-    value *= -1.0f;
-    ubo.proj.setMatrix(5, value);
-
+    ubo.view.lookAt(SLVec3f(0.0f, 0.0f, 6.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
+    ubo.proj.perspective(40, (float)swapchainExtent.width / (float)swapchainExtent.height, 0.1f, 20.0f);
 
     void* data;
     vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
@@ -1065,9 +1055,7 @@ VkShaderModule TextureMapping::createShaderModule(const std::vector<char>& code)
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to create shader module!");
-    }
 
     return shaderModule;
 }
@@ -1075,12 +1063,8 @@ VkShaderModule TextureMapping::createShaderModule(const std::vector<char>& code)
 VkSurfaceFormatKHR TextureMapping::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)
-    {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-        {
             return availableFormat;
-        }
-    }
 
     return availableFormats[0];
 }
@@ -1088,12 +1072,8 @@ VkSurfaceFormatKHR TextureMapping::chooseSwapSurfaceFormat(const std::vector<VkS
 VkPresentModeKHR TextureMapping::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
-    {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-        {
             return availablePresentMode;
-        }
-    }
 
     return VK_PRESENT_MODE_FIFO_KHR;
 }
@@ -1101,9 +1081,7 @@ VkPresentModeKHR TextureMapping::chooseSwapPresentMode(const std::vector<VkPrese
 VkExtent2D TextureMapping::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
     if (capabilities.currentExtent.width != UINT32_MAX)
-    {
         return capabilities.currentExtent;
-    }
     else
     {
         int width, height;
@@ -1179,8 +1157,8 @@ bool TextureMapping::checkDeviceExtensionSupport(VkPhysicalDevice device)
     for (const auto& extension : availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
+        std::cout << extension.extensionName << std::endl;
     }
-
     return requiredExtensions.empty();
 }
 
@@ -1190,12 +1168,8 @@ uint32_t TextureMapping::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFla
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-    {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-        {
             return i;
-        }
-    }
 
     throw std::runtime_error("failed to find suitable memory type!");
 }
@@ -1250,9 +1224,7 @@ VkImageView TextureMapping::createImageView(VkImage image, VkFormat format)
 
     VkImageView imageView;
     if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-    {
         throw std::runtime_error("failed to create texture image view!");
-    }
 
     return imageView;
 }
@@ -1312,18 +1284,14 @@ bool TextureMapping::checkValidationLayerSupport()
         bool layerFound = false;
 
         for (const auto& layerProperties : availableLayers)
-        {
             if (strcmp(layerName, layerProperties.layerName) == 0)
             {
                 layerFound = true;
                 break;
             }
-        }
 
         if (!layerFound)
-        {
             return false;
-        }
     }
 
     return true;
@@ -1332,6 +1300,7 @@ bool TextureMapping::checkValidationLayerSupport()
 VkResult TextureMapping::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+
     if (func != nullptr)
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     else

@@ -92,7 +92,8 @@ public:
     const int                      HEIGHT               = 600;
     const int                      MAX_FRAMES_IN_FLIGHT = 2;
     const std::vector<const char*> validationLayers     = {"VK_LAYER_KHRONOS_validation"};
-    const std::vector<const char*> deviceExtensions     = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const std::vector<const char*> deviceExtensions     = { VK_KHR_SWAPCHAIN_EXTENSION_NAME,                
+                                                            VK_KHR_MAINTENANCE1_EXTENSION_NAME };
 
 private:
     GLFWwindow*                  window;
@@ -135,10 +136,10 @@ private:
     std::vector<VkFence>         imagesInFlight;
     size_t                       currentFrame = 0;
     bool                         framebufferResized = false;
-    const std::vector<Vertex>    vertices           = { {{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-                                                        {{ 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-                                                        {{ 1.0f,  1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-                                                        {{-1.0f,  1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}} };
+    const std::vector<Vertex>    vertices           = { {{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+                                                        {{ 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+                                                        {{ 1.0f,  1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+                                                        {{-1.0f,  1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}} };
                                                         
     const std::vector<uint16_t> indices = { 0, 1, 2, 2, 3, 0 };
 
