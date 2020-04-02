@@ -417,7 +417,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     else
         _calibration.buildUndistortionMaps();
 
-    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
+    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _waiSlamer)
     _waiScene.cameraNode->fov(_calibration.cameraFovVDeg());
     // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     cv::Mat scMat = _calibration.cameraMatUndistorted();
@@ -459,7 +459,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
                                                         _waiScene.mapNode,
                                                         voc,
                                                         slamParams.mapFile,
-                                                        false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
+                                                        false, //TODO(lulu) add this param to slamParams _waiSlamer->retainImage(),
                                                         slamParams.params.fixOldKfs);
 
         if (!mapLoadingSuccess)
@@ -755,7 +755,7 @@ void WAIApp::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgR
         /*
         //get new points and add them
         renderMapPoints("MarkerCornerMapPoints",
-                        _mode->getMarkerCornerMapPoints(),
+                        _waiSlamer->getMarkerCornerMapPoints(),
                         _waiScene.mapMarkerCornerPC,
                         _waiScene.mappointsMarkerCornerMesh,
                         _waiScene.blueMat);

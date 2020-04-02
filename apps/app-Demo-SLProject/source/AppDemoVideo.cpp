@@ -203,7 +203,8 @@ bool onUpdateVideo()
     SLScene*     s  = SLApplication::scene;
     SLSceneView* sv = s->sceneView(0);
 
-    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
+    if (CVCapture::instance()->videoType() != VT_NONE &&
+        !CVCapture::instance()->lastFrame.empty())
     {
         SLfloat trackingTimeStartMS = SLApplication::timeMS();
 

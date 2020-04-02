@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4100799E243377EC0089FB3C /* CVTrackedWAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */; };
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
 		411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411E93171B3D92DC007B0C6F /* SLDisk.cpp */; };
 		412F89721FF58D94004D5982 /* ADSTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89681FF58D91004D5982 /* ADSTex.vert */; };
@@ -564,6 +565,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4100799C243377D90089FB3C /* CVTrackedWAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedWAI.h; path = "../../../lib-SLProject/include/CV/CVTrackedWAI.h"; sourceTree = SOURCE_ROOT; };
+		4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVTrackedWAI.cpp; path = "../../../lib-SLProject/source/CV/CVTrackedWAI.cpp"; sourceTree = SOURCE_ROOT; };
 		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../../../data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
 		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../../../lib-SLProject/source/SLDisk.cpp"; sourceTree = SOURCE_ROOT; };
 		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = "../../../lib-SLProject/include/SLDisk.h"; sourceTree = SOURCE_ROOT; };
@@ -1343,6 +1346,8 @@
 				41EAAE092067BB2800F7E9B9 /* CVTrackedFaces.h */,
 				414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */,
 				414AC5431F52A8430003867A /* CVTrackedFeatures.h */,
+				4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */,
+				4100799C243377D90089FB3C /* CVTrackedWAI.h */,
 				4124202A23102B7F0091BDE1 /* CVTypedefs.h */,
 				41E6EDFD2403046F0063FDA1 /* CVTypes.h */,
 			);
@@ -2790,6 +2795,7 @@
 				41FC947C19F7D6410026919B /* SLGLOculusFB.cpp in Sources */,
 				41E6EE16240306E40063FDA1 /* AverageTiming.cpp in Sources */,
 				41C7A684241A3D200017EE82 /* WAIMapPoint.cpp in Sources */,
+				4100799E243377EC0089FB3C /* CVTrackedWAI.cpp in Sources */,
 				41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */,
 				41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */,
 				416A86AA241B9044009D63B0 /* SURFextractor.cpp in Sources */,
@@ -3098,6 +3104,7 @@
 					TARGET_OS_IOS,
 					DEBUG,
 					_DEBUG,
+					SL_BUILD_WAI,
 				);
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
@@ -3174,7 +3181,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "comgr-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = TARGET_OS_IOS;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					TARGET_OS_IOS,
+					SL_BUILD_WAI,
+				);
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
 					../include,
