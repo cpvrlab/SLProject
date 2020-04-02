@@ -2,6 +2,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <ErlebAR.h>
+#include <imgui_internal.h>
 
 SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
                            int               dotsPerInch,
@@ -43,8 +44,7 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
     SLstring DroidSans      = fontPath + "DroidSans.ttf";
     if (Utils::fileExists(DroidSans))
     {
-        ImGuiIO& io = ImGui::GetIO();
-        _font       = io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
+        _font = _context->IO.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
     }
     else
     {

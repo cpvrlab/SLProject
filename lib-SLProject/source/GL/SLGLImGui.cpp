@@ -570,9 +570,8 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 //! Callback on mouse button up event
 void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
-    ImGuiIO& io             = ImGui::GetIO();
-    io.MousePos             = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;

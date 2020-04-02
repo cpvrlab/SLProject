@@ -13,11 +13,11 @@
 #ifndef IMGUIWRAPPER_H
 #define IMGUIWRAPPER_H
 
+#include <imgui.h>
 #include <SL.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
 #include <SLRect.h>
-#include <imgui.h>
 #include <SLUiInterface.h>
 
 class SLScene;
@@ -70,10 +70,13 @@ public:
     void onCharInput(SLuint c) override;
     void onClose() override;
     void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) override;
-    bool doNotDispatchKeyboard() override { return ImGui::GetIO().WantCaptureKeyboard; }
-    bool doNotDispatchMouse() override { return ImGui::GetIO().WantCaptureMouse; }
+    bool doNotDispatchKeyboard() override;
+    bool doNotDispatchMouse() override;
     // gui build function pattern
     virtual void build(SLScene* s, SLSceneView* sv) = 0;
+
+protected:
+    ImGuiContext* _context = nullptr;
 
 private:
     void deleteOpenGLObjects();
@@ -99,8 +102,6 @@ private:
     SLuint  _elementsHandle;    //!< OpenGL handle for vertex indexes
 
     std::string _inifile;
-
-    //ImGuiContext* _context = nullptr;
 };
 //-----------------------------------------------------------------------------
 #endif

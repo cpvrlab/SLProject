@@ -71,7 +71,7 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
     _prefsFileName = Utils::unifySlashes(configDir) + appName + ".yml";
-    uiPrefs->load(_prefsFileName, ImGui::GetStyle());
+    uiPrefs->load(_prefsFileName, _context->Style);
     //load fonts
     loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
 
@@ -130,7 +130,7 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
 AppDemoWaiGui::~AppDemoWaiGui()
 {
     //save preferences
-    uiPrefs->save(_prefsFileName, ImGui::GetStyle());
+    uiPrefs->save(_prefsFileName, _context->Style);
 }
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)
@@ -340,7 +340,7 @@ void AppDemoWaiGui::popStyle()
 //! Loads the proportional and fixed size font depending on the passed DPI
 void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
 {
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = _context->IO;
     //io.Fonts->Clear();
 
     // Load proportional font for menue and text displays

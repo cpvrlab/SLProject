@@ -39,8 +39,7 @@ private:
     ImVec2  _buttonSz;
     ImFont* _font = nullptr;
 
-    ImGuiStyle _guiStyle;
-    float      _pixPerMM;
+    float _pixPerMM;
 };
 
 #endif //SELECTION_GUI_H
