@@ -165,8 +165,7 @@ protected:
     LocalMapping* _localMapping;
     LoopClosing*  _loopClosing;
     std::thread*  _processNewKeyFrameThread = nullptr;
-    std::thread*  _mappingThread = nullptr;
-    std::thread*  _mappingThread2 = nullptr;
+    std::vector<std::thread*> _mappingThreads;
     std::thread*  _loopClosingThread  = nullptr;
 };
 

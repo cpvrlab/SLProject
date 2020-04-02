@@ -25,9 +25,11 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
+#include <thread>
 #include <opencv2/core.hpp>
 #include <OrbSlam/ORBVocabulary.h>
 #include <WorkingSet.h>
+#include <LocalMap.h>
 
 class WAIKeyFrame;
 class WAIMap;
@@ -58,18 +60,14 @@ public:
 
     // Thread Synch
     void RequestStop();
+    void RequestContinue();
     void RequestReset();
-    bool Stop();
     void Release();
     bool isStopped();
-    bool stopRequested();
     bool AcceptKeyFrames();
     void SetAcceptKeyFrames(bool flag);
-    bool SetNotStop(bool flag);
     //ghm1
     void reset();
-
-    void InterruptBA();
 
     void RequestFinish();
     bool isFinished();
@@ -80,6 +78,8 @@ public:
         return mlNewKeyFrames.size();
     }
 
+    std::thread* AddLocalBAThread();
+
 protected:
 
     bool CheckNewKeyFrames();
@@ -89,11 +89,12 @@ protected:
 
     void MapPointCulling(WAIKeyFrame * kf);
 
-    void SearchInNeighbors(WAIKeyFrame* frame, WorkingSet &ws);
-    void SearchInNeighbors();
+    void searchNeihborsLocalMap(LocalMap &lmap, WorkingSet &ws, WAIKeyFrame* frame);
+    void SearchInNeighbors(LocalMap &lmap);
+    void SearchInNeighbors(WAIKeyFrame * kf);
 
     void KeyFrameCulling(WAIKeyFrame* frame, WorkingSet &ws);
-    void KeyFrameCulling();
+    void KeyFrameCulling(WAIKeyFrame* frame);
 
     cv::Mat ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2);
 
@@ -108,40 +109,32 @@ protected:
     bool       mbResetRequested;
     std::mutex mMutexReset;
 
+    bool       CheckPause();
+
     bool       CheckFinish();
     void       SetFinish();
     bool       mbFinishRequested;
     bool       mbFinished;
+    int        mFinishedBA;
+    int        mMappingThreads;
     std::mutex mMutexFinish;
 
     std::queue<WAIKeyFrame*> toLocalAdjustment;
     std::mutex mMutexMapping;
+    std::mutex mStateMutex;
 
-    //replacement for thread sleep:
-    std::mutex              _mutexLoop;
-    std::condition_variable _condVarLoop;
-    bool                    _loopWait = true;
-    void                    loopContinue();
-    void                    loopWait();
+    std::mutex mMutexPause;
+    bool       mPause;
 
     LoopClosing* mpLoopCloser;
-    //Tracking* mpTracker;
-
-    std::list<WAIKeyFrame*> mlNewKeyFrames;
-    WAIKeyFrame* mpCurrentKeyFrame;
-
-    std::list<WAIMapPoint*> mlpRecentAddedMapPoints;
 
     std::mutex mMutexNewKFs;
-
-    bool mbAbortBA;
-
-    bool       mbStopped;
-    bool       mbStopRequested;
-    bool       mbNotStop;
-    std::mutex mMutexStop;
-
     bool       mbAcceptKeyFrames;
+    std::list<WAIKeyFrame*> mlNewKeyFrames;
+    std::list<WAIMapPoint*> mlpRecentAddedMapPoints;
+
+
+    bool       mbAbortBA;
     std::mutex mMutexAccept;
 
     ORBVocabulary* mpORBvocabulary = NULL;

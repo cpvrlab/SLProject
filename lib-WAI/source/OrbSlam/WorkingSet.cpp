@@ -1,8 +1,26 @@
 #include <WorkingSet.h>
+#include <Utils.h>
 
-WorkingSet::WorkingSet()
+WorkingSet::WorkingSet(unsigned int maxBufferSize)
 {
-    for (int i = 0; i < 5; i++)
+    mMaxBufferSize = maxBufferSize;
+    inUse = new WAIKeyFrame*[maxBufferSize];
+    for (int i = 0; i < maxBufferSize; i++)
+    {
+        inUse[i] = nullptr;
+    }
+}
+
+void WorkingSet::reset()
+{
+    std::unique_lock<std::mutex> lock(toLocalAdjustmentMutex);
+    std::unique_lock<std::mutex> lock2(useSetMutex);
+    while (!toLocalAdjustment.empty())
+    {
+        toLocalAdjustment.pop();
+    }
+
+    for (int i = 0; i < mMaxBufferSize; i++)
     {
         inUse[i] = nullptr;
     }
@@ -20,7 +38,7 @@ int WorkingSet::popFromLocalAdjustment(WAIKeyFrame** kf)
     int kfInQueue;
     std::unique_lock<std::mutex> lock(toLocalAdjustmentMutex);
     kfInQueue = toLocalAdjustment.size();
-    if (kfInQueue <= 0)
+    if (kfInQueue == 0)
         return 0;
     *kf = toLocalAdjustment.front();
     toLocalAdjustment.pop();
@@ -30,7 +48,7 @@ int WorkingSet::popFromLocalAdjustment(WAIKeyFrame** kf)
 void WorkingSet::addToUseSet(WAIKeyFrame* kf)
 {
     std::unique_lock<std::mutex> lock(useSetMutex);
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < mMaxBufferSize; i++)
     {
         if (inUse[i] == nullptr)
         {
@@ -39,13 +57,13 @@ void WorkingSet::addToUseSet(WAIKeyFrame* kf)
             return;
         }
     }
-    std::cout << "use set full" << std::endl;
+    Utils::log("Info", "AAAAA use set full");
 }
 
 void WorkingSet::removeFromUseSet(WAIKeyFrame* kf)
 {
     std::unique_lock<std::mutex> lock(useSetMutex);
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < mMaxBufferSize; i++)
     {
         if (inUse[i] == kf)
         {
@@ -60,7 +78,7 @@ bool WorkingSet::isInUseSet(WAIKeyFrame* kf)
 {
     std::unique_lock<std::mutex> lock(useSetMutex);
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < mMaxBufferSize; i++)
     {
         if (inUse[i] == kf)
         {

@@ -12,12 +12,15 @@
 
 struct WorkingSet 
 {
-    WAIKeyFrame * inUse[5];
+    unsigned int mMaxBufferSize;
+    WAIKeyFrame ** inUse;
     std::mutex useSetMutex;
     std::mutex toLocalAdjustmentMutex;
     std::queue<WAIKeyFrame*> toLocalAdjustment;
 
-    WorkingSet();
+    WorkingSet(unsigned int maxBufferSize);
+
+    void reset();
 
     void addToLocalAdjustment(WAIKeyFrame* kf);
 

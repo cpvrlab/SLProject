@@ -20,19 +20,8 @@
 
 #include <OrbSlam/Optimizer.h>
 #include <WAIKeyFrameDB.h>
-
-#include <g2o/core/block_solver.h>
-#include <g2o/core/optimization_algorithm_levenberg.h>
-#include <g2o/solvers/eigen/linear_solver_eigen.h>
-#include <g2o/types/sba/types_six_dof_expmap.h>
-#include <g2o/core/robust_kernel_impl.h>
-#include <g2o/solvers/dense/linear_solver_dense.h>
-#include <g2o/types/sim3/types_seven_dof_expmap.h>
-
 #include <Eigen/StdVector>
-
 #include <OrbSlam/Converter.h>
-
 #include <mutex>
 
 namespace ORB_SLAM2
@@ -794,7 +783,6 @@ void Optimizer::OptimizeEssentialGraph(WAIMap* pMap, WAIKeyFrame* pLoopKF, WAIKe
             e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(nIDj)));
             e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(nIDi)));
             e->setMeasurement(Sji);
-
             e->information() = matLambda;
 
             optimizer.addEdge(e);
@@ -966,49 +954,20 @@ void Optimizer::OptimizeEssentialGraph(WAIMap* pMap, WAIKeyFrame* pLoopKF, WAIKe
     }
 }
 
-void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, unsigned int markerId)
+
+void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, WorkingSet &wc)
 {
-    lmap.refKF = pKF;
-    lmap.keyFrames.push_back(pKF);
-    pKF->mnMarker[markerId] = pKF->mnId;
+    os->linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
+    os->solver_ptr = new g2o::BlockSolver_6_3(os->linearSolver);
+    os->solver = new g2o::OptimizationAlgorithmLevenberg(os->solver_ptr);
+    os->optimizer.setAlgorithm(os->solver);
+    os->maxKFid = 0;
 
-    const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
-    for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
-    {
-        WAIKeyFrame* pKFi = vNeighKFs[i];
+    os->lmap.refKF = pKF;
+    os->lmap.keyFrames.push_back(pKF);
+    pKF->mnMarker[BA_LOCAL_KF] = pKF->mnId;
 
-        pKFi->mnMarker[markerId] = pKF->mnId;
-        if (!pKFi->isBad())
-            lmap.keyFrames.push_back(pKFi);
-    }
-
-    // Local MapPoints seen in Local KeyFrames
-    for (auto lit = lmap.keyFrames.begin(), lend = lmap.keyFrames.end(); lit != lend; lit++)
-    {
-        vector<WAIMapPoint*> vpMPs = (*lit)->GetMapPointMatches();
-        for (auto vit = vpMPs.begin(), vend = vpMPs.end(); vit != vend; vit++)
-        {
-            WAIMapPoint* pMP = *vit;
-            if (pMP)
-            {
-                if (!pMP->isBad())
-                {
-                    if (pMP->mnMarker[markerId] != pKF->mnId)
-                    {
-                        lmap.mapPoints.push_back(pMP);
-                        pMP->mnMarker[markerId] = pKF->mnId;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, WorkingSet &wc, unsigned int markerId)
-{
-    lmap.refKF = pKF;
-    lmap.keyFrames.push_back(pKF);
-    pKF->mnMarker[markerId] = pKF->mnId;
+    const float thHuberMono = sqrt(5.991);
 
     const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
     for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
@@ -1017,13 +976,14 @@ void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, WorkingSet &wc, unsigned in
         if (wc.isInUseSet(pKFi))
             continue;
 
-        pKFi->mnMarker[markerId] = pKF->mnId;
+        pKFi->mnMarker[BA_LOCAL_KF] = pKF->mnId;
+
         if (!pKFi->isBad())
-            lmap.keyFrames.push_back(pKFi);
+            os->lmap.keyFrames.push_back(pKFi);
     }
 
     // Local MapPoints seen in Local KeyFrames
-    for (auto lit = lmap.keyFrames.begin(), lend = lmap.keyFrames.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.keyFrames.begin(), lend = os->lmap.keyFrames.end(); lit != lend; lit++)
     {
         vector<WAIMapPoint*> vpMPs = (*lit)->GetMapPointMatches();
         for (auto vit = vpMPs.begin(), vend = vpMPs.end(); vit != vend; vit++)
@@ -1033,120 +993,79 @@ void buildLocalMap(LocalMap &lmap, WAIKeyFrame* pKF, WorkingSet &wc, unsigned in
             {
                 if (!pMP->isBad())
                 {
-                    if (pMP->mnMarker[markerId] != pKF->mnId)
+                    if (pMP->mnMarker[BA_LOCAL_KF] != pKF->mnId)
                     {
-                        lmap.mapPoints.push_back(pMP);
-                        pMP->mnMarker[markerId] = pKF->mnId;
+                        os->lmap.mapPoints.push_back(pMP);
+                        pMP->mnMarker[BA_LOCAL_KF] = pKF->mnId;
                     }
                 }
             }
         }
     }
-}
 
-void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pbStopFlag, WAIMap* pMap)
-{
-    LocalMap lmap;
-    buildLocalMap(lmap, pKF, wc, BA_LOCAL_KF);
-
-    // Fixed Keyframes. Keyframes that see Local MapPoints but that are not Local Keyframes
-    vector<WAIKeyFrame*> lFixedCameras;
-    for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.mapPoints.begin(), lend = os->lmap.mapPoints.end(); lit != lend; lit++)
     {
+        WAIMapPoint*            pMP    = *lit;
         map<WAIKeyFrame*, size_t> observations = (*lit)->GetObservations();
         for (map<WAIKeyFrame*, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
         {
             WAIKeyFrame* pKFi = mit->first;
 
-            if (wc.isInUseSet(pKFi))
-                continue;
-
             if (pKFi->mnMarker[BA_LOCAL_KF] != pKF->mnId && pKFi->mnMarker[BA_FIXED_KF] != pKF->mnId)
             {
                 pKFi->mnMarker[BA_FIXED_KF] = pKF->mnId;
-                if (!pKFi->isBad())
-                    lFixedCameras.push_back(pKFi);
+
+                if (!pKFi->isBad() && !wc.isInUseSet(pKFi))
+                {
+                    os->lmap.secondNeighbors.push_back(pKFi);
+                }
             }
         }
     }
 
-    // Setup optimizer
-    g2o::SparseOptimizer                    optimizer;
-    g2o::BlockSolver_6_3::LinearSolverType* linearSolver;
-
-    linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
-
-    g2o::BlockSolver_6_3* solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
-
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
-    optimizer.setAlgorithm(solver);
-
-    if (pbStopFlag)
-        optimizer.setForceStopFlag(pbStopFlag);
-
-    unsigned long maxKFid = 0;
-
     // Set Local WAIKeyFrame vertices
-    for (auto lit = lmap.keyFrames.begin(), lend = lmap.keyFrames.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.keyFrames.begin(), lend = os->lmap.keyFrames.end(); lit != lend; lit++)
     {
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
         vSE3->setId(pKFi->mnId);
         vSE3->setFixed(pKFi->mnId == 0 || pKFi->isFixed());
-        optimizer.addVertex(vSE3);
-        if (pKFi->mnId > maxKFid)
-            maxKFid = pKFi->mnId;
+        os->optimizer.addVertex(vSE3);
+        if (pKFi->mnId > os->maxKFid)
+            os->maxKFid = pKFi->mnId;
     }
 
     // Set Fixed WAIKeyFrame vertices
-    for (auto lit = lFixedCameras.begin(), lend = lFixedCameras.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.secondNeighbors.begin(), lend = os->lmap.secondNeighbors.end(); lit != lend; lit++)
     {
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
         vSE3->setId(pKFi->mnId);
         vSE3->setFixed(true);
-        optimizer.addVertex(vSE3);
-        if (pKFi->mnId > maxKFid)
-            maxKFid = pKFi->mnId;
+        os->optimizer.addVertex(vSE3);
+        if (pKFi->mnId > os->maxKFid)
+            os->maxKFid = pKFi->mnId;
     }
 
     // Set WAIMapPoint vertices
-    const int nExpectedSize = (lmap.keyFrames.size() + lFixedCameras.size()) * lmap.mapPoints.size();
+    const int nExpectedSize = (os->lmap.keyFrames.size() + os->lmap.secondNeighbors.size()) * os->lmap.mapPoints.size();
 
-    vector<g2o::EdgeSE3ProjectXYZ*> vpEdgesMono;
-    vpEdgesMono.reserve(nExpectedSize);
+    os->vpEdgesMono.reserve(nExpectedSize);
+    os->vpEdgeKFMono.reserve(nExpectedSize);
+    os->vpMapPointEdgeMono.reserve(nExpectedSize);
 
-    vector<WAIKeyFrame*> vpEdgeKFMono;
-    vpEdgeKFMono.reserve(nExpectedSize);
-
-    vector<WAIMapPoint*> vpMapPointEdgeMono;
-    vpMapPointEdgeMono.reserve(nExpectedSize);
-
-    /*
-    vector<g2o::EdgeStereoSE3ProjectXYZ*> vpEdgesStereo;
-    vpEdgesStereo.reserve(nExpectedSize);
-
-    vector<WAIKeyFrame*> vpEdgeKFStereo;
-    vpEdgeKFStereo.reserve(nExpectedSize);
-
-    vector<WAIMapPoint*> vpMapPointEdgeStereo;
-    vpMapPointEdgeStereo.reserve(nExpectedSize);
-    */
-
-    const float thHuberMono = sqrt(5.991);
-
-    for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.mapPoints.begin(), lend = os->lmap.mapPoints.end(); lit != lend; lit++)
     {
         WAIMapPoint*            pMP    = *lit;
         g2o::VertexSBAPointXYZ* vPoint = new g2o::VertexSBAPointXYZ();
         vPoint->setEstimate(Converter::toVector3d(pMP->GetWorldPos()));
-        int id = pMP->mnId + maxKFid + 1;
+        int id = pMP->mnId + os->maxKFid + 1;
         vPoint->setId(id);
         vPoint->setMarginalized(true);
         vPoint->setFixed(pMP->isFixed());
-        optimizer.addVertex(vPoint);
+        os->optimizer.addVertex(vPoint);
 
         const map<WAIKeyFrame*, size_t> observations = pMP->GetObservations();
 
@@ -1155,10 +1074,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pb
         {
             WAIKeyFrame* pKFi = mit->first;
 
-            if (wc.isInUseSet(pKFi))
-                continue;
-
-            if (!pKFi->isBad())
+            if (!pKFi->isBad() && !wc.isInUseSet(pKFi))
             {
                 const cv::KeyPoint& kpUn = pKFi->mvKeysUn[mit->second];
 
@@ -1167,8 +1083,8 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pb
 
                 g2o::EdgeSE3ProjectXYZ* e = new g2o::EdgeSE3ProjectXYZ();
 
-                e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFi->mnId)));
+                e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(os->optimizer.vertex(id)));
+                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(os->optimizer.vertex(pKFi->mnId)));
                 e->setMeasurement(obs);
                 const float& invSigma2 = pKFi->mvInvLevelSigma2[kpUn.octave];
                 e->setInformation(Eigen::Matrix2d::Identity() * invSigma2);
@@ -1182,20 +1098,23 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pb
                 e->cx = pKFi->cx;
                 e->cy = pKFi->cy;
 
-                optimizer.addEdge(e);
-                vpEdgesMono.push_back(e);
-                vpEdgeKFMono.push_back(pKFi);
-                vpMapPointEdgeMono.push_back(pMP);
+                os->optimizer.addEdge(e);
+                os->vpEdgesMono.push_back(e);
+                os->vpEdgeKFMono.push_back(pKFi);
+                os->vpMapPointEdgeMono.push_back(pMP);
             }
         }
     }
+}
 
+void Optimizer::LocalBundleAdjustment(OptimizerStruct* os, bool* pbStopFlag)
+{
     if (pbStopFlag)
         if (*pbStopFlag)
             return;
 
-    optimizer.initializeOptimization();
-    optimizer.optimize(5);
+    os->optimizer.initializeOptimization();
+    os->optimizer.optimize(5);
 
     bool bDoMore = true;
 
@@ -1205,12 +1124,10 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pb
 
     if (bDoMore)
     {
-
-        // Check inlier observations
-        for (size_t i = 0, iend = vpEdgesMono.size(); i < iend; i++)
+        for (size_t i = 0, iend = os->vpEdgesMono.size(); i < iend; i++)
         {
-            g2o::EdgeSE3ProjectXYZ* e   = vpEdgesMono[i];
-            WAIMapPoint*            pMP = vpMapPointEdgeMono[i];
+            g2o::EdgeSE3ProjectXYZ* e   = os->vpEdgesMono[i];
+            WAIMapPoint*            pMP = os->vpMapPointEdgeMono[i];
 
             if (pMP->isBad())
                 continue;
@@ -1219,70 +1136,35 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pb
             {
                 e->setLevel(1);
             }
-
             e->setRobustKernel(0);
         }
-
-        /*
-        for (size_t i = 0, iend = vpEdgesStereo.size(); i < iend; i++)
-        {
-            g2o::EdgeStereoSE3ProjectXYZ* e   = vpEdgesStereo[i];
-            WAIMapPoint*                  pMP = vpMapPointEdgeStereo[i];
-
-            if (pMP->isBad())
-                continue;
-
-            if (e->chi2() > 7.815 || !e->isDepthPositive())
-            {
-                e->setLevel(1);
-            }
-
-            e->setRobustKernel(0);
-        }
-        */
 
         // Optimize again without the outliers
-
-        optimizer.initializeOptimization(0);
-        optimizer.optimize(10);
+        os->optimizer.initializeOptimization(0);
+        os->optimizer.optimize(10);
     }
+}
 
+void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
+{ 
     vector<pair<WAIKeyFrame*, WAIMapPoint*>> vToErase;
-    //vToErase.reserve(vpEdgesMono.size() + vpEdgesStereo.size());
-    vToErase.reserve(vpEdgesMono.size());
+    vToErase.reserve(os->vpEdgesMono.size());
 
     // Check inlier observations
-    for (size_t i = 0, iend = vpEdgesMono.size(); i < iend; i++)
+    for (size_t i = 0, iend = os->vpEdgesMono.size(); i < iend; i++)
     {
-        g2o::EdgeSE3ProjectXYZ* e   = vpEdgesMono[i];
-        WAIMapPoint*            pMP = vpMapPointEdgeMono[i];
+        g2o::EdgeSE3ProjectXYZ* e   = os->vpEdgesMono[i];
+        WAIMapPoint*            pMP = os->vpMapPointEdgeMono[i];
 
         if (pMP->isBad())
             continue;
 
         if (e->chi2() > 5.991 || !e->isDepthPositive())
         {
-            WAIKeyFrame* pKFi = vpEdgeKFMono[i];
+            WAIKeyFrame* pKFi = os->vpEdgeKFMono[i];
             vToErase.push_back(make_pair(pKFi, pMP));
         }
     }
-
-    /*
-    for (size_t i = 0, iend = vpEdgesStereo.size(); i < iend; i++)
-    {
-        g2o::EdgeStereoSE3ProjectXYZ* e   = vpEdgesStereo[i];
-        WAIMapPoint*                  pMP = vpMapPointEdgeStereo[i];
-
-        if (pMP->isBad())
-            continue;
-
-        if (e->chi2() > 7.815 || !e->isDepthPositive())
-        {
-            WAIKeyFrame* pKFi = vpEdgeKFStereo[i];
-            vToErase.push_back(make_pair(pKFi, pMP));
-        }
-    }
-    */
 
     // Get WAIMap Mutex
     unique_lock<mutex> lock(pMap->mMutexMapUpdate);
@@ -1298,36 +1180,65 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pb
         }
     }
 
-    // Recover optimized data
+
 
     //Keyframes
-    for (auto lit = lmap.keyFrames.begin(), lend = lmap.keyFrames.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.keyFrames.begin(), lend = os->lmap.keyFrames.end(); lit != lend; lit++)
     {
         WAIKeyFrame*          pKF     = *lit;
-        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->mnId));
+        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(os->optimizer.vertex(pKF->mnId));
         g2o::SE3Quat          SE3quat = vSE3->estimate();
-        //pKF->SetPose(Converter::toCvMat(SE3quat));
         pKF->SetPose(Converter::toCvMat(SE3quat));
     }
 
     //Points
-    for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
+    for (auto lit = os->lmap.mapPoints.begin(), lend = os->lmap.mapPoints.end(); lit != lend; lit++)
     {
         WAIMapPoint*            pMP    = *lit;
-        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(optimizer.vertex(pMP->mnId + maxKFid + 1));
+        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(os->optimizer.vertex(pMP->mnId + os->maxKFid + 1));
         pMP->SetWorldPos(Converter::toCvMat(vPoint->estimate()));
         pMP->UpdateNormalAndDepth();
     }
+
 }
 
-
-void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap* pMap)
+void Optimizer::optimizerLocalMap(LocalMap &lmap, WAIKeyFrame* pKF)
 {
-    LocalMap lmap;
-    buildLocalMap(lmap, pKF, BA_LOCAL_KF);
+    lmap.refKF = pKF;
+    lmap.keyFrames.push_back(pKF);
+    pKF->mnMarker[BA_LOCAL_KF] = pKF->mnId;
 
-    // Fixed Keyframes. Keyframes that see Local MapPoints but that are not Local Keyframes
-    vector<WAIKeyFrame*> lFixedCameras;
+    const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
+    for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
+    {
+        WAIKeyFrame* pKFi = vNeighKFs[i];
+
+        pKFi->mnMarker[BA_LOCAL_KF] = pKF->mnId;
+        if (!pKFi->isBad())
+            lmap.keyFrames.push_back(pKFi);
+    }
+
+    // Local MapPoints seen in Local KeyFrames
+    for (auto lit = lmap.keyFrames.begin(), lend = lmap.keyFrames.end(); lit != lend; lit++)
+    {
+        vector<WAIMapPoint*> vpMPs = (*lit)->GetMapPointMatches();
+        for (auto vit = vpMPs.begin(), vend = vpMPs.end(); vit != vend; vit++)
+        {
+            WAIMapPoint* pMP = *vit;
+            if (pMP)
+            {
+                if (!pMP->isBad())
+                {
+                    if (pMP->mnMarker[BA_LOCAL_KF] != pKF->mnId)
+                    {
+                        lmap.mapPoints.push_back(pMP);
+                        pMP->mnMarker[BA_LOCAL_KF] = pKF->mnId;
+                    }
+                }
+            }
+        }
+    }
+
     for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
     {
         map<WAIKeyFrame*, size_t> observations = (*lit)->GetObservations();
@@ -1339,10 +1250,16 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
             {
                 pKFi->mnMarker[BA_FIXED_KF] = pKF->mnId;
                 if (!pKFi->isBad())
-                    lFixedCameras.push_back(pKFi);
+                    lmap.secondNeighbors.push_back(pKFi);
             }
         }
     }
+}
+
+void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap* pMap)
+{
+    LocalMap lmap;
+    optimizerLocalMap(lmap, pKF);
 
     // Setup optimizer
     g2o::SparseOptimizer                    optimizer;
@@ -1374,7 +1291,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
     }
 
     // Set Fixed WAIKeyFrame vertices
-    for (auto lit = lFixedCameras.begin(), lend = lFixedCameras.end(); lit != lend; lit++)
+    for (auto lit = lmap.secondNeighbors.begin(), lend = lmap.secondNeighbors.end(); lit != lend; lit++)
     {
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
@@ -1387,7 +1304,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
     }
 
     // Set WAIMapPoint vertices
-    const int nExpectedSize = (lmap.keyFrames.size() + lFixedCameras.size()) * lmap.mapPoints.size();
+    const int nExpectedSize = (lmap.keyFrames.size() + lmap.secondNeighbors.size()) * lmap.mapPoints.size();
 
     vector<g2o::EdgeSE3ProjectXYZ*> vpEdgesMono;
     vpEdgesMono.reserve(nExpectedSize);

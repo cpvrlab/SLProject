@@ -573,9 +573,6 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
                                      WAIFrame&      frame,
                                      unsigned long& lastKeyFrameFrameId)
 {
-    if (!localMapper->SetNotStop(true))
-        return;
-
     WAIKeyFrame* pKF = new WAIKeyFrame(frame);
 
     lastKeyFrameFrameId = frame.mnId;
@@ -583,7 +580,6 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     frame.mpReferenceKF = pKF;
 
     localMapper->InsertKeyFrame(pKF);
-    localMapper->SetNotStop(false);
 }
 
 bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
@@ -595,7 +591,7 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
                                    const unsigned long lastKeyFrameFrameId)
 {
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
-    if (localMapper->isStopped() || localMapper->stopRequested())
+    if (localMapper->isStopped())
         return false;
 
     const int nKFs = map->KeyFramesInMap();
@@ -627,24 +623,7 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((nInliners < nRefMatches * thRefRatio) && nInliners > 15);
 
-    if ((c1a || c1b) && c2)
-    {
-        // If the mapping accepts keyframes, insert keyframe.
-        // Otherwise send a signal to interrupt BA
-        if (bLocalMappingIdle)
-        {
-            return true;
-        }
-        else
-        {
-            localMapper->InterruptBA();
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
+    return ((c1a || c1b) && c2 && bLocalMappingIdle);
 }
 
 bool WAISlamTools::relocalization(WAIFrame& currentFrame,
@@ -1542,8 +1521,8 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     if (!_serial)
     {
         _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
-        _mappingThread = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
-        //_mappingThread2 = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
+        _mappingThreads.push_back(_localMapping->AddLocalBAThread());
+        //_mappingThreads.push_back(_localMapping->AddLocalBAThread());
         _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
@@ -1562,7 +1541,8 @@ WAISlam::~WAISlam()
 
         // Wait until all thread have effectively stopped
         _processNewKeyFrameThread->join();
-        _mappingThread->join();
+        for (std::thread* t : _mappingThreads) { t->join(); }
+
         if (_loopClosingThread)
             _loopClosingThread->join();
     }
@@ -1573,8 +1553,10 @@ WAISlam::~WAISlam()
 
 void WAISlam::reset()
 {
+        std::cout << "WAISlam reset" << std::endl;
     if (!_serial)
     {
+        std::cout << "Request Reset" << std::endl;
         _localMapping->RequestReset();
         _loopClosing->RequestReset();
     }
@@ -1744,8 +1726,10 @@ void WAISlam::requestStateIdle()
         _localMapping->RequestStop();
         while (!_localMapping->isStopped())
         {
+            std::cout << "localMapping is not yet stopped" << std::endl;
             std::this_thread::sleep_for(std::chrono::microseconds(10));
         }
+        std::cout << "localMapping is stopped" << std::endl;
     }
 
     _state = TrackingState_Idle;

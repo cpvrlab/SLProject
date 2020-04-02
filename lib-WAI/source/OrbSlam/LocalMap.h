@@ -10,6 +10,7 @@ struct LocalMap
     WAIKeyFrame*              refKF;
     std::vector<WAIKeyFrame*> keyFrames;
     std::vector<WAIMapPoint*> mapPoints;
+    std::vector<WAIKeyFrame*> secondNeighbors;
 };
 
 #endif

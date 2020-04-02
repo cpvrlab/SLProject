@@ -30,20 +30,44 @@
 
 #include <OrbSlam/LoopClosing.h>
 
+#include <g2o/core/block_solver.h>
+#include <g2o/core/optimization_algorithm_levenberg.h>
+#include <g2o/solvers/eigen/linear_solver_eigen.h>
+#include <g2o/types/sba/types_six_dof_expmap.h>
+#include <g2o/core/robust_kernel_impl.h>
+#include <g2o/solvers/dense/linear_solver_dense.h>
 #include <g2o/types/sim3/types_seven_dof_expmap.h>
 #include <g2o/types/sba/types_six_dof_expmap.h>
 
+
 namespace ORB_SLAM2
 {
+struct OptimizerStruct
+{
+    g2o::SparseOptimizer                    optimizer;
+    g2o::BlockSolver_6_3::LinearSolverType* linearSolver;
+    g2o::BlockSolver_6_3*                   solver_ptr;
+    g2o::OptimizationAlgorithmLevenberg*    solver;
 
+    vector<g2o::EdgeSE3ProjectXYZ*> vpEdgesMono;
+    vector<WAIKeyFrame*>            vpEdgeKFMono;
+    vector<WAIMapPoint*>            vpMapPointEdgeMono;
+    int maxKFid;
+    LocalMap lmap;
+};
 class WAI_API Optimizer
 {
 public:
     void static BundleAdjustment(const std::vector<WAIKeyFrame*>& vpKF, const std::vector<WAIMapPoint*>& vpMP, int nIterations = 5, bool* pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
     void static GlobalBundleAdjustemnt(WAIMap* pMap, int nIterations = 5, bool* pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
 
-    void static LocalBundleAdjustment(WAIKeyFrame* pKF, WorkingSet &wc, bool* pbStopFlag, WAIMap* pMap);
+    void static initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, WorkingSet &wc);
+    void static LocalBundleAdjustment(OptimizerStruct* os, bool* pbStopFlag);
+    void static applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap);
+
+    void static optimizerLocalMap(LocalMap &lmap, WAIKeyFrame* pKF);
     void static LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap* pMap);
+
 
     int static PoseOptimization(WAIFrame* pFrame, vector<bool> &vbOutliers);
     int static PoseOptimization(WAIFrame* pFrame);

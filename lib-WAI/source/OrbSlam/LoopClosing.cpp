@@ -687,6 +687,8 @@ void LoopClosing::CorrectLoop()
     }
 
     doCorrectLoop();
+
+    mpLocalMapper->RequestContinue();
 }
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
@@ -849,12 +851,12 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
             mpMap->InformNewBigChange();
 
             mpLocalMapper->Release();
-
             cout << "Map updated!" << endl;
         }
 
         mbFinishedGBA = true;
         mbRunningGBA  = false;
+        mpLocalMapper->RequestContinue();
     }
 }
 
