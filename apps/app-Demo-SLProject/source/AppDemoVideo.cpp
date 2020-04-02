@@ -202,8 +202,11 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 */
 bool onUpdateVideo()
 {
+    if (!SLApplication::sceneViews.size())
+        return false;
+
     SLScene*     s  = SLApplication::scene;
-    SLSceneView* sv = s->sceneView(0);
+    SLSceneView* sv = SLApplication::sceneViews[0];
 
     if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
     {

@@ -24,14 +24,15 @@
 
 //-----------------------------------------------------------------------------
 //! Global static objects
-SLInputManager   SLApplication::inputManager;
-SLProjectScene*  SLApplication::scene = nullptr;
-SLGLImGui*       SLApplication::gui   = nullptr;
-SLDeviceRotation SLApplication::devRot;
-SLDeviceLocation SLApplication::devLoc;
-SLstring         SLApplication::name    = "SLProjectApp";
-SLstring         SLApplication::appTag  = "SLProject";
-SLstring         SLApplication::version = "2.5.000";
+SLInputManager            SLApplication::inputManager;
+SLProjectScene*           SLApplication::scene = nullptr;
+std::vector<SLSceneView*> SLApplication::sceneViews;
+SLGLImGui*                SLApplication::gui = nullptr;
+SLDeviceRotation          SLApplication::devRot;
+SLDeviceLocation          SLApplication::devLoc;
+SLstring                  SLApplication::name    = "SLProjectApp";
+SLstring                  SLApplication::appTag  = "SLProject";
+SLstring                  SLApplication::version = "2.5.000";
 #ifdef _DEBUG
 SLstring SLApplication::configuration = "Debug";
 #else
@@ -87,7 +88,7 @@ void SLApplication::createAppAndScene(SLstring appName,
            "You can create only one SLApplication");
 
     name  = std::move(appName);
-    scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback, SLApplication::inputManager);
+    scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     GlobalTimer::timerStart();
 }
 //-----------------------------------------------------------------------------
@@ -101,6 +102,10 @@ void SLApplication::deleteAppAndScene()
 {
     assert(SLApplication::scene != nullptr &&
            "You can delete an  only once");
+
+    for (auto sv : sceneViews)
+        delete sv;
+    sceneViews.clear();
 
     delete scene;
     scene = nullptr;

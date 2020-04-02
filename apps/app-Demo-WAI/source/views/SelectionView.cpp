@@ -19,8 +19,8 @@ SelectionView::SelectionView(sm::EventHandler& eventHandler,
                              std::string       imguiIniPath)
   : sm::EventSender(eventHandler),
     _gui(eventHandler, dotsPerInch, screenWidth, screenHeight, fontPath),
-    _s("SelectionScene", nullptr, inputManager),
-    _sv(&_s, dotsPerInch)
+    _s("SelectionScene", nullptr),
+    _sv(&_s, dotsPerInch, inputManager)
 {
     _sv.init("SelectionSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     _s.init();
@@ -30,6 +30,5 @@ SelectionView::SelectionView(sm::EventHandler& eventHandler,
 
 bool SelectionView::update()
 {
-    _s.onUpdate();
     return _sv.onPaint();
 }

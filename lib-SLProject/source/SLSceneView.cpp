@@ -20,6 +20,7 @@
 #include <SLLightRect.h>
 #include <SLSceneView.h>
 #include <GlobalTimer.h>
+#include <SLInputManager.h>
 
 #include <utility>
 
@@ -33,35 +34,20 @@ SLScene. If an in between element in the vector is zero (from previous sceneview
 it will be replaced. The sceneviews _index is the index in the sceneview vector.
 It never changes throughout the life of a sceneview. 
 */
-SLSceneView::SLSceneView(SLScene* s, int dpi)
+SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
   : SLObject(),
     _s(s),
-    _dpi(dpi)
+    _dpi(dpi),
+    _inputManager(inputManager),
+    _cullTimesMS(60, 0.0f),
+    _draw3DTimesMS(60, 0.0f),
+    _draw2DTimesMS(60, 0.0f)
 {
     assert(_s && "No scene instance.");
-
-    // Find first a zero pointer gap in
-    for (SLulong i = 0; i < _s->sceneViews().size(); ++i)
-    {
-        if (_s->sceneViews()[i] == nullptr)
-        {
-            _s->sceneViews()[i] = this;
-            _index              = (SLuint)i;
-            return;
-        }
-    }
-
-    // No gaps, so add it and get the index back.
-    _s->sceneViews().push_back(this);
-    _index = (SLuint)_s->sceneViews().size() - 1;
 }
 //-----------------------------------------------------------------------------
 SLSceneView::~SLSceneView()
 {
-    // Set pointer in SLScene::sceneViews vector to zero but leave it.
-    // The remaining sceneviews must keep their index in the vector
-    _s->sceneViews()[(SLuint)_index] = nullptr;
-
     if (_gui)
         _gui->onClose();
 
@@ -102,9 +88,6 @@ void SLSceneView::init(SLstring       name,
     // click, so that the UI can react on it.
     onSelectedNodeMesh = (cbOnSelectNodeMesh)onSelectNodeMeshCallback;
 
-    // Set the ImGui build function. Every sceneview could have it's own GUI.
-    //_gui.build = (cbOnImGuiBuild)onImGuiBuild;
-
     _camera = nullptr;
 
     // enables and modes
@@ -130,10 +113,21 @@ void SLSceneView::init(SLstring       name,
 
     _skybox = nullptr;
 
+    // Reset timing variables
+    _cullTimesMS.init(60, 0.0f);
+    _draw3DTimesMS.init(60, 0.0f);
+    _draw2DTimesMS.init(60, 0.0f);
+
     if (_gui)
         _gui->init(configPath);
 
     onStartup();
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::unInit()
+{
+    _camera = &_sceneViewCamera;
+    _skybox = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -269,7 +263,7 @@ void SLSceneView::switchToSceneViewCamera()
 //! Sets the active camera to the next in the scene
 void SLSceneView::switchToNextCameraInScene()
 {
-    SLCamera* nextCam = _s->nextCameraInScene(this);
+    SLCamera* nextCam = _s->nextCameraInScene(this->camera());
 
     if (nextCam == nullptr)
         return;
@@ -471,6 +465,29 @@ the 2D or 3D graph was updated or waitEvents is false.
 */
 SLbool SLSceneView::onPaint()
 {
+    _cullTimesMS.set(_cullTimeMS);
+    _draw3DTimesMS.set(_draw3DTimeMS);
+    _draw2DTimesMS.set(_draw2DTimeMS);
+
+    // Only update scene if sceneview got repainted: This check is necessary if
+    // this function is called for multiple SceneViews. In this way we only
+    // update the geometric representations if all SceneViews got painted once.
+    // (can only happen during raytracing)
+    if (_gotPainted)
+    {
+        _gotPainted = false;
+        // Process queued up system events and poll custom input devices
+        SLbool viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
+
+        //update current scene
+        if (_s)
+        {
+            _s->onUpdate(viewConsumedEvents,
+                         (_renderType == RT_rt),
+                         drawBit(SL_DB_VOXELS));
+        }
+    }
+
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
@@ -1164,8 +1181,6 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
         if (_gui->doNotDispatchMouse())
             return true;
     }
-    //if (ImGui::GetIO().WantCaptureMouse)
-    //    return true;
 
     if (!_s->root3D()) return false;
 
@@ -1428,11 +1443,6 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
             return true;
         }
     }
-    //if (ImGui::GetIO().WantCaptureKeyboard)
-    //{
-    //    _gui->onKeyPress(key, mod);
-    //    return true;
-    //}
 
     // clang-format off
     // We have to coordinate these shortcuts in SLDemoGui::buildMenuBar

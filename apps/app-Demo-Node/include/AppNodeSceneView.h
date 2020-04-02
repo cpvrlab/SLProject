@@ -21,6 +21,7 @@ enum TransformMode
     RotationAroundMode,
     LookAtMode
 };
+
 //-----------------------------------------------------------------------------
 /*!
  SLSceneView derived class for a node transform test application that
@@ -31,7 +32,7 @@ enum TransformMode
 class AppNodeSceneView : public SLSceneView
 {
 public:
-    AppNodeSceneView(SLProjectScene* s, int dpi);
+    AppNodeSceneView(SLProjectScene* s, int dpi, SLInputManager& inputManager);
     ~AppNodeSceneView();
 
     // From SLSceneView overwritten

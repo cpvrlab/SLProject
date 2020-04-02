@@ -13,8 +13,8 @@ StartUpView::StartUpView(SLInputManager& inputManager,
                          int             screenHeight,
                          int             dotsPerInch,
                          std::string     imguiIniPath)
-  : _s("StartUpScene", nullptr, inputManager),
-    _sv(&_s, dotsPerInch),
+  : _s("StartUpScene", nullptr),
+    _sv(&_s, dotsPerInch, inputManager),
     _pixPerMM((float)dotsPerInch / 25.4f)
 {
     _sv.init("StartUpSceneView", screenWidth, screenHeight, nullptr, nullptr, nullptr, imguiIniPath);
@@ -80,6 +80,6 @@ bool StartUpView::update()
     //if (_timer.elapsedTimeInMilliSec() > 1000.f)
     //    setStateReady();
 
-    _s.onUpdate();
+    //_s.onUpdate();
     return _sv.onPaint();
 }

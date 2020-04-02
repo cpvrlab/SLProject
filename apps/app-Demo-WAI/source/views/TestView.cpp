@@ -36,8 +36,8 @@ TestView::TestView(sm::EventHandler& eventHandler,
       [&]() { return _camera; },                 //getter callback for current camera
       [&]() { return &_calibration; },           //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
-    _s("TestScene", inputManager),
-    _sv(&_s, dotsPerInch),
+    _s("TestScene"),
+    _sv(&_s, dotsPerInch, inputManager),
     _camera(camera),
     _configDir(configDir),
     _vocabularyDir(vocabularyDir),
@@ -128,7 +128,7 @@ bool TestView::update()
         }
     }
 
-    _s.onUpdate();
+    //_s.onUpdate();
     return _sv.onPaint();
 }
 

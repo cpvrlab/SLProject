@@ -29,6 +29,7 @@
 class SLCamera;
 class SLLight;
 class SLScene;
+class SLInputManager;
 
 //-----------------------------------------------------------------------------
 /*
@@ -36,7 +37,7 @@ There are only a very few callbacks from the SLInterface up to the GUI
 framework. All other function calls are downwards from the GUI framework
 */
 //! Callback function typedef for custom SLSceneView derived creator function
-typedef int(SL_STDCALL* cbOnNewSceneView)(SLScene* s, int dotsPerInch);
+typedef SLSceneView*(SL_STDCALL* cbOnNewSceneView)(SLScene* s, int dotsPerInch, SLInputManager& inputManager);
 
 //! Callback function typedef for GUI window update
 typedef SLbool(SL_STDCALL* cbOnWndUpdate)();
@@ -66,7 +67,7 @@ class SLSceneView : public SLObject
     friend class SLPathtracer;
 
 public:
-    SLSceneView(SLScene* s, int dpi);
+    SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager);
     ~SLSceneView() override;
 
     void init(SLstring       name,
@@ -76,6 +77,7 @@ public:
               void*          onSelectNodeMeshCallback,
               SLUiInterface* gui,
               std::string    configPath);
+    void unInit();
 
     // Not overridable event handlers
     void   onInitialize();
@@ -145,12 +147,12 @@ public:
     void doMultiSampling(SLbool doMS) { _doMultiSampling = doMS; }
     void doDepthTest(SLbool doDT) { _doDepthTest = doDT; }
     void doFrustumCulling(SLbool doFC) { _doFrustumCulling = doFC; }
-    void gotPainted(SLbool val) { _gotPainted = val; }
+    //void gotPainted(SLbool val) { _gotPainted = val; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
 
     // Getters
-    SLuint          index() const { return _index; }
+    //SLuint          index() const { return _index; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -167,7 +169,7 @@ public:
     SLViewportAlign viewportAlign() const { return _viewportAlign; }
     SLbool          viewportSameAsVideo() const { return _viewportSameAsVideo; }
     SLUiInterface*  gui() { return _gui; }
-    SLbool          gotPainted() const { return _gotPainted; }
+    //SLbool          gotPainted() const { return _gotPainted; }
     SLbool          doFrustumCulling() const { return _doFrustumCulling; }
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
@@ -182,9 +184,9 @@ public:
     SLGLOculusFB*   oculusFB() { return &_oculusFB; }
     SLDrawBits*     drawBits() { return &_drawBits; }
     SLbool          drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLfloat         cullTimeMS() const { return _cullTimeMS; }
-    SLfloat         draw3DTimeMS() const { return _draw3DTimeMS; }
-    SLfloat         draw2DTimeMS() const { return _draw2DTimeMS; }
+    AvgFloat&       cullTimesMS() { return _cullTimesMS; }
+    AvgFloat&       draw2DTimesMS() { return _draw2DTimesMS; }
+    AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
     SLScene&        s() { return *_s; }
@@ -192,7 +194,7 @@ public:
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
 protected:
-    SLuint         _index;           //!< index of this pointer in SLScene::sceneView vector
+    //SLuint         _index;           //!< index of this pointer in SLScene::sceneView vector
     SLCamera*      _camera;          //!< Pointer to the _active camera
     SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
     SLUiInterface* _gui = nullptr;   //!< ImGui instance
@@ -247,6 +249,12 @@ protected:
 
     SLScene* _s;   //!< Pointer scene observed by this scene view
     int      _dpi; //! dots per inch of screen
+
+    SLInputManager& _inputManager;
+
+    AvgFloat _cullTimesMS;   //!< Averaged time for culling in ms
+    AvgFloat _draw3DTimesMS; //!< Averaged time for 3D drawing in ms
+    AvgFloat _draw2DTimesMS; //!< Averaged time for 2D drawing in ms
 };
 //-----------------------------------------------------------------------------
 #endif

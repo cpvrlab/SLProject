@@ -31,8 +31,8 @@ SLTexFont* SLProjectScene::font20 = nullptr;
 SLTexFont* SLProjectScene::font22 = nullptr;
 SLTexFont* SLProjectScene::font24 = nullptr;
 //-----------------------------------------------------------------------------
-SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager)
-  : SLScene(name, onSceneLoadCallback, inputManager)
+SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
+  : SLScene(name, onSceneLoadCallback)
 {
     // font and video texture are not added to the _textures vector
     SLProjectScene::generateFonts(*SLGLProgramManager::get(SP_fontTex));
@@ -123,13 +123,13 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
     }
 
     // call onInitialize on all scene views
-    for (auto sv : _sceneViews)
-    {
-        if (sv != nullptr)
-        {
-            sv->onInitialize();
-        }
-    }
+    //for (auto sv : _sceneViews)
+    //{
+    //    if (sv != nullptr)
+    //    {
+    //        sv->onInitialize();
+    //    }
+    //}
 }
 //-----------------------------------------------------------------------------
 //! Generates all static fonts

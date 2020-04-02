@@ -33,7 +33,7 @@ extern "C" {
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env, jclass obj, jint width, jint height, jint dpi, jstring filePath);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onTerminate(JNIEnv* env, jclass obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateVideo(JNIEnv* env, jclass obj);
-JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateScene(JNIEnv* env, jclass obj);
+JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateParallelJob(JNIEnv* env, jclass obj);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onPaintAllViews(JNIEnv* env, jclass obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onMouseDown(JNIEnv* env, jclass obj, jint button, jint x, jint y);
@@ -89,10 +89,9 @@ std::string jstring2stdstring(JNIEnv* env, jstring jStr)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppDemoSceneView(SLProjectScene* scene, int dpi)
+SLSceneView* createAppDemoSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManger)
 {
-    SLSceneView* appDemoSV = new AppDemoSceneView(scene, dpi);
-    return appDemoSV->index();
+    return new AppDemoSceneView(scene, dpi, inputManger);
 }
 //-----------------------------------------------------------------------------
 //! Creates the scene and sceneview instance
@@ -154,9 +153,9 @@ extern "C" JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateVideo(JNIE
     return onUpdateVideo();
 }
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateScene(JNIEnv* env, jclass obj)
+extern "C" JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateParallelJob(JNIEnv* env, jclass obj)
 {
-    return slUpdateScene();
+    return slUpdateParallelJob();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onPaintAllViews(JNIEnv* env, jclass obj)
@@ -238,7 +237,7 @@ extern "C" JNIEXPORT
 //! Grabs a frame from a video file using OpenCV
 extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv* env, jclass obj)
 {
-    SLSceneView* sv      = SLApplication::scene->sceneView(0);
+    SLSceneView* sv      = SLApplication::sceneViews[0];
     CVCapture*   capture = CVCapture::instance();
 
     // Get the current capture size of the videofile
@@ -269,7 +268,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoImage(JNI
     if (srcLumaPtr == nullptr)
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
-    SLSceneView* sv            = SLApplication::scene->sceneView(0);
+    SLSceneView* sv            = SLApplication::sceneViews[0];
     CVCapture*   capture       = CVCapture::instance();
     float        videoImgWdivH = (float)imgWidth / (float)imgHeight;
 
@@ -297,8 +296,8 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes
 
     // If viewportWdivH is negative the viewport aspect will be adapted to the video
     // aspect ratio. No cropping will be applied.
-    float viewportWdivH = SLApplication::scene->sceneView(0)->viewportWdivH();
-    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+    float viewportWdivH = SLApplication::sceneViews[0]->viewportWdivH();
+    if (SLApplication::sceneViews[0]->viewportSameAsVideo())
         viewportWdivH = -1;
 
     CVCapture::instance()->copyYUVPlanes(viewportWdivH, srcW, srcH, y, ySize, yPixStride, yLineStride, u, uSize, uPixStride, uLineStride, v, vSize, vPixStride, vLineStride);

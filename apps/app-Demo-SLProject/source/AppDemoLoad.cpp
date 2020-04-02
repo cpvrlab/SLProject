@@ -81,8 +81,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     SLApplication::sceneID = sceneID;
 
+    // reset existing sceneviews
+    for (auto sv : SLApplication::sceneViews)
+        sv->unInit();
     // Initialize all preloaded stuff from SLScene
     s->init();
+
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);
@@ -3242,7 +3246,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     ////////////////////////////////////////////////////////////////////////////
     // call onInitialize on all scene views to init the scenegraph and stats
-    for (auto sceneView : s->sceneViews())
+    for (auto sceneView : SLApplication::sceneViews)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 

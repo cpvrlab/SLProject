@@ -104,8 +104,8 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView(SLProjectScene* s, int dpi)
-  : SLSceneView(s, dpi),
+AppNodeSceneView::AppNodeSceneView(SLProjectScene* s, int dpi, SLInputManager& inputManager)
+  : SLSceneView(s, dpi, inputManager),
     _modifiers(K_none),
     _continuousInput(true),
     _curMode(TranslationMode),

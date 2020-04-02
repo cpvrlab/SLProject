@@ -21,12 +21,8 @@
 #include <SLLight.h>
 #include <SLMesh.h>
 
-class SLSceneView;
 class SLCamera;
-class SLInputManager;
 
-//-----------------------------------------------------------------------------
-typedef std::vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
@@ -50,9 +46,8 @@ class SLScene : public SLObject
     friend class SLNode;
 
 public:
-    SLScene(SLstring        name,
-            cbOnSceneLoad   onSceneLoadCallback,
-            SLInputManager& inputManager);
+    SLScene(SLstring      name,
+            cbOnSceneLoad onSceneLoadCallback);
     ~SLScene();
 
     // Setters
@@ -64,8 +59,6 @@ public:
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
-    SLSceneView*     sceneView(SLuint index) { return _sceneViews[index]; }
-    SLVSceneView&    sceneViews() { return _sceneViews; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
@@ -80,20 +73,19 @@ public:
     AvgFloat& updateTimesMS() { return _updateTimesMS; }
     AvgFloat& updateAnimTimesMS() { return _updateAnimTimesMS; }
     AvgFloat& updateAABBTimesMS() { return _updateAABBTimesMS; }
-    AvgFloat& cullTimesMS() { return _cullTimesMS; }
-    AvgFloat& draw2DTimesMS() { return _draw2DTimesMS; }
-    AvgFloat& draw3DTimesMS() { return _draw3DTimesMS; }
 
     SLNode*   selectedNode() { return _selectedNode; }
     SLMesh*   selectedMesh() { return _selectedMesh; }
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
-    SLCamera* nextCameraInScene(SLSceneView* activeSV);
+    SLCamera* nextCameraInScene(SLCamera* activeSVCam);
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    bool         onUpdate();
+    bool         onUpdate(SLbool viewConsumedEvents,
+                          bool   renderTypeIsRT,
+                          bool   voxelsAreShown);
     void         init();
     virtual void unInit();
     void         selectNode(SLNode* nodeToSelect);
@@ -102,9 +94,6 @@ public:
     SLGLOculus* oculus() { return &_oculus; }
 
 protected:
-    SLVSceneView _sceneViews; //!< Vector of all sceneview pointers
-    //SLVMesh      _meshes;     //!< Vector of all meshes
-
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
     SLAnimManager   _animManager;   //!< Animation manager instance
@@ -125,15 +114,10 @@ protected:
     // major part times
     AvgFloat _frameTimesMS;      //!< Averaged total time per frame in ms
     AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
-    AvgFloat _cullTimesMS;       //!< Averaged time for culling in ms
-    AvgFloat _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
-    AvgFloat _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
     AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
     AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
-
-    SLInputManager& _inputManager;
 
     SLGLOculus _oculus; //!< Oculus Rift interface
 };

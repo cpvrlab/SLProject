@@ -56,10 +56,9 @@ SLbool onPaintRTGL()
 
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppDemoSceneView()
+SLSceneView* createAppDemoSceneView()
 {
-    SLSceneView* appDemoSV = new AppDemoSceneView();
-    return appDemoSV->index();
+    return new AppDemoSceneView();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -230,7 +229,7 @@ float GetSeconds()
     
     /////////////////////////////////////////////
     bool trackingGotUpdated = onUpdateVideo();
-    bool sceneGotUpdated    = slUpdateScene();
+    bool jobIsRunning       = slUpdateParallelJob();
     bool viewsNeedsRepaint  = slPaintAllViews();
     /////////////////////////////////////////////
     
@@ -388,11 +387,11 @@ float GetSeconds()
         return;
     }
     
-    SLSceneView* sv = SLApplication::scene->sceneView(0);
+    SLSceneView* sv = SLApplication::sceneViews[0];
     CVCapture* capture = CVCapture::instance();
     float videoImgWdivH = (float)imgWidth / (float)imgHeight;
 
-    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+    if (sv->viewportSameAsVideo())
     {
         // If video aspect has changed we need to tell the new viewport to the sceneview
         if (Utils::abs(videoImgWdivH - sv->viewportWdivH()) > 0.01f)
@@ -540,7 +539,7 @@ float GetSeconds()
             [m_avSession stopRunning];
         }
         
-        SLSceneView* sv = SLApplication::scene->sceneView(0);
+        SLSceneView* sv = SLApplication::sceneViews[0];
         CVCapture* capture = CVCapture::instance();
 
         // Get the current capture size of the videofile

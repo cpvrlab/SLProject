@@ -22,7 +22,7 @@ class SLProjectScene : public SLScene
   , public SLAssetManager
 {
 public:
-    SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback, SLInputManager& inputManager);
+    SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback);
     ~SLProjectScene();
 
     void unInit() override;

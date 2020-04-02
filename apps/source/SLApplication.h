@@ -23,6 +23,7 @@
 using namespace std;
 
 class SLScene;
+class SLSceneView;
 class SLGLImGui;
 class SLProjectScene;
 class CVCalibrationEstimator;
@@ -54,11 +55,12 @@ public:
     static int     jobProgressMax() { return _jobProgressMax; }
     static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
-    static SLProjectScene*  scene;        //!< scene pointer
-    static SLGLImGui*       gui;          //!< gui pointer
-    static SLInputManager   inputManager; //!< Input events manager
-    static SLDeviceRotation devRot;       //!< Mobile device rotation from IMU
-    static SLDeviceLocation devLoc;       //!< Mobile device location from GPS
+    static SLProjectScene*           scene;        //!< scene pointer
+    static std::vector<SLSceneView*> sceneViews;   //!< vector of sceneview pointers
+    static SLGLImGui*                gui;          //!< gui pointer
+    static SLInputManager            inputManager; //!< Input events manager
+    static SLDeviceRotation          devRot;       //!< Mobile device rotation from IMU
+    static SLDeviceLocation          devLoc;       //!< Mobile device location from GPS
 
     static SLstring  name;          //!< Applcation name
     static SLstring  appTag;        //!< Tag string used in logging

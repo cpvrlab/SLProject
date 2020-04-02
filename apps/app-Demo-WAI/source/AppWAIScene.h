@@ -13,7 +13,7 @@
 class AppWAIScene : public SLScene
 {
 public:
-    AppWAIScene(SLstring name, SLInputManager& inputManager);
+    AppWAIScene(SLstring name);
 
     void updateCameraIntrinsics(float cameraFovVDeg, cv::Mat cameraMatUndistorted)
     {

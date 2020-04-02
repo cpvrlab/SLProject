@@ -389,10 +389,9 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppNodeSceneView(SLProjectScene* scene, int dpi)
+SLSceneView* createAppNodeSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManager)
 {
-    SLSceneView* appNodeSV = new AppNodeSceneView(scene, dpi);
-    return appNodeSV->index();
+    return new AppNodeSceneView(scene, dpi, inputManager);
 }
 //-----------------------------------------------------------------------------
 /*!

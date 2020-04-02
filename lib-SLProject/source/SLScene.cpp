@@ -16,8 +16,6 @@
 
 #include <SLScene.h>
 #include <Utils.h>
-#include <SLInputManager.h>
-#include <SLSceneView.h>
 #include <SLKeyframeCamera.h>
 #include <GlobalTimer.h>
 
@@ -57,16 +55,11 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-SLScene::SLScene(SLstring        name,
-                 cbOnSceneLoad   onSceneLoadCallback,
-                 SLInputManager& inputManager)
+SLScene::SLScene(SLstring      name,
+                 cbOnSceneLoad onSceneLoadCallback)
   : SLObject(name),
-    _inputManager(inputManager),
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
-    _cullTimesMS(60, 0.0f),
-    _draw3DTimesMS(60, 0.0f),
-    _draw2DTimesMS(60, 0.0f),
     _updateAABBTimesMS(60, 0.0f),
     _updateAnimTimesMS(60, 0.0f)
 {
@@ -90,10 +83,6 @@ The destructor is called in slTerminate.
 */
 SLScene::~SLScene()
 {
-    // Delete all remaining sceneviews
-    for (auto sv : _sceneViews)
-        delete sv;
-
     unInit();
 
     // delete global SLGLState instance
@@ -121,9 +110,6 @@ void SLScene::init()
     // Reset timing variables
     _frameTimesMS.init(60, 0.0f);
     _updateTimesMS.init(60, 0.0f);
-    _cullTimesMS.init(60, 0.0f);
-    _draw3DTimesMS.init(60, 0.0f);
-    _draw2DTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
 }
@@ -137,16 +123,6 @@ void SLScene::unInit()
 {
     _selectedMesh = nullptr;
     _selectedNode = nullptr;
-
-    // reset existing sceneviews
-    for (auto sv : _sceneViews)
-    {
-        if (sv != nullptr)
-        {
-            sv->camera(sv->sceneViewCamera());
-            sv->skybox(nullptr);
-        }
-    }
 
     // delete entire scene graph
     delete _root3D;
@@ -163,30 +139,30 @@ void SLScene::unInit()
     _animManager.clear();
 }
 //-----------------------------------------------------------------------------
-//! Processes all queued events and updates animations and AABBs
+//! Updates animations and AABBs
 /*! Updates different updatables in the scene after all views got painted:
 \n
-\n 1) Calculate frame time
-\n 2) Process queued events
-\n 3) Update all animations
-\n 4) Update AABBs
+\n 1) Update all animations
+\n 2) Update AABBs
 \n
 \return true if really something got updated
 */
-bool SLScene::onUpdate()
+bool SLScene::onUpdate(SLbool viewConsumedEvents,
+                       bool   renderTypeIsRT,
+                       bool   voxelsAreShown)
 {
-    // Return if not all sceneview got repainted: This check if necessary if
+    // Return if not all sceneview got repainted: This check is necessary if
     // this function is called for multiple SceneViews. In this way we only
     // update the geometric representations if all SceneViews got painted once.
 
-    for (auto sv : _sceneViews)
-        if (sv != nullptr && !sv->gotPainted())
-            return false;
+    //for (auto sv : _sceneViews)
+    //    if (sv != nullptr && !sv->gotPainted())
+    //        return false;
 
-    // Reset all _gotPainted flags
-    for (auto sv : _sceneViews)
-        if (sv != nullptr)
-            sv->gotPainted(false);
+    //// Reset all _gotPainted flags
+    //for (auto sv : _sceneViews)
+    //    if (sv != nullptr)
+    //        sv->gotPainted(false);
 
     /////////////////////////////
     // 1) Calculate frame time //
@@ -196,29 +172,6 @@ bool SLScene::onUpdate()
     // todo: If slowdown on idle is enabled the delta time will be wrong!
     _frameTimeMS      = GlobalTimer::timeMS() - _lastUpdateTimeMS;
     _lastUpdateTimeMS = GlobalTimer::timeMS();
-
-    // Sum up all timings of all sceneviews
-    SLfloat sumCullTimeMS   = 0.0f;
-    SLfloat sumDraw3DTimeMS = 0.0f;
-    SLfloat sumDraw2DTimeMS = 0.0f;
-    SLbool  renderTypeIsRT  = false;
-    SLbool  voxelsAreShown  = false;
-    for (auto sv : _sceneViews)
-    {
-        if (sv != nullptr)
-        {
-            sumCullTimeMS += sv->cullTimeMS();
-            sumDraw3DTimeMS += sv->draw3DTimeMS();
-            sumDraw2DTimeMS += sv->draw2DTimeMS();
-            if (!renderTypeIsRT && sv->renderType() == RT_rt)
-                renderTypeIsRT = true;
-            if (!voxelsAreShown && sv->drawBit(SL_DB_VOXELS))
-                voxelsAreShown = true;
-        }
-    }
-    _cullTimesMS.set(sumCullTimeMS);
-    _draw3DTimesMS.set(sumDraw3DTimeMS);
-    _draw2DTimesMS.set(sumDraw2DTimeMS);
 
     // Calculate the frames per second metric
     _frameTimesMS.set(_frameTimeMS);
@@ -230,15 +183,10 @@ bool SLScene::onUpdate()
 
     SLfloat startUpdateMS = GlobalTimer::timeMS();
 
-    //////////////////////////////
-    // 2) Process queued events //
-    //////////////////////////////
-
-    // Process queued up system events and poll custom input devices
-    SLbool sceneHasChanged = _inputManager.pollAndProcessEvents(this);
+    SLbool sceneHasChanged = viewConsumedEvents;
 
     //////////////////////////////
-    // 3) Update all animations //
+    // 1) Update all animations //
     //////////////////////////////
 
     SLfloat startAnimUpdateMS = GlobalTimer::timeMS();
@@ -265,7 +213,7 @@ bool SLScene::onUpdate()
     _updateAnimTimesMS.set(GlobalTimer::timeMS() - startAnimUpdateMS);
 
     /////////////////////
-    // 4) Update AABBs //
+    // 2) Update AABBs //
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
@@ -352,7 +300,7 @@ SLint SLScene::numSceneCameras()
 }
 //-----------------------------------------------------------------------------
 //! Returns the next camera in the scene if there is one
-SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
+SLCamera* SLScene::nextCameraInScene(SLCamera* activeSVCam)
 {
     if (!_root3D) return nullptr;
 
@@ -364,7 +312,7 @@ SLCamera* SLScene::nextCameraInScene(SLSceneView* activeSV)
     SLint activeIndex = 0;
     for (SLulong i = 0; i < cams.size(); ++i)
     {
-        if (cams[i] == activeSV->camera())
+        if (cams[i] == activeSVCam)
         {
             activeIndex = (SLint)i;
             break;

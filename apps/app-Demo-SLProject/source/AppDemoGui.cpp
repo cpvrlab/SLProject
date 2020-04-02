@@ -366,9 +366,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                SLfloat cullTime       = s->cullTimesMS().average();
-                SLfloat draw3DTime     = s->draw3DTimesMS().average();
-                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+                SLfloat cullTime       = sv->cullTimesMS().average();
+                SLfloat draw3DTime     = sv->draw3DTimesMS().average();
+                SLfloat draw2DTime     = sv->draw2DTimesMS().average();
 
                 // Calculate percentage from frame time
                 SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
@@ -418,9 +418,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                SLfloat cullTime       = s->cullTimesMS().average();
-                SLfloat draw3DTime     = s->draw3DTimesMS().average();
-                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+                SLfloat cullTime       = sv->cullTimesMS().average();
+                SLfloat draw3DTime     = sv->draw3DTimesMS().average();
+                SLfloat draw2DTime     = sv->draw2DTimesMS().average();
 
                 // Calculate percentage from frame time
                 SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);

@@ -9,8 +9,8 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 
-AppWAIScene::AppWAIScene(SLstring name, SLInputManager& inputManager)
-  : SLScene(name, nullptr, inputManager)
+AppWAIScene::AppWAIScene(SLstring name)
+  : SLScene(name, nullptr)
 {
 }
 
