@@ -87,36 +87,34 @@ void LocalMapping::LocalOptimize()
                 if (kfInQueue % 3 != 0)
                 {
                     workingSet.removeFromUseSet(frame);
+                    //mpLoopCloser->InsertKeyFrame(frame);
                     continue;
                 }
             }
             stateLock.unlock();
 
-
             std::unique_lock<std::mutex> lock(mMutexMapping);
             LocalMap neighborsLocalMap;
             searchNeihborsLocalMap(neighborsLocalMap, workingSet, frame);
             SearchInNeighbors(neighborsLocalMap);
-            lock.unlock();
 
             if (mpMap->KeyFramesInMap() > 2)
             {
                 OptimizerStruct os;
-                lock.lock();
                 Optimizer::initOptimizerStruct(&os, frame, workingSet);
-                lock.unlock();
 
+                lock.unlock();
+                mbAbortBA = false;
                 Optimizer::LocalBundleAdjustment(&os, &mbAbortBA);
-
                 lock.lock();
+
                 Optimizer::applyBundleAdjustment(&os, mpMap);
-                lock.unlock();
             }
 
-            lock.lock();
             KeyFrameCulling(frame, workingSet);
             lock.unlock();
 
+            //mpLoopCloser->InsertKeyFrame(frame);
             workingSet.removeFromUseSet(frame);
 
             if (CheckFinish() || CheckPause())
@@ -156,7 +154,6 @@ void LocalMapping::ProcessKeyFrames()
             CreateNewMapPoints(frame);
 
             workingSet.addToLocalAdjustment(frame);
-
             mpLoopCloser->InsertKeyFrame(frame);
 
             AVERAGE_TIMING_STOP("process keyframe");
@@ -963,7 +960,6 @@ void LocalMapping::reset()
     mlpRecentAddedMapPoints.clear();
     workingSet.reset();
     mbResetRequested = false;
-    mbAbortBA = false;
 }
 
 std::thread* LocalMapping::AddLocalBAThread()
@@ -998,7 +994,6 @@ void LocalMapping::RequestContinue()
 {
     unique_lock<mutex> lock(mMutexPause);
     mPause = false;
-    mbAbortBA = false;
 }
 
 bool LocalMapping::CheckFinish()
