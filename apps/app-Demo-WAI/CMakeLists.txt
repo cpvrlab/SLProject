@@ -65,6 +65,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.h
 	)
 	
 set(erlebar_sources
@@ -116,6 +117,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.cpp
 	)
 	
 set(erlebar_include_directories

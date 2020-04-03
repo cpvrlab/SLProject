@@ -42,6 +42,7 @@ enum class StateId
 {
     IDLE = 0,
     INIT,
+    WELCOME,
     DESTROY,
     SELECTION,
 
@@ -191,6 +192,8 @@ public:
         enableTransition((unsigned int)StateId::DESTROY,
                          (unsigned int)StateId::IDLE);
         enableTransition((unsigned int)StateId::INIT,
+                         (unsigned int)StateId::WELCOME);
+        enableTransition((unsigned int)StateId::WELCOME,
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::START_ERLEBAR,
                          (unsigned int)StateId::MAP_VIEW);

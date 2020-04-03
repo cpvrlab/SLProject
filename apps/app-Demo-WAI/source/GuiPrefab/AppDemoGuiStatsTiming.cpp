@@ -23,9 +23,9 @@ void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
     // Get averages from average variables (see SLAverage)
     //SLfloat captureTime = CVCapture::instance()->captureTimesMS().average();
     SLfloat updateTime = s->updateTimesMS().average();
-    SLfloat draw3DTime = s->draw3DTimesMS().average();
-    SLfloat draw2DTime = s->draw2DTimesMS().average();
-    SLfloat cullTime   = s->cullTimesMS().average();
+    SLfloat draw3DTime = sv->draw3DTimesMS().average();
+    SLfloat draw2DTime = sv->draw2DTimesMS().average();
+    SLfloat cullTime   = sv->cullTimesMS().average();
 
     // Calculate percentage from frame time
     //SLfloat captureTimePC = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);

@@ -5,6 +5,7 @@
 #include <views/SelectionView.h>
 #include <views/TestView.h>
 #include <views/StartUpView.h>
+#include <views/WelcomeView.h>
 #include <SLGLProgramManager.h>
 
 #define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
@@ -65,6 +66,12 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
+    _welcomeView = new WelcomeView(_inputManager,
+                                   dd.scrWidth(),
+                                   dd.scrHeight(),
+                                   dd.dpi(),
+                                   dd.dirs().writableDir);
+
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
@@ -95,6 +102,20 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     addEvent(new DoneEvent());
 }
 
+void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry)
+{
+    static HighResTimer timer;
+    if (stateEntry)
+    {
+        timer.start();
+    }
+
+    _welcomeView->update();
+
+    if (timer.elapsedTimeInSec() > 2.f)
+        addEvent(new DoneEvent());
+}
+
 void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
@@ -116,6 +137,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
         delete _startUpView;
         _startUpView = nullptr;
     }
+    if (_welcomeView)
+    {
+        delete _welcomeView;
+        _welcomeView = nullptr;
+    }
 
     if (_camera)
     {
@@ -130,6 +156,7 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     //ATTENTION: if we dont do this we get problems when opening the app the second time
     //(e.g. "The position attribute has no variable location." from SLGLVertexArray)
     //We still cannot get rid of this stupid singleton instance..
+    //Todo: if we have a Renderer once, we can use this clean up opengl specific stuff
     SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
     SLMaterialDiffuseAttribute::deleteInstance();

@@ -12,6 +12,7 @@ class InitData;
 class SelectionView;
 class TestView;
 class StartUpView;
+class WelcomeView;
 class View;
 
 class ErlebARApp : public sm::StateMachine
@@ -26,6 +27,7 @@ public:
     {
         registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::IDLE>((unsigned int)StateId::IDLE);
         registerState<ErlebARApp, InitData, &ErlebARApp::INIT>((unsigned int)StateId::INIT);
+        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::WELCOME>((unsigned int)StateId::WELCOME);
         registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::DESTROY>((unsigned int)StateId::DESTROY);
         registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SELECTION>((unsigned int)StateId::SELECTION);
 
@@ -57,6 +59,7 @@ public:
 private:
     void IDLE(const sm::NoEventData* data, const bool stateEntry);
     void INIT(const InitData* data, const bool stateEntry);
+    void WELCOME(const sm::NoEventData* data, const bool stateEntry);
     void DESTROY(const sm::NoEventData* data, const bool stateEntry);
     void SELECTION(const sm::NoEventData* data, const bool stateEntry);
 
@@ -78,8 +81,8 @@ private:
     SelectionView* _selectionView = nullptr;
     TestView*      _testView      = nullptr;
     StartUpView*   _startUpView   = nullptr;
-
-    View* _currentView = nullptr;
+    WelcomeView*   _welcomeView   = nullptr;
+    View*          _currentView   = nullptr;
 
     SENSCamera*      _camera  = nullptr;
     CloseAppCallback _closeCB = nullptr;
