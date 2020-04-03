@@ -63,11 +63,11 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 SLbool onPaint()
 {
     /////////////////////////////////////////////
-    bool sceneGotUpdated   = slUpdateScene();
+    bool jobIsRunning      = slUpdateParallelJob();
     bool viewsNeedsRepaint = slPaintAllViews();
     /////////////////////////////////////////////
 
-    return sceneGotUpdated || viewsNeedsRepaint;
+    return jobIsRunning || viewsNeedsRepaint;
 }
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes
