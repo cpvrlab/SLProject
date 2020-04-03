@@ -8,6 +8,7 @@
 #include <SLSceneView.h>
 #include <SLAssetManager.h>
 #include <HighResTimer.h>
+#include <WelcomeGui.h>
 
 class SLTexFont;
 
@@ -18,12 +19,14 @@ public:
                 int             screenWidth,
                 int             screenHeight,
                 int             dotsPerInch,
-                std::string     imguiIniPath);
+                std::string     fontPath,
+                std::string     imguiIniPath,
+                std::string     version);
     ~WelcomeView();
     bool update() override;
 
 private:
-    SLScene        _s;
+    WelcomeGui     _gui;
     SLSceneView    _sv;
     SLAssetManager _assets;
 

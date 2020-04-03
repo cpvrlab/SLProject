@@ -65,6 +65,8 @@ file(GLOB_RECURSE TEXTURES
     ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
     ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
     ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
+	${SL_PROJECT_ROOT}/data/images/textures/logo_admin_ch.png
+	${SL_PROJECT_ROOT}/data/images/textures/logo_bfh.png
     )
 
 file(GLOB_RECURSE VIDEOS

@@ -136,10 +136,8 @@ public:
     cbOnSelectNodeMesh onSelectedNodeMesh; //!< C-Callback for app on node selection
 
     // Setters
-    void camera(SLCamera* camera)
-    {
-        _camera = camera;
-    }
+    void camera(SLCamera* camera) { _camera = camera; }
+    void scene(SLScene* scene) { _s = scene; }
     void skybox(SLSkybox* skybox) { _skybox = skybox; }
     void scrW(SLint scrW) { _scrW = scrW; }
     void scrH(SLint scrH) { _scrH = scrH; }

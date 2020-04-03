@@ -245,10 +245,10 @@ bool CVImage::load(int         width,
                                         height,
                                         dstPixelFormatGL,
                                         false);
-    uint dstBPL = _bytesPerLine;
-    uint dstBPP = _bytesPerPixel;
-    uint srcBPP = bytesPerPixel(srcPixelFormatGL);
-    uint srcBPL = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
+    uint dstBPL              = _bytesPerLine;
+    uint dstBPP              = _bytesPerPixel;
+    uint srcBPP              = bytesPerPixel(srcPixelFormatGL);
+    uint srcBPL              = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
 
     if (isTopLeft)
     {

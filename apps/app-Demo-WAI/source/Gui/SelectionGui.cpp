@@ -1,6 +1,4 @@
 #include <SelectionGui.h>
-#include <SLScene.h>
-#include <SLSceneView.h>
 #include <ErlebAR.h>
 #include <imgui_internal.h>
 
@@ -57,7 +55,6 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
@@ -73,7 +70,7 @@ void SelectionGui::pushStyle()
 
 void SelectionGui::popStyle()
 {
-    ImGui::PopStyleVar(7);
+    ImGui::PopStyleVar(6);
     ImGui::PopStyleColor(4);
 
     if (_font)

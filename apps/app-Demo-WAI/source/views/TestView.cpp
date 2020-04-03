@@ -76,7 +76,7 @@ void TestView::start()
 
     //_startThread = std::thread(&TestView::startAsync, this);
     tryLoadLastSlam();
-    _ready = true;
+    //_ready = true;
 }
 
 void TestView::startAsync()
@@ -94,7 +94,7 @@ void TestView::startAsync()
     //start thread that starts camera and tries to load slam
     tryLoadLastSlam();
 
-    _ready = true;
+    //_ready = true;
 }
 
 bool TestView::update()

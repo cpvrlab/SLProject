@@ -70,7 +70,9 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                    dd.scrWidth(),
                                    dd.scrHeight(),
                                    dd.dpi(),
-                                   dd.dirs().writableDir);
+                                   dd.fontDir(),
+                                   dd.dirs().writableDir,
+                                   "0.12");
 
     //instantiation of views
     _selectionView = new SelectionView(*this,
