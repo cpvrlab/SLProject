@@ -629,6 +629,7 @@ int main(int argc, char* argv[])
 
         // if no updated occurred wait for the next event (power saving)
         if (!doRepaint)
+            //todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
             glfwWaitEvents();
         else
             glfwPollEvents();

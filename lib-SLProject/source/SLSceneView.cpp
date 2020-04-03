@@ -469,6 +469,8 @@ SLbool SLSceneView::onPaint()
     _draw3DTimesMS.set(_draw3DTimeMS);
     _draw2DTimesMS.set(_draw2DTimeMS);
 
+    SLbool sceneHasChanged    = false;
+    SLbool viewConsumedEvents = false;
     // Only update scene if sceneview got repainted: This check is necessary if
     // this function is called for multiple SceneViews. In this way we only
     // update the geometric representations if all SceneViews got painted once.
@@ -477,14 +479,13 @@ SLbool SLSceneView::onPaint()
     {
         _gotPainted = false;
         // Process queued up system events and poll custom input devices
-        SLbool viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
+        viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
 
         //update current scene
         if (_s)
         {
-            _s->onUpdate(viewConsumedEvents,
-                         (_renderType == RT_rt),
-                         drawBit(SL_DB_VOXELS));
+            sceneHasChanged = _s->onUpdate((_renderType == RT_rt),
+                                           drawBit(SL_DB_VOXELS));
         }
     }
 
@@ -533,7 +534,7 @@ SLbool SLSceneView::onPaint()
         return true;
     }
 
-    return !_doWaitOnIdle || camUpdated;
+    return !_doWaitOnIdle || camUpdated || sceneHasChanged || viewConsumedEvents;
 }
 //-----------------------------------------------------------------------------
 //! Draws the 3D scene with OpenGL

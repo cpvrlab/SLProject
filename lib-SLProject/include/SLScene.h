@@ -83,9 +83,8 @@ public:
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    bool         onUpdate(SLbool viewConsumedEvents,
-                          bool   renderTypeIsRT,
-                          bool   voxelsAreShown);
+    bool         onUpdate(bool renderTypeIsRT,
+                          bool voxelsAreShown);
     void         init();
     virtual void unInit();
     void         selectNode(SLNode* nodeToSelect);

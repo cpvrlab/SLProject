@@ -141,29 +141,15 @@ void SLScene::unInit()
 //-----------------------------------------------------------------------------
 //! Updates animations and AABBs
 /*! Updates different updatables in the scene after all views got painted:
-\n
-\n 1) Update all animations
-\n 2) Update AABBs
+\n 1) Calculate frame time
+\n 2) Update all animations
+\n 3) Update AABBs
 \n
 \return true if really something got updated
 */
-bool SLScene::onUpdate(SLbool viewConsumedEvents,
-                       bool   renderTypeIsRT,
-                       bool   voxelsAreShown)
+bool SLScene::onUpdate(bool renderTypeIsRT,
+                       bool voxelsAreShown)
 {
-    // Return if not all sceneview got repainted: This check is necessary if
-    // this function is called for multiple SceneViews. In this way we only
-    // update the geometric representations if all SceneViews got painted once.
-
-    //for (auto sv : _sceneViews)
-    //    if (sv != nullptr && !sv->gotPainted())
-    //        return false;
-
-    //// Reset all _gotPainted flags
-    //for (auto sv : _sceneViews)
-    //    if (sv != nullptr)
-    //        sv->gotPainted(false);
-
     /////////////////////////////
     // 1) Calculate frame time //
     /////////////////////////////
@@ -183,10 +169,10 @@ bool SLScene::onUpdate(SLbool viewConsumedEvents,
 
     SLfloat startUpdateMS = GlobalTimer::timeMS();
 
-    SLbool sceneHasChanged = viewConsumedEvents;
+    SLbool sceneHasChanged = false;
 
     //////////////////////////////
-    // 1) Update all animations //
+    // 2) Update all animations //
     //////////////////////////////
 
     SLfloat startAnimUpdateMS = GlobalTimer::timeMS();
@@ -213,7 +199,7 @@ bool SLScene::onUpdate(SLbool viewConsumedEvents,
     _updateAnimTimesMS.set(GlobalTimer::timeMS() - startAnimUpdateMS);
 
     /////////////////////
-    // 2) Update AABBs //
+    // 3) Update AABBs //
     /////////////////////
 
     // The updateAABBRec call won't generate any overhead if nothing changed
