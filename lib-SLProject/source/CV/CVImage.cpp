@@ -501,9 +501,9 @@ CVPixFormat CVImage::cv2glPixelFormat(int cvType)
 }
 //-----------------------------------------------------------------------------
 //! Returns the pixel format as string
-string CVImage::formatString()
+string CVImage::formatString(CVPixFormat format)
 {
-    switch (_format)
+    switch (format)
     {
         case PF_rgb: return string("RGB");
         case PF_rgba: return string("RGBA");
@@ -526,7 +526,6 @@ string CVImage::formatString()
         default: return string("Unknow pixel format");
     }
 }
-
 //-----------------------------------------------------------------------------
 //! Save as PNG at a certain compression level (0-9)
 /*!Save as PNG at a certain compression level (0-9)

@@ -63,7 +63,8 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                                                                              ac->type(),
                                                                              SLApplication::getComputerInfos(),
                                                                              SLApplication::calibIniPath,
-                                                                             SLApplication::externalPath);
+                                                                             SLApplication::externalPath,
+                                                                             SLApplication::exePath);
 
             //clear grab request from sceneview
             adSv->grab           = false;
@@ -140,7 +141,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
     }
     catch (CVCalibrationEstimatorException& e)
     {
-        log("WAIApp", e.what());
+        log("SLProject", e.what());
         s->info("Exception during calibration! Please restart!");
     }
 }

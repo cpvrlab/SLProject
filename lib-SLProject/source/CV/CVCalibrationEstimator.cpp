@@ -23,7 +23,8 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
                                                CVCameraType                 camType,
                                                std::string                  computerInfos,
                                                std::string                  calibDataPath,
-                                               std::string                  imageOutputPath)
+                                               std::string                  imageOutputPath,
+                                               std::string                  exePath)
   : _params(params),
     _camSizeIndex(camSizeIndex),
     _mirroredH(mirroredH),
@@ -33,7 +34,8 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
     _calibParamsFileName("calib_in_params.yml"),
     _exception("Undefined error", 0, __FILE__),
     _computerInfos(computerInfos),
-    _calibDataPath(calibDataPath)
+    _calibDataPath(calibDataPath),
+    _exePath(exePath)
 {
     if (!loadCalibParams())
     {
@@ -334,8 +336,8 @@ double CVCalibrationEstimator::calcReprojectionErrors(const CVVVPoint3f& objectP
 bool CVCalibrationEstimator::loadCalibParams()
 {
     FileStorage fs;
-    string      fullCalibIniFile = _calibDataPath + _calibParamsFileName;
-
+    string      fullCalibIniFile = Utils::findFile(_calibParamsFileName,
+                                                   {_calibDataPath, _exePath});
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {

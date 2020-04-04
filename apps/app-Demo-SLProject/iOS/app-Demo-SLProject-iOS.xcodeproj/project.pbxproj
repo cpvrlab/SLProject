@@ -487,6 +487,7 @@
 		41C7A689241A3D200017EE82 /* WAIKeyFrameDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67B241A3D1F0017EE82 /* WAIKeyFrameDB.cpp */; };
 		41C7A68A241A3D200017EE82 /* WAIHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67C241A3D1F0017EE82 /* WAIHelper.cpp */; };
 		41C7A68B241A3D200017EE82 /* WAIOrbVocabulary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */; };
+		41CAC8152438997D005A46B9 /* WorkingSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CAC8132438997D005A46B9 /* WorkingSet.cpp */; };
 		41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D61F096ABB00CA36C9 /* Decompose.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EDF72402FBF00063FDA1 /* FileLog.cpp */; };
@@ -1163,6 +1164,9 @@
 		41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIOrbVocabulary.cpp; path = "../../../lib-WAI/source/WAIOrbVocabulary.cpp"; sourceTree = "<group>"; };
 		41C7A67E241A3D1F0017EE82 /* WAIOrbVocabulary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIOrbVocabulary.h; path = "../../../lib-WAI/source/WAIOrbVocabulary.h"; sourceTree = "<group>"; };
 		41C7A680241A3D200017EE82 /* WAISlam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAISlam.h; path = "../../../lib-WAI/source/WAISlam.h"; sourceTree = "<group>"; };
+		41CAC8122438997C005A46B9 /* LocalMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LocalMap.h; path = "../../../lib-WAI/source/OrbSlam/LocalMap.h"; sourceTree = "<group>"; };
+		41CAC8132438997D005A46B9 /* WorkingSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WorkingSet.cpp; path = "../../../lib-WAI/source/OrbSlam/WorkingSet.cpp"; sourceTree = "<group>"; };
+		41CAC8142438997D005A46B9 /* WorkingSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkingSet.h; path = "../../../lib-WAI/source/OrbSlam/WorkingSet.h"; sourceTree = "<group>"; };
 		41CF01D61F096ABB00CA36C9 /* Decompose.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Decompose.cpp; path = "../../../externals/lib-SLExternal/Shoemake/Decompose.cpp"; sourceTree = SOURCE_ROOT; };
 		41CF01D71F096ABB00CA36C9 /* Decompose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Decompose.h; path = "../../../externals/lib-SLExternal/Shoemake/Decompose.h"; sourceTree = SOURCE_ROOT; };
 		41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EulerAngles.cpp; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1475,6 +1479,7 @@
 				416A86A6241B9044009D63B0 /* Initializer.cpp */,
 				416A869D241B9044009D63B0 /* Initializer.h */,
 				416A8693241B9043009D63B0 /* KPextractor.h */,
+				41CAC8122438997C005A46B9 /* LocalMap.h */,
 				416A8696241B9043009D63B0 /* LocalMapping.cpp */,
 				416A86A4241B9044009D63B0 /* LocalMapping.h */,
 				416A869A241B9043009D63B0 /* LoopClosing.cpp */,
@@ -1492,6 +1497,8 @@
 				416A86A0241B9044009D63B0 /* Sim3Solver.h */,
 				416A8699241B9043009D63B0 /* SURFextractor.cpp */,
 				416A86A3241B9044009D63B0 /* SURFextractor.h */,
+				41CAC8132438997D005A46B9 /* WorkingSet.cpp */,
+				41CAC8142438997D005A46B9 /* WorkingSet.h */,
 			);
 			name = OrbSlam;
 			sourceTree = "<group>";
@@ -2832,6 +2839,7 @@
 				CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */,
 				418152C322A00FEE0080ED72 /* Utils.cpp in Sources */,
 				41E6EE08240305EF0063FDA1 /* SLGLFbo.cpp in Sources */,
+				41CAC8152438997D005A46B9 /* WorkingSet.cpp in Sources */,
 				4181782B1FC5D76500200D02 /* SLPoints.cpp in Sources */,
 				41394E9122A1428800C2448F /* SLAnimKeyframe.cpp in Sources */,
 				4143337A1DE03D590027E1C3 /* CVCapture.cpp in Sources */,

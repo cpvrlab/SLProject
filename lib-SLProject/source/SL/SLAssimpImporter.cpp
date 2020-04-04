@@ -278,25 +278,21 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     // clear the intermediate data
     clear();
 
+    string pathAndFile = Utils::findFile(Utils::getFileName(file),
+                                         {defaultPath,
+                                          defaultPath + Utils::getPath(file),
+                                          SLApplication::exePath});
     // Check existence
-    if (!Utils::fileExists(file))
+    if (!Utils::fileExists(pathAndFile))
     {
-        file = defaultPath + file;
-        if (!Utils::fileExists(file))
-        {
-            file = defaultPath + Utils::getFileName(file);
-            if (!Utils::fileExists(file))
-            {
-                SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
-                SL_WARN_MSG(msg.c_str());
-                return nullptr;
-            }
-        }
+        SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
+        SL_WARN_MSG(msg.c_str());
+        return nullptr;
     }
 
     // Import file with assimp importer
     Assimp::Importer ai;
-    const aiScene*   scene = ai.ReadFile(file.c_str(), (SLuint)flags);
+    const aiScene*   scene = ai.ReadFile(pathAndFile.c_str(), (SLuint)flags);
     if (!scene)
     {
         SLstring msg = "Failed to load file: " + file + "\n" + ai.GetErrorString() + "\n";
@@ -311,7 +307,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     loadSkeleton(nullptr, _skeletonRoot);
 
     // load materials
-    SLstring    modelPath = Utils::getPath(file);
+    SLstring    modelPath = Utils::getPath(pathAndFile);
     SLVMaterial materials;
     if (!overrideMat)
     {

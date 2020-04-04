@@ -90,6 +90,7 @@ public:
                   std::string        computerInfos,
                   int                calibFlags,
                   bool               calcUndistortionMaps);
+
     //creates a guessed calibration using image size and fov angle
     CVCalibration(cv::Size     imageSize,
                   float        fovH,
@@ -97,6 +98,7 @@ public:
                   bool         mirroredV,
                   CVCameraType type,
                   std::string  computerInfos);
+
     //create a guessed calibration using sensor size, camera focal length and captured image size
     CVCalibration(float        sensorWMM,
                   float        sensorHMM,
