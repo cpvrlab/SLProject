@@ -32,6 +32,8 @@
 #    include <windows.h>
 #endif
 
+using namespace std::literals;
+
 namespace ORB_SLAM2
 {
 
@@ -70,8 +72,8 @@ void LocalMapping::LocalOptimize()
 {
     while (1)
     {
-        bool emptyQueue = false;
-        int kfInQueue;
+        bool         emptyQueue = false;
+        int          kfInQueue;
         WAIKeyFrame* frame;
 
         while ((kfInQueue = workingSet.popFromLocalAdjustment(&frame)) != 0)
@@ -94,7 +96,7 @@ void LocalMapping::LocalOptimize()
             stateLock.unlock();
 
             std::unique_lock<std::mutex> lock(mMutexMapping);
-            LocalMap neighborsLocalMap;
+            LocalMap                     neighborsLocalMap;
             searchNeihborsLocalMap(neighborsLocalMap, workingSet, frame);
             SearchInNeighbors(neighborsLocalMap);
 
@@ -122,7 +124,14 @@ void LocalMapping::LocalOptimize()
         }
 
         while (CheckPause() && !CheckFinish())
-            usleep(10000);
+            std::this_thread::sleep_for(10ms);
+        //        {
+        //#ifdef _WINDOWS
+        //            Sleep(10);
+        //#else
+        //            usleep(10000);
+        //#endif
+        //        }
 
         if (CheckFinish())
             break;
@@ -145,7 +154,7 @@ void LocalMapping::ProcessKeyFrames()
         while (CheckNewKeyFrames())
         {
             AVERAGE_TIMING_START("process keyframe");
-            
+
             WAIKeyFrame* frame = GetNewKeyFrame();
             workingSet.addToUseSet(frame);
 
@@ -169,11 +178,17 @@ void LocalMapping::ProcessKeyFrames()
             break;
 
         while (CheckPause() && !CheckFinish())
-            usleep(10000);
+            std::this_thread::sleep_for(10ms);
+        //        {
+        //#ifdef _WINDOWS
+        //            Sleep(10);
+        //#else
+        //            usleep(10000);
+        //#endif
+        //        }
     }
     SetFinish();
 }
-
 
 void LocalMapping::RunOnce()
 {
@@ -222,7 +237,7 @@ bool LocalMapping::CheckNewKeyFrames()
 WAIKeyFrame* LocalMapping::GetNewKeyFrame()
 {
     unique_lock<mutex> lock(mMutexNewKFs);
-    WAIKeyFrame *kf = mlNewKeyFrames.front();
+    WAIKeyFrame*       kf = mlNewKeyFrames.front();
     mlNewKeyFrames.pop_front();
     return kf;
 }
@@ -560,10 +575,9 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
     }
 }
 
-
-void LocalMapping::searchNeihborsLocalMap(LocalMap &lmap, WorkingSet &ws, WAIKeyFrame* frame)
+void LocalMapping::searchNeihborsLocalMap(LocalMap& lmap, WorkingSet& ws, WAIKeyFrame* frame)
 {
-    int nn = 20;
+    int                        nn         = 20;
     const vector<WAIKeyFrame*> vpNeighKFs = frame->GetBestCovisibilityKeyFrames(nn);
 
     for (vector<WAIKeyFrame*>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++)
@@ -587,7 +601,7 @@ void LocalMapping::searchNeihborsLocalMap(LocalMap &lmap, WorkingSet &ws, WAIKey
     lmap.refKF = frame;
 }
 
-void LocalMapping::SearchInNeighbors(LocalMap &lmap)
+void LocalMapping::SearchInNeighbors(LocalMap& lmap)
 {
     // Search matches by projection from current KF in target KFs
     ORBmatcher           matcher;
@@ -604,7 +618,7 @@ void LocalMapping::SearchInNeighbors(LocalMap &lmap)
 
     for (vector<WAIKeyFrame*>::iterator vitKF = lmap.keyFrames.begin(), vendKF = lmap.keyFrames.end(); vitKF != vendKF; vitKF++)
     {
-        WAIKeyFrame* pKFi = *vitKF;
+        WAIKeyFrame*         pKFi           = *vitKF;
         vector<WAIMapPoint*> vpMapPointsKFi = pKFi->GetMapPointMatches();
 
         for (vector<WAIMapPoint*>::iterator vitMP = vpMapPointsKFi.begin(), vendMP = vpMapPointsKFi.end(); vitMP != vendMP; vitMP++)
@@ -640,7 +654,7 @@ void LocalMapping::SearchInNeighbors(LocalMap &lmap)
     lmap.refKF->UpdateConnections();
 }
 
-void LocalMapping::SearchInNeighbors(WAIKeyFrame * frame)
+void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
 {
     //std::cout << "[LocalMapping] SearchInNeighbors" << std::endl;
     // Retrieve neighbor keyframes
@@ -840,8 +854,7 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
     }
 }
 
-
-void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, WorkingSet &wc)
+void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame, WorkingSet& wc)
 {
     //std::cout << "[LocalMapping] KeyFrameCulling" << std::endl;
     // Check redundant keyframes (only local keyframes)
@@ -931,7 +944,7 @@ void LocalMapping::RequestReset()
     {
         unique_lock<mutex> lock(mMutexReset);
         mbResetRequested = true;
-        mbAbortBA = true;
+        mbAbortBA        = true;
     }
 
     while (1)
@@ -973,7 +986,7 @@ void LocalMapping::RequestFinish()
     {
         unique_lock<mutex> lock(mMutexFinish);
         mbFinishRequested = true;
-        mbAbortBA = true;
+        mbAbortBA         = true;
     }
 }
 
@@ -986,7 +999,7 @@ bool LocalMapping::CheckPause()
 void LocalMapping::RequestStop()
 {
     unique_lock<mutex> lock(mMutexPause);
-    mPause = true;
+    mPause    = true;
     mbAbortBA = true;
 }
 

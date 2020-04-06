@@ -105,6 +105,7 @@ bool WAISlamTools::initialize(InitializerData& iniData,
     {
         delete iniData.initializer;
         iniData.initializer = static_cast<Initializer*>(NULL);
+        fill(iniData.iniMatches.begin(), iniData.iniMatches.end(), -1);
         return false;
     }
 
@@ -1523,7 +1524,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
         _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
         _mappingThreads.push_back(_localMapping->AddLocalBAThread());
         //_mappingThreads.push_back(_localMapping->AddLocalBAThread());
-        _loopClosingThread  = new std::thread(&LoopClosing::Run, _loopClosing);
+        _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
     _iniData.initializer = nullptr;
@@ -1553,7 +1554,7 @@ WAISlam::~WAISlam()
 
 void WAISlam::reset()
 {
-        std::cout << "WAISlam reset" << std::endl;
+    std::cout << "WAISlam reset" << std::endl;
     if (!_serial)
     {
         std::cout << "Request Reset" << std::endl;
