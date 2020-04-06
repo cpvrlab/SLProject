@@ -8,8 +8,8 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
                        std::string fontPath,
                        std::string version)
   : _pixPerMM((float)dotsPerInch / 25.4f),
-    _screenWidthPix(screenWidthPix),
-    _screenHeightPix(screenHeightPix),
+    _screenWPix((float)screenWidthPix),
+    _screenHPix((float)screenHeightPix),
     _versionStr(version)
 {
     //load fonts for big ErlebAR text and verions text
@@ -17,17 +17,16 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
 
     if (Utils::fileExists(ttf))
     {
-        _fontHeightBigDots = 0.3f * (float)screenHeightPix;
-        _smallFontShift    = (float)_fontHeightBigDots / 135.f * 7.f;
-        _fontBig           = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _fontHeightBigDots);
+        _bigTextHPix    = 0.3f * (float)screenHeightPix;
+        _smallFontShift = (float)_bigTextHPix / 135.f * 7.f;
+        _fontBig        = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _bigTextHPix);
 
-        int fontHeightSmallDots = 0.05f * (float)screenHeightPix;
-        _fontSmall              = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), fontHeightSmallDots);
+        _smallTextHPix = 0.05f * (float)screenHeightPix;
+        _fontSmall     = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _smallTextHPix);
     }
     else
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
-    /*
     //load bfh logo texture
     std::string logoBFHPath = fontPath + "../textures/logo_bfh.png";
     if (Utils::fileExists(logoBFHPath))
@@ -35,8 +34,8 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
         // load texture image
         CVImage logoBFH(logoBFHPath);
         logoBFH.flipY();
-        _logoBFHWidth  = logoBFH.width();
-        _logoBFHHeight = logoBFH.height();
+        _textureBFHW = logoBFH.width();
+        _textureBFHH = logoBFH.height();
 
         // Create a OpenGL texture identifier
         glGenTextures(1, &_logoBFHTexId);
@@ -69,8 +68,8 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
         // load texture image
         CVImage logoAdminCH(logoAdminCHPath);
         logoAdminCH.flipY();
-        _logoAdminCHWidth  = logoAdminCH.width();
-        _logoAdminCHHeight = logoAdminCH.height();
+        _textureAdminCHW = logoAdminCH.width();
+        _textureAdminCHH = logoAdminCH.height();
 
         // Create a OpenGL texture identifier
         glGenTextures(1, &_logoAdminCHTexId);
@@ -95,7 +94,17 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
     }
     else
         Utils::warnMsg("WelcomeGui", "logoAdminCHPath does not exist!", __LINE__, __FILE__);
-        */
+
+    //----------------------------------------------------
+    _textFrameLRPix = _screenHPix * 0.2;
+    _textFrameTPix  = _screenHPix * 0.2;
+    _logoFrameBPix  = 0.07f * _screenHPix;
+    _logoFrameLRPix = _logoFrameBPix;
+
+    _bfhLogoHPix   = 0.2f * _screenHPix;
+    _bfhLogoWPix   = _bfhLogoHPix / (float)_textureBFHH * (float)_textureBFHW;
+    _adminLogoHPix = 0.15f * _screenHPix;
+    _adminLogoWPix = _adminLogoHPix / (float)_textureAdminCHH * (float)_textureAdminCHW;
 }
 
 void WelcomeGui::build(SLScene* s, SLSceneView* sv)
@@ -104,7 +113,7 @@ void WelcomeGui::build(SLScene* s, SLSceneView* sv)
     pushStyle();
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(_screenWidthPix, _screenHeightPix), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(_screenWPix, _screenHPix), ImGuiCond_Always);
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
 
     ImGui::Begin("WelcomeGui", nullptr, windowFlags);
@@ -112,8 +121,8 @@ void WelcomeGui::build(SLScene* s, SLSceneView* sv)
     //big text
     {
         ImGui::PushFont(_fontBig);
-        ImGui::SetNextWindowPos(ImVec2((float)_screenHeightPix * 0.2, (float)_screenHeightPix * 0.2), ImGuiCond_Always);
-        ImGui::BeginChild("ChildBigText", ImVec2(0, 0), false, windowFlags);
+        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix, _textFrameTPix), ImGuiCond_Always);
+        ImGui::BeginChild("ChildBigText", ImVec2(0, _bigTextHPix), false, windowFlags);
         ImGui::Text("ErlebAR");
         ImGui::EndChild();
         ImGui::PopFont();
@@ -121,29 +130,28 @@ void WelcomeGui::build(SLScene* s, SLSceneView* sv)
     //small text
     {
         ImGui::PushFont(_fontSmall);
-        ImGui::SetNextWindowPos(ImVec2((float)_screenHeightPix * 0.2, (float)_screenHeightPix * 0.2 + _fontHeightBigDots), ImGuiCond_Always);
-        ImGui::BeginChild("ChildSmallText", ImVec2(0, 0), false, windowFlags);
-        ImGui::SameLine(_smallFontShift); //I have problems to get the fonts aligned vertically.. this is a hack
+        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix + _smallFontShift, _textFrameTPix + _bigTextHPix), ImGuiCond_Always);
+        ImGui::BeginChild("ChildSmallText", ImVec2(0, _smallTextHPix), false, windowFlags);
         ImGui::Text(_versionStr.c_str());
         ImGui::EndChild();
         ImGui::PopFont();
     }
 
-    ////bfh logo texture
-    //{
-    //    ImGui::SetNextWindowPos(ImVec2((float)_screenHeightPix * 0.2, (float)_screenHeightPix * 0.2 + _fontHeightBigDots), ImGuiCond_Always);
-    //    ImGui::BeginChild("BFHLogo");
-    //    ImGui::Image((void*)(intptr_t)_logoBFHTexId, ImVec2(_logoBFHWidth, _logoBFHHeight));
-    //    ImGui::EndChild();
-    //}
+    //bfh logo texture
+    {
+        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix, _screenHPix - _logoFrameBPix - _bfhLogoHPix), ImGuiCond_Always);
+        ImGui::BeginChild("BFHLogo", ImVec2(_bfhLogoWPix, _bfhLogoHPix));
+        ImGui::Image((void*)(intptr_t)_logoBFHTexId, ImVec2(_bfhLogoWPix, _bfhLogoHPix));
+        ImGui::EndChild();
+    }
 
-    ////admin ch logo texture
-    //{
-    //    ImGui::SetNextWindowPos(ImVec2((float)_screenHeightPix * 0.2, (float)_screenHeightPix * 0.2 + _fontHeightBigDots), ImGuiCond_Always);
-    //    ImGui::BeginChild("AdminCHLogo");
-    //    ImGui::Image((void*)(intptr_t)_logoAdminCHTexId, ImVec2(_logoAdminCHWidth, _logoAdminCHHeight));
-    //    ImGui::EndChild();
-    //}
+    //admin ch logo texture
+    {
+        ImGui::SetNextWindowPos(ImVec2(_screenWPix - _adminLogoWPix - _textFrameLRPix, _screenHPix - _logoFrameBPix - _bfhLogoHPix), ImGuiCond_Always);
+        ImGui::BeginChild("AdminCHLogo", ImVec2(_adminLogoWPix + 10, _adminLogoHPix + 10));
+        ImGui::Image((void*)(intptr_t)_logoAdminCHTexId, ImVec2(_adminLogoWPix, _adminLogoHPix));
+        ImGui::EndChild();
+    }
 
     ImGui::End();
 

@@ -28,21 +28,34 @@ private:
     const float _pixPerMM;
     ImFont*     _fontBig   = nullptr;
     ImFont*     _fontSmall = nullptr;
-    const int   _screenWidthPix;
-    const int   _screenHeightPix;
+    const float _screenWPix;
+    const float _screenHPix;
 
     const std::string _versionStr;
 
     GLuint       _logoBFHTexId;
-    unsigned int _logoBFHWidth;
-    unsigned int _logoBFHHeight;
+    unsigned int _textureBFHW;
+    unsigned int _textureBFHH;
 
     GLuint       _logoAdminCHTexId;
-    unsigned int _logoAdminCHWidth;
-    unsigned int _logoAdminCHHeight;
+    unsigned int _textureAdminCHW;
+    unsigned int _textureAdminCHH;
 
-    int   _fontHeightBigDots;
+    //int   _fontHeightBigDots;
     float _smallFontShift;
+
+    //----------------------------------------------------
+    float _textFrameTPix;
+    float _textFrameLRPix;
+    float _bigTextHPix;
+    float _smallTextHPix;
+
+    float _bfhLogoHPix;
+    float _bfhLogoWPix;
+    float _adminLogoHPix;
+    float _adminLogoWPix;
+    float _logoFrameBPix;
+    float _logoFrameLRPix;
 };
 
 #endif //WELCOME_GUI_H
