@@ -1,45 +1,47 @@
 #include <SelectionGui.h>
 #include <ErlebAR.h>
 #include <imgui_internal.h>
+#include <CVImage.h>
+#include <float.h>
 
 SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
                            int               dotsPerInch,
                            int               screenWidthPix,
                            int               screenHeightPix,
                            std::string       fontPath)
-  : sm::EventSender(eventHandler)
+  : sm::EventSender(eventHandler),
+    _screenWPix((float)screenWidthPix),
+    _screenHPix((float)screenHeightPix)
 {
-    _pixPerMM = (float)dotsPerInch / 25.4f;
-
-    _windowPadding = 7.f * _pixPerMM;
-    _buttonSpace   = 5.f * _pixPerMM;
-
     _buttonColor = {BFHColors::OrangePrimary.r,
                     BFHColors::OrangePrimary.g,
                     BFHColors::OrangePrimary.b,
-                    BFHColors::OrangePrimary.a};
+                    0.3};
 
     _buttonColorPressed = {BFHColors::GrayLogo.r,
                            BFHColors::GrayLogo.g,
                            BFHColors::GrayLogo.b,
-                           BFHColors::GrayLogo.a};
+                           0.3};
 
-    int nButHoriz = 2; //number of buttons in horizontal direction
-    int nButVert  = 3; //number of buttons in vertical direction
+    _windowPadding = 0.f;
+    _buttonSpace   = 0.02f * _screenHPix;
 
-    _frameSizePix = 0.f * _pixPerMM; //frame between dialog and window
+    _buttonRounding         = 0.01f * _screenHPix;
+    float frameButtonBoardB = 0.1f * _screenHPix;
+    float frameButtonBoardR = 0.1f * _screenWPix;
+    _buttonBoardW           = 0.5f * _screenWPix;
+    _buttonBoardH           = 0.6f * _screenHPix;
+    _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
+    _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
-    //calculate resulting sizes:
-    _dialogW    = screenWidthPix - 2 * _frameSizePix;
-    _dialogH    = screenHeightPix - 2 * _frameSizePix;
-    int buttonW = (_dialogW - 2 * _windowPadding - (nButHoriz - 1) * _buttonSpace) / nButHoriz;
-    int buttonH = (_dialogH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
-    _buttonSz   = {(float)buttonW, (float)buttonH};
+    int nButVert = 6; //number of buttons in vertical direction
+    int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
+    _buttonSz    = {-FLT_MIN, (float)buttonH};
+
+    int fontHeightDots = buttonH * 0.7;
 
     //add font and store index
-    float    fontHeightMM   = 5.f;
-    int      fontHeightDots = fontHeightMM * _pixPerMM;
-    SLstring DroidSans      = fontPath + "DroidSans.ttf";
+    SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
     if (Utils::fileExists(DroidSans))
     {
         _font = _context->IO.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
@@ -48,15 +50,53 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
     {
         Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
     }
+
+    //load background texture
+    std::string imagePath = fontPath + "../textures/earth2048_C.jpg";
+    if (Utils::fileExists(imagePath))
+    {
+        // load texture image
+        CVImage image(imagePath);
+        image.flipY();
+
+        //todo: crop image to screen size
+
+        _textureBackgroundW = image.width();
+        _textureBackgroundH = image.height();
+
+        // Create a OpenGL texture identifier
+        glGenTextures(1, &_textureBackgroundId);
+        glBindTexture(GL_TEXTURE_2D, _textureBackgroundId);
+
+        // Setup filtering parameters for display
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Upload pixels into texture
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     image.format(),
+                     (GLsizei)image.width(),
+                     (GLsizei)image.height(),
+                     0,
+                     image.format(),
+                     GL_UNSIGNED_BYTE,
+                     (GLvoid*)image.data());
+    }
+    else
+        Utils::warnMsg("SelectionGui", "imagePath does not exist!", __LINE__, __FILE__);
 }
 
 void SelectionGui::pushStyle()
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, _windowPadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
 
     ImGui::PushStyleColor(ImGuiCol_Button, _buttonColor);
@@ -70,7 +110,7 @@ void SelectionGui::pushStyle()
 
 void SelectionGui::popStyle()
 {
-    ImGui::PopStyleVar(6);
+    ImGui::PopStyleVar(7);
     ImGui::PopStyleColor(4);
 
     if (_font)
@@ -79,51 +119,59 @@ void SelectionGui::popStyle()
 
 void SelectionGui::build(SLScene* s, SLSceneView* sv)
 {
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    //background texture window
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenWPix, _screenHPix), ImGuiCond_Always);
+        ImGui::Begin("SelectionGui_BackgroundTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::Image((void*)(intptr_t)_textureBackgroundId, ImVec2(_screenWPix, _screenHPix));
+        ImGui::End();
+    }
+    ImGui::PopStyleVar(1);
+
     //push styles at first
     pushStyle();
-
-    ImGui::SetNextWindowPos(ImVec2(_frameSizePix, _frameSizePix), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(_dialogW, _dialogH), ImGuiCond_Always);
-
-    ImGui::Begin("SelectionGui", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-
-    ImGui::NewLine();
-    ImGui::SameLine(_windowPadding);
-    if (ImGui::Button("Test", _buttonSz))
+    //button board window
     {
-        sendEvent(new StartTestEvent());
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Camera Test", _buttonSz))
-    {
-        sendEvent(new StartCameraTestEvent());
-    }
+        ImGui::SetNextWindowPos(ImVec2(_buttonBoardPosX, _buttonBoardPosY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_buttonBoardW, _buttonBoardH), ImGuiCond_Always);
+        ImGui::Begin("SelectionGui_ButtonBoard", nullptr, windowFlags);
 
-    ImGui::NewLine();
-    ImGui::SameLine(_windowPadding);
-    if (ImGui::Button("Avanches", _buttonSz))
-    {
-        sendEvent(new StartErlebarEvent(Location::AVANCHES));
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Augst", _buttonSz))
-    {
-        sendEvent(new StartErlebarEvent(Location::AUGST));
-    }
+        if (ImGui::Button("Test", _buttonSz))
+        {
+            //sendEvent(new StartTestEvent());
+        }
 
-    ImGui::NewLine();
-    ImGui::SameLine(_windowPadding);
-    if (ImGui::Button("Christoffel", _buttonSz))
-    {
-        sendEvent(new StartErlebarEvent(Location::CHRISTOFFEL));
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Biel", _buttonSz))
-    {
-        sendEvent(new StartErlebarEvent(Location::BIEL));
-    }
+        if (ImGui::Button("Camera Test", _buttonSz))
+        {
+            //sendEvent(new StartCameraTestEvent());
+        }
 
-    ImGui::End();
+        if (ImGui::Button("Avanches", _buttonSz))
+        {
+            sendEvent(new StartErlebarEvent(Location::AVANCHES));
+        }
+
+        if (ImGui::Button("Augst", _buttonSz))
+        {
+            sendEvent(new StartErlebarEvent(Location::AUGST));
+        }
+
+        if (ImGui::Button("Christoffel", _buttonSz))
+        {
+            sendEvent(new StartErlebarEvent(Location::CHRISTOFFEL));
+        }
+
+        if (ImGui::Button("Biel", _buttonSz))
+        {
+            sendEvent(new StartErlebarEvent(Location::BIEL));
+        }
+
+        ImGui::End();
+    }
 
     popStyle();
 }

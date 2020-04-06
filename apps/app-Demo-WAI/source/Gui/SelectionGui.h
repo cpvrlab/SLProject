@@ -29,17 +29,28 @@ private:
     void popStyle();
 
     //stylevars and stylecolors
-    float   _windowPadding = 0.f; //space l, r, b, t between window and buttons (window padding left does not work as expected)
-    float   _buttonSpace   = 0.f; //space between buttons
-    ImVec4  _buttonColor;
-    ImVec4  _buttonColorPressed;
-    float   _dialogW      = 0.f;
-    float   _dialogH      = 0.f;
-    float   _frameSizePix = 0.f;
+    float  _windowPadding = 0.f; //space l, r, b, t between window and buttons (window padding left does not work as expected)
+    float  _buttonSpace   = 0.f; //space between buttons
+    ImVec4 _buttonColor;
+    ImVec4 _buttonColorPressed;
+
     ImVec2  _buttonSz;
     ImFont* _font = nullptr;
 
-    float _pixPerMM;
+    //float _pixPerMM;
+
+    GLuint       _textureBackgroundId;
+    unsigned int _textureBackgroundW;
+    unsigned int _textureBackgroundH;
+
+    const float _screenWPix;
+    const float _screenHPix;
+
+    float _buttonBoardPosX;
+    float _buttonBoardPosY;
+    float _buttonBoardW;
+    float _buttonBoardH;
+    float _buttonRounding;
 };
 
 #endif //SELECTION_GUI_H

@@ -20,6 +20,7 @@ public:
                std::string version);
 
     void build(SLScene* s, SLSceneView* sv) override;
+    //void onResize(SLint scrW, SLint scrH) override;
 
 private:
     void pushStyle();
@@ -41,10 +42,8 @@ private:
     unsigned int _textureAdminCHW;
     unsigned int _textureAdminCHH;
 
-    //int   _fontHeightBigDots;
     float _smallFontShift;
 
-    //----------------------------------------------------
     float _textFrameTPix;
     float _textFrameLRPix;
     float _bigTextHPix;

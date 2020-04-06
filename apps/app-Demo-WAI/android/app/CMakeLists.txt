@@ -67,6 +67,7 @@ file(GLOB_RECURSE TEXTURES
     ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
 	${SL_PROJECT_ROOT}/data/images/textures/logo_admin_ch.png
 	${SL_PROJECT_ROOT}/data/images/textures/logo_bfh.png
+	${SL_PROJECT_ROOT}/data/images/textures/earth2048_C.jpg
     )
 
 file(GLOB_RECURSE VIDEOS
