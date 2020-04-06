@@ -35,6 +35,7 @@ public:
 private:
     WAISlam*                 _waiSlamer         = nullptr;
     ORB_SLAM2::ORBextractor* _trackingExtractor = nullptr;
+    ORB_SLAM2::ORBextractor* _initializationExtractor = nullptr;
     ORBVocabulary*           _voc               = nullptr;
 };
 //-----------------------------------------------------------------------------

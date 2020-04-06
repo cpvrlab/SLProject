@@ -1472,6 +1472,7 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string    markerFile,
 WAISlam::WAISlam(cv::Mat        intrinsic,
                  cv::Mat        distortion,
                  ORBVocabulary* voc,
+                 KPextractor*   iniExtractor,
                  KPextractor*   extractor,
                  WAIMap*        globalMap,
                  bool           trackingOnly,
@@ -1495,6 +1496,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _cameraIntrinsic = intrinsic.clone();
     _voc             = voc;
     _extractor       = extractor;
+    _iniExtractor    = iniExtractor;
 
     if (globalMap == nullptr)
     {
@@ -1583,12 +1585,13 @@ void WAISlam::reset()
 
 bool WAISlam::update(cv::Mat& imageGray)
 {
-    WAIFrame                     frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
     std::unique_lock<std::mutex> guard(_mutexStates);
+    WAIFrame frame;
 
     switch (_state)
     {
         case TrackingState_Initializing: {
+            frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
 #if 0
             bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing, _voc, 100, _lastKeyFrameFrameId);
             if (ok)
@@ -1613,6 +1616,7 @@ bool WAISlam::update(cv::Mat& imageGray)
         }
         break;
         case TrackingState_TrackingOK: {
+            frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
             int inliers;
             if (tracking(_globalMap, _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
             {
@@ -1631,6 +1635,7 @@ bool WAISlam::update(cv::Mat& imageGray)
         }
         break;
         case TrackingState_TrackingLost: {
+            frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
             int inliers;
             if (relocalization(frame, _globalMap, _localMap, inliers))
             {

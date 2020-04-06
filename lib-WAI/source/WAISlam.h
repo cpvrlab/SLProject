@@ -175,6 +175,7 @@ public:
     WAISlam(cv::Mat        intrinsic,
             cv::Mat        distortion,
             ORBVocabulary* voc,
+            KPextractor*   iniExtractor,
             KPextractor*   extractor,
             WAIMap*        globalMap,
             bool           trackingOnly      = false,
@@ -271,6 +272,7 @@ protected:
     bool          _serial;
     bool          _trackingOnly;
     KPextractor*  _extractor;
+    KPextractor*  _iniExtractor;
     int           _infoMatchedInliners;
 };
 

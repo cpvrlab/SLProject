@@ -437,8 +437,8 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     }
 
     _trackingExtractor = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
+    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
     /*
-    _initializationExtractor = _featureExtractorFactory.make(slamParams->extractorIds.initializationExtractorId, _videoFrameSize);
     _markerExtractor         = _featureExtractorFactory.make(slamParams->extractorIds.markerExtractorId, _videoFrameSize);
     */
     _doubleBufferedOutput = _trackingExtractor->doubleBufferedOutput();
@@ -475,6 +475,7 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
                         voc,
+                        _initializationExtractor.get(),
                         _trackingExtractor.get(),
                         map,
                         slamParams.params.onlyTracking,
