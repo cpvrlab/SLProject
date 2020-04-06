@@ -45,9 +45,9 @@ public:
                CVMat          imageRgb,
                CVCalibration* calib) final;
 
-    void delaunayTriangulate(CVMat             imageRgb,
-                             const CVVPoint2f& points,
-                             bool              drawDetection);
+    static void delaunayTriangulate(CVMat             imageRgb,
+                                    const CVVPoint2f& points,
+                                    bool              drawDetection);
 
 private:
     CVCascadeClassifier* _faceDetector;    //!< Viola-Jones face detector

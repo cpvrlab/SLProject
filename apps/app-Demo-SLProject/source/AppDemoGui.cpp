@@ -1196,6 +1196,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoSensorAR);
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
+#ifdef SL_BUILD_WAI
+                    if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
+                        s->onLoad(s, sv, SID_VideoTrackWAI);
+#endif
 
                     SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
                     SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";

@@ -833,6 +833,28 @@ void dumpFileSystemRec(const char*   logtag,
     }
 }
 //-----------------------------------------------------------------------------
+//! findFile return the full path with filename
+/* Unfortunatelly the relative folder structure on different OS are not identical.
+ * This function allows to search on for a file on different paths.
+ */
+string findFile(const string& filename, const vector<string>& pathsToCheck)
+{
+    if (Utils::fileExists(filename))
+        return filename;
+
+    // Check file existence
+    for (const auto& path: pathsToCheck)
+    {
+        string pathPlusFilename = Utils::unifySlashes(path) + filename;
+        if (Utils::fileExists(pathPlusFilename))
+            return pathPlusFilename;
+    }
+    return "";
+}
+//----------------------------------------------------------------------------
+
+
+
 
 ///////////////////////
 // Logging Functions //

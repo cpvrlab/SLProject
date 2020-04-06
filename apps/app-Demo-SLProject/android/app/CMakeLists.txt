@@ -118,6 +118,7 @@ file(
 file(
         GLOB_RECURSE CALIBRATIONS
         ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
+        ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
     )
 
 file(

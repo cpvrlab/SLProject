@@ -28,7 +28,10 @@ CVTrackedChessboard::CVTrackedChessboard(std::string calibIniPath)
 {
     if (!loadCalibParams())
     {
-        Utils::exitMsg("SLProject", "CVTrackedChessboard: could not load calibration parameter", __LINE__, __FILE__);
+        Utils::exitMsg("SLProject",
+                       "CVTrackedChessboard: could not load calibration parameter",
+                       __LINE__,
+                       __FILE__);
     }
 
     calcBoardCorners3D(_boardSize,

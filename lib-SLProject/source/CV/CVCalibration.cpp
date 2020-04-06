@@ -21,6 +21,8 @@ for a good top down information.
 #include <Utils.h>
 #include <HighResTimer.h>
 
+#include <utility>
+
 using namespace cv;
 using namespace std;
 
@@ -29,7 +31,7 @@ using namespace std;
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration(CVCameraType type, std::string computerInfos)
+CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
@@ -43,26 +45,26 @@ CVCalibration::CVCalibration(CVCameraType type, std::string computerInfos)
     _isMirroredH(false),
     _isMirroredV(false),
     _camType(type),
-    _computerInfos(computerInfos)
+    _computerInfos(std::move(computerInfos))
 {
 }
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
-CVCalibration::CVCalibration(cv::Mat            cameraMat,
-                             cv::Mat            distortion,
-                             cv::Size           imageSize,
-                             cv::Size           boardSize,
-                             float              boardSquareMM,
-                             float              reprojectionError,
-                             int                numCaptured,
-                             const std::string& calibrationTime,
-                             int                camSizeIndex,
-                             bool               mirroredH,
-                             bool               mirroredV,
-                             CVCameraType       camType,
-                             std::string        computerInfos,
-                             int                calibFlags,
-                             bool               calcUndistortionMaps)
+CVCalibration::CVCalibration(cv::Mat       cameraMat,
+                             cv::Mat       distortion,
+                             cv::Size      imageSize,
+                             cv::Size      boardSize,
+                             float         boardSquareMM,
+                             float         reprojectionError,
+                             int           numCaptured,
+                             const string& calibrationTime,
+                             int           camSizeIndex,
+                             bool          mirroredH,
+                             bool          mirroredV,
+                             CVCameraType  camType,
+                             string        computerInfos,
+                             int           calibFlags,
+                             bool          calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(imageSize),
@@ -93,7 +95,7 @@ CVCalibration::CVCalibration(cv::Size     imageSize,
                              bool         mirroredH,
                              bool         mirroredV,
                              CVCameraType camType,
-                             std::string  computerInfos)
+                             string       computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
@@ -112,7 +114,7 @@ CVCalibration::CVCalibration(float        sensorWMM,
                              bool         mirroredH,
                              bool         mirroredV,
                              CVCameraType camType,
-                             std::string  computerInfos)
+                             string       computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
@@ -194,7 +196,7 @@ bool CVCalibration::load(const string& calibDir,
         fs["computerInfos"] >> _computerInfos;
     else
     {
-        std::vector<std::string> stringParts;
+        std::vector<string> stringParts;
         Utils::splitString(Utils::getFileNameWOExt(calibFileName), '_', stringParts);
         if (stringParts.size() >= 3)
             _computerInfos = stringParts[1];
@@ -227,7 +229,7 @@ bool CVCalibration::load(const string& calibDir,
 bool CVCalibration::save(const string& calibDir,
                          const string& calibFileName)
 {
-    std::string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
+    string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
 
@@ -339,7 +341,10 @@ void getInnerAndOuterRectangles(const cv::Mat&    cameraMatrix,
 void CVCalibration::buildUndistortionMaps()
 {
     if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
-        Utils::exitMsg("SLProject", "CVCalibration::buildUndistortionMaps: No _cameraMatUndistorted available", __LINE__, __FILE__);
+        Utils::exitMsg("SLProject",
+                       "CVCalibration::buildUndistortionMaps: No _cameraMatUndistorted available",
+                       __LINE__,
+                       __FILE__);
 
     // Create undistortion maps
     _undistortMapX.release();

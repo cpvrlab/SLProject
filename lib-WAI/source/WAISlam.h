@@ -10,6 +10,7 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <OrbSlam/Optimizer.h>
 #include <OrbSlam/PnPsolver.h>
+#include <LocalMap.h>
 #include <opencv2/core.hpp>
 
 enum TrackingState
@@ -21,12 +22,7 @@ enum TrackingState
     TrackingState_TrackingLost
 };
 
-struct LocalMap
-{
-    WAIKeyFrame*              refKF;
-    std::vector<WAIKeyFrame*> keyFrames;
-    std::vector<WAIMapPoint*> mapPoints;
-};
+
 
 struct InitializerData
 {
@@ -168,7 +164,7 @@ protected:
     LocalMapping* _localMapping;
     LoopClosing*  _loopClosing;
     std::thread*  _processNewKeyFrameThread = nullptr;
-    std::thread*  _mappingThread = nullptr;
+    std::vector<std::thread*> _mappingThreads;
     std::thread*  _loopClosingThread  = nullptr;
 };
 
@@ -204,7 +200,6 @@ public:
             bool           serial            = false,
             bool           retainImg         = false,
             float          cullRedundantPerc = 0.95f);
-
 
     ~WAISlam();
 

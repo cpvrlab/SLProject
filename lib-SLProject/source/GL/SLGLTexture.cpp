@@ -286,22 +286,19 @@ void SLGLTexture::clearData()
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
-void SLGLTexture::load(SLstring filename,
-                       SLbool   flipVertical,
-                       SLbool   loadGrayscaleIntoAlpha)
+void SLGLTexture::load(const SLstring& filename,
+                       SLbool          flipVertical,
+                       SLbool          loadGrayscaleIntoAlpha)
 {
-    // Load the file directly
-    if (!Utils::fileExists(filename))
+    string pathFilename = Utils::findFile(filename,
+                                          {defaultPath});
+    if (!Utils::fileExists(pathFilename))
     {
-        filename = defaultPath + filename;
-        if (!Utils::fileExists(filename))
-        {
-            SLstring msg = "SLGLTexture: File not found: " + filename;
-            SL_EXIT_MSG(msg.c_str());
-        }
+        SLstring msg = "SLGLTexture: File not found: " + filename;
+        SL_EXIT_MSG(msg.c_str());
     }
 
-    _images.push_back(new CVImage(filename,
+    _images.push_back(new CVImage(pathFilename,
                                   flipVertical,
                                   loadGrayscaleIntoAlpha));
 }

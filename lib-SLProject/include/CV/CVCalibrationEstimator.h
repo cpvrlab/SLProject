@@ -57,7 +57,8 @@ public:
                            CVCameraType                 camType,
                            std::string                  computerInfos,
                            std::string                  calibDataPath,
-                           std::string                  imageOutputPath);
+                           std::string                  imageOutputPath,
+                           std::string                  exePath);
     ~CVCalibrationEstimator();
 
     bool calculate();
@@ -139,6 +140,8 @@ private:
     std::string                  _computerInfos;
     std::string                  _calibDataPath;
     std::string                  _calibImgOutputDir;
+    std::string                  _exePath;
+
     //exception handling from async thread
     bool                            _hasAsyncError = false;
     CVCalibrationEstimatorException _exception;

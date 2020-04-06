@@ -578,9 +578,6 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
                                      WAIFrame&      frame,
                                      unsigned long& lastKeyFrameFrameId)
 {
-    if (!localMapper->SetNotStop(true))
-        return;
-
     WAIKeyFrame* pKF = new WAIKeyFrame(frame);
 
     lastKeyFrameFrameId = frame.mnId;
@@ -588,7 +585,6 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     frame.mpReferenceKF = pKF;
 
     localMapper->InsertKeyFrame(pKF);
-    localMapper->SetNotStop(false);
 }
 
 bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
@@ -600,7 +596,7 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
                                    const unsigned long lastKeyFrameFrameId)
 {
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
-    if (localMapper->isStopped() || localMapper->stopRequested())
+    if (localMapper->isStopped())
         return false;
 
     const int nKFs = map->KeyFramesInMap();
@@ -632,24 +628,7 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((nInliners < nRefMatches * thRefRatio) && nInliners > 15);
 
-    if ((c1a || c1b) && c2)
-    {
-        // If the mapping accepts keyframes, insert keyframe.
-        // Otherwise send a signal to interrupt BA
-        if (bLocalMappingIdle)
-        {
-            return true;
-        }
-        else
-        {
-            localMapper->InterruptBA();
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
+    return ((c1a || c1b) && c2 && bLocalMappingIdle);
 }
 
 bool WAISlamTools::relocalization(WAIFrame& currentFrame,
@@ -1007,7 +986,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
         }
 
         localMap.keyFrames.push_back(it->first);
-        pKF->mnTrackReferenceForFrame = frame.mnId; // <==== UHHH WHAT IS THAT???
+        pKF->mnMarker[TRACK_REF_FRAME] = frame.mnId;
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
@@ -1026,10 +1005,10 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
             WAIKeyFrame* pNeighKF = *itNeighKF;
             if (!pNeighKF->isBad())
             {
-                if (pNeighKF->mnTrackReferenceForFrame != frame.mnId) //to ensure not already added at previous step
+                if (pNeighKF->mnMarker[TRACK_REF_FRAME] != frame.mnId) //to ensure not already added at previous step
                 {
                     localMap.keyFrames.push_back(pNeighKF);
-                    pNeighKF->mnTrackReferenceForFrame = frame.mnId;
+                    pNeighKF->mnMarker[TRACK_REF_FRAME] = frame.mnId;
                     break;
                 }
             }
@@ -1041,10 +1020,10 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
             WAIKeyFrame* pChildKF = *sit;
             if (!pChildKF->isBad())
             {
-                if (pChildKF->mnTrackReferenceForFrame != frame.mnId)
+                if (pChildKF->mnMarker[TRACK_REF_FRAME] != frame.mnId)
                 {
                     localMap.keyFrames.push_back(pChildKF);
-                    pChildKF->mnTrackReferenceForFrame = frame.mnId;
+                    pChildKF->mnMarker[TRACK_REF_FRAME] = frame.mnId;
                     break;
                 }
             }
@@ -1053,10 +1032,10 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
         WAIKeyFrame* pParent = pKF->GetParent();
         if (pParent)
         {
-            if (pParent->mnTrackReferenceForFrame != frame.mnId)
+            if (pParent->mnMarker[TRACK_REF_FRAME] != frame.mnId)
             {
                 localMap.keyFrames.push_back(pParent);
-                pParent->mnTrackReferenceForFrame = frame.mnId;
+                pParent->mnMarker[TRACK_REF_FRAME] = frame.mnId;
                 break;
             }
         }
@@ -1073,12 +1052,12 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
             WAIMapPoint* pMP = *itMP;
             if (!pMP)
                 continue;
-            if (pMP->mnTrackReferenceForFrame == frame.mnId)
+            if (pMP->mnMarker[TRACK_REF_FRAME] == frame.mnId)
                 continue;
             if (!pMP->isBad())
             {
                 localMap.mapPoints.push_back(pMP);
-                pMP->mnTrackReferenceForFrame = frame.mnId;
+                pMP->mnMarker[TRACK_REF_FRAME] = frame.mnId;
             }
         }
     }
@@ -1546,10 +1525,10 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
 
     if (!_serial)
     {
-        //_processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
-        //_mappingThread            = new std::thread(&LocalMapping::LocalOptimize, _localMapping);
-        _mappingThread            = new std::thread(&LocalMapping::Run, _localMapping);
-        _loopClosingThread        = new std::thread(&LoopClosing::Run, _loopClosing);
+        _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
+        _mappingThreads.push_back(_localMapping->AddLocalBAThread());
+        //_mappingThreads.push_back(_localMapping->AddLocalBAThread());
+        _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
     }
 
     _iniData.initializer = nullptr;
@@ -1566,29 +1545,23 @@ WAISlam::~WAISlam()
         _loopClosing->RequestFinish();
 
         // Wait until all thread have effectively stopped
-        //_processNewKeyFrameThread->join();
-        _mappingThread->join();
+        _processNewKeyFrameThread->join();
+        for (std::thread* t : _mappingThreads) { t->join(); }
+
         if (_loopClosingThread)
-        {
             _loopClosingThread->join();
-        }
     }
 
-    if (_localMapping)
-    {
-        delete _localMapping;
-    }
-
-    if (_loopClosing)
-    {
-        delete _loopClosing;
-    }
+    if (_localMapping) delete _localMapping;
+    if (_loopClosing) delete _loopClosing;
 }
 
 void WAISlam::reset()
 {
+    std::cout << "WAISlam reset" << std::endl;
     if (!_serial)
     {
+        std::cout << "Request Reset" << std::endl;
         _localMapping->RequestReset();
         _loopClosing->RequestReset();
     }
@@ -1621,7 +1594,16 @@ bool WAISlam::update(cv::Mat& imageGray)
     switch (_state)
     {
         case TrackingState_Initializing: {
-            //bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing,_voc, 100);
+#if 0
+            bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing, _voc, 100, _lastKeyFrameFrameId);
+            if (ok)
+            {
+                _lastKeyFrameFrameId = frame.mnId;
+                _lastRelocFrameId    = 0;
+                _state               = TrackingState_TrackingOK;
+                _initialized         = true;
+            }
+#else
             if (initialize(_iniData, frame, _voc, _localMap, 100, _lastKeyFrameFrameId))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
@@ -1632,6 +1614,7 @@ bool WAISlam::update(cv::Mat& imageGray)
                     _initialized         = true;
                 }
             }
+#endif
         }
         break;
         case TrackingState_TrackingOK: {
@@ -1748,8 +1731,10 @@ void WAISlam::requestStateIdle()
         _localMapping->RequestStop();
         while (!_localMapping->isStopped())
         {
+            std::cout << "localMapping is not yet stopped" << std::endl;
             std::this_thread::sleep_for(std::chrono::microseconds(10));
         }
+        std::cout << "localMapping is stopped" << std::endl;
     }
 
     _state = TrackingState_Idle;

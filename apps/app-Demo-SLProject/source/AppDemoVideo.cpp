@@ -65,7 +65,8 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                                                                              ac->type(),
                                                                              Utils::ComputerInfos::get(),
                                                                              SLApplication::calibIniPath,
-                                                                             SLApplication::externalPath);
+                                                                             SLApplication::externalPath,
+                                                                             SLApplication::exePath);
 
             //clear grab request from sceneview
             adSv->grab           = false;
@@ -142,7 +143,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
     }
     catch (CVCalibrationEstimatorException& e)
     {
-        log("WAIApp", e.what());
+        log("SLProject", e.what());
         s->info("Exception during calibration! Please restart!");
     }
 }
@@ -208,7 +209,8 @@ bool onUpdateVideo()
     SLScene*     s  = SLApplication::scene;
     SLSceneView* sv = SLApplication::sceneViews[0];
 
-    if (CVCapture::instance()->videoType() != VT_NONE && !CVCapture::instance()->lastFrame.empty())
+    if (CVCapture::instance()->videoType() != VT_NONE &&
+        !CVCapture::instance()->lastFrame.empty())
     {
         SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 

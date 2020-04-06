@@ -137,6 +137,10 @@ enum SLSceneID
     SID_VideoTrackFaceMain,
     SID_VideoTrackFaceScnd,
     SID_VideoSensorAR,
+#ifdef SL_BUILD_WAI
+    SID_VideoTrackWAI,
+#endif
+
     SID_RTMuttenzerBox,
     SID_RTSpheres,
     SID_RTSoftShadows,
