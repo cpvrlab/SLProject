@@ -16,9 +16,10 @@ SelectionView::SelectionView(sm::EventHandler& eventHandler,
                              int               screenHeight,
                              int               dotsPerInch,
                              std::string       fontPath,
+                             std::string       texturePath,
                              std::string       imguiIniPath)
   : sm::EventSender(eventHandler),
-    _gui(eventHandler, dotsPerInch, screenWidth, screenHeight, fontPath),
+    _gui(eventHandler, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
     _s("SelectionScene", nullptr),
     _sv(&_s, dotsPerInch, inputManager)
 {

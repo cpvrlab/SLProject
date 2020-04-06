@@ -6,11 +6,9 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
                        int         screenWidthPix,
                        int         screenHeightPix,
                        std::string fontPath,
+                       std::string texturePath,
                        std::string version)
-  : _pixPerMM((float)dotsPerInch / 25.4f),
-    _screenWPix((float)screenWidthPix),
-    _screenHPix((float)screenHeightPix),
-    _versionStr(version)
+  : _versionStr(version)
 {
     //load fonts for big ErlebAR text and verions text
     SLstring ttf = fontPath + "Roboto-Medium.ttf";
@@ -28,7 +26,7 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
     //load bfh logo texture
-    std::string logoBFHPath = fontPath + "../textures/logo_bfh.png";
+    std::string logoBFHPath = texturePath + "logo_bfh.png";
     if (Utils::fileExists(logoBFHPath))
     {
         // load texture image
@@ -62,7 +60,7 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
         Utils::warnMsg("WelcomeGui", "logoBFHPath does not exist!", __LINE__, __FILE__);
 
     //load admin ch logo
-    std::string logoAdminCHPath = fontPath + "../textures/logo_admin_ch.png";
+    std::string logoAdminCHPath = texturePath + "logo_admin_ch.png";
     if (Utils::fileExists(logoAdminCHPath))
     {
         // load texture image
@@ -95,8 +93,35 @@ WelcomeGui::WelcomeGui(int         dotsPerInch,
     else
         Utils::warnMsg("WelcomeGui", "logoAdminCHPath does not exist!", __LINE__, __FILE__);
 
-    //----------------------------------------------------
-    _textFrameLRPix = _screenHPix * 0.2;
+    resize(screenWidthPix, screenHeightPix);
+}
+
+WelcomeGui::~WelcomeGui()
+{
+    if (_logoBFHTexId)
+    {
+        glDeleteTextures(1, &_logoBFHTexId);
+        _logoBFHTexId = 0;
+    }
+    if (_logoAdminCHTexId)
+    {
+        glDeleteTextures(1, &_logoAdminCHTexId);
+        _logoAdminCHTexId = 0;
+    }
+}
+
+void WelcomeGui::onResize(SLint scrW, SLint scrH)
+{
+    resize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH);
+}
+
+void WelcomeGui::resize(int scrW, int scrH)
+{
+    _screenWPix = (float)scrW;
+    _screenHPix = (float)scrH;
+
+    _textFrameLRPix = _screenWPix * 0.15;
     _textFrameTPix  = _screenHPix * 0.2;
     _logoFrameBPix  = 0.07f * _screenHPix;
     _logoFrameLRPix = _logoFrameBPix;

@@ -17,31 +17,31 @@ public:
                int         screenWidthPix,
                int         screenHeightPix,
                std::string fontPath,
+               std::string texturePath,
                std::string version);
+    ~WelcomeGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
-    //void onResize(SLint scrW, SLint scrH) override;
+    void onResize(SLint scrW, SLint scrH) override;
 
 private:
+    void resize(int scrW, int scrH);
+
     void pushStyle();
     void popStyle();
 
-    const float _pixPerMM;
-    ImFont*     _fontBig   = nullptr;
-    ImFont*     _fontSmall = nullptr;
-    const float _screenWPix;
-    const float _screenHPix;
-
     const std::string _versionStr;
 
-    GLuint       _logoBFHTexId;
-    unsigned int _textureBFHW;
-    unsigned int _textureBFHH;
+    GLuint       _logoBFHTexId = 0;
+    unsigned int _textureBFHW  = 0;
+    unsigned int _textureBFHH  = 0;
 
-    GLuint       _logoAdminCHTexId;
-    unsigned int _textureAdminCHW;
-    unsigned int _textureAdminCHH;
+    GLuint       _logoAdminCHTexId = 0;
+    unsigned int _textureAdminCHW  = 0;
+    unsigned int _textureAdminCHH  = 0;
 
+    float _screenWPix;
+    float _screenHPix;
     float _smallFontShift;
 
     float _textFrameTPix;
@@ -55,6 +55,9 @@ private:
     float _adminLogoWPix;
     float _logoFrameBPix;
     float _logoFrameLRPix;
+
+    ImFont* _fontBig   = nullptr;
+    ImFont* _fontSmall = nullptr;
 };
 
 #endif //WELCOME_GUI_H

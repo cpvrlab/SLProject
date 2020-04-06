@@ -21,6 +21,7 @@ public:
                   int               screenHeight,
                   int               dotsPerInch,
                   std::string       fontPath,
+                  std::string       texturePath,
                   std::string       imguiIniPath);
     SelectionView() = delete;
 

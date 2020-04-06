@@ -8,37 +8,12 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
                            int               dotsPerInch,
                            int               screenWidthPix,
                            int               screenHeightPix,
-                           std::string       fontPath)
-  : sm::EventSender(eventHandler),
-    _screenWPix((float)screenWidthPix),
-    _screenHPix((float)screenHeightPix)
+                           std::string       fontPath,
+                           std::string       texturePath)
+  : sm::EventSender(eventHandler)
 {
-    _buttonColor = {BFHColors::OrangePrimary.r,
-                    BFHColors::OrangePrimary.g,
-                    BFHColors::OrangePrimary.b,
-                    0.3};
-
-    _buttonColorPressed = {BFHColors::GrayLogo.r,
-                           BFHColors::GrayLogo.g,
-                           BFHColors::GrayLogo.b,
-                           0.3};
-
-    _windowPadding = 0.f;
-    _buttonSpace   = 0.02f * _screenHPix;
-
-    _buttonRounding         = 0.01f * _screenHPix;
-    float frameButtonBoardB = 0.1f * _screenHPix;
-    float frameButtonBoardR = 0.1f * _screenWPix;
-    _buttonBoardW           = 0.5f * _screenWPix;
-    _buttonBoardH           = 0.6f * _screenHPix;
-    _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
-    _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
-
-    int nButVert = 6; //number of buttons in vertical direction
-    int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
-    _buttonSz    = {-FLT_MIN, (float)buttonH};
-
-    int fontHeightDots = buttonH * 0.7;
+    resize(screenWidthPix, screenHeightPix);
+    int fontHeightDots = _buttonSz.y * 0.7;
 
     //add font and store index
     SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
@@ -51,15 +26,25 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
         Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
     }
 
+    _buttonColor = {BFHColors::OrangePrimary.r,
+                    BFHColors::OrangePrimary.g,
+                    BFHColors::OrangePrimary.b,
+                    0.3};
+
+    _buttonColorPressed = {BFHColors::GrayLogo.r,
+                           BFHColors::GrayLogo.g,
+                           BFHColors::GrayLogo.b,
+                           0.3};
+
     //load background texture
-    std::string imagePath = fontPath + "../textures/earth2048_C.jpg";
+    std::string imagePath = texturePath + "earth2048_C.jpg";
     if (Utils::fileExists(imagePath))
     {
         // load texture image
         CVImage image(imagePath);
         image.flipY();
-
-        //todo: crop image to screen size
+        //crop image to screen size
+        image.crop((float)screenWidthPix / (float)screenHeightPix);
 
         _textureBackgroundW = image.width();
         _textureBackgroundH = image.height();
@@ -87,6 +72,42 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
     }
     else
         Utils::warnMsg("SelectionGui", "imagePath does not exist!", __LINE__, __FILE__);
+}
+
+SelectionGui::~SelectionGui()
+{
+    if (_textureBackgroundId)
+    {
+        glDeleteTextures(1, &_textureBackgroundId);
+        _textureBackgroundId = 0;
+    }
+}
+
+void SelectionGui::onResize(SLint scrW, SLint scrH)
+{
+    resize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH);
+}
+
+void SelectionGui::resize(int scrW, int scrH)
+{
+    _screenWPix = (float)scrW;
+    _screenHPix = (float)scrH;
+
+    _windowPadding = 0.f;
+    _buttonSpace   = 0.02f * _screenHPix;
+
+    _buttonRounding         = 0.01f * _screenHPix;
+    float frameButtonBoardB = 0.1f * _screenHPix;
+    float frameButtonBoardR = 0.1f * _screenWPix;
+    _buttonBoardW           = 0.5f * _screenWPix;
+    _buttonBoardH           = 0.6f * _screenHPix;
+    _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
+    _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
+
+    int nButVert = 6; //number of buttons in vertical direction
+    int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
+    _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
 
 void SelectionGui::pushStyle()
@@ -142,12 +163,12 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
 
         if (ImGui::Button("Test", _buttonSz))
         {
-            //sendEvent(new StartTestEvent());
+            sendEvent(new StartTestEvent());
         }
 
         if (ImGui::Button("Camera Test", _buttonSz))
         {
-            //sendEvent(new StartCameraTestEvent());
+            sendEvent(new StartCameraTestEvent());
         }
 
         if (ImGui::Button("Avanches", _buttonSz))

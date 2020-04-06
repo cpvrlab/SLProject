@@ -20,6 +20,7 @@ public:
                 int             screenHeight,
                 int             dotsPerInch,
                 std::string     fontPath,
+                std::string     texturePath,
                 std::string     imguiIniPath,
                 std::string     version);
     ~WelcomeView();

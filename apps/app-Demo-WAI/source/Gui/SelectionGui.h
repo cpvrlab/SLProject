@@ -20,11 +20,16 @@ public:
                  int               dotsPerInch,
                  int               screenWidthPix,
                  int               screenHeightPix,
-                 std::string       fontPath);
+                 std::string       fontPath,
+                 std::string       texturePath);
+    ~SelectionGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
+    void onResize(SLint scrW, SLint scrH) override;
 
 private:
+    void resize(int scrW, int scrH);
+
     void pushStyle();
     void popStyle();
 
@@ -37,14 +42,12 @@ private:
     ImVec2  _buttonSz;
     ImFont* _font = nullptr;
 
-    //float _pixPerMM;
-
-    GLuint       _textureBackgroundId;
+    GLuint       _textureBackgroundId = 0;
     unsigned int _textureBackgroundW;
     unsigned int _textureBackgroundH;
 
-    const float _screenWPix;
-    const float _screenHPix;
+    float _screenWPix;
+    float _screenHPix;
 
     float _buttonBoardPosX;
     float _buttonBoardPosY;

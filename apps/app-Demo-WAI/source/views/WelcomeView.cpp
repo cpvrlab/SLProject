@@ -13,9 +13,10 @@ WelcomeView::WelcomeView(SLInputManager& inputManager,
                          int             screenHeight,
                          int             dotsPerInch,
                          std::string     fontPath,
+                         std::string     texturePath,
                          std::string     imguiIniPath,
                          std::string     version)
-  : _gui(dotsPerInch, screenWidth, screenHeight, fontPath, version),
+  : _gui(dotsPerInch, screenWidth, screenHeight, fontPath, texturePath, version),
     _sv(nullptr, dotsPerInch, inputManager),
     _pixPerMM((float)dotsPerInch / 25.4f)
 {

@@ -28,10 +28,11 @@ public:
         _scrHeight = (int)(scrHeight * scr2fbY);
         _dirs      = dirs;
 
-        _fontDir  = _dirs.slDataRoot + "/images/fonts/";
-        _videoDir = _dirs.writableDir + "erleb-AR/locations/";
-        _calibDir = _dirs.writableDir + "calibrations/";
-        _mapDir   = _dirs.writableDir + "maps/";
+        _fontDir    = _dirs.slDataRoot + "/images/fonts/";
+        _textureDir = _dirs.slDataRoot + "/images/textures/";
+        _videoDir   = _dirs.writableDir + "erleb-AR/locations/";
+        _calibDir   = _dirs.writableDir + "calibrations/";
+        _mapDir     = _dirs.writableDir + "maps/";
     }
     DeviceData() = delete;
 
@@ -40,6 +41,7 @@ public:
     int                   dpi() const { return _dpi; }
     const AppDirectories& dirs() const { return _dirs; }
     const std::string&    fontDir() const { return _fontDir; }
+    const std::string&    textureDir() const { return _textureDir; }
     const std::string&    videoDir() const { return _videoDir; }
     const std::string&    calibDir() const { return _calibDir; }
     const std::string&    mapDir() const { return _mapDir; }
@@ -55,6 +57,8 @@ private:
     AppDirectories _dirs;
     //path to fonts
     std::string _fontDir;
+    //path to textures
+    std::string _textureDir;
     //path to videos
     std::string _videoDir;
     //path to calibrations

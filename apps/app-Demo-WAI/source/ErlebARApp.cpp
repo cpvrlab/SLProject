@@ -71,6 +71,7 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                    dd.scrHeight(),
                                    dd.dpi(),
                                    dd.fontDir(),
+                                   dd.textureDir(),
                                    dd.dirs().writableDir,
                                    "0.12");
 
@@ -81,6 +82,7 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                        dd.scrHeight(),
                                        dd.dpi(),
                                        dd.fontDir(),
+                                       dd.textureDir(),
                                        dd.dirs().writableDir);
 
     _testView = new TestView(*this,
@@ -114,7 +116,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry)
 
     _welcomeView->update();
 
-    if (timer.elapsedTimeInSec() > 2.f)
+    if (timer.elapsedTimeInSec() > 0.5f)
         addEvent(new DoneEvent());
 }
 
