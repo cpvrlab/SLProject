@@ -36,13 +36,6 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                     _editGizmos = new SLNode("Gizmos");
                     _gizmoScale = scaleFactor;
 
-                    _xAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::RED), "x-axis node");
-                    _yAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::GREEN), "y-axis node");
-                    _zAxisNode = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
-
-                    _xAxisNode->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
-                    _zAxisNode->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
-
                     SLMaterial* redMat = new SLMaterial(SLCol4f::RED, "Red");
                     redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
                     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
@@ -63,6 +56,30 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                     yellowMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
                     SLMaterial* yellowTransparentMat = new SLMaterial("Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
                     yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
+                    _translationAxisX = new SLNode(new SLCoordAxisArrow(SLVec4f::RED), "x-axis node");
+                    _translationAxisY = new SLNode(new SLCoordAxisArrow(SLVec4f::GREEN), "y-axis node");
+                    _translationAxisZ = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
+
+                    _translationAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
+                    _translationAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+
+                    SLVec3f  startPoint = SLVec3f(0.0f, 0.0f, -1.0f);
+                    SLVec3f  endPoint   = SLVec3f(0.0f, 0.0f, 1.0f);
+                    SLVVec3f points;
+                    points.push_back(startPoint);
+                    points.push_back(endPoint);
+
+                    _translationLineX = new SLNode(new SLPolyline(points, false, "Translation Line Mesh X", redMat));
+                    _translationLineX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+                    _translationLineX->scale(1000.0f);
+
+                    _translationLineY = new SLNode(new SLPolyline(points, false, "Translation Line Mesh Y", greenMat));
+                    _translationLineY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+                    _translationLineY->scale(1000.0f);
+
+                    _translationLineZ = new SLNode(new SLPolyline(points, false, "Translation Line Mesh Z", blueMat));
+                    _translationLineZ->scale(1000.0f);
 
                     _scaleCircle = new SLNode(new SLCircle("Scale Circle Mesh", yellowMat), "Scale Circle");
                     _scaleDisk   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", yellowTransparentMat), "Scale Disk");
@@ -102,9 +119,12 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
 
                     _editGizmos->scale(scaleFactor);
 
-                    _editGizmos->addChild(_xAxisNode);
-                    _editGizmos->addChild(_yAxisNode);
-                    _editGizmos->addChild(_zAxisNode);
+                    _editGizmos->addChild(_translationAxisX);
+                    _editGizmos->addChild(_translationLineX);
+                    _editGizmos->addChild(_translationAxisY);
+                    _editGizmos->addChild(_translationLineY);
+                    _editGizmos->addChild(_translationAxisZ);
+                    _editGizmos->addChild(_translationLineZ);
                     _editGizmos->addChild(_scaleGizmos);
                     _editGizmos->addChild(_rotationGizmos);
 
@@ -121,13 +141,22 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                 switch (_editMode)
                 {
                     case WAINodeEditMode_Translate: {
-                        _xAxisNode->drawBits()->set(SL_DB_HIDDEN, false);
-                        _yAxisNode->drawBits()->set(SL_DB_HIDDEN, false);
-                        _zAxisNode->drawBits()->set(SL_DB_HIDDEN, false);
+                        _translationAxisX->drawBits()->set(SL_DB_HIDDEN, false);
+                        _translationLineX->drawBits()->set(SL_DB_HIDDEN, false);
+                        _translationAxisY->drawBits()->set(SL_DB_HIDDEN, false);
+                        _translationLineY->drawBits()->set(SL_DB_HIDDEN, false);
+                        _translationAxisZ->drawBits()->set(SL_DB_HIDDEN, false);
+                        _translationLineZ->drawBits()->set(SL_DB_HIDDEN, false);
                     }
                     break;
 
                     case WAINodeEditMode_Scale: {
+                        if (_camera)
+                        {
+                            // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
+                            lookAt(_scaleGizmos, _camera);
+                        }
+
                         _scaleCircle->drawBits()->set(SL_DB_HIDDEN, false);
                     }
                     break;
@@ -190,51 +219,11 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
         switch (_editMode)
         {
             case WAINodeEditMode_Translate: {
-                bool  axisHit = false;
-                SLRay pickRay(this);
-                if (_camera)
+                if (_selectedTranslationAxis)
                 {
-                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-                    _editGizmos->hitRec(&pickRay);
-
-                    if (pickRay.hitNode)
-                    {
-                        SLMat4f gizmoMat = _editGizmos->updateAndGetWM();
-                        _axisRayO        = gizmoMat.translation();
-
-                        if (pickRay.hitNode == _xAxisNode)
-                        {
-                            _axisRayDir = gizmoMat.axisX();
-
-                            axisHit = true;
-                        }
-                        else if (pickRay.hitNode == _yAxisNode)
-                        {
-                            _axisRayDir = gizmoMat.axisY();
-
-                            axisHit = true;
-                        }
-                        else if (pickRay.hitNode == _zAxisNode)
-                        {
-                            _axisRayDir = gizmoMat.axisZ();
-
-                            axisHit = true;
-                        }
-
-                        if (axisHit)
-                        {
-                            SLVec3f axisPoint;
-                            if (getClosestPointOnAxis(pickRay.origin, pickRay.dir, _axisRayO, _axisRayDir, axisPoint))
-                            {
-                                _hitCoordinate = axisPoint;
-
-                                _mouseIsDown = true;
-                            }
-                        }
-                    }
+                    _mouseIsDown = true;
                 }
-
-                if (!axisHit)
+                else
                 {
                     result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
                 }
@@ -385,47 +374,92 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
             switch (_editMode)
             {
                 case WAINodeEditMode_Translate: {
-                    if (_mouseIsDown)
+                    SLScene* s = SLApplication::scene;
+                    if (s->root3D())
                     {
-                        SLRay pickRay(this);
-                        _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
-                        SLVec3f axisPoint;
-                        if (getClosestPointOnAxis(pickRay.origin, pickRay.dir, _axisRayO, _axisRayDir, axisPoint))
+                        SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
+                        if (mapNode)
                         {
-                            SLVec3f translationDiff = axisPoint - _hitCoordinate;
+                            SLRay pickRay(this);
+                            _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
-                            SLScene* s       = SLApplication::scene;
-                            SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
-                            mapNode->translate(translationDiff, TS_world);
+                            SLVec3f pickRayPoint;
+                            SLVec3f axisPoint;
+                            if (_mouseIsDown)
+                            {
+                                if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _selectedTranslationAxis->translationWS(), _selectedTranslationAxis->forwardWS(), pickRayPoint, axisPoint))
+                                {
+                                    SLVec3f translationDiff = axisPoint - _hitCoordinate;
 
-                            _editGizmos->translation(mapNode->updateAndGetWM().translation());
+                                    mapNode->translate(translationDiff, TS_world);
 
-                            _hitCoordinate = axisPoint;
+                                    _editGizmos->translation(mapNode->updateAndGetWM().translation());
+
+                                    _hitCoordinate = axisPoint;
+                                }
+                            }
+                            else
+                            {
+                                _selectedTranslationAxis = nullptr;
+
+                                _translationLineX->drawBits()->set(SL_DB_HIDDEN, true);
+                                _translationLineY->drawBits()->set(SL_DB_HIDDEN, true);
+                                _translationLineZ->drawBits()->set(SL_DB_HIDDEN, true);
+
+                                float   dist = FLT_MAX;
+                                SLVec3f axisPointCand;
+                                if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _translationLineX->translationWS(), _translationLineX->forwardWS(), pickRayPoint, axisPointCand))
+                                {
+                                    float distCand = (axisPointCand - pickRayPoint).length();
+
+                                    if (distCand < dist && distCand < (_gizmoScale * 0.1f))
+                                    {
+                                        dist                     = distCand;
+                                        _selectedTranslationAxis = _translationLineX;
+                                        axisPoint                = axisPointCand;
+                                    }
+                                }
+
+                                if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _translationLineY->translationWS(), _translationLineY->forwardWS(), pickRayPoint, axisPointCand))
+                                {
+                                    float distCand = (axisPointCand - pickRayPoint).length();
+
+                                    if (distCand < dist && distCand < (_gizmoScale * 0.1f))
+                                    {
+                                        dist                     = distCand;
+                                        _selectedTranslationAxis = _translationLineY;
+                                        axisPoint                = axisPointCand;
+                                    }
+                                }
+
+                                if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _translationLineZ->translationWS(), _translationLineZ->forwardWS(), pickRayPoint, axisPointCand))
+                                {
+                                    float distCand = (axisPointCand - pickRayPoint).length();
+
+                                    if (distCand < dist && distCand < (_gizmoScale * 0.1f))
+                                    {
+                                        dist                     = distCand;
+                                        _selectedTranslationAxis = _translationLineZ;
+                                        axisPoint                = axisPointCand;
+                                    }
+                                }
+
+                                if (_selectedTranslationAxis)
+                                {
+                                    _selectedTranslationAxis->drawBits()->set(SL_DB_HIDDEN, false);
+                                    _hitCoordinate = axisPoint;
+                                }
+
+                                result = SLSceneView::onMouseMove(scrX, scrY);
+                            }
                         }
-                    }
-                    else
-                    {
-                        result = SLSceneView::onMouseMove(scrX, scrY);
                     }
                 }
                 break;
 
                 case WAINodeEditMode_Scale: {
-                    // TODO(dgj1): this is a lookat function, because the one in SLNode doesn't work
-                    // or maybe I don't understand how to use it
                     // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
-                    SLVec3f nodePos    = _scaleGizmos->translationWS();
-                    SLVec3f nodeTarget = _camera->translationWS();
-                    SLVec3f nodeDir    = (nodePos - nodeTarget).normalize();
-                    SLVec3f up         = SLVec3f(0.0f, 1.0f, 0.0f);
-                    SLVec3f nodeRight  = (up ^ nodeDir).normalize();
-                    SLVec3f nodeUp     = (nodeDir ^ nodeRight).normalize();
-
-                    SLVec3f nodeTranslation = _scaleGizmos->om().translation();
-                    SLMat4f updatedOm       = SLMat4f(nodeRight.x, nodeUp.x, nodeDir.x, nodeTranslation.x, nodeRight.y, nodeUp.y, nodeDir.y, nodeTranslation.y, nodeRight.z, nodeUp.z, nodeDir.z, nodeTranslation.z, 0.0f, 0.0f, 0.0f, 1.0f);
-
-                    _scaleGizmos->om(updatedOm);
+                    lookAt(_scaleGizmos, _camera);
 
                     SLRay pickRay(this);
                     _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
@@ -434,12 +468,8 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                     if (s->root3D())
                     {
                         SLNode* mapNode = s->root3D()->findChild<SLNode>("map");
-
                         if (mapNode)
                         {
-                            SLRay pickRay(this);
-                            _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
                             if (_mouseIsDown)
                             {
                                 float t = FLT_MAX;
@@ -574,6 +604,40 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
     return result;
 }
 
+bool WAISceneView::getClosestPointsBetweenRays(const SLVec3f& ray1O,
+                                               const SLVec3f& ray1Dir,
+                                               const SLVec3f& ray2O,
+                                               const SLVec3f& ray2Dir,
+                                               SLVec3f&       ray1P,
+                                               SLVec3f&       ray2P)
+{
+    bool result = false;
+
+    // Check if lines are parallel
+    SLVec3f cross;
+    cross.cross(ray1Dir, ray2Dir);
+    float den = cross.lengthSqr();
+
+    if (den > FLT_EPSILON)
+    {
+        SLVec3f diffO = ray2O - ray1O;
+
+        SLMat3f m1   = SLMat3f(diffO.x, ray2Dir.x, cross.x, diffO.y, ray2Dir.y, cross.y, diffO.z, ray2Dir.z, cross.z);
+        float   det1 = m1.det();
+        float   t1   = det1 / den;
+        ray1P        = ray1O + (ray1Dir * t1);
+
+        SLMat3f m2   = SLMat3f(diffO.x, ray1Dir.x, cross.x, diffO.y, ray1Dir.y, cross.y, diffO.z, ray1Dir.z, cross.z);
+        float   det2 = m2.det();
+        float   t2   = det2 / den;
+        ray2P        = ray2O + (ray2Dir * t2);
+
+        result = true;
+    }
+
+    return result;
+}
+
 bool WAISceneView::getClosestPointOnAxis(const SLVec3f& pickRayO,
                                          const SLVec3f& pickRayDir,
                                          const SLVec3f& axisRayO,
@@ -581,6 +645,7 @@ bool WAISceneView::getClosestPointOnAxis(const SLVec3f& pickRayO,
                                          SLVec3f&       axisPoint)
 {
     bool result = false;
+
     // Check if lines are parallel
     SLVec3f cross;
     cross.cross(pickRayDir, axisRayDir);
@@ -596,7 +661,8 @@ bool WAISceneView::getClosestPointOnAxis(const SLVec3f& pickRayO,
         float t   = det / den;
 
         axisPoint = axisRayO + (axisRayDir * t);
-        result    = true;
+
+        result = true;
     }
 
     return result;
@@ -664,4 +730,22 @@ void WAISceneView::toggleHideRecursive(SLNode* node, bool hidden)
     {
         toggleHideRecursive(child, hidden);
     }
+}
+
+void WAISceneView::lookAt(SLNode* node, SLCamera* camera)
+{
+    // TODO(dgj1): this is a lookat function, because the one in SLNode doesn't work
+    // or maybe I don't understand how to use it
+    // TODO(dgj1): this is only correct for the case that the node doesn't have a scale
+    SLVec3f nodePos    = node->translationWS();
+    SLVec3f nodeTarget = camera->translationWS();
+    SLVec3f nodeDir    = (nodePos - nodeTarget).normalize();
+    SLVec3f up         = SLVec3f(0.0f, 1.0f, 0.0f);
+    SLVec3f nodeRight  = (up ^ nodeDir).normalize();
+    SLVec3f nodeUp     = (nodeDir ^ nodeRight).normalize();
+
+    SLVec3f nodeTranslation = node->om().translation();
+    SLMat4f updatedOm       = SLMat4f(nodeRight.x, nodeUp.x, nodeDir.x, nodeTranslation.x, nodeRight.y, nodeUp.y, nodeDir.y, nodeTranslation.y, nodeRight.z, nodeUp.z, nodeDir.z, nodeTranslation.z, 0.0f, 0.0f, 0.0f, 1.0f);
+
+    node->om(updatedOm);
 }

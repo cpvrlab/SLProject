@@ -34,12 +34,15 @@ private:
     float   _gizmoScale;
 
     // Translation stuff
-    SLNode* _xAxisNode = nullptr;
-    SLNode* _yAxisNode = nullptr;
-    SLNode* _zAxisNode = nullptr;
+    SLNode* _translationAxisX = nullptr;
+    SLNode* _translationAxisY = nullptr;
+    SLNode* _translationAxisZ = nullptr;
 
-    SLVec3f _axisRayO;
-    SLVec3f _axisRayDir;
+    SLNode* _translationLineX = nullptr;
+    SLNode* _translationLineY = nullptr;
+    SLNode* _translationLineZ = nullptr;
+
+    SLNode* _selectedTranslationAxis = nullptr;
 
     // Scale stuff
     SLNode* _scaleGizmos;
@@ -68,6 +71,12 @@ private:
 
     SLVec2f _oldMouseCoords;
 
+    bool getClosestPointsBetweenRays(const SLVec3f& ray1O,
+                                     const SLVec3f& ray1Dir,
+                                     const SLVec3f& ray2O,
+                                     const SLVec3f& ray2Dir,
+                                     SLVec3f&       ray1P,
+                                     SLVec3f&       ray2P);
     bool getClosestPointOnAxis(const SLVec3f& pickRayO,
                                const SLVec3f& pickRayDir,
                                const SLVec3f& axisRayO,
@@ -86,6 +95,7 @@ private:
                            float&         t);
     bool isCCW(SLVec2f a, SLVec2f b, SLVec2f c);
     void toggleHideRecursive(SLNode* node, bool hidden);
+    void lookAt(SLNode* node, SLCamera* camera);
 };
 
 #endif
