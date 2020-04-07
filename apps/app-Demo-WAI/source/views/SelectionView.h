@@ -4,7 +4,6 @@
 #include <SelectionGui.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLAssetManager.h>
 #include <ErlebAR.h>
 #include <sm/EventSender.h>
 
@@ -26,9 +25,8 @@ public:
     bool update();
 
 protected:
-    SelectionGui   _gui;
-    SLScene        _scene;
-    SLAssetManager _assets;
+    SelectionGui _gui;
+    SLScene      _scene;
 };
 
 #endif //SELECTION_VIEW_H

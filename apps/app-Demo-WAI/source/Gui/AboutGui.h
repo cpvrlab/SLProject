@@ -38,6 +38,7 @@ private:
     float _bigTextH;
     float _smallTextH;
     float _buttonRounding;
+    float _textWrapW;
 
     ImFont* _fontBig   = nullptr;
     ImFont* _fontSmall = nullptr;

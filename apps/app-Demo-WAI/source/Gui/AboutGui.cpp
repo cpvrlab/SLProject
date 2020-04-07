@@ -45,6 +45,7 @@ void AboutGui::resize(int scrW, int scrH)
     _contentStartY           = _headerBarH;
     _spacingBackButtonToText = ErlebAR::HeaderBarSpacingBB2Text * _headerBarH;
     _buttonRounding          = ErlebAR::ButtonRounding * _screenH;
+    _textWrapW               = 0.8f * _screenW;
 }
 
 void AboutGui::build(SLScene* s, SLSceneView* sv)
@@ -94,6 +95,11 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::Begin("AboutGui_content", nullptr, windowFlags);
 
+        ImGui::Text("Developers");
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
+        ImGui::Text("The lazy dog is a good dog. This paragraph is made to fit within %.0f pixels. Testing a 1 character word. The quick brown fox jumps over the lazy dog.", _textWrapW);
+        ImGui::PopTextWrapPos();
+
         ImGui::End();
 
         ImGui::PopStyleColor(1);
@@ -111,7 +117,7 @@ void AboutGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 }
 

@@ -1,13 +1,6 @@
 #include "SelectionView.h"
-#include <SLSceneView.h>
-#include <SLInputManager.h>
 
-#include <SLGLTexture.h>
-#include <SLGLProgram.h>
-#include <SLLightSpot.h>
-#include <SL/SLTexFont.h>
-#include <SLSphere.h>
-#include <SLText.h>
+#include <SLInputManager.h>
 #include <SelectionGui.h>
 
 SelectionView::SelectionView(sm::EventHandler& eventHandler,
