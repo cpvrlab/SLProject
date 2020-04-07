@@ -95,27 +95,27 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                     _rotationCircleZ = new SLNode(new SLCircle("Rotation Circle Mesh Z", blueMat), "Rotation Circle Z");
                     _rotationDiskZ   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", blueTransparentMat), "Rotation Disk Z");
 
-                    _rotationGizmosX = new SLNode("Rotation Gizmos X");
-                    _rotationGizmosX->addChild(_rotationCircleX);
-                    _rotationGizmosX->addChild(_rotationDiskX);
+                    SLNode* rotationGizmosX = new SLNode("Rotation Gizmos X");
+                    rotationGizmosX->addChild(_rotationCircleX);
+                    rotationGizmosX->addChild(_rotationDiskX);
 
-                    _rotationGizmosY = new SLNode("Rotation Gizmos Y");
-                    _rotationGizmosY->addChild(_rotationCircleY);
-                    _rotationGizmosY->addChild(_rotationDiskY);
+                    SLNode* rotationGizmosY = new SLNode("Rotation Gizmos Y");
+                    rotationGizmosY->addChild(_rotationCircleY);
+                    rotationGizmosY->addChild(_rotationDiskY);
 
-                    _rotationGizmosZ = new SLNode("Rotation Gizmos Z");
-                    _rotationGizmosZ->addChild(_rotationCircleZ);
-                    _rotationGizmosZ->addChild(_rotationDiskZ);
+                    SLNode* rotationGizmosZ = new SLNode("Rotation Gizmos Z");
+                    rotationGizmosZ->addChild(_rotationCircleZ);
+                    rotationGizmosZ->addChild(_rotationDiskZ);
 
-                    _rotationCircleNode = nullptr;
+                    _selectedGizmo = nullptr;
 
-                    _rotationGizmosX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
-                    _rotationGizmosY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+                    rotationGizmosX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+                    rotationGizmosY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
 
-                    _rotationGizmos = new SLNode("Rotation Gizmos");
-                    _rotationGizmos->addChild(_rotationGizmosX);
-                    _rotationGizmos->addChild(_rotationGizmosY);
-                    _rotationGizmos->addChild(_rotationGizmosZ);
+                    SLNode* rotationGizmos = new SLNode("Rotation Gizmos");
+                    rotationGizmos->addChild(rotationGizmosX);
+                    rotationGizmos->addChild(rotationGizmosY);
+                    rotationGizmos->addChild(rotationGizmosZ);
 
                     _editGizmos->scale(scaleFactor);
 
@@ -126,7 +126,7 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                     _editGizmos->addChild(_translationAxisZ);
                     _editGizmos->addChild(_translationLineZ);
                     _editGizmos->addChild(_scaleGizmos);
-                    _editGizmos->addChild(_rotationGizmos);
+                    _editGizmos->addChild(rotationGizmos);
 
                     s->root3D()->addChild(_editGizmos);
 
@@ -142,11 +142,8 @@ void WAISceneView::toggleEditMode(WAINodeEditMode editMode)
                 {
                     case WAINodeEditMode_Translate: {
                         _translationAxisX->drawBits()->set(SL_DB_HIDDEN, false);
-                        _translationLineX->drawBits()->set(SL_DB_HIDDEN, false);
                         _translationAxisY->drawBits()->set(SL_DB_HIDDEN, false);
-                        _translationLineY->drawBits()->set(SL_DB_HIDDEN, false);
                         _translationAxisZ->drawBits()->set(SL_DB_HIDDEN, false);
-                        _translationLineZ->drawBits()->set(SL_DB_HIDDEN, false);
                     }
                     break;
 
@@ -189,11 +186,7 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
 {
     bool result = false;
 
-    if (!_editMode)
-    {
-        result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-    }
-    else
+    if (_editMode && _selectedGizmo)
     {
         result = true;
 
@@ -216,96 +209,11 @@ SLbool WAISceneView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, S
 #endif
         }
 
-        switch (_editMode)
-        {
-            case WAINodeEditMode_Translate: {
-                if (_selectedTranslationAxis)
-                {
-                    _mouseIsDown = true;
-                }
-                else
-                {
-                    result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-                }
-            }
-            break;
-
-            case WAINodeEditMode_Scale: {
-                SLRay pickRay(this);
-                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
-                float t = FLT_MAX;
-                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _scaleCircle->translationWS(), _scaleCircle->forwardWS(), _gizmoScale, t))
-                {
-                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
-                    SLVec3f intersectionPoint   = _scaleCircle->updateAndGetWMI() * intersectionPointWS;
-
-                    _oldScaleRadius = (intersectionPoint - _scaleCircle->translationOS()).length();
-
-                    _mouseIsDown = true;
-                }
-                else
-                {
-                    result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-                }
-            }
-            break;
-
-            case WAINodeEditMode_Rotate: {
-                SLRay pickRay(this);
-                _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
-
-                _rotationCircleNode = nullptr;
-
-                float t     = FLT_MAX;
-                float tCand = FLT_MAX;
-                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleX->translationWS(), _rotationCircleX->forwardWS(), _gizmoScale, tCand))
-                {
-                    _rotationCircleNode = _rotationCircleX;
-                    _rotationAxis       = SLVec3f(1.0f, 0.0f, 0.0f);
-                    t                   = tCand;
-                }
-
-                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleY->translationWS(), _rotationCircleY->forwardWS(), _gizmoScale, tCand))
-                {
-                    if (tCand < t)
-                    {
-                        _rotationCircleNode = _rotationCircleY;
-                        _rotationAxis       = SLVec3f(0.0f, 1.0f, 0.0f);
-                        t                   = tCand;
-                    }
-                }
-
-                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleZ->translationWS(), _rotationCircleZ->forwardWS(), _gizmoScale, tCand))
-                {
-                    if (tCand < t)
-                    {
-                        _rotationCircleNode = _rotationCircleZ;
-                        _rotationAxis       = SLVec3f(0.0f, 0.0f, 1.0f);
-                        t                   = tCand;
-                    }
-                }
-
-                if (_rotationCircleNode)
-                {
-                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
-                    _rotationStartPoint         = _rotationCircleNode->updateAndGetWMI() * intersectionPointWS;
-                    _rotationStartVec           = (_rotationStartPoint - _rotationCircleNode->translationOS()).normalize();
-
-                    _mouseIsDown = true;
-                }
-                else
-                {
-                    result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-                }
-            }
-            break;
-
-            case WAINodeEditMode_None:
-            default: {
-            }
-            break;
-        }
+        _mouseIsDown = true;
+    }
+    else
+    {
+        result = SLSceneView::onMouseDown(button, scrX, scrY, mod);
     }
 
     return result;
@@ -340,8 +248,8 @@ SLbool WAISceneView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLK
             SLNode*  mapNode = s->root3D()->findChild<SLNode>("map");
             _editGizmos->translation(mapNode->updateAndGetWM().translation());
 
-            _rotationCircleNode = nullptr;
-            _mouseIsDown        = false;
+            _selectedGizmo = nullptr;
+            _mouseIsDown   = false;
         }
     }
 
@@ -387,7 +295,7 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                             SLVec3f axisPoint;
                             if (_mouseIsDown)
                             {
-                                if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _selectedTranslationAxis->translationWS(), _selectedTranslationAxis->forwardWS(), pickRayPoint, axisPoint))
+                                if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _selectedGizmo->translationWS(), _selectedGizmo->forwardWS(), pickRayPoint, axisPoint))
                                 {
                                     SLVec3f translationDiff = axisPoint - _hitCoordinate;
 
@@ -400,7 +308,7 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                             }
                             else
                             {
-                                _selectedTranslationAxis = nullptr;
+                                _selectedGizmo = nullptr;
 
                                 _translationLineX->drawBits()->set(SL_DB_HIDDEN, true);
                                 _translationLineY->drawBits()->set(SL_DB_HIDDEN, true);
@@ -414,9 +322,9 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
 
                                     if (distCand < dist && distCand < (_gizmoScale * 0.1f))
                                     {
-                                        dist                     = distCand;
-                                        _selectedTranslationAxis = _translationLineX;
-                                        axisPoint                = axisPointCand;
+                                        dist           = distCand;
+                                        _selectedGizmo = _translationLineX;
+                                        axisPoint      = axisPointCand;
                                     }
                                 }
 
@@ -426,9 +334,9 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
 
                                     if (distCand < dist && distCand < (_gizmoScale * 0.1f))
                                     {
-                                        dist                     = distCand;
-                                        _selectedTranslationAxis = _translationLineY;
-                                        axisPoint                = axisPointCand;
+                                        dist           = distCand;
+                                        _selectedGizmo = _translationLineY;
+                                        axisPoint      = axisPointCand;
                                     }
                                 }
 
@@ -438,15 +346,15 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
 
                                     if (distCand < dist && distCand < (_gizmoScale * 0.1f))
                                     {
-                                        dist                     = distCand;
-                                        _selectedTranslationAxis = _translationLineZ;
-                                        axisPoint                = axisPointCand;
+                                        dist           = distCand;
+                                        _selectedGizmo = _translationLineZ;
+                                        axisPoint      = axisPointCand;
                                     }
                                 }
 
-                                if (_selectedTranslationAxis)
+                                if (_selectedGizmo)
                                 {
-                                    _selectedTranslationAxis->drawBits()->set(SL_DB_HIDDEN, false);
+                                    _selectedGizmo->drawBits()->set(SL_DB_HIDDEN, false);
                                     _hitCoordinate = axisPoint;
                                 }
 
@@ -473,14 +381,14 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                             if (_mouseIsDown)
                             {
                                 float t = FLT_MAX;
-                                if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _scaleCircle->translationWS(), _scaleCircle->forwardWS(), t))
+                                if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _selectedGizmo->translationWS(), _selectedGizmo->forwardWS(), t))
                                 {
                                     SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
-                                    SLVec3f intersectionPoint   = _scaleCircle->updateAndGetWMI() * intersectionPointWS;
+                                    SLVec3f intersectionPoint   = _selectedGizmo->updateAndGetWMI() * intersectionPointWS;
 
-                                    float newRadius = (intersectionPoint - _scaleCircle->translationOS()).length();
-
-                                    float scaleFactor = newRadius / _oldScaleRadius;
+                                    float newRadius   = (intersectionPoint - _selectedGizmo->translationOS()).length();
+                                    float oldRadius   = (_hitCoordinate - _selectedGizmo->translationOS()).length();
+                                    float scaleFactor = newRadius / oldRadius;
 
                                     mapNode->scale(scaleFactor);
                                     _gizmoScale *= scaleFactor;
@@ -489,9 +397,16 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                             }
                             else
                             {
+                                _selectedGizmo = nullptr;
+
                                 float t = FLT_MAX;
                                 if (rayDiscIntersect(pickRay.origin, pickRay.dir, _scaleCircle->translationWS(), _scaleCircle->forwardWS(), _gizmoScale, t))
                                 {
+                                    _selectedGizmo = _scaleCircle;
+
+                                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
+                                    _hitCoordinate              = _scaleCircle->updateAndGetWMI() * intersectionPointWS;
+
                                     _scaleDisk->drawBits()->set(SL_DB_HIDDEN, false);
                                 }
                                 else
@@ -517,31 +432,31 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                             SLRay pickRay(this);
                             _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
-                            if (_mouseIsDown && _rotationCircleNode)
+                            if (_mouseIsDown)
                             {
                                 float t = FLT_MAX;
-                                if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _rotationCircleNode->translationWS(), _rotationCircleNode->forwardWS(), t))
+                                if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _selectedGizmo->translationWS(), _selectedGizmo->forwardWS(), t))
                                 {
                                     SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
-                                    SLVec3f intersectionPoint   = _rotationCircleNode->updateAndGetWMI() * intersectionPointWS;
-                                    SLVec3f rotationVec         = (intersectionPoint - _rotationCircleNode->translationOS()).normalize();
+                                    SLVec3f intersectionPoint   = _selectedGizmo->updateAndGetWMI() * intersectionPointWS;
+                                    SLVec3f rotationStartVec    = (_hitCoordinate - _selectedGizmo->translationOS()).normalize();
+                                    SLVec3f rotationVec         = (intersectionPoint - _selectedGizmo->translationOS()).normalize();
 
-                                    float angle = RAD2DEG * acos(rotationVec * _rotationStartVec);
+                                    float angle = RAD2DEG * acos(rotationVec * rotationStartVec);
 
                                     if (angle > FLT_EPSILON || angle < -FLT_EPSILON)
                                     {
                                         // determine if we have to rotate ccw or cw
-                                        if (isCCW(SLVec2f(_rotationCircleNode->translationOS().x, _rotationCircleNode->translationOS().y),
-                                                  SLVec2f(_rotationStartPoint.x, _rotationStartPoint.y),
-                                                  SLVec2f(intersectionPoint.x, intersectionPoint.y)))
+                                        if (!isCCW(SLVec2f(_selectedGizmo->translationOS().x, _selectedGizmo->translationOS().y),
+                                                   SLVec2f(_hitCoordinate.x, _hitCoordinate.y),
+                                                   SLVec2f(intersectionPoint.x, intersectionPoint.y)))
                                         {
                                             angle = -angle;
                                         }
 
-                                        mapNode->rotate(angle, _rotationAxis, TS_world);
+                                        mapNode->rotate(angle, _selectedGizmo->forwardWS().normalize(), TS_world);
 
-                                        _rotationStartPoint = intersectionPoint;
-                                        _rotationStartVec   = rotationVec;
+                                        _hitCoordinate = intersectionPoint;
                                     }
                                 }
                             }
@@ -551,37 +466,40 @@ SLbool WAISceneView::onMouseMove(SLint scrX, SLint scrY)
                                 _rotationDiskY->drawBits()->set(SL_DB_HIDDEN, true);
                                 _rotationDiskZ->drawBits()->set(SL_DB_HIDDEN, true);
 
-                                SLNode* rotationDisk = nullptr;
+                                _selectedGizmo = nullptr;
 
                                 float t     = FLT_MAX;
                                 float tCand = FLT_MAX;
-                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleX->translationWS(), _rotationCircleX->forwardWS(), _gizmoScale, tCand))
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationDiskX->translationWS(), _rotationDiskX->forwardWS(), _gizmoScale, tCand))
                                 {
-                                    rotationDisk = _rotationDiskX;
-                                    t            = tCand;
+                                    _selectedGizmo = _rotationDiskX;
+                                    t              = tCand;
                                 }
 
-                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleY->translationWS(), _rotationCircleY->forwardWS(), _gizmoScale, tCand))
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationDiskY->translationWS(), _rotationDiskY->forwardWS(), _gizmoScale, tCand))
                                 {
                                     if (tCand < t)
                                     {
-                                        rotationDisk = _rotationDiskY;
-                                        t            = tCand;
+                                        _selectedGizmo = _rotationDiskY;
+                                        t              = tCand;
                                     }
                                 }
 
-                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationCircleZ->translationWS(), _rotationCircleZ->forwardWS(), _gizmoScale, tCand))
+                                if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationDiskZ->translationWS(), _rotationDiskZ->forwardWS(), _gizmoScale, tCand))
                                 {
                                     if (tCand < t)
                                     {
-                                        rotationDisk = _rotationDiskZ;
-                                        t            = tCand;
+                                        _selectedGizmo = _rotationDiskZ;
+                                        t              = tCand;
                                     }
                                 }
 
-                                if (rotationDisk)
+                                if (_selectedGizmo)
                                 {
-                                    rotationDisk->drawBits()->set(SL_DB_HIDDEN, false);
+                                    SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
+                                    _hitCoordinate              = _selectedGizmo->updateAndGetWMI() * intersectionPointWS;
+
+                                    _selectedGizmo->drawBits()->set(SL_DB_HIDDEN, false);
                                 }
 
                                 result = SLSceneView::onMouseMove(scrX, scrY);

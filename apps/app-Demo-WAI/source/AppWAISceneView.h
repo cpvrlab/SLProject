@@ -27,11 +27,12 @@ public:
 private:
     WAINodeEditMode _editMode;
 
-    bool    _mouseIsDown;
-    SLVec3f _hitCoordinate;
-
     SLNode* _editGizmos = nullptr;
+
+    bool    _mouseIsDown;
     float   _gizmoScale;
+    SLVec3f _hitCoordinate;
+    SLNode* _selectedGizmo = nullptr;
 
     // Translation stuff
     SLNode* _translationAxisX = nullptr;
@@ -42,34 +43,18 @@ private:
     SLNode* _translationLineY = nullptr;
     SLNode* _translationLineZ = nullptr;
 
-    SLNode* _selectedTranslationAxis = nullptr;
-
     // Scale stuff
     SLNode* _scaleGizmos;
     SLNode* _scaleDisk;
     SLNode* _scaleCircle;
-    float   _oldScaleRadius;
 
     // Rotation stuff
-    SLNode* _rotationGizmos;
-
-    SLNode* _rotationGizmosX;
-    SLNode* _rotationGizmosY;
-    SLNode* _rotationGizmosZ;
-
     SLNode* _rotationCircleX;
     SLNode* _rotationDiskX;
     SLNode* _rotationCircleY;
     SLNode* _rotationDiskY;
     SLNode* _rotationCircleZ;
     SLNode* _rotationDiskZ;
-
-    SLNode* _rotationCircleNode;
-    SLVec3f _rotationAxis;
-    SLVec3f _rotationStartPoint;
-    SLVec3f _rotationStartVec;
-
-    SLVec2f _oldMouseCoords;
 
     bool getClosestPointsBetweenRays(const SLVec3f& ray1O,
                                      const SLVec3f& ray1Dir,
