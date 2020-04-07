@@ -2,7 +2,6 @@
 #define WELCOME_VIEW_H
 
 #include <string>
-#include <views/View.h>
 #include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -12,7 +11,7 @@
 
 class SLTexFont;
 
-class WelcomeView : public View
+class WelcomeView : public SLSceneView
 {
 public:
     WelcomeView(SLInputManager& inputManager,
@@ -24,11 +23,10 @@ public:
                 std::string     imguiIniPath,
                 std::string     version);
     ~WelcomeView();
-    bool update() override;
+    bool update();
 
 private:
     WelcomeGui     _gui;
-    SLSceneView    _sv;
     SLAssetManager _assets;
 
     SLTexFont* _textFont = nullptr;

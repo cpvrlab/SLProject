@@ -16,14 +16,12 @@ WelcomeView::WelcomeView(SLInputManager& inputManager,
                          std::string     texturePath,
                          std::string     imguiIniPath,
                          std::string     version)
-  : _gui(dotsPerInch, screenWidth, screenHeight, fontPath, texturePath, version),
-    _sv(nullptr, dotsPerInch, inputManager),
+  : SLSceneView(nullptr, dotsPerInch, inputManager),
+    _gui(dotsPerInch, screenWidth, screenHeight, fontPath, texturePath, version),
     _pixPerMM((float)dotsPerInch / 25.4f)
 {
-    _sv.init("WelcomeView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
-
-    _sv.doWaitOnIdle(false);
-    _sv.onInitialize();
+    init("WelcomeView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    onInitialize();
 }
 
 WelcomeView::~WelcomeView()
@@ -37,5 +35,5 @@ WelcomeView::~WelcomeView()
 
 bool WelcomeView::update()
 {
-    return _sv.onPaint();
+    return onPaint();
 }

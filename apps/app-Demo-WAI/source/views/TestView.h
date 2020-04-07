@@ -1,7 +1,6 @@
 #ifndef TEST_VIEW_H
 #define TEST_VIEW_H
 
-#include <views/View.h>
 #include <AppWAIScene.h>
 #include <SLSceneView.h>
 #include <AppDemoWaiGui.h>
@@ -14,7 +13,7 @@ class WAISlam;
 class WAIEvent;
 class SENSCamera;
 
-class TestView : public View
+class TestView : protected SLSceneView
 {
 public:
     TestView(sm::EventHandler& eventHandler,
@@ -30,7 +29,7 @@ public:
              std::string       videoDir);
     ~TestView();
 
-    bool update() override;
+    bool update();
     //try to load slam params and start slam
     void start();
     void postStart();
@@ -79,8 +78,8 @@ protected:
 
     std::queue<WAIEvent*> _eventQueue;
     //scene
-    AppWAIScene _s;
-    SLSceneView _sv;
+    AppWAIScene _scene;
+    //SLSceneView _sv;
 
     SLAssetManager _assets;
 

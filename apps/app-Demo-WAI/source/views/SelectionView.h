@@ -1,7 +1,6 @@
 #ifndef SELECTION_VIEW_H
 #define SELECTION_VIEW_H
 
-#include <views/View.h>
 #include <SelectionGui.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -11,8 +10,8 @@
 
 class SLInputManager;
 
-class SelectionView : public View
-  , public sm::EventSender
+class SelectionView : public sm::EventSender
+  , protected SLSceneView
 {
 public:
     SelectionView(sm::EventHandler& eventHandler,
@@ -24,13 +23,11 @@ public:
                   std::string       texturePath,
                   std::string       imguiIniPath);
     SelectionView() = delete;
-
-    bool update() override;
+    bool update();
 
 protected:
     SelectionGui   _gui;
-    SLScene        _s;
-    SLSceneView    _sv;
+    SLScene        _scene;
     SLAssetManager _assets;
 };
 

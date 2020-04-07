@@ -245,14 +245,16 @@ protected:
     SLbool         _stopPT;     //!< Flag to stop the PT
     SLGLConetracer _conetracer; //!< Conetracer CT
 
-    SLScene* _s;   //!< Pointer scene observed by this scene view
-    int      _dpi; //! dots per inch of screen
+    int _dpi; //! dots per inch of screen
 
     SLInputManager& _inputManager;
 
     AvgFloat _cullTimesMS;   //!< Averaged time for culling in ms
     AvgFloat _draw3DTimesMS; //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS; //!< Averaged time for 2D drawing in ms
+
+private:
+    SLScene* _s; //!< Pointer scene observed by this scene view
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -18,18 +18,18 @@ SelectionView::SelectionView(sm::EventHandler& eventHandler,
                              std::string       fontPath,
                              std::string       texturePath,
                              std::string       imguiIniPath)
-  : sm::EventSender(eventHandler),
+  : SLSceneView(nullptr, dotsPerInch, inputManager),
+    sm::EventSender(eventHandler),
     _gui(eventHandler, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
-    _s("SelectionScene", nullptr),
-    _sv(&_s, dotsPerInch, inputManager)
+    _scene("SelectionScene", nullptr)
 {
-    _sv.init("SelectionSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
-    _s.init();
-
-    _sv.onInitialize();
+    scene(&_scene);
+    init("SelectionSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    _scene.init();
+    onInitialize();
 }
 
 bool SelectionView::update()
 {
-    return _sv.onPaint();
+    return onPaint();
 }

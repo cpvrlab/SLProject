@@ -116,7 +116,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry)
 
     _welcomeView->update();
 
-    if (timer.elapsedTimeInSec() > 0.5f)
+    if (timer.elapsedTimeInSec() > 2.f)
         addEvent(new DoneEvent());
 }
 

@@ -21,7 +21,8 @@ TestView::TestView(sm::EventHandler& eventHandler,
                    std::string       vocabularyDir,
                    std::string       calibDir,
                    std::string       videoDir)
-  : _gui(
+  : SLSceneView(&_scene, dotsPerInch, inputManager),
+    _gui(
       eventHandler,
       "TestScene",
       dotsPerInch,
@@ -36,18 +37,17 @@ TestView::TestView(sm::EventHandler& eventHandler,
       [&]() { return _camera; },                 //getter callback for current camera
       [&]() { return &_calibration; },           //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
-    _s("TestScene"),
-    _sv(&_s, dotsPerInch, inputManager),
+    _scene("TestScene"),
     _camera(camera),
     _configDir(configDir),
     _vocabularyDir(vocabularyDir),
     _calibDir(calibDir),
     _videoDir(videoDir)
 {
-    _sv.init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
-    _s.init();
-
-    _sv.onInitialize();
+    scene(&_scene);
+    init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
+    _scene.init();
+    onInitialize();
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
@@ -122,21 +122,21 @@ bool TestView::update()
         {
             bool iKnowWhereIAm = _mode->update(frame->imgGray);
             if (iKnowWhereIAm)
-                _s.updateCameraPose(_mode->getPose());
+                _scene.updateCameraPose(_mode->getPose());
 
             updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
         }
     }
 
-    //_s.onUpdate();
-    return _sv.onPaint();
+    //_scene.onUpdate();
+    return onPaint();
 }
 
 void TestView::tryLoadLastSlam()
 {
     if (_currentSlamParams.load(_configDir + "SlamParams.json"))
     {
-        //_s.rebuild(_currentSlamParams.location, _currentSlamParams.area);
+        //_scene.rebuild(_currentSlamParams.location, _currentSlamParams.area);
         loadWAISceneView(_currentSlamParams.location, _currentSlamParams.area);
         startOrbSlam(_currentSlamParams);
         //_guiSlamLoad->setSlamParams(_currentSlamParams);
@@ -235,7 +235,7 @@ void TestView::handleEvents()
 
             case WAIEventType_AdjustTransparency: {
                 WAIEventAdjustTransparency* adjustTransparencyEvent = (WAIEventAdjustTransparency*)event;
-                _s.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
+                _scene.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
 
                 delete adjustTransparencyEvent;
             }
@@ -251,22 +251,22 @@ void TestView::handleEvents()
 
 void TestView::postStart()
 {
-    _sv.doWaitOnIdle(false);
-    _sv.camera(_s.cameraNode);
-    _sv.onInitialize();
+    doWaitOnIdle(false);
+    camera(_scene.cameraNode);
+    onInitialize();
     if (_camera)
-        _sv.setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+        setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 }
 
 void TestView::loadWAISceneView(std::string location, std::string area)
 {
-    _s.rebuild(location, area);
+    _scene.rebuild(location, area);
 
-    _sv.doWaitOnIdle(false);
-    _sv.camera(_s.cameraNode);
-    _sv.onInitialize();
+    doWaitOnIdle(false);
+    camera(_scene.cameraNode);
+    onInitialize();
     if (_camera)
-        _sv.setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+        setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 }
 
 void TestView::saveMap(std::string location,
@@ -308,9 +308,9 @@ void TestView::saveMap(std::string location,
         else
         {
             std::cout << "nodeTransform: " << nodeTransform << std::endl;
-            //_s.mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
+            //_scene.mapNode->om(WAIMapStorage::convertToSLMat(nodeTransform));
             if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                        _s.mapNode,
+                                        _scene.mapNode,
                                         mapDir + filename,
                                         imgDir))
             {
@@ -321,7 +321,7 @@ void TestView::saveMap(std::string location,
     else
     {
         if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                    _s.mapNode,
+                                    _scene.mapNode,
                                     mapDir + filename,
                                     imgDir))
         {
@@ -509,18 +509,18 @@ void TestView::startOrbSlam(SlamParams slamParams)
         _calibration.buildUndistortionMaps();
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _s.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
-    //  _s.cameraNode->fov(_calibration.cameraFovVDeg());
+    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
+    //  _scene.cameraNode->fov(_calibration.cameraFovVDeg());
     //// Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     //cv::Mat scMat = _calibration.cameraMatUndistorted();
     //std::cout << "scMat: " << scMat << std::endl;
-    //_s.cameraNode->intrinsics(scMat.at<double>(0, 0),
+    //_scene.cameraNode->intrinsics(scMat.at<double>(0, 0),
     //                                  scMat.at<double>(1, 1),
     //                                  scMat.at<double>(0, 2),
     //                                  scMat.at<double>(1, 2));
 
     ////enable projection -> intrinsics mode
-    //_s.cameraNode->projection(P_monoIntrinsic);
+    //_scene.cameraNode->projection(P_monoIntrinsic);
 
     // 4. Create new mode ORBSlam
     if (!slamParams.markerFile.empty())
@@ -548,7 +548,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
         map                    = new WAIMap(kfdb);
         bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
-                                                        _s.mapNode,
+                                                        _scene.mapNode,
                                                         voc,
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
@@ -577,7 +577,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // 6. save current params
     _currentSlamParams = slamParams;
 
-    _sv.setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
+    setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
     _undistortedLastFrame[0] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
     _undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
@@ -589,13 +589,13 @@ void TestView::transformMapNode(SLTransformSpace tSpace,
                                 SLVec3f          translation,
                                 float            scale)
 {
-    _s.mapNode->rotate(rotation.x, 1, 0, 0, tSpace);
-    _s.mapNode->rotate(rotation.y, 0, 1, 0, tSpace);
-    _s.mapNode->rotate(rotation.z, 0, 0, 1, tSpace);
-    _s.mapNode->translate(translation.x, 0, 0, tSpace);
-    _s.mapNode->translate(0, translation.y, 0, tSpace);
-    _s.mapNode->translate(0, 0, translation.z, tSpace);
-    _s.mapNode->scale(scale);
+    _scene.mapNode->rotate(rotation.x, 1, 0, 0, tSpace);
+    _scene.mapNode->rotate(rotation.y, 0, 1, 0, tSpace);
+    _scene.mapNode->rotate(rotation.z, 0, 0, 1, tSpace);
+    _scene.mapNode->translate(translation.x, 0, 0, tSpace);
+    _scene.mapNode->translate(0, translation.y, 0, tSpace);
+    _scene.mapNode->translate(0, 0, translation.z, tSpace);
+    _scene.mapNode->scale(scale);
 }
 
 void TestView::downloadCalibrationFilesTo(std::string dir)
@@ -661,46 +661,46 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
     if (_doubleBufferedOutput)
         _lastFrameIdx = (_lastFrameIdx + 1) % 2;
 
-    _s.updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
-                        CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
+    _scene.updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
+                            CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
 
     //update map point visualization
     if (_gui.uiPrefs->showMapPC)
     {
-        _s.renderMapPoints(_mode->getMapPoints());
+        _scene.renderMapPoints(_mode->getMapPoints());
         //todo: fix? mode has no member getMarmerCornerMapPoints
-        //_s.renderMarkerCornerMapPoints(_mode->getMarkerCornerMapPoints());
+        //_scene.renderMarkerCornerMapPoints(_mode->getMarkerCornerMapPoints());
     }
     else
     {
-        _s.removeMapPoints();
-        _s.removeMarkerCornerMapPoints();
+        _scene.removeMapPoints();
+        _scene.removeMarkerCornerMapPoints();
     }
 
     //update visualization of local map points (when WAI pose is valid)
     if (_gui.uiPrefs->showLocalMapPC && iKnowWhereIAm)
-        _s.renderLocalMapPoints(_mode->getLocalMapPoints());
+        _scene.renderLocalMapPoints(_mode->getLocalMapPoints());
     else
-        _s.removeLocalMapPoints();
+        _scene.removeLocalMapPoints();
 
     //update visualization of matched map points (when WAI pose is valid)
     if (_gui.uiPrefs->showMatchesPC && iKnowWhereIAm)
-        _s.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
+        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
     else
-        _s.removeMatchedMapPoints();
+        _scene.removeMatchedMapPoints();
 
     //update keyframe visualization
     if (_gui.uiPrefs->showKeyFrames)
-        _s.renderKeyframes(_mode->getKeyFrames());
+        _scene.renderKeyframes(_mode->getKeyFrames());
     else
-        _s.removeKeyframes();
+        _scene.removeKeyframes();
 
     //update pose graph visualization
-    _s.renderGraphs(_mode->getKeyFrames(),
-                    _gui.uiPrefs->minNumOfCovisibles,
-                    _gui.uiPrefs->showCovisibilityGraph,
-                    _gui.uiPrefs->showSpanningTree,
-                    _gui.uiPrefs->showLoopEdges);
+    _scene.renderGraphs(_mode->getKeyFrames(),
+                        _gui.uiPrefs->minNumOfCovisibles,
+                        _gui.uiPrefs->showCovisibilityGraph,
+                        _gui.uiPrefs->showSpanningTree,
+                        _gui.uiPrefs->showLoopEdges);
 }
 
 void TestView::setupDefaultErlebARDirTo(std::string dir)
