@@ -11,7 +11,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
-		 ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.h
+		 ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
     )
 
 file(GLOB sources
@@ -19,12 +19,12 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
         ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.cpp
     )
 
 file(GLOB shaders
-        ${SL_PROJECT_ROOT}/data/shaders/Diffuse.frag
-        ${SL_PROJECT_ROOT}/data/shaders/Diffuse.vert
+        ${SL_PROJECT_ROOT}/data/shaders/vertShader.spv
+        ${SL_PROJECT_ROOT}/data/shaders/fragShader.spv
     )
 
 add_executable(${target}
