@@ -13,7 +13,7 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
   : sm::EventSender(eventHandler)
 {
     resize(screenWidthPix, screenHeightPix);
-    int fontHeightDots = _buttonSz.y * 0.7;
+    int fontHeightDots = _buttonSz.y * ErlebAR::ButtonTextH;
 
     //add font and store index
     SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
@@ -25,16 +25,6 @@ SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
     {
         Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
     }
-
-    _buttonColor = {BFHColors::OrangePrimary.r,
-                    BFHColors::OrangePrimary.g,
-                    BFHColors::OrangePrimary.b,
-                    0.3};
-
-    _buttonColorPressed = {BFHColors::GrayLogo.r,
-                           BFHColors::GrayLogo.g,
-                           BFHColors::GrayLogo.b,
-                           0.3};
 
     //load background texture
     std::string imagePath = texturePath + "earth2048_C.jpg";
@@ -97,7 +87,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _windowPadding = 0.f;
     _buttonSpace   = 0.02f * _screenHPix;
 
-    _buttonRounding         = 0.01f * _screenHPix;
+    _buttonRounding         = ErlebAR::ButtonRounding * _screenHPix;
     float frameButtonBoardB = 0.1f * _screenHPix;
     float frameButtonBoardR = 0.1f * _screenWPix;
     _buttonBoardW           = 0.5f * _screenWPix;
@@ -105,7 +95,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
-    int nButVert = 6; //number of buttons in vertical direction
+    int nButVert = 8; //number of buttons in vertical direction
     int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
     _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
@@ -120,9 +110,9 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
 
-    ImGui::PushStyleColor(ImGuiCol_Button, _buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _buttonColorPressed);
+    ImGui::PushStyleColor(ImGuiCol_Button, ErlebAR::SelectionButtonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ErlebAR::SelectionButtonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ErlebAR::SelectionButtonPressedColor);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
 
     if (_font)
@@ -189,6 +179,16 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         if (ImGui::Button("Biel", _buttonSz))
         {
             sendEvent(new StartErlebarEvent(Location::BIEL));
+        }
+
+        if (ImGui::Button("Settings", _buttonSz))
+        {
+            sendEvent(new ShowSettingsEvent());
+        }
+
+        if (ImGui::Button("About", _buttonSz))
+        {
+            sendEvent(new ShowAboutEvent());
         }
 
         ImGui::End();

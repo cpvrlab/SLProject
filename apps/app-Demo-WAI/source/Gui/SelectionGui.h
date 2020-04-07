@@ -13,7 +13,7 @@ class SLScene;
 class SLSceneView;
 
 class SelectionGui : public ImGuiWrapper
-  , public sm::EventSender
+  , private sm::EventSender
 {
 public:
     SelectionGui(sm::EventHandler& eventHandler,
@@ -34,10 +34,8 @@ private:
     void popStyle();
 
     //stylevars and stylecolors
-    float  _windowPadding = 0.f; //space l, r, b, t between window and buttons (window padding left does not work as expected)
-    float  _buttonSpace   = 0.f; //space between buttons
-    ImVec4 _buttonColor;
-    ImVec4 _buttonColorPressed;
+    float _windowPadding = 0.f; //space l, r, b, t between window and buttons (window padding left does not work as expected)
+    float _buttonSpace   = 0.f; //space between buttons
 
     ImVec2  _buttonSz;
     ImFont* _font = nullptr;

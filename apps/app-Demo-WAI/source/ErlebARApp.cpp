@@ -6,6 +6,8 @@
 #include <views/TestView.h>
 #include <views/StartUpView.h>
 #include <views/WelcomeView.h>
+#include <views/SettingsView.h>
+#include <views/AboutView.h>
 #include <SLGLProgramManager.h>
 
 #define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
@@ -103,6 +105,21 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                    dd.dpi(),
                                    dd.dirs().writableDir);
 
+    _aboutView = new AboutView(*this,
+                               _inputManager,
+                               dd.scrWidth(),
+                               dd.scrHeight(),
+                               dd.dpi(),
+                               dd.fontDir(),
+                               dd.dirs().writableDir);
+
+    _settingsView = new SettingsView(_inputManager,
+                                     dd.scrWidth(),
+                                     dd.scrHeight(),
+                                     dd.dpi(),
+                                     dd.fontDir(),
+                                     dd.dirs().writableDir);
+
     addEvent(new DoneEvent());
 }
 
@@ -135,7 +152,6 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
         delete _testView;
         _testView = nullptr;
     }
-
     if (_startUpView)
     {
         delete _startUpView;
@@ -146,6 +162,16 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
         delete _welcomeView;
         _welcomeView = nullptr;
     }
+    if (_aboutView)
+    {
+        delete _aboutView;
+        _aboutView = nullptr;
+    }
+    if (_settingsView)
+    {
+        delete _settingsView;
+        _settingsView = nullptr;
+    }
 
     if (_camera)
     {
@@ -154,8 +180,6 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
             _camera->stop();
         }
     }
-
-    _currentView = nullptr;
 
     //ATTENTION: if we dont do this we get problems when opening the app the second time
     //(e.g. "The position attribute has no variable location." from SLGLVertexArray)
@@ -271,6 +295,16 @@ void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
         LOG_ERLEBAR_DEBUG("ABOUT");
+
+    _aboutView->update();
+}
+
+void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
+{
+    if (stateEntry)
+        LOG_ERLEBAR_DEBUG("SETTINGS");
+
+    _settingsView->update();
 }
 
 void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry)

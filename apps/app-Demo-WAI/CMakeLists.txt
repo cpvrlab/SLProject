@@ -23,7 +23,8 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
@@ -42,7 +43,6 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.h
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
-
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
@@ -54,19 +54,13 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/StartUpState.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/AreaTrackingState.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/CameraTestState.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/LocationMapState.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TestState.h
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TutorialState.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.h
 	)
 	
 set(erlebar_sources
@@ -83,7 +77,8 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
@@ -107,19 +102,13 @@ set(erlebar_sources
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/State.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/SelectionState.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/StartUpState.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/AreaTrackingState.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/CameraTestState.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/LocationMapState.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TestState.cpp
-	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/states/TutorialState.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.cpp
 	)
 	
 set(erlebar_include_directories

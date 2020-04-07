@@ -2,10 +2,7 @@
 #define WELCOME_GUI_H
 
 #include <string>
-
-#include <ErlebAR.h>
 #include <ImGuiWrapper.h>
-#include <CVImage.h>
 
 class SLScene;
 class SLSceneView;

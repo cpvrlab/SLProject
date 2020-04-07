@@ -3,10 +3,7 @@
 
 #include <string>
 #include <SLInputManager.h>
-#include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLAssetManager.h>
-#include <HighResTimer.h>
 #include <WelcomeGui.h>
 
 class SLTexFont;
@@ -22,15 +19,10 @@ public:
                 std::string     texturePath,
                 std::string     imguiIniPath,
                 std::string     version);
-    ~WelcomeView();
     bool update();
 
 private:
-    WelcomeGui     _gui;
-    SLAssetManager _assets;
-
-    SLTexFont* _textFont = nullptr;
-    float      _pixPerMM;
+    WelcomeGui _gui;
 };
 
 #endif //STARTUP_VIEW_H

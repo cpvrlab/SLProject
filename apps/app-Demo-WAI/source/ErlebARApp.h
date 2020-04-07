@@ -13,6 +13,8 @@ class SelectionView;
 class TestView;
 class StartUpView;
 class WelcomeView;
+class SettingsView;
+class AboutView;
 class View;
 
 class ErlebARApp : public sm::StateMachine
@@ -74,6 +76,7 @@ private:
 
     void TUTORIAL(const sm::NoEventData* data, const bool stateEntry);
     void ABOUT(const sm::NoEventData* data, const bool stateEntry);
+    void SETTINGS(const sm::NoEventData* data, const bool stateEntry);
     void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry);
 
     SLInputManager _inputManager;
@@ -82,7 +85,8 @@ private:
     TestView*      _testView      = nullptr;
     StartUpView*   _startUpView   = nullptr;
     WelcomeView*   _welcomeView   = nullptr;
-    View*          _currentView   = nullptr;
+    AboutView*     _aboutView     = nullptr;
+    SettingsView*  _settingsView  = nullptr;
 
     SENSCamera*      _camera  = nullptr;
     CloseAppCallback _closeCB = nullptr;

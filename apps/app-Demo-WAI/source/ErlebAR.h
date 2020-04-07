@@ -4,18 +4,7 @@
 #include <SLVec4.h>
 #include <DeviceData.h>
 #include <sm/Event.h>
-
-//selection from selection gui
-//enum class Selection
-//{
-//    CAMERA_TEST = 0,
-//    TEST,
-//    AUGST,
-//    AVANCHES,
-//    CHRISTOFFELTOWER,
-//    BIEL,
-//    NONE
-//};
+#include <imgui.h>
 
 //erlebar location
 enum class Location
@@ -57,6 +46,7 @@ enum class StateId
 
     TUTORIAL,
     ABOUT,
+    SETTINGS,
     CAMERA_TEST
 };
 
@@ -77,6 +67,82 @@ const SLVec4f Orange1Text   = {189.f / 255.f, 126.f / 255.f, 0.f / 255.f, 1.f};
 const SLVec4f Orange2Text   = {255.f / 255.f, 203.f / 255.f, 62.f / 255.f, 1.f};
 const SLVec4f OrangeGraphic = {250.f / 255.f, 165.f / 255.f, 0.f / 255.f, 1.f};
 const SLVec4f GrayDark      = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
+};
+
+//-----------------------------------------------------------------------------
+// App appearance
+//-----------------------------------------------------------------------------
+namespace ErlebAR
+{
+//shape:
+
+// percental header bar height relative to screen height
+const float HeaderBarPercH = 0.15f;
+// percental header bar text height relative to header bar height
+const float HeaderBarTextH = 0.7f;
+// percental standard text height relative to screen height
+const float StandardTextH = 0.01f;
+// percental button text height relative to button height
+const float ButtonTextH = 0.7f;
+// percental spacing between backbutton text relative to header bar height
+const float HeaderBarSpacingBB2Text = 0.3f;
+// percental button rounding relative to screen height
+const float ButtonRounding = 0.01f;
+
+//colors:
+
+const ImVec4 PrimaryBackgroundColor   = {BFHColors::OrangePrimary.r,
+                                       BFHColors::OrangePrimary.g,
+                                       BFHColors::OrangePrimary.b,
+                                       BFHColors::OrangePrimary.a};
+const ImVec4 HeaderBarBackgroundColor = {BFHColors::Gray2.r,
+                                         BFHColors::Gray2.g,
+                                         BFHColors::Gray2.b,
+                                         BFHColors::Gray2.a};
+const ImVec4 HeaderBarTextColor       = {1.f, 1.f, 1.f, 1.f}; //white
+//selection gui button color
+const ImVec4 SelectionButtonColor = {BFHColors::OrangePrimary.r,
+                                     BFHColors::OrangePrimary.g,
+                                     BFHColors::OrangePrimary.b,
+                                     0.3};
+//selection gui pressed button color
+const ImVec4 SelectionButtonPressedColor = {BFHColors::GrayLogo.r,
+                                            BFHColors::GrayLogo.g,
+                                            BFHColors::GrayLogo.b,
+                                            0.3};
+//selection gui button color
+const ImVec4 BackButtonColor = {BFHColors::GrayDark.r,
+                                BFHColors::GrayDark.g,
+                                BFHColors::GrayDark.b,
+                                1.0};
+//selection gui pressed button color
+const ImVec4 BackButtonPressedColor = {BFHColors::GrayLogo.r,
+                                       BFHColors::GrayLogo.g,
+                                       BFHColors::GrayLogo.b,
+                                       1.0};
+};
+
+//-----------------------------------------------------------------------------
+// Language/Text
+//-----------------------------------------------------------------------------
+namespace ErlebAR
+{
+class Text
+{
+public:
+    explicit Text(std::string heading,
+                  std::string settings)
+      : Heading(heading),
+        Settings(settings)
+    {
+    }
+
+    const std::string Heading;
+    const std::string Settings;
+};
+
+const Text textEnglish("ErlebAR",
+                       "Settings");
 };
 
 //-----------------------------------------------------------------------------
@@ -147,6 +213,8 @@ public:
         enableTransition((unsigned int)StateId::TUTORIAL,
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::ABOUT,
+                         (unsigned int)StateId::SELECTION);
+        enableTransition((unsigned int)StateId::SETTINGS,
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::CAMERA_TEST,
                          (unsigned int)StateId::SELECTION);
@@ -245,6 +313,16 @@ public:
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::ABOUT);
+    }
+};
+
+class ShowSettingsEvent : public sm::Event
+{
+public:
+    ShowSettingsEvent()
+    {
+        enableTransition((unsigned int)StateId::SELECTION,
+                         (unsigned int)StateId::SETTINGS);
     }
 };
 

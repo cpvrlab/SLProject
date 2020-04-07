@@ -1,6 +1,7 @@
 #include <WelcomeGui.h>
 #include <ErlebAR.h>
 #include <imgui_internal.h>
+#include <CVImage.h>
 
 WelcomeGui::WelcomeGui(int         dotsPerInch,
                        int         screenWidthPix,
@@ -191,15 +192,15 @@ void WelcomeGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-    const SLVec4f o = BFHColors::OrangePrimary;
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(o.r, o.g, o.b, o.a));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ErlebAR::PrimaryBackgroundColor);
 }
 
 void WelcomeGui::popStyle()
 {
-    ImGui::PopStyleVar(6);
+    ImGui::PopStyleVar(7);
     ImGui::PopStyleColor(1);
 }
