@@ -75,13 +75,14 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                          nLevels,
                                                          fIniThFAST,
                                                          fMinThFAST);
-
         _waiSlamer = new WAISlam(calib->cameraMat(),
                                  calib->distortion(),
                                  _voc,
                                  _trackingExtractor,
                                  _initializationExtractor,
-                                 nullptr);
+                                 nullptr,
+                                 false, // tracking only
+                                 true); // single threaded
     }
 
     if (_waiSlamer->update(imageGray))
