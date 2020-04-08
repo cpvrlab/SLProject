@@ -1160,13 +1160,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
                     SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
-                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
+                        if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
                             s->onLoad(s, sv, SID_VideoAventicumTheatre);
 
-                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigonier1.gltf"; // Android
+                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf"; // Android
                     SLstring modelAV32 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Cigonier1.gltf";
                     if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
-                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
+                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
                             s->onLoad(s, sv, SID_VideoAventicumCigonier);
 
                     ImGui::EndMenu();

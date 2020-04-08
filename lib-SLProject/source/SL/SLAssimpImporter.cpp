@@ -286,7 +286,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     if (!Utils::fileExists(pathAndFile))
     {
         SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
-        SL_WARN_MSG(msg.c_str());
+        SL_EXIT_MSG(msg.c_str());
         return nullptr;
     }
 

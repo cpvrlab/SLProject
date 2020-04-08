@@ -2760,7 +2760,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          amphiTheatre = importer.load("GLTF/Aventicum/AventicumAmphitheatre1.gltf",
+        SLNode*          amphiTheatre = importer.load("GLTF/Aventicum/Aventicum-Amphitheater1.gltf",
                                              true,    // only meshes
                                              nullptr, // no replacement material
                                              0.4f);   // 40% ambient reflection
@@ -2774,11 +2774,6 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
-        // Set some ambient light
-        for (auto child : amphiTheatre->children())
-            for (auto mesh : child->meshes())
-                mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.23f));
-
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
@@ -2786,11 +2781,90 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);
         SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
         SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoAventicumCigonier) //....................................
+    {
+        s->name("Aventicum Amphitheatre AR");
+        s->info("Augmented Reality for Aventicum Amphitheatre");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(5.0f);
+        light->ambient(SLCol4f(1, 1, 1));
+        light->diffuse(SLCol4f(1, 1, 1));
+        light->specular(SLCol4f(1, 1, 1));
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLAssimpImporter importer;
+        SLNode*          cigognier = importer.load("GLTF/Aventicum/Aventicum-Cigognier1.gltf",
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(cigognier);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
+        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
