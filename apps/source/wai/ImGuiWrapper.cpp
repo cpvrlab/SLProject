@@ -548,7 +548,11 @@ void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiIO& io = _context->IO;
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
-    if (button == MB_left) io.MouseDown[0] = true;
+    if (button == MB_left)
+    {
+        io.MouseDown[0] = true;
+        _mdStart        = ImVec2((SLfloat)x, (SLfloat)y);
+    }
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
     //SL_LOG("D");
@@ -569,6 +573,12 @@ void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
 void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
 {
     _context->IO.MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
+    ImGuiIO& io           = _context->IO;
+    if (io.MouseDown[0])
+    {
+        _mouseWheel -= (_mdStart.y - yPos);
+        _mdStart.y = yPos;
+    }
     //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------

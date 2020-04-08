@@ -82,7 +82,7 @@ const float HeaderBarPercH = 0.15f;
 // percental header bar text height relative to header bar height
 const float HeaderBarTextH = 0.7f;
 // percental standard text height relative to screen height
-const float StandardTextH = 0.01f;
+const float StandardTextH = 0.05f;
 // percental button text height relative to button height
 const float ButtonTextH = 0.7f;
 // percental spacing between backbutton text relative to header bar height
@@ -132,16 +132,26 @@ namespace ErlebAR
 class Strings
 {
 public:
+    Strings();
     const char* settings() const { return _settings.c_str(); }
     const char* about() const { return _about.c_str(); }
     const char* tutorial() const { return _tutorial.c_str(); }
+    const char* general() const { return _general.c_str(); }
+    const char* generalContent() const { return _generalContent.c_str(); }
     const char* developers() const { return _developers.c_str(); }
+    const char* developerNames() const { return _developerNames.c_str(); }
 
 protected:
+    //selection
     std::string _settings;
     std::string _about;
     std::string _tutorial;
+    //about
+    std::string _general;
+    std::string _generalContent;
     std::string _developers;
+    std::string _developerNames;
+    //settings
 };
 
 class StringsEnglish : public Strings
@@ -195,7 +205,7 @@ private:
     StringsGerman  stringsGerman;
     StringsFrench  stringsFrench;
     StringsItalien stringsItalien;
-    Strings*       currStrings = &stringsFrench;
+    Strings*       currStrings = &stringsEnglish;
 };
 
 };

@@ -102,6 +102,8 @@ private:
     SLuint  _elementsHandle;    //!< OpenGL handle for vertex indexes
 
     std::string _inifile;
+
+    ImVec2 _mdStart;
 };
 //-----------------------------------------------------------------------------
 #endif

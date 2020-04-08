@@ -77,7 +77,7 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
             sendEvent(new GoBackEvent());
         }
         ImGui::SameLine(0.f, _spacingBackButtonToText);
-        ImGui::Text("About");
+        ImGui::Text(_resources.strings().about());
 
         ImGui::End();
 
@@ -90,20 +90,53 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize |
+                                       ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ErlebAR::PrimaryBackgroundColor);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.f, 20.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
+        //ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _screenH * 0.05f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, _screenH * 0.05f * 2);
+        ImGui::PushFont(_fontSmall);
 
         ImGui::Begin("AboutGui_content", nullptr, windowFlags);
 
-        ImGui::Text(_resources.strings().developers());
+        //general
+        ImGui::BeginChild("dfgdfg", ImVec2(ImGui::GetWindowContentRegionWidth(), 0), false, childWindowFlags);
+        ImGui::Text(_resources.strings().general());
+
+        //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        //static int lines = 1000;
+        //for (int i = 0; i < lines; i++)
+        //    ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
+        //ImGuiListClipper clipper(lines);
+        //while (clipper.Step())
+        //    for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+        //        ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
+        //ImGui::PopStyleVar();
+
+        //ImGui::TextUnformatted(_resources.strings().generalContent());
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
-        ImGui::Text("The lazy dog is a good dog. This paragraph is made to fit within %.0f pixels. Testing a 1 character word. The quick brown fox jumps over the lazy dog.", _textWrapW);
+        ImGui::Text(_resources.strings().generalContent(), _textWrapW);
         ImGui::PopTextWrapPos();
+        ImGui::Separator();
+        //ImGui::EndChild();
+        //developers
+        //ImGui::BeginChild("AboutGui_content_developers", ImVec2(0, 0), false, childWindowFlags);
+        ImGui::Text(_resources.strings().developers());
+        ImGui::Text(_resources.strings().developerNames(), _textWrapW);
+        ImGui::Separator();
+        ImGui::EndChild();
+        //credits
+        //..
 
         ImGui::End();
 
         ImGui::PopStyleColor(1);
+        ImGui::PopStyleVar(2);
+        ImGui::PopFont();
     }
 
     popStyle();
@@ -118,11 +151,11 @@ void AboutGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 }
 
 void AboutGui::popStyle()
 {
-    ImGui::PopStyleVar(7);
+    ImGui::PopStyleVar(6);
 }
