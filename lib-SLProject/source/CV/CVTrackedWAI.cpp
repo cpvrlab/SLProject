@@ -70,17 +70,17 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                          fIniThFAST,
                                                          fMinThFAST);
 
-        _trackingExtractor = new ORB_SLAM2::ORBextractor(2 * nf,
-                                                         fScaleFactor,
-                                                         nLevels,
-                                                         fIniThFAST,
-                                                         fMinThFAST);
+        _initializationExtractor = new ORB_SLAM2::ORBextractor(2 * nf,
+                                                               fScaleFactor,
+                                                               nLevels,
+                                                               fIniThFAST,
+                                                               fMinThFAST);
 
         _waiSlamer = new WAISlam(calib->cameraMat(),
                                  calib->distortion(),
                                  _voc,
-                                 _trackingExtractor,
                                  _initializationExtractor,
+                                 _trackingExtractor,
                                  nullptr);
     }
 
