@@ -10,14 +10,23 @@
 
 #include <CVTrackedWAI.h>
 #include <SL.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
     _voc = new ORB_SLAM2::ORBVocabulary();
-    if (!_voc->loadFromBinaryFile(vocabularyFile))
+
+    string fullPathAndFilename = Utils::findFile(vocabularyFile,
+                                                 {SLApplication::calibIniPath,
+                                                  SLApplication::exePath});
+
+    if (!_voc->loadFromBinaryFile(fullPathAndFilename))
     {
-        SL_LOG("Could not load vocabulary file!");
+        Utils::log("SLProject",
+                   "Could not open the calibration parameter file: %s",
+                   fullPathAndFilename.c_str());
+        exit(0);
     }
 }
 //-----------------------------------------------------------------------------
