@@ -50,25 +50,25 @@ CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
 }
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
-CVCalibration::CVCalibration(cv::Mat       cameraMat,
-                             cv::Mat       distortion,
-                             cv::Size      imageSize,
-                             cv::Size      boardSize,
-                             float         boardSquareMM,
-                             float         reprojectionError,
-                             int           numCaptured,
-                             const string& calibrationTime,
-                             int           camSizeIndex,
-                             bool          mirroredH,
-                             bool          mirroredV,
-                             CVCameraType  camType,
-                             string        computerInfos,
-                             int           calibFlags,
-                             bool          calcUndistortionMaps)
+CVCalibration::CVCalibration(const cv::Mat& cameraMat,
+                             const cv::Mat& distortion,
+                             cv::Size       imageSize,
+                             cv::Size       boardSize,
+                             float          boardSquareMM,
+                             float          reprojectionError,
+                             int            numCaptured,
+                             const string&  calibrationTime,
+                             int            camSizeIndex,
+                             bool           mirroredH,
+                             bool           mirroredV,
+                             CVCameraType   camType,
+                             string         computerInfos,
+                             int            calibFlags,
+                             bool           calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
-    _imageSize(imageSize),
-    _boardSize(boardSize),
+    _imageSize(std::move(imageSize)),
+    _boardSize(std::move(boardSize)),
     _boardSquareMM(boardSquareMM),
     _reprojectionError(reprojectionError),
     _numCaptured(numCaptured),
@@ -77,7 +77,7 @@ CVCalibration::CVCalibration(cv::Mat       cameraMat,
     _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
-    _computerInfos(computerInfos),
+    _computerInfos(std::move(computerInfos)),
     _calibFlags(calibFlags)
 {
     _cameraMatOrig = _cameraMat.clone();
@@ -90,16 +90,16 @@ CVCalibration::CVCalibration(cv::Mat       cameraMat,
 }
 //-----------------------------------------------------------------------------
 //create a guessed calibration using image size and horizontal fov angle
-CVCalibration::CVCalibration(cv::Size     imageSize,
-                             float        fovH,
-                             bool         mirroredH,
-                             bool         mirroredV,
-                             CVCameraType camType,
-                             string       computerInfos)
+CVCalibration::CVCalibration(const cv::Size& imageSize,
+                             float           fovH,
+                             bool            mirroredH,
+                             bool            mirroredV,
+                             CVCameraType    camType,
+                             string          computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
-    _computerInfos(computerInfos)
+    _computerInfos(std::move(computerInfos))
 {
     createFromGuessedFOV(imageSize.width, imageSize.height, fovH);
     _cameraMatOrig = _cameraMat.clone();
@@ -107,18 +107,18 @@ CVCalibration::CVCalibration(cv::Size     imageSize,
 }
 //-----------------------------------------------------------------------------
 //create a guessed calibration using sensor size, camera focal length and captured image size
-CVCalibration::CVCalibration(float        sensorWMM,
-                             float        sensorHMM,
-                             float        focalLengthMM,
-                             cv::Size     imageSize,
-                             bool         mirroredH,
-                             bool         mirroredV,
-                             CVCameraType camType,
-                             string       computerInfos)
+CVCalibration::CVCalibration(float           sensorWMM,
+                             float           sensorHMM,
+                             float           focalLengthMM,
+                             const cv::Size& imageSize,
+                             bool            mirroredH,
+                             bool            mirroredV,
+                             CVCameraType    camType,
+                             string          computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
-    _computerInfos(computerInfos)
+    _computerInfos(std::move(computerInfos))
 {
     // aspect ratio
     float devFovH = 2.0f * atan(sensorWMM / (2.0f * focalLengthMM)) * Utils::RAD2DEG;
@@ -307,7 +307,7 @@ void getInnerAndOuterRectangles(const cv::Mat&    cameraMatrix,
                                 const cv::Mat&    distCoeffs,
                                 const cv::Mat&    R,
                                 const cv::Mat&    newCameraMatrix,
-                                cv::Size          imgSize,
+                                const cv::Size&   imgSize,
                                 cv::Rect_<float>& inner,
                                 cv::Rect_<float>& outer)
 {

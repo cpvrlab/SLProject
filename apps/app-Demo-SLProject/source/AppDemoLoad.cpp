@@ -2729,10 +2729,10 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAventicum) //............................................
+    else if (SLApplication::sceneID == SID_VideoAventicumAmphi) //.......................................
     {
-        s->name("Aventicum AR");
-        s->info("Augmented Reality for Aventicum");
+        s->name("Aventicum Amphitheatre AR");
+        s->info("Augmented Reality for Aventicum Amphitheatre");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -2760,23 +2760,29 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          theater = importer.load("DAE/Aventicum/Aventicum01.dae");
+        SLNode*          amphiTheatre = importer.load("GLTF/Aventicum/AventicumAmphitheatre1.gltf",
+                                             true,    // only meshes
+                                             nullptr, // no replacement material
+                                             0.4f);   // 40% ambient reflection
 
-        // Add axis object a world origin (Loeb Ecke)
+        // Rotate to the true geographic rotation
+        amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
         // Set some ambient light
-        for (auto child : theater->children())
+        for (auto child : amphiTheatre->children())
             for (auto mesh : child->meshes())
                 mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.23f));
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        scene->addChild(theater);
+        scene->addChild(amphiTheatre);
         scene->addChild(cam1);
 
         //initialize sensor stuff
@@ -2808,7 +2814,7 @@ void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 #ifdef SL_BUILD_WAI
-    else if (SLApplication::sceneID == SID_VideoTrackWAI) //....................................................
+    else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
         s->name("Track WAI (main cam.)");

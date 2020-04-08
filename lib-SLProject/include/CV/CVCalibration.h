@@ -75,8 +75,8 @@ public:
     CVCalibration(CVCameraType camType,
                   std::string  computerInfos);
     //creates a fully defined calibration
-    CVCalibration(cv::Mat            cameraMat,
-                  cv::Mat            distortion,
+    CVCalibration(const cv::Mat&            cameraMat,
+                  const cv::Mat&            distortion,
                   cv::Size           imageSize,
                   cv::Size           boardSize,
                   float              boardSquareMM,
@@ -92,7 +92,7 @@ public:
                   bool               calcUndistortionMaps);
 
     //creates a guessed calibration using image size and fov angle
-    CVCalibration(cv::Size     imageSize,
+    CVCalibration(const cv::Size&     imageSize,
                   float        fovH,
                   bool         mirroredH,
                   bool         mirroredV,
@@ -103,7 +103,7 @@ public:
     CVCalibration(float        sensorWMM,
                   float        sensorHMM,
                   float        focalLengthMM,
-                  cv::Size     imageSize,
+                  const cv::Size&     imageSize,
                   bool         mirroredH,
                   bool         mirroredV,
                   CVCameraType camType,
