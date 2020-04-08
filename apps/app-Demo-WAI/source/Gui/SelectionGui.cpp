@@ -4,13 +4,15 @@
 #include <CVImage.h>
 #include <float.h>
 
-SelectionGui::SelectionGui(sm::EventHandler& eventHandler,
-                           int               dotsPerInch,
-                           int               screenWidthPix,
-                           int               screenHeightPix,
-                           std::string       fontPath,
-                           std::string       texturePath)
-  : sm::EventSender(eventHandler)
+SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
+                           ErlebAR::Resources& resources,
+                           int                 dotsPerInch,
+                           int                 screenWidthPix,
+                           int                 screenHeightPix,
+                           std::string         fontPath,
+                           std::string         texturePath)
+  : sm::EventSender(eventHandler),
+    _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
     int fontHeightDots = _buttonSz.y * ErlebAR::ButtonTextH;
@@ -95,7 +97,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
-    int nButVert = 8; //number of buttons in vertical direction
+    int nButVert = 9; //number of buttons in vertical direction
     int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
     _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
@@ -181,12 +183,17 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
             sendEvent(new StartErlebarEvent(Location::BIEL));
         }
 
-        if (ImGui::Button("Settings", _buttonSz))
+        if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
+        {
+            sendEvent(new StartTutorialEvent());
+        }
+
+        if (ImGui::Button(_resources.strings().settings(), _buttonSz))
         {
             sendEvent(new ShowSettingsEvent());
         }
 
-        if (ImGui::Button("About", _buttonSz))
+        if (ImGui::Button(_resources.strings().about(), _buttonSz))
         {
             sendEvent(new ShowAboutEvent());
         }

@@ -5,6 +5,7 @@
 
 #include <ImGuiWrapper.h>
 #include <sm/EventSender.h>
+#include <ErlebAR.h>
 
 class SLScene;
 class SLSceneView;
@@ -14,11 +15,12 @@ class AboutGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AboutGui(sm::EventHandler& eventHandler,
-             int               dotsPerInch,
-             int               screenWidthPix,
-             int               screenHeightPix,
-             std::string       fontPath);
+    AboutGui(sm::EventHandler&   eventHandler,
+             ErlebAR::Resources& resources,
+             int                 dotsPerInch,
+             int                 screenWidthPix,
+             int                 screenHeightPix,
+             std::string         fontPath);
     ~AboutGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -42,6 +44,8 @@ private:
 
     ImFont* _fontBig   = nullptr;
     ImFont* _fontSmall = nullptr;
+
+    ErlebAR::Resources& _resources;
 };
 
 #endif //ABOUT_GUI_H

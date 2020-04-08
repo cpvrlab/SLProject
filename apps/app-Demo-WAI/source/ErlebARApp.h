@@ -91,6 +91,8 @@ private:
 
     SENSCamera*      _camera  = nullptr;
     CloseAppCallback _closeCB = nullptr;
+
+    ErlebAR::Resources* _resources = nullptr;
 };
 
 #endif

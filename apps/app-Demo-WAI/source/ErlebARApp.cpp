@@ -68,6 +68,8 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
+    _resources = new ErlebAR::Resources();
+
     _welcomeView = new WelcomeView(_inputManager,
                                    dd.scrWidth(),
                                    dd.scrHeight(),
@@ -80,6 +82,7 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
+                                       *_resources,
                                        dd.scrWidth(),
                                        dd.scrHeight(),
                                        dd.dpi(),
@@ -107,6 +110,7 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
 
     _aboutView = new AboutView(*this,
                                _inputManager,
+                               *_resources,
                                dd.scrWidth(),
                                dd.scrHeight(),
                                dd.dpi(),
@@ -179,6 +183,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
         {
             _camera->stop();
         }
+    }
+    if (_resources)
+    {
+        delete _resources;
+        _resources = nullptr;
     }
 
     //ATTENTION: if we dont do this we get problems when opening the app the second time

@@ -13,14 +13,15 @@ class SelectionView : public sm::EventSender
   , protected SLSceneView
 {
 public:
-    SelectionView(sm::EventHandler& eventHandler,
-                  SLInputManager&   inputManager,
-                  int               screenWidth,
-                  int               screenHeight,
-                  int               dotsPerInch,
-                  std::string       fontPath,
-                  std::string       texturePath,
-                  std::string       imguiIniPath);
+    SelectionView(sm::EventHandler&   eventHandler,
+                  SLInputManager&     inputManager,
+                  ErlebAR::Resources& resources,
+                  int                 screenWidth,
+                  int                 screenHeight,
+                  int                 dotsPerInch,
+                  std::string         fontPath,
+                  std::string         texturePath,
+                  std::string         imguiIniPath);
     SelectionView() = delete;
     bool update();
 

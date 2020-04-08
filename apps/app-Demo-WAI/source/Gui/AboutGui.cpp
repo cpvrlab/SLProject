@@ -1,13 +1,14 @@
 #include <AboutGui.h>
-#include <ErlebAR.h>
 #include <imgui_internal.h>
 
-AboutGui::AboutGui(sm::EventHandler& eventHandler,
-                   int               dotsPerInch,
-                   int               screenWidthPix,
-                   int               screenHeightPix,
-                   std::string       fontPath)
-  : sm::EventSender(eventHandler)
+AboutGui::AboutGui(sm::EventHandler&   eventHandler,
+                   ErlebAR::Resources& resources,
+                   int                 dotsPerInch,
+                   int                 screenWidthPix,
+                   int                 screenHeightPix,
+                   std::string         fontPath)
+  : sm::EventSender(eventHandler),
+    _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
     _bigTextH   = ErlebAR::HeaderBarTextH * (float)_headerBarH;
@@ -95,7 +96,7 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::Begin("AboutGui_content", nullptr, windowFlags);
 
-        ImGui::Text("Developers");
+        ImGui::Text(_resources.strings().developers());
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
         ImGui::Text("The lazy dog is a good dog. This paragraph is made to fit within %.0f pixels. Testing a 1 character word. The quick brown fox jumps over the lazy dog.", _textWrapW);
         ImGui::PopTextWrapPos();

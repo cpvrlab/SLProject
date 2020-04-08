@@ -132,52 +132,40 @@ namespace ErlebAR
 class Strings
 {
 public:
-    const char* settings() { return _settings.c_str(); }
-    const char* tutorial() { return _tutorial.c_str(); }
+    const char* settings() const { return _settings.c_str(); }
+    const char* about() const { return _about.c_str(); }
+    const char* tutorial() const { return _tutorial.c_str(); }
+    const char* developers() const { return _developers.c_str(); }
 
 protected:
     std::string _settings;
+    std::string _about;
     std::string _tutorial;
+    std::string _developers;
 };
 
 class StringsEnglish : public Strings
 {
 public:
-    StringsEnglish()
-    {
-        _settings = "Settings";
-        _tutorial = "Tutorial";
-    }
+    StringsEnglish();
 };
 
 class StringsGerman : public Strings
 {
 public:
-    StringsGerman()
-    {
-        _settings = "Einstellungen";
-        _tutorial = "Anleitung";
-    }
+    StringsGerman();
 };
 
 class StringsFrench : public Strings
 {
 public:
-    StringsFrench()
-    {
-        _settings = "Paramètres";
-        _tutorial = "Manuel";
-    }
+    StringsFrench();
 };
 
 class StringsItalien : public Strings
 {
 public:
-    StringsItalien()
-    {
-        _settings = "";
-        _tutorial = "";
-    }
+    StringsItalien();
 };
 
 class Fonts
@@ -189,14 +177,17 @@ public:
 class Resources
 {
 public:
-    static void setLanguageEnglish();
-    static void setLanguageGerman();
-    static void setLanguageFrench();
-    static void setLanguageItalien();
+    Resources();
+    ~Resources();
 
-    static Strings& strings()
+    void setLanguageEnglish();
+    void setLanguageGerman();
+    void setLanguageFrench();
+    void setLanguageItalien();
+
+    const Strings& strings()
     {
-        return *instance().currStrings;
+        return *currStrings;
     }
 
 private:
@@ -204,15 +195,7 @@ private:
     StringsGerman  stringsGerman;
     StringsFrench  stringsFrench;
     StringsItalien stringsItalien;
-    Strings*       currStrings = &stringsEnglish;
-
-    int i = 0;
-
-    static Resources& instance()
-    {
-        static Resources instance;
-        return instance;
-    }
+    Strings*       currStrings = &stringsFrench;
 };
 
 };
