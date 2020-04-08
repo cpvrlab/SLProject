@@ -5,6 +5,7 @@
 #include <DeviceData.h>
 #include <sm/Event.h>
 #include <imgui.h>
+#include <string>
 
 //erlebar location
 enum class Location
@@ -127,22 +128,93 @@ const ImVec4 BackButtonPressedColor = {BFHColors::GrayLogo.r,
 //-----------------------------------------------------------------------------
 namespace ErlebAR
 {
-class Text
+
+class Strings
 {
 public:
-    explicit Text(std::string heading,
-                  std::string settings)
-      : Heading(heading),
-        Settings(settings)
-    {
-    }
+    const char* settings() { return _settings.c_str(); }
+    const char* tutorial() { return _tutorial.c_str(); }
 
-    const std::string Heading;
-    const std::string Settings;
+protected:
+    std::string _settings;
+    std::string _tutorial;
 };
 
-const Text textEnglish("ErlebAR",
-                       "Settings");
+class StringsEnglish : public Strings
+{
+public:
+    StringsEnglish()
+    {
+        _settings = "Settings";
+        _tutorial = "Tutorial";
+    }
+};
+
+class StringsGerman : public Strings
+{
+public:
+    StringsGerman()
+    {
+        _settings = "Einstellungen";
+        _tutorial = "Anleitung";
+    }
+};
+
+class StringsFrench : public Strings
+{
+public:
+    StringsFrench()
+    {
+        _settings = "Paramètres";
+        _tutorial = "Manuel";
+    }
+};
+
+class StringsItalien : public Strings
+{
+public:
+    StringsItalien()
+    {
+        _settings = "";
+        _tutorial = "";
+    }
+};
+
+class Fonts
+{
+public:
+    ImFontAtlas* fontAtlas = nullptr;
+};
+
+class Resources
+{
+public:
+    static void setLanguageEnglish();
+    static void setLanguageGerman();
+    static void setLanguageFrench();
+    static void setLanguageItalien();
+
+    static Strings& strings()
+    {
+        return *instance().currStrings;
+    }
+
+private:
+    StringsEnglish stringsEnglish;
+    StringsGerman  stringsGerman;
+    StringsFrench  stringsFrench;
+    StringsItalien stringsItalien;
+    Strings*       currStrings = &stringsEnglish;
+
+    int i = 0;
+
+    static Resources& instance()
+    {
+        static Resources instance;
+        return instance;
+    }
+};
+
 };
 
 //-----------------------------------------------------------------------------

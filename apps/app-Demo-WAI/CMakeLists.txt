@@ -100,6 +100,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
