@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <string>
+#include <CVImage.h> // Image class for image loading
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -10,7 +11,10 @@ std::string fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShad
 
 GLFWwindow* window;
 vkUtils     renderer;
-
+const std::vector<Vertex> vertices = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+                                      {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+                                      {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+                                      {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
 
 void initWindow()
 {
@@ -43,7 +47,7 @@ void initVulkan()
     renderer.createTextureImage(texture.data(), texture.width(), texture.height());
     renderer.createTextureImageView();
     renderer.createTextureSampler();
-    renderer.createVertexBuffer();
+    renderer.createVertexBuffer(vertices);
     renderer.createIndexBuffer();
     renderer.createUniformBuffers();
     renderer.createDescriptorPool();
@@ -61,8 +65,6 @@ void mainLoop()
         glfwPollEvents();
         renderer.drawFrame();
     }
-
-    renderer.deviceWaitIdle();
 }
 
 void cleanup()
