@@ -186,6 +186,11 @@ public:
     ~WAISlam();
 
     virtual void reset();
+
+    WAIFrame createFrame(cv::Mat& imageGray);
+    WAIFrame createIniFrame(cv::Mat& imageGray);
+
+    virtual bool update(WAIFrame frame);
     virtual bool update(cv::Mat& imageGray);
     virtual void resume();
 
