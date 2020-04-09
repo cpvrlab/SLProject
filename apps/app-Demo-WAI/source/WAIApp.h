@@ -27,7 +27,7 @@
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
-#include <AppWAISceneView.h>
+#include <SLTransformationNode.h>
 
 class SLMaterial;
 class SLPoints;
@@ -221,7 +221,7 @@ struct WAIEventEnterEditMode : WAIEvent
 {
     WAIEventEnterEditMode() { type = WAIEventType_EnterEditMode; }
 
-    WAINodeEditMode editMode;
+    SLNodeEditMode editMode;
 };
 
 //-----------------------------------------------------------------------------
@@ -300,9 +300,10 @@ private:
     //todo: we dont need a pointer
     AppWAIScene _waiScene;
     //WAI::ModeOrbSlam2*           _mode;
-    WAISlam*      _mode       = nullptr;
-    WAISceneView* _sv         = nullptr;
-    SLGLTexture*  _videoImage = nullptr;
+    WAISlam*              _mode               = nullptr;
+    SLSceneView*          _sv                 = nullptr;
+    SLTransformationNode* _transformationNode = nullptr;
+    SLGLTexture*          _videoImage         = nullptr;
 
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;

@@ -1087,11 +1087,20 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     SLbool result = false;
     if (_camera && s->root3D())
     {
-        result = _camera->onMouseDown(button, x, y, mod);
+        SLbool eventConsumed = false;
         for (auto eh : s->eventHandlers())
         {
             if (eh->onMouseDown(button, x, y, mod))
-                result = true;
+                eventConsumed = true;
+        }
+
+        if (!eventConsumed)
+        {
+            result = _camera->onMouseDown(button, x, y, mod);
+        }
+        else
+        {
+            result = true;
         }
     }
 
@@ -1142,12 +1151,23 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
 
     if (_camera && s->root3D())
     {
-        SLbool result = _camera->onMouseUp(button, x, y, mod);
+        SLbool result        = false;
+        SLbool eventConsumed = false;
         for (auto eh : s->eventHandlers())
         {
             if (eh->onMouseUp(button, x, y, mod))
-                result = true;
+                eventConsumed = true;
         }
+
+        if (!eventConsumed)
+        {
+            result = _camera->onMouseUp(button, x, y, mod);
+        }
+        else
+        {
+            result = true;
+        }
+
         return result;
     }
 
@@ -1181,12 +1201,18 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     _touchDowns   = 0;
     SLbool result = false;
 
+    SLMouseButton btn;
+    if (_mouseDownL)
+        btn = MB_left;
+    else if (_mouseDownR)
+        btn = MB_right;
+    else if (_mouseDownM)
+        btn = MB_middle;
+    else
+        btn = MB_none;
+
     if (_mouseDownL || _mouseDownR || _mouseDownM)
     {
-        SLMouseButton btn = _mouseDownL
-                              ? MB_left
-                              : _mouseDownR ? MB_right : MB_middle;
-
         // Handle move in ray tracing
         if (_renderType == RT_rt && !_raytracer.doContinuous())
         {
@@ -1206,15 +1232,20 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
                 _pathtracer.state(rtMoveGL);
             _renderType = RT_gl;
         }
-
-        result = _camera->onMouseMove(btn, x, y, _mouseMod);
-
-        for (auto eh : s->eventHandlers())
-        {
-            if (eh->onMouseMove(btn, x, y, _mouseMod))
-                result = true;
-        }
     }
+
+    SLbool eventConsumed = false;
+    for (auto eh : s->eventHandlers())
+    {
+        if (eh->onMouseMove(btn, x, y, _mouseMod))
+            eventConsumed = true;
+    }
+
+    if (!eventConsumed)
+        result = _camera->onMouseMove(btn, x, y, _mouseMod);
+    else
+        result = true;
+
     return result;
 }
 //-----------------------------------------------------------------------------

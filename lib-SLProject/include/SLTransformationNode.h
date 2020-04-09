@@ -1,31 +1,34 @@
-#ifndef APP_WAI_SCENEVIEW_H
-#define APP_WAI_SCENEVIEW_H
+#ifndef SL_TRANSFORMATION_NODE_H
+#define SL_TRANSFORMATION_NODE_H
 
 #include <SLSceneView.h>
-#include <SLCircle.h>
 
 struct WAIEvent;
 
-enum WAINodeEditMode
+enum SLNodeEditMode
 {
-    WAINodeEditMode_None,
-    WAINodeEditMode_Translate,
-    WAINodeEditMode_Scale,
-    WAINodeEditMode_Rotate
+    NodeEditMode_None,
+    NodeEditMode_Translate,
+    NodeEditMode_Scale,
+    NodeEditMode_Rotate
 };
 
-class WAISceneView : public SLSceneView
+class SLTransformationNode : public SLNode
 {
 public:
-    WAISceneView();
-    void toggleEditMode(WAINodeEditMode editMode);
+    SLTransformationNode(SLCamera* camera, SLSceneView* sv, SLNode* targetNode);
+    void toggleEditMode(SLNodeEditMode editMode);
 
-    virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
-    virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
-    virtual SLbool onMouseMove(SLint scrX, SLint scrY);
+    virtual SLbool onMouseDown(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
+    virtual SLbool onMouseUp(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
+    virtual SLbool onMouseMove(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
 
 private:
-    WAINodeEditMode _editMode;
+    SLCamera*    _camera     = nullptr;
+    SLSceneView* _sv         = nullptr;
+    SLNode*      _targetNode = nullptr;
+
+    SLNodeEditMode _editMode;
 
     SLNode* _editGizmos = nullptr;
 

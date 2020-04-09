@@ -39,7 +39,6 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISceneView.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
@@ -81,7 +80,6 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISceneView.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp

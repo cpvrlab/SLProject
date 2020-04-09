@@ -555,7 +555,7 @@ int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2
         if (!SLApplication::dpi)
             SLApplication::dpi = dpi;
 
-        _sv = new WAISceneView(&_eventQueue);
+        _sv = new SLSceneView();
         _sv->init("SceneView",
                   screenWidth,
                   screenHeight,
@@ -1200,7 +1200,33 @@ void WAIApp::handleEvents()
             case WAIEventType_EnterEditMode: {
                 WAIEventEnterEditMode* enterEditModeEvent = (WAIEventEnterEditMode*)event;
 
-                _sv->toggleEditMode(enterEditModeEvent->editMode);
+                if (!_transformationNode)
+                {
+                    _transformationNode = new SLTransformationNode(_sv->camera(), _sv, SLApplication::scene->root3D()->findChild<SLNode>("map"));
+                    SLApplication::scene->eventHandlers().push_back(_transformationNode);
+                    SLApplication::scene->root3D()->addChild(_transformationNode);
+                }
+
+                if (enterEditModeEvent->editMode == NodeEditMode_None)
+                {
+                    std::vector<SLEventHandler*>::iterator it = std::find(SLApplication::scene->eventHandlers().begin(),
+                                                                          SLApplication::scene->eventHandlers().end(),
+                                                                          _transformationNode);
+
+                    if (it != SLApplication::scene->eventHandlers().end())
+                    {
+                        SLApplication::scene->eventHandlers().erase(it);
+                    }
+
+                    if (SLApplication::scene->root3D()->deleteChild(_transformationNode))
+                    {
+                        _transformationNode = nullptr;
+                    }
+                }
+                else
+                {
+                    _transformationNode->toggleEditMode(enterEditModeEvent->editMode);
+                }
 
                 delete enterEditModeEvent;
             }
