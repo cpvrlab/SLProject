@@ -3,6 +3,7 @@
 
 #include <string>
 #include <ImGuiWrapper.h>
+#include <ErlebAR.h>
 
 class SLScene;
 class SLSceneView;
@@ -10,12 +11,13 @@ class SLSceneView;
 class WelcomeGui : public ImGuiWrapper
 {
 public:
-    WelcomeGui(int         dotsPerInch,
-               int         screenWidthPix,
-               int         screenHeightPix,
-               std::string fontPath,
-               std::string texturePath,
-               std::string version);
+    WelcomeGui(ErlebAR::Resources& resources,
+               int                 dotsPerInch,
+               int                 screenWidthPix,
+               int                 screenHeightPix,
+               std::string         fontPath,
+               std::string         texturePath,
+               std::string         version);
     ~WelcomeGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -55,6 +57,8 @@ private:
 
     ImFont* _fontBig   = nullptr;
     ImFont* _fontSmall = nullptr;
+
+    ErlebAR::Resources& _resources;
 };
 
 #endif //WELCOME_GUI_H

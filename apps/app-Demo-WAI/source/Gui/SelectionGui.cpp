@@ -4,6 +4,8 @@
 #include <CVImage.h>
 #include <float.h>
 
+using namespace ErlebAR;
+
 SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
                            ErlebAR::Resources& resources,
                            int                 dotsPerInch,
@@ -15,8 +17,7 @@ SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    int fontHeightDots = _buttonSz.y * ErlebAR::ButtonTextH;
-
+    int fontHeightDots = _buttonSz.y * _resources.style().buttonTextH;
     //add font and store index
     SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
     if (Utils::fileExists(DroidSans))
@@ -89,7 +90,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _windowPadding = 0.f;
     _buttonSpace   = 0.02f * _screenHPix;
 
-    _buttonRounding         = ErlebAR::ButtonRounding * _screenHPix;
+    _buttonRounding         = _resources.style().buttonRounding * _screenHPix;
     float frameButtonBoardB = 0.1f * _screenHPix;
     float frameButtonBoardR = 0.1f * _screenWPix;
     _buttonBoardW           = 0.5f * _screenWPix;
@@ -112,9 +113,9 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ErlebAR::SelectionButtonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ErlebAR::SelectionButtonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ErlebAR::SelectionButtonPressedColor);
+    ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().buttonColorSelection);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().buttonColorSelection);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().buttonColorPressedSelection);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
 
     if (_font)

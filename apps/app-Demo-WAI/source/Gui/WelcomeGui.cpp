@@ -3,13 +3,17 @@
 #include <imgui_internal.h>
 #include <CVImage.h>
 
-WelcomeGui::WelcomeGui(int         dotsPerInch,
-                       int         screenWidthPix,
-                       int         screenHeightPix,
-                       std::string fontPath,
-                       std::string texturePath,
-                       std::string version)
-  : _versionStr(version)
+using namespace ErlebAR;
+
+WelcomeGui::WelcomeGui(ErlebAR::Resources& resources,
+                       int                 dotsPerInch,
+                       int                 screenWidthPix,
+                       int                 screenHeightPix,
+                       std::string         fontPath,
+                       std::string         texturePath,
+                       std::string         version)
+  : _versionStr(version),
+    _resources(resources)
 {
     //load fonts for big ErlebAR text and verions text
     SLstring ttf = fontPath + "Roboto-Medium.ttf";
@@ -196,7 +200,7 @@ void WelcomeGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ErlebAR::PrimaryBackgroundColor);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
 }
 
 void WelcomeGui::popStyle()

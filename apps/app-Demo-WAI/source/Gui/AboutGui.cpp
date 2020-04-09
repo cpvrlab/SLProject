@@ -1,6 +1,8 @@
 #include <AboutGui.h>
 #include <imgui_internal.h>
 
+using namespace ErlebAR;
+
 AboutGui::AboutGui(sm::EventHandler&   eventHandler,
                    ErlebAR::Resources& resources,
                    int                 dotsPerInch,
@@ -11,8 +13,8 @@ AboutGui::AboutGui(sm::EventHandler&   eventHandler,
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    _bigTextH   = ErlebAR::HeaderBarTextH * (float)_headerBarH;
-    _smallTextH = ErlebAR::StandardTextH * (float)screenHeightPix;
+    _bigTextH   = _resources.style().headerBarTextH * (float)_headerBarH;
+    _smallTextH = _resources.style().textStandardH * (float)screenHeightPix;
 
     //load fonts for big ErlebAR text and verions text
     SLstring ttf = fontPath + "Roboto-Medium.ttf";
@@ -41,11 +43,11 @@ void AboutGui::resize(int scrW, int scrH)
     _screenW = (float)scrW;
     _screenH = (float)scrH;
 
-    _headerBarH              = ErlebAR::HeaderBarPercH * _screenH;
+    _headerBarH              = _resources.style().headerBarPercH * _screenH;
     _contentH                = _screenH - _headerBarH;
     _contentStartY           = _headerBarH;
-    _spacingBackButtonToText = ErlebAR::HeaderBarSpacingBB2Text * _headerBarH;
-    _buttonRounding          = ErlebAR::ButtonRounding * _screenH;
+    _spacingBackButtonToText = _resources.style().headerBarSpacingBB2Text * _headerBarH;
+    _buttonRounding          = _resources.style().buttonRounding * _screenH;
     _textWrapW               = 0.8f * _screenW;
 }
 
@@ -59,11 +61,11 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowSize(ImVec2(_screenW, _headerBarH), ImGuiCond_Always);
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ErlebAR::HeaderBarBackgroundColor);
-        ImGui::PushStyleColor(ImGuiCol_Text, ErlebAR::HeaderBarTextColor);
-        ImGui::PushStyleColor(ImGuiCol_Button, ErlebAR::BackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ErlebAR::BackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ErlebAR::BackButtonPressedColor);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundColor);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().headerBarTextColor);
+        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
         ImGui::PushFont(_fontBig);
         //hack for ArrowButton alignment (has to be called after font has been pushed
         float h       = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
@@ -94,7 +96,7 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
                                        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ErlebAR::PrimaryBackgroundColor);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.f, 20.f));
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
         //ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _screenH * 0.05f);

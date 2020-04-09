@@ -71,6 +71,7 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     _resources = new ErlebAR::Resources();
 
     _welcomeView = new WelcomeView(_inputManager,
+                                   *_resources,
                                    dd.scrWidth(),
                                    dd.scrHeight(),
                                    dd.dpi(),

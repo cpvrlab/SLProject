@@ -51,6 +51,8 @@
 
 #include <AppDemoGuiInfosMapNodeTransform.h>
 
+using namespace ErlebAR;
+
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
                              std::string                           appName,

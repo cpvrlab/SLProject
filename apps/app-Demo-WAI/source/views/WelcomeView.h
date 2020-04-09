@@ -11,14 +11,15 @@ class SLTexFont;
 class WelcomeView : public SLSceneView
 {
 public:
-    WelcomeView(SLInputManager& inputManager,
-                int             screenWidth,
-                int             screenHeight,
-                int             dotsPerInch,
-                std::string     fontPath,
-                std::string     texturePath,
-                std::string     imguiIniPath,
-                std::string     version);
+    WelcomeView(SLInputManager&     inputManager,
+                ErlebAR::Resources& resources,
+                int                 screenWidth,
+                int                 screenHeight,
+                int                 dotsPerInch,
+                std::string         fontPath,
+                std::string         texturePath,
+                std::string         imguiIniPath,
+                std::string         version);
     bool update();
 
 private:

@@ -15,19 +15,19 @@ Resources::~Resources()
 
 void Resources::setLanguageGerman()
 {
-    currStrings = &stringsGerman;
+    _currStrings = &_stringsGerman;
 }
 void Resources::setLanguageEnglish()
 {
-    currStrings = &stringsEnglish;
+    _currStrings = &_stringsEnglish;
 }
 void Resources::setLanguageFrench()
 {
-    currStrings = &stringsFrench;
+    _currStrings = &_stringsFrench;
 }
 void Resources::setLanguageItalien()
 {
-    currStrings = &stringsItalien;
+    _currStrings = &_stringsItalien;
 }
 
 Strings::Strings()
