@@ -125,7 +125,9 @@ enum SLSceneID
     SID_VideoTextureFile,
     SID_VideoChristoffel,
     SID_VideoAugustaRaurica,
-    SID_VideoAventicum,
+    SID_VideoAventicumAmphi,
+    SID_VideoAventicumCigonier,
+    SID_VideoAventicumTheatre,
     SID_VideoCalibrateMain,
     SID_VideoCalibrateScnd,
     SID_VideoTrackChessMain,
@@ -137,6 +139,10 @@ enum SLSceneID
     SID_VideoTrackFaceMain,
     SID_VideoTrackFaceScnd,
     SID_VideoSensorAR,
+#ifdef SL_BUILD_WAI
+    SID_VideoTrackWAI,
+#endif
+
     SID_RTMuttenzerBox,
     SID_RTSpheres,
     SID_RTSoftShadows,

@@ -23,6 +23,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
+option(SL_BUILD_WAI
+	   "Specified if the WAI apps and library should be built"
+	   ON)
+option(SL_BUILD_APPS
+	   "Specifies if sample apps should be built"
+	   ON)
+
+message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
+message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
+
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
 

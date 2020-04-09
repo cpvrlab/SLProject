@@ -65,16 +65,11 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(static_cast<float>(FRAME_GRID_COLS) / (nMaxX - nMinX)),
     mfGridElementHeightInv(static_cast<float>(FRAME_GRID_ROWS) / (nMaxY - nMinY)),
-    mnTrackReferenceForFrame(0),
-    mnFuseTargetForKF(0),
-    mnBALocalForKF(0),
-    mnBAFixedForKF(0),
     _fixed(fixKF),
     mnLoopQuery(0),
     mnLoopWords(0),
     mnRelocQuery(0),
     mnRelocWords(0),
-    mnBAGlobalForKF(0),
     fx(fx),
     fy(fy),
     cx(cx),
@@ -101,6 +96,13 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     mbToBeErased(false),
     mbBad(false)
 {
+    mnMarker[0] = 0;
+    mnMarker[1] = 0;
+    mnMarker[2] = 0;
+    mnMarker[3] = 0;
+    mnMarker[4] = 0;
+    mnMarker[5] = 0;
+    mnMarker[6] = 0;
     //Update next id so we never have twice the same id and especially only one with 0 (this is important)
     if (id >= nNextId)
         nNextId = id + 1;
@@ -123,16 +125,11 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
     mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(F.mfGridElementWidthInv),
     mfGridElementHeightInv(F.mfGridElementHeightInv),
-    mnTrackReferenceForFrame(0),
-    mnFuseTargetForKF(0),
-    mnBALocalForKF(0),
-    mnBAFixedForKF(0),
     _fixed(false),
     mnLoopQuery(0),
     mnLoopWords(0),
     mnRelocQuery(0),
     mnRelocWords(0),
-    mnBAGlobalForKF(0),
     fx(F.fx),
     fy(F.fy),
     cx(F.cx),
@@ -162,6 +159,13 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
     mbToBeErased(false),
     mbBad(false) /*, mHalfBaseline(F.mb / 2)*/
 {
+    mnMarker[0] = 0;
+    mnMarker[1] = 0;
+    mnMarker[2] = 0;
+    mnMarker[3] = 0;
+    mnMarker[4] = 0;
+    mnMarker[5] = 0;
+    mnMarker[6] = 0;
     mnId = nNextId++;
 
     for (int i = 0; i < FRAME_GRID_COLS; i++)

@@ -464,10 +464,10 @@ bool LoopClosing::ComputeSim3()
             WAIMapPoint* pMP = vpMapPoints[i];
             if (pMP)
             {
-                if (!pMP->isBad() && pMP->mnLoopPointForKF != mpCurrentKF->mnId)
+                if (!pMP->isBad() && pMP->mnMarker[LOOP_POINT_KF] != mpCurrentKF->mnId)
                 {
                     mvpLoopMapPoints.push_back(pMP);
-                    pMP->mnLoopPointForKF = mpCurrentKF->mnId;
+                    pMP->mnMarker[LOOP_POINT_KF] = mpCurrentKF->mnId;
                 }
             }
         }
@@ -687,6 +687,8 @@ void LoopClosing::CorrectLoop()
     }
 
     doCorrectLoop();
+
+    mpLocalMapper->RequestContinue();
 }
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
@@ -795,11 +797,11 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 for (set<WAIKeyFrame*>::const_iterator sit = sChilds.begin(); sit != sChilds.end(); sit++)
                 {
                     WAIKeyFrame* pChild = *sit;
-                    if (pChild->mnBAGlobalForKF != nLoopKF)
+                    if (pChild->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                     {
                         cv::Mat Tchildc         = pChild->GetPose() * Twc;
                         pChild->mTcwGBA         = Tchildc * pKF->mTcwGBA; //*Tcorc*pKF->mTcwGBA;
-                        pChild->mnBAGlobalForKF = nLoopKF;
+                        pChild->mnMarker[BA_GLOBAL_KF] = nLoopKF;
                     }
                     lpKFtoCheck.push_back(pChild);
                 }
@@ -819,7 +821,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 if (pMP->isBad())
                     continue;
 
-                if (pMP->mnBAGlobalForKF == nLoopKF)
+                if (pMP->mnMarker[BA_GLOBAL_KF] == nLoopKF)
                 {
                     // If optimized by Global BA, just update
                     pMP->SetWorldPos(pMP->mPosGBA);
@@ -829,7 +831,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                     // Update according to the correction of its reference keyframe
                     WAIKeyFrame* pRefKF = pMP->GetReferenceKeyFrame();
 
-                    if (pRefKF->mnBAGlobalForKF != nLoopKF)
+                    if (pRefKF->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                         continue;
 
                     // Map to non-corrected camera
@@ -849,12 +851,12 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
             mpMap->InformNewBigChange();
 
             mpLocalMapper->Release();
-
             cout << "Map updated!" << endl;
         }
 
         mbFinishedGBA = true;
         mbRunningGBA  = false;
+        mpLocalMapper->RequestContinue();
     }
 }
 

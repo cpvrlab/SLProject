@@ -78,7 +78,7 @@ class CVTracked
 
     protected:
     bool         _isVisible;     //!< Flag if marker is visible
-    bool         _drawDetection; //! Flag if detection should be drawn into image
+    bool         _drawDetection; //!< Flag if detection should be drawn into image
     CVMatx44f    _objectViewMat; //!< view transformation matrix
     HighResTimer _timer;         //!< High resolution timer
 };
