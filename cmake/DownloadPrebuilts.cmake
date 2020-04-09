@@ -55,6 +55,11 @@ set(vk_LINK_LIBS
         vulkan-1
         )
 
+set(glfw_DIR)
+set(glfw_INCLUDE_DIR)
+set(glfw_LINK_DIR)
+set(glfw_LINK_LIBS)
+
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
@@ -156,7 +161,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/lib)
+    set(g2o_LINK_DIR ${g2o_DIR}/lib)   #don't forget to add the this link dir down at the bottom
 
     foreach(lib ${g2o_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
@@ -211,7 +216,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/lib")
+    set(assimp_LINK_DIR "${assimp_DIR}/lib")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
     set(assimp_LINK_LIBS assimp-mt)
@@ -271,7 +276,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     endif()
 
     set(vk_INCLUDE_DIR ${vk_DIR}/Include)
-    set(vk_LINK_DIR ${vk_DIR}/Lib)
+    set(vk_LINK_DIR ${vk_DIR}/Lib)   #don't forget to add the this link dir down at the bottom
 
     foreach(lib ${vk_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
@@ -285,6 +290,41 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 )
     endforeach(lib)
 
+    ####################
+    # GLFW for Windows #
+    ####################
+
+    set(glfw_VERSION "3.3.2")
+    set(glfw_DIR ${PREBUILT_PATH}/win64_glfw_${glfw_VERSION})
+    set(glfw_PREBUILT_ZIP "win64_glfw_${glfw_VERSION}.zip")
+    set(glfw_URL ${PREBUILT_URL}/${glfw_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${glfw_DIR}")
+        file(DOWNLOAD "${glfw_URL}" "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
+    endif()
+
+    set(glfw_INCLUDE_DIR  ${glfw_DIR}/include)
+    set(glfw_LINK_DIR ${glfw_DIR}/lib-vc2019) # don't forget to add the this link dir down at the bottom
+
+    add_library(glfw3dll SHARED IMPORTED)
+    set_target_properties(glfw3dll PROPERTIES IMPORTED_LOCATION "${glfw_LINK_DIR}/glfw3dll.lib")
+    set(glfw_LIBS glfw3dll)
+
+    # Set working dir for VS
+    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
+            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+    # For MSVS copy them to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+        file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif()
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
 
     ############################
@@ -295,7 +335,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(OpenCV_VERSION "3.4.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
@@ -314,7 +354,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
@@ -375,7 +415,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
 
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
@@ -390,7 +430,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
 
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
@@ -417,7 +457,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")
+    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
@@ -437,7 +477,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "mac64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")
+    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
@@ -502,13 +542,38 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
     endif()
 
-    set(vk_INCLUDE_DIR
-            ${vk_DIR}/macOS/include)
+    set(vk_INCLUDE_DIR ${vk_DIR}/macOS/include)
 
-    set(vk_LINK_DIR
-            ${vk_DIR}/macOS/lib)
+    set(vk_LINK_DIR ${vk_DIR}/macOS/lib)   #don't forget to add the this link dir down at the bottom
 
+    ##################
+    # GLFW for MacOS #
+    ##################
 
+    set(glfw_VERSION "3.3.2")
+    set(glfw_DIR ${PREBUILT_PATH}/mac64_glfw_${glfw_VERSION})
+    set(glfw_PREBUILT_ZIP "mac64_glfw_${glfw_VERSION}.zip")
+    set(glfw_URL ${PREBUILT_URL}/${glfw_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${glfw_DIR}")
+        file(DOWNLOAD "${glfw_URL}" "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
+    endif()
+
+    set(glfw_INCLUDE_DIR  ${glfw_DIR}/include)
+    set(glfw_LINK_DIR ${glfw_DIR}/lib-macos)   #don't forget to add the this link dir down at the bottom
+
+    add_library(libglfw.3 SHARED IMPORTED)
+    set_target_properties(libglfw.3 PROPERTIES IMPORTED_LOCATION "${glfw_LINK_DIR}/libglfw.3.dylib")
+    set(glfw_LIBS libglfw.3)
+
+    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
@@ -519,7 +584,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")   #don't forget to add the this link dir down at the bottom
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
@@ -572,7 +637,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(g2o_PREBUILT_DIR "andV8_g2o")
     set(g2o_DIR ${PREBUILT_PATH}/andV8_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})   #don't forget to add the this link dir down at the bottom
     set(g2o_PREBUILT_ZIP "${g2o_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${g2o_DIR}")
@@ -602,7 +667,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(assimp_PREBUILT_DIR "andV8_assimp_${assimp_VERSION}")
     set(assimp_DIR ${PREBUILT_PATH}/${assimp_PREBUILT_DIR})
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})
+    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})  #don't forget to add the this link dir down at the bottom
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${assimp_DIR}")
@@ -628,6 +693,7 @@ endif()
 #==============================================================================
 
 link_directories(${OpenCV_LINK_DIR})
-link_directories(${vk_LINK_DIR})
 link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
+link_directories(${vk_LINK_DIR})
+link_directories(${glfw_LINK_DIR})

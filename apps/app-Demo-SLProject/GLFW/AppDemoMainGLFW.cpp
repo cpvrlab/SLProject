@@ -18,15 +18,15 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <GLFW/glfw3.h>
-
-#include <AppDemoGui.h>
-#include <AppDemoSceneView.h>
-#include <CVCapture.h>
+#include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
 #include <SLApplication.h>
 #include <SLSceneView.h>
+#include <CVCapture.h>
+#include <AppDemoGui.h>
+#include <AppDemoSceneView.h>
+#include <GLFW/glfw3.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
@@ -528,8 +528,8 @@ int main(int argc, char* argv[])
     // in framebuffer coords. On MacOS Mojave this doesn't work anymore.
     SLint fbWidth, fbHeight;
     glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = 1.0f; //(float)fbWidth / (float)scrWidth;
-    scr2fbY = 1.0f; //(float)fbHeight / (float)scrHeight;
+    scr2fbX = (float)fbWidth / (float)scrWidth;
+    scr2fbY = (float)fbHeight / (float)scrHeight;
 
     // Include OpenGL via GLEW (init must be after window creation)
     // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++

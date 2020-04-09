@@ -108,25 +108,26 @@ set_target_properties(${target}
     )
 
 target_include_directories(${target}
-    PRIVATE
-    PUBLIC
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
-    ${SL_PROJECT_ROOT}/apps/source/wai/
-    ${SL_PROJECT_ROOT}/apps/source/sens/
-    INTERFACE
-    )
+        PRIVATE
+        PUBLIC
+        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
+        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/
+        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/
+        ${SL_PROJECT_ROOT}/apps/source/wai/
+        ${SL_PROJECT_ROOT}/apps/source/sens/
+        ${glfw_INCLUDE_DIR}
+        INTERFACE
+        )
 
 target_link_libraries(${target}
-    PRIVATE
+        PRIVATE
 
-    PUBLIC
-    ${META_PROJECT_NAME}::lib-WAI
-    lib-SLProject
-
-    INTERFACE
-    )
+        PUBLIC
+        ${META_PROJECT_NAME}::lib-WAI
+        lib-SLProject
+        ${glfw_LIBS}
+        INTERFACE
+        )
 
 target_compile_definitions(${target}
     PRIVATE

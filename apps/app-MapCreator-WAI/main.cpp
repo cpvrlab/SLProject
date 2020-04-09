@@ -34,8 +34,8 @@ void printHelp()
 void readArgs(int argc, char* argv[], Config& config)
 {
     config.extractorType = ExtractorType_GLSL;
-    config.erlebARDir = Utils::getAppsWritableDir() + "/erleb-AR/";
-    config.vocFile = config.erlebARDir + "voc/ORBvoc.bin";
+    config.erlebARDir    = Utils::getAppsWritableDir() + "/erleb-AR/";
+    config.vocFile       = config.erlebARDir + "voc/ORBvoc.bin";
 
     for (int i = 1; i < argc; ++i)
     {

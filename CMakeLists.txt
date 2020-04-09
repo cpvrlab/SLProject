@@ -36,7 +36,7 @@ endif()
 
 option(SL_BUILD_WAI
 	   "Specified if the WAI apps and library should be built"
-	   OFF)
+	   ON)
 option(SL_BUILD_APPS
 	   "Specifies if sample apps should be built"
 	   ON)

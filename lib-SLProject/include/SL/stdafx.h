@@ -52,17 +52,13 @@
 // Core header files used by all files
 #include <SL.h>
 #include <SLEnums.h>
-#include <SLGLState.h>
 #include <SLMat3.h>
 #include <SLMat4.h>
 #include <SLObject.h>
-#include <SLPlane.h>
 #include <SLQuat4.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
-#include <SLVector.h>
-#include <SLRect.h>
 //-----------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>

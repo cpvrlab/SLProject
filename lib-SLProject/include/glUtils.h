@@ -14,6 +14,24 @@
 
 #include <array>
 
+#ifdef __APPLE__
+#    if TARGET_OS_IOS
+#        include <OpenGLES/ES3/gl.h>
+#        include <OpenGLES/ES3/glext.h>
+#    else
+#        include <GL/glew.h>
+#    endif
+#elif defined(ANDROID) || defined(ANDROID_NDK)
+#    include <GLES3/gl31.h>
+#    include <GLES3/gl3ext.h>
+#elif defined(_WIN32)
+#    include <GL/glew.h>
+#elif defined(linux) || defined(__linux) || defined(__linux__)
+#    include <GL/glew.h>
+#else
+#    error "SL has not been ported to this OS"
+#endif
+
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -22,7 +40,7 @@ using namespace std;
 //! OpenGL utility class with functions for simple OpenGL demo apps
 class glUtils
 {
-    public:
+public:
     static void printGLInfo();
 
     //! Loads an GLSL-shader file and returns the code as a string
