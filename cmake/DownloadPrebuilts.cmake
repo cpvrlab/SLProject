@@ -311,7 +311,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(glfw_LINK_DIR ${glfw_DIR}/lib-vc2019) # don't forget to add the this link dir down at the bottom
 
     add_library(glfw3dll SHARED IMPORTED)
-    set_target_properties(glfw3dll PROPERTIES IMPORTED_LOCATION "${glfw_LINK_DIR}/glfw3dll.lib")
+    set_target_properties(glfw3dll PROPERTIES
+            IMPORTED_IMPLIB "${glfw_LINK_DIR}/glfw3dll.lib"
+            IMPORTED_LOCATION "${glfw_LINK_DIR}/glfw3.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${glfw_INCLUDE_DIR}"
+            )
+
     set(glfw_LIBS glfw3dll)
 
     # Set working dir for VS
@@ -546,8 +551,35 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     endif()
 
     set(vk_INCLUDE_DIR ${vk_DIR}/macOS/include)
-
     set(vk_LINK_DIR ${vk_DIR}/macOS/lib)   #don't forget to add the this link dir down at the bottom
+
+    add_library(libvulkan SHARED IMPORTED)
+    set_target_properties(libvulkan PROPERTIES IMPORTED_LOCATION "${vk_LINK_DIR}/libvulkan.dylib")
+    set(vk_LIBS libvulkan)
+
+    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libMoltenVK.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libshaderc_shared.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libSPIRV-Tools-shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libVkLayer_api_dump.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libVkLayer_khronos_validation.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libvulkan.1.2.131.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libshaderc_shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libvulkan.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+
+        file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libMoltenVK.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libshaderc_shared.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libSPIRV-Tools-shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libVkLayer_api_dump.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libVkLayer_khronos_validation.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libvulkan.1.2.131.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libshaderc_shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libvulkan.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
 
     ##################
     # GLFW for MacOS #

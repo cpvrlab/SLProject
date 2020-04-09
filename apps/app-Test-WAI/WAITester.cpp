@@ -18,8 +18,8 @@
 #include <SURFextractor.h>
 #include <GLSLextractor.h>
 
-#include <GLFW/glfw3.h>
 #include <WAITester.h>
+#include <GLFW/glfw3.h>
 
 #define TRACKING_FLAG 1
 #define RELOC_FLAG 2
