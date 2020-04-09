@@ -17,7 +17,7 @@ enum WAINodeEditMode
 class WAISceneView : public SLSceneView
 {
 public:
-    WAISceneView(std::queue<WAIEvent*>* eventQueue);
+    WAISceneView();
     void toggleEditMode(WAINodeEditMode editMode);
 
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);

@@ -9,9 +9,9 @@
 
 #include <WAIApp.h>
 
-WAISceneView::WAISceneView(std::queue<WAIEvent*>* eventQueue) : SLSceneView(),
-                                                                _editMode(WAINodeEditMode_None),
-                                                                _mouseIsDown(false)
+WAISceneView::WAISceneView() : SLSceneView(),
+                               _editMode(WAINodeEditMode_None),
+                               _mouseIsDown(false)
 {
 }
 
