@@ -541,7 +541,7 @@ void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
-    SL_LOG("U");
+    //SL_LOG("U");
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position

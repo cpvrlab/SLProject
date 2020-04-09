@@ -96,11 +96,23 @@ public:
 
     //other:
     // percental standard text height relative to screen height
-    float  textStandardH          = 0.05f;
+    float textStandardH = 0.05f;
+    // percental heading text height relative to screen height
+    float  textHeadingH      = 0.07f;
+    ImVec4 textStandardColor = {BFHColors::GrayDark.r,
+                                BFHColors::GrayDark.g,
+                                BFHColors::GrayDark.b,
+                                1.0};
+    ImVec4 textHeadingColor  = {1.f, 1.f, 1.f, 1.f};
+
     ImVec4 backgroundColorPrimary = {BFHColors::OrangePrimary.r,
                                      BFHColors::OrangePrimary.g,
                                      BFHColors::OrangePrimary.b,
                                      BFHColors::OrangePrimary.a};
+    // percental window padding for content (e.g. about and settings) rel. to screen height
+    float windowPaddingContent = 0.03f;
+    // percental item spacing for content (e.g. about and settings) rel. to screen height
+    float itemSpacingContent = 0.03f;
 };
 
 //-----------------------------------------------------------------------------

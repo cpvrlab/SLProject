@@ -38,13 +38,14 @@ private:
     float _contentH;
     float _contentStartY;
     float _spacingBackButtonToText;
-    float _bigTextH;
-    float _smallTextH;
     float _buttonRounding;
     float _textWrapW;
+    float _windowPaddingContent;
+    float _itemSpacingContent;
 
-    ImFont* _fontBig   = nullptr;
-    ImFont* _fontSmall = nullptr;
+    ImFont* _fontBig      = nullptr;
+    ImFont* _fontSmall    = nullptr;
+    ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
 };

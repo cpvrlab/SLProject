@@ -56,7 +56,8 @@ public:
         _mD       = false;
     }
 
-    //As we are using the mouse wheel we have to convert to mouseWheel coordinates:
+    //As we are using the io.mouseWheel from imgui to set the window position,
+    //we have to convert to mouseWheel coordinates.
     //One mouse wheel unit scrolls about 5 lines of text (see io.MouseWheel comment)
     float getScrollInMouseWheelCoords(const bool mouseDown, const float fontSize)
     {
@@ -65,7 +66,6 @@ public:
         {
             _mD = mouseDown;
             _timer.start();
-            Utils::log("PanScrolling", "start");
         }
         else
         {

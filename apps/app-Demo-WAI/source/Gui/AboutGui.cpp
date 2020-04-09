@@ -13,16 +13,17 @@ AboutGui::AboutGui(sm::EventHandler&   eventHandler,
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    _bigTextH   = _resources.style().headerBarTextH * (float)_headerBarH;
-    _smallTextH = _resources.style().textStandardH * (float)screenHeightPix;
-
+    float bigTextH      = _resources.style().headerBarTextH * (float)_headerBarH;
+    float headingTextH  = _resources.style().textHeadingH * (float)screenHeightPix;
+    float standardTextH = _resources.style().textStandardH * (float)screenHeightPix;
     //load fonts for big ErlebAR text and verions text
     SLstring ttf = fontPath + "Roboto-Medium.ttf";
 
     if (Utils::fileExists(ttf))
     {
-        _fontBig   = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _bigTextH);
-        _fontSmall = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _smallTextH);
+        _fontBig      = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
+        _fontSmall    = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), headingTextH);
+        _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
     }
     else
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
@@ -53,7 +54,9 @@ void AboutGui::resize(int scrW, int scrH)
     _contentStartY           = _headerBarH;
     _spacingBackButtonToText = _resources.style().headerBarSpacingBB2Text * _headerBarH;
     _buttonRounding          = _resources.style().buttonRounding * _screenH;
-    _textWrapW               = 0.8f * _screenW;
+    _textWrapW               = 0.9f * _screenW;
+    _windowPaddingContent    = _resources.style().windowPaddingContent * _screenH;
+    _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
 void AboutGui::build(SLScene* s, SLSceneView* sv)
@@ -88,65 +91,74 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::End();
 
-        ImGui::PopStyleVar(1);
         ImGui::PopStyleColor(5);
         ImGui::PopFont();
+        ImGui::PopStyleVar(1);
     }
 
     //content
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize |
-                                       ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
+                                            ImGuiWindowFlags_NoMove |
+                                            ImGuiWindowFlags_AlwaysAutoResize |
+                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                            ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags windowFlags = childWindowFlags |
+                                       ImGuiWindowFlags_NoScrollWithMouse;
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.f, 20.f));
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20.f, 20.f));
-        //ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _screenH * 0.05f);
-        //ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, _screenH * 0.05f * 2);
-        ImGui::PushFont(_fontSmall);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
         ImGui::Begin("AboutGui_content", nullptr, windowFlags);
+        ImGui::BeginChild("AboutGui_content_child", ImVec2(0, 0), false, childWindowFlags);
 
         //general
-        ImGui::BeginChild("dfgdfg", ImVec2(ImGui::GetWindowContentRegionWidth(), 0), false, childWindowFlags);
+        ImGui::PushFont(_fontSmall);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
         ImGui::Text(_resources.strings().general());
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
 
-        //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        static int lines = 1000;
-        //for (int i = 0; i < lines; i++)
-        //    ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
-        ImGuiListClipper clipper(lines);
-        while (clipper.Step())
-            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-                ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
-        //ImGui::PopStyleVar();
-
-        //ImGui::TextUnformatted(_resources.strings().generalContent());
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
+        ImGui::PushFont(_fontStandard);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
         ImGui::Text(_resources.strings().generalContent(), _textWrapW);
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
         ImGui::PopTextWrapPos();
+
         ImGui::Separator();
-        //ImGui::EndChild();
+
         //developers
-        //ImGui::BeginChild("AboutGui_content_developers", ImVec2(0, 0), false, childWindowFlags);
+        ImGui::PushFont(_fontSmall);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
         ImGui::Text(_resources.strings().developers());
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+
+        ImGui::PushFont(_fontStandard);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
         ImGui::Text(_resources.strings().developerNames(), _textWrapW);
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+
         ImGui::Separator();
-        ImGui::EndChild();
+
         //credits
         //..
 
+        ImGui::EndChild();
         ImGui::End();
 
         ImGui::PopStyleColor(1);
         ImGui::PopStyleVar(2);
-        ImGui::PopFont();
     }
 
     popStyle();
+
     //ImGui::ShowMetricsWindow();
 }
 
