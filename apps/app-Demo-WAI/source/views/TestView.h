@@ -33,6 +33,8 @@ public:
     //try to load slam params and start slam
     void start();
     void postStart();
+    //call when view becomes visible
+    void show() { _gui.onShow(); }
 
 protected:
     //try to load last slam (without clicking for convenience)

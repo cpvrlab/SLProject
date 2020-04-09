@@ -135,6 +135,11 @@ AppDemoWaiGui::~AppDemoWaiGui()
     uiPrefs->save(_prefsFileName, _context->Style);
 }
 //-----------------------------------------------------------------------------
+void AppDemoWaiGui::onShow()
+{
+    _panScroll.disable();
+}
+//-----------------------------------------------------------------------------
 void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)
 {
     string name = string(dialog->getName());

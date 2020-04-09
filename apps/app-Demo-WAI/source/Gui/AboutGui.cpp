@@ -32,6 +32,11 @@ AboutGui::~AboutGui()
 {
 }
 
+void AboutGui::onShow()
+{
+    _panScroll.enable();
+}
+
 void AboutGui::onResize(SLint scrW, SLint scrH)
 {
     resize(scrW, scrH);
@@ -110,13 +115,13 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Text(_resources.strings().general());
 
         //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        //static int lines = 1000;
+        static int lines = 1000;
         //for (int i = 0; i < lines; i++)
         //    ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
-        //ImGuiListClipper clipper(lines);
-        //while (clipper.Step())
-        //    for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-        //        ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
+        ImGuiListClipper clipper(lines);
+        while (clipper.Step())
+            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
         //ImGui::PopStyleVar();
 
         //ImGui::TextUnformatted(_resources.strings().generalContent());
@@ -142,7 +147,6 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
     }
 
     popStyle();
-
     //ImGui::ShowMetricsWindow();
 }
 

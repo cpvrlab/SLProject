@@ -25,6 +25,7 @@ public:
 
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH) override;
+    void onShow(); //call when gui becomes visible
 
 private:
     void resize(int scrW, int scrH);

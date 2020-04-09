@@ -19,10 +19,96 @@
 #include <SLVec2.h>
 #include <SLRect.h>
 #include <SLUiInterface.h>
+#include <HighResTimer.h>
 
 class SLScene;
 class SLSceneView;
 class ImGuiContext;
+
+//e.g. scrolling of child window by touch down and move.
+//We need the possibility to turn it off because it conflicts with drag and drop of windows
+//if a window is not fixed.
+class PanScrolling
+{
+public:
+    void enable()
+    {
+        _enabled  = true;
+        _lastPosY = 0.f;
+        _diff     = 0.f;
+        _vMW      = 0.f;
+        _mD       = false;
+    }
+    void disable()
+    {
+        _enabled = false;
+    }
+    void moveTo(const float yPos)
+    {
+        _diff -= (_lastPosY - yPos);
+        _lastPosY = yPos;
+    }
+    void start(const float yPos)
+    {
+        _lastPosY = yPos;
+        _vMW      = 0.f;
+        _diff     = 0.f;
+        _mD       = false;
+    }
+
+    //As we are using the mouse wheel we have to convert to mouseWheel coordinates:
+    //One mouse wheel unit scrolls about 5 lines of text (see io.MouseWheel comment)
+    float getScrollInMouseWheelCoords(const bool mouseDown, const float fontSize)
+    {
+        float dt = 0.f;
+        if (_mD != mouseDown)
+        {
+            _mD = mouseDown;
+            _timer.start();
+            Utils::log("PanScrolling", "start");
+        }
+        else
+        {
+            dt = _timer.elapsedTimeInSec();
+        }
+
+        if (mouseDown)
+        {
+            float diffMW = _diff / (fontSize * 5.f);
+            _diff        = 0; //diff consumed, reset it
+
+            //calculate v (of mouse wheel), we need it later
+            if (dt > 0.000001f)
+            {
+                //v = s / t
+                _vMW = diffMW / dt;
+            }
+
+            return diffMW;
+        }
+        else if (std::abs(_vMW) > 0.000001f)
+        {
+            //velocity controller
+            //v = v - p * v * t
+            _vMW = _vMW - _a * _vMW * dt;
+            //s = v * t
+            return _vMW * dt;
+        }
+        else
+            return 0.f;
+    }
+
+    bool enabled() { return _enabled; }
+
+private:
+    bool         _enabled  = false;
+    float        _lastPosY = 0.f;   //!< mouse down start position
+    float        _diff     = 0.f;   //!< Summed up y difference between mouse move events
+    float        _vMW      = 0.f;   //!< Mouse wheel velocity: used after pan scrolling for additional scrolling
+    const float  _a        = 0.1f;  //!< proportional control factor
+    bool         _mD       = false; //!< mouse down flag
+    HighResTimer _timer;
+};
 
 //-----------------------------------------------------------------------------
 //! ImGui Interface class for forwarding all events to the ImGui Handlers
@@ -78,6 +164,8 @@ public:
 protected:
     ImGuiContext* _context = nullptr;
 
+    PanScrolling _panScroll;
+
 private:
     void deleteOpenGLObjects();
     void createOpenGLObjects();
@@ -102,8 +190,6 @@ private:
     SLuint  _elementsHandle;    //!< OpenGL handle for vertex indexes
 
     std::string _inifile;
-
-    ImVec2 _mdStart;
 };
 //-----------------------------------------------------------------------------
 #endif

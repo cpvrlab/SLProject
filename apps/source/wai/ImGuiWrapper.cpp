@@ -90,39 +90,6 @@ void ImGuiWrapper::init(std::string configPath)
     //style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
-//! Loads the proportional and fixed size font depending on the passed DPI
-//void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
-//{
-//    _fontPropDots  = fontPropDots;
-//    _fontFixedDots = fontFixedDots;
-//
-//    ImGuiIO& io = ImGui::GetIO();
-//    io.Fonts->Clear();
-//
-//    // Load proportional font for menue and text displays
-//    SLstring DroidSans = fontPath + "DroidSans.ttf";
-//    if (Utils::fileExists(DroidSans))
-//    {
-//        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-//        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
-//    }
-//    else
-//        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
-//
-//    // Load fixed size font for statistics windows
-//    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
-//    if (Utils::fileExists(ProggyClean))
-//    {
-//        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-//        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
-//    }
-//    else
-//        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
-//
-//    deleteOpenGLObjects();
-//    createOpenGLObjects();
-//}
-//-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
 void ImGuiWrapper::createOpenGLObjects()
 {
@@ -339,8 +306,15 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
     _timeSec = nowSec;
 
-    io.MouseWheel = _mouseWheel;
-    _mouseWheel   = 0.0f;
+    if (_panScroll.enabled())
+    {
+        io.MouseWheel = _panScroll.getScrollInMouseWheelCoords(io.MouseDown[0], _context->FontSize);
+    }
+    else
+    {
+        io.MouseWheel = _mouseWheel;
+        _mouseWheel   = 0.0f;
+    }
 
     // Start the frame
     ImGui::SetCurrentContext(_context);
@@ -551,7 +525,8 @@ void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left)
     {
         io.MouseDown[0] = true;
-        _mdStart        = ImVec2((SLfloat)x, (SLfloat)y);
+        if (_panScroll.enabled())
+            _panScroll.start((SLfloat)y);
     }
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
@@ -566,7 +541,7 @@ void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
-    //SL_LOG("U");
+    SL_LOG("U");
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position
@@ -574,11 +549,8 @@ void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
 {
     _context->IO.MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
     ImGuiIO& io           = _context->IO;
-    if (io.MouseDown[0])
-    {
-        _mouseWheel -= (_mdStart.y - yPos);
-        _mdStart.y = yPos;
-    }
+    if (io.MouseDown[0] && _panScroll.enabled())
+        _panScroll.moveTo(yPos);
     //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------

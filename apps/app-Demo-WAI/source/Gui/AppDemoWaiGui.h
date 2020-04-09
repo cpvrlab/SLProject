@@ -199,6 +199,8 @@ public:
             _guiSlamLoad->setSlamParams(params);
     }
 
+    void onShow(); //call when gui becomes visible
+
 private:
     void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
 

@@ -245,7 +245,10 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
 void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
+    {
         LOG_ERLEBAR_DEBUG("TEST");
+        _testView->show();
+    }
     _testView->update();
 }
 
@@ -304,7 +307,10 @@ void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry)
 void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
+    {
         LOG_ERLEBAR_DEBUG("ABOUT");
+        _aboutView->show();
+    }
 
     _aboutView->update();
 }

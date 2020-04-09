@@ -19,6 +19,8 @@ public:
               std::string         fontPath,
               std::string         imguiIniPath);
     bool update();
+    //call when view becomes visible
+    void show() { _gui.onShow(); }
 
 private:
     AboutGui _gui;
