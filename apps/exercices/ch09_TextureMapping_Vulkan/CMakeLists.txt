@@ -1,5 +1,5 @@
 #
-# CMake project definition for exercise ch09_TextureMapping
+# CMake project definition for ch09_TextureMapping with Vulkan Graphics API
 #
 
 set(target ch09_TextureMapping_Vulkan)
@@ -8,14 +8,12 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/glUtils.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
 		 ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
     )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/lib-SLProject/source/glUtils.cpp
         ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
         ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
@@ -42,8 +40,7 @@ set_target_properties(${target}
 target_include_directories(${target}
     PRIVATE
     ${SL_PROJECT_ROOT}/lib-SLProject/include
-   ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
-    ${SL_PROJECT_ROOT}/lib-SLProject/include/GL
+    ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
     ${SL_PROJECT_ROOT}/lib-SLProject/include/math
     ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
     ${SL_PROJECT_ROOT}/externals/lib-SLExternal

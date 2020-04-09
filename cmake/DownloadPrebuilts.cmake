@@ -3,7 +3,7 @@
 #
 
 #
-# Download and install OpenCV from pallas.bfh.ch
+# Download and install prebuilt libraries from pallas.bfh.ch
 #
 
 set(OpenCV_VERSION)
@@ -27,13 +27,6 @@ set(OpenCV_LINK_LIBS
         )
 set(OpenCV_LIBS)
 
-set(vk_DIR)
-set(vk_INCLUDE_DIR)
-set(vk_LINK_DIR)
-set(vk_LINK_LIBS
-	vulkan-1
-	)
-
 set(g2o_DIR)
 set(g2o_INCLUDE_DIR)
 set(g2o_LINK_DIR)
@@ -55,11 +48,23 @@ set(assimp_LINK_LIBS
     assimp
     IrrXML)
 
+set(vk_DIR)
+set(vk_INCLUDE_DIR)
+set(vk_LINK_DIR)
+set(vk_LINK_LIBS
+        vulkan-1
+        )
+
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
-#==============================================================================
+#=======================================================================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+
+    ####################
+    # OpenCV for Linux #
+    ####################
+
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
@@ -73,10 +78,18 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 
+    #################
+    # g2o for Linux #
+    #################
+
     set(g2o_DIR ${PREBUILT_PATH}/linux_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
     set(g2o_LIBS ${g2o_LINK_LIBS})
+
+    ####################
+    # Assimp for Linux #
+    ####################
 
     set(assimp_VERSION "v5.0.0")
     set(assimp_DIR ${PREBUILT_PATH}/linux_assimp_${assimp_VERSION})
@@ -84,8 +97,12 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
     set(assimp_LIBS assimp)
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
-    #OpenCV
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
+
+    ######################
+    # OpenCV for Windows #
+    ######################
+
     set(OpenCV_VERSION "4.1.2")
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
@@ -133,35 +150,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 		file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
-	#Vulkan
-	set(vk_DIR ${PREBUILT_PATH}/win64_vulkanSDK_1.2.131.2)
-	set(vk_INCLUDE_DIR ${vk_DIR}/Include)
-	set(vk_LINK_DIR ${vk_DIR}/Lib)
-	
-	foreach(lib ${vk_LINK_LIBS})
-		add_library(${lib} SHARED IMPORTED)
-		set_target_properties(${lib} PROPERTIES
-			IMPORTED_IMPLIB "${vk_LINK_DIR}/${lib}.lib"
-			INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
-		)
-		set(vk_LIBS
-			${vk_LIBS}
-			${lib}
-		)
-		endforeach(lib)
-		
-	set(vk_PREBUILT_ZIP "win64_vulkanSDK_1.2.131.2.zip")
-	set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
-	
-	if (NOT EXISTS "${vk_DIR}")
-		file(DOWNLOAD "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
-		execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-			"£{PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
-			WORKING_DIRECTORY "${PREBUILT_PATH}")
-		file(REMOVE "${PREBUILT_PATH/${vk_PREBUILT_ZIP}")
-	endif()	
+    ###################
+    # g2o for Windows #
+    ###################
 
-    #G2O
     set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/lib)
@@ -212,7 +204,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 		file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
-    #assimp for windows
+    ######################
+    # Assimp for Windows #
+    ######################
+
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
@@ -258,9 +253,44 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
+    ######################
+    # Vulkan for Windows #
+    ######################
 
+    set(vk_VERSION "1.2.131.2")
+    set(vk_DIR ${PREBUILT_PATH}/win64_vulkan_${vk_VERSION})
+    set(vk_PREBUILT_ZIP "win64_vulkanSDK_${vk_VERSION}.zip")
+    set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
+    if (NOT EXISTS "${vk_DIR}")
+        file(DOWNLOAD "${vk_URL}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+    endif()
+
+    set(vk_INCLUDE_DIR ${vk_DIR}/Include)
+    set(vk_LINK_DIR ${vk_DIR}/Lib)
+
+    foreach(lib ${vk_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_IMPLIB "${vk_LINK_DIR}/${lib}.lib"
+                INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
+                )
+        set(vk_LIBS
+                ${vk_LIBS}
+                ${lib}
+                )
+    endforeach(lib)
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
+
+    ############################
+    # OpenCV for iOS and MacOS #
+    ############################
+
     # Download first for iOS
     set(OpenCV_VERSION "3.4.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
@@ -329,9 +359,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE
         ${SL_PROJECT_ROOT}/data/config/info.plist)
-
-    #message(STATUS "MACOS_PLIST_FILE: ${MACOS_PLIST_FILE}")
-    #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -339,7 +366,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
     endif()
 
-    #g2o
+    #################
+    # g2o for MacOS #
+    #################
 
     #Download g2o for iOS
     set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
@@ -347,10 +376,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
-
-    #message(STATUS "g2o_DIR: ${g2o_DIR}")
-    #message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
-    #message(STATUS "g2o_URL: ${g2o_URL}")
 
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
@@ -360,17 +385,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-
     #Download g2o for MacOS
     set(g2o_DIR ${PREBUILT_PATH}/mac64_g2o)
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
-
-    #message(STATUS "g2o_DIR: ${g2o_DIR}")
-    #message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
-    #message(STATUS "g2o_URL: ${g2o_URL}")
 
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
@@ -383,16 +403,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib} PROPERTIES IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.dylib")
-        #message(STATUS "IMPORTED_LOCATION: ${g2o_LINK_DIR}/lib${lib}.dylib")
         set(g2o_LIBS
             ${g2o_LIBS}
             lib${lib}
-            #optimized ${lib}
-            #debug ${lib}
             )
     endforeach(lib)
 
-    #assimp for macos
+    ####################
+    # Assimp for MacOS #
+    ####################
+
     # Download first for iOS
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
@@ -412,7 +432,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
             message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
         endif()
     endif ()
-
 
     # Download now for macos
     set(assimp_VERSION "5.0")
@@ -459,9 +478,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE
             ${SL_PROJECT_ROOT}/data/config/info.plist)
-
-    #message(STATUS "MACOS_PLIST_FILE: ${MACOS_PLIST_FILE}")
-    #message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -469,7 +485,37 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
     endif()
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
+    ####################
+    # Vulkan for MacOS #
+    ####################
+
+    set(vk_VERSION "1.2.131.2")
+    set(vk_DIR ${PREBUILT_PATH}/mac64_vulkan_${vk_VERSION})
+    set(vk_PREBUILT_ZIP "mac64_vulkan_${vk_VERSION}.zip")
+    set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${vk_DIR}")
+        file(DOWNLOAD "${vk_URL}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+    endif()
+
+    set(vk_INCLUDE_DIR
+            ${vk_DIR}/macOS/include)
+
+    set(vk_LINK_DIR
+            ${vk_DIR}/macOS/lib)
+
+
+
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
+
+    ######################
+    # OpenCV for Android #
+    ######################
+
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
@@ -519,7 +565,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
 
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 
-    #G2O
+    ###################
+    # g2o for Android #
+    ###################
+
     set(g2o_PREBUILT_DIR "andV8_g2o")
     set(g2o_DIR ${PREBUILT_PATH}/andV8_g2o)
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
@@ -545,7 +594,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------
         )
     endforeach(lib)
 
-    #assimp
+    ######################
+    # assimp for Android #
+    ######################
+
     set(assimp_VERSION "v5.0.0")
     set(assimp_PREBUILT_DIR "andV8_assimp_${assimp_VERSION}")
     set(assimp_DIR ${PREBUILT_PATH}/${assimp_PREBUILT_DIR})
