@@ -308,7 +308,7 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
 
     if (_panScroll.enabled())
     {
-        io.MouseWheel = _panScroll.getScrollInMouseWheelCoords(io.MouseDown[0], _context->FontSize);
+        io.MouseWheel = _panScroll.getScrollInMouseWheelCoords(io.MouseDown[0], _context->FontSize, nowSec);
     }
     else
     {

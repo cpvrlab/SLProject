@@ -126,6 +126,15 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushFont(_fontStandard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
         ImGui::Text(_resources.strings().generalContent(), _textWrapW);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        static int       lines = 1000;
+        ImGuiListClipper clipper(lines);
+        while (clipper.Step())
+            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
+        ImGui::PopStyleVar();
+
         ImGui::PopStyleColor();
         ImGui::PopFont();
         ImGui::PopTextWrapPos();

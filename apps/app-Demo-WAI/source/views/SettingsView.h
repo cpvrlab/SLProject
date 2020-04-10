@@ -9,13 +9,17 @@
 class SettingsView : public SLSceneView
 {
 public:
-    SettingsView(SLInputManager& inputManager,
-                 int             screenWidth,
-                 int             screenHeight,
-                 int             dotsPerInch,
-                 std::string     fontPath,
-                 std::string     imguiIniPath);
+    SettingsView(sm::EventHandler&   eventHandler,
+                 SLInputManager&     inputManager,
+                 ErlebAR::Resources& resources,
+                 int                 screenWidth,
+                 int                 screenHeight,
+                 int                 dotsPerInch,
+                 std::string         fontPath,
+                 std::string         imguiIniPath);
     bool update();
+    //call when view becomes visible
+    void show() { _gui.onShow(); }
 
 private:
     SettingsGui _gui;

@@ -118,7 +118,9 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                dd.fontDir(),
                                dd.dirs().writableDir);
 
-    _settingsView = new SettingsView(_inputManager,
+    _settingsView = new SettingsView(*this,
+                                     _inputManager,
+                                     *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
                                      dd.dpi(),
@@ -318,7 +320,10 @@ void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
 void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
+    {
         LOG_ERLEBAR_DEBUG("SETTINGS");
+        _settingsView->show();
+    }
 
     _settingsView->update();
 }

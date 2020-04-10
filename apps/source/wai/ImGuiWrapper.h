@@ -37,47 +37,46 @@ public:
         _lastPosY = 0.f;
         _diff     = 0.f;
         _vMW      = 0.f;
-        _mD       = false;
+        _tOld     = 0.f;
     }
+
     void disable()
     {
         _enabled = false;
     }
+
+    //call on mouse move
     void moveTo(const float yPos)
     {
         _diff -= (_lastPosY - yPos);
         _lastPosY = yPos;
     }
+
+    //call on mouse down
     void start(const float yPos)
     {
         _lastPosY = yPos;
-        _vMW      = 0.f;
         _diff     = 0.f;
-        _mD       = false;
+        _vMW      = 0.f;
+        _tOld     = 0.f;
     }
 
+    //call to update mouse wheel in render function
     //As we are using the io.mouseWheel from imgui to set the window position,
     //we have to convert to mouseWheel coordinates.
-    //One mouse wheel unit scrolls about 5 lines of text (see io.MouseWheel comment)
-    float getScrollInMouseWheelCoords(const bool mouseDown, const float fontSize)
+    float getScrollInMouseWheelCoords(const bool mouseDown, const float fontSize, const float t)
     {
-        float dt = 0.f;
-        if (_mD != mouseDown)
-        {
-            _mD = mouseDown;
-            _timer.start();
-        }
-        else
-        {
-            dt = _timer.elapsedTimeInSec();
-        }
+        float dt = t - _tOld;
+        _tOld    = t;
 
         if (mouseDown)
         {
+            //Convertion to mouse wheel coords: One mouse wheel unit scrolls about 5 lines of text
+            //(see io.MouseWheel comment)
             float diffMW = _diff / (fontSize * 5.f);
             _diff        = 0; //diff consumed, reset it
 
-            //calculate v (of mouse wheel), we need it later
+            //calculate v (of mouse wheel), we need it when left mouse button goes up
             if (dt > 0.000001f)
             {
                 //v = s / t
@@ -88,9 +87,21 @@ public:
         }
         else if (std::abs(_vMW) > 0.000001f)
         {
-            //velocity controller
-            //v = v - p * v * t
-            _vMW = _vMW - _a * _vMW * dt;
+            //velocity damping
+            //v = v - a * t
+            if (_vMW > 0)
+            {
+                _vMW = _vMW - _aMW * dt;
+                if (_vMW < 0.f)
+                    _vMW = 0.f;
+            }
+            else
+            {
+                _vMW = _vMW + _aMW * dt;
+                if (_vMW > 0.f)
+                    _vMW = 0.f;
+            }
+
             //s = v * t
             return _vMW * dt;
         }
@@ -101,13 +112,12 @@ public:
     bool enabled() { return _enabled; }
 
 private:
-    bool         _enabled  = false;
-    float        _lastPosY = 0.f;   //!< mouse down start position
-    float        _diff     = 0.f;   //!< Summed up y difference between mouse move events
-    float        _vMW      = 0.f;   //!< Mouse wheel velocity: used after pan scrolling for additional scrolling
-    const float  _a        = 0.1f;  //!< proportional control factor
-    bool         _mD       = false; //!< mouse down flag
-    HighResTimer _timer;
+    bool        _enabled  = false;
+    float       _lastPosY = 0.f;    //!< mouse down start position
+    float       _diff     = 0.f;    //!< Summed up y difference between mouse move events
+    float       _vMW      = 0.f;    //!< Mouse wheel velocity: used after pan scrolling for additional scrolling
+    float       _tOld     = 0.f;    //!< Time at last call to getScrollInMouseWheelCoords
+    const float _aMW      = 100.0f; //!< Mouse wheel acceleration (subtended velocity direction)
 };
 
 //-----------------------------------------------------------------------------
