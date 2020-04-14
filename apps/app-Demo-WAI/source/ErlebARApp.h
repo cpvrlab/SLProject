@@ -23,30 +23,7 @@ class ErlebARApp : public sm::StateMachine
     using CloseAppCallback = std::function<void(void)>;
 
 public:
-    ErlebARApp()
-      : sm::StateMachine((unsigned int)StateId::IDLE),
-        SLInputEventInterface(_inputManager)
-    {
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::IDLE>((unsigned int)StateId::IDLE);
-        registerState<ErlebARApp, InitData, &ErlebARApp::INIT>((unsigned int)StateId::INIT);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::WELCOME>((unsigned int)StateId::WELCOME);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::DESTROY>((unsigned int)StateId::DESTROY);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SELECTION>((unsigned int)StateId::SELECTION);
-
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::START_TEST>((unsigned int)StateId::START_TEST);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST>((unsigned int)StateId::TEST);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TEST>((unsigned int)StateId::HOLD_TEST);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::RESUME_TEST>((unsigned int)StateId::RESUME_TEST);
-
-        registerState<ErlebARApp, ErlebarData, &ErlebARApp::START_ERLEBAR>((unsigned int)StateId::START_ERLEBAR);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::MAP_VIEW>((unsigned int)StateId::MAP_VIEW);
-        registerState<ErlebARApp, AreaData, &ErlebARApp::AREA_TRACKING>((unsigned int)StateId::AREA_TRACKING);
-
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TUTORIAL>((unsigned int)StateId::TUTORIAL);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SETTINGS>((unsigned int)StateId::SETTINGS);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::ABOUT>((unsigned int)StateId::ABOUT);
-        registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::CAMERA_TEST>((unsigned int)StateId::CAMERA_TEST);
-    }
+    ErlebARApp();
 
     //external events:
     void init(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories dirs, SENSCamera* camera);

@@ -75,8 +75,8 @@ public:
     CVCalibration(CVCameraType camType,
                   std::string  computerInfos);
     //creates a fully defined calibration
-    CVCalibration(const cv::Mat&            cameraMat,
-                  const cv::Mat&            distortion,
+    CVCalibration(const cv::Mat&     cameraMat,
+                  const cv::Mat&     distortion,
                   cv::Size           imageSize,
                   cv::Size           boardSize,
                   float              boardSquareMM,
@@ -92,22 +92,22 @@ public:
                   bool               calcUndistortionMaps);
 
     //creates a guessed calibration using image size and fov angle
-    CVCalibration(const cv::Size&     imageSize,
-                  float        fovH,
-                  bool         mirroredH,
-                  bool         mirroredV,
-                  CVCameraType type,
-                  std::string  computerInfos);
+    CVCalibration(const cv::Size& imageSize,
+                  float           fovH,
+                  bool            mirroredH,
+                  bool            mirroredV,
+                  CVCameraType    type,
+                  std::string     computerInfos);
 
     //create a guessed calibration using sensor size, camera focal length and captured image size
-    CVCalibration(float        sensorWMM,
-                  float        sensorHMM,
-                  float        focalLengthMM,
-                  const cv::Size&     imageSize,
-                  bool         mirroredH,
-                  bool         mirroredV,
-                  CVCameraType camType,
-                  std::string  computerInfos);
+    CVCalibration(float           sensorWMM,
+                  float           sensorHMM,
+                  float           focalLengthMM,
+                  const cv::Size& imageSize,
+                  bool            mirroredH,
+                  bool            mirroredV,
+                  CVCameraType    camType,
+                  std::string     computerInfos);
 
     bool load(const string& calibDir,
               const string& calibFileName,
@@ -123,8 +123,8 @@ public:
     void buildUndistortionMaps();
 
     // Getters
-    CVSize imageSize() { return _imageSize; }
-    CVSize imageSizeOriginal() { return _imageSizeOrig; }
+    CVSize imageSize() const { return _imageSize; }
+    CVSize imageSizeOriginal() const { return _imageSizeOrig; }
 
     //int    camSizeIndex() { return _camSizeIndex;}
     float        imageAspectRatio() const { return (float)_imageSize.width / (float)_imageSize.height; }

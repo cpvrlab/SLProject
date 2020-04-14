@@ -37,9 +37,7 @@ public:
     void show() { _gui.onShow(); }
 
 protected:
-    //try to load last slam (without clicking for convenience)
     void tryLoadLastSlam();
-    //void setupGUI();
     void handleEvents();
     void loadWAISceneView(std::string location, std::string area);
     void saveMap(std::string location, std::string area, std::string marker);
@@ -79,9 +77,9 @@ protected:
     std::unique_ptr<KPextractor> _markerExtractor;
 
     std::queue<WAIEvent*> _eventQueue;
+
     //scene
     AppWAIScene _scene;
-    //SLSceneView _sv;
 
     SLAssetManager _assets;
 

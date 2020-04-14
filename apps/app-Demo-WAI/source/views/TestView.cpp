@@ -76,7 +76,6 @@ void TestView::start()
 
     //_startThread = std::thread(&TestView::startAsync, this);
     tryLoadLastSlam();
-    //_ready = true;
 }
 
 void TestView::startAsync()
@@ -128,7 +127,6 @@ bool TestView::update()
         }
     }
 
-    //_scene.onUpdate();
     return onPaint();
 }
 
@@ -148,18 +146,6 @@ void TestView::tryLoadLastSlam()
         _gui.uiPrefs->showSlamLoad = true;
     }
 }
-
-//void TestView::setupGUI()
-//{
-
-//
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &_gui.uiPrefs->showStatsVideo, *this));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &_gui.uiPrefs->showTrackedMapping, *this));
-
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &_gui.uiPrefs->showVideoStorage, &_eventQueue, *this));
-//    _gui.addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &_gui.uiPrefs->showVideoControls, &_eventQueue, *this));
-//
-//}
 
 void TestView::handleEvents()
 {
