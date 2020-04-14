@@ -13,6 +13,7 @@
 #define SLGLENUM_H
 
 #include <SL.h>
+#include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer data types

@@ -568,6 +568,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
                         _calibration.distortion(),
                         voc,
                         _trackingExtractor.get(),
+                        _initializationExtractor.get(),
                         map,
                         slamParams.params.onlyTracking,
                         slamParams.params.serial,

@@ -843,7 +843,7 @@ string findFile(const string& filename, const vector<string>& pathsToCheck)
         return filename;
 
     // Check file existence
-    for (const auto& path: pathsToCheck)
+    for (const auto& path : pathsToCheck)
     {
         string pathPlusFilename = Utils::unifySlashes(path) + filename;
         if (Utils::fileExists(pathPlusFilename))
@@ -852,9 +852,6 @@ string findFile(const string& filename, const vector<string>& pathsToCheck)
     return "";
 }
 //----------------------------------------------------------------------------
-
-
-
 
 ///////////////////////
 // Logging Functions //
@@ -1309,6 +1306,11 @@ std::string ComputerInfos::get()
 
     // build a unique as possible ID string that can be used in a filename
     id = user + "-" + name + "-" + model;
+    if (model.find("SM-") != string::npos)
+        // Don't use computerName on Samsung phones. It's not constant!
+        id = user + "-" + model;
+    else
+        id = user + "-" + name + "-" + model;
     id = Utils::replaceNonFilenameChars(id);
     std::replace(id.begin(), id.end(), '_', '-');
     return id;

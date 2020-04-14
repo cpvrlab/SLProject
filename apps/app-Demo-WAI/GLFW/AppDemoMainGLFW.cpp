@@ -14,13 +14,13 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <GLFW/glfw3.h>
-
+#include <SLGLState.h>
 #include <ErlebARApp.h>
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <GLFW/SENSWebCamera.h>
 #include <DeviceData.h>
+#include <GLFW/glfw3.h>
 
 static ErlebARApp app;
 

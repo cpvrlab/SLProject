@@ -29,12 +29,14 @@ void WAIApp::stateInit(const sm::NoEventData* data)
     addEvent(new StateDoneEvent());
 }
 void WAIApp::stateProcessXY(const ABCEventData* data)
+    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
 {
     Utils::log("WAIApp", "stateProcessXY");
     if (data)
     {
         Utils::log("WAIApp", "Message from ABC: %s", data->msg.c_str());
     }
+                        _initializationExtractor.get(),
 }
 void WAIApp::stateProcessABC(const sm::NoEventData* data)
 {

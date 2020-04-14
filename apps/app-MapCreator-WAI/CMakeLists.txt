@@ -40,29 +40,30 @@ add_executable(${target}
     )
 
 set_target_properties(${target}
-    PROPERTIES
-    ${DEFAULT_PROJECT_OPTIONS}
-    FOLDER "apps"
+        PROPERTIES
+        ${DEFAULT_PROJECT_OPTIONS}
+        FOLDER "apps"
     )
 
 target_include_directories(${target}
-    PRIVATE
+        PRIVATE
     ${SL_PROJECT_ROOT}/apps/source/
-    ${SL_PROJECT_ROOT}/apps/source/wai
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
-    PUBLIC
+        ${SL_PROJECT_ROOT}/apps/source/wai
+        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
+        ${glfw_INCLUDE_DIR}
+        PUBLIC
 
-    INTERFACE
+        INTERFACE
     )
 
 target_link_libraries(${target}
-    PRIVATE
+        PRIVATE
 
-    PUBLIC
-    lib-SLProject
-    lib-WAI
-
-    INTERFACE
+        PUBLIC
+        lib-SLProject
+        lib-WAI
+        ${glfw_LIBS}
+        INTERFACE
     )
 
 target_compile_definitions(${target}

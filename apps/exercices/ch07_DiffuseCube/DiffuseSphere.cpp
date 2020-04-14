@@ -16,7 +16,6 @@
 #include "SLVec3.h"    // 3D vector class
 #include "SLMat4.h"    // 4x4 matrix class
 #include "../lib-SLExternal/glew/include/GL/glew.h"     // OpenGL headers
-#include "../lib-SLExternal/glfw3/include/GLFW/glfw3.h" // GLFW GUI library
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attributes

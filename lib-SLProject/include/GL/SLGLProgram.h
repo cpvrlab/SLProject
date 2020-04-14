@@ -13,6 +13,8 @@
 #define SLGLPROGRAM_H
 
 #include <map>
+
+#include <SLGLState.h>
 #include <SLVec4.h>
 #include <SLGLUniform.h>
 #include <SLObject.h>

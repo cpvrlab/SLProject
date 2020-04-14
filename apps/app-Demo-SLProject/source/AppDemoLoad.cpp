@@ -2757,10 +2757,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAventicum) //............................................
+    else if (SLApplication::sceneID == SID_VideoAventicumAmphi) //.......................................
     {
-        s->name("Aventicum AR");
-        s->info("Augmented Reality for Aventicum");
+        s->name("Aventicum Amphitheatre AR");
+        s->info("Augmented Reality for Aventicum Amphitheatre");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -2789,33 +2789,115 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          theater = importer.load(s->animManager(),
-                                        s,
-                                        "DAE/Aventicum/Aventicum01.dae");
+        SLNode*          amphiTheatre = importer.load(s->animManager(),
+                                             s,
+                                             "GLTF/Aventicum/Aventicum-Amphitheater1.gltf",
+                                             true,    // only meshes
+                                             nullptr, // no replacement material
+                                             0.4f);   // 40% ambient reflection
 
-        // Add axis object a world origin (Loeb Ecke)
+        // Rotate to the true geographic rotation
+        amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_WIREMESH, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
-        // Set some ambient light
-        for (auto child : theater->children())
-            for (auto mesh : child->meshes())
-                mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.23f));
-
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        scene->addChild(theater);
+        scene->addChild(amphiTheatre);
         scene->addChild(cam1);
 
         //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);
         SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
         SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_VideoAventicumCigonier) //....................................
+    {
+        s->name("Aventicum Amphitheatre AR");
+        s->info("Augmented Reality for Aventicum Amphitheatre");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
+        light->ambient(SLCol4f(1, 1, 1));
+        light->diffuse(SLCol4f(1, 1, 1));
+        light->specular(SLCol4f(1, 1, 1));
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLAssimpImporter importer;
+        SLNode*          cigognier = importer.load(s->animManager(),
+                                          s,
+                                          "GLTF/Aventicum/Aventicum-Cigognier1.gltf",
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(cigognier);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
+        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
@@ -2839,18 +2921,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 #ifdef SL_BUILD_WAI
-    else if (SLApplication::sceneID == SID_VideoTrackWAI) //....................................................
+    else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
         s->name("Track WAI (main cam.)");
         s->info("Track the scene with a point cloud built with the WAI (Where Am I) library.");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture("LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
-        SLMaterial* yellow = new SLMaterial("mY", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* cyan   = new SLMaterial("mY", SLCol4f(0, 1, 1, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.5f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2865,7 +2947,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(0.02f);
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
         light1->translation(0.12f, 0.12f, 0.12f);
         light1->name("light node");
         scene->addChild(light1);
@@ -2875,9 +2957,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat he      = edgeLen * 0.5f;
 
         // Build mesh & node that will be tracked by the 1st marker (camera)
-        SLBox*  box1      = new SLBox(-he, -he, -he, he, he, he, "Box 1", yellow);
+        SLBox*  box1      = new SLBox(s, -he, -he, -he, he, he, he, "Box 1", yellow);
         SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
-        SLNode* axisNode1 = new SLNode(new SLCoordAxis(), "Axis Node 1");
+        SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
         axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
         axisNode1->scale(edgeLen);
         axisNode1->translate(-he, -he, -he, TS_parent);
@@ -2887,7 +2969,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedWAI(SLApplication::calibIniPath + "/ORBvoc.bin");
+        tracker = new CVTrackedWAI("ORBvoc.bin");
         tracker->drawDetection(true);
         trackedNode = cam1;
 

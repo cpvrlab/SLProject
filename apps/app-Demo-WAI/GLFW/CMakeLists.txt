@@ -43,6 +43,7 @@ target_include_directories(${target}
     PRIVATE
     ${erlebar_include_directories}
     PUBLIC
+    ${glfw_INCLUDE_DIR}
     INTERFACE
     )
 
@@ -52,6 +53,7 @@ target_link_libraries(${target}
     PUBLIC
     ${META_PROJECT_NAME}::lib-WAI
     lib-SLProject
+    ${glfw_LIBS}
 
     INTERFACE
     )

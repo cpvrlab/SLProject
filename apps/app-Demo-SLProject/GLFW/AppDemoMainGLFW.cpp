@@ -18,16 +18,16 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <GLFW/glfw3.h>
-
-#include <AppDemoGui.h>
-#include <AppDemoSceneView.h>
-#include <CVCapture.h>
+#include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
 #include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
+#include <CVCapture.h>
+#include <AppDemoGui.h>
+#include <AppDemoSceneView.h>
+#include <GLFW/glfw3.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
@@ -44,6 +44,7 @@ static SLbool      fixAspectRatio;             //!< Flag if wnd aspect ratio sho
 static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
 static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
 static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
+static SLint       dpi = 142;                  //!< Dot per inch resolution of screen
 static SLint       startX;                     //!< start position x in pixels
 static SLint       startY;                     //!< start position y in pixels
 static SLint       mouseX;                     //!< Last mouse position x in pixels
@@ -482,16 +483,9 @@ SLSceneView* createAppDemoSceneView(SLProjectScene* scene, int dpi, SLInputManag
     return new AppDemoSceneView(scene, dpi, inputManager);
 }
 //-----------------------------------------------------------------------------
-/*!
-The C main procedure running the GLFW GUI application.
-*/
-int main(int argc, char* argv[])
+//! Initialises all GLFW and GLEW stuff
+void initGLFW(int scrWidth, int scrHeight)
 {
-    // set command line arguments
-    SLVstring cmdLineArgs;
-    for (int i = 0; i < argc; i++)
-        cmdLineArgs.push_back(SLstring(argv[i]));
-
     if (!glfwInit())
     {
         fprintf(stderr, "Failed to initialize GLFW\n");
@@ -508,13 +502,6 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    scrWidth       = 1280;
-    scrHeight      = 720;
-    scrWdivH       = (float)scrWidth / (float)scrHeight;
-    fixAspectRatio = false;
-    touch2.set(-1, -1);
-    touchDelta.set(-1, -1);
 
     window = glfwCreateWindow(scrWidth, scrHeight, "My Title", nullptr, nullptr);
 
@@ -537,6 +524,7 @@ int main(int argc, char* argv[])
     glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
     scr2fbX = 1.0f; //(float)fbWidth / (float)scrWidth;
     scr2fbY = 1.0f; //(float)fbHeight / (float)scrHeight;
+    dpi     = (int)(142 * scr2fbX);
 
     // Include OpenGL via GLEW (init must be after window creation)
     // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++
@@ -563,7 +551,6 @@ int main(int argc, char* argv[])
     GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    int dpi = (int)(142 * scr2fbX);
     Utils::log("SLProject", "------------------------------------------------------------------");
     Utils::log("SLProject",
                "GUI-Framwork     : GLFW (Version: %d.%d.%d",
@@ -571,9 +558,22 @@ int main(int argc, char* argv[])
                GLFW_VERSION_MINOR,
                GLFW_VERSION_REVISION);
     Utils::log("SLProject",
-               "Resolution (DPI) : d",
+               "Resolution (DPI) : %d",
                dpi);
 
+    // Set GLFW callback functions
+    glfwSetKeyCallback(window, onKeyPress);
+    glfwSetCharCallback(window, onCharInput);
+    glfwSetWindowSizeCallback(window, onResize);
+    glfwSetMouseButtonCallback(window, onMouseButton);
+    glfwSetCursorPosCallback(window, onMouseMove);
+    glfwSetScrollCallback(window, onMouseWheel);
+    glfwSetWindowCloseCallback(window, onClose);
+}
+//-----------------------------------------------------------------------------
+//! Inits all for SLProject library
+void initSL(SLVstring& cmdLineArgs)
+{
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = Utils::getAppsWritableDir();
@@ -610,15 +610,27 @@ int main(int argc, char* argv[])
                       (void*)AppDemoGui::loadConfig,
                       (void*)AppDemoGui::saveConfig);
     /////////////////////////////////////////////////////////
+}
+//-----------------------------------------------------------------------------
+/*!
+The C main procedure running the GLFW GUI application.
+*/
+int main(int argc, char* argv[])
+{
+    // set command line arguments
+    SLVstring cmdLineArgs;
+    for (int i = 0; i < argc; i++)
+        cmdLineArgs.push_back(SLstring(argv[i]));
 
-    // Set GLFW callback functions
-    glfwSetKeyCallback(window, onKeyPress);
-    glfwSetCharCallback(window, onCharInput);
-    glfwSetWindowSizeCallback(window, onResize);
-    glfwSetMouseButtonCallback(window, onMouseButton);
-    glfwSetCursorPosCallback(window, onMouseMove);
-    glfwSetScrollCallback(window, onMouseWheel);
-    glfwSetWindowCloseCallback(window, onClose);
+    scrWidth       = 1280;
+    scrHeight      = 720;
+    scrWdivH       = (float)scrWidth / (float)scrHeight;
+    fixAspectRatio = false;
+    touch2.set(-1, -1);
+    touchDelta.set(-1, -1);
+
+    initGLFW(scrWidth, scrHeight);
+    initSL(cmdLineArgs);
 
     // Event loop
     while (!slShouldClose())

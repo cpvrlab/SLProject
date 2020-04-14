@@ -32,12 +32,11 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef TARGET_OS_IOS
-
-#include <vector>
-#include <AverageTiming.h>
-#include "GLSLextractor.h"
-#include <iostream>
+#if !defined(TARGET_OS_IOS) or (TARGET_OS_IOS == 0)
+#    include <vector>
+#    include <AverageTiming.h>
+#    include <GLSLextractor.h>
+#    include <iostream>
 
 using namespace cv;
 using namespace std;
@@ -46,16 +45,16 @@ const int PATCH_SIZE      = 31;
 const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD  = 19;
 
-static void computeBRIEFDescriptor(const KeyPoint& kpt,
-                                   const Mat&      img,
-                                   const Point*    pattern,
-                                   uchar*          desc)
+static void computeBRIEFDescriptor(const KeyPoint&  kpt,
+                                   const Mat&       img,
+                                   const cv::Point* pattern,
+                                   uchar*           desc)
 {
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
 
-#define GET_VALUE(idx) \
-    center[cvRound(pattern[idx].x) * step + cvRound(pattern[idx].y)]
+#    define GET_VALUE(idx) \
+        center[cvRound(pattern[idx].x) * step + cvRound(pattern[idx].y)]
 
     for (int i = 0; i < 32; ++i, pattern += 16)
     {
@@ -88,7 +87,7 @@ static void computeBRIEFDescriptor(const KeyPoint& kpt,
         desc[i] = (uchar)val;
     }
 
-#undef GET_VALUE
+#    undef GET_VALUE
 }
 
 static int bit_pattern_31_[256 * 4] =
@@ -1138,8 +1137,8 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsBigSigma, int nbKeypoi
     idx       = 0;
     images[1] = cv::Mat(h, w, CV_8UC1);
 
-    const int    npoints  = 512;
-    const Point* pattern0 = (const Point*)bit_pattern_31_;
+    const int        npoints  = 512;
+    const cv::Point* pattern0 = (const cv::Point*)bit_pattern_31_;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(pattern));
 
     _clahe = cv::createCLAHE();
@@ -1147,7 +1146,10 @@ GLSLextractor::GLSLextractor(int w, int h, int nbKeypointsBigSigma, int nbKeypoi
     _clahe->setTilesGridSize(cv::Size(8, 8));
 }
 
-static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
+static void computeDescriptors(const Mat&               image,
+                               vector<KeyPoint>&        keypoints,
+                               Mat&                     descriptors,
+                               const vector<cv::Point>& pattern)
 {
     for (size_t i = 0; i < keypoints.size(); i++)
     {
@@ -1155,7 +1157,9 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
     }
 }
 
-void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
+void GLSLextractor::operator()(InputArray        _image,
+                               vector<KeyPoint>& _keypoints,
+                               OutputArray       _descriptors)
 {
     images[idx] = _image.getMat().clone();
 
@@ -1194,7 +1198,7 @@ void GLSLextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
 
     idx = (idx + 1) % 2;
     Mat workingMat;
-    GaussianBlur(images[idx], workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
+    GaussianBlur(images[idx], workingMat, cv::Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
     // Compute the descriptors
     Mat desc = descriptors.rowRange(0, _keypoints.size());

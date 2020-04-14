@@ -15,9 +15,18 @@
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
     _voc = new ORB_SLAM2::ORBVocabulary();
-    if (!_voc->loadFromBinaryFile(vocabularyFile))
+
+    string fullPathAndFilename = Utils::findFile(vocabularyFile, {}
+                                                 /*{SLApplication::calibIniPath,
+                                                  SLApplication::exePath}*/
+    );
+
+    if (!_voc->loadFromBinaryFile(fullPathAndFilename))
     {
-        SL_LOG("Could not load vocabulary file!");
+        Utils::log("SLProject",
+                   "Could not open the calibration parameter file: %s",
+                   fullPathAndFilename.c_str());
+        exit(0);
     }
 }
 //-----------------------------------------------------------------------------
@@ -50,7 +59,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
         if (!_voc)
             return false;
 
-        int   nf           = 2000; // NO. of features
+        int   nf           = 1000; // NO. of features
         float fScaleFactor = 1.2;  // Scale factor for pyramid construction
         int   nLevels      = 8;    // NO. of pyramid levels
         int   fIniThFAST   = 20;   // Init threshold for FAST corner detector
@@ -61,9 +70,16 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                          fIniThFAST,
                                                          fMinThFAST);
 
+        _initializationExtractor = new ORB_SLAM2::ORBextractor(2 * nf,
+                                                               fScaleFactor,
+                                                               nLevels,
+                                                               fIniThFAST,
+                                                               fMinThFAST);
+
         _waiSlamer = new WAISlam(calib->cameraMat(),
                                  calib->distortion(),
                                  _voc,
+                                 _initializationExtractor,
                                  _trackingExtractor,
                                  nullptr);
     }

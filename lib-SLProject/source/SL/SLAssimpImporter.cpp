@@ -288,7 +288,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
     if (!Utils::fileExists(pathAndFile))
     {
         SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
-        SL_WARN_MSG(msg.c_str());
+        SL_EXIT_MSG(msg.c_str());
         return nullptr;
     }
 

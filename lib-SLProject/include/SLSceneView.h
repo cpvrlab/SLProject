@@ -253,7 +253,6 @@ protected:
     AvgFloat _draw3DTimesMS; //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS; //!< Averaged time for 2D drawing in ms
 
-private:
     SLScene* _s; //!< Pointer scene observed by this scene view
 };
 //-----------------------------------------------------------------------------
