@@ -51,7 +51,6 @@ TestView::TestView(sm::EventHandler& eventHandler,
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
-    //setupGUI();
 }
 
 TestView::~TestView()
@@ -550,8 +549,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
                         voc,
-                        _trackingExtractor.get(),
                         _initializationExtractor.get(),
+                        _trackingExtractor.get(),
                         map,
                         slamParams.params.onlyTracking,
                         slamParams.params.serial,
