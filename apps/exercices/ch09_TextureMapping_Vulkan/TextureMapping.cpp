@@ -54,8 +54,6 @@ void initVulkan()
     renderer.createDescriptorSets();
     renderer.createCommandBuffers();
     renderer.createSyncObjects();
-
-    texture.~CVImage();
 }
 
 void mainLoop()

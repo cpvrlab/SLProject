@@ -38,9 +38,12 @@ void vkUtils::cleanup()
 
     vkDestroySampler(device, textureSampler, nullptr);
     vkDestroyImageView(device, textureImageView, nullptr);
+
     vkDestroyImage(device, textureImage, nullptr);
     vkFreeMemory(device, textureImageMemory, nullptr);
+
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
     vkDestroyBuffer(device, indexBuffer, nullptr);
     vkFreeMemory(device, indexBufferMemory, nullptr);
 
@@ -53,12 +56,12 @@ void vkUtils::cleanup()
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(device, inFlightFences[i], nullptr);
     }
+
     vkDestroyShaderModule(device, shaderStages[0].module, nullptr);
     vkDestroyShaderModule(device, shaderStages[1].module, nullptr);
 
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyDevice(device, nullptr);
-
 #if IS_DEBUGMODE_ON
     DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 #endif
@@ -134,7 +137,7 @@ void vkUtils::createInstance(GLFWwindow* window)
     createInfo.pNext             = nullptr;
 #endif
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
-    ASSERT_VULKAN(result);  // Failed to create instance
+    ASSERT_VULKAN(result, "Failed to create instance");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -162,13 +165,13 @@ void vkUtils::setupDebugMessenger()
     populateDebugMessengerCreateInfo(createInfo);
     
     VkResult result = CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger);
-    ASSERT_VULKAN(result); // Failed to set up debug messenger
+    ASSERT_VULKAN(result, "Failed to set up debug messenger");
 }
 
 void vkUtils::createSurface()
 {
     VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface); 
-    ASSERT_VULKAN(result); // Failed to create window surface
+    ASSERT_VULKAN(result, "Failed to create window surface");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -238,7 +241,7 @@ void vkUtils::createLogicalDevice()
     createInfo.enabledLayerCount = 0;
 #endif
     VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
-    ASSERT_VULKAN(result); // Failed to create logical device
+    ASSERT_VULKAN(result, "Failed to create logical device");
 
     vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily, 0, &presentQueue);
@@ -290,7 +293,7 @@ void vkUtils::createSwapchain()
     createInfo.clipped        = VK_TRUE;
 
     VkResult result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain);
-    ASSERT_VULKAN(result); // Failed to create swapchain
+    ASSERT_VULKAN(result, "Failed to create swapchain"); 
 
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
     swapchainImages.resize(imageCount);
@@ -353,7 +356,7 @@ void vkUtils::createRenderPass()
     renderPassInfo.pDependencies          = &dependency;
 
     VkResult result = vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
-    ASSERT_VULKAN(result); // Failed to crete render pass
+    ASSERT_VULKAN(result, "Failed to crete render pass");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -409,7 +412,7 @@ void vkUtils::createDescriptorSetLayout()
     layoutInfo.pBindings                                   = bindings.data();
 
     VkResult result = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout);
-    ASSERT_VULKAN(result); // Failed to crete descriptor set layout
+    ASSERT_VULKAN(result, "Failed to crete descriptor set layout");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -486,7 +489,7 @@ void vkUtils::createGraphicsPipeline()
     pipelineLayoutInfo.pSetLayouts                = &descriptorSetLayout;
 
     VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout);
-    ASSERT_VULKAN(result); // Failed to create pipeline layout
+    ASSERT_VULKAN(result, "Failed to create pipeline layout");
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -504,7 +507,7 @@ void vkUtils::createGraphicsPipeline()
     pipelineInfo.basePipelineHandle           = VK_NULL_HANDLE;
     
     result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
-    ASSERT_VULKAN(result); // Failed to create graphics pipeline    
+    ASSERT_VULKAN(result, "Failed to create graphics pipeline"); 
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -528,7 +531,7 @@ void vkUtils::createFramebuffers()
         framebufferInfo.layers                  = 1;
 
         VkResult result = vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapchainFramebuffers[i]);
-        ASSERT_VULKAN(result); // Failed to create framebuffer
+        ASSERT_VULKAN(result, "Failed to create framebuffer");
     }
 }
 //-----------------------------------------------------------------------------
@@ -568,7 +571,7 @@ void vkUtils::createDescriptorPool()
     poolInfo.maxSets                    = static_cast<uint32_t>(swapchainImages.size());
 
     VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
-    ASSERT_VULKAN(result); // Failed to create descriptor pool
+    ASSERT_VULKAN(result, "Failed to create descriptor pool");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -585,7 +588,7 @@ void vkUtils::createDescriptorSets()
 
     descriptorSets.resize(swapchainImages.size());
     VkResult result = vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data());
-    ASSERT_VULKAN(result); // Failed to allocate descriptor sets
+    ASSERT_VULKAN(result, "Failed to allocate descriptor sets");
 
     for (size_t i = 0; i < swapchainImages.size(); i++)
     {
@@ -633,7 +636,7 @@ void vkUtils::createCommandPool()
     poolInfo.queueFamilyIndex        = queueFamilyIndices.graphicsFamily;
 
     VkResult result = vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
-    ASSERT_VULKAN(result); // Failed to create command pool
+    ASSERT_VULKAN(result, "Failed to create command pool");
 }
 
 void vkUtils::createTextureImage(void* pixels, uint texWidth, uint texHeight)
@@ -690,7 +693,7 @@ void vkUtils::createTextureSampler()
     samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
     VkResult result = vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler);
-    ASSERT_VULKAN(result); // Failed to create texture sampler
+    ASSERT_VULKAN(result, "Failed to create texture sampler");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -714,7 +717,7 @@ void vkUtils::createImage(uint32_t width, uint32_t height, VkFormat format, VkIm
     imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
 
     VkResult result = vkCreateImage(device, &imageInfo, nullptr, &image);
-    ASSERT_VULKAN(result); //Failed to create image
+    ASSERT_VULKAN(result, "Failed to create image");
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, image, &memRequirements);
@@ -725,7 +728,7 @@ void vkUtils::createImage(uint32_t width, uint32_t height, VkFormat format, VkIm
     allocInfo.memoryTypeIndex      = findMemoryType(memRequirements.memoryTypeBits, properties);
 
     result = vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory);
-    ASSERT_VULKAN(result); // Failed to allocate image memory
+    ASSERT_VULKAN(result, "Failed to allocate image memory");
 
     vkBindImageMemory(device, image, imageMemory, 0);
 }
@@ -858,7 +861,7 @@ void vkUtils::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemory
     bufferInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
 
     VkResult result = vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
-    ASSERT_VULKAN(result); // Failed to create buffer
+    ASSERT_VULKAN(result, "Failed to create buffer");
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
@@ -869,7 +872,7 @@ void vkUtils::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemory
     allocInfo.memoryTypeIndex      = findMemoryType(memRequirements.memoryTypeBits, properties);
     
     result = vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory);
-    ASSERT_VULKAN(result); // Failed to allocate buffer memory
+    ASSERT_VULKAN(result, "Failed to allocate buffer memory");
 
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
@@ -902,7 +905,7 @@ void vkUtils::createCommandBuffers()
     allocInfo.commandBufferCount          = (uint32_t)commandBuffers.size();
 
     VkResult result = vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data());
-    ASSERT_VULKAN(result); // Failed to allocate command buffers
+    ASSERT_VULKAN(result, "Failed to allocate command buffers"); 
 
     for (size_t i = 0; i < commandBuffers.size(); i++)
     {
@@ -910,7 +913,7 @@ void vkUtils::createCommandBuffers()
         beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
         result = vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
-        ASSERT_VULKAN(result); // Failed to begin recording command buffer
+        ASSERT_VULKAN(result, "Failed to begin recording command buffer");
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -935,7 +938,7 @@ void vkUtils::createCommandBuffers()
         vkCmdEndRenderPass(commandBuffers[i]);
 
         result = vkEndCommandBuffer(commandBuffers[i]);
-        ASSERT_VULKAN(result); // Failed to record command buffer
+        ASSERT_VULKAN(result, "Failed to record command buffer");
     }
 }
 //-----------------------------------------------------------------------------
@@ -1023,7 +1026,7 @@ void vkUtils::drawFrame()
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
     result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]);
-    ASSERT_VULKAN(result); // Failed to submit draw command buffer
+    ASSERT_VULKAN(result, "Failed to submit draw command buffer");
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType            = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -1062,7 +1065,7 @@ VkShaderModule vkUtils::createShaderModule(const std::vector<char>& code)
 
     VkShaderModule shaderModule;
     VkResult       result = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
-    ASSERT_VULKAN(result); // Failed to create shader module
+    ASSERT_VULKAN(result, "Failed to create shader module");
 
     return shaderModule;
 }
@@ -1260,7 +1263,7 @@ VkImageView vkUtils::createImageView(VkImage image, VkFormat format)
     VkImageView imageView;
 
     VkResult result = vkCreateImageView(device, &viewInfo, nullptr, &imageView);
-    ASSERT_VULKAN(result);   // Failed to create texture image view!
+    ASSERT_VULKAN(result, "Failed to create texture image view!");
 
     return imageView;
 }

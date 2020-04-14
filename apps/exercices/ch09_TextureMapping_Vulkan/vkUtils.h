@@ -15,13 +15,10 @@
 #include <Utils.h>
 #include <math/SLVec3.h>
 
-<<<<<<< HEAD
-#define ASSERT_VULKAN(result)\
+#define ASSERT_VULKAN(result, msg)\
             if (result != VK_SUCCESS)\
-                __debugbreak();
+                Utils::exitMsg("Vulkan", msg, __LINE__, __FILE__);
 
-=======
->>>>>>> 5acb605a18101ec3989e2cb68111cc8e3f48b697
 #define IS_DEBUGMODE_ON true
 
 struct QueueFamilyIndices
