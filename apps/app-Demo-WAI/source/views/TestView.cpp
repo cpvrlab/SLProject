@@ -514,12 +514,9 @@ void TestView::startOrbSlam(SlamParams slamParams)
         slamParams.params.cullRedundantPerc = 0.99f;
     }
 
-    _trackingExtractor = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
-    /*
-    _initializationExtractor = _featureExtractorFactory.make(slamParams->extractorIds.initializationExtractorId, _videoFrameSize);
-    _markerExtractor         = _featureExtractorFactory.make(slamParams->extractorIds.markerExtractorId, _videoFrameSize);
-    */
-    _doubleBufferedOutput = _trackingExtractor->doubleBufferedOutput();
+    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
+    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
+    _doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
     voc->loadFromBinaryFile(slamParams.vocabularyFile);
