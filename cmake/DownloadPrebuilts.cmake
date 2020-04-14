@@ -102,6 +102,40 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
     set(assimp_LIBS assimp)
 
+    ####################
+    # Vulkan for Linux #
+    ####################
+
+    set(vk_VERSION "1.2.135.0")
+    set(vk_DIR ${PREBUILT_PATH}/linux_vulkan_${vk_VERSION})
+    set(vk_PREBUILT_ZIP "linux_vulkan_${vk_VERSION}.zip")
+    set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${vk_DIR}")
+        file(DOWNLOAD "${vk_URL}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
+    endif()
+
+    set(vk_INCLUDE_DIR ${vk_DIR}/x86_64/include)
+    set(vk_LINK_DIR ${vk_DIR}/x86_64/lib)   #don't forget to add the this link dir down at the bottom
+
+    add_library(libvulkan SHARED IMPORTED)
+    set_target_properties(libvulkan PROPERTIES IMPORTED_LOCATION "${vk_LINK_DIR}/libvulkan.so")
+    set(vk_LIBS libvulkan)
+
+    ####################
+    # GLFW for Linux #
+    ####################
+
+    set(glfw_VERSION "3.3.2")
+    set(glfw_DIR ${PREBUILT_PATH}/linux_glfw_${glfw_VERSION})
+    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
+    set(glfw_LINK_DIR ${glfw_DIR}/${CMAKE_BUILD_TYPE})
+    set(glfw_LIBS glfw3)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
     ######################
