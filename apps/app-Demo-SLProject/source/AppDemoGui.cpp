@@ -985,7 +985,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-#if not defined(SL_OS_ANDROID) and not defined(SL_OS_IOS)
+#if !defined(SL_OS_ANDROID) and !defined(SL_OS_IOS)
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
                         SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";

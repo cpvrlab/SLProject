@@ -29,6 +29,9 @@ option(SL_BUILD_WAI
 option(SL_BUILD_APPS
 	   "Specifies if sample apps should be built"
 	   ON)
+option(SL_BUILD_VULKAN_APPS
+	   "Specified if vulkan apps should be built"
+	   ON)
 
 message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
 message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
