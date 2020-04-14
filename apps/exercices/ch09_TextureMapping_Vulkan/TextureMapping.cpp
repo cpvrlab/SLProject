@@ -77,18 +77,10 @@ void cleanup()
 
 int main()
 {
-    try
-    {
-        initWindow();
-        initVulkan();
-        mainLoop();
-        cleanup();
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+    initWindow();
+    initVulkan();
+    mainLoop();
+    cleanup();
 
     return EXIT_SUCCESS;
 }

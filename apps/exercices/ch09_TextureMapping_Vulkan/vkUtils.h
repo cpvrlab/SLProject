@@ -15,6 +15,9 @@
 #include <Utils.h>
 #include <math/SLVec3.h>
 
+#define ASSERT_VULKAN(result)\
+            if (result != VK_SUCCESS)\
+                __debugbreak();
 
 #define IS_DEBUGMODE_ON true
 
@@ -177,7 +180,7 @@ private:
     VkImageView              createImageView(VkImage, VkFormat);
     VkShaderModule           createShaderModule(const std::vector<char>&);
     VkSurfaceFormatKHR       chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
-    VkPresentModeKHR         chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&); // Must be replaced
+    VkPresentModeKHR         chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&); // TODO: Must be replaced
     VkExtent2D               chooseSwapExtent(const VkSurfaceCapabilitiesKHR&, GLFWwindow*);
     SwapchainSupportDetails  querySwapchainSupport(VkPhysicalDevice);
     QueueFamilyIndices       findQueueFamilies(VkPhysicalDevice);
