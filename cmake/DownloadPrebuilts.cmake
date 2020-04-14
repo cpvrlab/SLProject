@@ -537,9 +537,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     # Vulkan for MacOS #
     ####################
 
-    set(vk_VERSION "1.2.131.2")
-    set(vk_DIR ${PREBUILT_PATH}/mac64_vulkanSDK_${vk_VERSION})
-    set(vk_PREBUILT_ZIP "mac64_vulkanSDK_${vk_VERSION}.zip")
+    set(vk_VERSION "1.2.135.0")
+    set(vk_DIR ${PREBUILT_PATH}/mac64_vulkan_${vk_VERSION})
+    set(vk_PREBUILT_ZIP "mac64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
 
     if (NOT EXISTS "${vk_DIR}")

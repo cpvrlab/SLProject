@@ -76,7 +76,7 @@ void vkUtils::recreateSwapchain()
 {
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
-    
+
     while (width == 0 || height == 0)
     {
         glfwGetFramebufferSize(window, &width, &height);
@@ -163,14 +163,14 @@ void vkUtils::setupDebugMessenger()
 #endif
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
-    
+
     VkResult result = CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger);
     ASSERT_VULKAN(result, "Failed to set up debug messenger");
 }
 
 void vkUtils::createSurface()
 {
-    VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface); 
+    VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
     ASSERT_VULKAN(result, "Failed to create window surface");
 }
 //-----------------------------------------------------------------------------
@@ -293,7 +293,7 @@ void vkUtils::createSwapchain()
     createInfo.clipped        = VK_TRUE;
 
     VkResult result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain);
-    ASSERT_VULKAN(result, "Failed to create swapchain"); 
+    ASSERT_VULKAN(result, "Failed to create swapchain");
 
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
     swapchainImages.resize(imageCount);
@@ -505,9 +505,9 @@ void vkUtils::createGraphicsPipeline()
     pipelineInfo.renderPass                   = renderPass;
     pipelineInfo.subpass                      = 0;
     pipelineInfo.basePipelineHandle           = VK_NULL_HANDLE;
-    
+
     result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
-    ASSERT_VULKAN(result, "Failed to create graphics pipeline"); 
+    ASSERT_VULKAN(result, "Failed to create graphics pipeline");
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -804,7 +804,7 @@ void vkUtils::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, 
 /*!
 
 */
-void vkUtils::createVertexBuffer(const std::vector<Vertex> &vertices)
+void vkUtils::createVertexBuffer(const std::vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -870,7 +870,7 @@ void vkUtils::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemory
     allocInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize       = memRequirements.size;
     allocInfo.memoryTypeIndex      = findMemoryType(memRequirements.memoryTypeBits, properties);
-    
+
     result = vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory);
     ASSERT_VULKAN(result, "Failed to allocate buffer memory");
 
@@ -905,7 +905,7 @@ void vkUtils::createCommandBuffers()
     allocInfo.commandBufferCount          = (uint32_t)commandBuffers.size();
 
     VkResult result = vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data());
-    ASSERT_VULKAN(result, "Failed to allocate command buffers"); 
+    ASSERT_VULKAN(result, "Failed to allocate command buffers");
 
     for (size_t i = 0; i < commandBuffers.size(); i++)
     {
@@ -991,7 +991,12 @@ void vkUtils::drawFrame()
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device,
+                                            swapchain,
+                                            UINT64_MAX,
+                                            imageAvailableSemaphores[currentFrame],
+                                            VK_NULL_HANDLE,
+                                            &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -1097,7 +1102,7 @@ VkPresentModeKHR vkUtils::chooseSwapPresentMode(const std::vector<VkPresentModeK
 /*!
 
 */
-VkExtent2D vkUtils::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow *window)
+VkExtent2D vkUtils::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
 {
     if (capabilities.currentExtent.width != UINT32_MAX)
         return capabilities.currentExtent;
