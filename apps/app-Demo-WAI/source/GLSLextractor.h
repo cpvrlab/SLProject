@@ -1,18 +1,23 @@
-#ifndef TARGET_OS_IOS
-
-#ifndef GLSLEXTRACTOR
-#define GLSLEXTRACTOR
-
-#include <vector>
-#include <list>
-#include <KPextractor.h>
-#include <WAIHelper.h>
-#include <GLSLHessian.h>
+#if not defined(TARGET_OS_IOS) or (TARGET_OS_IOS==0)
+#    ifndef GLSLEXTRACTOR
+#        define GLSLEXTRACTOR
+#        include <vector>
+#        include <list>
+#        include <KPextractor.h>
+#        include <WAIHelper.h>
+#        include <GLSLHessian.h>
 
 class GLSLextractor : public ORB_SLAM2::KPextractor
 {
 public:
-    GLSLextractor(int w, int h, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma);
+    GLSLextractor(int   w,
+                  int   h,
+                  int   nbKeypointsBigSigma,
+                  int   nbKeypointsSmallSigma,
+                  float highThrs,
+                  float lowThrs,
+                  float bigSigma,
+                  float smallSigma);
 
     ~GLSLextractor() {}
 
@@ -31,6 +36,5 @@ protected:
     cv::Ptr<cv::CLAHE>     _clahe;
 };
 
-#endif
-
+#    endif
 #endif // TARGET_OS_IOS

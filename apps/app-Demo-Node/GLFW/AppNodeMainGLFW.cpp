@@ -11,14 +11,14 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <GLFW/glfw3.h>
+#include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <opencv2/opencv.hpp>
-
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
+#include <GLFW/glfw3.h>
 
 extern void appNodeLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sid);
 

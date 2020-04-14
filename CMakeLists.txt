@@ -25,7 +25,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 option(SL_BUILD_WAI
 	   "Specified if the WAI apps and library should be built"
-	   OFF)
+	   ON)
 option(SL_BUILD_APPS
 	   "Specifies if sample apps should be built"
 	   ON)
@@ -43,6 +43,16 @@ if (SL_DOWNLOAD_PREBUILTS)
     message(STATUS "Downloading prebuilts")
 	include(cmake/DownloadPrebuilts.cmake)
 endif()
+
+option(SL_BUILD_WAI
+	   "Specified if the WAI apps and library should be built"
+	   ON)
+option(SL_BUILD_APPS
+	   "Specifies if sample apps should be built"
+	   ON)
+
+message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
+message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
 	message(STATUS "SL_APP: ${SL_APP}")

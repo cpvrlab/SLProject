@@ -10,6 +10,7 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <OrbSlam/Optimizer.h>
 #include <OrbSlam/PnPsolver.h>
+#include <LocalMap.h>
 #include <opencv2/core.hpp>
 
 enum TrackingState
@@ -21,12 +22,7 @@ enum TrackingState
     TrackingState_TrackingLost
 };
 
-struct LocalMap
-{
-    WAIKeyFrame*              refKF;
-    std::vector<WAIKeyFrame*> keyFrames;
-    std::vector<WAIMapPoint*> mapPoints;
-};
+
 
 struct InitializerData
 {
@@ -168,10 +164,9 @@ protected:
 
     LocalMapping* _localMapping;
     LoopClosing*  _loopClosing;
-    //std::thread*  _processNewKeyFrameThread = nullptr;
-    //std::thread*  _mappingThread = nullptr;
-    std::thread* _localMappingThread = nullptr;
-    std::thread* _loopClosingThread  = nullptr;
+    std::thread*  _processNewKeyFrameThread = nullptr;
+    std::vector<std::thread*> _mappingThreads;
+    std::thread*  _loopClosingThread  = nullptr;
 };
 
 class WAISlam : public WAISlamTools
@@ -180,6 +175,7 @@ public:
     WAISlam(cv::Mat        intrinsic,
             cv::Mat        distortion,
             ORBVocabulary* voc,
+            KPextractor*   iniExtractor,
             KPextractor*   extractor,
             WAIMap*        globalMap,
             bool           trackingOnly      = false,
@@ -190,6 +186,11 @@ public:
     ~WAISlam();
 
     virtual void reset();
+
+    WAIFrame createFrame(cv::Mat& imageGray);
+    WAIFrame createIniFrame(cv::Mat& imageGray);
+
+    virtual bool update(WAIFrame frame);
     virtual bool update(cv::Mat& imageGray);
     virtual void resume();
 
@@ -276,6 +277,7 @@ protected:
     bool          _serial;
     bool          _trackingOnly;
     KPextractor*  _extractor;
+    KPextractor*  _iniExtractor;
     int           _infoMatchedInliners;
 };
 

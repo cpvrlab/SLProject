@@ -10,10 +10,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
+#include <SLGLState.h>
 #include <SLApplication.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
@@ -273,22 +270,20 @@ void SLGLTexture::clearData()
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
-void SLGLTexture::load(SLstring filename,
-                       SLbool   flipVertical,
-                       SLbool   loadGrayscaleIntoAlpha)
+void SLGLTexture::load(const SLstring& filename,
+                       SLbool          flipVertical,
+                       SLbool          loadGrayscaleIntoAlpha)
 {
-    // Load the file directly
-    if (!Utils::fileExists(filename))
+    string pathFilename = Utils::findFile(filename,
+                                          {defaultPath,
+                                           SLApplication::exePath});
+    if (!Utils::fileExists(pathFilename))
     {
-        filename = defaultPath + filename;
-        if (!Utils::fileExists(filename))
-        {
-            SLstring msg = "SLGLTexture: File not found: " + filename;
-            SL_EXIT_MSG(msg.c_str());
-        }
+        SLstring msg = "SLGLTexture: File not found: " + filename;
+        SL_EXIT_MSG(msg.c_str());
     }
 
-    _images.push_back(new CVImage(filename,
+    _images.push_back(new CVImage(pathFilename,
                                   flipVertical,
                                   loadGrayscaleIntoAlpha));
 }

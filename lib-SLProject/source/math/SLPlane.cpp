@@ -11,6 +11,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLPlane.h>
 //-----------------------------------------------------------------------------
 /*!
 SLPlane::SLPlane ctor with 3 points

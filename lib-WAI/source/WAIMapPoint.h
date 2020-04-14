@@ -28,6 +28,15 @@ class WAIMap;
 //!
 /*! 
 */
+
+#define TRACK_REF_FRAME 0
+#define FUSE_TARGET_KF 1
+#define FUSE_CANDIDATE_KF 2
+#define BA_LOCAL_KF 3
+#define BA_FIXED_KF 4
+#define BA_GLOBAL_KF 5
+#define LOOP_POINT_KF 6
+
 class WAI_API WAIMapPoint
 {
 public:
@@ -110,19 +119,19 @@ public:
     bool              mbTrackInView            = false;
     int               mnTrackScaleLevel        = 0;
     float             mTrackViewCos            = 0.0f;
-    long unsigned int mnTrackReferenceForFrame = 0;
+    //long unsigned int mnTrackReferenceForFrame = 0;
     long unsigned int mnLastFrameSeen          = 0;
 
     // Variables used by local mapping
-    long unsigned int mnBALocalForKF;
-    long unsigned int mnFuseCandidateForKF;
+    //long unsigned int mnBALocalForKF;
+    int mnMarker[7];
 
     // Variables used by loop closing
-    long unsigned int mnLoopPointForKF;
+    //long unsigned int mnLoopPointForKF;
     long unsigned int mnCorrectedByKF;
     long unsigned int mnCorrectedReference;
     cv::Mat           mPosGBA;
-    long unsigned int mnBAGlobalForKF;
+    //long unsigned int mnBAGlobalForKF;
 
     static std::mutex mGlobalMutex;
     static std::mutex mMutexMapPointCreation;

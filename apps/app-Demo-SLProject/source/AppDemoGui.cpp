@@ -1132,24 +1132,42 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(s, sv, SID_VideoSensorAR);
-                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
-                        s->onLoad(s, sv, SID_VideoChristoffel);
 #ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
                         s->onLoad(s, sv, SID_VideoTrackWAI);
 #endif
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Erleb-AR"))
+                {
+                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
+                        s->onLoad(s, sv, SID_VideoChristoffel);
 
                     SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
                     SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+
                     if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
                         if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
                             s->onLoad(s, sv, SID_VideoAugustaRaurica);
 
-                    SLstring modelAV1 = SLImporter::defaultPath + "Aventicum01.dae"; // Android
-                    SLstring modelAV2 = SLImporter::defaultPath + "DAE/Aventicum/Aventicum01.dae";
-                    if (Utils::fileExists(modelAV1) || Utils::fileExists(modelAV2))
-                        if (ImGui::MenuItem("Aventicum AR (Main)", nullptr, sid == SID_VideoAventicum))
-                            s->onLoad(s, sv, SID_VideoAventicum);
+                    SLstring modelAV11 = SLImporter::defaultPath + "Aventicum-Amphitheater1.gltf"; // Android
+                    SLstring modelAV12 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
+                    if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
+                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
+                            s->onLoad(s, sv, SID_VideoAventicumAmphi);
+
+                    SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
+                    SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
+                    if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
+                        if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
+                            s->onLoad(s, sv, SID_VideoAventicumTheatre);
+
+                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf"; // Android
+                    SLstring modelAV32 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Cigonier1.gltf";
+                    if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
+                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
+                            s->onLoad(s, sv, SID_VideoAventicumCigonier);
 
                     ImGui::EndMenu();
                 }

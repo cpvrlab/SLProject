@@ -10,11 +10,8 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <Utils.h>
+#include <SLGLState.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 

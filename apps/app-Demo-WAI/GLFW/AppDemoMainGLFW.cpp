@@ -14,12 +14,12 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <GLFW/glfw3.h>
 
 #include <WAIApp.h>
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <GLFW/SENSWebCamera.h>
+#include <GLFW/glfw3.h>
 
 static WAIApp waiApp;
 

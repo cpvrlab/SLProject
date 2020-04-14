@@ -30,41 +30,30 @@ used for pose estimation.
 \param faceClassifierFilename Name of the cascaded face training file
 \param faceMarkModelFilename Name of the facial landmark training file
 */
-CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
-                               string faceClassifierFilename,
-                               string faceMarkModelFilename)
+CVTrackedFaces::CVTrackedFaces(int           smoothLenght,
+                               const string& faceClassifierFilename,
+                               const string& faceMarkModelFilename)
 {
     // Load Haar cascade training file for the face detection
-    string faceClassifier = faceClassifierFilename;
+    string faceClassifier = Utils::findFile(faceClassifierFilename,
+                                            {SLApplication::calibIniPath,
+                                             SLApplication::exePath});
     if (!Utils::fileExists(faceClassifier))
     {
-        faceClassifier = SLApplication::calibIniPath + faceClassifierFilename;
-        if (!Utils::fileExists(faceClassifier))
-        {
-            faceClassifier = SLApplication::exePath + faceClassifierFilename;
-            if (!Utils::fileExists(faceClassifier))
-            {
-                string msg = "CVTrackedFaces: File not found: " + faceClassifier;
-                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
-            }
-        }
+        string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
+
     _faceDetector = new CVCascadeClassifier(faceClassifier);
 
     // Load facemark model file for the facial landmark detection
-    string faceModel = faceMarkModelFilename;
-    if (!Utils::fileExists(faceModel))
+    string faceModel = Utils::findFile(faceMarkModelFilename,
+                                       {SLApplication::calibIniPath,
+                                        SLApplication::exePath});
+    if (!Utils::fileExists(faceClassifier))
     {
-        faceModel = SLApplication::calibIniPath + faceMarkModelFilename;
-        if (!Utils::fileExists(faceModel))
-        {
-            faceModel = SLApplication::exePath + faceMarkModelFilename;
-            if (!Utils::fileExists(faceModel))
-            {
-                string msg = "CVTrackedFaces: File not found: " + faceModel;
-                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
-            }
-        }
+        string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
     _facemark = cv::face::FacemarkLBF::create();
@@ -102,20 +91,20 @@ CVTrackedFaces::~CVTrackedFaces()
 }
 //-----------------------------------------------------------------------------
 //! Tracks the a face and its landmarks
-/* The tracking is done by first detecting the face with a pretrained cascaded
-face classifier implemented in OpenCV. The facial landmarks are detected with
-the OpenCV face module using the facemarkLBF detector. More information about
-OpenCV facial landmark detection can be found on:
-https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
-\n
-The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D 
-and their corresponding 2D points detected by the cv::facemark detector. For
-smoothing out the jittering we average the last few detections.
-\param imageGray Image for processing
-\param imageRgb Image for visualizations
-\param calib Pointer to a valid camera calibration 
-\param drawDetection Flag for drawing the detected obbjects
-\param sv Pointer to the sceneview
+/* This function is called every frame in the apps onUpdateVideo function.
+ The tracking is done by first detecting the face with a pretrained cascaded
+ face classifier implemented in OpenCV. The facial landmarks are detected with
+ the OpenCV face module using the facemarkLBF detector. More information about
+ OpenCV facial landmark detection can be found on:
+ https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
+ \n
+ The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D
+ and their corresponding 2D points detected by the cv::facemark detector. For
+ smoothing out the jittering we average the last few detections.
+ \param imageGray Image for processing
+ \param imageRgb Image for visualizations
+ \param calib Pointer to a valid camera calibration
+ \return returns true if pose estimation was successful
 */
 bool CVTrackedFaces::track(CVMat          imageGray,
                            CVMat          imageRgb,

@@ -75,8 +75,8 @@ public:
                                 CVPixFormat format,
                                 bool        isContinuous = true);
     void               load(const string& filename,
-                            bool   flipVertical           = true,
-                            bool   loadGrayscaleIntoAlpha = false);
+                            bool          flipVertical           = true,
+                            bool          loadGrayscaleIntoAlpha = false);
     bool               load(int         inWidth,
                             int         inHeight,
                             CVPixFormat srcFormat,
@@ -85,9 +85,9 @@ public:
                             bool        isContinuous,
                             bool        isTopLeft);
     void               savePNG(const string& filename,
-                               int    compressionLevel = 6,
-                               bool   flipY            = true,
-                               bool   convertBGR2RGB   = true);
+                               int           compressionLevel = 6,
+                               bool          flipY            = true,
+                               bool          convertBGR2RGB   = true);
     void               saveJPG(const string& filename,
                                int           compressionLevel = 95,
                                bool          flipY            = true,
@@ -115,7 +115,8 @@ public:
     uint          bytesPerLine() { return _bytesPerLine; }
     uint          bytesPerImage() { return _bytesPerImage; }
     CVPixFormat   format() { return _format; }
-    string        formatString();
+    string        formatString(CVPixFormat format);
+    string        formatString() { return formatString(_format); }
     string        path() { return _path; }
     static string typeString(int cvMatTypeInt);
 
