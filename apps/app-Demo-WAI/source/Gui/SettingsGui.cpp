@@ -1,6 +1,7 @@
 #include <SettingsGui.h>
 #include <ErlebAR.h>
 #include <imgui_internal.h>
+#include <string>
 
 SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
@@ -109,40 +110,52 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Begin("Settings_content", nullptr, windowFlags);
         ImGui::BeginChild("Settings_content_child", ImVec2(0, 0), false, childWindowFlags);
 
-        ////general
-        //ImGui::PushFont(_fontSmall);
-        //ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        //ImGui::Text(_resources.strings().general());
-        //ImGui::PopStyleColor();
-        //ImGui::PopFont();
+        //language selection
+        ImGui::PushFont(_fontSmall);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+        ImGui::Text(_resources.strings().language());
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
 
-        //ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
-        //ImGui::PushFont(_fontStandard);
-        //ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        //ImGui::Text(_resources.strings().generalContent(), _textWrapW);
-        //ImGui::PopStyleColor();
-        //ImGui::PopFont();
-        //ImGui::PopTextWrapPos();
+        ImGui::PushFont(_fontStandard);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-        //ImGui::Separator();
+        static int  currLanguage = 0;
+        const char* languages[]  = {"English",
+                                   "Deutsch",
+                                   "Français",
+                                   "Italiano"};
+        if (ImGui::Combo("##combo0", &currLanguage, languages, IM_ARRAYSIZE(languages)))
+        {
+            if (currLanguage == 0)
+                _resources.setLanguageEnglish();
+            else if (currLanguage == 1)
+                _resources.setLanguageGerman();
+            else if (currLanguage == 2)
+                _resources.setLanguageFrench();
+            else
+                _resources.setLanguageItalien();
+        }
 
-        ////developers
-        //ImGui::PushFont(_fontSmall);
-        //ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        //ImGui::Text(_resources.strings().developers());
-        //ImGui::PopStyleColor();
-        //ImGui::PopFont();
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+        ImGui::Separator();
 
-        //ImGui::PushFont(_fontStandard);
-        //ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        //ImGui::Text(_resources.strings().developerNames(), _textWrapW);
-        //ImGui::PopStyleColor();
-        //ImGui::PopFont();
+        //developer mode
+        ImGui::PushFont(_fontSmall);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+        ImGui::Text(_resources.strings().develMode());
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
 
-        //ImGui::Separator();
+        ImGui::PushFont(_fontStandard);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-        ////credits
-        ////..
+        ImGui::Checkbox("Enabled", &_resources.developerMode);
+
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+        ImGui::Separator();
 
         ImGui::EndChild();
         ImGui::End();

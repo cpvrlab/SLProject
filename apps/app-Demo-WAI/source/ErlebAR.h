@@ -131,6 +131,9 @@ public:
     const char* developers() const { return _developers.c_str(); }
     const char* developerNames() const { return _developerNames.c_str(); }
 
+    const char* language() const { return _language.c_str(); }
+    const char* develMode() const { return _develMode.c_str(); }
+
 protected:
     //selection
     std::string _settings;
@@ -142,6 +145,8 @@ protected:
     std::string _developers;
     std::string _developerNames;
     //settings
+    std::string _language;
+    std::string _develMode;
 };
 
 class StringsEnglish : public Strings
@@ -188,6 +193,8 @@ public:
     const Strings& strings() { return *_currStrings; }
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
+
+    bool developerMode = false;
 
 private:
     StringsEnglish _stringsEnglish;
