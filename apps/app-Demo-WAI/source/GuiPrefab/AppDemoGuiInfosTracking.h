@@ -32,7 +32,7 @@ public:
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
 private:
-    //WAI::ModeOrbSlam2* _mode = nullptr;
+    //WAI::ModeOrbSlam2* _waiSlamer = nullptr;
     GUIPreferences& _prefs;
 
     WAIApp& _waiApp;

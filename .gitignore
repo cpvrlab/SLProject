@@ -23,15 +23,13 @@
 *.lnk
 *.xcuserstate
 *~
-<<<<<<< HEAD
 xyzrgb_dragon.ply
 
 data\models\PLY\xyzrgb_dragon.ply
-=======
-data/models/PLY/xyzrgb_dragon.ply
 data/models/DAE/Aventicum
+data/models/GLTF/Aventicum
 data/models/GLTF/AugustaRaurica
->>>>>>> 54764bac507286a79926df0666ff18a4202c188b
+data/models/GLTF/Aventicum
 data/images/sequences/rgbd_dataset_freiburg1_desk
 data/calibrations/orb-slam-state-*
 data/calibrations/street*
@@ -45,6 +43,7 @@ externals/g2o/bin
 externals/g2o/lib*
 externals/prebuild_scripts/opencv
 externals/prebuild_scripts/opencv_contrib
+externals/prebuild_scripts/assimp
 apps/app-Demo-WAI/android/app/.cxx
 
 moc_*.h

@@ -142,12 +142,16 @@ void dumpFileSystemRec(const char*   logtag,
                        const string& folderpath,
                        int           depth = 0);
 
-///////////////////////
-// Logging Functions //
-///////////////////////
-//! FileLog Instance for logging to logfile. If it is instantiated the logging methods
-//! will also output into this file. Instantiate it with initFileLog function.
-static std::unique_ptr<FileLog> fileLog;
+//! Tries to find a filename on various paths to check
+string findFile(const string&         filename,
+                const vector<string>& pathsToCheck);
+
+  ///////////////////////
+  // Logging Functions //
+  ///////////////////////
+  //! FileLog Instance for logging to logfile. If it is instantiated the logging methods
+  //! will also output into this file. Instantiate it with initFileLog function.
+  static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
 

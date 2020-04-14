@@ -189,7 +189,7 @@ public:
 
 protected:
     // loading the image files
-    void load(SLstring filename,
+    void load(const SLstring& filename,
               SLbool   flipVertical           = true,
               SLbool   loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);

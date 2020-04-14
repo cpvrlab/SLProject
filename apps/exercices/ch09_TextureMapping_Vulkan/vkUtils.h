@@ -15,10 +15,13 @@
 #include <Utils.h>
 #include <math/SLVec3.h>
 
+<<<<<<< HEAD
 #define ASSERT_VULKAN(result)\
             if (result != VK_SUCCESS)\
                 __debugbreak();
 
+=======
+>>>>>>> 5acb605a18101ec3989e2cb68111cc8e3f48b697
 #define IS_DEBUGMODE_ON true
 
 struct QueueFamilyIndices
@@ -89,48 +92,48 @@ public:
                                                        VK_KHR_MAINTENANCE1_EXTENSION_NAME};
 
 private:
-    GLFWwindow*                  window;
-    VkInstance                   instance;
-    VkDebugUtilsMessengerEXT     debugMessenger;
-    VkSurfaceKHR                 surface;
-    VkPhysicalDevice             physicalDevice = VK_NULL_HANDLE;
-    VkDevice                     device;
-    VkQueue                      graphicsQueue;
-    VkQueue                      presentQueue;
-    VkBuffer                     vertexBuffer;
-    VkDeviceMemory               vertexBufferMemory;
-    VkSwapchainKHR               swapchain;
-    std::vector<VkImage>         swapchainImages;
-    VkFormat                     swapchainImageFormat;
-    VkExtent2D                   swapchainExtent;
-    std::vector<VkImageView>     swapchainImageViews;
-    std::vector<VkFramebuffer>   swapchainFramebuffers;
-    VkRenderPass                 renderPass;
-    VkDescriptorSetLayout        descriptorSetLayout;
-    VkDescriptorPool             descriptorPool;
-    VkPipelineLayout             pipelineLayout;
-    VkPipeline                   graphicsPipeline;
-    VkCommandPool                commandPool;
-    VkBuffer                     stagingBuffer;
-    VkDeviceMemory               stagingBufferMemory;
-    VkImage                      textureImage;
-    VkDeviceMemory               textureImageMemory;
-    VkImageView                  textureImageView;
-    VkSampler                    textureSampler;
-    VkBuffer                     indexBuffer;
-    VkDeviceMemory               indexBufferMemory;
+    GLFWwindow*                     window;
+    VkInstance                      instance;
+    VkDebugUtilsMessengerEXT        debugMessenger;
+    VkSurfaceKHR                    surface;
+    VkPhysicalDevice                physicalDevice = VK_NULL_HANDLE;
+    VkDevice                        device;
+    VkQueue                         graphicsQueue;
+    VkQueue                         presentQueue;
+    VkBuffer                        vertexBuffer;
+    VkDeviceMemory                  vertexBufferMemory;
+    VkSwapchainKHR                  swapchain;
+    std::vector<VkImage>            swapchainImages;
+    VkFormat                        swapchainImageFormat;
+    VkExtent2D                      swapchainExtent;
+    std::vector<VkImageView>        swapchainImageViews;
+    std::vector<VkFramebuffer>      swapchainFramebuffers;
+    VkRenderPass                    renderPass;
+    VkDescriptorSetLayout           descriptorSetLayout;
+    VkDescriptorPool                descriptorPool;
+    VkPipelineLayout                pipelineLayout;
+    VkPipeline                      graphicsPipeline;
+    VkCommandPool                   commandPool;
+    VkBuffer                        stagingBuffer;
+    VkDeviceMemory                  stagingBufferMemory;
+    VkImage                         textureImage;
+    VkDeviceMemory                  textureImageMemory;
+    VkImageView                     textureImageView;
+    VkSampler                       textureSampler;
+    VkBuffer                        indexBuffer;
+    VkDeviceMemory                  indexBufferMemory;
     VkPipelineShaderStageCreateInfo shaderStages[2];
-    std::vector<VkDescriptorSet> descriptorSets;
-    std::vector<VkBuffer>        uniformBuffers;
-    std::vector<VkDeviceMemory>  uniformBuffersMemory;
-    std::vector<VkCommandBuffer> commandBuffers;
-    std::vector<VkSemaphore>     imageAvailableSemaphores;
-    std::vector<VkSemaphore>     renderFinishedSemaphores;
-    std::vector<VkFence>         inFlightFences;
-    std::vector<VkFence>         imagesInFlight;
-    size_t                       currentFrame       = 0;
-    bool                         framebufferResized = false;
-    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    std::vector<VkDescriptorSet>    descriptorSets;
+    std::vector<VkBuffer>           uniformBuffers;
+    std::vector<VkDeviceMemory>     uniformBuffersMemory;
+    std::vector<VkCommandBuffer>    commandBuffers;
+    std::vector<VkSemaphore>        imageAvailableSemaphores;
+    std::vector<VkSemaphore>        renderFinishedSemaphores;
+    std::vector<VkFence>            inFlightFences;
+    std::vector<VkFence>            imagesInFlight;
+    size_t                          currentFrame       = 0;
+    bool                            framebufferResized = false;
+    const std::vector<uint16_t>     indices            = {0, 1, 2, 2, 3, 0};
 
 public:
     void drawFrame();
@@ -158,13 +161,12 @@ public:
     void createDescriptorSets();
     void createCommandBuffers();
     void createSyncObjects();
-    
 
 private:
     void                     cleanupSwapchain();
     void                     recreateSwapchain();
     void                     populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
-    void                     createImage(uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags,                                     VkImage&, VkDeviceMemory&);
+    void                     createImage(uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags, VkImage&, VkDeviceMemory&);
     void                     transitionImageLayout(VkImage, VkFormat, VkImageLayout, VkImageLayout);
     void                     copyBufferToImage(VkBuffer, VkImage, uint32_t, uint32_t);
     void                     createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
@@ -185,7 +187,7 @@ private:
     SwapchainSupportDetails  querySwapchainSupport(VkPhysicalDevice);
     QueueFamilyIndices       findQueueFamilies(VkPhysicalDevice);
     std::vector<const char*> getRequiredExtensions();
-    VkResult                 CreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*,                                                                    const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*);
+    VkResult                 CreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*);
 
 public:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -195,10 +197,10 @@ public:
     }
 
 private:
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkUtils::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT             messageSeverity,
-                                                                        VkDebugUtilsMessageTypeFlagsEXT             messageType,
-                                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                                        void*                                       pUserData)
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                        VkDebugUtilsMessageTypeFlagsEXT             messageType,
+                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                        void*                                       pUserData)
     {
         std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
         return VK_FALSE;

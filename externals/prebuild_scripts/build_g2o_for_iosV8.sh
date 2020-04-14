@@ -30,13 +30,16 @@ cmake \
     -DCMAKE_DEBUG_POSTFIX="" \
     -DEIGEN3_INCLUDE_DIR=../eigen \
     -DG2O_USE_OPENGL=off \
+-GXcode \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../prebuild_scripts/ios.toolchain.cmake \
+-DENABLE_ARC=off \
     ../..
 
 # finally build it
-make -j100
+#cmake --build . --config Debug --target install --DEVELOPMENT_TEAM "cpvr lab (Personal Team)"
 
 # copy all into install folder
-make install
 cd ../.. # back to g2o
 
 # Make build folder for release version
@@ -53,13 +56,18 @@ cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DEIGEN3_INCLUDE_DIR=../eigen \
     -DG2O_USE_OPENGL=off \
+-GXcode \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../prebuild_scripts/ios.toolchain.cmake \
+-DENABLE_ARC=off \
     ../..
 
 # finally build it
-make -j10
+#cmake --build . --config Release --target install
 
 # copy all into install folder
-make install
+
+:'
 cd ../.. # back to g2o
 
 
@@ -80,4 +88,4 @@ if [ -d "../prebuilt/$ZIPFILE" ]; then
 fi
 
 mv "$ZIPFOLDER" ../prebuilt/
-
+'

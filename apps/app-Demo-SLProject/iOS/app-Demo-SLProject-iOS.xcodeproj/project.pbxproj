@@ -7,13 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4100799E243377EC0089FB3C /* CVTrackedWAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */; };
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
-		411BA72718C0702600F10475 /* Icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72618C0702600F10475 /* Icon_120.png */; };
-		411BA72918C0716700F10475 /* Icon_76.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72818C0716700F10475 /* Icon_76.png */; };
-		411BA72B18C071CA00F10475 /* Icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72A18C071CA00F10475 /* Icon_152.png */; };
-		411BA72D18C072BC00F10475 /* Default~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72C18C072BC00F10475 /* Default~iphone.png */; };
-		411BA72F18C075E500F10475 /* Default~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA72E18C075E500F10475 /* Default~ipad.png */; };
-		411BA73118C0773B00F10475 /* Default-Portrait@2~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */; };
 		411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411E93171B3D92DC007B0C6F /* SLDisk.cpp */; };
 		412F89721FF58D94004D5982 /* ADSTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89681FF58D91004D5982 /* ADSTex.vert */; };
 		412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89691FF58D92004D5982 /* ADSTex3D.vert */; };
@@ -25,6 +20,14 @@
 		412F89791FF58D94004D5982 /* ADS.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896F1FF58D93004D5982 /* ADS.frag */; };
 		412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */; };
 		412F897B1FF58D94004D5982 /* ADS.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89711FF58D94004D5982 /* ADS.vert */; };
+		4135E7792426116100D93FF2 /* libg2o_solver_dense.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7712426116000D93FF2 /* libg2o_solver_dense.a */; };
+		4135E77A2426116100D93FF2 /* libg2o_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7722426116000D93FF2 /* libg2o_core.a */; };
+		4135E77B2426116100D93FF2 /* libg2o_types_sba.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7732426116000D93FF2 /* libg2o_types_sba.a */; };
+		4135E77C2426116100D93FF2 /* libg2o_stuff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7742426116000D93FF2 /* libg2o_stuff.a */; };
+		4135E77D2426116100D93FF2 /* libg2o_types_sim3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7752426116000D93FF2 /* libg2o_types_sim3.a */; };
+		4135E77E2426116100D93FF2 /* libg2o_types_slam3d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7762426116100D93FF2 /* libg2o_types_slam3d.a */; };
+		4135E77F2426116100D93FF2 /* libg2o_solver_eigen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7772426116100D93FF2 /* libg2o_solver_eigen.a */; };
+		4135E7802426116100D93FF2 /* libg2o_types_slam3d_addons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4135E7782426116100D93FF2 /* libg2o_types_slam3d_addons.a */; };
 		41394E8B22A13E2B00C2448F /* Utils_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41394E8A22A13E2A00C2448F /* Utils_iOS.mm */; };
 		41394E9122A1428800C2448F /* SLAnimKeyframe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41394E9022A1428800C2448F /* SLAnimKeyframe.cpp */; };
 		41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */; };
@@ -53,8 +56,6 @@
 		414AC53C1F52A8070003867A /* CVRaulMurExtNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5381F52A8070003867A /* CVRaulMurExtNode.cpp */; };
 		414AC53D1F52A8070003867A /* CVRaulMurOrb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC5391F52A8070003867A /* CVRaulMurOrb.cpp */; };
 		414AC53E1F52A8070003867A /* CVTrackedFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */; };
-		414B3FEB148AAE520074D939 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FE8148AAE520074D939 /* Default.png */; };
-		414B3FED148AAE520074D939 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 414B3FEA148AAE520074D939 /* Icon.png */; };
 		414C14A3207FAFC6007587D8 /* liblibwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148E207FAFC3007587D8 /* liblibwebp.a */; };
 		414C14A4207FAFC6007587D8 /* libopencv_videoio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C148F207FAFC3007587D8 /* libopencv_videoio.a */; };
 		414C14A6207FAFC6007587D8 /* libopencv_face.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 414C1491207FAFC4007587D8 /* libopencv_face.a */; };
@@ -85,14 +86,12 @@
 		414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */; };
 		414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414DC77C1501076F00B959B9 /* SLAABBox.cpp */; };
 		414FE8F11F1506BC00F2FD4D /* SLTransferFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */; };
-		4153D4F018D43FF000F47146 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4153D4EF18D43FF000F47146 /* Default-568h@2x.png */; };
 		4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */; };
 		4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41565008148AA62400A3CAA6 /* ViewController_iPad.xib */; };
 		4156500D148AA62400A3CAA6 /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */; };
 		41565018148AA64F00A3CAA6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565012148AA64F00A3CAA6 /* AppDelegate.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
 		4156501A148AA64F00A3CAA6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41565015148AA64F00A3CAA6 /* main.m */; };
 		4156501B148AA64F00A3CAA6 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41565017148AA64F00A3CAA6 /* ViewController.mm */; };
-		41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */; };
 		41627EA515CA8CE70023B936 /* SLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9715CA8CE70023B936 /* SLInterface.cpp */; };
 		41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627E9A15CA8CE70023B936 /* SLTexFont.cpp */; };
 		41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41627EA015CA8CE70023B936 /* stdafx.cpp */; };
@@ -439,8 +438,7 @@
 		41901CF81959C58D006795A8 /* FBX in Resources */ = {isa = PBXBuildFile; fileRef = 41901CF71959C58D006795A8 /* FBX */; };
 		41901CFA1959C5AC006795A8 /* DAE in Resources */ = {isa = PBXBuildFile; fileRef = 41901CF91959C5AC006795A8 /* DAE */; };
 		41901CFC1959C5BB006795A8 /* 3DS in Resources */ = {isa = PBXBuildFile; fileRef = 41901CFB1959C5BB006795A8 /* 3DS */; };
-		4197E73814C85BE300AE1D23 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 4197E73714C85BE300AE1D23 /* Default-Portrait~ipad.png */; };
-		4197E73A14C85C6C00AE1D23 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 4197E73914C85C6C00AE1D23 /* Default-Landscape~ipad.png */; };
+		4190A2E0243DF4F700AE2BBF /* ORBvoc.bin in Resources */ = {isa = PBXBuildFile; fileRef = 4190A2DF243DF4F700AE2BBF /* ORBvoc.bin */; };
 		419BCD3C14865C0800D576F1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3B14865C0800D576F1 /* UIKit.framework */; };
 		419BCD3E14865C0800D576F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3D14865C0800D576F1 /* Foundation.framework */; };
 		419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 419BCD3F14865C0800D576F1 /* CoreGraphics.framework */; };
@@ -490,10 +488,7 @@
 		41C7A689241A3D200017EE82 /* WAIKeyFrameDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67B241A3D1F0017EE82 /* WAIKeyFrameDB.cpp */; };
 		41C7A68A241A3D200017EE82 /* WAIHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67C241A3D1F0017EE82 /* WAIHelper.cpp */; };
 		41C7A68B241A3D200017EE82 /* WAIOrbVocabulary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */; };
-		41C99E7818D4316A0045FD2D /* Icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7518D4316A0045FD2D /* Icon_57.png */; };
-		41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7618D4316A0045FD2D /* Icon_114.png */; };
-		41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7718D4316A0045FD2D /* Icon_144.png */; };
-		41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */ = {isa = PBXBuildFile; fileRef = 41C99E7B18D431B50045FD2D /* Icon_72.png */; };
+		41CAC8152438997D005A46B9 /* WorkingSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CAC8132438997D005A46B9 /* WorkingSet.cpp */; };
 		41CF01DC1F096ABB00CA36C9 /* Decompose.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D61F096ABB00CA36C9 /* Decompose.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EDF72402FBF00063FDA1 /* FileLog.cpp */; };
@@ -572,13 +567,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4100799C243377D90089FB3C /* CVTrackedWAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedWAI.h; path = "../../../lib-SLProject/include/CV/CVTrackedWAI.h"; sourceTree = SOURCE_ROOT; };
+		4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVTrackedWAI.cpp; path = "../../../lib-SLProject/source/CV/CVTrackedWAI.cpp"; sourceTree = SOURCE_ROOT; };
 		411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LogoCPVR_256L.png; path = ../../../data/images/textures/LogoCPVR_256L.png; sourceTree = SOURCE_ROOT; };
-		411BA72618C0702600F10475 /* Icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_120.png; path = images/Icon_120.png; sourceTree = SOURCE_ROOT; };
-		411BA72818C0716700F10475 /* Icon_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_76.png; path = images/Icon_76.png; sourceTree = SOURCE_ROOT; };
-		411BA72A18C071CA00F10475 /* Icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_152.png; path = images/Icon_152.png; sourceTree = SOURCE_ROOT; };
-		411BA72C18C072BC00F10475 /* Default~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default~iphone.png"; path = "images/Default~iphone.png"; sourceTree = SOURCE_ROOT; };
-		411BA72E18C075E500F10475 /* Default~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default~ipad.png"; path = "images/Default~ipad.png"; sourceTree = SOURCE_ROOT; };
-		411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Portrait@2~ipad.png"; path = "images/Default-Portrait@2~ipad.png"; sourceTree = SOURCE_ROOT; };
 		411E93171B3D92DC007B0C6F /* SLDisk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLDisk.cpp; path = "../../../lib-SLProject/source/SLDisk.cpp"; sourceTree = SOURCE_ROOT; };
 		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = "../../../lib-SLProject/include/SLDisk.h"; sourceTree = SOURCE_ROOT; };
 		4124201B230FF83C0091BDE1 /* HighResTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HighResTimer.h; path = "../../../externals/utils/lib-Utils/source/HighResTimer.h"; sourceTree = SOURCE_ROOT; };
@@ -593,6 +584,14 @@
 		412F896F1FF58D93004D5982 /* ADS.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.frag; path = ../../../data/shaders/ADS.frag; sourceTree = "<group>"; };
 		412F89701FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = VolumeRenderingRayCastLighted.frag; path = ../../../data/shaders/VolumeRenderingRayCastLighted.frag; sourceTree = "<group>"; };
 		412F89711FF58D94004D5982 /* ADS.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADS.vert; path = ../../../data/shaders/ADS.vert; sourceTree = "<group>"; };
+		4135E7712426116000D93FF2 /* libg2o_solver_dense.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_solver_dense.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_solver_dense.a; sourceTree = SOURCE_ROOT; };
+		4135E7722426116000D93FF2 /* libg2o_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_core.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_core.a; sourceTree = SOURCE_ROOT; };
+		4135E7732426116000D93FF2 /* libg2o_types_sba.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_types_sba.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_types_sba.a; sourceTree = SOURCE_ROOT; };
+		4135E7742426116000D93FF2 /* libg2o_stuff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_stuff.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_stuff.a; sourceTree = SOURCE_ROOT; };
+		4135E7752426116000D93FF2 /* libg2o_types_sim3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_types_sim3.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_types_sim3.a; sourceTree = SOURCE_ROOT; };
+		4135E7762426116100D93FF2 /* libg2o_types_slam3d.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_types_slam3d.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_types_slam3d.a; sourceTree = SOURCE_ROOT; };
+		4135E7772426116100D93FF2 /* libg2o_solver_eigen.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_solver_eigen.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_solver_eigen.a; sourceTree = SOURCE_ROOT; };
+		4135E7782426116100D93FF2 /* libg2o_types_slam3d_addons.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libg2o_types_slam3d_addons.a; path = ../../../externals/prebuilt/iosV8_g2o/Release/libg2o_types_slam3d_addons.a; sourceTree = SOURCE_ROOT; };
 		41394E8A22A13E2A00C2448F /* Utils_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Utils_iOS.mm; sourceTree = "<group>"; };
 		41394E8E22A13F8600C2448F /* Utils_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils_iOS.h; sourceTree = "<group>"; };
 		41394E8F22A1427600C2448F /* SLAnimKeyframe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLAnimKeyframe.h; path = "../../../lib-SLProject/include/SLAnimKeyframe.h"; sourceTree = SOURCE_ROOT; };
@@ -637,8 +636,6 @@
 		414AC5411F52A8430003867A /* CVRaulMurExtNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVRaulMurExtNode.h; path = "../../../lib-SLProject/include/CV/CVRaulMurExtNode.h"; sourceTree = SOURCE_ROOT; };
 		414AC5421F52A8430003867A /* CVRaulMurOrb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVRaulMurOrb.h; path = "../../../lib-SLProject/include/CV/CVRaulMurOrb.h"; sourceTree = "<group>"; };
 		414AC5431F52A8430003867A /* CVTrackedFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTrackedFeatures.h; path = "../../../lib-SLProject/include/CV/CVTrackedFeatures.h"; sourceTree = SOURCE_ROOT; };
-		414B3FE8148AAE520074D939 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = images/Default.png; sourceTree = SOURCE_ROOT; };
-		414B3FEA148AAE520074D939 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = images/Icon.png; sourceTree = SOURCE_ROOT; };
 		414C1468207FA96E007587D8 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		414C148E207FAFC3007587D8 /* liblibwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblibwebp.a; path = ../../../externals/prebuilt/iosV8_opencv_4.2.0/release/opencv4/3rdparty/liblibwebp.a; sourceTree = SOURCE_ROOT; };
 		414C148F207FAFC3007587D8 /* libopencv_videoio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopencv_videoio.a; path = ../../../externals/prebuilt/iosV8_opencv_4.2.0/release/libopencv_videoio.a; sourceTree = SOURCE_ROOT; };
@@ -671,7 +668,6 @@
 		414DC77C1501076F00B959B9 /* SLAABBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAABBox.cpp; path = "../../../lib-SLProject/source/SLAABBox.cpp"; sourceTree = SOURCE_ROOT; };
 		414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTransferFunction.cpp; path = "../../../lib-SLProject/source/SLTransferFunction.cpp"; sourceTree = SOURCE_ROOT; };
 		414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTransferFunction.h; path = "../../../lib-SLProject/include/SLTransferFunction.h"; sourceTree = SOURCE_ROOT; };
-		4153D4EF18D43FF000F47146 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "images/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
 		4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArray.h; path = "../../../lib-SLProject/include/GL/SLGLVertexArray.h"; sourceTree = SOURCE_ROOT; };
 		4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArray.cpp; path = "../../../lib-SLProject/source/GL/SLGLVertexArray.cpp"; sourceTree = SOURCE_ROOT; };
 		41565011148AA64F00A3CAA6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = SOURCE_ROOT; };
@@ -680,7 +676,6 @@
 		41565015148AA64F00A3CAA6 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
 		41565016148AA64F00A3CAA6 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = SOURCE_ROOT; };
 		41565017148AA64F00A3CAA6 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = SOURCE_ROOT; };
-		41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape@2x~ipad.png"; path = "images/Default-Landscape@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
 		41627E9015CA8CE70023B936 /* SL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SL.h; path = "../../../lib-SLProject/include/SL/SL.h"; sourceTree = SOURCE_ROOT; };
 		41627E9115CA8CE70023B936 /* SLDrawBits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDrawBits.h; path = "../../../lib-SLProject/include/SLDrawBits.h"; sourceTree = SOURCE_ROOT; };
 		41627E9215CA8CE70023B936 /* SLEventHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEventHandler.h; path = "../../../lib-SLProject/include/SLEventHandler.h"; sourceTree = SOURCE_ROOT; };
@@ -747,8 +742,6 @@
 		416DA7D02021B8FC00406B83 /* AppDemoLoad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoLoad.cpp; path = ../source/AppDemoLoad.cpp; sourceTree = "<group>"; };
 		416DA7D12021B8FD00406B83 /* AppDemoGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDemoGui.cpp; path = ../source/AppDemoGui.cpp; sourceTree = "<group>"; };
 		416DA7D22021B8FD00406B83 /* AppDemoGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDemoGui.h; path = ../include/AppDemoGui.h; sourceTree = "<group>"; };
-		416EE8ED148E388300AE5F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "images/Default@2x.png"; sourceTree = SOURCE_ROOT; };
-		416EE8EE148E388300AE5F6B /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "images/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
 		4178D6652020A9AF00F4F699 /* SLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLApplication.h; path = "../../../lib-SLProject/include/SL/SLApplication.h"; sourceTree = "<group>"; };
 		4178D6662020A9C000F4F699 /* SLApplication.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLApplication.cpp; path = "../../../lib-SLProject/source/SL/SLApplication.cpp"; sourceTree = "<group>"; };
 		417980451F13832F00EB5315 /* i0000_0000b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i0000_0000b.png; path = ../../../data/images/textures/i0000_0000b.png; sourceTree = SOURCE_ROOT; };
@@ -1093,8 +1086,7 @@
 		41901CF71959C58D006795A8 /* FBX */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FBX; path = ../../../data/models/FBX; sourceTree = "<group>"; };
 		41901CF91959C5AC006795A8 /* DAE */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DAE; path = ../../../data/models/DAE; sourceTree = "<group>"; };
 		41901CFB1959C5BB006795A8 /* 3DS */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 3DS; path = ../../../data/models/3DS; sourceTree = "<group>"; };
-		4197E73714C85BE300AE1D23 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Portrait~ipad.png"; path = "images/Default-Portrait~ipad.png"; sourceTree = SOURCE_ROOT; };
-		4197E73914C85C6C00AE1D23 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape~ipad.png"; path = "images/Default-Landscape~ipad.png"; sourceTree = SOURCE_ROOT; };
+		4190A2DF243DF4F700AE2BBF /* ORBvoc.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = ORBvoc.bin; path = ../../../data/calibrations/ORBvoc.bin; sourceTree = "<group>"; };
 		4198070B1959B63C0048085E /* SLScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLScene.h; path = "../../../lib-SLProject/include/SLScene.h"; sourceTree = SOURCE_ROOT; };
 		4198070E1959B91C0048085E /* SLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEnums.h; path = "../../../lib-SLProject/include/SLEnums.h"; sourceTree = SOURCE_ROOT; };
 		419BCD3714865C0800D576F1 /* Demo-SL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Demo-SL.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1132,7 +1124,7 @@
 		41AD926324165452008D8A79 /* aruco_detector_params.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; name = aruco_detector_params.yml; path = ../../../data/calibrations/aruco_detector_params.yml; sourceTree = "<group>"; };
 		41B3821E18D593D1000F37CC /* Averaged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Averaged.h; path = "../../../lib-SLProject/include/Averaged.h"; sourceTree = SOURCE_ROOT; };
 		41B7BDDC1E49B4BC007B8B39 /* cursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cursor.png; path = ../../../data/images/textures/cursor.png; sourceTree = "<group>"; };
-		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SLProject/Images.xcassets; sourceTree = SOURCE_ROOT; };
+		41B7BDDF1E49B553007B8B39 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = images/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		41B86C591C4FE21400BB409D /* SLGLVertexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexBuffer.cpp; path = "../../../lib-SLProject/source/GL/SLGLVertexBuffer.cpp"; sourceTree = SOURCE_ROOT; };
 		41B86C5C1C4FE23A00BB409D /* SLGLVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexBuffer.h; path = "../../../lib-SLProject/include/GL/SLGLVertexBuffer.h"; sourceTree = SOURCE_ROOT; };
 		41B86C5D1C4FE23A00BB409D /* SLGLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLEnums.h; path = "../../../lib-SLProject/include/GL/SLGLEnums.h"; sourceTree = SOURCE_ROOT; };
@@ -1174,10 +1166,9 @@
 		41C7A67D241A3D1F0017EE82 /* WAIOrbVocabulary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAIOrbVocabulary.cpp; path = "../../../lib-WAI/source/WAIOrbVocabulary.cpp"; sourceTree = "<group>"; };
 		41C7A67E241A3D1F0017EE82 /* WAIOrbVocabulary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAIOrbVocabulary.h; path = "../../../lib-WAI/source/WAIOrbVocabulary.h"; sourceTree = "<group>"; };
 		41C7A680241A3D200017EE82 /* WAISlam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAISlam.h; path = "../../../lib-WAI/source/WAISlam.h"; sourceTree = "<group>"; };
-		41C99E7518D4316A0045FD2D /* Icon_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_57.png; path = images/Icon_57.png; sourceTree = SOURCE_ROOT; };
-		41C99E7618D4316A0045FD2D /* Icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_114.png; path = images/Icon_114.png; sourceTree = SOURCE_ROOT; };
-		41C99E7718D4316A0045FD2D /* Icon_144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_144.png; path = images/Icon_144.png; sourceTree = SOURCE_ROOT; };
-		41C99E7B18D431B50045FD2D /* Icon_72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon_72.png; path = images/Icon_72.png; sourceTree = SOURCE_ROOT; };
+		41CAC8122438997C005A46B9 /* LocalMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LocalMap.h; path = "../../../lib-WAI/source/OrbSlam/LocalMap.h"; sourceTree = "<group>"; };
+		41CAC8132438997D005A46B9 /* WorkingSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WorkingSet.cpp; path = "../../../lib-WAI/source/OrbSlam/WorkingSet.cpp"; sourceTree = "<group>"; };
+		41CAC8142438997D005A46B9 /* WorkingSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkingSet.h; path = "../../../lib-WAI/source/OrbSlam/WorkingSet.h"; sourceTree = "<group>"; };
 		41CF01D61F096ABB00CA36C9 /* Decompose.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Decompose.cpp; path = "../../../externals/lib-SLExternal/Shoemake/Decompose.cpp"; sourceTree = SOURCE_ROOT; };
 		41CF01D71F096ABB00CA36C9 /* Decompose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Decompose.h; path = "../../../externals/lib-SLExternal/Shoemake/Decompose.h"; sourceTree = SOURCE_ROOT; };
 		41CF01D81F096ABB00CA36C9 /* EulerAngles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EulerAngles.cpp; path = "../../../externals/lib-SLExternal/Shoemake/EulerAngles.cpp"; sourceTree = SOURCE_ROOT; };
@@ -1278,13 +1269,19 @@
 				414C14A7207FAFC6007587D8 /* libopencv_optflow.a in Frameworks */,
 				414C14A8207FAFC6007587D8 /* libopencv_aruco.a in Frameworks */,
 				414C14A9207FAFC6007587D8 /* libopencv_hfs.a in Frameworks */,
+				4135E77E2426116100D93FF2 /* libg2o_types_slam3d.a in Frameworks */,
+				4135E77D2426116100D93FF2 /* libg2o_types_sim3.a in Frameworks */,
 				414C14AA207FAFC6007587D8 /* libopencv_imgproc.a in Frameworks */,
+				4135E7802426116100D93FF2 /* libg2o_types_slam3d_addons.a in Frameworks */,
+				4135E77C2426116100D93FF2 /* libg2o_stuff.a in Frameworks */,
 				414C14AB207FAFC6007587D8 /* libzlib.a in Frameworks */,
 				414C14AC207FAFC6007587D8 /* liblibpng.a in Frameworks */,
 				414C14AD207FAFC6007587D8 /* libopencv_highgui.a in Frameworks */,
 				414C14AE207FAFC6007587D8 /* libopencv_calib3d.a in Frameworks */,
 				414C14AF207FAFC6007587D8 /* libopencv_core.a in Frameworks */,
 				414C14B0207FAFC6007587D8 /* libopencv_objdetect.a in Frameworks */,
+				4135E77A2426116100D93FF2 /* libg2o_core.a in Frameworks */,
+				4135E7792426116100D93FF2 /* libg2o_solver_dense.a in Frameworks */,
 				414C14B1207FAFC6007587D8 /* libopencv_xfeatures2d.a in Frameworks */,
 				414C14B2207FAFC6007587D8 /* libopencv_imgcodecs.a in Frameworks */,
 				417CC2CD240AB69D00C9F5EA /* libIrrXML.a in Frameworks */,
@@ -1299,7 +1296,9 @@
 				41BEFC0A1B78F85A009EF31F /* CoreMedia.framework in Frameworks */,
 				41BEFC071B78F84F009EF31F /* AVFoundation.framework in Frameworks */,
 				419BCD3C14865C0800D576F1 /* UIKit.framework in Frameworks */,
+				4135E77B2426116100D93FF2 /* libg2o_types_sba.a in Frameworks */,
 				417CC2CC240AB69D00C9F5EA /* libassimp.a in Frameworks */,
+				4135E77F2426116100D93FF2 /* libg2o_solver_eigen.a in Frameworks */,
 				419BCD3E14865C0800D576F1 /* Foundation.framework in Frameworks */,
 				419BCD4014865C0800D576F1 /* CoreGraphics.framework in Frameworks */,
 				419BCD4214865C0800D576F1 /* GLKit.framework in Frameworks */,
@@ -1353,6 +1352,8 @@
 				41EAAE092067BB2800F7E9B9 /* CVTrackedFaces.h */,
 				414AC53A1F52A8070003867A /* CVTrackedFeatures.cpp */,
 				414AC5431F52A8430003867A /* CVTrackedFeatures.h */,
+				4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */,
+				4100799C243377D90089FB3C /* CVTrackedWAI.h */,
 				4124202A23102B7F0091BDE1 /* CVTypedefs.h */,
 				41E6EDFD2403046F0063FDA1 /* CVTypes.h */,
 			);
@@ -1480,6 +1481,7 @@
 				416A86A6241B9044009D63B0 /* Initializer.cpp */,
 				416A869D241B9044009D63B0 /* Initializer.h */,
 				416A8693241B9043009D63B0 /* KPextractor.h */,
+				41CAC8122438997C005A46B9 /* LocalMap.h */,
 				416A8696241B9043009D63B0 /* LocalMapping.cpp */,
 				416A86A4241B9044009D63B0 /* LocalMapping.h */,
 				416A869A241B9043009D63B0 /* LoopClosing.cpp */,
@@ -1497,6 +1499,8 @@
 				416A86A0241B9044009D63B0 /* Sim3Solver.h */,
 				416A8699241B9043009D63B0 /* SURFextractor.cpp */,
 				416A86A3241B9044009D63B0 /* SURFextractor.h */,
+				41CAC8132438997D005A46B9 /* WorkingSet.cpp */,
+				41CAC8142438997D005A46B9 /* WorkingSet.h */,
 			);
 			name = OrbSlam;
 			sourceTree = "<group>";
@@ -1504,6 +1508,14 @@
 		416A86B2241B90BF009D63B0 /* g2o */ = {
 			isa = PBXGroup;
 			children = (
+				4135E7722426116000D93FF2 /* libg2o_core.a */,
+				4135E7712426116000D93FF2 /* libg2o_solver_dense.a */,
+				4135E7772426116100D93FF2 /* libg2o_solver_eigen.a */,
+				4135E7742426116000D93FF2 /* libg2o_stuff.a */,
+				4135E7732426116000D93FF2 /* libg2o_types_sba.a */,
+				4135E7752426116000D93FF2 /* libg2o_types_sim3.a */,
+				4135E7782426116100D93FF2 /* libg2o_types_slam3d_addons.a */,
+				4135E7762426116100D93FF2 /* libg2o_types_slam3d.a */,
 			);
 			name = g2o;
 			sourceTree = SOURCE_ROOT;
@@ -2087,7 +2099,6 @@
 				418E0C251489296A00C6274F /* Nodes */,
 				418E0C56148929CE00C6274F /* Raytracer */,
 				41654BDA14866F870003DF5E /* Scene */,
-				41B7BDDF1E49B553007B8B39 /* Images.xcassets */,
 			);
 			name = SLProject;
 			path = "../../../lib-SLProject";
@@ -2125,6 +2136,7 @@
 		41AD925E241653F7008D8A79 /* calibrations */ = {
 			isa = PBXGroup;
 			children = (
+				4190A2DF243DF4F700AE2BBF /* ORBvoc.bin */,
 				41AD926324165452008D8A79 /* aruco_detector_params.yml */,
 				41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */,
 				41AD926124165452008D8A79 /* lbfmodel.yaml */,
@@ -2136,24 +2148,7 @@
 		41B849FF148B2C3700305DB5 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				4153D4EF18D43FF000F47146 /* Default-568h@2x.png */,
-				41C99E7B18D431B50045FD2D /* Icon_72.png */,
-				41C99E7518D4316A0045FD2D /* Icon_57.png */,
-				41C99E7618D4316A0045FD2D /* Icon_114.png */,
-				41C99E7718D4316A0045FD2D /* Icon_144.png */,
-				411BA73018C0773B00F10475 /* Default-Portrait@2~ipad.png */,
-				411BA72E18C075E500F10475 /* Default~ipad.png */,
-				411BA72C18C072BC00F10475 /* Default~iphone.png */,
-				411BA72A18C071CA00F10475 /* Icon_152.png */,
-				411BA72818C0716700F10475 /* Icon_76.png */,
-				411BA72618C0702600F10475 /* Icon_120.png */,
-				41618D6316C1855500641165 /* Default-Landscape@2x~ipad.png */,
-				4197E73914C85C6C00AE1D23 /* Default-Landscape~ipad.png */,
-				414B3FE8148AAE520074D939 /* Default.png */,
-				416EE8ED148E388300AE5F6B /* Default@2x.png */,
-				4197E73714C85BE300AE1D23 /* Default-Portrait~ipad.png */,
-				414B3FEA148AAE520074D939 /* Icon.png */,
-				416EE8EE148E388300AE5F6B /* Icon@2x.png */,
+				41B7BDDF1E49B553007B8B39 /* Images.xcassets */,
 			);
 			name = Images;
 			path = images;
@@ -2369,7 +2364,6 @@
 				41B7BDE01E49B553007B8B39 /* Images.xcassets in Resources */,
 				418BF4601B8B0D500049E387 /* RefractReflectDisp.vert in Resources */,
 				418BF4491B8B0D4F0049E387 /* Diffuse.vert in Resources */,
-				41C99E7918D4316A0045FD2D /* Icon_114.png in Resources */,
 				41AD92602416543A008D8A79 /* calib_in_params.yml in Resources */,
 				417981781F13833000EB5315 /* i0100_0000b.png in Resources */,
 				4179817B1F13833000EB5315 /* i0103_0000b.png in Resources */,
@@ -2383,22 +2377,18 @@
 				41C48E9B1F01254A0059B48C /* DroidSans.ttf in Resources */,
 				4179819A1F13833000EB5315 /* i0134_0000b.png in Resources */,
 				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
-				411BA72918C0716700F10475 /* Icon_76.png in Resources */,
 				41E6EE48240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg in Resources */,
 				414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */,
 				412F897B1FF58D94004D5982 /* ADS.vert in Resources */,
 				418BF4681B8B0D500049E387 /* TextureOnly.vert in Resources */,
 				417981A91F13833000EB5315 /* i0149_0000b.png in Resources */,
 				418BF44C1B8B0D500049E387 /* ErrorTex.vert in Resources */,
-				411BA72D18C072BC00F10475 /* Default~iphone.png in Resources */,
 				417981C11F13833000EB5315 /* i0173_0000b.png in Resources */,
 				417981451F13833000EB5315 /* i0049_0000b.png in Resources */,
-				411BA72B18C071CA00F10475 /* Icon_152.png in Resources */,
 				417981E71F13836300EB5315 /* VolumeRenderingRayCast.vert in Resources */,
 				417981521F13833000EB5315 /* i0062_0000b.png in Resources */,
 				418BF4411B8B0D4F0049E387 /* BumpNormal.frag in Resources */,
 				418BF4451B8B0D4F0049E387 /* Color.frag in Resources */,
-				411BA72718C0702600F10475 /* Icon_120.png in Resources */,
 				417981E11F13833000EB5315 /* i0205_0000b.png in Resources */,
 				417E0EB9148A70DE0015B5B0 /* brick0512_C.png in Resources */,
 				41AD926624165452008D8A79 /* aruco_detector_params.yml in Resources */,
@@ -2466,7 +2456,6 @@
 				417981BE1F13833000EB5315 /* i0170_0000b.png in Resources */,
 				417981921F13833000EB5315 /* i0126_0000b.png in Resources */,
 				41C48E9C1F01254A0059B48C /* Karla-Regular.ttf in Resources */,
-				41C99E7A18D4316A0045FD2D /* Icon_144.png in Resources */,
 				417981CD1F13833000EB5315 /* i0185_0000b.png in Resources */,
 				414D37F71EE6A7DC009DB259 /* rusty-metal_2048N.png in Resources */,
 				4179818C1F13833000EB5315 /* i0120_0000b.png in Resources */,
@@ -2481,6 +2470,7 @@
 				417981791F13833000EB5315 /* i0101_0000b.png in Resources */,
 				414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */,
 				417981CB1F13833000EB5315 /* i0183_0000b.png in Resources */,
+				4190A2E0243DF4F700AE2BBF /* ORBvoc.bin in Resources */,
 				4179814A1F13833000EB5315 /* i0054_0000b.png in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
 				41E6EE4F240307840063FDA1 /* Tempel-Theater-02.bin in Resources */,
@@ -2496,7 +2486,6 @@
 				412F89771FF58D94004D5982 /* SkyBox.vert in Resources */,
 				417981DF1F13833000EB5315 /* i0203_0000b.png in Resources */,
 				417981711F13833000EB5315 /* i0093_0000b.png in Resources */,
-				411BA73118C0773B00F10475 /* Default-Portrait@2~ipad.png in Resources */,
 				412F89791FF58D94004D5982 /* ADS.frag in Resources */,
 				41FD9D121E523AD70063A1B7 /* Font08.png in Resources */,
 				4179819D1F13833000EB5315 /* i0137_0000b.png in Resources */,
@@ -2686,7 +2675,6 @@
 				4179815E1F13833000EB5315 /* i0074_0000b.png in Resources */,
 				417981C61F13833000EB5315 /* i0178_0000b.png in Resources */,
 				41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */,
-				41C99E7C18D431B50045FD2D /* Icon_72.png in Resources */,
 				4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */,
 				417981AD1F13833000EB5315 /* i0153_0000b.png in Resources */,
 				417981691F13833000EB5315 /* i0085_0000b.png in Resources */,
@@ -2703,12 +2691,9 @@
 				417981A81F13833000EB5315 /* i0148_0000b.png in Resources */,
 				417981701F13833000EB5315 /* i0092_0000b.png in Resources */,
 				4179813C1F13833000EB5315 /* i0040_0000b.png in Resources */,
-				414B3FEB148AAE520074D939 /* Default.png in Resources */,
 				417981221F13833000EB5315 /* i0014_0000b.png in Resources */,
 				417981271F13833000EB5315 /* i0019_0000b.png in Resources */,
 				417981BF1F13833000EB5315 /* i0171_0000b.png in Resources */,
-				414B3FED148AAE520074D939 /* Icon.png in Resources */,
-				41C99E7818D4316A0045FD2D /* Icon_57.png in Resources */,
 				417981591F13833000EB5315 /* i0069_0000b.png in Resources */,
 				4179814F1F13833000EB5315 /* i0059_0000b.png in Resources */,
 				4179818E1F13833000EB5315 /* i0122_0000b.png in Resources */,
@@ -2720,11 +2705,8 @@
 				417981231F13833000EB5315 /* i0015_0000b.png in Resources */,
 				41E6EE3C240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg in Resources */,
 				418BF45A1B8B0D500049E387 /* PerVrtBlinnTexSkinned.vert in Resources */,
-				4153D4F018D43FF000F47146 /* Default-568h@2x.png in Resources */,
 				412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */,
-				4197E73814C85BE300AE1D23 /* Default-Portrait~ipad.png in Resources */,
 				417981801F13833000EB5315 /* i0108_0000b.png in Resources */,
-				4197E73A14C85C6C00AE1D23 /* Default-Landscape~ipad.png in Resources */,
 				418BF4641B8B0D500049E387 /* StereoOculus.vert in Resources */,
 				417981141F13833000EB5315 /* i0000_0000b.png in Resources */,
 				418BF44A1B8B0D4F0049E387 /* Earth.frag in Resources */,
@@ -2737,7 +2719,6 @@
 				4179813A1F13833000EB5315 /* i0038_0000b.png in Resources */,
 				4179812A1F13833000EB5315 /* i0022_0000b.png in Resources */,
 				41FD9D191E523AD70063A1B7 /* Font20.png in Resources */,
-				411BA72F18C075E500F10475 /* Default~ipad.png in Resources */,
 				417981551F13833000EB5315 /* i0065_0000b.png in Resources */,
 				4179818D1F13833000EB5315 /* i0121_0000b.png in Resources */,
 				4179814D1F13833000EB5315 /* i0057_0000b.png in Resources */,
@@ -2749,7 +2730,6 @@
 				41FD9D161E523AD70063A1B7 /* Font14.png in Resources */,
 				418BF46B1B8B0D500049E387 /* Wave.frag in Resources */,
 				4179816F1F13833000EB5315 /* i0091_0000b.png in Resources */,
-				41618D6816C1855500641165 /* Default-Landscape@2x~ipad.png in Resources */,
 				4179817C1F13833000EB5315 /* i0104_0000b.png in Resources */,
 				4179814C1F13833000EB5315 /* i0056_0000b.png in Resources */,
 				41E6EE50240307840063FDA1 /* Tiles05_Strong_NRM_2K.png in Resources */,
@@ -2826,6 +2806,7 @@
 				41FC947C19F7D6410026919B /* SLGLOculusFB.cpp in Sources */,
 				41E6EE16240306E40063FDA1 /* AverageTiming.cpp in Sources */,
 				41C7A684241A3D200017EE82 /* WAIMapPoint.cpp in Sources */,
+				4100799E243377EC0089FB3C /* CVTrackedWAI.cpp in Sources */,
 				41E6EDF92402FBF00063FDA1 /* FileLog.cpp in Sources */,
 				41394E9322A1436000C2448F /* SLKeyframeCamera.cpp in Sources */,
 				416A86AA241B9044009D63B0 /* SURFextractor.cpp in Sources */,
@@ -2862,6 +2843,7 @@
 				CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */,
 				418152C322A00FEE0080ED72 /* Utils.cpp in Sources */,
 				41E6EE08240305EF0063FDA1 /* SLGLFbo.cpp in Sources */,
+				41CAC8152438997D005A46B9 /* WorkingSet.cpp in Sources */,
 				4181782B1FC5D76500200D02 /* SLPoints.cpp in Sources */,
 				41394E9122A1428800C2448F /* SLAnimKeyframe.cpp in Sources */,
 				4143337A1DE03D590027E1C3 /* CVCapture.cpp in Sources */,
@@ -3134,6 +3116,7 @@
 					TARGET_OS_IOS,
 					DEBUG,
 					_DEBUG,
+					SL_BUILD_WAI,
 				);
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
@@ -3210,7 +3193,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "comgr-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = TARGET_OS_IOS;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					TARGET_OS_IOS,
+					SL_BUILD_WAI,
+				);
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				HEADER_SEARCH_PATHS = (
 					../include,

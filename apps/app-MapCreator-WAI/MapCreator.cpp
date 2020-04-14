@@ -332,11 +332,23 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             std::cout << "MapCreator::createNewDenseWaiMap: not initialized" << std::endl;
         }
 
+        KPextractor * kpIniExtractorPtr = kpExtractor.get();
+
+        switch (extractorType)
+        {
+            case ExtractorType_FAST_ORBS_1000:
+            {
+                std::unique_ptr<KPextractor> kpIniExtractor = factory.make(ExtractorType_FAST_ORBS_2000, {capturedSize.width, capturedSize.height});
+                kpIniExtractorPtr = kpIniExtractor.get();
+            }
+        };
+
         //instantiate wai mode
         std::unique_ptr<WAISlam> waiMode =
           std::make_unique<WAISlam>(cap->activeCamera->calibration.cameraMat(),
                                     cap->activeCamera->calibration.distortion(),
                                     voc,
+                                    kpIniExtractorPtr,
                                     kpExtractor.get(),
                                     map,
                                     modeParams.onlyTracking,
@@ -453,6 +465,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
       std::make_unique<WAISlam>(calib.cameraMat(),
                                 calib.distortion(),
                                 voc,
+                                kpExtractor.get(),
                                 kpExtractor.get(),
                                 map,
                                 modeParams.onlyTracking,

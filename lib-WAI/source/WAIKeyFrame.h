@@ -55,6 +55,8 @@ class WAIMap;
 points that were found in this frame. It also contains descriptors for the found
 keypoints.
 */
+
+
 class WAI_API WAIKeyFrame
 {
 public:
@@ -183,6 +185,7 @@ public:
     const float mfGridElementWidthInv;
     const float mfGridElementHeightInv;
 
+    /*
     // Variables used by the tracking
     long unsigned int mnTrackReferenceForFrame = 0;
     long unsigned int mnFuseTargetForKF;
@@ -190,6 +193,9 @@ public:
     // Variables used by the local mapping
     long unsigned int mnBALocalForKF;
     long unsigned int mnBAFixedForKF;
+    */
+
+    long unsigned int mnMarker[7];
 
     // Variables used by the keyframe database
     long unsigned int mnLoopQuery  = 0;
@@ -202,7 +208,6 @@ public:
     // Variables used by loop closing
     cv::Mat           mTcwGBA;
     cv::Mat           mTcwBefGBA;
-    long unsigned int mnBAGlobalForKF;
 
     // Calibration parameters
     const float fx, fy, cx, cy, invfx, invfy; /*, mbf, mb, mThDepth;*/
@@ -275,12 +280,13 @@ protected:
     bool mbNotErase;
     bool mbToBeErased;
     bool mbBad;
+;
+
+public:
 
     std::mutex mMutexPose;
     std::mutex mMutexConnections;
     std::mutex mMutexFeatures;
-
-public:
     //ghm1: added funtions
     //set path to texture image
     void               setTexturePath(const string& path) { _pathToTexture = path; }

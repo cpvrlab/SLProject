@@ -9,6 +9,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLGLState.h>
 #include <SLGLConetracer.h>
 #include <SLGLConetracerTex3D.h>
 #include <SLGLProgram.h>

@@ -24,10 +24,12 @@
 #include <list>
 #include <condition_variable>
 #include <mutex>
-
+#include <queue>
+#include <thread>
 #include <opencv2/core.hpp>
-
 #include <OrbSlam/ORBVocabulary.h>
+#include <WorkingSet.h>
+#include <LocalMap.h>
 
 class WAIKeyFrame;
 class WAIMap;
@@ -44,32 +46,28 @@ class LocalMapping
 {
 public:
     LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, float cullRedundantPerc = 0.9);
-
     void SetLoopCloser(LoopClosing* pLoopCloser);
-
     void SetVocabulary(ORBVocabulary* voc);
 
     // Main function
     void Run();
+    void LocalOptimize();
+    void ProcessKeyFrames();
+
     //ghm1
     void RunOnce();
-
     void InsertKeyFrame(WAIKeyFrame* pKF);
 
     // Thread Synch
     void RequestStop();
+    void RequestContinue();
     void RequestReset();
-    bool Stop();
     void Release();
     bool isStopped();
-    bool stopRequested();
     bool AcceptKeyFrames();
     void SetAcceptKeyFrames(bool flag);
-    bool SetNotStop(bool flag);
     //ghm1
     void reset();
-
-    void InterruptBA();
 
     void RequestFinish();
     bool isFinished();
@@ -80,19 +78,29 @@ public:
         return mlNewKeyFrames.size();
     }
 
+    std::thread* AddLocalBAThread();
+
 protected:
+
     bool CheckNewKeyFrames();
-    void ProcessNewKeyFrame();
-    void CreateNewMapPoints();
+    WAIKeyFrame* GetNewKeyFrame();
+    void ProcessNewKeyFrame(WAIKeyFrame * kf);
+    void CreateNewMapPoints(WAIKeyFrame * kf);
 
-    void MapPointCulling();
-    void SearchInNeighbors();
+    void MapPointCulling(WAIKeyFrame * kf);
 
-    void KeyFrameCulling();
+    void searchNeihborsLocalMap(LocalMap &lmap, WorkingSet &ws, WAIKeyFrame* frame);
+    void SearchInNeighbors(LocalMap &lmap);
+    void SearchInNeighbors(WAIKeyFrame * kf);
+
+    void KeyFrameCulling(WAIKeyFrame* frame, WorkingSet &ws);
+    void KeyFrameCulling(WAIKeyFrame* frame);
 
     cv::Mat ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2);
 
     cv::Mat SkewSymmetricMatrix(const cv::Mat& v);
+
+    WorkingSet workingSet;
 
     WAIMap* mpMap;
     bool    mbMonocular;
@@ -101,38 +109,32 @@ protected:
     bool       mbResetRequested;
     std::mutex mMutexReset;
 
+    bool       CheckPause();
+
     bool       CheckFinish();
     void       SetFinish();
     bool       mbFinishRequested;
     bool       mbFinished;
+    int        mFinishedBA;
+    int        mMappingThreads;
     std::mutex mMutexFinish;
 
-    //replacement for thread sleep:
-    std::mutex              _mutexLoop;
-    std::condition_variable _condVarLoop;
-    bool                    _loopWait = true;
-    void                    loopContinue();
-    void                    loopWait();
+    std::queue<WAIKeyFrame*> toLocalAdjustment;
+    std::mutex mMutexMapping;
+    std::mutex mStateMutex;
+
+    std::mutex mMutexPause;
+    bool       mPause;
 
     LoopClosing* mpLoopCloser;
-    //Tracking* mpTracker;
-
-    std::list<WAIKeyFrame*> mlNewKeyFrames;
-
-    WAIKeyFrame* mpCurrentKeyFrame;
-
-    std::list<WAIMapPoint*> mlpRecentAddedMapPoints;
 
     std::mutex mMutexNewKFs;
-
-    bool mbAbortBA;
-
-    bool       mbStopped;
-    bool       mbStopRequested;
-    bool       mbNotStop;
-    std::mutex mMutexStop;
-
     bool       mbAcceptKeyFrames;
+    std::list<WAIKeyFrame*> mlNewKeyFrames;
+    std::list<WAIMapPoint*> mlpRecentAddedMapPoints;
+
+
+    bool       mbAbortBA;
     std::mutex mMutexAccept;
 
     ORBVocabulary* mpORBvocabulary = NULL;

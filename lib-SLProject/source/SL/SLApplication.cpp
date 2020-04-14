@@ -320,7 +320,11 @@ SLstring SLApplication::getComputerInfos()
 #endif
 
     // build a unique as possible ID string that can be used in a filename
-    computerID = computerUser + "-" + computerName + "-" + computerModel;
+    if (computerModel.find("SM-")!=string::npos)
+        // Don't use computerName on Samsung phones. It's not constant!
+        computerID = computerUser + "-" + computerModel;
+    else
+        computerID = computerUser + "-" + computerName + "-" + computerModel;
     computerID = Utils::replaceNonFilenameChars(computerID);
     std::replace(computerID.begin(), computerID.end(), '_', '-');
     return computerID;

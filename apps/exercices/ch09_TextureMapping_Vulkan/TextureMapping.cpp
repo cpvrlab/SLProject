@@ -4,13 +4,13 @@
 #include <string>
 #include <CVImage.h> // Image class for image loading
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
+const int   WINDOW_WIDTH   = 800;
+const int   WINDOW_HEIGHT  = 600;
 std::string vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.spv";
 std::string fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.spv";
 
-GLFWwindow* window;
-vkUtils     renderer;
+GLFWwindow*               window;
+vkUtils                   renderer;
 const std::vector<Vertex> vertices = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
                                       {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
                                       {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},

@@ -8,18 +8,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#include <SLGLState.h>
 #include <SLGLFbo.h>
 
-#include <iostream>
-
 //-----------------------------------------------------------------------------
-SLGLFbo::SLGLFbo(GLuint w,
-                 GLuint h,
-                 GLenum magFilter,
-                 GLenum minFilter,
-                 GLint  internalFormat,
-                 GLint  format,
-                 GLint  wrap) : width(w), height(h)
+SLGLFbo::SLGLFbo(SLuint w,
+                 SLuint h,
+                 SLenum magFilter,
+                 SLenum minFilter,
+                 SLint  internalFormat,
+                 SLint  format,
+                 SLint  wrap) : width(w), height(h)
 {
     GLint previousFrameBuffer;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFrameBuffer);

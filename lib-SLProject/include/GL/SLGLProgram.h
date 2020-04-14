@@ -12,6 +12,7 @@
 #ifndef SLGLPROGRAM_H
 #define SLGLPROGRAM_H
 
+#include <SLGLState.h>
 #include <SLGLUniform.h>
 #include <SLObject.h>
 #include <map>
