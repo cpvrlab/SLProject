@@ -44,6 +44,7 @@ externals/g2o/lib*
 externals/prebuild_scripts/opencv
 externals/prebuild_scripts/opencv_contrib
 externals/prebuild_scripts/assimp
+externals/prebuild_scripts/glfw
 apps/app-Demo-WAI/android/app/.cxx
 
 moc_*.h
