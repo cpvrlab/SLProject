@@ -15,7 +15,7 @@ class StartUpView;
 class WelcomeView;
 class SettingsView;
 class AboutView;
-class View;
+class TutorialView;
 
 class ErlebARApp : public sm::StateMachine
   , public SLInputEventInterface
@@ -65,6 +65,7 @@ private:
     WelcomeView*   _welcomeView   = nullptr;
     AboutView*     _aboutView     = nullptr;
     SettingsView*  _settingsView  = nullptr;
+    TutorialView*  _tutorialView  = nullptr;
 
     SENSCamera*      _camera  = nullptr;
     CloseAppCallback _closeCB = nullptr;

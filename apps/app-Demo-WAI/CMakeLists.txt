@@ -25,6 +25,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
@@ -61,6 +62,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.h
 	)
 	
 set(erlebar_sources
@@ -79,6 +81,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
@@ -110,6 +113,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.cpp
 	)
 	
 set(erlebar_include_directories

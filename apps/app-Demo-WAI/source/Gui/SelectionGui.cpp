@@ -88,6 +88,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _screenHPix = (float)scrH;
 
     _windowPadding = 0.f;
+    _framePadding  = 0.02f * _screenHPix;
     _buttonSpace   = 0.02f * _screenHPix;
 
     _buttonRounding         = _resources.style().buttonRounding * _screenHPix;
@@ -108,7 +109,7 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 10.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_framePadding, _framePadding));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));

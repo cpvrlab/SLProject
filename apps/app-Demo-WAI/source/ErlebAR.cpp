@@ -23,25 +23,26 @@ void Resources::load(std::string fileName)
     {
         if (!fs["developerMode"].empty())
             fs["developerMode"] >> developerMode;
+
         if (!fs["languageId"].empty())
         {
             std::string languageId;
             fs["languageId"] >> languageId;
-            if (languageId == _stringsGerman.id())
+            if (languageId == stringsGerman.id())
             {
-                _currStrings = &_stringsGerman;
+                _currStrings = &stringsGerman;
             }
-            else if (languageId == _stringsFrench.id())
+            else if (languageId == stringsFrench.id())
             {
-                _currStrings = &_stringsFrench;
+                _currStrings = &stringsFrench;
             }
-            else if (languageId == _stringsItalien.id())
+            else if (languageId == stringsItalien.id())
             {
-                _currStrings = &_stringsItalien;
+                _currStrings = &stringsItalien;
             }
             else
             {
-                _currStrings = &_stringsEnglish;
+                _currStrings = &stringsEnglish;
             }
         }
     }
@@ -67,19 +68,19 @@ void Resources::save()
 
 void Resources::setLanguageGerman()
 {
-    _currStrings = &_stringsGerman;
+    _currStrings = &stringsGerman;
 }
 void Resources::setLanguageEnglish()
 {
-    _currStrings = &_stringsEnglish;
+    _currStrings = &stringsEnglish;
 }
 void Resources::setLanguageFrench()
 {
-    _currStrings = &_stringsFrench;
+    _currStrings = &stringsFrench;
 }
 void Resources::setLanguageItalien()
 {
-    _currStrings = &_stringsItalien;
+    _currStrings = &stringsItalien;
 }
 
 Strings::Strings()

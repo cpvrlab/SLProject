@@ -8,6 +8,7 @@
 #include <views/WelcomeView.h>
 #include <views/SettingsView.h>
 #include <views/AboutView.h>
+#include <views/TutorialView.h>
 #include <SLGLProgramManager.h>
 
 #define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
@@ -153,6 +154,16 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                      dd.fontDir(),
                                      dd.dirs().writableDir);
 
+    _tutorialView = new TutorialView(*this,
+                                     _inputManager,
+                                     *_resources,
+                                     dd.scrWidth(),
+                                     dd.scrHeight(),
+                                     dd.dpi(),
+                                     dd.fontDir(),
+                                     dd.dirs().writableDir,
+                                     dd.textureDir());
+
     addEvent(new DoneEvent());
 }
 
@@ -204,6 +215,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     {
         delete _settingsView;
         _settingsView = nullptr;
+    }
+    if (_tutorialView)
+    {
+        delete _tutorialView;
+        _tutorialView = nullptr;
     }
 
     if (_camera)
@@ -331,6 +347,8 @@ void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
         LOG_ERLEBAR_DEBUG("TUTORIAL");
+
+    _tutorialView->update();
 }
 
 void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)

@@ -36,6 +36,7 @@ private:
 
     //stylevars and stylecolors
     float _windowPadding = 0.f; //space l, r, b, t between window and buttons (window padding left does not work as expected)
+    float _framePadding  = 0.f;
     float _buttonSpace   = 0.f; //space between buttons
 
     ImVec2  _buttonSz;

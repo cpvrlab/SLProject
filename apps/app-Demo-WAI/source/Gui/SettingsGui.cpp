@@ -27,6 +27,16 @@ SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
     }
     else
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
+
+    //init language settings combo
+    if (_resources.strings().id() == _resources.stringsItalien.id())
+        _currLanguage = 3;
+    else if (_resources.strings().id() == _resources.stringsGerman.id())
+        _currLanguage = 1;
+    else if (_resources.strings().id() == _resources.stringsFrench.id())
+        _currLanguage = 2;
+    else
+        _currLanguage = 0;
 }
 
 SettingsGui::~SettingsGui()
@@ -121,19 +131,14 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushFont(_fontStandard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-        static int  currLanguage = 0;
-        const char* languages[]  = {"English",
-                                   "Deutsch",
-                                   "Français",
-                                   "Italiano"};
         ImGui::PushItemWidth(_screenW * 0.3f);
-        if (ImGui::Combo("##combo0", &currLanguage, languages, IM_ARRAYSIZE(languages)))
+        if (ImGui::Combo("##combo0", &_currLanguage, _languages, IM_ARRAYSIZE(_languages)))
         {
-            if (currLanguage == 0)
+            if (_currLanguage == 0)
                 _resources.setLanguageEnglish();
-            else if (currLanguage == 1)
+            else if (_currLanguage == 1)
                 _resources.setLanguageGerman();
-            else if (currLanguage == 2)
+            else if (_currLanguage == 2)
                 _resources.setLanguageFrench();
             else
                 _resources.setLanguageItalien();
