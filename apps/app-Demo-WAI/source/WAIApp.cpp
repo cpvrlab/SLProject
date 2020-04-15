@@ -28,16 +28,18 @@ void WAIApp::stateInit(const sm::NoEventData* data)
     _xyView  = new XYView(*this);
     addEvent(new StateDoneEvent());
 }
+
 void WAIApp::stateProcessXY(const ABCEventData* data)
-    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
+  _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
 {
     Utils::log("WAIApp", "stateProcessXY");
     if (data)
     {
         Utils::log("WAIApp", "Message from ABC: %s", data->msg.c_str());
     }
-                        _initializationExtractor.get(),
+    _initializationExtractor.get(),
 }
+
 void WAIApp::stateProcessABC(const sm::NoEventData* data)
 {
     Utils::log("WAIApp", "stateProcessABC");
