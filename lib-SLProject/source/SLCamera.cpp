@@ -14,8 +14,10 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLSceneView.h>
+#include <SLDeviceLocation.h>
+#include <SLDeviceRotation.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
@@ -24,17 +26,19 @@ SLProjection SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(const SLstring& name) : SLNode(name),
-                                           _movedLastFrame(false),
-                                           _trackballSize(0.8f),
-                                           _moveDir(0, 0, 0),
-                                           _drag(0.05f),
-                                           _maxSpeed(2.0f),
-                                           _velocity(0.0f, 0.0f, 0.0f),
-                                           _acceleration(0, 0, 0),
-                                           _brakeAccel(16.0f),
-                                           _moveAccel(16.0f),
-                                           _unitScaling(1.0f)
+SLCamera::SLCamera(const SLstring& name)
+  : SLNode(name),
+    _movedLastFrame(false),
+    _trackballSize(0.8f),
+    _moveDir(0, 0, 0),
+    _drag(0.05f),
+    _maxSpeed(2.0f),
+    _velocity(0.0f, 0.0f, 0.0f),
+    _acceleration(0, 0, 0),
+    _brakeAccel(16.0f),
+    _moveAccel(16.0f),
+    _unitScaling(1.0f),
+    _background(SLGLProgramManager::get(SP_TextureOnly), SLGLProgramManager::get(SP_colorAttribute))
 {
     _fovInit       = 0;
     _viewportW     = 640;
@@ -490,7 +494,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 
         case P_stereoSideBySideD:
-            stateGL->projectionMatrix = SLApplication::scene->oculus()->projection(eye);
+            stateGL->projectionMatrix = sv->s().oculus()->projection(eye);
 
             break;
         // all other stereo projections
@@ -582,11 +586,16 @@ nodes inverse world matrix.
 */
 void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 {
-    SLScene*   s       = SLApplication::scene;
     SLGLState* stateGL = SLGLState::instance();
 
     if (_camAnim == CA_deviceRotYUp)
     {
+        if (!_devRot)
+        {
+            SL_WARN_MSG("SLCamera: _devRot is invalid");
+            return;
+        }
+
         ///////////////////////////////////////////////////////////////////////
         // Build pose of camera in world frame (scene) using device rotation //
         ///////////////////////////////////////////////////////////////////////
@@ -597,13 +606,13 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         //sensor rotation w.r.t. east-north-down
         SLMat3f enuRs;
-        enuRs.setMatrix(SLApplication::devRot.rotation());
+        enuRs.setMatrix(_devRot->rotation());
 
         SLMat3f wyRenu;
-        if (SLApplication::devRot.zeroYawAtStart())
+        if (_devRot->zeroYawAtStart())
         {
             //east-north-down w.r.t. world-yaw
-            SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * Utils::RAD2DEG + 90;
+            SLfloat rotYawOffsetDEG = -1 * _devRot->startYawRAD() * Utils::RAD2DEG + 90;
             if (rotYawOffsetDEG > 180)
                 rotYawOffsetDEG -= 360;
             wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
@@ -639,25 +648,34 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //set camera pose to the object matrix
         om(wTc);
     }
-    else
-      //location sensor is turned on and the scene has a global reference position
-      if (_camAnim == CA_deviceRotLocYUp)
+    else if (_camAnim == CA_deviceRotLocYUp) //location sensor is turned on and the scene has a global reference position
     {
-        if (SLApplication::devRot.isUsed())
+        if (!_devRot)
+        {
+            SL_WARN_MSG("SLCamera: _devRot is invalid");
+            return;
+        }
+        if (!_devLoc)
+        {
+            SL_WARN_MSG("SLCamera: _devLoc is invalid");
+            return;
+        }
+
+        if (_devRot->isUsed())
         {
             SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
             //sensor rotation w.r.t. east-north-down
             SLMat3f enuRs;
-            enuRs.setMatrix(SLApplication::devRot.rotation());
+            enuRs.setMatrix(_devRot->rotation());
 
             //east-north-down w.r.t. world-yaw
             SLMat3f wyRenu;
-            if (SLApplication::devRot.zeroYawAtStart())
+            if (_devRot->zeroYawAtStart())
             {
                 //east-north-down w.r.t. world-yaw
-                SLfloat rotYawOffsetDEG = -SLApplication::devRot.startYawRAD() * Utils::RAD2DEG + 90;
+                SLfloat rotYawOffsetDEG = -1 * _devRot->startYawRAD() * Utils::RAD2DEG + 90;
                 if (rotYawOffsetDEG > 180)
                     rotYawOffsetDEG -= 360;
                 wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
@@ -675,14 +693,14 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         }
 
         //location sensor is turned on and the scene has a global reference position
-        if (SLApplication::devLoc.isUsed() && SLApplication::devLoc.hasOrigin())
+        if (_devLoc->isUsed() && _devLoc->hasOrigin())
         {
             // Direction vector from camera to world origin
-            SLVec3d wtc = SLApplication::devLoc.locENU() - SLApplication::devLoc.originENU();
+            SLVec3d wtc = _devLoc->locENU() - _devLoc->originENU();
 
             // Reset to default if device is too far away
-            if (wtc.length() > SLApplication::devLoc.locMaxDistanceM())
-                wtc = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+            if (wtc.length() > _devLoc->locMaxDistanceM())
+                wtc = _devLoc->defaultENU() - _devLoc->originENU();
 
             // Set the camera position
             SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
@@ -716,10 +734,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             {
                 // get the oculus or mobile device orientation
                 SLQuat4f rotation;
-                if (s->oculus()->isConnected())
+                if (sv->s().oculus()->isConnected())
                 {
-                    rotation = s->oculus()->orientation(eye);
-                    trackingPos.translate(-s->oculus()->position(eye));
+                    rotation = sv->s().oculus()->orientation(eye);
+                    trackingPos.translate(-1 * sv->s().oculus()->position(eye));
                 }
                 //todo else rotation = s->deviceRotation();
 
@@ -732,7 +750,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                        rotZ * SL_RAD2DEG);
                 */
 
-                SLVec3f viewAdjust = s->oculus()->viewAdjust(eye) * _unitScaling;
+                SLVec3f viewAdjust = sv->s().oculus()->viewAdjust(eye) * _unitScaling;
 
                 SLMat4f vmEye(SLMat4f(viewAdjust.x,
                                       viewAdjust.y,
@@ -806,9 +824,8 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     // Start selection rectangle
     if (mod == K_ctrl)
     {
-        SLScene* s = SLApplication::scene;
-        s->selectNodeMesh(nullptr, nullptr);
-        s->selectedRect().tl(_oldTouchPos1);
+        //s->selectNodeMesh(nullptr, nullptr);
+        _selectedRect.tl(_oldTouchPos1);
     }
 
     if (_camAnim == CA_trackball)
@@ -834,8 +851,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
          */
         if (mod == K_ctrl)
         {
-            SLScene* s = SLApplication::scene;
-            s->selectedRect().setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
+            _selectedRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
         }
         else // normal camera animations
         {    // new vars needed

@@ -7,7 +7,7 @@
 class SLCircle : public SLPolyline
 {
 public:
-    SLCircle(SLstring name = "Circle", SLMaterial* material = nullptr);
+    SLCircle(SLAssetManager* assetMgr, SLstring name = "Circle", SLMaterial* material = nullptr);
 };
 
 #endif

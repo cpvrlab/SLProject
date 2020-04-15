@@ -1,30 +1,31 @@
-#include <imgui.h>
-#include <imgui_internal.h>
-
-#include <WAIApp.h>
 #include <AppDemoGuiTrackedMapping.h>
+#include <WAISlam.h>
 
 //-----------------------------------------------------------------------------
 const char* AppDemoGuiTrackedMapping::_currItem = NULL;
 int         AppDemoGuiTrackedMapping::_currN    = -1;
 //-----------------------------------------------------------------------------
-AppDemoGuiTrackedMapping::AppDemoGuiTrackedMapping(string name, bool* activator, WAIApp& waiApp)
-  : AppDemoGuiInfosDialog(name, activator),
-    _waiApp(waiApp)
+AppDemoGuiTrackedMapping::AppDemoGuiTrackedMapping(string                        name,
+                                                   bool*                         activator,
+                                                   ImFont*                       font,
+                                                   std::function<WAISlam*(void)> getModeCB)
+  : AppDemoGuiInfosDialog(name, activator, font),
+    _getMode(getModeCB)
 {
 }
 //-----------------------------------------------------------------------------
 void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
     ImGui::Begin("Tracked Mapping", _activator /*, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize*/);
 
-    if (!_waiApp.mode())
+    WAISlam* mode = _getMode();
+    if (!mode)
     {
         ImGui::Text("SLAM not running.");
     }
     else
     {
-        WAISlam* mode = _waiApp.mode();
         if (!mode)
             return;
 
@@ -71,4 +72,5 @@ void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+    ImGui::PopFont();
 }

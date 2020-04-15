@@ -17,18 +17,13 @@
 
 #include <AppDemoWaiGui.h>
 #include <SLAnimPlayback.h>
-#include <SLApplication.h>
-#include <SLInterface.h>
 #include <AverageTiming.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
-#include <AppDemoGuiInfosDialog.h>
-#include <AppDemoGuiTrackedMapping.h>
 #include <SLImporter.h>
-#include <SLInterface.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <SLNode.h>
@@ -38,24 +33,111 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-//map<string, AppDemoGuiInfosDialog*> AppDemoWaiGui::_infoDialogs;
+#include <AppDemoGuiInfosDialog.h>
+#include <AppDemoGuiInfosScene.h>
+#include <AppDemoGuiInfosSensors.h>
+#include <AppDemoGuiProperties.h>
+#include <AppDemoGuiSceneGraph.h>
+#include <AppDemoGuiStatsDebugTiming.h>
+#include <AppDemoGuiInfosFrameworks.h>
+#include <AppDemoGuiUIPrefs.h>
+#include <AppDemoGuiStatsTiming.h>
+#include <AppDemoGuiTransform.h>
+#include <AppDemoGuiInfosTracking.h>
+#include <AppDemoGuiStatsVideo.h>
+#include <AppDemoGuiTrackedMapping.h>
+#include <AppDemoGuiVideoStorage.h>
+#include <AppDemoGuiVideoControls.h>
+
+#include <AppDemoGuiInfosMapNodeTransform.h>
+
+using namespace ErlebAR;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(std::string appName, std::string configDir, int dotsPerInch)
+AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
+                             std::string                           appName,
+                             int                                   dotsPerInch,
+                             int                                   windowWidthPix,
+                             int                                   windowHeightPix,
+                             std::string                           configDir,
+                             std::string                           fontPath,
+                             std::string                           vocabularyDir,
+                             const std::vector<std::string>&       extractorIdToNames,
+                             std ::queue<WAIEvent*>&               eventQueue,
+                             std::function<WAISlam*(void)>         modeGetterCB,
+                             std::function<SENSCamera*(void)>      getCameraCB,
+                             std::function<CVCalibration*(void)>   getCalibrationCB,
+                             std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
+  : sm::EventSender(eventHandler)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
     _prefsFileName = Utils::unifySlashes(configDir) + appName + ".yml";
-    uiPrefs->load(_prefsFileName, ImGui::GetStyle());
+    uiPrefs->load(_prefsFileName, _context->Style);
     //load fonts
-    loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots);
+    loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
+
+    auto cb = [&]() {
+        sendEvent(new GoBackEvent());
+    };
+
+    _backButton = BackButton(dotsPerInch,
+                             windowWidthPix,
+                             windowHeightPix,
+                             GuiAlignment::BOTTOM_RIGHT,
+                             5.f,
+                             5.f,
+                             {10.f, 7.f},
+                             std::bind(cb),
+                             _fontPropDots);
+
+    _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
+                                                        &eventQueue,
+                                                        _fontPropDots,
+                                                        configDir + "erleb-AR/locations/",
+                                                        configDir + "calibrations/",
+                                                        vocabularyDir,
+                                                        extractorIdToNames,
+                                                        &uiPrefs->showSlamLoad,
+                                                        std::bind(&AppDemoWaiGui::showErrorMsg, this, std::placeholders::_1));
+    addInfoDialog(_guiSlamLoad);
+    addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
+                                                                    &uiPrefs->showInfosMapNodeTransform,
+                                                                    &eventQueue,
+                                                                    _fontPropDots));
+
+    _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _fontPropDots);
+    addInfoDialog(_errorDial);
+    addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking",
+                                                            *uiPrefs.get(),
+                                                            _fontPropDots,
+                                                            modeGetterCB));
+    addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _fontPropDots, modeGetterCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _fontPropDots, getCameraCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _fontPropDots, getVideoFileStreamCB));
+
+    addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _fontFixedDots, getCameraCB, getCalibrationCB));
+
+    addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene, _fontPropDots));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs, _fontPropDots));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming, _fontFixedDots));
+    addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform, _fontPropDots));
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()
 {
     //save preferences
-    //todo: destructor not callled on android as expected (too late)
-    uiPrefs->save(_prefsFileName, ImGui::GetStyle());
+    uiPrefs->save(_prefsFileName, _context->Style);
+}
+//-----------------------------------------------------------------------------
+void AppDemoWaiGui::onShow()
+{
+    _panScroll.disable();
 }
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog)
@@ -72,6 +154,14 @@ void AppDemoWaiGui::clearInfoDialogs()
     _infoDialogs.clear();
 }
 //-----------------------------------------------------------------------------
+void AppDemoWaiGui::build(SLScene* s, SLSceneView* sv)
+{
+    _backButton.render();
+
+    buildInfosDialogs(s, sv);
+    buildMenu(s, sv);
+}
+//-----------------------------------------------------------------------------
 void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
 {
     for (auto dialog : _infoDialogs)
@@ -85,41 +175,11 @@ void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 {
+    //push styles before calling BeginMainMenuBar
+    pushStyle();
+
     if (ImGui::BeginMainMenuBar())
     {
-        //if (ImGui::BeginMenu("Preferences"))
-        //{
-        //if (ImGui::BeginMenu("Rotation Sensor"))
-        //{
-        //    if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
-        //        SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
-
-        //    if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
-        //        SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
-
-        //    if (ImGui::MenuItem("Reset Zero Yaw"))
-        //        SLApplication::devRot.hasStarted(true);
-
-        //    ImGui::EndMenu();
-        //}
-
-        //if (ImGui::BeginMenu("Location Sensor"))
-        //{
-        //    if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
-        //        SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
-
-        //    if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
-        //        SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
-
-        //    if (ImGui::MenuItem("Reset Origin to here"))
-        //        SLApplication::devLoc.hasOrigin(false);
-
-        //    ImGui::EndMenu();
-        //}
-
-        //ImGui::EndMenu();
-        //}
-
         if (ImGui::BeginMenu("Slam"))
         {
             ImGui::MenuItem("Start", nullptr, &uiPrefs->showSlamLoad);
@@ -267,5 +327,63 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
         }
 
         ImGui::EndMainMenuBar();
+
+        popStyle();
+    }
+}
+
+void AppDemoWaiGui::pushStyle()
+{
+    if (_fontPropDots)
+        ImGui::PushFont(_fontPropDots);
+}
+
+void AppDemoWaiGui::popStyle()
+{
+    if (_fontPropDots)
+        ImGui::PopFont();
+}
+//-----------------------------------------------------------------------------
+//! Loads the proportional and fixed size font depending on the passed DPI
+void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
+{
+    ImGuiIO& io = _context->IO;
+    //io.Fonts->Clear();
+
+    // Load proportional font for menue and text displays
+    SLstring DroidSans = fontPath + "DroidSans.ttf";
+    if (Utils::fileExists(DroidSans))
+    {
+        _fontPropDots = io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
+    }
+    else
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
+
+    // Load fixed size font for statistics windows
+    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
+    if (Utils::fileExists(ProggyClean))
+    {
+        _fontFixedDots = io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
+        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
+    }
+    else
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
+}
+
+void AppDemoWaiGui::showErrorMsg(std::string msg)
+{
+    assert(_errorDial && "errorDial is not initialized");
+
+    _errorDial->setErrorMsg(msg);
+    uiPrefs->showError = true;
+}
+
+void AppDemoWaiGui::clearErrorMsg()
+{
+    if (_errorDial)
+    {
+        _errorDial->setErrorMsg("");
+        uiPrefs->showError = false;
     }
 }

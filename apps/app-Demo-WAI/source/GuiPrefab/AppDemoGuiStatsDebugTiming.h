@@ -9,11 +9,10 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiStatsDebugTiming : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiStatsDebugTiming(string name, bool* activator);
+public:
+    AppDemoGuiStatsDebugTiming(string name, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
-
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

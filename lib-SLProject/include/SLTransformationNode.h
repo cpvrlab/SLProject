@@ -16,7 +16,7 @@ enum SLNodeEditMode
 class SLTransformationNode : public SLNode
 {
 public:
-    SLTransformationNode(SLCamera* camera, SLSceneView* sv, SLNode* targetNode);
+    SLTransformationNode(SLAssetManager* assetMgr, SLCamera* camera, SLSceneView* sv, SLNode* targetNode);
     void toggleEditMode(SLNodeEditMode editMode);
 
     virtual SLbool onMouseDown(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);

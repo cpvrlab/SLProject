@@ -103,7 +103,7 @@ public class GLES3View extends GLSurfaceView
 
             //////////////////////////////////////////////////////
             boolean videoUpdated = GLES3Lib.onUpdateVideo();
-            boolean sceneUpdated = GLES3Lib.onUpdateScene();
+            boolean sceneUpdated = GLES3Lib.onUpdateParallelJob();
             boolean viewUpdated  = GLES3Lib.onPaintAllViews();
             //////////////////////////////////////////////////////
 

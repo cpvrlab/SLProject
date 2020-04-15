@@ -2,7 +2,7 @@ if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     add_subdirectory(exercices)
     add_subdirectory(app-Demo-Node)
     add_subdirectory(app-Demo-SLProject)
-
+	
     if (SL_BUILD_WAI)
         add_subdirectory(app-Demo-WAI)
         add_subdirectory(app-CameraCalibration)

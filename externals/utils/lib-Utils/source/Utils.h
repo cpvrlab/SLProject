@@ -232,7 +232,24 @@ int gcd(int a, int b);
 //! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
 int lcm(int a, int b);
 //-----------------------------------------------------------------------------
+// clang-format on
+
+class ComputerInfos
+{
+public:
+    static std::string user;
+    static std::string name;
+    static std::string brand;
+    static std::string model;
+    static std::string os;
+    static std::string osVer;
+    static std::string arch;
+    static std::string id;
+
+    static std::string get();
+};
+
 };
 //-----------------------------------------------------------------------------
-// clang-format on
+
 #endif

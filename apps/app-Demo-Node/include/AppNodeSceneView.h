@@ -11,6 +11,7 @@
 //#############################################################################
 
 #include <SLSceneView.h>
+#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 enum TransformMode
@@ -20,6 +21,7 @@ enum TransformMode
     RotationAroundMode,
     LookAtMode
 };
+
 //-----------------------------------------------------------------------------
 /*!
  SLSceneView derived class for a node transform test application that
@@ -29,8 +31,8 @@ enum TransformMode
 */
 class AppNodeSceneView : public SLSceneView
 {
-    public:
-    AppNodeSceneView();
+public:
+    AppNodeSceneView(SLProjectScene* s, int dpi, SLInputManager& inputManager);
     ~AppNodeSceneView();
 
     // From SLSceneView overwritten
@@ -65,5 +67,6 @@ class AppNodeSceneView : public SLSceneView
     TransformMode    _curMode;   //!< current transform mode
     SLNode*          _curObject; //!< current object to transform
     SLTransformSpace _curSpace;  //!< current transform space
+    SLAssetManager   _assets;
 };
 //-----------------------------------------------------------------------------

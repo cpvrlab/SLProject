@@ -1,9 +1,11 @@
 #include <SLCoordAxisArrow.h>
 
-SLCoordAxisArrow::SLCoordAxisArrow(SLVec4f arrowColor,
-                                   SLfloat arrowThickness,
-                                   SLfloat arrowHeadLenght,
-                                   SLfloat arrowHeadWidth) : SLMesh("Coord-Axis-Arrow Mesh")
+SLCoordAxisArrow::SLCoordAxisArrow(SLAssetManager* assetMgr,
+                                   SLVec4f         arrowColor,
+                                   SLfloat         arrowThickness,
+                                   SLfloat         arrowHeadLenght,
+                                   SLfloat         arrowHeadWidth)
+  : SLMesh(assetMgr, "Coord-Axis-Arrow Mesh")
 {
     _arrowColor      = arrowColor;
     _arrowThickness  = arrowThickness;

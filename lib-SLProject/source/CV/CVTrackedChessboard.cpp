@@ -16,15 +16,15 @@ All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
-#include <CVCapture.h>
+
 #include <CVTrackedChessboard.h>
 #include <Utils.h>
-#include <SLApplication.h>
 
 using namespace cv;
 //-----------------------------------------------------------------------------
-CVTrackedChessboard::CVTrackedChessboard()
-  : _calibParamsFileName("calib_in_params.yml")
+CVTrackedChessboard::CVTrackedChessboard(std::string calibIniPath)
+  : _calibParamsFileName("calib_in_params.yml"),
+    _calibIniPath(calibIniPath)
 {
     if (!loadCalibParams())
     {
@@ -43,14 +43,12 @@ CVTrackedChessboard::CVTrackedChessboard()
 bool CVTrackedChessboard::loadCalibParams()
 {
     FileStorage fs;
-    string      fullCalibIniFile = Utils::findFile(_calibParamsFileName,
-                                                   {SLApplication::calibIniPath,
-                                                    SLApplication::exePath});
+    string      fullCalibIniFile = _calibIniPath + _calibParamsFileName;
+
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("SLProject", "Could not open the calibration parameter file: %s",
-                   fullCalibIniFile.c_str());
+        Utils::log("SLProject", "Could not open the calibration parameter file: %s", fullCalibIniFile.c_str());
         return false;
     }
 

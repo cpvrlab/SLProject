@@ -5,90 +5,16 @@
 set(target native-lib)
 
 set(headers
-	#${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiProperties.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSceneGraph.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamLoad.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsDebugTiming.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsTiming.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsVideo.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTrackedMapping.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTransform.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiUIPrefs.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISceneView.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
-	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
-	${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
-	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
-	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
+		${erlebar_headers}
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
     )
 
 set(sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
-	#${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeSensorsInterface.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/GUIPreferences.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiProperties.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSceneGraph.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamLoad.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsDebugTiming.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsTiming.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsVideo.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTrackedMapping.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTransform.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiUIPrefs.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAISceneView.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
-	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
-    ${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
-    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
+		${erlebar_sources}
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     )
 
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -105,19 +31,10 @@ add_library(${target}
 
 target_include_directories(${target}
     PRIVATE
+		${erlebar_include_directories}
         ${ANDROID_NDK}/sources/android/native_app_glue/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/
-        ${SL_PROJECT_ROOT}/apps/source/wai/
-		${SL_PROJECT_ROOT}/apps/source/sens
     PUBLIC
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab
-        ${SL_PROJECT_ROOT}/lib-WAI/source
-        ${OpenCV_INCLUDE_DIR}
-        ${g2o_INCLUDE_DIR}
-        ${SL_PROJECT_ROOT}/externals/eigen
-        ${SL_PROJECT_ROOT}/externals/DBoW2
         ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
@@ -148,6 +65,9 @@ file(GLOB_RECURSE TEXTURES
     ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
     ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
     ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
+	${SL_PROJECT_ROOT}/data/images/textures/logo_admin_ch.png
+	${SL_PROJECT_ROOT}/data/images/textures/logo_bfh.png
+	${SL_PROJECT_ROOT}/data/images/textures/earth2048_C.jpg
     )
 
 file(GLOB_RECURSE VIDEOS

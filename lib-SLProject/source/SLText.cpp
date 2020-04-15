@@ -14,7 +14,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLText.h>
 
@@ -57,7 +56,7 @@ void SLText::drawRec(SLSceneView* sv)
     _font->bindActive();
 
     // Setup shader
-    SLGLProgram* sp    = SLApplication::scene->programs(SP_fontTex);
+    SLGLProgram* sp    = _font->fontTexProgram();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());

@@ -36,7 +36,7 @@ for devkit2 under windows.
 */
 class SLGLOculus
 {
-    public:
+public:
     SLGLOculus();
     ~SLGLOculus();
 
@@ -71,7 +71,7 @@ class SLGLOculus
     SLbool isLowPersistanceEnabled() { return _lowPersistanceEnabled; }
     SLbool isTimeWarpEnabled() { return _timeWarpEnabled; }
 
-    private:
+private:
     void dispose();
     void calculateHmdValues(); //!< recalculate HMD settings changed
 
@@ -102,6 +102,8 @@ class SLGLOculus
     SLVec2i _rtSize;     //!< Required resolution for the render target
 
     SLbool _hmdSettingsChanged; //!< settings need to be updated flag
+
+    SLGLProgram* _stereoOculusDistProgram = nullptr;
 };
 //-----------------------------------------------------------------------------
 

@@ -1,15 +1,14 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiUIPrefs.h>
 #include <SLGLImGui.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiUIPrefs::AppDemoGuiUIPrefs(std::string name, GUIPreferences* prefs, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiUIPrefs::AppDemoGuiUIPrefs(std::string name, GUIPreferences* prefs, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
     _prefs = prefs;
 }
@@ -19,6 +18,7 @@ void AppDemoGuiUIPrefs::buildInfos(SLScene* s, SLSceneView* sv)
 {
     ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+    ImGui::PushFont(_font);
     ImGui::Begin("User Interface Preferences", _activator, window_flags);
 
     ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
@@ -45,4 +45,5 @@ void AppDemoGuiUIPrefs::buildInfos(SLScene* s, SLSceneView* sv)
     //ImGui::PopFont();
 
     ImGui::End();
+    ImGui::PopFont();
 }

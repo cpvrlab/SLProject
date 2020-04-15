@@ -32,7 +32,7 @@ SLSkeletons with the same SLAnimation.
 */
 class SLAnimation
 {
-    public:
+public:
     SLAnimation(const SLstring& name, SLfloat duration);
     ~SLAnimation();
 
@@ -53,12 +53,6 @@ class SLAnimation
     void    resetNodes();
     void    drawNodeVisuals(SLSceneView* sv);
 
-    // static creator
-    static SLAnimation* create(const SLstring& name,
-                               SLfloat         duration,
-                               SLbool          enabled = true,
-                               SLEasingCurve   easing  = EC_linear,
-                               SLAnimLooping   looping = AL_loop);
     // track creators
     SLNodeAnimTrack* createNodeAnimationTrack();
     SLNodeAnimTrack* createNodeAnimationTrack(SLuint handle);
@@ -82,7 +76,7 @@ class SLAnimation
     void name(const SLstring& name) { _name = name; }
     void lengthSec(SLfloat lengthSec);
 
-    protected:
+protected:
     SLstring         _name;           //!< name of the animation
     SLfloat          _lengthSec;      //!< duration of the animation in seconds
     SLMNodeAnimTrack _nodeAnimTracks; //!< map of all the node tracks in this animation

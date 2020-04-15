@@ -1,21 +1,120 @@
 #include <SLTransformationNode.h>
 
-#include <SLApplication.h>
 #include <SLVec3.h>
 #include <SLCoordAxisArrow.h>
 #include <SLSphere.h>
 #include <SLCircle.h>
 #include <SLDisk.h>
 
-SLTransformationNode::SLTransformationNode(SLCamera*    camera,
-                                           SLSceneView* sv,
-                                           SLNode*      targetNode) : SLNode(),
+SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
+                                           SLCamera*       camera,
+                                           SLSceneView*    sv,
+                                           SLNode*         targetNode) : SLNode(),
                                                                  _camera(camera),
                                                                  _sv(sv),
                                                                  _targetNode(targetNode),
                                                                  _editMode(NodeEditMode_None),
                                                                  _mouseIsDown(false)
 {
+    float scaleFactor = _targetNode->aabb()->radiusOS() * 0.5f;
+
+    _editGizmos = new SLNode("Gizmos");
+    _gizmoScale = scaleFactor;
+
+    SLMaterial* redMat = new SLMaterial(assetMgr, "Red", SLCol4f::RED);
+    redMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+    SLMaterial* redTransparentMat = new SLMaterial(assetMgr, "Red Transparent", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    redTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+    SLMaterial* greenMat = new SLMaterial(assetMgr, "Green", SLCol4f::GREEN);
+    greenMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
+    SLMaterial* greenTransparentMat = new SLMaterial(assetMgr, "Green Transparent", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    greenTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+    SLMaterial* blueMat = new SLMaterial(assetMgr, "Blue", SLCol4f::BLUE);
+    blueMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+    SLMaterial* blueTransparentMat = new SLMaterial(assetMgr, "Blue Transparent", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    blueTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+    SLMaterial* yellowMat = new SLMaterial(assetMgr, "Yellow", SLCol4f::YELLOW);
+    yellowMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    yellowMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+    SLMaterial* yellowTransparentMat = new SLMaterial(assetMgr, "Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
+    yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
+    _translationAxisX = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::RED), "x-axis node");
+    _translationAxisY = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::GREEN), "y-axis node");
+    _translationAxisZ = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::BLUE), "z-axis node");
+
+    _translationAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
+    _translationAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+
+    SLVec3f  startPoint = SLVec3f(0.0f, 0.0f, -1.0f);
+    SLVec3f  endPoint   = SLVec3f(0.0f, 0.0f, 1.0f);
+    SLVVec3f points;
+    points.push_back(startPoint);
+    points.push_back(endPoint);
+
+    _translationLineX = new SLNode(new SLPolyline(assetMgr, points, false, "Translation Line Mesh X", redMat));
+    _translationLineX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+    _translationLineX->scale(1000.0f);
+
+    _translationLineY = new SLNode(new SLPolyline(assetMgr, points, false, "Translation Line Mesh Y", greenMat));
+    _translationLineY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+    _translationLineY->scale(1000.0f);
+
+    _translationLineZ = new SLNode(new SLPolyline(assetMgr, points, false, "Translation Line Mesh Z", blueMat));
+    _translationLineZ->scale(1000.0f);
+
+    _scaleCircle = new SLNode(new SLCircle(assetMgr, "Scale Circle Mesh", yellowMat), "Scale Circle");
+    _scaleDisk   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", yellowTransparentMat), "Scale Disk");
+
+    _scaleGizmos = new SLNode("Scale Gizmos");
+    _scaleGizmos->addChild(_scaleCircle);
+    _scaleGizmos->addChild(_scaleDisk);
+
+    _rotationCircleX = new SLNode(new SLCircle(assetMgr, "Rotation Circle Mesh X", redMat), "Rotation Circle X");
+    _rotationDiskX   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk X", redTransparentMat), "Rotation Disk X");
+    _rotationCircleY = new SLNode(new SLCircle(assetMgr, "Rotation Circle Mesh Y", greenMat), "Rotation Circle Y");
+    _rotationDiskY   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Y", greenTransparentMat), "Rotation Disk Y");
+    _rotationCircleZ = new SLNode(new SLCircle(assetMgr, "Rotation Circle Mesh Z", blueMat), "Rotation Circle Z");
+    _rotationDiskZ   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", blueTransparentMat), "Rotation Disk Z");
+
+    SLNode* rotationGizmosX = new SLNode("Rotation Gizmos X");
+    rotationGizmosX->addChild(_rotationCircleX);
+    rotationGizmosX->addChild(_rotationDiskX);
+
+    SLNode* rotationGizmosY = new SLNode("Rotation Gizmos Y");
+    rotationGizmosY->addChild(_rotationCircleY);
+    rotationGizmosY->addChild(_rotationDiskY);
+
+    SLNode* rotationGizmosZ = new SLNode("Rotation Gizmos Z");
+    rotationGizmosZ->addChild(_rotationCircleZ);
+    rotationGizmosZ->addChild(_rotationDiskZ);
+
+    _selectedGizmo = nullptr;
+
+    rotationGizmosX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+    rotationGizmosY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+
+    SLNode* rotationGizmos = new SLNode("Rotation Gizmos");
+    rotationGizmos->addChild(rotationGizmosX);
+    rotationGizmos->addChild(rotationGizmosY);
+    rotationGizmos->addChild(rotationGizmosZ);
+
+    _editGizmos->scale(scaleFactor);
+
+    _editGizmos->addChild(_translationAxisX);
+    _editGizmos->addChild(_translationLineX);
+    _editGizmos->addChild(_translationAxisY);
+    _editGizmos->addChild(_translationLineY);
+    _editGizmos->addChild(_translationAxisZ);
+    _editGizmos->addChild(_translationLineZ);
+    _editGizmos->addChild(_scaleGizmos);
+    _editGizmos->addChild(rotationGizmos);
+
+    this->addChild(_editGizmos);
+    this->updateAABBRec();
 }
 
 void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
@@ -26,109 +125,6 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
     {
         if (_targetNode)
         {
-            if (!_editGizmos)
-            {
-                float scaleFactor = _targetNode->aabb()->radiusOS() * 0.5f;
-
-                _editGizmos = new SLNode("Gizmos");
-                _gizmoScale = scaleFactor;
-
-                SLMaterial* redMat = new SLMaterial(SLCol4f::RED, "Red");
-                redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-                SLMaterial* redTransparentMat = new SLMaterial("Red Transparent", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                redTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-                SLMaterial* greenMat = new SLMaterial(SLCol4f::GREEN, "Green");
-                greenMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
-                SLMaterial* greenTransparentMat = new SLMaterial("Green Transparent", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                greenTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-                SLMaterial* blueMat = new SLMaterial(SLCol4f::BLUE, "Blue");
-                blueMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-                SLMaterial* blueTransparentMat = new SLMaterial("Blue Transparent", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                blueTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-                SLMaterial* yellowMat = new SLMaterial(SLCol4f::YELLOW, "Yellow");
-                yellowMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                yellowMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-                SLMaterial* yellowTransparentMat = new SLMaterial("Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
-                yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-                _translationAxisX = new SLNode(new SLCoordAxisArrow(SLVec4f::RED), "x-axis node");
-                _translationAxisY = new SLNode(new SLCoordAxisArrow(SLVec4f::GREEN), "y-axis node");
-                _translationAxisZ = new SLNode(new SLCoordAxisArrow(SLVec4f::BLUE), "z-axis node");
-
-                _translationAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
-                _translationAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
-
-                SLVec3f  startPoint = SLVec3f(0.0f, 0.0f, -1.0f);
-                SLVec3f  endPoint   = SLVec3f(0.0f, 0.0f, 1.0f);
-                SLVVec3f points;
-                points.push_back(startPoint);
-                points.push_back(endPoint);
-
-                _translationLineX = new SLNode(new SLPolyline(points, false, "Translation Line Mesh X", redMat));
-                _translationLineX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
-                _translationLineX->scale(1000.0f);
-
-                _translationLineY = new SLNode(new SLPolyline(points, false, "Translation Line Mesh Y", greenMat));
-                _translationLineY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
-                _translationLineY->scale(1000.0f);
-
-                _translationLineZ = new SLNode(new SLPolyline(points, false, "Translation Line Mesh Z", blueMat));
-                _translationLineZ->scale(1000.0f);
-
-                _scaleCircle = new SLNode(new SLCircle("Scale Circle Mesh", yellowMat), "Scale Circle");
-                _scaleDisk   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", yellowTransparentMat), "Scale Disk");
-
-                _scaleGizmos = new SLNode("Scale Gizmos");
-                _scaleGizmos->addChild(_scaleCircle);
-                _scaleGizmos->addChild(_scaleDisk);
-
-                _rotationCircleX = new SLNode(new SLCircle("Rotation Circle Mesh X", redMat), "Rotation Circle X");
-                _rotationDiskX   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk X", redTransparentMat), "Rotation Disk X");
-                _rotationCircleY = new SLNode(new SLCircle("Rotation Circle Mesh Y", greenMat), "Rotation Circle Y");
-                _rotationDiskY   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Y", greenTransparentMat), "Rotation Disk Y");
-                _rotationCircleZ = new SLNode(new SLCircle("Rotation Circle Mesh Z", blueMat), "Rotation Circle Z");
-                _rotationDiskZ   = new SLNode(new SLDisk(1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", blueTransparentMat), "Rotation Disk Z");
-
-                SLNode* rotationGizmosX = new SLNode("Rotation Gizmos X");
-                rotationGizmosX->addChild(_rotationCircleX);
-                rotationGizmosX->addChild(_rotationDiskX);
-
-                SLNode* rotationGizmosY = new SLNode("Rotation Gizmos Y");
-                rotationGizmosY->addChild(_rotationCircleY);
-                rotationGizmosY->addChild(_rotationDiskY);
-
-                SLNode* rotationGizmosZ = new SLNode("Rotation Gizmos Z");
-                rotationGizmosZ->addChild(_rotationCircleZ);
-                rotationGizmosZ->addChild(_rotationDiskZ);
-
-                _selectedGizmo = nullptr;
-
-                rotationGizmosX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
-                rotationGizmosY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
-
-                SLNode* rotationGizmos = new SLNode("Rotation Gizmos");
-                rotationGizmos->addChild(rotationGizmosX);
-                rotationGizmos->addChild(rotationGizmosY);
-                rotationGizmos->addChild(rotationGizmosZ);
-
-                _editGizmos->scale(scaleFactor);
-
-                _editGizmos->addChild(_translationAxisX);
-                _editGizmos->addChild(_translationLineX);
-                _editGizmos->addChild(_translationAxisY);
-                _editGizmos->addChild(_translationLineY);
-                _editGizmos->addChild(_translationAxisZ);
-                _editGizmos->addChild(_translationLineZ);
-                _editGizmos->addChild(_scaleGizmos);
-                _editGizmos->addChild(rotationGizmos);
-
-                this->addChild(_editGizmos);
-                this->updateAABBRec();
-            }
-
             _editGizmos->translation(_targetNode->updateAndGetWM().translation());
 
             toggleHideRecursive(_editGizmos, true);

@@ -18,6 +18,8 @@
 #include <atomic>
 
 class SLGLState;
+class SLAssetManager;
+class SLGLProgram;
 
 //-----------------------------------------------------------------------------
 // Special constants for anisotropic filtering
@@ -40,7 +42,7 @@ class SLGLState;
 enum SLTextureType
 {
     TT_unknown,   // will be handled as color maps
-    TT_color,    // diffuse color map (aka albedo or just color map)
+    TT_color,     // diffuse color map (aka albedo or just color map)
     TT_normal,    // normal map for normal bump mapping
     TT_height,    // height map for height map bump or parallax mapping
     TT_gloss,     // specular gloss map
@@ -67,31 +69,35 @@ public:
     SLGLTexture();
 
     //! ctor for 1D texture with internal image allocation
-    explicit SLGLTexture(const SLVCol4f& colors,
+    explicit SLGLTexture(SLAssetManager* assetMgr,
+                         const SLVCol4f& colors,
                          SLint           min_filter = GL_LINEAR,
                          SLint           mag_filter = GL_LINEAR,
                          SLint           wrapS      = GL_REPEAT,
                          const SLstring& name       = "2D-Texture");
 
     //! ctor for empty 2D textures
-    explicit SLGLTexture(SLint min_filter,
-                         SLint mag_filter,
-                         SLint wrapS,
-                         SLint wrapT);
+    explicit SLGLTexture(SLAssetManager* assetMgr,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLint           wrapT);
 
     //! ctor for 2D textures from byte pointer
-    explicit SLGLTexture(unsigned char* data,
-                         int            width,
-                         int            height,
-                         int            cvtype,
-                         SLint          min_filter,
-                         SLint          mag_filter,
-                         SLTextureType  type,
-                         SLint          wrapS,
-                         SLint          wrapT);
+    explicit SLGLTexture(SLAssetManager* assetMgr,
+                         unsigned char*  data,
+                         int             width,
+                         int             height,
+                         int             cvtype,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT);
 
     //! ctor for 2D textures with internal image allocation
-    explicit SLGLTexture(const SLstring& imageFilename,
+    explicit SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& imageFilename,
                          SLint           min_filter = GL_LINEAR_MIPMAP_LINEAR,
                          SLint           mag_filter = GL_LINEAR,
                          SLTextureType   type       = TT_unknown,
@@ -99,7 +105,8 @@ public:
                          SLint           wrapT      = GL_REPEAT);
 
     //! ctor for 3D texture with internal image allocation
-    explicit SLGLTexture(const SLVstring& imageFilenames,
+    explicit SLGLTexture(SLAssetManager*  assetMgr,
+                         const SLVstring& imageFilenames,
                          SLint            min_filter             = GL_LINEAR,
                          SLint            mag_filter             = GL_LINEAR,
                          SLint            wrapS                  = GL_REPEAT,
@@ -108,7 +115,8 @@ public:
                          SLbool           loadGrayscaleIntoAlpha = false);
 
     //! ctor for cube mapping with internal image allocation
-    SLGLTexture(const SLstring& imageFilenameXPos,
+    SLGLTexture(SLAssetManager* assetMgr,
+                const SLstring& imageFilenameXPos,
                 const SLstring& imageFilenameXNeg,
                 const SLstring& imageFilenameYPos,
                 const SLstring& imageFilenameYNeg,

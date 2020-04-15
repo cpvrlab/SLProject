@@ -1,7 +1,7 @@
 #include <SLCircle.h>
 
-SLCircle::SLCircle(SLstring name, SLMaterial* material)
-  : SLPolyline(name)
+SLCircle::SLCircle(SLAssetManager* assetMgr, SLstring name, SLMaterial* material)
+  : SLPolyline(assetMgr, name)
 {
     SLint   circlePoints = 60;
     SLfloat deltaPhi     = Utils::TWOPI / (SLfloat)circlePoints;

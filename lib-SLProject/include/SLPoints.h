@@ -20,21 +20,24 @@
 */
 class SLPoints : public SLMesh
 {
-    public:
+public:
     //! Ctor for a given vector of points
-    SLPoints(const SLVVec3f& points,
+    SLPoints(SLAssetManager* assetMgr,
+             const SLVVec3f& points,
              SLstring        name     = "point cloud",
              SLMaterial*     material = nullptr);
-    SLPoints(const SLVVec3f& points,
+    SLPoints(SLAssetManager* assetMgr,
+             const SLVVec3f& points,
              const SLVVec3f& normals,
              SLstring        name     = "point cloud",
              SLMaterial*     material = 0);
 
     //! Ctor for a random point cloud.
-    SLPoints(SLfloat     nPoints,
-             SLRnd3f&    rnd,
-             SLstring    name = "normal point cloud",
-             SLMaterial* mat  = nullptr);
+    SLPoints(SLAssetManager* assetMgr,
+             SLfloat         nPoints,
+             SLRnd3f&        rnd,
+             SLstring        name = "normal point cloud",
+             SLMaterial*     mat  = nullptr);
 };
 //-----------------------------------------------------------------------------
 #endif

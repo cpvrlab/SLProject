@@ -9,13 +9,12 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiSceneGraph : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiSceneGraph(std::string name, bool* activator);
+public:
+    AppDemoGuiSceneGraph(std::string name, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
     void addSceneGraphNode(SLScene* s, SLNode* node);
-
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

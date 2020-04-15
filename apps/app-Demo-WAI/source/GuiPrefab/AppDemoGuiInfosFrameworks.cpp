@@ -1,13 +1,12 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiInfosFrameworks.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -18,7 +17,7 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     SLchar     m[2550]; // message character array
     m[0] = 0;           // set zero length
 
-    sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
+    //sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
 #ifdef _DEBUG
     sprintf(m + strlen(m), "Build Config.    : Debug\n");
 #else
@@ -35,7 +34,7 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
     // Switch to fixed font
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
     ImGui::Begin("Framework Informations", _activator, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::TextUnformatted(m);
     ImGui::End();

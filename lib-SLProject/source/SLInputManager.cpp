@@ -15,7 +15,6 @@
 #endif
 
 #include <SLInputManager.h>
-#include <SLScene.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
@@ -34,10 +33,10 @@ polls all activated SLInputDevices.
         like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI 
         implementation the whole input management in SL would have to be reviewed.
 */
-SLbool SLInputManager::pollAndProcessEvents(SLScene* s)
+SLbool SLInputManager::pollAndProcessEvents(SLSceneView* sv)
 {
     // process system events first
-    SLbool consumedEvents = processQueuedEvents(s);
+    SLbool consumedEvents = processQueuedEvents(sv);
 
     // process custom input devices
     for (auto device : _devices)
@@ -58,7 +57,7 @@ void SLInputManager::queueEvent(const SLInputEvent* e)
 //-----------------------------------------------------------------------------
 /*! Work off any queued up input event's and notify the correct receiver.
 @note   this is similar to the Qt QObject::event function.*/
-SLbool SLInputManager::processQueuedEvents(SLScene* s)
+SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
 {
     SLQInputEvent& q = _systemEvents;
 
@@ -73,8 +72,6 @@ SLbool SLInputManager::processQueuedEvents(SLScene* s)
             e = q.front();
             q.pop();
         }
-
-        SLSceneView* sv = s->sceneView((SLuint)e->svIndex);
 
         if (sv)
         {

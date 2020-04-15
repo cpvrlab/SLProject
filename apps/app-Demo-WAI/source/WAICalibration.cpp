@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <WAICalibration.h>
-#include <SLApplication.h>
 #include <Utils.h>
 
 using namespace std;
@@ -33,7 +32,7 @@ void WAICalibration::reset()
     _cameraFovDeg    = fov;
     _calibrationPath = std::string("");
     _state           = CalibrationState_Guess;
-    _computerInfo    = SLApplication::getComputerInfos();
+    _computerInfo    = Utils::ComputerInfos::get();
 }
 
 void WAICalibration::computeMatrix(cv::Mat& mat, float fov)
@@ -75,7 +74,7 @@ bool WAICalibration::saveToFile(std::string path)
     fs << "calibrationTime" << _calibrationTime;
     fs << "camSizeIndex" << _camSizeIndex;
     fs << "FOV" << calcCameraHorizontalFOV();
-    fs << "ComputerModel" << SLApplication::computerModel;
+    fs << "ComputerModel" << Utils::ComputerInfos::model;
     fs << "CreationDate" << Utils::getDateTime2String();
 
     fs.release();
@@ -117,7 +116,7 @@ bool WAICalibration::loadFromFile(std::string path)
             _computerInfo = stringParts[1];
         else
         {
-            _computerInfo = SLApplication::getComputerInfos();
+            _computerInfo = Utils::ComputerInfos::get();
             std::cout << "Assuming calibration is for current device" << std::endl;
         }
     }

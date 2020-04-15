@@ -11,24 +11,20 @@
 #ifndef APP_DEMO_GUI_INFOSMAPNODETRANSFORM_H
 #define APP_DEMO_GUI_INFOSMAPNODETRANSFORM_H
 
-#include <WAIMapStorage.h>
-#include <SLScene.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <string>
 
-#include <SLNode.h>
-
-#include <WAIModeOrbSlam2.h>
-#include <WAIApp.h>
-
+class SLScene;
+class SLSceneView;
+struct WAIEvent;
 //-----------------------------------------------------------------------------
-class WAI_API AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
+class AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiInfosMapNodeTransform(
-      std::string            name,
-      bool*                  activator,
-      std::queue<WAIEvent*>* eventQueue);
+    AppDemoGuiInfosMapNodeTransform(std::string            name,
+                                    bool*                  activator,
+                                    std::queue<WAIEvent*>* eventQueue,
+                                    ImFont*                font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 

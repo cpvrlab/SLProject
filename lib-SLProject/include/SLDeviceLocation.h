@@ -71,7 +71,7 @@ public:
                     SLdouble altM);
     void locMaxDistanceM(SLfloat maxDist) { _locMaxDistanceM = maxDist; }
     void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
-    void loadGeoTiff(const SLstring& geoTiffFile);
+    void loadGeoTiff(const SLstring& geoTiffFile, const SLstring& appTag);
     bool geoTiffIsValid();
 
     // Getters

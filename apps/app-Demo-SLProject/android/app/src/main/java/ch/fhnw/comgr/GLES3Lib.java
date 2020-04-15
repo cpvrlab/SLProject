@@ -53,7 +53,7 @@ public class GLES3Lib {
 
     public static native void    onInit             (int width, int height, int dotsPerInch, String FilePath);
     public static native boolean onUpdateVideo      ();
-    public static native boolean onUpdateScene      ();
+    public static native boolean onUpdateParallelJob();
     public static native boolean onPaintAllViews    ();
     public static native void    onResize           (int width, int height);
     public static native void    onMouseDown        (int button, int x, int y);

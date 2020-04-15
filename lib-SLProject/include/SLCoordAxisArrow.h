@@ -6,10 +6,11 @@
 class SLCoordAxisArrow : public SLMesh
 {
 public:
-    SLCoordAxisArrow(SLVec4f arrowColor      = SLVec4f::GREEN,
-                     SLfloat arrowThickness  = 0.05f,
-                     SLfloat arrowHeadLenght = 0.2f,
-                     SLfloat arrowHeadWidth  = 0.1f);
+    SLCoordAxisArrow(SLAssetManager* assetMgr,
+                     SLVec4f         arrowColor      = SLVec4f::GREEN,
+                     SLfloat         arrowThickness  = 0.05f,
+                     SLfloat         arrowHeadLenght = 0.2f,
+                     SLfloat         arrowHeadWidth  = 0.1f);
 
     void buildMesh();
 

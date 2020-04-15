@@ -1,6 +1,5 @@
 #include <SL.h>
 
-#include <SLApplication.h>
 #include <GUIPreferences.h>
 #include <opencv2/core/core.hpp>
 #include <Utils.h>
@@ -155,8 +154,6 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
             fs.release();
             SL_LOG("Config. loaded  : %s", fileName.c_str());
             SL_LOG("Config. date    : %s", configTime.c_str());
-            SL_LOG("fontPropDots    : %f", fontPropDots);
-            SL_LOG("fontFixedDots   : %f", fontFixedDots);
         }
         else
         {
@@ -169,20 +166,20 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
     }
 
     // check font sizes for HDPI displays
-    if (_dpi > 300)
-    {
-        if (fontPropDots < 16.1f &&
-            fontFixedDots < 13.1)
-        {
-            // Scale for proportional and fixed size fonts
-            SLfloat dpiScaleProp  = _dpi / 120.0f;
-            SLfloat dpiScaleFixed = _dpi / 142.0f;
+    //if (_dpi > 300)
+    //{
+    //    if (fontPropDots < 16.1f &&
+    //        fontFixedDots < 13.1)
+    //    {
+    //        // Scale for proportional and fixed size fonts
+    //        SLfloat dpiScaleProp  = _dpi / 120.0f;
+    //        SLfloat dpiScaleFixed = _dpi / 142.0f;
 
-            // Default settings for the first time
-            fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
-            fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
-        }
-    }
+    //        // Default settings for the first time
+    //        fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+    //        fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+    //    }
+    //}
 }
 
 void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
@@ -202,7 +199,6 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     fs << "configTime" << Utils::getLocalTimeString();
     fs << "fontPropDots" << (SLint)fontPropDots;
     fs << "fontFixedDots" << (SLint)fontFixedDots;
-    fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "ScrollbarSize" << (SLint)style.ScrollbarSize;

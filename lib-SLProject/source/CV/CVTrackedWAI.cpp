@@ -10,16 +10,16 @@
 
 #include <CVTrackedWAI.h>
 #include <SL.h>
-#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
     _voc = new ORB_SLAM2::ORBVocabulary();
 
-    string fullPathAndFilename = Utils::findFile(vocabularyFile,
-                                                 {SLApplication::calibIniPath,
-                                                  SLApplication::exePath});
+    string fullPathAndFilename = Utils::findFile(vocabularyFile, {}
+                                                 /*{SLApplication::calibIniPath,
+                                                  SLApplication::exePath}*/
+    );
 
     if (!_voc->loadFromBinaryFile(fullPathAndFilename))
     {

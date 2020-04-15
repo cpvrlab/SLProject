@@ -18,7 +18,6 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <AppDemoGuiSlamParam.h>
 #include <Utils.h>
-#include <CVCapture.h>
 #include <GLSLextractor.h>
 #include <WAIApp.h>
 //-----------------------------------------------------------------------------

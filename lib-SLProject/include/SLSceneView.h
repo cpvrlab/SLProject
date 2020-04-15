@@ -14,7 +14,6 @@
 #include <SLAABBox.h>
 #include <SLDrawBits.h>
 #include <SLEventHandler.h>
-//#include <SLGLImGui.h>
 #include <SLGLOculusFB.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLNode.h>
@@ -29,23 +28,22 @@
 //-----------------------------------------------------------------------------
 class SLCamera;
 class SLLight;
+class SLScene;
+class SLInputManager;
+
 //-----------------------------------------------------------------------------
 /*
-There are only a very few callbacks from the SLProject library up to the GUI
+There are only a very few callbacks from the SLInterface up to the GUI
 framework. All other function calls are downwards from the GUI framework
-into the SLProject library.
 */
 //! Callback function typedef for custom SLSceneView derived creator function
-typedef int (*cbOnNewSceneView)();
+typedef SLSceneView*(SL_STDCALL* cbOnNewSceneView)(SLScene* s, int dotsPerInch, SLInputManager& inputManager);
 
 //! Callback function typedef for GUI window update
 typedef SLbool(SL_STDCALL* cbOnWndUpdate)();
 
 //! Callback function typedef for select node
 typedef void(SL_STDCALL* cbOnSelectNodeMesh)(SLNode*, SLMesh*);
-
-//! Callback function typedef for ImGui build function
-typedef void(SL_STDCALL* cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
 
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.
@@ -69,7 +67,7 @@ class SLSceneView : public SLObject
     friend class SLPathtracer;
 
 public:
-    SLSceneView();
+    SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager);
     ~SLSceneView() override;
 
     void init(SLstring       name,
@@ -77,7 +75,9 @@ public:
               SLint          screenHeight,
               void*          onWndUpdateCallback,
               void*          onSelectNodeMeshCallback,
-              SLUiInterface* gui);
+              SLUiInterface* gui,
+              std::string    configPath);
+    void unInit();
 
     // Not overridable event handlers
     void   onInitialize();
@@ -137,6 +137,7 @@ public:
 
     // Setters
     void camera(SLCamera* camera) { _camera = camera; }
+    void scene(SLScene* scene) { _s = scene; }
     void skybox(SLSkybox* skybox) { _skybox = skybox; }
     void scrW(SLint scrW) { _scrW = scrW; }
     void scrH(SLint scrH) { _scrH = scrH; }
@@ -144,12 +145,12 @@ public:
     void doMultiSampling(SLbool doMS) { _doMultiSampling = doMS; }
     void doDepthTest(SLbool doDT) { _doDepthTest = doDT; }
     void doFrustumCulling(SLbool doFC) { _doFrustumCulling = doFC; }
-    void gotPainted(SLbool val) { _gotPainted = val; }
+    //void gotPainted(SLbool val) { _gotPainted = val; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
 
     // Getters
-    SLuint          index() const { return _index; }
+    //SLuint          index() const { return _index; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -166,7 +167,7 @@ public:
     SLViewportAlign viewportAlign() const { return _viewportAlign; }
     SLbool          viewportSameAsVideo() const { return _viewportSameAsVideo; }
     SLUiInterface*  gui() { return _gui; }
-    SLbool          gotPainted() const { return _gotPainted; }
+    //SLbool          gotPainted() const { return _gotPainted; }
     SLbool          doFrustumCulling() const { return _doFrustumCulling; }
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
@@ -181,16 +182,17 @@ public:
     SLGLOculusFB*   oculusFB() { return &_oculusFB; }
     SLDrawBits*     drawBits() { return &_drawBits; }
     SLbool          drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLfloat         cullTimeMS() const { return _cullTimeMS; }
-    SLfloat         draw3DTimeMS() const { return _draw3DTimeMS; }
-    SLfloat         draw2DTimeMS() const { return _draw2DTimeMS; }
+    AvgFloat&       cullTimesMS() { return _cullTimesMS; }
+    AvgFloat&       draw2DTimesMS() { return _draw2DTimesMS; }
+    AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
+    SLScene&        s() { return *_s; }
 
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
 protected:
-    SLuint         _index;           //!< index of this pointer in SLScene::sceneView vector
+    //SLuint         _index;           //!< index of this pointer in SLScene::sceneView vector
     SLCamera*      _camera;          //!< Pointer to the _active camera
     SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
     SLUiInterface* _gui = nullptr;   //!< ImGui instance
@@ -242,6 +244,16 @@ protected:
     SLPathtracer   _pathtracer; //!< Pathtracer
     SLbool         _stopPT;     //!< Flag to stop the PT
     SLGLConetracer _conetracer; //!< Conetracer CT
+
+    int _dpi; //! dots per inch of screen
+
+    SLInputManager& _inputManager;
+
+    AvgFloat _cullTimesMS;   //!< Averaged time for culling in ms
+    AvgFloat _draw3DTimesMS; //!< Averaged time for 3D drawing in ms
+    AvgFloat _draw2DTimesMS; //!< Averaged time for 2D drawing in ms
+
+    SLScene* _s; //!< Pointer scene observed by this scene view
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -18,6 +18,7 @@
 
 class SLSceneView;
 class SLNode;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Defines a standard CG material with textures and a shader program
@@ -40,49 +41,60 @@ class SLMaterial : public SLObject
 {
 public:
     //! Default ctor
-    explicit SLMaterial(const SLchar*  name,
-                        const SLCol4f& amdi      = SLCol4f::WHITE,
-                        const SLCol4f& spec      = SLCol4f::WHITE,
-                        SLfloat        shininess = 100.0f,
-                        SLfloat        kr        = 0.0,
-                        SLfloat        kt        = 0.0f,
-                        SLfloat        kn        = 1.0f,
-                        SLGLProgram*   program   = nullptr);
+    explicit SLMaterial(SLAssetManager* s,
+                        const SLchar*   name,
+                        const SLCol4f&  amdi      = SLCol4f::WHITE,
+                        const SLCol4f&  spec      = SLCol4f::WHITE,
+                        SLfloat         shininess = 100.0f,
+                        SLfloat         kr        = 0.0,
+                        SLfloat         kt        = 0.0f,
+                        SLfloat         kn        = 1.0f,
+                        SLGLProgram*    program   = nullptr);
 
     //! Ctor for textures
-    SLMaterial(const SLchar* name,
-               SLGLTexture*  texture1,
-               SLGLTexture*  texture2 = nullptr,
-               SLGLTexture*  texture3 = nullptr,
-               SLGLTexture*  texture4 = nullptr,
-               SLGLProgram*  program  = nullptr);
+    SLMaterial(SLAssetManager* s,
+               const SLchar*   name,
+               SLGLTexture*    texture1,
+               SLGLTexture*    texture2 = nullptr,
+               SLGLTexture*    texture3 = nullptr,
+               SLGLTexture*    texture4 = nullptr,
+               SLGLProgram*    program  = nullptr);
 
     //! Ctor for Cook-Torrance shading
-    SLMaterial(const SLchar*  name,
-               const SLCol4f& diffuse,
-               SLfloat        roughness,
-               SLfloat        metalness);
+    SLMaterial(SLAssetManager* s,
+               SLGLProgram*    perPixCookTorranceProgram,
+               const SLchar*   name,
+               const SLCol4f&  diffuse,
+               SLfloat         roughness,
+               SLfloat         metalness);
 
     //! Ctor for uniform color material without lighting
-    explicit SLMaterial(const SLCol4f& uniformColor,
-                        const SLchar*  name = (const char*)"Uniform color");
+    explicit SLMaterial(SLAssetManager* s,
+                        SLGLProgram*    colorUniformProgram,
+                        const SLCol4f&  uniformColor,
+                        const SLchar*   name = (const char*)"Uniform color");
 
     //! Ctor for cone tracer
-    SLMaterial(const SLchar* name,
-               SLGLProgram*  program);
+    SLMaterial(SLAssetManager* s,
+               const SLchar*   name,
+               SLGLProgram*    program);
 
-    ~SLMaterial() final;
+    ~SLMaterial();
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLDrawBits drawBits);
+    void activate(SLDrawBits     drawBits,
+                  const SLCol4f& globalAmbiLight);
 
-	//! Passes the material paramters to shader programs uniform variables
+    //! Passes the material paramters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
-    SLbool hasAlpha() { return (_diffuse.a < 1.0f ||
-                                (!_textures.empty() &&
-                                 _textures[0]->hasAlpha())); }
+    SLbool hasAlpha()
+    {
+        return (_diffuse.a < 1.0f ||
+                (!_textures.empty() &&
+                 _textures[0]->hasAlpha()));
+    }
 
     //! Returns true if a material has a 3D texture
     SLbool has3DTexture()
@@ -92,24 +104,54 @@ public:
     }
 
     //! Returns true if a material with textures tangents as additional attributes
-    SLbool needsTangents() { return (_textures.size() >= 2 &&
-                                     _textures[0]->target() == GL_TEXTURE_2D &&
-                                     _textures[1]->texType() == TT_normal); }
+    SLbool needsTangents()
+    {
+        return (_textures.size() >= 2 &&
+                _textures[0]->target() == GL_TEXTURE_2D &&
+                _textures[1]->texType() == TT_normal);
+    }
     // Setters
-    void ambient(const SLCol4f& ambi) { _ambient = ambi; }
-    void diffuse(const SLCol4f& diff) { _diffuse = diff; }
-    void ambientDiffuse(const SLCol4f& am_di) { _ambient = _diffuse = am_di; }
-    void specular(const SLCol4f& spec) { _specular = spec; }
-    void emissive(const SLCol4f& emis) { _emissive = emis; }
-    void transmissiv(const SLCol4f& transm) { _transmissive = transm; }
-    void translucency(SLfloat transl) { _translucency = transl; }
+    void ambient(const SLCol4f& ambi)
+    {
+        _ambient = ambi;
+    }
+    void diffuse(const SLCol4f& diff)
+    {
+        _diffuse = diff;
+    }
+    void ambientDiffuse(const SLCol4f& am_di)
+    {
+        _ambient = _diffuse = am_di;
+    }
+    void specular(const SLCol4f& spec)
+    {
+        _specular = spec;
+    }
+    void emissive(const SLCol4f& emis)
+    {
+        _emissive = emis;
+    }
+    void transmissiv(const SLCol4f& transm)
+    {
+        _transmissive = transm;
+    }
+    void translucency(SLfloat transl)
+    {
+        _translucency = transl;
+    }
     void shininess(SLfloat shin)
     {
         if (shin < 0.0f) shin = 0.0;
         _shininess = shin;
     }
-    void roughness(SLfloat r) { _roughness = Utils::clamp(r, 0.0f, 1.0f); }
-    void metalness(SLfloat m) { _metalness = Utils::clamp(m, 0.0f, 1.0f); }
+    void roughness(SLfloat r)
+    {
+        _roughness = Utils::clamp(r, 0.0f, 1.0f);
+    }
+    void metalness(SLfloat m)
+    {
+        _metalness = Utils::clamp(m, 0.0f, 1.0f);
+    }
     void kr(SLfloat kr)
     {
         if (kr < 0.0f) kr = 0.0f;
@@ -130,28 +172,68 @@ public:
         assert(kn >= 0.0f);
         _kn = kn;
     }
-    void program(SLGLProgram* sp) { _program = sp; }
+    void program(SLGLProgram* sp)
+    {
+        _program = sp;
+    }
 
     // Getters
-    SLCol4f       ambient() { return _ambient; }
-    SLCol4f       diffuse() { return _diffuse; }
-    SLCol4f       specular() { return _specular; }
-    SLCol4f       transmissiv() { return _transmissive; }
-    SLCol4f       emissive() { return _emissive; }
-    SLfloat       shininess() { return _shininess; }
-    SLfloat       roughness() { return _roughness; }
-    SLfloat       metalness() { return _metalness; }
-    SLfloat       translucency() { return _translucency; }
-    SLfloat       kr() { return _kr; }
-    SLfloat       kt() { return _kt; }
-    SLfloat       kn() { return _kn; }
-    SLVGLTexture& textures() { return _textures; }
-    SLGLProgram*  program() { return _program; }
-
-    static SLMaterial* defaultGray();
-    static void        defaultGray(SLMaterial* mat);
-    static SLMaterial* diffuseAttrib();
-    static void        diffuseAttrib(SLMaterial* mat);
+    SLCol4f ambient()
+    {
+        return _ambient;
+    }
+    SLCol4f diffuse()
+    {
+        return _diffuse;
+    }
+    SLCol4f specular()
+    {
+        return _specular;
+    }
+    SLCol4f transmissiv()
+    {
+        return _transmissive;
+    }
+    SLCol4f emissive()
+    {
+        return _emissive;
+    }
+    SLfloat shininess()
+    {
+        return _shininess;
+    }
+    SLfloat roughness()
+    {
+        return _roughness;
+    }
+    SLfloat metalness()
+    {
+        return _metalness;
+    }
+    SLfloat translucency()
+    {
+        return _translucency;
+    }
+    SLfloat kr()
+    {
+        return _kr;
+    }
+    SLfloat kt()
+    {
+        return _kt;
+    }
+    SLfloat kn()
+    {
+        return _kn;
+    }
+    SLVGLTexture& textures()
+    {
+        return _textures;
+    }
+    SLGLProgram* program()
+    {
+        return _program;
+    }
 
     // Static variables & functions
     static SLMaterial* current; //!< Current material during scene traversal
@@ -174,12 +256,66 @@ protected:
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
-private:
-    static SLMaterial* _defaultGray;   //!< Global default gray color material for meshes that don't define their own.
-    static SLMaterial* _diffuseAttrib; //!< Global diffuse reflection material for meshes with color vertex attributes.
+    SLGLTexture* _errorTexture = nullptr;
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers
 typedef std::vector<SLMaterial*> SLVMaterial;
+
 //-----------------------------------------------------------------------------
+//! Global default gray color material for meshes that don't define their own.
+class SLMaterialDefaultGray : public SLMaterial
+{
+public:
+    static SLMaterialDefaultGray* instance()
+    {
+        if (!_instance)
+            _instance = new SLMaterialDefaultGray;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLMaterialDefaultGray()
+      : SLMaterial(nullptr, "default", SLVec4f::GRAY, SLVec4f::WHITE)
+    {
+        ambient({0.2f, 0.2f, 0.2f});
+    }
+
+    static SLMaterialDefaultGray* _instance;
+};
+
+//-----------------------------------------------------------------------------
+//! Global diffuse reflection material for meshes with color vertex attributes.
+class SLMaterialDiffuseAttribute : public SLMaterial
+{
+public:
+    static SLMaterialDiffuseAttribute* instance()
+    {
+        if (!_instance)
+            _instance = new SLMaterialDiffuseAttribute;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLMaterialDiffuseAttribute();
+
+    static SLMaterialDiffuseAttribute* _instance;
+};
+
 #endif

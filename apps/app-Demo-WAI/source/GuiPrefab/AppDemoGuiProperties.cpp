@@ -4,15 +4,14 @@
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
 #include <SLTransferFunction.h>
 #include <SLGLShader.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiProperties::AppDemoGuiProperties(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiProperties::AppDemoGuiProperties(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -22,9 +21,9 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
 
-    if (node && s->selectedRect().isEmpty())
+    if (node && sv->camera()->selectedRect().isEmpty())
     {
         ImGui::Begin("Properties of Selection", _activator);
 
@@ -432,7 +431,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor();
         ImGui::End();
     }
-    else if (!node && !s->selectedRect().isEmpty())
+    else if (!node && !sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
