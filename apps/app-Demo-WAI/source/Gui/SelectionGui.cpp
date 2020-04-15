@@ -39,9 +39,6 @@ SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
         //crop image to screen size
         image.crop((float)screenWidthPix / (float)screenHeightPix);
 
-        _textureBackgroundW = image.width();
-        _textureBackgroundH = image.height();
-
         // Create a OpenGL texture identifier
         glGenTextures(1, &_textureBackgroundId);
         glBindTexture(GL_TEXTURE_2D, _textureBackgroundId);

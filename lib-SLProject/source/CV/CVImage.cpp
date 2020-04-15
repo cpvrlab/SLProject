@@ -588,6 +588,8 @@ void CVImage::saveJPG(const string& filename,
             cv::flip(outImg, outImg, 0);
         if (convertBGR2RGB)
             cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
+
+        imwrite(filename, outImg, compression_params);
     }
     catch (runtime_error& ex)
     {
@@ -828,6 +830,17 @@ void CVImage::resize(int width, int height)
     cv::resize(_cvMat, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
 
     _cvMat = dst;
+}
+//-----------------------------------------------------------------------------
+//! Flip X coordiantes used to make JPEGs from top-left to bottom-left images.
+void CVImage::flipX()
+{
+    if (_cvMat.cols > 0 && _cvMat.rows > 0)
+    {
+        CVMat dst = CVMat(_cvMat.rows, _cvMat.cols, _cvMat.type());
+        cv::flip(_cvMat, dst, 1);
+        _cvMat = dst;
+    }
 }
 //-----------------------------------------------------------------------------
 //! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.

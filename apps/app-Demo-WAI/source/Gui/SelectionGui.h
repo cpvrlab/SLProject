@@ -42,9 +42,9 @@ private:
     ImVec2  _buttonSz;
     ImFont* _font = nullptr;
 
-    GLuint       _textureBackgroundId = 0;
-    unsigned int _textureBackgroundW;
-    unsigned int _textureBackgroundH;
+    GLuint _textureBackgroundId = 0;
+    //unsigned int _textureBackgroundW;
+    //unsigned int _textureBackgroundH;
 
     float _screenWPix;
     float _screenHPix;

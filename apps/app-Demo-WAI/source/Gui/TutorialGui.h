@@ -50,9 +50,11 @@ private:
 
     ErlebAR::Resources& _resources;
 
-    GLuint       _textureBackgroundId = 0;
-    unsigned int _textureBackgroundW;
-    unsigned int _textureBackgroundH;
+    GLuint _textureBackgroundId1 = 0;
+    GLuint _textureBackgroundId2 = 0;
+    GLuint _currentBackgroundId  = 0;
+    GLuint _textureIconLeftId    = 0;
+    GLuint _textureIconRightId   = 0;
 };
 
 #endif //TUTORIAL_GUI_H

@@ -4,6 +4,64 @@
 
 using namespace ErlebAR;
 
+struct TextureData
+{
+    unsigned int width;
+    unsigned int height;
+    GLuint       id;
+};
+
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
+{
+    GLuint id = 0;
+
+    if (Utils::fileExists(fileName))
+    {
+        // load texture image
+        CVImage image(fileName);
+        if (flipX)
+            image.flipX();
+        if (flipY)
+            image.flipY();
+        //crop image to screen size
+        image.crop(targetWdivH);
+
+        // Create a OpenGL texture identifier
+        glGenTextures(1, &id);
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        // Setup filtering parameters for display
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Upload pixels into texture
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     image.format(),
+                     (GLsizei)image.width(),
+                     (GLsizei)image.height(),
+                     0,
+                     image.format(),
+                     GL_UNSIGNED_BYTE,
+                     (GLvoid*)image.data());
+    }
+    else
+        Utils::warnMsg("loadTexture", "imagePath does not exist!", __LINE__, __FILE__);
+
+    return id;
+}
+
+void deleteTexture(GLuint& id)
+{
+    if (id)
+    {
+        glDeleteTextures(1, &id);
+        id = 0;
+    }
+}
+
 TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
@@ -31,50 +89,22 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
     //load background texture
-    std::string imagePath = texturePath + "earth2048_C.jpg";
-    if (Utils::fileExists(imagePath))
-    {
-        // load texture image
-        CVImage image(imagePath);
-        image.flipY();
-        //crop image to screen size
-        image.crop((float)screenWidthPix / (float)screenHeightPix);
+    _textureBackgroundId1 = loadTexture(texturePath + "earth2048_C.jpg", false, true, (float)screenWidthPix / (float)screenHeightPix);
+    _textureBackgroundId2 = loadTexture(texturePath + "earthCloud1024_C.jpg", false, true, (float)screenWidthPix / (float)screenHeightPix);
+    _currentBackgroundId  = _textureBackgroundId1;
 
-        _textureBackgroundW = image.width();
-        _textureBackgroundH = image.height();
-
-        // Create a OpenGL texture identifier
-        glGenTextures(1, &_textureBackgroundId);
-        glBindTexture(GL_TEXTURE_2D, _textureBackgroundId);
-
-        // Setup filtering parameters for display
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Upload pixels into texture
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-        glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     image.format(),
-                     (GLsizei)image.width(),
-                     (GLsizei)image.height(),
-                     0,
-                     image.format(),
-                     GL_UNSIGNED_BYTE,
-                     (GLvoid*)image.data());
-    }
-    else
-        Utils::warnMsg("TutorialGui", "imagePath does not exist!", __LINE__, __FILE__);
+    //load icon texture
+    _textureIconLeftId  = loadTexture(texturePath + "icon_back.png", false, false, 1.f);
+    _textureIconRightId = loadTexture(texturePath + "icon_back.png", true, false, 1.f);
 }
 
 TutorialGui::~TutorialGui()
 {
-    if (_textureBackgroundId)
-    {
-        glDeleteTextures(1, &_textureBackgroundId);
-        _textureBackgroundId = 0;
-    }
+    deleteTexture(_textureBackgroundId1);
+    deleteTexture(_textureBackgroundId2);
+    deleteTexture(_textureIconLeftId);
+    deleteTexture(_textureIconRightId);
+    _currentBackgroundId = 0;
 }
 
 void TutorialGui::onShow()
@@ -114,7 +144,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(_screenW, _screenH), ImGuiCond_Always);
         ImGui::Begin("TutorialGui_BackgroundTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
-        ImGui::Image((void*)(intptr_t)_textureBackgroundId, ImVec2(_screenW, _screenH));
+        ImGui::Image((void*)(intptr_t)_currentBackgroundId, ImVec2(_screenW, _screenH));
         ImGui::End();
 
         ImGui::PopStyleVar(1);
@@ -122,6 +152,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
 
     pushStyle();
 
+    float h = 10.0;
     //header bar with backbutton
     {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
@@ -135,16 +166,23 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
         ImGui::PushFont(_fontBig);
         //hack for ArrowButton alignment (has to be called after font has been pushed
-        float h       = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
+        h             = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
         float spacing = 0.5f * (_headerBarH - h);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(spacing, spacing));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_buttonRounding, _buttonRounding));
 
         ImGui::Begin("TutorialGui_header", nullptr, windowFlags);
 
-        if (ImGui::ArrowButton("TutorialGui_backButton", ImGuiDir_Left))
+        //if (ImGui::ArrowButton("TutorialGui_backButton", ImGuiDir_Left))
+        //{
+        //    sendEvent(new GoBackEvent());
+        //}
+        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(h, h)))
         {
             sendEvent(new GoBackEvent());
         }
+
         ImGui::SameLine(0.f, _spacingBackButtonToText);
         ImGui::Text(_resources.strings().tutorial());
 
@@ -152,7 +190,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::PopStyleColor(5);
         ImGui::PopFont();
-        ImGui::PopStyleVar(1);
+        ImGui::PopStyleVar(3);
     }
 
     //button board window
@@ -164,29 +202,34 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                                        ImGuiWindowFlags_AlwaysAutoResize |
                                        ImGuiWindowFlags_NoScrollbar |
                                        ImGuiWindowFlags_NoScrollWithMouse;
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_buttonRounding, _buttonRounding));
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.f, 1.f, 1.f, 0.5f));
 
         ImGui::Begin("TutorialGui_ButtonBoard", nullptr, windowFlags);
 
-        if (ImGui::Button("##buttonLeft", ImVec2(50.f, 50.f)))
+        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(h, h)))
         {
+            if (_currentBackgroundId == _textureBackgroundId1)
+                _currentBackgroundId = _textureBackgroundId2;
+            else if (_currentBackgroundId == _textureBackgroundId2)
+                _currentBackgroundId = _textureBackgroundId1;
         }
 
-        if (ImGui::Button("##buttonRight", ImVec2(50.f, 50.f)))
+        if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(h, h)))
         {
+            if (_currentBackgroundId == _textureBackgroundId1)
+                _currentBackgroundId = _textureBackgroundId2;
+            else if (_currentBackgroundId == _textureBackgroundId2)
+                _currentBackgroundId = _textureBackgroundId1;
         }
-
-        ImGui::PopStyleColor();
 
         ImGui::End();
-    }
-    //transparent content with dialog and left and right button
-    {
-        //button go left
-
-        //button go right
-
-        //dialog
+        ImGui::PopStyleColor(4);
+        ImGui::PopStyleVar(2);
     }
 
     popStyle();

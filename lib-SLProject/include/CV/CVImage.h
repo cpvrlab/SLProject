@@ -100,6 +100,7 @@ public:
     void               setPixeliRGBA(int x, int y, CVVec4f color);
     void               resize(int width,
                               int height);
+    void               flipX();
     void               flipY();
     void               fill(uchar r, uchar g, uchar b);
     void               fill(uchar r, uchar g, uchar b, uchar a);
