@@ -965,6 +965,10 @@ void vkUtils::createSyncObjects()
             vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
             std::cerr << "failed to create synchronization objects for a frame!" << std::endl;
 }
+void vkUtils::setCameraMatrix(SLMat4f *mat)
+{
+    cameraMatrix = mat;
+}
 //-----------------------------------------------------------------------------
 /*!
 
@@ -973,8 +977,8 @@ void vkUtils::updateUniformBuffer(uint32_t currentImage)
 {
     UniformBufferObject ubo = {};
     ubo.model               = SLMat4f(0.0f, 0.0f, 0.0f);
-    ubo.view                = SLMat4f();
-    ubo.view.lookAt(SLVec3f(0.0f, 0.0f, 6.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
+    ubo.view                = *cameraMatrix;
+    // ubo.view.lookAt(SLVec3f(0.0f, 0.0f, 6.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
     ubo.proj.perspective(40, (float)swapchainExtent.width / (float)swapchainExtent.height, 0.1f, 20.0f);
 
     void* data;

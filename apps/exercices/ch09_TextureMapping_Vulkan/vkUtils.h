@@ -131,6 +131,7 @@ private:
     size_t                          currentFrame       = 0;
     bool                            framebufferResized = false;
     const std::vector<uint16_t>     indices            = {0, 1, 2, 2, 3, 0};
+    SLMat4f*                        cameraMatrix;
 
 public:
     void drawFrame();
@@ -158,6 +159,7 @@ public:
     void createDescriptorSets();
     void createCommandBuffers();
     void createSyncObjects();
+    void setCameraMatrix(SLMat4f*);
 
 private:
     void                     cleanupSwapchain();
