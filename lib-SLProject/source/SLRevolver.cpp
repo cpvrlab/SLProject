@@ -20,13 +20,14 @@
 /*!
 SLRevolver::SLRevolver ctor for generic revolution object.
 */
-SLRevolver::SLRevolver(SLVVec3f    revolvePoints,
-                       SLVec3f     revolveAxis,
-                       SLuint      slices,
-                       SLbool      smoothFirst,
-                       SLbool      smoothLast,
-                       SLstring    name,
-                       SLMaterial* mat) : SLMesh(name)
+SLRevolver::SLRevolver(SLAssetManager* assetMgr,
+                       SLVVec3f        revolvePoints,
+                       SLVec3f         revolveAxis,
+                       SLuint          slices,
+                       SLbool          smoothFirst,
+                       SLbool          smoothLast,
+                       SLstring        name,
+                       SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(revolvePoints.size() >= 2 && "Error: Not enough revolve points.");
     assert(revolveAxis != SLVec3f::ZERO && "Error axis is a zero vector.");

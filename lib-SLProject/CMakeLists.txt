@@ -13,7 +13,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibrationEstimator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypes.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
+        #${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImageGeoTiff.h
@@ -34,6 +34,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculusFB.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOVRWorkaround.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgram.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgramManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLShader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLState.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLTexture.h
@@ -52,10 +53,10 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec4.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVector.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
+        #${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
+        #${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInputEventInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
@@ -69,6 +70,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimPlayback.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimTrack.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLArrow.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAssetManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
@@ -122,7 +124,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibration.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibrationEstimator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
+        #${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImageGeoTiff.cpp
@@ -140,6 +142,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgram.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgramManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLState.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLTexture.cpp
@@ -148,10 +151,10 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
+        #${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
+        #${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInputEventInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
@@ -160,6 +163,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimPlayback.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimTrack.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAssetManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBackground.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCamera.cpp

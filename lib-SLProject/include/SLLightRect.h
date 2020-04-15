@@ -16,6 +16,8 @@
 
 class SLSceneView;
 class SLRay;
+class SLAssetManager;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
@@ -39,13 +41,15 @@ following shaders: \n
 class SLLightRect : public SLNode
   , public SLLight
 {
-    public:
-    SLLightRect(SLfloat width   = 1,
-                SLfloat height  = 1,
-                SLbool  hasMesh = true);
+public:
+    SLLightRect(SLAssetManager* assetMgr,
+                SLScene*        s,
+                SLfloat         width   = 1,
+                SLfloat         height  = 1,
+                SLbool          hasMesh = true);
     ~SLLightRect() { ; }
 
-    void init();
+    void init(SLScene* s);
     void drawRec(SLSceneView* sv);
     bool hitRec(SLRay* ray);
     void statsRec(SLNodeStats& stats);
@@ -54,10 +58,12 @@ class SLLightRect : public SLNode
     void    setState();
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       SLfloat        lightDist);
+                       SLfloat        lightDist,
+                       SLNode*        root3D);
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         SLfloat        lightDist);
+                         SLfloat        lightDist,
+                         SLNode*        root3D);
 
     // Setters
     void width(const SLfloat w)
@@ -76,13 +82,13 @@ class SLLightRect : public SLNode
     // Getters
     SLfloat width() { return _width; }
     SLfloat height() { return _height; }
-    SLVec4f positionWS() { return updateAndGetWM().translation(); }
+    SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
     SLVec3f spotDirWS() { return SLVec3f(_wm.m(8),
                                          _wm.m(9),
                                          _wm.m(10)) *
                                  -1.0; }
 
-    private:
+private:
     SLfloat _width;      //!< Width of square light in x direction
     SLfloat _height;     //!< Lenght of square light in y direction
     SLfloat _halfWidth;  //!< Half width of square light in x dir

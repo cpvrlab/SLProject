@@ -12,16 +12,15 @@
 #define SL_MEMSTATS_H
 
 #include <SL.h>
-#include <SLInterface.h>
 #include <SLImGuiInfosMemoryStats.h>
 
 //! Callback function typedef for ImGui build function
-typedef void (SL_STDCALL cbMemoryStats)();
-
+typedef void(SL_STDCALL cbMemoryStats)();
 
 class SLMemoryStats
 {
     friend SLImGuiInfosMemoryStats;
+
 public:
     //!returns true if memory statistics are valid
     bool valid() { return (_cb != NULL); }
@@ -31,8 +30,7 @@ public:
     //!install plattform dependent callback function pointer
     void setCallback(cbMemoryStats* cb);
 
-    void setValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
-        long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM);
+    void setValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT, long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM);
 
 private:
     //! callback function: has to be installed system dependent before anything will work

@@ -4,6 +4,7 @@ using namespace std;
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <opencv2/opencv.hpp>
 
 enum CalibrationState
 {
@@ -14,7 +15,7 @@ enum CalibrationState
 
 class WAICalibration
 {
-    public:
+public:
     WAICalibration();
     virtual bool loadFromFile(std::string path);
     virtual bool saveToFile(std::string path);
@@ -45,7 +46,7 @@ class WAICalibration
     float p1() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(2, 0) : 0.0f; }
     float p2() { return _distortion.rows >= 4 ? (float)_distortion.at<double>(3, 0) : 0.0f; }
 
-    protected:
+protected:
     CalibrationState _state;
     cv::Mat          _cameraMat;
     cv::Mat          _distortion;

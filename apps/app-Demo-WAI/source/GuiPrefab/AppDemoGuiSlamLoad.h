@@ -15,18 +15,22 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <SLMat4.h>
 #include <SLNode.h>
+#include <SlamParams.h>
 
+class WAIEvent;
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiSlamLoad(const std::string&              name,
-                       std ::queue<WAIEvent*>*         eventQueue,
-                       std::string                     slamRootDir,
-                       std::string                     calibrationsDir,
-                       std::string                     vocabulariesDir,
-                       const std::vector<std::string>& extractorIdToNames,
-                       bool*                           activator);
+    AppDemoGuiSlamLoad(const std::string&               name,
+                       std ::queue<WAIEvent*>*          eventQueue,
+                       ImFont*                          font,
+                       std::string                      slamRootDir,
+                       std::string                      calibrationsDir,
+                       std::string                      vocabulariesDir,
+                       const std::vector<std::string>&  extractorIdToNames,
+                       bool*                            activator,
+                       std::function<void(std::string)> errorMsgCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
     void setSlamParams(const SlamParams& params);
@@ -53,7 +57,8 @@ private:
     SlamParams _p;
     float      _kt;
 
-    std::queue<WAIEvent*>* _eventQueue;
+    std::queue<WAIEvent*>*           _eventQueue;
+    std::function<void(std::string)> _errorMsgCB = nullptr;
 };
 
 #endif

@@ -23,23 +23,25 @@ inside.
 */
 class SLBox : public SLMesh
 {
-    public:
-    SLBox(SLfloat     minx = 0,
-          SLfloat     miny = 0,
-          SLfloat     minz = 0,
-          SLfloat     maxx = 1,
-          SLfloat     maxy = 1,
-          SLfloat     maxz = 1,
-          SLstring    name = "box mesh",
-          SLMaterial* mat  = nullptr);
-    SLBox(SLVec3f     min,
-          SLVec3f     max,
-          SLstring    name = "box mesh",
-          SLMaterial* mat  = nullptr);
+public:
+    SLBox(SLAssetManager* assetMgr,
+          SLfloat         minx = 0,
+          SLfloat         miny = 0,
+          SLfloat         minz = 0,
+          SLfloat         maxx = 1,
+          SLfloat         maxy = 1,
+          SLfloat         maxz = 1,
+          SLstring        name = "box mesh",
+          SLMaterial*     mat  = nullptr);
+    SLBox(SLAssetManager* assetMgr,
+          SLVec3f         min,
+          SLVec3f         max,
+          SLstring        name = "box mesh",
+          SLMaterial*     mat  = nullptr);
 
     void buildMesh(SLMaterial* mat);
 
-    private:
+private:
     SLVec3f _min; //!< minimal corner
     SLVec3f _max; //!< maximum corner
 };

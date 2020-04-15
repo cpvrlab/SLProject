@@ -32,7 +32,7 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#if not defined(TARGET_OS_IOS) or (TARGET_OS_IOS==0)
+#if !defined(TARGET_OS_IOS) or (TARGET_OS_IOS == 0)
 #    include <vector>
 #    include <AverageTiming.h>
 #    include <GLSLextractor.h>

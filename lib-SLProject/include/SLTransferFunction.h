@@ -65,11 +65,13 @@ mapped to 0-255 when the texture image of size 1x256 is generated.
 class SLTransferFunction : public SLGLTexture
   , public SLEventHandler
 {
-    public:
-    SLTransferFunction(SLVTransferAlpha alphaVec,
+public:
+    SLTransferFunction(SLAssetManager*  assetMgr,
+                       SLVTransferAlpha alphaVec,
                        SLColorLUT       lut    = CLUT_RYGCB,
                        SLuint           length = 256);
-    SLTransferFunction(SLVTransferAlpha alphaValues,
+    SLTransferFunction(SLAssetManager*  assetMgr,
+                       SLVTransferAlpha alphaValues,
                        SLVTransferColor colorValues,
                        SLuint           length = 256);
 
@@ -87,7 +89,7 @@ class SLTransferFunction : public SLGLTexture
     SLVTransferAlpha& alphas() { return _alphas; }
     SLVfloat          allAlphas();
 
-    private:
+private:
     SLuint           _length;   //! Length of transfer function (default 256)
     SLColorLUT       _colorLUT; //! Color LUT identifier
     SLVTransferColor _colors;   //! vector of colors in TF

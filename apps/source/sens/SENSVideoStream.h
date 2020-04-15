@@ -20,6 +20,8 @@ public:
     int                frameCount() const { return _frameCount; }
     float              fps() const { return _fps; }
 
+    bool isOpened() const { return _cap.isOpened(); }
+
 private:
     void moveCapturePosition(int n);
 

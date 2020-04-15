@@ -14,12 +14,12 @@
 #define APP_WAI_SCENE_VIEW
 
 #include <vector>
+#include <functional>
 #include "AppWAIScene.h"
 
 #include <CVCalibration.h>
 #include <WAIAutoCalibration.h>
-#include <AppDirectories.h>
-#include <WAIModeOrbSlam2.h>
+#include <DeviceData.h>
 #include <AppDemoWaiGui.h>
 #include <SLInputEventInterface.h>
 #include <WAISlam.h>
@@ -27,6 +27,22 @@
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
+#include <SLInputManager.h>
+#include <WAIEvent.h>
+#include <SlamParams.h>
+
+//#include <sm/Event.h>
+//#include <sm/EventHandler.h>
+#include <sm/EventSender.h>
+#include <sm/StateMachine.h>
+
+//#include <states/SelectionState.h>
+//#include <states/StartUpState.h>
+//#include <states/AreaTrackingState.h>
+//#include <states/CameraTestState.h>
+//#include <states/LocationMapState.h>
+//#include <states/TestState.h>
+//#include <states/TutorialState.h>
 
 class SLMaterial;
 class SLPoints;
@@ -34,331 +50,297 @@ class SLNode;
 class AppDemoGuiError;
 class AppDemoGuiSlamLoad;
 
-struct ExtractorIds
+class View
 {
-    ExtractorType trackingExtractorId;
-    ExtractorType initializationExtractorId;
-    ExtractorType markerExtractorId;
-};
-
-struct SlamParams
-{
-    //returns true if loading was successful. Otherwise there may have been no file.
-    bool load(std::string fileName)
+public:
+    ~View()
     {
-        cv::FileStorage fs;
-        try
-        {
-            fs.open(fileName, cv::FileStorage::READ);
-            if (fs.isOpened())
-            {
-                if (!fs["videoFile"].empty())
-                    fs["videoFile"] >> videoFile;
-                if (!fs["mapFile"].empty())
-                    fs["mapFile"] >> mapFile;
-                if (!fs["calibrationFile"].empty())
-                    fs["calibrationFile"] >> calibrationFile;
-                if (!fs["vocabularyFile"].empty())
-                    fs["vocabularyFile"] >> vocabularyFile;
-                if (!fs["markerFile"].empty())
-                    fs["markerFile"] >> markerFile;
-                if (!fs["location"].empty())
-                    fs["location"] >> location;
-                if (!fs["area"].empty())
-                    fs["area"] >> area;
-
-                if (!fs["cullRedundantPerc"].empty())
-                    fs["cullRedundantPerc"] >> params.cullRedundantPerc;
-                if (!fs["fixOldKfs"].empty())
-                    fs["fixOldKfs"] >> params.fixOldKfs;
-                if (!fs["onlyTracking"].empty())
-                    fs["onlyTracking"] >> params.onlyTracking;
-                if (!fs["retainImg"].empty())
-                    fs["retainImg"] >> params.retainImg;
-                if (!fs["serial"].empty())
-                    fs["serial"] >> params.serial;
-                if (!fs["trackOptFlow"].empty())
-                    fs["trackOptFlow"] >> params.trackOptFlow;
-
-                if (!fs["initializationExtractorId"].empty())
-                    fs["initializationExtractorId"] >> extractorIds.initializationExtractorId;
-                if (!fs["markerExtractorId"].empty())
-                    fs["markerExtractorId"] >> extractorIds.markerExtractorId;
-                if (!fs["trackingExtractorId"].empty())
-                    fs["trackingExtractorId"] >> extractorIds.trackingExtractorId;
-
-                fs.release();
-                Utils::log("WAIApp", "SlamParams loaded from %s", fileName.c_str());
-
-                return true;
-            }
-        }
-        catch (...)
-        {
-            Utils::log("WAIApp", "SlamParams: Parsing of file failed: %s", fileName.c_str());
-        }
-
-        return false;
+        _startThread.detach();
     }
-
-    void save(std::string fileName)
+    //! asynchronous start
+    void start()
     {
-        cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
-
-        if (!fs.isOpened())
-        {
-            Utils::log("WAIApp", "SlamParams: Failed to open file for writing: %s", fileName.c_str());
+        if (_started)
             return;
-        }
 
-        fs << "videoFile" << videoFile;
-        fs << "mapFile" << mapFile;
-        fs << "calibrationFile" << calibrationFile;
-        fs << "vocabularyFile" << vocabularyFile;
-        fs << "markerFile" << markerFile;
-        fs << "location" << location;
-        fs << "area" << area;
-
-        fs << "cullRedundantPerc" << params.cullRedundantPerc;
-        fs << "fixOldKfs" << params.fixOldKfs;
-        fs << "onlyTracking" << params.onlyTracking;
-        fs << "retainImg" << params.retainImg;
-        fs << "serial" << params.serial;
-        fs << "trackOptFlow" << params.trackOptFlow;
-
-        fs << "initializationExtractorId" << extractorIds.initializationExtractorId;
-        fs << "markerExtractorId" << extractorIds.markerExtractorId;
-        fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
-
-        fs.release();
-        Utils::log("WAIApp", "SlamParams saved to %s", fileName.c_str());
+        _startThread = std::thread(&View::doStart, this);
     }
 
-    std::string               videoFile;
-    std::string               mapFile;
-    std::string               calibrationFile;
-    std::string               vocabularyFile;
-    std::string               markerFile;
-    std::string               location;
-    std::string               area;
-    WAI::ModeOrbSlam2::Params params;
-    ExtractorIds              extractorIds;
-};
+    //! if ready the state machine can change to this state
+    bool started() { return _started; }
+    //! signalizes that state is ready and wants caller to switch to another state
+    bool ready() { return _ready; }
+    void setStateReady() { _ready = true; }
 
-enum WAIEventType
-{
-    WAIEventType_None,
-    WAIEventType_StartOrbSlam,
-    WAIEventType_SaveMap,
-    WAIEventType_VideoControl,
-    WAIEventType_VideoRecording,
-    WAIEventType_MapNodeTransform,
-    WAIEventType_DownloadCalibrationFiles,
-    WAIEventType_AdjustTransparency
-};
+    //! update this state
+    virtual bool update() = 0;
 
-struct WAIEvent
-{
-    WAIEventType type;
-};
+protected:
+    //! implement startup functionality here. Set _started to true when done.
+    virtual void doStart(){};
 
-struct WAIEventStartOrbSlam : WAIEvent
-{
-    WAIEventStartOrbSlam() { type = WAIEventType_StartOrbSlam; }
+    //set to true if startup is done
+    bool _started = false;
 
-    SlamParams params;
-};
+    //! signalizes that state is ready and wants caller to switch to another state
+    bool _ready = false;
 
-struct WAIEventSaveMap : WAIEvent
-{
-    WAIEventSaveMap() { type = WAIEventType_SaveMap; }
-
-    std::string location;
-    std::string area;
-    std::string marker;
-};
-
-struct WAIEventVideoControl : WAIEvent
-{
-    WAIEventVideoControl() { type = WAIEventType_VideoControl; }
-
-    bool pauseVideo;
-    int  videoCursorMoveIndex;
-};
-
-struct WAIEventVideoRecording : WAIEvent
-{
-    WAIEventVideoRecording() { type = WAIEventType_VideoRecording; }
-
-    std::string filename;
-};
-
-struct WAIEventMapNodeTransform : WAIEvent
-{
-    WAIEventMapNodeTransform() { type = WAIEventType_MapNodeTransform; }
-
-    SLTransformSpace tSpace;
-    SLVec3f          rotation;
-    SLVec3f          translation;
-    float            scale;
-};
-
-struct WAIEventDownloadCalibrationFiles : WAIEvent
-{
-    WAIEventDownloadCalibrationFiles() { type = WAIEventType_DownloadCalibrationFiles; }
-};
-
-struct WAIEventAdjustTransparency : WAIEvent
-{
-    WAIEventAdjustTransparency() { type = WAIEventType_AdjustTransparency; }
-
-    float kt;
+private:
+    std::thread _startThread;
 };
 
 //-----------------------------------------------------------------------------
+// State machine impl
+//-----------------------------------------------------------------------------
+class ABCView;
+class XYView;
+class ABCEventData;
+
 class WAIApp : public SLInputEventInterface
+  , public sm::StateMachine
 {
 public:
-    WAIApp();
-    ~WAIApp();
-    //call load to correctly initialize wai app
-    int  load(int            scrWidth,
-              int            scrHeight,
-              float          scr2fbX,
-              float          scr2fbY,
-              int            dpi,
-              AppDirectories dirs);
-    void setCamera(SENSCamera* camera);
-    //try to load last slam configuration, else open loading dialog
-    void loadSlam();
-
-    //call update to update the frame, wai and visualization
-    bool update();
-    void close();
-    void terminate();
-
-    //initialize wai orb slam with transferred parameters
-    void startOrbSlam(SlamParams slamParams);
-    void showErrorMsg(std::string msg);
-
-    //todo: replace when we are independent of SLApplication
-    std::string            name();
-    const SENSVideoStream* getVideoFileStream() const { return _videoFileStream.get(); }
-    const CVCalibration&   getCalibration() const { return _calibration; }
-    const cv::Size&        getFrameSize() const { return _videoFrameSize; }
-
-    WAISlam* mode()
+    enum class StateId
     {
-        return _mode;
+        IDLE = 0,
+        INIT,
+        PROCESS_XY,
+        PROCESS_ABC,
+        STOP,
+        StateId_END
+    };
+
+    WAIApp()
+      : SLInputEventInterface(_inputManager),
+        sm::StateMachine((unsigned int)StateId::IDLE)
+    {
+        registerState<WAIApp, sm::NoEventData, &WAIApp::stateIdle>((unsigned int)StateId::IDLE);
+        registerState<WAIApp, sm::NoEventData, &WAIApp::stateInit>((unsigned int)StateId::INIT);
+        registerState<WAIApp, ABCEventData, &WAIApp::stateProcessXY>((unsigned int)StateId::PROCESS_XY);
+        registerState<WAIApp, sm::NoEventData, &WAIApp::stateProcessABC>((unsigned int)StateId::PROCESS_ABC);
+        registerState<WAIApp, sm::NoEventData, &WAIApp::stateStop>((unsigned int)StateId::STOP);
     }
 
-    std::string videoDir;
-    std::string mapDir;
+    //external events:
+
+    void load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
+    void goBack();
+
+    std::string name()
+    {
+        return _name;
+    }
 
 private:
+    //state update functions corresponding to the states defined above
+    void stateIdle(const sm::NoEventData* data);
+    void stateInit(const sm::NoEventData* data);
+    void stateProcessXY(const ABCEventData* data);
+    void stateProcessABC(const sm::NoEventData* data);
+    void stateStop(const sm::NoEventData* data);
 
-    void processSENSFrame(SENSFramePtr frame);
-    int getNextFrame(WAIFrame * frame);
-    void flushQueue();
+    std::string    _name;
+    SLInputManager _inputManager;
 
-    bool updateTracking(SENSFramePtr frame);
-    static void updateTrackingMultiThread(WAIApp * ptr);
-    std::thread updateThread;
-
-    int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
-    void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
-
-    void setupGUI(std::string appName, std::string configDir, int dotsPerInch);
-    void setupDefaultErlebARDirTo(std::string dir);
-    //!download all remote files to transferred directory
-    void downloadCalibrationFilesTo(std::string dir);
-    bool updateSceneViews();
-
-    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
-    void renderMapPoints(std::string                      name,
-                         const std::vector<WAIMapPoint*>& pts,
-                         SLNode*&                         node,
-                         SLPoints*&                       mesh,
-                         SLMaterial*&                     material);
-    void renderKeyframes();
-    void renderGraphs();
-    void saveMap(std::string location, std::string area, std::string marker);
-    void transformMapNode(SLTransformSpace tSpace,
-                          SLVec3f          rotation,
-                          SLVec3f          translation,
-                          float            scale);
-    // video writer
-    void saveVideo(std::string filename);
-    //void saveGPSData(std::string videofile);
-
-    void handleEvents();
-
-    //get new frame from live video or video file stream
-    SENSFramePtr updateVideoOrCamera();
-    SENSFramePtr updateVideoOrCameraMultiThread();
-
-    //todo: we dont need a pointer
-    AppWAIScene _waiScene;
-    //WAI::ModeOrbSlam2*           _waiSlamer;
-    WAISlam*     _mode       = nullptr;
-    SLSceneView* _sv         = nullptr;
-    SLGLTexture* _videoImage = nullptr;
-
-    SlamParams     _currentSlamParams;
-    AppDirectories _dirs;
-    std::string    _calibDir;
-    
-    std::mutex _frameQueueMutex;
-    std::queue<WAIFrame> _framesQueue;
-
-
-    //sensor stuff
-    //ofstream _gpsDataStream;
-    //SLQuat4f _lastKnowPoseQuaternion;
-    //SLQuat4f _IMUQuaternion;
-
-    //load function has been called
-    bool _loaded  = false;
-    bool _started = false;
-
-    cv::VideoWriter*                 _videoWriter = nullptr;
-    std::unique_ptr<SENSVideoStream> _videoFileStream;
-    SENSCamera*                      _camera = nullptr;
-
-    cv::Size2i _videoFrameSize;
-
-    std::unique_ptr<AppDemoWaiGui>      _gui;
-    std::shared_ptr<AppDemoGuiError>    _errorDial;
-    std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
-    int                                 _lastFrameIdx;
-    cv::Mat                             _undistortedLastFrame[2];
-    bool                                _doubleBufferedOutput;
-
-    void stop();
-    bool isStop();
-    void resume();
-    void requestFinish();
-    bool finishRequested();
-    bool isFinished();
-    std::mutex _stateMutex;
-    bool _isStop;
-    bool _requestFinish;
-    bool _isFinish;
-
-    // video controls
-    bool _pauseVideo           = false;
-    int  _videoCursorMoveIndex = 0;
-
-    // event queue
-    std::queue<WAIEvent*> _eventQueue;
-
-    CVCalibration _calibration     = {CVCameraType::FRONTFACING, ""};
-    bool          _showUndistorted = true;
-
-    FeatureExtractorFactory      _featureExtractorFactory;
-    std::unique_ptr<KPextractor> _trackingExtractor;
-    std::unique_ptr<KPextractor> _initializationExtractor;
-    std::unique_ptr<KPextractor> _markerExtractor;
+    ABCView* _abcView = nullptr;
+    XYView*  _xyView  = nullptr;
 };
+
+//-----------------------------------------------------------------------------
+// Eventdata
+//-----------------------------------------------------------------------------
+class ABCEventData : public sm::EventData
+{
+public:
+    ABCEventData(std::string msg)
+      : msg(msg)
+    {
+    }
+
+    std::string msg;
+};
+
+//-----------------------------------------------------------------------------
+// Events
+//-----------------------------------------------------------------------------
+
+//go back from TestState leads to update call of
+class GoBackEvent : public sm::Event
+{
+public:
+    //definition of possible transitions
+    GoBackEvent()
+    {
+        enableTransition((unsigned int)WAIApp::StateId::PROCESS_XY, (unsigned int)WAIApp::StateId::PROCESS_ABC);
+        enableTransition((unsigned int)WAIApp::StateId::PROCESS_XY, (unsigned int)WAIApp::StateId::PROCESS_ABC);
+        enableTransition((unsigned int)WAIApp::StateId::PROCESS_ABC, (unsigned int)WAIApp::StateId::STOP);
+    }
+};
+
+//go from idle to init state
+class InitEvent : public sm::Event
+{
+public:
+    //definition of possible transitions
+    InitEvent()
+    {
+        enableTransition((unsigned int)WAIApp::StateId::IDLE, (unsigned int)WAIApp::StateId::INIT);
+    }
+};
+
+//a state wants to be finished
+class StateDoneEvent : public sm::Event
+{
+public:
+    //definition of possible transitions
+    StateDoneEvent()
+    {
+        enableTransition((unsigned int)WAIApp::StateId::INIT, (unsigned int)WAIApp::StateId::PROCESS_ABC);
+        enableTransition((unsigned int)WAIApp::StateId::STOP, (unsigned int)WAIApp::StateId::IDLE);
+    }
+};
+
+//a state wants to be finished
+class StateABCDoneEvent : public sm::Event
+{
+public:
+    //definition of possible transitions
+    StateABCDoneEvent(std::string msg)
+    {
+        enableTransition((unsigned int)WAIApp::StateId::PROCESS_ABC, (unsigned int)WAIApp::StateId::PROCESS_XY);
+
+        _eventData = new ABCEventData(msg);
+    }
+};
+
+//-----------------------------------------------------------------------------
+// Views
+//-----------------------------------------------------------------------------
+
+//ein state der einen event sendet
+class XYView : public View
+  , public sm::EventSender
+{
+public:
+    XYView(sm::EventHandler& handler)
+      : EventSender(handler)
+    {
+    }
+
+    bool update() override
+    {
+        return false;
+    }
+};
+
+//ein state der einen event sendet
+class ABCView : public View
+  , public sm::EventSender
+{
+public:
+    ABCView(sm::EventHandler& handler)
+      : sm::EventSender(handler)
+    {
+    }
+
+    bool update() override
+    {
+        static int i = 0;
+        i++;
+        if (i == 5)
+        {
+            sendEvent(new StateABCDoneEvent("Do something!"));
+        }
+        return false;
+    }
+};
+
+//class WAIApp : public SLInputEventInterface
+//  , public StateMachine
+//{
+//public:
+//    using CloseAppCallback = std::function<void(void)>;
+//    enum class State
+//    {
+//        /*!Wait for _startFromIdle to become true. When it is true start SelectionState for scene selection and when it is
+//        started switch to START_UP state or directly start StartUpScene if Selection is already not Selection::NONE.
+//        */
+//        IDLE,
+//        /*!In this state the user has to select a an Selection. When selection is not NONE, we switch to state START_UP
+//        */
+//        SELECTION,
+//        /*!We start up the states depending on selected Selection
+//        */
+//        START_UP,
+//        LOCATION_MAP,
+//        AREA_TRACKING,
+//        TEST,
+//        CAMERA_TEST,
+//        TUTORIAL,
+//        TERMINATE
+//    };
+//
+//    WAIApp();
+//    ~WAIApp();
+//    //call load to correctly initialize wai app
+//    int  load(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories directories);
+//    void setCamera(SENSCamera* camera);
+//    //call update to update the frame, wai and visualization
+//    bool update();
+//    void close();
+//    void terminate();
+//
+//    std::string name();
+//
+//    //! set a callback function which can be used to inform caller that app wants to be closed
+//    void setCloseAppCallback(CloseAppCallback cb) { _closeCB = cb; }
+//    //! caller informs that app back button was pressed
+//    void goBack()
+//    {
+//        _goBack = true;
+//    }
+//
+//private:
+//    SENSCamera* getCamera();
+//
+//    void reset();
+//    void checkStateTransition();
+//    bool updateState();
+//
+//    AppDirectories _dirs;
+//
+//    SENSCamera* _camera = nullptr;
+//    std::mutex  _cameraSetMutex;
+//
+//    std::string    _name;
+//    SLInputManager _inputManager;
+//
+//    std::unique_ptr<DeviceData> _deviceData;
+//
+//    State              _state             = State::IDLE;
+//    SelectionState*    _selectionState    = nullptr;
+//    StartUpState*      _startUpState      = nullptr;
+//    AreaTrackingState* _areaTrackingState = nullptr;
+//    CameraTestState*   _cameraTestState   = nullptr;
+//    LocationMapState*  _locationMapState  = nullptr;
+//    TestState*         _testState         = nullptr;
+//    TutorialState*     _tutorialState     = nullptr;
+//
+//    //Sub-States that lead to state start() call:
+//    //set to true as soon as we have access to app resouces, then we can first visualize something
+//    bool _startFromIdle = false;
+//    //done after Selection was selected, then we know what to start up
+//    bool _startFromStartUp = false;
+//
+//    //defines if ErlebAR scene was already selected or if user has to choose
+//    Selection _appMode            = Selection::NONE;
+//    Area    _area               = Area::NONE;
+//    bool    _showSelectionState = false;
+//
+//    bool _switchToTracking = false;
+//
+//    CloseAppCallback _closeCB = nullptr;
+//    bool             _goBack  = false;
+//};
 
 #endif

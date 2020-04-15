@@ -7,7 +7,7 @@
 class AppDemoGuiError : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiError(string name, bool* activator);
+    AppDemoGuiError(string name, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 

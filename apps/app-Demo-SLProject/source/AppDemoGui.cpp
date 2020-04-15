@@ -35,6 +35,7 @@
 #include <SLSceneView.h>
 #include <SLTransferFunction.h>
 #include <SLGLImGui.h>
+#include <SLProjectScene.h>
 #include <imgui.h>
 #include <ftplib.h>
 
@@ -87,15 +88,18 @@ void centerNextWindow(SLSceneView* sv,
                       SLfloat      widthPC  = 0.9f,
                       SLfloat      heightPC = 0.9f)
 {
-    SLfloat width  = (SLfloat)sv->viewportW() * widthPC;
-    SLfloat height = (SLfloat)sv->viewportH() * heightPC;
-    ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiSetCond_Always);
-    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
+    SLfloat width   = (SLfloat)sv->viewportW() * widthPC;
+    SLfloat height  = (SLfloat)sv->viewportH() * heightPC;
+    SLfloat offsetX = ((SLfloat)sv->viewportW() - width) * 0.5f;
+    SLfloat offsetY = ((SLfloat)sv->viewportH() - height) * 0.5f;
+    ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(offsetX, offsetY), ImGuiCond_Always);
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
 SLstring AppDemoGui::configTime          = "-";
 SLbool   AppDemoGui::showProgress        = false;
+SLbool   AppDemoGui::showDockSpace       = true;
 SLbool   AppDemoGui::showAbout           = false;
 SLbool   AppDemoGui::showHelp            = false;
 SLbool   AppDemoGui::showHelpCalibration = false;
@@ -103,6 +107,7 @@ SLbool   AppDemoGui::showCredits         = false;
 SLbool   AppDemoGui::showStatsTiming     = false;
 SLbool   AppDemoGui::showStatsScene      = false;
 SLbool   AppDemoGui::showStatsVideo      = false;
+SLbool   AppDemoGui::showImGuiMetrics    = false;
 SLbool   AppDemoGui::showInfosScene      = false;
 SLbool   AppDemoGui::showInfosSensors    = false;
 SLbool   AppDemoGui::showInfosDevice     = false;
@@ -208,7 +213,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
  SLSceneView::onPaint in SLSceneView::draw2DGL by calling ImGui::Render.\n
  See also the comments on SLGLImGui.
  */
-void AppDemoGui::build(SLScene* s, SLSceneView* sv)
+void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
     ///////////////////////////////////
     // Show modeless fullscreen dialogs
@@ -243,6 +248,55 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
     else
     {
+        if (showDockSpace)
+        {
+            static bool               opt_fullscreen_persistant = true;
+            bool                      opt_fullscreen            = opt_fullscreen_persistant;
+            static ImGuiDockNodeFlags dockspace_flags           = ImGuiDockNodeFlags_PassthruCentralNode;
+
+            // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+            // because it would be confusing to have two docking targets within each others.
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+            if (opt_fullscreen)
+            {
+                ImGuiViewport* viewport = ImGui::GetMainViewport();
+                ImGui::SetNextWindowPos(viewport->GetWorkPos());
+                ImGui::SetNextWindowSize(viewport->GetWorkSize());
+                ImGui::SetNextWindowViewport(viewport->ID);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+                window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+                window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+            }
+
+            // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+            // and handle the pass-thru hole, so we ask Begin() to not render a background.
+            if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+                window_flags |= ImGuiWindowFlags_NoBackground;
+
+            // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+            // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+            // all active windows docked into it will lose their parent and become undocked.
+            // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+            // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+            ImGui::Begin("DockSpace Demo", &showDockSpace, window_flags);
+            ImGui::PopStyleVar();
+
+            if (opt_fullscreen)
+                ImGui::PopStyleVar(2);
+
+            // DockSpace
+            ImGuiIO& io = ImGui::GetIO();
+            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+            {
+                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+            }
+
+            ImGui::End();
+        }
+
         if (showAbout)
         {
             centerNextWindow(sv);
@@ -312,9 +366,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                SLfloat cullTime       = s->cullTimesMS().average();
-                SLfloat draw3DTime     = s->draw3DTimesMS().average();
-                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+                SLfloat cullTime       = sv->cullTimesMS().average();
+                SLfloat draw3DTime     = sv->draw3DTimesMS().average();
+                SLfloat draw2DTime     = sv->draw2DTimesMS().average();
 
                 // Calculate percentage from frame time
                 SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
@@ -364,9 +418,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                SLfloat cullTime       = s->cullTimesMS().average();
-                SLfloat draw3DTime     = s->draw3DTimesMS().average();
-                SLfloat draw2DTime     = s->draw2DTimesMS().average();
+                SLfloat cullTime       = sv->cullTimesMS().average();
+                SLfloat draw3DTime     = sv->draw3DTimesMS().average();
+                SLfloat draw2DTime     = sv->draw2DTimesMS().average();
 
                 // Calculate percentage from frame time
                 SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
@@ -592,6 +646,11 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             ImGui::PopFont();
         }
 
+        if (showImGuiMetrics)
+        {
+            ImGui::ShowMetricsWindow();
+        }
+
         if (showInfosScene)
         {
             // Calculate window position for dynamic status bar at the bottom of the main window
@@ -713,13 +772,13 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 #else
             sprintf(m + strlen(m), "Build Config.    : Release\n");
 #endif
-            sprintf(m + strlen(m), "Computer User    : %s\n", SLApplication::computerUser.c_str());
-            sprintf(m + strlen(m), "Computer Name    : %s\n", SLApplication::computerName.c_str());
-            sprintf(m + strlen(m), "Computer Brand   : %s\n", SLApplication::computerBrand.c_str());
-            sprintf(m + strlen(m), "Computer Model   : %s\n", SLApplication::computerModel.c_str());
-            sprintf(m + strlen(m), "Computer Arch.   : %s\n", SLApplication::computerArch.c_str());
-            sprintf(m + strlen(m), "Computer OS      : %s\n", SLApplication::computerOS.c_str());
-            sprintf(m + strlen(m), "Computer OS Ver. : %s\n", SLApplication::computerOSVer.c_str());
+            sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
+            sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
+            sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
+            sprintf(m + strlen(m), "Computer Model   : %s\n", Utils::ComputerInfos::model.c_str());
+            sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
+            sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
+            sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
             sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
             sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
             sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
@@ -778,7 +837,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
         if (showProperties)
         {
-            buildProperties(s);
+            buildProperties(s, sv);
         }
 
         if (showUIPrefs)
@@ -794,7 +853,10 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%0.0f"))
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+            ImGui::Separator();
 
+            if (ImGui::Checkbox("DockSpace enabled", &showDockSpace))
+                showDockSpace != showDockSpace;
             ImGui::Separator();
 
             SLchar reset[255];
@@ -945,7 +1007,7 @@ CVCalibration guessCalibration(bool         mirroredH,
                              mirroredH,
                              mirroredV,
                              camType,
-                             SLApplication::getComputerInfos());
+                             Utils::ComputerInfos::get());
     }
     else
     {
@@ -956,7 +1018,7 @@ CVCalibration guessCalibration(bool         mirroredH,
                              mirroredH,
                              mirroredV,
                              camType,
-                             SLApplication::getComputerInfos());
+                             Utils::ComputerInfos::get());
     }
 }
 //-----------------------------------------------------------------------------
@@ -985,7 +1047,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-#if not defined(SL_OS_ANDROID) and not defined(SL_OS_IOS)
+#if !defined(SL_OS_ANDROID) and !defined(SL_OS_IOS)
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
                         SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
@@ -1160,13 +1222,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
                     SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
-                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
+                        if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
                             s->onLoad(s, sv, SID_VideoAventicumTheatre);
 
-                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigonier1.gltf"; // Android
+                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf"; // Android
                     SLstring modelAV32 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Cigonier1.gltf";
                     if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
-                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
+                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
                             s->onLoad(s, sv, SID_VideoAventicumCigonier);
 
                     ImGui::EndMenu();
@@ -1925,6 +1987,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+            ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Show Properties", nullptr, &showProperties);
@@ -2009,14 +2072,14 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 }
 //-----------------------------------------------------------------------------
 //! Builds the properties dialog once per frame
-void AppDemoGui::buildProperties(SLScene* s)
+void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-    if (node && s->selectedRect().isEmpty())
+    if (node && sv->camera()->selectedRect().isEmpty())
     {
 
         ImGui::Begin("Properties of Selection", &showProperties);
@@ -2430,7 +2493,7 @@ void AppDemoGui::buildProperties(SLScene* s)
         ImGui::PopStyleColor();
         ImGui::End();
     }
-    else if (!node && !s->selectedRect().isEmpty())
+    else if (!node && !sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
@@ -2553,6 +2616,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
+            fs["showDockSpace"] >> b;       AppDemoGui::showDockSpace = b;
             // clang-format on
 
             fs.release();
@@ -2626,6 +2690,7 @@ void AppDemoGui::saveConfig()
     fs << "showProperties" << AppDemoGui::showProperties;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
+    fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
     fs.release();
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());

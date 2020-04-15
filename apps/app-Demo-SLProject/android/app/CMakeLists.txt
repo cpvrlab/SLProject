@@ -13,12 +13,20 @@ set(
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoLoad.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoVideo.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoSceneView.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+		${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
+		${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
+		${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
     )
 
 set(
         headers
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/AppDemoGui.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/AppDemoSceneView.h
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+		${SL_PROJECT_ROOT}/apps/source/CVCapture.h
+		${SL_PROJECT_ROOT}/apps/source/SLApplication.h
+		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     )
 
 add_library(
@@ -33,6 +41,7 @@ target_include_directories(
         PRIVATE
         PUBLIC
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include
+        ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${SL_PROJECT_ROOT}/lib-SLProject/include
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal

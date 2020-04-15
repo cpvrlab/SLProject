@@ -10,13 +10,11 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
+#include <SLGLState.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
+#include <SLGLProgramManager.h>
+#include <SLAssetManager.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
@@ -54,10 +52,11 @@ SLGLTexture::SLGLTexture()
 
 //-----------------------------------------------------------------------------
 //! ctor for empty 2D textures
-SLGLTexture::SLGLTexture(SLint min_filter,
-                         SLint mag_filter,
-                         SLint wrapS,
-                         SLint wrapT)
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLint           wrapT)
 {
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
@@ -73,20 +72,22 @@ SLGLTexture::SLGLTexture(SLint min_filter,
     _texType      = TT_unknown;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
 //! ctor for 2D textures from byte pointer
-SLGLTexture::SLGLTexture(unsigned char* data,
-                         int            width,
-                         int            height,
-                         int            cvtype,
-                         SLint          min_filter,
-                         SLint          mag_filter,
-                         SLTextureType  type,
-                         SLint          wrapS,
-                         SLint          wrapT)
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         unsigned char*  data,
+                         int             width,
+                         int             height,
+                         int             cvtype,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT)
 {
 
     CVImage* image = new CVImage();
@@ -107,12 +108,14 @@ SLGLTexture::SLGLTexture(unsigned char* data,
 
     _images.push_back(image);
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(const SLstring& filename,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& filename,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLTextureType   type,
@@ -139,11 +142,13 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 3D texture
-SLGLTexture::SLGLTexture(const SLVstring& files,
+SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
+                         const SLVstring& files,
                          SLint            min_filter,
                          SLint            mag_filter,
                          SLint            wrapS,
@@ -171,11 +176,13 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 1D texture
-SLGLTexture::SLGLTexture(const SLVCol4f& colors,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLVCol4f& colors,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
@@ -203,11 +210,13 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     _bytesOnGPU   = 0;
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for cube mapping with internal image allocation
-SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& filenameXPos,
                          const SLstring& filenameXNeg,
                          const SLstring& filenameYPos,
                          const SLstring& filenameYNeg,
@@ -245,7 +254,8 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
 
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 SLGLTexture::~SLGLTexture()
@@ -278,8 +288,7 @@ void SLGLTexture::load(const SLstring& filename,
                        SLbool          loadGrayscaleIntoAlpha)
 {
     string pathFilename = Utils::findFile(filename,
-                                          {defaultPath,
-                                           SLApplication::exePath});
+                                          {defaultPath});
     if (!Utils::fileExists(pathFilename))
     {
         SLstring msg = "SLGLTexture: File not found: " + filename;
@@ -731,7 +740,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLVushort I = {0, 1, 2, 3};
 
-        SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
+        SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
         _vaoSprite.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
@@ -745,7 +754,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     // Draw the character triangles
     SLGLState*   stateGL = SLGLState::instance();
     SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-    SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
+    SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);

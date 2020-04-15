@@ -14,13 +14,13 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -28,7 +28,7 @@ The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
 in SLScene::unInit().
 */
-SLMesh::SLMesh(const SLstring& name) : SLObject(name)
+SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
 {
     _primitive = PT_triangles;
     mat(nullptr);
@@ -44,7 +44,8 @@ SLMesh::SLMesh(const SLstring& name) : SLObject(name)
     _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
-    SLApplication::scene->meshes().push_back(this);
+    if (assetMgr)
+        assetMgr->meshes().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor deletes everything by calling deleteData.
@@ -196,7 +197,7 @@ void SLMesh::deleteUnused()
 
     // A boolean for each vertex to flag it as used or not
     SLVbool used(P.size());
-    for (auto && u : used)
+    for (auto&& u : used)
         u = false;
 
     // Loop over all indexes and mark them as used
@@ -223,13 +224,13 @@ void SLMesh::deleteUnused()
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
             // decrease the indexes smaller than the deleted on
-            for (unsigned short & i : I16)
+            for (unsigned short& i : I16)
             {
                 if (i > ixDel)
                     i--;
             }
 
-            for (unsigned int & i : I32)
+            for (unsigned int& i : I32)
             {
                 if (i > ixDel)
                     i--;
@@ -258,9 +259,9 @@ void SLMesh::init(SLNode* node)
     if (!mat())
     {
         if (!C.empty())
-            mat(SLMaterial::diffuseAttrib());
+            mat(SLMaterialDiffuseAttribute::instance());
         else
-            mat(SLMaterial::defaultGray());
+            mat(SLMaterialDefaultGray::instance());
     }
 
     // set transparent flag of the node if mesh contains alpha material
@@ -351,7 +352,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // 2.a) Apply mesh material if exists & differs from current
     if (mat() != SLMaterial::current || SLMaterial::current->program() == nullptr)
-        mat()->activate(*node->drawBits());
+        mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
 
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = SLMaterial::current->program();
@@ -471,7 +472,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     // 7: Draw selected mesh with points
     ////////////////////////////////////
-    SLScene* s = SLApplication::scene;
+    SLScene* s = &sv->s();
 
     if (s->selectedNode() == node &&
         s->selectedMesh() == this)
@@ -486,7 +487,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         stateGL->depthMask(true);
         stateGL->depthTest(true);
     }
-    else if (!s->selectedRect().isEmpty())
+    else if (!sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
          drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
@@ -507,7 +508,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         for (SLulong i = 0; i < P.size(); ++i)
         {
             SLVec3f p = v_mvp * P[i];
-            if (s->selectedRect().contains(SLVec2f(p.x, p.y)))
+            if (sv->camera()->selectedRect().contains(SLVec2f(p.x, p.y)))
                 IS32.push_back((SLuint)i);
         }
 
@@ -537,7 +538,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             IS32.clear();
         }
 
-        if (s->selectedNode() == nullptr && s->selectedRect().isEmpty())
+        if (s->selectedNode() == nullptr && sv->camera()->selectedRect().isEmpty())
             node->drawBits()->off(SL_DB_SELECTED);
     }
 
@@ -1195,7 +1196,7 @@ a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
 This software skinning is also needed for ray or path tracing.  
 */
-void SLMesh::transformSkin()
+void SLMesh::transformSkin(std::function<void(SLMesh*)> cbInformNodes)
 {
     // create the secondary buffers for P and N once
     if (skinnedP.empty())
@@ -1221,7 +1222,8 @@ void SLMesh::transformSkin()
     // update the joint matrix array
     _skeleton->getJointMatrices(_jointMatrices);
 
-    notifyParentNodesAABBUpdate();
+    //notify Parent Nodes to update AABB
+    cbInformNodes(this);
 
     // temporarily set finalP and finalN
     _finalP = &skinnedP;
@@ -1263,12 +1265,5 @@ void SLMesh::transformSkin()
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);
     }
-}
-//-----------------------------------------------------------------------------
-void SLMesh::notifyParentNodesAABBUpdate() const
-{
-    SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
-    for (auto node : nodes)
-        node->needAABBUpdate();
 }
 //-----------------------------------------------------------------------------

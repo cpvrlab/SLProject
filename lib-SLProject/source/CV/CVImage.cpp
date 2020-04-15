@@ -245,10 +245,10 @@ bool CVImage::load(int         width,
                                         height,
                                         dstPixelFormatGL,
                                         false);
-    uint dstBPL = _bytesPerLine;
-    uint dstBPP = _bytesPerPixel;
-    uint srcBPP = bytesPerPixel(srcPixelFormatGL);
-    uint srcBPL = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
+    uint dstBPL              = _bytesPerLine;
+    uint dstBPP              = _bytesPerPixel;
+    uint srcBPP              = bytesPerPixel(srcPixelFormatGL);
+    uint srcBPL              = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
 
     if (isTopLeft)
     {
@@ -868,6 +868,60 @@ void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
             _cvMat.setTo(CVVec4b(b, g, r, a));
             break;
         default: Utils::exitMsg("SLProject", "CVImage::fill(r,g,b,a): Wrong format!", __LINE__, __FILE__);
+    }
+}
+//-----------------------------------------------------------------------------
+void CVImage::crop(float targetWdivH)
+{
+
+    float inWdivH = (float)_cvMat.cols / (float)_cvMat.rows;
+    // viewportWdivH is negative the viewport aspect will be the same
+    float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
+
+    int cropH = 0; // crop height in pixels of the source image
+    int cropW = 0; // crop width in pixels of the source image
+    if (Utils::abs(inWdivH - outWdivH) > 0.01f)
+    {
+        int width  = 0; // width in pixels of the destination image
+        int height = 0; // height in pixels of the destination image
+        int wModulo4;
+        int hModulo4;
+
+        if (inWdivH > outWdivH) // crop input image left & right
+        {
+            width  = (int)((float)_cvMat.rows * outWdivH);
+            height = _cvMat.rows;
+            cropW  = (int)((float)(_cvMat.cols - width) * 0.5f);
+
+            // Width must be devidable by 4
+            wModulo4 = width % 4;
+            if (wModulo4 == 1) width--;
+            if (wModulo4 == 2)
+            {
+                cropW++;
+                width -= 2;
+            }
+            if (wModulo4 == 3) width++;
+        }
+        else // crop input image at top & bottom
+        {
+            width  = _cvMat.cols;
+            height = (int)((float)_cvMat.cols / outWdivH);
+            cropH  = (int)((float)(_cvMat.rows - height) * 0.5f);
+
+            // Height must be devidable by 4
+            hModulo4 = height % 4;
+            if (hModulo4 == 1) height--;
+            if (hModulo4 == 2)
+            {
+                cropH++;
+                height -= 2;
+            }
+            if (hModulo4 == 3) height++;
+        }
+
+        _cvMat(cv::Rect(cropW, cropH, width, height)).copyTo(_cvMat);
+        //imwrite("AfterCropping.bmp", lastFrame);
     }
 }
 //-----------------------------------------------------------------------------

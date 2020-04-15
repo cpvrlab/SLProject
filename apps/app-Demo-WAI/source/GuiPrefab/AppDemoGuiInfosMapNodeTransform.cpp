@@ -9,18 +9,20 @@
 //#############################################################################
 
 #include <stdafx.h>
+#include <AppDemoGuiInfosMapNodeTransform.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <AppDemoGuiInfosMapNodeTransform.h>
-
+#include <SLScene.h>
+#include <SLSceneView.h>
+#include <WAIEvent.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosMapNodeTransform::AppDemoGuiInfosMapNodeTransform(
-  std::string            name,
-  bool*                  activator,
-  std::queue<WAIEvent*>* eventQueue)
-  : AppDemoGuiInfosDialog(name, activator),
+AppDemoGuiInfosMapNodeTransform::AppDemoGuiInfosMapNodeTransform(std::string            name,
+                                                                 bool*                  activator,
+                                                                 std::queue<WAIEvent*>* eventQueue,
+                                                                 ImFont*                font)
+  : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue)
 {
 }
@@ -28,6 +30,7 @@ AppDemoGuiInfosMapNodeTransform::AppDemoGuiInfosMapNodeTransform(
 //-----------------------------------------------------------------------------
 void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
     ImGui::Begin("Node Transform", _activator, ImGuiWindowFlags_AlwaysAutoResize);
     static SLTransformSpace tSpace = TS_world;
     ImGui::Text("Transf. Space:");
@@ -143,4 +146,5 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+    ImGui::PopFont();
 }

@@ -10,12 +10,10 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiInfosScene : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiInfosScene(string name, bool* activator);
+public:
+    AppDemoGuiInfosScene(string name, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
-
-    private:
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

@@ -32,7 +32,7 @@ core tracking implementation.
 class CVTrackedChessboard : public CVTracked
 {
 public:
-    explicit CVTrackedChessboard();
+    explicit CVTrackedChessboard(std::string calibIniPath);
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
@@ -51,6 +51,7 @@ private:
     bool       _solved;              //<! Flag if last solvePnP was solved
     CVMat      _rVec;                //<! rotation angle vector from solvePnP
     CVMat      _tVec;                //<! translation vector from solvePnP
+    std::string _calibIniPath;
 };
 //-----------------------------------------------------------------------------
 

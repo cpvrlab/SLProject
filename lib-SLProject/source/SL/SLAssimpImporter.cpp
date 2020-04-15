@@ -14,13 +14,14 @@
 #include <Utils.h>
 
 #include <SLAnimation.h>
-#include <SLApplication.h>
 #include <SLAssimpImporter.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
-#include <SLScene.h>
 #include <SLSkeleton.h>
+#include <SLGLTexture.h>
+#include <SLAssetManager.h>
+#include <SLAnimManager.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
@@ -268,11 +269,13 @@ added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
 materials within the file are ignored.
 */
-SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path or on default path
-                               SLbool      loadMeshesOnly, //!< Only load nodes with meshes
-                               SLMaterial* overrideMat,    //!< Override material
-                               float       ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLuint      flags           //!< Import flags (see postprocess.h)
+SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
+                               SLAssetManager* assetMgr,
+                               SLstring        file,           //!< File with path or on default path
+                               SLbool          loadMeshesOnly, //!< Only load nodes with meshes
+                               SLMaterial*     overrideMat,    //!< Override material
+                               float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
+                               SLuint          flags           //!< Import flags (see postprocess.h)
 )
 {
     // clear the intermediate data
@@ -280,13 +283,12 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
 
     string pathAndFile = Utils::findFile(Utils::getFileName(file),
                                          {defaultPath,
-                                          defaultPath + Utils::getPath(file),
-                                          SLApplication::exePath});
+                                          defaultPath + Utils::getPath(file)});
     // Check existence
     if (!Utils::fileExists(pathAndFile))
     {
         SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
-        SL_WARN_MSG(msg.c_str());
+        SL_EXIT_MSG(msg.c_str());
         return nullptr;
     }
 
@@ -304,7 +306,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     performInitialScan(scene);
 
     // load skeleton
-    loadSkeleton(nullptr, _skeletonRoot);
+    loadSkeleton(aniMan, nullptr, _skeletonRoot);
 
     // load materials
     SLstring    modelPath = Utils::getPath(pathAndFile);
@@ -312,7 +314,8 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     if (!overrideMat)
     {
         for (SLint i = 0; i < (SLint)scene->mNumMaterials; i++)
-            materials.push_back(loadMaterial(i,
+            materials.push_back(loadMaterial(assetMgr,
+                                             i,
                                              scene->mMaterials[i],
                                              modelPath,
                                              ambientFactor));
@@ -322,7 +325,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     std::map<int, SLMesh*> meshMap; // map from the ai index to our mesh
     for (SLint i = 0; i < (SLint)scene->mNumMeshes; i++)
     {
-        SLMesh* mesh = loadMesh(scene->mMeshes[i]);
+        SLMesh* mesh = loadMesh(assetMgr, scene->mMeshes[i]);
         if (mesh != nullptr)
         {
             if (overrideMat)
@@ -344,7 +347,7 @@ SLNode* SLAssimpImporter::load(SLstring    file,           //!< File with path o
     // load animations
     vector<SLAnimation*> animations;
     for (SLint i = 0; i < (SLint)scene->mNumAnimations; i++)
-        animations.push_back(loadAnimation(scene->mAnimations[i]));
+        animations.push_back(loadAnimation(aniMan, scene->mAnimations[i]));
 
     logMessage(LV_minimal, "\n---------------------------\n\n");
 
@@ -588,7 +591,7 @@ void SLAssimpImporter::findSkeletonRoot()
 }
 //-----------------------------------------------------------------------------
 //! Loads the skeleton
-void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
+void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node)
 {
     if (!node)
         return;
@@ -599,7 +602,8 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     if (!parent)
     {
         logMessage(LV_normal, "Loading skeleton skeleton.\n");
-        _skeleton   = new SLSkeleton;
+        _skeleton = new SLSkeleton;
+        animManager.skeletons().push_back(_skeleton);
         _jointIndex = 0;
 
         joint = _skeleton->createJoint(name, _jointIndex++);
@@ -639,7 +643,7 @@ void SLAssimpImporter::loadSkeleton(SLJoint* parent, aiNode* node)
     joint->setInitialState();
 
     for (SLuint i = 0; i < node->mNumChildren; i++)
-        loadSkeleton(joint, node->mChildren[i]);
+        loadSkeleton(animManager, joint, node->mChildren[i]);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -647,7 +651,8 @@ SLAssimpImporter::loadMaterial loads the AssImp material an returns the SLMateri
 The materials and textures are added to the SLScene material and texture 
 vectors.
 */
-SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
+SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
+                                           SLint           index,
                                            aiMaterial*     material,
                                            const SLstring& modelPath,
                                            float           ambientFactor)
@@ -659,7 +664,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
     if (name.empty()) name = "Import Material";
 
     // Create SLMaterial instance. It is also added to the SLScene::_materials vector
-    SLMaterial* mat = new SLMaterial(name.c_str());
+    SLMaterial* mat = new SLMaterial(s, name.c_str());
 
     // set the texture types to import into our material
     const SLint   textureCount = 5;
@@ -694,7 +699,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
             // For normal maps we have to adjust first the normal and tangent generation
             if (texType == TT_color || texType == TT_normal)
             {
-                SLGLTexture* tex = loadTexture(texFile, texType);
+                SLGLTexture* tex = loadTexture(s, texFile, texType);
                 mat->textures().push_back(tex);
             }
         }
@@ -742,10 +747,11 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLint           index,
 /*!
 SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTexture
 */
-SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
-                                           SLTextureType texType)
+SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
+                                           SLstring&       textureFile,
+                                           SLTextureType   texType)
 {
-    SLVGLTexture& sceneTex = SLApplication::scene->textures();
+    SLVGLTexture& sceneTex = assetMgr->textures();
 
     // return if a texture with the same file already exists
     for (auto& i : sceneTex)
@@ -753,7 +759,8 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLstring&     textureFile,
             return i;
 
     // Create the new texture. It is also push back to SLScene::_textures
-    SLGLTexture* texture = new SLGLTexture(textureFile,
+    SLGLTexture* texture = new SLGLTexture(assetMgr,
+                                           textureFile,
                                            GL_LINEAR_MIPMAP_LINEAR,
                                            GL_LINEAR,
                                            texType);
@@ -765,7 +772,7 @@ SLAssimpImporter::loadMesh creates a new SLMesh an copies the meshs vertex data 
 triangle face indices. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
-SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
+SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
 {
     // Count first the NO. of triangles in the mesh
     SLuint numPoints    = 0;
@@ -823,7 +830,7 @@ SLMesh* SLAssimpImporter::loadMesh(aiMesh* mesh)
     // create a new mesh.
     // The mesh pointer is added automatically to the SLScene::meshes vector.
     SLstring name = mesh->mName.data;
-    SLMesh*  m    = new SLMesh(name.empty() ? "Imported Mesh" : name);
+    SLMesh*  m    = new SLMesh(assetMgr, name.empty() ? "Imported Mesh" : name);
 
     // Set primitive type
     if (numTriangles) m->primitive(SLGLPrimitiveType::PT_triangles);
@@ -1055,10 +1062,10 @@ SLNode* SLAssimpImporter::loadNodesRec(
 /*!
 SLAssimpImporter::loadAnimation loads the scene graph node tree recursively.
 */
-SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
+SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnimation* anim)
 {
     ostringstream oss;
-    oss << "unnamed_anim_" << SLApplication::scene->animManager().allAnimNames().size();
+    oss << "unnamed_anim_" << animManager.allAnimNames().size();
     SLstring animName        = oss.str();
     SLfloat  animTicksPerSec = (anim->mTicksPerSecond < 0.0001f)
                                 ? 30.0f
@@ -1082,10 +1089,10 @@ SLAnimation* SLAssimpImporter::loadAnimation(aiAnimation* anim)
     // create the animation
     SLAnimation* result;
     if (_skeleton)
-        result = _skeleton->createAnimation(animName, animDuration);
+        result = _skeleton->createAnimation(animManager, animName, animDuration);
     else
     {
-        result = SLApplication::scene->animManager().createNodeAnimation(animName, animDuration);
+        result = animManager.createNodeAnimation(animName, animDuration);
         _nodeAnimations.push_back(result);
     }
 

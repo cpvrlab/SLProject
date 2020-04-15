@@ -11,7 +11,7 @@ class SLSceneView;
 class SLUiInterface
 {
 public:
-    virtual void init() {}
+    virtual void init(std::string configPath) {}
     virtual void onInitNewFrame(SLScene* s, SLSceneView* sv) {}
     virtual void onResize(SLint scrW, SLint scrH) {}
     virtual void onPaint(const SLRecti& viewport) {}

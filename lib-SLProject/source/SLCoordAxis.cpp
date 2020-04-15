@@ -18,9 +18,10 @@
 
 //-----------------------------------------------------------------------------
 //! SLAxis::SLAxis ctor with the arrow dimensions
-SLCoordAxis::SLCoordAxis(SLfloat arrowThickness,
-                         SLfloat arrowHeadLenght,
-                         SLfloat arrowHeadWidth) : SLMesh("Coord-Axis Mesh")
+SLCoordAxis::SLCoordAxis(SLAssetManager* assetMgr,
+                         SLfloat         arrowThickness,
+                         SLfloat         arrowHeadLenght,
+                         SLfloat         arrowHeadWidth) : SLMesh(assetMgr, "Coord-Axis Mesh")
 {
     _arrowThickness  = arrowThickness;
     _arrowHeadLength = arrowHeadLenght;

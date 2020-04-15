@@ -23,7 +23,7 @@ for a good top down information.
 #include <CVTypedefs.h>
 #include <CVTracked.h>
 #include <opencv2/aruco.hpp>
-#include <SLApplication.h>
+
 //-----------------------------------------------------------------------------
 //! ArUco Paramters loaded from configuration file.
 class CVArucoParams
@@ -36,14 +36,14 @@ public:
         arucoParams = cv::aruco::DetectorParameters::create();
     }
 
-    bool loadFromFile()
+    bool loadFromFile(std::string calibIniPath)
     {
-        string        path = SLApplication::calibIniPath + filename;
+        string        path = calibIniPath + filename;
         CVFileStorage fs(path, cv::FileStorage::READ);
         if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << SLApplication::calibIniPath + filename << endl;
+            cout << "Tried " << path << endl;
             return false;
         }
 
@@ -94,7 +94,7 @@ CVTrackedAruco::drawArucoMarker.
 class CVTrackedAruco : public CVTracked
 {
 public:
-    explicit CVTrackedAruco(int arucoID);
+    explicit CVTrackedAruco(int arucoID, std::string calibIniPath);
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
@@ -123,7 +123,8 @@ private:
     static vector<int> arucoIDs;       //!< detected Aruco marker IDs
     static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
 
-    int _arucoID; //!< Aruco Marker ID for this node
+    int         _arucoID; //!< Aruco Marker ID for this node
+    std::string _calibIniPath;
 };
 //-----------------------------------------------------------------------------
 #endif // CVTrackedAruco_H

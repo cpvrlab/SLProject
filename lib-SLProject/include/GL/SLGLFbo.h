@@ -14,13 +14,13 @@
 class SLGLFbo
 {
 public:
-    SLGLFbo(GLuint w,
-            GLuint h,
-            GLenum magFilter      = GL_NEAREST,
-            GLenum minFilter      = GL_NEAREST,
-            GLint  internalFormat = GL_RGB16F,
-            GLint  format         = GL_FLOAT,
-            GLint  wrap           = GL_REPEAT);
+    SLGLFbo(SLuint w,
+            SLuint h,
+            SLenum magFilter      = GL_NEAREST,
+            SLenum minFilter      = GL_NEAREST,
+            SLint  internalFormat = GL_RGB16F,
+            SLint  format         = GL_FLOAT,
+            SLint  wrap           = GL_REPEAT);
 
     ~SLGLFbo();
 

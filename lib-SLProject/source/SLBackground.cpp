@@ -14,7 +14,6 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLBackground.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
@@ -22,7 +21,8 @@
 
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
-SLBackground::SLBackground() : SLObject("Background")
+SLBackground::SLBackground()
+  : SLObject("Background")
 {
     _colors.push_back(SLCol4f::BLACK); // bottom left
     _colors.push_back(SLCol4f::BLACK); // bottom right
@@ -33,6 +33,39 @@ SLBackground::SLBackground() : SLObject("Background")
     _textureError = nullptr;
     _resX         = -1;
     _resY         = -1;
+
+    _textureOnlyProgram    = new SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag");
+    _colorAttributeProgram = new SLGLGenericProgram(nullptr, "ColorAttribute.vert", "Color.frag");
+    _deletePrograms        = true;
+}
+//-----------------------------------------------------------------------------
+//! The constructor initializes to a uniform black background color
+SLBackground::SLBackground(SLGLProgram* textureOnlyProgram, SLGLProgram* colorAttributeProgram)
+  : SLObject("Background"),
+    _textureOnlyProgram(textureOnlyProgram),
+    _colorAttributeProgram(colorAttributeProgram),
+    _deletePrograms(false)
+{
+    _colors.push_back(SLCol4f::BLACK); // bottom left
+    _colors.push_back(SLCol4f::BLACK); // bottom right
+    _colors.push_back(SLCol4f::BLACK); // top right
+    _colors.push_back(SLCol4f::BLACK); // top left
+    _isUniform    = true;
+    _texture      = nullptr;
+    _textureError = nullptr;
+    _resX         = -1;
+    _resY         = -1;
+}
+//-----------------------------------------------------------------------------
+SLBackground::~SLBackground()
+{
+    if (_deletePrograms)
+    {
+        if (_textureOnlyProgram)
+            delete _textureOnlyProgram;
+        if (_colorAttributeProgram)
+            delete _colorAttributeProgram;
+    }
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
@@ -110,7 +143,6 @@ We render the quad as a triangle strip: <br>
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
     SLGLState* stateGL = SLGLState::instance();
-    SLScene*   s       = SLApplication::scene;
 
     // Set orthographic projection
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
@@ -123,7 +155,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     stateGL->multiSample(false);
 
     // Get shader program
-    SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
+    SLGLProgram* sp = _texture ? _textureOnlyProgram : _colorAttributeProgram;
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
@@ -194,12 +226,11 @@ void SLBackground::renderInScene(SLVec3f LT,
                                  SLVec3f RB)
 {
     SLGLState* stateGL = SLGLState::instance();
-    SLScene*   s       = SLApplication::scene;
 
     // Get shader program
     SLGLProgram* sp = _texture
-                        ? s->programs(SP_TextureOnly)
-                        : s->programs(SP_colorAttribute);
+                        ? _textureOnlyProgram
+                        : _colorAttributeProgram;
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 

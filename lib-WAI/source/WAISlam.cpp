@@ -6,6 +6,10 @@
 #define MAX_FRAMES 30
 //#define MULTI_MAPPING_THREADS 1
 
+#define LOG_WAISLAM_WARN(...) Utils::log("WAISlam", __VA_ARGS__);
+#define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
+#define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
+
 void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image)
 {
     //show rectangle for all keypoints in current image
@@ -1592,12 +1596,11 @@ void WAISlam::reset()
 
 void WAISlam::createFrame(WAIFrame &frame, cv::Mat& imageGray)
 {
-    frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
-}
+    if (getTrackingState() == TrackingState_Initializing)
+        frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
+    else
+        frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
 
-void WAISlam::createIniFrame(WAIFrame &frame, cv::Mat& imageGray)
-{
-    frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
 }
 
 void WAISlam::updateState(TrackingState state)
@@ -1753,7 +1756,7 @@ bool WAISlam::update(cv::Mat& imageGray)
     }
 
     _lastFrame = WAIFrame(frame);
-    return (_state == TrackingState_TrackingOK);
+    return _state == TrackingState_TrackingOK;
 }
 
 void WAISlam::drawInfo(cv::Mat& imageRGB,

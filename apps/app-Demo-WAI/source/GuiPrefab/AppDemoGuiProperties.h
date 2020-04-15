@@ -9,12 +9,12 @@
 //-----------------------------------------------------------------------------
 class AppDemoGuiProperties : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiProperties(std::string name, bool* activator);
+public:
+    AppDemoGuiProperties(std::string name, bool* activator, ImFont* font);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

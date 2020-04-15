@@ -3,6 +3,7 @@
 #include <CVCamera.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
+#include <sens/SENSVideoStream.h>
 
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile, ExtractorType extractorType)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
@@ -170,7 +171,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
                                  ExtractorType      extractorType)
 {
     //wai mode config
-    WAI::ModeOrbSlam2::Params modeParams;
+    WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = true;
     modeParams.fixOldKfs         = false;
@@ -264,7 +265,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
 {
     bool initialized = false;
     //wai mode config
-    WAI::ModeOrbSlam2::Params modeParams;
+    WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = true;
     modeParams.fixOldKfs         = false;
@@ -286,20 +287,20 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         lastMapFileName    = currentMapFileName;
         currentMapFileName = std::to_string(videoIndex) + "_" + mapFile;
 
-        //initialze capture
-        CVCapture* cap = CVCapture::instance();
-        cap->videoType(CVVideoType::VT_FILE);
-        cap->videoFilename             = videos[videoIdx].videoFile;
-        cap->activeCamera->calibration = videos[videoIdx].calibration;
-        cap->videoLoops                = true;
-        cv::Size capturedSize          = cap->openFile();
+        //initialze video capture
+        SENSVideoStream      cap(videos[videoIdx].videoFile, true, false, false);
+        cv::Size             frameSize   = cap.getFrameSize();
+        const CVCalibration& calibration = videos[videoIdx].calibration;
+
         //check if resolution of captured frame fits to calibration
-        if (capturedSize.width != cap->activeCamera->calibration.imageSize().width ||
-            capturedSize.height != cap->activeCamera->calibration.imageSize().height)
-            throw std::runtime_error("MapCreator::createNewDenseWaiMap: Resolution of captured frame does not fit to calibration: " + videos[videoIdx].videoFile);
+        if (frameSize.width != calibration.imageSize().width ||
+            frameSize.height != calibration.imageSize().height)
+        {
+            videos[videoIdx].calibration.adaptForNewResolution(frameSize, true);
+        }
 
         FeatureExtractorFactory      factory;
-        std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {capturedSize.width, capturedSize.height});
+        std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {frameSize.width, frameSize.height});
 
         ORBVocabulary* voc = new ORBVocabulary();
         if (!voc->loadFromBinaryFile(_vocFile))
@@ -332,21 +333,20 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             std::cout << "MapCreator::createNewDenseWaiMap: not initialized" << std::endl;
         }
 
-        KPextractor * kpIniExtractorPtr = kpExtractor.get();
+        KPextractor* kpIniExtractorPtr = kpExtractor.get();
 
         switch (extractorType)
         {
-            case ExtractorType_FAST_ORBS_1000:
-            {
-                std::unique_ptr<KPextractor> kpIniExtractor = factory.make(ExtractorType_FAST_ORBS_2000, {capturedSize.width, capturedSize.height});
-                kpIniExtractorPtr = kpIniExtractor.get();
+            case ExtractorType_FAST_ORBS_1000: {
+                std::unique_ptr<KPextractor> kpIniExtractor = factory.make(ExtractorType_FAST_ORBS_2000, {frameSize.width, frameSize.height});
+                kpIniExtractorPtr                           = kpIniExtractor.get();
             }
         };
 
         //instantiate wai mode
         std::unique_ptr<WAISlam> waiMode =
-          std::make_unique<WAISlam>(cap->activeCamera->calibration.cameraMat(),
-                                    cap->activeCamera->calibration.distortion(),
+          std::make_unique<WAISlam>(calibration.cameraMat(),
+                                    calibration.distortion(),
                                     voc,
                                     kpIniExtractorPtr,
                                     kpExtractor.get(),
@@ -359,13 +359,13 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         int firstRun = true;
 
         //frame with which map was initialized (we want to run the previous frames again)
-        int  videoLength     = cap->videoLength();
+        int  videoLength     = cap.frameCount();
         int  finalFrameIndex = videoLength;
         bool relocalizedOnce = false;
 
-        while (cap->isOpened())
+        while (cap.isOpened())
         {
-            int currentFrameIndex = cap->nextFrameIndex();
+            int currentFrameIndex = cap.nextFrameIndex();
             if (finalFrameIndex == currentFrameIndex)
             {
                 if (!relocalizedOnce)
@@ -381,11 +381,15 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 break;
             }
 
-            if (!cap->grabAndAdjustForSL(cap->activeCamera->calibration.imageAspectRatio()))
+            SENSFramePtr frame = cap.grabNextFrame();
+
+            //if (!cap->grabAndAdjustForSL(calibration.imageAspectRatio()))
+            //    break;
+            if (!frame)
                 break;
 
             //update wai
-            waiMode->update(cap->lastFrameGray);
+            waiMode->update(frame->imgGray);
             if (firstRun)
             {
                 firstRun = false;
@@ -399,7 +403,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 WAI_DEBUG("Relocalized once for video %s at index %i", videos[videoIdx].videoFile.c_str(), finalFrameIndex);
             }
 
-            decorateDebug(waiMode.get(), cap, currentFrameIndex, videoLength, waiMode->getNumKeyFrames());
+            decorateDebug(waiMode.get(), frame->imgRGB, currentFrameIndex, videoLength, waiMode->getNumKeyFrames());
         }
 
         //save map if it was initialized
@@ -428,7 +432,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                   ExtractorType      extractorType)
 {
     //wai mode config
-    WAI::ModeOrbSlam2::Params modeParams;
+    WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = true;
     modeParams.fixOldKfs         = false;
@@ -551,12 +555,12 @@ void MapCreator::cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs,
     }
 }
 
-void MapCreator::decorateDebug(WAISlam* waiMode, CVCapture* cap, const int currentFrameIndex, const int videoLength, const int numOfKfs)
+void MapCreator::decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs)
 {
     //#ifdef _DEBUG
-    if (!cap->lastFrame.empty())
+    if (!lastFrame.empty())
     {
-        cv::Mat     decoImg = cap->lastFrame.clone();
+        cv::Mat     decoImg = lastFrame.clone();
         std::string state   = waiMode->getPrintableState();
 
         waiMode->drawInfo(decoImg, true, true, true);

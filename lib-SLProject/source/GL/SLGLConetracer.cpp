@@ -9,12 +9,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLGLState.h>
 #include <SLGLConetracer.h>
 #include <SLGLConetracerTex3D.h>
 #include <SLGLProgram.h>
 #include <SLGLGenericProgram.h>
 #include <SLSceneView.h>
-#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 SLGLConetracer::SLGLConetracer()
@@ -25,9 +25,25 @@ SLGLConetracer::SLGLConetracer()
 SLGLConetracer::~SLGLConetracer()
 {
     //SL_LOG("Destructor      : ~SLGLConetracer");
+    if (_voxelizeMat)
+        delete _voxelizeMat;
+    if (_worldMat)
+        delete _worldMat;
+    if (_visualizeMat)
+        delete _visualizeMat;
+    if (_conetraceMat)
+        delete _conetraceMat;
+
+    if (_quadMesh)
+        delete _quadMesh;
+    if (_cubeMesh)
+        delete _cubeMesh;
+
+    for (SLGLProgram* p : _programs)
+        delete p;
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::init(SLint scrW, SLint scrH)
+void SLGLConetracer::init(SLint scrW, SLint scrH, const SLVec3f& minWs, const SLVec3f& maxWs)
 {
     // enable multisampling
 #ifndef SL_GLES3
@@ -44,30 +60,38 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
     GET_GL_ERROR;
 
     // Initialize voxelization:
-    SLGLProgram* voxelizeShader = new SLGLGenericProgram("CTVoxelization.vert",
+    SLGLProgram* voxelizeShader = new SLGLGenericProgram(nullptr,
+                                                         "CTVoxelization.vert",
                                                          "CTVoxelization.frag",
                                                          "CTVoxelization.geom");
     voxelizeShader->initRaw();
-    _voxelizeMat = new SLMaterial("Voxelization-Material", voxelizeShader);
+    _programs.push_back(voxelizeShader);
+    _voxelizeMat = new SLMaterial(nullptr, "Voxelization-Material", voxelizeShader);
     GET_GL_ERROR;
 
     // initialize voxel visualization:
-    SLGLProgram* worldPosProg = new SLGLGenericProgram("CTWorldpos.vert",
+    SLGLProgram* worldPosProg = new SLGLGenericProgram(nullptr,
+                                                       "CTWorldpos.vert",
                                                        "CTWorldpos.frag");
     worldPosProg->initRaw();
-    _worldMat = new SLMaterial("World-Material", worldPosProg);
+    _programs.push_back(worldPosProg);
+    _worldMat = new SLMaterial(nullptr, "World-Material", worldPosProg);
 
     // initialize voxel visualization:
-    SLGLProgram* visualizeShader = new SLGLGenericProgram("CTVisualize.vert",
+    SLGLProgram* visualizeShader = new SLGLGenericProgram(nullptr,
+                                                          "CTVisualize.vert",
                                                           "CTVisualize.frag");
     visualizeShader->initRaw();
-    _visualizeMat = new SLMaterial("World-Material", visualizeShader);
+    _programs.push_back(visualizeShader);
+    _visualizeMat = new SLMaterial(nullptr, "World-Material", visualizeShader);
 
     // initialize voxel conetracing material:
-    SLGLProgram* ctShader = new SLGLGenericProgram("CT.vert",
+    SLGLProgram* ctShader = new SLGLGenericProgram(nullptr,
+                                                   "CT.vert",
                                                    "CT.frag");
     ctShader->initRaw();
-    _conetraceMat = new SLMaterial("Conetrace Material", ctShader);
+    _programs.push_back(ctShader);
+    _conetraceMat = new SLMaterial(nullptr, "Conetrace Material", ctShader);
 
     // FBOs.
     // read current viewport
@@ -77,11 +101,12 @@ void SLGLConetracer::init(SLint scrW, SLint scrH)
     _visualizeBackfaceFBO  = new SLGLFbo(scrW, scrH);
     _visualizeFrontfaceFBO = new SLGLFbo(scrW, scrH);
 
-    _quadMesh = new SLRectangle(SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
-    _cubeMesh = new SLBox(-1, -1, -1);
+    //SLGLConetracer manages the livetime of the following meshes
+    _quadMesh = new SLRectangle(nullptr, SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
+    _cubeMesh = new SLBox(nullptr, -1, -1, -1);
 
     // The world's bounding box should not change during runtime.
-    calcWS2VoxelSpaceTransform();
+    calcWS2VoxelSpaceTransform(minWs, maxWs);
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::visualizeVoxels()
@@ -233,16 +258,9 @@ void SLGLConetracer::voxelSpaceTransform(const SLfloat l,
     //clang-format on
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::calcWS2VoxelSpaceTransform()
+void SLGLConetracer::calcWS2VoxelSpaceTransform(const SLVec3f& minWs, const SLVec3f& maxWs)
 {
     // upload ws to vs settings:
-    SLScene* s = SLApplication::scene;
-
-    SLNode*   root = s->root3D();
-    SLAABBox* aabb = root->aabb();
-    SLVec3f   minWs = aabb->minWS();
-    SLVec3f   maxWs = aabb->maxWS();
-
     // figure out biggest component:
     SLVec3f p1 = maxWs - minWs;
 
@@ -278,7 +296,7 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     glUniform3fv(glGetUniformLocation(progID, "u_EyePosWS"), 1, (SLfloat*)&camPosWS);
     GET_GL_ERROR;
 
-    renderNode(SLApplication::scene->root3D(), program);
+    renderNode(_sv->s().root3D(), program);
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)

@@ -18,9 +18,10 @@
 
 //-----------------------------------------------------------------------------
 //! SLPoints ctor with a given vector of points
-SLPoints::SLPoints(const SLVVec3f& points,
+SLPoints::SLPoints(SLAssetManager* assetMgr,
+                   const SLVVec3f& points,
                    SLstring        name,
-                   SLMaterial*     material) : SLMesh(name)
+                   SLMaterial*     material) : SLMesh(assetMgr, name)
 {
     assert(name != "");
 
@@ -35,10 +36,11 @@ SLPoints::SLPoints(const SLVVec3f& points,
 }
 //-----------------------------------------------------------------------------
 //! SLPoints ctor with a givven vector of points
-SLPoints::SLPoints(const SLVVec3f& points,
+SLPoints::SLPoints(SLAssetManager* assetMgr,
+                   const SLVVec3f& points,
                    const SLVVec3f& normals,
                    SLstring        name,
-                   SLMaterial*     material) : SLMesh(name)
+                   SLMaterial*     material) : SLMesh(assetMgr, name)
 {
     assert(name != "");
 
@@ -56,10 +58,11 @@ SLPoints::SLPoints(const SLVVec3f& points,
 }
 //-----------------------------------------------------------------------------
 //! SLPoints ctor for a random point cloud with the rnd generator.
-SLPoints::SLPoints(SLfloat     nPoints,
-                   SLRnd3f&    rnd,
-                   SLstring    name,
-                   SLMaterial* material) : SLMesh(name)
+SLPoints::SLPoints(SLAssetManager* assetMgr,
+                   SLfloat         nPoints,
+                   SLRnd3f&        rnd,
+                   SLstring        name,
+                   SLMaterial*     material) : SLMesh(assetMgr, name)
 {
     assert(name != "" && "No name provided in SLPoints!");
     assert(nPoints <= UINT_MAX && "SLPoints supports max. 2^32 vertices!");

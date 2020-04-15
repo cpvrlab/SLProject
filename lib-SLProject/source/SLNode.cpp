@@ -15,7 +15,6 @@
 #endif
 
 #include <SLAnimation.h>
-#include <SLApplication.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -174,25 +173,26 @@ bool SLNode::removeMesh(SLstring name)
 Returns true if the node contains the provided mesh. Removes and deletes the
 mesh. The mesh is also removed from scene
 */
-SLbool SLNode::deleteMesh(SLMesh* mesh)
-{
-    assert(mesh);
-    for (SLulong i = 0; i < _meshes.size(); ++i)
-    {
-        if (_meshes[i] == mesh)
-        {
-            _meshes.erase(_meshes.begin() + i);
-
-            //also delete mesh from scene
-            SLApplication::scene->removeMesh(mesh);
-            delete mesh;
-            mesh = nullptr;
-
-            return true;
-        }
-    }
-    return false;
-}
+// todo: use removeMesh and delete it outside
+//SLbool SLNode::deleteMesh(SLMesh* mesh)
+//{
+//    assert(mesh);
+//    for (SLulong i = 0; i < _meshes.size(); ++i)
+//    {
+//        if (_meshes[i] == mesh)
+//        {
+//            _meshes.erase(_meshes.begin() + i);
+//
+//            //also delete mesh from scene
+//            SLApplication::scene->removeMesh(mesh);
+//            delete mesh;
+//            mesh = nullptr;
+//
+//            return true;
+//        }
+//    }
+//    return false;
+//}
 //-----------------------------------------------------------------------------
 /*! Finds a mesh by name and returns its pointer. Optionally you can search
 the node hierarchy recursively.
@@ -1193,5 +1193,37 @@ void SLNode::update()
     doUpdate();
     for (auto child : _children)
         child->update();
+}
+//-----------------------------------------------------------------------------
+//update all meshes recursively
+bool SLNode::updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes)
+{
+    bool hasChanges = false;
+    for (auto mesh : _meshes)
+    {
+        // Do software skinning on all changed skeletons
+        if (mesh->skeleton() && mesh->skeleton()->changed())
+        {
+            mesh->transformSkin(cbInformNodes);
+            hasChanges = true;
+        }
+    }
+
+    for (auto child : _children)
+        hasChanges |= child->updateMeshSkins(cbInformNodes);
+
+    return hasChanges;
+}
+//-----------------------------------------------------------------------------
+void SLNode::updateMeshAccelStructs()
+{
+    for (auto mesh : _meshes)
+    {
+        // update any out of date acceleration structure for RT or if they're being rendered.
+        mesh->updateAccelStruct();
+    }
+
+    for (auto child : _children)
+        child->updateMeshAccelStructs();
 }
 //-----------------------------------------------------------------------------
