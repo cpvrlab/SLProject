@@ -256,7 +256,15 @@ public:
     std::string mapDir;
 
 private:
+
+    void processSENSFrame(SENSFramePtr frame);
+    int getNextFrame(WAIFrame * frame);
+    void flushQueue();
+
     bool updateTracking(SENSFramePtr frame);
+    static void updateTrackingMultiThread(WAIApp * ptr);
+    std::thread updateThread;
+
     int  initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
     void loadWAISceneView(SLScene* s, SLSceneView* sv, std::string location, std::string area);
 
@@ -287,6 +295,7 @@ private:
 
     //get new frame from live video or video file stream
     SENSFramePtr updateVideoOrCamera();
+    SENSFramePtr updateVideoOrCameraMultiThread();
 
     //todo: we dont need a pointer
     AppWAIScene _waiScene;
@@ -298,6 +307,10 @@ private:
     SlamParams     _currentSlamParams;
     AppDirectories _dirs;
     std::string    _calibDir;
+    
+    std::mutex _frameQueueMutex;
+    std::queue<WAIFrame> _framesQueue;
+
 
     //sensor stuff
     //ofstream _gpsDataStream;
@@ -320,6 +333,17 @@ private:
     int                                 _lastFrameIdx;
     cv::Mat                             _undistortedLastFrame[2];
     bool                                _doubleBufferedOutput;
+
+    void stop();
+    bool isStop();
+    void resume();
+    void requestFinish();
+    bool finishRequested();
+    bool isFinished();
+    std::mutex _stateMutex;
+    bool _isStop;
+    bool _requestFinish;
+    bool _isFinish;
 
     // video controls
     bool _pauseVideo           = false;

@@ -48,6 +48,8 @@
 //move
 #include <SLAssimpImporter.h>
 
+#define WAI_UPDATE_THREAD 1
+
 //basic information
 //-the sceen has a fixed size on android and also a fixed aspect ratio on desktop to simulate android behaviour on desktop
 //-the viewport gets adjusted according to the target video aspect ratio (for live video WAIApp::liveVideoTargetWidth and WAIApp::_liveVideoTargetHeight are used and for video file the video frame size is used)
@@ -63,6 +65,13 @@ WAIApp::WAIApp()
 //-----------------------------------------------------------------------------
 WAIApp::~WAIApp()
 {
+
+    Utils::log("Info", "AAAA destructor called\n");
+#if WAI_UPDATE_THREAD
+    requestFinish();
+    updateThread.join();
+#endif
+
     //todo: destructor is not called on android (at the right position)
     if (_videoWriter)
         delete _videoWriter;
@@ -127,7 +136,7 @@ SENSFramePtr WAIApp::updateVideoOrCamera()
         {
             frame = _videoFileStream->grabPreviousFrame();
             if (frame)
-                updateTracking(frame);
+                _mode->update(frame->imgGray);
 
             _videoCursorMoveIndex++;
         }
@@ -136,7 +145,49 @@ SENSFramePtr WAIApp::updateVideoOrCamera()
         {
             frame = _videoFileStream->grabNextFrame();
             if (frame)
-                updateTracking(frame);
+                _mode->update(frame->imgGray);
+
+            _videoCursorMoveIndex--;
+        }
+
+        if (!_pauseVideo)
+        {
+            frame = _videoFileStream->grabNextFrame();
+        }
+    }
+
+    else if (_camera)
+    {
+        frame = _camera->getLatestFrame();
+    }
+    else
+    {
+        Utils::log("WAI WARN", "WAIApp::updateVideoOrCamera: No active video stream or camera available!");
+    }
+
+    return frame;
+}
+
+SENSFramePtr WAIApp::updateVideoOrCameraMultiThread()
+{
+    SENSFramePtr frame;
+
+    if (_videoFileStream)
+    {
+        while (_videoCursorMoveIndex < 0)
+        {
+            frame = _videoFileStream->grabPreviousFrame();
+            if (frame)
+                processSENSFrame(frame);
+
+            _videoCursorMoveIndex++;
+        }
+
+        while (_videoCursorMoveIndex > 0)
+        {
+            frame = _videoFileStream->grabNextFrame();
+            if (frame)
+                processSENSFrame(frame);
 
             _videoCursorMoveIndex--;
         }
@@ -178,19 +229,23 @@ bool WAIApp::update()
 
         if (_mode)
         {
-            bool iKnowWhereIAm = false;
             //get new frame: in case of video this may already call updateTracking several times
+#if WAI_UPDATE_THREAD
+            SENSFramePtr frame = updateVideoOrCameraMultiThread();
+#else
             SENSFramePtr frame = updateVideoOrCamera();
-
+#endif
             if (frame)
             {
-                iKnowWhereIAm = updateTracking(frame);
-
-                //update tracking infos visualization
-                updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+#if WAI_UPDATE_THREAD
+                processSENSFrame(frame);
+#else
+                _mode->update(frame->imgGray);
+#endif
+                updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
             }
 
-            if (iKnowWhereIAm)
+            if (_mode->isTracking())
             {
                 //_lastKnowPoseQuaternion = SLApplication::devRot.quaternion();
                 //_IMUQuaternion          = SLQuat4f(0, 0, 0, 1);
@@ -282,6 +337,11 @@ void WAIApp::terminate()
         SLApplication::scene = nullptr;
     }
     _loaded = false;
+    requestFinish();
+    Utils::log("Info", "AAAA destructor called\n");
+#if WAI_UPDATE_THREAD
+    updateThread.join();
+#endif
 }
 //-----------------------------------------------------------------------------
 /*
@@ -291,6 +351,7 @@ mapFile: path to a map or empty if no map should be used
 */
 void WAIApp::startOrbSlam(SlamParams slamParams)
 {
+    Utils::log("Info", "startOBSlAM\n");
     _errorDial->setErrorMsg("");
     _gui->uiPrefs->showError = false;
     _lastFrameIdx            = 0;
@@ -305,6 +366,10 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
     // reset stuff
     if (_mode)
     {
+#if WAI_UPDATE_THREAD
+        requestFinish();
+        updateThread.join();
+#endif
         _mode->requestStateIdle();
         while (!_mode->hasStateIdle())
         {
@@ -313,6 +378,14 @@ void WAIApp::startOrbSlam(SlamParams slamParams)
         delete _mode;
         _mode = nullptr;
     }
+
+    _isStop = false;
+    _isFinish = false;
+    _requestFinish = false;
+
+#if WAI_UPDATE_THREAD
+    updateThread = std::thread(updateTrackingMultiThread, this);
+#endif
 
     // Check that files exist
     if (useVideoFile && !Utils::fileExists(slamParams.videoFile))
@@ -507,6 +580,96 @@ std::string WAIApp::name()
     return SLApplication::name;
 }
 //-----------------------------------------------------------------------------
+
+
+void WAIApp::processSENSFrame(SENSFramePtr frame)
+{
+    bool iKnowWhereIAm = false;
+
+    if (_videoWriter && _videoWriter->isOpened())
+    {
+        _videoWriter->write(frame->imgRGB);
+    }
+
+    WAIFrame f;
+    if (_mode->getTrackingState() == TrackingState_Initializing)
+    {
+        _mode->createIniFrame(f, frame->imgGray);
+    }
+    else 
+    {
+        _mode->createFrame(f, frame->imgGray);
+    }
+    std::unique_lock<std::mutex> lock(_frameQueueMutex);
+    _framesQueue.push(f);
+}
+
+void WAIApp::stop()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    _isStop = true;
+}
+
+bool WAIApp::isStop()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    return _isStop;
+}
+
+void WAIApp::requestFinish()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    _requestFinish = true;
+
+    Utils::log("Info", "request Finish\n");
+}
+
+bool WAIApp::finishRequested()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    return _requestFinish;
+}
+
+bool WAIApp::isFinished()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    return _isFinish;
+}
+
+void WAIApp::resume()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    _isStop = false;
+}
+
+void WAIApp::flushQueue()
+{
+    while (_framesQueue.size() > 0)
+    {
+        WAIFrame f;
+        std::unique_lock<std::mutex> lock(_frameQueueMutex);
+        {
+            f = _framesQueue.front();
+            _framesQueue.pop();
+        }
+        lock.unlock();
+        _mode->update(f);
+    }
+}
+
+int WAIApp::getNextFrame(WAIFrame * frame)
+{
+    int nbFrameInQueue;
+    std::unique_lock<std::mutex> lock(_frameQueueMutex);
+    nbFrameInQueue = _framesQueue.size();
+    if (nbFrameInQueue == 0)
+        return 0;
+
+    *frame = _framesQueue.front();
+    _framesQueue.pop();
+    return nbFrameInQueue;
+}
+
 bool WAIApp::updateTracking(SENSFramePtr frame)
 {
     bool iKnowWhereIAm = false;
@@ -533,6 +696,40 @@ bool WAIApp::updateTracking(SENSFramePtr frame)
 
     return iKnowWhereIAm;
 }
+
+void WAIApp::updateTrackingMultiThread(WAIApp * ptr)
+{
+    while (1)
+    {
+        WAIFrame f;
+        while (ptr->getNextFrame(&f) && !ptr->finishRequested())
+        {
+            ptr->_mode->update(f);
+        }
+
+        if (ptr->finishRequested())
+        {
+            std::unique_lock<std::mutex> lock(ptr->_frameQueueMutex);
+
+            Utils::log("Info", "AAAA finish requested\n");
+            while (ptr->_framesQueue.size() > 0)
+               ptr->_framesQueue.pop();
+
+            break;
+        }
+
+        while (ptr->isStop() && !ptr->isFinished() && !ptr->finishRequested())
+        {
+            Utils::log("Info", "AAAA wait stop\n");
+            std::this_thread::sleep_for(25ms);
+        }
+    }
+
+    std::unique_lock<std::mutex> lock(ptr->_stateMutex);
+    ptr->_requestFinish = false;
+    ptr->_isFinish      = true;
+}
+
 //-----------------------------------------------------------------------------
 int WAIApp::initSLProject(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
 {
@@ -991,6 +1188,7 @@ void WAIApp::saveMap(std::string location,
                      std::string area,
                      std::string marker)
 {
+    stop(); 
     _mode->requestStateIdle();
 
     std::string slamRootDir = _dirs.writableDir + "erleb-AR/locations/";
@@ -1048,6 +1246,7 @@ void WAIApp::saveMap(std::string location,
     }
 
     _mode->resume();
+    resume();
 }
 
 void WAIApp::saveVideo(std::string filename)
