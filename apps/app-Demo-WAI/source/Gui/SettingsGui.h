@@ -40,6 +40,7 @@ private:
     float _buttonRounding;
     float _textWrapW;
     float _windowPaddingContent;
+    float _framePaddingContent;
     float _itemSpacingContent;
 
     ImFont* _fontBig      = nullptr;

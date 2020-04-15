@@ -98,7 +98,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
-    int nButVert = 9; //number of buttons in vertical direction
+    int nButVert = 6; //number of buttons in vertical direction
     int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
     _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
@@ -108,7 +108,7 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 10.f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
@@ -154,16 +154,6 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowSize(ImVec2(_buttonBoardW, _buttonBoardH), ImGuiCond_Always);
         ImGui::Begin("SelectionGui_ButtonBoard", nullptr, windowFlags);
 
-        if (ImGui::Button("Test", _buttonSz))
-        {
-            sendEvent(new StartTestEvent());
-        }
-
-        if (ImGui::Button("Camera Test", _buttonSz))
-        {
-            sendEvent(new StartCameraTestEvent());
-        }
-
         if (ImGui::Button("Avanches", _buttonSz))
         {
             sendEvent(new StartErlebarEvent(Location::AVANCHES));
@@ -177,11 +167,6 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         if (ImGui::Button("Christoffel", _buttonSz))
         {
             sendEvent(new StartErlebarEvent(Location::CHRISTOFFEL));
-        }
-
-        if (ImGui::Button("Biel", _buttonSz))
-        {
-            sendEvent(new StartErlebarEvent(Location::BIEL));
         }
 
         if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
@@ -202,5 +187,30 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImGui::End();
     }
 
+    //developer button board
+    if (_resources.developerMode)
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, _buttonBoardPosY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenWPix - _buttonBoardW - 0.1f * _screenWPix, _buttonBoardH), ImGuiCond_Always);
+        ImGui::Begin("SelectionGui_ButtonBoardDevelMode", nullptr, windowFlags);
+
+        ImVec2 develButtonSize(-FLT_MIN /*_screenWPix - _buttonSz.x*/, _buttonSz.y);
+        if (ImGui::Button("Test", develButtonSize))
+        {
+            sendEvent(new StartTestEvent());
+        }
+
+        if (ImGui::Button("Camera Test", develButtonSize))
+        {
+            sendEvent(new StartCameraTestEvent());
+        }
+
+        if (ImGui::Button("Biel", develButtonSize))
+        {
+            sendEvent(new StartErlebarEvent(Location::BIEL));
+        }
+
+        ImGui::End();
+    }
     popStyle();
 }

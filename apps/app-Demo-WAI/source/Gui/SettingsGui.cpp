@@ -51,6 +51,7 @@ void SettingsGui::resize(int scrW, int scrH)
     _buttonRounding          = _resources.style().buttonRounding * _screenH;
     _textWrapW               = 0.9f * _screenW;
     _windowPaddingContent    = _resources.style().windowPaddingContent * _screenH;
+    _framePaddingContent     = _resources.style().framePaddingContent * _screenH;
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
@@ -105,11 +106,11 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_framePaddingContent, _framePaddingContent));
 
         ImGui::Begin("Settings_content", nullptr, windowFlags);
         ImGui::BeginChild("Settings_content_child", ImVec2(0, 0), false, childWindowFlags);
-
         //language selection
         ImGui::PushFont(_fontSmall);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
@@ -125,6 +126,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                                    "Deutsch",
                                    "Français",
                                    "Italiano"};
+        ImGui::PushItemWidth(_screenW * 0.3f);
         if (ImGui::Combo("##combo0", &currLanguage, languages, IM_ARRAYSIZE(languages)))
         {
             if (currLanguage == 0)
@@ -136,6 +138,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
             else
                 _resources.setLanguageItalien();
         }
+        ImGui::PopItemWidth();
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
@@ -161,7 +164,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::End();
 
         ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(3);
     }
 
     popStyle();

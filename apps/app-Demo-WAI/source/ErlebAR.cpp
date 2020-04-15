@@ -1,4 +1,5 @@
 #include "ErlebAR.h"
+#include "opencv2/core/persistence.hpp"
 
 namespace ErlebAR
 {
@@ -11,6 +12,57 @@ Resources::Resources()
 Resources::~Resources()
 {
     //delete fonts
+}
+
+void Resources::load(std::string fileName)
+{
+    _fileName = fileName;
+
+    cv::FileStorage fs(fileName, cv::FileStorage::READ);
+    if (fs.isOpened())
+    {
+        if (!fs["developerMode"].empty())
+            fs["developerMode"] >> developerMode;
+        if (!fs["languageId"].empty())
+        {
+            std::string languageId;
+            fs["languageId"] >> languageId;
+            if (languageId == _stringsGerman.id())
+            {
+                _currStrings = &_stringsGerman;
+            }
+            else if (languageId == _stringsFrench.id())
+            {
+                _currStrings = &_stringsFrench;
+            }
+            else if (languageId == _stringsItalien.id())
+            {
+                _currStrings = &_stringsItalien;
+            }
+            else
+            {
+                _currStrings = &_stringsEnglish;
+            }
+        }
+    }
+    else
+    {
+        Utils::warnMsg("ErlebAR::Resources", "Could not save resources!", __LINE__, __FILE__);
+    }
+}
+
+void Resources::save()
+{
+    cv::FileStorage fs(_fileName, cv::FileStorage::WRITE);
+    if (fs.isOpened())
+    {
+        fs << "developerMode" << developerMode;
+        fs << "languageId" << _currStrings->id();
+    }
+    else
+    {
+        Utils::warnMsg("ErlebAR::Resources", "Could not save resources!", __LINE__, __FILE__);
+    }
 }
 
 void Resources::setLanguageGerman()
@@ -37,6 +89,8 @@ Strings::Strings()
 
 StringsEnglish::StringsEnglish()
 {
+    _id = "English";
+
     _settings = "Settings";
     _about    = "About";
     _tutorial = "Tutorial";
@@ -51,6 +105,8 @@ StringsEnglish::StringsEnglish()
 
 StringsGerman::StringsGerman()
 {
+    _id = "German";
+
     _settings = "Einstellungen";
     _about    = "Info";
     _tutorial = "Anleitung";
@@ -65,6 +121,8 @@ StringsGerman::StringsGerman()
 
 StringsFrench::StringsFrench()
 {
+    _id = "French";
+
     _settings = "Paramètres";
     _about    = "À propos";
     _tutorial = "Manuel";
@@ -79,6 +137,8 @@ StringsFrench::StringsFrench()
 
 StringsItalien::StringsItalien()
 {
+    _id = "Italien";
+
     _settings = "a";
     _about    = "b";
     _tutorial = "c";

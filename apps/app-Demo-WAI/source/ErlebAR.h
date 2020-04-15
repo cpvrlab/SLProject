@@ -111,6 +111,8 @@ public:
                                      BFHColors::OrangePrimary.a};
     // percental window padding for content (e.g. about and settings) rel. to screen height
     float windowPaddingContent = 0.03f;
+    // percental frame padding for content (e.g. about and settings) rel. to screen height
+    float framePaddingContent = 0.02f;
     // percental item spacing for content (e.g. about and settings) rel. to screen height
     float itemSpacingContent = 0.03f;
 };
@@ -123,6 +125,8 @@ class Strings
 {
 public:
     Strings();
+    const char* id() const { return _id.c_str(); }
+
     const char* settings() const { return _settings.c_str(); }
     const char* about() const { return _about.c_str(); }
     const char* tutorial() const { return _tutorial.c_str(); }
@@ -135,6 +139,8 @@ public:
     const char* develMode() const { return _develMode.c_str(); }
 
 protected:
+    std::string _id;
+
     //selection
     std::string _settings;
     std::string _about;
@@ -185,6 +191,9 @@ public:
     Resources();
     ~Resources();
 
+    void load(std::string fileName);
+    void save();
+
     void setLanguageEnglish();
     void setLanguageGerman();
     void setLanguageFrench();
@@ -205,6 +214,9 @@ private:
 
     Style _style;
     Fonts _fonts;
+
+    //initialized in function load()
+    std::string _fileName;
 };
 
 }; //namespace ErlebAR
