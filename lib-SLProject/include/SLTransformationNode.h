@@ -16,7 +16,11 @@ enum SLNodeEditMode
 class SLTransformationNode : public SLNode
 {
 public:
-    SLTransformationNode(SLAssetManager* assetMgr, SLCamera* camera, SLSceneView* sv, SLNode* targetNode);
+    SLTransformationNode(SLAssetManager* assetMgr,
+                         SLSceneView*    sv,
+                         SLNode*         targetNode);
+    ~SLTransformationNode();
+
     void toggleEditMode(SLNodeEditMode editMode);
 
     virtual SLbool onMouseDown(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
@@ -24,13 +28,12 @@ public:
     virtual SLbool onMouseMove(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
 
 private:
-    SLCamera*    _camera     = nullptr;
     SLSceneView* _sv         = nullptr;
     SLNode*      _targetNode = nullptr;
 
     SLNodeEditMode _editMode;
 
-    SLNode* _editGizmos = nullptr;
+    //SLNode* _editGizmos = nullptr;
 
     bool    _mouseIsDown;
     float   _gizmoScale;

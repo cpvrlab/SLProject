@@ -231,22 +231,12 @@ void TestView::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformationNode(&_assets, this->camera(), this, _scene.root3D()->findChild<SLNode>("map"));
-                    _scene.eventHandlers().push_back(_transformationNode);
+                    _transformationNode = new SLTransformationNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
                 if (enterEditModeEvent->editMode == NodeEditMode_None)
                 {
-                    std::vector<SLEventHandler*>::iterator it = std::find(_scene.eventHandlers().begin(),
-                                                                          _scene.eventHandlers().end(),
-                                                                          _transformationNode);
-
-                    if (it != _scene.eventHandlers().end())
-                    {
-                        _scene.eventHandlers().erase(it);
-                    }
-
                     if (_scene.root3D()->deleteChild(_transformationNode))
                     {
                         _transformationNode = nullptr;

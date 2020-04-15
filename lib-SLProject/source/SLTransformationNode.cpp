@@ -7,18 +7,16 @@
 #include <SLDisk.h>
 
 SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
-                                           SLCamera*       camera,
                                            SLSceneView*    sv,
-                                           SLNode*         targetNode) : SLNode(),
-                                                                 _camera(camera),
-                                                                 _sv(sv),
-                                                                 _targetNode(targetNode),
-                                                                 _editMode(NodeEditMode_None),
-                                                                 _mouseIsDown(false)
+                                           SLNode*         targetNode)
+  : SLNode("Edit Gizmos"),
+    _sv(sv),
+    _targetNode(targetNode),
+    _editMode(NodeEditMode_None),
+    _mouseIsDown(false)
 {
     float scaleFactor = _targetNode->aabb()->radiusOS() * 0.5f;
 
-    _editGizmos = new SLNode("Gizmos");
     _gizmoScale = scaleFactor;
 
     SLMaterial* redMat = new SLMaterial(assetMgr, "Red", SLCol4f::RED);
@@ -102,19 +100,32 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
     rotationGizmos->addChild(rotationGizmosY);
     rotationGizmos->addChild(rotationGizmosZ);
 
-    _editGizmos->scale(scaleFactor);
+    this->scale(scaleFactor);
 
-    _editGizmos->addChild(_translationAxisX);
-    _editGizmos->addChild(_translationLineX);
-    _editGizmos->addChild(_translationAxisY);
-    _editGizmos->addChild(_translationLineY);
-    _editGizmos->addChild(_translationAxisZ);
-    _editGizmos->addChild(_translationLineZ);
-    _editGizmos->addChild(_scaleGizmos);
-    _editGizmos->addChild(rotationGizmos);
+    this->addChild(_translationAxisX);
+    this->addChild(_translationLineX);
+    this->addChild(_translationAxisY);
+    this->addChild(_translationLineY);
+    this->addChild(_translationAxisZ);
+    this->addChild(_translationLineZ);
+    this->addChild(_scaleGizmos);
+    this->addChild(rotationGizmos);
 
-    this->addChild(_editGizmos);
     this->updateAABBRec();
+
+    _sv->s().eventHandlers().push_back(this);
+}
+
+SLTransformationNode::~SLTransformationNode()
+{
+    std::vector<SLEventHandler*>::iterator it = std::find(_sv->s().eventHandlers().begin(),
+                                                          _sv->s().eventHandlers().end(),
+                                                          this);
+
+    if (it != _sv->s().eventHandlers().end())
+    {
+        _sv->s().eventHandlers().erase(it);
+    }
 }
 
 void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
@@ -125,10 +136,10 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
     {
         if (_targetNode)
         {
-            _editGizmos->translation(_targetNode->updateAndGetWM().translation());
+            this->translation(_targetNode->updateAndGetWM().translation());
 
-            toggleHideRecursive(_editGizmos, true);
-            _editGizmos->drawBits()->set(SL_DB_HIDDEN, false);
+            toggleHideRecursive(this, true);
+            this->drawBits()->set(SL_DB_HIDDEN, false);
 
             switch (_editMode)
             {
@@ -140,10 +151,10 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
                 break;
 
                 case NodeEditMode_Scale: {
-                    if (_camera)
+                    if (_sv->camera())
                     {
                         // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
-                        lookAt(_scaleGizmos, _camera);
+                        lookAt(_scaleGizmos, _sv->camera());
                     }
 
                     _scaleCircle->drawBits()->set(SL_DB_HIDDEN, false);
@@ -166,8 +177,8 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
     }
     else
     {
-        toggleHideRecursive(_editGizmos, true);
-        _editGizmos->drawBits()->set(SL_DB_HIDDEN, false);
+        toggleHideRecursive(this, true);
+        this->drawBits()->set(SL_DB_HIDDEN, false);
 
         _editMode = NodeEditMode_None;
     }
@@ -196,7 +207,7 @@ SLbool SLTransformationNode::onMouseUp(SLMouseButton button, SLint x, SLint y, S
 
         if (_targetNode)
         {
-            _editGizmos->translation(_targetNode->updateAndGetWM().translation());
+            this->translation(_targetNode->updateAndGetWM().translation());
         }
 
         _selectedGizmo = nullptr;
@@ -212,7 +223,7 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
 
     if (_editMode)
     {
-        if (_camera)
+        if (_sv->camera())
         {
             switch (_editMode)
             {
@@ -220,7 +231,7 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                     if (_targetNode)
                     {
                         SLRay pickRay(_sv);
-                        _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                        _sv->camera()->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
                         SLVec3f pickRayPoint;
                         SLVec3f axisPoint;
@@ -232,7 +243,7 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
 
                                 _targetNode->translate(translationDiff, TS_world);
 
-                                _editGizmos->translation(_targetNode->updateAndGetWM().translation());
+                                this->translation(_targetNode->updateAndGetWM().translation());
 
                                 _hitCoordinate = axisPoint;
                             }
@@ -297,10 +308,10 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
 
                 case NodeEditMode_Scale: {
                     // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
-                    lookAt(_scaleGizmos, _camera);
+                    lookAt(_scaleGizmos, _sv->camera());
 
                     SLRay pickRay(_sv);
-                    _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                    _sv->camera()->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
                     if (_targetNode)
                     {
@@ -318,7 +329,7 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
 
                                 _targetNode->scale(scaleFactor);
                                 _gizmoScale *= scaleFactor;
-                                _editGizmos->scale(scaleFactor);
+                                this->scale(scaleFactor);
                             }
 
                             result = true;
@@ -350,7 +361,7 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                     if (_targetNode)
                     {
                         SLRay pickRay(_sv);
-                        _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+                        _sv->camera()->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
 
                         if (_mouseIsDown)
                         {
