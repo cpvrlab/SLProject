@@ -204,13 +204,13 @@ public:
 
     virtual void reset();
 
-    WAIFrame createFrame(cv::Mat& imageGray);
-    WAIFrame createIniFrame(cv::Mat& imageGray);
+    void createFrame(WAIFrame &frame, cv::Mat& imageGray);
 
-    virtual bool update(WAIFrame frame);
+    virtual void update(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
     virtual void resume();
 
+    virtual bool isTracking();
     virtual bool hasStateIdle();
     virtual void requestStateIdle();
     virtual bool retainImage();
@@ -263,7 +263,7 @@ public:
     virtual int     getKeyPointCount() { return _lastFrame.N; }
     virtual int     getKeyFrameCount() { return _globalMap->KeyFramesInMap(); }
     virtual int     getMapPointCount() { return _globalMap->MapPointsInMap(); }
-    virtual cv::Mat getPose() { return _cameraExtrinsic; }
+    virtual cv::Mat getPose();
     virtual void    setMap(WAIMap* globalMap);
 
     virtual TrackingState getTrackingState() { return _state; }
@@ -287,6 +287,10 @@ public:
     int getKeyFramesInLoopCloseQueueCount();
 
 protected:
+
+    void updateState(TrackingState state);
+
+    std::mutex    _cameraExtrinsicMutex;
     std::mutex    _mutexStates;
     bool          _retainImg           = false;
     unsigned long _lastRelocFrameId    = 0;
