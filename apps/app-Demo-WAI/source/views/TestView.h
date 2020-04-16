@@ -52,7 +52,7 @@ protected:
 
     // multithreading 
     static void updateModeMultiThread(TestView * ptr);
-    int getNextFrame(WAIFrame * frame);
+    int getNextFrame(WAIFrame &frame);
     void processSENSFrame(SENSFramePtr frame);
     void stop();
     bool isStop();

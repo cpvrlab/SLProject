@@ -102,7 +102,7 @@ void TestView::updateModeMultiThread(TestView * ptr)
     while (1)
     {
         WAIFrame f;
-        while (ptr->getNextFrame(&f) && !ptr->finishRequested())
+        while (ptr->getNextFrame(f) && !ptr->finishRequested())
             ptr->_mode->update(f);
 
         if (ptr->finishRequested())
@@ -128,7 +128,7 @@ void TestView::updateModeMultiThread(TestView * ptr)
     ptr->_isFinish      = true;
 }
 
-int TestView::getNextFrame(WAIFrame * frame)
+int TestView::getNextFrame(WAIFrame &frame)
 {
     int nbFrameInQueue;
     std::unique_lock<std::mutex> lock(_frameQueueMutex);
@@ -136,7 +136,7 @@ int TestView::getNextFrame(WAIFrame * frame)
     if (nbFrameInQueue == 0)
         return 0;
 
-    *frame = _framesQueue.front();
+    frame = _framesQueue.front();
     _framesQueue.pop();
     return nbFrameInQueue;
 }
