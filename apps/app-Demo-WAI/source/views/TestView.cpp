@@ -97,7 +97,7 @@ void TestView::startAsync()
     //_ready = true;
 }
 
-void TestView::updateModeMultiThread(TestView * ptr)
+void TestView::updateModeMultiThread(TestView* ptr)
 {
     while (1)
     {
@@ -111,7 +111,7 @@ void TestView::updateModeMultiThread(TestView * ptr)
 
             Utils::log("Info", "AAAA finish requested\n");
             while (ptr->_framesQueue.size() > 0)
-               ptr->_framesQueue.pop();
+                ptr->_framesQueue.pop();
 
             break;
         }
@@ -128,9 +128,9 @@ void TestView::updateModeMultiThread(TestView * ptr)
     ptr->_isFinish      = true;
 }
 
-int TestView::getNextFrame(WAIFrame &frame)
+int TestView::getNextFrame(WAIFrame& frame)
 {
-    int nbFrameInQueue;
+    int                          nbFrameInQueue;
     std::unique_lock<std::mutex> lock(_frameQueueMutex);
     nbFrameInQueue = _framesQueue.size();
     if (nbFrameInQueue == 0)
@@ -143,8 +143,6 @@ int TestView::getNextFrame(WAIFrame &frame)
 
 void TestView::processSENSFrame(SENSFramePtr frame)
 {
-    bool iKnowWhereIAm = false;
-
     if (_videoWriter && _videoWriter->isOpened())
         _videoWriter->write(frame->imgRGB);
 
@@ -192,7 +190,6 @@ void TestView::resume()
     std::unique_lock<std::mutex> lock(_stateMutex);
     _isStop = false;
 }
-
 
 bool TestView::update()
 {
@@ -500,9 +497,9 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
 #ifdef WAI_MULTITHREAD
     _modeUpdateThread = new std::thread(updateModeMultiThread, this);
-    _isFinish = false;
-    _isStop = false;
-    _requestFinish = false;
+    _isFinish         = false;
+    _isStop           = false;
+    _requestFinish    = false;
 #endif
 
     // Check that files exist
