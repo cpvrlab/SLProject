@@ -84,9 +84,10 @@ struct Vertex
 class vkUtils
 {
 public:
-    const int                 MAX_FRAMES_IN_FLIGHT = 2;
-    const vector<const char*> validationLayers     = {"VK_LAYER_KHRONOS_validation"};
-    const vector<const char*> deviceExtensions     = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+
+    const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+    const vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                                   VK_KHR_MAINTENANCE1_EXTENSION_NAME};
 
 private:
