@@ -1,66 +1,9 @@
 #include <TutorialGui.h>
 #include <imgui_internal.h>
 #include <CVImage.h>
+#include <GuiUtils.h>
 
 using namespace ErlebAR;
-
-struct TextureData
-{
-    unsigned int width;
-    unsigned int height;
-    GLuint       id;
-};
-
-GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
-{
-    GLuint id = 0;
-
-    if (Utils::fileExists(fileName))
-    {
-        // load texture image
-        CVImage image(fileName);
-        if (flipX)
-            image.flipX();
-        if (flipY)
-            image.flipY();
-        //crop image to screen size
-        image.crop(targetWdivH);
-
-        // Create a OpenGL texture identifier
-        glGenTextures(1, &id);
-        glBindTexture(GL_TEXTURE_2D, id);
-
-        // Setup filtering parameters for display
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Upload pixels into texture
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-        glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     image.format(),
-                     (GLsizei)image.width(),
-                     (GLsizei)image.height(),
-                     0,
-                     image.format(),
-                     GL_UNSIGNED_BYTE,
-                     (GLvoid*)image.data());
-    }
-    else
-        Utils::warnMsg("loadTexture", "imagePath does not exist!", __LINE__, __FILE__);
-
-    return id;
-}
-
-void deleteTexture(GLuint& id)
-{
-    if (id)
-    {
-        glDeleteTextures(1, &id);
-        id = 0;
-    }
-}
 
 TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
@@ -96,6 +39,9 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
     //load icon texture
     _textureIconLeftId  = loadTexture(texturePath + "icon_back.png", false, false, 1.f);
     _textureIconRightId = loadTexture(texturePath + "icon_back.png", true, false, 1.f);
+
+    _textureIconBackWhiteId = loadTexture(texturePath + "icons/back1white.png", false, false, 1.f);
+    _textureIconBackGrayId  = loadTexture(texturePath + "icons/back1gray.png", false, false, 1.f);
 }
 
 TutorialGui::~TutorialGui()
@@ -136,20 +82,20 @@ void TutorialGui::resize(int scrW, int scrH)
 void TutorialGui::build(SLScene* s, SLSceneView* sv)
 {
     //background texture
-    {
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
+    //{
+    //    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _screenH), ImGuiCond_Always);
-        ImGui::Begin("TutorialGui_BackgroundTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
-        ImGui::Image((void*)(intptr_t)_currentBackgroundId, ImVec2(_screenW, _screenH));
-        ImGui::End();
+    //    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+    //    ImGui::SetNextWindowSize(ImVec2(_screenW, _screenH), ImGuiCond_Always);
+    //    ImGui::Begin("TutorialGui_BackgroundTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
+    //    ImGui::Image((void*)(intptr_t)_currentBackgroundId, ImVec2(_screenW, _screenH));
+    //    ImGui::End();
 
-        ImGui::PopStyleVar(1);
-    }
-
+    //    ImGui::PopStyleVar(1);
+    //}
+    renderBackgroundTexture(_screenW, _screenH, _currentBackgroundId);
     pushStyle();
 
     float h = 10.0;
@@ -178,7 +124,8 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
         //{
         //    sendEvent(new GoBackEvent());
         //}
-        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(h, h)))
+        //if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(h, h)))
+        if (ImGui::ImageButton((ImTextureID)_textureIconBackWhiteId, (ImTextureID)_textureIconBackGrayId, ImVec2(h, h)))
         {
             sendEvent(new GoBackEvent());
         }
@@ -226,6 +173,14 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
             else if (_currentBackgroundId == _textureBackgroundId2)
                 _currentBackgroundId = _textureBackgroundId1;
         }
+
+        //if (ImGui::ImageButton((ImTextureID)_textureIconRightId, (ImTextureID)_textureIconLeftId, ImVec2(h, h)))
+        //{
+        //    if (_currentBackgroundId == _textureBackgroundId1)
+        //        _currentBackgroundId = _textureBackgroundId2;
+        //    else if (_currentBackgroundId == _textureBackgroundId2)
+        //        _currentBackgroundId = _textureBackgroundId1;
+        //}
 
         ImGui::End();
         ImGui::PopStyleColor(4);

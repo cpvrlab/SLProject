@@ -23,6 +23,7 @@
 #include <ErlebAR.h>
 #include <AppDemoGuiError.h>
 #include <sm/EventSender.h>
+#include <GuiUtils.h>
 
 class SLScene;
 class SLSceneView;
@@ -42,118 +43,6 @@ enum SceneID
     Scene_WAI
 };
 
-enum class GuiAlignment
-{
-    TOP_LEFT,
-    TOP_RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM_RIGHT
-};
-
-class BackButton
-{
-public:
-    using Callback = std::function<void(void)>;
-
-    BackButton(int          dotsPerInch,
-               int          screenWidthPix,
-               int          screenHeightPix,
-               GuiAlignment alignment,
-               float        distFrameHorizMM,
-               float        distFrameVertMM,
-               ImVec2       buttonSizeMM,
-               Callback     pressedCB,
-               ImFont*      font)
-      : _alignment(alignment),
-        _pressedCB(pressedCB),
-        _font(font)
-    {
-        float pixPerMM = (float)dotsPerInch / 25.4f;
-
-        _buttonSizePix = {buttonSizeMM.x * pixPerMM, buttonSizeMM.y * pixPerMM};
-        _windowSizePix = {_buttonSizePix.x + 2 * _windowPadding, _buttonSizePix.y + 2 * _windowPadding};
-
-        //top
-        if (_alignment == GuiAlignment::TOP_LEFT || _alignment == GuiAlignment::TOP_RIGHT)
-        {
-            _windowPos.y = distFrameVertMM * pixPerMM;
-        }
-        else //bottom
-        {
-            _windowPos.y = screenHeightPix - distFrameVertMM * pixPerMM - _windowSizePix.y;
-        }
-
-        //left
-        if (_alignment == GuiAlignment::BOTTOM_LEFT || _alignment == GuiAlignment::TOP_LEFT)
-        {
-            _windowPos.x = distFrameHorizMM * pixPerMM;
-        }
-        else //right
-        {
-            _windowPos.x = screenWidthPix - distFrameHorizMM * pixPerMM - _windowSizePix.x;
-        }
-    }
-    BackButton()
-    {
-    }
-
-    void render()
-    {
-        {
-            ImGuiStyle& style   = ImGui::GetStyle();
-            style.WindowPadding = ImVec2(0, _windowPadding); //space l, r, b, t between window and buttons (window padding left does not work as expected)
-
-            //back button
-            ImGui::SetNextWindowPos(_windowPos, ImGuiCond_Always);
-            ImGui::SetNextWindowSize(_windowSizePix, ImGuiCond_Always);
-
-            ImGui::Begin("AppDemoWaiGui", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-
-            ImGui::PushStyleColor(ImGuiCol_Button, _buttonColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _buttonColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, _buttonColorPressed);
-            if (_font)
-                ImGui::PushFont(_font);
-            ImGui::NewLine();
-            ImGui::SameLine(_windowPadding);
-            if (ImGui::Button("back", _buttonSizePix))
-            {
-                if (_pressedCB)
-                    _pressedCB();
-            }
-
-            ImGui::PopStyleColor(3);
-            if (_font)
-                ImGui::PopFont();
-
-            ImGui::End();
-        }
-    }
-
-private:
-    ImVec4 _buttonColor = {BFHColors::OrangePrimary.r,
-                           BFHColors::OrangePrimary.g,
-                           BFHColors::OrangePrimary.b,
-                           BFHColors::OrangePrimary.a};
-
-    ImVec4 _buttonColorPressed = {BFHColors::GrayLogo.r,
-                                  BFHColors::GrayLogo.g,
-                                  BFHColors::GrayLogo.b,
-                                  BFHColors::GrayLogo.a};
-
-    GuiAlignment _alignment;
-    ImVec2       _windowPos;
-    //calculated sized of dialogue
-    ImVec2 _windowSizePix;
-    //button size (in pixel)
-    ImVec2 _buttonSizePix;
-    //distance between button border and window border
-    int _windowPadding = 2.f;
-
-    Callback _pressedCB = nullptr;
-
-    ImFont* _font = nullptr;
-};
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
 /* The UI is completely built within this class by calling build function

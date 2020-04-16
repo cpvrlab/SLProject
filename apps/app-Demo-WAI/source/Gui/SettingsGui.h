@@ -6,6 +6,7 @@
 #include <ImGuiWrapper.h>
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
+#include <Resources.h>
 
 class SLScene;
 class SLSceneView;

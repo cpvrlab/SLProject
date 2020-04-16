@@ -6,6 +6,7 @@
 #include <ImGuiWrapper.h>
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
+#include <Resources.h>
 
 class SLScene;
 class SLSceneView;
@@ -55,6 +56,9 @@ private:
     GLuint _currentBackgroundId  = 0;
     GLuint _textureIconLeftId    = 0;
     GLuint _textureIconRightId   = 0;
+
+    GLuint _textureIconBackWhiteId = 0;
+    GLuint _textureIconBackGrayId  = 0;
 };
 
 #endif //TUTORIAL_GUI_H

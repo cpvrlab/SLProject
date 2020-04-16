@@ -8,6 +8,7 @@
 #include <ErlebAR.h>
 #include <ImGuiWrapper.h>
 #include <sm/EventSender.h>
+#include <Resources.h>
 
 class SLScene;
 class SLSceneView;

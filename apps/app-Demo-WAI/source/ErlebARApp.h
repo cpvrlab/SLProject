@@ -7,6 +7,7 @@
 #include <SLInputManager.h>
 #include <ErlebAR.h>
 #include <sens/SENSCamera.h>
+#include <Resources.h>
 
 class InitData;
 class SelectionView;

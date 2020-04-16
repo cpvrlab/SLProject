@@ -55,6 +55,8 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
@@ -104,6 +106,8 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
