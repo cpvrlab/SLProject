@@ -315,7 +315,7 @@ void vkUtils::createSwapchain()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Creates basic image views for every image in the swapchain
 */
 void vkUtils::createImageViews()
 {
@@ -326,7 +326,7 @@ void vkUtils::createImageViews()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Specifies color and depth buffers and how many samples to use for each of them
 */
 void vkUtils::createRenderPass()
 {
@@ -371,7 +371,7 @@ void vkUtils::createRenderPass()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Loads the given shader files and stores them in an array for later use
 */
 void vkUtils::createShaderStages(string& vertShaderPath,
                                  string& fragShaderPath)
@@ -399,7 +399,7 @@ void vkUtils::createShaderStages(string& vertShaderPath,
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Provides details about every descriptor binding used in the shaders
 */
 void vkUtils::createDescriptorSetLayout()
 {
@@ -551,7 +551,7 @@ void vkUtils::createFramebuffers()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Creates a uniform buffer for every swapchain image
 */
 void vkUtils::createUniformBuffers()
 {
@@ -569,7 +569,7 @@ void vkUtils::createUniformBuffers()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Allocates descriptor sets
 */
 void vkUtils::createDescriptorPool()
 {
@@ -590,7 +590,7 @@ void vkUtils::createDescriptorPool()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Allocates a descriptor set for every swapchain image
 */
 void vkUtils::createDescriptorSets()
 {
@@ -640,7 +640,7 @@ void vkUtils::createDescriptorSets()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+To manage the memory that is used to store the (command) buffers, we create a pool for them
 */
 void vkUtils::createCommandPool()
 {
@@ -654,6 +654,9 @@ void vkUtils::createCommandPool()
     ASSERT_VULKAN(result, "Failed to create command pool");
 }
 //-----------------------------------------------------------------------------
+/*!
+Loads and creates a given texture (must be RGBA)
+*/
 void vkUtils::createTextureImage(void* pixels, uint texWidth, uint texHeight)
 {
     VkDeviceSize imageSize = texWidth * texHeight * 4; // * 4 because of RGBA
@@ -700,9 +703,6 @@ void vkUtils::createTextureImage(void* pixels, uint texWidth, uint texHeight)
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 //-----------------------------------------------------------------------------
-/*!
-
-*/
 void vkUtils::createTextureImageView()
 {
     textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
@@ -1325,7 +1325,7 @@ bool vkUtils::isDeviceSuitable(VkPhysicalDevice device)
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Checks if the choosen device supports all the needed or given extensions
 */
 bool vkUtils::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
@@ -1406,7 +1406,7 @@ void vkUtils::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Defines how a texture should be handled
 */
 VkImageView vkUtils::createImageView(VkImage image, VkFormat format)
 {
@@ -1463,7 +1463,7 @@ QueueFamilyIndices vkUtils::findQueueFamilies(VkPhysicalDevice device)
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Used primarily for the Debug utils provided by Vulkan
 */
 vector<const char*> vkUtils::getRequiredExtensions()
 {
@@ -1481,7 +1481,7 @@ vector<const char*> vkUtils::getRequiredExtensions()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+For debugging we should first check if the validation layer is supported
 */
 bool vkUtils::checkValidationLayerSupport()
 {
@@ -1510,7 +1510,7 @@ bool vkUtils::checkValidationLayerSupport()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Because the debug Utils are a extension, we have to create them seperatly via vkGetInstanceProcAddr
 */
 VkResult vkUtils::CreateDebugUtilsMessengerEXT(VkInstance                                instance,
                                                const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -1526,9 +1526,6 @@ VkResult vkUtils::CreateDebugUtilsMessengerEXT(VkInstance                       
         return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 //-----------------------------------------------------------------------------
-/*!
-
-*/
 void vkUtils::DestroyDebugUtilsMessengerEXT(VkInstance                   instance,
                                             VkDebugUtilsMessengerEXT     debugMessenger,
                                             const VkAllocationCallbacks* pAllocator)

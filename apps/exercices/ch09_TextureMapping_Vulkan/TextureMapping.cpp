@@ -61,6 +61,11 @@ void onMouseMove(GLFWwindow* window, double x, double y)
     }
 }
 //-----------------------------------------------------------------------------
+void onMouseWheel(GLFWwindow* window, double xScroll, double yScroll)
+{
+    _camZ -= (SLfloat)Utils::sign(yScroll) * 0.1f;
+}
+//-----------------------------------------------------------------------------
 void initWindow()
 {
     glfwInit();
@@ -71,11 +76,12 @@ void initWindow()
                               "Vulkan",
                               nullptr,
                               nullptr);
+
     glfwSetWindowUserPointer(window, &renderer);
-    glfwSetFramebufferSizeCallback(window,
-                                   renderer.framebufferResizeCallback);
+    glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
+    glfwSetScrollCallback(window, onMouseWheel);
 }
 //-----------------------------------------------------------------------------
 void initVulkan()
