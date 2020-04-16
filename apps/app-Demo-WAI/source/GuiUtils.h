@@ -11,8 +11,22 @@
 
 namespace ErlebAR
 {
-void         renderBackgroundTexture(float screenW, float screenH, GLuint texId);
-void         renderHeaderBar();
+void renderBackgroundTexture(float screenW, float screenH, GLuint texId);
+void renderHeaderBar(float                     width,
+                     float                     height,
+                     const ImVec4&             backgroundColor,
+                     const ImVec4&             textColor,
+                     const ImVec4&             buttonColor,
+                     const ImVec4&             buttonColorPressed,
+                     ImFont*                   font,
+                     float                     buttonRounding,
+                     float                     buttonHeight,
+                     GLuint                    texId,
+                     GLuint                    texIdPressed,
+                     float                     spacingButtonToText,
+                     const char*               text,
+                     std::function<void(void)> cb);
+
 unsigned int loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH);
 void         deleteTexture(unsigned int& id);
 

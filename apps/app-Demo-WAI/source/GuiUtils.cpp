@@ -23,8 +23,60 @@ void renderBackgroundTexture(float screenW, float screenH, GLuint texId)
     ImGui::PopStyleVar(1);
 }
 
-void renderHeaderBar()
+void renderHeaderBar(float                     width,
+                     float                     height,
+                     const ImVec4&             backgroundColor,
+                     const ImVec4&             textColor,
+                     const ImVec4&             buttonColor,
+                     const ImVec4&             buttonColorPressed,
+                     ImFont*                   font,
+                     float                     buttonRounding,
+                     float                     buttonHeight,
+                     GLuint                    texId,
+                     GLuint                    texIdPressed,
+                     float                     spacingButtonToText,
+                     const char*               text,
+                     std::function<void(void)> cb)
 {
+    float            texSize     = buttonHeight - buttonRounding;
+    float            winPadding  = 0.5f * (height - buttonHeight);
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
+                                   ImGuiWindowFlags_NoMove |
+                                   ImGuiWindowFlags_AlwaysAutoResize |
+                                   ImGuiWindowFlags_NoScrollbar;
+
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, backgroundColor);
+    ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding, winPadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(buttonRounding, buttonRounding));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, buttonRounding);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    ImGui::PushFont(font);
+
+    ImGui::Begin("TutorialGui_header", nullptr, windowFlags);
+
+    if (ImGui::ImageButton((ImTextureID)texId, (ImTextureID)texIdPressed, ImVec2(texSize, texSize)))
+    {
+        cb();
+    }
+
+    ImGui::SameLine(0.f, spacingButtonToText);
+    ImGui::Text(text);
+
+    ImGui::End();
+
+    ImGui::PopFont();
+    ImGui::PopStyleVar(7);
+    ImGui::PopStyleColor(5);
 }
 
 unsigned int loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
