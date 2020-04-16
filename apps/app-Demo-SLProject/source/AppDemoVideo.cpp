@@ -18,6 +18,8 @@
 #include <AppDemoSceneView.h>
 #include <SLApplication.h>
 #include <FtpUtils.h>
+#include <GlobalTimer.h>
+#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -61,7 +63,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                                                                              ac->mirrorH(),
                                                                              ac->mirrorV(),
                                                                              ac->type(),
-                                                                             SLApplication::getComputerInfos(),
+                                                                             Utils::ComputerInfos::get(),
                                                                              SLApplication::calibIniPath,
                                                                              SLApplication::externalPath,
                                                                              SLApplication::exePath);
@@ -103,7 +105,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                     processedCalibResult = true;
                     ac->calibration      = SLApplication::calibrationEstimator->getCalibration();
 
-                    std::string computerInfo      = SLApplication::getComputerInfos();
+                    std::string computerInfo      = Utils::ComputerInfos::get();
                     string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
                     string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
                     std::string errorMsg;
@@ -178,7 +180,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
                                             ac->mirrorH(),
                                             ac->mirrorV(),
                                             ac->type(),
-                                            SLApplication::getComputerInfos());
+                                            Utils::ComputerInfos::get());
         }
         else
         {
@@ -189,7 +191,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
                                             ac->mirrorH(),
                                             ac->mirrorV(),
                                             ac->type(),
-                                            SLApplication::getComputerInfos());
+                                            Utils::ComputerInfos::get());
         }
     }
 }
@@ -201,13 +203,16 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 */
 bool onUpdateVideo()
 {
+    if (!SLApplication::sceneViews.size())
+        return false;
+
     SLScene*     s  = SLApplication::scene;
-    SLSceneView* sv = s->sceneView(0);
+    SLSceneView* sv = SLApplication::sceneViews[0];
 
     if (CVCapture::instance()->videoType() != VT_NONE &&
         !CVCapture::instance()->lastFrame.empty())
     {
-        SLfloat trackingTimeStartMS = SLApplication::timeMS();
+        SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 
         CVCamera* ac = CVCapture::instance()->activeCamera;
 
@@ -308,7 +313,7 @@ bool onUpdateVideo()
         else
             SL_WARN_MSG("No video texture to copy to.");
 
-        CVTracked::trackingTimesMS.set(SLApplication::timeMS() - trackingTimeStartMS);
+        CVTracked::trackingTimesMS.set(GlobalTimer::timeMS() - trackingTimeStartMS);
         return true;
     }
 

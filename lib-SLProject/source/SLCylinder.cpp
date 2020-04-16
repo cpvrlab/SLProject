@@ -22,14 +22,15 @@
 /*!
 SLCylinder::SLCylinder ctor for cylindric revolution object around the z-axis.
 */
-SLCylinder::SLCylinder(SLfloat     cylinderRadius,
-                       SLfloat     cylinderHeight,
-                       SLuint      stacks,
-                       SLuint      slices,
-                       SLbool      hasTop,
-                       SLbool      hasBottom,
-                       SLstring    name,
-                       SLMaterial* mat) : SLRevolver(std::move(name))
+SLCylinder::SLCylinder(SLAssetManager* assetMgr,
+                       SLfloat         cylinderRadius,
+                       SLfloat         cylinderHeight,
+                       SLuint          stacks,
+                       SLuint          slices,
+                       SLbool          hasTop,
+                       SLbool          hasBottom,
+                       SLstring        name,
+                       SLMaterial*     mat) : SLRevolver(assetMgr, std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");

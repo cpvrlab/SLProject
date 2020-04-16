@@ -13,23 +13,48 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLGLState.h>
-#include <SLApplication.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLGLImGui::fontPropDots  = 16.0f;
 SLfloat SLGLImGui::fontFixedDots = 13.0f;
 //-----------------------------------------------------------------------------
-SLGLImGui::SLGLImGui()
+SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
+                     cbOnImGuiLoadConfig loadConfigCB,
+                     cbOnImGuiSaveConfig saveConfigCB,
+                     int                 dpi)
 {
-    // init build function pointer to zero
-    build = nullptr;
+    _build      = buildCB;
+    _saveConfig = saveConfigCB;
+
+    //create imgui context
+    ImGui::CreateContext();
+    //set default style to get a good initial configuration
+    ImGui::StyleColorsDark();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+
+    //load config
+    if (loadConfigCB)
+        loadConfigCB(dpi);
+    // Load GUI fonts depending on the resolution
+    loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+}
+//-----------------------------------------------------------------------------
+SLGLImGui::~SLGLImGui()
+{
+    if (_saveConfig)
+        _saveConfig();
+    // destroy imgui context after your last imgui call
+    ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void SLGLImGui::init()
+void SLGLImGui::init(std::string configPath)
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -52,7 +77,7 @@ void SLGLImGui::init()
     _mousePressed[2] = false;
 
     ImGuiIO&              io      = ImGui::GetIO();
-    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
+    static const SLstring inifile = configPath + "imgui.ini";
     io.IniFilename                = inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
@@ -309,8 +334,8 @@ void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
 //! Inits a new frame for the ImGui system
 void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
-    // If no build function is provided there is no ImGui
-    if (!build) return;
+    // If no _build function is provided there is no ImGui
+    if (!_build) return;
 
     if ((SLint)SLGLImGui::fontPropDots != (SLint)_fontPropDots ||
         (SLint)SLGLImGui::fontFixedDots != (SLint)_fontFixedDots)
@@ -322,7 +347,7 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     ImGuiIO& io = ImGui::GetIO();
 
     // Setup time step
-    SLfloat nowSec = SLApplication::timeS();
+    SLfloat nowSec = GlobalTimer::timeS();
     io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
     _timeSec = nowSec;
@@ -333,12 +358,12 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // Start the frame
     ImGui::NewFrame();
 
-    // Call the build function. The whole UI is constructed here
+    // Call the _build function. The whole UI is constructed here
     // This function is provided by the top-level project.
-    // For the SLProject demo apps this build function is implemented in the
+    // For the SLProject demo apps this _build function is implemented in the
     // class SLDemoGui.
-    if (build)
-        build(s, sv);
+    if (_build)
+        _build(s, sv);
 
     //SL_LOG(".");
 }
@@ -542,9 +567,8 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 //! Callback on mouse button up event
 void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
-    ImGuiIO& io             = ImGui::GetIO();
-    io.MousePos             = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
@@ -597,14 +621,13 @@ void SLGLImGui::onCharInput(SLuint c)
 void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
-    ImGui::Shutdown();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position
 void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
 {
-    // If ImGui build function exists render the ImGui
-    if (build)
+    // If ImGui _build function exists render the ImGui
+    if (_build)
     {
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);

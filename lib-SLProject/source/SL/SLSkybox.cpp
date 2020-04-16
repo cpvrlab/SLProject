@@ -20,6 +20,7 @@
 #include <SLMaterial.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -31,29 +32,32 @@ SLSkybox::SLSkybox(SLstring name) : SLNode(name)
 /*! All resources allocated are stored in the SLScene vectors for textures,
 materials, programs and meshes and get deleted at scene destruction.
 */
-SLSkybox::SLSkybox(SLstring cubeMapXPos,
-                   SLstring cubeMapXNeg,
-                   SLstring cubeMapYPos,
-                   SLstring cubeMapYNeg,
-                   SLstring cubeMapZPos,
-                   SLstring cubeMapZNeg,
-                   SLstring name) : SLNode(name)
+SLSkybox::SLSkybox(SLAssetManager* assetMgr,
+                   SLstring        cubeMapXPos,
+                   SLstring        cubeMapXNeg,
+                   SLstring        cubeMapYPos,
+                   SLstring        cubeMapYNeg,
+                   SLstring        cubeMapZPos,
+                   SLstring        cubeMapZNeg,
+                   SLstring        name) : SLNode(name)
 {
     // Create texture, material and program
-    SLGLTexture* cubeMap    = new SLGLTexture(cubeMapXPos,
+    SLGLTexture* cubeMap    = new SLGLTexture(assetMgr,
+                                           cubeMapXPos,
                                            cubeMapXNeg,
                                            cubeMapYPos,
                                            cubeMapYNeg,
                                            cubeMapZPos,
                                            cubeMapZNeg);
-    SLMaterial*  matCubeMap = new SLMaterial("matCubeMap");
+    SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
-    SLGLProgram* sp = new SLGLGenericProgram("SkyBox.vert", "SkyBox.frag");
+    SLGLProgram* sp = new SLGLGenericProgram(assetMgr, "SkyBox.vert", "SkyBox.frag");
     matCubeMap->program(sp);
 
     // Create a box with max. point at min. parameter and vice versa.
     // Like this the boxes normals will point to the inside.
-    this->addMesh(new SLBox(10, 10, 10, -10, -10, -10, "box", matCubeMap));
+    assert(assetMgr && "SLSkybox: asset manager is currently mandandory for skyboxes! Alternatively the livetime of the box has to be managed in the skybox!");
+    this->addMesh(new SLBox(assetMgr, 10, 10, 10, -10, -10, -10, "box", matCubeMap));
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.

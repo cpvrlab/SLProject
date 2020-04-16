@@ -12,7 +12,6 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLGLState.h>
-#include <SLApplication.h>
 #include <SLGLProgram.h>
 #include <SLGLVertexArray.h>
 #include <SLScene.h>

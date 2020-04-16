@@ -12,6 +12,8 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
@@ -22,6 +24,8 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     )
@@ -43,6 +47,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
         PRIVATE
+    ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
         ${glfw_INCLUDE_DIR}

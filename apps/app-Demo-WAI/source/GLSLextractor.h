@@ -1,4 +1,4 @@
-#if not defined(TARGET_OS_IOS) or (TARGET_OS_IOS==0)
+#if !defined(TARGET_OS_IOS) or (TARGET_OS_IOS == 0)
 #    ifndef GLSLEXTRACTOR
 #        define GLSLEXTRACTOR
 #        include <vector>

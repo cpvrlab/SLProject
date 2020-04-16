@@ -28,9 +28,9 @@ is 1.0 the minimal line spacing is used.
 */
 class SLText : public SLNode
 {
-    public:
+public:
     SLText(SLstring   text,
-           SLTexFont* font             = SLTexFont::font09,
+           SLTexFont* font, // = SLTexFont::font09,
            SLCol4f    txtCol           = SLCol4f::WHITE,
            SLfloat    maxWidth         = 0.0f,
            SLfloat    lineHeightFactor = 1.3f);
@@ -54,7 +54,7 @@ class SLText : public SLNode
     SLfloat  fontHeightPX() { return (SLfloat)_font->charsHeight; }
     SLint    length() { return (SLint)_text.length(); }
 
-    protected:
+protected:
     SLstring        _text;  //!< Text of the button
     SLTexFont*      _font;  //!< Font pointer of the preloaded font
     SLCol4f         _color; //!< RGBA-Color of the text

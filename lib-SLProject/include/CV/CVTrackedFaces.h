@@ -34,10 +34,10 @@ see the comments in CVTrackedFaces::track method.
 class CVTrackedFaces : public CVTracked
 {
 public:
-    explicit CVTrackedFaces(int           smoothLength           = 5,
-                            const string& faceClassifierFilename = "haarcascade_frontalface_alt2.xml",
-                            const string& faceMarkModelFilename  = "lbfmodel.yaml");
-    ~CVTrackedFaces() override;
+    explicit CVTrackedFaces(string faceClassifierFilename, /*"haarcascade_frontalface_alt2.xml"*/
+                            string faceMarkModelFilename,  /*"lbfmodel.yaml"*/
+                            int    smoothLength = 5);
+    ~CVTrackedFaces();
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,

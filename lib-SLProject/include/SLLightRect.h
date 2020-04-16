@@ -16,6 +16,8 @@
 
 class SLSceneView;
 class SLRay;
+class SLAssetManager;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
@@ -39,25 +41,29 @@ following shaders: \n
 class SLLightRect : public SLNode
   , public SLLight
 {
-    public:
-    SLLightRect(SLfloat width   = 1,
-                SLfloat height  = 1,
-                SLbool  hasMesh = true);
-    ~SLLightRect() { ; }
+public:
+    SLLightRect(SLAssetManager* assetMgr,
+                SLScene*        s,
+                SLfloat         width   = 1,
+                SLfloat         height  = 1,
+                SLbool          hasMesh = true);
+    ~SLLightRect() override { ; }
 
-    void init();
-    void drawRec(SLSceneView* sv);
-    bool hitRec(SLRay* ray);
-    void statsRec(SLNodeStats& stats);
-    void drawMeshes(SLSceneView* sv);
+    void init(SLScene* s);
+    void drawRec(SLSceneView* sv) override;
+    bool hitRec(SLRay* ray) override;
+    void statsRec(SLNodeStats& stats) override;
+    void drawMeshes(SLSceneView* sv) override;
 
-    void    setState();
+    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       SLfloat        lightDist);
+                       SLfloat        lightDist,
+                       SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         SLfloat        lightDist);
+                         SLfloat        lightDist,
+                         SLNode*        root3D) override;
 
     // Setters
     void width(const SLfloat w)
@@ -76,13 +82,16 @@ class SLLightRect : public SLNode
     // Getters
     SLfloat width() { return _width; }
     SLfloat height() { return _height; }
-    SLVec4f positionWS() { return updateAndGetWM().translation(); }
-    SLVec3f spotDirWS() { return SLVec3f(_wm.m(8),
-                                         _wm.m(9),
-                                         _wm.m(10)) *
-                                 -1.0; }
+    SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
+    SLVec3f spotDirWS() override
+    {
+        return SLVec3f(_wm.m(8),
+                       _wm.m(9),
+                       _wm.m(10)) *
+               -1.0;
+    }
 
-    private:
+private:
     SLfloat _width;      //!< Width of square light in x direction
     SLfloat _height;     //!< Lenght of square light in y direction
     SLfloat _halfWidth;  //!< Half width of square light in x dir

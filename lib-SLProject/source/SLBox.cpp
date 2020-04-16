@@ -19,14 +19,15 @@
 
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. coords. of the axis aligned box
-SLBox::SLBox(SLfloat     minx,
-             SLfloat     miny,
-             SLfloat     minz,
-             SLfloat     maxx,
-             SLfloat     maxy,
-             SLfloat     maxz,
-             SLstring    name,
-             SLMaterial* mat) : SLMesh(name)
+SLBox::SLBox(SLAssetManager* assetMgr,
+             SLfloat         minx,
+             SLfloat         miny,
+             SLfloat         minz,
+             SLfloat         maxx,
+             SLfloat         maxy,
+             SLfloat         maxz,
+             const SLstring& name,
+             SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     _min.set(minx, miny, minz);
     _max.set(maxx, maxy, maxz);
@@ -36,10 +37,11 @@ SLBox::SLBox(SLfloat     minx,
 }
 //-----------------------------------------------------------------------------
 //! SLBox::SLBox ctor with min. & max. vectors of the axis aligned box
-SLBox::SLBox(SLVec3f     min,
-             SLVec3f     max,
-             SLstring    name,
-             SLMaterial* mat) : SLMesh(name)
+SLBox::SLBox(SLAssetManager* assetMgr,
+             const SLVec3f&  min,
+             const SLVec3f&  max,
+             const SLstring& name,
+             SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     _min.set(min);
     _max.set(max);
@@ -113,9 +115,9 @@ void SLBox::buildMesh(SLMaterial* material)
     P[p].x=_min.x; P[p].y=_min.y; P[p].z=_max.z; N[p]=-NY; p++;  // 20
     P[p].x=_min.x; P[p].y=_min.y; P[p].z=_min.z; N[p]=-NY; p++;  // 21
     P[p].x=_max.x; P[p].y=_min.y; P[p].z=_min.z; N[p]=-NY; p++;  // 22
-    P[p].x=_max.x; P[p].y=_min.y; P[p].z=_max.z; N[p]=-NY; p++;  // 23   
+    P[p].x=_max.x; P[p].y=_min.y; P[p].z=_max.z; N[p]=-NY;       // 23
     I16[i++] = 20; I16[i++] = 21; I16[i++] = 22;
-    I16[i++] = 20; I16[i++] = 22; I16[i++] = 23;
+    I16[i++] = 20; I16[i++] = 22; I16[i] = 23;
 }
 //-----------------------------------------------------------------------------
 

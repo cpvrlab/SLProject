@@ -15,6 +15,7 @@
 #include <SLCamera.h>
 #include <SLGLVertexArray.h>
 
+class SLGLProgram;
 //-----------------------------------------------------------------------------
 //! Wrapper around Oculus Rift and its Frame Buffer Objects
 /*! This class is depricated since the lib_ovr from Oculus completely changed
@@ -23,13 +24,13 @@ for devkit2 under windows.
 */
 class SLGLOculusFB
 {
-    public:
+public:
     SLGLOculusFB();
     ~SLGLOculusFB();
 
     void bindFramebuffer(SLint scrWidth,
                          SLint scrHeight);
-    void drawFramebuffer();
+    void drawFramebuffer(SLGLProgram* stereoOculusProgram);
     void updateSize(SLint scrWidth,
                     SLint scrHeight);
 
@@ -39,7 +40,7 @@ class SLGLOculusFB
     SLint  height() { return _height; }
     SLuint texID() { return _texID; }
 
-    private:
+private:
     void dispose();
     void generateFBO();
 

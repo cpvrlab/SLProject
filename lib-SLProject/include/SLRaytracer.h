@@ -12,6 +12,8 @@
 
 #include <SLEventHandler.h>
 #include <SLGLTexture.h>
+#include <SLVec4.h>
+#include <SLLight.h>
 
 class SLScene;
 class SLSceneView;
@@ -52,18 +54,18 @@ the ray intersection tests is done within the intersection method of all nodes.
 class SLRaytracer : public SLGLTexture
   , public SLEventHandler
 {
-    public:
+public:
     SLRaytracer();
     ~SLRaytracer() override;
 
     // ray tracer functions
     SLbool         renderClassic(SLSceneView* sv);
     SLbool         renderDistrib(SLSceneView* sv);
-    void           renderSlices(bool isMainThread);
-    void           renderSlicesMS(bool isMainThread);
-    SLCol4f        trace(SLRay* ray);
-    static SLCol4f shade(SLRay* ray);
-    void           sampleAAPixels(bool isMainThread);
+    void           renderSlices(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
+    void           renderSlicesMS(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
+    SLCol4f        trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
+    static SLCol4f shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
+    void           sampleAAPixels(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
     void           renderUIBeforeUpdate();
 
     // additional ray tracer functions
@@ -124,7 +126,7 @@ class SLRaytracer : public SLGLTexture
     void renderImage();
     void saveImage();
 
-    protected:
+protected:
     SLSceneView* _sv;            //!< Parent sceneview
     SLRTState    _state;         //!< RT state;
     SLCamera*    _cam;           //!< shortcut to the camera

@@ -18,6 +18,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
+#include <SLProjectScene.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -98,16 +99,19 @@ See examples usages in:
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
 */
-int slCreateSceneView(int       screenWidth,
-                      int       screenHeight,
-                      int       dotsPerInch,
-                      SLSceneID initScene,
-                      void*     onWndUpdateCallback,
-                      void*     onSelectNodeMeshCallback,
-                      void*     onNewSceneViewCallback,
-                      void*     onImGuiBuild)
+SLint slCreateSceneView(SLProjectScene* scene,
+                        int             screenWidth,
+                        int             screenHeight,
+                        int             dotsPerInch,
+                        SLSceneID       initScene,
+                        void*           onWndUpdateCallback,
+                        void*           onSelectNodeMeshCallback,
+                        void*           onNewSceneViewCallback,
+                        void*           onImGuiBuild,
+                        void*           onImGuiLoadConfig,
+                        void*           onImGuiSaveConfig)
 {
-    assert(SLApplication::scene && "No SLApplication::scene!");
+    assert(scene && "No valid scene!");
 
     // Use our own sceneview creator callback or the the passed one.
     cbOnNewSceneView newSVCallback;
@@ -117,40 +121,36 @@ int slCreateSceneView(int       screenWidth,
         newSVCallback = (cbOnNewSceneView)onNewSceneViewCallback;
 
     // Create the sceneview & get the pointer with the sceneview index
-    SLuint       index = (SLuint)newSVCallback();
-    SLSceneView* sv    = SLApplication::scene->sceneView(index);
+    SLSceneView* sv = newSVCallback(scene, dotsPerInch, SLApplication::inputManager);
+    //maintain multiple scene views in SLApplication
+    SLApplication::sceneViews.push_back(sv);
 
-    SLGLImGui* gui = new SLGLImGui();
-    // Load GUI fonts depending on the resolution
-    gui->loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
-    gui->build = (cbOnImGuiBuild)onImGuiBuild;
+    SLApplication::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
+                                       (cbOnImGuiLoadConfig)onImGuiLoadConfig,
+                                       (cbOnImGuiSaveConfig)onImGuiSaveConfig,
+                                       dotsPerInch);
 
     sv->init("SceneView",
              screenWidth,
              screenHeight,
              onWndUpdateCallback,
              onSelectNodeMeshCallback,
-             gui);
-
-    // Set default font sizes depending on the dpi no matter if ImGui is used
-    if (!SLApplication::dpi) SLApplication::dpi = dotsPerInch;
-
-    // Load GUI fonts depending on the resolution
-    //sv->gui().loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+             SLApplication::gui,
+             SLApplication::configPath);
 
     // Set active sceneview and load scene. This is done for the first sceneview
-    if (!SLApplication::scene->root3D())
+    if (!scene->root3D())
     {
         if (SLApplication::sceneID == SID_Empty)
-            SLApplication::scene->onLoad(SLApplication::scene, sv, initScene);
+            scene->onLoad(SLApplication::scene, sv, initScene);
         else
-            SLApplication::scene->onLoad(SLApplication::scene, sv, SLApplication::sceneID);
+            scene->onLoad(scene, sv, SLApplication::sceneID);
     }
     else
         sv->onInitialize();
 
     // return the identifier index
-    return (SLint)sv->index();
+    return SLApplication::sceneViews.size() - 1;
 }
 //-----------------------------------------------------------------------------
 /*! Global sceneview construction function returning the index of the created
@@ -158,10 +158,9 @@ sceneview instance. If you have a custom SLSceneView inherited class you
 have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
-int slNewSceneView()
+SLSceneView* slNewSceneView(SLScene* s, int dotsPerInch, SLInputManager& inputManager)
 {
-    SLSceneView* sv = new SLSceneView();
-    return (SLint)sv->index();
+    return new SLSceneView(s, dotsPerInch, inputManager);
 }
 //-----------------------------------------------------------------------------
 /*! Global closing function that deallocates the sceneview and scene instances.
@@ -191,19 +190,17 @@ void slTerminate()
     SLApplication::deleteAppAndScene();
 }
 //-----------------------------------------------------------------------------
-bool slUpdateScene()
+bool slUpdateParallelJob()
 {
     SLApplication::handleParallelJob();
-    bool sceneGotUpdated = SLApplication::scene->onUpdate();
-
-    return SLApplication::jobIsRunning || sceneGotUpdated;
+    return SLApplication::jobIsRunning;
 }
 //-----------------------------------------------------------------------------
 bool slPaintAllViews()
 {
     bool needUpdate = false;
 
-    for (auto sv : SLApplication::scene->sceneViews())
+    for (auto sv : SLApplication::sceneViews)
         if (sv->onPaint() && !needUpdate)
             needUpdate = true;
 
@@ -443,7 +440,7 @@ void slLocationLLA(double latitudeDEG,
 //! Global function to retrieve a window title generated by the scene library.
 string slGetWindowTitle(int sceneViewIndex)
 {
-    SLSceneView* sv = SLApplication::scene->sceneView((SLuint)sceneViewIndex);
+    SLSceneView* sv = SLApplication::sceneViews[(SLuint)sceneViewIndex];
     return sv->windowTitle();
 }
 //-----------------------------------------------------------------------------

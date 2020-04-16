@@ -21,6 +21,9 @@ struct aiMaterial;
 struct aiAnimation;
 struct aiMesh;
 
+class SLAssetManager;
+class SLAnimManager;
+
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
 //-----------------------------------------------------------------------------
@@ -30,19 +33,22 @@ supported file formats and the import processing options.
 */
 class SLAssimpImporter : public SLImporter
 {
-    public:
-    SLAssimpImporter() {}
-    SLAssimpImporter(SLLogVerbosity consoleVerb)
+public:
+    SLAssimpImporter() = default;
+    explicit SLAssimpImporter(SLLogVerbosity consoleVerb)
       : SLImporter(consoleVerb) {}
-    SLAssimpImporter(SLstring&      logFile,
-                     SLLogVerbosity logConsoleVerb = LV_normal,
-                     SLLogVerbosity logFileVerb    = LV_diagnostic)
+    explicit SLAssimpImporter(SLstring&      logFile,
+                              SLLogVerbosity logConsoleVerb = LV_normal,
+                              SLLogVerbosity logFileVerb    = LV_diagnostic)
       : SLImporter(logFile, logConsoleVerb, logFileVerb) {}
 
-    SLNode* load(SLstring    pathFilename,
-                 SLbool      loadMeshesOnly = true,
-                 SLMaterial* overrideMat    = nullptr,
-                 SLuint      flags =
+    SLNode* load(SLAnimManager&  aniMan,
+                 SLAssetManager* assetMgr,
+                 SLstring        pathAndFile,
+                 SLbool          loadMeshesOnly = true,
+                 SLMaterial*     overrideMat    = nullptr,
+                 float           ambientFactor  = 0.0f,
+                 SLuint          flags =
                    SLProcess_Triangulate |
                    SLProcess_JoinIdenticalVertices |
                    SLProcess_RemoveRedundantMaterials |
@@ -71,25 +77,25 @@ class SLAssimpImporter : public SLImporter
                  //|SLProcess_Dejoint
     );
 
-    protected:
+protected:
     // intermediate containers
     typedef std::map<SLstring, aiNode*> SLNodeMap;
     typedef std::map<SLstring, SLMat4f> SLJointOffsetMap;
     typedef std::vector<aiNode*>        SLVaiNode;
 
-    SLNodeMap        _nodeMap;      //!< map containing name to aiNode releationships
-    SLJointOffsetMap _jointOffsets; //!< map containing name to joint offset matrices
-    aiNode*          _skeletonRoot; //!< the common aiNode root for the skeleton of this file
+    SLNodeMap        _nodeMap;        //!< map containing name to aiNode releationships
+    SLJointOffsetMap _jointOffsets;   //!< map containing name to joint offset matrices
+    aiNode*          _skeletonRoot{}; //!< the common aiNode root for the skeleton of this file
 
     // SL type containers
     typedef std::vector<SLMesh*> MeshList;
 
-    SLuint   _jointIndex;    //!< index counter used when iterating over joints
+    SLuint   _jointIndex{};  //!< index counter used when iterating over joints
     MeshList _skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
 
     // loading helper
-    aiNode*       getNodeByName(const SLstring& name); // return an aiNode ptr if name exists, or null if it doesn't
-    const SLMat4f getOffsetMat(const SLstring& name);  // return an aiJoint ptr if name exists, or null if it doesn't
+    aiNode* getNodeByName(const SLstring& name); // return an aiNode ptr if name exists, or null if it doesn't
+    SLMat4f getOffsetMat(const SLstring& name);  // return an aiJoint ptr if name exists, or null if it doesn't
 
     void performInitialScan(const aiScene* scene); // populates nameToNode, nameToJoint, jointGroups, skinnedMeshes,
     void findNodes(aiNode*  node,
@@ -98,21 +104,23 @@ class SLAssimpImporter : public SLImporter
     void findJoints(const aiScene* scene); // scans all meshes in the assimp scene and populates nameToJoint and jointGroups
     void findSkeletonRoot();               // finds the common ancestor for each remaining group in jointGroups, these are our final skeleton roots
 
-    void loadSkeleton(SLJoint* parent, aiNode* node);
-
-    SLMaterial*  loadMaterial(SLint       index,
-                              aiMaterial* material,
-                              SLstring    modelPath);
-    SLGLTexture* loadTexture(SLstring&     path,
-                             SLTextureType texType);
-    SLMesh*      loadMesh(aiMesh* mesh);
-    SLNode*      loadNodesRec(SLNode*    curNode,
-                              aiNode*    aiNode,
-                              SLMeshMap& meshes,
-                              SLbool     loadMeshesOnly = true);
-    SLAnimation* loadAnimation(aiAnimation* anim);
-    SLstring     checkFilePath(SLstring modelPath, SLstring texFile);
-    SLbool       aiNodeHasMesh(aiNode* node);
+    void                loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node);
+    static SLMaterial*  loadMaterial(SLAssetManager* s,
+                                     SLint           index,
+                                     aiMaterial*     material,
+                                     const SLstring& modelPath,
+                                     float           ambientFactor = 0.0f);
+    static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
+                                    SLstring&       path,
+                                    SLTextureType   texType);
+    SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
+    SLNode*             loadNodesRec(SLNode*    curNode,
+                                     aiNode*    aiNode,
+                                     SLMeshMap& meshes,
+                                     SLbool     loadMeshesOnly = true);
+    SLAnimation*        loadAnimation(SLAnimManager& animManager, aiAnimation* anim);
+    static SLstring     checkFilePath(const SLstring& modelPath, SLstring texFile);
+    SLbool              aiNodeHasMesh(aiNode* node);
 
     // misc helper
     void clear();

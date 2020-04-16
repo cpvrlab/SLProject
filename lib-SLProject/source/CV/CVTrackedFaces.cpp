@@ -18,7 +18,6 @@ for a good top down information.
 */
 #include <CVTrackedFaces.h>
 #include <Utils.h>
-#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for the facial landmark tracker
@@ -30,34 +29,27 @@ used for pose estimation.
 \param faceClassifierFilename Name of the cascaded face training file
 \param faceMarkModelFilename Name of the facial landmark training file
 */
-CVTrackedFaces::CVTrackedFaces(int           smoothLenght,
-                               const string& faceClassifierFilename,
-                               const string& faceMarkModelFilename)
+CVTrackedFaces::CVTrackedFaces(string faceClassifierFilename,
+                               string faceMarkModelFilename,
+                               int    smoothLenght)
 {
     // Load Haar cascade training file for the face detection
-    string faceClassifier = Utils::findFile(faceClassifierFilename,
-                                            {SLApplication::calibIniPath,
-                                             SLApplication::exePath});
-    if (!Utils::fileExists(faceClassifier))
+    if (!Utils::fileExists(faceClassifierFilename))
     {
         string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
-
-    _faceDetector = new CVCascadeClassifier(faceClassifier);
+    _faceDetector = new CVCascadeClassifier(faceClassifierFilename);
 
     // Load facemark model file for the facial landmark detection
-    string faceModel = Utils::findFile(faceMarkModelFilename,
-                                       {SLApplication::calibIniPath,
-                                        SLApplication::exePath});
-    if (!Utils::fileExists(faceClassifier))
+    if (!Utils::fileExists(faceMarkModelFilename))
     {
         string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
     _facemark = cv::face::FacemarkLBF::create();
-    _facemark->loadModel(faceModel);
+    _facemark->loadModel(faceMarkModelFilename);
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;
@@ -91,20 +83,20 @@ CVTrackedFaces::~CVTrackedFaces()
 }
 //-----------------------------------------------------------------------------
 //! Tracks the a face and its landmarks
-/* This function is called every frame in the apps onUpdateVideo function.
- The tracking is done by first detecting the face with a pretrained cascaded
- face classifier implemented in OpenCV. The facial landmarks are detected with
- the OpenCV face module using the facemarkLBF detector. More information about
- OpenCV facial landmark detection can be found on:
- https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
- \n
- The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D
- and their corresponding 2D points detected by the cv::facemark detector. For
- smoothing out the jittering we average the last few detections.
- \param imageGray Image for processing
- \param imageRgb Image for visualizations
- \param calib Pointer to a valid camera calibration
- \return returns true if pose estimation was successful
+/* The tracking is done by first detecting the face with a pretrained cascaded
+face classifier implemented in OpenCV. The facial landmarks are detected with
+the OpenCV face module using the facemarkLBF detector. More information about
+OpenCV facial landmark detection can be found on:
+https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
+\n
+The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D 
+and their corresponding 2D points detected by the cv::facemark detector. For
+smoothing out the jittering we average the last few detections.
+\param imageGray Image for processing
+\param imageRgb Image for visualizations
+\param calib Pointer to a valid camera calibration 
+\param drawDetection Flag for drawing the detected obbjects
+\param sv Pointer to the sceneview
 */
 bool CVTrackedFaces::track(CVMat          imageGray,
                            CVMat          imageRgb,

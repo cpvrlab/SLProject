@@ -16,32 +16,33 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <opencv2/opencv.hpp>
+#include <SLApplication.h>
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 #include <GLFW/glfw3.h>
 
-extern void appNodeLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sid);
+extern void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
-GLFWwindow*       window;                     //!< The global GLFW window handle.
-SLint             svIndex;                    //!< SceneView index
-SLint             scrWidth;                   //!< Window width at start up
-SLint             scrHeight;                  //!< Window height at start up
-SLfloat           scr2fbX;                    //!< Factor from screen to framebuffer coords
-SLfloat           scr2fbY;                    //!< Factor from screen to framebuffer coords
-SLint             mouseX;                     //!< Last mouse position x in pixels
-SLint             mouseY;                     //!< Last mouse position y in pixels
-SLint             touchX2;                    //!< Last finger touch 2 position x in pixels
-SLint             touchY2;                    //!< Last finger touch 2 position y in pixels
-SLint             touchDeltaX;                //!< Delta between two fingers in x
-SLint             touchDeltaY;                //!< Delta between two fingers in <
-SLint             lastWidth;                  //!< Last window width in pixels
-SLint             lastHeight;                 //!< Last window height in pixels
-SLint             lastMouseWheelPos;          //!< Last mouse wheel position
-SLfloat           lastMouseDownTime = 0.0f;   //!< Last mouse press time
-SLKey             modifiers         = K_none; //!< last modifier keys
-SLbool            fullscreen        = false;  //!< flag if window is in fullscreen mode
+GLFWwindow* window;                     //!< The global GLFW window handle.
+SLint       svIndex;                    //!< SceneView index
+SLint       scrWidth;                   //!< Window width at start up
+SLint       scrHeight;                  //!< Window height at start up
+SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
+SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
+SLint       mouseX;                     //!< Last mouse position x in pixels
+SLint       mouseY;                     //!< Last mouse position y in pixels
+SLint       touchX2;                    //!< Last finger touch 2 position x in pixels
+SLint       touchY2;                    //!< Last finger touch 2 position y in pixels
+SLint       touchDeltaX;                //!< Delta between two fingers in x
+SLint       touchDeltaY;                //!< Delta between two fingers in <
+SLint       lastWidth;                  //!< Last window width in pixels
+SLint       lastHeight;                 //!< Last window height in pixels
+SLint       lastMouseWheelPos;          //!< Last mouse wheel position
+SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
+SLKey       modifiers         = K_none; //!< last modifier keys
+SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
 //-----------------------------------------------------------------------------
 /*! 
@@ -62,11 +63,11 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 SLbool onPaint()
 {
     /////////////////////////////////////////////
-    bool sceneGotUpdated   = slUpdateScene();
+    bool jobIsRunning      = slUpdateParallelJob();
     bool viewsNeedsRepaint = slPaintAllViews();
     /////////////////////////////////////////////
 
-    return sceneGotUpdated || viewsNeedsRepaint;
+    return jobIsRunning || viewsNeedsRepaint;
 }
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes
@@ -388,10 +389,9 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppNodeSceneView()
+SLSceneView* createAppNodeSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManager)
 {
-    SLSceneView* appNodeSV = new AppNodeSceneView;
-    return appNodeSV->index();
+    return new AppNodeSceneView(scene, dpi, inputManager);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -486,7 +486,8 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView((int)(scrWidth * scr2fbX),
+    svIndex = slCreateSceneView(SLApplication::scene,
+                                (int)(scrWidth * scr2fbX),
                                 (int)(scrHeight * scr2fbY),
                                 dpi,
                                 (SLSceneID)0,

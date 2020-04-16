@@ -14,7 +14,6 @@
 #    include <nvwa/debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
 #include <SLLightRect.h>
 #include <SLPolygon.h>
 #include <SLRay.h>
@@ -24,9 +23,11 @@
 extern SLfloat rnd01();
 
 //-----------------------------------------------------------------------------
-SLLightRect::SLLightRect(SLfloat w,
-                         SLfloat h,
-                         SLbool  hasMesh) : SLNode("LightRect Node")
+SLLightRect::SLLightRect(SLAssetManager* assetMgr,
+                         SLScene*        s,
+                         SLfloat         w,
+                         SLfloat         h,
+                         SLbool          hasMesh) : SLNode("LightRect Node")
 {
     width(w);
     height(h);
@@ -42,12 +43,13 @@ SLLightRect::SLLightRect(SLfloat w,
 
     if (hasMesh)
     {
-        SLMaterial* mat = new SLMaterial("LightRect Mesh Mat",
+        SLMaterial* mat = new SLMaterial(assetMgr,
+                                         "LightRect Mesh Mat",
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
-        addMesh(new SLPolygon(w, h, "LightRect Mesh", mat));
+        addMesh(new SLPolygon(assetMgr, w, h, "LightRect Mesh", mat));
     }
-    init();
+    init(s);
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -55,23 +57,23 @@ SLLightRect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
-void SLLightRect::init()
+void SLLightRect::init(SLScene* s)
 {
     // Check if OpenGL lights are available
-    if (SLApplication::scene->lights().size() >= SL_MAX_LIGHTS)
+    if (s->lights().size() >= SL_MAX_LIGHTS)
         SL_EXIT_MSG("Max. NO. of lights is exceeded!");
 
     // Add the light to the lights vector of the scene
     if (_id == -1)
     {
-        _id = (SLint)SLApplication::scene->lights().size();
-        SLApplication::scene->lights().push_back(this);
+        _id = (SLint)s->lights().size();
+        s->lights().push_back(this);
     }
 
     // Set the OpenGL light states
     setState();
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+    SLGLState* stateGL     = SLGLState::instance();
+    stateGL->numLightsUsed = (SLint)s->lights().size();
 
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
@@ -89,8 +91,8 @@ void SLLightRect::drawRec(SLSceneView* sv)
     {
         // Set the OpenGL light states
         setState();
-        SLGLState* stateGL = SLGLState::instance();
-        stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+        SLGLState* stateGL     = SLGLState::instance();
+        stateGL->numLightsUsed = (SLint)sv->s().lights().size();
 
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
@@ -135,8 +137,8 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
     {
         // Set the OpenGL light states
         setState();
-        SLGLState* stateGL = SLGLState::instance();
-        stateGL->numLightsUsed = (SLint)SLApplication::scene->lights().size();
+        SLGLState* stateGL     = SLGLState::instance();
+        stateGL->numLightsUsed = (SLint)sv->s().lights().size();
 
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
@@ -155,16 +157,17 @@ SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and
 1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio 
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
-SLfloat SLLightRect::shadowTest(SLRay*         ray,      // ray of hit point
-                                const SLVec3f& L,        // vector from hit point to light
-                                const SLfloat  lightDist) // distance to light
+SLfloat SLLightRect::shadowTest(SLRay*         ray,       // ray of hit point
+                                const SLVec3f& L,         // vector from hit point to light
+                                const SLfloat  lightDist, // distance to light
+                                SLNode*        root3D)
 {
     if (_samples.x == 1 && _samples.y == 1)
     {
         // define shadow ray
         SLRay shadowRay(lightDist, L, ray);
 
-        SLApplication::scene->root3D()->hitRec(&shadowRay);
+        root3D->hitRec(&shadowRay);
 
         return (shadowRay.length < lightDist) ? 0.0f : 1.0f;
     }
@@ -223,7 +226,7 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,      // ray of hit point
                 SP.normalize();
                 SLRay shadowRay(SPDist, SP, ray);
 
-                SLApplication::scene->root3D()->hitRec(&shadowRay);
+                root3D->hitRec(&shadowRay);
 
                 if (shadowRay.length >= SPDist - FLT_EPSILON)
                     lighted += invSamples; // sum up the light
@@ -248,7 +251,7 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,      // ray of hit point
                         SP.normalize();
                         SLRay shadowRay(SPDist, SP, ray);
 
-                        SLApplication::scene->root3D()->hitRec(&shadowRay);
+                        root3D->hitRec(&shadowRay);
 
                         // sum up the light
                         if (shadowRay.length >= SPDist - FLT_EPSILON)
@@ -265,9 +268,10 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,      // ray of hit point
 SLLightRect::shadowTestMC returns 0.0 if the hit point is shaded and 1.0 if it
 lighted. Only one shadow sample is tested for path tracing.
 */
-SLfloat SLLightRect::shadowTestMC(SLRay*         ray,      // ray of hit point
-                                  const SLVec3f& L,        // vector from hit point to light
-                                  const SLfloat  lightDist) // distance to light
+SLfloat SLLightRect::shadowTestMC(SLRay*         ray,       // ray of hit point
+                                  const SLVec3f& L,         // vector from hit point to light
+                                  const SLfloat  lightDist, // distance to light
+                                  SLNode*        root3D)
 {
     SLfloat rndX = rnd01();
     SLfloat rndY = rnd01();
@@ -284,7 +288,7 @@ SLfloat SLLightRect::shadowTestMC(SLRay*         ray,      // ray of hit point
     spWS.normalize();
     SLRay shadowRay(spDistWS, spWS, ray);
 
-    SLApplication::scene->root3D()->hitRec(&shadowRay);
+    root3D->hitRec(&shadowRay);
 
     return (shadowRay.length < spDistWS) ? 0.0f : 1.0f;
 }
@@ -295,7 +299,7 @@ void SLLightRect::setState()
 {
     if (_id != -1)
     {
-        SLGLState* stateGL = SLGLState::instance();
+        SLGLState* stateGL            = SLGLState::instance();
         stateGL->lightIsOn[_id]       = _isOn;
         stateGL->lightPosWS[_id]      = positionWS();
         stateGL->lightSpotDirWS[_id]  = spotDirWS();

@@ -30,7 +30,7 @@
 #import <mach-o/arch.h>
 
 // Forward declaration of C functions in other files
-extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
@@ -56,10 +56,12 @@ SLbool onPaintRTGL()
 
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLuint createAppDemoSceneView()
+SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
+                                    int             dpi,
+                                    SLInputManager& inputManager)
 {
-    SLSceneView* appDemoSV = new AppDemoSceneView();
-    return appDemoSV->index();
+    // The sceneview will be deleted by SLScene::~SLScene()
+    return new AppDemoSceneView(scene, dpi, inputManager);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -152,17 +154,17 @@ float GetSeconds()
     const NXArchInfo* archInfo = NXGetLocalArchInfo();
     NSString* arch = [NSString stringWithUTF8String:archInfo->description];
     
-    SLApplication::computerModel = std::string([model UTF8String]);
-    SLApplication::computerOSVer = std::string([osver UTF8String]);
-    SLApplication::computerArch  = std::string([arch UTF8String]);
+    Utils::ComputerInfos::model = std::string([model UTF8String]);
+    Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
+    Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
     
     SLApplication::calibIniPath  = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
     //Utils::dumpFileSystemRec("SLProject", SLApplication::exePath);
     
     CVImage::defaultPath = SLApplication::exePath;
-    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
-                                            SLApplication::configPath, // for stored calibrations
-                                            SLApplication::exePath);   // for videos
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
+                                            SLApplication::configPath,   // for stored calibrations
+                                            SLApplication::exePath);     // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -173,20 +175,18 @@ float GetSeconds()
                         SLApplication::configPath,
                         "AppDemo_iOS",
                         (void*)appDemoLoadScene);
-    /////////////////////////////////////////////
-    
-    // This load the GUI configs that are locally stored
-    AppDemoGui::loadConfig(dpi);
    
     ///////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
+    svIndex = slCreateSceneView(SLApplication::scene,self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
                                 SID_Revolver,
                                 (void*)&onPaintRTGL,
                                 0,
                                 (void*)createAppDemoSceneView,
-                                (void*)AppDemoGui::build);
+                                (void*)AppDemoGui::build,
+								(void*)AppDemoGui::loadConfig,
+                                (void*)AppDemoGui::saveConfig);
     ///////////////////////////////////////////////////////////////////////
     
     [self setupMotionManager: 1.0/20.0];
@@ -232,7 +232,7 @@ float GetSeconds()
     
     /////////////////////////////////////////////
     bool trackingGotUpdated = onUpdateVideo();
-    bool sceneGotUpdated    = slUpdateScene();
+    bool jobIsRunning       = slUpdateParallelJob();
     bool viewsNeedsRepaint  = slPaintAllViews();
     /////////////////////////////////////////////
     
@@ -240,7 +240,6 @@ float GetSeconds()
     
     if (slShouldClose())
     {
-        AppDemoGui::saveConfig();
         slTerminate();
         exit(0);
     }
@@ -391,11 +390,11 @@ float GetSeconds()
         return;
     }
     
-    SLSceneView* sv = SLApplication::scene->sceneView(0);
+    SLSceneView* sv = SLApplication::sceneViews[0];
     CVCapture* capture = CVCapture::instance();
     float videoImgWdivH = (float)imgWidth / (float)imgHeight;
 
-    if (SLApplication::scene->sceneView(0)->viewportSameAsVideo())
+    if (sv->viewportSameAsVideo())
     {
         // If video aspect has changed we need to tell the new viewport to the sceneview
         if (Utils::abs(videoImgWdivH - sv->viewportWdivH()) > 0.01f)
@@ -543,7 +542,7 @@ float GetSeconds()
             [m_avSession stopRunning];
         }
         
-        SLSceneView* sv = SLApplication::scene->sceneView(0);
+        SLSceneView* sv = SLApplication::sceneViews[0];
         CVCapture* capture = CVCapture::instance();
 
         // Get the current capture size of the videofile

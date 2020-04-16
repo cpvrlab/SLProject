@@ -16,24 +16,28 @@
 #    include <debug_new.h> // memory leak detector
 #endif
 
-#include <SLApplication.h>
-#include <SLSceneView.h>
 #include <ImGuiWrapper.h>
+#include <SLSceneView.h>
 #include <SLScene.h>
+#include <GlobalTimer.h>
+
+#include <imgui_internal.h>
 
 //-----------------------------------------------------------------------------
 ImGuiWrapper::ImGuiWrapper()
 {
+    _context = ImGui::CreateContext();
+    createOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
-ImGuiWrapper::ImGuiWrapper(SLfloat fontPropDots, SLfloat fontFixedDots)
-  : _fontPropDots(fontPropDots),
-    _fontFixedDots(fontFixedDots)
+ImGuiWrapper::~ImGuiWrapper()
 {
+    deleteOpenGLObjects();
+    ImGui::DestroyContext(_context);
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void ImGuiWrapper::init()
+void ImGuiWrapper::init(std::string configPath)
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -47,17 +51,15 @@ void ImGuiWrapper::init()
     _vboHandle         = 0;
     _vaoHandle         = 0;
     _elementsHandle    = 0;
-    _fontPropDots      = 13.0f;
-    _fontFixedDots     = 16.0f;
 
     _mouseWheel      = 0.0f;
     _mousePressed[0] = false;
     _mousePressed[1] = false;
     _mousePressed[2] = false;
 
-    ImGuiIO&              io      = ImGui::GetIO();
-    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
-    io.IniFilename                = inifile.c_str();
+    ImGuiIO& io    = _context->IO;
+    _inifile       = configPath + "imgui.ini";
+    io.IniFilename = _inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
@@ -84,41 +86,8 @@ void ImGuiWrapper::init()
     io.DisplayFramebufferScale = ImVec2(1, 1);
 
     // Change default style to show the widget border
-    ImGuiStyle& style     = ImGui::GetStyle();
-    style.FrameBorderSize = 1;
-}
-//-----------------------------------------------------------------------------
-//! Loads the proportional and fixed size font depending on the passed DPI
-void ImGuiWrapper::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
-{
-    _fontPropDots  = fontPropDots;
-    _fontFixedDots = fontFixedDots;
-
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->Clear();
-
-    // Load proportional font for menue and text displays
-    SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-    {
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
-    }
-    else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
-
-    // Load fixed size font for statistics windows
-    SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
-    if (Utils::fileExists(ProggyClean))
-    {
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
-    }
-    else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
-
-    deleteOpenGLObjects();
-    createOpenGLObjects();
+    //ImGuiStyle& style     = ImGui::GetStyle();
+    //style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
@@ -233,7 +202,7 @@ void ImGuiWrapper::createOpenGLObjects()
     GET_GL_ERROR;
 
     // Build texture atlas
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = _context->IO;
     SLuchar* pixels;
     int      width, height;
 
@@ -292,8 +261,8 @@ void ImGuiWrapper::deleteOpenGLObjects()
     if (_fontTexture)
     {
         glDeleteTextures(1, &_fontTexture);
-        ImGui::GetIO().Fonts->TexID = nullptr;
-        _fontTexture                = 0;
+        _context->IO.Fonts->TexID = nullptr;
+        _fontTexture              = 0;
     }
 }
 //-----------------------------------------------------------------------------
@@ -329,18 +298,26 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     if (!_fontTexture)
         createOpenGLObjects();
 
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = _context->IO;
 
     // Setup time step
-    SLfloat nowSec = SLApplication::timeS();
+    SLfloat nowSec = GlobalTimer::timeS();
     io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
     _timeSec = nowSec;
 
-    io.MouseWheel = _mouseWheel;
-    _mouseWheel   = 0.0f;
+    if (_panScroll.enabled())
+    {
+        io.MouseWheel = _panScroll.getScrollInMouseWheelCoords(io.MouseDown[0], _context->FontSize, nowSec);
+    }
+    else
+    {
+        io.MouseWheel = _mouseWheel;
+        _mouseWheel   = 0.0f;
+    }
 
     // Start the frame
+    ImGui::SetCurrentContext(_context);
     ImGui::NewFrame();
 
     // Call the build function. The whole UI is constructed here
@@ -349,24 +326,26 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // class SLDemoGui.
     //if (build)
     build(s, sv);
-
+    ImGui::SetCurrentContext(nullptr);
     //SL_LOG(".");
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
 void ImGuiWrapper::onResize(SLint scrW, SLint scrH)
 {
-    ImGuiIO& io    = ImGui::GetIO();
+    ImGuiIO& io    = _context->IO;
     io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
 void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 {
+    ImGui::SetCurrentContext(_context);
     ImGui::Render();
     ImDrawData* draw_data = ImGui::GetDrawData();
+    ImGui::SetCurrentContext(nullptr);
 
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = _context->IO;
 
     // Avoid rendering when minimized, scale coordinates for retina displays
     // (screen coordinates != framebuffer coordinates)
@@ -541,9 +520,14 @@ void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 //! Callback on mouse button down event
 void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
 {
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = _context->IO;
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
-    if (button == MB_left) io.MouseDown[0] = true;
+    if (button == MB_left)
+    {
+        io.MouseDown[0] = true;
+        if (_panScroll.enabled())
+            _panScroll.start((SLfloat)y);
+    }
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
     //SL_LOG("D");
@@ -552,9 +536,8 @@ void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
 //! Callback on mouse button up event
 void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)x, (SLfloat)y);
-    ImGuiIO& io             = ImGui::GetIO();
-    io.MousePos             = ImVec2((SLfloat)x, (SLfloat)y);
+    ImGuiIO& io = _context->IO;
+    io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_middle) io.MouseDown[1] = false;
     if (button == MB_right) io.MouseDown[2] = false;
@@ -564,7 +547,10 @@ void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
 //! Updates the mouse cursor position
 void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
 {
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
+    _context->IO.MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
+    ImGuiIO& io           = _context->IO;
+    if (io.MouseDown[0] && _panScroll.enabled())
+        _panScroll.moveTo(yPos);
     //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
@@ -578,7 +564,7 @@ void ImGuiWrapper::onMouseWheel(SLfloat yoffset)
 //! Callback on key press event
 void ImGuiWrapper::onKeyPress(SLKey key, SLKey mod)
 {
-    ImGuiIO& io      = ImGui::GetIO();
+    ImGuiIO& io      = _context->IO;
     io.KeysDown[key] = true;
     io.KeyCtrl       = mod & K_ctrl ? true : false;
     io.KeyShift      = mod & K_shift ? true : false;
@@ -588,7 +574,7 @@ void ImGuiWrapper::onKeyPress(SLKey key, SLKey mod)
 //! Callback on key release event
 void ImGuiWrapper::onKeyRelease(SLKey key, SLKey mod)
 {
-    ImGuiIO& io      = ImGui::GetIO();
+    ImGuiIO& io      = _context->IO;
     io.KeysDown[key] = false;
     io.KeyCtrl       = mod & K_ctrl ? true : false;
     io.KeyShift      = mod & K_shift ? true : false;
@@ -598,7 +584,7 @@ void ImGuiWrapper::onKeyRelease(SLKey key, SLKey mod)
 //! Callback on character input
 void ImGuiWrapper::onCharInput(SLuint c)
 {
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = _context->IO;
     if (c > 0 && c < 0x10000)
         io.AddInputCharacter((unsigned short)c);
 }
@@ -606,17 +592,25 @@ void ImGuiWrapper::onCharInput(SLuint c)
 //! Callback on closing the application
 void ImGuiWrapper::onClose()
 {
-    deleteOpenGLObjects();
-    ImGui::Shutdown();
+    //deleteOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position
 void ImGuiWrapper::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
 {
     // If ImGui build function exists render the ImGui
-    ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
+    _context->IO.MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
     onInitNewFrame(s, sv);
-    ImGui::Render();
     onPaint(sv->viewportRect());
+}
+//-----------------------------------------------------------------------------
+bool ImGuiWrapper::doNotDispatchKeyboard()
+{
+    return _context->IO.WantCaptureKeyboard;
+}
+//-----------------------------------------------------------------------------
+bool ImGuiWrapper::doNotDispatchMouse()
+{
+    return _context->IO.WantCaptureMouse;
 }
 //-----------------------------------------------------------------------------

@@ -17,15 +17,16 @@
 //! SLCylinder is creates sphere mesh based on its SLRevolver methods
 class SLCylinder : public SLRevolver
 {
-    public:
-    SLCylinder(SLfloat     cylinderRadius,
-               SLfloat     cylinderHeight,
-               SLuint      stacks    = 1,
-               SLuint      slices    = 16,
-               SLbool      hasTop    = true,
-               SLbool      hasBottom = true,
-               SLstring    name      = "cylinder mesh",
-               SLMaterial* mat       = nullptr);
+public:
+    SLCylinder(SLAssetManager* assetMgr,
+               SLfloat         cylinderRadius,
+               SLfloat         cylinderHeight,
+               SLuint          stacks    = 1,
+               SLuint          slices    = 16,
+               SLbool          hasTop    = true,
+               SLbool          hasBottom = true,
+               SLstring        name      = "cylinder mesh",
+               SLMaterial*     mat       = nullptr);
 
     // Getters
     SLfloat radius() { return _radius; }
@@ -33,7 +34,7 @@ class SLCylinder : public SLRevolver
     SLbool  hasTop() { return _hasTop; }
     SLbool  hasBottom() { return _hasBottom; }
 
-    private:
+private:
     SLfloat _radius;    //!< radius of cylinder
     SLfloat _height;    //!< height of cylinder
     SLbool  _hasTop;    //!< Flag if cylinder has a top

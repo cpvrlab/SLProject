@@ -46,6 +46,8 @@ namespace fs = std::experimental::filesystem;
 #    include <dirent.h>
 #    include <unistd.h> //getcwd
 #    include <sys/stat.h>
+#    include <sys/time.h>
+#    include <sys/system_properties.h>
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #    include <dirent.h>
 #    include <unistd.h> //getcwd
@@ -841,7 +843,7 @@ string findFile(const string& filename, const vector<string>& pathsToCheck)
         return filename;
 
     // Check file existence
-    for (const auto& path: pathsToCheck)
+    for (const auto& path : pathsToCheck)
     {
         string pathPlusFilename = Utils::unifySlashes(path) + filename;
         if (Utils::fileExists(pathPlusFilename))
@@ -850,9 +852,6 @@ string findFile(const string& filename, const vector<string>& pathsToCheck)
     return "";
 }
 //----------------------------------------------------------------------------
-
-
-
 
 ///////////////////////
 // Logging Functions //
@@ -1142,6 +1141,178 @@ int lcm(int a, int b)
 {
     return (a * b) / Utils::gcd(a, b);
 }
-//-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+//ComputerInfos
+//-----------------------------------------------------------------------------
+std::string ComputerInfos::user  = "USER?";
+std::string ComputerInfos::name  = "NAME?";
+std::string ComputerInfos::brand = "BRAND?";
+std::string ComputerInfos::model = "MODEL?";
+std::string ComputerInfos::os    = "OS?";
+std::string ComputerInfos::osVer = "OSVER?";
+std::string ComputerInfos::arch  = "ARCH?";
+std::string ComputerInfos::id    = "ID?";
+
+//-----------------------------------------------------------------------------
+std::string ComputerInfos::get()
+{
+#if defined(_WIN32) //..................................................
+
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        user               = envvar ? string(envvar) : "USER?";
+    }
+    name = Utils::getHostName();
+
+    // Get architecture
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo);
+    switch (siSysInfo.wProcessorArchitecture)
+    {
+        case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
+        case PROCESSOR_ARCHITECTURE_ARM64: arch = "ARM64"; break;
+        case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
+        default: arch = "???";
+    }
+
+    // Windows OS version
+    OSVERSIONINFO osInfo;
+    ZeroMemory(&osInfo, sizeof(OSVERSIONINFO));
+    osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osInfo);
+    char osVersion[50];
+    sprintf(osVersion, "%u.%u", osInfo.dwMajorVersion, osInfo.dwMinorVersion);
+    osVer = string(osVersion);
+
+    brand = "BRAND?";
+    model = "MODEL?";
+    os    = "Windows";
+
+#elif defined(__APPLE__)
+#    if TARGET_OS_IOS
+    // Model and architecture are retrieved before in iOS under Objective C
+    brand              = "Apple";
+    os                 = "iOS";
+    const char* envvar = std::getenv("USER");
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        user               = envvar ? string(envvar) : "USER?";
+    }
+    name = Utils::getHostName();
+#    else
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        user               = envvar ? string(envvar) : "USER?";
+    }
+
+    name  = Utils::getHostName();
+    brand = "Apple";
+    os    = "MacOS";
+
+    // Get MacOS version
+    //SInt32 majorV, minorV, bugfixV;
+    //Gestalt(gestaltSystemVersionMajor, &majorV);
+    //Gestalt(gestaltSystemVersionMinor, &minorV);
+    //Gestalt(gestaltSystemVersionBugFix, &bugfixV);
+    //char osVer[50];
+    //sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
+    //osVer = string(osVer);
+
+    // Get model
+    //size_t len = 0;
+    //sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
+    //char model[255];
+    //sysctlbyname("hw.model", model, &len, nullptr, 0);
+    //model = model;
+#    endif
+
+#elif defined(ANDROID) //................................................
+
+    os = "Android";
+
+    /*
+    "ro.build.version.release"     // * The user-visible version string. E.g., "1.0" or "3.4b5".
+    "ro.build.version.incremental" // The internal value used by the underlying source control to represent this build.
+    "ro.build.version.codename"    // The current development codename, or the string "REL" if this is a release build.
+    "ro.build.version.sdk"         // The user-visible SDK version of the framework.
+
+    "ro.product.model"             // * The end-user-visible name for the end product..
+    "ro.product.manufacturer"      // The manufacturer of the product/hardware.
+    "ro.product.board"             // The name of the underlying board, like "goldfish".
+    "ro.product.brand"             // The brand (e.g., carrier) the software is customized for, if any.
+    "ro.product.device"            // The name of the industrial design.
+    "ro.product.name"              // The name of the overall product.
+    "ro.hardware"                  // The name of the hardware (from the kernel command line or /proc).
+    "ro.product.cpu.abi"           // The name of the instruction set (CPU type + ABI convention) of native code.
+    "ro.product.cpu.abi2"          // The name of the second instruction set (CPU type + ABI convention) of native code.
+
+    "ro.build.display.id"          // * A build ID string meant for displaying to the user.
+    "ro.build.host"
+    "ro.build.user"
+    "ro.build.id"                  // Either a changelist number, or a label like "M4-rc20".
+    "ro.build.type"                // The type of build, like "user" or "eng".
+    "ro.build.tags"                // Comma-separated tags describing the build, like "unsigned,debug".
+    */
+
+    int len;
+
+    char hostC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.build.host", hostC);
+    name = hostC ? string(hostC) : "NAME?";
+
+    char userC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.build.user", userC);
+    user = userC ? string(userC) : "USER?";
+
+    char brandC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.product.brand", brandC);
+    brand = string(brandC);
+
+    char modelC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.product.model", modelC);
+    model = string(modelC);
+
+    char osVerC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.build.version.release", osVerC);
+    osVer = string(osVerC);
+
+    char archC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.product.cpu.abi", archC);
+    arch = string(archC);
+
+#elif defined(linux) || defined(__linux) || defined(__linux__) //..................................................
+
+    os    = "Linux";
+    user  = "USER?";
+    name  = Utils::getHostName();
+    brand = "BRAND?";
+    model = "MODEL?";
+    osVer = "OSVER?";
+    arch  = "ARCH?";
+#endif
+
+    // build a unique as possible ID string that can be used in a filename
+    id = user + "-" + name + "-" + model;
+    if (model.find("SM-") != string::npos)
+        // Don't use computerName on Samsung phones. It's not constant!
+        id = user + "-" + model;
+    else
+        id = user + "-" + name + "-" + model;
+    id = Utils::replaceNonFilenameChars(id);
+    std::replace(id.begin(), id.end(), '_', '-');
+    return id;
+}
 };

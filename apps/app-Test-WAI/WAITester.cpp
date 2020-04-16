@@ -2,7 +2,6 @@
 #include <memory>
 
 #include <Utils.h>
-#include <CVCapture.h>
 
 #include <WAICalibration.h>
 #include <WAIMapStorage.h>

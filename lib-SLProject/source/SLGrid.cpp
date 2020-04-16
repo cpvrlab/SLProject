@@ -18,12 +18,13 @@
 
 //-----------------------------------------------------------------------------
 //! SLGrid ctor with min & max corners and its resolutions
-SLGrid::SLGrid(SLVec3f     minXZ,
-               SLVec3f     maxXZ,
-               SLuint      resX,
-               SLuint      resZ,
-               SLstring    name,
-               SLMaterial* mat) : SLMesh(name)
+SLGrid::SLGrid(SLAssetManager* assetMgr,
+               SLVec3f         minXZ,
+               SLVec3f         maxXZ,
+               SLuint          resX,
+               SLuint          resZ,
+               SLstring        name,
+               SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(minXZ != maxXZ);
     assert(resX > 0);

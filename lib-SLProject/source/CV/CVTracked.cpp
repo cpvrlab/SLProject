@@ -18,7 +18,6 @@ for a good top down information.
 */
 
 #include <CVTracked.h>
-#include <CVCapture.h>
 
 using namespace cv;
 using namespace std;

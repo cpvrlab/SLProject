@@ -15,6 +15,7 @@
 #include <SLVec4.h>
 
 class SLRay;
+class SLNode;
 
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
@@ -24,7 +25,7 @@ also derive from SLNode and can therefore be freely placed in space.
 */
 class SLLight
 {
-    public:
+public:
     explicit SLLight(SLfloat ambiPower = 0.1f,
                      SLfloat diffPower = 1.0f,
                      SLfloat specPower = 1.0f,
@@ -69,16 +70,18 @@ class SLLight
     SLfloat attenuation(SLfloat dist) { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
 
     // some virtuals needed for ray tracing
-    virtual SLVec4f positionWS()                          = 0;
-    virtual SLVec3f spotDirWS()                           = 0;
+    virtual SLVec4f positionWS() const           = 0;
+    virtual SLVec3f spotDirWS()                  = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
-                               SLfloat  lightDist)   = 0;
+                               SLfloat        lightDist,
+                               SLNode*        root3D)   = 0;
     virtual SLfloat shadowTestMC(SLRay*         ray,
                                  const SLVec3f& L,
-                                 SLfloat  lightDist) = 0;
+                                 SLfloat        lightDist,
+                                 SLNode*        root3D) = 0;
 
-    protected:
+protected:
     SLint   _id;               //!< OpenGL light number (0-7)
     SLbool  _isOn;             //!< Flag if light is on or off
     SLCol4f _ambient;          //!< Ambient light intensity Ia

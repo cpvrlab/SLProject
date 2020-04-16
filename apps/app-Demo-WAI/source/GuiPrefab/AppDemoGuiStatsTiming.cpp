@@ -1,19 +1,19 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <SLApplication.h>
 #include <AppDemoGuiStatsTiming.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiStatsTiming::AppDemoGuiStatsTiming(string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiStatsTiming::AppDemoGuiStatsTiming(string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
 //-----------------------------------------------------------------------------
 void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin(_name.c_str(), _activator, _initMinDialogSize);
+    ImGui::PushFont(_font);
+    ImGui::Begin(_name.c_str(), _activator);
 
     SLRenderType rType = sv->renderType();
     SLfloat      ft    = s->frameTimesMS().average();
@@ -23,9 +23,9 @@ void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
     // Get averages from average variables (see SLAverage)
     //SLfloat captureTime = CVCapture::instance()->captureTimesMS().average();
     SLfloat updateTime = s->updateTimesMS().average();
-    SLfloat draw3DTime = s->draw3DTimesMS().average();
-    SLfloat draw2DTime = s->draw2DTimesMS().average();
-    SLfloat cullTime   = s->cullTimesMS().average();
+    SLfloat draw3DTime = sv->draw3DTimesMS().average();
+    SLfloat draw2DTime = sv->draw2DTimesMS().average();
+    SLfloat cullTime   = sv->cullTimesMS().average();
 
     // Calculate percentage from frame time
     //SLfloat captureTimePC = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
@@ -46,10 +46,8 @@ void AppDemoGuiStatsTiming::buildInfos(SLScene* s, SLSceneView* sv)
     sprintf(m + strlen(m), "  Drawing 3D  : %4.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
     sprintf(m + strlen(m), "  Drawing 2D  : %4.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
 
-    //define ui elements
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::TextUnformatted(m);
-    ImGui::PopFont();
 
     ImGui::End();
+    ImGui::PopFont();
 }

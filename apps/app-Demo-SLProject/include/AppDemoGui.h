@@ -17,6 +17,7 @@ class SLScene;
 class SLSceneView;
 class SLNode;
 class SLGLTexture;
+class SLProjectScene;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -29,13 +30,13 @@ integrated in the SLProject.<br>
 */
 class AppDemoGui
 {
-    public:
-    static void build(SLScene* s, SLSceneView* sv);
+public:
+    static void build(SLProjectScene* s, SLSceneView* sv);
 
     static void buildMenuBar(SLScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
-    static void buildProperties(SLScene* s);
+    static void buildProperties(SLScene* s, SLSceneView* sv);
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
 
@@ -45,6 +46,7 @@ class AppDemoGui
     static SLstring infoHelp;            //!< Help info string
     static SLstring infoCalibrate;       //!< Calibration info string
     static SLbool   showProgress;        //!< Flag if about info should be shown
+    static SLbool   showDockSpace;       //!< Flag if dock space should be enabled
     static SLbool   showAbout;           //!< Flag if about info should be shown
     static SLbool   showHelp;            //!< Flag if help info should be shown
     static SLbool   showHelpCalibration; //!< Flag if calibration info should be shown
@@ -52,6 +54,7 @@ class AppDemoGui
     static SLbool   showStatsTiming;     //!< Flag if timing info should be shown
     static SLbool   showStatsScene;      //!< Flag if scene info should be shown
     static SLbool   showStatsVideo;      //!< Flag if video info should be shown
+    static SLbool   showImGuiMetrics;    //!< Flag if imgui metrics infor should be shown
     static SLbool   showInfosSensors;    //!< Flag if device sensors info should be shown
     static SLbool   showInfosDevice;     //!< Flag if device info should be shown
     static SLbool   showInfosScene;      //!< Flag if scene info should be shown

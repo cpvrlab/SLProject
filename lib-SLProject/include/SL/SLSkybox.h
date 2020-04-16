@@ -15,6 +15,7 @@
 #include <SLNode.h>
 
 class SLSceneView;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Skybox node class with a SLBox mesh
@@ -26,15 +27,16 @@ pointer of SLSceneView. See the Skybox shader example.
 */
 class SLSkybox : public SLNode
 {
-    public:
+public:
     SLSkybox(SLstring name = "Default Skybox");
-    SLSkybox(SLstring cubeMapXPos,
-             SLstring cubeMapXNeg,
-             SLstring cubeMapYPos,
-             SLstring cubeMapYNeg,
-             SLstring cubeMapZPos,
-             SLstring cubeMapZNeg,
-             SLstring name = "Default Skybox");
+    SLSkybox(SLAssetManager* assetMgr,
+             SLstring        cubeMapXPos,
+             SLstring        cubeMapXNeg,
+             SLstring        cubeMapYPos,
+             SLstring        cubeMapYNeg,
+             SLstring        cubeMapZPos,
+             SLstring        cubeMapZNeg,
+             SLstring        name = "Default Skybox");
     ~SLSkybox() { ; }
 
     SLCol4f colorAtDir(const SLVec3f& dir);

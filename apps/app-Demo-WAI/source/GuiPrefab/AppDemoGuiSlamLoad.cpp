@@ -8,30 +8,32 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <AppDemoGuiSlamLoad.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <stdio.h>
 
-#include <WAIApp.h>
 #include <Utils.h>
-#include <AppDemoGuiSlamLoad.h>
 #include <AppWAISlamParamHelper.h>
-#include <WAIMapStorage.h>
+#include <WAIEvent.h>
 
-AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&              name,
-                                       std ::queue<WAIEvent*>*         eventQueue,
-                                       std::string                     slamRootDir,
-                                       std::string                     calibrationsDir,
-                                       std::string                     vocabulariesDir,
-                                       const std::vector<std::string>& extractorIdToNames,
-                                       bool*                           activator)
-  : AppDemoGuiInfosDialog(name, activator),
+AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
+                                       std ::queue<WAIEvent*>*          eventQueue,
+                                       ImFont*                          font,
+                                       std::string                      slamRootDir,
+                                       std::string                      calibrationsDir,
+                                       std::string                      vocabulariesDir,
+                                       const std::vector<std::string>&  extractorIdToNames,
+                                       bool*                            activator,
+                                       std::function<void(std::string)> errorMsgCB)
+  : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
     _extractorIdToNames(extractorIdToNames),
     _changeSlamParams(true),
+    _errorMsgCB(errorMsgCB),
     _kt(0.5f)
 {
     _p.params.retainImg    = true;
@@ -113,6 +115,8 @@ void AppDemoGuiSlamLoad::loadFileNamesInVector(std::string               directo
 
 void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
+
     ImGui::Begin("Slam Load", _activator, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (!_changeSlamParams)
@@ -411,6 +415,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (_p.location.empty() || _p.area.empty())
             {
+                if (_errorMsgCB)
+                    _errorMsgCB("Choose location and area");
                 //_waiApp.showErrorMsg("Choose location and area");
                 //TODO(dgj1): reactivate error handling
             }
@@ -449,6 +455,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
     }
 
     ImGui::End();
+
+    ImGui::PopFont();
 }
 
 void AppDemoGuiSlamLoad::setSlamParams(const SlamParams& params)

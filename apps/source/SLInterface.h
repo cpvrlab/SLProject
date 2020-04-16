@@ -15,6 +15,11 @@
 #include <SLEnums.h>
 #include <SLGLEnums.h>
 
+class SLScene;
+class SLProjectScene;
+class SLSceneView;
+class SLInputManager;
+
 //! \file SLInterface.h SLProject C-functions interface declaration.
 /*! \file SLInterface.h
 The SLInterface.h has all declarations of the SLProject C-Interface.
@@ -39,22 +44,25 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);
 
-int slCreateSceneView(int       screenWidth,
-                      int       screenHeight,
-                      int       dotsPerInch,
-                      SLSceneID initScene,
-                      void*     onWndUpdateCallback,
-                      void*     onSelectNodeMeshCallback = nullptr,
-                      void*     onNewSceneViewCallback   = nullptr,
-                      void*     onImGuiBuild             = nullptr);
+SLint slCreateSceneView(SLProjectScene* scene,
+                        int             screenWidth,
+                        int             screenHeight,
+                        int             dotsPerInch,
+                        SLSceneID       initScene,
+                        void*           onWndUpdateCallback,
+                        void*           onSelectNodeMeshCallback = nullptr,
+                        void*           onNewSceneViewCallback   = nullptr,
+                        void*           onImGuiBuild             = nullptr,
+                        void*           onImGuiLoadConfig        = nullptr,
+                        void*           onImGuiSaveConfig        = nullptr);
 
-int  slNewSceneView();
-bool slShouldClose();
-void slShouldClose(bool val);
-void slTerminate();
-void slResize(int sceneViewIndex, int width, int height);
-bool slUpdateScene();
-bool slPaintAllViews();
+SLSceneView* slNewSceneView(SLScene* s, int dotsPerInch, SLInputManager& inputManager);
+bool         slShouldClose();
+void         slShouldClose(bool val);
+void         slTerminate();
+void         slResize(int sceneViewIndex, int width, int height);
+bool         slUpdateParallelJob();
+bool         slPaintAllViews();
 
 void slMouseDown(int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
 void slMouseMove(int sceneViewIndex, int x, int y);
