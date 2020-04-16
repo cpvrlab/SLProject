@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLTriangle.cpp
-//  Author:    Philipp J�ni
+//  Author:    Philipp Jueni
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: 2002-2014 Marcus Hudritsch
@@ -17,7 +17,15 @@
 #include "SLTriangle.h"
 
 //-----------------------------------------------------------------------------
-SLTriangle::SLTriangle(SLMaterial* material, SLstring name, SLVec3f p0, SLVec3f p1, SLVec3f p2, SLVec2f t0, SLVec2f t1, SLVec2f t2) : SLMesh(name)
+SLTriangle::SLTriangle(SLAssetManager* assetMgr,
+                       SLMaterial*     material,
+                       const SLstring& name,
+                       const SLVec3f&  p0,
+                       const SLVec3f&  p1,
+                       const SLVec3f&  p2,
+                       const SLVec2f&  t0,
+                       const SLVec2f&  t1,
+                       const SLVec2f&  t2) : SLMesh(assetMgr, name)
 {
     p[0] = p0;
     p[1] = p1;
@@ -35,8 +43,7 @@ SLTriangle::SLTriangle(SLMaterial* material, SLstring name, SLVec3f p0, SLVec3f 
 }
 //-----------------------------------------------------------------------------
 //! Builds the mesh by copying the vertex info into the arrays of SLMescj
-void
-SLTriangle::buildMesh(SLMaterial* material)
+void SLTriangle::buildMesh(SLMaterial* material)
 {
     deleteData();
 

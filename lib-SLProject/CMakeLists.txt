@@ -117,6 +117,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTriangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
         )
 
@@ -151,10 +152,8 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInputEventInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
@@ -202,6 +201,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTriangle.cpp
         )
 
 if (SL_BUILD_WAI)

@@ -855,8 +855,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
             ImGui::Separator();
 
-            if (ImGui::Checkbox("DockSpace enabled", &showDockSpace))
-                showDockSpace != showDockSpace;
+            ImGui::Checkbox("DockSpace enabled", &showDockSpace);
             ImGui::Separator();
 
             SLchar reset[255];

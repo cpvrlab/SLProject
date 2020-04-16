@@ -58,21 +58,20 @@ public:
                   SLfloat         diffPower   = 10.0f,
                   SLfloat         specPower   = 10.0f,
                   SLbool          hasMesh     = true);
-    ~SLLightDirect() { ; }
+    ~SLLightDirect() override { ; }
 
-    void init(SLScene* s);
-    bool hitRec(SLRay* ray);
-    void statsRec(SLNodeStats& stats);
-    void drawMeshes(SLSceneView* sv);
-
-    void    setState();
+    void    init(SLScene* s);
+    bool    hitRec(SLRay* ray) override;
+    void    statsRec(SLNodeStats& stats) override;
+    void    drawMeshes(SLSceneView* sv) override;
+    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       const SLfloat  lightDist,
+                       SLfloat        lightDist,
                        SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         const SLfloat  lightDist,
+                         SLfloat        lightDist,
                          SLNode*        root3D) override;
 
     // Getters
@@ -88,7 +87,7 @@ public:
         return pos;
     }
 
-    SLVec3f spotDirWS() { return forwardOS(); }
+    SLVec3f spotDirWS() override { return forwardOS(); }
 
 private:
     SLfloat _arrowRadius; //!< The sphere lights radius

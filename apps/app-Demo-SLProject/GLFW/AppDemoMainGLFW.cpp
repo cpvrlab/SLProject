@@ -434,9 +434,8 @@ static void onKeyPress(GLFWwindow* window,
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     }
-    else
-      // Toggle fullscreen mode
-      if (key == K_F9 && action == GLFW_PRESS)
+    // Toggle fullscreen mode
+    else if (key == K_F9 && action == GLFW_PRESS)
     {
         fullscreen = !fullscreen;
 
@@ -477,7 +476,9 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppDemoSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManager)
+SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
+                                    int             dpi,
+                                    SLInputManager& inputManager)
 {
     // The sceneview will be deleted by SLScene::~SLScene()
     return new AppDemoSceneView(scene, dpi, inputManager);

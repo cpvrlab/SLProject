@@ -47,23 +47,23 @@ public:
                 SLfloat         width   = 1,
                 SLfloat         height  = 1,
                 SLbool          hasMesh = true);
-    ~SLLightRect() { ; }
+    ~SLLightRect() override { ; }
 
     void init(SLScene* s);
-    void drawRec(SLSceneView* sv);
-    bool hitRec(SLRay* ray);
-    void statsRec(SLNodeStats& stats);
-    void drawMeshes(SLSceneView* sv);
+    void drawRec(SLSceneView* sv) override;
+    bool hitRec(SLRay* ray) override;
+    void statsRec(SLNodeStats& stats) override;
+    void drawMeshes(SLSceneView* sv) override;
 
-    void    setState();
+    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
-                       SLNode*        root3D);
+                       SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
                          SLfloat        lightDist,
-                         SLNode*        root3D);
+                         SLNode*        root3D) override;
 
     // Setters
     void width(const SLfloat w)
@@ -83,10 +83,13 @@ public:
     SLfloat width() { return _width; }
     SLfloat height() { return _height; }
     SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
-    SLVec3f spotDirWS() { return SLVec3f(_wm.m(8),
-                                         _wm.m(9),
-                                         _wm.m(10)) *
-                                 -1.0; }
+    SLVec3f spotDirWS() override
+    {
+        return SLVec3f(_wm.m(8),
+                       _wm.m(9),
+                       _wm.m(10)) *
+               -1.0;
+    }
 
 private:
     SLfloat _width;      //!< Width of square light in x direction
