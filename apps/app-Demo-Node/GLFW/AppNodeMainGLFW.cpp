@@ -442,20 +442,11 @@ int main(int argc, char* argv[])
     scr2fbX = (float)fbWidth / (float)scrWidth;
     scr2fbY = (float)fbHeight / (float)scrHeight;
 
-    /* Include OpenGL via GLEW
-    The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
-    OpenGL developers with two tedious tasks: initializing and using extensions 
-    and writing portable applications. GLEW provides an efficient run-time 
-    mechanism to determine whether a certain extension is supported by the 
-    driver or not. OpenGL core and extension functionality is exposed via a 
-    single header file. Download GLEW at: http://glew.sourceforge.net/
-    */
-    glewExperimental = GL_TRUE;
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if(!gl3wInit())
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        cerr << "Failed to initialize OpenGL" << endl;
+        exit(-1);
     }
 
     glfwSetWindowTitle(window, "SLProject Test Application");

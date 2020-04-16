@@ -408,7 +408,7 @@ void SLSceneView::onInitialize()
 
     // init conetracer if possible:
 #if defined(GL_VERSION_4_4)
-    if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+    //if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
     {
         // The world's bounding box should not change during runtime.
         if (_s && _s->root3D())

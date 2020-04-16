@@ -6,7 +6,7 @@ set(target lib-SLExternal)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions	GLEW_NO_GLU)
+#set(compile_definitions	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
@@ -37,12 +37,10 @@ set(sources
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
     file(GLOB headers
             ${headers}
-            ${include_path}/glew/include/GL/glew.h
             )
 
     file(GLOB sources
             ${sources}
-            ${source_path}/glew/src/glew.c
             )
 endif()
 
@@ -63,11 +61,12 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
             ${compile_definitions}
-            GLEW_STATIC
             )
 
     file(GLOB headers
             ${headers}
+            ${include_path}/gl3w/GL/gl3w.h
+            ${include_path}/gl3w/GL/glcorearb.h
             ${include_path}/zlib/ioapi.h
             ${include_path}/zlib/unzip.h
             ${include_path}/zlib/zconf.in.h
@@ -87,6 +86,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 
     file(GLOB sources
             ${sources}
+            ${source_path}/gl3w/GL/gl3w.c
             ${source_path}/zlib/zutil.c
             ${source_path}/zlib/uncompr.c
             ${source_path}/zlib/trees.c
@@ -116,7 +116,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 	
     file(GLOB headers
             ${headers}
-            ${include_path}/glew/include/GL/wglew.h
+            ${include_path}/gl3w/GL/gl3w.h
+            ${include_path}/gl3w/GL/glcorearb.h
             ${include_path}/zlib/ioapi.h
             ${include_path}/zlib/unzip.h
             ${include_path}/zlib/zconf.in.h
@@ -136,6 +137,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
   
     file(GLOB sources
             ${sources}
+            ${source_path}/gl3w/GL/gl3w.c
             ${source_path}/zlib/zutil.c
             ${source_path}/zlib/uncompr.c
             ${source_path}/zlib/trees.c
@@ -180,7 +182,9 @@ target_include_directories(${target}
         PRIVATE
         PUBLIC
         ${SL_PROJECT_ROOT}/lib-SLProject/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
+        #${CMAKE_CURRENT_SOURCE_DIR}/glew/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/gl3w
+        ${CMAKE_CURRENT_SOURCE_DIR}/gl3w/GL
         ${CMAKE_CURRENT_SOURCE_DIR}/half/include
         ${CMAKE_CURRENT_SOURCE_DIR}/glfw3/src
         ${CMAKE_CURRENT_SOURCE_DIR}/nvwa
@@ -198,7 +202,7 @@ target_compile_definitions(${target}
         PRIVATE
         ${compile_definitions}
         PUBLIC
-        GLEW_STATIC
+        #GLEW_STATIC
         ${DEFAULT_COMPILE_DEFINITIONS}
         INTERFACE
         )
