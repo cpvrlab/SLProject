@@ -18,12 +18,16 @@
 class SLTexFont;
 
 //-----------------------------------------------------------------------------
+//! Class for the toplevel combination of SLScene and SLAssetManager
+/*! SLProjectScene combines the scene with the asset manager. In additin it
+holds the font textures that are used by the imgui-UI.
+*/
 class SLProjectScene : public SLScene
   , public SLAssetManager
 {
 public:
     SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback);
-    ~SLProjectScene();
+    ~SLProjectScene() override;
 
     void unInit() override;
     bool deleteTexture(SLGLTexture* texture);
@@ -35,7 +39,6 @@ public:
     static void       generateFonts(SLGLProgram& fontTexProgram);
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
-
     static SLTexFont* font07;
     static SLTexFont* font08;
     static SLTexFont* font09;

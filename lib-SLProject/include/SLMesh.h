@@ -120,7 +120,8 @@ transformed vertices and normals are stored in _finalP and _finalN.
 class SLMesh : public SLObject
 {
 public:
-    explicit SLMesh(SLAssetManager* assetMgr, const SLstring& name = "Mesh");
+    explicit SLMesh(SLAssetManager* assetMgr,
+                    const SLstring& name = "Mesh");
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
@@ -141,18 +142,15 @@ public:
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO(SLGLProgram* sp);
-    void         transformSkin(std::function<void(SLMesh*)> cbInformNodes);
+    void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
 
     // Getters
     SLMaterial*       mat() const { return _mat; }
     SLMaterial*       matOut() const { return _matOut; }
     SLGLPrimitiveType primitive() const { return _primitive; }
-    const SLSkeleton* skeleton() const
-    {
-        return _skeleton;
-    }
-    SLuint           numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
-    SLGLVertexArray& vao() { return _vao; }
+    const SLSkeleton* skeleton() const { return _skeleton; }
+    SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLGLVertexArray&  vao() { return _vao; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -200,7 +198,7 @@ protected:
     SLVVec3f*   _finalP;        //!< Pointer to final vertex position vector
     SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
 
-    void notifyParentNodesAABBUpdate(std::function<void(void)> cbInformNodes) const;
+    //void notifyParentNodesAABBUpdate(std::function<void(void)> cbInformNodes) const;
 };
 //-----------------------------------------------------------------------------
 typedef std::vector<SLMesh*> SLVMesh;

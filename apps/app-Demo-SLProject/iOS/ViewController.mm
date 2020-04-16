@@ -30,7 +30,7 @@
 #import <mach-o/arch.h>
 
 // Forward declaration of C functions in other files
-extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
@@ -56,9 +56,12 @@ SLbool onPaintRTGL()
 
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppDemoSceneView()
+SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
+                                    int             dpi,
+                                    SLInputManager& inputManager)
 {
-    return new AppDemoSceneView();
+    // The sceneview will be deleted by SLScene::~SLScene()
+    return new AppDemoSceneView(scene, dpi, inputManager);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -151,17 +154,17 @@ float GetSeconds()
     const NXArchInfo* archInfo = NXGetLocalArchInfo();
     NSString* arch = [NSString stringWithUTF8String:archInfo->description];
     
-    SLApplication::computerModel = std::string([model UTF8String]);
-    SLApplication::computerOSVer = std::string([osver UTF8String]);
-    SLApplication::computerArch  = std::string([arch UTF8String]);
+    Utils::ComputerInfos::model = std::string([model UTF8String]);
+    Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
+    Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
     
     SLApplication::calibIniPath  = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
     //Utils::dumpFileSystemRec("SLProject", SLApplication::exePath);
     
     CVImage::defaultPath = SLApplication::exePath;
-    CVCapture::instance()->loadCalibrations(SLApplication::getComputerInfos(), // deviceInfo string
-                                            SLApplication::configPath, // for stored calibrations
-                                            SLApplication::exePath);   // for videos
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
+                                            SLApplication::configPath,   // for stored calibrations
+                                            SLApplication::exePath);     // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -174,7 +177,7 @@ float GetSeconds()
                         (void*)appDemoLoadScene);
    
     ///////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(self.view.bounds.size.height * screenScale,
+    svIndex = slCreateSceneView(SLApplication::scene,self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
                                 SID_Revolver,

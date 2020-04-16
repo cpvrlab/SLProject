@@ -59,8 +59,18 @@ extern SLNode*      trackedNode;
 
 //-----------------------------------------------------------------------------
 // Forward declarations for helper functions used only in this file
-SLNode*     SphereGroup(SLProjectScene* s, SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLuint, SLMaterial*, SLMaterial*);
-SLNode*     BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimation = false);
+SLNode*     SphereGroup(SLProjectScene* s,
+                        SLint,
+                        SLfloat,
+                        SLfloat,
+                        SLfloat,
+                        SLfloat,
+                        SLuint,
+                        SLMaterial*,
+                        SLMaterial*);
+SLNode*     BuildFigureGroup(SLProjectScene* s,
+                             SLMaterial*     mat,
+                             SLbool          withAnimation = false);
 std::string findModelFileName(std::string file);
 
 //-----------------------------------------------------------------------------
