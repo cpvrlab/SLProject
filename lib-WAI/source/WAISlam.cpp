@@ -1594,13 +1594,12 @@ void WAISlam::reset()
     _state                          = TrackingState_Initializing;
 }
 
-void WAISlam::createFrame(WAIFrame &frame, cv::Mat& imageGray)
+void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
     if (getTrackingState() == TrackingState_Initializing)
         frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
     else
         frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
-
 }
 
 void WAISlam::updateState(TrackingState state)
@@ -1682,13 +1681,14 @@ void WAISlam::update(WAIFrame& frame)
         break;
     }
 
+    std::unique_lock<mutex> lastFrameLock(_lastFrameMutex);
     _lastFrame = WAIFrame(frame);
 }
 
 bool WAISlam::update(cv::Mat& imageGray)
 {
     std::unique_lock<std::mutex> guard(_mutexStates);
-    WAIFrame frame;
+    WAIFrame                     frame;
 
     switch (_state)
     {
@@ -1755,6 +1755,7 @@ bool WAISlam::update(cv::Mat& imageGray)
         break;
     }
 
+    std::unique_lock<std::mutex> lastFrameLock(_lastFrameMutex);
     _lastFrame = WAIFrame(frame);
     return _state == TrackingState_TrackingOK;
 }
@@ -1764,22 +1765,26 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
                        bool     showKeyPoints,
                        bool     showKeyPointsMatched)
 {
+    std::unique_lock<std::mutex> lock(_lastFrameMutex);
+    WAIFrame                     lastFrame = WAIFrame(_lastFrame);
+    lock.unlock();
+
     if (_state == TrackingState_Initializing)
     {
         if (showInitLine)
-            drawInitInfo(_iniData, _lastFrame, imageRGB);
+            drawInitInfo(_iniData, lastFrame, imageRGB);
     }
     else if (_state == TrackingState_TrackingOK)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB);
+            drawKeyPointInfo(lastFrame, imageRGB);
         if (showKeyPointsMatched)
-            drawKeyPointMatches(_lastFrame, imageRGB);
+            drawKeyPointMatches(lastFrame, imageRGB);
     }
     else if (_state == TrackingState_TrackingLost)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB);
+            drawKeyPointInfo(lastFrame, imageRGB);
     }
 }
 
@@ -1824,7 +1829,6 @@ std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlam::getMatchedCor
 
     return std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>>(points3d, points2d);
 }
-
 
 cv::Mat WAISlam::getPose()
 {

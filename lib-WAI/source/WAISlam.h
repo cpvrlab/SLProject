@@ -292,6 +292,7 @@ protected:
 
     std::mutex    _cameraExtrinsicMutex;
     std::mutex    _mutexStates;
+    std::mutex    _lastFrameMutex;
     bool          _retainImg           = false;
     unsigned long _lastRelocFrameId    = 0;
     unsigned long _lastKeyFrameFrameId = 0;
