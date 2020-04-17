@@ -631,17 +631,17 @@ int main(int argc, char* argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-//You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
 #ifdef SL_OS_MACOS
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #else
-//glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     _scrWidth  = 640;
