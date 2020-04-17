@@ -182,7 +182,6 @@ target_include_directories(${target}
         PRIVATE
         PUBLIC
         ${SL_PROJECT_ROOT}/lib-SLProject/include
-        #${CMAKE_CURRENT_SOURCE_DIR}/glew/include
         ${CMAKE_CURRENT_SOURCE_DIR}/gl3w
         ${CMAKE_CURRENT_SOURCE_DIR}/gl3w/GL
         ${CMAKE_CURRENT_SOURCE_DIR}/half/include
@@ -202,7 +201,6 @@ target_compile_definitions(${target}
         PRIVATE
         ${compile_definitions}
         PUBLIC
-        #GLEW_STATIC
         ${DEFAULT_COMPILE_DEFINITIONS}
         INTERFACE
         )

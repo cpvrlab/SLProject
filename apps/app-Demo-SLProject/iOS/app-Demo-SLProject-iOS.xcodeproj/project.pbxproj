@@ -2355,7 +2355,7 @@
 				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
-						DevelopmentTeam = 858Y9EWZ4B;
+						DevelopmentTeam = B3SJ7XG37J;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -3036,7 +3036,7 @@
 					../../../externals,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = SceneLib;
 				PROVISIONING_PROFILE = "";
@@ -3130,7 +3130,7 @@
 					../../../externals,
 				);
 				INFOPLIST_FILE = "SceneLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PRODUCT_NAME = SceneLib;
 				PROVISIONING_PROFILE = "";
@@ -3152,7 +3152,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 858Y9EWZ4B;
+				DEVELOPMENT_TEAM = B3SJ7XG37J;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/debug/**",
@@ -3238,7 +3238,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 858Y9EWZ4B;
+				DEVELOPMENT_TEAM = B3SJ7XG37J;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
