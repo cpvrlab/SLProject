@@ -57,7 +57,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             "GLTF/Avenches/AvenchesEntrance.gltf",
+                                             SLImporter::defaultPath + "GLTF/Avenches/AvenchesEntrance.gltf",
                                              true,
                                              nullptr,
                                              0.4f);
@@ -99,7 +99,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                             SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
                                              true,
                                              nullptr,
                                              0.4f);
