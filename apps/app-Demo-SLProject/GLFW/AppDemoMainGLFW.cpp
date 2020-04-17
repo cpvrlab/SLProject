@@ -528,7 +528,7 @@ void initGLFW(int scrWidth, int scrHeight)
     dpi     = (int)(142 * scr2fbX);
 
     // Init OpenGL access library gl3w
-    if(!gl3wInit())
+    if (gl3wInit()!=0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
