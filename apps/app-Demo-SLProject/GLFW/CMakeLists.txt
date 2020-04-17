@@ -56,7 +56,8 @@ target_include_directories(
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
+		${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}
         PUBLIC

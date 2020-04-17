@@ -4,7 +4,6 @@
 
 set(target lib-SLProject)
 
-set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
 set(headers
@@ -13,7 +12,6 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibrationEstimator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypes.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImageGeoTiff.h
@@ -120,6 +118,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransformationNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTriangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
         )
 
@@ -154,10 +153,8 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLApplication.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInputEventInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLTexFont.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
@@ -208,6 +205,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransformationNode.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTriangle.cpp
         )
 
 if (SL_BUILD_WAI)
@@ -243,7 +241,6 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
             ${compile_definitions}
-            GLEW_STATIC
             _GLFW_NO_DLOAD_GDI32
             _GLFW_NO_DLOAD_WINMM
             APP_USES_CVCAPTURE
@@ -252,7 +249,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
             ${compile_definitions}
-            GLEW_STATIC
             APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 

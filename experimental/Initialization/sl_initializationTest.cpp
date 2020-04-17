@@ -5,7 +5,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 
-#include <GL/glew.h>
+#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
 #include <Utils.h>
@@ -562,12 +562,11 @@ int main()
     scr2fbX = (float)fbWidth / (float)scrWidth;
     scr2fbY = (float)fbHeight / (float)scrHeight;
 
-    glewExperimental = GL_TRUE; // avoids a crash
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if (gl3wInit()!=0)
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        cerr << "Failed to initialize OpenGL" << endl;
+        exit(-1);
     }
 
     glfwSetWindowTitle(window, "Initialization Test");

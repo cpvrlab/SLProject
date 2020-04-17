@@ -155,7 +155,7 @@ Michael Goettlicher, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\
-- glew: glew.sourceforge.net\n\
+- gl3w: https://github.com/skaslev/gl3w\n\
 - glfw: glfw.org\n\
 - OpenCV: opencv.org\n\
 - OpenGL: opengl.org\n\
@@ -880,8 +880,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
             ImGui::Separator();
 
-            if (ImGui::Checkbox("DockSpace enabled", &showDockSpace))
-                showDockSpace != showDockSpace;
+            ImGui::Checkbox("DockSpace enabled", &showDockSpace);
             ImGui::Separator();
 
             SLchar reset[255];
@@ -1574,7 +1573,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 sv->startPathtracing(5, 10);
 
 #if defined(GL_VERSION_4_4)
-            if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+            if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
             {
                 if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
                     sv->startConetracing();

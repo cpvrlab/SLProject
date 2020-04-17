@@ -56,32 +56,28 @@ public:
                 SLfloat         specPower    = 10.0f,
                 SLbool          hasMesh      = true);
 
-    void init(SLScene* s);
-    bool hitRec(SLRay* ray);
-    void statsRec(SLNodeStats& stats);
-    void drawMeshes(SLSceneView* sv);
-
-    void    setState();
+    void    init(SLScene* s);
+    bool    hitRec(SLRay* ray) override;
+    void    statsRec(SLNodeStats& stats) override;
+    void    drawMeshes(SLSceneView* sv) override;
+    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
-                       SLNode*        root3D);
+                       SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
                          SLfloat        lightDist,
-                         SLNode*        root3D);
+                         SLNode*        root3D) override;
 
     // Setters
-    void samples(SLuint x, SLuint y)
-    {
-        _samples.samples(x, y, false);
-    }
+    void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
 
     // Getters
     SLfloat radius() { return _radius; }
     SLuint  samples() { return _samples.samples(); }
     SLVec4f positionWS() const override { return translationWS(); }
-    SLVec3f spotDirWS() { return forwardWS(); }
+    SLVec3f spotDirWS() override { return forwardWS(); }
 
 private:
     SLfloat     _radius;  //!< The sphere lights radius

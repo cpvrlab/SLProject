@@ -434,9 +434,8 @@ static void onKeyPress(GLFWwindow* window,
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     }
-    else
-      // Toggle fullscreen mode
-      if (key == K_F9 && action == GLFW_PRESS)
+    // Toggle fullscreen mode
+    else if (key == K_F9 && action == GLFW_PRESS)
     {
         fullscreen = !fullscreen;
 
@@ -477,13 +476,15 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppDemoSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManager)
+SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
+                                    int             dpi,
+                                    SLInputManager& inputManager)
 {
     // The sceneview will be deleted by SLScene::~SLScene()
     return new AppDemoSceneView(scene, dpi, inputManager);
 }
 //-----------------------------------------------------------------------------
-//! Initialises all GLFW and GLEW stuff
+//! Initialises all GLFW and GL3W stuff
 void initGLFW(int scrWidth, int scrHeight)
 {
     if (!glfwInit())
@@ -526,19 +527,11 @@ void initGLFW(int scrWidth, int scrHeight)
     scr2fbY = 1.0f; //(float)fbHeight / (float)scrHeight;
     dpi     = (int)(142 * scr2fbX);
 
-    // Include OpenGL via GLEW (init must be after window creation)
-    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++
-    // OpenGL developers with two tedious tasks: initializing and using extensions
-    // and writing portable applications. GLEW provides an efficient run-time
-    // mechanism to determine whether a certain extension is supported by the
-    // driver or not. OpenGL core and extension functionality is exposed via a
-    // single header file. Download GLEW at: http://glew.sourceforge.net/
-    glewExperimental = GL_TRUE; // avoids a crash
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if (gl3wInit()!=0)
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        cerr << "Failed to initialize OpenGL" << endl;
+        exit(-1);
     }
 
     glfwSetWindowTitle(window, "SLProject Test Application");

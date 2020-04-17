@@ -9,6 +9,7 @@
 #include <AppDemoGuiSlamLoad.h>
 #include <SENSVideoStream.h>
 #include <CVCalibration.h>
+#include <queue>
 
 class WAISlam;
 struct WAIEvent;
@@ -49,6 +50,26 @@ protected:
                           SLVec3f          translation,
                           float            scale);
     void downloadCalibrationFilesTo(std::string dir);
+
+    // multithreading 
+    static void updateModeMultiThread(TestView * ptr);
+    int getNextFrame(WAIFrame &frame);
+    void processSENSFrame(SENSFramePtr frame);
+    void stop();
+    bool isStop();
+    void requestFinish();
+    bool finishRequested();
+    bool isFinished();
+    void resume();
+    std::thread* _modeUpdateThread;
+    std::queue<WAIFrame> _framesQueue;
+    std::mutex _frameQueueMutex;
+    std::mutex _stateMutex;
+    bool _isFinish;
+    bool _isStop;
+    bool _requestFinish;
+
+
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
