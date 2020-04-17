@@ -12,6 +12,7 @@
 #define SLGUIDEMO_H
 
 #include <SL.h>
+#include <SLTransformationNode.h>
 
 class SLScene;
 class SLSceneView;
@@ -65,7 +66,7 @@ public:
     static SLbool   showTransform;       //!< Flag if tranform dialog should be shown
 
 private:
-    static void toggleEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode);
+    static void toggleTransformationEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode);
 };
 //-----------------------------------------------------------------------------
 #endif
