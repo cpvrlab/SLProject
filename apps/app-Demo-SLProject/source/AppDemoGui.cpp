@@ -31,6 +31,7 @@
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <SLNode.h>
+#include <SLTransformationNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLTransferFunction.h>
@@ -750,6 +751,31 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::Button("Reset")) node->om(node->initialOM());
 
                 // clang-format on
+
+                if (ImGui::Button("Enter translation edit mode"))
+                {
+                    toggleEditMode(s, sv, NodeEditMode_Translate);
+                }
+
+                if (ImGui::Button("Enter scale edit mode"))
+                {
+                    toggleEditMode(s, sv, NodeEditMode_Scale);
+                }
+
+                if (ImGui::Button("Enter rotation edit mode"))
+                {
+                    toggleEditMode(s, sv, NodeEditMode_Rotate);
+                }
+
+                if (ImGui::Button("Exit edit mode"))
+                {
+                    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+
+                    if (transformationNode)
+                    {
+                        s->root3D()->deleteChild(transformationNode);
+                    }
+                }
             }
             else
             {
@@ -2696,3 +2722,15 @@ void AppDemoGui::saveConfig()
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
+void AppDemoGui::toggleTransformationMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode)
+{
+    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+
+    if (!transformationNode)
+    {
+        transformationNode = new SLTransformationNode(s, sv, s->selectedNode());
+        s->root3D()->addChild(transformationNode);
+    }
+
+    transformationNode->toggleEditMode(editMode);
+}
