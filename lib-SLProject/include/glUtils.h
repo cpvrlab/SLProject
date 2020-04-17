@@ -19,15 +19,15 @@
 #        include <OpenGLES/ES3/gl.h>
 #        include <OpenGLES/ES3/glext.h>
 #    else
-#        include <GL/glew.h>
+#        include <GL/gl3w.h>
 #    endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <GLES3/gl31.h>
 #    include <GLES3/gl3ext.h>
 #elif defined(_WIN32)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #elif defined(linux) || defined(__linux) || defined(__linux__)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #else
 #    error "SL has not been ported to this OS"
 #endif

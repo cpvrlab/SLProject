@@ -30,7 +30,7 @@ set_target_properties(${target}
     FOLDER "apps"
     )
 
-message(STATUS "OpenCV_INCLUDE_DIR ${OpenCV_INCLUDE_DIR}")
+#message(STATUS "OpenCV_INCLUDE_DIR ${OpenCV_INCLUDE_DIR}")
 target_include_directories(${target}
     PRIVATE
     ${OpenCV_INCLUDE_DIR}

@@ -10,6 +10,8 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
+#define WAI_MULTITHREAD 1
+
 TestView::TestView(sm::EventHandler& eventHandler,
                    SLInputManager&   inputManager,
                    SENSCamera*       camera,
@@ -95,6 +97,100 @@ void TestView::startAsync()
     //_ready = true;
 }
 
+void TestView::updateModeMultiThread(TestView* ptr)
+{
+    while (1)
+    {
+        WAIFrame f;
+        while (ptr->getNextFrame(f) && !ptr->finishRequested())
+            ptr->_mode->update(f);
+
+        if (ptr->finishRequested())
+        {
+            std::unique_lock<std::mutex> lock(ptr->_frameQueueMutex);
+
+            Utils::log("Info", "AAAA finish requested\n");
+            while (ptr->_framesQueue.size() > 0)
+                ptr->_framesQueue.pop();
+
+            break;
+        }
+
+        while (ptr->isStop() && !ptr->isFinished() && !ptr->finishRequested())
+        {
+            Utils::log("Info", "AAAA wait stop\n");
+            std::this_thread::sleep_for(25ms);
+        }
+    }
+
+    std::unique_lock<std::mutex> lock(ptr->_stateMutex);
+    ptr->_requestFinish = false;
+    ptr->_isFinish      = true;
+}
+
+int TestView::getNextFrame(WAIFrame& frame)
+{
+    int                          nbFrameInQueue;
+    std::unique_lock<std::mutex> lock(_frameQueueMutex);
+    nbFrameInQueue = _framesQueue.size();
+    if (nbFrameInQueue == 0)
+        return 0;
+
+    frame = _framesQueue.front();
+    _framesQueue.pop();
+    return nbFrameInQueue;
+}
+
+void TestView::processSENSFrame(SENSFramePtr frame)
+{
+    if (_videoWriter && _videoWriter->isOpened())
+        _videoWriter->write(frame->imgRGB);
+
+    WAIFrame f;
+    _mode->createFrame(f, frame->imgGray);
+
+    std::unique_lock<std::mutex> lock(_frameQueueMutex);
+    _framesQueue.push(f);
+}
+
+void TestView::stop()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    _isStop = true;
+}
+
+bool TestView::isStop()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    return _isStop;
+}
+
+void TestView::requestFinish()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    _requestFinish = true;
+
+    Utils::log("Info", "request Finish\n");
+}
+
+bool TestView::finishRequested()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    return _requestFinish;
+}
+
+bool TestView::isFinished()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    return _isFinish;
+}
+
+void TestView::resume()
+{
+    std::unique_lock<std::mutex> lock(_stateMutex);
+    _isStop = false;
+}
+
 bool TestView::update()
 {
     handleEvents();
@@ -118,11 +214,16 @@ bool TestView::update()
 
         if (_mode)
         {
-            bool iKnowWhereIAm = _mode->update(frame->imgGray);
-            if (iKnowWhereIAm)
+#ifdef WAI_MULTITHREAD
+            processSENSFrame(frame);
+#else
+            _mode->update(frame->imgGray);
+#endif
+
+            if (_mode->isTracking())
                 _scene.updateCameraPose(_mode->getPose());
 
-            updateTrackingVisualization(iKnowWhereIAm, frame->imgRGB);
+            updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
     }
 
@@ -381,6 +482,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // reset stuff
     if (_mode)
     {
+        requestFinish();
+        _modeUpdateThread->join();
         _mode->requestStateIdle();
         while (!_mode->hasStateIdle())
         {
@@ -388,7 +491,16 @@ void TestView::startOrbSlam(SlamParams slamParams)
         }
         delete _mode;
         _mode = nullptr;
+        delete _modeUpdateThread;
+        _modeUpdateThread = nullptr;
     }
+
+#ifdef WAI_MULTITHREAD
+    _modeUpdateThread = new std::thread(updateModeMultiThread, this);
+    _isFinish         = false;
+    _isStop           = false;
+    _requestFinish    = false;
+#endif
 
     // Check that files exist
     if (useVideoFile && !Utils::fileExists(slamParams.videoFile))

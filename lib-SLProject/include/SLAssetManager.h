@@ -21,13 +21,15 @@ class SLSceneView;
 class SLCamera;
 class SLInputManager;
 
+//-----------------------------------------------------------------------------
+//! Toplevel holder of the assets (shader programs, meshes, textures & materials
+/*! This class is inherited by SLProjectScene that combines it with SLScene.
+ All these assets can be shared among instances of SLScene, SLNode and SLMaterial.
+*/
 class SLAssetManager
 {
 public:
-    ~SLAssetManager()
-    {
-        clear();
-    }
+    ~SLAssetManager() { clear(); }
 
     void clear()
     {
@@ -49,9 +51,7 @@ public:
         _programs.clear();
     }
 
-    //-----------------------------------------------------------------------------
-    /*! Removes the specified mesh from the meshes resource vector.
-*/
+    //! Removes the specified mesh from the meshes resource vector.
     bool removeMesh(SLMesh* mesh)
     {
         assert(mesh);
@@ -77,5 +77,5 @@ protected:
     SLVGLTexture _textures;  //!< Vector of all texture pointers
     SLVMesh      _meshes;    //!< Vector of all meshes
 };
-
+//-----------------------------------------------------------------------------
 #endif //SLASSETMANAGER_H

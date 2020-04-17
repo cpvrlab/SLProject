@@ -18,14 +18,14 @@
 #    include <OpenGLES/ES3/gl.h>
 #    include <OpenGLES/ES3/glext.h>
 #elif defined(SL_OS_MACOS)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #elif defined(SL_OS_ANDROID)
 #        include <GLES3/gl31.h>
 #        include <GLES3/gl3ext.h>
 #elif defined(SL_OS_WINDOWS)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #elif defined(SL_OS_LINUX)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #else
 #    error "SL has not been ported to this OS"
 #endif

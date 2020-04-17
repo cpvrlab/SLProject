@@ -26,15 +26,15 @@
 /*! 
 The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
-in SLScene::unInit().
+in SLScene::unInit(). The passed asset manager is responsible for deallocation.
 */
 SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
 {
     _primitive = PT_triangles;
-    mat(nullptr);
-    matOut(nullptr);
-    _finalP = &P;
-    _finalN = &N;
+    _mat       = nullptr;
+    _matOut    = nullptr;
+    _finalP    = &P;
+    _finalN    = &N;
     minP.set(FLT_MAX, FLT_MAX, FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
@@ -1196,7 +1196,7 @@ a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
 This software skinning is also needed for ray or path tracing.  
 */
-void SLMesh::transformSkin(std::function<void(SLMesh*)> cbInformNodes)
+void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
 {
     // create the secondary buffers for P and N once
     if (skinnedP.empty())

@@ -29,47 +29,27 @@ used for pose estimation.
 \param faceClassifierFilename Name of the cascaded face training file
 \param faceMarkModelFilename Name of the facial landmark training file
 */
-CVTrackedFaces::CVTrackedFaces(std::string calibIniPath,
-                               std::string exePath,
-                               int         smoothLenght,
-                               string      faceClassifierFilename,
-                               string      faceMarkModelFilename)
+CVTrackedFaces::CVTrackedFaces(string faceClassifierFilename,
+                               string faceMarkModelFilename,
+                               int    smoothLenght)
 {
     // Load Haar cascade training file for the face detection
-    string faceClassifier = faceClassifierFilename;
-    if (!Utils::fileExists(faceClassifier))
+    if (!Utils::fileExists(faceClassifierFilename))
     {
-        faceClassifier = calibIniPath + faceClassifierFilename;
-        if (!Utils::fileExists(faceClassifier))
-        {
-            faceClassifier = exePath + faceClassifierFilename;
-            if (!Utils::fileExists(faceClassifier))
-            {
-                string msg = "CVTrackedFaces: File not found: " + faceClassifier;
-                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
-            }
-        }
+        string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
-    _faceDetector = new CVCascadeClassifier(faceClassifier);
+    _faceDetector = new CVCascadeClassifier(faceClassifierFilename);
 
     // Load facemark model file for the facial landmark detection
-    string faceModel = faceMarkModelFilename;
-    if (!Utils::fileExists(faceModel))
+    if (!Utils::fileExists(faceMarkModelFilename))
     {
-        faceModel = calibIniPath + faceMarkModelFilename;
-        if (!Utils::fileExists(faceModel))
-        {
-            faceModel = exePath + faceMarkModelFilename;
-            if (!Utils::fileExists(faceModel))
-            {
-                string msg = "CVTrackedFaces: File not found: " + faceModel;
-                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
-            }
-        }
+        string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
     _facemark = cv::face::FacemarkLBF::create();
-    _facemark->loadModel(faceModel);
+    _facemark->loadModel(faceMarkModelFilename);
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;

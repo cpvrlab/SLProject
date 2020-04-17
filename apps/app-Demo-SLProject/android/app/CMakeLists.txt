@@ -119,6 +119,8 @@ file(
         GLOB_RECURSE CALIBRATIONS
         ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
         ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+        ${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
+        ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
     )
 
 file(

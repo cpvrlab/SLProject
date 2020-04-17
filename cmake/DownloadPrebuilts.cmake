@@ -53,7 +53,7 @@ set(vk_INCLUDE_DIR)
 set(vk_LINK_DIR)
 set(vk_LINK_LIBS
         vulkan-1
-        )
+    )
 
 set(glfw_DIR)
 set(glfw_INCLUDE_DIR)
@@ -297,7 +297,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     set(vk_VERSION "1.2.131.2")
     set(vk_DIR ${PREBUILT_PATH}/win64_vulkan_${vk_VERSION})
-    set(vk_PREBUILT_ZIP "win64_vulkanSDK_${vk_VERSION}.zip")
+    set(vk_PREBUILT_ZIP "win64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
 
     if (NOT EXISTS "${vk_DIR}")
@@ -570,7 +570,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     # Vulkan for MacOS #
     ####################
 
-    set(vk_VERSION "1.2.131.2")
+    set(vk_VERSION "1.2.135.0")
     set(vk_DIR ${PREBUILT_PATH}/mac64_vulkan_${vk_VERSION})
     set(vk_PREBUILT_ZIP "mac64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})

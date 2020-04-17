@@ -271,7 +271,7 @@ materials within the file are ignored.
 */
 SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
                                SLAssetManager* assetMgr,
-                               SLstring        file,           //!< File with path or on default path
+                               SLstring        pathAndFile,    //!< File with path or on default path
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
@@ -281,13 +281,10 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
     // clear the intermediate data
     clear();
 
-    string pathAndFile = Utils::findFile(Utils::getFileName(file),
-                                         {defaultPath,
-                                          defaultPath + Utils::getPath(file)});
     // Check existence
     if (!Utils::fileExists(pathAndFile))
     {
-        SLstring msg = "SLAssimpImporter: File not found: " + file + "\n";
+        SLstring msg = "SLAssimpImporter: File not found: " + pathAndFile + "\n";
         SL_EXIT_MSG(msg.c_str());
         return nullptr;
     }
@@ -297,7 +294,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
     const aiScene*   scene = ai.ReadFile(pathAndFile.c_str(), (SLuint)flags);
     if (!scene)
     {
-        SLstring msg = "Failed to load file: " + file + "\n" + ai.GetErrorString() + "\n";
+        SLstring msg = "Failed to load file: " + pathAndFile + "\n" + ai.GetErrorString() + "\n";
         SL_WARN_MSG(msg.c_str());
         return nullptr;
     }
@@ -337,7 +334,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
         }
         else
             SL_LOG("SLAsssimpImporter::load failed: %s\nin path: %s",
-                   file.c_str(),
+                   pathAndFile.c_str(),
                    modelPath.c_str());
     }
 
@@ -353,7 +350,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
 
     // Rename root node to the more meaningfull filename
     if (_sceneRoot)
-        _sceneRoot->name(Utils::getFileName(file));
+        _sceneRoot->name(Utils::getFileName(pathAndFile));
 
     return _sceneRoot;
 }

@@ -44,7 +44,7 @@ public:
 
     SLNode* load(SLAnimManager&  aniMan,
                  SLAssetManager* assetMgr,
-                 SLstring        pathFilename,
+                 SLstring        pathAndFile,
                  SLbool          loadMeshesOnly = true,
                  SLMaterial*     overrideMat    = nullptr,
                  float           ambientFactor  = 0.0f,

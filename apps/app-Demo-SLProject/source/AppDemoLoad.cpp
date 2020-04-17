@@ -59,8 +59,19 @@ extern SLNode*      trackedNode;
 
 //-----------------------------------------------------------------------------
 // Forward declarations for helper functions used only in this file
-SLNode* SphereGroup(SLProjectScene* s, SLint, SLfloat, SLfloat, SLfloat, SLfloat, SLuint, SLMaterial*, SLMaterial*);
-SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimation = false);
+SLNode*     SphereGroup(SLProjectScene* s,
+                        SLint,
+                        SLfloat,
+                        SLfloat,
+                        SLfloat,
+                        SLfloat,
+                        SLuint,
+                        SLMaterial*,
+                        SLMaterial*);
+SLNode*     BuildFigureGroup(SLProjectScene* s,
+                             SLMaterial*     mat,
+                             SLbool          withAnimation = false);
+std::string findModelFileName(std::string file);
 
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
@@ -229,9 +240,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
 
         SLAssimpImporter importer;
-        SLNode*          mesh3DS = importer.load(s->animManager(), s, "3DS/Halloween/jackolan.3ds");
-        SLNode*          meshFBX = importer.load(s->animManager(), s, "FBX/Duck/duck.fbx");
-        SLNode*          meshDAE = importer.load(s->animManager(), s, "DAE/AstroBoy/AstroBoy.dae");
+
+        SLNode* mesh3DS = importer.load(s->animManager(), s, findModelFileName("3DS/Halloween/jackolan.3ds"));
+        SLNode* meshFBX = importer.load(s->animManager(), s, findModelFileName("FBX/Duck/duck.fbx"));
+        SLNode* meshDAE = importer.load(s->animManager(), s, findModelFileName("DAE/AstroBoy/AstroBoy.dae"));
 
         // Start animation
         SLAnimPlayback* charAnim = s->animManager().lastAnimPlayback();
@@ -482,7 +494,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLfloat          timeStart  = GlobalTimer::timeS();
             SLNode*          largeModel = importer.load(s->animManager(),
                                                s,
-                                               "PLY/xyzrgb_dragon.ply",
+                                               findModelFileName("PLY/xyzrgb_dragon.ply"),
                                                true,
                                                nullptr,
                                                0.0f,
@@ -1391,12 +1403,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // load teapot
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(), s, "FBX/Teapot/Teapot.fbx", true, refl);
+        SLNode*          teapot = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, refl);
         teapot->translate(-1.5f, -0.5f, 0);
         scene->addChild(teapot);
 
         // load Suzanne
-        SLNode* suzanne = importer.load(s->animManager(), s, "FBX/Suzanne/Suzanne.fbx", true, refr);
+        SLNode* suzanne = importer.load(s->animManager(), s, findModelFileName("FBX/Suzanne/Suzanne.fbx"), true, refr);
         suzanne->translate(1.5f, -0.5f, 0);
         scene->addChild(suzanne);
 
@@ -1509,7 +1521,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
 
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(), s, "FBX/Teapot/Teapot.fbx", true, teapotMat);
+        SLNode*          teapot = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, teapotMat);
 
         teapot->scale(0.5);
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
@@ -1762,14 +1774,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(new SLNode(grid, "grid"));
 
         // Astro boy character
-        SLNode* char1 = importer.load(s->animManager(), s, "DAE/AstroBoy/AstroBoy.dae");
+        SLNode* char1 = importer.load(s->animManager(), s, findModelFileName("DAE/AstroBoy/AstroBoy.dae"));
         char1->translate(-1, 0, 0);
         SLAnimPlayback* char1Anim = s->animManager().lastAnimPlayback();
         char1Anim->playForward();
         scene->addChild(char1);
 
         // Sintel character
-        SLNode* char2 = importer.load(s->animManager(), s, "DAE/Sintel/SintelLowResOwnRig.dae"
+        SLNode* char2 = importer.load(s->animManager(), s, findModelFileName("DAE/Sintel/SintelLowResOwnRig.dae")
                                       //,true
                                       //,SLProcess_JoinIdenticalVertices
                                       //|SLProcess_RemoveRedundantMaterials
@@ -1784,7 +1796,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(char2);
 
         // Skinned cube 1
-        SLNode* cube1 = importer.load(s->animManager(), s, "DAE/SkinnedCube/skinnedcube2.dae");
+        SLNode* cube1 = importer.load(s->animManager(), s, findModelFileName("DAE/SkinnedCube/skinnedcube2.dae"));
         cube1->translate(3, 0, 0);
         SLAnimPlayback* cube1Anim = s->animManager().lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
@@ -1792,7 +1804,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube1);
 
         // Skinned cube 2
-        SLNode* cube2 = importer.load(s->animManager(), s, "DAE/SkinnedCube/skinnedcube4.dae");
+        SLNode* cube2 = importer.load(s->animManager(), s, findModelFileName("DAE/SkinnedCube/skinnedcube4.dae"));
         cube2->translate(-3, 0, 0);
         SLAnimPlayback* cube2Anim = s->animManager().lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
@@ -1800,7 +1812,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube2);
 
         // Skinned cube 3
-        SLNode* cube3 = importer.load(s->animManager(), s, "DAE/SkinnedCube/skinnedcube5.dae");
+        SLNode* cube3 = importer.load(s->animManager(), s, findModelFileName("DAE/SkinnedCube/skinnedcube5.dae"));
         cube3->translate(0, 3, 0);
         SLAnimPlayback* cube3Anim = s->animManager().lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
@@ -2037,7 +2049,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->rotate(90, -1, 0, 0);
 
         SLAssimpImporter importer;
-        SLNode*          center = importer.load(s->animManager(), s, "DAE/AstroBoy/AstroBoy.dae");
+        SLNode*          center = importer.load(s->animManager(), s, findModelFileName("DAE/AstroBoy/AstroBoy.dae"));
         s->animManager().lastAnimPlayback()->playForward();
 
         // Assemble scene
@@ -2444,7 +2456,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load sunglasses
         SLAssimpImporter importer;
-        SLNode*          glasses = importer.load(s->animManager(), s, "FBX/Sunglasses.fbx");
+        SLNode*          glasses = importer.load(s->animManager(), s, findModelFileName("FBX/Sunglasses.fbx"));
         glasses->scale(0.01f);
 
         // Add axis arrows at world center
@@ -2460,7 +2472,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker     = new CVTrackedFaces(SLApplication::calibIniPath, SLApplication::exePath, 3);
+        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {SLApplication::calibIniPath, SLApplication::exePath}),
+                                     Utils::findFile("lbfmodel.yaml", {SLApplication::calibIniPath, SLApplication::exePath}),
+                                     3);
         trackedNode = cam1;
         tracker->drawDetection(true);
 
@@ -2567,7 +2581,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          bern = importer.load(s->animManager(), s, "FBX/Christoffel/Bern-Bahnhofsplatz.fbx");
+        SLNode*          bern = importer.load(s->animManager(), s, findModelFileName("FBX/Christoffel/Bern-Bahnhofsplatz.fbx"));
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -2698,7 +2712,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
                                                  s,
-                                                 "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                                 findModelFileName("GLTF/AugustaRaurica/Tempel-Theater-02.gltf"),
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
                                                  0.4f);   // 40% ambient reflection
@@ -2791,7 +2805,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
                                              s,
-                                             "GLTF/Aventicum/Aventicum-Amphitheater1.gltf",
+                                             findModelFileName("GLTF/Aventicum/Aventicum-Amphitheater1.gltf"),
                                              true,    // only meshes
                                              nullptr, // no replacement material
                                              0.4f);   // 40% ambient reflection
@@ -2872,7 +2886,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          "GLTF/Aventicum/Aventicum-Cigognier1.gltf",
+                                          findModelFileName("GLTF/Aventicum/Aventicum-Cigognier1.gltf"),
                                           true,    // only meshes
                                           nullptr, // no replacement material
                                           0.4f);   // 40% ambient reflection
@@ -2969,7 +2983,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedWAI("ORBvoc.bin");
+        tracker = new CVTrackedWAI(Utils::findFile("ORBvoc.bin", {SLApplication::calibIniPath, SLApplication::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -3557,5 +3571,13 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     }
 
     return figure;
+}
+//-----------------------------------------------------------------------------
+std::string findModelFileName(std::string file)
+{
+    return Utils::findFile(Utils::getFileName(file),
+                           {SLImporter::defaultPath,
+                            SLImporter::defaultPath + Utils::getPath(file),
+                            SLApplication::exePath});
 }
 //-----------------------------------------------------------------------------
