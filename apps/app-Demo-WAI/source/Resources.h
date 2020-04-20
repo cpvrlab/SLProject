@@ -31,7 +31,7 @@ public:
     ImVec4 headerBarBackButtonColor = {BFHColors::GrayDark.r,
                                        BFHColors::GrayDark.g,
                                        BFHColors::GrayDark.b,
-                                       1.0};
+                                       0.0};
     //selection gui pressed button color
     ImVec4 headerBarBackButtonPressedColor = {BFHColors::GrayLogo.r,
                                               BFHColors::GrayLogo.g,

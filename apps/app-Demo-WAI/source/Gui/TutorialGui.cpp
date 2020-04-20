@@ -2,7 +2,7 @@
 #include <imgui_internal.h>
 #include <CVImage.h>
 #include <GuiUtils.h>
-
+#include <SLVec2.h>
 using namespace ErlebAR;
 
 TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
@@ -84,31 +84,6 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     //background texture
     renderBackgroundTexture(_screenW, _screenH, _currentBackgroundId);
     //header bar
-    //pushStyle();
-
-    //ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-    float h = 10.0;
-    //header bar with backbutton
-
-    //float width,
-    //float height,
-    //const ImVec4& backgroundColor,
-    //const ImVec4& textColor,
-    //const ImVec4& buttonColor,
-    //const ImVec4& buttonColorPressed,
-    //ImFont* font,
-    //const ImVec2& windowPadding,
-    //const ImVec2& framePadding,
-    //float frameRounding,
-    //GLuint texId,
-    //GLuint texIdPressed,
-    //float spacingButtonToText,
-    //const char* text
-
     renderHeaderBar(_screenW,
                     _headerBarH,
                     _resources.style().headerBarBackgroundTranspColor,
@@ -124,70 +99,37 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                     _resources.strings().tutorial(),
                     [&]() { sendEvent(new GoBackEvent()); });
 
-    //{
-    //    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    //    ImGui::SetNextWindowSize(ImVec2(_screenW, _headerBarH), ImGuiCond_Always);
-    //    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
-
-    //    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundTranspColor);
-    //    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().headerBarTextColor);
-    //    ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-    //    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-    //    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-    //    ImGui::PushFont(_fontBig);
-    //    //hack for ArrowButton alignment (has to be called after font has been pushed
-    //    h             = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
-    //    float spacing = 0.5f * (_headerBarH - h);
-    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(spacing, spacing));
-    //    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_buttonRounding, _buttonRounding));
-    //    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-
-    //    ImGui::Begin("TutorialGui_header", nullptr, windowFlags);
-
-    //    //if (ImGui::ArrowButton("TutorialGui_backButton", ImGuiDir_Left))
-    //    //{
-    //    //    sendEvent(new GoBackEvent());
-    //    //}
-    //    //if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(h, h)))
-    //    if (ImGui::ImageButton((ImTextureID)_textureIconBackWhiteId, (ImTextureID)_textureIconBackGrayId, ImVec2(h, h)))
-    //    {
-    //        sendEvent(new GoBackEvent());
-    //    }
-
-    //    ImGui::SameLine(0.f, _spacingBackButtonToText);
-    //    ImGui::Text(_resources.strings().tutorial());
-
-    //    ImGui::End();
-
-    //    ImGui::PopStyleColor(5);
-    //    ImGui::PopFont();
-    //    ImGui::PopStyleVar(3);
-    //}
-
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
     //button board window
+    //float buttonSize,
+    //float winPosStartY,
+    //
     {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+        float buttonSize = 0.5f * (_headerBarH - _headerBarH * 0.8);
+
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                        ImGuiWindowFlags_NoMove |
                                        ImGuiWindowFlags_AlwaysAutoResize |
                                        ImGuiWindowFlags_NoScrollbar |
                                        ImGuiWindowFlags_NoScrollWithMouse;
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_buttonRounding, _buttonRounding));
+
+        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.f, 1.f, 1.f, 0.5f));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_buttonRounding, _buttonRounding));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
         ImGui::Begin("TutorialGui_ButtonBoard", nullptr, windowFlags);
 
-        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(h, h)))
+        //mGui::PushID()
+        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(buttonSize, buttonSize)))
         {
             if (_currentBackgroundId == _textureBackgroundId1)
                 _currentBackgroundId = _textureBackgroundId2;
@@ -195,21 +137,22 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                 _currentBackgroundId = _textureBackgroundId1;
         }
 
-        if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(h, h)))
-        {
-            if (_currentBackgroundId == _textureBackgroundId1)
-                _currentBackgroundId = _textureBackgroundId2;
-            else if (_currentBackgroundId == _textureBackgroundId2)
-                _currentBackgroundId = _textureBackgroundId1;
-        }
+        //if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(buttonSize, buttonSize)))
+        //{
+        //    if (_currentBackgroundId == _textureBackgroundId1)
+        //        _currentBackgroundId = _textureBackgroundId2;
+        //    else if (_currentBackgroundId == _textureBackgroundId2)
+        //        _currentBackgroundId = _textureBackgroundId1;
+        //}
 
         ImGui::End();
+
+        ImGui::PopStyleVar(6);
         ImGui::PopStyleColor(4);
-        ImGui::PopStyleVar(2);
     }
 
     //popStyle();
-    ImGui::PopStyleVar(4);
+    //ImGui::PopStyleVar(4);
 
     //ImGui::ShowMetricsWindow();
 }

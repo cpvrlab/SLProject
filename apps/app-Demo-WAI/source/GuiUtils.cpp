@@ -79,6 +79,10 @@ void renderHeaderBar(float                     width,
     ImGui::PopStyleColor(5);
 }
 
+void renderContent()
+{
+}
+
 unsigned int loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
 {
     unsigned int id = 0;

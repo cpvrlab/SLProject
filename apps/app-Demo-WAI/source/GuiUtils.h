@@ -26,6 +26,7 @@ void renderHeaderBar(float                     width,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb);
+void renderContent();
 
 unsigned int loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH);
 void         deleteTexture(unsigned int& id);
