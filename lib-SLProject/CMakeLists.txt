@@ -4,7 +4,6 @@
 
 set(target lib-SLProject)
 
-set(compile_definitions GLEW_NO_GLU)
 set(platform_specific_include_dirs)
 
 set(headers
@@ -13,7 +12,6 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibrationEstimator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypes.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCapture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVFeatureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImage.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVImageGeoTiff.h
@@ -74,9 +72,11 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCircle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxisArrow.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCylinder.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceRotation.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceLocation.h
@@ -117,6 +117,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransformationNode.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTriangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
         )
@@ -166,9 +167,11 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBackground.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCamera.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCircle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCone.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCompactGrid.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxis.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxisArrow.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCylinder.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDeviceRotation.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDeviceLocation.cpp
@@ -201,6 +204,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransformationNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTriangle.cpp
         )
 
@@ -237,7 +241,6 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(compile_definitions
             ${compile_definitions}
-            GLEW_STATIC
             _GLFW_NO_DLOAD_GDI32
             _GLFW_NO_DLOAD_WINMM
             APP_USES_CVCAPTURE
@@ -246,7 +249,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
     set(compile_definitions
             ${compile_definitions}
-            GLEW_STATIC
             APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 

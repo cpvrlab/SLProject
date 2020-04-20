@@ -1,5 +1,6 @@
 if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     add_subdirectory(exercices)
+    add_subdirectory(app-Demo-Imgui)
     add_subdirectory(app-Demo-Node)
     add_subdirectory(app-Demo-SLProject)
 	

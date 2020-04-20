@@ -1356,6 +1356,24 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->srcTriangle = 0;
 }
 //-----------------------------------------------------------------------------
+//! Project a world position into screen coordinates
+SLVec2f SLCamera::projectWorldToNDC(SLVec4f worldPos)
+{
+    SLMat4f projectionMatrix;
+    projectionMatrix.perspective(_fov, _viewportRatio, _clipNear, _clipFar);
+    SLMat4f viewMatrix = updateAndGetVM();
+
+    SLVec4f eyePos  = viewMatrix * worldPos;
+    SLVec4f clipPos = projectionMatrix * eyePos;
+
+    SLVec4f ndcPos = clipPos / clipPos.w;
+
+    SLVec2f result = SLVec2f(ndcPos.x,
+                             ndcPos.y);
+
+    return result;
+}
+//-----------------------------------------------------------------------------
 //! SLCamera::isInFrustum does a simple and fast frustum culling test for AABBs
 /*! SLCamera::isInFrustum checks if the bounding sphere of an AABB is within
 the view frustum defined by its 6 planes by simply testing the distance of the

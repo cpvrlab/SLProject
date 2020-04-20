@@ -57,7 +57,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             "GLTF/Avenches/AvenchesEntrance.gltf",
+                                             SLImporter::defaultPath + "GLTF/Avenches/AvenchesEntrance.gltf",
                                              true,
                                              nullptr,
                                              0.4f);
@@ -99,7 +99,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                             SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
                                              true,
                                              nullptr,
                                              0.4f);
@@ -185,36 +185,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(boxNode3);
 #endif
 
-#if 0 // augst temple hill for map 20200117 with ORB
-    SLAssimpImporter importer;
-    SLNode*          temple = importer.load("FBX/AugustaRaurica/Meshroom_Temple.fbx");
-    temple->translate(22.74, -15.53, 14.12);
-    temple->scale(0.10f);
-    temple->rotate(-126.6f, 1.0f, 0.0f, 0.0f);
-    temple->rotate(-86.53f, 0.0f, 1.0f, 0.0f);
-    temple->rotate(1.68f, 0.0f, 0.0f, 1.0f);
-
-    _root3D->addChild(temple);
-#endif
-
-#if 0 // augst temple hill for map 20200114 with GLSL
-    SLAssimpImporter importer;
-    SLNode*          temple = importer.load("FBX/AugustaRaurica/Meshroom_Temple.fbx");
-    /*temple->translate(13.67, -6.98, 5.07);
-    temple->scale(0.04f);
-    temple->rotate(53.05f, 1.0f, 0.0f, 0.0f);
-    temple->rotate(-5.61f, 0.0f, 1.0f, 0.0f);
-    temple->rotate(-179.37f, 0.0f, 0.0f, 1.0f);*/
-    temple->translate(22.17, -15.18, 11.9);
-    temple->scale(0.10f);
-    temple->rotate(-127.07f, 1.0f, 0.0f, 0.0f);
-    temple->rotate(-85.53f, 0.0f, 1.0f, 0.0f);
-    temple->rotate(-2.97, 0.0f, 0.0f, 1.0f);
-
-    //_root3D->addChild(boxNode1);
-    _root3D->addChild(temple);
-#endif
-
 #if 0 // locsim scene
     SLBox*  box2     = new SLBox(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "Box 2", yellow);
     SLNode* boxNode2 = new SLNode(box2, "boxNode2");
@@ -243,25 +213,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(boxNode2);
     _root3D->addChild(boxNode3);
     _root3D->addChild(boxNode4);
-#endif
-
-#if 0
-    SLBox*  box1     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "Box 1", yellow);
-    SLNode*
-void AppWAIScene::loadScene(std::string location, std::string area)
-{
-}
- boxNode1 = new SLNode(box1, "boxNode1");
-    boxNode1->translation(0.07f, 0.25f, 0.74f);
-    boxNode1->scale(0.355f, 0.1f, 0.08f);
-    //boxNode1->translate(1.0f, 0.0f, 8.0f);
-
-    /*SLBox*  box2     = new SLBox(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "MarkerBox", yellow);
-    SLNode* boxNode2 = new SLNode(box2, "boxNode2");
-    boxNode2->scale(0.75f, 0.42f, 0.1f);
-    SLNode* axisNode = new SLNode(new SLCoordAxis(), "axis node");*/
-
-    _root3D->addChild(boxNode1);
 #endif
 
     //boxNode->addChild(axisNode);

@@ -46,7 +46,8 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/lib-SLProject/include/math
         ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}

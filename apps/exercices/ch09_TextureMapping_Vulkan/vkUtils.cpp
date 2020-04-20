@@ -1362,6 +1362,9 @@ uint32_t vkUtils::findMemoryType(uint32_t              typeFilter,
             return i;
 
     cerr << "failed to find suitable memory type!" << endl;
+
+    // TODO(dgj1): make sure this is right. needs a return, otherwise its a compile error
+    return 0;
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -227,6 +227,31 @@ void TestView::handleEvents()
             }
             break;
 
+            case WAIEventType_EnterEditMode: {
+                WAIEventEnterEditMode* enterEditModeEvent = (WAIEventEnterEditMode*)event;
+
+                if (!_transformationNode)
+                {
+                    _transformationNode = new SLTransformationNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
+                    _scene.root3D()->addChild(_transformationNode);
+                }
+
+                if (enterEditModeEvent->editMode == NodeEditMode_None)
+                {
+                    if (_scene.root3D()->deleteChild(_transformationNode))
+                    {
+                        _transformationNode = nullptr;
+                    }
+                }
+                else
+                {
+                    _transformationNode->toggleEditMode(enterEditModeEvent->editMode);
+                }
+
+                delete enterEditModeEvent;
+            }
+            break;
+
             case WAIEventType_None:
             default: {
             }

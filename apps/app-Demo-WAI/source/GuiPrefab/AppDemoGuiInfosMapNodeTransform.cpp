@@ -145,6 +145,38 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
         _eventQueue->push(event);
     }
 
+    if (ImGui::Button("Enter translation edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = NodeEditMode_Translate;
+
+        _eventQueue->push(event);
+    }
+
+    if (ImGui::Button("Enter scale edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = NodeEditMode_Scale;
+
+        _eventQueue->push(event);
+    }
+
+    if (ImGui::Button("Enter rotation edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = NodeEditMode_Rotate;
+
+        _eventQueue->push(event);
+    }
+
+    if (ImGui::Button("Exit edit mode", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = NodeEditMode_None;
+
+        _eventQueue->push(event);
+    }
+
     ImGui::End();
     ImGui::PopFont();
 }
