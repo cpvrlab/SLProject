@@ -80,6 +80,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 
         -Wall
+        -Werror=return-type
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
         -Wno-covered-switch-default
@@ -97,6 +98,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         -Wno-unused-function
         -Wno-unused-parameter
         -Wno-used-but-marked-unused
+        -Wno-extra-tokens
         
         $<$<CXX_COMPILER_ID:GNU>:
             -Wmaybe-uninitialized
@@ -106,7 +108,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         >
         
         $<$<CXX_COMPILER_ID:Clang>:
-            -Weverything
+            
         >
         
         $<$<PLATFORM_ID:Darwin>:
@@ -140,26 +142,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     )
 endif ()
 
-# GCC and Clang compiler options
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
-
-        -w
-
-        $<$<CXX_COMPILER_ID:GNU>:
-            $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
-            >
-        >
-
-        $<$<CXX_COMPILER_ID:Clang>:
-            -Wno-everything
-        >
-
-        $<$<PLATFORM_ID:Darwin>:
-            -pthread
-        >
-    )
-endif ()
 # 
 # Linker options
 # 

@@ -204,3 +204,4 @@ SLTexFont* SLProjectScene::getFont(SLfloat heightMM, SLint dpi)
     if (targetH_PX < 24) return font22;
     return font24;
 }
+//-----------------------------------------------------------------------------

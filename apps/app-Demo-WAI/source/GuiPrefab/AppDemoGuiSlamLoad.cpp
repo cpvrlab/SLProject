@@ -27,14 +27,14 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
                                        bool*                            activator,
                                        std::function<void(std::string)> errorMsgCB)
   : AppDemoGuiInfosDialog(name, activator, font),
-    _eventQueue(eventQueue),
+    _changeSlamParams(true),
     _slamRootDir(slamRootDir),
     _calibrationsDir(calibrationsDir),
     _vocabulariesDir(vocabulariesDir),
     _extractorIdToNames(extractorIdToNames),
-    _changeSlamParams(true),
-    _errorMsgCB(errorMsgCB),
-    _kt(0.5f)
+    _kt(0.5f),
+    _eventQueue(eventQueue),
+    _errorMsgCB(errorMsgCB)
 {
     _p.params.retainImg    = true;
     _p.params.serial       = false;

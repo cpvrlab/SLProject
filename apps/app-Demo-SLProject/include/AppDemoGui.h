@@ -12,6 +12,7 @@
 #define SLGUIDEMO_H
 
 #include <SL.h>
+#include <SLTransformationNode.h>
 
 class SLScene;
 class SLSceneView;
@@ -63,6 +64,9 @@ public:
     static SLbool   showChristoffel;     //!< Flag if Christoffel infos should be shown
     static SLbool   showUIPrefs;         //!< Flag if UI preferences
     static SLbool   showTransform;       //!< Flag if tranform dialog should be shown
+
+private:
+    static void toggleTransformationEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode);
 };
 //-----------------------------------------------------------------------------
 #endif

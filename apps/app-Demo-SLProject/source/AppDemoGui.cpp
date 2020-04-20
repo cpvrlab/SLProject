@@ -155,7 +155,7 @@ Michael Goettlicher, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\
-- glew: glew.sourceforge.net\n\
+- gl3w: https://github.com/skaslev/gl3w\n\
 - glfw: glfw.org\n\
 - OpenCV: opencv.org\n\
 - OpenGL: opengl.org\n\
@@ -750,6 +750,31 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::Button("Reset")) node->om(node->initialOM());
 
                 // clang-format on
+
+                if (ImGui::Button("Enter translation edit mode"))
+                {
+                    toggleTransformationEditMode(s, sv, NodeEditMode_Translate);
+                }
+
+                if (ImGui::Button("Enter scale edit mode"))
+                {
+                    toggleTransformationEditMode(s, sv, NodeEditMode_Scale);
+                }
+
+                if (ImGui::Button("Enter rotation edit mode"))
+                {
+                    toggleTransformationEditMode(s, sv, NodeEditMode_Rotate);
+                }
+
+                if (ImGui::Button("Exit edit mode"))
+                {
+                    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+
+                    if (transformationNode)
+                    {
+                        s->root3D()->deleteChild(transformationNode);
+                    }
+                }
             }
             else
             {
@@ -855,8 +880,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
             ImGui::Separator();
 
-            if (ImGui::Checkbox("DockSpace enabled", &showDockSpace))
-                showDockSpace != showDockSpace;
+            ImGui::Checkbox("DockSpace enabled", &showDockSpace);
             ImGui::Separator();
 
             SLchar reset[255];
@@ -1549,7 +1573,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 sv->startPathtracing(5, 10);
 
 #if defined(GL_VERSION_4_4)
-            if (glewIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+            if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
             {
                 if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
                     sv->startConetracing();
@@ -2696,3 +2720,15 @@ void AppDemoGui::saveConfig()
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
+void AppDemoGui::toggleTransformationEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode)
+{
+    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+
+    if (!transformationNode)
+    {
+        transformationNode = new SLTransformationNode(s, sv, s->selectedNode());
+        s->root3D()->addChild(transformationNode);
+    }
+
+    transformationNode->toggleEditMode(editMode);
+}

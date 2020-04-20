@@ -89,7 +89,6 @@ void LocalMapping::LocalOptimize()
                 if (kfInQueue % 3 != 0)
                 {
                     workingSet.removeFromUseSet(frame);
-                    //mpLoopCloser->InsertKeyFrame(frame);
                     continue;
                 }
             }
@@ -109,8 +108,6 @@ void LocalMapping::LocalOptimize()
                 mbAbortBA = false;
                 Optimizer::LocalBundleAdjustment(&os, &mbAbortBA);
                 lock.lock();
-
-                Optimizer::applyBundleAdjustment(&os, mpMap);
             }
 
             KeyFrameCulling(frame, workingSet);
@@ -125,13 +122,6 @@ void LocalMapping::LocalOptimize()
 
         while (CheckPause() && !CheckFinish())
             std::this_thread::sleep_for(10ms);
-        //        {
-        //#ifdef _WINDOWS
-        //            Sleep(10);
-        //#else
-        //            usleep(10000);
-        //#endif
-        //        }
 
         if (CheckFinish())
             break;
@@ -179,14 +169,77 @@ void LocalMapping::ProcessKeyFrames()
 
         while (CheckPause() && !CheckFinish())
             std::this_thread::sleep_for(10ms);
-        //        {
-        //#ifdef _WINDOWS
-        //            Sleep(10);
-        //#else
-        //            usleep(10000);
-        //#endif
-        //        }
     }
+    SetFinish();
+}
+
+void LocalMapping::Run()
+{
+    mbFinished = false;
+
+    while (1)
+    {
+        // Tracking will see that Local Mapping is busy
+        SetAcceptKeyFrames(false);
+
+        // Check if there are keyframes in the queue
+        if (CheckNewKeyFrames())
+        {
+            // BoW conversion and insertion in Map
+
+            WAIKeyFrame* frame = GetNewKeyFrame();
+            ProcessNewKeyFrame(frame);
+
+            // Check recent MapPoints
+            MapPointCulling(frame);
+
+            // Triangulate new MapPoints
+            CreateNewMapPoints(frame);
+
+            if (!CheckNewKeyFrames())
+            {
+                // Find more matches in neighbor keyframes and fuse point duplications
+                SearchInNeighbors(frame);
+            }
+
+            mbAbortBA = false;
+
+            if (!CheckNewKeyFrames() && !CheckFinish())
+            {
+                // Local BA
+                if (mpMap->KeyFramesInMap() > 2)
+                    Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
+
+                // Check redundant local Keyframes
+                KeyFrameCulling(frame);
+            }
+
+            mpLoopCloser->InsertKeyFrame(frame);
+        }
+        else if (CheckPause())
+        {
+            // Safe area to stop
+            while (isStopped() && !CheckFinish())
+            {
+                //usleep(3000);
+                std::this_thread::sleep_for(3ms);
+            }
+            if (CheckFinish())
+                break;
+        }
+
+        ResetIfRequested();
+
+        // Tracking will see that Local Mapping is busy
+        SetAcceptKeyFrames(true);
+
+        if (CheckFinish())
+            break;
+
+        //usleep(3000);
+        std::this_thread::sleep_for(3ms);
+    }
+
     SetFinish();
 }
 

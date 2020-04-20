@@ -460,7 +460,7 @@ SLNode::upOS() const
 }
 //-----------------------------------------------------------------------------
 /*!
-SLNode::position returns current local position
+SLNode::position returns current world position
 */
 inline SLVec3f
 SLNode::translationWS() const

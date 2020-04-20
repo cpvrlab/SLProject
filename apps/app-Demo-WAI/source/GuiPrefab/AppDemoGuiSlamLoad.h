@@ -17,7 +17,7 @@
 #include <SLNode.h>
 #include <SlamParams.h>
 
-class WAIEvent;
+struct WAIEvent;
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {

@@ -10,8 +10,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef APP_WAI_SCENE_VIEW
-#define APP_WAI_SCENE_VIEW
+#ifndef WAI_APP_H
+#define WAI_APP_H
 
 #include <vector>
 #include <functional>
@@ -27,6 +27,7 @@
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
+#include <SLTransformationNode.h>
 #include <SLInputManager.h>
 #include <WAIEvent.h>
 #include <SlamParams.h>

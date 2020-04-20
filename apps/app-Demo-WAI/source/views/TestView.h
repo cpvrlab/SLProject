@@ -3,14 +3,16 @@
 
 #include <AppWAIScene.h>
 #include <SLSceneView.h>
+#include <SLTransformationNode.h>
 #include <AppDemoWaiGui.h>
 #include <SlamParams.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <SENSVideoStream.h>
 #include <CVCalibration.h>
+#include <queue>
 
 class WAISlam;
-class WAIEvent;
+struct WAIEvent;
 class SENSCamera;
 
 class TestView : protected SLSceneView
@@ -48,6 +50,26 @@ protected:
                           SLVec3f          translation,
                           float            scale);
     void downloadCalibrationFilesTo(std::string dir);
+
+    // multithreading 
+    static void updateModeMultiThread(TestView * ptr);
+    int getNextFrame(WAIFrame &frame);
+    void processSENSFrame(SENSFramePtr frame);
+    void stop();
+    bool isStop();
+    void requestFinish();
+    bool finishRequested();
+    bool isFinished();
+    void resume();
+    std::thread* _modeUpdateThread;
+    std::queue<WAIFrame> _framesQueue;
+    std::mutex _frameQueueMutex;
+    std::mutex _stateMutex;
+    bool _isFinish;
+    bool _isStop;
+    bool _requestFinish;
+
+
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
@@ -89,6 +111,8 @@ protected:
     std::string _videoDir;
 
     std::thread _startThread;
+
+    SLTransformationNode* _transformationNode = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;
