@@ -264,7 +264,6 @@ void WAISlam::updatePose(WAIFrame& frame)
                 _initialized         = true;
             }
 #else
-
             if (initialize(_iniData, frame, _voc, _localMap, 100, _lastKeyFrameFrameId))
             {
                 if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))

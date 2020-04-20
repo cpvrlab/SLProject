@@ -121,6 +121,7 @@ public:
                 return std::string("TrackingState_TrackingOK");
                 break;
         }
+        return std::string("");
     }
 
     virtual int     getKeyPointCount() { return _lastFrame.N; }
