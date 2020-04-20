@@ -12,7 +12,8 @@
 namespace ErlebAR
 {
 void renderBackgroundTexture(float screenW, float screenH, GLuint texId);
-void renderHeaderBar(float                     width,
+void renderHeaderBar(std::string               id,
+                     float                     width,
                      float                     height,
                      const ImVec4&             backgroundColor,
                      const ImVec4&             textColor,

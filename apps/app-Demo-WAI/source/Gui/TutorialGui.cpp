@@ -84,7 +84,8 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     //background texture
     renderBackgroundTexture(_screenW, _screenH, _currentBackgroundId);
     //header bar
-    renderHeaderBar(_screenW,
+    renderHeaderBar("TutorialGui",
+                    _screenW,
                     _headerBarH,
                     _resources.style().headerBarBackgroundTranspColor,
                     _resources.style().headerBarTextColor,
@@ -104,7 +105,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     //float winPosStartY,
     //
     {
-        float buttonSize = 0.5f * (_headerBarH - _headerBarH * 0.8);
+        float buttonSize = _headerBarH * 0.8f;
 
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                        ImGuiWindowFlags_NoMove |
@@ -137,13 +138,13 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                 _currentBackgroundId = _textureBackgroundId1;
         }
 
-        //if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(buttonSize, buttonSize)))
-        //{
-        //    if (_currentBackgroundId == _textureBackgroundId1)
-        //        _currentBackgroundId = _textureBackgroundId2;
-        //    else if (_currentBackgroundId == _textureBackgroundId2)
-        //        _currentBackgroundId = _textureBackgroundId1;
-        //}
+        if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(buttonSize, buttonSize)))
+        {
+            if (_currentBackgroundId == _textureBackgroundId1)
+                _currentBackgroundId = _textureBackgroundId2;
+            else if (_currentBackgroundId == _textureBackgroundId2)
+                _currentBackgroundId = _textureBackgroundId1;
+        }
 
         ImGui::End();
 

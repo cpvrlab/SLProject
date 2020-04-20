@@ -23,7 +23,8 @@ void renderBackgroundTexture(float screenW, float screenH, GLuint texId)
     ImGui::PopStyleVar(1);
 }
 
-void renderHeaderBar(float                     width,
+void renderHeaderBar(std::string               id,
+                     float                     width,
                      float                     height,
                      const ImVec4&             backgroundColor,
                      const ImVec4&             textColor,
@@ -38,7 +39,7 @@ void renderHeaderBar(float                     width,
                      const char*               text,
                      std::function<void(void)> cb)
 {
-    float            texSize     = buttonHeight - buttonRounding;
+    float            texSize     = buttonHeight - 2 * buttonRounding;
     float            winPadding  = 0.5f * (height - buttonHeight);
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                    ImGuiWindowFlags_NoMove |
@@ -55,20 +56,29 @@ void renderHeaderBar(float                     width,
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding, winPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(buttonRounding, buttonRounding));
+    //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, buttonRounding);
+    //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     ImGui::PushFont(font);
 
-    ImGui::Begin("TutorialGui_header", nullptr, windowFlags);
+    ImGui::Begin((id + "_header").c_str(), nullptr, windowFlags);
 
+    //ImGui::SetNextWindowPos(ImVec2(winPadding, winPadding), ImGuiCond_Always);
+    ImGui::BeginChild((id + "_button").c_str(), ImVec2(buttonHeight, buttonHeight), false, windowFlags);
     if (ImGui::ImageButton((ImTextureID)texId, (ImTextureID)texIdPressed, ImVec2(texSize, texSize)))
+    //if (ImGui::Button("sfsfd", ImVec2(buttonHeight, buttonHeight)))
     {
         cb();
     }
+    ImGui::EndChild();
 
+    //change window padding so that text is centered
+    //float textWindowPadding = 0.5f * (height - font->FontSize);
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(textWindowPadding, textWindowPadding));
     ImGui::SameLine(0.f, spacingButtonToText);
     ImGui::Text(text);
 
