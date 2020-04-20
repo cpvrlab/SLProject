@@ -173,18 +173,17 @@ void LocalMapping::ProcessKeyFrames()
     SetFinish();
 }
 
-
 void LocalMapping::Run()
 {
     mbFinished = false;
 
-    while(1)
+    while (1)
     {
         // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(false);
 
         // Check if there are keyframes in the queue
-        if(CheckNewKeyFrames())
+        if (CheckNewKeyFrames())
         {
             // BoW conversion and insertion in Map
 
@@ -197,7 +196,7 @@ void LocalMapping::Run()
             // Triangulate new MapPoints
             CreateNewMapPoints(frame);
 
-            if(!CheckNewKeyFrames())
+            if (!CheckNewKeyFrames())
             {
                 // Find more matches in neighbor keyframes and fuse point duplications
                 SearchInNeighbors(frame);
@@ -205,10 +204,10 @@ void LocalMapping::Run()
 
             mbAbortBA = false;
 
-            if(!CheckNewKeyFrames() && !CheckFinish())
+            if (!CheckNewKeyFrames() && !CheckFinish())
             {
                 // Local BA
-                if(mpMap->KeyFramesInMap()>2)
+                if (mpMap->KeyFramesInMap() > 2)
                     Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
 
                 // Check redundant local Keyframes
@@ -217,14 +216,15 @@ void LocalMapping::Run()
 
             mpLoopCloser->InsertKeyFrame(frame);
         }
-        else if(CheckPause())
+        else if (CheckPause())
         {
             // Safe area to stop
-            while(isStopped() && !CheckFinish())
+            while (isStopped() && !CheckFinish())
             {
-                usleep(3000);
+                //usleep(3000);
+                std::this_thread::sleep_for(3ms);
             }
-            if(CheckFinish())
+            if (CheckFinish())
                 break;
         }
 
@@ -233,10 +233,11 @@ void LocalMapping::Run()
         // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(true);
 
-        if(CheckFinish())
+        if (CheckFinish())
             break;
 
-        usleep(3000);
+        //usleep(3000);
+        std::this_thread::sleep_for(3ms);
     }
 
     SetFinish();
