@@ -84,7 +84,8 @@ struct Vertex
 class vkUtils
 {
 public:
-    const int MAX_FRAMES_IN_FLIGHT = 2;
+    // How many frames should be created (after creating image, the device goes into idle mode)
+    const int MAX_FRAMES_PROCESSING_ROW = 2;
 
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,

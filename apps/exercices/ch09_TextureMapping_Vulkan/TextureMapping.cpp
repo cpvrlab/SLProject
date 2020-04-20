@@ -66,6 +66,36 @@ void onMouseWheel(GLFWwindow* window, double xScroll, double yScroll)
     _camZ -= (SLfloat)Utils::sign(yScroll) * 0.1f;
 }
 //-----------------------------------------------------------------------------
+float calcFPS(float deltaTime)
+{
+    const SLint    FILTERSIZE = 60;
+    static SLfloat frameTimes[FILTERSIZE];
+    static SLuint  frameNo = 0;
+
+    frameTimes[frameNo % FILTERSIZE] = deltaTime;
+    float sumTime                    = 0.0f;
+
+    for (SLuint i = 0; i < FILTERSIZE; ++i)
+        sumTime += frameTimes[i];
+
+    frameNo++;
+    float frameTimeSec = sumTime / (SLfloat)FILTERSIZE;
+    float fps          = 1 / frameTimeSec;
+
+    return fps;
+}
+//-----------------------------------------------------------------------------
+void printFPS()
+{
+    char         title[255];
+    static float lastTimeSec = 0.0f;
+    float        timeNowSec  = (float)glfwGetTime();
+    float        fps         = calcFPS(timeNowSec - lastTimeSec);
+    sprintf(title, "fps: %4.0f", fps);
+    glfwSetWindowTitle(window, title);
+    lastTimeSec = timeNowSec;
+}
+//-----------------------------------------------------------------------------
 void initWindow()
 {
     glfwInit();
@@ -134,6 +164,7 @@ void mainLoop()
         glfwPollEvents();
         updateCamera();
         renderer.drawFrame();
+        printFPS();
     }
 }
 //-----------------------------------------------------------------------------
