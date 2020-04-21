@@ -30,8 +30,6 @@ public:
 
 private:
     void resize(int scrW, int scrH);
-    void pushStyle();
-    void popStyle();
 
     float _screenW;
     float _screenH;

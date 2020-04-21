@@ -159,52 +159,5 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor(4);
     }
 
-    //popStyle();
-    //ImGui::PopStyleVar(4);
-
     //ImGui::ShowMetricsWindow();
 }
-
-void TutorialGui::pushStyle()
-{
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-}
-
-void TutorialGui::popStyle()
-{
-    ImGui::PopStyleVar(6);
-}
-
-//void SelectionGui::pushStyle()
-//{
-//    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-//    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-//    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-//    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 10.f));
-//    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-//    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
-//    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
-//
-//    ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().buttonColorSelection);
-//    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().buttonColorSelection);
-//    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().buttonColorPressedSelection);
-//    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
-//
-//    if (_font)
-//        ImGui::PushFont(_font);
-//}
-//
-//void SelectionGui::popStyle()
-//{
-//    ImGui::PopStyleVar(7);
-//    ImGui::PopStyleColor(4);
-//
-//    if (_font)
-//        ImGui::PopFont();
-//}

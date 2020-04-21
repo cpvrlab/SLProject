@@ -24,6 +24,25 @@ public:
 
     GLuint texIdBackArrow = 0;
 };
+
+//-----------------------------------------------------------------------------
+// Fonts
+//-----------------------------------------------------------------------------
+class Fonts
+{
+public:
+    void load(std::string fontDir)
+    {
+    }
+    void free()
+    {
+    }
+
+private:
+    //shared imgui font atlas
+    //ImFontAtlas* fontAtlas = nullptr;
+};
+
 //-----------------------------------------------------------------------------
 // App appearance
 //-----------------------------------------------------------------------------
@@ -105,9 +124,8 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Language/Text
+// Strings (all visal text in four languages)
 //-----------------------------------------------------------------------------
-
 class Strings
 {
 public:
@@ -166,16 +184,9 @@ public:
     StringsItalien();
 };
 
-class Fonts
-{
-public:
-    ImFontAtlas* fontAtlas = nullptr;
-};
-
 //-----------------------------------------------------------------------------
-// Resources (Strings, Style, shared Textures, shared Font)
+// Resources (Strings, Style, shared Textures, shared Fonts)
 //-----------------------------------------------------------------------------
-
 class Resources
 {
 public:
@@ -189,7 +200,7 @@ public:
 
     const Strings& strings() { return *_currStrings; }
     const Style&   style() { return _style; }
-    const Fonts&   fonts() { return _fonts; }
+    //const Fonts&   fonts() { return _fonts; }
 
     bool developerMode = false;
 
