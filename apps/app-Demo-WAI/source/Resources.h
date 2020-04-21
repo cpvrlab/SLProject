@@ -218,7 +218,7 @@ private:
     Strings* _currStrings = &stringsEnglish;
 
     Style _style;
-    Fonts _fonts;
+    //Fonts _fonts;
 
     //initialized in function load()
     std::string _fileName;
