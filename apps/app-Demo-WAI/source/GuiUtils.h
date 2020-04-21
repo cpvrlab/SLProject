@@ -3,15 +3,14 @@
 
 #include <string>
 #include <functional>
-
-#include <GLFW/glfw3.h>
 #include <imgui.h>
-
+//SLGLState to correctly include opengl
+#include <SLGLState.h>
 #include <ErlebAR.h>
 
 namespace ErlebAR
 {
-void renderBackgroundTexture(float screenW, float screenH, GLuint texId);
+void renderBackgroundTexture(float screenW, float screenH, unsigned int texId);
 void renderHeaderBar(std::string               id,
                      float                     width,
                      float                     height,
@@ -22,8 +21,8 @@ void renderHeaderBar(std::string               id,
                      ImFont*                   font,
                      float                     buttonRounding,
                      float                     buttonHeight,
-                     GLuint                    texId,
-                     GLuint                    texIdPressed,
+                     unsigned int              texId,
+                     unsigned int              texIdPressed,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb);

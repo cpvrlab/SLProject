@@ -106,9 +106,8 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
                                             ImGuiWindowFlags_NoBringToFrontOnFocus |
                                             ImGuiWindowFlags_NoScrollbar |
                                             ImGuiWindowFlags_NoScrollWithMouse;
-        ImGuiWindowFlags windowFlags = childWindowFlags /*|
-                                       ImGuiWindowFlags_NoScrollWithMouse*/
-          ;
+        ImGuiWindowFlags windowFlags = childWindowFlags |
+                                       ImGuiWindowFlags_NoScrollWithMouse;
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));

@@ -40,8 +40,8 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
     _textureIconLeftId  = loadTexture(texturePath + "icon_back.png", false, false, 1.f);
     _textureIconRightId = loadTexture(texturePath + "icon_back.png", true, false, 1.f);
 
-    _textureIconBackWhiteId = loadTexture(texturePath + "icons/back1white.png", false, false, 1.f);
-    _textureIconBackGrayId  = loadTexture(texturePath + "icons/back1gray.png", false, false, 1.f);
+    _textureIconBackWhiteId = loadTexture(texturePath + "back1white.png", false, false, 1.f);
+    _textureIconBackGrayId  = loadTexture(texturePath + "back1gray.png", false, false, 1.f);
 }
 
 TutorialGui::~TutorialGui()
@@ -101,9 +101,6 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                     [&]() { sendEvent(new GoBackEvent()); });
 
     //button board window
-    //float buttonSize,
-    //float winPosStartY,
-    //
     {
         float buttonSize = _headerBarH * 0.8f;
 

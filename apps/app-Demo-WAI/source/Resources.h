@@ -17,7 +17,7 @@ public:
     // percental header bar height relative to screen height
     float headerBarPercH = 0.15f;
     // percental header bar text height relative to header bar height
-    float  headerBarTextH                 = 0.7f;
+    float  headerBarTextH                 = 0.6f;
     ImVec4 headerBarBackgroundColor       = {BFHColors::Gray2.r,
                                        BFHColors::Gray2.g,
                                        BFHColors::Gray2.b,

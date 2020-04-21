@@ -4,7 +4,7 @@
 
 namespace ErlebAR
 {
-void renderBackgroundTexture(float screenW, float screenH, GLuint texId)
+void renderBackgroundTexture(float screenW, float screenH, unsigned int texId)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                    ImGuiWindowFlags_NoMove |
@@ -33,14 +33,12 @@ void renderHeaderBar(std::string               id,
                      ImFont*                   font,
                      float                     buttonRounding,
                      float                     buttonHeight,
-                     GLuint                    texId,
-                     GLuint                    texIdPressed,
+                     unsigned int              texId,
+                     unsigned int              texIdPressed,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb)
 {
-    float            texSize     = buttonHeight - 2 * buttonRounding;
-    float            winPadding  = 0.5f * (height - buttonHeight);
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                    ImGuiWindowFlags_NoMove |
                                    ImGuiWindowFlags_AlwaysAutoResize |
@@ -54,11 +52,9 @@ void renderHeaderBar(std::string               id,
     ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding, winPadding));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(buttonRounding, buttonRounding));
-    //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, buttonRounding);
-    //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));                          //we adjust this by SetNextWindowPos for child windows
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(buttonRounding, buttonRounding)); //distance button border to button texture
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, buttonRounding);                        //here same as framepadding, frame padding needs minimum the rounding size
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
@@ -67,20 +63,22 @@ void renderHeaderBar(std::string               id,
 
     ImGui::Begin((id + "_header").c_str(), nullptr, windowFlags);
 
-    //ImGui::SetNextWindowPos(ImVec2(winPadding, winPadding), ImGuiCond_Always);
+    float buttonWinPadding = 0.5f * (height - buttonHeight);
+    float texSize          = buttonHeight - 2 * buttonRounding;
+    ImGui::SetNextWindowPos(ImVec2(buttonWinPadding, buttonWinPadding), ImGuiCond_Always);
     ImGui::BeginChild((id + "_button").c_str(), ImVec2(buttonHeight, buttonHeight), false, windowFlags);
     if (ImGui::ImageButton((ImTextureID)texId, (ImTextureID)texIdPressed, ImVec2(texSize, texSize)))
-    //if (ImGui::Button("sfsfd", ImVec2(buttonHeight, buttonHeight)))
     {
         cb();
     }
     ImGui::EndChild();
 
     //change window padding so that text is centered
-    //float textWindowPadding = 0.5f * (height - font->FontSize);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(textWindowPadding, textWindowPadding));
-    ImGui::SameLine(0.f, spacingButtonToText);
+    float textWinPadding = 0.5f * (height - font->FontSize);
+    ImGui::SetNextWindowPos(ImVec2(buttonWinPadding + buttonHeight + spacingButtonToText, textWinPadding), ImGuiCond_Always);
+    ImGui::BeginChild((id + "_text").c_str());
     ImGui::Text(text);
+    ImGui::EndChild();
 
     ImGui::End();
 

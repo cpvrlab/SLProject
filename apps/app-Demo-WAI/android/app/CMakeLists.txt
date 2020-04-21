@@ -70,6 +70,8 @@ file(GLOB_RECURSE TEXTURES
 	${SL_PROJECT_ROOT}/data/images/textures/earth2048_C.jpg
 	${SL_PROJECT_ROOT}/data/images/textures/earthCloud1024_C.jpg
 	${SL_PROJECT_ROOT}/data/images/textures/icon_back.png
+    ${SL_PROJECT_ROOT}/data/images/textures/back1white.png
+    ${SL_PROJECT_ROOT}/data/images/textures/back1gray.png
     )
 
 file(GLOB_RECURSE VIDEOS
