@@ -53,6 +53,12 @@ private:
     ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
+
+    HighResTimer _hiddenTimer;
+    int          _hiddenNumClicks    = 0;
+    const float  _hiddenMaxElapsedMs = 1000.f;
+    const int    _hiddenMinNumClicks = 5;
+    const ImVec4 _hiddenColor        = {0.f, 0.f, 0.f, 0.f};
 };
 
 #endif //SETTINGS_GUI_H

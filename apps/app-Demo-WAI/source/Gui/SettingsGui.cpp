@@ -85,10 +85,46 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                              _resources.strings().settings(),
                              [&]() { sendEvent(new GoBackEvent()); });
 
+    //render hidden button in right corner directly under header bar. It has the size of the header bar height.
+    {
+        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
+                                            ImGuiWindowFlags_NoMove |
+                                            ImGuiWindowFlags_AlwaysAutoResize |
+                                            ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags windowFlags = childWindowFlags |
+                                       ImGuiWindowFlags_NoScrollWithMouse;
+
+        ImGui::SetNextWindowPos(ImVec2(_screenW - _headerBarH, _headerBarH), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_headerBarH, _headerBarH), ImGuiCond_Always);
+
+        ImGui::PushStyleColor(ImGuiCol_Button, _hiddenColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _hiddenColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _hiddenColor);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, _hiddenColor);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::Begin("Settings_hiddenButton", nullptr, windowFlags);
+        if (ImGui::Button("##hiddenButton", ImVec2(_headerBarH, _headerBarH)))
+        {
+            Utils::log("SettingsGui", "Hidden button clicked %i times", _hiddenNumClicks);
+            if (_hiddenTimer.elapsedTimeInMilliSec() < _hiddenMaxElapsedMs)
+                _hiddenNumClicks++;
+            else
+                _hiddenNumClicks = 0;
+
+            _hiddenTimer.start();
+
+            if (_hiddenNumClicks > _hiddenMinNumClicks)
+                _resources.developerMode = true;
+        }
+        ImGui::End();
+
+        ImGui::PopStyleColor(4);
+        ImGui::PopStyleVar(2);
+    }
+
     //content
     {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
         ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
@@ -96,6 +132,9 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                                             ImGuiWindowFlags_NoScrollbar;
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
+
+        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
@@ -137,20 +176,29 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Separator();
 
         //developer mode
-        ImGui::PushFont(_fontSmall);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().develMode());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
+        if (_resources.developerMode)
+        {
+            ImGui::PushFont(_fontSmall);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+            ImGui::Text(_resources.strings().develMode());
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
 
-        ImGui::PushFont(_fontStandard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+            ImGui::PushFont(_fontStandard);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-        ImGui::Checkbox("Enabled", &_resources.developerMode);
+            if (ImGui::Checkbox("Enabled", &_resources.developerMode))
+            {
+                if (!_resources.developerMode)
+                {
+                    _hiddenNumClicks = 0;
+                }
+            }
 
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-        ImGui::Separator();
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::Separator();
+        }
 
         ImGui::EndChild();
         ImGui::End();

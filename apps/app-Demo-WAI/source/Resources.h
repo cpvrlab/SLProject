@@ -28,20 +28,20 @@ public:
 //-----------------------------------------------------------------------------
 // Fonts
 //-----------------------------------------------------------------------------
-class Fonts
-{
-public:
-    void load(std::string fontDir)
-    {
-    }
-    void free()
-    {
-    }
-
-private:
-    //shared imgui font atlas
-    //ImFontAtlas* fontAtlas = nullptr;
-};
+//class Fonts
+//{
+//public:
+//    void load(std::string fontDir)
+//    {
+//    }
+//    void free()
+//    {
+//    }
+//
+//private:
+//    //shared imgui font atlas
+//    //ImFontAtlas* fontAtlas = nullptr;
+//};
 
 //-----------------------------------------------------------------------------
 // App appearance

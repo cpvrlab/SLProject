@@ -15,6 +15,7 @@ Resources::Resources(std::string resourceFileName, std::string textureDir)
 
 Resources::~Resources()
 {
+    save();
     //delete shared textures
     textures.free();
     //delete fonts
