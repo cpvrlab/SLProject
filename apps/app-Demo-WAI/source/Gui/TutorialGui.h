@@ -58,7 +58,7 @@ private:
     GLuint _textureIconRightId   = 0;
 
     GLuint _textureIconBackWhiteId = 0;
-    GLuint _textureIconBackGrayId  = 0;
+    //GLuint _textureIconBackGrayId  = 0;
 };
 
 #endif //TUTORIAL_GUI_H

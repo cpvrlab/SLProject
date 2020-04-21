@@ -22,7 +22,6 @@ void renderHeaderBar(std::string               id,
                      float                     buttonRounding,
                      float                     buttonHeight,
                      unsigned int              texId,
-                     unsigned int              texIdPressed,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb);

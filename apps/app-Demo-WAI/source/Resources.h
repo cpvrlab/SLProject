@@ -28,15 +28,19 @@ public:
                                              0.2};
     ImVec4 headerBarTextColor             = {1.f, 1.f, 1.f, 1.f}; //white
                                                                   //selection gui button color
-    ImVec4 headerBarBackButtonColor = {BFHColors::GrayDark.r,
+    ImVec4 headerBarBackButtonColor       = {BFHColors::GrayDark.r,
                                        BFHColors::GrayDark.g,
                                        BFHColors::GrayDark.b,
                                        0.0};
+    ImVec4 headerBarBackButtonTranspColor = {0.f, 0.f, 0.f, 0.f};
+
     //selection gui pressed button color
-    ImVec4 headerBarBackButtonPressedColor = {BFHColors::GrayLogo.r,
+    ImVec4 headerBarBackButtonPressedColor       = {BFHColors::GrayLogo.r,
                                               BFHColors::GrayLogo.g,
                                               BFHColors::GrayLogo.b,
                                               1.0};
+    ImVec4 headerBarBackButtonPressedTranspColor = {1.f, 1.f, 1.f, 0.5f};
+
     // percental spacing between backbutton text relative to header bar height
     float headerBarSpacingBB2Text = 0.3f;
 

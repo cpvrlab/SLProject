@@ -34,7 +34,6 @@ void renderHeaderBar(std::string               id,
                      float                     buttonRounding,
                      float                     buttonHeight,
                      unsigned int              texId,
-                     unsigned int              texIdPressed,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb)
@@ -67,7 +66,8 @@ void renderHeaderBar(std::string               id,
     float texSize          = buttonHeight - 2 * buttonRounding;
     ImGui::SetNextWindowPos(ImVec2(buttonWinPadding, buttonWinPadding), ImGuiCond_Always);
     ImGui::BeginChild((id + "_button").c_str(), ImVec2(buttonHeight, buttonHeight), false, windowFlags);
-    if (ImGui::ImageButton((ImTextureID)texId, (ImTextureID)texIdPressed, ImVec2(texSize, texSize)))
+    //if (ImGui::ImageButton((ImTextureID)texId, (ImTextureID)texIdPressed, ImVec2(texSize, texSize)))
+    if (ImGui::ImageButton((ImTextureID)texId, ImVec2(texSize, texSize)))
     {
         cb();
     }

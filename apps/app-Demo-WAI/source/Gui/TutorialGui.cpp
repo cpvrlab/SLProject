@@ -37,11 +37,11 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
     _currentBackgroundId  = _textureBackgroundId1;
 
     //load icon texture
-    _textureIconLeftId  = loadTexture(texturePath + "icon_back.png", false, false, 1.f);
-    _textureIconRightId = loadTexture(texturePath + "icon_back.png", true, false, 1.f);
+    _textureIconLeftId  = loadTexture(texturePath + "left1white.png", false, false, 1.f);
+    _textureIconRightId = loadTexture(texturePath + "left1white.png", true, false, 1.f);
 
     _textureIconBackWhiteId = loadTexture(texturePath + "back1white.png", false, false, 1.f);
-    _textureIconBackGrayId  = loadTexture(texturePath + "back1gray.png", false, false, 1.f);
+    //_textureIconBackGrayId  = loadTexture(texturePath + "back1gray.png", false, false, 1.f);
 }
 
 TutorialGui::~TutorialGui()
@@ -90,13 +90,12 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                     _headerBarH,
                     _resources.style().headerBarBackgroundTranspColor,
                     _resources.style().headerBarTextColor,
-                    _resources.style().headerBarBackButtonColor,
-                    _resources.style().headerBarBackButtonPressedColor,
+                    _resources.style().headerBarBackButtonTranspColor,
+                    _resources.style().headerBarBackButtonPressedTranspColor,
                     _fontBig,
                     _buttonRounding,
                     buttonSize,
                     _textureIconBackWhiteId,
-                    _textureIconBackGrayId,
                     _spacingBackButtonToText,
                     _resources.strings().tutorial(),
                     [&]() { sendEvent(new GoBackEvent()); });
