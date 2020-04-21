@@ -1,5 +1,6 @@
 #include <AboutGui.h>
 #include <imgui_internal.h>
+#include <GuiUtils.h>
 
 using namespace ErlebAR;
 
@@ -61,41 +62,58 @@ void AboutGui::resize(int scrW, int scrH)
 
 void AboutGui::build(SLScene* s, SLSceneView* sv)
 {
+    //header bar
+    float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
+
+    ErlebAR::renderHeaderBar("AboutGui",
+                             _screenW,
+                             _headerBarH,
+                             _resources.style().headerBarBackgroundColor,
+                             _resources.style().headerBarTextColor,
+                             _resources.style().headerBarBackButtonColor,
+                             _resources.style().headerBarBackButtonPressedColor,
+                             _fontBig,
+                             _buttonRounding,
+                             buttonSize,
+                             _resources.textures.texIdBackArrow,
+                             _spacingBackButtonToText,
+                             _resources.strings().tutorial(),
+                             [&]() { sendEvent(new GoBackEvent()); });
+
+    ////header bar with backbutton
+    //{
+    //    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+    //    ImGui::SetNextWindowSize(ImVec2(_screenW, _headerBarH), ImGuiCond_Always);
+    //    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
+
+    //    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundColor);
+    //    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().headerBarTextColor);
+    //    ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
+    //    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
+    //    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
+    //    ImGui::PushFont(_fontBig);
+    //    //hack for ArrowButton alignment (has to be called after font has been pushed
+    //    float h       = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
+    //    float spacing = 0.5f * (_headerBarH - h);
+    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(spacing, spacing));
+
+    //    ImGui::Begin("AboutGui_header", nullptr, windowFlags);
+
+    //    if (ImGui::ArrowButton("AboutGui_backButton", ImGuiDir_Left))
+    //    {
+    //        sendEvent(new GoBackEvent());
+    //    }
+    //    ImGui::SameLine(0.f, _spacingBackButtonToText);
+    //    ImGui::Text(_resources.strings().about());
+
+    //    ImGui::End();
+
+    //    ImGui::PopStyleColor(5);
+    //    ImGui::PopFont();
+    //    ImGui::PopStyleVar(1);
+    //}
+
     pushStyle();
-
-    //header bar with backbutton
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _headerBarH), ImGuiCond_Always);
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
-
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundColor);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().headerBarTextColor);
-        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-        ImGui::PushFont(_fontBig);
-        //hack for ArrowButton alignment (has to be called after font has been pushed
-        float h       = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
-        float spacing = 0.5f * (_headerBarH - h);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(spacing, spacing));
-
-        ImGui::Begin("AboutGui_header", nullptr, windowFlags);
-
-        if (ImGui::ArrowButton("AboutGui_backButton", ImGuiDir_Left))
-        {
-            sendEvent(new GoBackEvent());
-        }
-        ImGui::SameLine(0.f, _spacingBackButtonToText);
-        ImGui::Text(_resources.strings().about());
-
-        ImGui::End();
-
-        ImGui::PopStyleColor(5);
-        ImGui::PopFont();
-        ImGui::PopStyleVar(1);
-    }
-
     //content
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);

@@ -3,9 +3,27 @@
 
 #include <string>
 #include "ErlebAR.h"
+#include <GuiUtils.h>
 
 namespace ErlebAR
 {
+//-----------------------------------------------------------------------------
+// Textures
+//-----------------------------------------------------------------------------
+class Textures
+{
+public:
+    void load(std::string textureDir)
+    {
+        texIdBackArrow = loadTexture(textureDir + "back1white.png", false, false, 1.f);
+    }
+    void free()
+    {
+        deleteTexture(texIdBackArrow);
+    }
+
+    GLuint texIdBackArrow = 0;
+};
 //-----------------------------------------------------------------------------
 // App appearance
 //-----------------------------------------------------------------------------
@@ -17,7 +35,10 @@ public:
     // percental header bar height relative to screen height
     float headerBarPercH = 0.15f;
     // percental header bar text height relative to header bar height
-    float  headerBarTextH                 = 0.6f;
+    float headerBarTextH = 0.6f;
+    // percental header bar button height relative to header bar height
+    float headerBarButtonH = 0.8f;
+
     ImVec4 headerBarBackgroundColor       = {BFHColors::Gray2.r,
                                        BFHColors::Gray2.g,
                                        BFHColors::Gray2.b,
@@ -151,14 +172,15 @@ public:
     ImFontAtlas* fontAtlas = nullptr;
 };
 
+//-----------------------------------------------------------------------------
+// Resources (Strings, Style, shared Textures, shared Font)
+//-----------------------------------------------------------------------------
+
 class Resources
 {
 public:
-    Resources();
+    Resources(std::string resourceFileName, std::string textureDir);
     ~Resources();
-
-    void load(std::string fileName);
-    void save();
 
     void setLanguageEnglish();
     void setLanguageGerman();
@@ -176,7 +198,12 @@ public:
     StringsFrench  stringsFrench;
     StringsItalien stringsItalien;
 
+    Textures textures;
+
 private:
+    void load(std::string resourceFileName);
+    void save();
+
     Strings* _currStrings = &stringsEnglish;
 
     Style _style;

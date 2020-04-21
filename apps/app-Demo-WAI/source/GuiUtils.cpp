@@ -4,7 +4,7 @@
 
 namespace ErlebAR
 {
-void renderBackgroundTexture(float screenW, float screenH, unsigned int texId)
+void renderBackgroundTexture(float screenW, float screenH, GLuint texId)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                    ImGuiWindowFlags_NoMove |
@@ -33,7 +33,7 @@ void renderHeaderBar(std::string               id,
                      ImFont*                   font,
                      float                     buttonRounding,
                      float                     buttonHeight,
-                     unsigned int              texId,
+                     GLuint                    texId,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb)
@@ -91,9 +91,9 @@ void renderContent()
 {
 }
 
-unsigned int loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
 {
-    unsigned int id = 0;
+    GLuint id = 0;
 
     if (Utils::fileExists(fileName))
     {
@@ -133,7 +133,7 @@ unsigned int loadTexture(std::string fileName, bool flipX, bool flipY, float tar
     return id;
 }
 
-void deleteTexture(unsigned int& id)
+void deleteTexture(GLuint& id)
 {
     if (id)
     {

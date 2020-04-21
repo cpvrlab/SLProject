@@ -39,9 +39,6 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
     //load icon texture
     _textureIconLeftId  = loadTexture(texturePath + "left1white.png", false, false, 1.f);
     _textureIconRightId = loadTexture(texturePath + "left1white.png", true, false, 1.f);
-
-    _textureIconBackWhiteId = loadTexture(texturePath + "back1white.png", false, false, 1.f);
-    //_textureIconBackGrayId  = loadTexture(texturePath + "back1gray.png", false, false, 1.f);
 }
 
 TutorialGui::~TutorialGui()
@@ -84,7 +81,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     //background texture
     renderBackgroundTexture(_screenW, _screenH, _currentBackgroundId);
     //header bar
-    float buttonSize = _headerBarH * 0.8;
+    float buttonSize = _headerBarH * _resources.style().headerBarButtonH;
     renderHeaderBar("TutorialGui",
                     _screenW,
                     _headerBarH,
@@ -95,7 +92,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                     _fontBig,
                     _buttonRounding,
                     buttonSize,
-                    _textureIconBackWhiteId,
+                    _resources.textures.texIdBackArrow,
                     _spacingBackButtonToText,
                     _resources.strings().tutorial(),
                     [&]() { sendEvent(new GoBackEvent()); });

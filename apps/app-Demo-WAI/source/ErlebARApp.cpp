@@ -94,8 +94,8 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
-    _resources = new ErlebAR::Resources();
-    _resources->load(dd.dirs().writableDir + "ErlebARResources.json");
+    _resources = new ErlebAR::Resources(dd.dirs().writableDir + "ErlebARResources.json",
+                                        dd.textureDir());
 
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
@@ -231,7 +231,6 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     }
     if (_resources)
     {
-        _resources->save();
         delete _resources;
         _resources = nullptr;
     }

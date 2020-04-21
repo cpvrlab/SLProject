@@ -5,21 +5,26 @@
 namespace ErlebAR
 {
 
-Resources::Resources()
+Resources::Resources(std::string resourceFileName, std::string textureDir)
 {
+    load(resourceFileName);
+    //load textures
+    textures.load(textureDir);
     //load fonts
 }
 
 Resources::~Resources()
 {
+    //delete shared textures
+    textures.free();
     //delete fonts
 }
 
-void Resources::load(std::string fileName)
+void Resources::load(std::string resourceFileName)
 {
-    _fileName = fileName;
+    _fileName = resourceFileName;
 
-    cv::FileStorage fs(fileName, cv::FileStorage::READ);
+    cv::FileStorage fs(resourceFileName, cv::FileStorage::READ);
     if (fs.isOpened())
     {
         if (!fs["developerMode"].empty())
