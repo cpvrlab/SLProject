@@ -31,8 +31,6 @@ static SLint       svIndex;                                        //!< SceneVie
 static SLint       scrWidth  = 960;                                //!< Window width at start up
 static SLint       scrHeight = 540;                                //!< Window height at start up
 static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
-static SLfloat     scr2fbX;                                        //!< Factor from screen to framebuffer coords
-static SLfloat     scr2fbY;                                        //!< Factor from screen to framebuffer coords
 static SLint       startX;                                         //!< start position x in pixels
 static SLint       startY;                                         //!< start position y in pixels
 static SLint       mouseX;                                         //!< Last mouse position x in pixels
@@ -45,14 +43,14 @@ static SLfloat     lastMouseDownTime = 0.0f;                       //!< Last mou
 static SLKey       modifiers         = K_none;                     //!< last modifier keys
 static SLbool      fullscreen        = false;                      //!< flag if window is in fullscreen mode
 static int         dpi;
-bool               appShouldClose = false;
-static bool        longTouchMS    = 500.f;
+static bool        appShouldClose = false;
+static int         longTouchMS    = 500;
 //-----------------------------------------------------------------------------
 /*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     app.destroy();
 }
@@ -121,7 +119,7 @@ SLKey mapKeyToSLKey(SLint key)
 onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     //on windows minimizing gives callback with (0,0)
     if (width == 0 && height == 0)
@@ -132,17 +130,9 @@ void onResize(GLFWwindow* window, int width, int height)
     lastWidth  = width;
     lastHeight = height;
 
-    //update glfw window with new size
-    glfwSetWindowSize(window, width, height);
-
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)width;
-    scr2fbY = (float)fbHeight / (float)height;
-
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    app.resize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    app.resize(svIndex, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -161,7 +151,7 @@ void onLongTouch()
 Mouse button event handler forwards the events to the slMouseDown or slMouseUp.
 Two finger touches of touch devices are simulated with ALT & CTRL modifiers.
 */
-static void onMouseButton(GLFWwindow* window,
+static void onMouseButton(GLFWwindow* myWindow,
                           int         button,
                           int         action,
                           int         mods)
@@ -281,14 +271,11 @@ static void onMouseButton(GLFWwindow* window,
 /*!
 Mouse move event handler forwards the events to slMouseMove or slTouch2Move.
 */
-static void onMouseMove(GLFWwindow* window,
+static void onMouseMove(GLFWwindow* myWindow,
                         double      x,
                         double      y)
 {
     // x & y are in screen coords.
-    // We need to scale them to framebuffer coords
-    x *= scr2fbX;
-    y *= scr2fbY;
     mouseX = (int)x;
     mouseY = (int)y;
 
@@ -322,7 +309,7 @@ static void onMouseMove(GLFWwindow* window,
 /*!
 Mouse wheel event handler forwards the events to slMouseWheel
 */
-static void onMouseWheel(GLFWwindow* window,
+static void onMouseWheel(GLFWwindow* myWindow,
                          double      xscroll,
                          double      yscroll)
 {
@@ -337,7 +324,7 @@ static void onMouseWheel(GLFWwindow* window,
 Key event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
-static void onKeyPress(GLFWwindow* window,
+static void onKeyPress(GLFWwindow* myWindow,
                        int         GLFWKey,
                        int         scancode,
                        int         action,
@@ -372,14 +359,14 @@ static void onKeyPress(GLFWwindow* window,
         if (fullscreen)
         {
             fullscreen = !fullscreen;
-            glfwSetWindowSize(window, scrWidth, scrHeight);
-            glfwSetWindowPos(window, 10, 30);
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
         }
         else
         {
             app.keyPress(svIndex, key, modifiers);
-            onClose(window);
-            glfwSetWindowShouldClose(window, GL_TRUE);
+            onClose(myWindow);
+            glfwSetWindowShouldClose(myWindow, GL_TRUE);
         }
     }
     else if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
@@ -390,13 +377,13 @@ static void onKeyPress(GLFWwindow* window,
         {
             GLFWmonitor*       primary = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode    = glfwGetVideoMode(primary);
-            glfwSetWindowSize(window, mode->width, mode->height);
-            glfwSetWindowPos(window, 0, 0);
+            glfwSetWindowSize(myWindow, mode->width, mode->height);
+            glfwSetWindowPos(myWindow, 0, 0);
         }
         else
         {
-            glfwSetWindowSize(window, scrWidth, scrHeight);
-            glfwSetWindowPos(window, 10, 30);
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
         }
     }
     else if (key == K_space && action == GLFW_PRESS)
@@ -451,8 +438,8 @@ void GLFWInit()
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -473,16 +460,8 @@ void GLFWInit()
     // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
-    // On some systems screen & framebuffer size are different
-    // All commands in GLFW are in screen coords but rendering in GL is
-    // in framebuffer coords
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)scrWidth;
-    scr2fbY = (float)fbHeight / (float)scrHeight;
-
     // Init OpenGL access library gl3w
-    if (gl3wInit()!=0)
+    if (gl3wInit() != 0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
@@ -497,7 +476,7 @@ void GLFWInit()
     GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    dpi = (int)(96 * scr2fbX);
+    dpi = 96;
     cout << "------------------------------------------------------------------" << endl;
     cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
     cout << "DPI             : " << dpi << endl;
@@ -512,12 +491,13 @@ void GLFWInit()
     glfwSetWindowCloseCallback(window, onClose);
 }
 
+//-----------------------------------------------------------------------------
 void closeAppCallback()
 {
     Utils::log("Engine", "closeAppCallback");
     appShouldClose = true;
 }
-
+//-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -536,7 +516,7 @@ int main(int argc, char* argv[])
         dirs.vocabularyDir = dirs.writableDir + "voc/";
         dirs.logFileDir    = dirs.writableDir + "log/";
 
-        app.init(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs, camera.get());
+        app.init(scrWidth, scrHeight, dpi, dirs, camera.get());
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");
@@ -544,7 +524,20 @@ int main(int argc, char* argv[])
         // Event loop
         while (!appShouldClose)
         {
+            // Calculate screen to framebuffer ratio for high-DPI monitors
+            /* This ratio can be different per monitor. We can not retrieve the
+               correct framebuffer size until the first paint event is done. So
+               we have to do it in here on every frame because we can move the window
+               to another monitor. */
+            int fbWidth = 0, fbHeight = 0, wndWidth = 0, wndHeight = 0;
+            glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+            glfwGetWindowSize(window, &wndWidth, &wndHeight);
+            float scr2fbX = (float)fbWidth / (float)wndWidth;
+            float scr2fbY = (float)fbHeight / (float)wndHeight;
+            app.updateScr2fb(svIndex, scr2fbX, scr2fbY);
+
             SLbool doRepaint = app.update();
+
             glfwSwapBuffers(window);
 
             // if no updated occurred wait for the next event (power saving)

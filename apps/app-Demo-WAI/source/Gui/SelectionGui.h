@@ -26,7 +26,7 @@ public:
     ~SelectionGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
-    void onResize(SLint scrW, SLint scrH) override;
+    void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
 
 private:
     void resize(int scrW, int scrH);

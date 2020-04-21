@@ -61,13 +61,13 @@ SLSceneView::~SLSceneView()
 \param onSelectNodeMeshCallback Callback on node and mesh selection
 \param SLUiInterface Interface for the external Gui build function
 */
-void SLSceneView::init(SLstring       name,
-                       SLint          screenWidth,
-                       SLint          screenHeight,
-                       void*          onWndUpdateCallback,
-                       void*          onSelectNodeMeshCallback,
-                       SLUiInterface* gui,
-                       std::string    configPath)
+void SLSceneView::init(SLstring           name,
+                       SLint              screenWidth,
+                       SLint              screenHeight,
+                       void*              onWndUpdateCallback,
+                       void*              onSelectNodeMeshCallback,
+                       SLUiInterface*     gui,
+                       const std::string& configPath)
 {
     _gui        = gui;
     _name       = std::move(name);
@@ -107,6 +107,8 @@ void SLSceneView::init(SLstring       name,
     _scrWdiv2 = _scrW >> 1;
     _scrHdiv2 = _scrH >> 1;
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
+    _scr2fbX  = 1.0f;
+    _scr2fbY  = 1.0f;
 
     _renderType = RT_gl;
 
@@ -295,7 +297,10 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
         if (_gui)
-            _gui->onResize(_viewportRect.width, _viewportRect.height);
+            _gui->onResize(_viewportRect.width,
+                           _viewportRect.height,
+                           _scr2fbX,
+                           _scr2fbY);
         return;
     }
 
@@ -339,7 +344,10 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect = vpRect;
         if (_gui)
-            _gui->onResize(_viewportRect.width, _viewportRect.height);
+            _gui->onResize(_viewportRect.width,
+                           _viewportRect.height,
+                           _scr2fbX,
+                           _scr2fbY);
     }
     else
         SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
@@ -417,7 +425,10 @@ void SLSceneView::onInitialize()
 #endif
 
     if (_gui)
-        _gui->onResize(_viewportRect.width, _viewportRect.height);
+        _gui->onResize(_viewportRect.width,
+                       _viewportRect.height,
+                       1.0f,
+                       1.0f);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -919,7 +930,10 @@ void SLSceneView::draw2DGL()
         {
             // 1. Set Projection & View
             stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-            stateGL->viewport(0, 0, _scrW, _scrH);
+            stateGL->viewport(0,
+                              0,
+                              (int)(_scrW * _scr2fbX),
+                              (int)(_scrH * _scr2fbY));
 
             // 2. Pseudo 2D Frustum Culling
             _nodesVisible2D.clear();
@@ -935,7 +949,7 @@ void SLSceneView::draw2DGL()
         not empty the SLScene::selectedNode is null. All vertices that are within the
         selectRect are listed in SLMesh::IS32. The selection evaluation is done during
         drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
 
             if (!_camera->selectedRect().isEmpty())
             {

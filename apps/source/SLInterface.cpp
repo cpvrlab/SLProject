@@ -196,13 +196,17 @@ bool slUpdateParallelJob()
     return SLApplication::jobIsRunning;
 }
 //-----------------------------------------------------------------------------
-bool slPaintAllViews()
+bool slPaintAllViews(float scr2fbX, float scr2fbY)
 {
     bool needUpdate = false;
 
     for (auto sv : SLApplication::sceneViews)
+    {
+        sv->scr2fb(scr2fbX, scr2fbY);
+
         if (sv->onPaint() && !needUpdate)
             needUpdate = true;
+    }
 
     return needUpdate;
 }

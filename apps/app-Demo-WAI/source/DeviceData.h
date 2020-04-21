@@ -18,14 +18,12 @@ class DeviceData
 public:
     explicit DeviceData(int            scrWidth,
                         int            scrHeight,
-                        float          scr2fbX,
-                        float          scr2fbY,
                         int            dpi,
                         AppDirectories dirs)
     {
         _dpi       = dpi;
-        _scrWidth  = (int)(scrWidth * scr2fbX);
-        _scrHeight = (int)(scrHeight * scr2fbY);
+        _scrWidth  = scrWidth;
+        _scrHeight = scrHeight;
         _dirs      = dirs;
 
         _fontDir    = _dirs.slDataRoot + "/images/fonts/";

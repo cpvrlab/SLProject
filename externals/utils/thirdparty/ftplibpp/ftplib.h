@@ -41,16 +41,16 @@
 typedef int SOCKET;
 #endif
 
-#ifdef NOLFS
-#    define off64_t long
-#    define fseeko64 fseek
-#    define fopen64 fopen
-#endif
-
 #if defined(__APPLE__)
 #    define off64_t __darwin_off_t
 #    define fseeko64 fseeko
 #    define fopen64 fopen
+#else
+#    ifdef NOLFS
+#        define off64_t long
+#        define fseeko64 fseek
+#        define fopen64 fopen
+#    endif
 #endif
 
 //SSL

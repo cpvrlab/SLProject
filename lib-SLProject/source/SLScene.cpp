@@ -176,7 +176,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     SLfloat startAnimUpdateMS = GlobalTimer::timeMS();
 
     if (_root3D)
-        _root3D->update();
+        _root3D->updateRec();
 
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
 
@@ -186,7 +186,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
         //we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
         sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh) {
             SLVNode nodes = _root3D->findChildren(mesh, true);
-            for (auto node : nodes)
+            for (auto* node : nodes)
                 node->needAABBUpdate();
         });
 
@@ -210,7 +210,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
         _root2D->updateAABBRec();
     _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
 
-    // Finish total update time
+    // Finish total updateRec time
     SLfloat updateTimeMS = GlobalTimer::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 

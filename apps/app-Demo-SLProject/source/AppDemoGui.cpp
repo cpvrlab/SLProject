@@ -385,7 +385,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
                 sprintf(m + strlen(m), "Renderer   : OpenGL\n");
-                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
                 sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
                 sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
                 sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
@@ -874,7 +875,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
             ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
             ImGuiStyle& style = ImGui::GetStyle();
-            if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%0.0f"))
+            if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 10.0f, "%0.0f"))
                 style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%0.0f"))
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;

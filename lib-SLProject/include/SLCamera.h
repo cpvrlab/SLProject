@@ -60,7 +60,7 @@ public:
     virtual void   drawMeshes(SLSceneView* sv);
     virtual SLbool camUpdate(SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
-    void           calcMinMax(SLVec3f& minV, SLVec3f& maxV);
+    void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;
     void           buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
 
     // Event handlers for camera animation
@@ -84,8 +84,8 @@ public:
     virtual SLbool onKeyRelease(SLKey key, SLKey mod);
 
     void    eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray);
-    SLVec2f projectWorldToNDC(SLVec4f worldPos);
-    SLVec3f trackballVec(SLint x, SLint y);
+    SLVec2f projectWorldToNDC(const SLVec4f& worldPos) const;
+    SLVec3f trackballVec(SLint x, SLint y) const;
     SLbool  isInFrustum(SLAABBox* aabb);
 
     // Apply projection, viewport and view transformations
@@ -205,7 +205,7 @@ protected:
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
 
     // animation parameters
-    SLbool    _movedLastFrame;    //! did the camera update in the last frame?
+    SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
     SLVec2f   _oldTouchPos2;      //!< Old 2nd finger touch position in pixels
