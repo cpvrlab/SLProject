@@ -39,7 +39,7 @@ framework. All other function calls are downwards from the GUI framework
 //! Callback function typedef for custom SLSceneView derived creator function
 typedef SLSceneView*(SL_STDCALL* cbOnNewSceneView)(SLScene* s, int dotsPerInch, SLInputManager& inputManager);
 
-//! Callback function typedef for GUI window update
+//! Callback function typedef for GUI window updateRec
 typedef SLbool(SL_STDCALL* cbOnWndUpdate)();
 
 //! Callback function typedef for select node
@@ -76,7 +76,7 @@ public:
               void*          onWndUpdateCallback,
               void*          onSelectNodeMeshCallback,
               SLUiInterface* gui,
-              std::string    configPath);
+              const std::string&    configPath);
     void unInit();
 
     // Not overridable event handlers
@@ -148,6 +148,18 @@ public:
     //void gotPainted(SLbool val) { _gotPainted = val; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
+    void scr2fb(float scr2fbX, float scr2fbY)
+    {
+        _scr2fbX = scr2fbX;
+        _scr2fbY = scr2fbY;
+
+        if (_gui)
+            _gui->onResize(_viewportRect.width,
+                           _viewportRect.height,
+                           _scr2fbX,
+                           _scr2fbY);
+    }
+
 
     // Getters
     //SLuint          index() const { return _index; }
@@ -159,6 +171,8 @@ public:
     SLint           scrWdiv2() const { return _scrWdiv2; }
     SLint           scrHdiv2() const { return _scrHdiv2; }
     SLfloat         scrWdivH() const { return _scrWdivH; }
+    SLfloat         scr2fbX() const { return _scr2fbX; }
+    SLfloat         scr2fbY() const { return _scr2fbY; }
     SLRecti         viewportRect() const { return _viewportRect; }
     SLVec2i         viewportRatio() const { return _viewportRatio; }
     SLfloat         viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }
@@ -228,6 +242,8 @@ protected:
     SLint           _scrWdiv2;            //!< Screen half width in pixels
     SLint           _scrHdiv2;            //!< Screen half height in pixels
     SLfloat         _scrWdivH;            //!< Screen side aspect ratio
+    SLfloat         _scr2fbX;             //!< Horizontal screen to framebuffer ratio
+    SLfloat         _scr2fbY;             //!< Vertical screen to framebuffer ratio
     SLVec2i         _viewportRatio;       //!< ratio of viewport
     SLViewportAlign _viewportAlign;       //!< alignment of viewport
     SLRecti         _viewportRect;        //!< rectangle of viewport

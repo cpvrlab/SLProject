@@ -41,15 +41,13 @@ ErlebARApp::ErlebARApp()
 
 void ErlebARApp::init(int            scrWidth,
                       int            scrHeight,
-                      float          scr2fbX,
-                      float          scr2fbY,
                       int            dpi,
                       AppDirectories dirs,
                       SENSCamera*    camera)
 {
     //store camera so we can stop on terminate
     _camera = camera;
-    addEvent(new InitEvent(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs));
+    addEvent(new InitEvent(scrWidth, scrHeight, dpi, dirs));
 }
 
 void ErlebARApp::goBack()

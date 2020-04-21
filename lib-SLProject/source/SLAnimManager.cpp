@@ -27,15 +27,15 @@ SLAnimManager::~SLAnimManager()
 //! Clears and deletes all node animations and skeletons
 void SLAnimManager::clear()
 {
-    for (auto it : _nodeAnimations)
+    for (const auto& it : _nodeAnimations)
         delete it.second;
     _nodeAnimations.clear();
 
-    for (auto it : _nodeAnimPlaybacks)
+    for (const auto& it : _nodeAnimPlaybacks)
         delete it.second;
     _nodeAnimPlaybacks.clear();
 
-    for (auto skeleton : _skeletons)
+    for (auto* skeleton : _skeletons)
         delete skeleton;
     _skeletons.clear();
 
@@ -67,8 +67,8 @@ SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
     return createNodeAnimation(oss.str(), duration);
 }
 //-----------------------------------------------------------------------------
-/*! Creates new SLAnimation istance for node animations. It will already create and set parameters
-for the respective SLAnimPlayback.
+/*! Creates new SLAnimation istance for node animations. It will already create
+ and set parameters for the respective SLAnimPlayback.
 */
 SLAnimation* SLAnimManager::createNodeAnimation(const SLstring& name,
                                                 SLfloat         duration,
@@ -121,7 +121,7 @@ SLAnimPlayback* SLAnimManager::nodeAnimPlayback(const SLstring& name)
 SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
 {
     // reset the dirty flag on all skeletons
-    for (auto skeleton : _skeletons)
+    for (auto* skeleton : _skeletons)
         skeleton->changed(false);
 
     SLbool updated = false;
@@ -132,7 +132,7 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
     // node will have its animation applied.
     // We need to save the playback differently if we want to blend them.
 
-    for (auto it : _nodeAnimPlaybacks)
+    for (const auto& it : _nodeAnimPlaybacks)
     {
         SLAnimPlayback* playback = it.second;
         if (playback->enabled())
@@ -146,7 +146,7 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
     }
 
     // update the skeletons separately
-    for (auto skeleton : _skeletons)
+    for (auto* skeleton : _skeletons)
         updated |= skeleton->updateAnimations(elapsedTimeSec);
 
     return updated;
@@ -155,7 +155,7 @@ SLbool SLAnimManager::update(SLfloat elapsedTimeSec)
 //! Draws the animation visualizations.
 void SLAnimManager::drawVisuals(SLSceneView* sv)
 {
-    for (auto it : _nodeAnimPlaybacks)
+    for (const auto& it : _nodeAnimPlaybacks)
     {
         SLAnimPlayback* playback = it.second;
         playback->parentAnimation()->drawNodeVisuals(sv);

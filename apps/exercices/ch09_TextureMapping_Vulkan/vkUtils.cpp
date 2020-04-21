@@ -799,8 +799,8 @@ void vkUtils::transitionImageLayout(VkImage       image,
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount     = 1;
 
-    VkPipelineStageFlags sourceStage;
-    VkPipelineStageFlags destinationStage;
+    VkPipelineStageFlags sourceStage{};
+    VkPipelineStageFlags destinationStage{};
 
     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
         newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
@@ -1009,7 +1009,7 @@ void vkUtils::createCommandBuffers()
         renderPassInfo.renderArea.offset     = {0, 0};
         renderPassInfo.renderArea.extent     = swapchainExtent;
 
-        VkClearValue clearColor        = {0.0f, 0.0f, 0.0f, 1.0f};
+        VkClearValue clearColor        = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues    = &clearColor;
 

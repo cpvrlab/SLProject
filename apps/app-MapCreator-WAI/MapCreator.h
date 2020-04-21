@@ -26,13 +26,13 @@ class MapCreator
         std::string videoFile;
         //std::string calibFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
-    };
+    } VideoAndCalib;
     typedef std::vector<VideoAndCalib> Videos;
     typedef struct AreaConfig
     {
         Videos      videos;
         std::string markerFile;
-    };
+    } AreaConfig;
     typedef std::map<Area, AreaConfig> Areas;
 
 public:

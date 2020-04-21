@@ -115,10 +115,10 @@ WelcomeGui::~WelcomeGui()
     }
 }
 
-void WelcomeGui::onResize(SLint scrW, SLint scrH)
+void WelcomeGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
-    ImGuiWrapper::onResize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbY);
 }
 
 void WelcomeGui::resize(int scrW, int scrH)

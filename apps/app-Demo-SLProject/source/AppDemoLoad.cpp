@@ -1906,7 +1906,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light2->attenuation(1, 0, 0);
         light2->translate(-8, -4, 0, TS_world);
         light2->setInitialState();
-
         SLAnimation*     light2Anim = s->animManager().createNodeAnimation("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
         SLNodeAnimTrack* track      = light2Anim->createNodeAnimationTrack();
         track->animatedNode(light2);

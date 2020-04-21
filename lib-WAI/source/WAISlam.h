@@ -62,7 +62,7 @@ public:
             bool           retainImg         = false,
             float          cullRedundantPerc = 0.95f);
 
-    ~WAISlam();
+    virtual ~WAISlam();
 
     virtual void reset();
 

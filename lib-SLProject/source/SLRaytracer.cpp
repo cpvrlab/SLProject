@@ -836,7 +836,10 @@ void SLRaytracer::renderImage()
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->viewport(vpRect.x, vpRect.y, (SLsizei)w, (SLsizei)h);
+    stateGL->viewport((SLint)(vpRect.x * _sv->scr2fbX()),
+                      (SLint)(vpRect.y * _sv->scr2fbX()),
+                      (SLsizei)(w * _sv->scr2fbX()),
+                      (SLsizei)(h * _sv->scr2fbY()));
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->clearColorBuffer();
@@ -859,7 +862,7 @@ void SLRaytracer::saveImage()
     _images[0]->savePNG(filename, 9, true, true);
 }
 //-----------------------------------------------------------------------------
-//! Must be called before an inbetween frame update
+//! Must be called before an inbetween frame updateRec
 /* Ray and path tracing usually take much more time to render one frame.
 We therefore call every half second _sv->onWndUpdate() that initiates another
 paint message from the top-level UI system of the OS. We therefore have to
