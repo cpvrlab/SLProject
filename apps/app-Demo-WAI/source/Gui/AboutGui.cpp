@@ -104,8 +104,9 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
                                             ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar |
-                                            ImGuiWindowFlags_NoScrollWithMouse;
+                                            ImGuiWindowFlags_NoScrollbar /*|
+                                            ImGuiWindowFlags_NoScrollWithMouse*/
+          ;
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
 
