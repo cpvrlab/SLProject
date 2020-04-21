@@ -133,8 +133,6 @@ void SLScene::unInit()
     // clear light pointers
     _lights.clear();
 
-    SLMaterial::current = nullptr;
-
     _eventHandlers.clear();
     _animManager.clear();
 }

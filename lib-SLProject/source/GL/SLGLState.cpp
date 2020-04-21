@@ -150,6 +150,8 @@ void SLGLState::initAll()
 #ifdef _GLDEBUG
     GET_GL_ERROR;
 #endif
+
+    _currentMaterial = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*! The destructor only empties the stacks
@@ -254,7 +256,11 @@ void SLGLState::calcLightDirVS(SLint nLights)
  */
 const SLCol4f* SLGLState::globalAmbient()
 {
-    _globalAmbient.set(globalAmbientLight & SLMaterial::current->ambient());
+    if (_currentMaterial)
+        _globalAmbient.set(globalAmbientLight & _currentMaterial->ambient());
+    else
+        _globalAmbient.set(globalAmbientLight);
+
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------

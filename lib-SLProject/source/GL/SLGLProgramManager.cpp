@@ -22,7 +22,7 @@ std::map<SLShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
 SLGLGenericProgram* SLGLProgramManager::get(SLShaderProg id)
 {
     auto it = _programs.find(id);
-    if (_programs.find(id) == _programs.end())
+    if (it == _programs.end())
     {
         makeProgram(id);
     }
