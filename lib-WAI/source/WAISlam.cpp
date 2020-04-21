@@ -124,7 +124,8 @@ void WAISlam::reset()
         _loopClosing->RequestReset();
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        flushQueue();
+        requestFinish();
+        _poseUpdateThread->join();
 #endif
     }
     else
@@ -140,6 +141,13 @@ void WAISlam::reset()
 
     _lastKeyFrameFrameId = 0;
     _lastRelocFrameId    = 0;
+
+#if MULTI_THREAD_FRAME_PROCESSING
+    _poseUpdateThread = new std::thread(updatePoseThread, this);
+    _isFinish         = false;
+    _isStop           = false;
+    _requestFinish    = false;
+#endif
 
     WAIKeyFrame::nNextId            = 0;
     WAIFrame::nNextId               = 0;
@@ -349,26 +357,23 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
                        bool     showKeyPointsMatched)
 {
     std::unique_lock<std::mutex> lock(_lastFrameMutex);
-    WAIFrame                     lastFrame = WAIFrame(_lastFrame);
-    lock.unlock();
-
     std::unique_lock<std::mutex> lock2(_stateMutex);
     if (_state == TrackingState_Initializing)
     {
         if (showInitLine)
-            drawInitInfo(_iniData, lastFrame, imageRGB);
+            drawInitInfo(_iniData, _lastFrame, imageRGB);
     }
     else if (_state == TrackingState_TrackingOK)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(lastFrame, imageRGB);
+            drawKeyPointInfo(_lastFrame, imageRGB);
         if (showKeyPointsMatched)
-            drawKeyPointMatches(lastFrame, imageRGB);
+            drawKeyPointMatches(_lastFrame, imageRGB);
     }
     else if (_state == TrackingState_TrackingLost)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(lastFrame, imageRGB);
+            drawKeyPointInfo(_lastFrame, imageRGB);
     }
 }
 
