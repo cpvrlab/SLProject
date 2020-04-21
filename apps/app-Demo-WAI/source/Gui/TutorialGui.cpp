@@ -84,6 +84,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     //background texture
     renderBackgroundTexture(_screenW, _screenH, _currentBackgroundId);
     //header bar
+    float buttonSize = _headerBarH * 0.8;
     renderHeaderBar("TutorialGui",
                     _screenW,
                     _headerBarH,
@@ -93,7 +94,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                     _resources.style().headerBarBackButtonPressedColor,
                     _fontBig,
                     _buttonRounding,
-                    _headerBarH * 0.8,
+                    buttonSize,
                     _textureIconBackWhiteId,
                     _textureIconBackGrayId,
                     _spacingBackButtonToText,
@@ -102,8 +103,6 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
 
     //button board window
     {
-        float buttonSize = _headerBarH * 0.8f;
-
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                        ImGuiWindowFlags_NoMove |
                                        ImGuiWindowFlags_AlwaysAutoResize |
@@ -126,22 +125,37 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::Begin("TutorialGui_ButtonBoard", nullptr, windowFlags);
 
-        //mGui::PushID()
-        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(buttonSize, buttonSize)))
+        //left button
+        float buttonWinPadding = 0.5f * (_headerBarH - buttonSize); //same as for header bar in which case it depends on the header bar height!
+        float texSize          = buttonSize - 2 * _buttonRounding;
+        float buttonYPos       = (_screenH - buttonSize) * 0.5f;
+        ImGui::SetNextWindowPos(ImVec2(buttonWinPadding, buttonYPos), ImGuiCond_Always);
+        ImGui::BeginChild("TutorialGui_winButtonLeft", ImVec2(buttonSize, buttonSize));
+        ImGui::PushID("TutorialGui_imgButtonLeft");
+        if (ImGui::ImageButton((ImTextureID)_textureIconLeftId, ImVec2(texSize, texSize)))
         {
             if (_currentBackgroundId == _textureBackgroundId1)
                 _currentBackgroundId = _textureBackgroundId2;
             else if (_currentBackgroundId == _textureBackgroundId2)
                 _currentBackgroundId = _textureBackgroundId1;
         }
+        ImGui::PopID();
+        ImGui::EndChild();
 
-        if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(buttonSize, buttonSize)))
+        //right button
+        float buttonRightXPos = _screenW - buttonWinPadding - buttonSize;
+        ImGui::SetNextWindowPos(ImVec2(buttonRightXPos, buttonYPos), ImGuiCond_Always);
+        ImGui::BeginChild("TutorialGui_winButtonRight", ImVec2(buttonSize, buttonSize));
+        ImGui::PushID("TutorialGui_imgButtonRight");
+        if (ImGui::ImageButton((ImTextureID)_textureIconRightId, ImVec2(texSize, texSize)))
         {
             if (_currentBackgroundId == _textureBackgroundId1)
                 _currentBackgroundId = _textureBackgroundId2;
             else if (_currentBackgroundId == _textureBackgroundId2)
                 _currentBackgroundId = _textureBackgroundId1;
         }
+        ImGui::PopID();
+        ImGui::EndChild();
 
         ImGui::End();
 
