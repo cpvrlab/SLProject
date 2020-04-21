@@ -148,7 +148,7 @@ void vkUtils::createInstance(GLFWwindow* window)
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Define what kind of warnings should be shown
 */
 void vkUtils::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 {
@@ -430,7 +430,7 @@ void vkUtils::createDescriptorSetLayout()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Set up graphic pipeline
 */
 void vkUtils::createGraphicsPipeline()
 {
@@ -779,7 +779,7 @@ void vkUtils::createImage(uint32_t              width,
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Performs a layout transition using an image meory barrier(makes sure a write to a buffer completes before reading from it)
 */
 void vkUtils::transitionImageLayout(VkImage       image,
                                     VkFormat      format,
@@ -838,9 +838,6 @@ void vkUtils::transitionImageLayout(VkImage       image,
     endSingleTimeCommands(commandBuffer);
 }
 //-----------------------------------------------------------------------------
-/*!
-
-*/
 void vkUtils::copyBufferToImage(VkBuffer buffer,
                                 VkImage  image,
                                 uint32_t width,
@@ -848,29 +845,26 @@ void vkUtils::copyBufferToImage(VkBuffer buffer,
 {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
-    VkBufferImageCopy region{};
-    region.bufferOffset                    = 0;
-    region.bufferRowLength                 = 0;
-    region.bufferImageHeight               = 0;
-    region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.imageSubresource.mipLevel       = 0;
-    region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount     = 1;
-    region.imageOffset                     = {0, 0, 0};
-    region.imageExtent                     = {width, height, 1};
+    VkBufferImageCopy imageCopyBuffer{};
+    imageCopyBuffer.bufferOffset                    = 0;
+    imageCopyBuffer.bufferRowLength                 = 0;
+    imageCopyBuffer.bufferImageHeight               = 0;
+    imageCopyBuffer.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageCopyBuffer.imageSubresource.mipLevel       = 0;
+    imageCopyBuffer.imageSubresource.baseArrayLayer = 0;
+    imageCopyBuffer.imageSubresource.layerCount     = 1;
+    imageCopyBuffer.imageOffset                     = {0, 0, 0};
+    imageCopyBuffer.imageExtent                     = {width, height, 1};
 
     vkCmdCopyBufferToImage(commandBuffer,
                            buffer,
                            image,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1,
-                           &region);
+                           &imageCopyBuffer);
     endSingleTimeCommands(commandBuffer);
 }
 //-----------------------------------------------------------------------------
-/*!
-
-*/
 void vkUtils::createVertexBuffer(const vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
@@ -900,9 +894,6 @@ void vkUtils::createVertexBuffer(const vector<Vertex>& vertices)
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 //-----------------------------------------------------------------------------
-/*!
-
-*/
 void vkUtils::createIndexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
@@ -933,7 +924,7 @@ void vkUtils::createIndexBuffer()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Allocates memory for a buffer
 */
 void vkUtils::createBuffer(VkDeviceSize          size,
                            VkBufferUsageFlags    usage,
@@ -965,7 +956,7 @@ void vkUtils::createBuffer(VkDeviceSize          size,
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Function that allows to copy buffers
 */
 void vkUtils::copyBuffer(VkBuffer     srcBuffer,
                          VkBuffer     dstBuffer,
@@ -981,7 +972,7 @@ void vkUtils::copyBuffer(VkBuffer     srcBuffer,
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Allocates and records drawing commands
 */
 void vkUtils::createCommandBuffers()
 {
@@ -1055,7 +1046,7 @@ void vkUtils::createCommandBuffers()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Performs a CPU-GPU synchronization using fences (similar to semaphores). Here we use both
 */
 void vkUtils::createSyncObjects()
 {
@@ -1086,20 +1077,20 @@ void vkUtils::createSyncObjects()
                           &inFlightFences[i]) != VK_SUCCESS)
             cerr << "failed to create synchronization objects for a frame!" << endl;
 }
+//-----------------------------------------------------------------------------
 void vkUtils::setCameraMatrix(SLMat4f* mat)
 {
     cameraMatrix = mat;
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Before the image is drawn, update the uniform buffer
 */
 void vkUtils::updateUniformBuffer(uint32_t currentImage)
 {
     UniformBufferObject ubo{};
     ubo.model = SLMat4f(0.0f, 0.0f, 0.0f);
     ubo.view  = *cameraMatrix;
-    // ubo.view.lookAt(SLVec3f(0.0f, 0.0f, 6.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
     ubo.proj.perspective(40,
                          (float)swapchainExtent.width / (float)swapchainExtent.height,
                          0.1f,
@@ -1111,9 +1102,6 @@ void vkUtils::updateUniformBuffer(uint32_t currentImage)
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 }
 //-----------------------------------------------------------------------------
-/*!
-
-*/
 void vkUtils::drawFrame()
 {
     vkWaitForFences(device,
@@ -1193,7 +1181,7 @@ void vkUtils::drawFrame()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Translates the shader into a module
 */
 VkShaderModule vkUtils::createShaderModule(const vector<char>& code)
 {
@@ -1352,7 +1340,7 @@ bool vkUtils::checkDeviceExtensionSupport(VkPhysicalDevice device)
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Finds a suitable memory type for buffer on graphic card
 */
 uint32_t vkUtils::findMemoryType(uint32_t              typeFilter,
                                  VkMemoryPropertyFlags properties)
@@ -1369,7 +1357,7 @@ uint32_t vkUtils::findMemoryType(uint32_t              typeFilter,
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Allocates and starts recording a command buffer
 */
 VkCommandBuffer vkUtils::beginSingleTimeCommands()
 {
@@ -1392,7 +1380,7 @@ VkCommandBuffer vkUtils::beginSingleTimeCommands()
 }
 //-----------------------------------------------------------------------------
 /*!
-
+End recording of command buffer
 */
 void vkUtils::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 {
@@ -1434,7 +1422,7 @@ VkImageView vkUtils::createImageView(VkImage image, VkFormat format)
 }
 //-----------------------------------------------------------------------------
 /*!
-
+Since everything in Vulkan works with commands, we need to find the right queue family to support them
 */
 QueueFamilyIndices vkUtils::findQueueFamilies(VkPhysicalDevice device)
 {
