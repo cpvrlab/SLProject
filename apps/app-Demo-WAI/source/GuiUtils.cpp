@@ -87,11 +87,11 @@ void renderHeaderBar(std::string               id,
     ImGui::PopStyleColor(5);
 }
 
-void renderContent()
+void renderAreaPlaceButtons(std::map<AreaId, Area> areas)
 {
 }
 
-GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH)
 {
     GLuint id = 0;
 
@@ -104,7 +104,7 @@ GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdi
         if (flipY)
             image.flipY();
         //crop image to screen size
-        image.crop(targetWdivH);
+        image.crop(targetWdivH, cropW, cropH);
 
         // Create a OpenGL texture identifier
         glGenTextures(1, &id);
@@ -131,6 +131,12 @@ GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdi
         Utils::warnMsg("loadTexture", "imagePath does not exist!", __LINE__, __FILE__);
 
     return id;
+}
+
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH)
+{
+    int cropW, cropH;
+    return loadTexture(fileName, flipX, flipY, targetWdivH, cropW, cropH);
 }
 
 void deleteTexture(GLuint& id)

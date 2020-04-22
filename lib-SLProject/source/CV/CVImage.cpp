@@ -884,15 +884,15 @@ void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
     }
 }
 //-----------------------------------------------------------------------------
-void CVImage::crop(float targetWdivH)
+void CVImage::crop(float targetWdivH, int& cropW, int& cropH)
 {
 
     float inWdivH = (float)_cvMat.cols / (float)_cvMat.rows;
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
 
-    int cropH = 0; // crop height in pixels of the source image
-    int cropW = 0; // crop width in pixels of the source image
+    cropH = 0; // crop height in pixels of the source image
+    cropW = 0; // crop width in pixels of the source image
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
         int width  = 0; // width in pixels of the destination image

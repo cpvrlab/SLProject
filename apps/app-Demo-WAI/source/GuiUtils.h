@@ -25,10 +25,13 @@ void renderHeaderBar(std::string               id,
                      float                     spacingButtonToText,
                      const char*               text,
                      std::function<void(void)> cb);
-void renderContent();
 
+void renderAreaPlaceButtons(std::map<AreaId, Area>);
+
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH);
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH);
-void   deleteTexture(GLuint& id);
+
+void deleteTexture(GLuint& id);
 
 };
 

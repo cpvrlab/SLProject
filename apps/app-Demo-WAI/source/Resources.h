@@ -52,9 +52,9 @@ class Style
 public:
     //header bar:
     // percental header bar height relative to screen height
-    float headerBarPercH = 0.15f;
+    float headerBarPercH = 0.1f;
     // percental header bar text height relative to header bar height
-    float headerBarTextH = 0.6f;
+    float headerBarTextH = 0.8f;
     // percental header bar button height relative to header bar height
     float headerBarButtonH = 0.8f;
 
@@ -115,6 +115,7 @@ public:
                                      BFHColors::OrangePrimary.g,
                                      BFHColors::OrangePrimary.b,
                                      BFHColors::OrangePrimary.a};
+    ImVec4 transparentColor       = {0.f, 0.f, 0.f, 0.f};
     // percental window padding for content (e.g. about and settings) rel. to screen height
     float windowPaddingContent = 0.03f;
     // percental frame padding for content (e.g. about and settings) rel. to screen height

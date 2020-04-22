@@ -32,6 +32,7 @@
 #include <SLGLImGui.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <ErlebAREvents.h>
 
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiInfosScene.h>

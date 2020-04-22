@@ -26,6 +26,8 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
@@ -57,6 +59,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
@@ -65,6 +68,8 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.h
 	)
 	
 set(erlebar_sources
@@ -84,6 +89,8 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
@@ -118,6 +125,8 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.cpp
 	)
 	
 set(erlebar_include_directories

@@ -3,6 +3,8 @@
 #include <CVImage.h>
 #include <GuiUtils.h>
 #include <SLVec2.h>
+#include <ErlebAREvents.h>
+
 using namespace ErlebAR;
 
 TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
@@ -32,6 +34,7 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
     //load background texture
+    int cropW, cropH;
     _textureBackgroundId1 = loadTexture(texturePath + "earth2048_C.jpg", false, true, (float)screenWidthPix / (float)screenHeightPix);
     _textureBackgroundId2 = loadTexture(texturePath + "earthCloud1024_C.jpg", false, true, (float)screenWidthPix / (float)screenHeightPix);
     _currentBackgroundId  = _textureBackgroundId1;

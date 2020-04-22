@@ -8,8 +8,9 @@
 #include <ErlebAR.h>
 #include <sens/SENSCamera.h>
 #include <Resources.h>
+#include <ErlebAREvents.h>
 
-class InitData;
+class InitEventData;
 class SelectionView;
 class TestView;
 class StartUpView;
@@ -17,6 +18,8 @@ class WelcomeView;
 class SettingsView;
 class AboutView;
 class TutorialView;
+class LocationMapView;
+class AreaTrackingView;
 
 class ErlebARApp : public sm::StateMachine
   , public SLInputEventInterface
@@ -39,7 +42,7 @@ public:
 
 private:
     void IDLE(const sm::NoEventData* data, const bool stateEntry);
-    void INIT(const InitData* data, const bool stateEntry);
+    void INIT(const InitEventData* data, const bool stateEntry);
     void WELCOME(const sm::NoEventData* data, const bool stateEntry);
     void DESTROY(const sm::NoEventData* data, const bool stateEntry);
     void SELECTION(const sm::NoEventData* data, const bool stateEntry);
@@ -49,9 +52,9 @@ private:
     void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry);
     void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry);
 
-    void START_ERLEBAR(const ErlebarData* data, const bool stateEntry);
-    void MAP_VIEW(const sm::NoEventData* data, const bool stateEntry);
-    void AREA_TRACKING(const AreaData* data, const bool stateEntry);
+    void START_ERLEBAR(const ErlebarEventData* data, const bool stateEntry);
+    void LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry);
+    void AREA_TRACKING(const AreaEventData* data, const bool stateEntry);
 
     void TUTORIAL(const sm::NoEventData* data, const bool stateEntry);
     void ABOUT(const sm::NoEventData* data, const bool stateEntry);
@@ -60,13 +63,15 @@ private:
 
     SLInputManager _inputManager;
 
-    SelectionView* _selectionView = nullptr;
-    TestView*      _testView      = nullptr;
-    StartUpView*   _startUpView   = nullptr;
-    WelcomeView*   _welcomeView   = nullptr;
-    AboutView*     _aboutView     = nullptr;
-    SettingsView*  _settingsView  = nullptr;
-    TutorialView*  _tutorialView  = nullptr;
+    SelectionView*    _selectionView    = nullptr;
+    TestView*         _testView         = nullptr;
+    StartUpView*      _startUpView      = nullptr;
+    WelcomeView*      _welcomeView      = nullptr;
+    AboutView*        _aboutView        = nullptr;
+    SettingsView*     _settingsView     = nullptr;
+    TutorialView*     _tutorialView     = nullptr;
+    LocationMapView*  _locationMapView  = nullptr;
+    AreaTrackingView* _areaTrackingView = nullptr;
 
     SENSCamera*      _camera  = nullptr;
     CloseAppCallback _closeCB = nullptr;

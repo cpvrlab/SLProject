@@ -1,11 +1,13 @@
 #ifndef ERLEBAR_H
 #define ERLEBAR_H
 
-#include <SLVec4.h>
-#include <DeviceData.h>
-#include <sm/Event.h>
-#include <imgui.h>
 #include <string>
+#include <map>
+
+#include <imgui.h>
+#include <SLVec4.h>
+
+#include <DeviceData.h>
 
 //bfh colors
 namespace BFHColors
@@ -29,24 +31,69 @@ const SLVec4f GrayDark      = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
 namespace ErlebAR
 {
 //erlebar location
-enum class Location
+enum class LocationId
 {
     NONE,
     AUGST,
-    AVANCHES,
+    AVENCHES,
     BIEL,
     CHRISTOFFEL
 };
 
+const char* mapLocationIdToName(LocationId id);
+
 //erlebar area
-enum class Area
+enum class AreaId
 {
     NONE,
+    //AUGST
+    //AVENCHES
+    //CHRISTOFFEL
     AUGST_FORUM_MARKER,
-    //..
-    BIEL_LEUBRINGENBAHN
-    //..
+    //BIEL
+    BIEL_SOUTHWALL,
+    BIEL_GERECHTIGKEITSBRUNNEN,
+    BIEL_JACOB_ROSINUS,
+    BIEL_LEUBRINGENBAHN,
+    BIEL_RING
 };
+
+class Area
+{
+public:
+    //Area(AreaId id, int posXPix, int posYPix, float viewAngle);
+
+    AreaId id;
+    //x position in pixel (only valid for current map image)
+    int xPosPix;
+    //y position in pixel (only valid for current map image)
+    int yPosPix;
+    //view angle in degree
+    float viewAngleDeg;
+};
+
+//location description
+class Location
+{
+public:
+    //Location(LocationId id, std::string areaMapImageFileName, std::map<AreaId, Area> areas)
+    //  : id(id),
+    //    areaMapImageFileName(areaMapImageFileName),
+    //    areas(areas),
+    //    name(mapIdToName(id))
+    //{
+    //}
+
+    LocationId             id = LocationId::NONE;
+    const char*            name;
+    std::string            areaMapImageFileName;
+    std::map<AreaId, Area> areas;
+
+    //location center wgs84 (for gps user positionioning in map)
+private:
+};
+//get definition of current locations and areas
+const std::map<LocationId, Location> defineLocations();
 
 }; //namespace ErlebAR
 
@@ -65,234 +112,13 @@ enum class StateId
     RESUME_TEST,
 
     START_ERLEBAR,
-    MAP_VIEW,
+    LOCATION_MAP,
     AREA_TRACKING,
 
     TUTORIAL,
     ABOUT,
     SETTINGS,
     CAMERA_TEST
-};
-
-//-----------------------------------------------------------------------------
-// EventData
-//-----------------------------------------------------------------------------
-class InitData : public sm::EventData
-{
-public:
-    InitData(DeviceData deviceData)
-      : deviceData(deviceData)
-    {
-    }
-    const DeviceData deviceData;
-};
-
-class ErlebarData : public sm::EventData
-{
-public:
-    ErlebarData(ErlebAR::Location location)
-      : location(location)
-    {
-    }
-    const ErlebAR::Location location;
-};
-
-class AreaData : public sm::EventData
-{
-public:
-    AreaData(ErlebAR::Area area)
-      : area(area)
-    {
-    }
-    const ErlebAR::Area area;
-};
-
-//-----------------------------------------------------------------------------
-// Event
-//-----------------------------------------------------------------------------
-class InitEvent : public sm::Event
-{
-public:
-    InitEvent(int            scrWidth,
-              int            scrHeight,
-              float          scr2fbX,
-              float          scr2fbY,
-              int            dpi,
-              AppDirectories dirs)
-    {
-        enableTransition((unsigned int)StateId::IDLE,
-                         (unsigned int)StateId::INIT);
-
-        DeviceData deviceData(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
-        _eventData = new InitData(deviceData);
-    }
-};
-
-class GoBackEvent : public sm::Event
-{
-public:
-    GoBackEvent()
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::MAP_VIEW,
-                         (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::AREA_TRACKING,
-                         (unsigned int)StateId::MAP_VIEW);
-        enableTransition((unsigned int)StateId::TUTORIAL,
-                         (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::ABOUT,
-                         (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::SETTINGS,
-                         (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::CAMERA_TEST,
-                         (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::TEST,
-                         (unsigned int)StateId::SELECTION);
-    }
-};
-
-class DestroyEvent : public sm::Event
-{
-public:
-    DestroyEvent()
-    {
-        enableTransition((unsigned int)StateId::INIT,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::START_TEST,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::TEST,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::START_ERLEBAR,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::MAP_VIEW,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::AREA_TRACKING,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::TUTORIAL,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::ABOUT,
-                         (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::CAMERA_TEST,
-                         (unsigned int)StateId::DESTROY);
-    }
-};
-
-class DoneEvent : public sm::Event
-{
-public:
-    DoneEvent()
-    {
-
-        enableTransition((unsigned int)StateId::DESTROY,
-                         (unsigned int)StateId::IDLE);
-        enableTransition((unsigned int)StateId::INIT,
-                         (unsigned int)StateId::WELCOME);
-        enableTransition((unsigned int)StateId::WELCOME,
-                         (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::START_ERLEBAR,
-                         (unsigned int)StateId::MAP_VIEW);
-        enableTransition((unsigned int)StateId::START_TEST,
-                         (unsigned int)StateId::TEST);
-        enableTransition((unsigned int)StateId::RESUME_TEST,
-                         (unsigned int)StateId::TEST);
-    }
-};
-
-class StartErlebarEvent : public sm::Event
-{
-public:
-    StartErlebarEvent(ErlebAR::Location location)
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::START_ERLEBAR);
-
-        _eventData = new ErlebarData(location);
-    }
-};
-
-class AreaSelectedEvent : public sm::Event
-{
-public:
-    AreaSelectedEvent(ErlebAR::Area area)
-    {
-        enableTransition((unsigned int)StateId::MAP_VIEW,
-                         (unsigned int)StateId::AREA_TRACKING);
-
-        _eventData = new AreaData(area);
-    }
-};
-
-class StartTutorialEvent : public sm::Event
-{
-public:
-    StartTutorialEvent()
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::TUTORIAL);
-    }
-};
-
-class ShowAboutEvent : public sm::Event
-{
-public:
-    ShowAboutEvent()
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::ABOUT);
-    }
-};
-
-class ShowSettingsEvent : public sm::Event
-{
-public:
-    ShowSettingsEvent()
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::SETTINGS);
-    }
-};
-
-class StartCameraTestEvent : public sm::Event
-{
-public:
-    StartCameraTestEvent()
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::CAMERA_TEST);
-    }
-};
-
-class StartTestEvent : public sm::Event
-{
-public:
-    StartTestEvent()
-    {
-        enableTransition((unsigned int)StateId::SELECTION,
-                         (unsigned int)StateId::START_TEST);
-    }
-};
-
-class HoldEvent : public sm::Event
-{
-public:
-    HoldEvent()
-    {
-        enableTransition((unsigned int)StateId::TEST,
-                         (unsigned int)StateId::HOLD_TEST);
-    }
-};
-
-class ResumeEvent : public sm::Event
-{
-public:
-    ResumeEvent()
-    {
-        enableTransition((unsigned int)StateId::HOLD_TEST,
-                         (unsigned int)StateId::RESUME_TEST);
-    }
 };
 
 #endif //ERLEBAR_H

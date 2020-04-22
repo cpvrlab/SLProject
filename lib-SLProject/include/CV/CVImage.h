@@ -104,7 +104,7 @@ public:
     void               flipY();
     void               fill(uchar r, uchar g, uchar b);
     void               fill(uchar r, uchar g, uchar b, uchar a);
-    void               crop(float targetWdivH);
+    void               crop(float targetWdivH, int& cropW, int& cropH);
     static CVPixFormat cv2glPixelFormat(int cvType);
 
     // Getters

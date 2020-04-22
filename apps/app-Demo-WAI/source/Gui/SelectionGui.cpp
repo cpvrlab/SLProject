@@ -3,6 +3,7 @@
 #include <imgui_internal.h>
 #include <CVImage.h>
 #include <float.h>
+#include <ErlebAREvents.h>
 
 using namespace ErlebAR;
 
@@ -37,7 +38,8 @@ SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
         CVImage image(imagePath);
         image.flipY();
         //crop image to screen size
-        image.crop((float)screenWidthPix / (float)screenHeightPix);
+        int cropW, cropH;
+        image.crop((float)screenWidthPix / (float)screenHeightPix, cropW, cropH);
 
         // Create a OpenGL texture identifier
         glGenTextures(1, &_textureBackgroundId);
@@ -152,19 +154,19 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowSize(ImVec2(_buttonBoardW, _buttonBoardH), ImGuiCond_Always);
         ImGui::Begin("SelectionGui_ButtonBoard", nullptr, windowFlags);
 
-        if (ImGui::Button("Avanches", _buttonSz))
+        if (ImGui::Button("Avenches", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(Location::AVANCHES));
+            sendEvent(new StartErlebarEvent(LocationId::AVENCHES));
         }
 
         if (ImGui::Button("Augst", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(Location::AUGST));
+            sendEvent(new StartErlebarEvent(LocationId::AUGST));
         }
 
         if (ImGui::Button("Christoffel", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(Location::CHRISTOFFEL));
+            sendEvent(new StartErlebarEvent(LocationId::CHRISTOFFEL));
         }
 
         if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
@@ -205,7 +207,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
 
         if (ImGui::Button("Biel", develButtonSize))
         {
-            sendEvent(new StartErlebarEvent(Location::BIEL));
+            sendEvent(new StartErlebarEvent(LocationId::BIEL));
         }
 
         ImGui::End();

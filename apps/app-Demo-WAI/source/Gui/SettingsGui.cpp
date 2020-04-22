@@ -3,6 +3,7 @@
 #include <imgui_internal.h>
 #include <string>
 #include <GuiUtils.h>
+#include <ErlebAREvents.h>
 
 SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,

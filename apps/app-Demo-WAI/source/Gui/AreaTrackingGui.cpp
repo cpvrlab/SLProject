@@ -1,16 +1,16 @@
-#include <AboutGui.h>
+#include <AreaTrackingGui.h>
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 
 using namespace ErlebAR;
 
-AboutGui::AboutGui(sm::EventHandler&   eventHandler,
-                   ErlebAR::Resources& resources,
-                   int                 dotsPerInch,
-                   int                 screenWidthPix,
-                   int                 screenHeightPix,
-                   std::string         fontPath)
+AreaTrackingGui::AreaTrackingGui(sm::EventHandler&   eventHandler,
+                                 ErlebAR::Resources& resources,
+                                 int                 dotsPerInch,
+                                 int                 screenWidthPix,
+                                 int                 screenHeightPix,
+                                 std::string         fontPath)
   : sm::EventSender(eventHandler),
     _resources(resources)
 {
@@ -28,25 +28,25 @@ AboutGui::AboutGui(sm::EventHandler&   eventHandler,
         _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
     }
     else
-        Utils::warnMsg("AboutGui", "font does not exist!", __LINE__, __FILE__);
+        Utils::warnMsg("AreaTrackingGui", "font does not exist!", __LINE__, __FILE__);
 }
 
-AboutGui::~AboutGui()
+AreaTrackingGui::~AreaTrackingGui()
 {
 }
 
-void AboutGui::onShow()
+void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
 }
 
-void AboutGui::onResize(SLint scrW, SLint scrH)
+void AreaTrackingGui::onResize(SLint scrW, SLint scrH)
 {
     resize(scrW, scrH);
     ImGuiWrapper::onResize(scrW, scrH);
 }
 
-void AboutGui::resize(int scrW, int scrH)
+void AreaTrackingGui::resize(int scrW, int scrH)
 {
     _screenW = (float)scrW;
     _screenH = (float)scrH;
@@ -61,12 +61,12 @@ void AboutGui::resize(int scrW, int scrH)
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
-void AboutGui::build(SLScene* s, SLSceneView* sv)
+void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
 {
     //header bar
     float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
 
-    ErlebAR::renderHeaderBar("AboutGui",
+    ErlebAR::renderHeaderBar("AreaTrackingGui",
                              _screenW,
                              _headerBarH,
                              _resources.style().headerBarBackgroundColor,
@@ -104,8 +104,8 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
-        ImGui::Begin("AboutGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AboutGui_content_child", ImVec2(0, 0), false, childWindowFlags);
+        ImGui::Begin("AreaTrackingGui_content", nullptr, windowFlags);
+        ImGui::BeginChild("AreaTrackingGui_content_child", ImVec2(0, 0), false, childWindowFlags);
 
         //general
         ImGui::PushFont(_fontSmall);
