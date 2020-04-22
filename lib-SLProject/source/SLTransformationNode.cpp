@@ -13,12 +13,9 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
     _sv(sv),
     _targetNode(targetNode),
     _editMode(NodeEditMode_None),
-    _mouseIsDown(false)
+    _mouseIsDown(false),
+    _gizmoScale(1.0f)
 {
-    float scaleFactor = _targetNode->aabb()->radiusOS() * 0.5f;
-
-    _gizmoScale = scaleFactor;
-
     SLMaterial* redMat = new SLMaterial(assetMgr, "Red", SLCol4f::RED);
     redMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
@@ -40,9 +37,9 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
     SLMaterial* yellowTransparentMat = new SLMaterial(assetMgr, "Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
-    _translationAxisX = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::RED), "x-axis node");
-    _translationAxisY = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::GREEN), "y-axis node");
-    _translationAxisZ = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::BLUE), "z-axis node");
+    _translationAxisX = new SLNode(new SLCoordAxisArrow(assetMgr, redTransparentMat), "x-axis node");
+    _translationAxisY = new SLNode(new SLCoordAxisArrow(assetMgr, greenTransparentMat), "y-axis node");
+    _translationAxisZ = new SLNode(new SLCoordAxisArrow(assetMgr, blueTransparentMat), "z-axis node");
 
     _translationAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
     _translationAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
@@ -100,8 +97,6 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
     rotationGizmos->addChild(rotationGizmosY);
     rotationGizmos->addChild(rotationGizmosZ);
 
-    this->scale(scaleFactor);
-
     this->addChild(_translationAxisX);
     this->addChild(_translationLineX);
     this->addChild(_translationAxisY);
@@ -137,6 +132,16 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
         if (_targetNode)
         {
             this->translation(_targetNode->updateAndGetWM().translation());
+
+            SLVec2f p1 = _sv->camera()->projectWorldToNDC(this->translationWS());
+            SLVec2f p2 = _sv->camera()->projectWorldToNDC(this->translationWS() + _sv->camera()->upWS().normalize());
+
+            float actualHeight = (p1 - p2).length();
+            float targetHeight = 0.2f; // % of screen that gizmos should occupy
+            float scaleFactor  = targetHeight / actualHeight;
+
+            this->scale(scaleFactor / _gizmoScale);
+            _gizmoScale = scaleFactor;
 
             toggleHideRecursive(this, true);
             this->drawBits()->set(SL_DB_HIDDEN, false);
