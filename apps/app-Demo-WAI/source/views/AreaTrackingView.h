@@ -22,6 +22,8 @@ public:
     //call when view becomes visible
     void show() { _gui.onShow(); }
 
+    void initArea(ErlebAR::AreaId id);
+
 private:
     AreaTrackingGui _gui;
 };

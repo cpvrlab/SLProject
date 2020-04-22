@@ -19,3 +19,8 @@ bool AreaTrackingView::update()
 {
     return onPaint();
 }
+
+void AreaTrackingView::initArea(ErlebAR::AreaId id)
+{
+    _gui.initArea(id);
+}

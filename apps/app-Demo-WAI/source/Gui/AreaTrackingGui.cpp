@@ -160,3 +160,9 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
 
     //ImGui::ShowMetricsWindow();
 }
+
+void AreaTrackingGui::initArea(ErlebAR::AreaId id)
+{
+    //start wai with map for this area
+    //load model into scene graph
+}

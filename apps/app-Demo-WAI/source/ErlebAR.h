@@ -47,9 +47,11 @@ enum class AreaId
 {
     NONE,
     //AUGST
+    AUGST_TEMPLE_HILL_MARKER,
     //AVENCHES
+    AVENCHES_ARENA,
     //CHRISTOFFEL
-    AUGST_FORUM_MARKER,
+    CHRISTOFFEL_SBB,
     //BIEL
     BIEL_SOUTHWALL,
     BIEL_GERECHTIGKEITSBRUNNEN,
@@ -58,12 +60,15 @@ enum class AreaId
     BIEL_RING
 };
 
+const char* mapAreaIdToName(AreaId id);
+
 class Area
 {
 public:
     //Area(AreaId id, int posXPix, int posYPix, float viewAngle);
 
-    AreaId id;
+    AreaId      id;
+    const char* name;
     //x position in pixel (only valid for current map image)
     int xPosPix;
     //y position in pixel (only valid for current map image)
@@ -76,23 +81,19 @@ public:
 class Location
 {
 public:
-    //Location(LocationId id, std::string areaMapImageFileName, std::map<AreaId, Area> areas)
-    //  : id(id),
-    //    areaMapImageFileName(areaMapImageFileName),
-    //    areas(areas),
-    //    name(mapIdToName(id))
-    //{
-    //}
-
     LocationId             id = LocationId::NONE;
     const char*            name;
     std::string            areaMapImageFileName;
     std::map<AreaId, Area> areas;
-
     //location center wgs84 (for gps user positionioning in map)
-private:
 };
+
 //get definition of current locations and areas
+const Location defineLocationAugst();
+const Location defineLocationAvenches();
+const Location defineLocationChristoffel();
+const Location defineLocationBiel();
+
 const std::map<LocationId, Location> defineLocations();
 
 }; //namespace ErlebAR

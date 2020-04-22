@@ -28,6 +28,8 @@ public:
     void onResize(SLint scrW, SLint scrH) override;
     void onShow(); //call when gui becomes visible
 
+    void initArea(ErlebAR::AreaId id);
+
 private:
     void resize(int scrW, int scrH);
 

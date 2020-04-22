@@ -91,7 +91,6 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
-                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
                                             ImGuiWindowFlags_NoScrollbar;
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
@@ -108,15 +107,21 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
 
         ImGui::Begin("LocationMap_content", nullptr, windowFlags);
-        //todo: offset of cropping (x, y) and header bar (y)
+
+        int   i          = 0;
+        float buttonSize = 0.1f * _screenH;
         for (const auto& it : _loc.areas)
         {
             const Area& area = it.second;
             ImGui::SetCursorPosX(_locImgCropW + area.xPosPix);
             ImGui::SetCursorPosY(_locImgCropH + _headerBarH + area.yPosPix);
-            //ImGui::BeginChild("LocationMap_content_child", ImVec2(0, 0), false, childWindowFlags);
-
-            //ImGui::EndChild();
+            ImGui::PushID(i);
+            if (ImGui::Button(area.name, ImVec2(buttonSize, buttonSize)))
+            {
+                sendEvent(new AreaSelectedEvent(it.first));
+            }
+            ImGui::PopID();
+            i++;
         }
 
         ImGui::End();

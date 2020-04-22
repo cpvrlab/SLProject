@@ -355,7 +355,8 @@ void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntr
     if (stateEntry)
     {
         LOG_ERLEBAR_DEBUG("LOCATION_MAP");
-        _locationMapView->initLocation(data->location);
+        if (data)
+            _locationMapView->initLocation(data->location);
     }
 
     _locationMapView->update();
@@ -364,7 +365,11 @@ void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntr
 void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry)
 {
     if (stateEntry)
+    {
         LOG_ERLEBAR_DEBUG("AREA_TRACKING");
+        if (data)
+            _areaTrackingView->initArea(data->area);
+    }
 
     _areaTrackingView->update();
 }
