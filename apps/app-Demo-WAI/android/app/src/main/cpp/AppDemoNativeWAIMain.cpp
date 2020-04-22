@@ -186,7 +186,7 @@ void Engine::onInit()
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
         //todo: _earApp.init
-        _earApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs, _ndkCamera);
+        _earApp.init(_width, _height, _dpi, _dirs, _ndkCamera);
         _earAppIsInitialized = true;
     }
     else
@@ -198,7 +198,7 @@ void Engine::onInit()
             _earApp.destroy();
             terminateDisplay();
             initDisplay();
-            _earApp.init(_width, _height, 1.0, 1.0, _dpi, _dirs, _ndkCamera);
+            _earApp.init(_width, _height, _dpi, _dirs, _ndkCamera);
         }
         else
         {
@@ -477,12 +477,10 @@ std::string Engine::getInternalDir()
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -493,8 +491,7 @@ std::string Engine::getInternalDir()
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version");
             Utils::log("WAInative", "unsupported java version");
@@ -571,12 +568,10 @@ std::string Engine::getExternalDir()
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -587,8 +582,7 @@ std::string Engine::getExternalDir()
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return "";
@@ -666,12 +660,10 @@ void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK:
-        {
+        case JNI_OK: {
         }
         break;
-        case JNI_EDETACHED:
-        {
+        case JNI_EDETACHED: {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -682,8 +674,7 @@ void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION:
-        {
+        case JNI_EVERSION: {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return;
@@ -927,21 +918,18 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
         switch (actionCode)
         {
             case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN:
-            {
+            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
                 engine->handleTouchDown(event);
             }
             break;
 
             case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP:
-            {
+            case AMOTION_EVENT_ACTION_POINTER_UP: {
                 engine->handleTouchUp(event);
             }
             break;
 
-            case AMOTION_EVENT_ACTION_MOVE:
-            {
+            case AMOTION_EVENT_ACTION_MOVE: {
                 engine->handleTouchMove(event);
             }
         }
