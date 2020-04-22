@@ -104,7 +104,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
 
-        ImGui::Begin("LocationMap_content", nullptr, windowFlags);
+        ImGui::Begin("LocationMapGui_content", nullptr, windowFlags);
 
         int   i          = 0;
         float buttonSize = 0.1f * _screenH;
@@ -116,7 +116,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
             ImGui::PushID(i);
             if (ImGui::Button(area.name, ImVec2(buttonSize, buttonSize)))
             {
-                sendEvent(new AreaSelectedEvent(it.first));
+                sendEvent(new AreaSelectedEvent(_loc.id, it.first));
             }
             ImGui::PopID();
             i++;

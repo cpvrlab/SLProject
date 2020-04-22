@@ -22,10 +22,12 @@ public:
     //call when view becomes visible
     void show() { _gui.onShow(); }
 
-    void initArea(ErlebAR::AreaId id);
+    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
 
 private:
     AreaTrackingGui _gui;
+
+    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 };
 
 #endif //AREA_TRACKING_VIEW_H

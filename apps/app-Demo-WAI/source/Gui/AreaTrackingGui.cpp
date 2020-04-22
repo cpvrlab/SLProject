@@ -15,17 +15,13 @@ AreaTrackingGui::AreaTrackingGui(sm::EventHandler&   eventHandler,
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH      = _resources.style().headerBarTextH * (float)_headerBarH;
-    float headingTextH  = _resources.style().textHeadingH * (float)screenHeightPix;
-    float standardTextH = _resources.style().textStandardH * (float)screenHeightPix;
+    float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
     //load fonts for big ErlebAR text and verions text
     SLstring ttf = fontPath + "Roboto-Medium.ttf";
 
     if (Utils::fileExists(ttf))
     {
-        _fontBig      = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-        _fontSmall    = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), headingTextH);
-        _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
+        _fontBig = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
     }
     else
         Utils::warnMsg("AreaTrackingGui", "font does not exist!", __LINE__, __FILE__);
@@ -69,100 +65,24 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     ErlebAR::renderHeaderBar("AreaTrackingGui",
                              _screenW,
                              _headerBarH,
-                             _resources.style().headerBarBackgroundColor,
+                             _resources.style().headerBarBackgroundTranspColor,
                              _resources.style().headerBarTextColor,
-                             _resources.style().headerBarBackButtonColor,
-                             _resources.style().headerBarBackButtonPressedColor,
+                             _resources.style().headerBarBackButtonTranspColor,
+                             _resources.style().headerBarBackButtonPressedTranspColor,
                              _fontBig,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
-                             _resources.strings().about(),
+                             _area.name,
                              [&]() { sendEvent(new GoBackEvent()); });
-
-    //content
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
-                                            ImGuiWindowFlags_NoMove |
-                                            ImGuiWindowFlags_AlwaysAutoResize |
-                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar /*|
-                                            ImGuiWindowFlags_NoScrollWithMouse*/
-          ;
-        ImGuiWindowFlags windowFlags = childWindowFlags |
-                                       ImGuiWindowFlags_NoScrollWithMouse;
-
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
-
-        ImGui::Begin("AreaTrackingGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AreaTrackingGui_content_child", ImVec2(0, 0), false, childWindowFlags);
-
-        //general
-        ImGui::PushFont(_fontSmall);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().general());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
-        ImGui::PushFont(_fontStandard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().generalContent(), _textWrapW);
-
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        static int       lines = 1000;
-        ImGuiListClipper clipper(lines);
-        while (clipper.Step())
-            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-                ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
-        ImGui::PopStyleVar();
-
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-        ImGui::PopTextWrapPos();
-
-        ImGui::Separator();
-
-        //developers
-        ImGui::PushFont(_fontSmall);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().developers());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::PushFont(_fontStandard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().developerNames(), _textWrapW);
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::Separator();
-
-        //credits
-        //..
-
-        ImGui::EndChild();
-        ImGui::End();
-
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(7);
-    }
 
     //ImGui::ShowMetricsWindow();
 }
 
-void AreaTrackingGui::initArea(ErlebAR::AreaId id)
+void AreaTrackingGui::initArea(ErlebAR::Area area)
 {
+    _area = area;
     //start wai with map for this area
     //load model into scene graph
 }

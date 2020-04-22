@@ -30,11 +30,13 @@ public:
 class AreaEventData : public sm::EventData
 {
 public:
-    AreaEventData(ErlebAR::AreaId area)
-      : area(area)
+    AreaEventData(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+      : locId(locId),
+        areaId(areaId)
     {
     }
-    const ErlebAR::AreaId area;
+    const ErlebAR::LocationId locId;
+    const ErlebAR::AreaId     areaId;
 };
 
 //-----------------------------------------------------------------------------
@@ -146,12 +148,12 @@ public:
 class AreaSelectedEvent : public sm::Event
 {
 public:
-    AreaSelectedEvent(ErlebAR::AreaId area)
+    AreaSelectedEvent(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
     {
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::AREA_TRACKING);
 
-        _eventData = new AreaEventData(area);
+        _eventData = new AreaEventData(locId, areaId);
     }
 };
 

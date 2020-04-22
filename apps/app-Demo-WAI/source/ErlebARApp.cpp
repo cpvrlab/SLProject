@@ -369,7 +369,7 @@ void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry)
     {
         LOG_ERLEBAR_DEBUG("AREA_TRACKING");
         if (data)
-            _areaTrackingView->initArea(data->area);
+            _areaTrackingView->initArea(data->locId, data->areaId);
     }
 
     _areaTrackingView->update();

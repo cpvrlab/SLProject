@@ -28,7 +28,7 @@ public:
     void onResize(SLint scrW, SLint scrH) override;
     void onShow(); //call when gui becomes visible
 
-    void initArea(ErlebAR::AreaId id);
+    void initArea(ErlebAR::Area area);
 
 private:
     void resize(int scrW, int scrH);
@@ -44,9 +44,8 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
-    ImFont* _fontBig      = nullptr;
-    ImFont* _fontSmall    = nullptr;
-    ImFont* _fontStandard = nullptr;
+    ImFont*       _fontBig = nullptr;
+    ErlebAR::Area _area;
 
     ErlebAR::Resources& _resources;
 };

@@ -13,6 +13,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 {
     init("AreaTrackingView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();
+
+    _locations = ErlebAR::defineLocations();
 }
 
 bool AreaTrackingView::update()
@@ -20,7 +22,7 @@ bool AreaTrackingView::update()
     return onPaint();
 }
 
-void AreaTrackingView::initArea(ErlebAR::AreaId id)
+void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
-    _gui.initArea(id);
+    _gui.initArea(_locations[locId].areas[areaId]);
 }
