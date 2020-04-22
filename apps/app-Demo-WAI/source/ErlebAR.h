@@ -75,14 +75,17 @@ public:
     int yPosPix;
     //view angle in degree
     float viewAngleDeg;
+    //map name in erlebAR directory
+    std::string slamMapFileName;
 };
 
 //location description
 class Location
 {
 public:
-    LocationId             id = LocationId::NONE;
-    const char*            name;
+    LocationId  id = LocationId::NONE;
+    const char* name;
+    //name of area map image in erlebAR directory
     std::string            areaMapImageFileName;
     std::map<AreaId, Area> areas;
     //location center wgs84 (for gps user positionioning in map)

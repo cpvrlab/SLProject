@@ -17,7 +17,8 @@ public:
                     int                 screenHeight,
                     int                 dotsPerInch,
                     std::string         fontPath,
-                    std::string         imguiIniPath);
+                    std::string         imguiIniPath,
+                    std::string         erlebARDir);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }

@@ -33,6 +33,7 @@ public:
         _videoDir   = _dirs.writableDir + "erleb-AR/locations/";
         _calibDir   = _dirs.writableDir + "calibrations/";
         _mapDir     = _dirs.writableDir + "maps/";
+        _erlebARDir = _dirs.writableDir + "erleb-AR/";
     }
     DeviceData() = delete;
 
@@ -45,6 +46,7 @@ public:
     const std::string&    videoDir() const { return _videoDir; }
     const std::string&    calibDir() const { return _calibDir; }
     const std::string&    mapDir() const { return _mapDir; }
+    const std::string&    erlebARDir() const { return _erlebARDir; }
 
 private:
     //screen width
@@ -65,6 +67,8 @@ private:
     std::string _calibDir;
     //path to maps
     std::string _mapDir;
+    //erlebar dir
+    std::string _erlebARDir;
 };
 
 #endif //DEVICE_DATA_H

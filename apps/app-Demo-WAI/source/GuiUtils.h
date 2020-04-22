@@ -26,9 +26,7 @@ void renderHeaderBar(std::string               id,
                      const char*               text,
                      std::function<void(void)> cb);
 
-void renderAreaPlaceButtons(std::map<AreaId, Area>);
-
-GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH);
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH, int& textureW, int& textureH);
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH);
 
 void deleteTexture(GLuint& id);

@@ -174,7 +174,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
                                            dd.scrHeight(),
                                            dd.dpi(),
                                            dd.fontDir(),
-                                           dd.dirs().writableDir);
+                                           dd.dirs().writableDir,
+                                           dd.erlebARDir());
 
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,

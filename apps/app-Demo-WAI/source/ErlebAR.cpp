@@ -58,7 +58,7 @@ const Location defineLocationAugst()
     Location loc;
     loc.id                   = LocationId::AUGST;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "areaMapImgs/areaMapImgAugst.jpg";
+    loc.areaMapImageFileName = "locations/augst/locationMapImgAugst.jpg";
     {
         Area area;
         area.id            = AreaId::AUGST_TEMPLE_HILL_MARKER;
@@ -75,7 +75,7 @@ const Location defineLocationAvenches()
     Location loc;
     loc.id                   = LocationId::AVENCHES;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "areaMapImgs/areaMapImgAvenches.jpg";
+    loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
     {
         Area area;
         area.id            = AreaId::AVENCHES_ARENA;
@@ -92,7 +92,7 @@ const Location defineLocationChristoffel()
     Location loc;
     loc.id                   = LocationId::CHRISTOFFEL;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "areaMapImgs/areaMapImgChristoffel.jpg";
+    loc.areaMapImageFileName = "locations/christoffel/locationMapImgChristoffel.jpg";
     {
         Area area;
         area.id            = AreaId::CHRISTOFFEL_SBB;
@@ -110,13 +110,13 @@ const Location defineLocationBiel()
     Location loc;
     loc.id                   = LocationId::BIEL;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "areaMapImgs/areaMapImgBiel.jpg";
+    loc.areaMapImageFileName = "locations/biel/locationMapImgBiel.jpg";
     {
         Area area;
         area.id            = AreaId::BIEL_GERECHTIGKEITSBRUNNEN;
         area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 50;
-        area.yPosPix       = 50;
+        area.xPosPix       = 606;
+        area.yPosPix       = 277;
         area.viewAngleDeg  = 0;
         loc.areas[area.id] = area;
     }
@@ -124,8 +124,8 @@ const Location defineLocationBiel()
         Area area;
         area.id            = AreaId::BIEL_JACOB_ROSINUS;
         area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 100;
-        area.yPosPix       = 100;
+        area.xPosPix       = 1387;
+        area.yPosPix       = 730;
         area.viewAngleDeg  = 0;
         loc.areas[area.id] = area;
     }
@@ -133,8 +133,8 @@ const Location defineLocationBiel()
         Area area;
         area.id            = AreaId::BIEL_LEUBRINGENBAHN;
         area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 150;
-        area.yPosPix       = 150;
+        area.xPosPix       = 606;
+        area.yPosPix       = 50;
         area.viewAngleDeg  = 0;
         loc.areas[area.id] = area;
     }
