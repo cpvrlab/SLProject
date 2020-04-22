@@ -108,6 +108,8 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
 
     this->updateAABBRec();
 
+    setDrawBitRecursive(SL_DB_OVERDRAW, this, true);
+
     _sv->s().eventHandlers().push_back(this);
 }
 
@@ -143,7 +145,7 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
             this->scale(scaleFactor / _gizmoScale);
             _gizmoScale = scaleFactor;
 
-            toggleHideRecursive(this, true);
+            setDrawBitRecursive(SL_DB_HIDDEN, this, true);
             this->drawBits()->set(SL_DB_HIDDEN, false);
 
             switch (_editMode)
@@ -182,7 +184,7 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
     }
     else
     {
-        toggleHideRecursive(this, true);
+        setDrawBitRecursive(SL_DB_HIDDEN, this, true);
         this->drawBits()->set(SL_DB_HIDDEN, false);
 
         _editMode = NodeEditMode_None;
@@ -573,13 +575,13 @@ bool SLTransformationNode::isCCW(SLVec2f a, SLVec2f b, SLVec2f c)
     return result;
 }
 
-void SLTransformationNode::toggleHideRecursive(SLNode* node, bool hidden)
+void SLTransformationNode::setDrawBitRecursive(SLuint bit, SLNode* node, bool value)
 {
-    node->drawBits()->set(SL_DB_HIDDEN, hidden);
+    node->drawBits()->set(bit, value);
 
     for (SLNode* child : node->children())
     {
-        toggleHideRecursive(child, hidden);
+        setDrawBitRecursive(bit, child, value);
     }
 }
 

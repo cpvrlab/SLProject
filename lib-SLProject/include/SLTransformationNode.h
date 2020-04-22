@@ -85,7 +85,7 @@ private:
                            const SLVec3f& discN,
                            float&         t);
     bool isCCW(SLVec2f a, SLVec2f b, SLVec2f c);
-    void toggleHideRecursive(SLNode* node, bool hidden);
+    void setDrawBitRecursive(SLuint bit, SLNode* node, bool value);
     void lookAt(SLNode* node, SLCamera* camera);
 };
 

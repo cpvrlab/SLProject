@@ -371,6 +371,7 @@ void SLSceneView::onInitialize()
 
     _nodesBlended.clear();
     _nodesVisible.clear();
+    _nodesOverdrawn.clear();
     _nodesVisible2D.clear();
     _stats2D.clear();
     _stats3D.clear();
@@ -673,6 +674,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes();
     _nodesBlended.clear();
     _nodesVisible.clear();
+    _nodesOverdrawn.clear();
     if (_s->root3D())
         _s->root3D()->cull3DRec(this);
     _cullTimeMS = GlobalTimer::timeMS() - startMS;
@@ -740,6 +742,7 @@ void SLSceneView::draw3DGLAll()
     // 3) Draw helper
     draw3DGLLinesOverlay(_nodesVisible);
     draw3DGLLinesOverlay(_nodesBlended);
+    draw3DGLLinesOverlay(_nodesOverdrawn);
 
     // 4) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
@@ -852,7 +855,6 @@ as overlayed
 */
 void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
-
     // draw the opaque shapes directly w. their wm transform
     for (auto node : nodes)
     {
@@ -873,7 +875,9 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 if (drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_SELECTED))
+                {
                     node->aabb()->drawAxisWS();
+                }
 
                 // Draw skeleton
                 if (drawBit(SL_DB_SKELETON) ||
@@ -904,6 +908,28 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                         }
                     }
                 }
+            }
+            else if (node->drawBit(SL_DB_OVERDRAW))
+            {
+                // For blended nodes we activate OpenGL blending and stop depth buffer updates
+                SLGLState* stateGL = SLGLState::instance();
+                //stateGL->blend(true);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Turn of depth test for overlay
+
+                stateGL->blend(node->aabb()->hasAlpha());
+                //stateGL->depthMask(!node->aabb()->hasAlpha());
+
+                // Set the view transform
+                stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+
+                // Apply world transform
+                stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+                // Finally the nodes meshes
+                node->drawMeshes(this);
+
+                GET_GL_ERROR; // Check if any OGL errors occurred
             }
         }
     }
