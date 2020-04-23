@@ -11,9 +11,9 @@
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
 		411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411E93171B3D92DC007B0C6F /* SLDisk.cpp */; };
 		4127F1CC2451B825003AA071 /* WAISlamTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1CB2451B825003AA071 /* WAISlamTools.cpp */; };
-		4127F1CF2451B876003AA071 /* SLTransformationNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1CE2451B876003AA071 /* SLTransformationNode.cpp */; };
 		4127F1D22451B8DF003AA071 /* SLCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1D02451B8DE003AA071 /* SLCircle.cpp */; };
 		4127F1D32451B8DF003AA071 /* SLCoordAxisArrow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1D12451B8DE003AA071 /* SLCoordAxisArrow.cpp */; };
+		4127F1D92451D63B003AA071 /* SLTransformNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1D82451D63B003AA071 /* SLTransformNode.cpp */; };
 		412F89721FF58D94004D5982 /* ADSTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89681FF58D91004D5982 /* ADSTex.vert */; };
 		412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89691FF58D92004D5982 /* ADSTex3D.vert */; };
 		412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896A1FF58D92004D5982 /* ADSTex3D.frag */; };
@@ -585,13 +585,13 @@
 		4124202A23102B7F0091BDE1 /* CVTypedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTypedefs.h; path = "../../../lib-SLProject/include/CV/CVTypedefs.h"; sourceTree = SOURCE_ROOT; };
 		4127F1CA2451B825003AA071 /* WAISlamTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAISlamTools.h; path = "../../../lib-WAI/source/WAISlamTools.h"; sourceTree = "<group>"; };
 		4127F1CB2451B825003AA071 /* WAISlamTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAISlamTools.cpp; path = "../../../lib-WAI/source/WAISlamTools.cpp"; sourceTree = "<group>"; };
-		4127F1CD2451B865003AA071 /* SLTransformationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTransformationNode.h; path = include/SLTransformationNode.h; sourceTree = "<group>"; };
-		4127F1CE2451B876003AA071 /* SLTransformationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTransformationNode.cpp; path = source/SLTransformationNode.cpp; sourceTree = "<group>"; };
 		4127F1D02451B8DE003AA071 /* SLCircle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCircle.cpp; path = source/SLCircle.cpp; sourceTree = "<group>"; };
 		4127F1D12451B8DE003AA071 /* SLCoordAxisArrow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCoordAxisArrow.cpp; path = source/SLCoordAxisArrow.cpp; sourceTree = "<group>"; };
 		4127F1D42451B8FA003AA071 /* SLCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCircle.h; path = include/SLCircle.h; sourceTree = "<group>"; };
 		4127F1D52451B8FA003AA071 /* SLCoordAxisArrow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCoordAxisArrow.h; path = include/SLCoordAxisArrow.h; sourceTree = "<group>"; };
 		4127F1D62451B8FA003AA071 /* SLCoordAxis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCoordAxis.h; path = include/SLCoordAxis.h; sourceTree = "<group>"; };
+		4127F1D72451D62D003AA071 /* SLTransformNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTransformNode.h; path = include/SLTransformNode.h; sourceTree = "<group>"; };
+		4127F1D82451D63B003AA071 /* SLTransformNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTransformNode.cpp; path = source/SLTransformNode.cpp; sourceTree = "<group>"; };
 		412F89681FF58D91004D5982 /* ADSTex.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex.vert; path = ../../../data/shaders/ADSTex.vert; sourceTree = "<group>"; };
 		412F89691FF58D92004D5982 /* ADSTex3D.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.vert; path = ../../../data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
 		412F896A1FF58D92004D5982 /* ADSTex3D.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.frag; path = ../../../data/shaders/ADSTex3D.frag; sourceTree = "<group>"; };
@@ -1953,8 +1953,8 @@
 				41A6A0811FF588A400C795A4 /* SLSkybox.h */,
 				418E0C3C148929C800C6274F /* SLText.cpp */,
 				418E0C7214892AC000C6274F /* SLText.h */,
-				4127F1CE2451B876003AA071 /* SLTransformationNode.cpp */,
-				4127F1CD2451B865003AA071 /* SLTransformationNode.h */,
+				4127F1D82451D63B003AA071 /* SLTransformNode.cpp */,
+				4127F1D72451D62D003AA071 /* SLTransformNode.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -2824,6 +2824,7 @@
 				418E0C1C148927D700C6274F /* SLSceneView.cpp in Sources */,
 				41C7A681241A3D200017EE82 /* WAIMap.cpp in Sources */,
 				41EBB5E31C44D99500C9BAA5 /* SLGLVertexArrayExt.cpp in Sources */,
+				4127F1D92451D63B003AA071 /* SLTransformNode.cpp in Sources */,
 				418E0C3F148929C800C6274F /* SLBox.cpp in Sources */,
 				41CF01DD1F096ABB00CA36C9 /* EulerAngles.cpp in Sources */,
 				418E0C41148929C800C6274F /* SLCamera.cpp in Sources */,
@@ -2841,7 +2842,6 @@
 				418E0C48148929C800C6274F /* SLMaterial.cpp in Sources */,
 				418E0C49148929C800C6274F /* SLMesh.cpp in Sources */,
 				4143338B1DE041310027E1C3 /* SLCoordAxis.cpp in Sources */,
-				4127F1CF2451B876003AA071 /* SLTransformationNode.cpp in Sources */,
 				414333871DE03F0C0027E1C3 /* SLSpheric.cpp in Sources */,
 				41D43A6E24485613006EB54D /* SLProjectScene.cpp in Sources */,
 				4127F1D22451B8DF003AA071 /* SLCircle.cpp in Sources */,

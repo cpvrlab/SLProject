@@ -1360,6 +1360,8 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
+
+
     SLbool result = false;
 
     // Do object picking with ray cast
