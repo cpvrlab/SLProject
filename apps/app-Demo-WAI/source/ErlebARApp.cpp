@@ -190,6 +190,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
                                              *_resources,
+                                             _camera,
                                              dd.scrWidth(),
                                              dd.scrHeight(),
                                              dd.dpi(),

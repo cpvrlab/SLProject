@@ -61,6 +61,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
@@ -120,6 +121,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp

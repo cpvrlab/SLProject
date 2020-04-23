@@ -77,38 +77,38 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
                              _area.name,
                              [&]() { sendEvent(new GoBackEvent()); });
 
-    //content
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
-                                            ImGuiWindowFlags_NoMove |
-                                            ImGuiWindowFlags_AlwaysAutoResize |
-                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar /*|
-                                            ImGuiWindowFlags_NoScrollWithMouse*/
-          ;
-        ImGuiWindowFlags windowFlags = childWindowFlags |
-                                       ImGuiWindowFlags_NoScrollWithMouse;
+    ////content
+    //{
+    //    ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
+    //    ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+    //    ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
+    //                                        ImGuiWindowFlags_NoMove |
+    //                                        ImGuiWindowFlags_AlwaysAutoResize |
+    //                                        ImGuiWindowFlags_NoBringToFrontOnFocus |
+    //                                        ImGuiWindowFlags_NoScrollbar /*|
+    //                                        ImGuiWindowFlags_NoScrollWithMouse*/
+    //      ;
+    //    ImGuiWindowFlags windowFlags = childWindowFlags |
+    //                                   ImGuiWindowFlags_NoScrollWithMouse;
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+    //    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+    //    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+    //    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+    //    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
+    //    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
-        ImGui::Begin("AboutGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AboutGui_content_child", ImVec2(0, 0), false, childWindowFlags);
+    //    ImGui::Begin("AboutGui_content", nullptr, windowFlags);
+    //    ImGui::BeginChild("AboutGui_content_child", ImVec2(0, 0), false, childWindowFlags);
 
-        ImGui::EndChild();
-        ImGui::End();
+    //    ImGui::EndChild();
+    //    ImGui::End();
 
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(7);
-    }
+    //    ImGui::PopStyleColor(1);
+    //    ImGui::PopStyleVar(7);
+    //}
 
     //ImGui::ShowMetricsWindow();
 }

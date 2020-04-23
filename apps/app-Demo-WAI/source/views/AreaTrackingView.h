@@ -6,6 +6,9 @@
 #include <SLSceneView.h>
 #include <AreaTrackingGui.h>
 #include <ErlebAR.h>
+#include <AreaTrackingScene.h>
+
+class SENSCamera;
 
 class AreaTrackingView : public SLSceneView
 {
@@ -13,6 +16,7 @@ public:
     AreaTrackingView(sm::EventHandler&   eventHandler,
                      SLInputManager&     inputManager,
                      ErlebAR::Resources& resources,
+                     SENSCamera*         camera,
                      int                 screenWidth,
                      int                 screenHeight,
                      int                 dotsPerInch,
@@ -25,9 +29,13 @@ public:
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
 
 private:
-    AreaTrackingGui _gui;
+    void              startCamera();
+    AreaTrackingGui   _gui;
+    AreaTrackingScene _scene;
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+
+    SENSCamera* _camera = nullptr;
 };
 
 #endif //AREA_TRACKING_VIEW_H

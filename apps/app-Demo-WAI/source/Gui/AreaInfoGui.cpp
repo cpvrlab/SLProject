@@ -109,9 +109,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
                                             ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar /*|
-                                            ImGuiWindowFlags_NoScrollWithMouse*/
-          ;
+                                            ImGuiWindowFlags_NoScrollbar;
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
 
@@ -125,8 +123,6 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
         ImGui::Begin("AreaInfoGui_content", nullptr, windowFlags);
-
-        //ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH - buttonSize * 2), ImGuiCond_Always);
         ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(_screenW, _contentH), false, childWindowFlags);
 
         //general
@@ -140,14 +136,6 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushFont(_fontStandard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
         ImGui::Text(_resources.strings().generalContent(), _textWrapW);
-
-        //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        //static int       lines = 1000;
-        //ImGuiListClipper clipper(lines);
-        //while (clipper.Step())
-        //    for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-        //        ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
-        //ImGui::PopStyleVar();
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
