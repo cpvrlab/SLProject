@@ -1356,7 +1356,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
         return false;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1405,7 +1405,7 @@ SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
     //SL_LOG("onLongTouch(%d, %d)", x, y);
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1422,7 +1422,7 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
         return false;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x1 = scrX1 - _viewportRect.x;
     SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
     SLint x2 = scrX2 - _viewportRect.x;

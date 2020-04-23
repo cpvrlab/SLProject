@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "419BCD3614865C0800D576F1"
-               BuildableName = "Demo-SL.app"
+               BuildableName = "Demo-SLProject.app"
                BlueprintName = "Demo-SL"
                ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "Demo-SL.app"
+            BuildableName = "Demo-SLProject.app"
             BlueprintName = "Demo-SL"
             ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
@@ -40,7 +40,7 @@
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
@@ -54,7 +54,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "Demo-SL.app"
+            BuildableName = "Demo-SLProject.app"
             BlueprintName = "Demo-SL"
             ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>
@@ -71,7 +71,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "419BCD3614865C0800D576F1"
-            BuildableName = "Demo-SL.app"
+            BuildableName = "Demo-SLProject.app"
             BlueprintName = "Demo-SL"
             ReferencedContainer = "container:app-Demo-SLProject-iOS.xcodeproj">
          </BuildableReference>

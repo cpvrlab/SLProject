@@ -24,10 +24,10 @@ red, green & blue.
 class SLCoordAxis : public SLMesh
 {
 public:
-    SLCoordAxis(SLAssetManager* assetMgr,
-                SLfloat         arrowThickness  = 0.05f,
-                SLfloat         arrowHeadLenght = 0.2f,
-                SLfloat         arrowHeadWidth  = 0.1f);
+    explicit SLCoordAxis(SLAssetManager* assetMgr,
+                         SLfloat         arrowThickness  = 0.05f,
+                         SLfloat         arrowHeadLenght = 0.2f,
+                         SLfloat         arrowHeadWidth  = 0.1f);
 
     void buildMesh();
 

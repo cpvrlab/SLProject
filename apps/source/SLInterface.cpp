@@ -158,7 +158,9 @@ sceneview instance. If you have a custom SLSceneView inherited class you
 have to provide a similar function and pass it function pointer to
 slCreateSceneView.
 */
-SLSceneView* slNewSceneView(SLScene* s, int dotsPerInch, SLInputManager& inputManager)
+SLSceneView* slNewSceneView(SLScene*        s,
+                            int             dotsPerInch,
+                            SLInputManager& inputManager)
 {
     return new SLSceneView(s, dotsPerInch, inputManager);
 }
@@ -190,12 +192,22 @@ void slTerminate()
     SLApplication::deleteAppAndScene();
 }
 //-----------------------------------------------------------------------------
+/*!
+ * Updates the parallel running job an allowes the update of a progress bar.
+ * @return Returns true if parallel jobs are still running.
+ */
 bool slUpdateParallelJob()
 {
     SLApplication::handleParallelJob();
     return SLApplication::jobIsRunning;
 }
 //-----------------------------------------------------------------------------
+/*!
+ * Draws all scene views and updates the screen to framebuffer factors.
+ * @param scr2fbX Horizontal screen to framebuffer factor (default 1.0f)
+ * @param scr2fbY Vertical screen to framebuffer factor (default 1.0f)
+ * @return return true if another repaint is needed.
+ */
 bool slPaintAllViews(float scr2fbX, float scr2fbY)
 {
     bool needUpdate = false;

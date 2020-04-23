@@ -3,7 +3,7 @@
 
 #include <AppWAIScene.h>
 #include <SLSceneView.h>
-#include <SLTransformationNode.h>
+#include <SLTransformNode.h>
 #include <AppDemoWaiGui.h>
 #include <SlamParams.h>
 #include <AppDemoGuiSlamLoad.h>
@@ -93,7 +93,7 @@ protected:
 
     std::thread _startThread;
 
-    SLTransformationNode* _transformationNode = nullptr;
+    SLTransformNode* _transformationNode = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;

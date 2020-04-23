@@ -12,7 +12,7 @@
 #define SLGUIDEMO_H
 
 #include <SL.h>
-#include <SLTransformationNode.h>
+#include <SLTransformNode.h>
 
 class SLScene;
 class SLSceneView;

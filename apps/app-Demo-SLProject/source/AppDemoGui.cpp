@@ -769,7 +769,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::Button("Exit edit mode"))
                 {
-                    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+                    SLTransformNode* transformationNode = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
 
                     if (transformationNode)
                     {
@@ -2723,11 +2723,11 @@ void AppDemoGui::saveConfig()
 //-----------------------------------------------------------------------------
 void AppDemoGui::toggleTransformationEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode)
 {
-    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+    SLTransformNode* transformationNode = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
 
     if (!transformationNode)
     {
-        transformationNode = new SLTransformationNode(s, sv, s->selectedNode());
+        transformationNode = new SLTransformNode(s, sv, s->selectedNode());
         s->root3D()->addChild(transformationNode);
     }
 

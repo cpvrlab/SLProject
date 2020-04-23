@@ -232,7 +232,7 @@ void TestView::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformationNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
+                    _transformationNode = new SLTransformNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
                     _scene.root3D()->addChild(_transformationNode);
                 }
 

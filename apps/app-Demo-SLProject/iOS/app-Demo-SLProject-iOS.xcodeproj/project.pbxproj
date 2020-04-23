@@ -10,6 +10,10 @@
 		4100799E243377EC0089FB3C /* CVTrackedWAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4100799D243377EC0089FB3C /* CVTrackedWAI.cpp */; };
 		411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */ = {isa = PBXBuildFile; fileRef = 411949C41F0CBCB7009C8A9F /* LogoCPVR_256L.png */; };
 		411E93181B3D92DC007B0C6F /* SLDisk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411E93171B3D92DC007B0C6F /* SLDisk.cpp */; };
+		4127F1CC2451B825003AA071 /* WAISlamTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1CB2451B825003AA071 /* WAISlamTools.cpp */; };
+		4127F1CF2451B876003AA071 /* SLTransformationNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1CE2451B876003AA071 /* SLTransformationNode.cpp */; };
+		4127F1D22451B8DF003AA071 /* SLCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1D02451B8DE003AA071 /* SLCircle.cpp */; };
+		4127F1D32451B8DF003AA071 /* SLCoordAxisArrow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4127F1D12451B8DE003AA071 /* SLCoordAxisArrow.cpp */; };
 		412F89721FF58D94004D5982 /* ADSTex.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89681FF58D91004D5982 /* ADSTex.vert */; };
 		412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */ = {isa = PBXBuildFile; fileRef = 412F89691FF58D92004D5982 /* ADSTex3D.vert */; };
 		412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */ = {isa = PBXBuildFile; fileRef = 412F896A1FF58D92004D5982 /* ADSTex3D.frag */; };
@@ -579,6 +583,15 @@
 		411E931A1B3D92EB007B0C6F /* SLDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLDisk.h; path = "../../../lib-SLProject/include/SLDisk.h"; sourceTree = SOURCE_ROOT; };
 		4124201B230FF83C0091BDE1 /* HighResTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HighResTimer.h; path = "../../../externals/utils/lib-Utils/source/HighResTimer.h"; sourceTree = SOURCE_ROOT; };
 		4124202A23102B7F0091BDE1 /* CVTypedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVTypedefs.h; path = "../../../lib-SLProject/include/CV/CVTypedefs.h"; sourceTree = SOURCE_ROOT; };
+		4127F1CA2451B825003AA071 /* WAISlamTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAISlamTools.h; path = "../../../lib-WAI/source/WAISlamTools.h"; sourceTree = "<group>"; };
+		4127F1CB2451B825003AA071 /* WAISlamTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WAISlamTools.cpp; path = "../../../lib-WAI/source/WAISlamTools.cpp"; sourceTree = "<group>"; };
+		4127F1CD2451B865003AA071 /* SLTransformationNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTransformationNode.h; path = include/SLTransformationNode.h; sourceTree = "<group>"; };
+		4127F1CE2451B876003AA071 /* SLTransformationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTransformationNode.cpp; path = source/SLTransformationNode.cpp; sourceTree = "<group>"; };
+		4127F1D02451B8DE003AA071 /* SLCircle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCircle.cpp; path = source/SLCircle.cpp; sourceTree = "<group>"; };
+		4127F1D12451B8DE003AA071 /* SLCoordAxisArrow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLCoordAxisArrow.cpp; path = source/SLCoordAxisArrow.cpp; sourceTree = "<group>"; };
+		4127F1D42451B8FA003AA071 /* SLCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCircle.h; path = include/SLCircle.h; sourceTree = "<group>"; };
+		4127F1D52451B8FA003AA071 /* SLCoordAxisArrow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCoordAxisArrow.h; path = include/SLCoordAxisArrow.h; sourceTree = "<group>"; };
+		4127F1D62451B8FA003AA071 /* SLCoordAxis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLCoordAxis.h; path = include/SLCoordAxis.h; sourceTree = "<group>"; };
 		412F89681FF58D91004D5982 /* ADSTex.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex.vert; path = ../../../data/shaders/ADSTex.vert; sourceTree = "<group>"; };
 		412F89691FF58D92004D5982 /* ADSTex3D.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.vert; path = ../../../data/shaders/ADSTex3D.vert; sourceTree = "<group>"; };
 		412F896A1FF58D92004D5982 /* ADSTex3D.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ADSTex3D.frag; path = ../../../data/shaders/ADSTex3D.frag; sourceTree = "<group>"; };
@@ -1088,7 +1101,7 @@
 		4190A2DF243DF4F700AE2BBF /* ORBvoc.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = ORBvoc.bin; path = ../../../data/calibrations/ORBvoc.bin; sourceTree = "<group>"; };
 		4198070B1959B63C0048085E /* SLScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLScene.h; path = "../../../lib-SLProject/include/SLScene.h"; sourceTree = SOURCE_ROOT; };
 		4198070E1959B91C0048085E /* SLEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLEnums.h; path = "../../../lib-SLProject/include/SLEnums.h"; sourceTree = SOURCE_ROOT; };
-		419BCD3714865C0800D576F1 /* Demo-SL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Demo-SL.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		419BCD3714865C0800D576F1 /* Demo-SLProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Demo-SLProject.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		419BCD3B14865C0800D576F1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		419BCD3D14865C0800D576F1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		419BCD3F14865C0800D576F1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -1932,14 +1945,16 @@
 				418E0C5814892A3D00C6274F /* Meshes */,
 				418E0C29148929C800C6274F /* SLCamera.cpp */,
 				418E0C5E14892AC000C6274F /* SLCamera.h */,
+				41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */,
 				418015131959B51200D3226D /* SLNode.cpp */,
 				418E0C6714892AC000C6274F /* SLNode.h */,
-				41394E9222A1436000C2448F /* SLKeyframeCamera.cpp */,
 				418E0C39148929C800C6274F /* SLSamples2D.cpp */,
-				41A6A0811FF588A400C795A4 /* SLSkybox.h */,
 				41A6A07F1FF5887200C795A4 /* SLSkybox.cpp */,
+				41A6A0811FF588A400C795A4 /* SLSkybox.h */,
 				418E0C3C148929C800C6274F /* SLText.cpp */,
 				418E0C7214892AC000C6274F /* SLText.h */,
+				4127F1CE2451B876003AA071 /* SLTransformationNode.cpp */,
+				4127F1CD2451B865003AA071 /* SLTransformationNode.h */,
 			);
 			name = Nodes;
 			sourceTree = "<group>";
@@ -1979,9 +1994,14 @@
 			children = (
 				418E0C27148929C800C6274F /* SLBox.cpp */,
 				418E0C5C14892AC000C6274F /* SLBox.h */,
+				4127F1D02451B8DE003AA071 /* SLCircle.cpp */,
+				4127F1D42451B8FA003AA071 /* SLCircle.h */,
 				418E0C2A148929C800C6274F /* SLCone.cpp */,
 				418E0C5F14892AC000C6274F /* SLCone.h */,
 				414333881DE041310027E1C3 /* SLCoordAxis.cpp */,
+				4127F1D62451B8FA003AA071 /* SLCoordAxis.h */,
+				4127F1D12451B8DE003AA071 /* SLCoordAxisArrow.cpp */,
+				4127F1D52451B8FA003AA071 /* SLCoordAxisArrow.h */,
 				418E0C2B148929C800C6274F /* SLCylinder.cpp */,
 				418E0C6014892AC000C6274F /* SLCylinder.h */,
 				411E93171B3D92DC007B0C6F /* SLDisk.cpp */,
@@ -2060,7 +2080,7 @@
 		419BCD3814865C0800D576F1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				419BCD3714865C0800D576F1 /* Demo-SL.app */,
+				419BCD3714865C0800D576F1 /* Demo-SLProject.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2215,6 +2235,8 @@
 				41C7A677241A3D1F0017EE82 /* WAIPlatform.h */,
 				41C7A66E241A3D1F0017EE82 /* WAISlam.cpp */,
 				41C7A680241A3D200017EE82 /* WAISlam.h */,
+				4127F1CB2451B825003AA071 /* WAISlamTools.cpp */,
+				4127F1CA2451B825003AA071 /* WAISlamTools.h */,
 			);
 			name = WAI;
 			sourceTree = "<group>";
@@ -2343,7 +2365,7 @@
 			);
 			name = "Demo-SL";
 			productName = comgr;
-			productReference = 419BCD3714865C0800D576F1 /* Demo-SL.app */;
+			productReference = 419BCD3714865C0800D576F1 /* Demo-SLProject.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2355,7 +2377,7 @@
 				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
-						DevelopmentTeam = B3SJ7XG37J;
+						DevelopmentTeam = MZ552MQBH5;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -2819,8 +2841,10 @@
 				418E0C48148929C800C6274F /* SLMaterial.cpp in Sources */,
 				418E0C49148929C800C6274F /* SLMesh.cpp in Sources */,
 				4143338B1DE041310027E1C3 /* SLCoordAxis.cpp in Sources */,
+				4127F1CF2451B876003AA071 /* SLTransformationNode.cpp in Sources */,
 				414333871DE03F0C0027E1C3 /* SLSpheric.cpp in Sources */,
 				41D43A6E24485613006EB54D /* SLProjectScene.cpp in Sources */,
+				4127F1D22451B8DF003AA071 /* SLCircle.cpp in Sources */,
 				416A86B0241B9044009D63B0 /* Initializer.cpp in Sources */,
 				418E0C4A148929C800C6274F /* SLPolygon.cpp in Sources */,
 				41E9843A1E3BABB1003D5CCF /* CVImage.cpp in Sources */,
@@ -2880,6 +2904,7 @@
 				416A868F241B8FF9009D63B0 /* Timestamp.cpp in Sources */,
 				41A354EC1A7E634F00791841 /* SLAssimpImporter.cpp in Sources */,
 				41A354EB1A7E634F00791841 /* SLImporter.cpp in Sources */,
+				4127F1D32451B8DF003AA071 /* SLCoordAxisArrow.cpp in Sources */,
 				41E6EE07240305EF0063FDA1 /* SLGLConetracerTex3D.cpp in Sources */,
 				4143337C1DE03D590027E1C3 /* CVTrackedChessboard.cpp in Sources */,
 				416A8690241B8FF9009D63B0 /* Random.cpp in Sources */,
@@ -2918,6 +2943,7 @@
 				41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */,
 				41A355041A7E63E100791841 /* SLJoint.cpp in Sources */,
 				41627EA815CA8CE70023B936 /* stdafx.cpp in Sources */,
+				4127F1CC2451B825003AA071 /* WAISlamTools.cpp in Sources */,
 				41C7A683241A3D200017EE82 /* WAIFrame.cpp in Sources */,
 				41A355011A7E63E100791841 /* SLAnimManager.cpp in Sources */,
 				41C7582A230D7CCE0083A25D /* AppDemoSceneView.cpp in Sources */,
@@ -3152,7 +3178,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = B3SJ7XG37J;
+				DEVELOPMENT_TEAM = MZ552MQBH5;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/debug/**",
@@ -3217,8 +3243,8 @@
 					../../../externals/prebuilt/iosV8_g2o/Debug,
 				);
 				MARKETING_VERSION = 2.50;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.cpvrLab.AppDemoSLProject;
-				PRODUCT_NAME = "Demo-SL";
+				PRODUCT_BUNDLE_IDENTIFIER = "ch.bfh.ti.cpvrLab.App-Demo-SLProject";
+				PRODUCT_NAME = "Demo-SLProject";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
@@ -3238,7 +3264,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = B3SJ7XG37J;
+				DEVELOPMENT_TEAM = MZ552MQBH5;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3300,8 +3326,8 @@
 					../../../externals/prebuilt/iosV8_g2o/Release,
 				);
 				MARKETING_VERSION = 2.50;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.bfh.ti.cpvrLab.AppDemoSLProject;
-				PRODUCT_NAME = "Demo-SL";
+				PRODUCT_BUNDLE_IDENTIFIER = "ch.bfh.ti.cpvrLab.App-Demo-SLProject";
+				PRODUCT_NAME = "Demo-SLProject";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
