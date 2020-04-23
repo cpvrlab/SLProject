@@ -134,11 +134,8 @@ SLTransformNode::~SLTransformNode()
     vector<SLEventHandler*>::iterator it = std::find(_sv->s().eventHandlers().begin(),
                                                      _sv->s().eventHandlers().end(),
                                                      this);
-
     if (it != _sv->s().eventHandlers().end())
-    {
         _sv->s().eventHandlers().erase(it);
-    }
 }
 //-----------------------------------------------------------------------------
 void SLTransformNode::toggleEditMode(SLNodeEditMode editMode)

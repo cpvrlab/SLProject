@@ -781,7 +781,7 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     }
 
     // draw the shapes directly with their wm transform
-    for (auto node : nodes)
+    for (auto* node : nodes)
     {
         // Set the view transform
         stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
@@ -817,7 +817,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // draw the opaque shapes directly w. their wm transform
-    for (auto node : nodes)
+    for (auto* node : nodes)
     {
         if (node != _camera)
         {
@@ -856,7 +856,7 @@ as overlayed
 void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
     // draw the opaque shapes directly w. their wm transform
-    for (auto node : nodes)
+    for (auto* node : nodes)
     {
         if (node != _camera)
         {
@@ -1026,7 +1026,7 @@ void SLSceneView::draw2DGLNodes()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    for (auto node : _nodesVisible2D)
+    for (auto* node : _nodesVisible2D)
     {
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
@@ -1140,7 +1140,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     if (_s && _camera && _s->root3D())
     {
         SLbool eventConsumed = false;
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onMouseDown(button, x, y, mod))
                 eventConsumed = true;
@@ -1204,7 +1204,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     {
         SLbool result        = false;
         SLbool eventConsumed = false;
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onMouseUp(button, x, y, mod))
                 eventConsumed = true;
@@ -1283,7 +1283,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     }
 
     SLbool eventConsumed = false;
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onMouseMove(btn, x, y, _mouseMod))
             eventConsumed = true;
@@ -1335,7 +1335,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 
     SLbool result = _camera->onMouseWheel(delta, mod);
 
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onMouseWheel(delta, mod))
             result = true;
@@ -1359,8 +1359,6 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-
 
     SLbool result = false;
 
@@ -1390,7 +1388,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     else
     {
         result = _camera->onDoubleClick(button, x, y, mod);
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onDoubleClick(button, x, y, mod))
                 result = true;
@@ -1436,7 +1434,7 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 
     SLbool result = _camera->onTouch2Down(x1, y1, x2, y2);
 
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Down(x1, y1, x2, y2))
             result = true;
@@ -1466,7 +1464,7 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
     if (_touchDowns == 2)
     {
         result = _camera->onTouch2Move(x1, y1, x2, y2);
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onTouch2Move(x1, y1, x2, y2))
                 result = true;
@@ -1495,7 +1493,7 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     _touchDowns = 0;
 
     SLbool result = _camera->onTouch2Up(x1, y1, x2, y2);
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
             result = true;
@@ -1574,7 +1572,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
         result = _camera->onKeyPress(key, mod);
 
         // 2) pass it to any other eventhandler
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onKeyPress(key, mod))
                 result = true;
@@ -1609,7 +1607,7 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
         result = _camera->onKeyRelease(key, mod);
 
         // 2) pass it to any other eventhandler
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onKeyRelease(key, mod))
                 result = true;

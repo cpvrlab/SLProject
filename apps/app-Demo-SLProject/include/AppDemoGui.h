@@ -33,8 +33,7 @@ class AppDemoGui
 {
 public:
     static void build(SLProjectScene* s, SLSceneView* sv);
-
-    static void buildMenuBar(SLScene* s, SLSceneView* sv);
+    static void buildMenuBar(SLProjectScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
     static void buildProperties(SLScene* s, SLSceneView* sv);
@@ -66,7 +65,10 @@ public:
     static SLbool   showTransform;       //!< Flag if tranform dialog should be shown
 
 private:
-    static void toggleTransformationEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode);
+    static void toggleTransformationEditMode(SLProjectScene* s,
+                                             SLSceneView*    sv,
+                                             SLNodeEditMode  editMode);
+    static void removeTransformNode(SLProjectScene* s);
 };
 //-----------------------------------------------------------------------------
 #endif

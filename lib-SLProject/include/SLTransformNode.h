@@ -45,6 +45,9 @@ public:
                        SLint         y,
                        SLKey         mod) override;
 
+    SLNode*        targetNode() { return _targetNode; }
+    SLNodeEditMode editMode() { return _editMode; }
+
 private:
     SLSceneView* _sv         = nullptr;
     SLNode*      _targetNode = nullptr;

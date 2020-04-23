@@ -402,8 +402,8 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
 {
     SLGLState* stateGL = SLGLState::instance();
     SLRecti    vpRect  = sv->viewportRect();
-    _viewportW         = (SLint)(vpRect.width * sv->scr2fbX());
-    _viewportH         = (SLint)(vpRect.height * sv->scr2fbY());
+    _viewportW         = vpRect.width;
+    _viewportH         = vpRect.height;
     _viewportRatio     = (float)vpRect.width / (float)vpRect.height;
 
     //////////////////

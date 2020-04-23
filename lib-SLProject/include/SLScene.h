@@ -48,7 +48,7 @@ class SLScene : public SLObject
 public:
     SLScene(SLstring      name,
             cbOnSceneLoad onSceneLoadCallback);
-    ~SLScene();
+    ~SLScene() override;
 
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
@@ -62,13 +62,13 @@ public:
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
-    SLfloat          elapsedTimeMS() { return _frameTimeMS; }
-    SLfloat          elapsedTimeSec() { return _frameTimeMS * 0.001f; }
+    SLfloat          elapsedTimeMS() const { return _frameTimeMS; }
+    SLfloat          elapsedTimeSec() const { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
 
     SLCol4f   globalAmbiLight() const { return _globalAmbiLight; }
     SLVLight& lights() { return _lights; }
-    SLfloat   fps() { return _fps; }
+    SLfloat   fps() const { return _fps; }
     AvgFloat& frameTimesMS() { return _frameTimesMS; }
     AvgFloat& updateTimesMS() { return _updateTimesMS; }
     AvgFloat& updateAnimTimesMS() { return _updateAnimTimesMS; }
