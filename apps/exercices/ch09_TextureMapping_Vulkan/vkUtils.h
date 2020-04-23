@@ -92,7 +92,6 @@ public:
                                                   VK_KHR_MAINTENANCE1_EXTENSION_NAME};
 
 private:
-    GLFWwindow*                     window;
     VkInstance                      instance;
     VkDebugUtilsMessengerEXT        debugMessenger;
     VkSurfaceKHR                    surface;
@@ -100,8 +99,6 @@ private:
     VkDevice                        device;
     VkQueue                         graphicsQueue;
     VkQueue                         presentQueue;
-    VkBuffer                        vertexBuffer;
-    VkDeviceMemory                  vertexBufferMemory;
     VkSwapchainKHR                  swapchain;
     vector<VkImage>                 swapchainImages;
     VkFormat                        swapchainImageFormat;
@@ -116,8 +113,6 @@ private:
     VkCommandPool                   commandPool;
     VkBuffer                        stagingBuffer;
     VkDeviceMemory                  stagingBufferMemory;
-    VkImage                         textureImage;
-    VkDeviceMemory                  textureImageMemory;
     VkImageView                     textureImageView;
     VkSampler                       textureSampler;
     VkBuffer                        indexBuffer;
@@ -137,36 +132,34 @@ private:
     SLMat4f*                        cameraMatrix;
 
 public:
-    void drawFrame();
-    void cleanup();
-    void createInstance(GLFWwindow*);
-    void setupDebugMessenger();
-    void createSurface();
-    void pickPhysicalDevice();
-    void createLogicalDevice();
-    void createSwapchain();
-    void createImageViews();
-    void createRenderPass();
-    void createDescriptorSetLayout();
-    void createShaderStages(string& vertShaderPath, string& fragShaderPath);
-    void createGraphicsPipeline();
-    void createFramebuffers();
-    void createCommandPool();
-    void createTextureImage(void* pixels, uint width, uint height);
-    void createTextureImageView();
-    void createTextureSampler();
-    void createVertexBuffer(const vector<Vertex>& vertices);
-    void createIndexBuffer();
-    void createUniformBuffers();
-    void createDescriptorPool();
-    void createDescriptorSets();
-    void createCommandBuffers();
-    void createSyncObjects();
-    void setCameraMatrix(SLMat4f*);
+    void     drawFrame();
+    void     cleanup();
+    void     createInstance();
+    void     setupDebugMessenger();
+    void     createSurface(GLFWwindow*);
+    void     pickPhysicalDevice();
+    void     createLogicalDevice();
+    void     createSwapchain(GLFWwindow*);
+    void     createImageViews();
+    void     createRenderPass();
+    void     createDescriptorSetLayout();
+    void     createShaderStages(string& vertShaderPath, string& fragShaderPath);
+    void     createGraphicsPipeline();
+    void     createFramebuffers();
+    void     createCommandPool();
+    void     createTextureImage(void* pixels, uint width, uint height);
+    void     createTextureSampler();
+    VkBuffer createVertexBuffer(const vector<Vertex>& vertices);
+    void     createIndexBuffer();
+    void     createUniformBuffers();
+    void     createDescriptorPool();
+    void     createDescriptorSets();
+    void     createCommandBuffers(VkBuffer*);
+    void     createSyncObjects();
+    void     setCameraMatrix(SLMat4f*);
 
 private:
     void     cleanupSwapchain();
-    void     recreateSwapchain();
     void     populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
     void     createImage(uint32_t,
                          uint32_t,
@@ -174,8 +167,7 @@ private:
                          VkImageTiling,
                          VkImageUsageFlags,
                          VkMemoryPropertyFlags,
-                         VkImage&,
-                         VkDeviceMemory&);
+                         VkImage&);
     void     transitionImageLayout(VkImage,
                                VkFormat,
                                VkImageLayout,
@@ -205,7 +197,7 @@ private:
     VkImageView             createImageView(VkImage, VkFormat);
     VkShaderModule          createShaderModule(const vector<char>&);
     VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>&);
-    VkPresentModeKHR        chooseSwapPresentMode(const vector<VkPresentModeKHR>&); // TODO: Must be replaced
+    VkPresentModeKHR        chooseSwapPresentMode(const vector<VkPresentModeKHR>&);
     VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR&, GLFWwindow*);
     SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice);
     QueueFamilyIndices      findQueueFamilies(VkPhysicalDevice);

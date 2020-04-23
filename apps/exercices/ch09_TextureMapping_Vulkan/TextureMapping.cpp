@@ -123,12 +123,12 @@ void initVulkan()
 
     renderer.setCameraMatrix(&_viewMatrix);
 
-    renderer.createInstance(window);
+    renderer.createInstance();
     renderer.setupDebugMessenger();
-    renderer.createSurface();
+    renderer.createSurface(window);
     renderer.pickPhysicalDevice();
     renderer.createLogicalDevice();
-    renderer.createSwapchain();
+    renderer.createSwapchain(window);
     renderer.createImageViews();
     renderer.createRenderPass();
     renderer.createDescriptorSetLayout();
@@ -137,14 +137,13 @@ void initVulkan()
     renderer.createFramebuffers();
     renderer.createCommandPool();
     renderer.createTextureImage(texture.data(), texture.width(), texture.height());
-    renderer.createTextureImageView();
     renderer.createTextureSampler();
-    renderer.createVertexBuffer(vertices);
+    VkBuffer vertexBuffer = renderer.createVertexBuffer(vertices);
     renderer.createIndexBuffer();
     renderer.createUniformBuffers();
     renderer.createDescriptorPool();
     renderer.createDescriptorSets();
-    renderer.createCommandBuffers();
+    renderer.createCommandBuffers(&vertexBuffer);
     renderer.createSyncObjects();
 }
 //-----------------------------------------------------------------------------

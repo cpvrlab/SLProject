@@ -43,16 +43,10 @@ void vkUtils::cleanup()
     vkDestroySampler(device, textureSampler, nullptr);
     vkDestroyImageView(device, textureImageView, nullptr);
 
-    vkDestroyImage(device, textureImage, nullptr);
-    vkFreeMemory(device, textureImageMemory, nullptr);
-
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
     vkDestroyBuffer(device, indexBuffer, nullptr);
     vkFreeMemory(device, indexBufferMemory, nullptr);
-
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_PROCESSING_ROW; i++)
     {
@@ -74,45 +68,15 @@ void vkUtils::cleanup()
 }
 //-----------------------------------------------------------------------------
 /*!
-After the window has been resized, the swapchain must be recreated
-*/
-void vkUtils::recreateSwapchain()
-{
-    int width = 0, height = 0;
-    // Ask what is currently the size of the window
-    glfwGetFramebufferSize(window, &width, &height);
-    // Vulkan has issues when a size is equal to zero, so we try to prevent this
-    while (width == 0 || height == 0)
-    {
-        glfwGetFramebufferSize(window, &width, &height);
-        glfwWaitEvents();
-    }
-    // Stop the rendering while creating a new renderer
-    vkDeviceWaitIdle(device);
-    // first clean the swapchain..
-    cleanupSwapchain();
-    // .. then recreate it and the whole renderer
-    createSwapchain();
-    createImageViews();
-    createRenderPass();
-    createGraphicsPipeline();
-    createFramebuffers();
-    createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
-    createCommandBuffers();
-}
-//-----------------------------------------------------------------------------
-/*!
 Creates a applicationInfo object and initializes it via a createInfo
 */
-void vkUtils::createInstance(GLFWwindow* window)
+void vkUtils::createInstance()
 {
 #if IS_DEBUGMODE_ON
     if (!checkValidationLayerSupport())
         cerr << "validation layers requested, but not available!" << endl;
 #endif
-    this->window = window;
+    // this->window = window;
     // Just infos about the software. The importent parameter is the apiVersion.
     // It determinates, which vulkan version should be used
     VkApplicationInfo appInfo{};
@@ -186,7 +150,7 @@ void vkUtils::setupDebugMessenger()
 Because Vulkan is a platform agnostic API, we use glfw to create a connection between Vulkan and the window system.
 Make sure the extension 'VK_KHR_surface' is enabled!
 */
-void vkUtils::createSurface()
+void vkUtils::createSurface(GLFWwindow* window)
 {
     VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
     ASSERT_VULKAN(result, "Failed to create window surface");
@@ -264,7 +228,7 @@ void vkUtils::createLogicalDevice()
 /*!
 Setup for swapchain
 */
-void vkUtils::createSwapchain()
+void vkUtils::createSwapchain(GLFWwindow* window)
 {
     SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice);
     VkSurfaceFormatKHR      surfaceFormat    = chooseSwapSurfaceFormat(swapchainSupport.formats);
@@ -680,14 +644,14 @@ void vkUtils::createTextureImage(void* pixels, uint texWidth, uint texHeight)
     memcpy(data, pixels, static_cast<size_t>(imageSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
+    VkImage textureImage;
     createImage(texWidth,
                 texHeight,
                 VK_FORMAT_R8G8B8A8_SRGB,
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                textureImage,
-                textureImageMemory);
+                textureImage);
     transitionImageLayout(textureImage,
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_UNDEFINED,
@@ -703,10 +667,7 @@ void vkUtils::createTextureImage(void* pixels, uint texWidth, uint texHeight)
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
-}
-//-----------------------------------------------------------------------------
-void vkUtils::createTextureImageView()
-{
+
     textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 }
 //-----------------------------------------------------------------------------
@@ -743,8 +704,7 @@ void vkUtils::createImage(uint32_t              width,
                           VkImageTiling         tiling,
                           VkImageUsageFlags     usage,
                           VkMemoryPropertyFlags properties,
-                          VkImage&              image,
-                          VkDeviceMemory&       imageMemory)
+                          VkImage&              image)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -772,6 +732,7 @@ void vkUtils::createImage(uint32_t              width,
     allocInfo.allocationSize  = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
+    VkDeviceMemory imageMemory;
     result = vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory);
     ASSERT_VULKAN(result, "Failed to allocate image memory");
 
@@ -865,7 +826,7 @@ void vkUtils::copyBufferToImage(VkBuffer buffer,
     endSingleTimeCommands(commandBuffer);
 }
 //-----------------------------------------------------------------------------
-void vkUtils::createVertexBuffer(const vector<Vertex>& vertices)
+VkBuffer vkUtils::createVertexBuffer(const vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -882,6 +843,8 @@ void vkUtils::createVertexBuffer(const vector<Vertex>& vertices)
     memcpy(data, vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
+    VkBuffer       vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
     createBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -892,6 +855,8 @@ void vkUtils::createVertexBuffer(const vector<Vertex>& vertices)
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+    return vertexBuffer;
 }
 //-----------------------------------------------------------------------------
 void vkUtils::createIndexBuffer()
@@ -974,7 +939,7 @@ void vkUtils::copyBuffer(VkBuffer     srcBuffer,
 /*!
 Allocates and records drawing commands
 */
-void vkUtils::createCommandBuffers()
+void vkUtils::createCommandBuffers(VkBuffer* vertexBuffer)
 {
     commandBuffers.resize(swapchainFramebuffers.size());
 
@@ -1013,7 +978,7 @@ void vkUtils::createCommandBuffers()
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
                           graphicsPipeline);
 
-        VkBuffer     vertexBuffers[] = {vertexBuffer};
+        VkBuffer     vertexBuffers[] = {*vertexBuffer};
         VkDeviceSize offsets[]       = {0};
         vkCmdBindVertexBuffers(commandBuffers[i],
                                0,
@@ -1117,13 +1082,7 @@ void vkUtils::drawFrame()
                                             imageAvailableSemaphores[currentFrame],
                                             VK_NULL_HANDLE,
                                             &imageIndex);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
-    {
-        recreateSwapchain();
-        return;
-    }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    if (result != VK_SUCCESS)
         cerr << "failed to acquire swapchain image!" << endl;
 
     updateUniformBuffer(imageIndex);
@@ -1166,15 +1125,7 @@ void vkUtils::drawFrame()
     presentInfo.pImageIndices = &imageIndex;
 
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR ||
-        result == VK_SUBOPTIMAL_KHR ||
-        framebufferResized)
-    {
-        framebufferResized = false;
-        recreateSwapchain();
-    }
-    else if (result != VK_SUCCESS)
+    if (result != VK_SUCCESS)
         cerr << "Failed to present swapchain image" << endl;
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_PROCESSING_ROW;
