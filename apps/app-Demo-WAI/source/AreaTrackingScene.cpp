@@ -28,3 +28,8 @@ void AreaTrackingScene::updateVideoImage(const cv::Mat& image)
                                 image.isContinuous(),
                                 true);
 }
+
+void AreaTrackingScene::modelTransparencyChanged(float newValue)
+{
+    Utils::log("AreaTrackingScene", "modelTransparencyChanged, new value: %f", newValue);
+}

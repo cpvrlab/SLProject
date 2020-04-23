@@ -11,7 +11,13 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    std::string         fontPath,
                                    std::string         imguiIniPath)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath),
+    _gui(eventHandler,
+         resources,
+         dotsPerInch,
+         screenWidth,
+         screenHeight,
+         std::bind(&AreaTrackingScene::modelTransparencyChanged, &_scene, std::placeholders::_1),
+         fontPath),
     _camera(camera)
 {
     scene(&_scene);

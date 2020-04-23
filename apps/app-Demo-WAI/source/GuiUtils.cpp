@@ -126,7 +126,11 @@ GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdi
                      (GLvoid*)image.data());
     }
     else
-        Utils::warnMsg("loadTexture", "imagePath does not exist!", __LINE__, __FILE__);
+    {
+        std::stringstream ss;
+        ss << "imagePath does not exist: " << fileName;
+        Utils::warnMsg("loadTexture", ss.str().c_str(), __LINE__, __FILE__);
+    }
 
     return id;
 }

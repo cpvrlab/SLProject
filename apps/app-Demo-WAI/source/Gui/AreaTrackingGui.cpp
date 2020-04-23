@@ -5,14 +5,16 @@
 
 using namespace ErlebAR;
 
-AreaTrackingGui::AreaTrackingGui(sm::EventHandler&   eventHandler,
-                                 ErlebAR::Resources& resources,
-                                 int                 dotsPerInch,
-                                 int                 screenWidthPix,
-                                 int                 screenHeightPix,
-                                 std::string         fontPath)
+AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
+                                 ErlebAR::Resources&        resources,
+                                 int                        dotsPerInch,
+                                 int                        screenWidthPix,
+                                 int                        screenHeightPix,
+                                 std::function<void(float)> transparencyChangedCB,
+                                 std::string                fontPath)
   : sm::EventSender(eventHandler),
-    _resources(resources)
+    _resources(resources),
+    _transparencyChangedCB(transparencyChangedCB)
 {
     resize(screenWidthPix, screenHeightPix);
     float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
@@ -77,38 +79,53 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
                              _area.name,
                              [&]() { sendEvent(new GoBackEvent()); });
 
-    ////content
-    //{
-    //    ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-    //    ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-    //    ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
-    //                                        ImGuiWindowFlags_NoMove |
-    //                                        ImGuiWindowFlags_AlwaysAutoResize |
-    //                                        ImGuiWindowFlags_NoBringToFrontOnFocus |
-    //                                        ImGuiWindowFlags_NoScrollbar /*|
-    //                                        ImGuiWindowFlags_NoScrollWithMouse*/
-    //      ;
-    //    ImGuiWindowFlags windowFlags = childWindowFlags |
-    //                                   ImGuiWindowFlags_NoScrollWithMouse;
+    //content
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
+                                            ImGuiWindowFlags_NoMove |
+                                            ImGuiWindowFlags_AlwaysAutoResize |
+                                            ImGuiWindowFlags_NoBackground |
+                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                            ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags windowFlags = childWindowFlags |
+                                       ImGuiWindowFlags_NoScrollWithMouse;
 
-    //    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-    //    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-    //    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    //    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    //    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-    //    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
-    //    ImGui::Begin("AboutGui_content", nullptr, windowFlags);
-    //    ImGui::BeginChild("AboutGui_content_child", ImVec2(0, 0), false, childWindowFlags);
+        ImGui::Begin("AreaTrackingGui_content", nullptr, windowFlags);
+        ImGui::BeginChild("AreaTrackingGui_content_child", ImVec2(0, 0), false, childWindowFlags);
 
-    //    ImGui::EndChild();
-    //    ImGui::End();
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, _resources.style().frameBgColor);
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, _resources.style().frameBgColor);
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, _resources.style().frameBgActiveColor);
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, _resources.style().whiteColor);
+        ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, _resources.style().whiteColor);
+        ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
+        ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
+        if (ImGui::VSliderFloat("##AreaTrackingGui_verticalSlider", ImVec2(buttonSize, _contentH * 0.7), &_sliderValue, 0.0f, 1.0f, ""))
+        {
+            if (_transparencyChangedCB)
+                _transparencyChangedCB(_sliderValue);
+        }
 
-    //    ImGui::PopStyleColor(1);
-    //    ImGui::PopStyleVar(7);
-    //}
+        ImGui::PopStyleColor(5);
+        ImGui::PopStyleVar(2);
+
+        ImGui::EndChild();
+        ImGui::End();
+
+        ImGui::PopStyleColor(1);
+        ImGui::PopStyleVar(7);
+    }
 
     //ImGui::ShowMetricsWindow();
 }

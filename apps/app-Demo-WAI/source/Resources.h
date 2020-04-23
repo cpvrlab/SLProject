@@ -85,6 +85,10 @@ public:
     // percental spacing between backbutton text relative to header bar height
     float headerBarSpacingBB2Text = 0.3f;
 
+    //checkbox, slider
+    ImVec4 frameBgColor       = headerBarBackgroundTranspColor;
+    ImVec4 frameBgActiveColor = headerBarBackgroundTranspColor;
+
     //buttons:
     // percental button text height relative to button height
     float buttonTextH = 0.7f;
@@ -117,6 +121,7 @@ public:
                                      BFHColors::OrangePrimary.b,
                                      BFHColors::OrangePrimary.a};
     ImVec4 transparentColor       = {0.f, 0.f, 0.f, 0.f};
+    ImVec4 whiteColor             = {1.f, 1.f, 1.f, 1.f};
     // percental window padding for content (e.g. about and settings) rel. to screen height
     float windowPaddingContent = 0.03f;
     // percental frame padding for content (e.g. about and settings) rel. to screen height

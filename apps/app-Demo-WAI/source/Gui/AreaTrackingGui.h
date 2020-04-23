@@ -16,12 +16,13 @@ class AreaTrackingGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AreaTrackingGui(sm::EventHandler&   eventHandler,
-                    ErlebAR::Resources& resources,
-                    int                 dotsPerInch,
-                    int                 screenWidthPix,
-                    int                 screenHeightPix,
-                    std::string         fontPath);
+    AreaTrackingGui(sm::EventHandler&          eventHandler,
+                    ErlebAR::Resources&        resources,
+                    int                        dotsPerInch,
+                    int                        screenWidthPix,
+                    int                        screenHeightPix,
+                    std::function<void(float)> transparencyChangedCB,
+                    std::string                fontPath);
     ~AreaTrackingGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -44,8 +45,10 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
-    ImFont*       _fontBig = nullptr;
-    ErlebAR::Area _area;
+    float                      _sliderValue = 0.f;
+    ImFont*                    _fontBig     = nullptr;
+    ErlebAR::Area              _area;
+    std::function<void(float)> _transparencyChangedCB;
 
     ErlebAR::Resources& _resources;
 };

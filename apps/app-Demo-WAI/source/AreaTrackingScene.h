@@ -13,6 +13,7 @@ public:
     void build();
 
     SLCamera* cameraNode = nullptr;
+    void      modelTransparencyChanged(float newValue);
 
 private:
     SLAssetManager assets;
