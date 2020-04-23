@@ -125,7 +125,8 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Begin("TutorialGui_ButtonBoard", nullptr, windowFlags);
 
         //left button
-        float buttonWinPadding = 0.5f * (_headerBarH - buttonSize); //same as for header bar in which case it depends on the header bar height!
+        //float buttonWinPadding = 0.5f * (_headerBarH - buttonSize); //same as for header bar in which case it depends on the header bar height!
+        float buttonWinPadding = _headerBarH; //we need some more because on the right could be navigation bars
         float texSize          = buttonSize - 2 * _buttonRounding;
         float buttonYPos       = (_screenH - buttonSize) * 0.5f;
         ImGui::SetNextWindowPos(ImVec2(buttonWinPadding, buttonYPos), ImGuiCond_Always);

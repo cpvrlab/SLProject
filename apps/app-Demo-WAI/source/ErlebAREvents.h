@@ -81,6 +81,8 @@ public:
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::TEST,
                          (unsigned int)StateId::SELECTION);
+        enableTransition((unsigned int)StateId::AREA_INFO,
+                         (unsigned int)StateId::LOCATION_MAP);
     }
 };
 
@@ -97,8 +99,6 @@ public:
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::TEST,
                          (unsigned int)StateId::DESTROY);
-        enableTransition((unsigned int)StateId::START_ERLEBAR,
-                         (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::AREA_TRACKING,
@@ -108,6 +108,8 @@ public:
         enableTransition((unsigned int)StateId::ABOUT,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::CAMERA_TEST,
+                         (unsigned int)StateId::DESTROY);
+        enableTransition((unsigned int)StateId::AREA_INFO,
                          (unsigned int)StateId::DESTROY);
     }
 };
@@ -124,12 +126,12 @@ public:
                          (unsigned int)StateId::WELCOME);
         enableTransition((unsigned int)StateId::WELCOME,
                          (unsigned int)StateId::SELECTION);
-        enableTransition((unsigned int)StateId::START_ERLEBAR,
-                         (unsigned int)StateId::LOCATION_MAP);
         enableTransition((unsigned int)StateId::START_TEST,
                          (unsigned int)StateId::TEST);
         enableTransition((unsigned int)StateId::RESUME_TEST,
                          (unsigned int)StateId::TEST);
+        enableTransition((unsigned int)StateId::AREA_INFO,
+                         (unsigned int)StateId::AREA_TRACKING);
     }
 };
 
@@ -151,7 +153,7 @@ public:
     AreaSelectedEvent(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
     {
         enableTransition((unsigned int)StateId::LOCATION_MAP,
-                         (unsigned int)StateId::AREA_TRACKING);
+                         (unsigned int)StateId::AREA_INFO);
 
         _eventData = new AreaEventData(locId, areaId);
     }

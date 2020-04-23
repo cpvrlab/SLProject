@@ -11,6 +11,9 @@ Resources::Resources(std::string resourceFileName, std::string textureDir)
     //load textures
     textures.load(textureDir);
     //load fonts
+
+    //definition of erlebar locations and areas
+    _locations = ErlebAR::defineLocations();
 }
 
 Resources::~Resources()

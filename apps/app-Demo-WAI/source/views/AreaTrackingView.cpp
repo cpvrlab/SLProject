@@ -25,4 +25,6 @@ bool AreaTrackingView::update()
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
     _gui.initArea(_locations[locId].areas[areaId]);
+    //start wai with map for this area
+    //load model into scene graph
 }

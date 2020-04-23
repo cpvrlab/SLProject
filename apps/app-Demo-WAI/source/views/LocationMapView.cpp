@@ -14,8 +14,6 @@ LocationMapView::LocationMapView(sm::EventHandler&   eventHandler,
 {
     init("LocationMapView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();
-
-    _locations = ErlebAR::defineLocations();
 }
 
 bool LocationMapView::update()
@@ -25,12 +23,5 @@ bool LocationMapView::update()
 
 void LocationMapView::initLocation(ErlebAR::LocationId locId)
 {
-    if (_locations.find(locId) != _locations.end())
-    {
-        _gui.initLocation(_locations[locId]);
-    }
-    else
-    {
-        Utils::exitMsg("LocationMapView", "No location defined for location id!", __LINE__, __FILE__);
-    }
+    _gui.initLocation(locId);
 }

@@ -11,6 +11,7 @@
 #include <views/TutorialView.h>
 #include <views/AreaTrackingView.h>
 #include <views/LocationMapView.h>
+#include <views/AreaInfoView.h>
 
 #include <SLGLProgramManager.h>
 
@@ -33,8 +34,8 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TEST>((unsigned int)StateId::HOLD_TEST);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::RESUME_TEST>((unsigned int)StateId::RESUME_TEST);
 
-    registerState<ErlebARApp, ErlebarEventData, &ErlebARApp::START_ERLEBAR>((unsigned int)StateId::START_ERLEBAR);
     registerState<ErlebARApp, ErlebarEventData, &ErlebARApp::LOCATION_MAP>((unsigned int)StateId::LOCATION_MAP);
+    registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_INFO>((unsigned int)StateId::AREA_INFO);
     registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_TRACKING>((unsigned int)StateId::AREA_TRACKING);
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TUTORIAL>((unsigned int)StateId::TUTORIAL);
@@ -177,6 +178,15 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
                                            dd.dirs().writableDir,
                                            dd.erlebARDir());
 
+    _areaInfoView = new AreaInfoView(*this,
+                                     _inputManager,
+                                     *_resources,
+                                     dd.scrWidth(),
+                                     dd.scrHeight(),
+                                     dd.dpi(),
+                                     dd.fontDir(),
+                                     dd.dirs().writableDir);
+
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
                                              *_resources,
@@ -241,6 +251,21 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     {
         delete _tutorialView;
         _tutorialView = nullptr;
+    }
+    if (_locationMapView)
+    {
+        delete _locationMapView;
+        _locationMapView = nullptr;
+    }
+    if (_areaInfoView)
+    {
+        delete _areaInfoView;
+        _areaInfoView = nullptr;
+    }
+    if (_areaTrackingView)
+    {
+        delete _areaTrackingView;
+        _areaTrackingView = nullptr;
     }
 
     if (_camera)
@@ -345,12 +370,6 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
     addEvent(new DoneEvent());
 }
 
-void ErlebARApp::START_ERLEBAR(const ErlebarEventData* data, const bool stateEntry)
-{
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("START_ERLEBAR");
-}
-
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry)
 {
     if (stateEntry)
@@ -361,6 +380,24 @@ void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntr
     }
 
     _locationMapView->update();
+}
+
+void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry)
+{
+    if (stateEntry)
+    {
+        LOG_ERLEBAR_DEBUG("AREA_INFO");
+
+        _areaInfoView->show();
+        //we use the area info view to initialize the area tracking
+        if (data)
+        {
+            _areaInfoView->initArea(data->locId, data->areaId);
+            _areaTrackingView->initArea(data->locId, data->areaId);
+        }
+    }
+
+    _areaInfoView->update();
 }
 
 void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry)

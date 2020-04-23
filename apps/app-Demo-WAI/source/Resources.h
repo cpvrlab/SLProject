@@ -66,8 +66,9 @@ public:
                                              BFHColors::Gray2.g,
                                              BFHColors::Gray2.b,
                                              0.2};
-    ImVec4 headerBarTextColor             = {1.f, 1.f, 1.f, 1.f}; //white
-                                                                  //selection gui button color
+
+    ImVec4 headerBarTextColor = {1.f, 1.f, 1.f, 1.f}; //white
+                                                      //selection gui button color
     ImVec4 headerBarBackButtonColor       = {BFHColors::GrayDark.r,
                                        BFHColors::GrayDark.g,
                                        BFHColors::GrayDark.b,
@@ -212,6 +213,8 @@ public:
 
     Textures textures;
 
+    const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
+
 private:
     void load(std::string resourceFileName);
     void save();
@@ -223,6 +226,8 @@ private:
 
     //initialized in function load()
     std::string _fileName;
+    //erlebar locations definition
+    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 };
 };
 

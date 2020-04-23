@@ -19,6 +19,7 @@ class SettingsView;
 class AboutView;
 class TutorialView;
 class LocationMapView;
+class AreaInfoView;
 class AreaTrackingView;
 
 class ErlebARApp : public sm::StateMachine
@@ -52,8 +53,8 @@ private:
     void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry);
     void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry);
 
-    void START_ERLEBAR(const ErlebarEventData* data, const bool stateEntry);
     void LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry);
+    void AREA_INFO(const AreaEventData* data, const bool stateEntry);
     void AREA_TRACKING(const AreaEventData* data, const bool stateEntry);
 
     void TUTORIAL(const sm::NoEventData* data, const bool stateEntry);
@@ -71,6 +72,7 @@ private:
     SettingsView*     _settingsView     = nullptr;
     TutorialView*     _tutorialView     = nullptr;
     LocationMapView*  _locationMapView  = nullptr;
+    AreaInfoView*     _areaInfoView     = nullptr;
     AreaTrackingView* _areaTrackingView = nullptr;
 
     SENSCamera*      _camera  = nullptr;

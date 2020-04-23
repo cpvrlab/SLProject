@@ -29,7 +29,7 @@ public:
     void onResize(SLint scrW, SLint scrH) override;
     void onShow(); //call when gui becomes visible
 
-    void initLocation(ErlebAR::Location loc);
+    void initLocation(ErlebAR::LocationId locId);
 
 private:
     void resize(int scrW, int scrH);

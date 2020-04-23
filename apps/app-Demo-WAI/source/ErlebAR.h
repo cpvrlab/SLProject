@@ -115,8 +115,8 @@ enum class StateId
     HOLD_TEST,
     RESUME_TEST,
 
-    START_ERLEBAR,
     LOCATION_MAP,
+    AREA_INFO,
     AREA_TRACKING,
 
     TUTORIAL,

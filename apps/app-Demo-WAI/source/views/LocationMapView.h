@@ -26,8 +26,6 @@ public:
 
 private:
     LocationMapGui _gui;
-
-    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 };
 
 #endif //LOCATION_MAP_VIEW_H

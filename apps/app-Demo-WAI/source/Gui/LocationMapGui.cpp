@@ -130,18 +130,24 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 }
 
-void LocationMapGui::initLocation(ErlebAR::Location loc)
+void LocationMapGui::initLocation(ErlebAR::LocationId locId)
 {
-    _loc = loc;
-
-    //reload texture
-    ErlebAR::deleteTexture(_locMapTexId);
-    _locMapTexId = ErlebAR::loadTexture(_erlebARDir + _loc.areaMapImageFileName,
-                                        false,
-                                        true,
-                                        _screenW / _screenH,
-                                        _locImgCropW,
-                                        _locImgCropH,
-                                        _locTextureW,
-                                        _locTextureH);
+    const auto& locations = _resources.locations();
+    auto        locIt     = locations.find(locId);
+    if (locIt != locations.end())
+    {
+        _loc = locIt->second;
+        //reload texture
+        ErlebAR::deleteTexture(_locMapTexId);
+        _locMapTexId = ErlebAR::loadTexture(_erlebARDir + _loc.areaMapImageFileName,
+                                            false,
+                                            true,
+                                            _screenW / _screenH,
+                                            _locImgCropW,
+                                            _locImgCropH,
+                                            _locTextureW,
+                                            _locTextureH);
+    }
+    else
+        Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);
 }

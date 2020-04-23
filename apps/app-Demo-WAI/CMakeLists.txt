@@ -24,6 +24,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaInfoGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.h
@@ -66,6 +67,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaInfoView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.h
@@ -87,6 +89,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaInfoGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.cpp
@@ -123,6 +126,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaInfoView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.cpp
