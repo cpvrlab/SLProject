@@ -3,8 +3,8 @@
 AreaTrackingScene::AreaTrackingScene()
   : SLScene("AreaTrackingScene", nullptr)
 {
-    //init();
-    //build();
+    init();
+    build();
 }
 
 void AreaTrackingScene::build()

@@ -16,19 +16,18 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 {
     scene(&_scene);
     init("AreaTrackingView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
-    //todo: cant we move the init and the build into constructor or AreaTrackingScene? What is init good for if the SLScene is empty anyway?
-    _scene.init();
-    _scene.build(); //->moved to constructor of AreaTrackingScene
+    //todo: ->moved to constructor of AreaTrackingScene: can this lead to any problems?
+    //_scene.init();
+    //_scene.build();
     onInitialize();
     //set scene camera into sceneview
     this->camera(_scene.cameraNode);
 
-    _locations = ErlebAR::defineLocations();
+    _locations = resources.locations();
 }
 
 bool AreaTrackingView::update()
 {
-    //update video
     SENSFramePtr frame;
     if (_camera)
         frame = _camera->getLatestFrame();
@@ -36,7 +35,6 @@ bool AreaTrackingView::update()
     if (frame)
     {
         _scene.updateVideoImage(frame->imgRGB);
-        cv::imwrite("karvuras.jpg", frame->imgRGB);
     }
 
     return onPaint();
@@ -48,13 +46,15 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //start camera
     startCamera();
 
-    //start wai with map for this area
+    //start wai with map for this area (as non-blocking as possible)
+
     //load model into scene graph
+    //todo: separate loading from opengl calls (task in projectplan)
 }
 
 void AreaTrackingView::startCamera()
 {
-    if (_camera)
+    if (_camera && !_camera->started())
     {
         //start camera
         SENSCamera::Config config;
