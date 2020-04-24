@@ -56,7 +56,7 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
     SENSFramePtr sensFrame;
 
     if (!_started)
-        return std::move(sensFrame);
+        return sensFrame;
 
     if (!_videoCapture.isOpened())
         throw SENSException(SENSType::CAM, "Capture device is not open!", __LINE__, __FILE__);
@@ -85,7 +85,7 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
           _config.mirrorH,
           _config.mirrorV);
     }
-    return std::move(sensFrame);
+    return sensFrame;
 }
 
 void SENSWebCamera::openCamera()

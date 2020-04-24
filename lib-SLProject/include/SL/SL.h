@@ -26,7 +26,6 @@ SL_OS_LINUX    :Linux desktop OS
 With the OS definition the following constants are defined:
 SL_GLES : Any version of OpenGL ES
 SL_GLES3: Supports only OpenGL ES3
-SL_MEMLEAKDETECT: The memory leak detector NVWA is used
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
 
@@ -43,7 +42,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #    else
 #        define SL_OS_MACOS
 #        if defined(_DEBUG)
-//#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
+
 #        endif
 #    endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
@@ -55,15 +54,12 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #    define SL_USE_DISCARD_STEREOMODES
 #    ifdef _DEBUG
 #        define _GLDEBUG
-//#define SL_MEMLEAKDETECT
-//#define _NO_DEBUG_HEAP 1
 #    endif
 #    define STDCALL __stdcall
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #    define SL_OS_LINUX
 #    define SL_USE_DISCARD_STEREOMODES
 #    ifdef _DEBUG
-//#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
 #    endif
 #else
 #    error "SL has not been ported to this OS"

@@ -14,10 +14,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
@@ -230,9 +226,9 @@ static void onMouseButton(GLFWwindow* myWindow,
 
     // Translate modifiers
     modifiers = K_none;
-    if (mods & GLFW_MOD_SHIFT) modifiers = (SLKey)(modifiers | K_shift);
-    if (mods & GLFW_MOD_CONTROL) modifiers = (SLKey)(modifiers | K_ctrl);
-    if (mods & GLFW_MOD_ALT) modifiers = (SLKey)(modifiers | K_alt);
+    if ((uint)mods & (uint)GLFW_MOD_SHIFT) modifiers = (SLKey)(modifiers | K_shift);
+    if ((uint)mods & (uint)GLFW_MOD_CONTROL) modifiers = (SLKey)(modifiers | K_ctrl);
+    if ((uint)mods & (uint)GLFW_MOD_ALT) modifiers = (SLKey)(modifiers | K_alt);
 
     if (action == GLFW_PRESS)
     {

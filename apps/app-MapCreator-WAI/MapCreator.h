@@ -55,7 +55,7 @@ public:
 
     void thinOutNewWaiMap(const std::string& mapDir,
                           const std::string& inputMapFile,
-                          const std::string  outputMapFile,
+                          const std::string&  outputMapFile,
                           CVCalibration&     calib,
                           const float        cullRedundantPerc,
                           ExtractorType      extractorType);

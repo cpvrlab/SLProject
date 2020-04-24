@@ -1,4 +1,5 @@
 #include <WAISlam.h>
+#include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 #include <Utils.h>
 
@@ -44,7 +45,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     {
         WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
         _globalMap          = new WAIMap(kfDB);
-        _state              = TrackingState_Initializing;
+        _state              = WAI::TrackingState_Initializing;
 
         WAIKeyFrame::nNextId = 0;
         WAIMapPoint::nNextId = 0;
@@ -52,7 +53,7 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     else
     {
         _globalMap   = globalMap;
-        _state       = TrackingState_TrackingLost;
+        _state       = WAI::TrackingState_TrackingLost;
         _initialized = true;
     }
 
@@ -110,8 +111,8 @@ WAISlam::~WAISlam()
 #endif
     }
 
-    if (_localMapping) delete _localMapping;
-    if (_loopClosing) delete _loopClosing;
+    delete _localMapping;
+    delete _loopClosing;
 }
 
 void WAISlam::reset()
@@ -153,12 +154,12 @@ void WAISlam::reset()
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
     WAIMapPoint::nNextId            = 0;
-    _state                          = TrackingState_Initializing;
+    _state                          = WAI::TrackingState_Initializing;
 }
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
-    if (getTrackingState() == TrackingState_Initializing)
+    if (getTrackingState() == WAI::TrackingState_Initializing)
         frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
     else
         frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
@@ -169,13 +170,13 @@ void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 void WAISlam::flushQueue()
 {
     std::unique_lock<std::mutex> lock(_lastFrameMutex);
-    while (_framesQueue.size())
+    while (!_framesQueue.empty())
     {
         _framesQueue.pop();
     }
 }
 
-void WAISlam::updateState(TrackingState state)
+void WAISlam::updateState(WAI::TrackingState state)
 {
     std::unique_lock<std::mutex> lock(_mutexStates);
     _state = state;
@@ -223,7 +224,7 @@ void WAISlam::resume()
     std::unique_lock<std::mutex> lock(_stateMutex);
     _isStop = false;
     _localMapping->Release();
-    _state = TrackingState_TrackingLost;
+    _state = WAI::TrackingState_TrackingLost;
 }
 
 void WAISlam::updatePoseThread(WAISlam* ptr)
@@ -238,7 +239,7 @@ void WAISlam::updatePoseThread(WAISlam* ptr)
         {
             std::unique_lock<std::mutex> lock(ptr->_frameQueueMutex);
 
-            while (ptr->_framesQueue.size() > 0)
+            while (!ptr->_framesQueue.empty())
                 ptr->_framesQueue.pop();
 
             break;
@@ -261,7 +262,7 @@ void WAISlam::updatePose(WAIFrame& frame)
 
     switch (_state)
     {
-        case TrackingState_Initializing: {
+        case WAI::TrackingState_Initializing: {
 #if 0
             bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing, _voc, 100, _lastKeyFrameFrameId);
             if (ok)
@@ -278,14 +279,14 @@ void WAISlam::updatePose(WAIFrame& frame)
                 {
                     _lastKeyFrameFrameId = frame.mnId;
                     _lastRelocFrameId    = 0;
-                    _state               = TrackingState_TrackingOK;
+                    _state               = WAI::TrackingState_TrackingOK;
                     _initialized         = true;
                 }
             }
 #endif
         }
         break;
-        case TrackingState_TrackingOK: {
+        case WAI::TrackingState_TrackingOK: {
             int inliers;
             if (tracking(_globalMap, _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
             {
@@ -302,11 +303,11 @@ void WAISlam::updatePose(WAIFrame& frame)
             }
             else
             {
-                _state = TrackingState_TrackingLost;
+                _state = WAI::TrackingState_TrackingLost;
             }
         }
         break;
-        case TrackingState_TrackingLost: {
+        case WAI::TrackingState_TrackingLost: {
             int inliers;
             if (relocalization(frame, _globalMap, _localMap, inliers))
             {
@@ -322,7 +323,7 @@ void WAISlam::updatePose(WAIFrame& frame)
                     mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
 
                 _infoMatchedInliners = inliers;
-                _state               = TrackingState_TrackingOK;
+                _state               = WAI::TrackingState_TrackingOK;
             }
         }
         break;
@@ -358,19 +359,19 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
 {
     std::unique_lock<std::mutex> lock(_lastFrameMutex);
     std::unique_lock<std::mutex> lock2(_stateMutex);
-    if (_state == TrackingState_Initializing)
+    if (_state == WAI::TrackingState_Initializing)
     {
         if (showInitLine)
             drawInitInfo(_iniData, _lastFrame, imageRGB);
     }
-    else if (_state == TrackingState_TrackingOK)
+    else if (_state == WAI::TrackingState_TrackingOK)
     {
         if (showKeyPoints)
             drawKeyPointInfo(_lastFrame, imageRGB);
         if (showKeyPointsMatched)
             drawKeyPointMatches(_lastFrame, imageRGB);
     }
-    else if (_state == TrackingState_TrackingLost)
+    else if (_state == WAI::TrackingState_TrackingLost)
     {
         if (showKeyPoints)
             drawKeyPointInfo(_lastFrame, imageRGB);
@@ -439,19 +440,19 @@ void WAISlam::requestStateIdle()
         std::cout << "localMapping is stopped" << std::endl;
     }
 
-    _state = TrackingState_Idle;
+    _state = WAI::TrackingState_Idle;
 }
 
 bool WAISlam::hasStateIdle()
 {
     std::unique_lock<std::mutex> guard(_mutexStates);
-    return (_state == TrackingState_Idle);
+    return (_state == WAI::TrackingState_Idle);
 }
 
 bool WAISlam::isTracking()
 {
     std::unique_lock<std::mutex> guard(_mutexStates);
-    return _state == TrackingState_TrackingOK;
+    return _state == WAI::TrackingState_TrackingOK;
 }
 
 bool WAISlam::retainImage()
@@ -468,7 +469,7 @@ void WAISlam::setMap(WAIMap* globalMap)
     resume();
 }
 
-int WAISlam::getMapPointMatchesCount()
+int WAISlam::getMapPointMatchesCount() const
 {
     return _infoMatchedInliners;
 }

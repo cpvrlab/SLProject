@@ -25,7 +25,7 @@ bool StateMachine::update()
     bool           stateEntry      = false;
     bool           stateWasUpdated = false;
     //invoke state action for every valid event, but at least once
-    while (_events.size())
+    while (!_events.empty())
     {
         Event* e = _events.front();
         _events.pop();
@@ -55,8 +55,7 @@ bool StateMachine::update()
         _stateActions[_currentStateId]->invokeStateAction(this, data, stateEntry);
 
     //ATTENTION: data ownership is not transferred to state
-    if (data)
-        delete data;
+    delete data;
 
     return true;
 }

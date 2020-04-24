@@ -44,16 +44,16 @@ class SLRay
     SLRay(SLSceneView* sv = nullptr);
 
     //! ctor for primary rays
-    SLRay(SLVec3f      Origin,
-          SLVec3f      Dir,
+    SLRay(const SLVec3f&      Origin,
+          const SLVec3f&      Dir,
           SLfloat      X,
           SLfloat      Y,
-          SLCol4f      backColor,
+          const SLCol4f&      backColor,
           SLSceneView* sv);
 
     //! ctor for shadow rays
     SLRay(SLfloat distToLight,
-          SLVec3f dirToLight,
+          const SLVec3f& dirToLight,
           SLRay*  rayFromHitPoint);
 
     void reflect(SLRay* reflected);

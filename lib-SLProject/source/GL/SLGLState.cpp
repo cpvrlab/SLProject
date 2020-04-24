@@ -615,10 +615,6 @@ void SLGLState::getGLError(const char* file,
 
         if (quit)
         {
-#    ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only \
-                            // turn off leak checks on forced exit \
-                            //new_autocheck_flag = false;
-#    endif
             exit(1);
         }
     }

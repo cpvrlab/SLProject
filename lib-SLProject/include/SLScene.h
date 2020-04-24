@@ -46,7 +46,7 @@ class SLScene : public SLObject
     friend class SLNode;
 
 public:
-    SLScene(SLstring      name,
+    SLScene(const SLstring&      name,
             cbOnSceneLoad onSceneLoadCallback);
     ~SLScene() override;
 

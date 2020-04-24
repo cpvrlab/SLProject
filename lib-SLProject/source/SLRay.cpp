@@ -9,10 +9,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT
-#    include <nvwa/debug_new.h> // memory leak detector
-#endif
-
 #include <SLRay.h>
 #include <SLSceneView.h>
 
@@ -75,12 +71,12 @@ SLRay::SLRay(SLSceneView* sceneView)
 /*! 
 SLRay::SLRay constructor for primary rays
 */
-SLRay::SLRay(SLVec3f      Origin,
-             SLVec3f      Dir,
-             SLfloat      X,
-             SLfloat      Y,
-             SLCol4f      backColor,
-             SLSceneView* sceneView)
+SLRay::SLRay(const SLVec3f& Origin,
+             const SLVec3f& Dir,
+             SLfloat        X,
+             SLfloat        Y,
+             const SLCol4f& backColor,
+             SLSceneView*   sceneView)
 {
     origin = Origin;
     setDir(Dir);
@@ -108,9 +104,9 @@ SLRay::SLRay(SLVec3f      Origin,
 /*! 
 SLRay::SLRay constructor for shadow rays
 */
-SLRay::SLRay(SLfloat distToLight,
-             SLVec3f dirToLight,
-             SLRay*  rayFromHitPoint)
+SLRay::SLRay(SLfloat        distToLight,
+             const SLVec3f& dirToLight,
+             SLRay*         rayFromHitPoint)
 {
     origin = rayFromHitPoint->hitPoint;
     setDir(dirToLight);
