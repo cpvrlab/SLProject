@@ -58,6 +58,16 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //todo: separate loading from opengl calls (task in projectplan)
 }
 
+void AreaTrackingView::resume()
+{
+    startCamera();
+}
+
+void AreaTrackingView::hold()
+{
+    _camera->stop();
+}
+
 void AreaTrackingView::startCamera()
 {
     if (_camera && !_camera->started())

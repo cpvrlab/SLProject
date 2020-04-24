@@ -118,6 +118,7 @@ enum class StateId
     LOCATION_MAP,
     AREA_INFO,
     AREA_TRACKING,
+    HOLD_TRACKING,
 
     TUTORIAL,
     ABOUT,

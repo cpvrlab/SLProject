@@ -28,6 +28,9 @@ public:
 
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
 
+    void resume();
+    void hold();
+
 private:
     void              startCamera();
     AreaTrackingGui   _gui;

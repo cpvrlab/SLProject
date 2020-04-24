@@ -22,15 +22,17 @@ void SENSWebCamera::init(SENSCamera::Facing facing)
 
 void SENSWebCamera::start(const Config config)
 {
-    //todo: wait for camera to be granted
     _config      = config;
     _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
-    if (_thread.joinable())
-        _thread.join();
-    _thread = std::thread(&SENSWebCamera::openCamera, this);
+    if (!_started && !_isStarting)
+    {
+        if (_thread.joinable())
+            _thread.join();
 
-    //SENSWebCamera::openCamera();
+        _isStarting = true;
+        _thread     = std::thread(&SENSWebCamera::openCamera, this);
+    }
 }
 
 void SENSWebCamera::start(int width, int height)
@@ -90,7 +92,10 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
 
 void SENSWebCamera::openCamera()
 {
-    _videoCapture.open(0);
+    if (!_videoCapture.isOpened())
+        _videoCapture.open(0);
+
+    //exception not possible as we are in a thread
     //if (!_videoCapture.isOpened())
     //throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
 
@@ -102,5 +107,6 @@ void SENSWebCamera::openCamera()
         int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
     }
 
-    _started = true;
+    _started    = true;
+    _isStarting = false;
 }

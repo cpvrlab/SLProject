@@ -216,6 +216,10 @@ public:
     {
         enableTransition((unsigned int)StateId::TEST,
                          (unsigned int)StateId::HOLD_TEST);
+        enableTransition((unsigned int)StateId::AREA_INFO,
+                         (unsigned int)StateId::HOLD_TRACKING);
+        enableTransition((unsigned int)StateId::AREA_TRACKING,
+                         (unsigned int)StateId::HOLD_TRACKING);
     }
 };
 
@@ -226,6 +230,8 @@ public:
     {
         enableTransition((unsigned int)StateId::HOLD_TEST,
                          (unsigned int)StateId::RESUME_TEST);
+        enableTransition((unsigned int)StateId::HOLD_TRACKING,
+                         (unsigned int)StateId::AREA_INFO);
     }
 };
 

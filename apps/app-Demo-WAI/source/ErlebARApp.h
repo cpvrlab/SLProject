@@ -34,14 +34,19 @@ public:
     void init(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi, AppDirectories dirs, SENSCamera* camera);
     //go back (e.g. from android back-button)
     void goBack();
+    //call to completely uninitialize app
     void destroy();
+    //call when app goes into background but is not destroyed
     void hold();
+    //call when app comes to foreground after being hold
     void resume();
 
     //! set a callback function which can be used to inform caller that app wants to be closed
     void setCloseAppCallback(CloseAppCallback cb) { _closeCB = cb; }
 
 private:
+    std::string getPrintableState(unsigned int state) override;
+
     void IDLE(const sm::NoEventData* data, const bool stateEntry);
     void INIT(const InitEventData* data, const bool stateEntry);
     void WELCOME(const sm::NoEventData* data, const bool stateEntry);
@@ -56,6 +61,7 @@ private:
     void LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry);
     void AREA_INFO(const AreaEventData* data, const bool stateEntry);
     void AREA_TRACKING(const AreaEventData* data, const bool stateEntry);
+    void HOLD_TRACKING(const sm::NoEventData* data, const bool stateEntry);
 
     void TUTORIAL(const sm::NoEventData* data, const bool stateEntry);
     void ABOUT(const sm::NoEventData* data, const bool stateEntry);

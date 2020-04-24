@@ -399,7 +399,7 @@ static void onKeyPress(GLFWwindow* window,
             glfwSetWindowPos(window, 10, 30);
         }
     }
-    else if (key == K_space && action == GLFW_PRESS)
+    else if (key == K_space && action == GLFW_PRESS) //go back
     {
         app.goBack();
     }
@@ -482,7 +482,7 @@ void GLFWInit()
     scr2fbY = (float)fbHeight / (float)scrHeight;
 
     // Init OpenGL access library gl3w
-    if (gl3wInit()!=0)
+    if (gl3wInit() != 0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
