@@ -61,13 +61,13 @@ SLSceneView::~SLSceneView()
 \param onSelectNodeMeshCallback Callback on node and mesh selection
 \param SLUiInterface Interface for the external Gui build function
 */
-void SLSceneView::init(SLstring       name,
-                       SLint          screenWidth,
-                       SLint          screenHeight,
-                       void*          onWndUpdateCallback,
-                       void*          onSelectNodeMeshCallback,
-                       SLUiInterface* gui,
-                       std::string    configPath)
+void SLSceneView::init(SLstring           name,
+                       SLint              screenWidth,
+                       SLint              screenHeight,
+                       void*              onWndUpdateCallback,
+                       void*              onSelectNodeMeshCallback,
+                       SLUiInterface*     gui,
+                       const std::string& configPath)
 {
     _gui        = gui;
     _name       = std::move(name);
@@ -107,6 +107,8 @@ void SLSceneView::init(SLstring       name,
     _scrWdiv2 = _scrW >> 1;
     _scrHdiv2 = _scrH >> 1;
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
+    _scr2fbX  = 1.0f;
+    _scr2fbY  = 1.0f;
 
     _renderType = RT_gl;
 
@@ -295,7 +297,10 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
         if (_gui)
-            _gui->onResize(_viewportRect.width, _viewportRect.height);
+            _gui->onResize(_viewportRect.width,
+                           _viewportRect.height,
+                           _scr2fbX,
+                           _scr2fbY);
         return;
     }
 
@@ -339,7 +344,10 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect = vpRect;
         if (_gui)
-            _gui->onResize(_viewportRect.width, _viewportRect.height);
+            _gui->onResize(_viewportRect.width,
+                           _viewportRect.height,
+                           _scr2fbX,
+                           _scr2fbY);
     }
     else
         SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
@@ -363,6 +371,7 @@ void SLSceneView::onInitialize()
 
     _nodesBlended.clear();
     _nodesVisible.clear();
+    _nodesOverdrawn.clear();
     _nodesVisible2D.clear();
     _stats2D.clear();
     _stats3D.clear();
@@ -417,7 +426,10 @@ void SLSceneView::onInitialize()
 #endif
 
     if (_gui)
-        _gui->onResize(_viewportRect.width, _viewportRect.height);
+        _gui->onResize(_viewportRect.width,
+                       _viewportRect.height,
+                       1.0f,
+                       1.0f);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -662,6 +674,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _camera->setFrustumPlanes();
     _nodesBlended.clear();
     _nodesVisible.clear();
+    _nodesOverdrawn.clear();
     if (_s->root3D())
         _s->root3D()->cull3DRec(this);
     _cullTimeMS = GlobalTimer::timeMS() - startMS;
@@ -729,6 +742,7 @@ void SLSceneView::draw3DGLAll()
     // 3) Draw helper
     draw3DGLLinesOverlay(_nodesVisible);
     draw3DGLLinesOverlay(_nodesBlended);
+    draw3DGLLinesOverlay(_nodesOverdrawn);
 
     // 4) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
@@ -767,7 +781,7 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     }
 
     // draw the shapes directly with their wm transform
-    for (auto node : nodes)
+    for (auto* node : nodes)
     {
         // Set the view transform
         stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
@@ -803,7 +817,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // draw the opaque shapes directly w. their wm transform
-    for (auto node : nodes)
+    for (auto* node : nodes)
     {
         if (node != _camera)
         {
@@ -841,9 +855,8 @@ as overlayed
 */
 void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
-
     // draw the opaque shapes directly w. their wm transform
-    for (auto node : nodes)
+    for (auto* node : nodes)
     {
         if (node != _camera)
         {
@@ -862,7 +875,9 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 if (drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_SELECTED))
+                {
                     node->aabb()->drawAxisWS();
+                }
 
                 // Draw skeleton
                 if (drawBit(SL_DB_SKELETON) ||
@@ -894,6 +909,28 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                     }
                 }
             }
+            else if (node->drawBit(SL_DB_OVERDRAW))
+            {
+                // For blended nodes we activate OpenGL blending and stop depth buffer updates
+                SLGLState* stateGL = SLGLState::instance();
+                //stateGL->blend(true);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Turn of depth test for overlay
+
+                stateGL->blend(node->aabb()->hasAlpha());
+                //stateGL->depthMask(!node->aabb()->hasAlpha());
+
+                // Set the view transform
+                stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+
+                // Apply world transform
+                stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+                // Finally the nodes meshes
+                node->drawMeshes(this);
+
+                GET_GL_ERROR; // Check if any OGL errors occurred
+            }
         }
     }
 
@@ -919,7 +956,10 @@ void SLSceneView::draw2DGL()
         {
             // 1. Set Projection & View
             stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-            stateGL->viewport(0, 0, _scrW, _scrH);
+            stateGL->viewport(0,
+                              0,
+                              (int)(_scrW * _scr2fbX),
+                              (int)(_scrH * _scr2fbY));
 
             // 2. Pseudo 2D Frustum Culling
             _nodesVisible2D.clear();
@@ -935,7 +975,7 @@ void SLSceneView::draw2DGL()
         not empty the SLScene::selectedNode is null. All vertices that are within the
         selectRect are listed in SLMesh::IS32. The selection evaluation is done during
         drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
 
             if (!_camera->selectedRect().isEmpty())
             {
@@ -986,7 +1026,7 @@ void SLSceneView::draw2DGLNodes()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    for (auto node : _nodesVisible2D)
+    for (auto* node : _nodesVisible2D)
     {
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
@@ -1100,7 +1140,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     if (_s && _camera && _s->root3D())
     {
         SLbool eventConsumed = false;
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onMouseDown(button, x, y, mod))
                 eventConsumed = true;
@@ -1164,7 +1204,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     {
         SLbool result        = false;
         SLbool eventConsumed = false;
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onMouseUp(button, x, y, mod))
                 eventConsumed = true;
@@ -1243,7 +1283,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     }
 
     SLbool eventConsumed = false;
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onMouseMove(btn, x, y, _mouseMod))
             eventConsumed = true;
@@ -1295,7 +1335,7 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
 
     SLbool result = _camera->onMouseWheel(delta, mod);
 
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onMouseWheel(delta, mod))
             result = true;
@@ -1316,7 +1356,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
         return false;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1348,7 +1388,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     else
     {
         result = _camera->onDoubleClick(button, x, y, mod);
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onDoubleClick(button, x, y, mod))
                 result = true;
@@ -1365,7 +1405,7 @@ SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
     //SL_LOG("onLongTouch(%d, %d)", x, y);
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1382,7 +1422,7 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
         return false;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x1 = scrX1 - _viewportRect.x;
     SLint y1 = scrY1 - ((_scrH - _viewportRect.height) - _viewportRect.y);
     SLint x2 = scrX2 - _viewportRect.x;
@@ -1394,7 +1434,7 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 
     SLbool result = _camera->onTouch2Down(x1, y1, x2, y2);
 
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Down(x1, y1, x2, y2))
             result = true;
@@ -1424,7 +1464,7 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
     if (_touchDowns == 2)
     {
         result = _camera->onTouch2Move(x1, y1, x2, y2);
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onTouch2Move(x1, y1, x2, y2))
                 result = true;
@@ -1453,7 +1493,7 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     _touchDowns = 0;
 
     SLbool result = _camera->onTouch2Up(x1, y1, x2, y2);
-    for (auto eh : _s->eventHandlers())
+    for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
             result = true;
@@ -1532,7 +1572,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
         result = _camera->onKeyPress(key, mod);
 
         // 2) pass it to any other eventhandler
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onKeyPress(key, mod))
                 result = true;
@@ -1567,7 +1607,7 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
         result = _camera->onKeyRelease(key, mod);
 
         // 2) pass it to any other eventhandler
-        for (auto eh : _s->eventHandlers())
+        for (auto* eh : _s->eventHandlers())
         {
             if (eh->onKeyRelease(key, mod))
                 result = true;

@@ -160,7 +160,7 @@ extern "C" JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onUpdateParallelJo
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_onPaintAllViews(JNIEnv* env, jclass obj)
 {
-    return slPaintAllViews();
+    return slPaintAllViews(1.0f, 1.0f);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height)

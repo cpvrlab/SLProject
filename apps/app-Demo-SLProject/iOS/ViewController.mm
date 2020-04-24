@@ -230,11 +230,11 @@ float GetSeconds()
          [self startLocationManager];
     else [self stopLocationManager];
     
-    /////////////////////////////////////////////
+    //////////////////////////////////////////////////////
     bool trackingGotUpdated = onUpdateVideo();
     bool jobIsRunning       = slUpdateParallelJob();
-    bool viewsNeedsRepaint  = slPaintAllViews();
-    /////////////////////////////////////////////
+    bool viewsNeedsRepaint  = slPaintAllViews(1.0f, 1.0f);
+    //////////////////////////////////////////////////////
     
     m_lastVideoImageIsConsumed = true;
     

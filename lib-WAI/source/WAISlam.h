@@ -12,6 +12,7 @@
 #include <OrbSlam/PnPsolver.h>
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
+#include <WAISlamTools.h>
 
 enum TrackingState
 {
@@ -22,149 +23,10 @@ enum TrackingState
     TrackingState_TrackingLost
 };
 
-struct InitializerData
-{
-    Initializer*             initializer;
-    WAIFrame                 initialFrame;
-    std::vector<cv::Point2f> prevMatched; //all keypoints in initialFrame
-    std::vector<cv::Point3f> iniPoint3D;
-    std::vector<int>         iniMatches; //has length of keypoints of initial frame and contains matched keypoint index in current frame
-};
-
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
  * and some variables with getter that are useful for slam in a subclass.
  */
-
-class WAISlamTools
-{
-public:
-    static void drawKeyPointInfo(WAIFrame& frame, cv::Mat& image);
-    static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image);
-    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageRGB);
-
-    static bool initialize(InitializerData& iniData,
-                           WAIFrame&        frame,
-                           ORBVocabulary*   voc,
-                           LocalMap&        localMap,
-                           int              mapPointsNeeded,
-                           unsigned long&   lastKeyFrameFrameId);
-
-    static bool genInitialMap(WAIMap*       globalMap,
-                              LocalMapping* localMapper,
-                              LoopClosing*  loopCloser,
-                              LocalMap&     localMap,
-                              bool          serial);
-
-    static bool oldInitialize(WAIFrame&        frame,
-                              InitializerData& iniData,
-                              WAIMap*          map,
-                              LocalMap&        localMap,
-                              LocalMapping*    localMapper,
-                              LoopClosing*     loopCloser,
-                              ORBVocabulary*   voc,
-                              int              mapPointsNeeded,
-                              unsigned long&   lastKeyFrameFrameId);
-
-    static bool relocalization(WAIFrame& currentFrame,
-                               WAIMap*   waiMap,
-                               LocalMap& localMap,
-                               int&      inliers);
-
-    static bool tracking(WAIMap*   map,
-                         LocalMap& localMap,
-                         WAIFrame& frame,
-                         WAIFrame& lastFrame,
-                         int       lastRelocFrameId,
-                         cv::Mat&  velocity,
-                         int&      inliers);
-
-    static bool trackLocalMap(LocalMap& localMap,
-                              WAIFrame& frame,
-                              int       lastRelocFrameId,
-                              int&      inliers);
-
-    static void mapping(WAIMap*             map,
-                        LocalMap&           localMap,
-                        LocalMapping*       localMapper,
-                        WAIFrame&           frame,
-                        int                 inliers,
-                        const unsigned long lastRelocFrameId,
-                        unsigned long&      lastKeyFrameFrameId);
-
-    static void serialMapping(WAIMap*             map,
-                              LocalMap&           localMap,
-                              LocalMapping*       localMapper,
-                              LoopClosing*        loopCloser,
-                              WAIFrame&           frame,
-                              int                 inliers,
-                              const unsigned long lastRelocFrameId,
-                              unsigned long&      lastKeyFrameFrameId);
-
-    static void motionModel(WAIFrame& frame,
-                            WAIFrame& lastFrame,
-                            cv::Mat&  velocity,
-                            cv::Mat&  pose);
-
-    static bool trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WAIFrame& frame);
-
-    static bool trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFrame, WAIFrame& frame);
-
-    static void updateLocalMap(WAIFrame& frame, LocalMap& localMap);
-
-    static int trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame);
-
-    static bool needNewKeyFrame(WAIMap*             globalMap,
-                                LocalMap&           localMap,
-                                LocalMapping*       localMapper,
-                                WAIFrame&           frame,
-                                int                 nInliners,
-                                const unsigned long lastRelocFrameId,
-                                const unsigned long lastKeyFrameFrameId);
-
-    static void createNewKeyFrame(LocalMapping*  localMapper,
-                                  LocalMap&      localMap,
-                                  WAIMap*        globalMap,
-                                  WAIFrame&      frame,
-                                  unsigned long& lastKeyFrameFrameId);
-
-    static WAIFrame createMarkerFrame(std::string    markerFile,
-                                      KPextractor*   markerExtractor,
-                                      const cv::Mat& markerCameraIntrinsic,
-                                      ORBVocabulary* voc);
-    static bool     findMarkerHomography(WAIFrame&    markerFrame,
-                                         WAIKeyFrame* kfCand,
-                                         cv::Mat&     homography,
-                                         int          minMatches);
-    static bool     doMarkerMapPreprocessing(std::string    markerFile,
-                                             cv::Mat&       nodeTransform,
-                                             float          markerWidthInM,
-                                             KPextractor*   markerExtractor,
-                                             WAIMap*        map,
-                                             const cv::Mat& markerCameraIntrinsic,
-                                             ORBVocabulary* voc);
-
-protected:
-    WAISlamTools(){};
-
-    TrackingState   _state = TrackingState_Idle;
-    cv::Mat         _distortion;
-    cv::Mat         _cameraIntrinsic;
-    cv::Mat         _cameraExtrinsic;
-    InitializerData _iniData;
-    WAIFrame        _lastFrame;
-    LocalMap        _localMap;
-    WAIMap*         _globalMap;
-    ORBVocabulary*  _voc;
-    cv::Mat         _velocity;
-    bool            _initialized;
-
-    LocalMapping*             _localMapping;
-    LoopClosing*              _loopClosing;
-    std::thread*              _processNewKeyFrameThread = nullptr;
-    std::vector<std::thread*> _mappingThreads;
-    std::thread*              _loopClosingThread = nullptr;
-};
 
 class WAISlam : public WAISlamTools
 {
@@ -200,19 +62,20 @@ public:
             bool           retainImg         = false,
             float          cullRedundantPerc = 0.95f);
 
-    ~WAISlam();
+    virtual ~WAISlam();
 
     virtual void reset();
 
     void createFrame(WAIFrame &frame, cv::Mat& imageGray);
 
-    virtual void update(WAIFrame& frame);
+    virtual void updatePose(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
     virtual void resume();
 
     virtual bool isTracking();
     virtual bool hasStateIdle();
     virtual void requestStateIdle();
+
     virtual bool retainImage();
 
     static std::vector<WAIMapPoint*>                                 getMatchedMapPoints(WAIFrame* frame);
@@ -258,6 +121,7 @@ public:
                 return std::string("TrackingState_TrackingOK");
                 break;
         }
+        return std::string("");
     }
 
     virtual int     getKeyPointCount() { return _lastFrame.N; }
@@ -290,17 +154,33 @@ protected:
 
     void updateState(TrackingState state);
 
-    std::mutex    _cameraExtrinsicMutex;
-    std::mutex    _mutexStates;
-    std::mutex    _lastFrameMutex;
-    bool          _retainImg           = false;
-    unsigned long _lastRelocFrameId    = 0;
-    unsigned long _lastKeyFrameFrameId = 0;
-    bool          _serial              = false;
-    bool          _trackingOnly        = false;
-    KPextractor*  _extractor           = nullptr;
-    KPextractor*  _iniExtractor        = nullptr;
-    int           _infoMatchedInliners = 0;
+    bool _requestFinish;
+    bool _isFinish;
+    bool _isStop;
+    std::mutex _stateMutex;
+    bool finishRequested();
+    void requestFinish();
+    bool isStop();
+    bool isFinished();
+    void flushQueue();
+    int getNextFrame(WAIFrame& frame);
+    static void updatePoseThread(WAISlam* ptr);
+
+    TrackingState        _state = TrackingState_Idle;
+    std::mutex           _cameraExtrinsicMutex;
+    std::mutex           _mutexStates;
+    std::mutex           _lastFrameMutex;
+    bool                 _retainImg           = false;
+    unsigned long        _lastRelocFrameId    = 0;
+    unsigned long        _lastKeyFrameFrameId = 0;
+    bool                 _serial              = false;
+    bool                 _trackingOnly        = false;
+    KPextractor*         _extractor           = nullptr;
+    KPextractor*         _iniExtractor        = nullptr;
+    int                  _infoMatchedInliners = 0;
+    std::thread*         _poseUpdateThread;
+    std::queue<WAIFrame> _framesQueue;
+    std::mutex           _frameQueueMutex;
 };
 
 #endif

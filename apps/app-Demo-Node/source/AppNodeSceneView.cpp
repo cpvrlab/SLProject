@@ -25,10 +25,19 @@
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 
+
+//-----------------------------------------------------------------------------
+std::string findModelFileName(std::string file)
+{
+    return Utils::findFile(Utils::getFileName(file),
+                           {SLImporter::defaultPath,
+                            SLImporter::defaultPath + Utils::getPath(file),
+                            SLApplication::exePath});
+}
 //-----------------------------------------------------------------------------
 void drawXZGrid(const SLMat4f& mat)
 {
-    // for now we don't want to update the mesh implementation
+    // for now we don't want to updateRec the mesh implementation
     // or the buffer implementation, so we don't have vertex color support
 
     static SLGLVertexArrayExt grid;
@@ -144,7 +153,7 @@ void AppNodeSceneView::postSceneLoad()
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
-    _axesNode = importer.load(_s->animManager(), &_assets, "FBX/Axes/axes_blender.fbx");
+    _axesNode = importer.load(_s->animManager(), &_assets, findModelFileName("FBX/Axes/axes_blender.fbx"));
 
     _s->root3D()->addChild(_moveBox);
     _s->root3D()->addChild(_axesNode);

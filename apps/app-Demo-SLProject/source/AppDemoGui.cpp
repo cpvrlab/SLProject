@@ -137,6 +137,9 @@ static SLNode* grab_t_stein  = nullptr;
 static SLNode* christ_aussen = nullptr;
 static SLNode* christ_innen  = nullptr;
 
+// Temp. transform node
+static SLTransformNode* transformNode = nullptr;
+
 SLstring AppDemoGui::infoAbout =
   "Welcome to the SLProject demo app. It is developed at the \
 Computer Science Department of the Bern University of Applied Sciences. \
@@ -385,7 +388,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
                 sprintf(m + strlen(m), "Renderer   : OpenGL\n");
-                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
                 sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
                 sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
                 sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
@@ -678,108 +682,99 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
             if (s->selectedNode())
             {
-                SLNode*                 node   = s->selectedNode();
-                static SLTransformSpace tSpace = TS_object;
+                SLNode*                 selNode = s->selectedNode();
+                static SLTransformSpace tSpace  = TS_object;
                 SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
                 SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
                 SLfloat                 s1 = 1.01f, s2 = 1.1f, s3 = 1.5f; // Scale factors
 
                 // clang-format off
-                ImGui::Text("Transf. Space:"); ImGui::SameLine();
+                ImGui::Text("Space:"); ImGui::SameLine();
                 if (ImGui::RadioButton("Object", (int*)&tSpace, 0)) tSpace = TS_object; ImGui::SameLine();
                 if (ImGui::RadioButton("World",  (int*)&tSpace, 1)) tSpace = TS_world; ImGui::SameLine();
                 if (ImGui::RadioButton("Parent", (int*)&tSpace, 2)) tSpace = TS_parent;
                 ImGui::Separator();
 
-                ImGui::Text("Translation X:"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Tx")) node->translate(-t3, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Tx"))  node->translate(-t2, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Tx"))   node->translate(-t1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Tx"))   node->translate( t1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Tx"))  node->translate( t2, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Tx")) node->translate( t3, 0, 0, tSpace);
+                ImGui::Text("Transl. X:"); ImGui::SameLine();
+                if (ImGui::Button("<<<##Tx")) selNode->translate(-t3, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<<##Tx"))  selNode->translate(-t2, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<##Tx"))   selNode->translate(-t1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">##Tx"))   selNode->translate( t1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>##Tx"))  selNode->translate( t2, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>>##Tx")) selNode->translate( t3, 0, 0, tSpace);
 
-                ImGui::Text("Translation Y:"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Ty")) node->translate(0, -t3, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Ty"))  node->translate(0, -t2, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Ty"))   node->translate(0, -t1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Ty"))   node->translate(0,  t1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Ty"))  node->translate(0,  t2, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Ty")) node->translate(0,  t3, 0, tSpace);
+                ImGui::Text("Transl. Y:"); ImGui::SameLine();
+                if (ImGui::Button("<<<##Ty")) selNode->translate(0, -t3, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<<##Ty"))  selNode->translate(0, -t2, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<##Ty"))   selNode->translate(0, -t1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">##Ty"))   selNode->translate(0,  t1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>##Ty"))  selNode->translate(0,  t2, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>>##Ty")) selNode->translate(0,  t3, 0, tSpace);
 
-                ImGui::Text("Translation Z:"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Tz")) node->translate(0, 0, -t3, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Tz"))  node->translate(0, 0, -t2, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Tz"))   node->translate(0, 0, -t1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Tz"))   node->translate(0, 0,  t1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Tz"))  node->translate(0, 0,  t2, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Tz")) node->translate(0, 0,  t3, tSpace);
+                ImGui::Text("Transl. Z:"); ImGui::SameLine();
+                if (ImGui::Button("<<<##Tz")) selNode->translate(0, 0, -t3, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<<##Tz"))  selNode->translate(0, 0, -t2, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<##Tz"))   selNode->translate(0, 0, -t1, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">##Tz"))   selNode->translate(0, 0,  t1, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>##Tz"))  selNode->translate(0, 0,  t2, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>>##Tz")) selNode->translate(0, 0,  t3, tSpace);
 
                 ImGui::Text("Rotation X   :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Rx")) node->rotate( r3, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Rx"))  node->rotate( r2, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Rx"))   node->rotate( r1, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Rx"))   node->rotate(-r1, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Rx"))  node->rotate(-r2, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Rx")) node->rotate(-r3, 1, 0, 0, tSpace);
+                if (ImGui::Button("<<<##Rx")) selNode->rotate( r3, 1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<<##Rx"))  selNode->rotate( r2, 1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<##Rx"))   selNode->rotate( r1, 1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">##Rx"))   selNode->rotate(-r1, 1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>##Rx"))  selNode->rotate(-r2, 1, 0, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>>##Rx")) selNode->rotate(-r3, 1, 0, 0, tSpace);
 
                 ImGui::Text("Rotation Y   :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Ry")) node->rotate( r3, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Ry"))  node->rotate( r2, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Ry"))   node->rotate( r1, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Ry"))   node->rotate(-r1, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Ry"))  node->rotate(-r2, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Ry")) node->rotate(-r3, 0, 1, 0, tSpace);
+                if (ImGui::Button("<<<##Ry")) selNode->rotate( r3, 0, 1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<<##Ry"))  selNode->rotate( r2, 0, 1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<##Ry"))   selNode->rotate( r1, 0, 1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">##Ry"))   selNode->rotate(-r1, 0, 1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>##Ry"))  selNode->rotate(-r2, 0, 1, 0, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>>##Ry")) selNode->rotate(-r3, 0, 1, 0, tSpace);
 
                 ImGui::Text("Rotation Z   :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Rz")) node->rotate( r3, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Rz"))  node->rotate( r2, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Rz"))   node->rotate( r1, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Rz"))   node->rotate(-r1, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Rz"))  node->rotate(-r2, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Rz")) node->rotate(-r3, 0, 0, 1, tSpace);
+                if (ImGui::Button("<<<##Rz")) selNode->rotate( r3, 0, 0, 1, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<<##Rz"))  selNode->rotate( r2, 0, 0, 1, tSpace); ImGui::SameLine();
+                if (ImGui::Button("<##Rz"))   selNode->rotate( r1, 0, 0, 1, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">##Rz"))   selNode->rotate(-r1, 0, 0, 1, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>##Rz"))  selNode->rotate(-r2, 0, 0, 1, tSpace); ImGui::SameLine();
+                if (ImGui::Button(">>>##Rz")) selNode->rotate(-r3, 0, 0, 1, tSpace);
 
                 ImGui::Text("Scale        :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##S")) node->scale( s3); ImGui::SameLine();
-                if (ImGui::Button("<<##S"))  node->scale( s2); ImGui::SameLine();
-                if (ImGui::Button("<##S"))   node->scale( s1); ImGui::SameLine();
-                if (ImGui::Button(">##S"))   node->scale(-s1); ImGui::SameLine();
-                if (ImGui::Button(">>##S"))  node->scale(-s2); ImGui::SameLine();
-                if (ImGui::Button(">>>##S")) node->scale(-s3);
+                if (ImGui::Button("<<<##S")) selNode->scale( s3); ImGui::SameLine();
+                if (ImGui::Button("<<##S"))  selNode->scale( s2); ImGui::SameLine();
+                if (ImGui::Button("<##S"))   selNode->scale( s1); ImGui::SameLine();
+                if (ImGui::Button(">##S"))   selNode->scale(-s1); ImGui::SameLine();
+                if (ImGui::Button(">>##S"))  selNode->scale(-s2); ImGui::SameLine();
+                if (ImGui::Button(">>>##S")) selNode->scale(-s3);
                 ImGui::Separator();
-                if (ImGui::Button("Reset")) node->om(node->initialOM());
-
                 // clang-format on
 
-                if (ImGui::Button("Enter translation edit mode"))
-                {
-                    toggleTransformationEditMode(s, sv, NodeEditMode_Translate);
-                }
+                if (ImGui::Button("Reset"))
+                    selNode->om(selNode->initialOM());
 
-                if (ImGui::Button("Enter scale edit mode"))
-                {
-                    toggleTransformationEditMode(s, sv, NodeEditMode_Scale);
-                }
+                if (ImGui::Button("Enter translation edit mode"))
+                    toggleTransformationEditMode(s, sv, NodeEditMode_Translate);
 
                 if (ImGui::Button("Enter rotation edit mode"))
-                {
                     toggleTransformationEditMode(s, sv, NodeEditMode_Rotate);
-                }
+
+                if (ImGui::Button("Enter scale edit mode"))
+                    toggleTransformationEditMode(s, sv, NodeEditMode_Scale);
 
                 if (ImGui::Button("Exit edit mode"))
-                {
-                    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
-
-                    if (transformationNode)
-                    {
-                        s->root3D()->deleteChild(transformationNode);
-                    }
-                }
+                    removeTransformNode(s);
             }
             else
             {
                 ImGui::Text("No node selected.");
                 ImGui::Text("Please select a node by double clicking it.");
+
+                if (transformNode)
+                    removeTransformNode(s);
             }
             ImGui::End();
             ImGui::PopFont();
@@ -874,7 +869,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
             ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
             ImGuiStyle& style = ImGui::GetStyle();
-            if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%0.0f"))
+            if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 10.0f, "%0.0f"))
                 style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 10.0f, "%0.0f"))
                 style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
@@ -1047,7 +1042,7 @@ CVCalibration guessCalibration(bool         mirroredH,
 }
 //-----------------------------------------------------------------------------
 //! Builds the entire menu bar once per frame
-void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
+void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 {
     SLSceneID    sid           = SLApplication::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
@@ -1056,6 +1051,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
     if (!hasAnimations) curAnimIx = -1;
+
+
+    // Remove transform node if no or the wrong one is selected
+    if (transformNode && s->selectedNode() != transformNode->targetNode())
+        removeTransformNode(s);
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -1066,9 +1066,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("General Scenes"))
                 {
                     if (ImGui::MenuItem("Minimal Scene", nullptr, sid == SID_Minimal))
-                    {
                         s->onLoad(s, sv, SID_Minimal);
-                    }
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
 #if !defined(SL_OS_ANDROID) and !defined(SL_OS_IOS)
@@ -1557,6 +1555,79 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             ImGui::MenuItem("UI Preferences", nullptr, &showUIPrefs);
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Edit", s->selectedNode() != nullptr || !sv->camera()->selectedRect().isZero()))
+        {
+            if (s->selectedNode())
+            {
+                if (ImGui::MenuItem("Deselect Node"))
+                    s->selectNode(nullptr);
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Translate Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Translate))
+                {
+                    if (transformNode && transformNode->editMode() == NodeEditMode_Translate)
+                        removeTransformNode(s);
+                    else
+                        toggleTransformationEditMode(s, sv, NodeEditMode_Translate);
+                }
+                if (ImGui::MenuItem("Rotate Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Rotate))
+                {
+                    if (transformNode && transformNode->editMode() == NodeEditMode_Rotate)
+                        removeTransformNode(s);
+                    else
+                        toggleTransformationEditMode(s, sv, NodeEditMode_Rotate);
+                }
+                if (ImGui::MenuItem("Scale Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Scale))
+                {
+                    if (transformNode && transformNode->editMode() == NodeEditMode_Scale)
+                        removeTransformNode(s);
+                    else
+                        toggleTransformationEditMode(s, sv, NodeEditMode_Scale);
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::BeginMenu("Node Flags"))
+                {
+                    SLNode* selN = s->selectedNode();
+
+                    if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_WIREMESH)))
+                        selN->drawBits()->toggle(SL_DB_WIREMESH);
+
+                    if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
+                        selN->drawBits()->toggle(SL_DB_NORMALS);
+
+                    if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
+                        selN->drawBits()->toggle(SL_DB_BBOX);
+
+                    if (ImGui::MenuItem("Voxels", nullptr, selN->drawBits()->get(SL_DB_VOXELS)))
+                        selN->drawBits()->toggle(SL_DB_VOXELS);
+
+                    if (ImGui::MenuItem("Axis", nullptr, selN->drawBits()->get(SL_DB_AXIS)))
+                        selN->drawBits()->toggle(SL_DB_AXIS);
+
+                    if (ImGui::MenuItem("Back Faces", nullptr, selN->drawBits()->get(SL_DB_CULLOFF)))
+                        selN->drawBits()->toggle(SL_DB_CULLOFF);
+
+                    if (ImGui::MenuItem("Skeleton", nullptr, selN->drawBits()->get(SL_DB_SKELETON)))
+                        selN->drawBits()->toggle(SL_DB_SKELETON);
+
+                    if (ImGui::MenuItem("All off"))
+                        selN->drawBits()->allOff();
+
+                    ImGui::EndMenu();
+                }
+            }
+            else
+            {
+                if (ImGui::MenuItem("Clear selection"))
+                    sv->camera()->selectedRect().setZero();
+            }
 
             ImGui::EndMenu();
         }
@@ -2639,6 +2710,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
+            fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
             fs["showDockSpace"] >> b;       AppDemoGui::showDockSpace = b;
             // clang-format on
@@ -2713,6 +2785,7 @@ void AppDemoGui::saveConfig()
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
+    fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
     fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
@@ -2720,15 +2793,28 @@ void AppDemoGui::saveConfig()
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
-void AppDemoGui::toggleTransformationEditMode(SLProjectScene* s, SLSceneView* sv, SLNodeEditMode editMode)
+//! Adds a transform node for the selected node and toggles the edit mode
+void AppDemoGui::toggleTransformationEditMode(SLProjectScene* s,
+                                              SLSceneView*    sv,
+                                              SLNodeEditMode  editMode)
 {
-    SLTransformationNode* transformationNode = s->root3D()->findChild<SLTransformationNode>("Edit Gizmos");
+    SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
 
-    if (!transformationNode)
+    if (!tN)
     {
-        transformationNode = new SLTransformationNode(s, sv, s->selectedNode());
-        s->root3D()->addChild(transformationNode);
+        tN = new SLTransformNode(s, sv, s->selectedNode());
+        s->root3D()->addChild(tN);
     }
 
-    transformationNode->toggleEditMode(editMode);
+    tN->toggleEditMode(editMode);
+    transformNode = tN;
 }
+//-----------------------------------------------------------------------------
+//! Searches and removes the transform node
+void AppDemoGui::removeTransformNode(SLProjectScene* s)
+{
+    SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
+    if (tN) s->root3D()->deleteChild(tN);
+    transformNode = nullptr;
+}
+//-----------------------------------------------------------------------------

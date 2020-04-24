@@ -38,10 +38,10 @@ void LocationMapGui::onShow()
     _panScroll.enable();
 }
 
-void LocationMapGui::onResize(SLint scrW, SLint scrH)
+void LocationMapGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
-    ImGuiWrapper::onResize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbY);
 }
 
 void LocationMapGui::resize(int scrW, int scrH)

@@ -10,7 +10,7 @@
 
 class SLScene;
 class SLSceneView;
-class ImFont;
+struct ImFont;
 
 class AboutGui : public ImGuiWrapper
   , private sm::EventSender
@@ -22,10 +22,10 @@ public:
              int                 screenWidthPix,
              int                 screenHeightPix,
              std::string         fontPath);
-    ~AboutGui();
+    ~AboutGui() override;
 
     void build(SLScene* s, SLSceneView* sv) override;
-    void onResize(SLint scrW, SLint scrH) override;
+    void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
 
 private:

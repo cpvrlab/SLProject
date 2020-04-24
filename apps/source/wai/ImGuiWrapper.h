@@ -23,7 +23,7 @@
 
 class SLScene;
 class SLSceneView;
-class ImGuiContext;
+struct ImGuiContext;
 
 //e.g. scrolling of child window by touch down and move.
 //We need the possibility to turn it off because it conflicts with drag and drop of windows
@@ -61,7 +61,7 @@ public:
         _tOld     = 0.f;
     }
 
-    //call to update mouse wheel in render function
+    //call to updateRec mouse wheel in render function
     //As we are using the io.mouseWheel from imgui to set the window position,
     //we have to convert to mouseWheel coordinates.
     float getScrollInMouseWheelCoords(const bool mouseDown, const float fontSize, const float t)
@@ -109,7 +109,7 @@ public:
             return 0.f;
     }
 
-    bool enabled() { return _enabled; }
+    bool enabled() const { return _enabled; }
 
 private:
     bool        _enabled  = false;
@@ -150,11 +150,11 @@ class ImGuiWrapper : public SLUiInterface
 {
 public:
     ImGuiWrapper();
-    ~ImGuiWrapper();
-    void init(std::string configPath) override;
+    ~ImGuiWrapper() override;
+    void init(const std::string& configPath) override;
 
     void onInitNewFrame(SLScene* s, SLSceneView* sv) override;
-    void onResize(SLint scrW, SLint scrH) override;
+    void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onPaint(const SLRecti& viewport) override;
     void onMouseDown(SLMouseButton button, SLint x, SLint y) override;
     void onMouseUp(SLMouseButton button, SLint x, SLint y) override;

@@ -1,10 +1,19 @@
+//#############################################################################
+//  File:      SLTransformNode.h
+//  Author:    Jan Dellsperger
+//  Date:      July 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Copyright: Jan Dellsperger
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SL_TRANSFORMATION_NODE_H
 #define SL_TRANSFORMATION_NODE_H
 
 #include <SLSceneView.h>
 
-struct WAIEvent;
-
+//-----------------------------------------------------------------------------
 enum SLNodeEditMode
 {
     NodeEditMode_None,
@@ -12,20 +21,32 @@ enum SLNodeEditMode
     NodeEditMode_Scale,
     NodeEditMode_Rotate
 };
-
-class SLTransformationNode : public SLNode
+//-----------------------------------------------------------------------------
+class SLTransformNode : public SLNode
 {
 public:
-    SLTransformationNode(SLAssetManager* assetMgr,
-                         SLSceneView*    sv,
-                         SLNode*         targetNode);
-    ~SLTransformationNode();
+    SLTransformNode(SLAssetManager* assetMgr,
+                    SLSceneView*    sv,
+                    SLNode*         targetNode);
+    ~SLTransformNode() override;
 
     void toggleEditMode(SLNodeEditMode editMode);
 
-    virtual SLbool onMouseDown(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
-    virtual SLbool onMouseUp(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
-    virtual SLbool onMouseMove(const SLMouseButton button, const SLint x, const SLint y, const SLKey mod);
+    SLbool onMouseDown(SLMouseButton button,
+                       SLint         x,
+                       SLint         y,
+                       SLKey         mod) override;
+    SLbool onMouseUp(SLMouseButton button,
+                     SLint         x,
+                     SLint         y,
+                     SLKey         mod) override;
+    SLbool onMouseMove(SLMouseButton button,
+                       SLint         x,
+                       SLint         y,
+                       SLKey         mod) override;
+
+    SLNode*        targetNode() { return _targetNode; }
+    SLNodeEditMode editMode() { return _editMode; }
 
 private:
     SLSceneView* _sv         = nullptr;
@@ -44,7 +65,6 @@ private:
     SLNode* _translationAxisX = nullptr;
     SLNode* _translationAxisY = nullptr;
     SLNode* _translationAxisZ = nullptr;
-
     SLNode* _translationLineX = nullptr;
     SLNode* _translationLineY = nullptr;
     SLNode* _translationLineZ = nullptr;
@@ -84,9 +104,9 @@ private:
                            const SLVec3f& discO,
                            const SLVec3f& discN,
                            float&         t);
-    bool isCCW(SLVec2f a, SLVec2f b, SLVec2f c);
-    void toggleHideRecursive(SLNode* node, bool hidden);
+    bool isCCW(const SLVec2f& a, const SLVec2f& b, const SLVec2f& c);
+    void setDrawBitRecursive(SLuint bit, SLNode* node, bool value);
     void lookAt(SLNode* node, SLCamera* camera);
 };
-
+//-----------------------------------------------------------------------------
 #endif

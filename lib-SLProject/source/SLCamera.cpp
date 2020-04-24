@@ -311,7 +311,7 @@ void SLCamera::statsRec(SLNodeStats& stats)
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
 the camera position and the 4 near clipping plane points in object space (OS).
 */
-void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV)
+void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV) const
 {
     SLVec3f P[5];
     SLfloat tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
@@ -410,8 +410,10 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
     // Set viewport //
     //////////////////
 
-    SLint w  = vpRect.width;
-    SLint h  = vpRect.height;
+    SLint x  = (SLint)(vpRect.x * sv->scr2fbX());
+    SLint y  = (SLint)(vpRect.y * sv->scr2fbY());
+    SLint w  = (SLint)(vpRect.width * sv->scr2fbX());
+    SLint h  = (SLint)(vpRect.height * sv->scr2fbY());
     SLint w2 = w >> 1;  // w/2
     SLint h2 = h >> 1;  // h/2
     SLint h4 = h2 >> 1; //h2/2
@@ -440,7 +442,7 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
             stateGL->viewport(w2, h4, w2, h2);
     }
     else
-        stateGL->viewport(vpRect.x, vpRect.y, vpRect.width, vpRect.height);
+        stateGL->viewport(x, y, w, h);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -741,7 +743,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 }
                 //todo else rotation = s->deviceRotation();
 
-                SLfloat rotX, rotY, rotZ;
+                SLfloat rotX = 0.0f, rotY = 0.0f, rotZ = 0.0f;
                 rotation.toMat4().toEulerAnglesZYX(rotZ, rotY, rotX);
                 /*
                 SL_LOG("rotx : %3.1f, roty: %3.1f, rotz: %3.1f",
@@ -1322,7 +1324,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     { /*
         In perspective projection the top-left vector (TL) points
         from the eye to the center of the top-left pixel on a projection
-        plan in focal distance. See also the computergraphics script about
+        plan in focal distance. See also the computer graphics script about
         primary ray calculation.
         */
         // calculate half window width & height in world coords
@@ -1357,7 +1359,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 //! Project a world position into screen coordinates
-SLVec2f SLCamera::projectWorldToNDC(SLVec4f worldPos)
+SLVec2f SLCamera::projectWorldToNDC(const SLVec4f& worldPos) const
 {
     SLMat4f projectionMatrix;
     projectionMatrix.perspective(_fov, _viewportRatio, _clipNear, _clipFar);
@@ -1384,9 +1386,9 @@ http://www.lighthouse3d.com/opengl/viewfrustum/
 SLbool SLCamera::isInFrustum(SLAABBox* aabb)
 {
     // check the 6 planes of the frustum
-    for (SLint i = 0; i < 6; ++i)
+    for (auto& i : _plane)
     {
-        SLfloat distance = _plane[i].distToPoint(aabb->centerWS());
+        SLfloat distance = i.distToPoint(aabb->centerWS());
         if (distance < -aabb->radiusWS())
         {
             aabb->isVisible(false);
@@ -1421,7 +1423,7 @@ over the window at the specified cursor position. With two trackball vectors
 you can calculate a single rotation axis with the cross product. This routine
 is used for the trackball camera animation.
 */
-SLVec3f SLCamera::trackballVec(const SLint x, const SLint y)
+SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
 {
     SLVec3f vec;
 

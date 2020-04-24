@@ -58,10 +58,10 @@ void TutorialGui::onShow()
     _panScroll.enable();
 }
 
-void TutorialGui::onResize(SLint scrW, SLint scrH)
+void TutorialGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
-    ImGuiWrapper::onResize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbX);
 }
 
 void TutorialGui::resize(int scrW, int scrH)

@@ -117,7 +117,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransformationNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransformNode.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTriangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
         )
@@ -204,7 +204,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransformationNode.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransformNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTriangle.cpp
         )
 

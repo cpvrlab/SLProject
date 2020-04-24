@@ -40,10 +40,10 @@ void AboutGui::onShow()
     _panScroll.enable();
 }
 
-void AboutGui::onResize(SLint scrW, SLint scrH)
+void AboutGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
-    ImGuiWrapper::onResize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbY);
 }
 
 void AboutGui::resize(int scrW, int scrH)

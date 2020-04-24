@@ -158,7 +158,7 @@ public:
     void         removeMeshes() { _meshes.clear(); }
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
-    bool         removeMesh(SLstring name);
+    bool         removeMesh(const SLstring& name);
     SLMesh*      findMesh(const SLstring& name,
                           SLbool          recursive = false);
     void         setAllMeshMaterials(SLMaterial* mat,
@@ -285,12 +285,10 @@ public:
     SLVMesh&          meshes() { return _meshes; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
-    //CVTracked*      tracker() { return _tracker; }
-    void         update();
-    virtual void doUpdate() {}
-    //update all meshes recursively: Do software skinning on all changed skeletons && update any out of date acceleration structure for RT or if they're being rendered.
-    bool updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes);
-    void updateMeshAccelStructs();
+    void              updateRec();
+    virtual void      doUpdate() {}
+    bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
+    void              updateMeshAccelStructs();
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 

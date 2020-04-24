@@ -47,15 +47,13 @@ class InitEvent : public sm::Event
 public:
     InitEvent(int            scrWidth,
               int            scrHeight,
-              float          scr2fbX,
-              float          scr2fbY,
               int            dpi,
               AppDirectories dirs)
     {
         enableTransition((unsigned int)StateId::IDLE,
                          (unsigned int)StateId::INIT);
 
-        DeviceData deviceData(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, dirs);
+        DeviceData deviceData(scrWidth, scrHeight, dpi, dirs);
         _eventData = new InitEventData(deviceData);
     }
 };

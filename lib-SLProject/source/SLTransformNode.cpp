@@ -1,48 +1,61 @@
-#include <SLTransformationNode.h>
+//#############################################################################
+//  File:      SLTransformNode.cpp
+//  Author:    Jan Dellsperger
+//  Date:      July 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Copyright: Jan Dellsperger, Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
+#include <SLTransformNode.h>
 #include <SLVec3.h>
 #include <SLCoordAxisArrow.h>
-#include <SLSphere.h>
 #include <SLCircle.h>
 #include <SLDisk.h>
 
-SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
-                                           SLSceneView*    sv,
-                                           SLNode*         targetNode)
+//-----------------------------------------------------------------------------
+SLTransformNode::SLTransformNode(SLAssetManager* assetMgr,
+                                 SLSceneView*    sv,
+                                 SLNode*         targetNode)
   : SLNode("Edit Gizmos"),
     _sv(sv),
     _targetNode(targetNode),
     _editMode(NodeEditMode_None),
-    _mouseIsDown(false)
+    _mouseIsDown(false),
+    _gizmoScale(1.0f)
 {
-    float scaleFactor = _targetNode->aabb()->radiusOS() * 0.5f;
-
-    _gizmoScale = scaleFactor;
-
     SLMaterial* redMat = new SLMaterial(assetMgr, "Red", SLCol4f::RED);
     redMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+
     SLMaterial* redTransparentMat = new SLMaterial(assetMgr, "Red Transparent", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     redTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
     SLMaterial* greenMat = new SLMaterial(assetMgr, "Green", SLCol4f::GREEN);
     greenMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
+
     SLMaterial* greenTransparentMat = new SLMaterial(assetMgr, "Green Transparent", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     greenTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
     SLMaterial* blueMat = new SLMaterial(assetMgr, "Blue", SLCol4f::BLUE);
     blueMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
     SLMaterial* blueTransparentMat = new SLMaterial(assetMgr, "Blue Transparent", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     blueTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
     SLMaterial* yellowMat = new SLMaterial(assetMgr, "Yellow", SLCol4f::YELLOW);
     yellowMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     yellowMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
     SLMaterial* yellowTransparentMat = new SLMaterial(assetMgr, "Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
     yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
-    _translationAxisX = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::RED), "x-axis node");
-    _translationAxisY = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::GREEN), "y-axis node");
-    _translationAxisZ = new SLNode(new SLCoordAxisArrow(assetMgr, SLVec4f::BLUE), "z-axis node");
+    _translationAxisX = new SLNode(new SLCoordAxisArrow(assetMgr, redTransparentMat), "x-axis node");
+    _translationAxisY = new SLNode(new SLCoordAxisArrow(assetMgr, greenTransparentMat), "y-axis node");
+    _translationAxisZ = new SLNode(new SLCoordAxisArrow(assetMgr, blueTransparentMat), "z-axis node");
 
     _translationAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
     _translationAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
@@ -100,8 +113,6 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
     rotationGizmos->addChild(rotationGizmosY);
     rotationGizmos->addChild(rotationGizmosZ);
 
-    this->scale(scaleFactor);
-
     this->addChild(_translationAxisX);
     this->addChild(_translationLineX);
     this->addChild(_translationAxisY);
@@ -113,22 +124,21 @@ SLTransformationNode::SLTransformationNode(SLAssetManager* assetMgr,
 
     this->updateAABBRec();
 
+    setDrawBitRecursive(SL_DB_OVERDRAW, this, true);
+
     _sv->s().eventHandlers().push_back(this);
 }
-
-SLTransformationNode::~SLTransformationNode()
+//-----------------------------------------------------------------------------
+SLTransformNode::~SLTransformNode()
 {
-    std::vector<SLEventHandler*>::iterator it = std::find(_sv->s().eventHandlers().begin(),
-                                                          _sv->s().eventHandlers().end(),
-                                                          this);
-
+    vector<SLEventHandler*>::iterator it = std::find(_sv->s().eventHandlers().begin(),
+                                                     _sv->s().eventHandlers().end(),
+                                                     this);
     if (it != _sv->s().eventHandlers().end())
-    {
         _sv->s().eventHandlers().erase(it);
-    }
 }
-
-void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
+//-----------------------------------------------------------------------------
+void SLTransformNode::toggleEditMode(SLNodeEditMode editMode)
 {
     _editMode = editMode;
 
@@ -138,7 +148,18 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
         {
             this->translation(_targetNode->updateAndGetWM().translation());
 
-            toggleHideRecursive(this, true);
+            SLVec2f p1 = _sv->camera()->projectWorldToNDC(this->translationWS());
+            SLVec2f p2 = _sv->camera()->projectWorldToNDC(this->translationWS() +
+                                                          _sv->camera()->upWS().normalize());
+
+            float actualHeight = (p1 - p2).length();
+            float targetHeight = 0.2f; // % of screen that gizmos should occupy
+            float scaleFactor  = targetHeight / actualHeight;
+
+            this->scale(scaleFactor / _gizmoScale);
+            _gizmoScale = scaleFactor;
+
+            setDrawBitRecursive(SL_DB_HIDDEN, this, true);
             this->drawBits()->set(SL_DB_HIDDEN, false);
 
             switch (_editMode)
@@ -177,14 +198,17 @@ void SLTransformationNode::toggleEditMode(SLNodeEditMode editMode)
     }
     else
     {
-        toggleHideRecursive(this, true);
+        setDrawBitRecursive(SL_DB_HIDDEN, this, true);
         this->drawBits()->set(SL_DB_HIDDEN, false);
 
         _editMode = NodeEditMode_None;
     }
 }
-
-SLbool SLTransformationNode::onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod)
+//-----------------------------------------------------------------------------
+SLbool SLTransformNode::onMouseDown(SLMouseButton button,
+                                    SLint         x,
+                                    SLint         y,
+                                    SLKey         mod)
 {
     bool result = false;
 
@@ -196,8 +220,11 @@ SLbool SLTransformationNode::onMouseDown(SLMouseButton button, SLint x, SLint y,
 
     return result;
 }
-
-SLbool SLTransformationNode::onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod)
+//-----------------------------------------------------------------------------
+SLbool SLTransformNode::onMouseUp(SLMouseButton button,
+                                  SLint         x,
+                                  SLint         y,
+                                  SLKey         mod)
 {
     bool result = false;
 
@@ -216,8 +243,11 @@ SLbool SLTransformationNode::onMouseUp(SLMouseButton button, SLint x, SLint y, S
 
     return result;
 }
-
-SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SLint y, const SLKey mod)
+//-----------------------------------------------------------------------------
+SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
+                                    SLint               x,
+                                    SLint               y,
+                                    const SLKey         mod)
 {
     bool result = false;
 
@@ -237,7 +267,12 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                         SLVec3f axisPoint;
                         if (_mouseIsDown)
                         {
-                            if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _selectedGizmo->translationWS(), _selectedGizmo->forwardWS(), pickRayPoint, axisPoint))
+                            if (getClosestPointsBetweenRays(pickRay.origin,
+                                                            pickRay.dir,
+                                                            _selectedGizmo->translationWS(),
+                                                            _selectedGizmo->forwardWS(),
+                                                            pickRayPoint,
+                                                            axisPoint))
                             {
                                 SLVec3f translationDiff = axisPoint - _hitCoordinate;
 
@@ -260,7 +295,12 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
 
                             float   dist = FLT_MAX;
                             SLVec3f axisPointCand;
-                            if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _translationLineX->translationWS(), _translationLineX->forwardWS(), pickRayPoint, axisPointCand))
+                            if (getClosestPointsBetweenRays(pickRay.origin,
+                                                            pickRay.dir,
+                                                            _translationLineX->translationWS(),
+                                                            _translationLineX->forwardWS(),
+                                                            pickRayPoint,
+                                                            axisPointCand))
                             {
                                 float distCand = (axisPointCand - pickRayPoint).length();
 
@@ -272,7 +312,12 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                                 }
                             }
 
-                            if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _translationLineY->translationWS(), _translationLineY->forwardWS(), pickRayPoint, axisPointCand))
+                            if (getClosestPointsBetweenRays(pickRay.origin,
+                                                            pickRay.dir,
+                                                            _translationLineY->translationWS(),
+                                                            _translationLineY->forwardWS(),
+                                                            pickRayPoint,
+                                                            axisPointCand))
                             {
                                 float distCand = (axisPointCand - pickRayPoint).length();
 
@@ -284,7 +329,12 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                                 }
                             }
 
-                            if (getClosestPointsBetweenRays(pickRay.origin, pickRay.dir, _translationLineZ->translationWS(), _translationLineZ->forwardWS(), pickRayPoint, axisPointCand))
+                            if (getClosestPointsBetweenRays(pickRay.origin,
+                                                            pickRay.dir,
+                                                            _translationLineZ->translationWS(),
+                                                            _translationLineZ->forwardWS(),
+                                                            pickRayPoint,
+                                                            axisPointCand))
                             {
                                 float distCand = (axisPointCand - pickRayPoint).length();
 
@@ -318,7 +368,11 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                         if (_mouseIsDown)
                         {
                             float t = FLT_MAX;
-                            if (rayPlaneIntersect(pickRay.origin, pickRay.dir, _selectedGizmo->translationWS(), _selectedGizmo->forwardWS(), t))
+                            if (rayPlaneIntersect(pickRay.origin,
+                                                  pickRay.dir,
+                                                  _selectedGizmo->translationWS(),
+                                                  _selectedGizmo->forwardWS(),
+                                                  t))
                             {
                                 SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
                                 SLVec3f intersectionPoint   = _selectedGizmo->updateAndGetWMI() * intersectionPointWS;
@@ -339,7 +393,12 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
                             _selectedGizmo = nullptr;
 
                             float t = FLT_MAX;
-                            if (rayDiscIntersect(pickRay.origin, pickRay.dir, _scaleCircle->translationWS(), _scaleCircle->forwardWS(), _gizmoScale, t))
+                            if (rayDiscIntersect(pickRay.origin,
+                                                 pickRay.dir,
+                                                 _scaleCircle->translationWS(),
+                                                 _scaleCircle->forwardWS(),
+                                                 _gizmoScale,
+                                                 t))
                             {
                                 _selectedGizmo = _scaleCircle;
 
@@ -449,13 +508,13 @@ SLbool SLTransformationNode::onMouseMove(const SLMouseButton button, SLint x, SL
 
     return result;
 }
-
-bool SLTransformationNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
-                                                       const SLVec3f& ray1Dir,
-                                                       const SLVec3f& ray2O,
-                                                       const SLVec3f& ray2Dir,
-                                                       SLVec3f&       ray1P,
-                                                       SLVec3f&       ray2P)
+//-----------------------------------------------------------------------------
+bool SLTransformNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
+                                                  const SLVec3f& ray1Dir,
+                                                  const SLVec3f& ray2O,
+                                                  const SLVec3f& ray2Dir,
+                                                  SLVec3f&       ray1P,
+                                                  SLVec3f&       ray2P)
 {
     bool result = false;
 
@@ -468,27 +527,33 @@ bool SLTransformationNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
     {
         SLVec3f diffO = ray2O - ray1O;
 
-        SLMat3f m1   = SLMat3f(diffO.x, ray2Dir.x, cross.x, diffO.y, ray2Dir.y, cross.y, diffO.z, ray2Dir.z, cross.z);
+        // clang-format off
+        SLMat3f m1   = SLMat3f(diffO.x, ray2Dir.x, cross.x,
+                               diffO.y, ray2Dir.y, cross.y,
+                               diffO.z, ray2Dir.z, cross.z);
         float   det1 = m1.det();
         float   t1   = det1 / den;
         ray1P        = ray1O + (ray1Dir * t1);
 
-        SLMat3f m2   = SLMat3f(diffO.x, ray1Dir.x, cross.x, diffO.y, ray1Dir.y, cross.y, diffO.z, ray1Dir.z, cross.z);
+        SLMat3f m2   = SLMat3f(diffO.x, ray1Dir.x, cross.x,
+                               diffO.y, ray1Dir.y, cross.y,
+                               diffO.z, ray1Dir.z, cross.z);
         float   det2 = m2.det();
         float   t2   = det2 / den;
         ray2P        = ray2O + (ray2Dir * t2);
+        // clang-format on
 
         result = true;
     }
 
     return result;
 }
-
-bool SLTransformationNode::getClosestPointOnAxis(const SLVec3f& pickRayO,
-                                                 const SLVec3f& pickRayDir,
-                                                 const SLVec3f& axisRayO,
-                                                 const SLVec3f& axisRayDir,
-                                                 SLVec3f&       axisPoint)
+//-----------------------------------------------------------------------------
+bool SLTransformNode::getClosestPointOnAxis(const SLVec3f& pickRayO,
+                                            const SLVec3f& pickRayDir,
+                                            const SLVec3f& axisRayO,
+                                            const SLVec3f& axisRayDir,
+                                            SLVec3f&       axisPoint)
 {
     bool result = false;
 
@@ -501,7 +566,11 @@ bool SLTransformationNode::getClosestPointOnAxis(const SLVec3f& pickRayO,
     {
         SLVec3f diffO = axisRayO - pickRayO;
 
-        SLMat3f m = SLMat3f(diffO.x, pickRayDir.x, cross.x, diffO.y, pickRayDir.y, cross.y, diffO.z, pickRayDir.z, cross.z);
+        // clang-format off
+        SLMat3f m = SLMat3f(diffO.x, pickRayDir.x, cross.x,
+                            diffO.y, pickRayDir.y, cross.y,
+                            diffO.z, pickRayDir.z, cross.z);
+        // clang-format on
 
         float det = m.det();
         float t   = det / den;
@@ -513,13 +582,13 @@ bool SLTransformationNode::getClosestPointOnAxis(const SLVec3f& pickRayO,
 
     return result;
 }
-
-bool SLTransformationNode::rayDiscIntersect(const SLVec3f& rayO,
-                                            const SLVec3f& rayDir,
-                                            const SLVec3f& discO,
-                                            const SLVec3f& discN,
-                                            const float&   discR,
-                                            float&         t)
+//-----------------------------------------------------------------------------
+bool SLTransformNode::rayDiscIntersect(const SLVec3f& rayO,
+                                       const SLVec3f& rayDir,
+                                       const SLVec3f& discO,
+                                       const SLVec3f& discN,
+                                       const float&   discR,
+                                       float&         t)
 {
     bool result = false;
 
@@ -533,12 +602,12 @@ bool SLTransformationNode::rayDiscIntersect(const SLVec3f& rayO,
 
     return result;
 }
-
-bool SLTransformationNode::rayPlaneIntersect(const SLVec3f& rayO,
-                                             const SLVec3f& rayDir,
-                                             const SLVec3f& planeO,
-                                             const SLVec3f& planeN,
-                                             float&         t)
+//-----------------------------------------------------------------------------
+bool SLTransformNode::rayPlaneIntersect(const SLVec3f& rayO,
+                                        const SLVec3f& rayDir,
+                                        const SLVec3f& planeO,
+                                        const SLVec3f& planeN,
+                                        float&         t)
 {
     bool result = false;
 
@@ -553,11 +622,13 @@ bool SLTransformationNode::rayPlaneIntersect(const SLVec3f& rayO,
 
     return result;
 }
-
+//-----------------------------------------------------------------------------
 // uses signed area to determine winding order
 // returns true if a,b,c are wound in ccw order, false otherwise
 // https://www.quora.com/What-is-the-signed-Area-of-the-triangle
-bool SLTransformationNode::isCCW(SLVec2f a, SLVec2f b, SLVec2f c)
+bool SLTransformNode::isCCW(const SLVec2f& a,
+                            const SLVec2f& b,
+                            const SLVec2f& c)
 {
     SLVec2f ac = a - c;
     SLVec2f bc = b - c;
@@ -567,18 +638,18 @@ bool SLTransformationNode::isCCW(SLVec2f a, SLVec2f b, SLVec2f c)
 
     return result;
 }
-
-void SLTransformationNode::toggleHideRecursive(SLNode* node, bool hidden)
+//-----------------------------------------------------------------------------
+void SLTransformNode::setDrawBitRecursive(SLuint bit, SLNode* node, bool value)
 {
-    node->drawBits()->set(SL_DB_HIDDEN, hidden);
+    node->drawBits()->set(bit, value);
 
     for (SLNode* child : node->children())
     {
-        toggleHideRecursive(child, hidden);
+        setDrawBitRecursive(bit, child, value);
     }
 }
-
-void SLTransformationNode::lookAt(SLNode* node, SLCamera* camera)
+//-----------------------------------------------------------------------------
+void SLTransformNode::lookAt(SLNode* node, SLCamera* camera)
 {
     // TODO(dgj1): this is a lookat function, because the one in SLNode doesn't work
     // or maybe I don't understand how to use it
@@ -591,7 +662,14 @@ void SLTransformationNode::lookAt(SLNode* node, SLCamera* camera)
     SLVec3f nodeUp     = (nodeDir ^ nodeRight).normalize();
 
     SLVec3f nodeTranslation = node->om().translation();
-    SLMat4f updatedOm       = SLMat4f(nodeRight.x, nodeUp.x, nodeDir.x, nodeTranslation.x, nodeRight.y, nodeUp.y, nodeDir.y, nodeTranslation.y, nodeRight.z, nodeUp.z, nodeDir.z, nodeTranslation.z, 0.0f, 0.0f, 0.0f, 1.0f);
+
+    // clang-format off
+    SLMat4f updatedOm = SLMat4f(nodeRight.x, nodeUp.x, nodeDir.x, nodeTranslation.x,
+                                nodeRight.y, nodeUp.y, nodeDir.y, nodeTranslation.y,
+                                nodeRight.z, nodeUp.z, nodeDir.z, nodeTranslation.z,
+                                       0.0f,     0.0f,      0.0f,       1.0f);
+    // clang-format on
 
     node->om(updatedOm);
 }
+//-----------------------------------------------------------------------------

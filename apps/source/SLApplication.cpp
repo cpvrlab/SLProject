@@ -16,6 +16,7 @@
 
 #include <SL.h>
 #include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <SLGLImGui.h>
 #include <utility>
@@ -103,7 +104,7 @@ void SLApplication::deleteAppAndScene()
     assert(SLApplication::scene != nullptr &&
            "You can delete an  only once");
 
-    for (auto sv : sceneViews)
+    for (auto* sv : sceneViews)
         delete sv;
     sceneViews.clear();
 
