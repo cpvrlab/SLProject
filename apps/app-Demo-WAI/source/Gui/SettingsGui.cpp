@@ -94,18 +94,18 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                                             ImGuiWindowFlags_NoScrollbar;
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
-
-        ImGui::SetNextWindowPos(ImVec2(_screenW - _headerBarH, _headerBarH), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_headerBarH, _headerBarH), ImGuiCond_Always);
+        float hiddenButtonSize = _headerBarH * 2.f;
+        ImGui::SetNextWindowPos(ImVec2(_screenW - hiddenButtonSize, _headerBarH), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(hiddenButtonSize, hiddenButtonSize), ImGuiCond_Always);
 
         ImGui::PushStyleColor(ImGuiCol_Button, _hiddenColor);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _hiddenColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _hiddenColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedTranspColor);
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _hiddenColor);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
         ImGui::Begin("Settings_hiddenButton", nullptr, windowFlags);
-        if (ImGui::Button("##hiddenButton", ImVec2(_headerBarH, _headerBarH)))
+        if (ImGui::Button("##hiddenButton", ImVec2(hiddenButtonSize, hiddenButtonSize)))
         {
             Utils::log("SettingsGui", "Hidden button clicked %i times", _hiddenNumClicks);
             if (_hiddenTimer.elapsedTimeInMilliSec() < _hiddenMaxElapsedMs)
