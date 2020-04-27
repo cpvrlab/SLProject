@@ -31,7 +31,7 @@ public:
     }
 
     void updateCameraPose(const cv::Mat& pose);
-    void updateVideoImage(const cv::Mat& image, const CVPixFormat pixFormat);
+    void updateVideoImage(const cv::Mat& image);
 
     void renderMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderMarkerCornerMapPoints(const std::vector<WAIMapPoint*>& pts);
