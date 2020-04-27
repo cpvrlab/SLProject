@@ -68,6 +68,7 @@ SENSNdkCamera::SENSNdkCamera()
     _cameraDeviceOpened(false)
 {
     LOG_NDKCAM_INFO("Camera instantiated");
+    _camInfoProvided = true;
 }
 
 SENSNdkCamera::~SENSNdkCamera()
@@ -109,7 +110,7 @@ void SENSNdkCamera::init(SENSCamera::Facing facing)
     };
     ACameraManager_registerAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
 
-    //PrintCameras(_cameraManager);
+    PrintCameras(_cameraManager);
 
     //find camera device that fits our needs and retrieve required camera charakteristics
     initOptimalCamera(_facing);
@@ -155,7 +156,7 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
     _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
     //todo: find best fitting image format in _availableStreamConfig
-    cv::Size captureSize = _availableStreamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
+    cv::Size captureSize = _camInfoAvailableStreamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
 
     LOG_NDKCAM_INFO("start: captureSize (%d, %d)", captureSize.width, captureSize.height);
     //create request with necessary parameters
@@ -258,7 +259,9 @@ void SENSNdkCamera::stop()
     {
         _openCameraThread.detach();
         _initialized = false;
-        _availableStreamConfig.clear();
+        _camInfoAvailableStreamConfig.clear();
+        _camInfoPhysicalSensorSizeMM = cv::Size2f(0.f, 0.f);
+        _camInfoFocalLenghts.clear();
     }
 
     if (_captureSession)
@@ -619,7 +622,7 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
             {
                 for (int i = 0; i < lensInfo.count; ++i)
                 {
-                    _focalLenghts.push_back(lensInfo.data.f[i]);
+                    _camInfoFocalLenghts.push_back(lensInfo.data.f[i]);
                 }
             }
         }
@@ -627,8 +630,8 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
         {
             if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
             {
-                _physicalSensorSizeMM.width  = lensInfo.data.f[0];
-                _physicalSensorSizeMM.height = lensInfo.data.f[1];
+                _camInfoPhysicalSensorSizeMM.width  = lensInfo.data.f[0];
+                _camInfoPhysicalSensorSizeMM.height = lensInfo.data.f[1];
             }
         }
         else if (tags[tagIdx] == ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS)
@@ -659,7 +662,7 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
                     {
                         width  = lensInfo.data.i32[i + 1];
                         height = lensInfo.data.i32[i + 2];
-                        _availableStreamConfig.add({width, height});
+                        _camInfoAvailableStreamConfig.add({width, height});
                     }
                 }
             }

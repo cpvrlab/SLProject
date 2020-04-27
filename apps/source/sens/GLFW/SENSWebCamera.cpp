@@ -7,6 +7,12 @@
 #define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 #define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 
+SENSWebCamera::SENSWebCamera()
+{
+    _camInfoProvided   = true;
+    _permissionGranted = true;
+}
+
 SENSWebCamera::~SENSWebCamera()
 {
     if (_thread.joinable())

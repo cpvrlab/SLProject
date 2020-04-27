@@ -8,10 +8,7 @@
 class SENSWebCamera : public SENSCamera
 {
 public:
-    SENSWebCamera()
-    {
-        _permissionGranted = true;
-    }
+    SENSWebCamera();
     ~SENSWebCamera();
 
     void init(SENSCamera::Facing facing) override;

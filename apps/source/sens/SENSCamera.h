@@ -97,17 +97,15 @@ public:
 
     virtual SENSFramePtr getLatestFrame() = 0;
 
-    const std::vector<cv::Size>& getStreamSizes() const { return _availableStreamConfig.getStreamSizes(); }
-    cv::Size                     getFrameSize()
-    {
-        return cv::Size(_config.targetWidth, _config.targetHeight);
-    }
-    bool started() const { return _started; }
-    bool permissionGranted() const { return _permissionGranted; }
-    void setPermissionGranted()
-    {
-        _permissionGranted = true;
-    }
+    bool     started() const { return _started; }
+    bool     permissionGranted() const { return _permissionGranted; }
+    void     setPermissionGranted() { _permissionGranted = true; }
+    cv::Size getFrameSize() { return cv::Size(_config.targetWidth, _config.targetHeight); }
+
+    //! returns true if you can retrieve meta-data for the camera on this device (e.g. available stream frames sizes, sensor size and focal lengths)
+    bool                         isCamInfoProvided() { return _camInfoProvided; }
+    const std::vector<cv::Size>& getCamInfoStreamSizes() const { return _camInfoAvailableStreamConfig.getStreamSizes(); }
+    const cv::Size2f&            getCamInfoPhysicalSensorSizeMM() { return _camInfoPhysicalSensorSizeMM; }
 
 protected:
     float             _targetWdivH = -1.0f;
@@ -115,8 +113,12 @@ protected:
     std::atomic<bool> _started;
     std::atomic<bool> _permissionGranted;
 
-    SENSCamera::Facing      _facing = SENSCamera::Facing::BACK;
-    SENSCameraStreamConfigs _availableStreamConfig;
+    SENSCamera::Facing _facing = SENSCamera::Facing::BACK;
+
+    bool                    _camInfoProvided = false;
+    SENSCameraStreamConfigs _camInfoAvailableStreamConfig;
+    std::vector<float>      _camInfoFocalLenghts;
+    cv::Size2f              _camInfoPhysicalSensorSizeMM;
 
     //State _state = State::IDLE;
 };

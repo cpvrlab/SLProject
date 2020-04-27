@@ -56,8 +56,6 @@ private:
 
     std::string        _cameraId;
     ACameraDevice*     _cameraDevice = nullptr;
-    std::vector<float> _focalLenghts;
-    cv::Size2f         _physicalSensorSizeMM;
 
     AImageReader*                   _imageReader                   = nullptr;
     ANativeWindow*                  _surface                       = nullptr;
