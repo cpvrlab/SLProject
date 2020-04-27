@@ -125,18 +125,25 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
     }
 }
 
-void ErlebARApp::IDLE(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::IDLE(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
         LOG_ERLEBAR_DEBUG("IDLE");
 }
 
-void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
+void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
         LOG_ERLEBAR_DEBUG("INIT");
 
-    assert(data != nullptr);
+    if (data == nullptr)
+        return;
 
     const DeviceData&  dd         = data->deviceData;
     const std::string& slDataRoot = data->deviceData.dirs().slDataRoot;
@@ -258,8 +265,11 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
     addEvent(new DoneEvent());
 }
 
-void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     static HighResTimer timer;
     if (stateEntry)
     {
@@ -272,8 +282,11 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry)
         addEvent(new DoneEvent());
 }
 
-void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (_selectionView)
     {
         delete _selectionView;
@@ -360,13 +373,19 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     addEvent(new DoneEvent());
 }
 
-void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     _selectionView->update();
 }
 
-void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         //start camera
@@ -389,8 +408,11 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
     _startUpView->update();
 }
 
-void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         _testView->show();
@@ -398,7 +420,7 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
     _testView->update();
 }
 
-void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateEntry)
     {
@@ -406,8 +428,11 @@ void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
     }
 }
 
-void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     //start camera
     SENSCamera::Config config;
     config.targetWidth   = 640;
@@ -420,8 +445,11 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
     addEvent(new DoneEvent());
 }
 
-void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry)
+void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         if (data)
@@ -431,8 +459,11 @@ void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntr
     _locationMapView->update();
 }
 
-void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry)
+void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         _areaInfoView->show();
@@ -452,8 +483,11 @@ void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry)
     _areaInfoView->update();
 }
 
-void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry)
+void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         //It is a convention for this state, that if there is no data sent,
@@ -471,17 +505,25 @@ void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry)
     _areaTrackingView->update();
 }
 
-void ErlebARApp::HOLD_TRACKING(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::HOLD_TRACKING(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
 }
 
-void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     _tutorialView->update();
 }
 
-void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         _aboutView->show();
@@ -490,8 +532,11 @@ void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
     _aboutView->update();
 }
 
-void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
         _settingsView->show();
@@ -500,8 +545,14 @@ void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
     _settingsView->update();
 }
 
-void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+    {
+        _cameraTestView->stopCamera();
+        return;
+    }
+
     if (stateEntry)
     {
         ////start camera

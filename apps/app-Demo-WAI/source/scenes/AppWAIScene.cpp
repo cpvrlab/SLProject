@@ -1,4 +1,4 @@
-#include <AppWAIScene.h>
+#include "AppWAIScene.h"
 #include <SLBox.h>
 #include <SLLightDirect.h>
 #include <SLLightSpot.h>

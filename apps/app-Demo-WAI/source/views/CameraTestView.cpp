@@ -47,7 +47,7 @@ void CameraTestView::startCamera()
 
     SENSCamera::Config config;
     config.targetWidth   = 640;
-    config.targetHeight  = 480;
+    config.targetHeight  = 360;
     config.convertToGray = true;
 
     _camera->init(SENSCamera::Facing::BACK);
