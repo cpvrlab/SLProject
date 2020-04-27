@@ -4,6 +4,7 @@
 #include <string>
 #include <ImGuiWrapper.h>
 #include <ErlebAR.h>
+#include <Resources.h>
 
 class SLScene;
 class SLSceneView;

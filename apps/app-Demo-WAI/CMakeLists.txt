@@ -24,7 +24,11 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaInfoGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
@@ -54,13 +58,21 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaInfoView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.h
 	)
 	
 set(erlebar_sources
@@ -78,7 +90,11 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SelectionGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/WelcomeGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AboutGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaInfoGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SettingsGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
@@ -101,15 +117,22 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/StartUpView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/WelcomeView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AboutView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaInfoView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SettingsView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.cpp
 	)
 	
 set(erlebar_include_directories

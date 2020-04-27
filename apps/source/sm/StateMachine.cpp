@@ -1,4 +1,5 @@
 #include "StateMachine.h"
+#include <sstream>
 
 #define LOG_STATEMACHINE_WARN(...) Utils::log("StateMachine", __VA_ARGS__);
 #define LOG_STATEMACHINE_INFO(...) Utils::log("StateMachine", __VA_ARGS__);
@@ -37,10 +38,21 @@ bool StateMachine::update()
         {
             if (_currentStateId != newState)
             {
-                stateEntry      = true;
+                stateEntry = true;
+                LOG_STATEMACHINE_DEBUG("State change: %s -> %s", getPrintableState(_currentStateId).c_str(), getPrintableState(newState).c_str());
                 _currentStateId = newState;
             }
-            _stateActions[_currentStateId]->invokeStateAction(this, data, stateEntry);
+            auto itStateAction = _stateActions.find(_currentStateId);
+            if (itStateAction != _stateActions.end())
+            {
+                itStateAction->second->invokeStateAction(this, data, stateEntry);
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "You forgot to register state " << getPrintableState(_currentStateId) << "!";
+                Utils::exitMsg("StateMachine", ss.str().c_str(), __LINE__, __FILE__);
+            }
             stateWasUpdated = true;
         }
         else

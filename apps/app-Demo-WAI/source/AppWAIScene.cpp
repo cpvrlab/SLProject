@@ -10,9 +10,7 @@
 #include <SLGLProgramManager.h>
 
 AppWAIScene::AppWAIScene(SLstring name)
-  : SLScene(name, nullptr)
-{
-}
+  : SLScene(name, nullptr) {}
 
 void AppWAIScene::rebuild(std::string location, std::string area)
 {

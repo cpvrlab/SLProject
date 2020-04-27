@@ -98,8 +98,8 @@ void MapCreator::loadSites(const std::string& erlebARDir, const std::string& con
         cv::FileNode videoAreasNode = fs["mappingVideos"];
         for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
         {
-            Location location = (*itVideoAreas)["location"];
-            Area     area     = (*itVideoAreas)["area"];
+            LocationId location = (*itVideoAreas)["location"];
+            Area       area     = (*itVideoAreas)["area"];
             if (enabledAreas.find(area) != enabledAreas.end())
             {
                 cv::FileNode videosNode = (*itVideoAreas)["videos"];
@@ -217,7 +217,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     return result;
 }
 
-void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType)
+void MapCreator::createNewWaiMap(const LocationId& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType)
 {
     WAI_INFO("MapCreator::createNewWaiMap: Starting map creation for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)

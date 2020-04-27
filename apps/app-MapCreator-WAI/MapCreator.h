@@ -44,7 +44,7 @@ public:
     //! check that all files (video and calibration) exist.
     void loadSites(const std::string& erlebARDir, const std::string& configFile);
     //! create dense map using all videos for this location/area and thin out overall resulting map using keyframe culling
-    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType);
+    void createNewWaiMap(const LocationId& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType);
 
     bool createNewDenseWaiMap(Videos&            videos,
                               const std::string& mapFile,
@@ -72,11 +72,11 @@ public:
 
 private:
     MapCreator() {}
-    std::map<Location, Areas> _erlebAR;
-    std::string               _erlebARDir;
-    std::string               _vocFile;
-    std::string               _calibrationsDir;
-    std::string               _outputDir;
+    std::map<LocationId, Areas> _erlebAR;
+    std::string                 _erlebARDir;
+    std::string                 _vocFile;
+    std::string                 _calibrationsDir;
+    std::string                 _outputDir;
 
     WAIMapPoint* _mpUL;
     WAIMapPoint* _mpUR;

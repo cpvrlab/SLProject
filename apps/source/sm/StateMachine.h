@@ -53,6 +53,8 @@ public:
     //!process events and update current state
     bool update();
 
+    virtual std::string getPrintableState(unsigned int state) = 0;
+
 protected:
     //!register state processing functions from deriving class
     template<class SM, class Data, void (SM::*Func)(const Data*, const bool)>

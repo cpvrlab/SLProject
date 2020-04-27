@@ -1,5 +1,5 @@
-#ifndef ABOUT_GUI_H
-#define ABOUT_GUI_H
+#ifndef TUTORIAL_GUI_H
+#define TUTORIAL_GUI_H
 
 #include <string>
 
@@ -10,19 +10,20 @@
 
 class SLScene;
 class SLSceneView;
-struct ImFont;
+class ImFont;
 
-class AboutGui : public ImGuiWrapper
+class TutorialGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AboutGui(sm::EventHandler&   eventHandler,
-             ErlebAR::Resources& resources,
-             int                 dotsPerInch,
-             int                 screenWidthPix,
-             int                 screenHeightPix,
-             std::string         fontPath);
-    ~AboutGui() override;
+    TutorialGui(sm::EventHandler&   eventHandler,
+                ErlebAR::Resources& resources,
+                int                 dotsPerInch,
+                int                 screenWidthPix,
+                int                 screenHeightPix,
+                std::string         fontPath,
+                std::string         texturePath);
+    ~TutorialGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
@@ -47,6 +48,12 @@ private:
     ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
+
+    GLuint _textureBackgroundId1 = 0;
+    GLuint _textureBackgroundId2 = 0;
+    GLuint _currentBackgroundId  = 0;
+    GLuint _textureIconLeftId    = 0;
+    GLuint _textureIconRightId   = 0;
 };
 
-#endif //ABOUT_GUI_H
+#endif //TUTORIAL_GUI_H
