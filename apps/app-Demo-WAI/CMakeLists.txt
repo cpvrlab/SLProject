@@ -62,6 +62,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageBuffer.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
