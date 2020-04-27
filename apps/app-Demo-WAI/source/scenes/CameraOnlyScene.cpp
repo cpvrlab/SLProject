@@ -1,13 +1,13 @@
-#include "AreaTrackingScene.h"
+#include "CameraOnlyScene.h"
 
-AreaTrackingScene::AreaTrackingScene()
-  : SLScene("AreaTrackingScene", nullptr)
+CameraOnlyScene::CameraOnlyScene(std::string name)
+  : SLScene(name, nullptr)
 {
     init();
     build();
 }
 
-void AreaTrackingScene::build()
+void CameraOnlyScene::build()
 {
     _root3D    = new SLNode("scene");
     cameraNode = new SLCamera("Camera 1");
@@ -19,7 +19,7 @@ void AreaTrackingScene::build()
     _root3D->addChild(_mapNode);
 }
 
-void AreaTrackingScene::updateVideoImage(const cv::Mat& image)
+void CameraOnlyScene::updateVideoImage(const cv::Mat& image)
 {
     _videoImage->copyVideoImage(image.cols,
                                 image.rows,
@@ -29,7 +29,7 @@ void AreaTrackingScene::updateVideoImage(const cv::Mat& image)
                                 true);
 }
 
-void AreaTrackingScene::modelTransparencyChanged(float newValue)
+void CameraOnlyScene::modelTransparencyChanged(float newValue)
 {
     Utils::log("AreaTrackingScene", "modelTransparencyChanged, new value: %f", newValue);
 }

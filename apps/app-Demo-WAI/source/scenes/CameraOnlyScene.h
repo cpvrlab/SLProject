@@ -1,13 +1,13 @@
-#ifndef AREA_TRACKING_SCENE_H
-#define AREA_TRACKING_SCENE_H
+#ifndef CAMERA_ONLY_SCENE_H
+#define CAMERA_ONLY_SCENE_H
 
 #include <SLScene.h>
 #include <SLAssetManager.h>
 
-class AreaTrackingScene : public SLScene
+class CameraOnlyScene : public SLScene
 {
 public:
-    AreaTrackingScene();
+    CameraOnlyScene(std::string name);
 
     void updateVideoImage(const cv::Mat& image);
     void build();

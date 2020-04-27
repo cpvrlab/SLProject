@@ -21,6 +21,7 @@ class TutorialView;
 class LocationMapView;
 class AreaInfoView;
 class AreaTrackingView;
+class CameraTestView;
 
 class ErlebARApp : public sm::StateMachine
   , public SLInputEventInterface
@@ -80,6 +81,7 @@ private:
     LocationMapView*  _locationMapView  = nullptr;
     AreaInfoView*     _areaInfoView     = nullptr;
     AreaTrackingView* _areaTrackingView = nullptr;
+    CameraTestView*   _cameraTestView   = nullptr;
 
     SENSCamera*      _camera  = nullptr;
     CloseAppCallback _closeCB = nullptr;

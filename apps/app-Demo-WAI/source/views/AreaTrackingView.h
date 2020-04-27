@@ -6,7 +6,7 @@
 #include <SLSceneView.h>
 #include <AreaTrackingGui.h>
 #include <ErlebAR.h>
-#include <AppWAIScene.h>
+#include <scenes/AppWAIScene.h>
 #include <FeatureExtractorFactory.h>
 #include <ImageBuffer.h>
 #include <WAISlam.h>

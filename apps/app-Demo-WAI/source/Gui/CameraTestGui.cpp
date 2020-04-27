@@ -1,20 +1,22 @@
-#include <AreaTrackingGui.h>
+#include <CameraTestGui.h>
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 
 using namespace ErlebAR;
 
-AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
-                                 ErlebAR::Resources&        resources,
-                                 int                        dotsPerInch,
-                                 int                        screenWidthPix,
-                                 int                        screenHeightPix,
-                                 std::function<void(float)> transparencyChangedCB,
-                                 std::string                fontPath)
+CameraTestGui::CameraTestGui(sm::EventHandler&         eventHandler,
+                             ErlebAR::Resources&       resources,
+                             int                       dotsPerInch,
+                             int                       screenWidthPix,
+                             int                       screenHeightPix,
+                             std::string               fontPath,
+                             std::function<void(void)> startCameraCB,
+                             std::function<void(void)> stopCameraCB)
   : sm::EventSender(eventHandler),
     _resources(resources),
-    _transparencyChangedCB(transparencyChangedCB)
+    _startCameraCB(startCameraCB),
+    _stopCameraCB(stopCameraCB)
 {
     resize(screenWidthPix, screenHeightPix);
     float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
@@ -26,25 +28,25 @@ AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
         _fontBig = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
     }
     else
-        Utils::warnMsg("AreaTrackingGui", "font does not exist!", __LINE__, __FILE__);
+        Utils::warnMsg("CameraTestGui", "font does not exist!", __LINE__, __FILE__);
 }
 
-AreaTrackingGui::~AreaTrackingGui()
+CameraTestGui::~CameraTestGui()
 {
 }
 
-void AreaTrackingGui::onShow()
+void CameraTestGui::onShow()
 {
     _panScroll.enable();
 }
 
-void AreaTrackingGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
+void CameraTestGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
     ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbY);
 }
 
-void AreaTrackingGui::resize(int scrW, int scrH)
+void CameraTestGui::resize(int scrW, int scrH)
 {
     _screenW = (float)scrW;
     _screenH = (float)scrH;
@@ -59,12 +61,12 @@ void AreaTrackingGui::resize(int scrW, int scrH)
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
-void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
+void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 {
     //header bar
     float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
 
-    ErlebAR::renderHeaderBar("AreaTrackingGui",
+    ErlebAR::renderHeaderBar("CameraTestGui",
                              _screenW,
                              _headerBarH,
                              _resources.style().headerBarBackgroundTranspColor,
@@ -76,7 +78,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
-                             _area.name,
+                             "Camera Test",
                              [&]() { sendEvent(new GoBackEvent()); });
 
     //content
@@ -92,45 +94,45 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        //ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+        //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        //ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
-        ImGui::Begin("AreaTrackingGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AreaTrackingGui_content_child", ImVec2(0, 0), false, childWindowFlags);
+        ImGui::Begin("CameraTestGui_content", nullptr, windowFlags);
+        //ImGui::BeginChild("CameraTestGui_content_child", ImVec2(0, 0), false, childWindowFlags);
 
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, _resources.style().frameBgColor);
-        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, _resources.style().frameBgColor);
-        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, _resources.style().frameBgActiveColor);
-        ImGui::PushStyleColor(ImGuiCol_SliderGrab, _resources.style().whiteColor);
-        ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, _resources.style().whiteColor);
-        ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
-        ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
-        if (ImGui::VSliderFloat("##AreaTrackingGui_verticalSlider", ImVec2(buttonSize, _contentH * 0.7), &_sliderValue, 0.0f, 1.0f, ""))
+        //ImGui::PushStyleColor(ImGuiCol_FrameBg, _resources.style().frameBgColor);
+        //ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, _resources.style().frameBgColor);
+        //ImGui::PushStyleColor(ImGuiCol_FrameBgActive, _resources.style().frameBgActiveColor);
+        //ImGui::PushStyleColor(ImGuiCol_SliderGrab, _resources.style().whiteColor);
+        //ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, _resources.style().whiteColor);
+        //ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
+        //ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
+
+        if (ImGui::Button("Start##startCamera"))
         {
-            if (_transparencyChangedCB)
-                _transparencyChangedCB(_sliderValue);
+            _startCameraCB();
         }
 
-        ImGui::PopStyleColor(5);
-        ImGui::PopStyleVar(2);
+        if (ImGui::Button("Stop##stopCamera"))
+        {
+            _stopCameraCB();
+        }
 
-        ImGui::EndChild();
+        //ImGui::PopStyleColor(5);
+        //ImGui::PopStyleVar(2);
+
+        //ImGui::EndChild();
         ImGui::End();
 
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(7);
+        //ImGui::PopStyleColor(1);
+        //ImGui::PopStyleVar(7);
     }
 
     //ImGui::ShowMetricsWindow();
-}
-
-void AreaTrackingGui::initArea(ErlebAR::Area area)
-{
-    _area = area;
 }

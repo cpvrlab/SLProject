@@ -12,6 +12,7 @@
 #include <views/AreaTrackingView.h>
 #include <views/LocationMapView.h>
 #include <views/AreaInfoView.h>
+#include <views/CameraTestView.h>
 
 #include <SLGLProgramManager.h>
 
@@ -243,6 +244,17 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
                                              dd.dpi(),
                                              dd.fontDir(),
                                              dd.dirs().writableDir);
+
+    _cameraTestView = new CameraTestView(*this,
+                                         _inputManager,
+                                         *_resources,
+                                         _camera,
+                                         dd.scrWidth(),
+                                         dd.scrHeight(),
+                                         dd.dpi(),
+                                         dd.fontDir(),
+                                         dd.dirs().writableDir);
+
     addEvent(new DoneEvent());
 }
 
@@ -311,6 +323,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     {
         delete _areaTrackingView;
         _areaTrackingView = nullptr;
+    }
+    if (_cameraTestView)
+    {
+        delete _cameraTestView;
+        _cameraTestView = nullptr;
     }
 
     if (_camera)
@@ -485,4 +502,24 @@ void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
+    if (stateEntry)
+    {
+        ////start camera
+        //SENSCamera::Config config;
+        //config.targetWidth   = 640;
+        //config.targetHeight  = 360;
+        //config.convertToGray = true;
+
+        //_camera->init(SENSCamera::Facing::BACK);
+        //_camera->start(config);
+    }
+
+    //if (_camera->permissionGranted() && _camera->started())
+    //{
+    //    //_testView->start();
+    //    //addEvent(new DoneEvent());
+    //    _cameraTestView->onPaint();
+    //}
+
+    _cameraTestView->update();
 }

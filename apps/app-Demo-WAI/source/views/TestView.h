@@ -1,7 +1,7 @@
 #ifndef TEST_VIEW_H
 #define TEST_VIEW_H
 
-#include <AppWAIScene.h>
+#include <scenes/AppWAIScene.h>
 #include <SLSceneView.h>
 #include <SLTransformNode.h>
 #include <AppDemoWaiGui.h>
