@@ -118,6 +118,8 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
             return "ABOUT";
         case StateId::SETTINGS:
             return "SETTINGS";
+        case StateId::CAMERA_TEST:
+            return "CAMERA_TEST";
         default: {
             std::stringstream ss;
             ss << "Undefined state or missing string in ErlebARApp::getPrintableState for id: " << state << "!";

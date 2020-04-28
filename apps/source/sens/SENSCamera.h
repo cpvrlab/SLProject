@@ -81,13 +81,14 @@ public:
     };
      */
 
-    //enum class State
-    //{
-    //    IDLE,
-    //    INITIALIZED,     //!init() was called
-    //    START_REQUESTED, //!start() and camera is asynchronously starting up
-    //    STARTED          //!camera is giving images in requested size
-    //};
+    enum class State
+    {
+        STOPPED,
+        INITIALIZED,
+        STARTING,
+        STARTED,
+        CLOSING
+    };
 
     enum class FocusMode
     {

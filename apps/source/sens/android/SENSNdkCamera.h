@@ -24,6 +24,7 @@ class SENSNdkCameraManager;
 class SENSNdkCamera : public SENSCamera
 {
     friend class SENSNdkCameraManager;
+
 public:
     ~SENSNdkCamera();
 
@@ -59,7 +60,7 @@ private:
     ACameraManager* _cameraManager = nullptr;
 
     //std::string        _cameraId;
-    ACameraDevice*     _cameraDevice = nullptr;
+    ACameraDevice* _cameraDevice = nullptr;
 
     AImageReader*                   _imageReader                   = nullptr;
     ANativeWindow*                  _surface                       = nullptr;
@@ -68,10 +69,13 @@ private:
     ACameraOutputTarget*            _cameraOutputTarget            = nullptr;
     ACaptureRequest*                _captureRequest                = nullptr;
     ACameraCaptureSession*          _captureSession                = nullptr;
-    CaptureSessionState             _captureSessionState           = CaptureSessionState::MAX_STATE;
+
+    CaptureSessionState     _captureSessionState = CaptureSessionState::MAX_STATE;
+    std::condition_variable _captureSessionStateCV;
+    std::mutex              _captureSessionStateMutex;
 
     //! initialized is true as soon as init was run. After that we selected a desired camera device id and can retrieve stream configuration sizes.
-    volatile bool _initialized = false;
+    //volatile bool _initialized = false;
     //! flags if our camera device is available (selected by _cameraId)
 
     //map to track, which cameras are available (we start our camera () as soon as it is available and
@@ -79,13 +83,15 @@ private:
     std::map<std::string, bool> _cameraAvailability;
     std::mutex                  _cameraAvailabilityMutex;
     //async camera start
-    std::thread             _openCameraThread;
-    std::condition_variable _openCameraCV;
+    std::unique_ptr<std::thread> _openCameraThread;
+    std::condition_variable      _openCameraCV;
 
     //wait in start() until camera is opened
-    bool                    _cameraDeviceOpened = false; // free to use ( no other apps are using it)
-    std::mutex              _cameraDeviceOpenedMutex;
-    std::condition_variable _cameraDeviceOpenedCV;
+    std::atomic<bool> _cameraDeviceOpened{false}; // free to use ( no other apps are using it)
+
+    bool                    _cameraIsOpening = false;
+    std::mutex              _cameraDeviceOpeningMutex;
+    std::condition_variable _cameraDeviceOpeningCV;
     camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
 
     //async image processing
@@ -99,6 +105,10 @@ private:
 
     std::runtime_error _threadException;
     bool               _threadHasException = false;
+
+    State             _state = State::STOPPED;
+    cv::Size          _captureSize;
+    std::atomic<bool> _captureSessionActive{false};
 };
 
 class SENSNdkCameraManager : public SENSCameraManager
