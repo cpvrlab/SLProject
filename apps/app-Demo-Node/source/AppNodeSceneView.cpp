@@ -472,7 +472,7 @@ void AppNodeSceneView::updateInfoText()
     keyBinds += "\nR: Reset \n";
     sprintf(m + strlen(m), "%s", keyBinds.c_str());
 
-    SLTexFont* f         = SLProjectScene::getFont(1.2f, SLApplication::dpi);
+    SLTexFont* f         = SLProjectScene::getFont(1.2f, dpi());
     AppNodeGui::infoText = m;
 }
 //-----------------------------------------------------------------------------
