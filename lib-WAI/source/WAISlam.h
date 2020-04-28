@@ -71,6 +71,8 @@ public:
     virtual void updatePose(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
     virtual void resume();
+    
+    std::deque<std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> getMatching();
 
     virtual bool isTracking();
     virtual bool hasStateIdle();
@@ -181,6 +183,8 @@ protected:
     std::thread*         _poseUpdateThread;
     std::queue<WAIFrame> _framesQueue;
     std::mutex           _frameQueueMutex;
+
+    std::deque<std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> calibrationMatchings;
 };
 
 #endif

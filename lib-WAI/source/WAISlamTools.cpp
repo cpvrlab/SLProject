@@ -633,6 +633,126 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
     return ((c1a || c1b) && c2 && bLocalMappingIdle);
 }
 
+int WAISlamTools::findFrameFixedMapMatches(WAIFrame& frame, WAIMap* waiMap, std::vector<cv::Point2f>& points2d, std::vector<cv::Point3f>& points3d)
+{
+    // Compute Bag of Words Vector
+    frame.ComputeBoW();
+    int count = 0;
+
+    // Relocalization is performed when tracking is lost
+    // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
+    vector<WAIKeyFrame*> vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&frame);
+
+    if (vpCandidateKFs.empty())
+        return 0;
+
+    //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
+    const int nKFs = vpCandidateKFs.size();
+
+    // We perform first an ORB matching with each candidate
+    ORBmatcher matcher(0.8, true);
+
+    std::vector<WAIMapPoint*> matched;
+    std::vector<bool> vpDiscarded;
+    matched.resize(frame.mvKeys.size());
+    vpDiscarded.resize(frame.mvKeys.size());
+
+    for (int i = 0; i < nKFs; i++)
+    {
+        WAIKeyFrame* pKF = vpCandidateKFs[i];
+        vector<WAIMapPoint*> vpMapPointMatches;
+        int nmatches = matcher.SearchByBoW(pKF, frame, vpMapPointMatches);
+ 
+        for (size_t j = 0; j < nmatches; j++)
+        {
+            if (vpDiscarded[j])
+                continue;
+            
+            WAIMapPoint* pMP = vpMapPointMatches[j];
+
+            if (pMP && pMP->isFixed())
+            {
+                if (matched[j] == nullptr)
+                {
+                    count++;
+                    matched[j] = pMP;
+                }
+                else if (matched[j] != pMP)
+                {
+                    count--;
+                    vpDiscarded[j] = true;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < frame.mvKeys.size(); i++)
+    {
+        if (vpDiscarded[i] || matched[i] == nullptr)
+            continue;
+        points2d.push_back(frame.mvKeys[i].pt);
+        WAI::V3 v = matched[i]->worldPosVec();
+        points3d.push_back(cv::Point3f(v.x, v.y, v.z));
+    }
+    return count;
+}
+
+//TODO TODO TODO TODO
+void findKeyFrameFixedMapMatches(WAIFrame& frame, WAIMap* waiMap, std::vector<cv::Point2f>& points2d, std::vector<cv::Point3f>& points3d)
+{
+    // Compute Bag of Words Vector
+    frame.ComputeBoW();
+
+    // Relocalization is performed when tracking is lost
+    // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
+    vector<WAIKeyFrame*> vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&frame);
+
+    if (vpCandidateKFs.empty())
+        return;
+
+    //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
+    const int nKFs = vpCandidateKFs.size();
+
+    // We perform first an ORB matching with each candidate
+    ORBmatcher matcher(0.8, true);
+
+    std::vector<WAIMapPoint*> matched;
+    std::vector<bool> vpDiscarded;
+    matched.resize(frame.mvKeys.size());
+    vpDiscarded.resize(frame.mvKeys.size());
+
+    for (int i = 0; i < nKFs; i++)
+    {
+        WAIKeyFrame* pKF = vpCandidateKFs[i];
+        vector<WAIMapPoint*> vpMapPointMatches;
+        int nmatches = matcher.SearchByBoW(pKF, frame, vpMapPointMatches);
+ 
+        for (size_t j = 0; j < nmatches; j++)
+        {
+            if (vpDiscarded[j])
+                continue;
+            
+            WAIMapPoint* pMP = vpMapPointMatches[j];
+
+            if (pMP && pMP->isFixed())
+            {
+                if (matched[j] == nullptr)
+                    matched[j] = pMP;
+                else if (matched[j] != pMP)
+                    vpDiscarded[j] = true;
+            }
+        }
+    }
+
+    for (int i = 0; i < frame.mvKeys.size(); i++)
+    {
+        if (vpDiscarded[i])
+            continue;
+        points2d.push_back(frame.mvKeys[i].pt);
+        points3d.push_back(cv::Point3f(matched[i]->worldPosVec().x, matched[i]->worldPosVec().y, matched[i]->worldPosVec().z));
+    }
+}
+
 bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                                   WAIMap*   waiMap,
                                   LocalMap& localMap,

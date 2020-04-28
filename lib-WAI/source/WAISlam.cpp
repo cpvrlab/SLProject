@@ -226,6 +226,7 @@ void WAISlam::resume()
     _state = TrackingState_TrackingLost;
 }
 
+
 void WAISlam::updatePoseThread(WAISlam* ptr)
 {
     while (1)
@@ -336,6 +337,19 @@ bool WAISlam::update(cv::Mat& imageGray)
 {
     WAIFrame frame;
     createFrame(frame, imageGray);
+    std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
+    std::vector<cv::Point2f> imagePoints;
+    std::vector<cv::Point3f> mapPoints;
+
+    if (findFrameFixedMapMatches(frame, _globalMap, imagePoints, mapPoints) > 0)
+    {
+        get<0>(matching) = imagePoints;
+        get<1>(matching) = mapPoints;
+        calibrationMatchings.push_back(matching);
+
+        if (calibrationMatchings.size() > 10)
+            calibrationMatchings.pop_front();
+    }
 
 #if MULTI_THREAD_FRAME_PROCESSING
     if (!_serial)
@@ -349,6 +363,11 @@ bool WAISlam::update(cv::Mat& imageGray)
     updatePose(frame);
 #endif
     return isTracking();
+}
+
+std::deque<std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> WAISlam::getMatching()
+{
+    return calibrationMatchings;
 }
 
 void WAISlam::drawInfo(cv::Mat& imageRGB,
@@ -393,6 +412,7 @@ std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
     return result;
 }
 
+/*
 std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlam::getMatchedCorrespondances(WAIFrame* frame)
 {
     std::vector<cv::Vec3f> points3d;
@@ -418,6 +438,7 @@ std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlam::getMatchedCor
 
     return std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>>(points3d, points2d);
 }
+*/
 
 cv::Mat WAISlam::getPose()
 {
