@@ -7,6 +7,7 @@
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
 #include <Resources.h>
+#include <sens/SENSCamera.h>
 
 class SLScene;
 class SLSceneView;
@@ -16,14 +17,13 @@ class CameraTestGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    CameraTestGui(sm::EventHandler&         eventHandler,
-                  ErlebAR::Resources&       resources,
-                  int                       dotsPerInch,
-                  int                       screenWidthPix,
-                  int                       screenHeightPix,
-                  std::string               fontPath,
-                  std::function<void(void)> startCameraCB,
-                  std::function<void(void)> stopCameraCB);
+    CameraTestGui(sm::EventHandler&   eventHandler,
+                  ErlebAR::Resources& resources,
+                  int                 dotsPerInch,
+                  int                 screenWidthPix,
+                  int                 screenHeightPix,
+                  std::string         fontPath,
+                  SENSCamera*         camera);
     ~CameraTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -48,9 +48,15 @@ private:
 
     ErlebAR::Resources& _resources;
 
+    SENSCamera*        _camera;
+    SENSCamera::Config _cameraConfig;
+
     //callbacks
-    std::function<void(void)> _startCameraCB;
-    std::function<void(void)> _stopCameraCB;
+    //std::function<void(void)> _startCameraCB;
+    //std::function<void(void)> _stopCameraCB;
+
+    bool        _hasException = false;
+    std::string _exceptionText;
 };
 
 #endif //CAMERA_TEST_GUI_H

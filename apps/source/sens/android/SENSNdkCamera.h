@@ -19,6 +19,8 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
+
+
 class SENSNdkCamera : public SENSCamera
 {
 public:
@@ -39,6 +41,7 @@ public:
     void imageCallback(AImageReader* reader);
 
 private:
+    void initCameraInfoList();
     //select camera id to open
     void initOptimalCamera(SENSCamera::Facing facing);
     //start camera selected in initOptimalCamera as soon as it is available

@@ -12,6 +12,8 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
@@ -85,6 +87,8 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp

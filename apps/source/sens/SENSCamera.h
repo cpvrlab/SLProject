@@ -4,6 +4,7 @@
 #include <opencv2/core.hpp>
 #include <SENSFrame.h>
 #include <SENSException.h>
+#include <SENSCalibration.h>
 #include <atomic>
 
 class SENSCameraStreamConfigs
@@ -31,6 +32,29 @@ private:
     std::vector<cv::Size> _streamSizes;
 };
 
+struct SENSCameraCharacteristics
+{
+    bool                    provided = false;
+    SENSCameraStreamConfigs streamConfig;
+    std::vector<float>      focalLenghts;
+    cv::Size2f              physicalSensorSizeMM;
+};
+
+//Use the SENSCameraMangager to select a SENSCamera depending on its SENSCameraCharacteristics
+class SENSCameraManager
+{
+public:
+    //SENSCamera getCamera();
+
+private:
+    //update SENSCameraCharacteristics
+    void updateCameraCharacteristics()
+    {
+    }
+
+    std::vector<SENSCameraCharacteristics> _characteristics;
+};
+
 class SENSCamera
 {
 public:
@@ -46,6 +70,15 @@ public:
         BACK
     };
 
+    std::string getPrintableFacing(Facing facing)
+    {
+        switch (facing)
+        {
+            case Facing::FRONT: return "FRONT";
+            case Facing::BACK: return "BACK";
+        }
+    }
+
     enum class Type
     {
         NORMAL = 0,
@@ -53,13 +86,13 @@ public:
         TELE
     };
 
-    enum class State
-    {
-        IDLE,
-        INITIALIZED,     //!init() was called
-        START_REQUESTED, //!start() and camera is asynchronously starting up
-        STARTED          //!camera is giving images in requested size
-    };
+    //enum class State
+    //{
+    //    IDLE,
+    //    INITIALIZED,     //!init() was called
+    //    START_REQUESTED, //!start() and camera is asynchronously starting up
+    //    STARTED          //!camera is giving images in requested size
+    //};
 
     enum class FocusMode
     {
@@ -106,6 +139,7 @@ public:
     bool                         isCamInfoProvided() { return _camInfoProvided; }
     const std::vector<cv::Size>& getCamInfoStreamSizes() const { return _camInfoAvailableStreamConfig.getStreamSizes(); }
     const cv::Size2f&            getCamInfoPhysicalSensorSizeMM() { return _camInfoPhysicalSensorSizeMM; }
+    const std::vector<float>&    getCamInfoFocalLengthsMM() { return _camInfoFocalLenghts; }
 
 protected:
     float             _targetWdivH = -1.0f;
@@ -120,6 +154,7 @@ protected:
     std::vector<float>      _camInfoFocalLenghts;
     cv::Size2f              _camInfoPhysicalSensorSizeMM;
 
+    SENSCalibration* _calibration;
     //State _state = State::IDLE;
 };
 

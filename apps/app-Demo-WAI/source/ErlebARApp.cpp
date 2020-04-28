@@ -555,22 +555,8 @@ void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry,
 
     if (stateEntry)
     {
-        ////start camera
-        //SENSCamera::Config config;
-        //config.targetWidth   = 640;
-        //config.targetHeight  = 360;
-        //config.convertToGray = true;
-
-        //_camera->init(SENSCamera::Facing::BACK);
-        //_camera->start(config);
+        _cameraTestView->show();
     }
-
-    //if (_camera->permissionGranted() && _camera->started())
-    //{
-    //    //_testView->start();
-    //    //addEvent(new DoneEvent());
-    //    _cameraTestView->onPaint();
-    //}
 
     _cameraTestView->update();
 }

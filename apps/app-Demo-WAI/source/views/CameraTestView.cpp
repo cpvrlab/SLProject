@@ -16,8 +16,7 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
          screenWidth,
          screenHeight,
          fontPath,
-         std::bind(&CameraTestView::startCamera, this),
-         std::bind(&CameraTestView::stopCamera, this)),
+         sensCamera),
     _scene("CameraTestScene"),
     _camera(sensCamera)
 {
@@ -45,13 +44,13 @@ void CameraTestView::startCamera()
     if (!_camera)
         return;
 
-    SENSCamera::Config config;
-    config.targetWidth   = 640;
-    config.targetHeight  = 360;
-    config.convertToGray = true;
+    //SENSCamera::Config config;
+    //config.targetWidth   = 640;
+    //config.targetHeight  = 360;
+    //config.convertToGray = true;
 
-    _camera->init(SENSCamera::Facing::BACK);
-    _camera->start(config);
+    //_camera->init(SENSCamera::Facing::BACK);
+    //_camera->start(config);
 }
 
 void CameraTestView::stopCamera()

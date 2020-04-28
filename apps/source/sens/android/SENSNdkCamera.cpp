@@ -110,7 +110,7 @@ void SENSNdkCamera::init(SENSCamera::Facing facing)
     };
     ACameraManager_registerAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
 
-    PrintCameras(_cameraManager);
+    //PrintCameras(_cameraManager);
 
     //find camera device that fits our needs and retrieve required camera charakteristics
     initOptimalCamera(_facing);
@@ -542,6 +542,14 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
         }
         _waitCondition.notify_one();
     }
+}
+
+/*
+ * Provide a list of available cameras with their characteristics (focal length, physical sensor size,
+ * stream configuration) which can be used to
+ */
+void SENSNdkCamera::initCameraInfoList()
+{
 }
 
 void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)

@@ -9,7 +9,7 @@
 
 SENSWebCamera::SENSWebCamera()
 {
-    _camInfoProvided   = true;
+    _camInfoProvided   = false;
     _permissionGranted = true;
 }
 

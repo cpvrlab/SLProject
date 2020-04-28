@@ -5,18 +5,16 @@
 
 using namespace ErlebAR;
 
-CameraTestGui::CameraTestGui(sm::EventHandler&         eventHandler,
-                             ErlebAR::Resources&       resources,
-                             int                       dotsPerInch,
-                             int                       screenWidthPix,
-                             int                       screenHeightPix,
-                             std::string               fontPath,
-                             std::function<void(void)> startCameraCB,
-                             std::function<void(void)> stopCameraCB)
+CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
+                             ErlebAR::Resources& resources,
+                             int                 dotsPerInch,
+                             int                 screenWidthPix,
+                             int                 screenHeightPix,
+                             std::string         fontPath,
+                             SENSCamera*         camera)
   : sm::EventSender(eventHandler),
     _resources(resources),
-    _startCameraCB(startCameraCB),
-    _stopCameraCB(stopCameraCB)
+    _camera(camera)
 {
     resize(screenWidthPix, screenHeightPix);
     float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
@@ -38,6 +36,8 @@ CameraTestGui::~CameraTestGui()
 void CameraTestGui::onShow()
 {
     _panScroll.enable();
+    _hasException = false;
+    _exceptionText.clear();
 }
 
 void CameraTestGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -85,53 +85,112 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
-                                            ImGuiWindowFlags_NoMove |
-                                            ImGuiWindowFlags_AlwaysAutoResize |
-                                            ImGuiWindowFlags_NoBackground |
-                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar;
-        ImGuiWindowFlags windowFlags = childWindowFlags |
-                                       ImGuiWindowFlags_NoScrollWithMouse;
+        ImGuiWindowFlags windowFlags =
+          ImGuiWindowFlags_NoMove |
+          ImGuiWindowFlags_AlwaysAutoResize |
+          ImGuiWindowFlags_NoBackground |
+          ImGuiWindowFlags_NoScrollbar;
 
-        //ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        //ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-        //ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        //ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushFont(_fontBig);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _fontBig->FontSize) * 0.5));
 
-        ImGui::Begin("CameraTestGui_content", nullptr, windowFlags);
-        //ImGui::BeginChild("CameraTestGui_content_child", ImVec2(0, 0), false, childWindowFlags);
+        ImGui::Begin("Settings##CameraTestGui", nullptr, windowFlags);
+        float w = ImGui::GetContentRegionAvailWidth();
 
-        //ImGui::PushStyleColor(ImGuiCol_FrameBg, _resources.style().frameBgColor);
-        //ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, _resources.style().frameBgColor);
-        //ImGui::PushStyleColor(ImGuiCol_FrameBgActive, _resources.style().frameBgActiveColor);
-        //ImGui::PushStyleColor(ImGuiCol_SliderGrab, _resources.style().whiteColor);
-        //ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, _resources.style().whiteColor);
-        //ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
-        //ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
-
-        if (ImGui::Button("Start##startCamera"))
+        if (_hasException)
         {
-            _startCameraCB();
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            ImGui::TextWrapped(_exceptionText.c_str());
+            ImGui::PopStyleColor();
+        }
+        else
+        {
+            static int itemCurrent = 0;
+            ImGui::Combo("Camera facing", &itemCurrent, "FRONT\0BACK\0\0");
+
+            if (ImGui::Button("Init##initCamera", ImVec2(w, 0)))
+            {
+                try
+                {
+                    if (itemCurrent == 0)
+                        _camera->init(SENSCamera::Facing::FRONT);
+                    else
+                        _camera->init(SENSCamera::Facing::BACK);
+                }
+                catch (SENSException& e)
+                {
+                    _exceptionText = e.what();
+                    _hasException  = true;
+                }
+            }
+
+            if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
+            {
+                _cameraConfig.targetWidth   = 640;
+                _cameraConfig.targetHeight  = 360;
+                _cameraConfig.convertToGray = true;
+
+                try
+                {
+                    _camera->start(_cameraConfig);
+                }
+                catch (SENSException& e)
+                {
+                    _exceptionText = e.what();
+                    _hasException  = true;
+                }
+            }
+
+            if (ImGui::Button("Stop##stopCamera", ImVec2(w, 0)))
+            {
+                try
+                {
+                    _camera->stop();
+                }
+                catch (SENSException& e)
+                {
+                    _exceptionText = e.what();
+                    _hasException  = true;
+                }
+            }
+
+            if (_camera->started())
+            {
+                cv::Size s = _camera->getFrameSize();
+                ImGui::Text("Current frame size: w: %d, h: %d", s.width, s.height);
+
+                ImGui::Text("Camera Info:");
+                if (_camera->isCamInfoProvided())
+                {
+                    ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _camera->getCamInfoPhysicalSensorSizeMM().width, _camera->getCamInfoPhysicalSensorSizeMM().height);
+                    ImGui::Text("Focal lengths (mm):");
+                    for (auto fl : _camera->getCamInfoFocalLengthsMM())
+                    {
+                        ImGui::Text("  %f", fl);
+                    }
+                }
+                else
+                {
+                    ImGui::Text("not provided");
+                }
+            }
+            else
+            {
+                ImGui::Text("Camera not started");
+            }
         }
 
-        if (ImGui::Button("Stop##stopCamera"))
-        {
-            _stopCameraCB();
-        }
+        //for (int i = 0; i < 100; ++i)
+        //{
+        //    ImGui::Text("test %d", i);
+        //}
 
-        //ImGui::PopStyleColor(5);
-        //ImGui::PopStyleVar(2);
-
-        //ImGui::EndChild();
         ImGui::End();
 
+        ImGui::PopFont();
+        ImGui::PopStyleVar(2);
         //ImGui::PopStyleColor(1);
-        //ImGui::PopStyleVar(7);
     }
 
     //ImGui::ShowMetricsWindow();
