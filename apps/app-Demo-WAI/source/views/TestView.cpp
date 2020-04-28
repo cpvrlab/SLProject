@@ -245,7 +245,7 @@ void TestView::handleEvents()
                 }
                 else
                 {
-                    _transformationNode->toggleEditMode(enterEditModeEvent->editMode);
+                    _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
 
                 delete enterEditModeEvent;

@@ -13,7 +13,6 @@
 #include <SLMaterial.h>
 #include <SLMesh.h>
 
-struct SLFace16;
 class SLNode;
 class SLSceneView;
 
@@ -39,33 +38,33 @@ REFRACTED ray.
 */
 class SLRay
 {
-    public:
+public:
     //! default ctor
-    SLRay(SLSceneView* sv = nullptr);
+    explicit SLRay(SLSceneView* sv = nullptr);
 
     //! ctor for primary rays
-    SLRay(const SLVec3f&      Origin,
-          const SLVec3f&      Dir,
-          SLfloat      X,
-          SLfloat      Y,
-          const SLCol4f&      backColor,
-          SLSceneView* sv);
+    SLRay(const SLVec3f& Origin,
+          const SLVec3f& Dir,
+          SLfloat        X,
+          SLfloat        Y,
+          const SLCol4f& backColor,
+          SLSceneView*   sv);
 
     //! ctor for shadow rays
-    SLRay(SLfloat distToLight,
+    SLRay(SLfloat        distToLight,
           const SLVec3f& dirToLight,
-          SLRay*  rayFromHitPoint);
+          SLRay*         rayFromHitPoint);
 
-    void reflect(SLRay* reflected);
+    void reflect(SLRay* reflected) const;
     void refract(SLRay* refracted);
-    bool reflectMC(SLRay* reflected, SLMat3f rotMat);
-    void refractMC(SLRay* refracted, SLMat3f rotMat);
-    void diffuseMC(SLRay* scattered);
+    bool reflectMC(SLRay* reflected, const SLMat3f& rotMat) const;
+    void refractMC(SLRay* refracted, const SLMat3f& rotMat) const;
+    void diffuseMC(SLRay* scattered) const;
     void print() const;
 
     // Helper methods
-    inline void   setDir(SLVec3f Dir);
-    inline void   setDirOS(SLVec3f Dir);
+    inline void   setDir(const SLVec3f& Dir);
+    inline void   setDirOS(const SLVec3f& Dir);
     inline void   normalizeNormal();
     inline SLbool isShaded() const;
     inline SLbool hitMatIsReflective() const;
@@ -134,7 +133,7 @@ class SLRay
 //-----------------------------------------------------------------------------
 //! Setter for the rays direction in world space also setting the inverse direction
 inline void
-SLRay::setDir(SLVec3f Dir)
+SLRay::setDir(const SLVec3f& Dir)
 {
     dir      = Dir;
     invDir.x = (SLfloat)(1 / dir.x);
@@ -147,7 +146,7 @@ SLRay::setDir(SLVec3f Dir)
 //-----------------------------------------------------------------------------
 //! Setter for the rays direction in object space also setting the inverse direction
 inline void
-SLRay::setDirOS(SLVec3f Dir)
+SLRay::setDirOS(const SLVec3f& Dir)
 {
     dirOS      = Dir;
     invDirOS.x = (SLfloat)(1 / dirOS.x);

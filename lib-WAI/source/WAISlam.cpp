@@ -12,8 +12,8 @@
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
 
-WAISlam::WAISlam(cv::Mat        intrinsic,
-                 cv::Mat        distortion,
+WAISlam::WAISlam(const cv::Mat& intrinsic,
+                 const cv::Mat& distortion,
                  ORBVocabulary* voc,
                  KPextractor*   iniExtractor,
                  KPextractor*   extractor,
@@ -27,7 +27,6 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _serial              = serial;
     _trackingOnly        = trackingOnly;
     _retainImg           = retainImg;
-    _serial              = serial;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;

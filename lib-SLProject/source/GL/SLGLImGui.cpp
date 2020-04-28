@@ -105,7 +105,7 @@ void SLGLImGui::init(const string& configPath)
     io.DisplaySize             = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1, 1);
 
-#if defined(SL_OS_ANDROID) or defined(SL_OS_IOS)
+#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
     io.MouseDrawCursor = false;
 #else
     io.MouseDrawCursor = true;

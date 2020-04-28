@@ -38,7 +38,6 @@ SLstring SLApplication::configuration = "Release";
 SLstring            SLApplication::gitBranch = SL_GIT_BRANCH;
 SLstring            SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring            SLApplication::gitDate   = SL_GIT_DATE;
-SLint               SLApplication::dpi       = 0;
 map<string, string> SLApplication::deviceParameter;
 
 CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;

@@ -65,7 +65,7 @@ public:
     static SLbool   showTransform;       //!< Flag if tranform dialog should be shown
 
 private:
-    static void toggleTransformationEditMode(SLProjectScene* s,
+    static void setTransformEditMode(SLProjectScene* s,
                                              SLSceneView*    sv,
                                              SLNodeEditMode  editMode);
     static void removeTransformNode(SLProjectScene* s);

@@ -23,6 +23,7 @@ SLRaytracer::SLRaytracer()
 {
     name("myCoolRaytracer");
 
+    _sv            = nullptr;
     _state         = rtReady;
     _doDistributed = true;
     _doContinuous  = false;
@@ -134,39 +135,47 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
                                   ? bind(&SLRaytracer::renderSlices, this, _1, _2, _3, _4)
                                   : bind(&SLRaytracer::renderSlicesMS, this, _1, _2, _3, _4);
 
-    // Do multithreading only in release config
-    // Render image without antialiasing
-    vector<thread> threads; // vector for additional threads
-    _next = 0;              // init _next=0. _next should be atomic
+    // Do multi-threading only in release config
+    // Render image without anti-aliasing
+    vector<thread> threads1; // vector for additional threads
+    _next = 0;               // init _next=0. _next should be atomic
 
     SLScene& s = sv->s();
     // Start additional threads on the renderSlices function
     for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-        threads.emplace_back(renderSlicesFunction, false, s.root3D(), s.globalAmbiLight(), s.lights());
+        threads1.emplace_back(renderSlicesFunction,
+                              false,
+                              s.root3D(),
+                              s.globalAmbiLight(),
+                              s.lights());
 
     // Do the same work in the main thread
     renderSlicesFunction(true, s.root3D(), s.globalAmbiLight(), s.lights());
 
     // Wait for the other threads to finish
-    for (auto& thread : threads)
+    for (auto& thread : threads1)
         thread.join();
 
     // Do anti-aliasing w. contrast compare in a 2nd. pass
     if (!_doContinuous && _aaSamples > 1)
     {
-        getAAPixels();          // Fills in the AA pixels by contrast
-        vector<thread> threads; // vector for additional threads
-        _next = 0;              // init _next=0. _next should be atomic
+        getAAPixels();           // Fills in the AA pixels by contrast
+        vector<thread> threads2; // vector for additional threads
+        _next = 0;               // init _next=0. _next should be atomic
 
         // Start additional threads on the sampleAAPixelFunction function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.emplace_back(sampleAAPixelsFunction, false, s.root3D(), s.globalAmbiLight(), s.lights());
+            threads2.emplace_back(sampleAAPixelsFunction,
+                                  false,
+                                  s.root3D(),
+                                  s.globalAmbiLight(),
+                                  s.lights());
 
         // Do the same work in the main thread
         sampleAAPixelsFunction(true, s.root3D(), s.globalAmbiLight(), s.lights());
 
         // Wait for the other threads to finish
-        for (auto& thread : threads)
+        for (auto& thread : threads2)
             thread.join();
     }
 
@@ -191,7 +200,10 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlices(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+void SLRaytracer::renderSlices(const bool      isMainThread,
+                               SLNode*         root,
+                               const SLCol4f&  globalAmbiLight,
+                               const SLVLight& lights)
 {
     // Time points
     double t1 = 0;
@@ -210,9 +222,9 @@ void SLRaytracer::renderSlices(const bool isMainThread, SLNode* root, const SLCo
                 SLRay primaryRay(_sv);
                 setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
-                ///////////////////////////////////
+                //////////////////////////////////////////////////////////////////
                 SLCol4f color = trace(&primaryRay, root, globalAmbiLight, lights);
-                ///////////////////////////////////
+                //////////////////////////////////////////////////////////////////
 
                 color.gammaCorrect(_oneOverGamma);
 
@@ -449,7 +461,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLi
 
     ray->hitMesh->preShade(ray);
 
-    for (auto light : lights)
+    for (auto* light : lights)
     {
         if (light && light->isOn())
         {
