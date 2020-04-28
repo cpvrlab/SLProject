@@ -2,7 +2,7 @@
 #define WAI_EVENT_H
 
 #include <SlamParams.h>
-#include <SLTransformationNode.h>
+#include <SLTransformNode.h>
 
 enum WAIEventType
 {

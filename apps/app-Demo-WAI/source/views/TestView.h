@@ -3,13 +3,14 @@
 
 #include <AppWAIScene.h>
 #include <SLSceneView.h>
-#include <SLTransformationNode.h>
+#include <SLTransformNode.h>
 #include <AppDemoWaiGui.h>
 #include <SlamParams.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <SENSVideoStream.h>
 #include <CVCalibration.h>
 #include <queue>
+#include <ImageBuffer.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -66,10 +67,6 @@ protected:
     bool                             _showUndistorted      = true;
     cv::Size2i                       _videoFrameSize;
 
-    int     _lastFrameIdx;
-    cv::Mat _undistortedLastFrame[2];
-    bool    _doubleBufferedOutput;
-
     //slam
     WAISlam*   _mode = nullptr;
     SlamParams _currentSlamParams;
@@ -78,6 +75,7 @@ protected:
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _markerExtractor;
+    ImageBuffer                  _imgBuffer;
 
     std::queue<WAIEvent*> _eventQueue;
 
@@ -93,7 +91,7 @@ protected:
 
     std::thread _startThread;
 
-    SLTransformationNode* _transformationNode = nullptr;
+    SLTransformNode* _transformationNode = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;

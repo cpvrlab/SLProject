@@ -406,7 +406,7 @@ Quat snuggle(Quat q, HVect *k)
 		                 else   {a[3]=a[2]; a[2]=a[1]; a[1]=a[0]; a[0]=a[3];}
    Quat p;
    float ka[4];
-   int i, turn = -1;
+   int i=0, turn = -1;
    ka[X] = k->x; ka[Y] = k->y; ka[Z] = k->z;
    if (ka[X]==ka[Y]) {if (ka[X]==ka[Z]) turn = W; else turn = Z;}
    else {if (ka[X]==ka[Z]) turn = Y; else if (ka[Y]==ka[Z]) turn = X;}
@@ -414,8 +414,8 @@ Quat snuggle(Quat q, HVect *k)
    if (turn>=0) 
    {
       Quat qtoz, qp;
-      unsigned neg[3], win;
-      double mag[3], t;
+      unsigned neg[3], win=0;
+      double mag[3], t=0;
       static Quat qxtoz = {0,(float)SQRTHALF,0,(float)SQRTHALF};
       static Quat qytoz = {(float)SQRTHALF,0,0,(float)SQRTHALF};
       static Quat qppmm = { 0.5, 0.5,-0.5,-0.5};
@@ -438,17 +438,25 @@ Quat snuggle(Quat q, HVect *k)
 	   mag[2] = (double)q.y*q.z+(double)q.x*q.w;
 	
       for (i=0; i<3; i++) 
-         if (neg[i] = (mag[i]<0.0)) 
+         if ((neg[i] = (mag[i]<0.0)))
             mag[i] = -mag[i];
 	
-      if (mag[0]>mag[1]) {if (mag[0]>mag[2]) win = 0; else win = 2;}
-	   else		          {if (mag[1]>mag[2]) win = 1; else win = 2;}
+      if (mag[0]>mag[1])
+      {
+          if (mag[0]>mag[2]) win = 0; else win = 2;
+      }
+      else
+      {
+          if (mag[1]>mag[2]) win = 1; else win = 2;
+      }
 	
       switch (win) 
-      {  case 0: if (neg[0]) p = q1000; else p = q0001; break;
-	      case 1: if (neg[1]) p = qppmm; else p = qpppp; cycle(ka,0) break;
-	      case 2: if (neg[2]) p = qmpmm; else p = qpppm; cycle(ka,1) break;
-	   }
+      {
+          case 0: if (neg[0]) p = q1000; else p = q0001; break;
+          case 1: if (neg[1]) p = qppmm; else p = qpppp; cycle(ka,0) break;
+          case 2: if (neg[2]) p = qmpmm; else p = qpppm; cycle(ka,1) break;
+          default: break;
+      }
 
 	   qp = Qt_Mul(q, p);
 	   t = sqrt(mag[win]+0.5);
@@ -458,13 +466,13 @@ Quat snuggle(Quat q, HVect *k)
    else 
    {
       float qa[4], pa[4];
-      unsigned lo, hi, neg[4], par = 0;
-      double all, big, two;
+      unsigned lo=0, hi=0, neg[4], par = 0;
+      double all=0, big=0, two=0;
       qa[0] = q.x; qa[1] = q.y; qa[2] = q.z; qa[3] = q.w;
       for (i=0; i<4; i++) 
       {
          pa[i] = 0.0;
-         if (neg[i] = (qa[i]<0.0)) qa[i] = -qa[i];
+         if ((neg[i] = (qa[i]<0.0))) qa[i] = -qa[i];
          par ^= neg[i];
       }
 

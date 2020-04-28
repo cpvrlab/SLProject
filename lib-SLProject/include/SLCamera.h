@@ -183,8 +183,8 @@ protected:
     SLfloat      _clipNear;      //!< Dist. to the near clipping plane
     SLfloat      _clipFar;       //!< Dist. to the far clipping plane
     SLPlane      _plane[6];      //!< 6 frustum planes (t, b, l, r, n, f)
-    SLint        _viewportW;     //!< screen width in pixels
-    SLint        _viewportH;     //!< screen height in pixels
+    SLint        _viewportW;     //!< screen width in screen coordinates (the framebuffer may be bigger)
+    SLint        _viewportH;     //!< screen height in screen coordinates (the framebuffer may be bigger)
     SLfloat      _viewportRatio; //!< _scrW /_srcH = screen ratio
     SLfloat      _fx;
     SLfloat      _fy;

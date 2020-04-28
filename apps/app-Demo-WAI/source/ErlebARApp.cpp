@@ -8,6 +8,11 @@
 #include <views/WelcomeView.h>
 #include <views/SettingsView.h>
 #include <views/AboutView.h>
+#include <views/TutorialView.h>
+#include <views/AreaTrackingView.h>
+#include <views/LocationMapView.h>
+#include <views/AreaInfoView.h>
+
 #include <SLGLProgramManager.h>
 
 #define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
@@ -19,7 +24,7 @@ ErlebARApp::ErlebARApp()
     SLInputEventInterface(_inputManager)
 {
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::IDLE>((unsigned int)StateId::IDLE);
-    registerState<ErlebARApp, InitData, &ErlebARApp::INIT>((unsigned int)StateId::INIT);
+    registerState<ErlebARApp, InitEventData, &ErlebARApp::INIT>((unsigned int)StateId::INIT);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::WELCOME>((unsigned int)StateId::WELCOME);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::DESTROY>((unsigned int)StateId::DESTROY);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SELECTION>((unsigned int)StateId::SELECTION);
@@ -29,9 +34,10 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TEST>((unsigned int)StateId::HOLD_TEST);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::RESUME_TEST>((unsigned int)StateId::RESUME_TEST);
 
-    registerState<ErlebARApp, ErlebarData, &ErlebARApp::START_ERLEBAR>((unsigned int)StateId::START_ERLEBAR);
-    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::MAP_VIEW>((unsigned int)StateId::MAP_VIEW);
-    registerState<ErlebARApp, AreaData, &ErlebARApp::AREA_TRACKING>((unsigned int)StateId::AREA_TRACKING);
+    registerState<ErlebARApp, ErlebarEventData, &ErlebARApp::LOCATION_MAP>((unsigned int)StateId::LOCATION_MAP);
+    registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_INFO>((unsigned int)StateId::AREA_INFO);
+    registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_TRACKING>((unsigned int)StateId::AREA_TRACKING);
+    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TRACKING>((unsigned int)StateId::HOLD_TRACKING);
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TUTORIAL>((unsigned int)StateId::TUTORIAL);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SETTINGS>((unsigned int)StateId::SETTINGS);
@@ -70,13 +76,61 @@ void ErlebARApp::resume()
     addEvent(new ResumeEvent());
 }
 
+std::string ErlebARApp::getPrintableState(unsigned int state)
+{
+    StateId stateId = (StateId)state;
+    switch (stateId)
+    {
+        case StateId::IDLE:
+            return "IDLE";
+        case StateId::INIT:
+            return "INIT";
+        case StateId::WELCOME:
+            return "WELCOME";
+        case StateId::DESTROY:
+            return "DESTROY";
+        case StateId::SELECTION:
+            return "SELECTION";
+
+        case StateId::START_TEST:
+            return "START_TEST";
+        case StateId::TEST:
+            return "TEST";
+        case StateId::HOLD_TEST:
+            return "HOLD_TEST";
+        case StateId::RESUME_TEST:
+            return "RESUME_TEST";
+
+        case StateId::LOCATION_MAP:
+            return "LOCATION_MAP";
+        case StateId::AREA_INFO:
+            return "AREA_INFO";
+        case StateId::AREA_TRACKING:
+            return "AREA_TRACKING";
+        case StateId::HOLD_TRACKING:
+            return "HOLD_TRACKING";
+
+        case StateId::TUTORIAL:
+            return "TUTORIAL";
+        case StateId::ABOUT:
+            return "ABOUT";
+        case StateId::SETTINGS:
+            return "SETTINGS";
+        default: {
+            std::stringstream ss;
+            ss << "Undefined state or missing string in ErlebARApp::getPrintableState for id: " << state << "!";
+            return ss.str();
+        }
+    }
+}
+
 void ErlebARApp::IDLE(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
         LOG_ERLEBAR_DEBUG("IDLE");
 }
 
-void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
+void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
 {
     if (stateEntry)
         LOG_ERLEBAR_DEBUG("INIT");
@@ -91,7 +145,8 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
-    _resources = new ErlebAR::Resources();
+    _resources = new ErlebAR::Resources(dd.dirs().writableDir + "ErlebARResources.json",
+                                        dd.textureDir());
 
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
@@ -150,6 +205,44 @@ void ErlebARApp::INIT(const InitData* data, const bool stateEntry)
                                      dd.fontDir(),
                                      dd.dirs().writableDir);
 
+    _tutorialView = new TutorialView(*this,
+                                     _inputManager,
+                                     *_resources,
+                                     dd.scrWidth(),
+                                     dd.scrHeight(),
+                                     dd.dpi(),
+                                     dd.fontDir(),
+                                     dd.dirs().writableDir,
+                                     dd.textureDir());
+
+    _locationMapView = new LocationMapView(*this,
+                                           _inputManager,
+                                           *_resources,
+                                           dd.scrWidth(),
+                                           dd.scrHeight(),
+                                           dd.dpi(),
+                                           dd.fontDir(),
+                                           dd.dirs().writableDir,
+                                           dd.erlebARDir());
+
+    _areaInfoView = new AreaInfoView(*this,
+                                     _inputManager,
+                                     *_resources,
+                                     dd.scrWidth(),
+                                     dd.scrHeight(),
+                                     dd.dpi(),
+                                     dd.fontDir(),
+                                     dd.dirs().writableDir);
+
+    _areaTrackingView = new AreaTrackingView(*this,
+                                             _inputManager,
+                                             *_resources,
+                                             _camera,
+                                             dd.scrWidth(),
+                                             dd.scrHeight(),
+                                             dd.dpi(),
+                                             dd.fontDir(),
+                                             dd.dirs().writableDir);
     addEvent(new DoneEvent());
 }
 
@@ -169,9 +262,6 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
 {
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("DESTROY");
-
     if (_selectionView)
     {
         delete _selectionView;
@@ -201,6 +291,26 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
     {
         delete _settingsView;
         _settingsView = nullptr;
+    }
+    if (_tutorialView)
+    {
+        delete _tutorialView;
+        _tutorialView = nullptr;
+    }
+    if (_locationMapView)
+    {
+        delete _locationMapView;
+        _locationMapView = nullptr;
+    }
+    if (_areaInfoView)
+    {
+        delete _areaInfoView;
+        _areaInfoView = nullptr;
+    }
+    if (_areaTrackingView)
+    {
+        delete _areaTrackingView;
+        _areaTrackingView = nullptr;
     }
 
     if (_camera)
@@ -235,16 +345,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry)
 {
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("SELECTION");
     _selectionView->update();
 }
 
 void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("START_TEST");
-
     if (stateEntry)
     {
         //start camera
@@ -271,7 +376,6 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
     {
-        LOG_ERLEBAR_DEBUG("TEST");
         _testView->show();
     }
     _testView->update();
@@ -280,9 +384,6 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry)
 void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
-        LOG_ERLEBAR_DEBUG("HOLD_TEST");
-
-    if (stateEntry)
     {
         _camera->stop();
     }
@@ -290,9 +391,6 @@ void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("RESUME_TEST");
-
     //start camera
     SENSCamera::Config config;
     config.targetWidth   = 640;
@@ -305,35 +403,70 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry)
     addEvent(new DoneEvent());
 }
 
-void ErlebARApp::START_ERLEBAR(const ErlebarData* data, const bool stateEntry)
+void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry)
 {
     if (stateEntry)
-        LOG_ERLEBAR_DEBUG("START_ERLEBAR");
+    {
+        if (data)
+            _locationMapView->initLocation(data->location);
+    }
+
+    _locationMapView->update();
 }
 
-void ErlebARApp::MAP_VIEW(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry)
 {
     if (stateEntry)
-        LOG_ERLEBAR_DEBUG("MAP_VIEW");
+    {
+        _areaInfoView->show();
+        //We use the area info view to initialize the area tracking. It is a convention
+        //for this state, that if there is no data sent, we assume that the previous state was HOLD_TRACKING.
+        if (data)
+        {
+            _areaInfoView->initArea(data->locId, data->areaId);
+            _areaTrackingView->initArea(data->locId, data->areaId);
+        }
+        else
+        {
+            _areaTrackingView->resume();
+        }
+    }
+
+    _areaInfoView->update();
 }
 
-void ErlebARApp::AREA_TRACKING(const AreaData* data, const bool stateEntry)
+void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry)
 {
     if (stateEntry)
-        LOG_ERLEBAR_DEBUG("AREA_TRACKING");
+    {
+        //It is a convention for this state, that if there is no data sent,
+        //we assume that the previous state was HOLD_TRACKING.
+        if (data)
+        {
+            //_areaTrackingView->initArea(data->locId, data->areaId);
+        }
+        else
+        {
+            _areaTrackingView->resume();
+        }
+    }
+
+    _areaTrackingView->update();
+}
+
+void ErlebARApp::HOLD_TRACKING(const sm::NoEventData* data, const bool stateEntry)
+{
 }
 
 void ErlebARApp::TUTORIAL(const sm::NoEventData* data, const bool stateEntry)
 {
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("TUTORIAL");
+    _tutorialView->update();
 }
 
 void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
     {
-        LOG_ERLEBAR_DEBUG("ABOUT");
         _aboutView->show();
     }
 
@@ -344,7 +477,6 @@ void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
 {
     if (stateEntry)
     {
-        LOG_ERLEBAR_DEBUG("SETTINGS");
         _settingsView->show();
     }
 
@@ -353,6 +485,4 @@ void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry)
 
 void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry)
 {
-    if (stateEntry)
-        LOG_ERLEBAR_DEBUG("CAMERA_TEST");
 }

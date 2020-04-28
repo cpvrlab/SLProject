@@ -562,7 +562,7 @@ void WAIApp::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformationNode(_sv->camera(), _sv, SLApplication::scene->root3D()->findChild<SLNode>("map"));
+                    _transformationNode = new SLTransformNode(_sv->camera(), _sv, SLApplication::scene->root3D()->findChild<SLNode>("map"));
                     SLApplication::scene->eventHandlers().push_back(_transformationNode);
                     SLApplication::scene->root3D()->addChild(_transformationNode);
                 }

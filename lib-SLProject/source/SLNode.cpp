@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
@@ -469,13 +465,21 @@ void SLNode::cull3DRec(SLSceneView* sv)
         for (auto* child : _children)
             child->cull3DRec(sv);
 
-        // for leaf nodes add them to the blended vector
-        if (_aabb.hasAlpha())
-            sv->nodesBlended()->push_back(this);
+        // TODO(dgj1): dont leave this like so!! very bad way of checking
+        if (!this->drawBit(SL_DB_OVERDRAW))
+        {
+            // for leaf nodes add them to the blended vector
+            if (_aabb.hasAlpha())
+                sv->nodesBlended()->push_back(this);
 
-        // Add all nodes to the opaque list
-        // A node that has alpha meshes still can have opaque meshes
-        sv->nodesVisible()->push_back(this);
+            // Add all nodes to the opaque list
+            // A node that has alpha meshes still can have opaque meshes
+            sv->nodesVisible()->push_back(this);
+        }
+        else
+        {
+            sv->nodesOverdrawn()->push_back(this);
+        }
     }
 } //-----------------------------------------------------------------------------
 /*!

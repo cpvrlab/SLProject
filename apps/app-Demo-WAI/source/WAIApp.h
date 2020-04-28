@@ -27,7 +27,7 @@
 #include <SENSVideoStream.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
-#include <SLTransformationNode.h>
+#include <SLTransformNode.h>
 #include <SLInputManager.h>
 #include <WAIEvent.h>
 #include <SlamParams.h>

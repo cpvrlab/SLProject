@@ -232,7 +232,7 @@ void TestView::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformationNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
+                    _transformationNode = new SLTransformNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
@@ -395,8 +395,6 @@ mapFile: path to a map or empty if no map should be used
 void TestView::startOrbSlam(SlamParams slamParams)
 {
     _gui.clearErrorMsg();
-    _lastFrameIdx         = 0;
-    _doubleBufferedOutput = false;
     if (_videoFileStream)
         _videoFileStream.release();
 
@@ -407,11 +405,6 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // reset stuff
     if (_mode)
     {
-        _mode->requestStateIdle();
-        while (!_mode->hasStateIdle())
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
         delete _mode;
         _mode = nullptr;
     }
@@ -541,7 +534,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
-    _doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
+    //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
     voc->loadFromBinaryFile(slamParams.vocabularyFile);
@@ -588,8 +581,11 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
-    _undistortedLastFrame[0] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
-    _undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
+
+    if (_trackingExtractor->doubleBufferedOutput())
+        _imgBuffer.init(2, _videoFrameSize);
+    else
+        _imgBuffer.init(1, _videoFrameSize);
 }
 
 //todo: move to scene
@@ -663,15 +659,12 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
     _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
     if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(imgRGB, _undistortedLastFrame[_lastFrameIdx]);
+        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
     else
-        _undistortedLastFrame[_lastFrameIdx] = imgRGB;
+        _imgBuffer.inputSlot() = imgRGB;
 
-    if (_doubleBufferedOutput)
-        _lastFrameIdx = (_lastFrameIdx + 1) % 2;
-
-    _scene.updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
-                            CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
+    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    _imgBuffer.incrementSlot();
 
     //update map point visualization
     if (_gui.uiPrefs->showMapPC)

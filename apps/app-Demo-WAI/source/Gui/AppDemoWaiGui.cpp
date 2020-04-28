@@ -11,10 +11,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <AppDemoWaiGui.h>
 #include <SLAnimPlayback.h>
 #include <AverageTiming.h>
@@ -32,6 +28,7 @@
 #include <SLGLImGui.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <ErlebAREvents.h>
 
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiInfosScene.h>

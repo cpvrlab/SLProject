@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLGLState.h>
 #include <ErlebARApp.h>
 #include <Utils.h>
@@ -386,7 +382,7 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowPos(myWindow, 10, 30);
         }
     }
-    else if (key == K_space && action == GLFW_PRESS)
+    else if (key == K_space && action == GLFW_PRESS) //go back
     {
         app.goBack();
     }

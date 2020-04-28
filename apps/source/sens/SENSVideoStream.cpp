@@ -4,7 +4,7 @@
 #include <Utils.h>
 #include "SENSUtils.h"
 
-SENSVideoStream::SENSVideoStream(std::string videoFileName, 
+SENSVideoStream::SENSVideoStream(const std::string& videoFileName,
                                  bool videoLoops, 
                                  bool mirrorH, 
                                  bool mirrorV, 
@@ -66,7 +66,7 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
           _mirrorV);
     }
 
-    return std::move(sensFrame);
+    return sensFrame;
 }
 
 SENSFramePtr SENSVideoStream::grabNextResampledFrame()
@@ -84,7 +84,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     cv::Mat      rgbImg;
     cv::Mat      grayImg;
 
-    float frameDuration = 1.0 / _targetFps;
+    float frameDuration = 1.0f / _targetFps;
     int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
     int skippedFrame = 0;
     float frameTime;
@@ -92,7 +92,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     do
     {
         skippedFrame++;
-        frameTime = (frameIndex + skippedFrame) / _fps;
+        frameTime = (float)(frameIndex + skippedFrame) / _fps;
     }
     while ((frameTime - lastFrameTime) < frameDuration);
 
@@ -122,7 +122,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
           _mirrorV);
     }
 
-    return std::move(sensFrame);
+    return sensFrame;
 }
 
 SENSFramePtr SENSVideoStream::grabPreviousResampledFrame()
@@ -140,13 +140,13 @@ SENSFramePtr SENSVideoStream::grabPreviousResampledFrame()
     while ((currentFrameTime - frameTime) > 1.0 / _targetFps);
 
     moveCapturePosition(-skippedFrame+1);
-    return std::move(grabNextFrame());
+    return grabNextFrame();
 }
 
 SENSFramePtr SENSVideoStream::grabPreviousFrame()
 {
     moveCapturePosition(-2);
-    return std::move(grabNextFrame());
+    return grabNextFrame();
 }
 
 void SENSVideoStream::moveCapturePosition(int n)

@@ -52,19 +52,30 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::orbExtractor(int nf)
     int   nLevels      = 8;
     int   fIniThFAST   = 20;
     int   fMinThFAST   = 7;
-    return std::move(
-      std::make_unique<ORB_SLAM2::ORBextractor>(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST));
+    return std::make_unique<ORB_SLAM2::ORBextractor>(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 }
 
 std::unique_ptr<KPextractor> FeatureExtractorFactory::surfExtractor(int th)
 {
-    return std::move(
-      std::make_unique<ORB_SLAM2::SURFextractor>(th));
+    return std::make_unique<ORB_SLAM2::SURFextractor>(th);
 }
 
-std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Size& videoFrameSize, int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma)
+std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Size&
+                                                                      videoFrameSize,
+                                                                    int   nbKeypointsBigSigma,
+                                                                    int   nbKeypointsSmallSigma,
+                                                                    float highThrs,
+                                                                    float lowThrs,
+                                                                    float bigSigma,
+                                                                    float smallSigma)
 {
     // int nbKeypointsBigSigma, int nbKeypointsSmallSigma, float highThrs, float lowThrs, float bigSigma, float smallSigma
-    return std::move(
-      std::make_unique<GLSLextractor>(videoFrameSize.width, videoFrameSize.height, nbKeypointsBigSigma, nbKeypointsSmallSigma, highThrs, lowThrs, bigSigma, smallSigma));
+    return std::make_unique<GLSLextractor>(videoFrameSize.width,
+                                           videoFrameSize.height,
+                                           nbKeypointsBigSigma,
+                                           nbKeypointsSmallSigma,
+                                           highThrs,
+                                           lowThrs,
+                                           bigSigma,
+                                           smallSigma);
 }

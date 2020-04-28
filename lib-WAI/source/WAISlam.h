@@ -4,6 +4,7 @@
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
 #include <WAIOrbVocabulary.h>
+#include <WAIModeOrbSlam2.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
 #include <OrbSlam/Initializer.h>
@@ -13,15 +14,6 @@
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
-
-enum TrackingState
-{
-    TrackingState_None,
-    TrackingState_Idle,
-    TrackingState_Initializing,
-    TrackingState_TrackingOK,
-    TrackingState_TrackingLost
-};
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
@@ -66,7 +58,7 @@ public:
 
     virtual void reset();
 
-    void createFrame(WAIFrame &frame, cv::Mat& imageGray);
+    void createFrame(WAIFrame& frame, cv::Mat& imageGray);
 
     virtual void updatePose(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
@@ -87,7 +79,7 @@ public:
     virtual WAIMap*                   getMap() { return _globalMap; }
     virtual WAIFrame*                 getLastFrame() { return &_lastFrame; }
     virtual std::vector<WAIMapPoint*> getLocalMapPoints() { return _localMap.mapPoints; }
-    virtual int                       getNumKeyFrames() { return _globalMap->KeyFramesInMap(); }
+    virtual int                       getNumKeyFrames() { return (int)_globalMap->KeyFramesInMap(); }
 
     virtual std::vector<WAIMapPoint*> getMapPoints()
     {
@@ -107,19 +99,19 @@ public:
     {
         switch (_state)
         {
-            case TrackingState_Idle:
+            case WAI::TrackingState_Idle:
                 return std::string("TrackingState_Idle\n");
                 break;
-            case TrackingState_Initializing:
+            case WAI::TrackingState_Initializing:
                 return std::string("TrackingState_Initializing");
                 break;
-            case TrackingState_None:
+            case WAI::TrackingState_None:
                 return std::string("TrackingState_None");
                 break;
-            case TrackingState_TrackingLost:
+            case WAI::TrackingState_TrackingLost:
                 return std::string("TrackingState_TrackingLost");
                 break;
-            case TrackingState_TrackingOK:
+            case WAI::TrackingState_TrackingOK:
                 return std::string("TrackingState_TrackingOK");
                 break;
         }
@@ -127,12 +119,12 @@ public:
     }
 
     virtual int     getKeyPointCount() { return _lastFrame.N; }
-    virtual int     getKeyFrameCount() { return _globalMap->KeyFramesInMap(); }
-    virtual int     getMapPointCount() { return _globalMap->MapPointsInMap(); }
+    virtual int     getKeyFrameCount() { return (int)_globalMap->KeyFramesInMap(); }
+    virtual int     getMapPointCount() { return (int)_globalMap->MapPointsInMap(); }
     virtual cv::Mat getPose();
     virtual void    setMap(WAIMap* globalMap);
 
-    virtual TrackingState getTrackingState() { return _state; }
+    virtual WAI::TrackingState getTrackingState() { return _state; }
 
     virtual void drawInfo(cv::Mat& imageRGB,
                           bool     showInitLine,
@@ -144,7 +136,7 @@ public:
         return _extractor;
     };
 
-    int getMapPointMatchesCount();
+    int getMapPointMatchesCount() const;
 
     std::string getLoopCloseStatus();
 
@@ -153,22 +145,21 @@ public:
     int getKeyFramesInLoopCloseQueueCount();
 
 protected:
+    void updateState(WAI::TrackingState state);
 
-    void updateState(TrackingState state);
-
-    bool _requestFinish;
-    bool _isFinish;
-    bool _isStop;
-    std::mutex _stateMutex;
-    bool finishRequested();
-    void requestFinish();
-    bool isStop();
-    bool isFinished();
-    void flushQueue();
-    int getNextFrame(WAIFrame& frame);
+    bool        _requestFinish;
+    bool        _isFinish;
+    bool        _isStop;
+    std::mutex  _stateMutex;
+    bool        finishRequested();
+    void        requestFinish();
+    bool        isStop();
+    bool        isFinished();
+    void        flushQueue();
+    int         getNextFrame(WAIFrame& frame);
     static void updatePoseThread(WAISlam* ptr);
 
-    TrackingState        _state = TrackingState_Idle;
+    WAI::TrackingState   _state = WAI::TrackingState_Idle;
     std::mutex           _cameraExtrinsicMutex;
     std::mutex           _mutexStates;
     std::mutex           _lastFrameMutex;

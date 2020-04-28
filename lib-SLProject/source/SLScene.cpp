@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLScene.h>
 #include <Utils.h>
 #include <SLKeyframeCamera.h>
@@ -55,8 +51,8 @@ As examples you can see it in:
   - _old/app-Demo-Qt: qtGLWidget::initializeGL()
   - _old/app-Viewer-Qt: qtGLWidget::initializeGL()
 */
-SLScene::SLScene(SLstring      name,
-                 cbOnSceneLoad onSceneLoadCallback)
+SLScene::SLScene(const SLstring& name,
+                 cbOnSceneLoad   onSceneLoadCallback)
   : SLObject(name),
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
@@ -132,8 +128,6 @@ void SLScene::unInit()
 
     // clear light pointers
     _lights.clear();
-
-    SLMaterial::current = nullptr;
 
     _eventHandlers.clear();
     _animManager.clear();

@@ -43,16 +43,15 @@ void updateTrackingSceneCamera(CVCamera* ac)
 {
     if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
     {
-        SLCamera* trackingCam = static_cast<SLCamera*>(trackedNode);
+        SLCamera* trackingCam = dynamic_cast<SLCamera*>(trackedNode);
         trackingCam->fov(ac->calibration.cameraFovVDeg());
     }
 }
 //-----------------------------------------------------------------------------
 //CVCalibrationEstimator* calibrationEstimator = nullptr;
-
 void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 {
-    AppDemoSceneView* adSv                 = static_cast<AppDemoSceneView*>(sv);
+    AppDemoSceneView* adSv                 = dynamic_cast<AppDemoSceneView*>(sv);
     static bool       processedCalibResult = false;
     try
     {
@@ -203,7 +202,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 */
 bool onUpdateVideo()
 {
-    if (!SLApplication::sceneViews.size())
+    if (SLApplication::sceneViews.empty())
         return false;
 
     SLScene*     s  = SLApplication::scene;

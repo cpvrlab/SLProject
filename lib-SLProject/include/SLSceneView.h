@@ -70,13 +70,13 @@ public:
     SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager);
     ~SLSceneView() override;
 
-    void init(SLstring       name,
-              SLint          screenWidth,
-              SLint          screenHeight,
-              void*          onWndUpdateCallback,
-              void*          onSelectNodeMeshCallback,
-              SLUiInterface* gui,
-              const std::string&    configPath);
+    void init(SLstring           name,
+              SLint              screenWidth,
+              SLint              screenHeight,
+              void*              onWndUpdateCallback,
+              void*              onSelectNodeMeshCallback,
+              SLUiInterface*     gui,
+              const std::string& configPath);
     void unInit();
 
     // Not overridable event handlers
@@ -160,7 +160,6 @@ public:
                            _scr2fbY);
     }
 
-
     // Getters
     //SLuint          index() const { return _index; }
     SLCamera*       camera() { return _camera; }
@@ -189,6 +188,7 @@ public:
     SLVNode*        nodesVisible() { return &_nodesVisible; }
     SLVNode*        nodesVisible2D() { return &_nodesVisible2D; }
     SLVNode*        nodesBlended() { return &_nodesBlended; }
+    SLVNode*        nodesOverdrawn() { return &_nodesOverdrawn; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
     SLGLConetracer* conetracer() { return &_conetracer; }
@@ -254,6 +254,7 @@ protected:
     SLVNode _nodesVisible;   //!< Vector of all visible 3D nodes
     SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes drawn in ortho projection
     SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
+    SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
 
     SLRaytracer    _raytracer;  //!< Whitted style raytracer
     SLbool         _stopRT;     //!< Flag to stop the RT

@@ -6,6 +6,7 @@
 #include <ImGuiWrapper.h>
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
+#include <Resources.h>
 
 class SLScene;
 class SLSceneView;
@@ -29,8 +30,6 @@ public:
 
 private:
     void resize(int scrW, int scrH);
-    void pushStyle();
-    void popStyle();
 
     float _screenW;
     float _screenH;

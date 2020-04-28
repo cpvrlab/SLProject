@@ -7,7 +7,7 @@
 class SENSVideoStream
 {
 public:
-    SENSVideoStream(std::string videoFileName, bool videoLoops, bool mirrorH, bool mirrorV, float targetFps = 0);
+    SENSVideoStream(const std::string& videoFileName, bool videoLoops, bool mirrorH, bool mirrorV, float targetFps = 0);
     SENSFramePtr grabNextFrame();
     SENSFramePtr grabNextResampledFrame();
     SENSFramePtr grabPreviousResampledFrame();

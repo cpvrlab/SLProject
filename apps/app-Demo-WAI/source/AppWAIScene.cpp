@@ -10,9 +10,7 @@
 #include <SLGLProgramManager.h>
 
 AppWAIScene::AppWAIScene(SLstring name)
-  : SLScene(name, nullptr)
-{
-}
+  : SLScene(name, nullptr) {}
 
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
@@ -295,11 +293,11 @@ void AppWAIScene::updateCameraPose(const cv::Mat& pose)
     cameraNode->om(om);
 }
 
-void AppWAIScene::updateVideoImage(const cv::Mat& image, const CVPixFormat pixFormat)
+void AppWAIScene::updateVideoImage(const cv::Mat& image)
 {
     _videoImage->copyVideoImage(image.cols,
                                 image.rows,
-                                pixFormat,
+                                CVImage::cv2glPixelFormat(image.type()),
                                 image.data,
                                 image.isContinuous(),
                                 true);

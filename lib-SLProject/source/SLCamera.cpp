@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLSceneView.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
@@ -402,8 +398,8 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
 {
     SLGLState* stateGL = SLGLState::instance();
     SLRecti    vpRect  = sv->viewportRect();
-    _viewportW         = (SLint)(vpRect.width * sv->scr2fbX());
-    _viewportH         = (SLint)(vpRect.height * sv->scr2fbY());
+    _viewportW         = vpRect.width;
+    _viewportH         = vpRect.height;
     _viewportRatio     = (float)vpRect.width / (float)vpRect.height;
 
     //////////////////
