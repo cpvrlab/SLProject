@@ -382,7 +382,7 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowPos(myWindow, 10, 30);
         }
     }
-    else if (key == K_space && action == GLFW_PRESS)
+    else if (key == K_space && action == GLFW_PRESS) //go back
     {
         app.goBack();
     }

@@ -1,5 +1,5 @@
-#ifndef ABOUT_GUI_H
-#define ABOUT_GUI_H
+#ifndef AREA_INFO_GUI_H
+#define AREA_INFO_GUI_H
 
 #include <string>
 
@@ -12,21 +12,23 @@ class SLScene;
 class SLSceneView;
 struct ImFont;
 
-class AboutGui : public ImGuiWrapper
+class AreaInfoGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AboutGui(sm::EventHandler&   eventHandler,
-             ErlebAR::Resources& resources,
-             int                 dotsPerInch,
-             int                 screenWidthPix,
-             int                 screenHeightPix,
-             std::string         fontPath);
-    ~AboutGui() override;
+    AreaInfoGui(sm::EventHandler&   eventHandler,
+                ErlebAR::Resources& resources,
+                int                 dotsPerInch,
+                int                 screenWidthPix,
+                int                 screenHeightPix,
+                std::string         fontPath);
+    ~AreaInfoGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
+
+    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
 
 private:
     void resize(int scrW, int scrH);
@@ -41,12 +43,14 @@ private:
     float _textWrapW;
     float _windowPaddingContent;
     float _itemSpacingContent;
+    float _buttonBoardH;
 
     ImFont* _fontBig      = nullptr;
     ImFont* _fontSmall    = nullptr;
     ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
+    ErlebAR::Area       _area;
 };
 
-#endif //ABOUT_GUI_H
+#endif //AREA_INFO_GUI_H

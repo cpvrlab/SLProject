@@ -3,92 +3,170 @@
 namespace ErlebAR
 {
 
-Resources::Resources()
+const char* mapLocationIdToName(LocationId id)
 {
-    //load fonts
+    switch (id)
+    {
+        case LocationId::NONE:
+            return "Undefined location";
+        case LocationId::AUGST:
+            return "Augst";
+        case LocationId::AVENCHES:
+            return "Avenches";
+        case LocationId::BIEL:
+            return "Biel";
+        case LocationId::CHRISTOFFEL:
+            return "Christoffelturm";
+        default:
+            return "Missing id to name mapping!";
+    }
 }
 
-Resources::~Resources()
+const char* mapAreaIdToName(AreaId id)
 {
-    //delete fonts
+    switch (id)
+    {
+        case AreaId::NONE:
+            return "Undefined location";
+        //augst
+        case AreaId::AUGST_TEMPLE_HILL_MARKER:
+            return "Temple-Hill";
+        //avenches
+        case AreaId::AVENCHES_ARENA:
+            return "Arena";
+        //christoffel
+        case AreaId::CHRISTOFFEL_SBB:
+            return "Sbb";
+        //biel
+        case AreaId::BIEL_GERECHTIGKEITSBRUNNEN:
+            return "Gerechtigkeitsbrunnen";
+        case AreaId::BIEL_JACOB_ROSINUS:
+            return "Jacob-Rosinus";
+        case AreaId::BIEL_LEUBRINGENBAHN:
+            return "Leubringenbahn";
+        case AreaId::BIEL_RING:
+            return "Ring";
+        case AreaId::BIEL_SOUTHWALL:
+            return "Southwall";
+        default:
+            return "Missing id to name mapping!";
+    }
 }
 
-void Resources::setLanguageGerman()
+const Location defineLocationAugst()
 {
-    _currStrings = &_stringsGerman;
+    Location loc;
+    loc.id                   = LocationId::AUGST;
+    loc.name                 = mapLocationIdToName(loc.id);
+    loc.areaMapImageFileName = "locations/augst/locationMapImgAugst.jpg";
+    {
+        Area area;
+        area.id            = AreaId::AUGST_TEMPLE_HILL_MARKER;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 50;
+        area.yPosPix       = 50;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    return loc;
 }
-void Resources::setLanguageEnglish()
+const Location defineLocationAvenches()
 {
-    _currStrings = &_stringsEnglish;
+    Location loc;
+    loc.id                   = LocationId::AVENCHES;
+    loc.name                 = mapLocationIdToName(loc.id);
+    loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
+    {
+        Area area;
+        area.id            = AreaId::AVENCHES_ARENA;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 50;
+        area.yPosPix       = 50;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    return loc;
 }
-void Resources::setLanguageFrench()
+const Location defineLocationChristoffel()
 {
-    _currStrings = &_stringsFrench;
-}
-void Resources::setLanguageItalien()
-{
-    _currStrings = &_stringsItalien;
-}
-
-Strings::Strings()
-{
-    _developerNames = "Jan Dellsperger\nLuc Girod\nMichael Göttlicher";
-}
-
-StringsEnglish::StringsEnglish()
-{
-    _settings = "Settings";
-    _about    = "About";
-    _tutorial = "Tutorial";
-
-    _general        = "General";
-    _generalContent = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non scelerisque nisi, in egestas massa. Nulla non lorem nec magna consequat convallis. Integer est ex, pellentesque vitae tristique sit amet, tempor nec ante. Phasellus tristique nulla felis, non malesuada diam convallis vitae. Aliquam enim leo, molestie quis diam in, blandit venenatis neque. Cras imperdiet metus at enim egestas fringilla. Aliquam facilisis purus nisl, eget elementum ligula rutrum et. Sed et tincidunt arcu. Suspendisse interdum et dolor nec facilisis. Vivamus aliquet non dolor sit amet dignissim. Vestibulum fringilla nisi vel ultricies aliquet. Ut sed nibh at ligula posuere luctus. Maecenas turpis tortor, tincidunt a gravida sit amet, tincidunt a purus. Vestibulum vitae mollis est, non blandit massa.\nInteger in felis vestibulum, rhoncus turpis a, iaculis nulla. Sed at sapien sit amet ligula ultrices luctus vel id massa. Quisque sodales aliquet mi, sed elementum purus mattis et. Phasellus sit amet aliquet odio. Nam magna purus, ullamcorper a nibh ac, semper euismod dui. Morbi in ipsum lectus. Pellentesque id rhoncus nibh. Vivamus vulputate egestas volutpat. Morbi at luctus nunc, quis congue sem. Ut luctus ligula libero.\nDonec tempor, mauris vitae faucibus euismod, dolor ante bibendum enim, non molestie orci massa sit amet nisi. Suspendisse non nisi eget mi iaculis lacinia. Mauris tempor leo eu posuere tempor. Nunc quis magna et sem fermentum accumsan. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam non interdum lorem. Vivamus feugiat purus in congue ornare. Nulla mi eros, ullamcorper at pharetra vitae, dictum a ipsum. In mollis lorem nulla, eget laoreet tellus luctus sit amet. Etiam ac eros ex. Curabitur id arcu vitae purus pulvinar euismod sed nec lectus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin eu magna magna. Aliquam erat volutpat. Nulla sit amet porta eros.\nEtiam sodales varius pulvinar. Nam venenatis dictum turpis, vitae dignissim enim tincidunt sit amet. Quisque tristique placerat est, vel dapibus enim posuere et. Nulla commodo fermentum maximus. Ut facilisis nisi id turpis varius sodales. Fusce feugiat lobortis facilisis. Fusce sit amet efficitur purus, quis commodo diam. Donec eleifend turpis ligula, a lacinia risus porta eget.\nCras auctor ultrices tempus. Phasellus sed commodo ex, in cursus ex. Nunc ac quam et diam bibendum venenatis eget vel velit. Duis id dui dolor. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In tempor sollicitudin mauris, eget ornare tortor. Cras vel lacus non sem faucibus accumsan. Vestibulum placerat finibus elit. Integer nisl velit, egestas nec urna malesuada, malesuada dictum dui.";
-    _developers     = "Developers";
-
-    _language  = "Language";
-    _develMode = "Developer mode";
-}
-
-StringsGerman::StringsGerman()
-{
-    _settings = "Einstellungen";
-    _about    = "Info";
-    _tutorial = "Anleitung";
-
-    _general        = "Allgemein";
-    _generalContent = "";
-    _developers     = "Entwickler";
-
-    _language  = "Sprache";
-    _develMode = "Entwicklermodus";
-}
-
-StringsFrench::StringsFrench()
-{
-    _settings = "Paramètres";
-    _about    = "À propos";
-    _tutorial = "Manuel";
-
-    _general        = "";
-    _generalContent = "";
-    _developers     = "développeur";
-
-    _language  = "Langue";
-    _develMode = "";
+    Location loc;
+    loc.id                   = LocationId::CHRISTOFFEL;
+    loc.name                 = mapLocationIdToName(loc.id);
+    loc.areaMapImageFileName = "locations/christoffel/locationMapImgChristoffel.jpg";
+    {
+        Area area;
+        area.id            = AreaId::CHRISTOFFEL_SBB;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 50;
+        area.yPosPix       = 50;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    return loc;
 }
 
-StringsItalien::StringsItalien()
+const Location defineLocationBiel()
 {
-    _settings = "a";
-    _about    = "b";
-    _tutorial = "c";
-
-    _general        = "d";
-    _generalContent = "e";
-    _developers     = "f";
-
-    _language  = "g";
-    _develMode = "h";
+    Location loc;
+    loc.id                   = LocationId::BIEL;
+    loc.name                 = mapLocationIdToName(loc.id);
+    loc.areaMapImageFileName = "locations/biel/locationMapImgBiel.jpg";
+    {
+        Area area;
+        area.id            = AreaId::BIEL_GERECHTIGKEITSBRUNNEN;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 606;
+        area.yPosPix       = 277;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id            = AreaId::BIEL_JACOB_ROSINUS;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 1387;
+        area.yPosPix       = 730;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id            = AreaId::BIEL_LEUBRINGENBAHN;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 606;
+        area.yPosPix       = 50;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id            = AreaId::BIEL_RING;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 200;
+        area.yPosPix       = 200;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id            = AreaId::BIEL_SOUTHWALL;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 250;
+        area.yPosPix       = 250;
+        area.viewAngleDeg  = 0;
+        loc.areas[area.id] = area;
+    }
+    return loc;
 }
 
+const std::map<LocationId, Location> defineLocations()
+{
+    std::map<LocationId, Location> locations;
+    locations[LocationId::AUGST]       = defineLocationAugst();
+    locations[LocationId::AVENCHES]    = defineLocationAvenches();
+    locations[LocationId::CHRISTOFFEL] = defineLocationChristoffel();
+    locations[LocationId::BIEL]        = defineLocationBiel();
+
+    return locations;
+}
 };
