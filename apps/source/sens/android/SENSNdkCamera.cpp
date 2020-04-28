@@ -62,13 +62,13 @@ void onSessionActive(void* ctx, ACameraCaptureSession* ses)
       ->onSessionState(ses, CaptureSessionState::ACTIVE);
 }
 
-SENSNdkCamera::SENSNdkCamera()
+SENSNdkCamera::SENSNdkCamera(SENSCameraCharacteristics characteristics)
   : _threadException("SENSNdkCamera: empty default exception"),
     _initialized(false),
     _cameraDeviceOpened(false)
 {
+    _characteristics = characteristics;
     LOG_NDKCAM_INFO("Camera instantiated");
-    _camInfoProvided = true;
 }
 
 SENSNdkCamera::~SENSNdkCamera()
@@ -92,7 +92,8 @@ void onImageCallback(void* ctx, AImageReader* reader)
     reinterpret_cast<SENSNdkCamera*>(ctx)->imageCallback(reader);
 }
 
-void SENSNdkCamera::init(SENSCamera::Facing facing)
+/*
+void SENSNdkCamera::init(SENSCameraFacing facing)
 {
     //stop old camera device
     stop();
@@ -113,31 +114,32 @@ void SENSNdkCamera::init(SENSCamera::Facing facing)
     //PrintCameras(_cameraManager);
 
     //find camera device that fits our needs and retrieve required camera charakteristics
-    initOptimalCamera(_facing);
+    //initOptimalCamera(Facing::);
     _initialized = true;
+    throw SENSException(SENSType::CAM, "Do not use this function anymore", __LINE__, __FILE__);
 
     //open the camera asynchronously to make sure that it is available
     _openCameraThread = std::thread(&SENSNdkCamera::openCamera, this);
 }
-
+*/
 //start camera selected in initOptimalCamera as soon as it is available
 void SENSNdkCamera::openCamera()
 {
     auto condition = [&] {
-        return (_initialized && _cameraAvailability[_cameraId]);
+        return (_cameraAvailability[_characteristics.cameraId]);
     };
     std::unique_lock<std::mutex> lock(_cameraAvailabilityMutex);
     //wait here before opening the required camera device until it is available
     _openCameraCV.wait(lock, condition);
 
     LOG_NDKCAM_DEBUG("openCamera: Opening camera ...");
-    //open the so found camera with _cameraId
+    //open the so found camera with _characteristics.cameraId
     ACameraDevice_stateCallbacks cameraDeviceListener = {
       .context        = this,
       .onDisconnected = ::onDeviceDisconnected,
       .onError        = ::onDeviceErrorChanges,
     };
-    _cameraDeviceOpenResult = ACameraManager_openCamera(_cameraManager, _cameraId.c_str(), &cameraDeviceListener, &_cameraDevice);
+    _cameraDeviceOpenResult = ACameraManager_openCamera(_cameraManager, _characteristics.cameraId.c_str(), &cameraDeviceListener, &_cameraDevice);
     {
         std::lock_guard<std::mutex> lock(_cameraDeviceOpenedMutex);
         _cameraDeviceOpened = true;
@@ -147,8 +149,36 @@ void SENSNdkCamera::openCamera()
 
 void SENSNdkCamera::start(const SENSCamera::Config config)
 {
-    if (!_initialized)
-        throw SENSException(SENSType::CAM, "Camera is not initialized (call init function)!", __LINE__, __FILE__);
+    //if (!_initialized)
+    //    throw SENSException(SENSType::CAM, "Camera is not initialized (call init function)!", __LINE__, __FILE__);
+
+    //init camera manager
+    if (!_cameraManager)
+    {
+        _cameraManager = ACameraManager_create();
+        if (!_cameraManager)
+            throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
+
+        //register callbacks
+        _cameraManagerAvailabilityCallbacks = {
+          .context             = this,
+          .onCameraAvailable   = onCameraAvailable,
+          .onCameraUnavailable = onCameraUnavailable,
+        };
+        ACameraManager_registerAvailabilityCallback(_cameraManager,
+                                                    &_cameraManagerAvailabilityCallbacks);
+    }
+
+    //Attention: if we never access the _cameraManager the onCameraStatusChanged never comes (seems to be an android bug)
+    {
+        ACameraIdList*  cameraIds = nullptr;
+        camera_status_t status    = ACameraManager_getCameraIdList(_cameraManager, &cameraIds);
+        ACameraManager_deleteCameraIdList(cameraIds);
+        //PrintCameras(_cameraManager);
+    }
+
+    //open the camera asynchronously to make sure that it is available
+    _openCameraThread = std::thread(&SENSNdkCamera::openCamera, this);
 
     //todo: how do we track if a camera is started twice?
 
@@ -156,7 +186,7 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
     _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
     //todo: find best fitting image format in _availableStreamConfig
-    cv::Size captureSize = _camInfoAvailableStreamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
+    cv::Size captureSize = _characteristics.streamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
 
     LOG_NDKCAM_INFO("start: captureSize (%d, %d)", captureSize.width, captureSize.height);
     //create request with necessary parameters
@@ -255,13 +285,16 @@ void SENSNdkCamera::start(int width, int height)
 
 void SENSNdkCamera::stop()
 {
-    if (_initialized)
+    //if (_initialized)
     {
+        //todo: when to know if we have to detatch? starting and started? or state?
         _openCameraThread.detach();
         _initialized = false;
-        _camInfoAvailableStreamConfig.clear();
-        _camInfoPhysicalSensorSizeMM = cv::Size2f(0.f, 0.f);
-        _camInfoFocalLenghts.clear();
+
+        //todo: no need to initialize, no need to clear!
+        //_camInfoAvailableStreamConfig.clear();
+        //_camInfoPhysicalSensorSizeMM = cv::Size2f(0.f, 0.f);
+        //_camInfoFocalLenghts.clear();
     }
 
     if (_captureSession)
@@ -545,14 +578,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
 }
 
 /*
- * Provide a list of available cameras with their characteristics (focal length, physical sensor size,
- * stream configuration) which can be used to
- */
-void SENSNdkCamera::initCameraInfoList()
-{
-}
-
-void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
+void SENSNdkCamera::initOptimalCamera(SENSCameraFacing facing)
 {
     if (_cameraManager == nullptr)
         throw SENSException(SENSType::CAM, "Camera manager is invalid!", __LINE__, __FILE__);
@@ -582,8 +608,8 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
                 ACameraMetadata_const_entry lensInfo = {0};
                 ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo);
                 acamera_metadata_enum_android_lens_facing_t androidFacing = static_cast<acamera_metadata_enum_android_lens_facing_t>(lensInfo.data.u8[0]);
-                if (facing == SENSCamera::Facing::BACK && androidFacing == ACAMERA_LENS_FACING_BACK ||
-                    facing == SENSCamera::Facing::FRONT && androidFacing == ACAMERA_LENS_FACING_FRONT)
+                if (facing == SENSCameraFacing::BACK && androidFacing == ACAMERA_LENS_FACING_BACK ||
+                    facing == SENSCameraFacing::FRONT && androidFacing == ACAMERA_LENS_FACING_FRONT)
                 {
                     cameras.push_back(id);
                 }
@@ -678,6 +704,7 @@ void SENSNdkCamera::initOptimalCamera(SENSCamera::Facing facing)
     }
     ACameraMetadata_free(camCharacteristics);
 }
+*/
 
 /**
  * Handle Camera DeviceStateChanges msg, notify device is disconnected
@@ -797,4 +824,126 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
     {
         _started = false;
     }
+}
+
+void SENSNdkCameraManager::updateCameraCharacteristics()
+{
+    ACameraManager* cameraManager = ACameraManager_create();
+    if (!cameraManager)
+        throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
+
+    ACameraIdList* cameraIds = nullptr;
+    if (ACameraManager_getCameraIdList(cameraManager, &cameraIds) != ACAMERA_OK)
+        throw SENSException(SENSType::CAM, "Could not retrieve camera list!", __LINE__, __FILE__);
+
+    for (int i = 0; i < cameraIds->numCameras; ++i)
+    {
+        SENSCameraCharacteristics characteristics;
+        characteristics.cameraId = cameraIds->cameraIds[i];
+
+        ACameraMetadata* camCharacteristics;
+        ACameraManager_getCameraCharacteristics(cameraManager, characteristics.cameraId.c_str(), &camCharacteristics);
+
+        int32_t         numEntries = 0; //will be filled by getAllTags with number of entries
+        const uint32_t* tags       = nullptr;
+        ACameraMetadata_getAllTags(camCharacteristics, &numEntries, &tags);
+        for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
+        {
+            ACameraMetadata_const_entry lensInfo = {0};
+            //first check that ACAMERA_LENS_FACING is contained at all
+            if (tags[tagIdx] == ACAMERA_LENS_FACING)
+            {
+                ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo);
+                acamera_metadata_enum_android_lens_facing_t androidFacing = static_cast<acamera_metadata_enum_android_lens_facing_t>(lensInfo.data.u8[0]);
+                if (androidFacing == ACAMERA_LENS_FACING_BACK)
+                    characteristics.facing = SENSCameraFacing::BACK;
+                else if (androidFacing == ACAMERA_LENS_FACING_FRONT)
+                    characteristics.facing = SENSCameraFacing::FRONT;
+                else //if (androidFacing == ACAMERA_LENS_FACING_EXTERNAL)
+                    characteristics.facing = SENSCameraFacing::EXTERNAL;
+            }
+            else if (tags[tagIdx] == ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+            {
+                if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+                {
+                    for (int i = 0; i < lensInfo.count; ++i)
+                    {
+                        characteristics.focalLenghts.push_back(lensInfo.data.f[i]);
+                    }
+                }
+            }
+            else if (tags[tagIdx] == ACAMERA_SENSOR_INFO_PHYSICAL_SIZE)
+            {
+                if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+                {
+                    characteristics.physicalSensorSizeMM.width  = lensInfo.data.f[0];
+                    characteristics.physicalSensorSizeMM.height = lensInfo.data.f[1];
+                }
+            }
+            else if (tags[tagIdx] == ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS)
+            {
+                if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+                {
+                    if (lensInfo.count & 0x3)
+                        throw SENSException(SENSType::CAM,
+                                            "STREAM_CONFIGURATION (%d) should multiple of 4",
+                                            __LINE__,
+                                            __FILE__);
+
+                    if (lensInfo.type != ACAMERA_TYPE_INT32)
+                        throw SENSException(SENSType::CAM,
+                                            "STREAM_CONFIGURATION TYPE(%d) is not ACAMERA_TYPE_INT32(1)",
+                                            __LINE__,
+                                            __FILE__);
+
+                    int width = 0, height = 0;
+                    for (uint32_t i = 0; i < lensInfo.count; i += 4)
+                    {
+                        //example for content interpretation:
+                        //std::string format direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
+                        //std::string format = GetFormatStr(lensInfo.data.i32[i]);
+
+                        //OUTPUT format and AIMAGE_FORMAT_YUV_420_888 image format
+                        if (!lensInfo.data.i32[i + 3] && lensInfo.data.i32[i] == AIMAGE_FORMAT_YUV_420_888)
+                        {
+                            width  = lensInfo.data.i32[i + 1];
+                            height = lensInfo.data.i32[i + 2];
+                            characteristics.streamConfig.add({width, height});
+                        }
+                    }
+                }
+            }
+        }
+        ACameraMetadata_free(camCharacteristics);
+        _characteristics.push_back(characteristics);
+    }
+
+    ACameraManager_deleteCameraIdList(cameraIds);
+    ACameraManager_delete(cameraManager);
+}
+
+SENSCameraPtr SENSNdkCameraManager::getOptimalCamera(SENSCameraFacing facing)
+{
+    SENSCameraPtr camera;
+    for (const SENSCameraCharacteristics& c : _characteristics)
+    {
+        if (c.facing == facing)
+        {
+            camera = std::unique_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
+        }
+    }
+    return std::move(camera);
+}
+
+SENSCameraPtr SENSNdkCameraManager::getCameraForId(std::string id)
+{
+    SENSCameraPtr camera;
+    for (const SENSCameraCharacteristics& c : _characteristics)
+    {
+        if (c.cameraId == id)
+        {
+            camera = std::unique_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
+        }
+    }
+    return std::move(camera);
 }

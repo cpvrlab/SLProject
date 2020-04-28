@@ -25,10 +25,6 @@ public:
         guessed,      //!< The camera intrinsics where estimated from FOV
     };
 
-    //default constructor with uncalibrated state (this is not good because
-    //it is not a valid state so everybody who uses it has to check the calibration state first)
-    //SENSCalibration(SENSCameraType camType,
-    //                std::string    computerInfos);
     //creates a fully defined calibration
     SENSCalibration(const cv::Mat&     cameraMat,
                     const cv::Mat&     distortion,

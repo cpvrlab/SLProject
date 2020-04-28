@@ -131,7 +131,6 @@ void AreaTrackingView::startCamera()
         config.targetHeight  = _cameraFrameTargetSize.height;
         config.convertToGray = true;
 
-        _camera->init(SENSCamera::Facing::BACK);
         _camera->start(config);
     }
 }

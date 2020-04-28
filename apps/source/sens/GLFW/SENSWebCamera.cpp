@@ -9,8 +9,6 @@
 
 SENSWebCamera::SENSWebCamera()
 {
-    _camInfoProvided   = false;
-    _permissionGranted = true;
 }
 
 SENSWebCamera::~SENSWebCamera()
@@ -19,12 +17,12 @@ SENSWebCamera::~SENSWebCamera()
         _thread.join();
 }
 
-void SENSWebCamera::init(SENSCamera::Facing facing)
-{
-    LOG_WEBCAM_INFO("init: called but is has no effect in SENSWebCamera");
-    //_state   = State::INITIALIZED;
-    _started = false;
-}
+//void SENSWebCamera::init(SENSCameraFacing facing)
+//{
+//    LOG_WEBCAM_INFO("init: called but is has no effect in SENSWebCamera");
+//    //_state   = State::INITIALIZED;
+//    _started = false;
+//}
 
 void SENSWebCamera::start(const Config config)
 {

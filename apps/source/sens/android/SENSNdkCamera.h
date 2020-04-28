@@ -19,15 +19,14 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-
+class SENSNdkCameraManager;
 
 class SENSNdkCamera : public SENSCamera
 {
+    friend class SENSNdkCameraManager;
 public:
-    SENSNdkCamera();
     ~SENSNdkCamera();
 
-    void         init(SENSCamera::Facing facing) override;
     void         start(const SENSCamera::Config config) override;
     void         start(int width, int height) override;
     void         stop() override;
@@ -41,9 +40,11 @@ public:
     void imageCallback(AImageReader* reader);
 
 private:
-    void initCameraInfoList();
+    SENSNdkCamera(SENSCameraCharacteristics characteristics);
+
+    //void initCameraInfoList();
     //select camera id to open
-    void initOptimalCamera(SENSCamera::Facing facing);
+    //void initOptimalCamera(SENSCameraFacing facing);
     //start camera selected in initOptimalCamera as soon as it is available
     void openCamera();
     void createCaptureSession();
@@ -57,7 +58,7 @@ private:
 
     ACameraManager* _cameraManager = nullptr;
 
-    std::string        _cameraId;
+    //std::string        _cameraId;
     ACameraDevice*     _cameraDevice = nullptr;
 
     AImageReader*                   _imageReader                   = nullptr;
@@ -98,6 +99,20 @@ private:
 
     std::runtime_error _threadException;
     bool               _threadHasException = false;
+};
+
+class SENSNdkCameraManager : public SENSCameraManager
+{
+public:
+    SENSNdkCameraManager()
+    {
+        updateCameraCharacteristics();
+    }
+    SENSCameraPtr getOptimalCamera(SENSCameraFacing facing) override;
+    SENSCameraPtr getCameraForId(std::string id) override;
+
+protected:
+    void updateCameraCharacteristics() override;
 };
 
 #endif //SENS_NDKCAMERA_H

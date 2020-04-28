@@ -109,21 +109,21 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             static int itemCurrent = 0;
             ImGui::Combo("Camera facing", &itemCurrent, "FRONT\0BACK\0\0");
 
-            if (ImGui::Button("Init##initCamera", ImVec2(w, 0)))
-            {
-                try
-                {
-                    if (itemCurrent == 0)
-                        _camera->init(SENSCamera::Facing::FRONT);
-                    else
-                        _camera->init(SENSCamera::Facing::BACK);
-                }
-                catch (SENSException& e)
-                {
-                    _exceptionText = e.what();
-                    _hasException  = true;
-                }
-            }
+            //if (ImGui::Button("Init##initCamera", ImVec2(w, 0)))
+            //{
+            //    try
+            //    {
+            //        if (itemCurrent == 0)
+            //            _camera->init(SENSCameraFacing::FRONT);
+            //        else
+            //            _camera->init(SENSCameraFacing::BACK);
+            //    }
+            //    catch (SENSException& e)
+            //    {
+            //        _exceptionText = e.what();
+            //        _hasException  = true;
+            //    }
+            //}
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
@@ -161,11 +161,11 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::Text("Current frame size: w: %d, h: %d", s.width, s.height);
 
                 ImGui::Text("Camera Info:");
-                if (_camera->isCamInfoProvided())
+                if (_camera->isCharacteristicsProvided())
                 {
-                    ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _camera->getCamInfoPhysicalSensorSizeMM().width, _camera->getCamInfoPhysicalSensorSizeMM().height);
+                    ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _camera->getCharacteristicsPhysicalSensorSizeMM().width, _camera->getCharacteristicsPhysicalSensorSizeMM().height);
                     ImGui::Text("Focal lengths (mm):");
-                    for (auto fl : _camera->getCamInfoFocalLengthsMM())
+                    for (auto fl : _camera->getCharacteristicsFocalLengthsMM())
                     {
                         ImGui::Text("  %f", fl);
                     }

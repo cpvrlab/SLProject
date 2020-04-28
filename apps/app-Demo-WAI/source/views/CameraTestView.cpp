@@ -29,7 +29,7 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
 
 bool CameraTestView::update()
 {
-    if (_camera->started() && _camera->permissionGranted())
+    if (_camera->started())
     {
         SENSFramePtr frame = _camera->getLatestFrame();
         if (frame)
@@ -49,7 +49,7 @@ void CameraTestView::startCamera()
     //config.targetHeight  = 360;
     //config.convertToGray = true;
 
-    //_camera->init(SENSCamera::Facing::BACK);
+    //_camera->init(SENSCameraFacing::BACK);
     //_camera->start(config);
 }
 

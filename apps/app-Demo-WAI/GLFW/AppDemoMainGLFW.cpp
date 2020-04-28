@@ -503,7 +503,15 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSWebCameraManager> camManager = std::make_unique<SENSWebCameraManager>();
+        //SENSCameraPtr                         cam        = camManager.selectOptimalCamera(SENSCameraFacing::EXTERNAL, 100, 200);
+        //SENSCamera::Config                    config;
+        //config.targetWidth   = 640;
+        //config.targetHeight  = 360;
+        //config.convertToGray = true;
+        //cam->start(config);
+
+        //std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
@@ -512,7 +520,7 @@ int main(int argc, char* argv[])
         dirs.vocabularyDir = dirs.writableDir + "voc/";
         dirs.logFileDir    = dirs.writableDir + "log/";
 
-        app.init(scrWidth, scrHeight, dpi, dirs, camera.get());
+        app.init(scrWidth, scrHeight, dpi, dirs, camManager.get());
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");

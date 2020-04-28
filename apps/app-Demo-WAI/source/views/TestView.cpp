@@ -79,7 +79,7 @@ void TestView::start()
 
 void TestView::startAsync()
 {
-    //_camera->init(SENSCamera::Facing::BACK);
+    //_camera->init(SENSCameraFacing::BACK);
     ////start continious captureing request with certain configuration
     //SENSCamera::Config camConfig;
     //camConfig.targetWidth          = 640;

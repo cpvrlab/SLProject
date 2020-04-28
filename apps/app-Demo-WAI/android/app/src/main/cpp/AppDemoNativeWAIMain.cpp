@@ -87,7 +87,7 @@ private:
     void terminateDisplay();
 
     void startCamera();
-    void stopCamera();
+
     void checkAndRequestAndroidPermissions();
 
     std::string getInternalDir();
@@ -117,8 +117,8 @@ private:
     int32_t  _pointersDown;
     uint64_t _lastTouchMS;
 
-    SENSNdkCamera* _ndkCamera     = nullptr;
-    bool           _cameraGranted = false;
+    SENSNdkCameraManager* _ndkCameraMgr  = nullptr;
+    bool                  _cameraGranted = false;
 
     /*
     SensorsHandler* sensorsHandler;
@@ -186,7 +186,7 @@ void Engine::onInit()
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
         //todo: _earApp.init
-        _earApp.init(_width, _height, _dpi, _dirs, _ndkCamera);
+        _earApp.init(_width, _height, _dpi, _dirs, _ndkCameraMgr);
         _earAppIsInitialized = true;
     }
     else
@@ -198,7 +198,7 @@ void Engine::onInit()
             _earApp.destroy();
             terminateDisplay();
             initDisplay();
-            _earApp.init(_width, _height, _dpi, _dirs, _ndkCamera);
+            _earApp.init(_width, _height, _dpi, _dirs, _ndkCameraMgr);
         }
         else
         {
@@ -363,8 +363,8 @@ void Engine::startCamera()
 {
     try
     {
-        if (!_ndkCamera)
-            _ndkCamera = new SENSNdkCamera();
+        if (!_ndkCameraMgr)
+            _ndkCameraMgr = new SENSNdkCameraManager();
     }
     catch (std::exception& e)
     {
@@ -374,60 +374,6 @@ void Engine::startCamera()
     if (!_cameraGranted)
     {
         checkAndRequestAndroidPermissions();
-    }
-    /*
-    if (_cameraGranted)
-    {
-        try
-        {
-            if (_ndkCamera)
-                delete _ndkCamera;
-
-            //get all information about available cameras
-            HighResTimer t;
-
-            _ndkCamera = new SENSNdkCamera();
-            _ndkCamera->init(SENSCamera::Facing::BACK);
-
-            //start continious captureing request with certain configuration
-            SENSCamera::Config camConfig;
-            camConfig.targetWidth          = 640;
-            camConfig.targetHeight         = 360;
-            camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
-            camConfig.convertToGray        = true;
-            camConfig.adjustAsynchronously = true;
-            _ndkCamera->start(camConfig);
-            ENGINE_DEBUG("startCamera: %fms", t.elapsedTimeInMilliSec());
-
-            //todo revert
-            //_earApp.setCamera(_ndkCamera);
-        }
-        catch (std::exception& e)
-        {
-            Utils::log("SENSNdkCamera", e.what());
-        }
-    }
-    else
-    {
-        checkAndRequestAndroidPermissions();
-    }
-     */
-}
-
-void Engine::stopCamera()
-{
-    try
-    {
-        if (_ndkCamera)
-        {
-            _ndkCamera->stop();
-            //delete _ndkCamera;
-            //_ndkCamera = nullptr;
-        }
-    }
-    catch (std::exception& e)
-    {
-        Utils::log("SENSNdkCamera", e.what());
     }
 }
 
@@ -454,7 +400,7 @@ void Engine::onPermissionGranted(jboolean granted)
 
     if (_cameraGranted)
     {
-        _ndkCamera->setPermissionGranted();
+        _ndkCameraMgr->setPermissionGranted();
         //startCamera();
     }
 }
@@ -477,10 +423,12 @@ std::string Engine::getInternalDir()
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -491,7 +439,8 @@ std::string Engine::getInternalDir()
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version");
             Utils::log("WAInative", "unsupported java version");
@@ -568,10 +517,12 @@ std::string Engine::getExternalDir()
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -582,7 +533,8 @@ std::string Engine::getExternalDir()
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return "";
@@ -660,10 +612,12 @@ void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath
 
     switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
     {
-        case JNI_OK: {
+        case JNI_OK:
+        {
         }
         break;
-        case JNI_EDETACHED: {
+        case JNI_EDETACHED:
+        {
             jint result = jvm->AttachCurrentThread(&env, nullptr);
             if (result == JNI_ERR)
             {
@@ -674,7 +628,8 @@ void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath
             threadAttached = true;
         }
         break;
-        case JNI_EVERSION: {
+        case JNI_EVERSION:
+        {
             //TODO(dgj1): error handling
             Utils::log("WAInative", "unsupported java version\n");
             return;
@@ -918,18 +873,21 @@ static int32_t handleInput(struct android_app* app, AInputEvent* event)
         switch (actionCode)
         {
             case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+            case AMOTION_EVENT_ACTION_POINTER_DOWN:
+            {
                 engine->handleTouchDown(event);
             }
             break;
 
             case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP: {
+            case AMOTION_EVENT_ACTION_POINTER_UP:
+            {
                 engine->handleTouchUp(event);
             }
             break;
 
-            case AMOTION_EVENT_ACTION_MOVE: {
+            case AMOTION_EVENT_ACTION_MOVE:
+            {
                 engine->handleTouchMove(event);
             }
         }

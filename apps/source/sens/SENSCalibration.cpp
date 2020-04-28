@@ -17,24 +17,7 @@
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int SENSCalibration::_CALIBFILEVERSION = 6;
-//-----------------------------------------------------------------------------
-//SENSCalibration::SENSCalibration(SENSCameraType type, string computerInfos)
-//  : _state(State::uncalibrated),
-//    _cameraFovHDeg(0.0f),
-//    _cameraFovVDeg(0.0f),
-//    _calibFileName(""), // is set in load
-//    _boardSize(0, 0),
-//    _boardSquareMM(0.0f),
-//    _numCaptured(0),
-//    _reprojectionError(-1.0f),
-//    _camSizeIndex(-1),
-//    _calibrationTime("-"),
-//    _isMirroredH(false),
-//    _isMirroredV(false),
-//    _camType(type),
-//    _computerInfos(std::move(computerInfos))
-//{
-//}
+
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
 SENSCalibration::SENSCalibration(const cv::Mat& cameraMat,

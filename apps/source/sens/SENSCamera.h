@@ -7,6 +7,24 @@
 #include <SENSCalibration.h>
 #include <atomic>
 
+enum class SENSCameraFacing
+{
+    FRONT = 0,
+    BACK,
+    EXTERNAL
+};
+
+static std::string getPrintableFacing(SENSCameraFacing facing)
+{
+    switch (facing)
+    {
+        case SENSCameraFacing::FRONT: return "FRONT";
+        case SENSCameraFacing::BACK: return "BACK";
+        case SENSCameraFacing::EXTERNAL: return "EXTERNAL";
+        default: return "UNKNOWN";
+    }
+}
+
 class SENSCameraStreamConfigs
 {
 public:
@@ -34,57 +52,34 @@ private:
 
 struct SENSCameraCharacteristics
 {
+    //characteristics are valid (they are not available for every device)
+    std::string             cameraId;
     bool                    provided = false;
     SENSCameraStreamConfigs streamConfig;
     std::vector<float>      focalLenghts;
     cv::Size2f              physicalSensorSizeMM;
+    SENSCameraFacing        facing;
 };
 
-//Use the SENSCameraMangager to select a SENSCamera depending on its SENSCameraCharacteristics
-class SENSCameraManager
-{
-public:
-    //SENSCamera getCamera();
-
-private:
-    //update SENSCameraCharacteristics
-    void updateCameraCharacteristics()
-    {
-    }
-
-    std::vector<SENSCameraCharacteristics> _characteristics;
-};
+class SENSCameraManager;
 
 class SENSCamera
 {
+    friend class SENSCameraManager;
 public:
     SENSCamera()
     {
-        _started           = false;
-        _permissionGranted = false;
+        _started = false;
     }
 
-    enum class Facing
-    {
-        FRONT = 0,
-        BACK
-    };
-
-    std::string getPrintableFacing(Facing facing)
-    {
-        switch (facing)
-        {
-            case Facing::FRONT: return "FRONT";
-            case Facing::BACK: return "BACK";
-        }
-    }
-
+    /*
     enum class Type
     {
         NORMAL = 0,
         MACRO,
         TELE
     };
+     */
 
     //enum class State
     //{
@@ -123,39 +118,58 @@ public:
         bool adjustAsynchronously = false;
     };
 
-    virtual void init(SENSCamera::Facing facing) = 0;
-    virtual void start(const Config config)      = 0;
-    virtual void start(int width, int height)    = 0;
-    virtual void stop()                          = 0;
+    //virtual void init(SENSCameraFacing facing) = 0;
+    virtual void start(const Config config)   = 0;
+    virtual void start(int width, int height) = 0;
+    virtual void stop()                       = 0;
 
     virtual SENSFramePtr getLatestFrame() = 0;
 
     bool     started() const { return _started; }
-    bool     permissionGranted() const { return _permissionGranted; }
-    void     setPermissionGranted() { _permissionGranted = true; }
     cv::Size getFrameSize() { return cv::Size(_config.targetWidth, _config.targetHeight); }
 
     //! returns true if you can retrieve meta-data for the camera on this device (e.g. available stream frames sizes, sensor size and focal lengths)
-    bool                         isCamInfoProvided() { return _camInfoProvided; }
-    const std::vector<cv::Size>& getCamInfoStreamSizes() const { return _camInfoAvailableStreamConfig.getStreamSizes(); }
-    const cv::Size2f&            getCamInfoPhysicalSensorSizeMM() { return _camInfoPhysicalSensorSizeMM; }
-    const std::vector<float>&    getCamInfoFocalLengthsMM() { return _camInfoFocalLenghts; }
+    bool                         isCharacteristicsProvided() { return _characteristics.provided; }
+    const std::vector<cv::Size>& getCharacteristicsStreamSizes() const { return _characteristics.streamConfig.getStreamSizes(); }
+    const cv::Size2f&            getCharacteristicsPhysicalSensorSizeMM() { return _characteristics.physicalSensorSizeMM; }
+    const std::vector<float>&    getCharacteristicsFocalLengthsMM() { return _characteristics.focalLenghts; }
 
 protected:
     float             _targetWdivH = -1.0f;
     Config            _config;
     std::atomic<bool> _started;
-    std::atomic<bool> _permissionGranted;
+    //std::atomic<bool> _permissionGranted;
 
-    SENSCamera::Facing _facing = SENSCamera::Facing::BACK;
+    SENSCameraCharacteristics _characteristics;
+    //SENSCameraFacing _facing = SENSCameraFacing::BACK;
 
-    bool                    _camInfoProvided = false;
-    SENSCameraStreamConfigs _camInfoAvailableStreamConfig;
-    std::vector<float>      _camInfoFocalLenghts;
-    cv::Size2f              _camInfoPhysicalSensorSizeMM;
+    //bool                    _camInfoProvided = false;
+    //SENSCameraStreamConfigs _camInfoAvailableStreamConfig;
+    //std::vector<float>      _camInfoFocalLenghts;
+    //cv::Size2f              _camInfoPhysicalSensorSizeMM;
 
     SENSCalibration* _calibration;
     //State _state = State::IDLE;
 };
+using SENSCameraPtr = std::unique_ptr<SENSCamera>;
 
+//Use the SENSCameraMangager to select a SENSCamera depending on its SENSCameraCharacteristics
+class SENSCameraManager
+{
+public:
+    virtual SENSCameraPtr getOptimalCamera(SENSCameraFacing facing) = 0;
+    virtual SENSCameraPtr getCameraForId(std::string id) = 0;
+
+    const std::vector<SENSCameraCharacteristics>& characteristics() { return _characteristics; }
+
+    bool permissionGranted() const { return _permissionGranted; }
+    void setPermissionGranted() { _permissionGranted = true; }
+
+protected:
+    //update SENSCameraCharacteristics
+    virtual void updateCameraCharacteristics() = 0;
+
+    std::vector<SENSCameraCharacteristics> _characteristics;
+    std::atomic<bool>                      _permissionGranted{false};
+};
 #endif //SENS_CAMERA_H

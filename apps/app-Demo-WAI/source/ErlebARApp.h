@@ -32,7 +32,7 @@ public:
     ErlebARApp();
 
     //external events:
-    void init(int scrWidth, int scrHeight, int dpi, AppDirectories dirs, SENSCamera* camera);
+    void init(int scrWidth, int scrHeight, int dpi, AppDirectories dirs, SENSCameraManager* cameraMgr);
     //go back (e.g. from android back-button)
     void goBack();
     //call to completely uninitialize app
@@ -83,8 +83,9 @@ private:
     AreaTrackingView* _areaTrackingView = nullptr;
     CameraTestView*   _cameraTestView   = nullptr;
 
-    SENSCamera*      _camera  = nullptr;
-    CloseAppCallback _closeCB = nullptr;
+    SENSCameraManager* _cameraMgr = nullptr;
+    SENSCameraPtr      _camera;
+    CloseAppCallback   _closeCB = nullptr;
 
     ErlebAR::Resources* _resources = nullptr;
 };
