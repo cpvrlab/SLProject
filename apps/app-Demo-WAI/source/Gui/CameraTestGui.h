@@ -50,11 +50,11 @@ private:
 
     ErlebAR::Resources& _resources;
 
-    SENSCameraManager*                     _cameraMgr;
-    SENSCamera::Config                     _cameraConfig;
-    SENSCameraPtr                          _camera;
-    std::vector<SENSCameraCharacteristics> _camCharacs;
-
+    SENSCameraManager*                              _cameraMgr;
+    SENSCamera::Config                              _cameraConfig;
+    SENSCameraPtr                                   _camera;
+    std::vector<SENSCameraCharacteristics>          _camCharacs;
+    std::map<std::string, std::vector<std::string>> _sizesStrings;
     //callbacks
     //std::function<void(void)> _startCameraCB;
     //std::function<void(void)> _stopCameraCB;

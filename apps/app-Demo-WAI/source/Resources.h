@@ -109,7 +109,7 @@ public:
     ImVec4 areaPoseButtonShapeColor        = {1.f, 0.f, 0.f, 0.5f};
     ImVec4 areaPoseButtonShapeColorPressed = {1.f, 1.f, 1.f, 1.f};
     ImVec4 areaPoseButtonColor             = {1.f, 1.f, 1.f, 0.f};
-    ImVec4 areaPoseButtonColorPressed      = {1.f, 1.f, 1.f, 0.2f};
+    ImVec4 areaPoseButtonColorPressed      = {1.f, 1.f, 1.f, 0.f};
     //percental view triangle width relative to screen heigth
     float areaPoseButtonViewTriangleWidth = 0.1f;
     //percental view triangle length relative to view triangle width
