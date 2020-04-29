@@ -3,8 +3,8 @@
 		{
 			"location": "augst",
 			"areas": [
-				{ "area": "templeHillTheaterBottom", "enabled": true },
-				{ "area": "templeHill-marker", "enabled": false}
+				{ "area": "templeHillTheaterBottom", "enabled": false },
+				{ "area": "templeHill-marker", "enabled": true}
 			]
 		}
 	],
@@ -28,7 +28,7 @@
 			"location": "augst",
 			"area": { "name":"templeHill-marker", "map":"t-marker-map_20200121-150644_augst_templeHill-marker_GLSL.json" },
 			"videos": [
-				"cut-20191009-103333_rainy_ASUSAR-1_markerMap_640x360.mp4"
+				"20191009-103255_rainy_ASUSAR-1_marker_640x360.mp4"
 			]
 		}
 	]

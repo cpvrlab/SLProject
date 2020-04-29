@@ -79,6 +79,8 @@ public:
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::TEST,
                          (unsigned int)StateId::SELECTION);
+        enableTransition((unsigned int)StateId::TEST_RUNNER,
+                         (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::AREA_INFO,
                          (unsigned int)StateId::LOCATION_MAP);
     }
@@ -96,6 +98,8 @@ public:
         enableTransition((unsigned int)StateId::START_TEST,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::TEST,
+                         (unsigned int)StateId::DESTROY);
+        enableTransition((unsigned int)StateId::TEST_RUNNER,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::DESTROY);
@@ -130,6 +134,8 @@ public:
                          (unsigned int)StateId::TEST);
         enableTransition((unsigned int)StateId::AREA_INFO,
                          (unsigned int)StateId::AREA_TRACKING);
+        enableTransition((unsigned int)StateId::TEST_RUNNER,
+                         (unsigned int)StateId::SELECTION);
     }
 };
 
@@ -204,6 +210,16 @@ public:
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::START_TEST);
+    }
+};
+
+class StartTestRunnerEvent : public sm::Event
+{
+public:
+    StartTestRunnerEvent()
+    {
+        enableTransition((unsigned int)StateId::SELECTION,
+                         (unsigned int)StateId::TEST_RUNNER);
     }
 };
 
