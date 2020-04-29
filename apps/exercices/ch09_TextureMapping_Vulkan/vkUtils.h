@@ -116,7 +116,6 @@ private:
     VkImageView                     textureImageView;
     VkSampler                       textureSampler;
     VkBuffer                        indexBuffer;
-    VkDeviceMemory                  indexBufferMemory;
     VkPipelineShaderStageCreateInfo shaderStages[2];
     vector<VkDescriptorSet>         descriptorSets;
     vector<VkBuffer>                uniformBuffers;
@@ -154,9 +153,10 @@ public:
     void     createUniformBuffers();
     void     createDescriptorPool();
     void     createDescriptorSets();
-    void     createCommandBuffers(VkBuffer*);
+    void     createCommandBuffers(const std::vector<Vertex>& vertices);
     void     createSyncObjects();
     void     setCameraMatrix(SLMat4f*);
+    void     recreateSwapchain(GLFWwindow* window, const std::vector<Vertex>& vertices);
 
 private:
     void     cleanupSwapchain();

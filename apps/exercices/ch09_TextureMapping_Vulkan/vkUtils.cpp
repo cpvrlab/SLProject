@@ -7,7 +7,7 @@ Seperate cleanup for swapchain
 */
 void vkUtils::cleanupSwapchain()
 {
-    for (auto framebuffer : swapchainFramebuffers)
+    for (VkFramebuffer framebuffer : swapchainFramebuffers)
         vkDestroyFramebuffer(device, framebuffer, nullptr);
 
     vkFreeCommandBuffers(device,
@@ -19,7 +19,7 @@ void vkUtils::cleanupSwapchain()
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
 
-    for (auto imageView : swapchainImageViews)
+    for (VkImageView imageView : swapchainImageViews)
         vkDestroyImageView(device, imageView, nullptr);
 
     vkDestroySwapchainKHR(device, swapchain, nullptr);
@@ -38,6 +38,8 @@ Cleanup for preventing memory leak. Note the order!
 */
 void vkUtils::cleanup()
 {
+    vkDeviceWaitIdle(device);
+
     cleanupSwapchain();
 
     vkDestroySampler(device, textureSampler, nullptr);
@@ -46,7 +48,6 @@ void vkUtils::cleanup()
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
     vkDestroyBuffer(device, indexBuffer, nullptr);
-    vkFreeMemory(device, indexBufferMemory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_PROCESSING_ROW; i++)
     {
@@ -76,7 +77,6 @@ void vkUtils::createInstance()
     if (!checkValidationLayerSupport())
         cerr << "validation layers requested, but not available!" << endl;
 #endif
-    // this->window = window;
     // Just infos about the software. The importent parameter is the apiVersion.
     // It determinates, which vulkan version should be used
     VkApplicationInfo appInfo{};
@@ -876,6 +876,7 @@ void vkUtils::createIndexBuffer()
     memcpy(data, indices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
+    VkDeviceMemory indexBufferMemory;
     createBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -939,7 +940,7 @@ void vkUtils::copyBuffer(VkBuffer     srcBuffer,
 /*!
 Allocates and records drawing commands
 */
-void vkUtils::createCommandBuffers(VkBuffer* vertexBuffer)
+void vkUtils::createCommandBuffers(const std::vector<Vertex>& vertices)
 {
     commandBuffers.resize(swapchainFramebuffers.size());
 
@@ -977,8 +978,8 @@ void vkUtils::createCommandBuffers(VkBuffer* vertexBuffer)
         vkCmdBindPipeline(commandBuffers[i],
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
                           graphicsPipeline);
-
-        VkBuffer     vertexBuffers[] = {*vertexBuffer};
+        VkBuffer     vertexBuffer    = createVertexBuffer(vertices);
+        VkBuffer     vertexBuffers[] = {vertexBuffer};
         VkDeviceSize offsets[]       = {0};
         vkCmdBindVertexBuffers(commandBuffers[i],
                                0,
@@ -1046,6 +1047,22 @@ void vkUtils::createSyncObjects()
 void vkUtils::setCameraMatrix(SLMat4f* mat)
 {
     cameraMatrix = mat;
+}
+void vkUtils::recreateSwapchain(GLFWwindow* window, const std::vector<Vertex>& vertices)
+{
+    vkDeviceWaitIdle(device);
+
+    cleanupSwapchain();
+
+    createSwapchain(window);
+    createImageViews();
+    createRenderPass();
+    createGraphicsPipeline();
+    createFramebuffers();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
+    createCommandBuffers(vertices);
 }
 //-----------------------------------------------------------------------------
 /*!

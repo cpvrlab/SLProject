@@ -91,9 +91,14 @@ void printFPS()
     static float lastTimeSec = 0.0f;
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "fps: %4.0f", fps);
+    sprintf(title, "fps: %5.0f", fps);
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
+}
+//-----------------------------------------------------------------------------
+void onWindowResize(GLFWwindow* window, int width, int height)
+{
+    renderer.recreateSwapchain(window, vertices);
 }
 //-----------------------------------------------------------------------------
 void initWindow()
@@ -107,11 +112,13 @@ void initWindow()
                               nullptr,
                               nullptr);
 
+    glfwSetWindowSizeLimits(window, 100, 100, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetWindowUserPointer(window, &renderer);
     glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
+    glfwSetWindowSizeCallback(window, onWindowResize);
 }
 //-----------------------------------------------------------------------------
 void initVulkan()
@@ -138,12 +145,12 @@ void initVulkan()
     renderer.createCommandPool();
     renderer.createTextureImage(texture.data(), texture.width(), texture.height());
     renderer.createTextureSampler();
-    VkBuffer vertexBuffer = renderer.createVertexBuffer(vertices);
+    // VkBuffer vertexBuffer = renderer.createVertexBuffer(vertices);
     renderer.createIndexBuffer();
     renderer.createUniformBuffers();
     renderer.createDescriptorPool();
     renderer.createDescriptorSets();
-    renderer.createCommandBuffers(&vertexBuffer);
+    renderer.createCommandBuffers(vertices);
     renderer.createSyncObjects();
 }
 //-----------------------------------------------------------------------------
@@ -180,6 +187,7 @@ int main()
     initVulkan();
     mainLoop();
     cleanup();
+
     return EXIT_SUCCESS;
 }
 //-----------------------------------------------------------------------------
