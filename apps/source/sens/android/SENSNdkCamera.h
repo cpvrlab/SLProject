@@ -42,10 +42,6 @@ public:
 
 private:
     SENSNdkCamera(SENSCameraCharacteristics characteristics);
-
-    //void initCameraInfoList();
-    //select camera id to open
-    //void initOptimalCamera(SENSCameraFacing facing);
     //start camera selected in initOptimalCamera as soon as it is available
     void openCamera();
     void createCaptureSession();
@@ -57,11 +53,8 @@ private:
     //run routine for asynchronous adjustment
     void run();
 
-    ACameraManager* _cameraManager = nullptr;
-
-    //std::string        _cameraId;
-    ACameraDevice* _cameraDevice = nullptr;
-
+    ACameraManager*                 _cameraManager                 = nullptr;
+    ACameraDevice*                  _cameraDevice                  = nullptr;
     AImageReader*                   _imageReader                   = nullptr;
     ANativeWindow*                  _surface                       = nullptr;
     ACaptureSessionOutput*          _captureSessionOutput          = nullptr;
@@ -89,11 +82,6 @@ private:
     //wait in start() until camera is opened
     std::atomic<bool> _cameraDeviceOpened{false}; // free to use ( no other apps are using it)
 
-    bool                    _cameraIsOpening = false;
-    std::mutex              _cameraDeviceOpeningMutex;
-    std::condition_variable _cameraDeviceOpeningCV;
-    camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
-
     //async image processing
     std::condition_variable      _waitCondition;
     cv::Mat                      _yuvImgToProcess;
@@ -106,9 +94,15 @@ private:
     std::runtime_error _threadException;
     bool               _threadHasException = false;
 
-    State             _state = State::STOPPED;
+    //camera state
+    State             _state = State::CLOSED;
     cv::Size          _captureSize;
     std::atomic<bool> _captureSessionActive{false};
+
+    bool                    _cameraIsOpening = false;
+    std::mutex              _cameraDeviceOpeningMutex;
+    std::condition_variable _cameraDeviceOpeningCV;
+    camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
 };
 
 class SENSNdkCameraManager : public SENSCameraManager

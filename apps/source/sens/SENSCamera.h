@@ -83,10 +83,11 @@ public:
 
     enum class State
     {
-        STOPPED,
+        CLOSED,
         INITIALIZED,
         STARTING,
         STARTED,
+        REPEATING_REQUEST,
         CLOSING
     };
 
