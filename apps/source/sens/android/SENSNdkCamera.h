@@ -102,7 +102,7 @@ private:
     bool                    _cameraIsOpening = false;
     std::mutex              _cameraDeviceOpeningMutex;
     std::condition_variable _cameraDeviceOpeningCV;
-    camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
+    //camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
 };
 
 class SENSNdkCameraManager : public SENSCameraManager

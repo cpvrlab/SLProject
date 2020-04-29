@@ -11,10 +11,10 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
                              int                 screenWidthPix,
                              int                 screenHeightPix,
                              std::string         fontPath,
-                             SENSCamera*         camera)
+                             SENSCameraManager*  cameraMgr)
   : sm::EventSender(eventHandler),
     _resources(resources),
-    _camera(camera)
+    _cameraMgr(cameraMgr)
 {
     resize(screenWidthPix, screenHeightPix);
     float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
@@ -27,6 +27,9 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
     }
     else
         Utils::warnMsg("CameraTestGui", "font does not exist!", __LINE__, __FILE__);
+
+    //keep a local copy, as it is easier to access
+    _camCharacs = _cameraMgr->characteristics();
 }
 
 CameraTestGui::~CameraTestGui()
@@ -106,24 +109,36 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            static int itemCurrent = 0;
-            ImGui::Combo("Camera facing", &itemCurrent, "FRONT\0BACK\0\0");
+            //const SENSCameraCharacteristics* selectedCharac = &_camCharacs.front();
+            static const SENSCameraCharacteristics* currCharac = &_camCharacs.front();
+            if (ImGui::BeginCombo("Cameras##CameraTestGui", currCharac->cameraId.c_str()))
+            {
+                for (int n = 0; n < _camCharacs.size(); n++)
+                {
+                    const SENSCameraCharacteristics* charac = &_camCharacs[n];
+                    ImGui::PushID(charac->cameraId.c_str());
+                    if (ImGui::Selectable(charac->cameraId.c_str(), charac == currCharac))
+                        currCharac = charac;
+                    ImGui::PopID();
+                }
+                ImGui::EndCombo();
+            }
 
-            //if (ImGui::Button("Init##initCamera", ImVec2(w, 0)))
-            //{
-            //    try
-            //    {
-            //        if (itemCurrent == 0)
-            //            _camera->init(SENSCameraFacing::FRONT);
-            //        else
-            //            _camera->init(SENSCameraFacing::BACK);
-            //    }
-            //    catch (SENSException& e)
-            //    {
-            //        _exceptionText = e.what();
-            //        _hasException  = true;
-            //    }
-            //}
+            //visualize current camera characteristics
+            if (currCharac->provided)
+            {
+                ImGui::Text(getPrintableFacing(currCharac->facing).c_str());
+                ImGui::Text("Physical sensor size (mm): w: %f, h: %f", currCharac->physicalSensorSizeMM.width, currCharac->physicalSensorSizeMM.height);
+                ImGui::Text("Focal lengths (mm):");
+                for (auto fl : currCharac->focalLenghts)
+                {
+                    ImGui::Text("  %f", fl);
+                }
+            }
+            else
+            {
+                ImGui::Text("Camera characteristics not provided by this device!");
+            }
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
@@ -131,9 +146,12 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 _cameraConfig.targetHeight  = 360;
                 _cameraConfig.convertToGray = true;
 
+                //get an instance for the selected camera
+                _camera = _cameraMgr->getCameraForId(currCharac->cameraId);
                 try
                 {
-                    _camera->start(_cameraConfig);
+                    if (_camera)
+                        _camera->start(_cameraConfig);
                 }
                 catch (SENSException& e)
                 {
@@ -146,7 +164,8 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 try
                 {
-                    _camera->stop();
+                    if (_camera)
+                        _camera->stop();
                 }
                 catch (SENSException& e)
                 {
@@ -155,25 +174,25 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 }
             }
 
-            if (_camera->started())
+            if (_camera && _camera->started())
             {
                 cv::Size s = _camera->getFrameSize();
                 ImGui::Text("Current frame size: w: %d, h: %d", s.width, s.height);
 
-                ImGui::Text("Camera Info:");
-                if (_camera->isCharacteristicsProvided())
-                {
-                    ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _camera->getCharacteristicsPhysicalSensorSizeMM().width, _camera->getCharacteristicsPhysicalSensorSizeMM().height);
-                    ImGui::Text("Focal lengths (mm):");
-                    for (auto fl : _camera->getCharacteristicsFocalLengthsMM())
-                    {
-                        ImGui::Text("  %f", fl);
-                    }
-                }
-                else
-                {
-                    ImGui::Text("not provided");
-                }
+                //ImGui::Text("Camera Info:");
+                //if (_camera->isCharacteristicsProvided())
+                //{
+                //    ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _camera->getCharacteristicsPhysicalSensorSizeMM().width, _camera->getCharacteristicsPhysicalSensorSizeMM().height);
+                //    ImGui::Text("Focal lengths (mm):");
+                //    for (auto fl : _camera->getCharacteristicsFocalLengthsMM())
+                //    {
+                //        ImGui::Text("  %f", fl);
+                //    }
+                //}
+                //else
+                //{
+                //    ImGui::Text("not provided");
+                //}
             }
             else
             {

@@ -57,7 +57,7 @@ void onSessionReady(void* ctx, ACameraCaptureSession* ses)
 
 void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 {
-    LOG_NDKCAM_WARN("onSessionReady: CaptureSession state: session %p active", ses);
+    LOG_NDKCAM_WARN("onSessionActive: CaptureSession state: session %p active", ses);
     reinterpret_cast<SENSNdkCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::ACTIVE);
 }
@@ -100,7 +100,7 @@ void SENSNdkCamera::openCamera()
         LOG_NDKCAM_DEBUG("openCamera: Creating camera manager ...");
         _cameraManager = ACameraManager_create();
         if (!_cameraManager)
-            throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
+            ; //throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
         //register callbacks
         _cameraManagerAvailabilityCallbacks = {
@@ -123,6 +123,7 @@ void SENSNdkCamera::openCamera()
 
     if (!_cameraDeviceOpened)
     {
+        LOG_NDKCAM_DEBUG("openCamera: Camera device not open");
         auto condition = [&] {
             return (_cameraAvailability[_characteristics.cameraId]);
         };
@@ -137,12 +138,34 @@ void SENSNdkCamera::openCamera()
           .onDisconnected = ::onDeviceDisconnected,
           .onError        = ::onDeviceErrorChanges,
         };
-        _cameraDeviceOpenResult = ACameraManager_openCamera(_cameraManager,
-                                                            _characteristics.cameraId.c_str(),
-                                                            &cameraDeviceListener,
-                                                            &_cameraDevice);
-        _cameraDeviceOpened     = true;
+
+        camera_status_t cameraState;
+        int             n    = 0;
+        int             nMax = 10;
+        while (n < nMax)
+        {
+            cameraState = ACameraManager_openCamera(_cameraManager,
+                                                    _characteristics.cameraId.c_str(),
+                                                    &cameraDeviceListener,
+                                                    &_cameraDevice);
+
+            if (cameraState == ACAMERA_OK)
+                break;
+            n++;
+        }
+
+        if (cameraState != ACAMERA_OK)
+        {
+            LOG_NDKCAM_WARN("Could not open camera!");
+            //throw SENSException(SENSType::CAM, "Could not camera camera!", __LINE__, __FILE__);
+        }
+
+        _cameraDeviceOpened = true;
         LOG_NDKCAM_DEBUG("openCamera: Camera opened!");
+    }
+    else
+    {
+        LOG_NDKCAM_DEBUG("openCamera: Camera device is already open");
     }
 
     cv::Size captureSize = _characteristics.streamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
@@ -314,11 +337,15 @@ void SENSNdkCamera::createCaptureSession()
       .onActive = ::onSessionActive,
       .onReady  = ::onSessionReady,
       .onClosed = ::onSessionClosed};
-    if (ACameraDevice_createCaptureSession(_cameraDevice,
-                                           _captureSessionOutputContainer,
-                                           &captureSessionStateCallbacks,
-                                           &_captureSession) != AMEDIA_OK)
-        throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
+    camera_status_t captureSessionStatus = ACameraDevice_createCaptureSession(_cameraDevice,
+                                                                              _captureSessionOutputContainer,
+                                                                              &captureSessionStateCallbacks,
+                                                                              &_captureSession);
+    if (captureSessionStatus != AMEDIA_OK)
+    {
+        LOG_NDKCAM_WARN("Creating capture session failed!");
+    }
+    //throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
 
     //adjust capture request properties
     if (_config.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
@@ -350,9 +377,8 @@ void SENSNdkCamera::start(int width, int height)
 void SENSNdkCamera::stop()
 {
     //todo: when camera is currently starting we have to wait until it is started
-    if(_state == State::STARTING)
+    if (_state == State::STARTING)
     {
-
     }
 
     _state = State::CLOSING;
@@ -791,6 +817,7 @@ void SENSNdkCameraManager::updateCameraCharacteristics()
     {
         SENSCameraCharacteristics characteristics;
         characteristics.cameraId = cameraIds->cameraIds[i];
+        characteristics.provided = true;
 
         ACameraMetadata* camCharacteristics;
         ACameraManager_getCameraCharacteristics(cameraManager, characteristics.cameraId.c_str(), &camCharacteristics);
@@ -880,21 +907,32 @@ SENSCameraPtr SENSNdkCameraManager::getOptimalCamera(SENSCameraFacing facing)
     {
         if (c.facing == facing)
         {
-            camera = std::unique_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
+            camera = std::shared_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
         }
     }
-    return std::move(camera);
+    return camera;
 }
 
 SENSCameraPtr SENSNdkCameraManager::getCameraForId(std::string id)
 {
     SENSCameraPtr camera;
-    for (const SENSCameraCharacteristics& c : _characteristics)
+
+    auto it = _cameraInstances.find(id);
+    if (it == _cameraInstances.end())
     {
-        if (c.cameraId == id)
+        for (const SENSCameraCharacteristics& c : _characteristics)
         {
-            camera = std::unique_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
+            if (c.cameraId == id)
+            {
+                camera               = std::shared_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
+                _cameraInstances[id] = camera;
+            }
         }
     }
-    return std::move(camera);
+    else
+    {
+        camera = it->second;
+    }
+
+    return camera;
 }

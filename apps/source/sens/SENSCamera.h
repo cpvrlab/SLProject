@@ -6,6 +6,7 @@
 #include <SENSException.h>
 #include <SENSCalibration.h>
 #include <atomic>
+#include <map>
 
 enum class SENSCameraFacing
 {
@@ -66,6 +67,7 @@ class SENSCameraManager;
 class SENSCamera
 {
     friend class SENSCameraManager;
+
 public:
     SENSCamera()
     {
@@ -153,14 +155,14 @@ protected:
     SENSCalibration* _calibration;
     //State _state = State::IDLE;
 };
-using SENSCameraPtr = std::unique_ptr<SENSCamera>;
+using SENSCameraPtr = std::shared_ptr<SENSCamera>;
 
 //Use the SENSCameraMangager to select a SENSCamera depending on its SENSCameraCharacteristics
 class SENSCameraManager
 {
 public:
     virtual SENSCameraPtr getOptimalCamera(SENSCameraFacing facing) = 0;
-    virtual SENSCameraPtr getCameraForId(std::string id) = 0;
+    virtual SENSCameraPtr getCameraForId(std::string id)            = 0;
 
     const std::vector<SENSCameraCharacteristics>& characteristics() { return _characteristics; }
 
@@ -173,5 +175,7 @@ protected:
 
     std::vector<SENSCameraCharacteristics> _characteristics;
     std::atomic<bool>                      _permissionGranted{false};
+
+    std::map<std::string, SENSCameraPtr> _cameraInstances;
 };
 #endif //SENS_CAMERA_H

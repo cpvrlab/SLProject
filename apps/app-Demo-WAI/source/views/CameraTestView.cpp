@@ -3,7 +3,7 @@
 CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
                                SLInputManager&     inputManager,
                                ErlebAR::Resources& resources,
-                               SENSCamera*         sensCamera,
+                               SENSCameraManager*  sensCameraMgr,
                                int                 screenWidth,
                                int                 screenHeight,
                                int                 dotsPerInch,
@@ -16,9 +16,9 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
          screenWidth,
          screenHeight,
          fontPath,
-         sensCamera),
+         sensCameraMgr),
     _scene("CameraTestScene"),
-    _camera(sensCamera)
+    _sensCameraMgr(sensCameraMgr)
 {
     scene(&_scene);
     init("CameraTestView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
@@ -29,9 +29,9 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
 
 bool CameraTestView::update()
 {
-    if (_camera->started())
+    if (_gui.camera() && _gui.camera()->started())
     {
-        SENSFramePtr frame = _camera->getLatestFrame();
+        SENSFramePtr frame = _gui.camera()->getLatestFrame();
         if (frame)
             _scene.updateVideoImage(frame->imgRGB);
     }
@@ -55,8 +55,8 @@ void CameraTestView::startCamera()
 
 void CameraTestView::stopCamera()
 {
-    if (!_camera)
+    if (!_gui.camera())
         return;
 
-    _camera->stop();
+    _gui.camera()->stop();
 }

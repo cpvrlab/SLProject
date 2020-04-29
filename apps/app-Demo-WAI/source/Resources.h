@@ -105,6 +105,18 @@ public:
                                           BFHColors::GrayLogo.b,
                                           0.3};
 
+    //area pose button
+    ImVec4 areaPoseButtonShapeColor        = {1.f, 0.f, 0.f, 0.5f};
+    ImVec4 areaPoseButtonShapeColorPressed = {1.f, 1.f, 1.f, 1.f};
+    ImVec4 areaPoseButtonColor             = {1.f, 1.f, 1.f, 0.f};
+    ImVec4 areaPoseButtonColorPressed      = {1.f, 1.f, 1.f, 0.2f};
+    //percental view triangle width relative to screen heigth
+    float areaPoseButtonViewTriangleWidth = 0.1f;
+    //percental view triangle length relative to view triangle width
+    float areaPoseButtonViewTriangleLength = 1.1f;
+    //percental circle radius relative to view triangle width
+    float areaPoseButtonCircleRadius = 0.2f;
+
     //other:
     // percental standard text height relative to screen height
     float textStandardH = 0.05f;

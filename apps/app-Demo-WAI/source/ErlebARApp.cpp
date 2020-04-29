@@ -258,7 +258,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,
                                          *_resources,
-                                         _camera.get(),
+                                         _cameraMgr,
                                          dd.scrWidth(),
                                          dd.scrHeight(),
                                          dd.dpi(),

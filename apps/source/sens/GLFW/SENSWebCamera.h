@@ -45,20 +45,31 @@ public:
     {
         //we dont know nothing anyway
         SENSCameraPtr camera = std::unique_ptr<SENSWebCamera>(new SENSWebCamera());
-        return std::move(camera);
+        return camera;
     }
 
     SENSCameraPtr getCameraForId(std::string id)
     {
         SENSCameraPtr camera;
-        for (const SENSCameraCharacteristics& c : _characteristics)
+
+        auto it = _cameraInstances.find(id);
+        if (it == _cameraInstances.end())
         {
-            if (c.cameraId == id)
+            for (const SENSCameraCharacteristics& c : _characteristics)
             {
-                camera = std::unique_ptr<SENSWebCamera>(new SENSWebCamera());
+                if (c.cameraId == id)
+                {
+                    camera               = std::shared_ptr<SENSWebCamera>(new SENSWebCamera());
+                    _cameraInstances[id] = camera;
+                }
             }
         }
-        return std::move(camera);
+        else
+        {
+            camera = it->second;
+        }
+
+        return camera;
     }
 
 protected:
@@ -66,11 +77,23 @@ protected:
     {
         //There is an invisible list of devices populated from your os and your webcams appear there in the order you plugged them in.
         //If you're e.g on a laptop with a builtin camera, that will be id 0, if you plug in an additional one, that's id 1.
-        SENSCameraCharacteristics characteristics;
-        characteristics.cameraId = "0";
-        characteristics.provided = false;
-
-        _characteristics.push_back(characteristics);
+        {
+            SENSCameraCharacteristics characteristics;
+            characteristics.cameraId = "0";
+            characteristics.provided = true;
+            characteristics.streamConfig.add(cv::Size(640, 360));
+            characteristics.streamConfig.add(cv::Size(640, 480));
+            _characteristics.push_back(characteristics);
+        }
+        {
+            SENSCameraCharacteristics characteristics;
+            characteristics.cameraId = "1";
+            characteristics.provided = true;
+            characteristics.streamConfig.add(cv::Size(1920, 11080));
+            characteristics.streamConfig.add(cv::Size(640, 360));
+            characteristics.streamConfig.add(cv::Size(640, 480));
+            _characteristics.push_back(characteristics);
+        }
     }
 };
 
