@@ -2,6 +2,12 @@
 #include <CVImage.h>
 #include <Utils.h>
 
+//add this to enable + operator on ImRect
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#    define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+#include <imgui_internal.h>
+
 namespace ErlebAR
 {
 void renderBackgroundTexture(float screenW, float screenH, GLuint texId)
@@ -148,5 +154,80 @@ void deleteTexture(GLuint& id)
         glDeleteTextures(1, &id);
         id = 0;
     }
+}
+
+std::vector<ImVec2> rotatePts(const std::vector<ImVec2>& pts, float angleDeg)
+{
+    std::vector<ImVec2> rotPts;
+
+    return rotPts;
+}
+
+ImRect calcBoundingBox(const std::vector<ImVec2>& pts)
+{
+    float xMin, xMax, yMin, yMax;
+    xMin = yMin = std::numeric_limits<float>::max();
+    xMax = yMax = std::numeric_limits<float>::min();
+    for (const ImVec2& pt : pts)
+    {
+        if (pt.x < xMin)
+            xMin = pt.x;
+        if (pt.x > xMax)
+            xMax = pt.x;
+        if (pt.y < yMin)
+            yMin = pt.y;
+        if (pt.y > yMax)
+            yMax = pt.y;
+    }
+
+    return ImRect(ImVec2(xMin, xMax), ImVec2(xMax, yMax));
+}
+
+bool PoseShapeButton(const char* label, const ImVec2& size_arg, const ImVec4& col_normal, const ImVec4& col_active)
+{
+    ImGuiButtonFlags flags  = 0;
+    ImGuiWindow*     window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext&     g          = *GImGui;
+    const ImGuiStyle& style      = g.Style;
+    const ImGuiID     id         = window->GetID(label);
+    const ImVec2      label_size = ImGui::CalcTextSize(label, NULL, true);
+
+    ImVec2 pos = window->DC.CursorPos;
+    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+        pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+    ImVec2 size = ImGui::CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+    const ImRect bb(pos, pos + size);
+    ImGui::ItemSize(size, style.FramePadding.y);
+    if (!ImGui::ItemAdd(bb, id))
+        return false;
+
+    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
+        flags |= ImGuiButtonFlags_Repeat;
+    bool hovered, held;
+    bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+
+    // Render
+    const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+    ImGui::RenderNavHighlight(bb, id);
+    ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+    //RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+
+    ImVec2 c(bb.Min.x, 0.5f * (bb.Max.y + bb.Min.y));
+    if (held && hovered)
+    {
+        window->DrawList->AddTriangleFilled(c, bb.Max, ImVec2(bb.Max.x, bb.Min.y), ImGui::GetColorU32(col_active));
+        window->DrawList->AddCircleFilled(c, 10, ImGui::GetColorU32(col_active));
+    }
+    else
+    {
+        window->DrawList->AddTriangleFilled(c, bb.Max, ImVec2(bb.Max.x, bb.Min.y), ImGui::GetColorU32(col_normal));
+        window->DrawList->AddCircleFilled(c, 10, ImGui::GetColorU32(col_normal));
+    }
+
+    return pressed;
 }
 };

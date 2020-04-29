@@ -31,6 +31,7 @@ GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdi
 
 void deleteTexture(GLuint& id);
 
+bool PoseShapeButton(const char* label, const ImVec2& size_arg, const ImVec4& col_normal, const ImVec4& col_active);
 };
 
 enum class GuiAlignment
