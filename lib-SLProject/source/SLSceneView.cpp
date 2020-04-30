@@ -1266,9 +1266,8 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
             if (_raytracer.state() == rtFinished)
                 _raytracer.state(rtMoveGL);
             else
-            {
                 _raytracer.doContinuous(false);
-            }
+
             _renderType = RT_gl;
         }
 
@@ -1277,6 +1276,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
         {
             if (_pathtracer.state() == rtFinished)
                 _pathtracer.state(rtMoveGL);
+
             _renderType = RT_gl;
         }
     }
@@ -1331,6 +1331,10 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (_renderType == RT_rt && !_raytracer.doContinuous() &&
         _raytracer.state() == rtFinished)
         _raytracer.state(rtReady);
+
+    // Handle mouse wheel in PT mode
+    if (_renderType == RT_pt && _pathtracer.state() == rtFinished)
+        _pathtracer.state(rtReady);
 
     SLbool result = _camera->onMouseWheel(delta, mod);
 

@@ -674,7 +674,7 @@ Fully updates the OpenGL internal texture data by the image data
 void SLGLTexture::fullUpdate()
 {
     if (_texID &&
-        _images.size() &&
+        !_images.empty() &&
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {
@@ -717,19 +717,16 @@ triangles with zero in the bottom left corner: <br>
      0 +-----+
        0
 */
-void SLGLTexture::drawSprite(SLbool doUpdate)
+void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h)
 {
-    SLfloat w = (SLfloat)_images[0]->width();
-    SLfloat h = (SLfloat)_images[0]->height();
-
     // build buffer object once
     if (!_vaoSprite.vaoID())
     {
         // Vertex X & Y of corners
-        SLVVec2f P = {{0.0f, h},
-                      {0.0f, 0.0f},
-                      {w, h},
-                      {w, 0.0f}};
+        SLVVec2f P = {{x, h},
+                      {x, y},
+                      {x + w, y + h},
+                      {x + w, y}};
 
         // Texture coords of corners
         SLVVec2f T = {{0.0f, 1.0f},

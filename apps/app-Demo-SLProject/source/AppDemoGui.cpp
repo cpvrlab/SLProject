@@ -404,6 +404,60 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
                 sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
             }
+            else if (rType == RT_rt)
+            {
+                SLRaytracer* rt           = sv->raytracer();
+                SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
+                SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
+                SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
+                SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+                SLfloat      renderSec    = rt->renderSec();
+                SLfloat      rpms         = renderSec > 0.001f ? rayTotal / renderSec / 1000.0f : 0.0f;
+                SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
+
+                sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", renderSec);
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
+                sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
+                sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
+            }
+            else if (rType == RT_pt)
+            {
+                SLPathtracer* pt           = sv->pathtracer();
+                SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
+                SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
+                SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
+                SLuint        rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+                SLfloat       rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
+
+                sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
+                sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
+                sprintf(m + strlen(m), "---------------------------\n");
+                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                sprintf(m + strlen(m), "---------------------------\n");
+            }
             else if (rType == RT_ct)
             {
                 // Get averages from average variables (see Averaged)
@@ -443,56 +497,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                 sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
                 sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
-            }
-            else if (rType == RT_rt)
-            {
-                SLRaytracer* rt           = sv->raytracer();
-                SLuint       rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
-                SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-                SLfloat      renderSec    = rt->renderSec();
-                SLfloat      rpms         = renderSec > 0.001f ? rayTotal / renderSec / 1000.0f : 0.0f;
-                SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
-
-                sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", renderSec);
-                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
-                sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
-                sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
-                sprintf(m + strlen(m), "---------------------------\n");
-                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "---------------------------\n");
-                sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
-                sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
-            }
-            else if (rType == RT_pt)
-            {
-                SLPathtracer* pt           = sv->pathtracer();
-                SLuint        rayPrimaries = (SLuint)(sv->viewportW() * sv->viewportH());
-                SLuint        rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-                SLfloat       rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
-
-                sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
-                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
-                sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
-                sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
-                sprintf(m + strlen(m), "---------------------------\n");
-                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "---------------------------\n");
             }
 
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1731,6 +1735,27 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::BeginMenu("Resolution Factor"))
+                {
+                    if (ImGui::MenuItem("1.00", nullptr, rt->resolutionFactorPC() == 100))
+                    {
+                        rt->resolutionFactor(1.0f);
+                        sv->startRaytracing(rt->maxDepth());
+                    }
+                    if (ImGui::MenuItem("0.50", nullptr, rt->resolutionFactorPC() == 50))
+                    {
+                        rt->resolutionFactor(0.5f);
+                        sv->startRaytracing(rt->maxDepth());
+                    }
+                    if (ImGui::MenuItem("0.25", nullptr, rt->resolutionFactorPC() == 25))
+                    {
+                        rt->resolutionFactor(0.25f);
+                        sv->startRaytracing(rt->maxDepth());
+                    }
+
+                    ImGui::EndMenu();
+                }
+
                 if (ImGui::BeginMenu("Anti-Aliasing Samples"))
                 {
                     if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
@@ -1794,6 +1819,27 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     pt->calcIndirect(!pt->calcIndirect());
                     sv->startPathtracing(5, 10);
+                }
+
+                if (ImGui::BeginMenu("Resolution Factor"))
+                {
+                    if (ImGui::MenuItem("1.00", nullptr, pt->resolutionFactorPC() == 100))
+                    {
+                        pt->resolutionFactor(1.0f);
+                        sv->startPathtracing(5, pt->aaSamples());
+                    }
+                    if (ImGui::MenuItem("0.50", nullptr, pt->resolutionFactorPC() == 50))
+                    {
+                        pt->resolutionFactor(0.5f);
+                        sv->startPathtracing(5, pt->aaSamples());
+                    }
+                    if (ImGui::MenuItem("0.25", nullptr, pt->resolutionFactorPC() == 25))
+                    {
+                        pt->resolutionFactor(0.25f);
+                        sv->startPathtracing(5, pt->aaSamples());
+                    }
+
+                    ImGui::EndMenu();
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
@@ -2658,8 +2704,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.FramePadding.y = style.ItemInnerSpacing.y = std::max(4.0f * dpiScaleFixed, 4.0f);
         style.WindowPadding.y                           = style.ItemSpacing.y * 3;
-        style.ScrollbarSize      = std::max(16.0f * dpiScaleFixed, 16.0f);
-        style.ScrollbarRounding  = std::floor(style.ScrollbarSize / 2);
+        style.ScrollbarSize                             = std::max(16.0f * dpiScaleFixed, 16.0f);
+        style.ScrollbarRounding                         = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
