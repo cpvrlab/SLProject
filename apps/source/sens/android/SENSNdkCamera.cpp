@@ -159,9 +159,11 @@ void SENSNdkCamera::openCamera()
             LOG_NDKCAM_WARN("Could not open camera!");
             //throw SENSException(SENSType::CAM, "Could not camera camera!", __LINE__, __FILE__);
         }
-
-        _cameraDeviceOpened = true;
-        LOG_NDKCAM_DEBUG("openCamera: Camera opened!");
+        else
+        {
+            _cameraDeviceOpened = true;
+            LOG_NDKCAM_DEBUG("openCamera: Camera opened!");
+        }
     }
     else
     {
@@ -252,35 +254,41 @@ void SENSNdkCamera::openCamera()
         }
     }
 
-    if (!_imageReader)
+    if (_cameraDeviceOpened)
     {
-        LOG_NDKCAM_INFO("openCamera: Creating image reader...");
-
-        _captureSize = captureSize;
-
-        //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-        if (AImageReader_new(captureSize.width, captureSize.height, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
-            throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
-
-        //make the adjustments in an asynchronous thread
-        if (_config.adjustAsynchronously)
+        if (!_imageReader)
         {
-            //register onImageAvailable listener
-            AImageReader_ImageListener listener{
-              .context          = this,
-              .onImageAvailable = onImageCallback,
-            };
-            AImageReader_setImageListener(_imageReader, &listener);
+            LOG_NDKCAM_INFO("openCamera: Creating image reader...");
 
-            //start the thread
-            _stopThread = false;
-            _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
+            _captureSize = captureSize;
+
+            //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
+            if (AImageReader_new(captureSize.width, captureSize.height, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
+                throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
+
+            //make the adjustments in an asynchronous thread
+            if (_config.adjustAsynchronously)
+            {
+                //register onImageAvailable listener
+                AImageReader_ImageListener listener{
+                  .context          = this,
+                  .onImageAvailable = onImageCallback,
+                };
+                AImageReader_setImageListener(_imageReader, &listener);
+
+                //start the thread
+                _stopThread = false;
+                _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
+            }
+
+            createCaptureSession();
         }
 
-        createCaptureSession();
+        _state = State::STARTED;
     }
-
-    _state = State::STARTED;
+    else
+    {
+    }
 }
 
 void SENSNdkCamera::start(const SENSCamera::Config config)

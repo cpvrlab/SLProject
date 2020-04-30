@@ -126,7 +126,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
         {
             static const SENSCameraCharacteristics* currCharac = &_camCharacs.front();
             //selected size for previously selected camera id
-            static int                      currSizeIndex = -1;
+            static int                      currSizeIndex = 0;
             const std::vector<std::string>& sizes         = _sizesStrings[currCharac->cameraId];
             static const std::string*       currSizeStr   = &sizes.front();
 
@@ -183,10 +183,18 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
-                const cv::Size& selectedFrameSize = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
-                _cameraConfig.targetWidth         = selectedFrameSize.width;
-                _cameraConfig.targetHeight        = selectedFrameSize.height;
-                _cameraConfig.convertToGray       = true;
+                if (currSizeIndex >= 0 && currSizeIndex < currCharac->streamConfig.getStreamSizes().size() - 1)
+                {
+                    const cv::Size& selectedFrameSize = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
+                    _cameraConfig.targetWidth         = selectedFrameSize.width;
+                    _cameraConfig.targetHeight        = selectedFrameSize.height;
+                    _cameraConfig.convertToGray       = true;
+                    Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
+                }
+                else
+                {
+                    Utils::log("CameraTestGui", "Start: invalid index %d", currSizeIndex);
+                }
 
                 //make sure the camera is stopped if there is one
                 if (_camera)
