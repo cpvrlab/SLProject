@@ -19,16 +19,17 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-class SENSNdkCamera : public SENSCamera
+class SENSNdkCamera : public SENSCameraBase
 {
 public:
+    SENSNdkCamera();
     ~SENSNdkCamera();
 
-    void         start(const SENSCamera::Config config) override;
-    void         start(int width, int height) override;
+    void         start(const SENSCameraConfig config) override;
+    void         start(std::string id, int width, int height) override;
     void         stop() override;
     SENSFramePtr getLatestFrame() override;
-    std::vector<SENSCameraCharacteristics> getCameraCharacteristics() override;
+    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);
@@ -38,7 +39,6 @@ public:
     void imageCallback(AImageReader* reader);
 
 private:
-    SENSNdkCamera(SENSCameraCharacteristics characteristics);
     //start camera selected in initOptimalCamera as soon as it is available
     void openCamera();
     void createCaptureSession();
@@ -73,7 +73,7 @@ private:
     std::map<std::string, bool> _cameraAvailability;
     std::mutex                  _cameraAvailabilityMutex;
     //async camera start
-    std::unique_ptr<std::thread> _openCameraThread;
+    //std::unique_ptr<std::thread> _openCameraThread;
     std::condition_variable      _openCameraCV;
 
     //wait in start() until camera is opened
@@ -92,7 +92,7 @@ private:
     bool               _threadHasException = false;
 
     //camera state
-    State             _state = State::CLOSED;
+    //State             _state = State::CLOSED;
     cv::Size          _captureSize;
     std::atomic<bool> _captureSessionActive{false};
 

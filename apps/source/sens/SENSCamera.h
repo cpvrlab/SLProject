@@ -135,6 +135,7 @@ protected:
     std::atomic<bool> _started{false};
 
     SENSCameraCharacteristics _characteristics;
+    std::vector<SENSCameraCharacteristics> _allCharacteristics;
 
     std::atomic<bool> _permissionGranted{false};
 };

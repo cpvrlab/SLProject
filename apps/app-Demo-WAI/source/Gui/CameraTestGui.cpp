@@ -186,6 +186,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 if (currSizeIndex >= 0 && currSizeIndex < currCharac->streamConfig.getStreamSizes().size())
                 {
                     const cv::Size& selectedFrameSize = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
+                    _cameraConfig.deviceId            = currCharac->cameraId;
                     _cameraConfig.targetWidth         = selectedFrameSize.width;
                     _cameraConfig.targetHeight        = selectedFrameSize.height;
                     _cameraConfig.convertToGray       = true;

@@ -147,6 +147,14 @@ std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristic
         }
     }
 
+    {
+        SENSCameraCharacteristics characteristics;
+        characteristics.cameraId = "1";
+        characteristics.provided = false;
+        characteristics.streamConfig.add(cv::Size(640, 654));
+        allCharacteristics.push_back(characteristics);
+    }
+
     //start again with old config
     if (deviceWasOpen)
         start(_config);

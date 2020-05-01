@@ -117,8 +117,8 @@ private:
     int32_t  _pointersDown;
     uint64_t _lastTouchMS;
 
-    SENSNdkCameraManager* _ndkCameraMgr  = nullptr;
-    bool                  _cameraGranted = false;
+    SENSCameraAsync* _camera        = nullptr;
+    bool             _cameraGranted = false;
 
     /*
     SensorsHandler* sensorsHandler;
@@ -186,7 +186,7 @@ void Engine::onInit()
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
         //todo: _earApp.init
-        _earApp.init(_width, _height, _dpi, _dirs, _ndkCameraMgr);
+        _earApp.init(_width, _height, _dpi, _dirs, _camera);
         _earAppIsInitialized = true;
     }
     else
@@ -198,7 +198,7 @@ void Engine::onInit()
             _earApp.destroy();
             terminateDisplay();
             initDisplay();
-            _earApp.init(_width, _height, _dpi, _dirs, _ndkCameraMgr);
+            _earApp.init(_width, _height, _dpi, _dirs, _camera);
         }
         else
         {
@@ -363,8 +363,11 @@ void Engine::startCamera()
 {
     try
     {
-        if (!_ndkCameraMgr)
-            _ndkCameraMgr = new SENSNdkCameraManager();
+        if (!_camera)
+        {
+            std::unique_ptr<SENSNdkCamera> ndkCamera = std::make_unique<SENSNdkCamera>();
+            _camera = new SENSCameraAsync(std::move(ndkCamera));
+        }
     }
     catch (std::exception& e)
     {
@@ -400,7 +403,7 @@ void Engine::onPermissionGranted(jboolean granted)
 
     if (_cameraGranted)
     {
-        _ndkCameraMgr->setPermissionGranted();
+        _camera->setPermissionGranted();
         //startCamera();
     }
 }

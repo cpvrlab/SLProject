@@ -62,17 +62,16 @@ void onSessionActive(void* ctx, ACameraCaptureSession* ses)
       ->onSessionState(ses, CaptureSessionState::ACTIVE);
 }
 
-SENSNdkCamera::SENSNdkCamera(SENSCameraCharacteristics characteristics)
+SENSNdkCamera::SENSNdkCamera()
   : _threadException("SENSNdkCamera: empty default exception"),
     _cameraDeviceOpened(false)
 {
-    _characteristics = characteristics;
     LOG_NDKCAM_INFO("Camera instantiated");
 }
 
 SENSNdkCamera::~SENSNdkCamera()
 {
-    stop();
+    //stop();
     LOG_NDKCAM_INFO("~SENSNdkCamera: Camera destructor finished");
 }
 
@@ -100,7 +99,7 @@ void SENSNdkCamera::openCamera()
         LOG_NDKCAM_DEBUG("openCamera: Creating camera manager ...");
         _cameraManager = ACameraManager_create();
         if (!_cameraManager)
-            ; //throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
+            throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
         //register callbacks
         _cameraManagerAvailabilityCallbacks = {
@@ -125,6 +124,7 @@ void SENSNdkCamera::openCamera()
     {
         LOG_NDKCAM_DEBUG("openCamera: Camera device not open");
         auto condition = [&] {
+            LOG_NDKCAM_DEBUG("openCamera: checking condition");
             return (_cameraAvailability[_characteristics.cameraId]);
         };
         std::unique_lock<std::mutex> lock(_cameraAvailabilityMutex);
@@ -156,8 +156,7 @@ void SENSNdkCamera::openCamera()
 
         if (cameraState != ACAMERA_OK)
         {
-            LOG_NDKCAM_WARN("Could not open camera!");
-            //throw SENSException(SENSType::CAM, "Could not camera camera!", __LINE__, __FILE__);
+            throw SENSException(SENSType::CAM, "Could not camera camera!", __LINE__, __FILE__);
         }
         else
         {
@@ -189,9 +188,7 @@ void SENSNdkCamera::openCamera()
                 return (_captureSessionState != CaptureSessionState::ACTIVE);
             };
             std::unique_lock<std::mutex> lock(_captureSessionStateMutex);
-            //wait here before opening the required camera devic
-            //
-            // e until it is available
+            //wait here until capture session is stopped
             _captureSessionStateCV.wait(lock, condition);
             //}
             //else
@@ -283,26 +280,45 @@ void SENSNdkCamera::openCamera()
 
             createCaptureSession();
         }
-
-        _state = State::STARTED;
     }
     else
     {
+        //todo: throw something
     }
 }
 
-void SENSNdkCamera::start(const SENSCamera::Config config)
+void SENSNdkCamera::start(const SENSCameraConfig config)
 {
-    //todo: how do we track if a camera is started twice?
-    //todo: lock opening mutex, wait everywhere where we want to stop or start again..
-
-    if (_state == State::CLOSED || _state == State::STARTED)
+    if (!_started)
     {
-        _state       = State::STARTING;
+        //_state       = State::STARTING;
+        LOG_NDKCAM_DEBUG("start: starting for device id: %s", _config.deviceId.c_str());
         _config      = config;
         _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
+        if (_allCharacteristics.size() == 0)
+        {
+            _allCharacteristics = getAllCameraCharacteristics();
+        }
+
+        if (_characteristics.cameraId != _config.deviceId)
+        {
+            for (const SENSCameraCharacteristics& c : _allCharacteristics)
+            {
+                if (_config.deviceId == c.cameraId)
+                {
+                    _characteristics = c;
+                }
+            }
+        }
+
+        if (_characteristics.cameraId.empty())
+        {
+            throw SENSException(SENSType::CAM, "Device id does not exist!", __LINE__, __FILE__);
+        }
+
         //open the camera asynchronously to make sure that it is available
+        /*
         if (_openCameraThread)
         {
             if (_openCameraThread->joinable())
@@ -313,10 +329,13 @@ void SENSNdkCamera::start(const SENSCamera::Config config)
             _openCameraThread.release();
         }
         _openCameraThread = std::make_unique<std::thread>(&SENSNdkCamera::openCamera, this);
+         */
+        openCamera();
+        _started = true;
     }
     else
     {
-        LOG_NDKCAM_WARN("Call to function start ignored!");
+        LOG_NDKCAM_WARN("start: ignored because camera is already open! Call stop first!");
     }
 }
 
@@ -356,7 +375,7 @@ void SENSNdkCamera::createCaptureSession()
     //throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
 
     //adjust capture request properties
-    if (_config.focusMode == FocusMode::FIXED_INFINITY_FOCUS)
+    if (_config.focusMode == SENSCameraFocusMode::FIXED_INFINITY_FOCUS)
     {
         uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
         ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
@@ -374,9 +393,10 @@ void SENSNdkCamera::createCaptureSession()
 }
 
 //todo: add callback for image available and/or completely started
-void SENSNdkCamera::start(int width, int height)
+void SENSNdkCamera::start(std::string id, int width, int height)
 {
-    Config config;
+    SENSCameraConfig config;
+    config.deviceId     = id;
     config.targetWidth  = width;
     config.targetHeight = height;
     start(config);
@@ -384,109 +404,99 @@ void SENSNdkCamera::start(int width, int height)
 
 void SENSNdkCamera::stop()
 {
-    //todo: when camera is currently starting we have to wait until it is started
-    if (_state == State::STARTING)
+    if (_started)
     {
-    }
-
-    _state = State::CLOSING;
-    //if (_initialized)
-    {
-        //todo: when to know if we have to detatch? starting and started? or state?
+        /*
         if (_openCameraThread)
         {
             _openCameraThread->detach();
             _openCameraThread.release();
         }
-        //_initialized = false;
+         */
 
-        //todo: no need to initialize, no need to clear!
-        //_camInfoAvailableStreamConfig.clear();
-        //_camInfoPhysicalSensorSizeMM = cv::Size2f(0.f, 0.f);
-        //_camInfoFocalLenghts.clear();
-    }
-
-    if (_captureSession)
-    {
-        LOG_NDKCAM_DEBUG("stop: stopping repeating request...");
-        if (_captureSessionState == CaptureSessionState::ACTIVE)
+        if (_captureSession)
         {
-            ACameraCaptureSession_stopRepeating(_captureSession);
+            LOG_NDKCAM_DEBUG("stop: stopping repeating request...");
+            if (_captureSessionState == CaptureSessionState::ACTIVE)
+            {
+                ACameraCaptureSession_stopRepeating(_captureSession);
+            }
+            else
+                LOG_NDKCAM_WARN("stop: CaptureSessionState NOT ACTIVE");
+
+            LOG_NDKCAM_DEBUG("stop: closing capture session...");
+            //todo: it is recommended not to close before creating a new session
+            ACameraCaptureSession_close(_captureSession);
+            _captureSession = nullptr;
         }
-        else
-            LOG_NDKCAM_WARN("stop: CaptureSessionState NOT ACTIVE");
 
-        LOG_NDKCAM_DEBUG("stop: closing capture session...");
-        //todo: it is recommended not to close before creating a new session
-        ACameraCaptureSession_close(_captureSession);
-        _captureSession = nullptr;
-    }
-
-    if (_captureRequest)
-    {
-        LOG_NDKCAM_DEBUG("stop: free request stuff...");
-        ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
-        ACaptureRequest_free(_captureRequest);
-        _captureRequest = nullptr;
-    }
-
-    if (_captureSessionOutput)
-    {
-        ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer,
-                                              _captureSessionOutput);
-        ACaptureSessionOutput_free(_captureSessionOutput);
-        _captureSessionOutput = nullptr;
-    }
-
-    if (_surface)
-    {
-        ANativeWindow_release(_surface);
-        _surface = nullptr;
-    }
-
-    if (_captureSessionOutputContainer)
-    {
-        ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
-        _captureSessionOutputContainer = nullptr;
-    }
-
-    if (_cameraDevice)
-    {
-        LOG_NDKCAM_DEBUG("stop: closing camera...");
-        ACameraDevice_close(_cameraDevice);
-        _cameraDevice       = nullptr;
-        _cameraDeviceOpened = false;
-    }
-
-    if (_cameraManager)
-    {
-        LOG_NDKCAM_DEBUG("stop: deleting camera manager...");
-        ACameraManager_unregisterAvailabilityCallback(_cameraManager, &_cameraManagerAvailabilityCallbacks);
-        ACameraManager_delete(_cameraManager);
-        _cameraManager = nullptr;
-    }
-
-    if (_imageReader)
-    {
-        LOG_NDKCAM_DEBUG("stop: free image reader...");
-        AImageReader_delete(_imageReader);
-        _imageReader = nullptr;
-    }
-
-    if (_thread)
-    {
-        LOG_NDKCAM_DEBUG("stop: terminate the thread...");
-        _stopThread = true;
-        _waitCondition.notify_one();
-        if (_thread->joinable())
+        if (_captureRequest)
         {
-            _thread->join();
-            LOG_NDKCAM_DEBUG("stop: thread joined");
+            LOG_NDKCAM_DEBUG("stop: free request stuff...");
+            ACaptureRequest_removeTarget(_captureRequest, _cameraOutputTarget);
+            ACaptureRequest_free(_captureRequest);
+            _captureRequest = nullptr;
         }
-        _thread.release();
-        _stopThread = false;
+
+        if (_captureSessionOutput)
+        {
+            ACaptureSessionOutputContainer_remove(_captureSessionOutputContainer,
+                                                  _captureSessionOutput);
+            ACaptureSessionOutput_free(_captureSessionOutput);
+            _captureSessionOutput = nullptr;
+        }
+
+        if (_surface)
+        {
+            ANativeWindow_release(_surface);
+            _surface = nullptr;
+        }
+
+        if (_captureSessionOutputContainer)
+        {
+            ACaptureSessionOutputContainer_free(_captureSessionOutputContainer);
+            _captureSessionOutputContainer = nullptr;
+        }
+
+        if (_cameraDevice)
+        {
+            LOG_NDKCAM_DEBUG("stop: closing camera...");
+            ACameraDevice_close(_cameraDevice);
+            _cameraDevice       = nullptr;
+            _cameraDeviceOpened = false;
+        }
+
+        if (_cameraManager)
+        {
+            LOG_NDKCAM_DEBUG("stop: deleting camera manager...");
+            ACameraManager_unregisterAvailabilityCallback(_cameraManager,
+                                                          &_cameraManagerAvailabilityCallbacks);
+            ACameraManager_delete(_cameraManager);
+            _cameraManager = nullptr;
+        }
+
+        if (_imageReader)
+        {
+            LOG_NDKCAM_DEBUG("stop: free image reader...");
+            AImageReader_delete(_imageReader);
+            _imageReader = nullptr;
+        }
+
+        if (_thread)
+        {
+            LOG_NDKCAM_DEBUG("stop: terminate the thread...");
+            _stopThread = true;
+            _waitCondition.notify_one();
+            if (_thread->joinable())
+            {
+                _thread->join();
+                LOG_NDKCAM_DEBUG("stop: thread joined");
+            }
+            _thread.release();
+            _stopThread = false;
+        }
+        _started = false;
     }
-    _state = State::CLOSED;
 }
 
 //-----------------------------------------------------------------------------
@@ -571,39 +581,42 @@ SENSFramePtr SENSNdkCamera::getLatestFrame()
 {
     SENSFramePtr sensFrame;
 
-    if (_config.adjustAsynchronously)
+    if (_started)
     {
-        std::unique_lock<std::mutex> lock(_threadOutputMutex);
-        if (_processedFrame)
+        if (_config.adjustAsynchronously)
         {
-            //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
-            sensFrame = std::move(_processedFrame);
-            //static int getFrameN = 0;
-            //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
+            std::unique_lock<std::mutex> lock(_threadOutputMutex);
+            if (_processedFrame)
+            {
+                //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
+                sensFrame = std::move(_processedFrame);
+                //static int getFrameN = 0;
+                //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
+            }
+            if (_threadHasException)
+            {
+                throw _threadException;
+            }
         }
-        if (_threadHasException)
+        else
         {
-            throw _threadException;
+            AImage*        image;
+            media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
+            if (status ==
+                AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
+            {
+                //static int getFrameN = 0;
+                //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
+
+                cv::Mat yuv = convertToYuv(image);
+                //now that the data is copied we have to delete the image
+                AImage_delete(image);
+
+                //make cropping, scaling and mirroring
+                sensFrame = processNewYuvImg(yuv);
+            }
         }
     }
-    else
-    {
-        AImage*        image;
-        media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
-        if (status == AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
-        {
-            //static int getFrameN = 0;
-            //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
-
-            cv::Mat yuv = convertToYuv(image);
-            //now that the data is copied we have to delete the image
-            AImage_delete(image);
-
-            //make cropping, scaling and mirroring
-            sensFrame = processNewYuvImg(yuv);
-        }
-    }
-
     return std::move(sensFrame);
 }
 
@@ -811,10 +824,10 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
     _captureSessionStateCV.notify_one();
 }
 
-std::vector<SENSCameraCharacteristics> SENSNdkCamera::getCameraCharacteristics()
+std::vector<SENSCameraCharacteristics> SENSNdkCamera::getAllCameraCharacteristics()
 {
     std::vector<SENSCameraCharacteristics> allCharacteristics;
-    ACameraManager* cameraManager = ACameraManager_create();
+    ACameraManager*                        cameraManager = ACameraManager_create();
     if (!cameraManager)
         throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
