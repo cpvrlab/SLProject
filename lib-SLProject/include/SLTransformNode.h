@@ -30,8 +30,6 @@ public:
                     SLNode*         targetNode);
     ~SLTransformNode() override;
 
-    void toggleEditMode(SLNodeEditMode editMode);
-
     SLbool onMouseDown(SLMouseButton button,
                        SLint         x,
                        SLint         y,
@@ -44,6 +42,8 @@ public:
                        SLint         x,
                        SLint         y,
                        SLKey         mod) override;
+
+    void editMode(SLNodeEditMode editMode);
 
     SLNode*        targetNode() { return _targetNode; }
     SLNodeEditMode editMode() { return _editMode; }

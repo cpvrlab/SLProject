@@ -15,6 +15,7 @@
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
     _voc = new ORB_SLAM2::ORBVocabulary();
+    float startMS = _timer.elapsedTimeInMilliSec();
     if (!_voc->loadFromBinaryFile(vocabularyFile))
     {
         Utils::log("SLProject",
@@ -22,6 +23,7 @@ CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
                    vocabularyFile.c_str());
         exit(0);
     }
+    SL_LOG("Loaded voc file : %f ms", _timer.elapsedTimeInMilliSec() - startMS);
 }
 //-----------------------------------------------------------------------------
 CVTrackedWAI::~CVTrackedWAI()
@@ -69,13 +71,16 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                                nLevels,
                                                                fIniThFAST,
                                                                fMinThFAST);
-
         _waiSlamer = new WAISlam(calib->cameraMat(),
                                  calib->distortion(),
                                  _voc,
                                  _initializationExtractor,
                                  _trackingExtractor,
-                                 nullptr);
+                                 nullptr, // global map
+                                 false,   // tracking only
+                                 false,   // serial
+                                 false,   // retain image
+                                 0.95f);
     }
 
     if (_waiSlamer->update(imageGray))

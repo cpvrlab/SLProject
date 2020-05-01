@@ -110,11 +110,6 @@ void SLSceneView::init(SLstring           name,
 
     _skybox = nullptr;
 
-    // Reset timing variables
-    _cullTimesMS.init(60, 0.0f);
-    _draw3DTimesMS.init(60, 0.0f);
-    _draw2DTimesMS.init(60, 0.0f);
-
     if (_gui)
         _gui->init(configPath);
 
@@ -408,6 +403,14 @@ void SLSceneView::onInitialize()
         _stats2D.clear();
         _s->root2D()->statsRec(_stats2D);
     }
+
+    // Reset timing variables
+    _cullTimeMS = 0.0f;
+    _draw3DTimeMS = 0.0f;
+    _draw2DTimeMS = 0.0f;
+    _cullTimesMS.init(60, 0.0f);
+    _draw3DTimesMS.init(60, 0.0f);
+    _draw2DTimesMS.init(60, 0.0f);
 
     initSceneViewCamera();
 
@@ -1263,9 +1266,8 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
             if (_raytracer.state() == rtFinished)
                 _raytracer.state(rtMoveGL);
             else
-            {
                 _raytracer.doContinuous(false);
-            }
+
             _renderType = RT_gl;
         }
 
@@ -1274,6 +1276,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
         {
             if (_pathtracer.state() == rtFinished)
                 _pathtracer.state(rtMoveGL);
+
             _renderType = RT_gl;
         }
     }
@@ -1328,6 +1331,10 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (_renderType == RT_rt && !_raytracer.doContinuous() &&
         _raytracer.state() == rtFinished)
         _raytracer.state(rtReady);
+
+    // Handle mouse wheel in PT mode
+    if (_renderType == RT_pt && _pathtracer.state() == rtFinished)
+        _pathtracer.state(rtReady);
 
     SLbool result = _camera->onMouseWheel(delta, mod);
 

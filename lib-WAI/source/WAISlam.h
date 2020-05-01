@@ -43,8 +43,8 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-    WAISlam(cv::Mat        intrinsic,
-            cv::Mat        distortion,
+    WAISlam(const cv::Mat& intrinsic,
+            const cv::Mat& distortion,
             ORBVocabulary* voc,
             KPextractor*   iniExtractor,
             KPextractor*   extractor,

@@ -51,12 +51,6 @@ float AverageTiming::getTime(const std::vector<std::string>& names)
     return AverageTiming::instance().doGetTime(names);
 }
 //-----------------------------------------------------------------------------
-//!get the number of values
-int AverageTiming::getNumValues(const std::string& name)
-{
-    return AverageTiming::instance().doGetNumValues(name);
-}
-//-----------------------------------------------------------------------------
 //!get timings formatted via string
 void AverageTiming::getTimingMessage(char* m)
 {
@@ -127,18 +121,6 @@ float AverageTiming::doGetTime(const std::vector<std::string>& names)
     return val.average();
 }
 //-----------------------------------------------------------------------------
-int AverageTiming::doGetNumValues(const std::string& name)
-{
-    if (find(name) != end())
-    {
-        return (*this)[name]->val.numValues();
-    }
-    else
-        Utils::log("AverageTiming: A block with name %s does not exist!", name.c_str());
-
-    return 0;
-}
-//-----------------------------------------------------------------------------
 //!do get timings formatted via string
 void AverageTiming::doGetTimingMessage(char* m)
 {
@@ -157,7 +139,7 @@ void AverageTiming::doGetTimingMessage(char* m)
     if (blocks.size())
     {
         refTime = (*blocks.begin())->val.average();
-        //insert number of measurment calls
+        //insert number of measurement calls
         sprintf(m + strlen(m), "Num. calls: %i\n", (int)(*blocks.begin())->nCalls);
     }
 

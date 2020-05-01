@@ -10,7 +10,7 @@
 
 class SLScene;
 class SLSceneView;
-class ImFont;
+struct ImFont;
 
 class TutorialGui : public ImGuiWrapper
   , private sm::EventSender

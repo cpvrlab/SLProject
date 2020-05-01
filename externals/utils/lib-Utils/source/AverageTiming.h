@@ -64,8 +64,6 @@ class AverageTiming : public std::map<std::string, AverageTimingBlock*>
     static float getTime(const std::string& name);
     //!get time for multiple blocks with given names
     static float getTime(const std::vector<std::string>& names);
-    //!get the number of values
-    static int getNumValues(const std::string& name);
     //!get timings formatted via string
     static void getTimingMessage(char* m);
 
@@ -85,8 +83,6 @@ class AverageTiming : public std::map<std::string, AverageTimingBlock*>
     float doGetTime(const std::string& name);
     //!do get time for multiple blocks with given names
     float doGetTime(const std::vector<std::string>& names);
-    //!do get the number of values
-    int doGetNumValues(const std::string& name);
     //!do get timings formatted via string
     void doGetTimingMessage(char* m);
 

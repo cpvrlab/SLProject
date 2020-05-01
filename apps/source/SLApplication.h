@@ -53,7 +53,6 @@ public:
     static string  jobProgressMsg();
     static int     jobProgressNum() { return _jobProgressNum; }
     static int     jobProgressMax() { return _jobProgressMax; }
-    static SLfloat dpmm() { return (float)dpi / 25.4f; } //!< return dots per mm
 
     static SLProjectScene*           scene;        //!< scene pointer
     static std::vector<SLSceneView*> sceneViews;   //!< vector of sceneview pointers
@@ -69,7 +68,7 @@ public:
     static SLstring  gitBranch;     //!< Current GIT branch
     static SLstring  gitCommit;     //!< Current GIT commit short hash id
     static SLstring  gitDate;       //!< Current GIT commit date
-    static SLint     dpi;           //!< Current UI dot per inch resolution
+    //static SLint     dpi;           //!< Current UI dot per inch resolution
     static SLstring  exePath;       //!< executable root path
     static SLstring  configPath;    //!< Default path for calibration files
     static SLstring  externalPath;  //!< Default path for external file storage
