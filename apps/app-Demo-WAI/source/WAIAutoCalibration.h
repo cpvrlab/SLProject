@@ -46,9 +46,10 @@ class AutoCalibration
                                              float                                  threshold,
                                              int                                    iniModelSize,
                                              std::vector<std::vector<cv::Point2f>>& keypoints,
-                                             std::vector<std::vector<cv::Point3f>>& worldpoints);
+                                             std::vector<std::vector<cv::Point3f>>& worldpoints,
+                                             int nbVectors);
 
-        static void computeMatrix(cv::Size size, cv::Mat& mat, float fov);
+        static void computeMatrix(cv::Size size, cv::Mat& mat, cv::Mat& distortion, float fov);
         static void select_random(std::vector<bool>& selection, int n);
         static void select_random(std::vector<std::vector<bool>>& selections, int n);
 
@@ -68,22 +69,21 @@ class AutoCalibration
                                 std::vector<std::vector<cv::Point2f>>&  keypoints,
                                 std::vector<std::vector<cv::Point3f>>&  worldpoints);
 
-        static float calibrate_opencv(cv::Mat&                                matrix,
-                                      cv::Mat&                                distortion,
-                                      cv::Size&                               size,
-                                      std::vector<cv::Mat>&                   rvecs,
-                                      std::vector<cv::Mat>&                   tvecs,
+        static float calibrate_opencv(cv::Mat&                               matrix,
+                                      cv::Mat&                               distortion,
+                                      cv::Size&                              size,
+                                      std::vector<cv::Mat>&                  rvecs,
+                                      std::vector<cv::Mat>&                  tvecs,
                                       std::vector<std::vector<cv::Point2f>>& keypoints,
                                       std::vector<std::vector<cv::Point3f>>& worldpoints);
 
-        static void calibrate(cv::Size&                                                                  size,
-                              std::deque<std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> matchings);
+        static void calibrate(cv::Size                                                                  size,
+                              std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> matchings);
 
     private:
 
         static float calcCameraVerticalFOV(cv::Mat& cameraMat);
         static float calcCameraHorizontalFOV(cv::Mat& cameraMat);
         static void genIntrinsicMatrix(int width, int height, cv::Mat& mat, float fov);
-        static void computeMatrix(cv::Mat& mat, float fov);
 };
 #endif

@@ -63,8 +63,6 @@ public:
     virtual void updatePose(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
     virtual void resume();
-    
-    std::deque<std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> getMatching();
 
     virtual bool isTracking();
     virtual bool hasStateIdle();
@@ -72,12 +70,13 @@ public:
 
     virtual bool retainImage();
 
-    static std::vector<WAIMapPoint*>                                 getMatchedMapPoints(WAIFrame* frame);
-    static std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame* frame);
+    std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
+    int                       getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching);
 
     virtual bool                      isInitialized() { return _initialized; }
     virtual WAIMap*                   getMap() { return _globalMap; }
-    virtual WAIFrame*                 getLastFrame() { return &_lastFrame; }
+    virtual WAIFrame                  getLastFrame();
+    virtual WAIFrame*                 getLastFramePtr();
     virtual std::vector<WAIMapPoint*> getLocalMapPoints() { return _localMap.mapPoints; }
     virtual int                       getNumKeyFrames() { return (int)_globalMap->KeyFramesInMap(); }
 
@@ -174,8 +173,6 @@ protected:
     std::thread*         _poseUpdateThread;
     std::queue<WAIFrame> _framesQueue;
     std::mutex           _frameQueueMutex;
-
-    std::deque<std::tuple<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> calibrationMatchings;
 };
 
 #endif
