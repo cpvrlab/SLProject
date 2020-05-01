@@ -46,11 +46,11 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::CAMERA_TEST>((unsigned int)StateId::CAMERA_TEST);
 }
 
-void ErlebARApp::init(int            scrWidth,
-                      int            scrHeight,
-                      int            dpi,
-                      AppDirectories dirs,
-                      SENSCamera*    camera)
+void ErlebARApp::init(int                  scrWidth,
+                      int                  scrHeight,
+                      int                  dpi,
+                      AppDirectories       dirs,
+                      SENSCameraInterface* camera)
 {
     //store camera so we can stop on terminate
     _camera = camera;
@@ -392,7 +392,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
     if (stateEntry)
     {
         //start camera
-        SENSCamera::Config config;
+        SENSCameraConfig config;
         config.targetWidth   = 640;
         config.targetHeight  = 360;
         config.convertToGray = true;
@@ -436,7 +436,7 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry,
         return;
 
     //start camera
-    SENSCamera::Config config;
+    SENSCameraConfig config;
     config.targetWidth   = 640;
     config.targetHeight  = 360;
     config.convertToGray = true;

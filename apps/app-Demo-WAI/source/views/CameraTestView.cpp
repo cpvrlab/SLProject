@@ -1,15 +1,15 @@
 #include <views/CameraTestView.h>
 #include <sens/SENSUtils.h>
 
-CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
-                               SLInputManager&     inputManager,
-                               ErlebAR::Resources& resources,
-                               SENSCamera*         sensCamera,
-                               int                 screenWidth,
-                               int                 screenHeight,
-                               int                 dotsPerInch,
-                               std::string         fontPath,
-                               std::string         imguiIniPath)
+CameraTestView::CameraTestView(sm::EventHandler&    eventHandler,
+                               SLInputManager&      inputManager,
+                               ErlebAR::Resources&  resources,
+                               SENSCameraInterface* sensCamera,
+                               int                  screenWidth,
+                               int                  screenHeight,
+                               int                  dotsPerInch,
+                               std::string          fontPath,
+                               std::string          imguiIniPath)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     _gui(eventHandler,
          resources,
@@ -51,7 +51,7 @@ void CameraTestView::startCamera()
     if (!_camera)
         return;
 
-    //SENSCamera::Config config;
+    //SENSCameraConfig config;
     //config.targetWidth   = 640;
     //config.targetHeight  = 360;
     //config.convertToGray = true;

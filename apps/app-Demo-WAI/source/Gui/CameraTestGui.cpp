@@ -5,13 +5,13 @@
 
 using namespace ErlebAR;
 
-CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
-                             ErlebAR::Resources& resources,
-                             int                 dotsPerInch,
-                             int                 screenWidthPix,
-                             int                 screenHeightPix,
-                             std::string         fontPath,
-                             SENSCamera*         camera)
+CameraTestGui::CameraTestGui(sm::EventHandler&    eventHandler,
+                             ErlebAR::Resources&  resources,
+                             int                  dotsPerInch,
+                             int                  screenWidthPix,
+                             int                  screenHeightPix,
+                             std::string          fontPath,
+                             SENSCameraInterface* camera)
   : sm::EventSender(eventHandler),
     _resources(resources),
     _camera(camera)
@@ -228,7 +228,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (_camera && _camera->started())
             {
-                cv::Size s = _camera->getFrameSize();
+                cv::Size s(_camera->config().targetWidth, _camera->config().targetHeight);
                 ImGui::Text("Current frame size: w: %d, h: %d", s.width, s.height);
             }
             else

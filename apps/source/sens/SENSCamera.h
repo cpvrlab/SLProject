@@ -71,111 +71,161 @@ struct SENSCameraCharacteristics
     SENSCameraFacing   facing = SENSCameraFacing::UNKNOWN;
 };
 
-class SENSCamera
+enum class SENSCameraFocusMode
 {
-    friend class SENSCameraManager;
+    CONTINIOUS_AUTO_FOCUS = 0,
+    FIXED_INFINITY_FOCUS
+};
 
+//define a config to start a capture session on a camera device
+struct SENSCameraConfig
+{
+    std::string         deviceId  = "0";
+    SENSCameraFocusMode focusMode = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS;
+    //! largest target image width (only RGB)
+    int targetWidth = 0;
+    //! largest target image width (only RGB)
+    int targetHeight = 0;
+    //! width of smaller image version (e.g. for tracking)
+    int smallWidth = 0;
+    //! height of smaller image version (e.g. for tracking)
+    int smallHeight = 0;
+    //! mirror image horizontally after capturing
+    bool mirrorH = false;
+    //! mirror image vertically after capturing
+    bool mirrorV = false;
+    //! provide scaled (smaller) version with size (smallWidth, smallHeight)
+    bool provideScaledImage = false;
+    //! provide gray version of small image
+    bool convertToGray = false;
+    //! adjust image in asynchronous thread
+    bool adjustAsynchronously = false;
+};
+
+class SENSCameraInterface
+{
 public:
-    SENSCamera()
-    {
-        _started = false;
-    }
-
-    /*
-    enum class Type
-    {
-        NORMAL = 0,
-        MACRO,
-        TELE
-    };
-     */
-
-    //enum class State
-    //{
-    //    CLOSED,
-    //    INITIALIZED,
-    //    STARTING,
-    //    STARTED,
-    //    REPEATING_REQUEST,
-    //    CLOSING
-    //};
-
-    enum class FocusMode
-    {
-        CONTINIOUS_AUTO_FOCUS = 0,
-        FIXED_INFINITY_FOCUS
-    };
-
-    //define a config to start a capture session on a camera device
-    struct Config
-    {
-        std::string deviceId  = "0";
-        FocusMode   focusMode = FocusMode::CONTINIOUS_AUTO_FOCUS;
-        //! largest target image width (only RGB)
-        int targetWidth = 0;
-        //! largest target image width (only RGB)
-        int targetHeight = 0;
-        //! width of smaller image version (e.g. for tracking)
-        int smallWidth = 0;
-        //! height of smaller image version (e.g. for tracking)
-        int smallHeight = 0;
-        //! mirror image horizontally after capturing
-        bool mirrorH = false;
-        //! mirror image vertically after capturing
-        bool mirrorV = false;
-        //! provide scaled (smaller) version with size (smallWidth, smallHeight)
-        bool provideScaledImage = false;
-        //! provide gray version of small image
-        bool convertToGray = false;
-        //! adjust image in asynchronous thread
-        bool adjustAsynchronously = false;
-    };
-
-    //virtual void init(SENSCameraFacing facing) = 0;
-    virtual void                                   start(const Config config)                   = 0;
+    virtual void                                   start(const SENSCameraConfig config)         = 0;
     virtual void                                   start(std::string id, int width, int height) = 0;
     virtual void                                   stop()                                       = 0;
     virtual std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics()                = 0;
+    virtual SENSFramePtr                           getLatestFrame()                             = 0;
 
-    virtual SENSFramePtr getLatestFrame() = 0;
+    virtual const SENSCameraCharacteristics& characteristics() const = 0;
+    virtual const SENSCameraConfig&          config() const          = 0;
+    virtual bool                             started() const         = 0;
 
-    bool     started() const { return _started; }
-    cv::Size getFrameSize() { return cv::Size(_config.targetWidth, _config.targetHeight); }
+    virtual bool permissionGranted() const = 0;
+    virtual void setPermissionGranted()    = 0;
+};
 
-    //! returns true if you can retrieve meta-data for the camera on this device (e.g. available stream frames sizes, sensor size and focal lengths)
-    bool                         isCharacteristicsProvided() { return _characteristics.provided; }
-    const std::vector<cv::Size>& getCharacteristicsStreamSizes() const { return _characteristics.streamConfig.getStreamSizes(); }
-    const cv::Size2f&            getCharacteristicsPhysicalSensorSizeMM() { return _characteristics.physicalSensorSizeMM; }
-    const std::vector<float>&    getCharacteristicsFocalLengthsMM() { return _characteristics.focalLenghts; }
+class SENSCamera : public SENSCameraInterface
+{
+public:
+    const SENSCameraCharacteristics& characteristics() const override { return _characteristics; }
+    const SENSCameraConfig&          config() const override { return _config; };
+    bool                             started() const override { return _started; }
 
-    bool permissionGranted() const { return _permissionGranted; }
-    void setPermissionGranted() { _permissionGranted = true; }
+    bool permissionGranted() const override { return _permissionGranted; }
+    void setPermissionGranted() override { _permissionGranted = true; }
 
 protected:
     float             _targetWdivH = -1.0f;
-    Config            _config;
-    std::atomic<bool> _started;
+    SENSCameraConfig  _config;
+    std::atomic<bool> _started{false};
 
     SENSCameraCharacteristics _characteristics;
 
     std::atomic<bool> _permissionGranted{false};
 };
 
-/*
-The SENSCamera may only be called from a single thread. Start and Stop will block and on the
+#include <thread>
+/*!
+The SENSCamera implementations may only be called from a single thread. Start and Stop will block and on the
 other hand if called from different threads, calling e.g. stop while starting will lead to 
 problems. 
 The SENSCameraAsync adds an additional state machine layer that handles events and makes sure
 that the possible states are corretly handled.
 By using an additional layer, we can separate the already complex camera implementations from
 the additonally complex statemachine.
+The SENSCameraAsync wraps a unique pointer of SENSCamera. In this way we may use the same implementation
+for all SENSCamera types.
 */
-class SENSCameraAsync
+class SENSCameraAsync : public SENSCameraInterface
 {
 public:
-    SENSCameraAsync();
+    //The SENSCameraAsync takes ownership of the camera, thats why one has to provide a unique pointer
+    SENSCameraAsync(std::unique_ptr<SENSCamera> camera)
+    {
+        _camera = std::move(camera);
+        if (!_camera)
+            throw SENSException(SENSType::CAM, "SENSCameraAsync: initialized with invalid SENSCamera object!", __LINE__, __FILE__);
+    }
+
+    void start(const SENSCameraConfig config) override
+    {
+        _camera->start(config);
+    }
+    void start(std::string id, int width, int height) override
+    {
+    }
+    void stop() override
+    {
+        _camera->stop();
+    }
+    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override
+    {
+        if (_camera)
+            return _camera->getAllCameraCharacteristics();
+        else
+            return std::vector<SENSCameraCharacteristics>();
+    }
+
+    SENSFramePtr getLatestFrame() override
+    {
+        SENSFramePtr frame;
+
+        if (_camera)
+        {
+            frame = _camera->getLatestFrame();
+        }
+        else
+        {
+            //warn
+        }
+        return std::move(frame);
+    }
+
+    const SENSCameraCharacteristics& characteristics() const override
+    {
+        return _camera->characteristics();
+    }
+
+    const SENSCameraConfig& config() const override
+    {
+        return _camera->config();
+    }
+
+    bool started() const override
+    {
+        return _camera->started();
+    }
+
+    bool permissionGranted() const override
+    {
+        return _camera->permissionGranted();
+    }
+    void setPermissionGranted() override
+    {
+        _camera->setPermissionGranted();
+    }
 
 private:
+    //wrapped SENSCamera instance
+    std::unique_ptr<SENSCamera> _camera;
+
+    //processing thread
+    std::thread _thread;
 };
 
 #endif //SENS_CAMERA_H

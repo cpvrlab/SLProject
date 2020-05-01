@@ -3,16 +3,16 @@
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
 
-AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
-                                   SLInputManager&     inputManager,
-                                   ErlebAR::Resources& resources,
-                                   SENSCamera*         camera,
-                                   int                 screenWidth,
-                                   int                 screenHeight,
-                                   int                 dotsPerInch,
-                                   std::string         fontPath,
-                                   std::string         imguiIniPath,
-                                   std::string         vocabularyDir)
+AreaTrackingView::AreaTrackingView(sm::EventHandler&    eventHandler,
+                                   SLInputManager&      inputManager,
+                                   ErlebAR::Resources&  resources,
+                                   SENSCameraInterface* camera,
+                                   int                  screenWidth,
+                                   int                  screenHeight,
+                                   int                  dotsPerInch,
+                                   std::string          fontPath,
+                                   std::string          imguiIniPath,
+                                   std::string          vocabularyDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     _gui(eventHandler,
          resources,
@@ -85,11 +85,12 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //}
 
     //calibration
-    if (_camera->isCharacteristicsProvided())
+    const SENSCameraCharacteristics& chars = _camera->characteristics();
+    if (chars.provided)
     {
-        _calibration = std::make_unique<SENSCalibration>(_camera->getCharacteristicsPhysicalSensorSizeMM().width,
-                                                         _camera->getCharacteristicsPhysicalSensorSizeMM().height,
-                                                         _camera->getCharacteristicsFocalLengthsMM().front(),
+        _calibration = std::make_unique<SENSCalibration>(chars.physicalSensorSizeMM.width,
+                                                         chars.physicalSensorSizeMM.height,
+                                                         chars.focalLenghts.front(),
                                                          _cameraFrameTargetSize,
                                                          false,
                                                          false,
@@ -185,7 +186,7 @@ void AreaTrackingView::startCamera()
     if (_camera && !_camera->started())
     {
         //start camera
-        SENSCamera::Config config;
+        SENSCameraConfig config;
         config.targetWidth   = _cameraFrameTargetSize.width;
         config.targetHeight  = _cameraFrameTargetSize.height;
         config.convertToGray = true;

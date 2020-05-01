@@ -7,7 +7,7 @@
 #define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 #define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 
-void SENSWebCamera::start(const Config config)
+void SENSWebCamera::start(const SENSCameraConfig config)
 {
     if (!_videoCapture.isOpened())
     {
@@ -32,7 +32,7 @@ void SENSWebCamera::start(const Config config)
 
 void SENSWebCamera::start(std::string id, int width, int height)
 {
-    Config config;
+    SENSCameraConfig config;
 
     config.deviceId     = stoi(id);
     config.targetWidth  = width;

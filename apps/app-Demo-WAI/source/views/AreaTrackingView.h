@@ -12,21 +12,21 @@
 #include <WAISlam.h>
 #include <sens/SENSCalibration.h>
 
-class SENSCamera;
+class SENSCameraInterface;
 
 class AreaTrackingView : public SLSceneView
 {
 public:
-    AreaTrackingView(sm::EventHandler&   eventHandler,
-                     SLInputManager&     inputManager,
-                     ErlebAR::Resources& resources,
-                     SENSCamera*         camera,
-                     int                 screenWidth,
-                     int                 screenHeight,
-                     int                 dotsPerInch,
-                     std::string         fontPath,
-                     std::string         imguiIniPath,
-                     std::string         vocabularyDir);
+    AreaTrackingView(sm::EventHandler&    eventHandler,
+                     SLInputManager&      inputManager,
+                     ErlebAR::Resources&  resources,
+                     SENSCameraInterface* camera,
+                     int                  screenWidth,
+                     int                  screenHeight,
+                     int                  dotsPerInch,
+                     std::string          fontPath,
+                     std::string          imguiIniPath,
+                     std::string          vocabularyDir);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }
@@ -45,7 +45,7 @@ private:
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 
-    SENSCamera* _camera = nullptr;
+    SENSCameraInterface* _camera = nullptr;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
