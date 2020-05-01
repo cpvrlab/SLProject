@@ -7,42 +7,34 @@
 #define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 #define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 
-SENSWebCamera::SENSWebCamera()
-{
-}
-
-SENSWebCamera::~SENSWebCamera()
-{
-    if (_thread.joinable())
-        _thread.join();
-}
-
-//void SENSWebCamera::init(SENSCameraFacing facing)
-//{
-//    LOG_WEBCAM_INFO("init: called but is has no effect in SENSWebCamera");
-//    //_state   = State::INITIALIZED;
-//    _started = false;
-//}
-
 void SENSWebCamera::start(const Config config)
 {
-    _config      = config;
-    _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
-
-    if (!_started && !_isStarting)
+    if (!_videoCapture.isOpened())
     {
-        if (_thread.joinable())
-            _thread.join();
+        _config      = config;
+        _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
-        _isStarting = true;
-        _thread     = std::thread(&SENSWebCamera::openCamera, this);
+        int id = std::stoi(_config.deviceId);
+        _videoCapture.open(id);
+
+        if (!_videoCapture.isOpened())
+            throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
+
+        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
+        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
+        _started = true;
+    }
+    else
+    {
+        LOG_WEBCAM_WARN("start: ignored because camera is already open! Call stop first!");
     }
 }
 
-void SENSWebCamera::start(int width, int height)
+void SENSWebCamera::start(std::string id, int width, int height)
 {
     Config config;
 
+    config.deviceId     = stoi(id);
     config.targetWidth  = width;
     config.targetHeight = height;
 
@@ -52,9 +44,15 @@ void SENSWebCamera::start(int width, int height)
 void SENSWebCamera::stop()
 {
     if (_videoCapture.isOpened())
+    {
         _videoCapture.release();
 
-    _started = false;
+        _started = false;
+    }
+    else
+    {
+        LOG_WEBCAM_INFO("stop: ignored because camera is not open!");
+    }
 }
 
 SENSFramePtr SENSWebCamera::getLatestFrame()
@@ -62,10 +60,13 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
     SENSFramePtr sensFrame;
 
     if (!_started)
+    {
+        LOG_WEBCAM_WARN("getLatestFrame: Camera is not started!");
         return sensFrame;
+    }
 
     if (!_videoCapture.isOpened())
-        throw SENSException(SENSType::CAM, "Capture device is not open!", __LINE__, __FILE__);
+        throw SENSException(SENSType::CAM, "Capture device is not open although camera is started!", __LINE__, __FILE__);
 
     cv::Mat rgbImg;
     if (_videoCapture.read(rgbImg))
@@ -73,10 +74,6 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
         //do image adjustments
         int cropW = 0, cropH = 0;
         SENS::cropImage(rgbImg, _targetWdivH, cropW, cropH);
-        int addW = 0, addH = 0;
-        //float targetScreenWdivH = 640.f / 360.f;
-        //SENS::extendWithBars(rgbImg, targetScreenWdivH, cv::BORDER_CONSTANT /*cv::BORDER_REPLICATE*/, addW, addH);
-
         SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
 
         cv::Mat grayImg;
@@ -96,30 +93,6 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
           _config.mirrorV);
     }
     return sensFrame;
-}
-
-void SENSWebCamera::openCamera()
-{
-    if (!_videoCapture.isOpened())
-    {
-        int id = std::stoi(_config.deviceId);
-        _videoCapture.open(id);
-    }
-
-    //exception not possible as we are in a thread
-    //if (!_videoCapture.isOpened())
-    //throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
-
-    if (_videoCapture.isOpened())
-    {
-        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
-        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
-        //int w = (int)_videoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
-        //int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
-    }
-
-    _started    = true;
-    _isStarting = false;
 }
 
 std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristics()

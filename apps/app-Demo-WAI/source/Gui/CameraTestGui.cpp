@@ -191,9 +191,9 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                     _cameraConfig.convertToGray       = true;
                     Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
 
-                    //make sure the camera is stopped if there is one
-                    if (_camera)
-                        _camera->stop();
+                    ////make sure the camera is stopped if there is one
+                    //if (_camera)
+                    //    _camera->stop();
 
                     try
                     {

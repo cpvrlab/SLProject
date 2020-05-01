@@ -90,15 +90,15 @@ public:
     };
      */
 
-    enum class State
-    {
-        CLOSED,
-        INITIALIZED,
-        STARTING,
-        STARTED,
-        REPEATING_REQUEST,
-        CLOSING
-    };
+    //enum class State
+    //{
+    //    CLOSED,
+    //    INITIALIZED,
+    //    STARTING,
+    //    STARTED,
+    //    REPEATING_REQUEST,
+    //    CLOSING
+    //};
 
     enum class FocusMode
     {
@@ -132,10 +132,10 @@ public:
     };
 
     //virtual void init(SENSCameraFacing facing) = 0;
-    virtual void                                   start(const Config config)    = 0;
-    virtual void                                   start(int width, int height)  = 0;
-    virtual void                                   stop()                        = 0;
-    virtual std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() = 0;
+    virtual void                                   start(const Config config)                   = 0;
+    virtual void                                   start(std::string id, int width, int height) = 0;
+    virtual void                                   stop()                                       = 0;
+    virtual std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics()                = 0;
 
     virtual SENSFramePtr getLatestFrame() = 0;
 
@@ -159,6 +159,23 @@ protected:
     SENSCameraCharacteristics _characteristics;
 
     std::atomic<bool> _permissionGranted{false};
+};
+
+/*
+The SENSCamera may only be called from a single thread. Start and Stop will block and on the
+other hand if called from different threads, calling e.g. stop while starting will lead to 
+problems. 
+The SENSCameraAsync adds an additional state machine layer that handles events and makes sure
+that the possible states are corretly handled.
+By using an additional layer, we can separate the already complex camera implementations from
+the additonally complex statemachine.
+*/
+class SENSCameraAsync
+{
+public:
+    SENSCameraAsync();
+
+private:
 };
 
 #endif //SENS_CAMERA_H
