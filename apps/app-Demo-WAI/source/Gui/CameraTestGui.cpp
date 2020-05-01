@@ -185,11 +185,12 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 if (currSizeIndex >= 0 && currSizeIndex < currCharac->streamConfig.getStreamSizes().size())
                 {
-                    const cv::Size& selectedFrameSize = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
-                    _cameraConfig.deviceId            = currCharac->cameraId;
-                    _cameraConfig.targetWidth         = selectedFrameSize.width;
-                    _cameraConfig.targetHeight        = selectedFrameSize.height;
-                    _cameraConfig.convertToGray       = true;
+                    const cv::Size& selectedFrameSize  = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
+                    _cameraConfig.deviceId             = currCharac->cameraId;
+                    _cameraConfig.targetWidth          = selectedFrameSize.width;
+                    _cameraConfig.targetHeight         = selectedFrameSize.height;
+                    _cameraConfig.convertToGray        = true;
+                    _cameraConfig.adjustAsynchronously = true;
                     Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
 
                     ////make sure the camera is stopped if there is one
