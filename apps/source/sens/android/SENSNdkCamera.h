@@ -19,12 +19,8 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-class SENSNdkCameraManager;
-
 class SENSNdkCamera : public SENSCamera
 {
-    friend class SENSNdkCameraManager;
-
 public:
     ~SENSNdkCamera();
 
@@ -32,6 +28,7 @@ public:
     void         start(int width, int height) override;
     void         stop() override;
     SENSFramePtr getLatestFrame() override;
+    std::vector<SENSCameraCharacteristics> getCameraCharacteristics() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);
@@ -103,20 +100,6 @@ private:
     std::mutex              _cameraDeviceOpeningMutex;
     std::condition_variable _cameraDeviceOpeningCV;
     //camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
-};
-
-class SENSNdkCameraManager : public SENSCameraManager
-{
-public:
-    SENSNdkCameraManager()
-    {
-        updateCameraCharacteristics();
-    }
-    SENSCameraPtr getOptimalCamera(SENSCameraFacing facing) override;
-    SENSCameraPtr getCameraForId(std::string id) override;
-
-protected:
-    void updateCameraCharacteristics() override;
 };
 
 #endif //SENS_NDKCAMERA_H

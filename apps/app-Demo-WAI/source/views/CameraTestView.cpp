@@ -1,9 +1,10 @@
 #include <views/CameraTestView.h>
+#include <sens/SENSUtils.h>
 
 CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
                                SLInputManager&     inputManager,
                                ErlebAR::Resources& resources,
-                               SENSCameraManager*  sensCameraMgr,
+                               SENSCamera*         sensCamera,
                                int                 screenWidth,
                                int                 screenHeight,
                                int                 dotsPerInch,
@@ -16,9 +17,9 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
          screenWidth,
          screenHeight,
          fontPath,
-         sensCameraMgr),
+         sensCamera),
     _scene("CameraTestScene"),
-    _sensCameraMgr(sensCameraMgr)
+    _sensCamera(sensCamera)
 {
     scene(&_scene);
     init("CameraTestView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
@@ -33,7 +34,13 @@ bool CameraTestView::update()
     {
         SENSFramePtr frame = _gui.camera()->getLatestFrame();
         if (frame)
+        {
+            //add bars to image instead of viewport adjustment (we update the mat in the buffer)
+            //todo: the matrices in the buffer have different sizes.. problem? no! no!
+            int addW, addH;
+            SENS::extendWithBars(frame->imgRGB, this->viewportWdivH(), cv::BORDER_CONSTANT, addW, addH);
             _scene.updateVideoImage(frame->imgRGB);
+        }
     }
 
     return onPaint();

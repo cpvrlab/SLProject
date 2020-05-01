@@ -46,15 +46,14 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::CAMERA_TEST>((unsigned int)StateId::CAMERA_TEST);
 }
 
-void ErlebARApp::init(int                scrWidth,
-                      int                scrHeight,
-                      int                dpi,
-                      AppDirectories     dirs,
-                      SENSCameraManager* cameraMgr)
+void ErlebARApp::init(int            scrWidth,
+                      int            scrHeight,
+                      int            dpi,
+                      AppDirectories dirs,
+                      SENSCamera*    camera)
 {
     //store camera so we can stop on terminate
-    _cameraMgr = cameraMgr;
-    _camera    = _cameraMgr->getOptimalCamera(SENSCameraFacing::BACK);
+    _camera = camera;
     addEvent(new InitEvent(scrWidth, scrHeight, dpi, dirs));
 }
 
@@ -182,7 +181,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _testView = new TestView(*this,
                              _inputManager,
-                             _camera.get(),
+                             _camera,
                              dd.scrWidth(),
                              dd.scrHeight(),
                              dd.dpi(),
@@ -248,7 +247,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
                                              *_resources,
-                                             _camera.get(),
+                                             _camera,
                                              dd.scrWidth(),
                                              dd.scrHeight(),
                                              dd.dpi(),
@@ -259,7 +258,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,
                                          *_resources,
-                                         _cameraMgr,
+                                         _camera,
                                          dd.scrWidth(),
                                          dd.scrHeight(),
                                          dd.dpi(),
@@ -401,7 +400,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
         _camera->start(config);
     }
 
-    if (_cameraMgr->permissionGranted() && _camera->started())
+    if (_camera->permissionGranted() && _camera->started())
     {
         _testView->start();
         addEvent(new DoneEvent());

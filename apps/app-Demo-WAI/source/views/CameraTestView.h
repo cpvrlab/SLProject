@@ -15,7 +15,7 @@ public:
     CameraTestView(sm::EventHandler&   eventHandler,
                    SLInputManager&     inputManager,
                    ErlebAR::Resources& resources,
-                   SENSCameraManager*  sensCameraMgr,
+                   SENSCamera*         sensCamera,
                    int                 screenWidth,
                    int                 screenHeight,
                    int                 dotsPerInch,
@@ -29,9 +29,9 @@ public:
     void stopCamera();
 
 private:
-    CameraTestGui      _gui;
-    CameraOnlyScene    _scene;
-    SENSCameraManager* _sensCameraMgr;
+    CameraTestGui   _gui;
+    CameraOnlyScene _scene;
+    SENSCamera*     _sensCamera;
 };
 
 #endif //CAMERA_TEST_VIEW_H

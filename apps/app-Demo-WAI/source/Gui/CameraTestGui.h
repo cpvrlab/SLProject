@@ -23,14 +23,14 @@ public:
                   int                 screenWidthPix,
                   int                 screenHeightPix,
                   std::string         fontPath,
-                  SENSCameraManager*  cameraMgr);
+                  SENSCamera*         camera);
     ~CameraTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
 
-    SENSCamera* camera() { return _camera.get(); }
+    SENSCamera* camera() { return _camera; }
 
 private:
     void resize(int scrW, int scrH);
@@ -50,9 +50,9 @@ private:
 
     ErlebAR::Resources& _resources;
 
-    SENSCameraManager*                              _cameraMgr;
+    SENSCamera*                                     _camera;
     SENSCamera::Config                              _cameraConfig;
-    SENSCameraPtr                                   _camera;
+
     std::vector<SENSCameraCharacteristics>          _camCharacs;
     std::map<std::string, std::vector<std::string>> _sizesStrings;
     //callbacks

@@ -811,8 +811,9 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
     _captureSessionStateCV.notify_one();
 }
 
-void SENSNdkCameraManager::updateCameraCharacteristics()
+std::vector<SENSCameraCharacteristics> SENSNdkCamera::getCameraCharacteristics()
 {
+    std::vector<SENSCameraCharacteristics> allCharacteristics;
     ACameraManager* cameraManager = ACameraManager_create();
     if (!cameraManager)
         throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
@@ -901,46 +902,11 @@ void SENSNdkCameraManager::updateCameraCharacteristics()
             }
         }
         ACameraMetadata_free(camCharacteristics);
-        _characteristics.push_back(characteristics);
+        allCharacteristics.push_back(characteristics);
     }
 
     ACameraManager_deleteCameraIdList(cameraIds);
     ACameraManager_delete(cameraManager);
-}
 
-SENSCameraPtr SENSNdkCameraManager::getOptimalCamera(SENSCameraFacing facing)
-{
-    SENSCameraPtr camera;
-    for (const SENSCameraCharacteristics& c : _characteristics)
-    {
-        if (c.facing == facing)
-        {
-            camera = std::shared_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
-        }
-    }
-    return camera;
-}
-
-SENSCameraPtr SENSNdkCameraManager::getCameraForId(std::string id)
-{
-    SENSCameraPtr camera;
-
-    auto it = _cameraInstances.find(id);
-    if (it == _cameraInstances.end())
-    {
-        for (const SENSCameraCharacteristics& c : _characteristics)
-        {
-            if (c.cameraId == id)
-            {
-                camera               = std::shared_ptr<SENSNdkCamera>(new SENSNdkCamera(c));
-                _cameraInstances[id] = camera;
-            }
-        }
-    }
-    else
-    {
-        camera = it->second;
-    }
-
-    return camera;
+    return allCharacteristics;
 }

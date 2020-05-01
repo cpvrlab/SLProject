@@ -101,7 +101,10 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
 void SENSWebCamera::openCamera()
 {
     if (!_videoCapture.isOpened())
-        _videoCapture.open(0);
+    {
+        int id = std::stoi(_config.deviceId);
+        _videoCapture.open(id);
+    }
 
     //exception not possible as we are in a thread
     //if (!_videoCapture.isOpened())
@@ -109,12 +112,71 @@ void SENSWebCamera::openCamera()
 
     if (_videoCapture.isOpened())
     {
-        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-        int w = (int)_videoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
-        int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
+        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
+        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
+        //int w = (int)_videoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
+        //int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
     }
 
     _started    = true;
     _isStarting = false;
+}
+
+std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristics()
+{
+    //definition of standard frame sizes that we want to test for support
+    static std::vector<cv::Size> testSizes = {
+      {640, 360},
+      {640, 480},
+      {960, 540},
+      {1280, 960},
+      {1280, 720},
+      {1920, 1080}};
+
+    //stop running capturing
+    bool deviceWasOpen = false;
+    if (_videoCapture.isOpened())
+    {
+        stop();
+        deviceWasOpen = true;
+    }
+
+    std::vector<SENSCameraCharacteristics> allCharacteristics;
+
+    //There is an invisible list of devices populated from your os and your webcams appear there in the order you plugged them in.
+    //If you're e.g on a laptop with a builtin camera, that will be id 0, if you plug in an additional one, that's id 1.
+    for (int i = 0; i < 10; ++i)
+    {
+        if (_videoCapture.open(i))
+        {
+            if (_videoCapture.isOpened())
+            {
+                SENSCameraCharacteristics characteristics;
+                characteristics.cameraId = std::to_string(i);
+                characteristics.provided = false;
+                //try some standard capture sizes
+                for (auto s : testSizes)
+                {
+                    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, s.width);
+                    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, s.height);
+                    cv::Mat frame;
+                    _videoCapture >> frame;
+                    cv::Size newSize = frame.size();
+                    if (!characteristics.streamConfig.contains(newSize))
+                    {
+                        characteristics.streamConfig.add(newSize);
+                    }
+                }
+
+                allCharacteristics.push_back(characteristics);
+                _videoCapture.release();
+            }
+        }
+    }
+
+    //start again with old config
+    if (deviceWasOpen)
+        start(_config);
+
+    return allCharacteristics;
 }

@@ -11,10 +11,10 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
                              int                 screenWidthPix,
                              int                 screenHeightPix,
                              std::string         fontPath,
-                             SENSCameraManager*  cameraMgr)
+                             SENSCamera*         camera)
   : sm::EventSender(eventHandler),
     _resources(resources),
-    _cameraMgr(cameraMgr)
+    _camera(camera)
 {
     resize(screenWidthPix, screenHeightPix);
     float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
@@ -28,8 +28,8 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
     else
         Utils::warnMsg("CameraTestGui", "font does not exist!", __LINE__, __FILE__);
 
-    //keep a local copy, as it is easier to access
-    _camCharacs = _cameraMgr->characteristics();
+    //keep a local copy of all available
+    _camCharacs = _camera->getAllCameraCharacteristics();
 
     //prepare sizes for visualization
     for (const SENSCameraCharacteristics& c : _camCharacs)
@@ -148,6 +148,23 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::EndCombo();
             }
 
+            if (ImGui::BeginCombo("Sizes##CameraTestGui", currSizeStr->c_str()))
+            {
+                for (int n = 0; n < sizes.size(); n++)
+                {
+                    const std::string* sizeStr      = &sizes[n];
+                    bool               itemSelected = (sizeStr == currSizeStr);
+                    ImGui::PushID(sizeStr->c_str());
+                    if (ImGui::Selectable(sizeStr->c_str(), itemSelected))
+                    {
+                        currSizeIndex = n;
+                        currSizeStr   = sizeStr;
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndCombo();
+            }
+
             //visualize current camera characteristics
             if (currCharac->provided)
             {
@@ -158,23 +175,6 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 {
                     ImGui::Text("  %f", fl);
                 }
-
-                if (ImGui::BeginCombo("Sizes##CameraTestGui", currSizeStr->c_str()))
-                {
-                    for (int n = 0; n < sizes.size(); n++)
-                    {
-                        const std::string* sizeStr      = &sizes[n];
-                        bool               itemSelected = (sizeStr == currSizeStr);
-                        ImGui::PushID(sizeStr->c_str());
-                        if (ImGui::Selectable(sizeStr->c_str(), itemSelected))
-                        {
-                            currSizeIndex = n;
-                            currSizeStr   = sizeStr;
-                        }
-                        ImGui::PopID();
-                    }
-                    ImGui::EndCombo();
-                }
             }
             else
             {
@@ -183,33 +183,32 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
-                if (currSizeIndex >= 0 && currSizeIndex < currCharac->streamConfig.getStreamSizes().size() - 1)
+                if (currSizeIndex >= 0 && currSizeIndex < currCharac->streamConfig.getStreamSizes().size())
                 {
                     const cv::Size& selectedFrameSize = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
                     _cameraConfig.targetWidth         = selectedFrameSize.width;
                     _cameraConfig.targetHeight        = selectedFrameSize.height;
                     _cameraConfig.convertToGray       = true;
                     Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
+
+                    //make sure the camera is stopped if there is one
+                    if (_camera)
+                        _camera->stop();
+
+                    try
+                    {
+                        if (_camera)
+                            _camera->start(_cameraConfig);
+                    }
+                    catch (SENSException& e)
+                    {
+                        _exceptionText = e.what();
+                        _hasException  = true;
+                    }
                 }
                 else
                 {
                     Utils::log("CameraTestGui", "Start: invalid index %d", currSizeIndex);
-                }
-
-                //make sure the camera is stopped if there is one
-                if (_camera)
-                    _camera->stop();
-                //get an instance for the selected camera
-                _camera = _cameraMgr->getCameraForId(currCharac->cameraId);
-                try
-                {
-                    if (_camera)
-                        _camera->start(_cameraConfig);
-                }
-                catch (SENSException& e)
-                {
-                    _exceptionText = e.what();
-                    _hasException  = true;
                 }
             }
 

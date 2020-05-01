@@ -62,9 +62,9 @@ void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH)
 //opposite to crop image: extrend
 void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW, int& addH)
 {
-    HighResTimer t;
-    float        inWdivH  = (float)img.cols / (float)img.rows;
-    float        outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
+    //HighResTimer t;
+    float inWdivH  = (float)img.cols / (float)img.rows;
+    float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
 
     addH = 0;
     addW = 0;
@@ -137,7 +137,7 @@ void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW
         //    }
         //}
     }
-    Utils::log("extendWithBars", "elapsed time %f ms", t.elapsedTimeInMilliSec());
+    //Utils::log("extendWithBars", "elapsed time %f ms", t.elapsedTimeInMilliSec());
 }
 
 void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV)
