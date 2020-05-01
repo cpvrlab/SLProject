@@ -51,20 +51,20 @@
 using namespace ErlebAR;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                         eventHandler,
-                             std::string                               appName,
-                             int                                       dotsPerInch,
-                             int                                       windowWidthPix,
-                             int                                       windowHeightPix,
-                             std::string                               configDir,
-                             std::string                               fontPath,
-                             std::string                               vocabularyDir,
-                             const std::vector<std::string>&           extractorIdToNames,
-                             std ::queue<WAIEvent*>&                   eventQueue,
-                             std::function<WAISlam*(void)>             modeGetterCB,
-                             std::function<SENSCameraInterface*(void)> getCameraCB,
-                             std::function<CVCalibration*(void)>       getCalibrationCB,
-                             std::function<SENSVideoStream*(void)>     getVideoFileStreamCB)
+AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
+                             std::string                           appName,
+                             int                                   dotsPerInch,
+                             int                                   windowWidthPix,
+                             int                                   windowHeightPix,
+                             std::string                           configDir,
+                             std::string                           fontPath,
+                             std::string                           vocabularyDir,
+                             const std::vector<std::string>&       extractorIdToNames,
+                             std ::queue<WAIEvent*>&               eventQueue,
+                             std::function<WAISlam*(void)>         modeGetterCB,
+                             std::function<SENSCamera*(void)>      getCameraCB,
+                             std::function<CVCalibration*(void)>   getCalibrationCB,
+                             std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
   : sm::EventSender(eventHandler)
 {
     //load preferences

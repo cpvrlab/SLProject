@@ -102,7 +102,7 @@ struct SENSCameraConfig
     bool adjustAsynchronously = false;
 };
 
-class SENSCameraInterface
+class SENSCamera
 {
 public:
     virtual void                                   start(const SENSCameraConfig config)         = 0;
@@ -119,7 +119,7 @@ public:
     virtual void setPermissionGranted()    = 0;
 };
 
-class SENSCamera : public SENSCameraInterface
+class SENSCameraBase : public SENSCamera
 {
 public:
     const SENSCameraCharacteristics& characteristics() const override { return _characteristics; }
@@ -141,25 +141,25 @@ protected:
 
 #include <thread>
 /*!
-The SENSCamera implementations may only be called from a single thread. Start and Stop will block and on the
+The SENSCameraBase implementations may only be called from a single thread. Start and Stop will block and on the
 other hand if called from different threads, calling e.g. stop while starting will lead to 
 problems. 
 The SENSCameraAsync adds an additional state machine layer that handles events and makes sure
 that the possible states are corretly handled.
 By using an additional layer, we can separate the already complex camera implementations from
 the additonally complex statemachine.
-The SENSCameraAsync wraps a unique pointer of SENSCamera. In this way we may use the same implementation
-for all SENSCamera types.
+The SENSCameraAsync wraps a unique pointer of SENSCameraBase. In this way we may use the same implementation
+for all SENSCameraBase types.
 */
-class SENSCameraAsync : public SENSCameraInterface
+class SENSCameraAsync : public SENSCamera
 {
 public:
     //The SENSCameraAsync takes ownership of the camera, thats why one has to provide a unique pointer
-    SENSCameraAsync(std::unique_ptr<SENSCamera> camera)
+    SENSCameraAsync(std::unique_ptr<SENSCameraBase> camera)
     {
         _camera = std::move(camera);
         if (!_camera)
-            throw SENSException(SENSType::CAM, "SENSCameraAsync: initialized with invalid SENSCamera object!", __LINE__, __FILE__);
+            throw SENSException(SENSType::CAM, "SENSCameraAsync: initialized with invalid SENSCameraBase object!", __LINE__, __FILE__);
     }
 
     void start(const SENSCameraConfig config) override
@@ -221,8 +221,8 @@ public:
     }
 
 private:
-    //wrapped SENSCamera instance
-    std::unique_ptr<SENSCamera> _camera;
+    //wrapped SENSCameraBase instance
+    std::unique_ptr<SENSCameraBase> _camera;
 
     //processing thread
     std::thread _thread;

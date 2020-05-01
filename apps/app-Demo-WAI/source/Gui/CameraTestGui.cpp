@@ -5,13 +5,13 @@
 
 using namespace ErlebAR;
 
-CameraTestGui::CameraTestGui(sm::EventHandler&    eventHandler,
-                             ErlebAR::Resources&  resources,
-                             int                  dotsPerInch,
-                             int                  screenWidthPix,
-                             int                  screenHeightPix,
-                             std::string          fontPath,
-                             SENSCameraInterface* camera)
+CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
+                             ErlebAR::Resources& resources,
+                             int                 dotsPerInch,
+                             int                 screenWidthPix,
+                             int                 screenHeightPix,
+                             std::string         fontPath,
+                             SENSCamera*         camera)
   : sm::EventSender(eventHandler),
     _resources(resources),
     _camera(camera)

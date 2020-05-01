@@ -2,9 +2,9 @@
 #define SENS_WEBCAMERA_H
 
 #include <opencv2/opencv.hpp>
-#include <SENSCamera.h>
+#include <sens/SENSCamera.h>
 
-class SENSWebCamera : public SENSCamera
+class SENSWebCamera : public SENSCameraBase
 {
 public:
     void start(const SENSCameraConfig config) override;

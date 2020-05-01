@@ -15,17 +15,17 @@
 #include <AppDemoGuiInfosDialog.h>
 
 struct WAIEvent;
-class SENSCameraInterface;
+class SENSCamera;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiVideoStorage(const std::string&                        name,
-                           bool*                                     activator,
-                           std::queue<WAIEvent*>*                    eventQueue,
-                           ImFont*                                   font,
-                           std::function<SENSCameraInterface*(void)> getCameraCB);
+    AppDemoGuiVideoStorage(const std::string&               name,
+                           bool*                            activator,
+                           std::queue<WAIEvent*>*           eventQueue,
+                           ImFont*                          font,
+                           std::function<SENSCamera*(void)> getCameraCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
@@ -33,7 +33,7 @@ private:
     bool                   _recording = false;
     std::queue<WAIEvent*>* _eventQueue;
 
-    std::function<SENSCameraInterface*(void)> _getCamera;
+    std::function<SENSCamera*(void)> _getCamera;
 };
 
 #endif //SL_IMGUI_VIDEOSTORAGE_H

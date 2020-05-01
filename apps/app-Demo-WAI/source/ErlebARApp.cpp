@@ -46,11 +46,11 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::CAMERA_TEST>((unsigned int)StateId::CAMERA_TEST);
 }
 
-void ErlebARApp::init(int                  scrWidth,
-                      int                  scrHeight,
-                      int                  dpi,
-                      AppDirectories       dirs,
-                      SENSCameraInterface* camera)
+void ErlebARApp::init(int            scrWidth,
+                      int            scrHeight,
+                      int            dpi,
+                      AppDirectories dirs,
+                      SENSCamera*    camera)
 {
     //store camera so we can stop on terminate
     _camera = camera;

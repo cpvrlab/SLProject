@@ -14,22 +14,22 @@
 
 class WAISlam;
 struct WAIEvent;
-class SENSCameraInterface;
+class SENSCamera;
 
 class TestView : protected SLSceneView
 {
 public:
-    TestView(sm::EventHandler&    eventHandler,
-             SLInputManager&      inputManager,
-             SENSCameraInterface* camera,
-             int                  screenWidth,
-             int                  screenHeight,
-             int                  dotsPerInch,
-             std::string          fontPath,
-             std::string          configDir,
-             std::string          vocabularyDir,
-             std::string          calibDir,
-             std::string          videoDir);
+    TestView(sm::EventHandler& eventHandler,
+             SLInputManager&   inputManager,
+             SENSCamera*       camera,
+             int               screenWidth,
+             int               screenHeight,
+             int               dotsPerInch,
+             std::string       fontPath,
+             std::string       configDir,
+             std::string       vocabularyDir,
+             std::string       calibDir,
+             std::string       videoDir);
     ~TestView();
 
     bool update();
@@ -59,7 +59,7 @@ protected:
 
     //video
     CVCalibration                    _calibration = {CVCameraType::FRONTFACING, ""};
-    SENSCameraInterface*             _camera      = nullptr;
+    SENSCamera*                      _camera      = nullptr;
     cv::VideoWriter*                 _videoWriter = nullptr;
     std::unique_ptr<SENSVideoStream> _videoFileStream;
     bool                             _pauseVideo           = false;

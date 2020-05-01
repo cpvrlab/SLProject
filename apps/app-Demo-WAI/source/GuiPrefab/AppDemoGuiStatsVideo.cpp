@@ -1,14 +1,14 @@
 #include <AppDemoGuiStatsVideo.h>
 
-#include <SENSCamera.h>
+#include <sens/SENSCamera.h>
 #include <CVCalibration.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string                               name,
-                                           bool*                                     activator,
-                                           ImFont*                                   font,
-                                           std::function<SENSCameraInterface*(void)> getCameraCB,
-                                           std::function<CVCalibration*(void)>       getCalibrationCB)
+AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string                         name,
+                                           bool*                               activator,
+                                           ImFont*                             font,
+                                           std::function<SENSCamera*(void)>    getCameraCB,
+                                           std::function<CVCalibration*(void)> getCalibrationCB)
   : AppDemoGuiInfosDialog(name, activator, font),
     _getCamera(getCameraCB),
     _getCalibration(getCalibrationCB)
@@ -21,7 +21,7 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
     SLchar m[2550]; // message character array
     m[0] = 0;       // set zero length
 
-    SENSCameraInterface* cam = _getCamera();
+    SENSCamera* cam = _getCamera();
     // clang-format off
     if (cam)
     {

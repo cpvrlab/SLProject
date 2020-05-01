@@ -30,7 +30,7 @@ class SLSceneView;
 class SLNode;
 class SLGLTexture;
 class AppDemoGuiInfosDialog;
-class SENSCameraInterface;
+class SENSCamera;
 class CVCalibration;
 class SENSVideoStream;
 
@@ -56,20 +56,20 @@ class AppDemoWaiGui : public ImGuiWrapper
   , public sm::EventSender
 {
 public:
-    AppDemoWaiGui(sm::EventHandler&                         eventHandler,
-                  std::string                               appName,
-                  int                                       dotsPerInch,
-                  int                                       windowWidthPix,
-                  int                                       windowHeightPix,
-                  std::string                               configDir,
-                  std::string                               fontPath,
-                  std::string                               vocabularyDir,
-                  const std::vector<std::string>&           extractorIdToNames,
-                  std ::queue<WAIEvent*>&                   eventQueue,
-                  std::function<WAISlam*(void)>             modeGetterCB,
-                  std::function<SENSCameraInterface*(void)> getCameraCB,
-                  std::function<CVCalibration*(void)>       getCalibrationCB,
-                  std::function<SENSVideoStream*(void)>     getVideoFileStreamCB);
+    AppDemoWaiGui(sm::EventHandler&                     eventHandler,
+                  std::string                           appName,
+                  int                                   dotsPerInch,
+                  int                                   windowWidthPix,
+                  int                                   windowHeightPix,
+                  std::string                           configDir,
+                  std::string                           fontPath,
+                  std::string                           vocabularyDir,
+                  const std::vector<std::string>&       extractorIdToNames,
+                  std ::queue<WAIEvent*>&               eventQueue,
+                  std::function<WAISlam*(void)>         modeGetterCB,
+                  std::function<SENSCamera*(void)>      getCameraCB,
+                  std::function<CVCalibration*(void)>   getCalibrationCB,
+                  std::function<SENSVideoStream*(void)> getVideoFileStreamCB);
     ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not
     void addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog);

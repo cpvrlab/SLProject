@@ -1,7 +1,7 @@
 #include <views/TestView.h>
 #include <WAISlam.h>
 #include <WAIEvent.h>
-#include <SENSCamera.h>
+#include <sens/SENSCamera.h>
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
@@ -10,17 +10,17 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler&    eventHandler,
-                   SLInputManager&      inputManager,
-                   SENSCameraInterface* camera,
-                   int                  screenWidth,
-                   int                  screenHeight,
-                   int                  dotsPerInch,
-                   std::string          fontPath,
-                   std::string          configDir,
-                   std::string          vocabularyDir,
-                   std::string          calibDir,
-                   std::string          videoDir)
+TestView::TestView(sm::EventHandler& eventHandler,
+                   SLInputManager&   inputManager,
+                   SENSCamera*       camera,
+                   int               screenWidth,
+                   int               screenHeight,
+                   int               dotsPerInch,
+                   std::string       fontPath,
+                   std::string       configDir,
+                   std::string       vocabularyDir,
+                   std::string       calibDir,
+                   std::string       videoDir)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
     _gui(
       eventHandler,
@@ -84,7 +84,7 @@ void TestView::startAsync()
     //SENSCameraConfig camConfig;
     //camConfig.targetWidth          = 640;
     //camConfig.targetHeight         = 360;
-    //camConfig.focusMode            = SENSCameraInterface::SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
+    //camConfig.focusMode            = SENSCamera::SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
     //camConfig.convertToGray        = true;
     //camConfig.adjustAsynchronously = true;
     //_camera->start(camConfig);

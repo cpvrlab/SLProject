@@ -3,16 +3,16 @@
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
 
-AreaTrackingView::AreaTrackingView(sm::EventHandler&    eventHandler,
-                                   SLInputManager&      inputManager,
-                                   ErlebAR::Resources&  resources,
-                                   SENSCameraInterface* camera,
-                                   int                  screenWidth,
-                                   int                  screenHeight,
-                                   int                  dotsPerInch,
-                                   std::string          fontPath,
-                                   std::string          imguiIniPath,
-                                   std::string          vocabularyDir)
+AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
+                                   SLInputManager&     inputManager,
+                                   ErlebAR::Resources& resources,
+                                   SENSCamera*         camera,
+                                   int                 screenWidth,
+                                   int                 screenHeight,
+                                   int                 dotsPerInch,
+                                   std::string         fontPath,
+                                   std::string         imguiIniPath,
+                                   std::string         vocabularyDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     _gui(eventHandler,
          resources,

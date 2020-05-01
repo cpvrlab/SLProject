@@ -17,20 +17,20 @@ class CameraTestGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    CameraTestGui(sm::EventHandler&    eventHandler,
-                  ErlebAR::Resources&  resources,
-                  int                  dotsPerInch,
-                  int                  screenWidthPix,
-                  int                  screenHeightPix,
-                  std::string          fontPath,
-                  SENSCameraInterface* camera);
+    CameraTestGui(sm::EventHandler&   eventHandler,
+                  ErlebAR::Resources& resources,
+                  int                 dotsPerInch,
+                  int                 screenWidthPix,
+                  int                 screenHeightPix,
+                  std::string         fontPath,
+                  SENSCamera*         camera);
     ~CameraTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
 
-    SENSCameraInterface* camera() { return _camera; }
+    SENSCamera* camera() { return _camera; }
 
 private:
     void resize(int scrW, int scrH);
@@ -50,8 +50,8 @@ private:
 
     ErlebAR::Resources& _resources;
 
-    SENSCameraInterface* _camera;
-    SENSCameraConfig     _cameraConfig;
+    SENSCamera*      _camera;
+    SENSCameraConfig _cameraConfig;
 
     std::vector<SENSCameraCharacteristics>          _camCharacs;
     std::map<std::string, std::vector<std::string>> _sizesStrings;
