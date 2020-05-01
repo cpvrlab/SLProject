@@ -39,6 +39,7 @@ class SENSWebCameraManager : public SENSCameraManager
 public:
     SENSWebCameraManager()
     {
+        _permissionGranted = true;
         updateCameraCharacteristics();
     }
     SENSCameraPtr getOptimalCamera(SENSCameraFacing facing) override

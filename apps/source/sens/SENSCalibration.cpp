@@ -72,8 +72,10 @@ SENSCalibration::SENSCalibration(const cv::Size& imageSize,
     _computerInfos(std::move(computerInfos))
 {
     createFromGuessedFOV(imageSize.width, imageSize.height, fovH);
-    _cameraMatOrig = _cameraMat.clone();
-    _imageSizeOrig = _imageSize;
+    _cameraMatUndistorted = _cameraMat.clone();
+    _cameraMatOrig        = _cameraMat.clone();
+    _imageSizeOrig        = _imageSize;
+    Utils::log("SENSCalibration", "Guessing calibration from fov: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
 }
 //-----------------------------------------------------------------------------
 //create a guessed calibration using sensor size, camera focal length and captured image size
@@ -95,14 +97,17 @@ SENSCalibration::SENSCalibration(float           sensorWMM,
     if (devFovH > 60.0f && devFovH < 70.0f)
     {
         createFromGuessedFOV(imageSize.width, imageSize.height, devFovH);
+        Utils::log("SENSCalibration", "From physical sensor data: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
     }
     else
     {
         //if not between
         createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
+        Utils::log("SENSCalibration", "Guessing calibration from fov: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
     }
-    _cameraMatOrig = _cameraMat.clone();
-    _imageSizeOrig = _imageSize;
+    _cameraMatUndistorted = _cameraMat.clone();
+    _cameraMatOrig        = _cameraMat.clone();
+    _imageSizeOrig        = _imageSize;
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -367,11 +372,9 @@ void SENSCalibration::createFromGuessedFOV(int   imageWidthPX,
                                            int   imageHeightPX,
                                            float fovH)
 {
-    // aspect ratio
-    float withOverHeight = (float)imageWidthPX / (float)imageHeightPX;
-
-    // the vertical fov is derived from the width because it could be cropped
-    float fovV = fovH / withOverHeight;
+    //if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
+    float f    = (0.5f * imageWidthPX) / tanf(fovH * 0.5f * Utils::DEG2RAD);
+    float fovV = 2.0f * (float)atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm

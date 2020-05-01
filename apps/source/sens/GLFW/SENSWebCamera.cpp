@@ -73,6 +73,10 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
         //do image adjustments
         int cropW = 0, cropH = 0;
         SENS::cropImage(rgbImg, _targetWdivH, cropW, cropH);
+        int addW = 0, addH = 0;
+        //float targetScreenWdivH = 640.f / 360.f;
+        //SENS::extendWithBars(rgbImg, targetScreenWdivH, cv::BORDER_CONSTANT /*cv::BORDER_REPLICATE*/, addW, addH);
+
         SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
 
         cv::Mat grayImg;

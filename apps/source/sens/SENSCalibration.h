@@ -142,9 +142,10 @@ public:
         }
     }
 
-private:
     void calcCameraFovFromUndistortedCameraMat();
     void calculateUndistortedCameraMat();
+
+private:
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
     ///////////////////////////////////////////////////////////////////////////////////
     cv::Mat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
@@ -169,9 +170,20 @@ private:
     cv::Size _imageSize;                 //!< Input image size in pixels (after cropping)
     int      _camSizeIndex = -1;         //!< The requested camera size index
 
-    cv::Mat        _undistortMapX;         //!< Undistortion float map in x-direction
-    cv::Mat        _undistortMapY;         //!< Undistortion float map in y-direction
-    cv::Mat        _cameraMatUndistorted;  //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
+    cv::Mat _undistortMapX; //!< Undistortion float map in x-direction
+    cv::Mat _undistortMapY; //!< Undistortion float map in y-direction
+
+    /* Camera matrix that defines an optimal camera matrix that may be used e.g. as frustum definition in
+    an scene graph. It is optimal in the sense that it is adapted so that the focal point is centered (by cx and cy) and
+    black borders of an undistorted image are removed by scaling fx and fy.
+    If the viewport is different to the camera image size it fits to cx and cy have to be additionally adjusted.
+    The _cameraMatUndistorted may also be used for reprojection of an undistorted image. 
+    In this context it is used this class to build the undistortion maps 
+    (in buildUndistortionMaps) and the resulting undistortion maps are used to undistort 
+    an image in the remap function). If the distortion coefficients are empty (_distortion)
+    _cameraMatUndistorted is equal to _cameraMat.
+    */
+    cv::Mat        _cameraMatUndistorted;
     string         _calibrationTime = "-"; //!< Time stamp string of calibration
     string         _computerInfos;
     SENSCameraType _camType = SENSCameraType::FRONTFACING;
