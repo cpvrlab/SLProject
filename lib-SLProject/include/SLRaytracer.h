@@ -116,7 +116,7 @@ public:
     SLbool    doFresnel() const { return _doFresnel; }
     SLint     aaSamples() const { return _aaSamples; }
     SLuint    numThreads() const { return Utils::maxThreads(); }
-    SLint     pcRendered() const { return _pcRendered; }
+    SLint     progressPC() const { return _progressPC; }
     SLfloat   aaThreshold() const { return _aaThreshold; }
     SLfloat   renderSec() const { return _renderSec; }
     SLfloat   gamma() const { return _gamma; }
@@ -127,7 +127,7 @@ public:
     // Render target image
     void prepareImage();
     void renderImage();
-    void saveImage();
+    virtual void saveImage();
 
 protected:
     SLSceneView* _sv;               //!< Parent sceneview
@@ -138,7 +138,7 @@ protected:
     SLbool       _doContinuous;     //!< if true state goes into ready again
     SLbool       _doDistributed;    //!< Flag for parallel distributed RT
     SLbool       _doFresnel;        //!< Flag for Fresnel reflection
-    SLint        _pcRendered;       //!< % rendered
+    SLint        _progressPC;       //!< progress in %
     SLfloat      _renderSec;        //!< Rendering time in seconds
 
     SLfloat     _pxSize;       //!< Pixel size

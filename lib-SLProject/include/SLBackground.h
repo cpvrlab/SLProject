@@ -33,8 +33,8 @@ public:
     ~SLBackground();
 
     void    render(SLint widthPX, SLint heightPX);
-    void    renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB);
-    SLCol4f colorAtPos(SLfloat x, SLfloat y);
+    void    renderInScene(const SLVec3f& LT, const SLVec3f& LB, const SLVec3f& RT, const SLVec3f& RB);
+    SLCol4f colorAtPos(SLfloat x, SLfloat y, SLfloat width, SLfloat height);
     void    rebuild() { _vao.clearAttribs(); }
 
     // Setters
@@ -48,7 +48,7 @@ public:
 
     // Getters
     SLVCol4f     colors() { return _colors; }
-    SLbool       isUniform() { return _isUniform; }
+    SLbool       isUniform() const { return _isUniform; }
     SLGLTexture* texture() { return _texture; }
 
 private:

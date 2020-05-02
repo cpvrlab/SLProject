@@ -56,7 +56,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy; // From here we state the RT as busy
-    _pcRendered = 0;      // % rendered
+    _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
@@ -95,7 +95,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         double t2 = GlobalTimer::timeS();
         if (t2 - t1 > 0.5)
         {
-            _pcRendered = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
+            _progressPC = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
             renderUIBeforeUpdate();
             _sv->onWndUpdate();
             t1 = GlobalTimer::timeS();
@@ -103,7 +103,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     }
 
     _renderSec  = GlobalTimer::timeS() - tStart;
-    _pcRendered = 100;
+    _progressPC = 100;
 
     if (_doContinuous)
         _state = rtReady;
@@ -122,7 +122,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy; // From here we state the RT as busy
-    _pcRendered = 0;      // % rendered
+    _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
@@ -131,7 +131,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Measure time
     float t1 = GlobalTimer::timeS();
 
-    // Bind render functions to be called multithreaded
+    // Bind render functions to be called multi-threaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1
                                   ? bind(&SLRaytracer::renderSlices, this, _1)
@@ -173,7 +173,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     }
 
     _renderSec  = GlobalTimer::timeS() - t1;
-    _pcRendered = 100;
+    _progressPC = 100;
 
     if (_doContinuous)
         _state = rtReady;
@@ -235,9 +235,9 @@ void SLRaytracer::renderSlices(const bool isMainThread)
             {
                 if (GlobalTimer::timeS() - t1 > 0.5)
                 {
-                    _pcRendered = (SLint)((SLfloat)y /
+                    _progressPC = (SLint)((SLfloat)y /
                                           (SLfloat)_images[0]->height() * 100);
-                    if (_aaSamples > 0) _pcRendered /= 2;
+                    if (_aaSamples > 0) _progressPC /= 2;
                     renderUIBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = GlobalTimer::timeS();
@@ -297,7 +297,10 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         if (_sv->skybox())
                             backColor = _sv->skybox()->colorAtDir(lensToFP);
                         else
-                            backColor = _sv->camera()->background().colorAtPos((SLfloat)x, (SLfloat)y);
+                            backColor = _sv->camera()->background().colorAtPos((SLfloat)x,
+                                                                               (SLfloat)y,
+                                                                               (SLfloat)_images[0]->width(),
+                                                                               (SLfloat)_images[0]->height());
 
                         SLRay primaryRay(lensPos, lensToFP, (SLfloat)x, (SLfloat)y, backColor, _sv);
 
@@ -343,7 +346,10 @@ background color is return.
 SLCol4f SLRaytracer::trace(SLRay* ray)
 {
     SLCol4f color(ray->backgroundColor);
-    _sv->s().root3D()->hitRec(ray);
+
+    // Intersect scene
+    SLNode* root = _sv->s().root3D();
+    if (root) root->hitRec(ray);
 
     if (ray->length < FLT_MAX)
     {
@@ -431,7 +437,10 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
     if (_sv->skybox())
         primaryRay->backgroundColor = _sv->skybox()->colorAtDir(primaryRay->dir);
     else
-        primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x, y);
+        primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x,
+                                                                             y,
+                                                                             (SLfloat)_images[0]->width(),
+                                                                             (SLfloat)_images[0]->height());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -666,7 +675,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             t2 = GlobalTimer::timeS();
             if (t2 - t1 > 0.5)
             {
-                _pcRendered = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
+                _progressPC = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
                 renderUIBeforeUpdate();
                 _sv->onWndUpdate();
                 t1 = GlobalTimer::timeS();

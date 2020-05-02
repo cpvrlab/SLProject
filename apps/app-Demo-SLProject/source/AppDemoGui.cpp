@@ -418,6 +418,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
+                sprintf(m + strlen(m), "Progress   :%3d%%\n", rt->progressPC());
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", renderSec);
@@ -446,6 +447,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat       rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
+                sprintf(m + strlen(m), "Progress   :%3d%%\n", pt->progressPC());
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());

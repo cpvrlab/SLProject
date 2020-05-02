@@ -2992,7 +2992,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #endif
     else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
     {
-        s->name("Muttenzer Box (RT)");
+        s->name("Muttenzer Box");
         s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders

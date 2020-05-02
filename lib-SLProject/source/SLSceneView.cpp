@@ -1656,18 +1656,16 @@ SLstring SLSceneView::windowTitle()
         else
         {
             sprintf(title,
-                    "%s (%d%%, Threads: %d)",
+                    "%s (Threads: %d)",
                     _s->name().c_str(),
-                    _raytracer.pcRendered(),
                     _raytracer.numThreads());
         }
     }
     else if (_renderType == RT_pt)
     {
         sprintf(title,
-                "%s (%d%%, Threads: %d)",
+                "%s (Threads: %d)",
                 _s->name().c_str(),
-                _pathtracer.pcRendered(),
                 _pathtracer.numThreads());
     }
     else
@@ -1713,12 +1711,15 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state() == rtReady)
     {
-        // Update transforms and aabbs
-        // @Todo: causes multithreading bug in RT
-        //s->root3D()->needUpdate();
+        if (_s->root3D())
+        {
+            // Update transforms and AABBs
+            // @Todo: causes multithreading bug in RT
+            //s->root3D()->needUpdate();
 
-        // Do software skinning on all changed skeletons
-        _s->root3D()->updateMeshAccelStructs();
+            // Do software skinning on all changed skeletons
+            _s->root3D()->updateMeshAccelStructs();
+        }
 
         // Start raytracing
         if (_raytracer.doDistributed())
@@ -1763,12 +1764,15 @@ SLbool SLSceneView::draw3DPT()
     // if the pathtracer not yet got started
     if (_pathtracer.state() == rtReady)
     {
-        // Update transforms and AABBs
-        // @Todo: causes multithreading bug in RT
-        //s->root3D()->needUpdate();
+        if (_s->root3D())
+        {
+            // Update transforms and AABBs
+            // @Todo: causes multithreading bug in RT
+            //s->root3D()->needUpdate();
 
-        // Do software skinning on all changed skeletons
-        _s->root3D()->updateMeshAccelStructs();
+            // Do software skinning on all changed skeletons
+            _s->root3D()->updateMeshAccelStructs();
+        }
 
         // Start raytracing
         _pathtracer.render(this);
