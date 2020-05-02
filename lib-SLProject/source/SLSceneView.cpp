@@ -1699,7 +1699,6 @@ void SLSceneView::startRaytracing(SLint maxDepth)
     _renderType = RT_rt;
     _stopRT     = false;
     _raytracer.maxDepth(maxDepth);
-    _raytracer.aaSamples(_doMultiSampling && _dpi < 200 ? 3 : 1);
 }
 //-----------------------------------------------------------------------------
 /*!

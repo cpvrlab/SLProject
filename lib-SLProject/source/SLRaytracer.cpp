@@ -27,11 +27,11 @@ SLRaytracer::SLRaytracer()
     _state            = rtReady;
     _doDistributed    = true;
     _doContinuous     = false;
-    _doFresnel        = false;
+    _doFresnel        = true;
     _maxDepth         = 5;
     _aaThreshold      = 0.3f; // = 10% color difference
     _aaSamples        = 3;
-    _resolutionFactor = 1.0f;
+    _resolutionFactor = 0.5f;
     gamma(1.0f);
 
     // set texture properties
@@ -154,7 +154,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         thread.join();
 
     // Do anti-aliasing w. contrast compare in a 2nd. pass
-    if (!_doContinuous && _aaSamples > 1)
+    if (_aaSamples > 1)
     {
         getAAPixels();           // Fills in the AA pixels by contrast
         vector<thread> threads2; // vector for additional threads
@@ -693,8 +693,12 @@ SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
             f = (stateGL->fogDistEnd - z) /
                 (stateGL->fogDistEnd - stateGL->fogDistStart);
             break;
-        case 1: f = exp(-stateGL->fogDensity * z); break;
-        default: f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z); break;
+        case 1:
+            f = exp(-stateGL->fogDensity * z);
+            break;
+        default:
+            f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z);
+            break;
     }
     color = f * color + (1 - f) * stateGL->fogColor;
     color.clampMinMax(0, 1);

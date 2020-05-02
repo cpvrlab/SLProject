@@ -110,7 +110,7 @@ float AverageTiming::doGetTime(const std::string& name)
 
 //-----------------------------------------------------------------------------
 //!get time for multiple blocks with given names
-float AverageTiming::doGetTime(const std::vector<std::string>& names)
+float AverageTiming::doGetTime(const std::vector<std::string>& names) const
 {
     AvgFloat val(_averageNumValues, 0.0f);
     for (const std::string& n : names)
@@ -136,12 +136,17 @@ void AverageTiming::doGetTimingMessage(char* m)
 
     //find reference time
     float refTime = 1.0f;
-    if (blocks.size())
+    if (!blocks.empty())
     {
         refTime = (*blocks.begin())->val.average();
         //insert number of measurement calls
         sprintf(m + strlen(m), "Num. calls: %i\n", (int)(*blocks.begin())->nCalls);
     }
+
+    // calculate longest blockname
+    int maxLen = 0;
+    for (auto* block : blocks)
+        if (block->name.length() > maxLen) maxLen = block->name.length();
 
     //insert time measurements
     for (auto* block : blocks)
@@ -149,10 +154,13 @@ void AverageTiming::doGetTimingMessage(char* m)
         float        val   = block->val.average();
         float        valPC = Utils::clamp(val / refTime * 100.0f, 0.0f, 100.0f);
         string       name  = block->name;
+
+        name.append(maxLen - name.length(), ' ');
+
         stringstream ss;
         //for (int i = 0; i < block->posH; ++i)
         //    ss << " ";
         ss << "%s: %4.1f ms (%3d%%)\n";
         sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
     }
-}
+}//-----------------------------------------------------------------------------

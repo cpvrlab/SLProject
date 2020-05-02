@@ -802,7 +802,9 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     return bMatch;
 }
 
-bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WAIFrame& frame)
+bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map,
+                                          WAIFrame& lastFrame,
+                                          WAIFrame& frame)
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
     //1. Berechnung des BoW-Vectors für den current frame
@@ -813,7 +815,7 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     //6. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
     //7. If there are more than 10 valid matches the reference frame tracking was successful.
 
-    AVERAGE_TIMING_START("trackReferenceKeyFrame");
+    AVERAGE_TIMING_START("TrackReferenceKeyFrame");
 
     // Compute Bag of Words vector
     frame.ComputeBoW();
@@ -827,7 +829,7 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
 
     if (nmatches < 15)
     {
-        AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
+        AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
         return false;
     }
 
@@ -854,11 +856,13 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     }
     */
 
-    AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
+    AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
     return nmatches >= 10; //nmatchesMap >= 10;
 }
 
-int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame)
+int WAISlamTools::trackLocalMapPoints(LocalMap& localMap,
+                                      int       lastRelocFrameId,
+                                      WAIFrame& frame)
 {
     // Do not search map points already matched
     for (vector<WAIMapPoint*>::iterator vit = frame.mvpMapPoints.begin(), vend = frame.mvpMapPoints.end(); vit != vend; vit++)
@@ -943,7 +947,8 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
     return matchesInliers;
 }
 
-void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
+void WAISlamTools::updateLocalMap(WAIFrame& frame,
+                                  LocalMap& localMap)
 {
     // Each map point vote for the keyframes in which it has been observed
     map<WAIKeyFrame*, int> keyframeCounter;
@@ -1066,9 +1071,11 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
     }
 }
 
-bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFrame, WAIFrame& frame)
+bool WAISlamTools::trackWithMotionModel(cv::Mat   velocity,
+                                        WAIFrame& previousFrame,
+                                        WAIFrame& frame)
 {
-    AVERAGE_TIMING_START("trackWithMotionModel");
+    AVERAGE_TIMING_START("TrackWithMotionModel");
 
     if (velocity.empty() || frame.mnId > previousFrame.mnId + 1)
         return false;
@@ -1080,7 +1087,8 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFram
     //WAIKeyFrame* pRef = previousFrame.mpReferenceKF;
     //previousFrame.SetPose(last.lastFrameRelativePose * pRef->GetPose());
 
-    //this adds the motion differnce between the last and the before-last frame to the pose of the last frame to estimate the position of the current frame
+    //this adds the motion difference between the last and the before-last frame to the pose of the last frame to estimate the position of the current frame
+
     frame.SetPose(velocity * previousFrame.mTcw);
 
     fill(frame.mvpMapPoints.begin(), frame.mvpMapPoints.end(), static_cast<WAIMapPoint*>(NULL));
@@ -1098,14 +1106,14 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFram
 
     if (nmatches < 20)
     {
-        AVERAGE_TIMING_STOP("trackWithMotionModel");
+        AVERAGE_TIMING_STOP("TrackWithMotionModel");
         return false;
     }
 
     // Optimize frame pose with all matches
     nmatches = Optimizer::PoseOptimization(&frame);
 
-    AVERAGE_TIMING_STOP("trackWithMotionModel");
+    AVERAGE_TIMING_STOP("TrackWithMotionModel");
 
     return nmatches >= 10;
 }

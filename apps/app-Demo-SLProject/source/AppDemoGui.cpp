@@ -32,6 +32,7 @@
 #include <SLTransferFunction.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
+#include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
 
@@ -103,6 +104,7 @@ SLbool   AppDemoGui::showCredits         = false;
 SLbool   AppDemoGui::showStatsTiming     = false;
 SLbool   AppDemoGui::showStatsScene      = false;
 SLbool   AppDemoGui::showStatsVideo      = false;
+SLbool   AppDemoGui::showStatsWAI        = false;
 SLbool   AppDemoGui::showImGuiMetrics    = false;
 SLbool   AppDemoGui::showInfosScene      = false;
 SLbool   AppDemoGui::showInfosSensors    = false;
@@ -606,9 +608,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
             sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
 
-            int distortionSize = c->distortion().rows;
-            sprintf(m + strlen(m), "distortion (*10e-2):\n");
-            const float f = 100.f;
+            int         distortionSize = c->distortion().rows;
+            const float f              = 100.f;
+            sprintf(m + strlen(m), "dist.(*10e-2):\n");
             sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
             sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
             if (distortionSize >= 8)
@@ -646,6 +648,26 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Video", &showStatsVideo, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
+            ImGui::End();
+            ImGui::PopFont();
+        }
+
+        if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
+        {
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+            ImGui::Begin("WAI Statistics", &showStatsWAI, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+            if (!AverageTiming::instance().empty())
+            {
+                SLchar m[2550]; // message character array
+                m[0] = 0;       // set zero length
+
+                AverageTiming::getTimingMessage(m);
+
+                //define ui elements
+                ImGui::TextUnformatted(m);
+            }
+
             ImGui::End();
             ImGui::PopFont();
         }
@@ -1704,37 +1726,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 SLRaytracer* rt = sv->raytracer();
 
-                if (ImGui::MenuItem("Parallel distributed", nullptr, rt->doDistributed()))
-                {
-                    rt->doDistributed(!rt->doDistributed());
-                    sv->startRaytracing(rt->maxDepth());
-                }
-
-                if (ImGui::MenuItem("Continuously", nullptr, rt->doContinuous()))
-                    rt->doContinuous(!rt->doContinuous());
-
-                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
-                {
-                    rt->doFresnel(!rt->doFresnel());
-                    sv->startRaytracing(rt->maxDepth());
-                }
-
-                if (ImGui::BeginMenu("Max. Depth"))
-                {
-                    if (ImGui::MenuItem("1", nullptr, rt->maxDepth() == 1))
-                        sv->startRaytracing(1);
-                    if (ImGui::MenuItem("2", nullptr, rt->maxDepth() == 2))
-                        sv->startRaytracing(2);
-                    if (ImGui::MenuItem("3", nullptr, rt->maxDepth() == 3))
-                        sv->startRaytracing(3);
-                    if (ImGui::MenuItem("5", nullptr, rt->maxDepth() == 5))
-                        sv->startRaytracing(5);
-                    if (ImGui::MenuItem("Max. Contribution", nullptr, rt->maxDepth() == 0))
-                        sv->startRaytracing(0);
-
-                    ImGui::EndMenu();
-                }
-
                 if (ImGui::BeginMenu("Resolution Factor"))
                 {
                     if (ImGui::MenuItem("1.00", nullptr, rt->resolutionFactorPC() == 100))
@@ -1756,18 +1747,39 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::MenuItem("Parallel distributed", nullptr, rt->doDistributed()))
+                {
+                    rt->doDistributed(!rt->doDistributed());
+                    sv->startRaytracing(rt->maxDepth());
+                }
+
+                if (ImGui::MenuItem("Continuously", nullptr, rt->doContinuous()))
+                    rt->doContinuous(!rt->doContinuous());
+
+                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
+                {
+                    rt->doFresnel(!rt->doFresnel());
+                    sv->startRaytracing(rt->maxDepth());
+                }
+
+                if (ImGui::BeginMenu("Max. Depth"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, rt->maxDepth() == 1)) sv->startRaytracing(1);
+                    if (ImGui::MenuItem("2", nullptr, rt->maxDepth() == 2)) sv->startRaytracing(2);
+                    if (ImGui::MenuItem("3", nullptr, rt->maxDepth() == 3)) sv->startRaytracing(3);
+                    if (ImGui::MenuItem("5", nullptr, rt->maxDepth() == 5)) sv->startRaytracing(5);
+                    if (ImGui::MenuItem("Max. Contribution", nullptr, rt->maxDepth() == 0)) sv->startRaytracing(0);
+
+                    ImGui::EndMenu();
+                }
+
                 if (ImGui::BeginMenu("Anti-Aliasing Samples"))
                 {
-                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
-                        rt->aaSamples(1);
-                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3))
-                        rt->aaSamples(3);
-                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5))
-                        rt->aaSamples(5);
-                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7))
-                        rt->aaSamples(7);
-                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9))
-                        rt->aaSamples(9);
+                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1)) rt->aaSamples(1);
+                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3)) rt->aaSamples(3);
+                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5)) rt->aaSamples(5);
+                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7)) rt->aaSamples(7);
+                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9)) rt->aaSamples(9);
 
                     ImGui::EndMenu();
                 }
@@ -1793,34 +1805,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 SLPathtracer* pt = sv->pathtracer();
 
-                if (ImGui::BeginMenu("NO. of Samples"))
-                {
-                    if (ImGui::MenuItem("1", nullptr, pt->aaSamples() == 1))
-                        sv->startPathtracing(5, 1);
-                    if (ImGui::MenuItem("10", nullptr, pt->aaSamples() == 10))
-                        sv->startPathtracing(5, 10);
-                    if (ImGui::MenuItem("100", nullptr, pt->aaSamples() == 100))
-                        sv->startPathtracing(5, 100);
-                    if (ImGui::MenuItem("1000", nullptr, pt->aaSamples() == 1000))
-                        sv->startPathtracing(5, 1000);
-                    if (ImGui::MenuItem("10000", nullptr, pt->aaSamples() == 10000))
-                        sv->startPathtracing(5, 10000);
-
-                    ImGui::EndMenu();
-                }
-
-                if (ImGui::MenuItem("Direct illumination", nullptr, pt->calcDirect()))
-                {
-                    pt->calcDirect(!pt->calcDirect());
-                    sv->startPathtracing(5, 10);
-                }
-
-                if (ImGui::MenuItem("Indirect illumination", nullptr, pt->calcIndirect()))
-                {
-                    pt->calcIndirect(!pt->calcIndirect());
-                    sv->startPathtracing(5, 10);
-                }
-
                 if (ImGui::BeginMenu("Resolution Factor"))
                 {
                     if (ImGui::MenuItem("1.00", nullptr, pt->resolutionFactorPC() == 100))
@@ -1840,6 +1824,29 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     }
 
                     ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("NO. of Samples"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, pt->aaSamples() == 1)) sv->startPathtracing(5, 1);
+                    if (ImGui::MenuItem("10", nullptr, pt->aaSamples() == 10)) sv->startPathtracing(5, 10);
+                    if (ImGui::MenuItem("100", nullptr, pt->aaSamples() == 100)) sv->startPathtracing(5, 100);
+                    if (ImGui::MenuItem("1000", nullptr, pt->aaSamples() == 1000)) sv->startPathtracing(5, 1000);
+                    if (ImGui::MenuItem("10000", nullptr, pt->aaSamples() == 10000)) sv->startPathtracing(5, 10000);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Direct illumination", nullptr, pt->calcDirect()))
+                {
+                    pt->calcDirect(!pt->calcDirect());
+                    sv->startPathtracing(5, 10);
+                }
+
+                if (ImGui::MenuItem("Indirect illumination", nullptr, pt->calcIndirect()))
+                {
+                    pt->calcIndirect(!pt->calcIndirect());
+                    sv->startPathtracing(5, 10);
                 }
 
                 if (ImGui::MenuItem("Save Rendered Image"))
@@ -2114,6 +2121,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+            if (SLApplication::sceneID == SID_VideoTrackWAI)
+                ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
             ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
@@ -2736,6 +2745,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
             fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
             fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
+            fs["showStatsWAI"] >> b;      AppDemoGui::showStatsWAI = b;
             fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosDevice = b;
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
@@ -2810,6 +2820,7 @@ void AppDemoGui::saveConfig()
     fs << "showStatsTiming" << AppDemoGui::showStatsTiming;
     fs << "showStatsMemory" << AppDemoGui::showStatsScene;
     fs << "showStatsVideo" << AppDemoGui::showStatsVideo;
+    fs << "showStatsWAI" << AppDemoGui::showStatsWAI;
     fs << "showInfosFrameworks" << AppDemoGui::showInfosDevice;
     fs << "showInfosScene" << AppDemoGui::showInfosScene;
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
