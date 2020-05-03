@@ -183,8 +183,11 @@ void AreaTrackingView::hold()
 
 void AreaTrackingView::startCamera()
 {
-    if (_camera && !_camera->started())
+    if (_camera)
     {
+        if (_camera->started())
+            _camera->stop();
+
         //start camera
         SENSCameraConfig config;
         config.targetWidth   = _cameraFrameTargetSize.width;
