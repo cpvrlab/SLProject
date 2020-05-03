@@ -2155,12 +2155,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 //! Builds the scenegraph dialog once per frame
 void AppDemoGui::buildSceneGraph(SLScene* s)
 {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Scenegraph", &showSceneGraph);
 
     if (s->root3D())
         addSceneGraphNode(s, s->root3D());
 
     ImGui::End();
+    ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
 //! Builds the node information once per frame
