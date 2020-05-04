@@ -28,12 +28,21 @@ class WAIMap;
 //!
 /*! 
 */
+
+#define TRACK_REF_FRAME 0
+#define FUSE_TARGET_KF 1
+#define FUSE_CANDIDATE_KF 2
+#define BA_LOCAL_KF 3
+#define BA_FIXED_KF 4
+#define BA_GLOBAL_KF 5
+#define LOOP_POINT_KF 6
+
 class WAI_API WAIMapPoint
 {
-    public:
+public:
     //!constructor used during map loading
-    WAIMapPoint(int id, const cv::Mat& Pos, WAIMap* pMap);
-    WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF, WAIMap* pMap);
+    WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp);
+    WAIMapPoint(const cv::Mat& Pos, WAIKeyFrame* pRefKF);
 
     //ghm1: getters for scene object position initialization
     WAI::V3 worldPosVec();
@@ -92,7 +101,9 @@ class WAI_API WAIMapPoint
     size_t getSizeOfCvMat(const cv::Mat& mat);
     size_t getSizeOf();
 
-    public:
+    bool isFixed() const { return _fixed; }
+
+public:
     long unsigned int mnId = -1;
     //ghm1: this keeps track of the highest used id, to never use the same id again
     static long unsigned int nNextId;
@@ -108,23 +119,27 @@ class WAI_API WAIMapPoint
     bool              mbTrackInView            = false;
     int               mnTrackScaleLevel        = 0;
     float             mTrackViewCos            = 0.0f;
-    long unsigned int mnTrackReferenceForFrame = 0;
+    //long unsigned int mnTrackReferenceForFrame = 0;
     long unsigned int mnLastFrameSeen          = 0;
 
     // Variables used by local mapping
-    long unsigned int mnBALocalForKF;
-    long unsigned int mnFuseCandidateForKF;
+    //long unsigned int mnBALocalForKF;
+    int mnMarker[7];
 
     // Variables used by loop closing
-    long unsigned int mnLoopPointForKF;
+    //long unsigned int mnLoopPointForKF;
     long unsigned int mnCorrectedByKF;
     long unsigned int mnCorrectedReference;
     cv::Mat           mPosGBA;
-    long unsigned int mnBAGlobalForKF;
+    //long unsigned int mnBAGlobalForKF;
 
     static std::mutex mGlobalMutex;
+    static std::mutex mMutexMapPointCreation;
 
-    protected:
+protected:
+    //flags if fixed, then
+    bool _fixed = false;
+
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
     cv::Mat mWorldPos;
@@ -152,8 +167,6 @@ class WAI_API WAIMapPoint
     // Scale invariance distances
     float mfMinDistance = 0.f;
     float mfMaxDistance = 0.f;
-
-    WAIMap* mpMap = NULL;
 
     std::mutex mMutexPos;
     std::mutex mMutexFeatures;

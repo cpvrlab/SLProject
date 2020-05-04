@@ -1,73 +1,103 @@
 #include <AppDemoGuiVideoControls.h>
-#include <AppWAI.h>
-#include <CVCapture.h>
+#include <WAIEvent.h>
+#include <SENSVideoStream.h>
 
-AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string& name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiVideoControls::AppDemoGuiVideoControls(const std::string&                    name,
+                                                 bool*                                 activator,
+                                                 std ::queue<WAIEvent*>*               eventQueue,
+                                                 ImFont*                               font,
+                                                 std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
+  : AppDemoGuiInfosDialog(name, activator, font),
+    _eventQueue(eventQueue),
+    _pauseVideo(false),
+    _getVideoFileStream(getVideoFileStreamCB)
 {
 }
 
 void AppDemoGuiVideoControls::buildInfos(SLScene* s, SLSceneView* sv)
 {
+    ImGui::PushFont(_font);
     ImGui::Begin("Video controls", _activator, 0);
+    const SENSVideoStream* vs = _getVideoFileStream();
+    if (vs)
+    {
 
-    std::string videoFilename = Utils::getFileName(CVCapture::instance()->videoFilename);
-    ImGui::Text("Current video file: %s", videoFilename.c_str());
-    ImGui::Text("Current frame: %d", CVCapture::instance()->nextFrameIndex() - 1);
-    ImGui::Text("Number of frames: %d", CVCapture::instance()->frameCount);
-    ImGui::Text("Frames per second: %d", CVCapture::instance()->fps);
+        std::string videoFilename = Utils::getFileName(vs->videoFilename());
+        ImGui::Text("Current video file: %s", videoFilename.c_str());
+        ImGui::Text("Current frame: %d", vs->nextFrameIndex() - 1);
+        ImGui::Text("Number of frames: %d", vs->frameCount());
+        ImGui::Text("Frames per second: %f", vs->fps());
 
-    ImGui::Separator();
+        ImGui::Separator();
 
-    if (ImGui::Button((WAIApp::pauseVideo ? "Play" : "Pause"),
-                      ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        WAIApp::pauseVideo = !WAIApp::pauseVideo;
-    }
+        bool eventOccured         = false;
+        int  videoCursorMoveIndex = 0;
 
-    ImGui::Text("Frame control");
-    if (ImGui::Button("<", ImVec2(0, 0)))
-    {
-        WAIApp::videoCursorMoveIndex = -1;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("<<", ImVec2(0, 0)))
-    {
-        WAIApp::videoCursorMoveIndex = -10;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("<<<", ImVec2(0, 0)))
-    {
-        WAIApp::videoCursorMoveIndex = -100;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(">>>", ImVec2(0, 0)))
-    {
-        WAIApp::videoCursorMoveIndex = 100;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(">>", ImVec2(0, 0)))
-    {
-        WAIApp::videoCursorMoveIndex = 10;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(">", ImVec2(0, 0)))
-    {
-        WAIApp::videoCursorMoveIndex = 1;
-    }
-
-#if 0
-    if (ImGui::Button("Save current frame with candidates", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        if (WAIApp::mode != nullptr && WAIApp::mode->retainImage())
+        if (ImGui::Button((_pauseVideo ? "Play" : "Pause"),
+                          ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
         {
-            WAIFrame     frame = WAIApp::mode->getCurrentFrame();
-            WAIKeyFrame* ref   = frame.mpReferenceKF;
+            _pauseVideo = !_pauseVideo;
 
-            // TODO(dgj1): Save image from frame and its reference keyframe
+            eventOccured = true;
+        }
+
+        ImGui::Text("Frame control");
+        if (ImGui::Button("<", ImVec2(0, 0)))
+        {
+            videoCursorMoveIndex += -1;
+
+            eventOccured = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("<<", ImVec2(0, 0)))
+        {
+            videoCursorMoveIndex += -10;
+
+            eventOccured = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("<<<", ImVec2(0, 0)))
+        {
+            videoCursorMoveIndex += -100;
+
+            eventOccured = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(">>>", ImVec2(0, 0)))
+        {
+            videoCursorMoveIndex += 100;
+
+            eventOccured = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(">>", ImVec2(0, 0)))
+        {
+            videoCursorMoveIndex += 10;
+
+            eventOccured = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(">", ImVec2(0, 0)))
+        {
+            videoCursorMoveIndex += 1;
+
+            eventOccured = true;
+        }
+
+        if (eventOccured)
+        {
+            WAIEventVideoControl* event = new WAIEventVideoControl();
+            event->videoCursorMoveIndex = videoCursorMoveIndex;
+            event->pauseVideo           = _pauseVideo;
+
+            _eventQueue->push(event);
         }
     }
-#endif
+    else
+    {
+        ImGui::Text("No video running");
+    }
 
     ImGui::End();
+    ImGui::PopFont();
 }

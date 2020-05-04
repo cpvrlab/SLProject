@@ -12,24 +12,17 @@
 #define SLSCENE_H
 
 #include <SL.h>
-#include <SLAnimManager.h>
-#include <Averaged.h>
-#include <SLEventHandler.h>
-#include <SLGLOculus.h>
-#include <SLLight.h>
-#include <SLMaterial.h>
-#include <SLMesh.h>
-#include <SLRect.h>
-#include <SLVec3.h>
-#include <SLVec4.h>
 #include <utility>
 #include <vector>
+#include <map>
+#include <SLAnimManager.h>
+#include <Averaged.h>
+#include <SLGLOculus.h>
+#include <SLLight.h>
+#include <SLMesh.h>
 
-class SLSceneView;
 class SLCamera;
 
-//-----------------------------------------------------------------------------
-typedef vector<SLSceneView*> SLVSceneView; //!< Vector of SceneView pointers
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
@@ -44,7 +37,6 @@ typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint scene
  get deleted in the method unInit.\n
  A scene could have multiple scene views. A pointer of each is stored in the
  vector _sceneViews.\n
- A single instance of this SLScene class is holded by the SLApplication.
  The scene assembly takes place outside of the library in function of the application.
  A pointer for this function must be passed to the SLScene constructor. For the
  demo project this function is in AppDemoSceneLoad.cpp.
@@ -53,10 +45,10 @@ class SLScene : public SLObject
 {
     friend class SLNode;
 
-    public:
-    SLScene(SLstring      name,
+public:
+    SLScene(const SLstring&      name,
             cbOnSceneLoad onSceneLoadCallback);
-    ~SLScene() final;
+    ~SLScene() override;
 
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
@@ -67,60 +59,39 @@ class SLScene : public SLObject
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
-    SLSceneView*     sceneView(SLuint index) { return _sceneViews[index]; }
-    SLVSceneView&    sceneViews() { return _sceneViews; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
-    SLfloat          elapsedTimeMS() { return _frameTimeMS; }
-    SLfloat          elapsedTimeSec() { return _frameTimeMS * 0.001f; }
+    SLfloat          elapsedTimeMS() const { return _frameTimeMS; }
+    SLfloat          elapsedTimeSec() const { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
 
-    SLCol4f       globalAmbiLight() const { return _globalAmbiLight; }
-    SLVLight&     lights() { return _lights; }
-    SLfloat       fps() { return _fps; }
-    AvgFloat&     frameTimesMS() { return _frameTimesMS; }
-    AvgFloat&     updateTimesMS() { return _updateTimesMS; }
-    AvgFloat&     updateAnimTimesMS() { return _updateAnimTimesMS; }
-    AvgFloat&     updateAABBTimesMS() { return _updateAABBTimesMS; }
-    AvgFloat&     cullTimesMS() { return _cullTimesMS; }
-    AvgFloat&     draw2DTimesMS() { return _draw2DTimesMS; }
-    AvgFloat&     draw3DTimesMS() { return _draw3DTimesMS; }
-    SLVMaterial&  materials() { return _materials; }
-    SLVMesh&      meshes() { return _meshes; }
-    SLVGLTexture& textures() { return _textures; }
-    SLVGLProgram& programs() { return _programs; }
-    SLGLProgram*  programs(SLShaderProg i) { return _programs[i]; }
-    SLNode*       selectedNode() { return _selectedNode; }
-    SLMesh*       selectedMesh() { return _selectedMesh; }
-    SLRectf&      selectedRect() { return _selectedRect; }
-    SLbool        stopAnimations() const { return _stopAnimations; }
-    SLGLOculus*   oculus() { return &_oculus; }
-    SLint         numSceneCameras();
-    SLCamera*     nextCameraInScene(SLSceneView* activeSV);
+    SLCol4f   globalAmbiLight() const { return _globalAmbiLight; }
+    SLVLight& lights() { return _lights; }
+    SLfloat   fps() const { return _fps; }
+    AvgFloat& frameTimesMS() { return _frameTimesMS; }
+    AvgFloat& updateTimesMS() { return _updateTimesMS; }
+    AvgFloat& updateAnimTimesMS() { return _updateAnimTimesMS; }
+    AvgFloat& updateAABBTimesMS() { return _updateAABBTimesMS; }
+
+    SLNode*   selectedNode() { return _selectedNode; }
+    SLMesh*   selectedMesh() { return _selectedMesh; }
+    SLbool    stopAnimations() const { return _stopAnimations; }
+    SLint     numSceneCameras();
+    SLCamera* nextCameraInScene(SLCamera* activeSVCam);
 
     cbOnSceneLoad onLoad; //!< C-Callback for scene load
 
     // Misc.
-    virtual void onLoadAsset(const SLstring& assetFile,
-                             SLuint          processFlags);
-    bool         onUpdate();
+    bool         onUpdate(bool renderTypeIsRT,
+                          bool voxelsAreShown);
     void         init();
-    void         unInit();
+    virtual void unInit();
     void         selectNode(SLNode* nodeToSelect);
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
-    bool         removeMesh(SLMesh* mesh);
-    bool         deleteTexture(SLGLTexture* texture);
-    unsigned int  maxTreeDepth();
+    SLGLOculus* oculus() { return &_oculus; }
 
-    protected:
-    static unsigned int _maxTreeDepth(SLNode* node);
-
-    SLVSceneView    _sceneViews;    //!< Vector of all sceneview pointers
-    SLVMesh         _meshes;        //!< Vector of all meshes
-    SLVMaterial     _materials;     //!< Vector of all materials pointers
-    SLVGLTexture    _textures;      //!< Vector of all texture pointers
-    SLVGLProgram    _programs;      //!< Vector of all shader program pointers
+protected:
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
     SLAnimManager   _animManager;   //!< Animation manager instance
@@ -130,11 +101,9 @@ class SLScene : public SLObject
     SLstring _info;         //!< scene info string
     SLNode*  _selectedNode; //!< Pointer to the selected node
     SLMesh*  _selectedMesh; //!< Pointer to the selected mesh
-    SLRectf  _selectedRect; //!< Mouse selection rectangle
 
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
     SLbool  _rootInitialized; //!< Flag if scene is initialized
-    SLint   _numProgsPreload; //!< No. of preloaded shaderProgs
 
     SLfloat _frameTimeMS;      //!< Last frame time in ms
     SLfloat _lastUpdateTimeMS; //!< Last time after update in ms
@@ -143,9 +112,6 @@ class SLScene : public SLObject
     // major part times
     AvgFloat _frameTimesMS;      //!< Averaged total time per frame in ms
     AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
-    AvgFloat _cullTimesMS;       //!< Averaged time for culling in ms
-    AvgFloat _draw3DTimesMS;     //!< Averaged time for 3D drawing in ms
-    AvgFloat _draw2DTimesMS;     //!< Averaged time for 2D drawing in ms
     AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
     AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
 
@@ -153,5 +119,5 @@ class SLScene : public SLObject
 
     SLGLOculus _oculus; //!< Oculus Rift interface
 };
-//-----------------------------------------------------------------------------
+
 #endif

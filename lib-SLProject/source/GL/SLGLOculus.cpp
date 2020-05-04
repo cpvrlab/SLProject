@@ -11,14 +11,10 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
+#include <SLGLState.h>
 #include <SLGLOVRWorkaround.h>
 #include <SLGLOculus.h>
 #include <SLGLProgram.h>
-#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
@@ -39,6 +35,12 @@ SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
 SLGLOculus::~SLGLOculus()
 {
     dispose();
+
+    if (_stereoOculusDistProgram)
+    {
+        delete _stereoOculusDistProgram;
+        _stereoOculusDistProgram = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------
 /*! Deletes the buffer object
@@ -51,7 +53,8 @@ void SLGLOculus::dispose()
 */
 void SLGLOculus::init()
 {
-    _resolutionScale = 1.25f;
+    _stereoOculusDistProgram = new SLGLGenericProgram(nullptr, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+    _resolutionScale         = 1.25f;
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);
 
@@ -66,15 +69,16 @@ void SLGLOculus::init()
         _projection[i].translate(-_viewAdjust[i]);
     }
 
-    createSLDistortionMesh(ET_left, _distortionMeshVAO[0]);
-    createSLDistortionMesh(ET_right, _distortionMeshVAO[1]);
+    createSLDistortionMesh(_stereoOculusDistProgram, ET_left, _distortionMeshVAO[0]);
+    createSLDistortionMesh(_stereoOculusDistProgram, ET_right, _distortionMeshVAO[1]);
 }
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
 */
 void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f background)
 {
-    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculusDistortion);
+    assert(_stereoOculusDistProgram && "SLGLOculus::renderDistortion: shader program not set");
+    SLGLProgram* sp = _stereoOculusDistProgram;
 
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -85,7 +89,8 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    sp->beginUse();
+    //todo: this does not work anymore
+    sp->beginUse(nullptr, SLCol4f());
 
     for (int eye = 0; eye < 2; eye++)
     {

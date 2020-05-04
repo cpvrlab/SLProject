@@ -10,11 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
 #include <SLBackground.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
@@ -22,7 +17,8 @@
 
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
-SLBackground::SLBackground() : SLObject("Background")
+SLBackground::SLBackground()
+  : SLObject("Background")
 {
     _colors.push_back(SLCol4f::BLACK); // bottom left
     _colors.push_back(SLCol4f::BLACK); // bottom right
@@ -33,6 +29,42 @@ SLBackground::SLBackground() : SLObject("Background")
     _textureError = nullptr;
     _resX         = -1;
     _resY         = -1;
+
+    _textureOnlyProgram    = new SLGLGenericProgram(nullptr,
+                                                 "TextureOnly.vert",
+                                                 "TextureOnly.frag");
+    _colorAttributeProgram = new SLGLGenericProgram(nullptr,
+                                                    "ColorAttribute.vert",
+                                                    "Color.frag");
+    _deletePrograms        = true;
+}
+//-----------------------------------------------------------------------------
+//! The constructor initializes to a uniform black background color
+SLBackground::SLBackground(SLGLProgram* textureOnlyProgram,
+                           SLGLProgram* colorAttributeProgram)
+  : SLObject("Background"),
+    _textureOnlyProgram(textureOnlyProgram),
+    _colorAttributeProgram(colorAttributeProgram),
+    _deletePrograms(false)
+{
+    _colors.push_back(SLCol4f::BLACK); // bottom left
+    _colors.push_back(SLCol4f::BLACK); // bottom right
+    _colors.push_back(SLCol4f::BLACK); // top right
+    _colors.push_back(SLCol4f::BLACK); // top left
+    _isUniform    = true;
+    _texture      = nullptr;
+    _textureError = nullptr;
+    _resX         = -1;
+    _resY         = -1;
+}
+//-----------------------------------------------------------------------------
+SLBackground::~SLBackground()
+{
+    if (_deletePrograms)
+    {
+        delete _textureOnlyProgram;
+        delete _colorAttributeProgram;
+    }
 }
 //-----------------------------------------------------------------------------
 //! Sets a uniform background color
@@ -110,7 +142,6 @@ We render the quad as a triangle strip: <br>
 void SLBackground::render(SLint widthPX, SLint heightPX)
 {
     SLGLState* stateGL = SLGLState::instance();
-    SLScene*   s       = SLApplication::scene;
 
     // Set orthographic projection
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
@@ -123,13 +154,13 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     stateGL->multiSample(false);
 
     // Get shader program
-    SLGLProgram* sp = _texture ? s->programs(SP_TextureOnly) : s->programs(SP_colorAttribute);
+    SLGLProgram* sp = _texture ? _textureOnlyProgram : _colorAttributeProgram;
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
 
     // Create or update buffer for vertex position and indices
-    if (!_vao.id() || _resX != widthPX || _resY != heightPX)
+    if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)
     {
         _resX = widthPX;
         _resY = heightPX;
@@ -188,18 +219,17 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
        +-----+
      LB       RB
 */
-void SLBackground::renderInScene(SLVec3f LT,
-                                 SLVec3f LB,
-                                 SLVec3f RT,
-                                 SLVec3f RB)
+void SLBackground::renderInScene(const SLVec3f& LT,
+                                 const SLVec3f& LB,
+                                 const SLVec3f& RT,
+                                 const SLVec3f& RB)
 {
     SLGLState* stateGL = SLGLState::instance();
-    SLScene*   s       = SLApplication::scene;
 
     // Get shader program
     SLGLProgram* sp = _texture
-                        ? s->programs(SP_TextureOnly)
-                        : s->programs(SP_colorAttribute);
+                        ? _textureOnlyProgram
+                        : _colorAttributeProgram;
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
@@ -242,10 +272,12 @@ void SLBackground::renderInScene(SLVec3f LT,
     ///////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
-//! Returns the interpolated color at the pixel position p[x,y]
+//! Returns the interpolated color at the pixel position p[x,y] used in raytracing.
 /*! Returns the interpolated color at the pixel position p[x,y] for ray tracing.
-    x is expected to be between 0 and window width.
-    y is expected to be between 0 and window height.
+    x is expected to be between 0 and width of the RT-frame.
+    y is expected to be between 0 and height of the RT-frame.
+    width is the width of the RT-frame
+    height is the height of the RT-frame
 
      C    w    B
        +-----+
@@ -257,24 +289,27 @@ void SLBackground::renderInScene(SLVec3f LT,
      0 +-----+
      A 0
 */
-SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
+SLCol4f SLBackground::colorAtPos(SLfloat x,
+                                 SLfloat y,
+                                 SLfloat width,
+                                 SLfloat height)
 {
     if (_isUniform)
         return _colors[0];
 
     if (_texture)
-        return _texture->getTexelf(x / _resX, y / _resY);
+        return _texture->getTexelf(x / width, y / height);
 
     // top-down gradient
     if (_colors[0] == _colors[2] && _colors[1] == _colors[3])
     {
-        SLfloat f = y / _resY;
+        SLfloat f = y / height;
         return f * _colors[0] + (1 - f) * _colors[1];
     }
     // left-right gradient
     if (_colors[0] == _colors[1] && _colors[2] == _colors[3])
     {
-        SLfloat f = x / _resX;
+        SLfloat f = x / width;
         return f * _colors[0] + (1 - f) * _colors[2];
     }
 
@@ -282,8 +317,8 @@ SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
     // First check with barycentric coords if p is in the upper left triangle
     SLVec2f p(x, y);
     SLVec3f bc(p.barycentricCoords(SLVec2f(0, 0),
-                                   SLVec2f((SLfloat)_resX, (SLfloat)_resY),
-                                   SLVec2f(0, (SLfloat)_resY)));
+                                   SLVec2f(width, height),
+                                   SLVec2f(0, height)));
     SLfloat u = bc.x;
     SLfloat v = bc.y;
     SLfloat w = 1 - bc.x - bc.y;

@@ -16,8 +16,8 @@
 #include "SLOptixDefinitions.h"
 #include "SLOptixHelper.h"
 
-class SLSceneView;
 class SLRay;
+class SLNode;
 
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
@@ -27,26 +27,26 @@ also derive from SLNode and can therefore be freely placed in space.
 */
 class SLLight
 {
-    public:
-    SLLight(SLfloat ambiPower = 0.1f,
-            SLfloat diffPower = 1.0f,
-            SLfloat specPower = 1.0f,
-            SLint   id        = -1);
-    virtual ~SLLight() {}
+public:
+    explicit SLLight(SLfloat ambiPower = 0.1f,
+                     SLfloat diffPower = 1.0f,
+                     SLfloat specPower = 1.0f,
+                     SLint   id        = -1);
+    virtual ~SLLight() = default;
 
     virtual void setState() = 0;
 
     // Setters
     void id(const SLint id) { _id = id; }
     void isOn(const SLbool on) { _isOn = on; }
-    void ambient(const SLCol4f ambi) { _ambient = ambi; }
-    void diffuse(const SLCol4f diff) { _diffuse = diff; }
-    void specular(const SLCol4f spec) { _specular = spec; }
+    void ambient(const SLCol4f& ambi) { _ambient = ambi; }
+    void diffuse(const SLCol4f& diff) { _diffuse = diff; }
+    void specular(const SLCol4f& spec) { _specular = spec; }
     void spotExponent(const SLfloat exp) { _spotExponent = exp; }
-    void spotCutOffDEG(const SLfloat cutOffAngleDEG);
-    void kc(const SLfloat kc);
-    void kl(const SLfloat kl);
-    void kq(const SLfloat kq);
+    void spotCutOffDEG(SLfloat cutOffAngleDEG);
+    void kc(SLfloat kc);
+    void kl(SLfloat kl);
+    void kq(SLfloat kq);
     void attenuation(const SLfloat kC,
                      const SLfloat kL,
                      const SLfloat kQ)
@@ -57,19 +57,19 @@ class SLLight
     }
 
     // Getters
-    SLint   id() { return _id; }
-    SLbool  isOn() { return _isOn; }
+    SLint   id() const { return _id; }
+    SLbool  isOn() const { return _isOn; }
     SLCol4f ambient() { return _ambient; }
     SLCol4f diffuse() { return _diffuse; }
     SLCol4f specular() { return _specular; }
-    SLfloat spotCutOffDEG() { return _spotCutOffDEG; }
-    SLfloat spotCosCut() { return _spotCosCutOffRAD; }
-    SLfloat spotExponent() { return _spotExponent; }
-    SLfloat kc() { return _kc; }
-    SLfloat kl() { return _kl; }
-    SLfloat kq() { return _kq; }
-    SLbool  isAttenuated() { return _isAttenuated; }
-    SLfloat attenuation(SLfloat dist) { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+    SLfloat spotCutOffDEG() const { return _spotCutOffDEG; }
+    SLfloat spotCosCut() const { return _spotCosCutOffRAD; }
+    SLfloat spotExponent() const { return _spotExponent; }
+    SLfloat kc() const { return _kc; }
+    SLfloat kl() const { return _kl; }
+    SLfloat kq() const { return _kq; }
+    SLbool  isAttenuated() const { return _isAttenuated; }
+    SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
 
 #ifdef SL_HAS_OPTIX
     virtual Light optixLight(bool)
@@ -92,16 +92,17 @@ class SLLight
 #endif
 
     // some virtuals needed for ray tracing
-    virtual SLVec4f positionWS()                          = 0;
-    virtual SLVec3f spotDirWS()                           = 0;
+    virtual SLVec4f positionWS() const           = 0;
+    virtual SLVec3f spotDirWS()                  = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
-                               const SLfloat  lightDist)   = 0;
+                               SLfloat        lightDist,
+                               SLNode*        root3D)   = 0;
     virtual SLfloat shadowTestMC(SLRay*         ray,
                                  const SLVec3f& L,
-                                 const SLfloat  lightDist) = 0;
-
-    protected:
+                                 SLfloat        lightDist,
+                                 SLNode*        root3D) = 0;
+protected:
     SLint   _id;               //!< OpenGL light number (0-7)
     SLbool  _isOn;             //!< Flag if light is on or off
     SLCol4f _ambient;          //!< Ambient light intensity Ia

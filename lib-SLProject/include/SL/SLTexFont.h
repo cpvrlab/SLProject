@@ -14,6 +14,8 @@
 
 #include <SLGLTexture.h>
 
+class SLGLProgram;
+
 //-----------------------------------------------------------------------------
 //! Texture Font class inherits SLGLTexture for alpha blended font rendering.
 /*!
@@ -38,20 +40,21 @@ file SLTexFont.cpp.
 */
 class SLTexFont : public SLGLTexture
 {
-    public:
-    SLTexFont(SLstring fontFilename);
-    ~SLTexFont() { ; }
+public:
+    SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram);
+    ~SLTexFont();
 
-    void      create(SLstring fontFilename);
-    SLVec2f   calcTextSize(SLstring text,
-                           SLfloat  maxWidth         = 0.0f,
-                           SLfloat  lineHeightFactor = 1.5f);
-    SLVstring wrapTextToLines(SLstring text,
-                              SLfloat  maxW);
-    void      buildTextBuffers(SLGLVertexArray& vao,
-                               SLstring         text,
-                               SLfloat          maxWidth   = 0.0f,
-                               SLfloat          lineHeight = 1.5f);
+    void         create(SLstring fontFilename);
+    SLVec2f      calcTextSize(const SLstring& text,
+                              SLfloat         maxWidth         = 0.0f,
+                              SLfloat         lineHeightFactor = 1.5f);
+    SLVstring    wrapTextToLines(SLstring text,
+                                 SLfloat  maxW);
+    void         buildTextBuffers(SLGLVertexArray& vao,
+                                  const SLstring&  text,
+                                  SLfloat          maxWidth   = 0.0f,
+                                  SLfloat          lineHeight = 1.5f);
+    SLGLProgram* fontTexProgram() { return _fontTexProgram; }
 
     //! Single Character info struct w. min. and max. texcoords.
     typedef struct
@@ -66,22 +69,8 @@ class SLTexFont : public SLGLTexture
     SLTexFontChar chars[256];  //<! array of character info structs
     SLint         charsHeight; //<! height of characters
 
-    // Static method & font pointers
-    static void       generateFonts();
-    static void       deleteFonts();
-    static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
-
-    static SLTexFont* font07;
-    static SLTexFont* font08;
-    static SLTexFont* font09;
-    static SLTexFont* font10;
-    static SLTexFont* font12;
-    static SLTexFont* font14;
-    static SLTexFont* font16;
-    static SLTexFont* font18;
-    static SLTexFont* font20;
-    static SLTexFont* font22;
-    static SLTexFont* font24;
+    SLGLProgram* _fontTexProgram = nullptr;
+    bool         _deleteProgram  = false;
 };
 //-----------------------------------------------------------------------------
 #endif

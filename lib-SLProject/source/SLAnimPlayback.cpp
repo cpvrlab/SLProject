@@ -10,9 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
 #include <SLAnimPlayback.h>
 #include <SLAnimation.h>
 
@@ -25,7 +22,7 @@ SLAnimPlayback::SLAnimPlayback(SLAnimation* parent, SLfloat weight)
     _weight(weight),
     _playbackRate(1.0f),
     _playbackDir(1),
-    _enabled(false),
+    _enabled(true),
     _easing(EC_linear),
     _linearLocalTime(0.0f),
     _loopingBehaviour(AL_loop)
@@ -45,7 +42,7 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
     // preserve time before update
     SLfloat prevTime = _linearLocalTime;
 
-    _linearLocalTime += delta * _playbackRate * _playbackDir;
+    _linearLocalTime += delta * _playbackRate * (SLfloat)_playbackDir;
 
     // fix invalid inputs
     if (_linearLocalTime > _animation->lengthSec())
@@ -57,11 +54,10 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
                 _linearLocalTime = _animation->lengthSec();
                 _enabled         = false;
                 break;
-            case AL_loop: _linearLocalTime = 0.0f; break;
-            case AL_pingPong:
-                _linearLocalTime = _animation->lengthSec();
-                _playbackDir *= -1;
+            case AL_loop:
+                _linearLocalTime = 0.0f;
                 break;
+            case AL_pingPong:
             case AL_pingPongLoop:
                 _linearLocalTime = _animation->lengthSec();
                 _playbackDir *= -1;

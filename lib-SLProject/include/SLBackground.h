@@ -15,7 +15,7 @@
 #include <SLObject.h>
 
 class SLGLTexture;
-
+class SLGLProgram;
 //-----------------------------------------------------------------------------
 //! Defines a 2D-Background for the OpenGL framebuffer background.
 /*! The background can either be defined with a texture or with 4 colors for
@@ -27,12 +27,14 @@ camera or in SLCamera::drawMeshes for inactive ones.
 */
 class SLBackground : public SLObject
 {
-    public:
+public:
     SLBackground();
+    SLBackground(SLGLProgram* textureOnlyProgram, SLGLProgram* colorAttributeProgram);
+    ~SLBackground();
 
     void    render(SLint widthPX, SLint heightPX);
-    void    renderInScene(SLVec3f LT, SLVec3f LB, SLVec3f RT, SLVec3f RB);
-    SLCol4f colorAtPos(SLfloat x, SLfloat y);
+    void    renderInScene(const SLVec3f& LT, const SLVec3f& LB, const SLVec3f& RT, const SLVec3f& RB);
+    SLCol4f colorAtPos(SLfloat x, SLfloat y, SLfloat width, SLfloat height);
     void    rebuild() { _vao.clearAttribs(); }
 
     // Setters
@@ -46,10 +48,10 @@ class SLBackground : public SLObject
 
     // Getters
     SLVCol4f     colors() { return _colors; }
-    SLbool       isUniform() { return _isUniform; }
+    SLbool       isUniform() const { return _isUniform; }
     SLGLTexture* texture() { return _texture; }
 
-    private:
+private:
     SLbool          _isUniform;    //!< Flag if background has uniform color
     SLVCol4f        _colors;       //!< Vector of 4 corner colors {TL,BL,TR,BR}
     SLGLTexture*    _texture;      //!< Pointer to a background texture
@@ -57,6 +59,10 @@ class SLBackground : public SLObject
     SLint           _resX;         //!< Background resolution in x-dir.
     SLint           _resY;         //!< Background resolution in y-dir.
     SLGLVertexArray _vao;          //!< OpenGL Vertex Array Object for drawing
+
+    SLGLProgram* _textureOnlyProgram    = nullptr;
+    SLGLProgram* _colorAttributeProgram = nullptr;
+    bool         _deletePrograms        = false;
 };
 //-----------------------------------------------------------------------------
 #endif

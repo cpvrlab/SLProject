@@ -10,17 +10,14 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLCoordAxis.h>
 
 //-----------------------------------------------------------------------------
 //! SLAxis::SLAxis ctor with the arrow dimensions
-SLCoordAxis::SLCoordAxis(SLfloat arrowThickness,
-                         SLfloat arrowHeadLenght,
-                         SLfloat arrowHeadWidth) : SLMesh("Coord-Axis Mesh")
+SLCoordAxis::SLCoordAxis(SLAssetManager* assetMgr,
+                         SLfloat         arrowThickness,
+                         SLfloat         arrowHeadLenght,
+                         SLfloat         arrowHeadWidth) : SLMesh(assetMgr, "Coord-Axis Mesh")
 {
     _arrowThickness  = arrowThickness;
     _arrowHeadLength = arrowHeadLenght;
@@ -61,25 +58,29 @@ void SLCoordAxis::buildMesh()
     P.push_back(SLVec3f(1-h, t, t)); C.push_back(r); v2=i; i++;
     P.push_back(SLVec3f(1-h, t,-t)); C.push_back(r); v3=i; i++;
     P.push_back(SLVec3f(  t, t,-t)); C.push_back(r); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f(  t,-t, t)); C.push_back(r); v1=i; i++;
     P.push_back(SLVec3f(1-h,-t, t)); C.push_back(r); v2=i; i++;
     P.push_back(SLVec3f(1-h, t, t)); C.push_back(r); v3=i; i++;
     P.push_back(SLVec3f(  t, t, t)); C.push_back(r); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f(  t,-t,-t)); C.push_back(r); v1=i; i++;
     P.push_back(SLVec3f(1-h,-t,-t)); C.push_back(r); v2=i; i++;
     P.push_back(SLVec3f(1-h,-t, t)); C.push_back(r); v3=i; i++;
     P.push_back(SLVec3f(  t,-t, t)); C.push_back(r); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f(  t, t,-t)); C.push_back(r); v1=i; i++;
     P.push_back(SLVec3f(1-h, t,-t)); C.push_back(r); v2=i; i++;
     P.push_back(SLVec3f(1-h,-t,-t)); C.push_back(r); v3=i; i++;
     P.push_back(SLVec3f(  t,-t,-t)); C.push_back(r); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f(1-h, w, w)); C.push_back(r); v1=i; i++;
     P.push_back(SLVec3f(  1, 0, 0)); C.push_back(r); v2=i; i++;
@@ -101,39 +102,44 @@ void SLCoordAxis::buildMesh()
     P.push_back(SLVec3f(1-h, w,-w)); C.push_back(r); v2=i; i++;
     P.push_back(SLVec3f(1-h,-w,-w)); C.push_back(r); v3=i; i++;
     P.push_back(SLVec3f(1-h,-w, w)); C.push_back(r); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f( -t, t, t)); C.push_back(r); v1=i; i++;
     P.push_back(SLVec3f( -t, t,-t)); C.push_back(r); v2=i; i++;
     P.push_back(SLVec3f( -t,-t,-t)); C.push_back(r); v3=i; i++;
     P.push_back(SLVec3f( -t,-t, t)); C.push_back(r); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
-
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     // arrow towards +y
     P.push_back(SLVec3f( t,  t, t)); C.push_back(g); v1=i; i++;
     P.push_back(SLVec3f( t,1-h, t)); C.push_back(g); v2=i; i++;
     P.push_back(SLVec3f( t,1-h,-t)); C.push_back(g); v3=i; i++;
     P.push_back(SLVec3f( t,  t,-t)); C.push_back(g); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2); I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2);
+    I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
 
     P.push_back(SLVec3f(-t,  t, t)); C.push_back(g); v1=i; i++;
     P.push_back(SLVec3f(-t,1-h, t)); C.push_back(g); v2=i; i++;
     P.push_back(SLVec3f( t,1-h, t)); C.push_back(g); v3=i; i++;
     P.push_back(SLVec3f( t,  t, t)); C.push_back(g); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2); I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2);
+    I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
 
     P.push_back(SLVec3f(-t,  t,-t)); C.push_back(g); v1=i; i++;
     P.push_back(SLVec3f(-t,1-h,-t)); C.push_back(g); v2=i; i++;
     P.push_back(SLVec3f(-t,1-h, t)); C.push_back(g); v3=i; i++;
     P.push_back(SLVec3f(-t,  t, t)); C.push_back(g); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2); I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2);
+    I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
 
     P.push_back(SLVec3f( t,  t,-t)); C.push_back(g); v1=i; i++;
     P.push_back(SLVec3f( t,1-h,-t)); C.push_back(g); v2=i; i++;
     P.push_back(SLVec3f(-t,1-h,-t)); C.push_back(g); v3=i; i++;
     P.push_back(SLVec3f(-t,  t,-t)); C.push_back(g); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2); I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2);
+    I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
 
     P.push_back(SLVec3f( w,1-h, w)); C.push_back(g); v1=i; i++;
     P.push_back(SLVec3f( 0,  1, 0)); C.push_back(g); v2=i; i++;
@@ -158,38 +164,44 @@ void SLCoordAxis::buildMesh()
     P.push_back(SLVec3f( w,1-h,-w)); C.push_back(g); v2=i; i++;
     P.push_back(SLVec3f(-w,1-h,-w)); C.push_back(g); v3=i; i++;
     P.push_back(SLVec3f(-w,1-h, w)); C.push_back(g); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2); I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2);
+    I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
 
     P.push_back(SLVec3f( t, -t, t)); C.push_back(g); v1=i; i++;
     P.push_back(SLVec3f( t, -t,-t)); C.push_back(g); v2=i; i++;
     P.push_back(SLVec3f(-t, -t,-t)); C.push_back(g); v3=i; i++;
     P.push_back(SLVec3f(-t, -t, t)); C.push_back(g); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2); I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v2);
+    I16.push_back(v1); I16.push_back(v4); I16.push_back(v3);
 
     // arrow towards +z
     P.push_back(SLVec3f( t, t,  t)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f( t, t,1-h)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f( t,-t,1-h)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f( t,-t,  t)); C.push_back(b); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f(-t, t,  t)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f(-t, t,1-h)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f( t, t,1-h)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f( t, t,  t)); C.push_back(b); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f(-t,-t,  t)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f(-t,-t,1-h)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f(-t, t,1-h)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f(-t, t,  t)); C.push_back(b); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f( t,-t,  t)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f( t,-t,1-h)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f(-t,-t,1-h)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f(-t,-t,  t)); C.push_back(b); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f( w, w,1-h)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f( 0, 0,  1)); C.push_back(b); v2=i; i++;
@@ -197,7 +209,8 @@ void SLCoordAxis::buildMesh()
     I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
     P.push_back(SLVec3f( w, w,1-h)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f(-w, w,1-h)); C.push_back(b); v2=i; i++;
-    P.push_back(SLVec3f( 0, 0,  1)); C.push_back(b); v3=i; i++; I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    P.push_back(SLVec3f( 0, 0,  1)); C.push_back(b); v3=i; i++;
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
 
     P.push_back(SLVec3f(-w, w,1-h)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f(-w,-w,1-h)); C.push_back(b); v2=i; i++;
@@ -205,19 +218,22 @@ void SLCoordAxis::buildMesh()
     I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
     P.push_back(SLVec3f(-w,-w,1-h)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f( w,-w,1-h)); C.push_back(b); v2=i; i++;
-    P.push_back(SLVec3f( 0, 0,  1)); C.push_back(b); v3=i; i++; I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    P.push_back(SLVec3f( 0, 0,  1)); C.push_back(b); v3=i; i++;
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
 
     P.push_back(SLVec3f( w, w,1-h)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f( w,-w,1-h)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f(-w,-w,1-h)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f(-w, w,1-h)); C.push_back(b); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 
     P.push_back(SLVec3f( t, t, -t)); C.push_back(b); v1=i; i++;
     P.push_back(SLVec3f( t,-t, -t)); C.push_back(b); v2=i; i++;
     P.push_back(SLVec3f(-t,-t, -t)); C.push_back(b); v3=i; i++;
     P.push_back(SLVec3f(-t, t, -t)); C.push_back(b); v4=i; i++;
-    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3); I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
+    I16.push_back(v1); I16.push_back(v2); I16.push_back(v3);
+    I16.push_back(v1); I16.push_back(v3); I16.push_back(v4);
 }
 //-----------------------------------------------------------------------------
 

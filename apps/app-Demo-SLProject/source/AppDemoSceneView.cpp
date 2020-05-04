@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      AppDemoSceneView.cpp
-//  Author:    Marcus Hudritsch
+//  Author:    Marcus Hudritsch, Michael Göttlicher
 //  Date:      August 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
@@ -9,10 +9,16 @@
 //#############################################################################
 
 #include <SLApplication.h>
-#include <CVCapture.h>
-#include <CVCalibration.h>
 #include "AppDemoSceneView.h"
+#include <SLProjectScene.h>
 
+//-----------------------------------------------------------------------------
+AppDemoSceneView::AppDemoSceneView(SLProjectScene* s,
+                                   int             dpi,
+                                   SLInputManager& inputManager)
+  : SLSceneView(s, dpi, inputManager)
+{
+}
 //-----------------------------------------------------------------------------
 /*! This method overrides the same method from the base class SLSceneView.
  Most events such as all mouse and keyboard events from the OS is forwarded to
@@ -32,10 +38,10 @@ SLbool AppDemoSceneView::onMouseDown(SLMouseButton button,
     bool baseClassResult = SLSceneView::onMouseDown(button, x, y, mod);
 
     // Grab image during calibration if calibration stream is running
-    if (CVCapture::instance()->activeCalib->state() == CS_calibrateStream)
+    if (SLApplication::sceneID == SID_VideoCalibrateMain ||
+        SLApplication::sceneID == SID_VideoCalibrateScnd)
     {
-        CVCapture::instance()->activeCalib->state(CS_calibrateGrab);
-        return true;
+        grab = true;
     }
 
     return baseClassResult;

@@ -14,9 +14,12 @@
 #include <string>
 #include <vector>
 #include <cfloat>
+#include <memory>
+#include <FileLog.h>
 
 using namespace std;
 
+//class FileLog;
 //-----------------------------------------------------------------------------
 //! Utils provides utility functions
 /*!
@@ -70,7 +73,7 @@ string getDateTime2String();
 string getHostName();
 
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...);
+string formatString(const string& fmt_str, ...);
 
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);
@@ -101,6 +104,12 @@ string getFileNameWOExt(const string& pathFilename);
 //! Returns the file extension without dot in lower case
 string getFileExt(const string& filename);
 
+//! Returns a vector directory names with path in dir
+vector<string> getDirNamesInDir(const string& dirName);
+
+//! Returns a vector of sorted names (files and directories) with path in dir
+vector<string> getAllNamesInDir(const string& dirName);
+
 //! Returns a vector of storted filesnames in dirName
 vector<string> getFileNamesInDir(const string& dirName);
 
@@ -128,21 +137,42 @@ string getCurrentWorkingDir();
 //! Deletes a file on the filesystem
 bool deleteFile(string& pathfilename);
 
-///////////////////////
-// Logging Functions //
-///////////////////////
+//! Dumps all folders and files recursovely
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderpath,
+                       int           depth = 0);
+
+//! Tries to find a filename on various paths to check
+string findFile(const string&         filename,
+                const vector<string>& pathsToCheck);
+
+  ///////////////////////
+  // Logging Functions //
+  ///////////////////////
+  //! FileLog Instance for logging to logfile. If it is instantiated the logging methods
+  //! will also output into this file. Instantiate it with initFileLog function.
+  static std::unique_ptr<FileLog> fileLog;
+//! Instantiates FileLog instance
+void initFileLog(const std::string& logDir, bool forceFlush);
 
 //! logs a formatted string platform independently
-void log(const char* format, ...);
+void log(const char* tag, const char* format, ...);
 
 //! Terminates the application with a message. No leak cheching.
-[[noreturn]] void exitMsg(const char* appString,
+[[noreturn]] void exitMsg(const char* tag,
+                          const char* msg,
                           int         line,
                           const char* file);
 
-void warnMsg(const char* appString,
+void warnMsg(const char* tag,
+             const char* msg,
              int         line,
              const char* file);
+
+void errorMsg(const char* tag,
+              const char* msg,
+              int         line,
+              const char* file);
 
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads();
@@ -177,7 +207,7 @@ template<class T> inline T pulse(T a, T b, T x){return (SL_step(a, x) - step(b, 
 template<class T> inline T clamp(T a, T min, T max){return (a < min) ? min : (a > max) ? max : a;}
 template<class T> inline T mix(T mix, T a, T b){return (1 - mix) * a + mix * b;}
 template<class T> inline T lerp(T x, T a, T b){return (a + x * (b - a));}
-template<class T> inline T swap(T& a, T& b){T c = a; a = b; b = c;}
+//template<class T> inline T swap(T& a, T& b){T c = a; a = b; b = c;}
 //-----------------------------------------------------------------------------
 inline bool isPowerOf2(unsigned int a)
 {
@@ -195,7 +225,31 @@ inline int pow(int x, int p)
     if (p == 1) return x;
     return x * pow(x, p - 1);
 }
-};
+//-----------------------------------------------------------------------------
+//! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
+int gcd(int a, int b);
+//-----------------------------------------------------------------------------
+//! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
+int lcm(int a, int b);
 //-----------------------------------------------------------------------------
 // clang-format on
+
+class ComputerInfos
+{
+public:
+    static std::string user;
+    static std::string name;
+    static std::string brand;
+    static std::string model;
+    static std::string os;
+    static std::string osVer;
+    static std::string arch;
+    static std::string id;
+
+    static std::string get();
+};
+
+};
+//-----------------------------------------------------------------------------
+
 #endif

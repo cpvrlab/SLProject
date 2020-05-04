@@ -4,108 +4,54 @@
 
 set(target native-lib)
 
-file(GLOB headers
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGui.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiMenu.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiPrefs.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapStorage.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiProperties.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSceneGraph.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamLoad.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsDebugTiming.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsTiming.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsVideo.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTrackedMapping.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTransform.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiUIPrefs.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
+set(headers
+		${erlebar_headers}
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
     )
 
-file(GLOB sources
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGui.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiMenu.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiPrefs.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAbout.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapStorage.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiProperties.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSceneGraph.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamLoad.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsDebugTiming.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsTiming.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiStatsVideo.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTrackedMapping.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTransform.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiUIPrefs.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoControls.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiVideoStorage.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapStorage.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestOpen.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiTestWrite.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAI.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppDirectories.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIMapStorage.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoWAIAndroidJNI.cpp
+set(sources
+		${erlebar_sources}
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     )
 
+set(CMAKE_SHARED_LINKER_FLAGS
+    "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
+add_library(native_app_glue STATIC
+    ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
 
 add_library(${target}
     SHARED
-    ${sources}
-    ${headers}
+        ${sources}
+        ${headers}
     )
 
 target_include_directories(${target}
     PRIVATE
-
+		${erlebar_include_directories}
+        ${ANDROID_NDK}/sources/android/native_app_glue/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/
     PUBLIC
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab
-    ${SL_PROJECT_ROOT}/lib-WAI/source
-    ${OpenCV_INCLUDE_DIR}
-    ${g2o_INCLUDE_DIR}
-    ${SL_PROJECT_ROOT}/externals/eigen
-    ${SL_PROJECT_ROOT}/externals/DBoW2
-    ${DEFAULT_INCLUDE_DIRECTORIES}
+        ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
 target_link_libraries(${target}
     PRIVATE
+        android
+        native_app_glue
+        EGL
+        GLESv3
+        log
+        camera2ndk
+        mediandk
         lib-WAI
         lib-SLProject
 
     PUBLIC
         libc++_shared.so
-        ${log-lib}
         z
 
     INTERFACE
@@ -119,6 +65,13 @@ file(GLOB_RECURSE TEXTURES
     ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
     ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
     ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
+	${SL_PROJECT_ROOT}/data/images/textures/logo_admin_ch.png
+	${SL_PROJECT_ROOT}/data/images/textures/logo_bfh.png
+	${SL_PROJECT_ROOT}/data/images/textures/earth2048_C.jpg
+	${SL_PROJECT_ROOT}/data/images/textures/earthCloud1024_C.jpg
+	${SL_PROJECT_ROOT}/data/images/textures/icon_back.png
+    ${SL_PROJECT_ROOT}/data/images/textures/back1white.png
+    ${SL_PROJECT_ROOT}/data/images/textures/left1white.png
     )
 
 file(GLOB_RECURSE VIDEOS
@@ -144,8 +97,11 @@ file(GLOB_RECURSE CALIBRATIONS
     ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
     ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
     ${SL_PROJECT_ROOT}/data/calibrations/cam_calibration_main.xml
-    ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
     )
+
+file(GLOB_RECURSE VOC
+	${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+	)
 
 set(APK_ASSETS
     ${CMAKE_CURRENT_LIST_DIR}/src/main/assets)
@@ -159,6 +115,7 @@ file(MAKE_DIRECTORY
     ${APK_ASSETS}/shaders
     ${APK_ASSETS}/calibrations
     ${APK_ASSETS}/config
+	${APK_ASSETS}/voc
     )
 
 file(COPY ${FONTS}          DESTINATION ${APK_ASSETS}/images/fonts)
@@ -168,3 +125,4 @@ file(COPY ${MODELS}         DESTINATION ${APK_ASSETS}/models)
 file(COPY ${SHADERS}        DESTINATION ${APK_ASSETS}/shaders)
 file(COPY ${CALIBRATIONS}   DESTINATION ${APK_ASSETS}/calibrations)
 file(COPY ${CONFIG}         DESTINATION ${APK_ASSETS}/config)
+file(COPY ${VOC}         	DESTINATION ${APK_ASSETS}/voc)

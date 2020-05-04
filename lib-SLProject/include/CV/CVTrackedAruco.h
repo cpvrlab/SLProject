@@ -28,7 +28,7 @@ for a good top down information.
 //! ArUco Paramters loaded from configuration file.
 class CVArucoParams
 {
-    public:
+public:
     CVArucoParams() : edgeLength(0.06f),
                       arucoDictionaryId(0),
                       filename("aruco_detector_params.yml")
@@ -36,14 +36,14 @@ class CVArucoParams
         arucoParams = cv::aruco::DetectorParameters::create();
     }
 
-    bool loadFromFile()
+    bool loadFromFile(std::string calibIniPath)
     {
-        string        path = CVCalibration::calibIniPath + filename;
+        string        path = calibIniPath + filename;
         CVFileStorage fs(path, cv::FileStorage::READ);
         if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
-            cout << "Tried " << CVCalibration::calibIniPath + filename << endl;
+            cout << "Tried " << path << endl;
             return false;
         }
 
@@ -93,8 +93,8 @@ CVTrackedAruco::drawArucoMarker.
 */
 class CVTrackedAruco : public CVTracked
 {
-    public:
-    explicit CVTrackedAruco(int arucoID);
+public:
+    explicit CVTrackedAruco(int arucoID, std::string calibIniPath);
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
@@ -118,12 +118,13 @@ class CVTrackedAruco : public CVTracked
 
     static CVArucoParams params; //!< Parameter class instance
 
-    private:
+private:
     static bool        paramsLoaded;   //!< Flag for loaded parameters
     static vector<int> arucoIDs;       //!< detected Aruco marker IDs
     static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
 
-    int _arucoID; //!< Aruco Marker ID for this node
+    int         _arucoID; //!< Aruco Marker ID for this node
+    std::string _calibIniPath;
 };
 //-----------------------------------------------------------------------------
 #endif // CVTrackedAruco_H

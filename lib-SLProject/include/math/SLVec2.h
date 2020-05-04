@@ -124,7 +124,7 @@ class SLVec2
                                                   if (v.y > y) y=v.y;}
     SLbool  isZero      ()                      {return (x==0 && y==0);}
     void    print       (const char* str=nullptr) {if (str) SL_LOG("%s",str);
-                                                  SL_LOG("% 3.3f, % 3.3f\n",x, y);}
+                                                  SL_LOG("% 3.3f, % 3.3f",x, y);}
    
     static 
     SLVec2  ZERO;

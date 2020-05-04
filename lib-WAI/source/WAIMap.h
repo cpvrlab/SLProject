@@ -51,7 +51,7 @@ using namespace std;
 */
 class WAI_API WAIMap
 {
-    public:
+public:
     enum TransformType
     {
         ROT_X = 0,
@@ -63,7 +63,7 @@ class WAI_API WAIMap
         SCALE
     };
 
-    WAIMap(const string& name);
+    WAIMap(WAIKeyFrameDB* kfDB);
     ~WAIMap();
 
     void AddKeyFrame(WAIKeyFrame* pKF);
@@ -76,6 +76,7 @@ class WAI_API WAIMap
 
     std::vector<WAIKeyFrame*> GetAllKeyFrames();
     std::vector<WAIMapPoint*> GetAllMapPoints();
+    WAIKeyFrameDB* GetKeyFrameDB() { return mKfDB; }
 
     long unsigned int MapPointsInMap();
     long unsigned int KeyFramesInMap();
@@ -107,9 +108,10 @@ class WAI_API WAIMap
     void setNumLoopClosings(int n);
     int  getNumLoopClosings();
 
-    protected:
+protected:
     std::set<WAIMapPoint*> mspMapPoints;
     std::set<WAIKeyFrame*> mspKeyFrames;
+    WAIKeyFrameDB*         mKfDB;
 
     std::vector<WAIMapPoint*> mvpReferenceMapPoints;
 
@@ -122,6 +124,7 @@ class WAI_API WAIMap
 
     std::mutex _mutexLoopClosings;
     int        _numberOfLoopClosings = 0;
+    int        _numOfKeyframes;
 };
 
 #endif // !WAIMAP_H

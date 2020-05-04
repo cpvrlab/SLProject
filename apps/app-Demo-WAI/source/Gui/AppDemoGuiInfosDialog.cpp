@@ -10,11 +10,12 @@
 
 #include <stdafx.h>
 #include <AppDemoGuiInfosDialog.h>
-
-ImVec2 AppDemoGuiInfosDialog::_initMinDialogSize = ImVec2(SLGLImGui::fontFixedDots * 10, SLGLImGui::fontFixedDots * 5);
+#include <SLGLImGui.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosDialog::AppDemoGuiInfosDialog(std::string name, bool* activator)
-  : _name(name), _activator(activator)
+AppDemoGuiInfosDialog::AppDemoGuiInfosDialog(std::string name, bool* activator, ImFont* font)
+  : _name(name),
+    _activator(activator),
+    _font(font)
 {
 }

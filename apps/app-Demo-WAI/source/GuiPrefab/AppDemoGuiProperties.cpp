@@ -4,16 +4,14 @@
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
-//#include <CVCapture.h>
 #include <SLTransferFunction.h>
 #include <SLGLShader.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiProperties::AppDemoGuiProperties(std::string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiProperties::AppDemoGuiProperties(std::string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
@@ -23,9 +21,9 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::PushFont(_font);
 
-    if (node && s->selectedRect().isEmpty())
+    if (node && sv->camera()->selectedRect().isEmpty())
     {
         ImGui::Begin("Properties of Selection", _activator);
 
@@ -291,7 +289,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                         for (SLuint i = 0; i < m->textures().size(); ++i)
                         {
                             SLGLTexture* t      = m->textures()[i];
-                            void*        tid    = (ImTextureID)(intptr_t)t->texName();
+                            void*        tid    = (ImTextureID)(intptr_t)t->texID();
                             SLfloat      w      = (SLfloat)t->width();
                             SLfloat      h      = (SLfloat)t->height();
                             SLfloat      h_to_w = h / w;
@@ -433,7 +431,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor();
         ImGui::End();
     }
-    else if (!node && !s->selectedRect().isEmpty())
+    else if (!node && !sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is

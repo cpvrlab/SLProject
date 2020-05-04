@@ -10,6 +10,7 @@
 
 #include <SLSceneView.h>
 
+class SLProjectScene;
 //-----------------------------------------------------------------------------
 /*!
  The SLSceneView class is inherited because we override here the default
@@ -17,9 +18,11 @@
 */
 class AppDemoSceneView : public SLSceneView
 {
-    public:
-
+public:
+    AppDemoSceneView(SLProjectScene* s, int dpi, SLInputManager& inputManager);
+    
     // From SLSceneView overwritten
     SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod) final;
+    SLbool grab = false;
 };
 //-----------------------------------------------------------------------------

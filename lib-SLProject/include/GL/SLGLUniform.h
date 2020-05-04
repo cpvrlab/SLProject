@@ -95,13 +95,13 @@ class SLGLUniform : public SLEventHandler
                     if (_value < _max)
                     {
                         _value += _inc;
-                        cout << "Uniform: " << _name.c_str() << " = " << _value << endl;
+                        //std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
                         return true;
                     }
                     else if (_inc == _max) // Toggle between min & max
                     {
                         _value = _min;
-                        cout << "Uniform: " << _name.c_str() << " = " << _value << endl;
+                        //std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
                         return true;
                     }
                 }
@@ -110,7 +110,7 @@ class SLGLUniform : public SLEventHandler
                     if (_value > _min)
                     {
                         _value -= _inc;
-                        cout << "Uniform: " << _name.c_str() << " = " << _value << endl;
+                        //std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
                         return true;
                     }
                 }

@@ -26,13 +26,11 @@
 #define FTPLIB_H
 
 #if defined(_WIN32)
-
 #    if BUILDING_DLL
 #        define DLLIMPORT __declspec(dllexport)
 #    else /* Not BUILDING_DLL */
 #        define DLLIMPORT __declspec(dllimport)
 #    endif /* Not BUILDING_DLL */
-
 #    include <time.h>
 #    include <winsock.h>
 #endif
@@ -40,18 +38,19 @@
 #ifndef _WIN32
 #    include <unistd.h>
 #    include <sys/time.h>
-#endif
-
-#ifdef NOLFS
-#    define off64_t long
-#    define fseeko64 fseek
-#    define fopen64 fopen
+typedef int SOCKET;
 #endif
 
 #if defined(__APPLE__)
 #    define off64_t __darwin_off_t
 #    define fseeko64 fseeko
 #    define fopen64 fopen
+#else
+#    ifdef NOLFS
+#        define off64_t long
+#        define fseeko64 fseek
+#        define fopen64 fopen
+#    endif
 #endif
 
 //SSL
@@ -87,7 +86,7 @@ typedef bool (*FtpCallbackCert)(void* arg, X509* cert);
 struct ftphandle
 {
     char *          cput, *cget;
-    int             handle;
+    SOCKET          handle;
     int             cavail, cleft;
     char*           buf;
     int             dir;
@@ -121,7 +120,7 @@ struct ftphandle
 class ftplib
 {
     //#endif
-    public:
+public:
     enum accesstype
     {
         dir = 1,
@@ -196,7 +195,7 @@ class ftplib
     int  NegotiateEncryption();
     void SetCallbackCertFunction(FtpCallbackCert pointer);
 
-    private:
+private:
     ftphandle* mp_ftphandle;
 
     int  FtpXfer(const char* localfile, const char* path, ftphandle* nControl, accesstype type, transfermode mode);

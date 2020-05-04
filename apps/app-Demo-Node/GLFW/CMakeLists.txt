@@ -9,12 +9,18 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/include/AppNodeGui.h
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/include/AppNodeSceneView.h
+        ${SL_PROJECT_ROOT}/apps/source/SLApplication.h
+        ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
     )
 
 file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/source/AppNodeGui.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/source/AppNodeLoad.cpp
         ${SL_PROJECT_ROOT}/apps/app-Demo-Node/source/AppNodeSceneView.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeMainGLFW.cpp
     )
 
@@ -40,9 +46,11 @@ target_include_directories(
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glew/include
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/glfw3/include
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
+        ${SL_PROJECT_ROOT}/apps/source
         ${OpenCV_INCLUDE_DIR}
+        ${glfw_INCLUDE_DIR}
         PUBLIC
         INTERFACE
     )
@@ -51,6 +59,7 @@ target_link_libraries(
         ${target}
         PRIVATE
         lib-SLProject
+        ${glfw_LIBS}
         PUBLIC
         INTERFACE
     )

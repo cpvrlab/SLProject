@@ -10,63 +10,45 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
+#include <SLGLState.h>
+#include <ErlebARApp.h>
+#include <Utils.h>
+#include <HighResTimer.h>
+#include <GLFW/SENSWebCamera.h>
+#include <DeviceData.h>
 #include <GLFW/glfw3.h>
 
-#include <AppDemoGui.h>
-#include <AppWAI.h>
-#include <WAIModeOrbSlam2.h>
-#include <WAIAutoCalibration.h>
-
-#include <CVCapture.h>
-#include <CVCalibration.h>
-#include <SLKeyframeCamera.h>
-
-#include <SLBox.h>
-#include <SLCoordAxis.h>
-#include <SLRectangle.h>
-#include <SLEnums.h>
-#include <SLInterface.h>
-#include <SLSceneView.h>
-#include <SLApplication.h>
-#include <SLLightSpot.h>
-#include <SLMaterial.h>
-#include <SLPoints.h>
-#include <Utils.h>
+static ErlebARApp app;
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
-static GLFWwindow* window;                     //!< The global glfw window handle
-static SLint       svIndex;                    //!< SceneView index
-static SLint       scrWidth;                   //!< Window width at start up
-static SLint       scrHeight;                  //!< Window height at start up
-static SLbool      fixAspectRatio;             //!< Flag if aspect ratio should be fixed
-static SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
-static SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
-static SLint       startX;                     //!< start position x in pixels
-static SLint       startY;                     //!< start position y in pixels
-static SLint       mouseX;                     //!< Last mouse position x in pixels
-static SLint       mouseY;                     //!< Last mouse position y in pixels
-static SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
-static SLVec2i     touchDelta;                 //!< Delta between two fingers in x
-static SLint       lastWidth;                  //!< Last window width in pixels
-static SLint       lastHeight;                 //!< Last window height in pixels
-static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
-static SLKey       modifiers         = K_none; //!< last modifier keys
-static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+static GLFWwindow* window;                                         //!< The global glfw window handle
+static SLint       svIndex;                                        //!< SceneView index
+static SLint       scrWidth  = 960;                                //!< Window width at start up
+static SLint       scrHeight = 540;                                //!< Window height at start up
+static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
+static SLint       startX;                                         //!< start position x in pixels
+static SLint       startY;                                         //!< start position y in pixels
+static SLint       mouseX;                                         //!< Last mouse position x in pixels
+static SLint       mouseY;                                         //!< Last mouse position y in pixels
+static SLVec2i     touch2;                                         //!< Last finger touch 2 position in pixels
+static SLVec2i     touchDelta;                                     //!< Delta between two fingers in x
+static SLint       lastWidth;                                      //!< Last window width in pixels
+static SLint       lastHeight;                                     //!< Last window height in pixels
+static SLfloat     lastMouseDownTime = 0.0f;                       //!< Last mouse press time
+static SLKey       modifiers         = K_none;                     //!< last modifier keys
+static SLbool      fullscreen        = false;                      //!< flag if window is in fullscreen mode
 static int         dpi;
-
+static bool        appShouldClose = false;
+static int         longTouchMS    = 500;
 //-----------------------------------------------------------------------------
 /*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
-    slShouldClose(true);
+    app.destroy();
 }
 
 //-----------------------------------------------------------------------------
@@ -133,37 +115,20 @@ SLKey mapKeyToSLKey(SLint key)
 onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
-    if (fixAspectRatio)
+    //on windows minimizing gives callback with (0,0)
+    if (width == 0 && height == 0)
     {
-        //correct target width and height
-        if (height * WAIApp::scrWdivH <= width)
-        {
-            width  = (int)(height * WAIApp::scrWdivH);
-            height = (int)(width / WAIApp::scrWdivH);
-        }
-        else
-        {
-            height = (int)(width / WAIApp::scrWdivH);
-            width  = (int)(height * WAIApp::scrWdivH);
-        }
+        return;
     }
 
     lastWidth  = width;
     lastHeight = height;
 
-    //update glfw window with new size
-    glfwSetWindowSize(window, width, height);
-
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)width;
-    scr2fbY = (float)fbHeight / (float)height;
-
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    app.resize(svIndex, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -173,14 +138,16 @@ void onLongTouch()
 {
     // forward the long touch only if the mouse or touch hasn't moved.
     if (Utils::abs(mouseX - startX) < 2 && Utils::abs(mouseY - startY) < 2)
-        slLongTouch(svIndex, mouseX, mouseY);
+    {
+        app.longTouch(svIndex, mouseX, mouseY);
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
 Mouse button event handler forwards the events to the slMouseDown or slMouseUp.
 Two finger touches of touch devices are simulated with ALT & CTRL modifiers.
 */
-static void onMouseButton(GLFWwindow* window,
+static void onMouseButton(GLFWwindow* myWindow,
                           int         button,
                           int         action,
                           int         mods)
@@ -213,11 +180,11 @@ static void onMouseButton(GLFWwindow* window,
             // Do parallel double finger move
             if (modifiers & K_shift)
             {
-                slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
+                app.touch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
             }
             else // Do concentric double finger pinch
             {
-                slTouch2Down(svIndex, x, y, touch2.x, touch2.y);
+                app.touch2Down(svIndex, x, y, touch2.x, touch2.y);
             }
         }
         else // Do standard mouse down
@@ -231,31 +198,31 @@ static void onMouseButton(GLFWwindow* window,
                 switch (button)
                 {
                     case GLFW_MOUSE_BUTTON_LEFT:
-                        slDoubleClick(svIndex, MB_left, x, y, modifiers);
+                        app.doubleClick(svIndex, MB_left, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        slDoubleClick(svIndex, MB_right, x, y, modifiers);
+                        app.doubleClick(svIndex, MB_right, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slDoubleClick(svIndex, MB_middle, x, y, modifiers);
+                        app.doubleClick(svIndex, MB_middle, x, y, modifiers);
                         break;
                 }
             }
             else // normal mouse clicks
             {
                 // Start timer for the long touch detection
-                HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
+                HighResTimer::callAfterSleep(longTouchMS, onLongTouch);
 
                 switch (button)
                 {
                     case GLFW_MOUSE_BUTTON_LEFT:
-                        slMouseDown(svIndex, MB_left, x, y, modifiers);
+                        app.mouseDown(svIndex, MB_left, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_RIGHT:
-                        slMouseDown(svIndex, MB_right, x, y, modifiers);
+                        app.mouseDown(svIndex, MB_right, x, y, modifiers);
                         break;
                     case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slMouseDown(svIndex, MB_middle, x, y, modifiers);
+                        app.mouseDown(svIndex, MB_middle, x, y, modifiers);
                         break;
                 }
             }
@@ -272,11 +239,11 @@ static void onMouseButton(GLFWwindow* window,
             // Do parallel double finger move
             if (modifiers & K_shift)
             {
-                slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
+                app.touch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
             }
             else // Do concentric double finger pinch
             {
-                slTouch2Up(svIndex, x, y, touch2.x, touch2.y);
+                app.touch2Up(svIndex, x, y, touch2.x, touch2.y);
             }
         }
         else // Do standard mouse down
@@ -284,13 +251,13 @@ static void onMouseButton(GLFWwindow* window,
             switch (button)
             {
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseUp(svIndex, MB_left, x, y, modifiers);
+                    app.mouseUp(svIndex, MB_left, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
-                    slMouseUp(svIndex, MB_right, x, y, modifiers);
+                    app.mouseUp(svIndex, MB_right, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slMouseUp(svIndex, MB_middle, x, y, modifiers);
+                    app.mouseUp(svIndex, MB_middle, x, y, modifiers);
                     break;
             }
         }
@@ -300,14 +267,11 @@ static void onMouseButton(GLFWwindow* window,
 /*!
 Mouse move event handler forwards the events to slMouseMove or slTouch2Move.
 */
-static void onMouseMove(GLFWwindow* window,
+static void onMouseMove(GLFWwindow* myWindow,
                         double      x,
                         double      y)
 {
     // x & y are in screen coords.
-    // We need to scale them to framebuffer coords
-    x *= scr2fbX;
-    y *= scr2fbY;
     mouseX = (int)x;
     mouseY = (int)y;
 
@@ -319,7 +283,7 @@ static void onMouseMove(GLFWwindow* window,
         // Do parallel double finger move
         if (modifiers & K_shift)
         {
-            slTouch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
+            app.touch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
         }
         else // Do concentric double finger pinch
         {
@@ -329,19 +293,19 @@ static void onMouseMove(GLFWwindow* window,
             touch2.y     = scrH2 - ((int)y - scrH2);
             touchDelta.x = (int)x - touch2.x;
             touchDelta.y = (int)y - touch2.y;
-            slTouch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
+            app.touch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
         }
     }
     else // Do normal mouse move
     {
-        slMouseMove(svIndex, (int)x, (int)y);
+        app.mouseMove(svIndex, (int)x, (int)y);
     }
 }
 //-----------------------------------------------------------------------------
 /*!
 Mouse wheel event handler forwards the events to slMouseWheel
 */
-static void onMouseWheel(GLFWwindow* window,
+static void onMouseWheel(GLFWwindow* myWindow,
                          double      xscroll,
                          double      yscroll)
 {
@@ -349,14 +313,14 @@ static void onMouseWheel(GLFWwindow* window,
     int dY = (int)yscroll;
     if (dY == 0) dY = (int)(Utils::sign(yscroll));
 
-    slMouseWheel(svIndex, dY, modifiers);
+    app.mouseWheel(svIndex, dY, modifiers);
 }
 //-----------------------------------------------------------------------------
 /*!
 Key event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
-static void onKeyPress(GLFWwindow* window,
+static void onKeyPress(GLFWwindow* myWindow,
                        int         GLFWKey,
                        int         scancode,
                        int         action,
@@ -391,19 +355,17 @@ static void onKeyPress(GLFWwindow* window,
         if (fullscreen)
         {
             fullscreen = !fullscreen;
-            glfwSetWindowSize(window, scrWidth, scrHeight);
-            glfwSetWindowPos(window, 10, 30);
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
         }
         else
         {
-            slKeyPress(svIndex, key, modifiers);
-            onClose(window);
-            glfwSetWindowShouldClose(window, GL_TRUE);
+            app.keyPress(svIndex, key, modifiers);
+            onClose(myWindow);
+            glfwSetWindowShouldClose(myWindow, GL_TRUE);
         }
     }
-    else
-      // Toggle fullscreen mode
-      if (key == K_F9 && action == GLFW_PRESS)
+    else if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
     {
         fullscreen = !fullscreen;
 
@@ -411,28 +373,42 @@ static void onKeyPress(GLFWwindow* window,
         {
             GLFWmonitor*       primary = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode    = glfwGetVideoMode(primary);
-            glfwSetWindowSize(window, mode->width, mode->height);
-            glfwSetWindowPos(window, 0, 0);
+            glfwSetWindowSize(myWindow, mode->width, mode->height);
+            glfwSetWindowPos(myWindow, 0, 0);
         }
         else
         {
-            glfwSetWindowSize(window, scrWidth, scrHeight);
-            glfwSetWindowPos(window, 10, 30);
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
         }
+    }
+    else if (key == K_space && action == GLFW_PRESS) //go back
+    {
+        app.goBack();
+    }
+    else if (GLFWKey == GLFW_KEY_H && action == GLFW_PRESS) //hold
+    {
+        app.hold();
+    }
+    else if (GLFWKey == GLFW_KEY_R && action == GLFW_PRESS) //resume
+    {
+        app.resume();
     }
     else
     {
         if (action == GLFW_PRESS)
-            slKeyPress(svIndex, key, modifiers);
+        {
+            app.keyPress(svIndex, key, modifiers);
+        }
         else if (action == GLFW_RELEASE)
-            slKeyRelease(svIndex, key, modifiers);
+            app.keyRelease(svIndex, key, modifiers);
     }
 }
 //-----------------------------------------------------------------------------
 //! Event handler for GLFW character input
 void onCharInput(GLFWwindow*, SLuint c)
 {
-    slCharInput(svIndex, c);
+    app.charInput(svIndex, c);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -459,15 +435,9 @@ void GLFWInit()
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    scrWidth  = 640;
-    scrHeight = 360;
-
-    //we have to fix aspect ratio, because the video image is initialized with this ratio
-    fixAspectRatio = true;
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -486,29 +456,12 @@ void GLFWInit()
     // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
-    // On some systems screen & framebuffer size are different
-    // All commands in GLFW are in screen coords but rendering in GL is
-    // in framebuffer coords
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)scrWidth;
-    scr2fbY = (float)fbHeight / (float)scrHeight;
-
-    // Include OpenGL via GLEW (init must be after window creation)
-    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++
-    // OpenGL developers with two tedious tasks: initializing and using extensions
-    // and writing portable applications. GLEW provides an efficient run-time
-    // mechanism to determine whether a certain extension is supported by the
-    // driver or not. OpenGL core and extension functionality is exposed via a
-    // single header file. Download GLEW at: http://glew.sourceforge.net/
-    glewExperimental = GL_TRUE; // avoids a crash
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if (gl3wInit() != 0)
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        cerr << "Failed to initialize OpenGL" << endl;
+        exit(-1);
     }
-
     glfwSetWindowTitle(window, "libWAI Test Application");
     glfwSetWindowPos(window, 10, 30);
 
@@ -519,7 +472,7 @@ void GLFWInit()
     GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    dpi = (int)(142 * scr2fbX);
+    dpi = 96;
     cout << "------------------------------------------------------------------" << endl;
     cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
     cout << "DPI             : " << dpi << endl;
@@ -534,6 +487,13 @@ void GLFWInit()
     glfwSetWindowCloseCallback(window, onClose);
 }
 
+//-----------------------------------------------------------------------------
+void closeAppCallback()
+{
+    Utils::log("Engine", "closeAppCallback");
+    appShouldClose = true;
+}
+//-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
 */
@@ -541,40 +501,57 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
-    AppWAIDirectories dirs;
-
-    dirs.waiDataRoot = SLstring(SL_PROJECT_ROOT) + "/data";
-    dirs.slDataRoot  = SLstring(SL_PROJECT_ROOT) + "/data";
-    dirs.writableDir = Utils::getAppsWritableDir();
-
-    svIndex = WAIApp::load(scrWidth, scrHeight, scr2fbX, scr2fbY, dpi, &dirs);
-
-    // Event loop
-    while (!slShouldClose())
+    try
     {
-        if (WAIApp::resizeWindow)
+        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
+
+        AppDirectories dirs;
+        dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
+        dirs.slDataRoot    = SLstring(SL_PROJECT_ROOT) + "/data";
+        dirs.writableDir   = Utils::getAppsWritableDir();
+        dirs.vocabularyDir = dirs.writableDir + "voc/";
+        dirs.logFileDir    = dirs.writableDir + "log/";
+
+        app.init(scrWidth, scrHeight, dpi, dirs, camera.get());
+        app.setCloseAppCallback(closeAppCallback);
+
+        glfwSetWindowTitle(window, "ErlebAR");
+
+        // Event loop
+        while (!appShouldClose)
         {
-            onResize(window, WAIApp::scrWidth, WAIApp::scrHeight);
-            WAIApp::resizeWindow = false;
+            // Calculate screen to framebuffer ratio for high-DPI monitors
+            /* This ratio can be different per monitor. We can not retrieve the
+               correct framebuffer size until the first paint event is done. So
+               we have to do it in here on every frame because we can move the window
+               to another monitor. */
+            int fbWidth = 0, fbHeight = 0, wndWidth = 0, wndHeight = 0;
+            glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+            glfwGetWindowSize(window, &wndWidth, &wndHeight);
+            float scr2fbX = (float)fbWidth / (float)wndWidth;
+            float scr2fbY = (float)fbHeight / (float)wndHeight;
+            app.updateScr2fb(svIndex, scr2fbX, scr2fbY);
+
+            SLbool doRepaint = app.update();
+
+            glfwSwapBuffers(window);
+
+            // if no updated occurred wait for the next event (power saving)
+            if (!doRepaint)
+                glfwWaitEvents();
+            else
+                glfwPollEvents();
         }
-
-        WAIApp::update();
-        slUpdateScene();
-
-        SLbool doRepaint = slPaintAllViews();
-        glfwSwapBuffers(window);
-        glfwSetWindowTitle(window, slGetWindowTitle(svIndex).c_str());
-
-        // if no updated occurred wait for the next event (power saving)
-        if (!doRepaint)
-            glfwWaitEvents();
-        else
-            glfwPollEvents();
+    }
+    catch (std::exception& e)
+    {
+        std::cout << "main: std exception catched: " << e.what() << std::endl;
+    }
+    catch (...)
+    {
+        std::cout << "main: Unknown exception catched!" << std::endl;
     }
 
-    WAIApp::close();
-
-    slTerminate();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

@@ -11,9 +11,11 @@
 #ifndef SLINPUTMANAGER_H
 #define SLINPUTMANAGER_H
 
+#include <mutex>
 #include <SLInputDevice.h>
 #include <SLInputEvent.h>
 
+class SLSceneView;
 //-----------------------------------------------------------------------------
 //! SLInputManager. manages system input and custom input devices.
 /*!  One static instance of SLInputManager is used in SLApplication. Every user
@@ -29,18 +31,19 @@ class SLInputManager
 {
     friend class SLInputDevice;
 
-    public:
+public:
     SLInputManager() { ; }
 
-    SLbool          pollAndProcessEvents();
+    SLbool          pollAndProcessEvents(SLSceneView* sv);
     void            queueEvent(const SLInputEvent* e);
     SLVInputDevice& devices() { return _devices; }
 
-    private:
+private:
+    std::mutex     _queueMutex;
     SLQInputEvent  _systemEvents; //!< queue for known system events
     SLVInputDevice _devices;      //!< list of activated SLInputDevices
 
-    SLbool processQueuedEvents();
+    SLbool processQueuedEvents(SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------
 #endif

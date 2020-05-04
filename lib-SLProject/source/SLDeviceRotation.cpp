@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLDeviceRotation.h>
 
 //-----------------------------------------------------------------------------
@@ -47,9 +43,9 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
                                       SLfloat quatZ,
                                       SLfloat quatW)
 {
-    SLQuat4f quat(quatX, quatY, quatZ, quatW);
-    _rotation = quat.toMat3();
-    quat.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
+    _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
+    _rotation = _quaternion.toMat3();
+    _quaternion.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
 
     //_rotation.print("Rotation:\n");
 

@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLSpheric.h>
 
 #include <utility>
@@ -22,13 +18,14 @@
 /*!
 SLSpheric::SLSpheric ctor for spheric revolution object around the z-axis.
 */
-SLSpheric::SLSpheric(SLfloat     sphereRadius,
-                     SLfloat     thetaStartDEG,
-                     SLfloat     thetaEndDEG,
-                     SLuint      stacks,
-                     SLuint      slices,
-                     SLstring    name,
-                     SLMaterial* mat) : SLRevolver(std::move(name))
+SLSpheric::SLSpheric(SLAssetManager* assetMgr,
+                     SLfloat         sphereRadius,
+                     SLfloat         thetaStartDEG,
+                     SLfloat         thetaEndDEG,
+                     SLuint          stacks,
+                     SLuint          slices,
+                     SLstring        name,
+                     SLMaterial*     mat) : SLRevolver(assetMgr, std::move(name))
 {
     assert(slices >= 3 && "Error: Not enough slices.");
     assert(slices > 0 && "Error: Not enough stacks.");

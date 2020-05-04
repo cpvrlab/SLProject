@@ -26,7 +26,6 @@ SL_OS_LINUX    :Linux desktop OS
 With the OS definition the following constants are defined:
 SL_GLES : Any version of OpenGL ES
 SL_GLES3: Supports only OpenGL ES3
-SL_MEMLEAKDETECT: The memory leak detector NVWA is used
 SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 */
 
@@ -43,7 +42,7 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #    else
 #        define SL_OS_MACOS
 #        if defined(_DEBUG)
-//#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
+
 #        endif
 #    endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
@@ -55,15 +54,12 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #    define SL_USE_DISCARD_STEREOMODES
 #    ifdef _DEBUG
 #        define _GLDEBUG
-//#define SL_MEMLEAKDETECT
-//#define _NO_DEBUG_HEAP 1
 #    endif
 #    define STDCALL __stdcall
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #    define SL_OS_LINUX
 #    define SL_USE_DISCARD_STEREOMODES
 #    ifdef _DEBUG
-//#define SL_MEMLEAKDETECT  // nvwa doesn't work under OSX/clang
 #    endif
 #else
 #    error "SL has not been ported to this OS"
@@ -82,8 +78,6 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 
 //-----------------------------------------------------------------------------
 #if defined(SL_OS_MACIOS)
-#    include <OpenGLES/ES3/gl.h>
-#    include <OpenGLES/ES3/glext.h>
 #    include <chrono>
 #    include <functional>
 #    include <random>
@@ -92,35 +86,28 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <CoreServices/CoreServices.h> // for system info
 #    include <zlib.h>
 #elif defined(SL_OS_MACOS)
-#    include <GL/glew.h>
 #    include <chrono>
 #    include <functional>
 #    include <random>
-#    include <sys/time.h>
+#    include <ctime>
 #    include <thread>
 #    include <CoreServices/CoreServices.h> // for system info
-#    include <sys/sysctl.h> // for system info
+#    include <sys/sysctl.h>                // for system info
 #elif defined(SL_OS_ANDROID)
 #    include <sys/time.h>
 #    include <sys/system_properties.h>
-#    ifdef SL_GLES3
-#        include <GLES3/gl3.h>
-#        include <GLES3/gl3ext.h>
-#    endif
 #    include <chrono>
 #    include <functional>
 #    include <random>
 #    include <sstream>
 #    include <thread>
 #elif defined(SL_OS_WINDOWS)
-#    include <GL/glew.h>
 #    include <chrono>
 #    include <functional>
 #    include <random>
 #    include <thread>
 #    include <windows.h>
 #elif defined(SL_OS_LINUX)
-#    include <GL/glew.h>
 #    include <chrono>
 #    include <functional>
 #    include <random>
@@ -169,25 +156,24 @@ typedef string SLstring;
 #ifndef SL_OS_ANDROID
 typedef std::wstring SLwstring;
 #endif
-typedef GLchar        SLchar; // char is signed [-128 ... 127]!
-typedef unsigned char SLuchar;
-typedef signed long   SLlong;
-typedef unsigned long SLulong;
-typedef GLbyte        SLbyte; // byte is signed [-128 ... 127]!
-typedef GLubyte       SLubyte;
-typedef GLshort       SLshort;
-typedef GLushort      SLushort;
-typedef GLint         SLint;
-typedef GLuint        SLuint;
-typedef int64_t       SLint64;
-typedef uint64_t      SLuint64;
-typedef GLsizei       SLsizei;
-typedef GLfloat       SLfloat;
-typedef double        SLdouble;
-typedef bool          SLbool;
-typedef GLenum        SLenum;
-typedef GLbitfield    SLbitfield;
-typedef GLfloat       SLfloat;
+typedef char           SLchar;     // analog to GLchar (char is signed [-128 ... 127]!)
+typedef unsigned char  SLuchar;    // analog to GLuchar
+typedef signed long    SLlong;     // analog to GLlong
+typedef unsigned long  SLulong;    // analog to GLulong
+typedef signed char    SLbyte;     // analog to GLbyte
+typedef unsigned char  SLubyte;    // analog to GLubyte
+typedef short          SLshort;    // analog to GLshort
+typedef unsigned short SLushort;   // analog to GLushort
+typedef int            SLint;      // analog to GLint
+typedef unsigned int   SLuint;     // analog to GLuint
+typedef int            SLsizei;    // analog to GLsizei
+typedef float          SLfloat;    // analog to GLfloat
+typedef double         SLdouble;   // analog to GLdouble
+typedef bool           SLbool;     // analog to GLbool
+typedef unsigned int   SLenum;     // analog to GLenum
+typedef unsigned int   SLbitfield; // analog to GLbitfield
+typedef int64_t        SLint64;
+typedef uint64_t       SLuint64;
 
 // All 1D vectors begin with SLV*
 typedef vector<SLbool>   SLVbool;
@@ -238,8 +224,8 @@ SL_sizeOfVector(const T& vector)
 
 //-----------------------------------------------------------------------------
 // Some debugging and error handling macros
-#define SL_LOG(...) Utils::log(__VA_ARGS__)
-#define SL_EXIT_MSG(M) Utils::exitMsg((M), __LINE__, __FILE__)
-#define SL_WARN_MSG(M) Utils::warnMsg((M), __LINE__, __FILE__)
+#define SL_LOG(...) Utils::log("SLProject", __VA_ARGS__)
+#define SL_EXIT_MSG(M) Utils::exitMsg("SLProject", (M), __LINE__, __FILE__)
+#define SL_WARN_MSG(M) Utils::warnMsg("SLProject", (M), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 #endif

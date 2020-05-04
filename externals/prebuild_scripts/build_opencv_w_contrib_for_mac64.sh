@@ -71,6 +71,7 @@ cmake \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
+-DOPENCV_ENABLE_NONFREE=true \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 ../..
 
@@ -100,6 +101,7 @@ cmake \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
+-DOPENCV_ENABLE_NONFREE=true \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 ../..
 

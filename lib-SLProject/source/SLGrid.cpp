@@ -10,20 +10,17 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLGrid.h>
 
 //-----------------------------------------------------------------------------
 //! SLGrid ctor with min & max corners and its resolutions
-SLGrid::SLGrid(SLVec3f     minXZ,
-               SLVec3f     maxXZ,
-               SLuint      resX,
-               SLuint      resZ,
-               SLstring    name,
-               SLMaterial* mat) : SLMesh(name)
+SLGrid::SLGrid(SLAssetManager* assetMgr,
+               SLVec3f         minXZ,
+               SLVec3f         maxXZ,
+               SLuint          resX,
+               SLuint          resZ,
+               SLstring        name,
+               SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(minXZ != maxXZ);
     assert(resX > 0);

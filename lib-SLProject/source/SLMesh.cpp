@@ -10,11 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
@@ -22,22 +17,23 @@
 #include <SLSceneView.h>
 #include <SLSkybox.h>
 #include <SLMesh.h>
+#include <SLAssetManager.h>
 
+//-----------------------------------------------------------------------------
 unsigned int SLMesh::meshIndex = 0;
-
 //-----------------------------------------------------------------------------
 /*! 
 The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
-in SLScene::unInit().
+in SLScene::unInit(). The passed asset manager is responsible for deallocation.
 */
-SLMesh::SLMesh(const SLstring& name) : SLObject(name)
+SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
 {
     _primitive = PT_triangles;
-    mat(nullptr);
-    matOut(nullptr);
-    _finalP = &P;
-    _finalN = &N;
+    _mat       = nullptr;
+    _matOut    = nullptr;
+    _finalP    = &P;
+    _finalN    = &N;
     minP.set(FLT_MAX, FLT_MAX, FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
@@ -47,7 +43,8 @@ SLMesh::SLMesh(const SLstring& name) : SLObject(name)
     _accelStructOutOfDate = true;
 
     // Add this mesh to the global resource vector for deallocation
-    SLApplication::scene->meshes().push_back(this);
+    if (assetMgr)
+        assetMgr->meshes().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! The destructor deletes everything by calling deleteData.
@@ -111,7 +108,7 @@ void SLMesh::deleteSelected(SLNode* node)
     // Loop over all rectangle selected indexes in IS32
     for (SLulong i = 0; i < IS32.size(); ++i)
     {
-        SLuint ixDel = IS32[i] - i;
+        SLulong ixDel = IS32[i] - i;
 
         if (ixDel < P.size()) P.erase(P.begin() + ixDel);
         if (ixDel < N.size()) N.erase(N.begin() + ixDel);
@@ -222,7 +219,7 @@ void SLMesh::deleteUnused()
         if (!used[u])
         {
             unused++;
-            SLuint ixDel = u - (unused - 1);
+            SLulong ixDel = u - (unused - 1);
 
             if (ixDel < P.size()) P.erase(P.begin() + ixDel);
             if (ixDel < N.size()) N.erase(N.begin() + ixDel);
@@ -233,16 +230,16 @@ void SLMesh::deleteUnused()
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
             // decrease the indexes smaller than the deleted on
-            for (SLulong i = 0; i < I16.size(); ++i)
+            for (unsigned short& i : I16)
             {
-                if (I16[i] > ixDel)
-                    I16[i]--;
+                if (i > ixDel)
+                    i--;
             }
 
-            for (SLulong i = 0; i < I32.size(); ++i)
+            for (unsigned int& i : I32)
             {
-                if (I32[i] > ixDel)
-                    I32[i]--;
+                if (i > ixDel)
+                    i--;
             }
         }
     }
@@ -268,9 +265,9 @@ void SLMesh::init(SLNode* node)
     if (!mat())
     {
         if (!C.empty())
-            mat(SLMaterial::diffuseAttrib());
+            mat(SLMaterialDiffuseAttribute::instance());
         else
-            mat(SLMaterial::defaultGray());
+            mat(SLMaterialDefaultGray::instance());
     }
 
     // set transparent flag of the node if mesh contains alpha material
@@ -360,11 +357,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 2.a) Apply mesh material if exists & differs from current
-    if (mat() != SLMaterial::current || SLMaterial::current->program() == nullptr)
-        mat()->activate(*node->drawBits());
+    mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
 
     // 2.b) Pass the matrices to the shader program
-    SLGLProgram* sp = SLMaterial::current->program();
+    SLGLProgram* sp = mat()->program();
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
@@ -402,18 +398,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 3) Generate Vertex Array Object once
     ///////////////////////////////////////
 
-    if (!_vao.id())
-    {
-        _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-        if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-        if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-        if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-        if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
-        if (!I16.empty()) _vao.setIndices(&I16);
-        if (!I32.empty()) _vao.setIndices(&I32);
-
-        _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
-    }
+    if (!_vao.vaoID())
+        generateVAO(sp);
 
     ///////////////////////////////
     // 4): Finally do the draw call
@@ -441,8 +427,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         V2.resize(P.size() * 2);
         for (SLulong i = 0; i < P.size(); ++i)
         {
-            V2[i << 1] = finalP(i);
-            V2[(i << 1) + 1].set(finalP(i) + finalN(i) * r);
+            V2[i << 1] = finalP((SLuint)i);
+            V2[(i << 1) + 1].set(finalP((SLuint)i) + finalN((SLuint)i) * r);
         }
 
         // Create or update VAO for normals
@@ -452,9 +438,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             for (SLulong i = 0; i < P.size(); ++i)
             {
-                V2[(i << 1) + 1].set(finalP(i).x + T[i].x * r,
-                                     finalP(i).y + T[i].y * r,
-                                     finalP(i).z + T[i].z * r);
+                V2[(i << 1) + 1].set(finalP((SLuint)i).x + T[i].x * r,
+                                     finalP((SLuint)i).y + T[i].y * r,
+                                     finalP((SLuint)i).z + T[i].z * r);
             }
 
             // Create or update VAO for tangents
@@ -467,8 +453,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     { // release buffer objects for normal & tangent rendering
-        if (_vaoN.id()) _vaoN.deleteGL();
-        if (_vaoT.id()) _vaoT.deleteGL();
+        if (_vaoN.vaoID()) _vaoN.deleteGL();
+        if (_vaoT.vaoID()) _vaoT.deleteGL();
     }
 
     //////////////////////////////////////////
@@ -491,7 +477,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     // 7: Draw selected mesh with points
     ////////////////////////////////////
-    SLScene* s = SLApplication::scene;
+    SLScene* s = &sv->s();
 
     if (s->selectedNode() == node &&
         s->selectedMesh() == this)
@@ -506,7 +492,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         stateGL->depthMask(true);
         stateGL->depthTest(true);
     }
-    else if (!s->selectedRect().isEmpty())
+    else if (!sv->camera()->selectedRect().isEmpty())
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
          drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
@@ -518,7 +504,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         // Build full viewport-modelview-projection transform
         SLMat4f mvp = *stateGL->mvpMatrix();
         SLMat4f v;
-        v.viewport(0, 0, (SLfloat)sv->scrW(), (SLfloat)sv->scrH());
+        SLRecti vp = sv->viewportRect();
+        v.viewport((SLfloat)vp.x, (SLfloat)vp.y, (SLfloat)vp.width, (SLfloat)vp.height);
         SLMat4f v_mvp = v * mvp;
         IS32.clear();
 
@@ -526,8 +513,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         for (SLulong i = 0; i < P.size(); ++i)
         {
             SLVec3f p = v_mvp * P[i];
-            if (s->selectedRect().contains(SLVec2f(p.x, p.y)))
-                IS32.push_back(i);
+            if (sv->camera()->selectedRect().contains(SLVec2f(p.x, p.y)))
+                IS32.push_back((SLuint)i);
         }
 
         if (!IS32.empty())
@@ -550,17 +537,31 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     {
-        if (_vaoS.id())
+        if (_vaoS.vaoID())
         {
             _vaoS.clearAttribs();
             IS32.clear();
         }
 
-        if (s->selectedNode() == nullptr && s->selectedRect().isEmpty())
+        if (s->selectedNode() == nullptr && sv->camera()->selectedRect().isEmpty())
             node->drawBits()->off(SL_DB_SELECTED);
     }
 
     if (blended) stateGL->blend(true);
+}
+//-----------------------------------------------------------------------------
+//! Generate the Vertex Array Object for a specific shader program
+void SLMesh::generateVAO(SLGLProgram* sp)
+{
+    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
+    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
+    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
+    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    if (!I16.empty()) _vao.setIndices(&I16);
+    if (!I32.empty()) _vao.setIndices(&I32);
+
+    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -632,12 +633,12 @@ void SLMesh::calcMinMax()
     // calc min and max point of all vertices
     for (SLulong i = 0; i < P.size(); ++i)
     {
-        if (finalP(i).x < minP.x) minP.x = finalP(i).x;
-        if (finalP(i).x > maxP.x) maxP.x = finalP(i).x;
-        if (finalP(i).y < minP.y) minP.y = finalP(i).y;
-        if (finalP(i).y > maxP.y) maxP.y = finalP(i).y;
-        if (finalP(i).z < minP.z) minP.z = finalP(i).z;
-        if (finalP(i).z > maxP.z) maxP.z = finalP(i).z;
+        if (finalP((SLuint)i).x < minP.x) minP.x = finalP((SLuint)i).x;
+        if (finalP((SLuint)i).x > maxP.x) maxP.x = finalP((SLuint)i).x;
+        if (finalP((SLuint)i).y < minP.y) minP.y = finalP((SLuint)i).y;
+        if (finalP((SLuint)i).y > maxP.y) maxP.y = finalP((SLuint)i).y;
+        if (finalP((SLuint)i).z < minP.z) minP.z = finalP((SLuint)i).z;
+        if (finalP((SLuint)i).z > maxP.z) maxP.z = finalP((SLuint)i).z;
     }
 }
 //-----------------------------------------------------------------------------
@@ -1200,7 +1201,7 @@ a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
 This software skinning is also needed for ray or path tracing.  
 */
-void SLMesh::transformSkin()
+void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
 {
     // create the secondary buffers for P and N once
     if (skinnedP.empty())
@@ -1226,7 +1227,8 @@ void SLMesh::transformSkin()
     // update the joint matrix array
     _skeleton->getJointMatrices(_jointMatrices);
 
-    notifyParentNodesAABBUpdate();
+    //notify Parent Nodes to update AABB
+    cbInformNodes(this);
 
     // temporarily set finalP and finalN
     _finalP = &skinnedP;
@@ -1263,7 +1265,7 @@ void SLMesh::transformSkin()
     }
 
     // update or create buffers
-    if (_vao.id())
+    if (_vao.vaoID())
     {
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);

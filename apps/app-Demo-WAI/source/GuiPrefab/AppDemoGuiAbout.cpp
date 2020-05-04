@@ -1,7 +1,6 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <SLApplication.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiAbout.h>
 //-----------------------------------------------------------------------------
@@ -22,8 +21,8 @@ AppDemoGuiAbout::AppDemoGuiAbout(std::string name, SLGLTexture* cpvrLogo, bool* 
 //! Centers the next ImGui window in the parent
 void AppDemoGuiAbout::centerNextWindow(SLSceneView* sv, SLfloat widthPC, SLfloat heightPC)
 {
-    SLfloat width  = (SLfloat)sv->scrW() * widthPC;
-    SLfloat height = (SLfloat)sv->scrH() * heightPC;
+    SLfloat width  = (SLfloat)sv->viewportW() * widthPC;
+    SLfloat height = (SLfloat)sv->viewportH() * heightPC;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiSetCond_Always);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Always);
 }
@@ -42,18 +41,18 @@ void AppDemoGuiAbout::buildInfos(SLScene* s, SLSceneView* sv)
     else
         _cpvrLogo->bindActive();
     */
-    SLfloat iconSize = sv->scrW() * 0.15f;
+    SLfloat iconSize = sv->viewportW() * 0.15f;
 
     centerNextWindow(sv);
     ImGui::Begin("About WAI-Demo", _activator, ImGuiWindowFlags_NoResize);
     //ImGui::Image((ImTextureID)(intptr_t)_cpvrLogo->texName(), ImVec2(iconSize, iconSize), ImVec2(0, 1), ImVec2(1, 0));
     //ImGui::SameLine();
-    ImGui::Text("Version: %s", SLApplication::version.c_str());
+    //ImGui::Text("Version: %s", SLApplication::version.c_str());
+    ImGui::Text("Device: %s", Utils::ComputerInfos::get().c_str());
     ImGui::Separator();
-    ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
-    ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
+    //ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
+    //ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
     ImGui::Separator();
     ImGui::TextWrapped("%s", _infoAbout.c_str());
     ImGui::End();
 }
-

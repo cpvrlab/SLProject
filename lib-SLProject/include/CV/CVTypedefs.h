@@ -19,7 +19,6 @@ All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
-using namespace std;
 
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -28,6 +27,8 @@ using namespace std;
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+using namespace std;
 
 //-----------------------------------------------------------------------------
 typedef cv::Mat               CVMat;
@@ -43,7 +44,9 @@ typedef cv::Vec2b             CVVec2b;
 typedef cv::Vec3b             CVVec3b;
 typedef cv::Vec4b             CVVec4b;
 typedef cv::Vec2f             CVVec2f;
+typedef cv::Vec2d             CVVec2d;
 typedef cv::Vec3f             CVVec3f;
+typedef cv::Vec3d             CVVec3d;
 typedef cv::Vec4f             CVVec4f;
 typedef cv::Size              CVSize;
 typedef cv::Size2i            CVSize2i;

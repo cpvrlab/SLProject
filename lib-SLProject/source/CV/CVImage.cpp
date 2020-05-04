@@ -10,7 +10,7 @@
 
 #include <CVImage.h>
 #include <Utils.h>
-#include <algorithm>    // std::max
+#include <algorithm> // std::max
 
 //-----------------------------------------------------------------------------
 string CVImage::defaultPath;
@@ -89,7 +89,7 @@ CVImage::CVImage(const CVVVec4f& colors)
 //-----------------------------------------------------------------------------
 CVImage::~CVImage()
 {
-    //Utils::log("CVImages)\n", name().c_str());
+    //Utils::log("CVImages)", name().c_str());
     clearData();
 }
 //-----------------------------------------------------------------------------
@@ -129,43 +129,37 @@ bool CVImage::allocate(int         width,
     uint bpp    = 0;
     switch (pixelFormatGL)
     {
-        case PF_luminance:
-        {
+        case PF_luminance: {
             cvType = CV_8UC1;
             bpp    = 1;
             break;
         }
-        case PF_red:
-        {
+        case PF_red: {
             cvType = CV_8UC1;
             bpp    = 1;
             break;
         }
-        case PF_bgr:
-        {
+        case PF_bgr: {
             cvType = CV_8UC3;
             bpp    = 3;
             break;
         }
-        case PF_rgb:
-        {
+        case PF_rgb: {
             cvType = CV_8UC3;
             bpp    = 3;
             break;
         }
-        case PF_bgra:
-        {
+        case PF_bgra: {
             cvType = CV_8UC4;
             bpp    = 4;
             break;
         }
-        case PF_rgba:
-        {
+        case PF_rgba: {
             cvType = CV_8UC4;
             bpp    = 4;
             break;
         }
-        default: Utils::exitMsg("Pixel format not supported", __LINE__, __FILE__);
+        default: Utils::exitMsg("SLProject", "Pixel format not supported", __LINE__, __FILE__);
     }
 
     _cvMat.create(height, width, cvType);
@@ -176,7 +170,7 @@ bool CVImage::allocate(int         width,
     _bytesPerImage = _bytesPerLine * (uint)height;
 
     if (!_cvMat.data)
-        Utils::exitMsg("CVImage::Allocate: Allocation failed", __LINE__, __FILE__);
+        Utils::exitMsg("SLProject", "CVImage::Allocate: Allocation failed", __LINE__, __FILE__);
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -204,7 +198,7 @@ uint CVImage::bytesPerPixel(CVPixFormat format)
         case PF_rgba_integer:
         case PF_bgra_integer: return 4;
         default:
-            Utils::exitMsg("CVImage::bytesPerPixel: unknown pixel format", __LINE__, __FILE__);
+            Utils::exitMsg("SLProject", "CVImage::bytesPerPixel: unknown pixel format", __LINE__, __FILE__);
     }
     return 0;
 }
@@ -251,11 +245,10 @@ bool CVImage::load(int         width,
                                         height,
                                         dstPixelFormatGL,
                                         false);
-
-    uint dstBPL = _bytesPerLine;
-    uint dstBPP = _bytesPerPixel;
-    uint srcBPP = bytesPerPixel(srcPixelFormatGL);
-    uint srcBPL = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
+    uint dstBPL              = _bytesPerLine;
+    uint dstBPP              = _bytesPerPixel;
+    uint srcBPP              = bytesPerPixel(srcPixelFormatGL);
+    uint srcBPL              = bytesPerLine((uint)width, srcPixelFormatGL, isContinuous);
 
     if (isTopLeft)
     {
@@ -400,9 +393,9 @@ bool CVImage::load(int         width,
 }
 //-----------------------------------------------------------------------------
 //! Loads the image with the appropriate image loader
-void CVImage::load(const string filename,
-                   bool         flipVertical,
-                   bool         loadGrayscaleIntoAlpha)
+void CVImage::load(const string& filename,
+                   bool          flipVertical,
+                   bool          loadGrayscaleIntoAlpha)
 {
     string ext = Utils::getFileExt(filename);
     _name      = Utils::getFileName(filename);
@@ -414,7 +407,7 @@ void CVImage::load(const string filename,
     if (!_cvMat.data)
     {
         string msg = "CVImage.load: Loading failed: " + filename;
-        Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
     // Convert greater component depth than 8 bit to 8 bit
@@ -482,35 +475,35 @@ CVPixFormat CVImage::cv2glPixelFormat(int cvType)
         case CV_8UC2: return PF_rg;
         case CV_8UC3: return PF_bgr;
         case CV_8UC4: return PF_bgra;
-        case CV_8SC1: Utils::exitMsg("OpenCV image format CV_8SC1 not supported", __LINE__, __FILE__); break;
-        case CV_8SC2: Utils::exitMsg("OpenCV image format CV_8SC2 not supported", __LINE__, __FILE__); break;
-        case CV_8SC3: Utils::exitMsg("OpenCV image format CV_8SC3 not supported", __LINE__, __FILE__); break;
-        case CV_8SC4: Utils::exitMsg("OpenCV image format CV_8SC4 not supported", __LINE__, __FILE__); break;
-        case CV_16UC1: Utils::exitMsg("OpenCV image format CV_16UC1 not supported", __LINE__, __FILE__); break;
-        case CV_16UC2: Utils::exitMsg("OpenCV image format CV_16UC2 not supported", __LINE__, __FILE__); break;
-        case CV_16UC3: Utils::exitMsg("OpenCV image format CV_16UC3 not supported", __LINE__, __FILE__); break;
-        case CV_16UC4: Utils::exitMsg("OpenCV image format CV_16UC4 not supported", __LINE__, __FILE__); break;
-        case CV_16SC1: Utils::exitMsg("OpenCV image format CV_16SC1 not supported", __LINE__, __FILE__); break;
-        case CV_16SC2: Utils::exitMsg("OpenCV image format CV_16SC2 not supported", __LINE__, __FILE__); break;
-        case CV_16SC3: Utils::exitMsg("OpenCV image format CV_16SC3 not supported", __LINE__, __FILE__); break;
-        case CV_16SC4: Utils::exitMsg("OpenCV image format CV_16SC4 not supported", __LINE__, __FILE__); break;
-        case CV_32SC1: Utils::exitMsg("OpenCV image format CV_32SC1 not supported", __LINE__, __FILE__); break;
-        case CV_32SC2: Utils::exitMsg("OpenCV image format CV_32SC2 not supported", __LINE__, __FILE__); break;
-        case CV_32SC3: Utils::exitMsg("OpenCV image format CV_32SC3 not supported", __LINE__, __FILE__); break;
-        case CV_32SC4: Utils::exitMsg("OpenCV image format CV_32SC4 not supported", __LINE__, __FILE__); break;
-        case CV_32FC1: Utils::exitMsg("OpenCV image format CV_32FC1 not supported", __LINE__, __FILE__); break;
-        case CV_32FC2: Utils::exitMsg("OpenCV image format CV_32FC2 not supported", __LINE__, __FILE__); break;
-        case CV_32FC3: Utils::exitMsg("OpenCV image format CV_32FC3 not supported", __LINE__, __FILE__); break;
-        case CV_32FC4: Utils::exitMsg("OpenCV image format CV_32FC4 not supported", __LINE__, __FILE__); break;
-        default: Utils::exitMsg("OpenCV image format not supported", __LINE__, __FILE__);
+        case CV_8SC1: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC1 not supported", __LINE__, __FILE__); break;
+        case CV_8SC2: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC2 not supported", __LINE__, __FILE__); break;
+        case CV_8SC3: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC3 not supported", __LINE__, __FILE__); break;
+        case CV_8SC4: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC4 not supported", __LINE__, __FILE__); break;
+        case CV_16UC1: Utils::exitMsg("SLProject", "OpenCV image format CV_16UC1 not supported", __LINE__, __FILE__); break;
+        case CV_16UC2: Utils::exitMsg("SLProject", "OpenCV image format CV_16UC2 not supported", __LINE__, __FILE__); break;
+        case CV_16UC3: Utils::exitMsg("SLProject", "OpenCV image format CV_16UC3 not supported", __LINE__, __FILE__); break;
+        case CV_16UC4: Utils::exitMsg("SLProject", "OpenCV image format CV_16UC4 not supported", __LINE__, __FILE__); break;
+        case CV_16SC1: Utils::exitMsg("SLProject", "OpenCV image format CV_16SC1 not supported", __LINE__, __FILE__); break;
+        case CV_16SC2: Utils::exitMsg("SLProject", "OpenCV image format CV_16SC2 not supported", __LINE__, __FILE__); break;
+        case CV_16SC3: Utils::exitMsg("SLProject", "OpenCV image format CV_16SC3 not supported", __LINE__, __FILE__); break;
+        case CV_16SC4: Utils::exitMsg("SLProject", "OpenCV image format CV_16SC4 not supported", __LINE__, __FILE__); break;
+        case CV_32SC1: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC1 not supported", __LINE__, __FILE__); break;
+        case CV_32SC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC2 not supported", __LINE__, __FILE__); break;
+        case CV_32SC3: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC3 not supported", __LINE__, __FILE__); break;
+        case CV_32SC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC4 not supported", __LINE__, __FILE__); break;
+        case CV_32FC1: return PF_r32f;
+        case CV_32FC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC2 not supported", __LINE__, __FILE__); break;
+        case CV_32FC3: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC3 not supported", __LINE__, __FILE__); break;
+        case CV_32FC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC4 not supported", __LINE__, __FILE__); break;
+        default: Utils::exitMsg("SLProject", "OpenCV image format not supported", __LINE__, __FILE__);
     }
     return PF_unknown;
 }
 //-----------------------------------------------------------------------------
 //! Returns the pixel format as string
-string CVImage::formatString()
+string CVImage::formatString(CVPixFormat format)
 {
-    switch (_format)
+    switch (format)
     {
         case PF_rgb: return string("RGB");
         case PF_rgba: return string("RGBA");
@@ -533,7 +526,6 @@ string CVImage::formatString()
         default: return string("Unknow pixel format");
     }
 }
-
 //-----------------------------------------------------------------------------
 //! Save as PNG at a certain compression level (0-9)
 /*!Save as PNG at a certain compression level (0-9)
@@ -542,10 +534,10 @@ string CVImage::formatString()
 \param flipY Flag for vertical mirroring
 \param convertBGR2RGB Flag for BGR to RGB conversion
 */
-void CVImage::savePNG(const string filename,
-                      const int    compressionLevel,
-                      const bool   flipY,
-                      const bool   convertBGR2RGB)
+void CVImage::savePNG(const string& filename,
+                      const int     compressionLevel,
+                      const bool    flipY,
+                      const bool    convertBGR2RGB)
 {
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
@@ -566,7 +558,7 @@ void CVImage::savePNG(const string filename,
     {
         string msg = "CVImage.savePNG: Exception: ";
         msg += ex.what();
-        Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 }
 
@@ -596,12 +588,14 @@ void CVImage::saveJPG(const string& filename,
             cv::flip(outImg, outImg, 0);
         if (convertBGR2RGB)
             cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
+
+        imwrite(filename, outImg, compression_params);
     }
     catch (runtime_error& ex)
     {
         string msg = "CVImage.saveJPG: Exception: ";
         msg += ex.what();
-        Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 }
 
@@ -619,8 +613,7 @@ CVVec4f CVImage::getPixeli(int x, int y)
 
     switch (_format)
     {
-        case PF_rgb:
-        {
+        case PF_rgb: {
             CVVec3b c = _cvMat.at<CVVec3b>(y, x);
             color[0]  = c[0];
             color[1]  = c[1];
@@ -628,13 +621,11 @@ CVVec4f CVImage::getPixeli(int x, int y)
             color[3]  = 255.0f;
             break;
         }
-        case PF_rgba:
-        {
+        case PF_rgba: {
             color = _cvMat.at<CVVec4b>(y, x);
             break;
         }
-        case PF_bgra:
-        {
+        case PF_bgra: {
             CVVec4b c = _cvMat.at<CVVec4b>(y, x);
             color[0]  = c[2];
             color[1]  = c[1];
@@ -668,7 +659,7 @@ CVVec4f CVImage::getPixeli(int x, int y)
             color[3]  = c[1];
             break;
         }
-        default: Utils::exitMsg("CVImage::getPixeli: Unknown format!", __LINE__, __FILE__);
+        default: Utils::exitMsg("SLProject", "CVImage::getPixeli: Unknown format!", __LINE__, __FILE__);
     }
     color /= 255.0f;
     return color;
@@ -779,7 +770,7 @@ void CVImage::setPixeli(int x, int y, CVVec4f color)
             _cvMat.at<CVVec2b>(y, x) = CVVec2b((uchar)(((66 * R + 129 * G + 25 * B + 128) >> 8) + 16),
                                                (uchar)(color[3] * 255.0f));
             break;
-        default: Utils::exitMsg("CVImage::setPixeli: Unknown format!", __LINE__, __FILE__);
+        default: Utils::exitMsg("SLProject", "CVImage::setPixeli: Unknown format!", __LINE__, __FILE__);
     }
 }
 //-----------------------------------------------------------------------------
@@ -841,6 +832,17 @@ void CVImage::resize(int width, int height)
     _cvMat = dst;
 }
 //-----------------------------------------------------------------------------
+//! Flip X coordiantes used to make JPEGs from top-left to bottom-left images.
+void CVImage::flipX()
+{
+    if (_cvMat.cols > 0 && _cvMat.rows > 0)
+    {
+        CVMat dst = CVMat(_cvMat.rows, _cvMat.cols, _cvMat.type());
+        cv::flip(_cvMat, dst, 1);
+        _cvMat = dst;
+    }
+}
+//-----------------------------------------------------------------------------
 //! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.
 void CVImage::flipY()
 {
@@ -863,7 +865,7 @@ void CVImage::fill(uchar r, uchar g, uchar b)
         case PF_bgr:
             _cvMat.setTo(CVVec3b(b, g, r));
             break;
-        default: Utils::exitMsg("CVImage::fill(r,g,b): Wrong format!", __LINE__, __FILE__);
+        default: Utils::exitMsg("SLProject", "CVImage::fill(r,g,b): Wrong format!", __LINE__, __FILE__);
     }
 }
 //-----------------------------------------------------------------------------
@@ -878,7 +880,91 @@ void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
         case PF_bgra:
             _cvMat.setTo(CVVec4b(b, g, r, a));
             break;
-        default: Utils::exitMsg("CVImage::fill(r,g,b,a): Wrong format!", __LINE__, __FILE__);
+        default: Utils::exitMsg("SLProject", "CVImage::fill(r,g,b,a): Wrong format!", __LINE__, __FILE__);
     }
+}
+//-----------------------------------------------------------------------------
+void CVImage::crop(float targetWdivH, int& cropW, int& cropH)
+{
+
+    float inWdivH = (float)_cvMat.cols / (float)_cvMat.rows;
+    // viewportWdivH is negative the viewport aspect will be the same
+    float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
+
+    cropH = 0; // crop height in pixels of the source image
+    cropW = 0; // crop width in pixels of the source image
+    if (Utils::abs(inWdivH - outWdivH) > 0.01f)
+    {
+        int width  = 0; // width in pixels of the destination image
+        int height = 0; // height in pixels of the destination image
+        int wModulo4;
+        int hModulo4;
+
+        if (inWdivH > outWdivH) // crop input image left & right
+        {
+            width  = (int)((float)_cvMat.rows * outWdivH);
+            height = _cvMat.rows;
+            cropW  = (int)((float)(_cvMat.cols - width) * 0.5f);
+
+            // Width must be devidable by 4
+            wModulo4 = width % 4;
+            if (wModulo4 == 1) width--;
+            if (wModulo4 == 2)
+            {
+                cropW++;
+                width -= 2;
+            }
+            if (wModulo4 == 3) width++;
+        }
+        else // crop input image at top & bottom
+        {
+            width  = _cvMat.cols;
+            height = (int)((float)_cvMat.cols / outWdivH);
+            cropH  = (int)((float)(_cvMat.rows - height) * 0.5f);
+
+            // Height must be devidable by 4
+            hModulo4 = height % 4;
+            if (hModulo4 == 1) height--;
+            if (hModulo4 == 2)
+            {
+                cropH++;
+                height -= 2;
+            }
+            if (hModulo4 == 3) height++;
+        }
+
+        _cvMat(cv::Rect(cropW, cropH, width, height)).copyTo(_cvMat);
+        //imwrite("AfterCropping.bmp", lastFrame);
+    }
+}
+//-----------------------------------------------------------------------------
+//! Returns the cv::Mat.type()) as string
+string CVImage::typeString(int cvMatTypeInt)
+{
+    // 7 base types, with five channel options each (none or C1, ..., C4)
+    // clang-format off
+    int numImgTypes = 35;
+    int enum_ints[] =       {CV_8U,  CV_8UC1,  CV_8UC2,  CV_8UC3,  CV_8UC4,
+                             CV_8S,  CV_8SC1,  CV_8SC2,  CV_8SC3,  CV_8SC4,
+                             CV_16U, CV_16UC1, CV_16UC2, CV_16UC3, CV_16UC4,
+                             CV_16S, CV_16SC1, CV_16SC2, CV_16SC3, CV_16SC4,
+                             CV_32S, CV_32SC1, CV_32SC2, CV_32SC3, CV_32SC4,
+                             CV_32F, CV_32FC1, CV_32FC2, CV_32FC3, CV_32FC4,
+                             CV_64F, CV_64FC1, CV_64FC2, CV_64FC3, CV_64FC4};
+
+    string enum_strings[] = {"CV_8U",  "CV_8UC1",  "CV_8UC2",  "CV_8UC3",  "CV_8UC4",
+                             "CV_8S",  "CV_8SC1",  "CV_8SC2",  "CV_8SC3",  "CV_8SC4",
+                             "CV_16U", "CV_16UC1", "CV_16UC2", "CV_16UC3", "CV_16UC4",
+                             "CV_16S", "CV_16SC1", "CV_16SC2", "CV_16SC3", "CV_16SC4",
+                             "CV_32S", "CV_32SC1", "CV_32SC2", "CV_32SC3", "CV_32SC4",
+                             "CV_32F", "CV_32FC1", "CV_32FC2", "CV_32FC3", "CV_32FC4",
+                             "CV_64F", "CV_64FC1", "CV_64FC2", "CV_64FC3", "CV_64FC4"};
+    // clang-format on
+
+    for (int i = 0; i < numImgTypes; i++)
+    {
+        if (cvMatTypeInt == enum_ints[i]) return enum_strings[i];
+    }
+    return "unknown image type";
 }
 //-----------------------------------------------------------------------------

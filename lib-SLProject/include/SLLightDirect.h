@@ -17,6 +17,7 @@
 
 class SLSceneView;
 class SLRay;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
@@ -42,31 +43,36 @@ class SLLightDirect
   : public SLNode
   , public SLLight
 {
-    public:
-    SLLightDirect(SLfloat arrowLength = 0.5f,
-                  SLbool  hasMesh     = true);
-    SLLightDirect(SLfloat posx,
-                  SLfloat posy,
-                  SLfloat posz,
-                  SLfloat arrowLength = 0.5f,
-                  SLfloat ambiPower   = 1.0f,
-                  SLfloat diffPower   = 10.0f,
-                  SLfloat specPower   = 10.0f,
-                  SLbool  hasMesh     = true);
-    ~SLLightDirect() { ; }
+public:
+    SLLightDirect(SLAssetManager* assetMgr,
+                  SLScene*        s,
+                  SLfloat         arrowLength = 0.5f,
+                  SLbool          hasMesh     = true);
+    SLLightDirect(SLAssetManager* assetMgr,
+                  SLScene*        s,
+                  SLfloat         posx,
+                  SLfloat         posy,
+                  SLfloat         posz,
+                  SLfloat         arrowLength = 0.5f,
+                  SLfloat         ambiPower   = 1.0f,
+                  SLfloat         diffPower   = 10.0f,
+                  SLfloat         specPower   = 10.0f,
+                  SLbool          hasMesh     = true);
+    ~SLLightDirect() override { ; }
 
-    void init();
-    bool hitRec(SLRay* ray);
-    void statsRec(SLNodeStats& stats);
-    void drawMeshes(SLSceneView* sv);
-
-    void    setState();
+    void    init(SLScene* s);
+    bool    hitRec(SLRay* ray) override;
+    void    statsRec(SLNodeStats& stats) override;
+    void    drawMeshes(SLSceneView* sv) override;
+    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       const SLfloat  lightDist);
+                       SLfloat        lightDist,
+                       SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         const SLfloat  lightDist);
+                         SLfloat        lightDist,
+                         SLNode*        root3D) override;
 
     // Getters
     SLfloat radius() { return _arrowRadius; }
@@ -74,16 +80,16 @@ class SLLightDirect
 
     // For directional lights the position vector is interpreted as a
     // direction with the homogeneous component equls zero:
-    SLVec4f positionWS()
+    SLVec4f positionWS() const override
     {
         SLVec4f pos(updateAndGetWM().translation());
         pos.w = 0.0f;
         return pos;
     }
 
-    SLVec3f spotDirWS() { return forwardOS(); }
+    SLVec3f spotDirWS() override { return forwardOS(); }
 
-    private:
+private:
     SLfloat _arrowRadius; //!< The sphere lights radius
     SLfloat _arrowLength; //!< Length of direction line
 };

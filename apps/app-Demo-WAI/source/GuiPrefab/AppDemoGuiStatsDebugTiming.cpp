@@ -3,20 +3,19 @@
 
 #include <Utils.h>
 #include <AverageTiming.h>
-#include <SLApplication.h>
-#include <CVCapture.h>
 #include <AppDemoGuiStatsDebugTiming.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiStatsDebugTiming::AppDemoGuiStatsDebugTiming(string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiStatsDebugTiming::AppDemoGuiStatsDebugTiming(string name, bool* activator, ImFont* font)
+  : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
 
 //-----------------------------------------------------------------------------
 void AppDemoGuiStatsDebugTiming::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin(_name.c_str(), _activator, _initMinDialogSize);
+    ImGui::PushFont(_font);
+    ImGui::Begin(_name.c_str(), _activator);
 
     if (AverageTiming::instance().size())
     {
@@ -26,10 +25,9 @@ void AppDemoGuiStatsDebugTiming::buildInfos(SLScene* s, SLSceneView* sv)
         AverageTiming::getTimingMessage(m);
 
         //define ui elements
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
         ImGui::TextUnformatted(m);
-        ImGui::PopFont();
     }
 
     ImGui::End();
+    ImGui::PopFont();
 }

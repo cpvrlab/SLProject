@@ -28,7 +28,7 @@ SLScene::updateIfAllViewsGotPainted by calling the SLAnimManager::update.
 */
 class SLAnimManager
 {
-    public:
+public:
     ~SLAnimManager();
 
     void            addSkeleton(SLSkeleton* skel);
@@ -39,9 +39,18 @@ class SLAnimManager
     SLAnimPlayback* lastAnimPlayback() { return _allAnimPlaybacks.back(); }
 
     SLAnimation* createNodeAnimation(SLfloat duration);
-    SLAnimation* createNodeAnimation(const SLstring& name, SLfloat duration);
+    SLAnimation* createNodeAnimation(const SLstring& name,
+                                     SLfloat duration);
+    SLAnimation* createNodeAnimation(const SLstring& name,
+                                     SLfloat         duration,
+                                     SLbool          enabled,
+                                     SLEasingCurve   easing,
+                                     SLAnimLooping   looping);
 
-    SLMAnimation&    animations() { return _nodeAnimations; }
+    SLMAnimation& animations()
+    {
+        return _nodeAnimations;
+    }
     SLVSkeleton&     skeletons() { return _skeletons; }
     SLVstring&       allAnimNames() { return _allAnimNames; }
     SLVAnimPlayback& allAnimPlaybacks() { return _allAnimPlaybacks; }
@@ -50,7 +59,7 @@ class SLAnimManager
     void   drawVisuals(SLSceneView* sv);
     void   clear();
 
-    private:
+private:
     SLVSkeleton     _skeletons;         //!< all skeleton instances
     SLMAnimation    _nodeAnimations;    //!< node animations
     SLMAnimPlayback _nodeAnimPlaybacks; //!< node animation playbacks

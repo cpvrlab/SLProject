@@ -43,7 +43,7 @@ void glUtils::printGLInfo()
 }
 
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 loadShader loads the ASCII content of a shader file and returns it as a string.
 If the file can not be opened an error message is sent to stdout before the app
 exits with code 1.
@@ -63,22 +63,20 @@ string glUtils::loadShader(const string& filename)
     exit(1);
 }
 //-----------------------------------------------------------------------------
-/*! 
-buildShader load the shader file, creates an OpenGL shader object, compiles the 
-source code and returns the handle to the internal shader object. If the 
-compilation fails the compiler log is sent to the stdout before the app exits 
-with code 1.
-All shaders are written with the initial GLSL version 110 without version number
-in the code and are therefore backwards compatible with the compatibility
-profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
-To be upwards compatible some modification have to be done.
+/*!
+ buildShaderFromSource compiles the source code string and returns the handle
+ to the internal shader object. If the compilation fails the compiler log is
+ sent to the stdout before the app exits with code 1.
+ All shaders are written with the initial GLSL version 110 without version number
+ in the code and are therefore backwards compatible with the compatibility
+ profile from OpenGL 2.1 and OpenGL ES 2 that runs on most mobile devices.
+ To be upwards compatible some modification have to be done.
 */
-GLuint glUtils::buildShader(const string& shaderFile,
-                            GLenum        shaderType)
+GLuint glUtils::buildShaderFromSource(string source,
+                                      GLenum shaderType,
+                                      bool&  return_value)
 {
     // Load shader file, create shader and compile it
-    string source = loadShader(shaderFile);
-
     string verGLSL    = glUtils::glSLVersionNO();
     string srcVersion = "#version " + verGLSL + "\n";
 
@@ -137,10 +135,26 @@ GLuint glUtils::buildShader(const string& shaderFile,
     glGetShaderiv(shaderHandle,
                   GL_COMPILE_STATUS,
                   &compileSuccess);
-    if (compileSuccess == GL_FALSE)
+
+    return_value = compileSuccess;
+
+    return shaderHandle;
+}
+//-----------------------------------------------------------------------------
+/*!
+ buildShader loads the shader file and calls buildShaderFromSource.
+*/
+GLuint glUtils::buildShader(const string& shaderFile,
+                            GLenum        shaderType)
+{
+    bool   success;
+    string source = loadShader(shaderFile);
+    GLuint pid    = buildShaderFromSource(source, shaderType, success);
+
+    if (success == GL_FALSE)
     {
         GLchar log[1024];
-        glGetShaderInfoLog(shaderHandle,
+        glGetShaderInfoLog(pid,
                            sizeof(log),
                            nullptr,
                            &log[0]);
@@ -151,13 +165,12 @@ GLuint glUtils::buildShader(const string& shaderFile,
     }
 
     GETGLERROR;
-
-    return shaderHandle;
+    return pid;
 }
 //-----------------------------------------------------------------------------
-/*! 
-buildProgram creates a program object, attaches the shaders, links them and 
-returns the OpenGL handle of the program. If the linking fails the linker log 
+/*!
+buildProgram creates a program object, attaches the shaders, links them and
+returns the OpenGL handle of the program. If the linking fails the linker log
 is sent to the stdout before the app exits with code 1.
 */
 GLuint glUtils::buildProgram(GLuint vertShaderID,
@@ -184,8 +197,8 @@ GLuint glUtils::buildProgram(GLuint vertShaderID,
 }
 //-----------------------------------------------------------------------------
 /*! Generates a Vertex Buffer Object (VBO) and copies the data into the
-buffer on the GPU. The targetTypeGL distincts between GL_ARRAY_BUFFER for 
-attribute data and GL_ELEMENT_ARRAY_BUFFER for index data. The usageTypeGL 
+buffer on the GPU. The targetTypeGL distincts between GL_ARRAY_BUFFER for
+attribute data and GL_ELEMENT_ARRAY_BUFFER for index data. The usageTypeGL
 distincts between GL_STREAM_DRAW, GL_STATIC_DRAW and GL_DYNAMIC_DRAW.
 */
 void glUtils::buildVBO(GLuint& vboID,
@@ -207,9 +220,9 @@ void glUtils::buildVBO(GLuint& vboID,
     glBufferData(targetTypeGL, bufSize, dataPointer, usageTypeGL);
 }
 //-----------------------------------------------------------------------------
-/* Builds the OpenGL Vertex Array Object (VAO) with it associated vertex buffer 
-objects. VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call. 
-All vertex attributes (e.g. position, colors, normals, texture coords, etc.) 
+/* Builds the OpenGL Vertex Array Object (VAO) with it associated vertex buffer
+objects. VAOs where introduces OpenGL 3.0 and reduce the overhead per draw call.
+All vertex attributes (e.g. position, colors, normals, texture coords, etc.)
 are float and are stored in one big VBO.
 We expect the data in following interleaved order:
 - 3 floats for position
@@ -520,10 +533,6 @@ void glUtils::getGLError(const char* file,
 
         if (quit)
         {
-#    ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only
-// turn off leak checks on forced exit
-//new_autocheck_flag = false;
-#    endif
             exit(1);
         }
     }

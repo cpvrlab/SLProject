@@ -10,13 +10,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
 #include <SLInputManager.h>
-#include <SLScene.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
@@ -35,10 +29,10 @@ polls all activated SLInputDevices.
         like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI 
         implementation the whole input management in SL would have to be reviewed.
 */
-SLbool SLInputManager::pollAndProcessEvents()
+SLbool SLInputManager::pollAndProcessEvents(SLSceneView* sv)
 {
     // process system events first
-    SLbool consumedEvents = processQueuedEvents();
+    SLbool consumedEvents = processQueuedEvents(sv);
 
     // process custom input devices
     for (auto device : _devices)
@@ -53,12 +47,13 @@ to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
 void SLInputManager::queueEvent(const SLInputEvent* e)
 {
+    std::lock_guard<std::mutex> lock(_queueMutex);
     _systemEvents.push(e);
 }
 //-----------------------------------------------------------------------------
 /*! Work off any queued up input event's and notify the correct receiver.
 @note   this is similar to the Qt QObject::event function.*/
-SLbool SLInputManager::processQueuedEvents()
+SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
 {
     SLQInputEvent& q = _systemEvents;
 
@@ -67,96 +62,91 @@ SLbool SLInputManager::processQueuedEvents()
 
     while (!q.empty())
     {
-        const SLInputEvent* e = q.front();
-        q.pop();
-
-        SLSceneView* sv = SLApplication::scene->sceneView((SLuint)e->svIndex);
+        const SLInputEvent* e;
+        {
+            std::lock_guard<std::mutex> lock(_queueMutex);
+            e = q.front();
+            q.pop();
+        }
 
         if (sv)
         {
             switch (e->type)
             {
-                case SLInputEvent::MouseMove:
-                {
+                case SLInputEvent::MouseMove: {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseMove(me->x, me->y);
                 }
                 break;
-                case SLInputEvent::MouseDown:
-                {
+                case SLInputEvent::MouseDown: {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::MouseUp:
-                {
+                case SLInputEvent::MouseUp: {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::MouseDoubleClick:
-                {
+                case SLInputEvent::MouseDoubleClick: {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onDoubleClick(me->button, me->x, me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::MouseWheel:
-                {
+                case SLInputEvent::MouseWheel: {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseWheel(me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::LongTouch:
-                {
+                case SLInputEvent::LongTouch: {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onLongTouch(me->x, me->y);
                 }
                 break;
 
-                case SLInputEvent::Touch2Move:
-                {
+                case SLInputEvent::Touch2Move: {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
                     eventConsumed |= sv->onTouch2Move(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
-                case SLInputEvent::Touch2Down:
-                {
+                case SLInputEvent::Touch2Down: {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
                     eventConsumed |= sv->onTouch2Down(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
-                case SLInputEvent::Touch2Up:
-                {
+                case SLInputEvent::Touch2Up: {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
                     eventConsumed |= sv->onTouch2Up(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
 
-                case SLInputEvent::KeyDown:
-                {
+                case SLInputEvent::KeyDown: {
                     const SLKeyEvent* ke = (const SLKeyEvent*)e;
                     eventConsumed |= sv->onKeyPress(ke->key, ke->modifier);
                 }
                 break;
-                case SLInputEvent::KeyUp:
-                {
+                case SLInputEvent::KeyUp: {
                     const SLKeyEvent* ke = (const SLKeyEvent*)e;
                     eventConsumed |= sv->onKeyRelease(ke->key, ke->modifier);
                 }
                 break;
-                case SLInputEvent::CharInput:
-                {
+                case SLInputEvent::CharInput: {
                     const SLCharInputEvent* ce = (const SLCharInputEvent*)e;
                     eventConsumed |= sv->onCharInput(ce->character);
                 }
                 break;
 
-                case SLInputEvent::Resize:
-                {
+                case SLInputEvent::Resize: {
                     const SLResizeEvent* re = (const SLResizeEvent*)e;
                     sv->onResize(re->width, re->height);
                 }
                 break;
+
+                case SLInputEvent::UpdateScr2fb: {
+                    const SLUpdateScr2fbEvent* re = (const SLUpdateScr2fbEvent*)e;
+                    sv->scr2fb(re->scr2fbX, re->scr2fbY);
+                }
+                    break;
                 default: break;
             }
         }

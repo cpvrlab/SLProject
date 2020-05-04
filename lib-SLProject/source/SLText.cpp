@@ -10,11 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLText.h>
 
@@ -47,7 +42,7 @@ void SLText::drawRec(SLSceneView* sv)
     if (_drawBits.get(SL_DB_HIDDEN) || !SLGLState::instance()->blend()) return;
 
     // create buffer object for text once
-    if (!_vao.id())
+    if (!_vao.vaoID())
     {
         _font->buildTextBuffers(_vao, _text, _maxW, _lineH);
         _font->minFiler(SL_ANISOTROPY_MAX);
@@ -57,7 +52,7 @@ void SLText::drawRec(SLSceneView* sv)
     _font->bindActive();
 
     // Setup shader
-    SLGLProgram* sp    = SLApplication::scene->programs(SP_fontTex);
+    SLGLProgram* sp    = _font->fontTexProgram();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());

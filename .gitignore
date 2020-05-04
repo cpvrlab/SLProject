@@ -23,6 +23,7 @@
 *.lnk
 *.xcuserstate
 *~
+
 data/models/PLY/xyzrgb_dragon.ply
 data/models/DAE/Aventicum
 data/models/GLTF/Aventicum
@@ -41,6 +42,8 @@ externals/g2o/bin
 externals/g2o/lib*
 externals/prebuild_scripts/opencv
 externals/prebuild_scripts/opencv_contrib
+externals/prebuild_scripts/assimp
+externals/prebuild_scripts/glfw
 apps/app-Demo-WAI/android/app/.cxx
 
 moc_*.h
@@ -78,3 +81,5 @@ GenerateHTMLDoc.log
 .idea
 .DS_Store
 gitcommit.h
+
+Tester

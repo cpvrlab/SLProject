@@ -18,7 +18,6 @@ for a good top down information.
 */
 
 #include <CVTracked.h>
-#include <CVCapture.h>
 
 using namespace cv;
 using namespace std;
@@ -35,13 +34,13 @@ AvgFloat CVTracked::poseTimesMS;
 void CVTracked::resetTimes()
 {
     // Reset all timing variables
-    CVTracked::trackingTimesMS.set(0.0f);
-    CVTracked::detectTimesMS.set(0.0f);
-    CVTracked::detect1TimesMS;
-    CVTracked::detect2TimesMS.set(0.0f);
-    CVTracked::matchTimesMS.set(0.0f);
-    CVTracked::optFlowTimesMS.set(0.0f);
-    CVTracked::poseTimesMS.set(0.0f);
+    CVTracked::trackingTimesMS.init(60,0.0f);
+    CVTracked::detectTimesMS.init(60,0.0f);
+    CVTracked::detect1TimesMS.init(60,0.0f);
+    CVTracked::detect2TimesMS.init(60,0.0f);
+    CVTracked::matchTimesMS.init(60,0.0f);
+    CVTracked::optFlowTimesMS.init(60,0.0f);
+    CVTracked::poseTimesMS.init(60,0.0f);
 }
 //-----------------------------------------------------------------------------
 // clang-format off
@@ -54,7 +53,7 @@ CVMatx44f CVTracked::createGLMatrix(const CVMat& tVec, const CVMat& rVec)
     Rodrigues(rVec, rMat);
 
     // 2) Create an OpenGL 4x4 column major matrix from the rotation matrix and 
-    // translation vector from openCV as discribed in this post:
+    // translation vector from openCV as described in this post:
     // www.morethantechnical.com/2015/02/17/
     // augmented-reality-on-libqglviewer-and-opencv-opengl-tips-wcode
       

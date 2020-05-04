@@ -27,7 +27,8 @@ vector<int>   CVTrackedAruco::arucoIDs;
 CVVMatx44f    CVTrackedAruco::objectViewMats;
 CVArucoParams CVTrackedAruco::params;
 //-----------------------------------------------------------------------------
-CVTrackedAruco::CVTrackedAruco(int arucoID)
+CVTrackedAruco::CVTrackedAruco(int arucoID, std::string calibIniPath)
+  : _calibIniPath(calibIniPath)
 {
     _arucoID = arucoID;
 }
@@ -45,15 +46,17 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     // Load aruco parameter once
     if (!paramsLoaded)
     {
-        paramsLoaded = params.loadFromFile();
+        paramsLoaded = params.loadFromFile(_calibIniPath);
         if (!paramsLoaded)
-            Utils::exitMsg("CVTrackedAruco::track: Failed to load Aruco parameters.",
+            Utils::exitMsg("SLProject",
+                           "CVTrackedAruco::track: Failed to load Aruco parameters.",
                            __LINE__,
                            __FILE__);
     }
     if (params.arucoParams.empty() || params.dictionary.empty())
     {
-        Utils::warnMsg("CVTrackedAruco::track: Aruco paramters are empty.",
+        Utils::warnMsg("SLProject",
+                       "CVTrackedAruco::track: Aruco paramters are empty.",
                        __LINE__,
                        __FILE__);
         return false;

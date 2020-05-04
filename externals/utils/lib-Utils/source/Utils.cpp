@@ -35,14 +35,19 @@ namespace fs = std::experimental::filesystem;
 #        include <direct.h> //_getcwd
 #    endif
 #elif defined(__APPLE__)
+#    if TARGET_OS_IOS
+#        include "Utils_iOS.h"
+#    endif
 #    include <dirent.h>
-#    include <unistd.h>   //getcwd
 #    include <sys/stat.h> //dirent
+#    include <unistd.h>   //getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <android/log.h>
 #    include <dirent.h>
 #    include <unistd.h> //getcwd
 #    include <sys/stat.h>
+#    include <sys/time.h>
+#    include <sys/system_properties.h>
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #    include <dirent.h>
 #    include <unistd.h> //getcwd
@@ -52,10 +57,6 @@ namespace fs = std::experimental::filesystem;
 
 using namespace std;
 using asio::ip::tcp;
-
-//-----------------------------------------------------------------------------
-string logAppName;
-//-----------------------------------------------------------------------------
 
 namespace Utils
 {
@@ -138,7 +139,7 @@ void replaceString(string&       source,
     newString.reserve(source.length()); // avoids a few memory allocations
 
     string::size_type lastPos = 0;
-    string::size_type findPos;
+    string::size_type findPos = 0;
 
     while (string::npos != (findPos = source.find(from, lastPos)))
     {
@@ -169,7 +170,7 @@ string replaceNonFilenameChars(string src, const char replaceChar)
 //! Returns local time as string like "Wed Feb 13 15:46:11 2019"
 string getLocalTimeString()
 {
-    time_t tm;
+    time_t tm = 0;
     time(&tm);
     struct tm* t2 = localtime(&tm);
     char       buf[1024];
@@ -180,7 +181,7 @@ string getLocalTimeString()
 //! Returns local time as string like "13.02.19-15:46"
 string getDateTime1String()
 {
-    time_t tm;
+    time_t tm = 0;
     time(&tm);
     struct tm* t = localtime(&tm);
 
@@ -199,7 +200,7 @@ string getDateTime1String()
 //! Returns local time as string like "20190213-154611"
 string getDateTime2String()
 {
-    time_t tm;
+    time_t tm = 0;
     time(&tm);
     struct tm* t = localtime(&tm);
 
@@ -223,10 +224,12 @@ string getHostName()
 }
 //-----------------------------------------------------------------------------
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...)
+string formatString(const string& fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
-    int                final_n, n = ((int)fmt_str.size()) * 2;
+    int final_n = 0;
+    int n       = ((int)fmt_str.size()) * 2;
+
     string             str;
     unique_ptr<char[]> formatted;
     va_list            ap;
@@ -277,9 +280,8 @@ string unifySlashes(const string& inputDir)
 //! Returns the path w. '\\' of path-filename string
 string getPath(const string& pathFilename)
 {
-    size_t i1, i2;
-    i1 = pathFilename.rfind('\\', pathFilename.length());
-    i2 = pathFilename.rfind('/', pathFilename.length());
+    size_t i1 = pathFilename.rfind('\\', pathFilename.length());
+    size_t i2 = pathFilename.rfind('/', pathFilename.length());
     if ((i1 != string::npos && i2 == string::npos) ||
         (i1 != string::npos && i1 > i2))
     {
@@ -466,10 +468,9 @@ bool compareNatural(const string& a, const string& b)
 //! Returns the filename of path-filename string
 string getFileName(const string& pathFilename)
 {
-    size_t i1, i2;
-    i1    = pathFilename.rfind('\\', pathFilename.length());
-    i2    = pathFilename.rfind('/', pathFilename.length());
-    int i = -1;
+    size_t i1 = pathFilename.rfind('\\', pathFilename.length());
+    size_t i2 = pathFilename.rfind('/', pathFilename.length());
+    int    i  = -1;
 
     if (i1 != string::npos && i2 != string::npos)
         i = (int)std::max(i1, i2);
@@ -485,8 +486,7 @@ string getFileName(const string& pathFilename)
 string getFileNameWOExt(const string& pathFilename)
 {
     string filename = getFileName(pathFilename);
-    size_t i;
-    i = filename.rfind('.', filename.length());
+    size_t i        = filename.rfind('.', filename.length());
     if (i != string::npos)
     {
         return (filename.substr(0, i));
@@ -498,14 +498,98 @@ string getFileNameWOExt(const string& pathFilename)
 //! Returns the file extension without dot in lower case
 string getFileExt(const string& filename)
 {
-    size_t i;
-    i = filename.rfind('.', filename.length());
+    size_t i = filename.rfind('.', filename.length());
     if (i != string::npos)
         return toLowerString(filename.substr(i + 1, filename.length() - i));
     return ("");
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of sorted filesnames with path in dir
+//! Returns a vector of unsorted directory names with path in dir
+vector<string> getDirNamesInDir(const string& dirName)
+{
+    vector<string> filePathNames;
+
+#if defined(USE_STD_FILESYSTEM)
+    if (fs::exists(dirName) && fs::is_directory(dirName))
+    {
+        for (const auto& entry : fs::directory_iterator(dirName))
+        {
+            auto filename = entry.path().filename();
+            if (fs::is_directory(entry.status()))
+                filePathNames.push_back(dirName + "/" + filename.u8string());
+        }
+    }
+#else
+    DIR* dir = opendir(dirName.c_str());
+
+    if (dir)
+    {
+        struct dirent* dirContent = nullptr;
+        int            i          = 0;
+
+        while ((dirContent = readdir(dir)) != nullptr)
+        {
+            i++;
+            string name(dirContent->d_name);
+
+            if (name != "." && name != "..")
+            {
+                struct stat path_stat
+                {
+                };
+                stat((dirName + name).c_str(), &path_stat);
+                if (S_ISDIR(path_stat.st_mode))
+                    filePathNames.push_back(dirName + name);
+            }
+        }
+        closedir(dir);
+    }
+#endif
+
+    return filePathNames;
+}
+//-----------------------------------------------------------------------------
+//! Returns a vector of unsorted names (files and directories) with path in dir
+vector<string> getAllNamesInDir(const string& dirName)
+{
+    vector<string> filePathNames;
+
+#if defined(USE_STD_FILESYSTEM)
+    if (fs::exists(dirName) && fs::is_directory(dirName))
+    {
+        for (const auto& entry : fs::directory_iterator(dirName))
+        {
+            auto filename = entry.path().filename();
+            filePathNames.push_back(dirName + "/" + filename.u8string());
+        }
+    }
+#else
+#    if TARGET_OS_IOS
+    return Utils_iOS::getAllNamesInDir(dirName);
+#    else
+    DIR* dir = opendir(dirName.c_str());
+
+    if (dir)
+    {
+        struct dirent* dirContent = nullptr;
+        int            i          = 0;
+
+        while ((dirContent = readdir(dir)) != nullptr)
+        {
+            i++;
+            string name(dirContent->d_name);
+            if (name != "." && name != "..")
+                filePathNames.push_back(dirName + name);
+        }
+        closedir(dir);
+    }
+#    endif
+#endif
+
+    return filePathNames;
+}
+//-----------------------------------------------------------------------------
+//! Returns a vector of unsorted filesnames with path in dir
 vector<string> getFileNamesInDir(const string& dirName)
 {
     vector<string> filePathNames;
@@ -521,20 +605,27 @@ vector<string> getFileNamesInDir(const string& dirName)
         }
     }
 #else
-    DIR* dir;
-    dir = opendir(dirName.c_str());
+    //todo: does this part also return directories? It should only return file names..
+    DIR* dir = opendir(dirName.c_str());
 
     if (dir)
     {
-        struct dirent* dirContent;
-        int            i = 0;
+        struct dirent* dirContent = nullptr;
+        int            i          = 0;
 
         while ((dirContent = readdir(dir)) != nullptr)
         {
             i++;
             string name(dirContent->d_name);
             if (name != "." && name != "..")
-                filePathNames.push_back(dirName + name);
+            {
+                struct stat path_stat
+                {
+                };
+                stat((dirName + name).c_str(), &path_stat);
+                if (S_ISREG(path_stat.st_mode))
+                    filePathNames.push_back(dirName + name);
+            }
         }
         closedir(dir);
     }
@@ -616,7 +707,7 @@ unsigned int getFileSize(const string& pathfilename)
 {
 #if defined(USE_STD_FILESYSTEM)
     if (fs::exists(pathfilename))
-        return fs::file_size(pathfilename);
+        return (unsigned int)fs::file_size(pathfilename);
     else
         return 0;
 #else
@@ -697,43 +788,121 @@ bool deleteFile(string& pathfilename)
         return remove(pathfilename.c_str()) != 0;
     return false;
 }
+//-----------------------------------------------------------------------------
+//! Dumps all files and folders on stdout recursively naturally sorted
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderPath,
+                       const int     depth)
+{
+    const char* tab = "    ";
+
+    // be sure that the folder slashes are correct
+    string folder = unifySlashes(folderPath);
+
+    if (dirExists(folder))
+    {
+        string indent;
+        for (int d = 0; d < depth; ++d)
+            indent += tab;
+
+        // log current folder name
+        string folderName       = getFileName(Utils::trimString(folder, "/"));
+        string indentFolderName = indent + "[" + folderName + "]";
+        Utils::log(logtag, "%s", indentFolderName.c_str());
+
+        vector<string> unsortedNames = getAllNamesInDir(folder);
+        sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
+
+        for (const auto& fileOrFolder : unsortedNames)
+        {
+            if (dirExists(fileOrFolder))
+                dumpFileSystemRec(logtag, fileOrFolder, depth + 1);
+            else
+            {
+                // log current file name
+                string fileName       = tab + getFileName(fileOrFolder);
+                string indentFileName = indent + fileName;
+                Utils::log(logtag, "%s", indentFileName.c_str());
+            }
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+//! findFile return the full path with filename
+/* Unfortunatelly the relative folder structure on different OS are not identical.
+ * This function allows to search on for a file on different paths.
+ */
+string findFile(const string& filename, const vector<string>& pathsToCheck)
+{
+    if (Utils::fileExists(filename))
+        return filename;
+
+    // Check file existence
+    for (const auto& path : pathsToCheck)
+    {
+        string pathPlusFilename = Utils::unifySlashes(path) + filename;
+        if (Utils::fileExists(pathPlusFilename))
+            return pathPlusFilename;
+    }
+    return "";
+}
+//----------------------------------------------------------------------------
 
 ///////////////////////
 // Logging Functions //
 ///////////////////////
+//-----------------------------------------------------------------------------
+void initFileLog(const string& logDir, bool forceFlush)
+{
+    fileLog = std::make_unique<FileLog>(logDir, forceFlush);
+}
 
 //-----------------------------------------------------------------------------
 //! logs a formatted string platform independently
-void log(const char* format, ...)
+void log(const char* tag, const char* format, ...)
 {
-    char    log[4096];
+    char log[4096];
+
     va_list argptr;
     va_start(argptr, format);
     vsprintf(log, format, argptr);
     va_end(argptr);
 
+    char msg[4096];
+    strcpy(msg, tag);
+    strcat(msg, ": ");
+    strcat(msg, log);
+    strcat(msg, "\n");
+
+    if (fileLog)
+    {
+        fileLog->post(msg);
+    }
+
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO, logAppName.c_str(), log);
+    __android_log_print(ANDROID_LOG_INFO, tag, msg);
 #else
-    cout << log << std::flush;
+    cout << msg << std::flush;
 #endif
 }
 //-----------------------------------------------------------------------------
 //! Terminates the application with a message. No leak checking.
-void exitMsg(const char* msg,
+void exitMsg(const char* tag,
+             const char* msg,
              const int   line,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO,
-                        logAppName.c_str(),
+    __android_log_print(ANDROID_LOG_FATAL,
+                        tag,
                         "Exit %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
-    log("%s: Exit %s at line %d in %s\n",
-        logAppName.c_str(),
+
+    log(tag,
+        "Exit %s at line %d in %s\n",
         msg,
         line,
         file);
@@ -743,20 +912,43 @@ void exitMsg(const char* msg,
 }
 //-----------------------------------------------------------------------------
 //! Warn message output
-void warnMsg(const char* msg,
+void warnMsg(const char* tag,
+             const char* msg,
              const int   line,
              const char* file)
 {
 #if defined(ANDROID) || defined(ANDROID_NDK)
-    __android_log_print(ANDROID_LOG_INFO,
-                        logAppName.c_str(),
+    __android_log_print(ANDROID_LOG_WARN,
+                        tag,
                         "Warning: %s at line %d in %s\n",
                         msg,
                         line,
                         file);
 #else
-    log("%s: Warning %s at line %d in %s\n",
-        logAppName.c_str(),
+    log(tag,
+        "Warning %s at line %d in %s\n",
+        msg,
+        line,
+        file);
+#endif
+}
+//-----------------------------------------------------------------------------
+//! Error message output (same as warn but with another tag for android)
+void errorMsg(const char* tag,
+              const char* msg,
+              const int   line,
+              const char* file)
+{
+#if defined(ANDROID) || defined(ANDROID_NDK)
+    __android_log_print(ANDROID_LOG_ERROR,
+                        tag,
+                        "Error: %s at line %d in %s\n",
+                        msg,
+                        line,
+                        file);
+#else
+    log(tag,
+        "Error %s at line %d in %s\n",
         msg,
         line,
         file);
@@ -766,12 +958,13 @@ void warnMsg(const char* msg,
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads()
 {
-#ifdef _DEBUG
+#if defined(DEBUG) || defined(_DEBUG)
     return 1;
 #else
     return std::max(thread::hardware_concurrency(), 1U);
 #endif
 }
+//-----------------------------------------------------------------------------
 
 ////////////////////////////////
 // Network Handling Functions //
@@ -829,7 +1022,7 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
         istream response_stream(&response);
         string  httpVersion;
         response_stream >> httpVersion;
-        unsigned int statusCode;
+        unsigned int statusCode = 0;
         response_stream >> statusCode;
         string statusMsg;
         getline(response_stream, statusMsg);
@@ -840,7 +1033,8 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
         // Check HTTP response status (400 means bad request)
         if (statusCode != 200)
         {
-            log("httpGet: HTTP Response returned status code: %d (%s)\n",
+            log("httpGet",
+                "httpGet: HTTP Response returned status code: %d (%s)\n",
                 statusCode,
                 statusMsg.c_str());
             return 0;
@@ -875,7 +1069,7 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
             else
             {
                 string msg = "Outfolder not found: " + outFolder;
-                exitMsg(msg.c_str(), __LINE__, __FILE__);
+                exitMsg("httpGet", msg.c_str(), __LINE__, __FILE__);
             }
         }
 
@@ -930,5 +1124,192 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
     return 0;
 }
 //-----------------------------------------------------------------------------
+//! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
+int gcd(int a, int b)
+{
+    if (b == 0)
+        return a;
+    return gcd(b, a % b);
+}
+//-----------------------------------------------------------------------------
+//! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
+int lcm(int a, int b)
+{
+    return (a * b) / Utils::gcd(a, b);
+}
 
-};
+//-----------------------------------------------------------------------------
+//ComputerInfos
+//-----------------------------------------------------------------------------
+std::string ComputerInfos::user  = "USER?";
+std::string ComputerInfos::name  = "NAME?";
+std::string ComputerInfos::brand = "BRAND?";
+std::string ComputerInfos::model = "MODEL?";
+std::string ComputerInfos::os    = "OS?";
+std::string ComputerInfos::osVer = "OSVER?";
+std::string ComputerInfos::arch  = "ARCH?";
+std::string ComputerInfos::id    = "ID?";
+
+//-----------------------------------------------------------------------------
+std::string ComputerInfos::get()
+{
+#if defined(_WIN32) //..................................................
+
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        user               = envvar ? string(envvar) : "USER?";
+    }
+    name = Utils::getHostName();
+
+    // Get architecture
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo);
+    switch (siSysInfo.wProcessorArchitecture)
+    {
+        case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
+        case PROCESSOR_ARCHITECTURE_ARM64: arch = "ARM64"; break;
+        case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
+        default: arch = "???";
+    }
+
+    // Windows OS version
+    OSVERSIONINFO osInfo;
+    ZeroMemory(&osInfo, sizeof(OSVERSIONINFO));
+    osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osInfo);
+    char osVersion[50];
+    sprintf(osVersion, "%u.%u", osInfo.dwMajorVersion, osInfo.dwMinorVersion);
+    osVer = string(osVersion);
+
+    brand = "BRAND?";
+    model = "MODEL?";
+    os    = "Windows";
+
+#elif defined(__APPLE__)
+#    if TARGET_OS_IOS
+    // Model and architecture are retrieved before in iOS under Objective C
+    brand              = "Apple";
+    os                 = "iOS";
+    const char* envvar = std::getenv("USER");
+    user               = envvar ? string(envvar) : "USER?";
+    if (user == "USER?")
+    {
+        const char* envvar = std::getenv("USERNAME");
+        user               = envvar ? string(envvar) : "USER?";
+    }
+    name = Utils::getHostName();
+#    else
+    // Computer user name
+    const char* envvar = std::getenv("USER");
+    user               = envvar ? string(envvar) : "USER?";
+
+    if (user == "USER?")
+    {
+        const char* envvarUN = std::getenv("USERNAME");
+        user                 = envvarUN ? string(envvarUN) : "USER?";
+    }
+
+    name  = Utils::getHostName();
+    brand = "Apple";
+    os    = "MacOS";
+
+    // Get MacOS version
+    //SInt32 majorV, minorV, bugfixV;
+    //Gestalt(gestaltSystemVersionMajor, &majorV);
+    //Gestalt(gestaltSystemVersionMinor, &minorV);
+    //Gestalt(gestaltSystemVersionBugFix, &bugfixV);
+    //char osVer[50];
+    //sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
+    //osVer = string(osVer);
+
+    // Get model
+    //size_t len = 0;
+    //sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
+    //char model[255];
+    //sysctlbyname("hw.model", model, &len, nullptr, 0);
+    //model = model;
+#    endif
+
+#elif defined(ANDROID) //................................................
+
+    os = "Android";
+
+    /*
+    "ro.build.version.release"     // * The user-visible version string. E.g., "1.0" or "3.4b5".
+    "ro.build.version.incremental" // The internal value used by the underlying source control to represent this build.
+    "ro.build.version.codename"    // The current development codename, or the string "REL" if this is a release build.
+    "ro.build.version.sdk"         // The user-visible SDK version of the framework.
+
+    "ro.product.model"             // * The end-user-visible name for the end product..
+    "ro.product.manufacturer"      // The manufacturer of the product/hardware.
+    "ro.product.board"             // The name of the underlying board, like "goldfish".
+    "ro.product.brand"             // The brand (e.g., carrier) the software is customized for, if any.
+    "ro.product.device"            // The name of the industrial design.
+    "ro.product.name"              // The name of the overall product.
+    "ro.hardware"                  // The name of the hardware (from the kernel command line or /proc).
+    "ro.product.cpu.abi"           // The name of the instruction set (CPU type + ABI convention) of native code.
+    "ro.product.cpu.abi2"          // The name of the second instruction set (CPU type + ABI convention) of native code.
+
+    "ro.build.display.id"          // * A build ID string meant for displaying to the user.
+    "ro.build.host"
+    "ro.build.user"
+    "ro.build.id"                  // Either a changelist number, or a label like "M4-rc20".
+    "ro.build.type"                // The type of build, like "user" or "eng".
+    "ro.build.tags"                // Comma-separated tags describing the build, like "unsigned,debug".
+    */
+
+    int len;
+
+    char hostC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.build.host", hostC);
+    name = hostC ? string(hostC) : "NAME?";
+
+    char userC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.build.user", userC);
+    user = userC ? string(userC) : "USER?";
+
+    char brandC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.product.brand", brandC);
+    brand = string(brandC);
+
+    char modelC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.product.model", modelC);
+    model = string(modelC);
+
+    char osVerC[PROP_VALUE_MAX];
+    len   = __system_property_get("ro.build.version.release", osVerC);
+    osVer = string(osVerC);
+
+    char archC[PROP_VALUE_MAX];
+    len  = __system_property_get("ro.product.cpu.abi", archC);
+    arch = string(archC);
+
+#elif defined(linux) || defined(__linux) || defined(__linux__) //..................................................
+
+    os    = "Linux";
+    user  = "USER?";
+    name  = Utils::getHostName();
+    brand = "BRAND?";
+    model = "MODEL?";
+    osVer = "OSVER?";
+    arch  = "ARCH?";
+#endif
+
+    // build a unique as possible ID string that can be used in a filename
+    id = user + "-" + name + "-" + model;
+    if (model.find("SM-") != string::npos)
+        // Don't use computerName on Samsung phones. It's not constant!
+        id = user + "-" + model;
+    else
+        id = user + "-" + name + "-" + model;
+    id = Utils::replaceNonFilenameChars(id);
+    std::replace(id.begin(), id.end(), '_', '-');
+    return id;
+}
+}

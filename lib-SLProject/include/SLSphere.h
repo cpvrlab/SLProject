@@ -17,23 +17,28 @@
 
 class SLRay;
 class SLMaterial;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! SLSphere creates a sphere mesh based on SLSpheric w. 180 deg polar angle.
 class SLSphere : public SLSpheric
 {
-    public:
-    explicit SLSphere(SLfloat     radius,
-                      SLuint      stacks = 32,
-                      SLuint      slices = 32,
-                      SLstring    name   = "sphere mesh",
-                      SLMaterial* mat    = nullptr) : SLSpheric(radius,
+public:
+    explicit SLSphere(SLAssetManager* assetMgr,
+                      SLfloat         radius,
+                      SLuint          stacks = 32,
+                      SLuint          slices = 32,
+                      SLstring        name   = "sphere mesh",
+                      SLMaterial*     mat    = nullptr) : SLSpheric(assetMgr,
+                                                             radius,
                                                              0.0f,
                                                              180.0f,
                                                              stacks,
                                                              slices,
                                                              std::move(name),
-                                                             mat) {}
+                                                             mat)
+    {
+    }
 };
 //-----------------------------------------------------------------------------
 #endif //SLSPHERE_H

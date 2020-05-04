@@ -19,8 +19,11 @@
 #include <SLPlane.h>
 #include <SLRay.h>
 #include <SLSamples2D.h>
+#include <SLRect.h>
 
 class SLSceneView;
+class SLDeviceRotation;
+class SLDeviceLocation;
 
 //-----------------------------------------------------------------------------
 //! Active or visible camera node class
@@ -48,46 +51,49 @@ drawn on the far clipping plane of the visualized view frustum.
 */
 class SLCamera : public SLNode
 {
-    public:
-    SLCamera(SLstring name = "Camera");
-    ~SLCamera();
+public:
+    SLCamera(const SLstring& name = "Camera");
+    ~SLCamera() { ; }
 
     void statsRec(SLNodeStats& stats);
 
     virtual void   drawMeshes(SLSceneView* sv);
     virtual SLbool camUpdate(SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
-    void           calcMinMax(SLVec3f& minV, SLVec3f& maxV);
-    void           buildAABB(SLAABBox& aabb, SLMat4f wmNode);
+    void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;
+    void           buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
 
     // Event handlers for camera animation
-    virtual SLbool onMouseDown(const SLMouseButton button,
-                               const SLint         x,
-                               const SLint         y,
-                               const SLKey         mod);
-    virtual SLbool onMouseMove(const SLMouseButton button,
-                               const SLint         x,
-                               const SLint         y,
-                               const SLKey         mod);
-    virtual SLbool onMouseUp(const SLMouseButton button,
-                             const SLint         x,
-                             const SLint         y,
-                             const SLKey         mod);
-    virtual SLbool onMouseWheel(const SLint delta, const SLKey mod);
-    virtual SLbool onTouch2Down(const SLint x1, const SLint y1, const SLint x2, const SLint y2);
-    virtual SLbool onTouch2Move(const SLint x1, const SLint y1, const SLint x2, const SLint y2);
-    virtual SLbool onTouch2Up(const SLint x1, const SLint y1, const SLint x2, const SLint y2);
-    virtual SLbool onKeyPress(const SLKey key, const SLKey mod);
-    virtual SLbool onKeyRelease(const SLKey key, const SLKey mod);
+    virtual SLbool onMouseDown(SLMouseButton button,
+                               SLint         x,
+                               SLint         y,
+                               SLKey         mod);
+    virtual SLbool onMouseMove(SLMouseButton button,
+                               SLint         x,
+                               SLint         y,
+                               SLKey         mod);
+    virtual SLbool onMouseUp(SLMouseButton button,
+                             SLint         x,
+                             SLint         y,
+                             SLKey         mod);
+    virtual SLbool onMouseWheel(SLint delta, SLKey mod);
+    virtual SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
+    virtual SLbool onKeyPress(SLKey key, SLKey mod);
+    virtual SLbool onKeyRelease(SLKey key, SLKey mod);
 
     void    eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray);
     void    UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W);
     SLVec3f trackballVec(const SLint x, const SLint y);
+    SLVec2f projectWorldToNDC(const SLVec4f& worldPos) const;
+    SLVec3f trackballVec(SLint x, SLint y) const;
     SLbool  isInFrustum(SLAABBox* aabb);
 
     // Apply projection, viewport and view transformations
-    void setProjection(SLSceneView* sv, const SLEyeType eye);
-    void setView(SLSceneView* sv, const SLEyeType eye);
+    void setViewport(SLSceneView* sv, SLEyeType eye);
+    void setProjection(SLSceneView* sv, SLEyeType eye);
+    void setView(SLSceneView* sv, SLEyeType eye);
     void setFrustumPlanes();
 
     // Setters
@@ -108,10 +114,17 @@ class SLCamera : public SLNode
         _camAnim         = ca;
         currentAnimation = ca;
     }
+    void intrinsics(const SLfloat fx, const SLfloat fy, const SLfloat cx, const SLfloat cy)
+    {
+        _fx = fx;
+        _fy = fy;
+        _cx = cx;
+        _cy = cy;
+    }
     void clipNear(const SLfloat cNear) { _clipNear = cNear; }
     void clipFar(const SLfloat cFar) { _clipFar = cFar; }
-    void lookFrom(const SLVec3f fromDir,
-                  const SLVec3f upDir = SLVec3f::AXISY);
+    void lookFrom(const SLVec3f& fromDir,
+                  const SLVec3f& upDir = SLVec3f::AXISY);
     void maxSpeed(const SLfloat ms) { _maxSpeed = ms; }
     void moveAccel(const SLfloat accel) { _moveAccel = accel; }
     void brakeAccel(const SLfloat accel) { _brakeAccel = accel; }
@@ -120,33 +133,42 @@ class SLCamera : public SLNode
     void lensDiameter(const SLfloat d) { _lensDiameter = d; }
     void lensSamples(SLuint x, SLuint y) { _lensSamples.samples(x, y); }
     void eyeSeparation(const SLfloat es) { _eyeSeparation = es; }
+    void devRotLoc(SLDeviceRotation* devRot, SLDeviceLocation* devLoc)
+    {
+        _devRot = devRot;
+        _devLoc = devLoc;
+    }
 
     // Getters
-    const SLMat4f& updateAndGetVM() const { return updateAndGetWMI(); }
-    SLProjection   projection() const { return _projection; }
-    SLstring       projectionStr() const { return projectionToStr(_projection); }
-    SLfloat        unitScaling() { return _unitScaling; }
-    SLfloat        fov() const { return _fov; }
-    SLfloat        aspect() const { return _aspect; }
-    SLfloat        clipNear() const { return _clipNear; }
-    SLfloat        clipFar() const { return _clipFar; }
-    SLCamAnim      camAnim() const { return _camAnim; }
-    SLstring       animationStr() const;
-    SLfloat        lensDiameter() const { return _lensDiameter; }
-    SLSamples2D*   lensSamples() { return &_lensSamples; }
-    SLfloat        eyeSeparation() const { return _eyeSeparation; }
-    SLfloat        focalDist() const { return _focalDist; }
-    SLfloat        focalDistScrW() const;
-    SLfloat        focalDistScrH() const;
-    SLVec3f        focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
-    SLVec3f        focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
-    SLfloat        trackballSize() const { return _trackballSize; }
-    SLBackground&  background() { return _background; }
-    SLfloat        maxSpeed() const { return _maxSpeed; }
-    SLfloat        moveAccel() const { return _moveAccel; }
-    SLfloat        brakeAccel() const { return _brakeAccel; }
-    SLfloat        drag() const { return _drag; }
-    SLstring       toString() const;
+    const SLMat4f& updateAndGetVM() const
+    {
+        return updateAndGetWMI();
+    }
+    SLProjection  projection() const { return _projection; }
+    SLstring      projectionStr() const { return projectionToStr(_projection); }
+    SLfloat       unitScaling() { return _unitScaling; }
+    SLfloat       fov() const { return _fov; }
+    SLfloat       aspect() const { return _viewportRatio; }
+    SLfloat       clipNear() const { return _clipNear; }
+    SLfloat       clipFar() const { return _clipFar; }
+    SLCamAnim     camAnim() const { return _camAnim; }
+    SLstring      animationStr() const;
+    SLfloat       lensDiameter() const { return _lensDiameter; }
+    SLSamples2D*  lensSamples() { return &_lensSamples; }
+    SLfloat       eyeSeparation() const { return _eyeSeparation; }
+    SLfloat       focalDist() const { return _focalDist; }
+    SLfloat       focalDistScrW() const;
+    SLfloat       focalDistScrH() const;
+    SLVec3f       focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
+    SLVec3f       focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
+    SLfloat       trackballSize() const { return _trackballSize; }
+    SLBackground& background() { return _background; }
+    SLfloat       maxSpeed() const { return _maxSpeed; }
+    SLfloat       moveAccel() const { return _moveAccel; }
+    SLfloat       brakeAccel() const { return _brakeAccel; }
+    SLfloat       drag() const { return _drag; }
+    SLstring      toString() const;
+    SLRectf&      selectedRect() { return _selectedRect; }
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -155,17 +177,22 @@ class SLCamera : public SLNode
     static SLint        currentDevRotation;
     static SLstring     projectionToStr(SLProjection p);
 
-    protected:
+protected:
     // projection parameters
-    SLProjection _projection; //!< projection type
-    SLint        _scrW;       //!< screen width in pixels
-    SLint        _scrH;       //!< screen height in pixels
-    SLfloat      _aspect;     //!< _scrW /_srcH = screen ratio
-    SLfloat      _fov;        //!< Current field of view (view angle)
-    SLfloat      _fovInit;    //!< Initial field of view (view angle)
-    SLfloat      _clipNear;   //!< Dist. to the near clipping plane
-    SLfloat      _clipFar;    //!< Dist. to the far clipping plane
-    SLPlane      _plane[6];   //!< 6 frustum planes (t, b, l, r, n, f)
+    SLProjection _projection;    //!< projection type
+    SLfloat      _fov;           //!< Current field of view (view angle)
+    SLfloat      _fovInit;       //!< Initial field of view (view angle)
+    SLfloat      _clipNear;      //!< Dist. to the near clipping plane
+    SLfloat      _clipFar;       //!< Dist. to the far clipping plane
+    SLPlane      _plane[6];      //!< 6 frustum planes (t, b, l, r, n, f)
+    SLint        _viewportW;     //!< screen width in screen coordinates (the framebuffer may be bigger)
+    SLint        _viewportH;     //!< screen height in screen coordinates (the framebuffer may be bigger)
+    SLfloat      _viewportRatio; //!< _scrW /_srcH = screen ratio
+    SLfloat      _fx;
+    SLfloat      _fy;
+    SLfloat      _cx;
+    SLfloat      _cy;
+
     enum
     {
         T = 0,
@@ -180,7 +207,7 @@ class SLCamera : public SLNode
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
 
     // animation parameters
-    SLbool    _movedLastFrame;    //! did the camera update in the last frame?
+    SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
     SLVec2f   _oldTouchPos2;      //!< Old 2nd finger touch position in pixels
@@ -203,6 +230,11 @@ class SLCamera : public SLNode
     // Stereo rendering
     SLfloat _eyeSeparation; //!< eye separation for stereo mode
     SLfloat _unitScaling;   //!< indicate what the current unit scaling is to adjust movement and stereo rendering correctly
+
+    SLDeviceRotation* _devRot = nullptr;
+    SLDeviceLocation* _devLoc = nullptr;
+
+    SLRectf _selectedRect; //!< Mouse selection rectangle
 };
 //-----------------------------------------------------------------------------
 #endif

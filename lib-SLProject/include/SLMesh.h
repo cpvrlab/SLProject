@@ -26,6 +26,8 @@ class SLMaterial;
 class SLRay;
 class SLSkeleton;
 class SLGLState;
+class SLGLProgram;
+class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
@@ -123,8 +125,9 @@ class SLMesh : public SLObject
 #endif
 
 {
-    public:
-    explicit SLMesh(const SLstring& name = "Mesh");
+public:
+    explicit SLMesh(SLAssetManager* assetMgr,
+                    const SLstring& name = "Mesh");
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
@@ -144,8 +147,8 @@ class SLMesh : public SLObject
     virtual void calcMinMax();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-
-    void transformSkin();
+    void         generateVAO(SLGLProgram* sp);
+    void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
 
 #ifdef SL_HAS_OPTIX
     void            allocAndUploadData();
@@ -162,6 +165,7 @@ class SLMesh : public SLObject
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
     SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLGLVertexArray&  vao() { return _vao; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -193,7 +197,7 @@ class SLMesh : public SLObject
 
     static unsigned int meshIndex;
 
-    protected:
+protected:
     SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
     SLMaterial*        _mat;       //!< Pointer to the inside material
     SLMaterial*        _matOut;    //!< Pointer to the outside material
@@ -220,7 +224,7 @@ class SLMesh : public SLObject
     SLVVec3f*   _finalP;        //!< Pointer to final vertex position vector
     SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
 
-    void notifyParentNodesAABBUpdate() const;
+    //void notifyParentNodesAABBUpdate(std::function<void(void)> cbInformNodes) const;
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLMesh*> SLVMesh;

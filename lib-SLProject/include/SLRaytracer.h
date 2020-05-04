@@ -12,6 +12,8 @@
 
 #include <SLEventHandler.h>
 #include <SLGLTexture.h>
+#include <SLVec4.h>
+#include <SLLight.h>
 
 class SLScene;
 class SLSceneView;
@@ -32,7 +34,7 @@ typedef enum
 //! Pixel index struct used in anti aliasing in ray tracing
 struct SLRTAAPixel
 {
-    SLRTAAPixel(SLushort X = 0, SLushort Y = 0)
+    explicit SLRTAAPixel(SLushort X = 0, SLushort Y = 0)
     {
         x = X;
         y = Y;
@@ -52,7 +54,7 @@ the ray intersection tests is done within the intersection method of all nodes.
 class SLRaytracer : public SLGLTexture
   , public SLEventHandler
 {
-    public:
+public:
     SLRaytracer();
     ~SLRaytracer() override;
 
@@ -64,7 +66,7 @@ class SLRaytracer : public SLGLTexture
     SLCol4f trace(SLRay* ray);
     SLCol4f shade(SLRay* ray);
     void    sampleAAPixels(bool isMainThread);
-    void    finishBeforeUpdate();
+    void    renderUIBeforeUpdate();
 
     // additional ray tracer functions
     void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
@@ -83,6 +85,7 @@ class SLRaytracer : public SLGLTexture
         _maxDepth = depth;
         state(rtReady);
     }
+    void resolutionFactor(SLfloat rf) { _resolutionFactor = rf; }
     void doDistributed(SLbool distrib) { _doDistributed = distrib; }
     void doContinuous(SLbool cont)
     {
@@ -113,28 +116,30 @@ class SLRaytracer : public SLGLTexture
     SLbool    doFresnel() const { return _doFresnel; }
     SLint     aaSamples() const { return _aaSamples; }
     SLuint    numThreads() const { return Utils::maxThreads(); }
-    SLint     pcRendered() const { return _pcRendered; }
+    SLint     progressPC() const { return _progressPC; }
     SLfloat   aaThreshold() const { return _aaThreshold; }
     SLfloat   renderSec() const { return _renderSec; }
-    SLfloat   gamma() { return _gamma; }
-    SLfloat   oneOverGamma() { return _oneOverGamma; }
+    SLfloat   gamma() const { return _gamma; }
+    SLfloat   oneOverGamma() const { return _oneOverGamma; }
+    SLfloat   resolutionFactor() const { return _resolutionFactor; }
+    SLint     resolutionFactorPC() const { return (SLint)(_resolutionFactor * 100.0f + 0.00001f); }
 
     // Render target image
-    virtual void prepareImage();
-
-    virtual void renderImage();
+    void prepareImage();
+    void renderImage();
     virtual void saveImage();
 
-    protected:
-    SLSceneView* _sv;            //!< Parent sceneview
-    SLRTState    _state;         //!< RT state;
-    SLCamera*    _cam;           //!< shortcut to the camera
-    SLint        _maxDepth;      //!< Max. allowed recursion depth
-    SLbool       _doContinuous;  //!< if true state goes into ready again
-    SLbool       _doDistributed; //!< Flag for parallel distributed RT
-    SLbool       _doFresnel;     //!< Flag for Fresnel reflection
-    SLint        _pcRendered;    //!< % rendered
-    SLfloat      _renderSec;     //!< Rendering time in seconds
+protected:
+    SLSceneView* _sv;               //!< Parent sceneview
+    SLRTState    _state;            //!< RT state;
+    SLCamera*    _cam;              //!< shortcut to the camera
+    SLfloat      _resolutionFactor; //!< screen to RT image size factor (default 1.0)
+    SLint        _maxDepth;         //!< Max. allowed recursion depth
+    SLbool       _doContinuous;     //!< if true state goes into ready again
+    SLbool       _doDistributed;    //!< Flag for parallel distributed RT
+    SLbool       _doFresnel;        //!< Flag for Fresnel reflection
+    SLint        _progressPC;       //!< progress in %
+    SLfloat      _renderSec;        //!< Rendering time in seconds
 
     SLfloat     _pxSize;       //!< Pixel size
     SLVec3f     _EYE;          //!< Camera position

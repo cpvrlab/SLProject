@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for OpenCV with contributions for MacOS
+# Build script for OpenCV with contributions for iOS
 # ####################################################
 
 CV_VERSION=$1
@@ -58,45 +58,49 @@ rm -rf $BUILD_D
 mkdir $BUILD_D
 cd $BUILD_D
 
-
+echo "====================================================== cmake"
 # Run cmake to configure and generate for iosV8 debug
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
 -DCMAKE_BUILD_TYPE=Debug \
--DBUILD_WITH_DEBUG_INFO=true \
+-DBUILD_WITH_DEBUG_INFO=ON \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
--DBUILD_opencv_world=false \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
+-DBUILD_opencv_world=OFF \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DWITH_MATLAB=OFF \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=true \
+-DWITH_CUDA=OFF \
+-DWITH_OPENCL=OFF \
+-DWITH_OPENCL_SVM=OFF \
+-DWITH_OPENCLAMDFFT=OFF \
+-DWITH_OPENCLAMDBLAS=OFF \
+-DWITH_VA_INTEL=OFF \
 -GXcode \
 -DAPPLE_FRAMEWORK=ON \
--DIOS_ARCH=arm64 \
--DCMAKE_TOOLCHAIN_FILE=../../platforms/ios/cmake/Toolchains/Toolchain-iPhoneOS_Xcode.cmake \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
 -DENABLE_NEON=ON \
+-DENABLE_ARC=OFF \
 ../..
 
+cmake --build . --config Debug --target install
+
+: '
+echo "================================================= xcodebuild"
 xcodebuild \
 IPHONEOS_DEPLOYMENT_TARGET=8.0 \
 ARCHS=arm64 \
 -sdk=phoneos \
 -configuration=Debug \
--jobs=8 \
+-jobs=1 \
 -target=ALL_BUILD \
 -parallelizeTargets \
 build
 
-: '
-# finally build it
-make -j8
-
-# copy all into install folder
-make install
 cd ../.. # back to opencv
 
 # Make build folder for release version
@@ -109,24 +113,30 @@ cd $BUILD_R
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Release \
 -DCMAKE_BUILD_TYPE=Release \
--DBUILD_WITH_DEBUG_INFO=false \
+-DBUILD_WITH_DEBUG_INFO=0 \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
--DBUILD_opencv_world=false \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
+-DBUILD_opencv_python_bindings_generator=0 \
+-DBUILD_opencv_python2=0 \
+-DBUILD_opencv_java_bindings_generator=0 \
+-DBUILD_opencv_world=0 \
+-DBUILD_PERF_TESTS=0 \
+-DBUILD_TESTS=0 \
+-DWITH_MATLAB=0 \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
+-DWITH_OPENCL=0 \
+-DWITH_OPENCLAMDFFT=0 \
+-DWITH_OPENCLAMDBLAS=0 \
+-DWITH_VA_INTEL=0 \
+-GXcode \
+-DPLATFORM=OS64 \
+-DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
+-DENABLE_NEON=1 \
+-DENABLE_ARC=0 \
 ../..
 
-# finally build it
-make -j8
+cmake --build . --config Release --target install
 
-# copy all into install folder
-make install
-cd ../.. # back to opencv
+cd ../.. # Back to opencv
 
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER

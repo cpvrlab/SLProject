@@ -24,9 +24,7 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
-                arguments "-DANDROID_STL=c++_shared"
-                "-DSL_GUI_JAVA"
-                "-DAPP_USES_GLES"
+                arguments "-DANDROID_STL=c++_shared", "-DSL_GUI_JAVA", "-DAPP_USES_GLES", "-DSL_BUILD_WAI=ON"
             }
         }
     }
@@ -37,13 +35,13 @@ android {
         debug {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    //'../../../../externals/prebuilt/andV8_opencv_4.1.1/Debug'
+                    '../../../../externals/prebuilt/andV8_g2o/Debug'
             ]
         }
         release {
             // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
             jniLibs.srcDirs = [
-                    //'../../../../externals/prebuilt/andV8_opencv_4.1.1/Release'
+                    '../../../../externals/prebuilt/andV8_g2o/Release'
             ]
         }
     }

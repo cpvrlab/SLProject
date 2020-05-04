@@ -1195,7 +1195,7 @@ ORBextractor::ORBextractor(int   _nfeatures,
                            int   _minThFAST)
   : iniThFAST(_iniThFAST),
     minThFAST(_minThFAST),
-    KPextractor("FAST_ORBS_" + std::to_string(_nfeatures))
+    KPextractor("FAST_ORBS_" + std::to_string(_nfeatures), false)
 {
     nfeatures   = _nfeatures;
     scaleFactor = _scaleFactor;
@@ -1832,6 +1832,12 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
         computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
 }
 
+void ORBextractor::computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)
+{
+    descriptors.create(keypoints.size(), 32, CV_8U);
+    computeDescriptors(image, keypoints, descriptors, pattern);
+}
+
 void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
 {
     if (_image.empty())
@@ -1852,7 +1858,7 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
 
     //ComputeKeyPointsOld(allKeypoints);
 
-    AVERAGE_TIMING_START("blurAndcomputeDescriptors");
+    AVERAGE_TIMING_START("BlurAndComputeDescr");
     Mat descriptors;
 
     int nkeypoints = 0;
@@ -1904,7 +1910,7 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
         _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
     }
 
-    AVERAGE_TIMING_STOP("blurAndcomputeDescriptors");
+    AVERAGE_TIMING_STOP("BlurAndComputeDescr");
 }
 
 void ORBextractor::ComputePyramid(cv::Mat image)

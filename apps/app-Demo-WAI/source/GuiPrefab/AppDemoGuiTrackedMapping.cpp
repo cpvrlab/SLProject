@@ -1,57 +1,76 @@
-#include <imgui.h>
-#include <imgui_internal.h>
-
-#include <AppWAI.h>
 #include <AppDemoGuiTrackedMapping.h>
+#include <WAISlam.h>
 
 //-----------------------------------------------------------------------------
 const char* AppDemoGuiTrackedMapping::_currItem = NULL;
 int         AppDemoGuiTrackedMapping::_currN    = -1;
 //-----------------------------------------------------------------------------
-AppDemoGuiTrackedMapping::AppDemoGuiTrackedMapping(string name, bool* activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiTrackedMapping::AppDemoGuiTrackedMapping(string                        name,
+                                                   bool*                         activator,
+                                                   ImFont*                       font,
+                                                   std::function<WAISlam*(void)> getModeCB)
+  : AppDemoGuiInfosDialog(name, activator, font),
+    _getMode(getModeCB)
 {
 }
 //-----------------------------------------------------------------------------
 void AppDemoGuiTrackedMapping::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Tracked Mapping", _activator, ImGuiWindowFlags_AlwaysAutoResize);
-    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    ImGui::PushFont(_font);
+    ImGui::Begin("Tracked Mapping", _activator /*, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize*/);
+
+    WAISlam* mode = _getMode();
+    if (!mode)
     {
-        WAIApp::mode->reset();
+        ImGui::Text("SLAM not running.");
     }
-
-    if (ImGui::Button("Disable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    else
     {
-        WAIApp::mode->disableMapping();
-    }
-    if (ImGui::Button("Enable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        WAIApp::mode->enableMapping();
-    }
+        if (!mode)
+            return;
 
-    //add tracking state
-    ImGui::Text("Tracking State : %s ", WAIApp::mode->getPrintableState().c_str());
-    //add number of matches map points in current frame
-    ImGui::Text("Num Map Matches: %d ", WAIApp::mode->getMapPointMatchesCount());
-    //number of map points
-    ImGui::Text("Num Map Pts: %d ", WAIApp::mode->getMapPointCount());
-    //add number of keyframes
-    ImGui::Text("Number of Keyframes : %d ", WAIApp::mode->getKeyFrameCount());
-    ImGui::InputInt("Min. frames before next KF", &WAIApp::mode->mMinFrames, 5, 0);
+        if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            mode->reset();
+        }
 
-    //add loop closings counter
-    ImGui::Text("Number of LoopClosings : %d ", WAIApp::mode->getLoopCloseCount());
-    //ImGui::Text("Number of LoopClosings : %d ", _wai->mpLoopCloser->numOfLoopClosings());
-    ImGui::Text("Loop closing status : %s ", WAIApp::mode->getLoopCloseStatus().c_str());
-    ImGui::Text("Keyframes in Loop closing queue : %d", WAIApp::mode->getKeyFramesInLoopCloseQueueCount());
+        /*
+        if (ImGui::Button("Disable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            mode->disableMapping();
+        }
+        if (ImGui::Button("Enable Mapping", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+        {
+            mode->enableMapping();
+        }
+        */
 
-    //show 2D key points in video image
-    bool b = WAIApp::mode->getTrackOptFlow();
-    if (ImGui::Checkbox("Track optical flow", &b))
-    {
-        WAIApp::mode->setTrackOptFlow(b);
+        //add tracking state
+        ImGui::Text("Tracking State : %s ", mode->getPrintableState().c_str());
+        //add number of matches map points in current frame
+        ImGui::Text("Num Map Matches: %d ", mode->getMapPointMatchesCount());
+        //number of map points
+        ImGui::Text("Num Map Pts: %d ", mode->getMapPointCount());
+        //add number of keyframes
+        ImGui::Text("Number of Keyframes : %d ", mode->getKeyFrameCount());
+        //ImGui::InputInt("Min. frames before next KF", &mode->mMinFrames, 5, 0);
+
+        //add loop closings counter
+        ImGui::Text("Number of LoopClosings : %d ", mode->getLoopCloseCount());
+        //ImGui::Text("Number of LoopClosings : %d ", _wai->mpLoopCloser->numOfLoopClosings());
+        ImGui::Text("Loop closing status : %s ", mode->getLoopCloseStatus().c_str());
+        ImGui::Text("Keyframes in Loop closing queue : %d", mode->getKeyFramesInLoopCloseQueueCount());
+
+        /*
+        //show 2D key points in video image
+        bool b = mode->getTrackOptFlow();
+        if (ImGui::Checkbox("Track optical flow", &b))
+        {
+            mode->setTrackOptFlow(b);
+        }
+        */
     }
 
     ImGui::End();
+    ImGui::PopFont();
 }

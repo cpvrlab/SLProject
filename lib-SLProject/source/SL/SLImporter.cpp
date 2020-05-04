@@ -10,12 +10,8 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLImporter.h>
-#include <cstdarg> // only needed because we wrap pintf in logMessage, read the todo and fix it!
+#include <cstdarg> // only needed because we wrap printf in logMessage, read the todo and fix it!
 
 //-----------------------------------------------------------------------------
 //! Default path for 3DS models used when only filename is passed in load.

@@ -10,25 +10,29 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
 #include <SLBox.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLLightSpot.h>
 #include <SLTexFont.h>
-#include <SLText.h>
+#include <GlobalTimer.h>
 
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 
 //-----------------------------------------------------------------------------
+std::string findModelFileName(std::string file)
+{
+    return Utils::findFile(Utils::getFileName(file),
+                           {SLImporter::defaultPath,
+                            SLImporter::defaultPath + Utils::getPath(file),
+                            SLApplication::exePath});
+}
+//-----------------------------------------------------------------------------
 void drawXZGrid(const SLMat4f& mat)
 {
-    // for now we don't want to update the mesh implementation
+    // for now we don't want to updateRec the mesh implementation
     // or the buffer implementation, so we don't have vertex color support
 
     static SLGLVertexArrayExt grid;
@@ -104,8 +108,11 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView()
-  : _modifiers(K_none),
+AppNodeSceneView::AppNodeSceneView(SLProjectScene* s,
+                                   int             dpi,
+                                   SLInputManager& inputManager)
+  : SLSceneView(s, dpi, inputManager),
+    _modifiers(K_none),
     _continuousInput(true),
     _curMode(TranslationMode),
     _curObject(nullptr),
@@ -123,14 +130,14 @@ AppNodeSceneView::~AppNodeSceneView()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::postSceneLoad()
 {
-    SLMaterial* rMat = new SLMaterial("rMat", SLCol4f(1.0f, 0.7f, 0.7f));
-    SLMaterial* gMat = new SLMaterial("gMat", SLCol4f(0.7f, 1.0f, 0.7f));
+    SLMaterial* rMat = new SLMaterial(&_assets, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
+    SLMaterial* gMat = new SLMaterial(&_assets, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
 
     // build parent box
     _moveBox = new SLNode("Parent");
     _moveBox->translation(0, 0, 2);
     _moveBox->rotation(22.5f, SLVec3f(0, -1, 0));
-    _moveBox->addMesh(new SLBox(-0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
+    _moveBox->addMesh(new SLBox(&_assets, -0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
     _moveBox->setInitialState();
 
     // build child box
@@ -138,20 +145,22 @@ void AppNodeSceneView::postSceneLoad()
     _moveBoxChild->translation(0, 1, 0);
     _moveBoxChild->rotation(22.5f, SLVec3f(0, -1, 0));
     _moveBoxChild->setInitialState();
-    _moveBoxChild->addMesh(new SLBox(-0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
+    _moveBoxChild->addMesh(new SLBox(&_assets, -0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
     _moveBox->addChild(_moveBoxChild);
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
-    _axesNode = importer.load("FBX/Axes/axes_blender.fbx");
+    _axesNode = importer.load(_s->animManager(),
+                              &_assets,
+                              findModelFileName("FBX/Axes/axes_blender.fbx"));
 
-    SLApplication::scene->root3D()->addChild(_moveBox);
-    SLApplication::scene->root3D()->addChild(_axesNode);
+    _s->root3D()->addChild(_moveBox);
+    _s->root3D()->addChild(_axesNode);
 
     if (!_curObject)
     {
         _curObject = _moveBoxChild;
-        SLApplication::scene->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+        _s->selectNodeMesh(_curObject, _curObject->meshes()[0]);
     }
     updateInfoText();
     updateCurOrigin();
@@ -159,8 +168,8 @@ void AppNodeSceneView::postSceneLoad()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::preDraw()
 {
-    static SLfloat lastTime    = SLApplication::timeS();
-    SLfloat        currentTime = SLApplication::timeS();
+    static SLfloat lastTime    = GlobalTimer::timeS();
+    SLfloat        currentTime = GlobalTimer::timeS();
     _deltaTime                 = currentTime - lastTime;
     lastTime                   = currentTime;
 
@@ -463,7 +472,7 @@ void AppNodeSceneView::updateInfoText()
     keyBinds += "\nR: Reset \n";
     sprintf(m + strlen(m), "%s", keyBinds.c_str());
 
-    SLTexFont* f         = SLTexFont::getFont(1.2f, SLApplication::dpi);
+    SLTexFont* f         = SLProjectScene::getFont(1.2f, dpi());
     AppNodeGui::infoText = m;
 }
 //-----------------------------------------------------------------------------

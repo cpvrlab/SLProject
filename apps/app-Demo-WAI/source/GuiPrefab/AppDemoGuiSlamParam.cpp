@@ -18,56 +18,46 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <AppDemoGuiSlamParam.h>
 #include <Utils.h>
-
+#include <GLSLextractor.h>
+#include <WAIApp.h>
 //-----------------------------------------------------------------------------
-
-AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string& name,
-                                         bool*              activator)
-  : AppDemoGuiInfosDialog(name, activator)
+AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string&              name,
+                                         bool*                           activator,
+                                         std::queue<WAIEvent*>*          eventQueue,
+                                         const std::vector<std::string>& extractorIdToNames)
+  : AppDemoGuiInfosDialog(name, activator),
+    _extractorIdToNames(extractorIdToNames),
+    _eventQueue(eventQueue)
 {
-    int          nFeatures    = 1000;
-    float        fScaleFactor = 1.2;
-    int          nLevels      = 8;
-    int          fIniThFAST   = 20;
-    int          fMinThFAST   = 7;
-    KPextractor* orbExtractor = new ORB_SLAM2::ORBextractor(nFeatures,
-                                                            fScaleFactor,
-                                                            nLevels,
-                                                            fIniThFAST,
-                                                            fMinThFAST);
-
-    KPextractor* orbExtractor2 = new ORB_SLAM2::ORBextractor(2 * nFeatures,
-                                                            fScaleFactor,
-                                                            nLevels,
-                                                            fIniThFAST,
-                                                            fMinThFAST);
-
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(500));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(800));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(1000));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(1500));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(2000));
-    _extractors.push_back(new ORB_SLAM2::SURFextractor(2500));
-    _extractors.push_back(orbExtractor);
-    _extractors.push_back(orbExtractor2);
-
-    _current    = _extractors.at(1);
-    _iniCurrent = _extractors.at(1);
+    _currentId       = 2;
+    _iniCurrentId    = 1;
+    _markerCurrentId = 1;
 }
 
 void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    WAI::ModeOrbSlam2* mode = WAIApp::mode;
     ImGui::Begin("Slam Param", _activator, ImGuiWindowFlags_AlwaysAutoResize);
-
-    if (ImGui::BeginCombo("Extractor", _current->GetName().c_str()))
+    if (ImGui::BeginCombo("Extractor", _extractorIdToNames.at(_currentId).c_str()))
     {
-        for (int i = 0; i < _extractors.size(); i++)
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
         {
-            bool isSelected = (_current == _extractors[i]); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
+            bool isSelected = (_currentId == i); // You can store your selection however you want, outside or inside your objects
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                _currentId = i;
+            if (isSelected)
+                ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+        }
+        ImGui::EndCombo();
+    }
+
+    if (ImGui::BeginCombo("Init extractor", _extractorIdToNames.at(_iniCurrentId).c_str()))
+    {
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
+        {
+            bool isSelected = (_iniCurrentId == i); // You can store your selection however you want, outside or inside your objects
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
             {
-                _current = _extractors[i];
+                _iniCurrentId = i;
             }
             if (isSelected)
                 ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -75,24 +65,31 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::EndCombo();
     }
 
-    if (ImGui::BeginCombo("Init extractor", _iniCurrent->GetName().c_str()))
+    // TODO(dgj1): display this only if a markerfile has been selected
+    if (ImGui::BeginCombo("Marker extractor", _extractorIdToNames.at(_markerCurrentId).c_str()))
     {
-        for (int i = 0; i < _extractors.size(); i++)
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
         {
-            bool isSelected = (_iniCurrent == _extractors[i]); // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(_extractors[i]->GetName().c_str(), isSelected))
+            bool isSelected = (_markerCurrentId == i); // You can store your selection however you want, outside or inside your objects
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
             {
-                _iniCurrent = _extractors[i];
+                _markerCurrentId = i;
             }
             if (isSelected)
                 ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
         }
         ImGui::EndCombo();
     }
-    if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
-    {
-        mode->setExtractor(_current, _iniCurrent);
-    }
+
+    //if (ImGui::Button("Change features", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    //{
+    //    WAIEventSetExtractors* event                  = new WAIEventSetExtractors();
+    //    event->extractorIds.trackingExtractorId       = _currentId;
+    //    event->extractorIds.initializationExtractorId = _iniCurrentId;
+    //    event->extractorIds.markerExtractorId         = _markerCurrentId;
+
+    //    _eventQueue->push(event);
+    //}
 
     ImGui::End();
 }

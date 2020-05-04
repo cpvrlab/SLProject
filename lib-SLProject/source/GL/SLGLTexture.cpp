@@ -10,13 +10,11 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only
-#include <debug_new.h>  // memory leak detector
-#endif
-
-#include <SLApplication.h>
+#include <SLGLState.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
+#include <SLGLProgramManager.h>
+#include <SLAssetManager.h>
 #include <Utils.h>
 
 #ifdef SL_HAS_OPTIX
@@ -44,7 +42,7 @@ pointer to the SLScene::_texture vector for global deallocation.
 */
 SLGLTexture::SLGLTexture()
 {
-    _texName      = 0;
+    _texID        = 0;
     _texType      = TT_unknown;
     _min_filter   = GL_NEAREST;
     _mag_filter   = GL_NEAREST;
@@ -62,9 +60,73 @@ SLGLTexture::SLGLTexture()
     _cudaTextureObject    = 0;
 #endif
 }
+
+//-----------------------------------------------------------------------------
+//! ctor for empty 2D textures
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLint           wrapT)
+{
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapT;
+    _target       = GL_TEXTURE_2D;
+    _texID        = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = false;
+    _autoCalcTM3D = false;
+    _needsUpdate  = false;
+    _bytesOnGPU   = 0;
+    _texType      = TT_unknown;
+
+    // Add pointer to the global resource vectors for deallocation
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
+}
+
+//-----------------------------------------------------------------------------
+//! ctor for 2D textures from byte pointer
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         unsigned char*  data,
+                         int             width,
+                         int             height,
+                         int             cvtype,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLTextureType   type,
+                         SLint           wrapS,
+                         SLint           wrapT)
+{
+
+    CVImage* image = new CVImage();
+    image->load(width, height, PF_red, PF_red, data, true, false);
+
+    _min_filter   = min_filter;
+    _mag_filter   = mag_filter;
+    _wrap_s       = wrapS;
+    _wrap_t       = wrapT;
+    _target       = GL_TEXTURE_2D;
+    _texID        = 0;
+    _bumpScale    = 1.0f;
+    _resizeToPow2 = false;
+    _autoCalcTM3D = false;
+    _needsUpdate  = false;
+    _bytesOnGPU   = 0;
+    _texType      = type;
+
+    _images.push_back(image);
+    // Add pointer to the global resource vectors for deallocation
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
+}
+
 //-----------------------------------------------------------------------------
 //! ctor 2D textures with internal image allocation
-SLGLTexture::SLGLTexture(const SLstring& filename,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& filename,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLTextureType   type,
@@ -72,7 +134,7 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
                          SLint           wrapT)
   : SLObject(Utils::getFileName(filename), filename)
 {
-    assert(filename != "");
+    assert(!filename.empty());
 
     _texType = type == TT_unknown ? detectType(filename) : type;
 
@@ -83,7 +145,7 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
     _wrap_s       = wrapS;
     _wrap_t       = wrapT;
     _target       = GL_TEXTURE_2D;
-    _texName      = 0;
+    _texID        = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
@@ -96,11 +158,13 @@ SLGLTexture::SLGLTexture(const SLstring& filename,
 #endif
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 3D texture
-SLGLTexture::SLGLTexture(const SLVstring& files,
+SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
+                         const SLVstring& files,
                          SLint            min_filter,
                          SLint            mag_filter,
                          SLint            wrapS,
@@ -120,7 +184,7 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
     _wrap_s       = wrapS;
     _wrap_t       = wrapT;
     _target       = GL_TEXTURE_3D;
-    _texName      = 0;
+    _texID        = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
@@ -133,11 +197,13 @@ SLGLTexture::SLGLTexture(const SLVstring& files,
 #endif
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for 1D texture
-SLGLTexture::SLGLTexture(const SLVCol4f& colors,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLVCol4f& colors,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
@@ -157,7 +223,7 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
     // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
     _target = GL_TEXTURE_2D;
 
-    _texName      = 0;
+    _texID        = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = true;
@@ -170,11 +236,13 @@ SLGLTexture::SLGLTexture(const SLVCol4f& colors,
 #endif
 
     // Add pointer to the global resource vectors for deallocation
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 //! ctor for cube mapping with internal image allocation
-SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         const SLstring& filenameXPos,
                          const SLstring& filenameXNeg,
                          const SLstring& filenameYPos,
                          const SLstring& filenameYNeg,
@@ -205,7 +273,7 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _wrap_s       = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
     _wrap_t       = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
     _target       = GL_TEXTURE_CUBE_MAP;
-    _texName      = 0;
+    _texID        = 0;
     _bumpScale    = 1.0f;
     _resizeToPow2 = false;
     _autoCalcTM3D = false;
@@ -216,19 +284,19 @@ SLGLTexture::SLGLTexture(const SLstring& filenameXPos,
     _cudaGraphicsResource = nullptr;
     _cudaTextureObject    = 0;
 #endif
-
-    SLApplication::scene->textures().push_back(this);
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
 SLGLTexture::~SLGLTexture()
 {
-    //SL_LOG("~SLGLTexture(%s)\n", name().c_str());
+    //SL_LOG("~SLGLTexture(%s)", name().c_str());
     clearData();
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::clearData()
 {
-    glDeleteTextures(1, &_texName);
+    glDeleteTextures(1, &_texID);
 
     numBytesInTextures -= _bytesOnGPU;
 
@@ -239,7 +307,7 @@ void SLGLTexture::clearData()
     }
     _images.clear();
 
-    _texName    = 0;
+    _texID      = 0;
     _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
 
@@ -253,22 +321,19 @@ void SLGLTexture::clearData()
 }
 //-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
-void SLGLTexture::load(SLstring filename,
-                       SLbool   flipVertical,
-                       SLbool   loadGrayscaleIntoAlpha)
+void SLGLTexture::load(const SLstring& filename,
+                       SLbool          flipVertical,
+                       SLbool          loadGrayscaleIntoAlpha)
 {
-    // Load the file directly
-    if (!Utils::fileExists(filename))
+    string pathFilename = Utils::findFile(filename,
+                                          {defaultPath});
+    if (!Utils::fileExists(pathFilename))
     {
-        filename = defaultPath + filename;
-        if (!Utils::fileExists(filename))
-        {
-            SLstring msg = "SLGLTexture: File not found: " + filename;
-            SL_EXIT_MSG(msg.c_str());
-        }
+        SLstring msg = "SLGLTexture: File not found: " + filename;
+        SL_EXIT_MSG(msg.c_str());
     }
 
-    _images.push_back(new CVImage(filename,
+    _images.push_back(new CVImage(pathFilename,
                                   flipVertical,
                                   loadGrayscaleIntoAlpha));
 }
@@ -326,10 +391,10 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;
 
-    if (needsBuild || _texName == 0)
+    if (needsBuild || _texID == 0)
     {
-        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s\n",
-               _texName,
+        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
+               _texID,
                _images[0]->name().c_str());
         build();
     }
@@ -337,8 +402,49 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
     _needsUpdate = true;
     return needsBuild;
 }
+
+SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
+                                   SLint       camHeight,
+                                   CVPixFormat srcFormat,
+                                   CVPixFormat dstFormat,
+                                   SLuchar*    data,
+                                   SLbool      isContinuous,
+                                   SLbool      isTopLeft)
+{
+    // Add image for the first time
+    if (_images.empty())
+        _images.push_back(new CVImage(camWidth,
+                                      camHeight,
+                                      dstFormat,
+                                      "LiveVideoImageFromMemory"));
+
+    // load returns true if size or format changes
+    bool needsBuild = _images[0]->load(camWidth,
+                                       camHeight,
+                                       srcFormat,
+                                       dstFormat,
+                                       data,
+                                       isContinuous,
+                                       isTopLeft);
+
+    // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
+    _wrap_s = GL_CLAMP_TO_EDGE;
+    _wrap_t = GL_CLAMP_TO_EDGE;
+
+    if (needsBuild || _texID == 0)
+    {
+        SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
+               _texID,
+               _images[0]->name().c_str());
+        build();
+    }
+
+    _needsUpdate = true;
+    return needsBuild;
+}
+
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Builds an OpenGL texture object with the according OpenGL commands.
 This texture creation must be done only once when a valid OpenGL rendering
 context is present. This function is called the first time within the enable
@@ -352,15 +458,15 @@ void SLGLTexture::build(SLint texID)
         SL_EXIT_MSG("No images loaded in SLGLTexture::build");
 
     // delete texture name if it already exits
-    if (_texName)
+    if (_texID)
     {
-        glBindTexture(_target, _texName);
-        glDeleteTextures(1, &_texName);
-        SL_LOG("SLGLTexture::build: Deleted: %d, %s\n",
-               _texName,
+        glBindTexture(_target, _texID);
+        glDeleteTextures(1, &_texID);
+        SL_LOG("SLGLTexture::build: Deleted: %d, %s",
+               _texID,
                _images[0]->name().c_str());
         glBindTexture(_target, 0);
-        _texName = 0;
+        _texID = 0;
         numBytesInTextures -= _bytesOnGPU;
     }
 
@@ -417,13 +523,13 @@ void SLGLTexture::build(SLint texID)
     }
 
     // Generate texture names
-    glGenTextures(1, &_texName);
+    glGenTextures(1, &_texID);
 
     SLGLState* stateGL = SLGLState::instance();
     stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
 
     // create binding and apply texture properties
-    stateGL->bindTexture(_target, _texName);
+    stateGL->bindTexture(_target, _texID);
 
     // check if anisotropic texture filter extension is available
     if (maxAnisotropy < 0.0f)
@@ -438,9 +544,9 @@ void SLGLTexture::build(SLint texID)
     }
 
     // apply anisotropic or minification filter
-    SLfloat anisotropy = 1.0f; // = off
     if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
     {
+        SLfloat anisotropy; // = off
         if (_min_filter == SL_ANISOTROPY_MAX)
             anisotropy = maxAnisotropy;
         else
@@ -560,8 +666,8 @@ void SLGLTexture::build(SLint texID)
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
-    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
-    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s\n", _texName, texID, _images[0]->name().c_str());
+    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
+    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
 
     GET_GL_ERROR;
 }
@@ -617,20 +723,18 @@ void SLGLTexture::bindActive(SLint texID)
     assert(texID >= 0 && texID < 32);
 
     // if texture not exists build it
-    if (!_texName)
-    {
+    if (!_texID)
         build(texID);
-    }
 
-    if (_texName)
+    if (_texID)
     {
         SLGLState* stateGL = SLGLState::instance();
         stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
-        stateGL->bindTexture(_target, _texName);
+        stateGL->bindTexture(_target, _texID);
 
         // Check if texture name is valid only for debug purpose
         //if (!glIsTexture(_texName))
-        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n\n",
+        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n",
         //           _texName, texID, _images[0]->name().c_str());
         //}
 
@@ -659,8 +763,8 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {
-    if (_texName &&
-        _images.size() &&
+    if (_texID &&
+        !_images.empty() &&
         _images[0]->data() &&
         _target == GL_TEXTURE_2D)
     {
@@ -703,19 +807,16 @@ triangles with zero in the bottom left corner: <br>
      0 +-----+
        0
 */
-void SLGLTexture::drawSprite(SLbool doUpdate)
+void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h)
 {
-    SLfloat w = (SLfloat)_images[0]->width();
-    SLfloat h = (SLfloat)_images[0]->height();
-
     // build buffer object once
-    if (!_vaoSprite.id())
+    if (!_vaoSprite.vaoID())
     {
         // Vertex X & Y of corners
-        SLVVec2f P = {{0.0f, h},
-                      {0.0f, 0.0f},
-                      {w, h},
-                      {w, 0.0f}};
+        SLVVec2f P = {{x, h},
+                      {x, y},
+                      {x + w, y + h},
+                      {x + w, y}};
 
         // Texture coords of corners
         SLVVec2f T = {{0.0f, 1.0f},
@@ -726,7 +827,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
         // Indexes for a triangle strip
         SLVushort I = {0, 1, 2, 3};
 
-        SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
+        SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
         _vaoSprite.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
@@ -740,7 +841,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate)
     // Draw the character triangles
     SLGLState*   stateGL = SLGLState::instance();
     SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-    SLGLProgram* sp = SLApplication::scene->programs(SP_TextureOnly);
+    SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
     sp->uniform1i("u_texture0", 0);
@@ -778,7 +879,7 @@ SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction
-SLCol4f SLGLTexture::getTexelf(SLVec3f cubemapDir)
+SLCol4f SLGLTexture::getTexelf(const SLVec3f& cubemapDir)
 {
     assert(_images.size() == 6 &&
            _target == GL_TEXTURE_CUBE_MAP &&
@@ -817,8 +918,9 @@ SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
 }
 //-----------------------------------------------------------------------------
 //! Detects the texture type from the filename appendix (See SLTexType def.)
-SLTextureType SLGLTexture::detectType(SLstring filename)
+SLTextureType SLGLTexture::detectType(const SLstring& filename)
 {
+    // Check first our own texture name encoding
     SLstring name     = Utils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
     if (appendix == "_C") return TT_color;
@@ -828,6 +930,56 @@ SLTextureType SLGLTexture::detectType(SLstring filename)
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
     if (appendix == "_F") return TT_font;
+
+    // Now check various formats found in the past
+    name = Utils::toUpperString(name);
+
+    if (Utils::containsString(name, "COL") ||
+        Utils::containsString(name, "COLOR") ||
+        Utils::containsString(name, "ALBEDO") ||
+        Utils::containsString(name, "DIFFUSE") ||
+        Utils::containsString(name, "DIFF") ||
+        Utils::containsString(name, "DIF"))
+        return TT_color;
+
+    if (Utils::containsString(name, "NRM") ||
+        Utils::containsString(name, "NORM") ||
+        Utils::containsString(name, "NORMAL"))
+        return TT_normal;
+
+    if (Utils::containsString(name, "DISP") ||
+        Utils::containsString(name, "DISPL") ||
+        Utils::containsString(name, "HEIGHT") ||
+        Utils::containsString(name, "BUMP"))
+        return TT_height;
+
+    if (Utils::containsString(name, "GLOSS") ||
+        Utils::containsString(name, "REFL") ||
+        Utils::containsString(name, "SPECULAR") ||
+        Utils::containsString(name, "SPEC"))
+        return TT_gloss;
+
+    if (Utils::containsString(name, "ROUGHNESS") ||
+        Utils::containsString(name, "RGH") ||
+        Utils::containsString(name, "ROUGH"))
+        return TT_roughness;
+
+    if (Utils::containsString(name, "METAL") ||
+        Utils::containsString(name, "METALLIC") ||
+        Utils::containsString(name, "METALNESS"))
+        return TT_metallic;
+
+    if (Utils::containsString(name, "AO") ||
+        Utils::containsString(name, "AMBIENT") ||
+        Utils::containsString(name, "OCCLUSION") ||
+        Utils::containsString(name, "OCCL") ||
+        Utils::containsString(name, "OCC"))
+        return TT_ambientOcc;
+
+    // if nothing was detected so far we interpret it as a color texture
+    //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
+    //SL_WARN_MSG(msg.c_str());
+
     return TT_color;
 }
 //-----------------------------------------------------------------------------
@@ -917,8 +1069,8 @@ SLstring SLGLTexture::typeName()
         case TT_normal: return "normal map";
         case TT_height: return "hight map";
         case TT_gloss: return "gloss map";
-        case TT_roughness: //*_R.{ext} Cook-Torrance roughness 0-1
-        case TT_metallic:  //*_M.{ext} Cook-Torrance metallic 0-1
+        case TT_roughness: return "roughness map";
+        case TT_metallic: return "metalness map";
         case TT_font: return "font map"; ;
         default: return "Unknown type";
     }
@@ -1090,6 +1242,8 @@ void SLGLTexture::cubeUV2XYZ(SLint    index,
             y = vc;
             z = -1.0f;
             break; // NEGATIVE Z
+        default:
+            SL_EXIT_MSG("SLGLTexture::cubeUV2XYZ: Invalid index");
     }
 }
 //------------------------------------------------------------------------------

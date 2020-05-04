@@ -12,10 +12,30 @@
 #ifndef SLGLSTATE_H
 #define SLGLSTATE_H
 
-//#include <SLStack.h>
+#include <SL.h>
+
+#if defined(SL_OS_MACIOS)
+#    include <OpenGLES/ES3/gl.h>
+#    include <OpenGLES/ES3/glext.h>
+#elif defined(SL_OS_MACOS)
+#    include <GL/gl3w.h>
+#elif defined(SL_OS_ANDROID)
+#    include <GLES3/gl31.h>
+#    include <GLES3/gl3ext.h>
+#elif defined(SL_OS_WINDOWS)
+#    include <GL/gl3w.h>
+#elif defined(SL_OS_LINUX)
+#    include <GL/gl3w.h>
+#else
+#    error "SL has not been ported to this OS"
+#endif
+
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <SLMat4.h>
+
+class SLDrawBits;
+class SLMaterial;
 
 //-----------------------------------------------------------------------------
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
@@ -36,7 +56,7 @@ static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
  */
 class SLGLState
 {
-    public:
+public:
     //! Public static instance getter for singleton pattern
     static SLGLState* instance()
     {
@@ -48,9 +68,9 @@ class SLGLState
         else
             return _instance;
     }
-    static void deleteInstance();                 //!< global destruction
+    static void deleteInstance();                        //!< global destruction
     void        onInitialize(const SLCol4f& clearColor); //!< On init GL
-    void        initAll();                        //! Init all states
+    void        initAll();                               //! Init all states
 
     // matrices
     SLMat4f modelViewMatrix;  //!< matrix for OpenGL modelview transform
@@ -74,15 +94,6 @@ class SLGLState
     SLVec3f lightAtt[SL_MAX_LIGHTS];        //!< att. factor (const,linear,quadratic)
     SLint   lightDoAtt[SL_MAX_LIGHTS];      //!< Flag if att. must be calculated
     SLCol4f globalAmbientLight;             //!< global ambient light intensity
-
-    // material
-    SLCol4f matAmbient;   //!< ambient color reflection (ka)
-    SLCol4f matDiffuse;   //!< diffuse color reflection (kd)
-    SLCol4f matSpecular;  //!< specular color reflection (ks)
-    SLCol4f matEmissive;  //!< emissive color (ke)
-    SLfloat matShininess; //!< shininess exponent for Blinn-Phong lighting
-    SLfloat matRoughness; //!< roughness for Cook-Torrance lighting
-    SLfloat matMetallic;  //!< metallic for Cook-Torrance lighing
 
     // fog
     SLbool  fogIsOn;      //!< Flag if fog blending is enabled
@@ -136,7 +147,7 @@ class SLGLState
     void polygonLine(SLbool state);
     void polygonOffset(SLbool state, SLfloat factor = 1.0f, SLfloat units = 1.0f);
     void viewport(SLint x, SLint y, SLsizei w, SLsizei h);
-    void colorMask(SLbool r, SLbool g, SLbool b, SLbool a);
+    void colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
     void useProgram(SLuint progID);
     void bindTexture(SLenum target, SLuint textureID);
     void activeTexture(SLenum textureUnit);
@@ -144,23 +155,30 @@ class SLGLState
     void clearColorBuffer() { glClear(GL_COLOR_BUFFER_BIT); }
     void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }
     void clearColorDepthBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+    void currentMaterial(SLMaterial* mat) { _currentMaterial = mat; }
 
     // state getters
-    SLbool   blend() { return _blend; }
-    SLstring glVersion() { return _glVersion; }
-    SLstring glVersionNO() { return _glVersionNO; }
-    SLfloat  glVersionNOf() { return _glVersionNOf; }
-    SLstring glVendor() { return _glVendor; }
-    SLstring glRenderer() { return _glRenderer; }
-    SLstring glSLVersion() { return _glSLVersion; }
-    SLstring glSLVersionNO() { return _glSLVersionNO; }
-    SLbool   glIsES2() { return _glIsES2; }
-    SLbool   glIsES3() { return _glIsES3; }
-    SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
+    SLbool      blend() { return _blend; }
+    SLstring    glVersion() { return _glVersion; }
+    SLstring    glVersionNO() { return _glVersionNO; }
+    SLfloat     glVersionNOf() { return _glVersionNOf; }
+    SLstring    glVendor() { return _glVendor; }
+    SLstring    glRenderer() { return _glRenderer; }
+    SLstring    glSLVersion() { return _glSLVersion; }
+    SLstring    glSLVersionNO() { return _glSLVersionNO; }
+    SLbool      glIsES2() { return _glIsES2; }
+    SLbool      glIsES3() { return _glIsES3; }
+    SLbool      hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
+    SLVec4i     getViewport() { return _viewport; }
+    SLMaterial* currentMaterial() { return _currentMaterial; }
 
     // stack operations
     inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }
-    inline void popModelViewMatrix() { modelViewMatrix = _modelViewMatrixStack.top(); _modelViewMatrixStack.pop();}
+    inline void popModelViewMatrix()
+    {
+        modelViewMatrix = _modelViewMatrixStack.top();
+        _modelViewMatrixStack.pop();
+    }
 
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);
@@ -168,7 +186,7 @@ class SLGLState
     SLstring getGLVersionNO();
     SLstring getSLVersionNO();
 
-    private:
+private:
     SLGLState();  //!< private onetime constructor
     ~SLGLState(); //!< destruction in ~SLScene
 
@@ -210,14 +228,16 @@ class SLGLState
     SLfloat _gamma;                //!< final output gamma value
 
     // states
-    SLuint _programID;     //!< current shader program id
-    SLenum _textureUnit;   //!< current texture unit
-    SLenum _textureTarget; //!< current texture target
-    SLuint _textureID;     //!< current texture id
-    SLint  _colorMaskR;    //!< current color mask for R
-    SLint  _colorMaskG;    //!< current color mask for G
-    SLint  _colorMaskB;    //!< current color mask for B
-    SLint  _colorMaskA;    //!< current color mask for A
+    SLuint    _programID;     //!< current shader program id
+    SLenum    _textureUnit;   //!< current texture unit
+    SLenum    _textureTarget; //!< current texture target
+    SLuint    _textureID;     //!< current texture id
+    GLboolean _colorMaskR;    //!< current color mask for R
+    GLboolean _colorMaskG;    //!< current color mask for G
+    GLboolean _colorMaskB;    //!< current color mask for B
+    GLboolean _colorMaskA;    //!< current color mask for A
+
+    SLMaterial* _currentMaterial;
 };
 //-----------------------------------------------------------------------------
 #endif

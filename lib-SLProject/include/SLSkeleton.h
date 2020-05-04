@@ -55,13 +55,13 @@ have tracks corresponding to the individual SLJoints in the skeleton.
 */
 class SLSkeleton
 {
-    public:
+public:
     SLSkeleton();
     ~SLSkeleton();
 
     SLJoint*     createJoint(SLuint id);
     SLJoint*     createJoint(const SLstring& name, SLuint id);
-    SLAnimation* createAnimation(const SLstring& name, SLfloat duration);
+    SLAnimation* createAnimation(SLAnimManager& aniMan, const SLstring& name, SLfloat duration);
 
     void loadAnimation(const SLstring& file);
     void addAnimation(SLAnimation* anim);
@@ -91,7 +91,7 @@ class SLSkeleton
 
     SLbool updateAnimations(SLfloat elapsedTimeSec);
 
-    protected:
+protected:
     void updateMinMax();
 
     SLJoint*        _rootJoint;       //!< pointer to the root joint of skeleton

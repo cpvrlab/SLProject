@@ -49,7 +49,7 @@ using namespace ORB_SLAM2;
 
 class WAI_API WAIFrame
 {
-    public:
+public:
     WAIFrame();
     //!copy constructor
     WAIFrame(const WAIFrame& frame);
@@ -85,6 +85,7 @@ class WAI_API WAIFrame
     {
         return mtcw.clone();
     }
+
     //ghm1: added
     inline cv::Mat GetRotationCW()
     {
@@ -100,7 +101,7 @@ class WAI_API WAIFrame
 
     vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r, const int minLevel = -1, const int maxLevel = -1) const;
 
-    public:
+public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary = NULL;
 
@@ -147,9 +148,6 @@ class WAI_API WAIFrame
     //mvpMapPoints[i] will contain the pointer to this associated mapPoint.
     std::vector<WAIMapPoint*> mvpMapPoints;
 
-    // Flag to identify outlier associations.
-    std::vector<bool> mvbOutlier;
-
     // Keypoints are assigned to cells in a grid to reduce matching complexity when projecting MapPoints.
     static float             mfGridElementWidthInv;
     static float             mfGridElementHeightInv;
@@ -188,7 +186,7 @@ class WAI_API WAIFrame
     //frame image
     cv::Mat imgGray;
 
-    private:
+private:
     // Undistort keypoints given OpenCV distortion parameters.
     // Only for the RGB-D case. Stereo must be already rectified!
     // (called in the constructor).

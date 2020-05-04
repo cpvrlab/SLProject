@@ -32,28 +32,30 @@ To correct presbyopic (far-sightedness) a converging lens is needed.
 */
 class SLLens : public SLRevolver
 {
-    public:
+public:
     //! Create a lens with given sphere, cylinder, diameter and thickness
-    SLLens(double      sphere,
-           double      cylinder,
-           SLfloat     diameter,
-           SLfloat     thickness,
-           SLuint      stacks = 32,
-           SLuint      slices = 32,
-           SLstring    name   = "lens mesh",
-           SLMaterial* mat    = nullptr);
+    SLLens(SLAssetManager* assetMgr,
+           double          sphere,
+           double          cylinder,
+           SLfloat         diameter,
+           SLfloat         thickness,
+           SLuint          stacks = 32,
+           SLuint          slices = 32,
+           SLstring        name   = "lens mesh",
+           SLMaterial*     mat    = nullptr);
 
     //! Create a lens with given radius, diameter and thickness
-    SLLens(SLfloat     radiusBot,
-           SLfloat     radiusTop,
-           SLfloat     diameter,
-           SLfloat     thickness,
-           SLuint      stacks = 32,
-           SLuint      slices = 32,
-           SLstring    name   = "lens mesh",
-           SLMaterial* mat    = nullptr);
+    SLLens(SLAssetManager* assetMgr,
+           SLfloat         radiusBot,
+           SLfloat         radiusTop,
+           SLfloat         diameter,
+           SLfloat         thickness,
+           SLuint          stacks = 32,
+           SLuint          slices = 32,
+           SLstring        name   = "lens mesh",
+           SLMaterial*     mat    = nullptr);
 
-    private:
+private:
     void    initLens(SLfloat     diopterBot,
                      SLfloat     diopterTop,
                      SLfloat     diameter,

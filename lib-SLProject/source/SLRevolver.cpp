@@ -10,23 +10,20 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLRevolver.h>
 
 //-----------------------------------------------------------------------------
 /*!
 SLRevolver::SLRevolver ctor for generic revolution object.
 */
-SLRevolver::SLRevolver(SLVVec3f    revolvePoints,
-                       SLVec3f     revolveAxis,
-                       SLuint      slices,
-                       SLbool      smoothFirst,
-                       SLbool      smoothLast,
-                       SLstring    name,
-                       SLMaterial* mat) : SLMesh(name)
+SLRevolver::SLRevolver(SLAssetManager* assetMgr,
+                       SLVVec3f        revolvePoints,
+                       SLVec3f         revolveAxis,
+                       SLuint          slices,
+                       SLbool          smoothFirst,
+                       SLbool          smoothLast,
+                       SLstring        name,
+                       SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(revolvePoints.size() >= 2 && "Error: Not enough revolve points.");
     assert(revolveAxis != SLVec3f::ZERO && "Error axis is a zero vector.");

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppDemoGuiMapStorage.h
+//  File:      AppDemoGuiTestWrite.h
 //  Author:    Michael Goettlicher
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -17,24 +17,27 @@
 
 #include <SLMat4.h>
 #include <SLNode.h>
-#include <AppWAI.h>
-#include <WAICalibration.h>
+
+#include <CVCalibration.h>
+
+class WAIApp;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
 {
-    public:
+public:
     AppDemoGuiTestWrite(const std::string& name,
-                        WAICalibration*    wc,
+                        CVCalibration*     calib,
                         SLNode*            mapNode,
                         cv::VideoWriter*   writer1,
                         cv::VideoWriter*   writer2,
                         std::ofstream*     gpsDataStream,
-                        bool*              activator);
+                        bool*              activator,
+                        WAIApp&            waiApp);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
     void prepareExperiment(std::string testScene, std::string weather);
 
     void recordExperiment();
@@ -62,10 +65,12 @@ class AppDemoGuiTestWrite : public AppDemoGuiInfosDialog
     std::vector<std::string> _conditions;
     cv::VideoWriter*         _videoWriter;
     cv::VideoWriter*         _videoWriterInfo;
-    WAICalibration*          _wc;
+    CVCalibration*           _calib;
 
     int _currentSceneId;
     int _currentConditionId;
+
+    WAIApp& _waiApp;
 };
 
 #endif

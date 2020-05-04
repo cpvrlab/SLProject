@@ -10,22 +10,19 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLRectangle.h>
 
 #include <utility>
 
 //-----------------------------------------------------------------------------
 //! SLRectangle ctor with min & max corners and its resolutions
-SLRectangle::SLRectangle(const SLVec2f& min,
-                         const SLVec2f& max,
-                         SLuint         resX,
-                         SLuint         resY,
-                         SLstring       name,
-                         SLMaterial*    mat) : SLMesh(name)
+SLRectangle::SLRectangle(SLAssetManager* assetMgr,
+                         const SLVec2f&  min,
+                         const SLVec2f&  max,
+                         SLuint          resX,
+                         SLuint          resY,
+                         SLstring        name,
+                         SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(min != max);
     assert(resX > 0);
@@ -42,14 +39,15 @@ SLRectangle::SLRectangle(const SLVec2f& min,
 }
 //-----------------------------------------------------------------------------
 //! SLRectangle ctor with min & max corners and its resolutions
-SLRectangle::SLRectangle(const SLVec2f& min,
-                         const SLVec2f& max,
-                         const SLVec2f& tmin,
-                         const SLVec2f& tmax,
-                         SLuint         resX,
-                         SLuint         resY,
-                         SLstring       name,
-                         SLMaterial*    mat) : SLMesh(std::move(name))
+SLRectangle::SLRectangle(SLAssetManager* assetMgr,
+                         const SLVec2f&  min,
+                         const SLVec2f&  max,
+                         const SLVec2f&  tmin,
+                         const SLVec2f&  tmax,
+                         SLuint          resX,
+                         SLuint          resY,
+                         SLstring        name,
+                         SLMaterial*     mat) : SLMesh(assetMgr, std::move(name))
 {
     assert(min != max);
     assert(tmin != tmax);

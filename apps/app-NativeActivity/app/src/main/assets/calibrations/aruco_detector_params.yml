@@ -1,0 +1,22 @@
+%YAML:1.0
+adaptiveThreshWinSizeMin: 4
+adaptiveThreshWinSizeMax: 7
+adaptiveThreshWinSizeStep: 1
+adaptiveThreshConstant: 7
+minMarkerPerimeterRate: 0.03
+maxMarkerPerimeterRate: 4.0
+polygonalApproxAccuracyRate: 0.05
+minCornerDistance: 10.0
+minDistanceToBorder: 3
+cornerRefinementMethod: 1
+cornerRefinementWinSize: 5
+cornerRefinementMaxIterations: 30
+cornerRefinementMinAccuracy: 0.1
+markerBorderBits: 1
+perspectiveRemovePixelPerCell: 8
+perspectiveRemoveIgnoredMarginPerCell: 0.13
+maxErroneousBitsInBorderRate: 0.04
+
+edgeLength: 0.06
+arucoDictionaryId: 0
+

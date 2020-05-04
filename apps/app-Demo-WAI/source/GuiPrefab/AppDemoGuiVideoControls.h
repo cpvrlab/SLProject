@@ -3,14 +3,25 @@
 
 #include <AppDemoGuiInfosDialog.h>
 
+struct WAIEvent;
+class SENSVideoStream;
+
 class AppDemoGuiVideoControls : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiVideoControls(const std::string& name, bool* activator);
+public:
+    AppDemoGuiVideoControls(const std::string&                    name,
+                            bool*                                 activator,
+                            std::queue<WAIEvent*>*                eventQueue,
+                            ImFont*                               font,
+                            std::function<SENSVideoStream*(void)> getVideoFileStreamCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
+private:
+    bool                   _pauseVideo;
+    std::queue<WAIEvent*>* _eventQueue;
+
+    std::function<SENSVideoStream*(void)> _getVideoFileStream;
 };
 
 #endif

@@ -12,26 +12,50 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
+#include <SLGLState.h>
+#include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
+#include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLGLImGui::fontPropDots  = 16.0f;
 SLfloat SLGLImGui::fontFixedDots = 13.0f;
 //-----------------------------------------------------------------------------
-SLGLImGui::SLGLImGui()
+SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
+                     cbOnImGuiLoadConfig loadConfigCB,
+                     cbOnImGuiSaveConfig saveConfigCB,
+                     int                 dpi)
 {
-    // init build function pointer to zero
-    build = nullptr;
+    _build      = buildCB;
+    _saveConfig = saveConfigCB;
+
+    //create imgui context
+    ImGui::CreateContext();
+    //set default style to get a good initial configuration
+    ImGui::StyleColorsDark();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+
+    //load config
+    if (loadConfigCB)
+        loadConfigCB(dpi);
+    // Load GUI fonts depending on the resolution
+    loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+}
+//-----------------------------------------------------------------------------
+SLGLImGui::~SLGLImGui()
+{
+    if (_saveConfig)
+        _saveConfig();
+
+    // destroy imgui context after your last imgui call
+    ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void SLGLImGui::init()
+void SLGLImGui::init(const string& configPath)
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -54,7 +78,7 @@ void SLGLImGui::init()
     _mousePressed[2] = false;
 
     ImGuiIO&              io      = ImGui::GetIO();
-    static const SLstring inifile = SLApplication::configPath + "imgui.ini";
+    static const SLstring inifile = configPath + "imgui.ini";
     io.IniFilename                = inifile.c_str();
 
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
@@ -81,16 +105,23 @@ void SLGLImGui::init()
     io.DisplaySize             = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1, 1);
 
+#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
+    io.MouseDrawCursor = false;
+#else
+    io.MouseDrawCursor = true;
+#endif
+
     // Change default style to show the widget border
     ImGuiStyle& style     = ImGui::GetStyle();
     style.FrameBorderSize = 1;
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
+void SLGLImGui::loadFonts(SLfloat fontPropDotsToLoad,
+                          SLfloat fontFixedDotsToLoad)
 {
-    _fontPropDots  = fontPropDots;
-    _fontFixedDots = fontFixedDots;
+    _fontPropDots  = fontPropDotsToLoad;
+    _fontFixedDots = fontFixedDotsToLoad;
 
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->Clear();
@@ -98,22 +129,16 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
     // Load proportional font for menue and text displays
     SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
     if (Utils::fileExists(DroidSans))
-    {
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("SLGLImGui::loadFonts: %f\n", fontPropDots);
-    }
+        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
     else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", DroidSans.c_str());
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
     if (Utils::fileExists(ProggyClean))
-    {
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("SLGLImGui::loadFonts: %f\n", fontFixedDots);
-    }
+        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
     else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n\n", ProggyClean.c_str());
+        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 
     deleteOpenGLObjects();
     createOpenGLObjects();
@@ -123,7 +148,7 @@ void SLGLImGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots)
 void SLGLImGui::createOpenGLObjects()
 {
     // Backup GL state
-    GLint last_texture, last_array_buffer, last_vertex_array;
+    GLint last_texture = -1, last_array_buffer = -1, last_vertex_array = -1;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
@@ -231,9 +256,9 @@ void SLGLImGui::createOpenGLObjects()
     GET_GL_ERROR;
 
     // Build texture atlas
-    ImGuiIO& io = ImGui::GetIO();
-    SLuchar* pixels;
-    int      width, height;
+    ImGuiIO& io     = ImGui::GetIO();
+    SLuchar* pixels = nullptr;
+    int      width = -1, height = -1;
 
     // Load as RGBA 32-bits (75% of the memory is wasted, but default font is
     // so small) because it is more likely to be compatible with user's
@@ -308,17 +333,17 @@ void SLGLImGui::printCompileErrors(SLint shaderHandle, const SLchar* src)
                            sizeof(log),
                            nullptr,
                            &log[0]);
-        SL_LOG("*** COMPILER ERROR ***\n");
-        SL_LOG("%s\n---\n", log);
-        SL_LOG("%s\n", src);
+        SL_LOG("*** COMPILER ERROR ***");
+        SL_LOG("%s\n---", log);
+        SL_LOG("%s", src);
     }
 }
 //-----------------------------------------------------------------------------
 //! Inits a new frame for the ImGui system
 void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
-    // If no build function is provided there is no ImGui
-    if (!build) return;
+    // If no _build function is provided there is no ImGui
+    if (!_build) return;
 
     if ((SLint)SLGLImGui::fontPropDots != (SLint)_fontPropDots ||
         (SLint)SLGLImGui::fontFixedDots != (SLint)_fontFixedDots)
@@ -330,7 +355,7 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     ImGuiIO& io = ImGui::GetIO();
 
     // Setup time step
-    SLfloat nowSec = SLApplication::timeS();
+    SLfloat nowSec = GlobalTimer::timeS();
     io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
     if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
     _timeSec = nowSec;
@@ -341,62 +366,63 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // Start the frame
     ImGui::NewFrame();
 
-    // Call the build function. The whole UI is constructed here
+    // Call the _build function. The whole UI is constructed here
     // This function is provided by the top-level project.
-    // For the SLProject demo apps this build function is implemented in the
+    // For the SLProject demo apps this _build function is implemented in the
     // class SLDemoGui.
-    if (build)
-        build(s, sv);
-
-    //SL_LOG(".");
+    if (_build)
+        _build(s, sv);
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
-void SLGLImGui::onResize(SLint scrW, SLint scrH)
+void SLGLImGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
-    ImGuiIO& io    = ImGui::GetIO();
-    io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
+    ImGuiIO& io                = ImGui::GetIO();
+    io.DisplaySize             = ImVec2((SLfloat)scrW, (SLfloat)scrH);
+    io.DisplayFramebufferScale = ImVec2(scr2fbX, scr2fbY);
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
-void SLGLImGui::onPaint(ImDrawData* draw_data)
+void SLGLImGui::onPaint(const SLRecti& viewportRect)
 {
+    ImGui::Render();
+    ImDrawData* draw_data = ImGui::GetDrawData();
+
     ImGuiIO& io = ImGui::GetIO();
 
     // Avoid rendering when minimized, scale coordinates for retina displays
     // (screen coordinates != framebuffer coordinates)
     int fb_width  = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
     int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
-    if (fb_width == 0 || fb_height == 0)
-        return;
+    if (fb_width == 0 || fb_height == 0) return;
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
     // Backup GL state
-    GLint last_active_texture;
+    GLint last_active_texture = -1;
     glGetIntegerv(GL_ACTIVE_TEXTURE, &last_active_texture);
     glActiveTexture(GL_TEXTURE0);
 
-    GLint last_program;
+    GLint last_program = -1;
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-    GLint last_texture;
+    GLint last_texture = -1;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-    GLint last_array_buffer;
+    GLint last_array_buffer = -1;
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-    GLint last_element_array_buffer;
+    GLint last_element_array_buffer = -1;
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
-    GLint last_vertex_array;
+    GLint last_vertex_array = -1;
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-    GLint last_blend_src_rgb;
+    GLint last_blend_src_rgb = -1;
     glGetIntegerv(GL_BLEND_SRC_RGB, &last_blend_src_rgb);
-    GLint last_blend_dst_rgb;
+    GLint last_blend_dst_rgb = -1;
     glGetIntegerv(GL_BLEND_DST_RGB, &last_blend_dst_rgb);
-    GLint last_blend_src_alpha;
+    GLint last_blend_src_alpha = -1;
     glGetIntegerv(GL_BLEND_SRC_ALPHA, &last_blend_src_alpha);
-    GLint last_blend_dst_alpha;
+    GLint last_blend_dst_alpha = -1;
     glGetIntegerv(GL_BLEND_DST_ALPHA, &last_blend_dst_alpha);
-    GLint last_blend_equation_rgb;
+    GLint last_blend_equation_rgb = -1;
     glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
-    GLint last_blend_equation_alpha;
+    GLint last_blend_equation_alpha = -1;
     glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
     GLint last_viewport[4];
     glGetIntegerv(GL_VIEWPORT, last_viewport);
@@ -416,15 +442,28 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_SCISSOR_TEST);
 
-    // Setup viewport, orthographic projection matrix
-    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    // Setup viewport
+    if (viewportRect.isEmpty())
+        glViewport(0,
+                   0,
+                   (GLsizei)fb_width,
+                   (GLsizei)fb_height);
+    else
+        glViewport((GLsizei)(viewportRect.x * io.DisplayFramebufferScale.x),
+                   (GLsizei)(viewportRect.y * io.DisplayFramebufferScale.y),
+                   (GLsizei)(viewportRect.width * io.DisplayFramebufferScale.x),
+                   (GLsizei)(viewportRect.height * io.DisplayFramebufferScale.y));
+
+    // Setup orthographic projection matrix
+    // clang-format off
     const float ortho_projection[4][4] =
-      {
-        {2.0f / io.DisplaySize.x, 0.0f, 0.0f, 0.0f},
-        {0.0f, 2.0f / -io.DisplaySize.y, 0.0f, 0.0f},
-        {0.0f, 0.0f, -1.0f, 0.0f},
-        {-1.0f, 1.0f, 0.0f, 1.0f},
-      };
+    {
+        {2.0f / io.DisplaySize.x, 0.0f,                     0.0f, 0.0f},
+        {0.0f,                    2.0f / -io.DisplaySize.y, 0.0f, 0.0f},
+        {0.0f,                    0.0f,                    -1.0f, 0.0f},
+        {-1.0f,                   1.0f,                     0.0f, 1.0f},
+    };
+    // clang-format on
 
     glUseProgram((SLuint)_progHandle);
     glUniform1i(_attribLocTex, 0);
@@ -458,10 +497,18 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
             else
             {
                 glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                glScissor((int)pcmd->ClipRect.x,
-                          (int)(fb_height - pcmd->ClipRect.w),
-                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
-                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+
+                if (viewportRect.isEmpty())
+                    glScissor((int)pcmd->ClipRect.x,
+                              (int)(fb_height - pcmd->ClipRect.w),
+                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
+                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                else
+                    glScissor((GLsizei)(viewportRect.x * io.DisplayFramebufferScale.x),
+                              (GLsizei)(viewportRect.y * io.DisplayFramebufferScale.y),
+                              (GLsizei)(viewportRect.width * io.DisplayFramebufferScale.x),
+                              (GLsizei)(viewportRect.height * io.DisplayFramebufferScale.y));
+
                 glDrawElements(GL_TRIANGLES,
                                (GLsizei)pcmd->ElemCount,
                                sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
@@ -488,22 +535,27 @@ void SLGLImGui::onPaint(ImDrawData* draw_data)
         glEnable(GL_BLEND);
     else
         glDisable(GL_BLEND);
+
     if (last_enable_cull_face)
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
+
     if (last_enable_depth_test)
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
+
     if (last_enable_scissor_test)
         glEnable(GL_SCISSOR_TEST);
     else
         glDisable(GL_SCISSOR_TEST);
+
     glViewport(last_viewport[0],
                last_viewport[1],
                (GLsizei)last_viewport[2],
                (GLsizei)last_viewport[3]);
+
     glScissor(last_scissor_box[0],
               last_scissor_box[1],
               (GLsizei)last_scissor_box[2],
@@ -518,7 +570,7 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = true;
     if (button == MB_middle) io.MouseDown[1] = true;
     if (button == MB_right) io.MouseDown[2] = true;
-    //SL_LOG("D\n");
+    //SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
@@ -536,7 +588,7 @@ void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 void SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
-    //SL_LOG("M\n");
+    //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement
@@ -578,19 +630,21 @@ void SLGLImGui::onCharInput(SLuint c)
 void SLGLImGui::onClose()
 {
     deleteOpenGLObjects();
-    ImGui::Shutdown();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position
-void SLGLImGui::renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY)
+void SLGLImGui::renderExtraFrame(SLScene*     s,
+                                 SLSceneView* sv,
+                                 SLint        mouseX,
+                                 SLint        mouseY)
 {
-    // If ImGui build function exists render the ImGui
-    if (build)
+    // If ImGui _build function exists render the ImGui
+    if (_build)
     {
         ImGui::GetIO().MousePos = ImVec2((SLfloat)mouseX, (SLfloat)mouseY);
         onInitNewFrame(s, sv);
         ImGui::Render();
-        onPaint(ImGui::GetDrawData());
+        onPaint(sv->viewportRect());
     }
 }
 //-----------------------------------------------------------------------------

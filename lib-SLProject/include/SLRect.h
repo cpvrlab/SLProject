@@ -30,6 +30,8 @@ class SLRect
             T x, y, width, height;
 
             SLRect      ()                      {setZero();}
+            SLRect      (const T WIDTH,
+                         const T HEIGHT)        {x=0;y=0;width=WIDTH;height=HEIGHT;}
             SLRect      (const T X,
                          const T Y,
                          const T WIDTH,
@@ -59,28 +61,32 @@ class SLRect
                                 const SLRect& r){output<<"["<<r.x<<","<<r.y<<","<<r.width<<","<<r.height<<"]"; return output;}
 
     // Misc. setters
-    void    tl          (V v)                   {x = v.x; y = v.y;}
+    void    tl          (V v)                   {x = v.x; y = v.y;}              //!< top-left corner
     void    br          (V v)                   {if (v.x < x) x = v.x;
                                                  if (v.y < y) y = v.y;
-                                                 width = v.x-x; height = v.y-y;}
+                                                 width = v.x-x; height = v.y-y;} //!< bottom-right corner
     void    setScnd     (V v)                   {if (v.x>x) {width =v.x-x;} else {width+=x-v.x; x=v.x;}
                                                  if (v.y>y) {height=v.y-y;} else {height+=y-v.y; y=v.y;}}
 
     // Misc. getters
-    V       tl          ()                      {return V(x,y);}
-    V       br          ()                      {return V(x+width,y+height);}
+    V       tl          ()                      {return V(x,y);}              //!< top-left corner
+    V       br          ()                      {return V(x+width,y+height);} //!< bottom-right corner
     T       area        ()                      {return width * height;}
-    SLbool  isEmpty     ()                      {return (width==0 || height==0);}
+    SLbool  isEmpty     () const                     {return (width==0 || height==0);} ;
     SLbool  isZero      ()                      {return (x==0 && y==0 && width==0 && height==0);}
     SLbool  contains    (T X, T Y)              {return (X>=x && X<=x+width && Y>=y && Y<=y+height);}
     SLbool  contains    (V v)                   {return (v.x>=x && v.x<=x+width && v.y>=y && v.y<=y+height);}
-    SLbool  contains    (SLRect r)              {return (r.tl>=tl() && r.br()<=br());}
+    SLbool  contains    (const SLRect& r)       {return (r.x>=x && r.x<=x+width && r.y>=y && r.y<=y+height && r.width <= width && r.height <= height);}
 
-    void    print       (const char* str=nullptr) {if (str) SL_LOG("%s",str);
-                                                  SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f\n",x, y, width, height);}
+    void    print       (const char* str=nullptr) 
+    {
+        if (str) 
+            SL_LOG("%s",str);
+        SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f",x, y, width, height);
+    }
 
     // Draw rectangle with OpenGL VAO
-    void drawGL(SLCol4f color)
+    void drawGL(const SLCol4f& color)
     {
         SLVVec3f P;
         P.push_back(SLVec3f(x,      -y,        0));

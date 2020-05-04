@@ -11,14 +11,11 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
+#include <SLGLState.h>
 #include <SLGLProgram.h>
 #include <SLGLVertexArrayExt.h>
-#include <SLScene.h>
+#include <SLGLProgramManager.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 /*! Helper function that sets the vertex position attribute and generates or 
@@ -33,7 +30,7 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
     assert(elementSize);
     assert(numVertices);
 
-    SLGLProgram* sp = SLApplication::scene->programs(SP_colorUniform);
+    SLGLProgram* sp = SLGLProgramManager::get(SP_colorUniform);
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
 
@@ -64,12 +61,12 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLMaterial::current = nullptr;
-    SLGLProgram* sp     = SLApplication::scene->programs(SP_colorUniform);
-    SLGLState*   state  = SLGLState::instance();
+    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform1f("u_oneOverGamma", 1.0f);
+    state->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
@@ -111,12 +108,12 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLMaterial::current = nullptr;
-    SLGLProgram* sp     = SLApplication::scene->programs(SP_colorUniform);
-    SLGLState*   state  = SLGLState::instance();
+    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform1f("u_oneOverGamma", 1.0f);
+    state->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);

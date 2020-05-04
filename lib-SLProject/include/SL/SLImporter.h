@@ -21,6 +21,8 @@
 
 class SLNode;
 class SLMaterial;
+class SLAssetManager;
+class SLAnimManager;
 
 //-----------------------------------------------------------------------------
 //! Copy of the aiPostProcessStep enum for usage in the wrapper load function
@@ -60,7 +62,7 @@ typedef std::map<int, SLMesh*> SLMeshMap;
 //! Interface for 3D file format importer implementations
 class SLImporter
 {
-    public:
+public:
     SLImporter();
     explicit SLImporter(SLLogVerbosity consoleVerb);
     explicit SLImporter(const SLstring& logFile,
@@ -71,10 +73,13 @@ class SLImporter
     void logConsoleVerbosity(SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
     void logFileVerbosity(SLLogVerbosity verb) { _logFileVerbosity = verb; }
 
-    virtual SLNode* load(SLstring    pathFilename,
-                         SLbool      loadMeshesOnly = true,
-                         SLMaterial* overrideMat    = nullptr,
-                         SLuint      flags =
+    virtual SLNode* load(SLAnimManager&  aniMan,
+                         SLAssetManager* assetMgr,
+                         SLstring        pathFilename,
+                         SLbool          loadMeshesOnly = true,
+                         SLMaterial*     overrideMat    = nullptr,
+                         float           ambientFactor  = 0.0f,
+                         SLuint          flags =
                            SLProcess_Triangulate |
                            SLProcess_JoinIdenticalVertices |
                            SLProcess_SplitLargeMeshes |
@@ -110,7 +115,7 @@ class SLImporter
 
     static SLstring defaultPath;
 
-    protected:
+protected:
     ofstream       _log;                 //!< log stream
     SLstring       _logFile;             //!< name of the log file
     SLLogVerbosity _logConsoleVerbosity; //!< verbosity level of log output to the console

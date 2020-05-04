@@ -29,31 +29,23 @@ used for pose estimation.
 \param faceClassifierFilename Name of the cascaded face training file
 \param faceMarkModelFilename Name of the facial landmark training file
 */
-CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
-                               string faceClassifierFilename,
-                               string faceMarkModelFilename)
+CVTrackedFaces::CVTrackedFaces(string faceClassifierFilename,
+                               string faceMarkModelFilename,
+                               int    smoothLenght)
 {
     // Load Haar cascade training file for the face detection
     if (!Utils::fileExists(faceClassifierFilename))
     {
-        faceClassifierFilename = CVCalibration::calibIniPath + faceClassifierFilename;
-        if (!Utils::fileExists(faceClassifierFilename))
-        {
-            string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
-        }
+        string msg = "CVTrackedFaces: File not found: " + faceClassifierFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
     _faceDetector = new CVCascadeClassifier(faceClassifierFilename);
 
     // Load facemark model file for the facial landmark detection
     if (!Utils::fileExists(faceMarkModelFilename))
     {
-        faceMarkModelFilename = CVCalibration::calibIniPath + faceMarkModelFilename;
-        if (!Utils::fileExists(faceMarkModelFilename))
-        {
-            string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
-            Utils::exitMsg(msg.c_str(), __LINE__, __FILE__);
-        }
+        string msg = "CVTrackedFaces: File not found: " + faceMarkModelFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
     _facemark = cv::face::FacemarkLBF::create();
@@ -61,15 +53,15 @@ CVTrackedFaces::CVTrackedFaces(int    smoothLenght,
 
     // Init averaged 2D facial landmark points
     _smoothLenght = smoothLenght;
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose tip
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole left
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Nose hole right
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye left corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left eye right corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye left corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right eye right corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Left mouth corner
-    _avgPosePoints2D.push_back(AvgCVVec2f(smoothLenght, CVVec2f(0,0))); // Right mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose tip
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose hole left
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose hole right
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right mouth corner
 
     _cvPosePoints2D.resize(_avgPosePoints2D.size(), CVPoint2f(0, 0));
 
@@ -118,7 +110,7 @@ bool CVTrackedFaces::track(CVMat          imageGray,
     // Detect Faces //
     //////////////////
 
-    float    startMS = _timer.elapsedTimeInMilliSec();
+    float startMS = _timer.elapsedTimeInMilliSec();
 
     // Detect faces
     CVVRect faces;

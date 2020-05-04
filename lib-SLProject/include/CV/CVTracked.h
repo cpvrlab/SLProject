@@ -42,7 +42,7 @@ for a good top down information.
 */
 class CVTracked
 {
-    public:
+public:
     explicit CVTracked() : _isVisible(false), _drawDetection(true) {}
     virtual ~CVTracked() = default;
 
@@ -76,9 +76,9 @@ class CVTracked
     static AvgFloat optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
     static AvgFloat poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
 
-    protected:
+protected:
     bool         _isVisible;     //!< Flag if marker is visible
-    bool         _drawDetection; //! Flag if detection should be drawn into image
+    bool         _drawDetection; //!< Flag if detection should be drawn into image
     CVMatx44f    _objectViewMat; //!< view transformation matrix
     HighResTimer _timer;         //!< High resolution timer
 };

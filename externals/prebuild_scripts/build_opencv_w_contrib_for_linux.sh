@@ -4,12 +4,12 @@
 # Build script for OpenCV with contributions for Linux
 # ####################################################
 
-CV_VERSION=$1
+CV_VERSION="$1"
 ARCH=linux
 ZIPFILE="$ARCH"_opencv_"$CV_VERSION"
-ZIPFOLDER=build/$ZIPFILE
-BUILD_D=build/"$ARCH"_debug_"$CV_VERSION"
-BUILD_R=build/"$ARCH"_release_"$CV_VERSION"
+ZIPFOLDER="build/$ZIPFILE"
+BUILD_D="build/$ARCH"_debug_"$CV_VERSION"
+BUILD_R="build/$ARCH"_release_"$CV_VERSION"
 
 clear
 echo "Building OpenCV Version: $CV_VERSION"

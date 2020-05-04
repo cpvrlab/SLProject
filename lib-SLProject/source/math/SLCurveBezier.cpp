@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLCurveBezier.h>
 #include <SLGLState.h>
 #include <SLScene.h>
@@ -116,7 +112,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
     SLint numControlPoints = 2 * ((SLint)_points.size() - 1);
 
     // Create buffer object
-    if (!_vao.id())
+    if (!_vao.vaoID())
     {
         // Build renderPoints by recursively subdividing the curve
         SLVVec3f renderPoints;
@@ -154,7 +150,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
         _vao.generateVertexPos(&renderPoints);
     }
 
-    if (!_vao.id()) return;
+    if (!_vao.vaoID()) return;
 
     // Set the view transform
     SLGLState* stateGL = SLGLState::instance();

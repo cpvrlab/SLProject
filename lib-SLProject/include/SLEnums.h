@@ -71,8 +71,9 @@ enum SLRenderType
     RT_gl       = 0, //!< OpenGL
     RT_rt       = 1, //!< Ray Tracing
     RT_pt       = 2, //!< Path Tracing
-    RT_optix_rt = 3, //!< Ray Tracing with OptiX
-    RT_optix_pt = 4  //!< Path Tracing with OptiX
+    RT_ct       = 3  //!< Voxel Cone Tracing
+    RT_optix_rt = 4, //!< Ray Tracing with OptiX
+    RT_optix_pt = 5  //!< Path Tracing with OptiX
 };
 //-----------------------------------------------------------------------------
 //! Coordinate axis enumeration
@@ -112,6 +113,7 @@ enum SLSceneID
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
     SID_ShaderEarth,
+    SID_ShaderVoxelConeDemo,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
@@ -124,6 +126,10 @@ enum SLSceneID
     SID_VideoTextureLive,
     SID_VideoTextureFile,
     SID_VideoChristoffel,
+    SID_VideoAugustaRaurica,
+    SID_VideoAventicumAmphi,
+    SID_VideoAventicumCigonier,
+    SID_VideoAventicumTheatre,
     SID_VideoCalibrateMain,
     SID_VideoCalibrateScnd,
     SID_VideoTrackChessMain,
@@ -135,6 +141,10 @@ enum SLSceneID
     SID_VideoTrackFaceMain,
     SID_VideoTrackFaceScnd,
     SID_VideoSensorAR,
+#ifdef SL_BUILD_WAI
+    SID_VideoTrackWAI,
+#endif
+
     SID_RTMuttenzerBox,
     SID_RTSpheres,
     SID_RTSoftShadows,
@@ -183,6 +193,7 @@ enum SLCamAnim
 enum SLProjection
 {
     P_monoPerspective,      //!< standard mono pinhole perspective projection
+    P_monoIntrinsic,        //!< standard mono pinhole perspective projection from intrinsic calibration
     P_monoOrthographic,     //!< standard mono orthographic projection
     P_stereoSideBySide,     //!< side-by-side
     P_stereoSideBySideP,    //!< side-by-side proportional for mirror stereoscopes
@@ -254,7 +265,7 @@ enum SLEasingCurve
 enum SLTransformSpace
 {
     // Do not change order!
-    TS_world,
+    TS_world = 0,
     TS_parent,
     TS_object
 };
@@ -276,26 +287,6 @@ enum SLShaderType
     ST_tesselation
 };
 //-----------------------------------------------------------------------------
-//! Enumeration for standard preloaded shader programs in SLScene::_shaderProgs
-enum SLShaderProg
-{
-    SP_colorAttribute,
-    SP_colorUniform,
-    SP_perVrtBlinn,
-    SP_perVrtBlinnColorAttrib,
-    SP_perVrtBlinnTex,
-    SP_TextureOnly,
-    SP_perPixBlinn,
-    SP_perPixBlinnTex,
-    SP_perPixCookTorrance,
-    SP_perPixCookTorranceTex,
-    SP_bumpNormal,
-    SP_bumpNormalParallax,
-    SP_fontTex,
-    SP_stereoOculus,
-    SP_stereoOculusDistortion
-};
-//-----------------------------------------------------------------------------
 //! Type definition for GLSL uniform1f variables that change per frame.
 enum SLUniformType
 {
@@ -315,6 +306,14 @@ enum SLLogVerbosity
     LV_normal     = 2,
     LV_detailed   = 3,
     LV_diagnostic = 4
+};
+//-----------------------------------------------------------------------------
+//! Mouse button codes
+enum SLViewportAlign
+{
+    VA_center = 0,
+    VA_leftOrTop,
+    VA_rightOrBottom
 };
 //-----------------------------------------------------------------------------
 #endif

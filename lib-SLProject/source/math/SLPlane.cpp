@@ -11,6 +11,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLPlane.h>
 //-----------------------------------------------------------------------------
 /*!
 SLPlane::SLPlane ctor with 3 points
@@ -72,7 +73,7 @@ SLPlane::print prints the normal and the coefficent d
 */
 void SLPlane::print(const char* name)
 {
-    SL_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)\n",
+    SL_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)",
            name,
            N.x,
            N.y,

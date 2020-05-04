@@ -17,6 +17,7 @@
 
 class SLSceneView;
 class SLRay;
+class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
@@ -37,38 +38,40 @@ following shaders: \n
 class SLLightSpot : public SLNode
   , public SLLight
 {
-    public:
-    explicit SLLightSpot(SLfloat radius       = 0.3f,
-                         SLfloat spotAngleDEG = 180.0f,
-                         SLbool  hasMesh      = true);
-    SLLightSpot(SLfloat posx,
-                SLfloat posy,
-                SLfloat posz,
-                SLfloat radius       = 0.3f,
-                SLfloat spotAngleDEG = 180.0f,
-                SLfloat ambiPower    = 1.0f,
-                SLfloat diffPower    = 10.0f,
-                SLfloat specPower    = 10.0f,
-                SLbool  hasMesh      = true);
+public:
+    explicit SLLightSpot(SLAssetManager* assetMgr,
+                         SLScene*        s,
+                         SLfloat         radius       = 0.3f,
+                         SLfloat         spotAngleDEG = 180.0f,
+                         SLbool          hasMesh      = true);
+    SLLightSpot(SLAssetManager* assetMgr,
+                SLScene*        s,
+                SLfloat         posx,
+                SLfloat         posy,
+                SLfloat         posz,
+                SLfloat         radius       = 0.3f,
+                SLfloat         spotAngleDEG = 180.0f,
+                SLfloat         ambiPower    = 1.0f,
+                SLfloat         diffPower    = 10.0f,
+                SLfloat         specPower    = 10.0f,
+                SLbool          hasMesh      = true);
 
-    void init();
-    bool hitRec(SLRay* ray);
-    void statsRec(SLNodeStats& stats);
-    void drawMeshes(SLSceneView* sv);
-
-    void    setState();
+    void    init(SLScene* s);
+    bool    hitRec(SLRay* ray) override;
+    void    statsRec(SLNodeStats& stats) override;
+    void    drawMeshes(SLSceneView* sv) override;
+    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
-                       SLfloat        lightDist);
+                       SLfloat        lightDist,
+                       SLNode*        root3D) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
-                         SLfloat        lightDist);
+                         SLfloat        lightDist,
+                         SLNode*        root3D) override;
 
     // Setters
-    void samples(SLuint x, SLuint y)
-    {
-        _samples.samples(x, y, false);
-    }
+    void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
 
     // Getters
     SLfloat radius() { return _radius; }
@@ -111,7 +114,7 @@ class SLLightSpot : public SLNode
     }
 #endif
 
-    private:
+private:
     SLfloat     _radius;  //!< The sphere lights radius
     SLSamples2D _samples; //!< 2D samplepoints for soft shadows
 };

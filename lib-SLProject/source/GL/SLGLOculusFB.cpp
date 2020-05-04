@@ -11,11 +11,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
-#include <SLApplication.h>
+#include <SLGLState.h>
 #include <SLGLOculusFB.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
@@ -141,7 +137,7 @@ void SLGLOculusFB::updateSize(SLint scrWidth,
 /*! Draws the intermediate render target (the texture) into the real
  * framebuffer.
  */
-void SLGLOculusFB::drawFramebuffer()
+void SLGLOculusFB::drawFramebuffer(SLGLProgram* stereoOculusProgram)
 {
     glViewport(0, 0, _width, _height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -149,12 +145,12 @@ void SLGLOculusFB::drawFramebuffer()
     glDisable(GL_DEPTH_TEST);
 
     //bind the rift shader
-    SLGLProgram* sp = SLApplication::scene->programs(SP_stereoOculus);
+    SLGLProgram* sp = stereoOculusProgram;
     sp->useProgram();
     SLint location = sp->getAttribLocation("a_position");
 
     // Create VBO for screen quad once
-    if (!_vao.id())
+    if (!_vao.vaoID())
     {
         SLfloat P[] = {-1, -1, 1, -1, -1, 1, 1, 1};
         _vao.setAttrib(AT_position, 2, location, P);

@@ -16,10 +16,21 @@
 #include <SL.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
+#include <SLRect.h>
 #include <imgui.h>
+#include <SLUiInterface.h>
 
 class SLScene;
 class SLSceneView;
+
+//! Callback function typedef for ImGui build function
+typedef void(SL_STDCALL* cbOnImGuiBuild)(SLScene* s, SLSceneView* sv);
+
+//! Callback function typedef for ImGui load config function
+typedef void(SL_STDCALL* cbOnImGuiLoadConfig)(int dpi);
+
+//! Callback function typedef for ImGui save config function
+typedef void(SL_STDCALL* cbOnImGuiSaveConfig)();
 
 //-----------------------------------------------------------------------------
 //! ImGui Interface class for forwarding all events to the ImGui Handlers
@@ -46,40 +57,49 @@ The full call stack for rendering one frame is:\n
           - SLGLImGui::onPaint(ImGui::GetDrawData())
           - SLDemoGui::buildDemoGui: Builds the full UI
 */
-class SLGLImGui
+
+class SLGLImGui : public SLUiInterface
 {
-    public:
-    SLGLImGui();
+public:
+    SLGLImGui(cbOnImGuiBuild      buildCB,
+              cbOnImGuiLoadConfig loadConfigCB,
+              cbOnImGuiSaveConfig saveConfigCB,
+              int                 dpi);
+    ~SLGLImGui() override;
+    void init(const std::string& configPath) override;
 
-    void init();
-    void loadFonts(SLfloat fontPropDots,
-                   SLfloat fontFixedDots);
-    void createOpenGLObjects();
-    void deleteOpenGLObjects();
-    void printCompileErrors(SLint         shaderHandle,
-                            const SLchar* src);
-
-    void onInitNewFrame(SLScene* s, SLSceneView* sv);
-    void onResize(SLint scrW, SLint scrH);
-    void onPaint(ImDrawData* draw_data);
-    void onMouseDown(SLMouseButton button, SLint x, SLint y);
-    void onMouseUp(SLMouseButton button, SLint x, SLint y);
-    void onMouseMove(SLint xPos, SLint yPos);
-    void onMouseWheel(SLfloat yoffset);
-    void onKeyPress(SLKey key, SLKey mod);
-    void onKeyRelease(SLKey key, SLKey mod);
-    void onCharInput(SLuint c);
-    void onClose();
-    void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY);
-
-    // gui build function pattern
-    void(SL_STDCALL* build)(SLScene* s, SLSceneView* sv);
+    void onInitNewFrame(SLScene* s, SLSceneView* sv) override;
+    void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
+    void onPaint(const SLRecti& viewport) override;
+    void onMouseDown(SLMouseButton button, SLint x, SLint y) override;
+    void onMouseUp(SLMouseButton button, SLint x, SLint y) override;
+    //returns true if it wants to capture mouse
+    void onMouseMove(SLint xPos, SLint yPos) override;
+    void onMouseWheel(SLfloat yoffset) override;
+    void onKeyPress(SLKey key, SLKey mod) override;
+    void onKeyRelease(SLKey key, SLKey mod) override;
+    void onCharInput(SLuint c) override;
+    void onClose() override;
+    void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) override;
+    bool doNotDispatchKeyboard() override { return ImGui::GetIO().WantCaptureKeyboard; }
+    bool doNotDispatchMouse() override { return ImGui::GetIO().WantCaptureMouse; }
+    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots);
 
     // Default font dots
     static SLfloat fontPropDots;  //!< Default font size of proportional font
     static SLfloat fontFixedDots; //!< Default font size of fixed size font
 
-    private:
+private:
+    void deleteOpenGLObjects();
+    void createOpenGLObjects();
+    void printCompileErrors(SLint         shaderHandle,
+                            const SLchar* src);
+
+    // gui build function pattern
+    cbOnImGuiBuild _build = nullptr;
+    // save config callback
+    cbOnImGuiSaveConfig _saveConfig = nullptr;
+
     SLfloat _timeSec;           //!< Time in seconds
     SLVec2f _mousePosPX;        //!< Mouse cursor position
     SLfloat _mouseWheel;        //!< Mouse wheel position

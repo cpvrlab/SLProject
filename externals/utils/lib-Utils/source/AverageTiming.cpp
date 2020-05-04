@@ -51,12 +51,6 @@ float AverageTiming::getTime(const std::vector<std::string>& names)
     return AverageTiming::instance().doGetTime(names);
 }
 //-----------------------------------------------------------------------------
-//!get the number of values
-int AverageTiming::getNumValues(const std::string& name)
-{
-    return AverageTiming::instance().doGetNumValues(name);
-}
-//-----------------------------------------------------------------------------
 //!get timings formatted via string
 void AverageTiming::getTimingMessage(char* m)
 {
@@ -74,7 +68,7 @@ void AverageTiming::doStart(const std::string& name)
     }
 
     //if ((*this)[name]->isStarted)
-    //    SL_LOG("AverageTiming: Block with name %s started twice!\n", name.c_str());
+    //    SL_LOG("AverageTiming: Block with name %s started twice!", name.c_str());
 
     (*this)[name]->timer.start();
     (*this)[name]->isStarted = true;
@@ -89,7 +83,7 @@ void AverageTiming::doStop(const std::string& name)
     if (find(name) != end())
     {
         if (!(*this)[name]->isStarted)
-            Utils::log("AverageTiming: Block with name %s stopped without being started!\n", name.c_str());
+            Utils::log("AverageTiming: Block with name %s stopped without being started!", name.c_str());
         (*this)[name]->timer.stop();
         (*this)[name]->val.set((*this)[name]->timer.elapsedTimeInMilliSec());
         (*this)[name]->nCalls++;
@@ -97,7 +91,7 @@ void AverageTiming::doStop(const std::string& name)
         this->_currentPosH--;
     }
     else
-        Utils::log("AverageTiming: A block with name %s does not exist!\n", name.c_str());
+        Utils::log("AverageTiming: A block with name %s does not exist!", name.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -109,14 +103,14 @@ float AverageTiming::doGetTime(const std::string& name)
         return (*this)[name]->val.average();
     }
     else
-        Utils::log("AverageTiming: A block with name %s does not exist!\n", name.c_str());
+        Utils::log("AverageTiming: A block with name %s does not exist!", name.c_str());
 
     return 0.0f;
 }
 
 //-----------------------------------------------------------------------------
 //!get time for multiple blocks with given names
-float AverageTiming::doGetTime(const std::vector<std::string>& names)
+float AverageTiming::doGetTime(const std::vector<std::string>& names) const
 {
     AvgFloat val(_averageNumValues, 0.0f);
     for (const std::string& n : names)
@@ -125,18 +119,6 @@ float AverageTiming::doGetTime(const std::vector<std::string>& names)
     }
 
     return val.average();
-}
-//-----------------------------------------------------------------------------
-int AverageTiming::doGetNumValues(const std::string& name)
-{
-    if (find(name) != end())
-    {
-        return (*this)[name]->val.numValues();
-    }
-    else
-        Utils::log("AverageTiming: A block with name %s does not exist!\n", name.c_str());
-
-    return 0;
 }
 //-----------------------------------------------------------------------------
 //!do get timings formatted via string
@@ -154,12 +136,18 @@ void AverageTiming::doGetTimingMessage(char* m)
 
     //find reference time
     float refTime = 1.0f;
-    if (blocks.size())
+    if (!blocks.empty())
     {
         refTime = (*blocks.begin())->val.average();
-        //insert number of measurment calls
+        //insert number of measurement calls
         sprintf(m + strlen(m), "Num. calls: %i\n", (int)(*blocks.begin())->nCalls);
     }
+
+    // calculate longest blockname
+    size_t maxLen = 0;
+    for (auto* block : blocks)
+        if (block->name.length() > maxLen) 
+            maxLen = block->name.length();
 
     //insert time measurements
     for (auto* block : blocks)
@@ -167,10 +155,13 @@ void AverageTiming::doGetTimingMessage(char* m)
         float        val   = block->val.average();
         float        valPC = Utils::clamp(val / refTime * 100.0f, 0.0f, 100.0f);
         string       name  = block->name;
+
+        name.append(maxLen - name.length(), ' ');
+
         stringstream ss;
         //for (int i = 0; i < block->posH; ++i)
         //    ss << " ";
         ss << "%s: %4.1f ms (%3d%%)\n";
         sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
     }
-}
+}//-----------------------------------------------------------------------------

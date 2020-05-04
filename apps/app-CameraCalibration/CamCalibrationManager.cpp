@@ -4,10 +4,19 @@
  */
 
 #include "CamCalibrationManager.h"
+#include <CVCalibrationEstimator.h>
 #include "Utils.h"
 
-CamCalibrationManager::CamCalibrationManager(cv::Size boardSize, cv::Size imgSize, float squareSize, int numOfImgs)
-  : _boardSize(boardSize), _imageSize(imgSize), _squareSize(squareSize), _minNumImgs(numOfImgs)
+CamCalibrationManager::CamCalibrationManager(cv::Size boardSize,
+                                             cv::Size imgSize,
+                                             float    squareSize,
+                                             int      numOfImgs,
+                                             bool     useReleaseObjectMethod)
+  : _boardSize(boardSize),
+    _imageSize(imgSize),
+    _squareSize(squareSize),
+    _minNumImgs(numOfImgs),
+    _useReleaseObjectMethod(useReleaseObjectMethod)
 {
 }
 
@@ -16,42 +25,65 @@ void CamCalibrationManager::addCorners(const std::vector<cv::Point2f>& corners)
     _calibCorners.push_back(corners);
 }
 
-CamCalibration CamCalibrationManager::calculateCalibration(
+CVCalibration CamCalibrationManager::calculateCalibration(
   bool fixAspectRatio,
   bool zeroTangentDistortion,
-  bool fixPrincipalPoint)
+  bool fixPrincipalPoint,
+  bool calibRationalModel,
+  bool calibTiltedModel,
+  bool calibThinPrismModel)
 {
-    CamCalibration calib;
-
-    //if (!readyForCalibration())
-    //{
-    //    SFV_WARN("Not enough corners collected!");
-    //    return calib;
-    //}
-
     // combine calibration flags
-    int calibFlags = 0;
-    if (fixAspectRatio)
-        calibFlags |= cv::CALIB_FIX_ASPECT_RATIO;
-    if (zeroTangentDistortion)
-        calibFlags |= cv::CALIB_ZERO_TANGENT_DIST;
+    int flags = 0;
     if (fixPrincipalPoint)
-        calibFlags |= cv::CALIB_FIX_PRINCIPAL_POINT;
+        flags |= cv::CALIB_FIX_PRINCIPAL_POINT;
+    if (fixAspectRatio)
+        flags |= cv::CALIB_FIX_ASPECT_RATIO;
+    if (zeroTangentDistortion)
+        flags |= cv::CALIB_ZERO_TANGENT_DIST;
+    if (calibRationalModel)
+        flags |= cv::CALIB_RATIONAL_MODEL;
+    if (calibTiltedModel)
+        flags |= cv::CALIB_TILTED_MODEL;
+    if (calibThinPrismModel)
+        flags |= cv::CALIB_THIN_PRISM_MODEL;
 
-    // calculate
-    cv::Mat rvecs, tvecs;
-    auto    boardCorners     = calcBoardCorners3D();
-    calib._reprojectionError = cv::calibrateCamera(
-      boardCorners, _calibCorners, _imageSize, calib._cameraMat, calib._distortion, rvecs, tvecs, calibFlags);
+    cv::Mat cameraMat;
+    cv::Mat distortion;
 
-    // set additional parameters
-    calib._imgSize               = _imageSize;
-    calib._calibrationTime       = Utils::getLocalTimeString();
-    calib._fixAspectRatio        = fixAspectRatio;
-    calib._zeroTangentDistortion = zeroTangentDistortion;
-    calib._fixPrincipalPoint     = fixPrincipalPoint;
-    calib._zeroRadialDistortion  = false;
-    return calib;
+    std::vector<cv::Mat> rvecs, tvecs;
+    std::vector<float>   reprojErrs;
+    float                totalAvgErr = 0;
+    vector<cv::Point3f>  newObjPoints;
+
+    bool          ok = CVCalibrationEstimator::calcCalibration(_imageSize,
+                                                      cameraMat,
+                                                      distortion,
+                                                      _calibCorners,
+                                                      rvecs,
+                                                      tvecs,
+                                                      reprojErrs,
+                                                      totalAvgErr,
+                                                      _boardSize,
+                                                      _squareSize,
+                                                      flags,
+                                                      _useReleaseObjectMethod);
+    CVCalibration calibration(cameraMat,
+                              distortion,
+                              _imageSize,
+                              _boardSize,
+                              _squareSize,
+                              totalAvgErr,
+                              _calibCorners.size(),
+                              Utils::getLocalTimeString(),
+                              false,
+                              false,
+                              0,
+                              CVCameraType::FRONTFACING,
+                              "",
+                              flags,
+                              true);
+    return calibration;
 }
 
 std::string CamCalibrationManager::getHelpMsg()
@@ -65,23 +97,4 @@ std::string CamCalibrationManager::getStatusMsg()
 {
     std::string msg = "(" + std::to_string(_calibCorners.size()) + "/" + std::to_string(_minNumImgs) + ")";
     return msg;
-}
-
-//! Calculates the 3D positions of the chessboard corners
-std::vector<std::vector<cv::Point3f>> CamCalibrationManager::calcBoardCorners3D()
-{
-    std::vector<std::vector<cv::Point3f>> objectPoints3D;
-    // Because OpenCV image coords are top-left we define the according
-    // 3D coords also top-left.
-    std::vector<cv::Point3f> ptsOfOneBoard;
-    for (int y = _boardSize.height - 1; y >= 0; --y)
-    {
-        for (int x = 0; x < _boardSize.width; ++x)
-        {
-            ptsOfOneBoard.push_back(cv::Point3f(x * _squareSize, y * _squareSize, 0));
-        }
-    }
-
-    objectPoints3D.resize(_calibCorners.size(), ptsOfOneBoard);
-    return objectPoints3D;
 }

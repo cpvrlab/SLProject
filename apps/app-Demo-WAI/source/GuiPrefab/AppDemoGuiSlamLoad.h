@@ -13,39 +13,52 @@
 
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
-#include <WAICalibration.h>
 #include <SLMat4.h>
 #include <SLNode.h>
+#include <SlamParams.h>
 
+struct WAIEvent;
 //-----------------------------------------------------------------------------
 class AppDemoGuiSlamLoad : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiSlamLoad(const std::string& name,
-                       WAICalibration*    wc,
-                       bool*              activator);
+public:
+    AppDemoGuiSlamLoad(const std::string&               name,
+                       std ::queue<WAIEvent*>*          eventQueue,
+                       ImFont*                          font,
+                       std::string                      slamRootDir,
+                       std::string                      calibrationsDir,
+                       std::string                      vocabulariesDir,
+                       const std::vector<std::string>&  extractorIdToNames,
+                       bool*                            activator,
+                       std::function<void(std::string)> errorMsgCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
+    void setSlamParams(const SlamParams& params);
 
-    private:
-    void loadFileNamesInVector(std::string               directory,
-                               std::vector<std::string>& fileNames,
-                               std::vector<std::string>& extensions,
-                               bool                      addEmpty);
+private:
+    void loadFileNamesInVector(std::string directory, std::vector<std::string>& fileNames, std::vector<std::string>& extensions, bool addEmpty);
+    void loadDirNamesInVector(std::string               directory,
+                              std::vector<std::string>& dirNames);
 
-    std::vector<std::string> _existingVideoNames;
-    std::vector<std::string> _existingCalibrationNames;
-    std::vector<std::string> _existingMapNames;
-    std::vector<std::string> _existingVocNames;
+    bool _changeSlamParams;
 
-    std::string _currentVideo;
-    std::string _currentCalibration;
-    std::string _currentMap;
-    std::string _currentVoc;
+    std::string _slamRootDir;
+    std::string _calibrationsDir;
+    std::string _vocabulariesDir;
 
-    bool _storeKeyFrameImage;
+    std::vector<std::string> _videoExtensions;
+    std::vector<std::string> _mapExtensions;
+    std::vector<std::string> _markerExtensions;
+    std::vector<std::string> _calibExtensions;
+    std::vector<std::string> _vocExtensions;
 
-    WAICalibration* _wc;
+    const std::vector<std::string>& _extractorIdToNames;
+
+    SlamParams _p;
+    float      _kt;
+
+    std::queue<WAIEvent*>*           _eventQueue;
+    std::function<void(std::string)> _errorMsgCB = nullptr;
 };
 
 #endif

@@ -40,29 +40,25 @@
 #include <memory>
 //-----------------------------------------------------------------------------
 // Include standard C libraries
-#include <assert.h> // for debug asserts
-#include <float.h>  // for defines like FLT_MAX & DBL_MAX
-#include <limits.h> // for defines like UINT_MAX
-#include <math.h>   // for math functions
-#include <stdio.h>  // for the old ANSI C IO functions
-#include <stdlib.h> // srand, rand
-#include <string.h> // for string functions
-#include <time.h>   // for clock()
+#include <cassert> // for debug asserts
+#include <cfloat>  // for defines like FLT_MAX & DBL_MAX
+#include <climits> // for defines like UINT_MAX
+#include <cmath>   // for math functions
+#include <cstdio>  // for the old ANSI C IO functions
+#include <cstdlib> // srand, rand
+#include <cstring> // for string functions
+#include <ctime>   // for clock()
 //-----------------------------------------------------------------------------
 // Core header files used by all files
 #include <SL.h>
 #include <SLEnums.h>
-#include <SLGLState.h>
 #include <SLMat3.h>
 #include <SLMat4.h>
 #include <SLObject.h>
-#include <SLPlane.h>
 #include <SLQuat4.h>
-#include <SLRect.h>
 #include <SLVec2.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
-#include <SLVector.h>
 //-----------------------------------------------------------------------------
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/utility.hpp>

@@ -31,7 +31,25 @@
 namespace ORB_SLAM2
 {
 
-LoopClosing::LoopClosing(WAIMap* pMap, WAIKeyFrameDB* pDB, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose) : mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap), mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true), mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0), _attemptLoopClose(!manualLoopClose), _manualLoopClose(manualLoopClose)
+LoopClosing::LoopClosing(WAIMap*        pMap,
+                         ORBVocabulary* pVoc,
+                         const bool     bFixScale,
+                         const bool     manualLoopClose)
+  : mbResetRequested(false),
+    mbFinishRequested(false),
+    mbFinished(true),
+    mpMap(pMap),
+    mpORBVocabulary(pVoc),
+    mpMatchedKF(NULL),
+    mLastLoopKFid(0),
+    mbRunningGBA(false),
+    mbFinishedGBA(true),
+    mbStopGBA(false),
+    mpThreadGBA(NULL),
+    mbFixScale(bFixScale),
+    mnFullBAIdx(0),
+    _attemptLoopClose(!manualLoopClose),
+    _manualLoopClose(manualLoopClose)
 {
     mnCovisibilityConsistencyTh = 3;
 }
@@ -157,7 +175,7 @@ bool LoopClosing::DetectLoop()
 
     if (!shouldLoopCloseBeAttempted())
     {
-        mpKeyFrameDB->add(mpCurrentKF);
+        mpMap->GetKeyFrameDB()->add(mpCurrentKF);
         mpCurrentKF->SetErase();
         return false;
     }
@@ -166,7 +184,7 @@ bool LoopClosing::DetectLoop()
     if (mpCurrentKF->mnId < mLastLoopKFid + 10)
     {
         status(LOOP_CLOSE_STATUS_NOT_ENOUGH_KEYFRAMES);
-        mpKeyFrameDB->add(mpCurrentKF);
+        mpMap->GetKeyFrameDB()->add(mpCurrentKF);
         mpCurrentKF->SetErase();
         return false;
     }
@@ -190,14 +208,12 @@ bool LoopClosing::DetectLoop()
         float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
 
         if (score < minScore)
-        {
             minScore = score;
-        }
     }
 
     // Query the database imposing the minimum score
     int                  loopCandidateDetectionError = WAIKeyFrameDB::LOOP_DETECTION_ERROR_NONE;
-    vector<WAIKeyFrame*> vpCandidateKFs              = mpKeyFrameDB->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
+    vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
     {
         std::lock_guard<std::mutex> lock(mMutexNumCandidates);
         _numOfCandidates = vpCandidateKFs.size();
@@ -216,7 +232,7 @@ bool LoopClosing::DetectLoop()
                 break;
         }
 
-        mpKeyFrameDB->add(mpCurrentKF);
+        mpMap->GetKeyFrameDB()->add(mpCurrentKF);
         {
             std::lock_guard<std::mutex> lock(mMutexNumConsistentGroups);
             mvConsistentGroups.clear();
@@ -295,7 +311,7 @@ bool LoopClosing::DetectLoop()
     }
 
     // Add Current Keyframe to database
-    mpKeyFrameDB->add(mpCurrentKF);
+    mpMap->GetKeyFrameDB()->add(mpCurrentKF);
 
     if (mvpEnoughConsistentCandidates.empty())
     {
@@ -448,10 +464,10 @@ bool LoopClosing::ComputeSim3()
             WAIMapPoint* pMP = vpMapPoints[i];
             if (pMP)
             {
-                if (!pMP->isBad() && pMP->mnLoopPointForKF != mpCurrentKF->mnId)
+                if (!pMP->isBad() && pMP->mnMarker[LOOP_POINT_KF] != mpCurrentKF->mnId)
                 {
                     mvpLoopMapPoints.push_back(pMP);
-                    pMP->mnLoopPointForKF = mpCurrentKF->mnId;
+                    pMP->mnMarker[LOOP_POINT_KF] = mpCurrentKF->mnId;
                 }
             }
         }
@@ -582,7 +598,10 @@ void LoopClosing::doCorrectLoop()
                 WAIMapPoint* pLoopMP = mvpCurrentMatchedPoints[i];
                 WAIMapPoint* pCurMP  = mpCurrentKF->GetMapPoint(i);
                 if (pCurMP)
+                {
                     pCurMP->Replace(pLoopMP);
+                    mpMap->EraseMapPoint(pCurMP);
+                }
                 else
                 {
                     mpCurrentKF->AddMapPoint(pLoopMP, i);
@@ -642,8 +661,6 @@ void LoopClosing::doCorrectLoop()
 
 void LoopClosing::CorrectLoop()
 {
-    cout << "Loop detected!" << endl;
-
     // Send a stop signal to Local Mapping
     // Avoid new keyframes are inserted while correcting the loop
     mpLocalMapper->RequestStop();
@@ -670,6 +687,8 @@ void LoopClosing::CorrectLoop()
     }
 
     doCorrectLoop();
+
+    mpLocalMapper->RequestContinue();
 }
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
@@ -695,6 +714,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
             if (pRep)
             {
                 pRep->Replace(mvpLoopMapPoints[i]);
+                mpMap->EraseMapPoint(pRep);
             }
         }
     }
@@ -777,11 +797,11 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 for (set<WAIKeyFrame*>::const_iterator sit = sChilds.begin(); sit != sChilds.end(); sit++)
                 {
                     WAIKeyFrame* pChild = *sit;
-                    if (pChild->mnBAGlobalForKF != nLoopKF)
+                    if (pChild->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                     {
                         cv::Mat Tchildc         = pChild->GetPose() * Twc;
                         pChild->mTcwGBA         = Tchildc * pKF->mTcwGBA; //*Tcorc*pKF->mTcwGBA;
-                        pChild->mnBAGlobalForKF = nLoopKF;
+                        pChild->mnMarker[BA_GLOBAL_KF] = nLoopKF;
                     }
                     lpKFtoCheck.push_back(pChild);
                 }
@@ -801,7 +821,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 if (pMP->isBad())
                     continue;
 
-                if (pMP->mnBAGlobalForKF == nLoopKF)
+                if (pMP->mnMarker[BA_GLOBAL_KF] == nLoopKF)
                 {
                     // If optimized by Global BA, just update
                     pMP->SetWorldPos(pMP->mPosGBA);
@@ -811,7 +831,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                     // Update according to the correction of its reference keyframe
                     WAIKeyFrame* pRefKF = pMP->GetReferenceKeyFrame();
 
-                    if (pRefKF->mnBAGlobalForKF != nLoopKF)
+                    if (pRefKF->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                         continue;
 
                     // Map to non-corrected camera
@@ -831,12 +851,12 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
             mpMap->InformNewBigChange();
 
             mpLocalMapper->Release();
-
             cout << "Map updated!" << endl;
         }
 
         mbFinishedGBA = true;
         mbRunningGBA  = false;
+        mpLocalMapper->RequestContinue();
     }
 }
 

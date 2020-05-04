@@ -20,16 +20,16 @@
 //-----------------------------------------------------------------------------
 
 AppDemoGuiTestOpen::AppDemoGuiTestOpen(const std::string& name,
-                                       WAICalibration*    wc,
                                        SLNode*            mapNode,
-                                       bool*              activator)
+                                       bool*              activator,
+                                       WAIApp&            waiApp)
   : AppDemoGuiInfosDialog(name, activator),
-    _wc(wc),
-    _mapNode(mapNode)
+    _mapNode(mapNode),
+    _waiApp(waiApp)
 {
     _currentItem = 0;
 
-    std::vector<std::string> content = Utils::getFileNamesInDir(WAIApp::experimentsDir);
+    std::vector<std::string> content = Utils::getFileNamesInDir(_waiApp.experimentsDir);
     for (std::string path : content)
     {
         _infos.push_back(openTestSettings(path));
@@ -69,7 +69,7 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
 
     if (_infos.size() == 0)
     {
-        ImGui::Text(std::string("There are no experiments in: " + WAIApp::experimentsDir).c_str());
+        ImGui::Text(std::string("There are no experiments in: " + _waiApp.experimentsDir).c_str());
         ImGui::End();
         return;
     }
@@ -78,11 +78,20 @@ void AppDemoGuiTestOpen::buildInfos(SLScene* s, SLSceneView* sv)
     {
         TestInfo info = _infos[_currentItem];
 
-        OrbSlamStartResult result = WAIApp::startOrbSlam(info.vidPath, info.calPath, info.mapPath);
+        SlamParams slamParams;
+        slamParams.videoFile           = info.vidPath;
+        slamParams.mapFile             = info.mapPath;
+        slamParams.calibrationFile     = info.calPath;
+        slamParams.vocabularyFile      = "";
+        slamParams.markerFile          = "";
+        slamParams.params.retainImg    = false;
+        slamParams.params.trackOptFlow = false;
+        slamParams.params.onlyTracking = false;
+        slamParams.params.serial       = false;
+        OrbSlamStartResult result      = _waiApp.startOrbSlam(&slamParams);
         if (!result.wasSuccessful)
         {
-            WAIApp::errorDial->setErrorMsg(result.errorString);
-            WAIApp::uiPrefs.showError = true;
+            _waiApp.showErrorMsg(result.errorString);
         }
     }
 

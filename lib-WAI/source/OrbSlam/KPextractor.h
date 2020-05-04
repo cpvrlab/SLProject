@@ -24,69 +24,84 @@
 #include <vector>
 #include <list>
 #include <opencv2/opencv.hpp>
+#include <WAIHelper.h>
 
 namespace ORB_SLAM2
 {
 
-class KPextractor
+class WAI_API KPextractor
 {
 public:
-
-    KPextractor(std::string name){
-        mname = name;
+    KPextractor(std::string name, bool doubleBufferOutput)
+      : mname(name),
+        _doubleBufferOutput(doubleBufferOutput)
+    {
     }
+    virtual ~KPextractor() = default;
+
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
-    virtual void operator()( cv::InputArray image,
-                             std::vector<cv::KeyPoint>& keypoints,
-                             cv::OutputArray descriptors ) = 0;
+    virtual void operator()(cv::InputArray             image,
+                            std::vector<cv::KeyPoint>& keypoints,
+                            cv::OutputArray            descriptors) = 0;
 
-    std::string GetName(){
+    std::string GetName()
+    {
         return mname;
     }
 
-    int GetLevels(){
+    int GetLevels()
+    {
         return nlevels;
     }
 
-    float GetScaleFactor(){
+    float GetScaleFactor()
+    {
         return scaleFactor;
     }
 
-    std::vector<float> GetScaleFactors(){
+    std::vector<float> GetScaleFactors()
+    {
         return mvScaleFactor;
     }
 
-    std::vector<float> GetInverseScaleFactors(){
+    std::vector<float> GetInverseScaleFactors()
+    {
         return mvInvScaleFactor;
     }
 
-    std::vector<float> GetScaleSigmaSquares(){
+    std::vector<float> GetScaleSigmaSquares()
+    {
         return mvLevelSigma2;
     }
 
-    std::vector<float> GetInverseScaleSigmaSquares(){
+    std::vector<float> GetInverseScaleSigmaSquares()
+    {
         return mvInvLevelSigma2;
+    }
+
+    bool doubleBufferedOutput() const
+    {
+        return _doubleBufferOutput;
     }
 
     std::vector<cv::Mat> mvImagePyramid;
 
 protected:
-
-    int nfeatures;
-    double scaleFactor;
-    int nlevels;
-    std::string mname;
-    std::vector<int> mnFeaturesPerLevel;
-    std::vector<int> umax;
+    int                nfeatures;
+    double             scaleFactor;
+    int                nlevels;
+    std::string        mname;
+    std::vector<int>   mnFeaturesPerLevel;
+    std::vector<int>   umax;
     std::vector<float> mvScaleFactor;
     std::vector<float> mvInvScaleFactor;
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+    bool               _doubleBufferOutput;
 };
 
 } //namespace ORB_SLAM
 
 #endif
-

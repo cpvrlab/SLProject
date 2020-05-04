@@ -13,29 +13,27 @@
 
 #include <string>
 
-#include <SLNode.h>
-
-#include <WAIModeOrbSlam2.h>
-
 #include <AppDemoGuiInfosDialog.h>
-#include <AppWAI.h>
-#include <AppDemoGuiPrefs.h>
+
+class GUIPreferences;
+class WAISlam;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiInfosTracking : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiInfosTracking(std::string name,
-                            //WAI::ModeOrbSlam2* mode,
-                            GUIPreferences& preferences);
+public:
+    AppDemoGuiInfosTracking(std::string                   name,
+                            GUIPreferences&               preferences,
+                            ImFont*                       font,
+                            std::function<WAISlam*(void)> modeGetterCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
-    //WAI::ModeOrbSlam2* _mode = nullptr;
-    GUIPreferences&    _prefs;
+private:
+    GUIPreferences& _prefs;
 
-    int _minNumCovisibleMapPts = 0;
+    std::function<WAISlam*(void)> _getMode;
+    int                           _minNumCovisibleMapPts = 0;
 };
 
 #endif

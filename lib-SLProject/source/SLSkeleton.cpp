@@ -9,11 +9,7 @@
 //#############################################################################
 
 #include <stdafx.h>        // Must be the 1st include followed by  an empty line
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
 
-#include <SLApplication.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLSkeleton.h>
@@ -26,7 +22,6 @@ SLSkeleton::SLSkeleton() : _rootJoint(nullptr),
                            _maxOS(1, 1, 1),
                            _minMaxOutOfDate(true)
 {
-    SLApplication::scene->animManager().addSkeleton(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -104,7 +99,7 @@ void SLSkeleton::getJointMatrices(SLVMat4f& jointWM)
 //-----------------------------------------------------------------------------
 /*! Create a nw animation owned by this skeleton.
 */
-SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
+SLAnimation* SLSkeleton::createAnimation(SLAnimManager& aniMan, const SLstring& name, SLfloat duration)
 {
     assert(_animations.find(name) == _animations.end() &&
            "animation with same name already exists!");
@@ -116,7 +111,6 @@ SLAnimation* SLSkeleton::createAnimation(const SLstring& name, SLfloat duration)
     _animPlaybacks[name] = play;
 
     // Add node animation to the combined vector
-    SLAnimManager& aniMan = SLApplication::scene->animManager();
     aniMan.allAnimNames().push_back(name);
     aniMan.allAnimPlaybacks().push_back(play);
 

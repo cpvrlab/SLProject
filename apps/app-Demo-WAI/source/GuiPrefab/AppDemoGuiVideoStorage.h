@@ -14,28 +14,26 @@
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
 
-#include <SLMat4.h>
-#include <SLNode.h>
+struct WAIEvent;
+class SENSCamera;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiVideoStorage : public AppDemoGuiInfosDialog
 {
-    public:
-    AppDemoGuiVideoStorage(const std::string& name,
-                           cv::VideoWriter*   videoWriter,
-                           cv::VideoWriter*   videoWriterInfo,
-                           std::ofstream*     gpsDataStream,
-                           bool*              activator);
+public:
+    AppDemoGuiVideoStorage(const std::string&               name,
+                           bool*                            activator,
+                           std::queue<WAIEvent*>*           eventQueue,
+                           ImFont*                          font,
+                           std::function<SENSCamera*(void)> getCameraCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
-    private:
-    void saveVideo(std::string filename);
-    void saveGPSData(std::string videofile);
+private:
+    bool                   _recording = false;
+    std::queue<WAIEvent*>* _eventQueue;
 
-    ofstream*        _gpsDataFile;
-    cv::VideoWriter* _videoWriter;
-    cv::VideoWriter* _videoWriterInfo;
+    std::function<SENSCamera*(void)> _getCamera;
 };
 
 #endif //SL_IMGUI_VIDEOSTORAGE_H
