@@ -49,6 +49,7 @@ set(erlebar_headers
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
@@ -121,6 +122,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp

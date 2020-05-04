@@ -150,7 +150,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
         sv->onInitialize();
 
     // return the identifier index
-    return SLApplication::sceneViews.size() - 1;
+    return (SLint)SLApplication::sceneViews.size() - 1;
 }
 //-----------------------------------------------------------------------------
 /*! Global sceneview construction function returning the index of the created

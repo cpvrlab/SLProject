@@ -153,7 +153,7 @@ SLRay::reflect calculates a secondary ray reflected at the normal, starting at
 the intersection point. All vectors must be normalized vectors.
 R = 2(-I*N) N + I
 */
-void SLRay::reflect(SLRay* reflected)
+void SLRay::reflect(SLRay* reflected) const
 {
 #ifdef DEBUG_RAY
     for (SLint i = 0; i < depth; ++i)
@@ -272,19 +272,9 @@ void SLRay::refract(SLRay* refracted)
         else // inside
         {
             if (srcMesh == hitMesh)
-            {
-                if (hitMatOut)
-                    refracted->isOutside = false;
-                else
-                    refracted->isOutside = true;
-            }
+                refracted->isOutside = !hitMatOut;
             else
-            {
-                if (hitFrontSide)
-                    refracted->isOutside = false; // hit from front
-                else
-                    refracted->isOutside = true; // hit from back
-            }
+                refracted->isOutside = !hitFrontSide;
         }
 
         ++refractedRays;
@@ -339,7 +329,7 @@ along z-axis and then transformed to lie along specular direction with
 rotationMatrix rotMat. The rotation matrix must be precalculated (stays the 
 same for each ray sample, needs to be be calculated only once)
 */
-bool SLRay::reflectMC(SLRay* reflected, SLMat3f rotMat)
+bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
@@ -391,7 +381,7 @@ lie along transmissive direction with rotationMatrix rotMat. The rotation
 matrix must be precalculated (stays the same for each ray sample, needs to be 
 be calculated only once)
 */
-void SLRay::refractMC(SLRay* refracted, SLMat3f rotMat)
+void SLRay::refractMC(SLRay* refracted, const SLMat3f& rotMat) const
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
@@ -436,7 +426,7 @@ This is only used for photonmapping(russian roulette).
 The random direction lies around z-Axis and is then transformed by a rotation 
 matrix to lie along the normal. The direction is calculated according to MCCABE
 */
-void SLRay::diffuseMC(SLRay* scattered)
+void SLRay::diffuseMC(SLRay* scattered) const
 {
     SLVec3f randVec;
     SLfloat eta1, eta2, eta1sqrt;

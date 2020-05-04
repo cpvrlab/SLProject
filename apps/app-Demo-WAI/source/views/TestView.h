@@ -67,6 +67,8 @@ protected:
     bool                             _showUndistorted      = true;
     cv::Size2i                       _videoFrameSize;
 
+    std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
+
     //slam
     WAISlam*   _mode = nullptr;
     SlamParams _currentSlamParams;
@@ -90,6 +92,8 @@ protected:
     std::string _videoDir;
 
     std::thread _startThread;
+    std::thread _calibrationThread;
+    bool        _isCalibrated;
 
     SLTransformNode* _transformationNode = nullptr;
 

@@ -110,11 +110,6 @@ void SLSceneView::init(SLstring           name,
 
     _skybox = nullptr;
 
-    // Reset timing variables
-    _cullTimesMS.init(60, 0.0f);
-    _draw3DTimesMS.init(60, 0.0f);
-    _draw2DTimesMS.init(60, 0.0f);
-
     if (_gui)
         _gui->init(configPath);
 
@@ -408,6 +403,14 @@ void SLSceneView::onInitialize()
         _stats2D.clear();
         _s->root2D()->statsRec(_stats2D);
     }
+
+    // Reset timing variables
+    _cullTimeMS = 0.0f;
+    _draw3DTimeMS = 0.0f;
+    _draw2DTimeMS = 0.0f;
+    _cullTimesMS.init(60, 0.0f);
+    _draw3DTimesMS.init(60, 0.0f);
+    _draw2DTimesMS.init(60, 0.0f);
 
     initSceneViewCamera();
 
@@ -1263,9 +1266,8 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
             if (_raytracer.state() == rtFinished)
                 _raytracer.state(rtMoveGL);
             else
-            {
                 _raytracer.doContinuous(false);
-            }
+
             _renderType = RT_gl;
         }
 
@@ -1274,6 +1276,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
         {
             if (_pathtracer.state() == rtFinished)
                 _pathtracer.state(rtMoveGL);
+
             _renderType = RT_gl;
         }
     }
@@ -1328,6 +1331,10 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     if (_renderType == RT_rt && !_raytracer.doContinuous() &&
         _raytracer.state() == rtFinished)
         _raytracer.state(rtReady);
+
+    // Handle mouse wheel in PT mode
+    if (_renderType == RT_pt && _pathtracer.state() == rtFinished)
+        _pathtracer.state(rtReady);
 
     SLbool result = _camera->onMouseWheel(delta, mod);
 
@@ -1649,18 +1656,16 @@ SLstring SLSceneView::windowTitle()
         else
         {
             sprintf(title,
-                    "%s (%d%%, Threads: %d)",
+                    "%s (Threads: %d)",
                     _s->name().c_str(),
-                    _raytracer.pcRendered(),
                     _raytracer.numThreads());
         }
     }
     else if (_renderType == RT_pt)
     {
         sprintf(title,
-                "%s (%d%%, Threads: %d)",
+                "%s (Threads: %d)",
                 _s->name().c_str(),
-                _pathtracer.pcRendered(),
                 _pathtracer.numThreads());
     }
     else
@@ -1692,7 +1697,6 @@ void SLSceneView::startRaytracing(SLint maxDepth)
     _renderType = RT_rt;
     _stopRT     = false;
     _raytracer.maxDepth(maxDepth);
-    _raytracer.aaSamples(_doMultiSampling && _dpi < 200 ? 3 : 1);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1707,12 +1711,15 @@ SLbool SLSceneView::draw3DRT()
     // if the raytracer not yet got started
     if (_raytracer.state() == rtReady)
     {
-        // Update transforms and aabbs
-        // @Todo: causes multithreading bug in RT
-        //s->root3D()->needUpdate();
+        if (_s->root3D())
+        {
+            // Update transforms and AABBs
+            // @Todo: causes multithreading bug in RT
+            //s->root3D()->needUpdate();
 
-        // Do software skinning on all changed skeletons
-        _s->root3D()->updateMeshAccelStructs();
+            // Do software skinning on all changed skeletons
+            _s->root3D()->updateMeshAccelStructs();
+        }
 
         // Start raytracing
         if (_raytracer.doDistributed())
@@ -1757,12 +1764,15 @@ SLbool SLSceneView::draw3DPT()
     // if the pathtracer not yet got started
     if (_pathtracer.state() == rtReady)
     {
-        // Update transforms and AABBs
-        // @Todo: causes multithreading bug in RT
-        //s->root3D()->needUpdate();
+        if (_s->root3D())
+        {
+            // Update transforms and AABBs
+            // @Todo: causes multithreading bug in RT
+            //s->root3D()->needUpdate();
 
-        // Do software skinning on all changed skeletons
-        _s->root3D()->updateMeshAccelStructs();
+            // Do software skinning on all changed skeletons
+            _s->root3D()->updateMeshAccelStructs();
+        }
 
         // Start raytracing
         _pathtracer.render(this);

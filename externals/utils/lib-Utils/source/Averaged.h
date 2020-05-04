@@ -47,16 +47,13 @@ class Averaged
         if (_currentValueNo == _values.size())
             _currentValueNo = 0;
 
-        // Correct the sum continuosly
+        // Correct the sum continuously
         _sum                     = _sum - _values[_currentValueNo];
         _values[_currentValueNo] = value;
         _sum                     = _sum + _values[_currentValueNo];
         _average                 = _sum * _oneOverNumValues; // avoid division
         _currentValueNo++;
     }
-
-    //! Gets the number  values
-    int numValues() { return _currentValueCount; }
 
     //! Gets the avaraged value
     T average() { return _average; }
@@ -68,7 +65,6 @@ class Averaged
     float     _oneOverNumValues;  //!< multiplier instead of devider
     vector<T> _values;            //!< value array
     int       _currentValueNo;    //!< current value index
-    int       _currentValueCount; //!< values filled
     T         _sum;               //!< sum of all values
     T         _average;           //!< average value
 };

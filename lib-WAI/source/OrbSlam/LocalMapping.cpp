@@ -221,7 +221,6 @@ void LocalMapping::Run()
             // Safe area to stop
             while (isStopped() && !CheckFinish())
             {
-                //usleep(3000);
                 std::this_thread::sleep_for(3ms);
             }
             if (CheckFinish())

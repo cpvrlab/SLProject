@@ -157,7 +157,7 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, cv:
 
     //update visualization of matched map points (when WAI pose is valid)
     if (_showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFrame()));
+        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFramePtr()));
     else
         _scene.removeMatchedMapPoints();
 }

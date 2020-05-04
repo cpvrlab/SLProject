@@ -57,6 +57,11 @@ public:
                               int              mapPointsNeeded,
                               unsigned long&   lastKeyFrameFrameId);
 
+    static int findFrameFixedMapMatches(WAIFrame&                 frame,
+                                         WAIMap*                   waiMap,
+                                         std::vector<cv::Point2f>& points2d,
+                                         std::vector<cv::Point3f>& points3d);
+
     static bool relocalization(WAIFrame& currentFrame,
                                WAIMap*   waiMap,
                                LocalMap& localMap,

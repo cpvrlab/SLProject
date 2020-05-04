@@ -12,8 +12,8 @@
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
 
-WAISlam::WAISlam(cv::Mat        intrinsic,
-                 cv::Mat        distortion,
+WAISlam::WAISlam(const cv::Mat& intrinsic,
+                 const cv::Mat& distortion,
                  ORBVocabulary* voc,
                  KPextractor*   iniExtractor,
                  KPextractor*   extractor,
@@ -27,7 +27,6 @@ WAISlam::WAISlam(cv::Mat        intrinsic,
     _serial              = serial;
     _trackingOnly        = trackingOnly;
     _retainImg           = retainImg;
-    _serial              = serial;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
@@ -329,8 +328,19 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
     }
 
-    std::unique_lock<mutex> lastFrameLock(_lastFrameMutex);
+    std::unique_lock<std::mutex> lock(_lastFrameMutex);
     _lastFrame = WAIFrame(frame);
+}
+
+WAIFrame WAISlam::getLastFrame()
+{
+    std::unique_lock<std::mutex> lock(_lastFrameMutex);
+    return _lastFrame;
+}
+
+WAIFrame* WAISlam::getLastFramePtr()
+{
+    return &_lastFrame;
 }
 
 bool WAISlam::update(cv::Mat& imageGray)
@@ -378,6 +388,7 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
     }
 }
 
+
 std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
 {
     std::vector<WAIMapPoint*> result;
@@ -394,30 +405,22 @@ std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
     return result;
 }
 
-std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> WAISlam::getMatchedCorrespondances(WAIFrame* frame)
+int WAISlam::getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> &matching)
 {
-    std::vector<cv::Vec3f> points3d;
-    std::vector<cv::Vec2f> points2d;
-
     for (int i = 0; i < frame->N; i++)
     {
         WAIMapPoint* mp = frame->mvpMapPoints[i];
         if (mp)
         {
-            if (mp->Observations() > 0)
+            if (!mp->isBad() && mp->Observations() > 0 && mp->isFixed())
             {
-                WAI::V3   _v = mp->worldPosVec();
-                cv::Vec3f v;
-                v[0] = _v.x;
-                v[1] = _v.y;
-                v[2] = _v.z;
-                points3d.push_back(v);
-                points2d.push_back(frame->mvKeysUn[i].pt);
+                WAI::V3   v = mp->worldPosVec();
+                matching.first.push_back(frame->mvKeysUn[i].pt);
+                matching.second.push_back(cv::Point3f(v.x, v.y, v.z));
             }
         }
     }
-
-    return std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>>(points3d, points2d);
+    return matching.first.size();
 }
 
 cv::Mat WAISlam::getPose()
