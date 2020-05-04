@@ -10,7 +10,7 @@
 
 class SLScene;
 class SLSceneView;
-class ImFont;
+struct ImFont;
 
 class LocationMapGui : public ImGuiWrapper
   , private sm::EventSender

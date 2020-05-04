@@ -22,19 +22,29 @@
 #include <WAIKeyFrameDB.h>
 #include <Eigen/StdVector>
 #include <OrbSlam/Converter.h>
+#include <AverageTiming.h>
 #include <mutex>
 
 namespace ORB_SLAM2
 {
 
-void Optimizer::GlobalBundleAdjustemnt(WAIMap* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
+void Optimizer::GlobalBundleAdjustemnt(WAIMap*             pMap,
+                                       int                 nIterations,
+                                       bool*               pbStopFlag,
+                                       const unsigned long nLoopKF,
+                                       const bool          bRobust)
 {
     vector<WAIKeyFrame*> vpKFs = pMap->GetAllKeyFrames();
     vector<WAIMapPoint*> vpMP  = pMap->GetAllMapPoints();
     BundleAdjustment(vpKFs, vpMP, nIterations, pbStopFlag, nLoopKF, bRobust);
 }
 
-void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs, const vector<WAIMapPoint*>& vpMP, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
+void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
+                                 const vector<WAIMapPoint*>& vpMP,
+                                 int                         nIterations,
+                                 bool*                       pbStopFlag,
+                                 const unsigned long         nLoopKF,
+                                 const bool                  bRobust)
 {
     vector<bool> vbNotIncludedMP;
     vbNotIncludedMP.resize(vpMP.size());
@@ -534,6 +544,8 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
 
 int Optimizer::PoseOptimization(WAIFrame* pFrame)
 {
+    AVERAGE_TIMING_START("PoseOpt.All");
+
     //ghm1: Attention, we add every map point assotiated to a keypoint to the optimizer
     g2o::SparseOptimizer                    optimizer;
     g2o::BlockSolver_6_3::LinearSolverType* linearSolver;
@@ -564,6 +576,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     vnIndexEdgeMono.reserve(N);
     vbOutliers.resize(N);
 
+    AVERAGE_TIMING_START("PoseOpt.Part1");
     const float deltaMono = sqrt(5.991);
     {
         unique_lock<mutex> lock(WAIMapPoint::mGlobalMutex);
@@ -607,10 +620,15 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
             }
         }
     }
+    AVERAGE_TIMING_STOP("PoseOpt.Part1");
 
     if (nInitialCorrespondences < 3)
+    {
+        AVERAGE_TIMING_STOP("PoseOpt.All");
         return 0;
+    }
 
+    AVERAGE_TIMING_START("PoseOpt.Part2");
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
     const float chi2Mono[4]   = {5.991, 5.991, 5.991, 5.991};
@@ -654,7 +672,9 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
                 e->setRobustKernel(0);
         }
     }
+    AVERAGE_TIMING_STOP("PoseOpt.Part2");
 
+    AVERAGE_TIMING_START("PoseOpt.Part3");
     vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
     optimizer.initializeOptimization(0);
     optimizer.optimize(its[3]);
@@ -676,7 +696,6 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
         if (chi2 > chi2Mono[3])
         {
             pFrame->mvpMapPoints[idx] = static_cast<WAIMapPoint*>(NULL);
-            ;
             e->setLevel(1);
             nBad++;
         }
@@ -691,11 +710,19 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     g2o::SE3Quat          SE3quat_recov = vSE3_recov->estimate();
     cv::Mat               pose          = Converter::toCvMat(SE3quat_recov);
     pFrame->SetPose(pose);
+    AVERAGE_TIMING_STOP("PoseOpt.Part3");
 
+    AVERAGE_TIMING_STOP("PoseOpt.All");
     return nInitialCorrespondences - nBad;
 }
 
-void Optimizer::OptimizeEssentialGraph(WAIMap* pMap, WAIKeyFrame* pLoopKF, WAIKeyFrame* pCurKF, const LoopClosing::KeyFrameAndPose& NonCorrectedSim3, const LoopClosing::KeyFrameAndPose& CorrectedSim3, const map<WAIKeyFrame*, set<WAIKeyFrame*>>& LoopConnections, const bool& bFixScale)
+void Optimizer::OptimizeEssentialGraph(WAIMap*                                     pMap,
+                                       WAIKeyFrame*                                pLoopKF,
+                                       WAIKeyFrame*                                pCurKF,
+                                       const LoopClosing::KeyFrameAndPose&         NonCorrectedSim3,
+                                       const LoopClosing::KeyFrameAndPose&         CorrectedSim3,
+                                       const map<WAIKeyFrame*, set<WAIKeyFrame*>>& LoopConnections,
+                                       const bool&                                 bFixScale)
 {
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
@@ -954,12 +981,11 @@ void Optimizer::OptimizeEssentialGraph(WAIMap* pMap, WAIKeyFrame* pLoopKF, WAIKe
     }
 }
 
-
-void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, WorkingSet &wc)
+void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, WorkingSet& wc)
 {
     os->linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
-    os->solver_ptr = new g2o::BlockSolver_6_3(os->linearSolver);
-    os->solver = new g2o::OptimizationAlgorithmLevenberg(os->solver_ptr);
+    os->solver_ptr   = new g2o::BlockSolver_6_3(os->linearSolver);
+    os->solver       = new g2o::OptimizationAlgorithmLevenberg(os->solver_ptr);
     os->optimizer.setAlgorithm(os->solver);
     os->maxKFid = 0;
 
@@ -1005,7 +1031,7 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
 
     for (auto lit = os->lmap.mapPoints.begin(), lend = os->lmap.mapPoints.end(); lit != lend; lit++)
     {
-        WAIMapPoint*            pMP    = *lit;
+        WAIMapPoint*              pMP          = *lit;
         map<WAIKeyFrame*, size_t> observations = (*lit)->GetObservations();
         for (map<WAIKeyFrame*, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
         {
@@ -1146,7 +1172,7 @@ void Optimizer::LocalBundleAdjustment(OptimizerStruct* os, bool* pbStopFlag)
 }
 
 void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
-{ 
+{
     vector<pair<WAIKeyFrame*, WAIMapPoint*>> vToErase;
     vToErase.reserve(os->vpEdgesMono.size());
 
@@ -1180,8 +1206,6 @@ void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
         }
     }
 
-
-
     //Keyframes
     for (auto lit = os->lmap.keyFrames.begin(), lend = os->lmap.keyFrames.end(); lit != lend; lit++)
     {
@@ -1199,10 +1223,9 @@ void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
         pMP->SetWorldPos(Converter::toCvMat(vPoint->estimate()));
         pMP->UpdateNormalAndDepth();
     }
-
 }
 
-void Optimizer::optimizerLocalMap(LocalMap &lmap, WAIKeyFrame* pKF)
+void Optimizer::optimizerLocalMap(LocalMap& lmap, WAIKeyFrame* pKF)
 {
     lmap.refKF = pKF;
     lmap.keyFrames.push_back(pKF);
@@ -1256,7 +1279,9 @@ void Optimizer::optimizerLocalMap(LocalMap &lmap, WAIKeyFrame* pKF)
     }
 }
 
-void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap* pMap)
+void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
+                                      bool*        pbStopFlag,
+                                      WAIMap*      pMap)
 {
     LocalMap lmap;
     optimizerLocalMap(lmap, pKF);
@@ -1508,7 +1533,12 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF, bool* pbStopFlag, WAIMap
     }
 }
 
-int Optimizer::OptimizeSim3(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapPoint*>& vpMatches1, g2o::Sim3& g2oS12, const float th2, const bool bFixScale)
+int Optimizer::OptimizeSim3(WAIKeyFrame*          pKF1,
+                            WAIKeyFrame*          pKF2,
+                            vector<WAIMapPoint*>& vpMatches1,
+                            g2o::Sim3&            g2oS12,
+                            const float           th2,
+                            const bool            bFixScale)
 {
     g2o::SparseOptimizer                 optimizer;
     g2o::BlockSolverX::LinearSolverType* linearSolver;

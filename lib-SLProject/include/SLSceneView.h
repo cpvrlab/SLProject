@@ -172,6 +172,8 @@ public:
     SLfloat         scrWdivH() const { return _scrWdivH; }
     SLfloat         scr2fbX() const { return _scr2fbX; }
     SLfloat         scr2fbY() const { return _scr2fbY; }
+    SLint           dpi() const { return _dpi; }
+    SLfloat         dpmm() const { return (float)_dpi / 25.4f; }
     SLRecti         viewportRect() const { return _viewportRect; }
     SLVec2i         viewportRatio() const { return _viewportRatio; }
     SLfloat         viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }
@@ -244,6 +246,7 @@ protected:
     SLfloat         _scrWdivH;            //!< Screen side aspect ratio
     SLfloat         _scr2fbX;             //!< Horizontal screen to framebuffer ratio
     SLfloat         _scr2fbY;             //!< Vertical screen to framebuffer ratio
+    int             _dpi;                 //!< dots per inch of screen
     SLVec2i         _viewportRatio;       //!< ratio of viewport
     SLViewportAlign _viewportAlign;       //!< alignment of viewport
     SLRecti         _viewportRect;        //!< rectangle of viewport
@@ -261,8 +264,6 @@ protected:
     SLPathtracer   _pathtracer; //!< Pathtracer
     SLbool         _stopPT;     //!< Flag to stop the PT
     SLGLConetracer _conetracer; //!< Conetracer CT
-
-    int _dpi; //! dots per inch of screen
 
     SLInputManager& _inputManager;
 

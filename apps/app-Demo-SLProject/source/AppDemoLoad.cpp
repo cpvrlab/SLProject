@@ -93,8 +93,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     SLApplication::sceneID = sceneID;
 
     // reset existing sceneviews
-    for (auto sv : SLApplication::sceneViews)
+    for (auto* sv : SLApplication::sceneViews)
         sv->unInit();
+
     // Initialize all preloaded stuff from SLScene
     s->init();
 
@@ -136,9 +137,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "rectangle mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
-
-        SLNode* axisNode = new SLNode(new SLCoordAxis(s), "axis node");
-        scene->addChild(axisNode);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
@@ -2994,7 +2992,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #endif
     else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
     {
-        s->name("Muttenzer Box (RT)");
+        s->name("Muttenzer Box");
         s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
@@ -3404,7 +3402,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     ////////////////////////////////////////////////////////////////////////////
     // call onInitialize on all scene views to init the scenegraph and stats
-    for (auto sceneView : SLApplication::sceneViews)
+    for (auto* sceneView : SLApplication::sceneViews)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 

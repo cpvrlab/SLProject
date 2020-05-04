@@ -1,5 +1,6 @@
 #include "imgui_user.h"
 //#include "imgui.h"
+#include <stdint.h>
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #    define IMGUI_DEFINE_MATH_OPERATORS
 #endif

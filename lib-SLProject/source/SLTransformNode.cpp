@@ -138,7 +138,7 @@ SLTransformNode::~SLTransformNode()
         _sv->s().eventHandlers().erase(it);
 }
 //-----------------------------------------------------------------------------
-void SLTransformNode::toggleEditMode(SLNodeEditMode editMode)
+void SLTransformNode::editMode(SLNodeEditMode editMode)
 {
     _editMode = editMode;
 

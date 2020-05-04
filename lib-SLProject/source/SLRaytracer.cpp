@@ -23,13 +23,15 @@ SLRaytracer::SLRaytracer()
 {
     name("myCoolRaytracer");
 
-    _state         = rtReady;
-    _doDistributed = true;
-    _doContinuous  = false;
-    _doFresnel     = false;
-    _maxDepth      = 5;
-    _aaThreshold   = 0.3f; // = 10% color difference
-    _aaSamples     = 3;
+    _sv               = nullptr;
+    _state            = rtReady;
+    _doDistributed    = true;
+    _doContinuous     = false;
+    _doFresnel        = true;
+    _maxDepth         = 5;
+    _aaThreshold      = 0.3f; // = 10% color difference
+    _aaSamples        = 3;
+    _resolutionFactor = 0.5f;
     gamma(1.0f);
 
     // set texture properties
@@ -54,7 +56,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy; // From here we state the RT as busy
-    _pcRendered = 0;      // % rendered
+    _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
@@ -71,17 +73,18 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             SLRay primaryRay(_sv);
             setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
-#ifdef DEBUG_RAY
-            cout << "\nRay(" << x << "," << y << "):" << endl;
-#endif
-
             ///////////////////////////////////
-            SLCol4f color = trace(&primaryRay, sv->s().root3D(), sv->s().globalAmbiLight(), sv->s().lights());
+            SLCol4f color = trace(&primaryRay);
             ///////////////////////////////////
 
             color.gammaCorrect(_oneOverGamma);
 
-            _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
+            _images[0]->setPixeliRGB((SLint)x,
+                                     (SLint)y,
+                                     CVVec4f(color.r,
+                                             color.g,
+                                             color.b,
+                                             color.a));
 
             SLRay::avgDepth += SLRay::depthReached;
             SLRay::maxDepthReached = std::max(SLRay::depthReached,
@@ -92,7 +95,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         double t2 = GlobalTimer::timeS();
         if (t2 - t1 > 0.5)
         {
-            _pcRendered = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
+            _progressPC = (SLint)((SLfloat)y / (SLfloat)_images[0]->height() * 100);
             renderUIBeforeUpdate();
             _sv->onWndUpdate();
             t1 = GlobalTimer::timeS();
@@ -100,7 +103,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     }
 
     _renderSec  = GlobalTimer::timeS() - tStart;
-    _pcRendered = 100;
+    _progressPC = 100;
 
     if (_doContinuous)
         _state = rtReady;
@@ -119,7 +122,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy; // From here we state the RT as busy
-    _pcRendered = 0;      // % rendered
+    _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
 
     initStats(_maxDepth); // init statistics
@@ -128,50 +131,49 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Measure time
     float t1 = GlobalTimer::timeS();
 
-    // Bind render functions to be called multithreaded
-    auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1, _2, _3, _4);
+    // Bind render functions to be called multi-threaded
+    auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1
-                                  ? bind(&SLRaytracer::renderSlices, this, _1, _2, _3, _4)
-                                  : bind(&SLRaytracer::renderSlicesMS, this, _1, _2, _3, _4);
+                                  ? bind(&SLRaytracer::renderSlices, this, _1)
+                                  : bind(&SLRaytracer::renderSlicesMS, this, _1);
 
-    // Do multithreading only in release config
-    // Render image without antialiasing
-    vector<thread> threads; // vector for additional threads
-    _next = 0;              // init _next=0. _next should be atomic
+    // Do multi-threading only in release config
+    // Render image without anti-aliasing
+    vector<thread> threads1; // vector for additional threads
+    _next = 0;               // init _next=0. _next should be atomic
 
-    SLScene& s = sv->s();
     // Start additional threads on the renderSlices function
     for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-        threads.emplace_back(renderSlicesFunction, false, s.root3D(), s.globalAmbiLight(), s.lights());
+        threads1.emplace_back(renderSlicesFunction, false);
 
     // Do the same work in the main thread
-    renderSlicesFunction(true, s.root3D(), s.globalAmbiLight(), s.lights());
+    renderSlicesFunction(true);
 
     // Wait for the other threads to finish
-    for (auto& thread : threads)
+    for (auto& thread : threads1)
         thread.join();
 
     // Do anti-aliasing w. contrast compare in a 2nd. pass
-    if (!_doContinuous && _aaSamples > 1)
+    if (_aaSamples > 1)
     {
-        getAAPixels();          // Fills in the AA pixels by contrast
-        vector<thread> threads; // vector for additional threads
-        _next = 0;              // init _next=0. _next should be atomic
+        getAAPixels();           // Fills in the AA pixels by contrast
+        vector<thread> threads2; // vector for additional threads
+        _next = 0;               // init _next=0. _next should be atomic
 
         // Start additional threads on the sampleAAPixelFunction function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.emplace_back(sampleAAPixelsFunction, false, s.root3D(), s.globalAmbiLight(), s.lights());
+            threads2.emplace_back(sampleAAPixelsFunction, false);
 
         // Do the same work in the main thread
-        sampleAAPixelsFunction(true, s.root3D(), s.globalAmbiLight(), s.lights());
+        sampleAAPixelsFunction(true);
 
         // Wait for the other threads to finish
-        for (auto& thread : threads)
+        for (auto& thread : threads2)
             thread.join();
     }
 
     _renderSec  = GlobalTimer::timeS() - t1;
-    _pcRendered = 100;
+    _progressPC = 100;
 
     if (_doContinuous)
         _state = rtReady;
@@ -191,7 +193,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlices(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+void SLRaytracer::renderSlices(const bool isMainThread)
 {
     // Time points
     double t1 = 0;
@@ -211,12 +213,17 @@ void SLRaytracer::renderSlices(const bool isMainThread, SLNode* root, const SLCo
                 setPrimaryRay((SLfloat)x, (SLfloat)y, &primaryRay);
 
                 ///////////////////////////////////
-                SLCol4f color = trace(&primaryRay, root, globalAmbiLight, lights);
+                SLCol4f color = trace(&primaryRay);
                 ///////////////////////////////////
 
                 color.gammaCorrect(_oneOverGamma);
 
-                _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
+                _images[0]->setPixeliRGB((SLint)x,
+                                         (SLint)y,
+                                         CVVec4f(color.r,
+                                                 color.g,
+                                                 color.b,
+                                                 color.a));
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached,
@@ -228,9 +235,9 @@ void SLRaytracer::renderSlices(const bool isMainThread, SLNode* root, const SLCo
             {
                 if (GlobalTimer::timeS() - t1 > 0.5)
                 {
-                    _pcRendered = (SLint)((SLfloat)y /
+                    _progressPC = (SLint)((SLfloat)y /
                                           (SLfloat)_images[0]->height() * 100);
-                    if (_aaSamples > 0) _pcRendered /= 2;
+                    if (_aaSamples > 0) _progressPC /= 2;
                     renderUIBeforeUpdate();
                     _sv->onWndUpdate();
                     t1 = GlobalTimer::timeS();
@@ -249,7 +256,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlicesMS(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+void SLRaytracer::renderSlicesMS(const bool isMainThread)
 {
     // Time points
     double t1 = 0;
@@ -290,12 +297,15 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread, SLNode* root, const SL
                         if (_sv->skybox())
                             backColor = _sv->skybox()->colorAtDir(lensToFP);
                         else
-                            backColor = _sv->camera()->background().colorAtPos((SLfloat)x, (SLfloat)y);
+                            backColor = _sv->camera()->background().colorAtPos((SLfloat)x,
+                                                                               (SLfloat)y,
+                                                                               (SLfloat)_images[0]->width(),
+                                                                               (SLfloat)_images[0]->height());
 
                         SLRay primaryRay(lensPos, lensToFP, (SLfloat)x, (SLfloat)y, backColor, _sv);
 
                         ////////////////////////////
-                        color += trace(&primaryRay, root, globalAmbiLight, lights);
+                        color += trace(&primaryRay);
                         ////////////////////////////
 
                         SLRay::avgDepth += SLRay::depthReached;
@@ -333,15 +343,17 @@ if the material is reflective and/or transparent new rays are created and
 passed to this trace method again. If no object got intersected the
 background color is return.
 */
-SLCol4f SLRaytracer::trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+SLCol4f SLRaytracer::trace(SLRay* ray)
 {
     SLCol4f color(ray->backgroundColor);
 
-    root->hitRec(ray);
+    // Intersect scene
+    SLNode* root = _sv->s().root3D();
+    if (root) root->hitRec(ray);
 
     if (ray->length < FLT_MAX)
     {
-        color = shade(ray, root, globalAmbiLight, lights);
+        color = shade(ray);
 
         SLfloat kt = ray->hitMesh->mat()->kt();
         SLfloat kr = ray->hitMesh->mat()->kr();
@@ -349,31 +361,33 @@ SLCol4f SLRaytracer::trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLi
         if (ray->depth < SLRay::maxDepth && ray->contrib > SLRay::minContrib)
         {
             if (!_doFresnel)
-            { // Do classic refraction and/or reflection
+            {
+                // Do classic refraction and/or reflection
                 if (kt > 0.0f)
                 {
                     SLRay refracted(_sv);
                     ray->refract(&refracted);
-                    color += kt * trace(&refracted, root, globalAmbiLight, lights);
+                    color += kt * trace(&refracted);
                 }
                 if (kr > 0.0f)
                 {
                     SLRay reflected(_sv);
                     ray->reflect(&reflected);
-                    color += kr * trace(&reflected, root, globalAmbiLight, lights);
+                    color += kr * trace(&reflected);
                 }
             }
             else
-            { // Mix refr. & refl. color w. Fresnel aproximation
+            {
+                // Mix refr. & refl. color w. Fresnel approximation
                 if (kt > 0.0f)
                 {
                     SLRay refracted(_sv), reflected(_sv);
                     ray->refract(&refracted);
                     ray->reflect(&reflected);
-                    SLCol4f refrCol = trace(&refracted, root, globalAmbiLight, lights);
-                    SLCol4f reflCol = trace(&reflected, root, globalAmbiLight, lights);
+                    SLCol4f refrCol = trace(&refracted);
+                    SLCol4f reflCol = trace(&reflected);
 
-                    // Apply Schlick's Fresnel aproximation
+                    // Apply Schlick's Fresnel approximation
                     SLfloat F0      = kr;
                     SLfloat theta   = -(ray->dir * ray->hitNormal);
                     SLfloat F_theta = F0 + (1 - F0) * (SLfloat)pow(1 - theta, 5);
@@ -385,7 +399,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLi
                     {
                         SLRay reflected(_sv);
                         ray->reflect(&reflected);
-                        color += kr * trace(&reflected, root, globalAmbiLight, lights);
+                        color += kr * trace(&reflected);
                     }
                 }
             }
@@ -423,7 +437,10 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
     if (_sv->skybox())
         primaryRay->backgroundColor = _sv->skybox()->colorAtDir(primaryRay->dir);
     else
-        primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x, y);
+        primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x,
+                                                                             y,
+                                                                             (SLfloat)_images[0]->width(),
+                                                                             (SLfloat)_images[0]->height());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -435,7 +452,7 @@ color = material emission +
         ambient, diffuse, and specular contributions from all lights, 
         properly attenuated
 */
-SLCol4f SLRaytracer::shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+SLCol4f SLRaytracer::shade(SLRay* ray)
 {
     SLCol4f       localColor = SLCol4f::BLACK;
     SLMaterial*   mat        = ray->hitMesh->mat();
@@ -444,12 +461,13 @@ SLCol4f SLRaytracer::shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLi
     SLfloat       lightDist, LdN, NdH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
+    SLScene&      s = _sv->s();
 
-    localColor = mat->emissive() + (mat->ambient() & globalAmbiLight);
+    localColor = mat->emissive() + (mat->ambient() & s.globalAmbiLight());
 
     ray->hitMesh->preShade(ray);
 
-    for (auto light : lights)
+    for (auto* light : s.lights())
     {
         if (light && light->isOn())
         {
@@ -474,7 +492,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLi
             LdN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdN > 0) ? light->shadowTest(ray, L, lightDist, root) : 0;
+            lighted = (LdN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();
@@ -600,7 +618,7 @@ or an atomic index. I prefer not protecting it because it's faster. If the
 increment is not done properly some pixels may get ray traced twice. Only the
 main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::sampleAAPixels(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights)
+void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2 = 0;
@@ -624,17 +642,17 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread, SLNode* root, const SL
             SLCol4f color(0, 0, 0);
 
             // Loop regularly over the float pixel
-            for (SLint j = 0; j < _aaSamples; ++j)
+            for (SLint sy = 0; sy < _aaSamples; ++sy)
             {
-                for (SLint i = 0; i < _aaSamples; ++i)
+                for (SLint sx = 0; sx < _aaSamples; ++sx)
                 {
-                    if (i == centerIndex && j == centerIndex)
+                    if (sx == centerIndex && sy == centerIndex)
                         color += centerColor; // don't shoot for center position
                     else
                     {
                         SLRay primaryRay(_sv);
-                        setPrimaryRay(xpos + i * f, ypos + i * f, &primaryRay);
-                        color += trace(&primaryRay, root, globalAmbiLight, lights);
+                        setPrimaryRay(xpos + sx * f, ypos + sy * f, &primaryRay);
+                        color += trace(&primaryRay);
                     }
                 }
                 ypos += f;
@@ -644,7 +662,12 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread, SLNode* root, const SL
 
             color.gammaCorrect(_oneOverGamma);
 
-            _images[0]->setPixeliRGB((SLint)x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
+            _images[0]->setPixeliRGB((SLint)x,
+                                     (SLint)y,
+                                     CVVec4f(color.r,
+                                             color.g,
+                                             color.b,
+                                             color.a));
         }
 
         if (isMainThread && !_doContinuous)
@@ -652,7 +675,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread, SLNode* root, const SL
             t2 = GlobalTimer::timeS();
             if (t2 - t1 > 0.5)
             {
-                _pcRendered = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
+                _progressPC = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
                 renderUIBeforeUpdate();
                 _sv->onWndUpdate();
                 t1 = GlobalTimer::timeS();
@@ -679,8 +702,12 @@ SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
             f = (stateGL->fogDistEnd - z) /
                 (stateGL->fogDistEnd - stateGL->fogDistStart);
             break;
-        case 1: f = exp(-stateGL->fogDensity * z); break;
-        default: f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z); break;
+        case 1:
+            f = exp(-stateGL->fogDensity * z);
+            break;
+        default:
+            f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z);
+            break;
     }
     color = f * color + (1 - f) * stateGL->fogColor;
     color.clampMinMax(0, 1);
@@ -758,7 +785,8 @@ void SLRaytracer::prepareImage()
     _cam->updateAndGetVM().lookAt(&_EYE, &_LA, &_LU, &_LR);
 
     if (_cam->projection() == P_monoOrthographic)
-    { /*
+    {
+        /*
         In orthographic projection the bottom-left vector (_BL) points
         from the eye to the center of the bottom-left pixel of a plane that
         parallel to the projection plan at zero distance from the eye.
@@ -768,12 +796,13 @@ void SLRaytracer::prepareImage()
         SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
-        _pxSize = hw * 2 / _sv->viewportW();
+        _pxSize = hw * 2 / ((SLint)(_sv->viewportW() * _resolutionFactor));
 
         _BL = _EYE - hw * _LR - hh * _LU + _pxSize / 2 * _LR - _pxSize / 2 * _LU;
     }
     else
-    { /*
+    {
+        /*
         In perspective projection the bottom-left vector (_BL) points
         from the eye to the center of the bottom-left pixel on a projection
         plan in focal distance. See also the computer graphics script about
@@ -784,7 +813,7 @@ void SLRaytracer::prepareImage()
         SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
-        _pxSize = hw * 2 / _sv->viewportW();
+        _pxSize = hw * 2 / ((SLint)(_sv->viewportW() * _resolutionFactor));
 
         // calculate a vector to the center (C) of the bottom left (BL) pixel
         SLVec3f C = _LA * _cam->focalDist();
@@ -793,14 +822,14 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.empty())
-        _images.push_back(new CVImage(_sv->viewportW(),
-                                      _sv->viewportH(),
+        _images.push_back(new CVImage((SLint)(_sv->viewportW() * _resolutionFactor),
+                                      (SLint)(_sv->viewportH() * _resolutionFactor),
                                       PF_rgb,
                                       "Raytracer"));
 
     // Allocate image of the inherited texture class
-    if (_sv->viewportW() != (SLint)_images[0]->width() ||
-        _sv->viewportH() != (SLint)_images[0]->height())
+    if ((SLint)(_sv->viewportW() * _resolutionFactor) != (SLint)_images[0]->width() ||
+        (SLint)(_sv->viewportH() * _resolutionFactor) != (SLint)_images[0]->height())
     {
         // Delete the OpenGL Texture if it already exists
         if (_texID)
@@ -810,8 +839,8 @@ void SLRaytracer::prepareImage()
         }
 
         _vaoSprite.clearAttribs();
-        _images[0]->allocate(_sv->viewportW(),
-                             _sv->viewportH(),
+        _images[0]->allocate((SLint)(_sv->viewportW() * _resolutionFactor),
+                             (SLint)(_sv->viewportH() * _resolutionFactor),
                              PF_rgb);
     }
 
@@ -827,8 +856,8 @@ void SLRaytracer::renderImage()
     SLRecti vpRect = _sv->viewportRect();
     SLfloat w      = (SLfloat)vpRect.width;
     SLfloat h      = (SLfloat)vpRect.height;
-    if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
-    if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
+    //if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
+    //if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
@@ -843,7 +872,7 @@ void SLRaytracer::renderImage()
     stateGL->multiSample(false);
     stateGL->polygonLine(false);
 
-    drawSprite(true);
+    drawSprite(true, 0.0f, 0.0f, (SLfloat)vpRect.width, (SLfloat)vpRect.height);
 
     stateGL->depthTest(true);
     GET_GL_ERROR;

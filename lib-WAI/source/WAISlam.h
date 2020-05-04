@@ -43,8 +43,8 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-    WAISlam(cv::Mat        intrinsic,
-            cv::Mat        distortion,
+    WAISlam(const cv::Mat& intrinsic,
+            const cv::Mat& distortion,
             ORBVocabulary* voc,
             KPextractor*   iniExtractor,
             KPextractor*   extractor,
@@ -70,12 +70,13 @@ public:
 
     virtual bool retainImage();
 
-    static std::vector<WAIMapPoint*>                                 getMatchedMapPoints(WAIFrame* frame);
-    static std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame* frame);
+    std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
+    int                       getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching);
 
     virtual bool                      isInitialized() { return _initialized; }
     virtual WAIMap*                   getMap() { return _globalMap; }
-    virtual WAIFrame*                 getLastFrame() { return &_lastFrame; }
+    virtual WAIFrame                  getLastFrame();
+    virtual WAIFrame*                 getLastFramePtr();
     virtual std::vector<WAIMapPoint*> getLocalMapPoints() { return _localMap.mapPoints; }
     virtual int                       getNumKeyFrames() { return (int)_globalMap->KeyFramesInMap(); }
 

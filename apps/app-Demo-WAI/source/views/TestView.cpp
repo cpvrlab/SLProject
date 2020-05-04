@@ -5,6 +5,7 @@
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
+#include <WAIAutoCalibration.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
@@ -48,6 +49,7 @@ TestView::TestView(sm::EventHandler& eventHandler,
     init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
     _scene.init();
     onInitialize();
+    _isCalibrated = false;
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
@@ -121,7 +123,27 @@ bool TestView::update()
             _mode->update(frame->imgGray);
 
             if (_mode->isTracking())
+            {
                 _scene.updateCameraPose(_mode->getPose());
+
+                if (!_isCalibrated)
+                {
+                    std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
+
+                    WAIFrame lastFrame = _mode->getLastFrame();
+                    if (_mode->getMatchedCorrespondances(&lastFrame, matching) > 10)
+                    {
+                        _calibrationMatchings.push_back(matching);
+                        if (_calibrationMatchings.size() > 10)
+                        {
+                            cv::Size size      = cv::Size(frame->captureWidth, frame->captureHeight);
+                            _calibrationThread = std::thread(AutoCalibration::calibrate, size, _calibrationMatchings);
+                            _calibrationMatchings.clear();
+                            _isCalibrated = true;
+                        }
+                    }
+                }
+            }
 
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
@@ -245,7 +267,7 @@ void TestView::handleEvents()
                 }
                 else
                 {
-                    _transformationNode->toggleEditMode(enterEditModeEvent->editMode);
+                    _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
 
                 delete enterEditModeEvent;
@@ -687,7 +709,7 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
 
     //update visualization of matched map points (when WAI pose is valid)
     if (_gui.uiPrefs->showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
+        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFramePtr()));
     else
         _scene.removeMatchedMapPoints();
 

@@ -74,7 +74,7 @@ string getDateTime2String();
 string getHostName();
 
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...);
+string formatString(const string& fmt_str, ...);
 
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);

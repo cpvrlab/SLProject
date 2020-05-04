@@ -30,13 +30,18 @@ SLBackground::SLBackground()
     _resX         = -1;
     _resY         = -1;
 
-    _textureOnlyProgram    = new SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag");
-    _colorAttributeProgram = new SLGLGenericProgram(nullptr, "ColorAttribute.vert", "Color.frag");
+    _textureOnlyProgram    = new SLGLGenericProgram(nullptr,
+                                                 "TextureOnly.vert",
+                                                 "TextureOnly.frag");
+    _colorAttributeProgram = new SLGLGenericProgram(nullptr,
+                                                    "ColorAttribute.vert",
+                                                    "Color.frag");
     _deletePrograms        = true;
 }
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
-SLBackground::SLBackground(SLGLProgram* textureOnlyProgram, SLGLProgram* colorAttributeProgram)
+SLBackground::SLBackground(SLGLProgram* textureOnlyProgram,
+                           SLGLProgram* colorAttributeProgram)
   : SLObject("Background"),
     _textureOnlyProgram(textureOnlyProgram),
     _colorAttributeProgram(colorAttributeProgram),
@@ -57,10 +62,8 @@ SLBackground::~SLBackground()
 {
     if (_deletePrograms)
     {
-        if (_textureOnlyProgram)
-            delete _textureOnlyProgram;
-        if (_colorAttributeProgram)
-            delete _colorAttributeProgram;
+        delete _textureOnlyProgram;
+        delete _colorAttributeProgram;
     }
 }
 //-----------------------------------------------------------------------------
@@ -216,10 +219,10 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
        +-----+
      LB       RB
 */
-void SLBackground::renderInScene(SLVec3f LT,
-                                 SLVec3f LB,
-                                 SLVec3f RT,
-                                 SLVec3f RB)
+void SLBackground::renderInScene(const SLVec3f& LT,
+                                 const SLVec3f& LB,
+                                 const SLVec3f& RT,
+                                 const SLVec3f& RB)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -269,10 +272,12 @@ void SLBackground::renderInScene(SLVec3f LT,
     ///////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
-//! Returns the interpolated color at the pixel position p[x,y]
+//! Returns the interpolated color at the pixel position p[x,y] used in raytracing.
 /*! Returns the interpolated color at the pixel position p[x,y] for ray tracing.
-    x is expected to be between 0 and window width.
-    y is expected to be between 0 and window height.
+    x is expected to be between 0 and width of the RT-frame.
+    y is expected to be between 0 and height of the RT-frame.
+    width is the width of the RT-frame
+    height is the height of the RT-frame
 
      C    w    B
        +-----+
@@ -284,24 +289,27 @@ void SLBackground::renderInScene(SLVec3f LT,
      0 +-----+
      A 0
 */
-SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
+SLCol4f SLBackground::colorAtPos(SLfloat x,
+                                 SLfloat y,
+                                 SLfloat width,
+                                 SLfloat height)
 {
     if (_isUniform)
         return _colors[0];
 
     if (_texture)
-        return _texture->getTexelf(x / _resX, y / _resY);
+        return _texture->getTexelf(x / width, y / height);
 
     // top-down gradient
     if (_colors[0] == _colors[2] && _colors[1] == _colors[3])
     {
-        SLfloat f = y / _resY;
+        SLfloat f = y / height;
         return f * _colors[0] + (1 - f) * _colors[1];
     }
     // left-right gradient
     if (_colors[0] == _colors[1] && _colors[2] == _colors[3])
     {
-        SLfloat f = x / _resX;
+        SLfloat f = x / width;
         return f * _colors[0] + (1 - f) * _colors[2];
     }
 
@@ -309,8 +317,8 @@ SLCol4f SLBackground::colorAtPos(SLfloat x, SLfloat y)
     // First check with barycentric coords if p is in the upper left triangle
     SLVec2f p(x, y);
     SLVec3f bc(p.barycentricCoords(SLVec2f(0, 0),
-                                   SLVec2f((SLfloat)_resX, (SLfloat)_resY),
-                                   SLVec2f(0, (SLfloat)_resY)));
+                                   SLVec2f(width, height),
+                                   SLVec2f(0, height)));
     SLfloat u = bc.x;
     SLfloat v = bc.y;
     SLfloat w = 1 - bc.x - bc.y;

@@ -8,7 +8,7 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
     ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.h
@@ -16,7 +16,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCameraBase.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
@@ -25,17 +25,17 @@ file(GLOB headers
     )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAICalibration.cpp
-        ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
-        ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
-        ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.cpp
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
-        ${SL_PROJECT_ROOT}/apps/source/sens/SENSCameraBase.cpp
-        ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
-        ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
-        ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
-        )
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
+    ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Test-WAI/WAITester.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
+    )
 
 # Group source files
 set(headers_sources ${sources} ${headers})
