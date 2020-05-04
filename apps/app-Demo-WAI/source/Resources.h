@@ -209,7 +209,7 @@ public:
 class Resources
 {
 public:
-    Resources(std::string resourceFileName, std::string textureDir);
+    Resources(std::string writableDir, std::string textureDir);
     ~Resources();
 
     void setLanguageEnglish();
@@ -245,6 +245,8 @@ private:
     std::string _fileName;
     //erlebar locations definition
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+    //writeable directory, e.g. for logfile
+    std::string _writableDir;
 };
 };
 

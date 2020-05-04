@@ -18,7 +18,7 @@ void SENSWebCamera::start(const SENSCameraConfig config)
         _videoCapture.open(id);
 
         if (!_videoCapture.isOpened())
-            throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
+            throw SENSException(SENSType::CAM, "Could not open camera with id: " + _config.deviceId, __LINE__, __FILE__);
 
         _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
         _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
@@ -147,13 +147,14 @@ std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristic
         }
     }
 
-    {
-        SENSCameraCharacteristics characteristics;
-        characteristics.cameraId = "1";
-        characteristics.provided = false;
-        characteristics.streamConfig.add(cv::Size(640, 654));
-        allCharacteristics.push_back(characteristics);
-    }
+    //dummy data to debug second camera
+    //{
+    //    SENSCameraCharacteristics characteristics;
+    //    characteristics.cameraId = "1";
+    //    characteristics.provided = false;
+    //    characteristics.streamConfig.add(cv::Size(640, 654));
+    //    allCharacteristics.push_back(characteristics);
+    //}
 
     //start again with old config
     if (deviceWasOpen)

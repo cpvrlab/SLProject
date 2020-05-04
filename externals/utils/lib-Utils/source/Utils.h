@@ -16,6 +16,7 @@
 #include <cfloat>
 #include <memory>
 #include <FileLog.h>
+#include <CustomLog.h>
 
 using namespace std;
 
@@ -146,14 +147,16 @@ void dumpFileSystemRec(const char*   logtag,
 string findFile(const string&         filename,
                 const vector<string>& pathsToCheck);
 
-  ///////////////////////
-  // Logging Functions //
-  ///////////////////////
-  //! FileLog Instance for logging to logfile. If it is instantiated the logging methods
-  //! will also output into this file. Instantiate it with initFileLog function.
-  static std::unique_ptr<FileLog> fileLog;
+///////////////////////
+// Logging Functions //
+///////////////////////
+//! FileLog Instance for logging to logfile. If it is instantiated the logging methods
+//! will also output into this file. Instantiate it with initFileLog function.
+static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
+//! custom log instance, e.g. log to a ui log window
+static std::unique_ptr<CustomLog> customLog;
 
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);
