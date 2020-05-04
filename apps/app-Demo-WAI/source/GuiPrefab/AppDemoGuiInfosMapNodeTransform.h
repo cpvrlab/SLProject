@@ -16,7 +16,7 @@
 
 class SLScene;
 class SLSceneView;
-class WAIEvent;
+struct WAIEvent;
 //-----------------------------------------------------------------------------
 class AppDemoGuiInfosMapNodeTransform : public AppDemoGuiInfosDialog
 {

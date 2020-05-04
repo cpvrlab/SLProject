@@ -1,5 +1,7 @@
 #include <AboutGui.h>
 #include <imgui_internal.h>
+#include <GuiUtils.h>
+#include <ErlebAREvents.h>
 
 using namespace ErlebAR;
 
@@ -26,7 +28,7 @@ AboutGui::AboutGui(sm::EventHandler&   eventHandler,
         _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
     }
     else
-        Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
+        Utils::warnMsg("AboutGui", "font does not exist!", __LINE__, __FILE__);
 }
 
 AboutGui::~AboutGui()
@@ -38,10 +40,10 @@ void AboutGui::onShow()
     _panScroll.enable();
 }
 
-void AboutGui::onResize(SLint scrW, SLint scrH)
+void AboutGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
-    ImGuiWrapper::onResize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbY);
 }
 
 void AboutGui::resize(int scrW, int scrH)
@@ -61,40 +63,23 @@ void AboutGui::resize(int scrW, int scrH)
 
 void AboutGui::build(SLScene* s, SLSceneView* sv)
 {
-    pushStyle();
+    //header bar
+    float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
 
-    //header bar with backbutton
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _headerBarH), ImGuiCond_Always);
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
-
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundColor);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().headerBarTextColor);
-        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-        ImGui::PushFont(_fontBig);
-        //hack for ArrowButton alignment (has to be called after font has been pushed
-        float h       = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
-        float spacing = 0.5f * (_headerBarH - h);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(spacing, spacing));
-
-        ImGui::Begin("AboutGui_header", nullptr, windowFlags);
-
-        if (ImGui::ArrowButton("AboutGui_backButton", ImGuiDir_Left))
-        {
-            sendEvent(new GoBackEvent());
-        }
-        ImGui::SameLine(0.f, _spacingBackButtonToText);
-        ImGui::Text(_resources.strings().about());
-
-        ImGui::End();
-
-        ImGui::PopStyleColor(5);
-        ImGui::PopFont();
-        ImGui::PopStyleVar(1);
-    }
+    ErlebAR::renderHeaderBar("AboutGui",
+                             _screenW,
+                             _headerBarH,
+                             _resources.style().headerBarBackgroundColor,
+                             _resources.style().headerBarTextColor,
+                             _resources.style().headerBarBackButtonColor,
+                             _resources.style().headerBarBackButtonPressedColor,
+                             _fontBig,
+                             _buttonRounding,
+                             buttonSize,
+                             _resources.textures.texIdBackArrow,
+                             _spacingBackButtonToText,
+                             _resources.strings().about(),
+                             [&]() { sendEvent(new GoBackEvent()); });
 
     //content
     {
@@ -104,11 +89,18 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
                                             ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar;
+                                            ImGuiWindowFlags_NoScrollbar /*|
+                                            ImGuiWindowFlags_NoScrollWithMouse*/
+          ;
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
@@ -163,26 +155,8 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
         ImGui::End();
 
         ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(7);
     }
 
-    popStyle();
-
     //ImGui::ShowMetricsWindow();
-}
-
-void AboutGui::pushStyle()
-{
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-}
-
-void AboutGui::popStyle()
-{
-    ImGui::PopStyleVar(6);
 }

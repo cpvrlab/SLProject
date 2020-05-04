@@ -14,7 +14,7 @@
 #include <opencv2/core.hpp>
 #include <AppDemoGuiInfosDialog.h>
 
-class WAIEvent;
+struct WAIEvent;
 class SENSCamera;
 
 //-----------------------------------------------------------------------------

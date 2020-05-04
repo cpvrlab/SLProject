@@ -762,8 +762,8 @@ void vkUtils::transitionImageLayout(VkImage       image,
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount     = 1;
 
-    VkPipelineStageFlags sourceStage;
-    VkPipelineStageFlags destinationStage;
+    VkPipelineStageFlags sourceStage{};
+    VkPipelineStageFlags destinationStage{};
 
     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
         newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
@@ -968,7 +968,7 @@ void vkUtils::createCommandBuffers(const std::vector<Vertex>& vertices)
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapchainExtent;
 
-        VkClearValue clearColor        = {0.0f, 0.0f, 0.0f, 1.0f};
+        VkClearValue clearColor        = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues    = &clearColor;
 
@@ -1322,6 +1322,9 @@ uint32_t vkUtils::findMemoryType(uint32_t              typeFilter,
             return i;
 
     cerr << "failed to find suitable memory type!" << endl;
+
+    // TODO(dgj1): make sure this is right. needs a return, otherwise its a compile error
+    return 0;
 }
 //-----------------------------------------------------------------------------
 /*!

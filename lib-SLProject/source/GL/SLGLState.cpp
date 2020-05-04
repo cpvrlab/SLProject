@@ -150,6 +150,8 @@ void SLGLState::initAll()
 #ifdef _GLDEBUG
     GET_GL_ERROR;
 #endif
+
+    _currentMaterial = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*! The destructor only empties the stacks
@@ -254,7 +256,11 @@ void SLGLState::calcLightDirVS(SLint nLights)
  */
 const SLCol4f* SLGLState::globalAmbient()
 {
-    _globalAmbient.set(globalAmbientLight & SLMaterial::current->ambient());
+    if (_currentMaterial)
+        _globalAmbient.set(globalAmbientLight & _currentMaterial->ambient());
+    else
+        _globalAmbient.set(globalAmbientLight);
+
     return &_globalAmbient;
 }
 //-----------------------------------------------------------------------------
@@ -609,10 +615,6 @@ void SLGLState::getGLError(const char* file,
 
         if (quit)
         {
-#    ifdef SL_MEMLEAKDETECT // set in SL.h for debug config only \
-                            // turn off leak checks on forced exit \
-                            //new_autocheck_flag = false;
-#    endif
             exit(1);
         }
     }

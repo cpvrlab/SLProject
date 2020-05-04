@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
@@ -351,11 +347,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 2.a) Apply mesh material if exists & differs from current
-    if (mat() != SLMaterial::current || SLMaterial::current->program() == nullptr)
-        mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
+    mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
 
     // 2.b) Pass the matrices to the shader program
-    SLGLProgram* sp = SLMaterial::current->program();
+    SLGLProgram* sp = mat()->program();
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 

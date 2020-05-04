@@ -18,14 +18,14 @@
 #    include <OpenGLES/ES3/gl.h>
 #    include <OpenGLES/ES3/glext.h>
 #elif defined(SL_OS_MACOS)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #elif defined(SL_OS_ANDROID)
-#        include <GLES3/gl31.h>
-#        include <GLES3/gl3ext.h>
+#    include <GLES3/gl31.h>
+#    include <GLES3/gl3ext.h>
 #elif defined(SL_OS_WINDOWS)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #elif defined(SL_OS_LINUX)
-#    include <GL/glew.h>
+#    include <GL/gl3w.h>
 #else
 #    error "SL has not been ported to this OS"
 #endif
@@ -33,6 +33,9 @@
 #include <SLVec3.h>
 #include <SLVec4.h>
 #include <SLMat4.h>
+
+class SLDrawBits;
+class SLMaterial;
 
 //-----------------------------------------------------------------------------
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
@@ -53,7 +56,7 @@ static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
  */
 class SLGLState
 {
-    public:
+public:
     //! Public static instance getter for singleton pattern
     static SLGLState* instance()
     {
@@ -152,20 +155,22 @@ class SLGLState
     void clearColorBuffer() { glClear(GL_COLOR_BUFFER_BIT); }
     void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }
     void clearColorDepthBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+    void currentMaterial(SLMaterial* mat) { _currentMaterial = mat; }
 
     // state getters
-    SLbool   blend() { return _blend; }
-    SLstring glVersion() { return _glVersion; }
-    SLstring glVersionNO() { return _glVersionNO; }
-    SLfloat  glVersionNOf() { return _glVersionNOf; }
-    SLstring glVendor() { return _glVendor; }
-    SLstring glRenderer() { return _glRenderer; }
-    SLstring glSLVersion() { return _glSLVersion; }
-    SLstring glSLVersionNO() { return _glSLVersionNO; }
-    SLbool   glIsES2() { return _glIsES2; }
-    SLbool   glIsES3() { return _glIsES3; }
-    SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
-    SLVec4i  getViewport() { return _viewport; }
+    SLbool      blend() { return _blend; }
+    SLstring    glVersion() { return _glVersion; }
+    SLstring    glVersionNO() { return _glVersionNO; }
+    SLfloat     glVersionNOf() { return _glVersionNOf; }
+    SLstring    glVendor() { return _glVendor; }
+    SLstring    glRenderer() { return _glRenderer; }
+    SLstring    glSLVersion() { return _glSLVersion; }
+    SLstring    glSLVersionNO() { return _glSLVersionNO; }
+    SLbool      glIsES2() { return _glIsES2; }
+    SLbool      glIsES3() { return _glIsES3; }
+    SLbool      hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
+    SLVec4i     getViewport() { return _viewport; }
+    SLMaterial* currentMaterial() { return _currentMaterial; }
 
     // stack operations
     inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }
@@ -181,7 +186,7 @@ class SLGLState
     SLstring getGLVersionNO();
     SLstring getSLVersionNO();
 
-    private:
+private:
     SLGLState();  //!< private onetime constructor
     ~SLGLState(); //!< destruction in ~SLScene
 
@@ -231,6 +236,8 @@ class SLGLState
     GLboolean _colorMaskG;    //!< current color mask for G
     GLboolean _colorMaskB;    //!< current color mask for B
     GLboolean _colorMaskA;    //!< current color mask for A
+
+    SLMaterial* _currentMaterial;
 };
 //-----------------------------------------------------------------------------
 #endif

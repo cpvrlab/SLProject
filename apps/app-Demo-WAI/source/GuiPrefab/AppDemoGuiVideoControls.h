@@ -3,7 +3,7 @@
 
 #include <AppDemoGuiInfosDialog.h>
 
-class WAIEvent;
+struct WAIEvent;
 class SENSVideoStream;
 
 class AppDemoGuiVideoControls : public AppDemoGuiInfosDialog

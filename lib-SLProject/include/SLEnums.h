@@ -263,7 +263,7 @@ enum SLEasingCurve
 enum SLTransformSpace
 {
     // Do not change order!
-    TS_world,
+    TS_world = 0,
     TS_parent,
     TS_object
 };

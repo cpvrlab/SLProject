@@ -61,12 +61,12 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLMaterial::current = nullptr;
-    SLGLProgram* sp     = SLGLProgramManager::get(SP_colorUniform);
-    SLGLState*   state  = SLGLState::instance();
+    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform1f("u_oneOverGamma", 1.0f);
+    state->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
@@ -108,12 +108,12 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLMaterial::current = nullptr;
-    SLGLProgram* sp     = SLGLProgramManager::get(SP_colorUniform);
-    SLGLState*   state  = SLGLState::instance();
+    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
     sp->uniform1f("u_oneOverGamma", 1.0f);
+    state->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);

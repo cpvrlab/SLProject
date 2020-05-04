@@ -28,16 +28,18 @@ void WAIApp::stateInit(const sm::NoEventData* data)
     _xyView  = new XYView(*this);
     addEvent(new StateDoneEvent());
 }
+
 void WAIApp::stateProcessXY(const ABCEventData* data)
-    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
+  _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
 {
     Utils::log("WAIApp", "stateProcessXY");
     if (data)
     {
         Utils::log("WAIApp", "Message from ABC: %s", data->msg.c_str());
     }
-                        _initializationExtractor.get(),
+    _initializationExtractor.get(),
 }
+
 void WAIApp::stateProcessABC(const sm::NoEventData* data)
 {
     Utils::log("WAIApp", "stateProcessABC");
@@ -459,3 +461,142 @@ void WAIApp::stateStop(const sm::NoEventData* data)
 //{
 //    return _name;
 //}
+
+#if 0
+void WAIApp::transformMapNode(SLTransformSpace tSpace,
+                              SLVec3f          rotation,
+                              SLVec3f          translation,
+                              float            scale)
+{
+    _waiScene.mapNode->rotate(rotation.x, 1, 0, 0, tSpace);
+    _waiScene.mapNode->rotate(rotation.y, 0, 1, 0, tSpace);
+    _waiScene.mapNode->rotate(rotation.z, 0, 0, 1, tSpace);
+    _waiScene.mapNode->translate(translation.x, 0, 0, tSpace);
+    _waiScene.mapNode->translate(0, translation.y, 0, tSpace);
+    _waiScene.mapNode->translate(0, 0, translation.z, tSpace);
+    _waiScene.mapNode->scale(scale);
+}
+
+void WAIApp::handleEvents()
+{
+    while (!_eventQueue.empty())
+    {
+        WAIEvent* event = _eventQueue.front();
+        _eventQueue.pop();
+
+        switch (event->type)
+        {
+            case WAIEventType_StartOrbSlam: {
+                WAIEventStartOrbSlam* startOrbSlamEvent = (WAIEventStartOrbSlam*)event;
+                loadWAISceneView(SLApplication::scene, _sv, startOrbSlamEvent->params.location, startOrbSlamEvent->params.area);
+                startOrbSlam(startOrbSlamEvent->params);
+
+                delete startOrbSlamEvent;
+            }
+            break;
+
+            case WAIEventType_SaveMap: {
+                WAIEventSaveMap* saveMapEvent = (WAIEventSaveMap*)event;
+                saveMap(saveMapEvent->location, saveMapEvent->area, saveMapEvent->marker);
+
+                delete saveMapEvent;
+            }
+            break;
+
+            case WAIEventType_VideoControl: {
+                WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
+                _pauseVideo                             = videoControlEvent->pauseVideo;
+                _videoCursorMoveIndex                   = videoControlEvent->videoCursorMoveIndex;
+
+                delete videoControlEvent;
+            }
+            break;
+
+            case WAIEventType_VideoRecording: {
+                WAIEventVideoRecording* videoRecordingEvent = (WAIEventVideoRecording*)event;
+
+                //if videoWriter is opened we assume that recording was started before
+                if (_videoWriter && _videoWriter->isOpened() /*|| _gpsDataStream.is_open()*/)
+                {
+                    if (_videoWriter && _videoWriter->isOpened())
+                        _videoWriter->release();
+                    //if (_gpsDataStream.is_open())
+                    //    _gpsDataStream.close();
+                }
+                else
+                {
+                    saveVideo(videoRecordingEvent->filename);
+                    //saveGPSData(videoRecordingEvent->filename);
+                }
+
+                delete videoRecordingEvent;
+            }
+            break;
+
+            case WAIEventType_MapNodeTransform: {
+                WAIEventMapNodeTransform* mapNodeTransformEvent = (WAIEventMapNodeTransform*)event;
+
+                transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
+
+                delete mapNodeTransformEvent;
+            }
+            break;
+
+            case WAIEventType_DownloadCalibrationFiles: {
+                WAIEventDownloadCalibrationFiles* downloadEvent = (WAIEventDownloadCalibrationFiles*)event;
+                delete downloadEvent;
+                downloadCalibrationFilesTo(_calibDir);
+            }
+            break;
+
+            case WAIEventType_AdjustTransparency: {
+                WAIEventAdjustTransparency* adjustTransparencyEvent = (WAIEventAdjustTransparency*)event;
+                _waiScene.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
+
+                delete adjustTransparencyEvent;
+            }
+            break;
+
+            case WAIEventType_EnterEditMode: {
+                WAIEventEnterEditMode* enterEditModeEvent = (WAIEventEnterEditMode*)event;
+
+                if (!_transformationNode)
+                {
+                    _transformationNode = new SLTransformNode(_sv->camera(), _sv, SLApplication::scene->root3D()->findChild<SLNode>("map"));
+                    SLApplication::scene->eventHandlers().push_back(_transformationNode);
+                    SLApplication::scene->root3D()->addChild(_transformationNode);
+                }
+
+                if (enterEditModeEvent->editMode == NodeEditMode_None)
+                {
+                    std::vector<SLEventHandler*>::iterator it = std::find(SLApplication::scene->eventHandlers().begin(),
+                                                                          SLApplication::scene->eventHandlers().end(),
+                                                                          _transformationNode);
+
+                    if (it != SLApplication::scene->eventHandlers().end())
+                    {
+                        SLApplication::scene->eventHandlers().erase(it);
+                    }
+
+                    if (SLApplication::scene->root3D()->deleteChild(_transformationNode))
+                    {
+                        _transformationNode = nullptr;
+                    }
+                }
+                else
+                {
+                    _transformationNode->toggleEditMode(enterEditModeEvent->editMode);
+                }
+
+                delete enterEditModeEvent;
+            }
+            break;
+
+            case WAIEventType_None:
+            default: {
+            }
+            break;
+        }
+    }
+}
+#endif

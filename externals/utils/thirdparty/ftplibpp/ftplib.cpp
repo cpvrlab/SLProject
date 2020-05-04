@@ -5,16 +5,15 @@
 #    define _LARGEFILE64_SOURCE
 #endif
 
-#define NOSSL
+#ifndef NOSSL
+#    define NOSSL
+#endif
+
 #ifndef NOSSL
 #    include <openssl/ssl.h>
 #endif
 
 #include "ftplib.h"
-
-#ifndef NOSSL
-#    include <openssl/ssl.h>
-#endif
 
 #if defined(_WIN32)
 #    include <windows.h>

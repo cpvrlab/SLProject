@@ -29,8 +29,6 @@ GLFWwindow* window;                     //!< The global GLFW window handle.
 SLint       svIndex;                    //!< SceneView index
 SLint       scrWidth;                   //!< Window width at start up
 SLint       scrHeight;                  //!< Window height at start up
-SLfloat     scr2fbX;                    //!< Factor from screen to framebuffer coords
-SLfloat     scr2fbY;                    //!< Factor from screen to framebuffer coords
 SLint       mouseX;                     //!< Last mouse position x in pixels
 SLint       mouseY;                     //!< Last mouse position y in pixels
 SLint       touchX2;                    //!< Last finger touch 2 position x in pixels
@@ -43,13 +41,14 @@ SLint       lastMouseWheelPos;          //!< Last mouse wheel position
 SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
 SLKey       modifiers         = K_none; //!< last modifier keys
 SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+SLint       dpi               = 142;    //!< Dot per inch resolution of screen
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 /*! 
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     slShouldClose(true);
 }
@@ -62,10 +61,25 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 */
 SLbool onPaint()
 {
-    /////////////////////////////////////////////
+    if (SLApplication::sceneViews.empty())
+        return false;
+    SLSceneView* sv = SLApplication::sceneViews[svIndex];
+
+    // Calculate screen to framebuffer ratio for high-DPI monitors
+    /* This ratio can be different per monitor. We can not retrieve the
+       correct framebuffer size until the first paint event is done. So
+       we have to do it in here on every frame because we can move the window
+       to another monitor. */
+    int fbWidth = 0, fbHeight = 0, wndWidth = 0, wndHeight = 0;
+    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    glfwGetWindowSize(window, &wndWidth, &wndHeight);
+    float scr2fbX = (float)fbWidth / (float)wndWidth;
+    float scr2fbY = (float)fbHeight / (float)wndHeight;
+
+    ///////////////////////////////////////////////////////////
     bool jobIsRunning      = slUpdateParallelJob();
-    bool viewsNeedsRepaint = slPaintAllViews();
-    /////////////////////////////////////////////
+    bool viewsNeedsRepaint = slPaintAllViews(scr2fbX, scr2fbY);
+    ///////////////////////////////////////////////////////////
 
     return jobIsRunning || viewsNeedsRepaint;
 }
@@ -134,23 +148,26 @@ SLKey mapKeyToSLKey(SLint key)
 onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event.
 */
-static void onResize(GLFWwindow* window,
+static void onResize(GLFWwindow* myWindow,
                      int         width,
                      int         height)
 {
+    if (SLApplication::sceneViews.empty()) return;
+    SLSceneView* sv = SLApplication::sceneViews[svIndex];
+
     lastWidth  = width;
     lastHeight = height;
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)((float)width * scr2fbX), (int)((float)height * scr2fbY));
+    slResize(svIndex, width, height);
 }
 //-----------------------------------------------------------------------------
 /*!
 Mouse button event handler forwards the events to the slMouseDown or slMouseUp.
 Two finger touches of touch devices are simulated with ALT & CTRL modifiers.
 */
-static void onMouseButton(GLFWwindow* window,
+static void onMouseButton(GLFWwindow* myWindow,
                           int         button,
                           int         action,
                           int         mods)
@@ -252,14 +269,11 @@ static void onMouseButton(GLFWwindow* window,
 /*!
 Mouse move event handler forwards the events to slMouseMove or slTouch2Move.
 */
-static void onMouseMove(GLFWwindow* window,
+static void onMouseMove(GLFWwindow* myWindow,
                         double      x,
                         double      y)
 {
     // x & y are in screen coords.
-    // We need to scale them to framebuffer coords
-    x *= scr2fbX;
-    y *= scr2fbY;
     mouseX = (int)x;
     mouseY = (int)y;
 
@@ -295,7 +309,7 @@ static void onMouseMove(GLFWwindow* window,
 /*!
 Mouse wheel event handler forwards the events to slMouseWheel
 */
-static void onMouseWheel(GLFWwindow* window,
+static void onMouseWheel(GLFWwindow* myWindow,
                          double      xscroll,
                          double      yscroll)
 {
@@ -310,7 +324,7 @@ static void onMouseWheel(GLFWwindow* window,
 Key action event handler sets the modifier key state & forwards the event to
 the slKeyPress function.
 */
-static void onKeyAction(GLFWwindow* window,
+static void onKeyAction(GLFWwindow* myWindow,
                         int         GLFWKey,
                         int         scancode,
                         int         action,
@@ -343,20 +357,17 @@ static void onKeyAction(GLFWwindow* window,
         if (fullscreen)
         {
             fullscreen = !fullscreen;
-            glfwSetWindowSize(window, scrWidth, scrHeight);
-            glfwSetWindowPos(window, 10, 30);
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
         }
         else
         {
             slKeyPress(svIndex, key, modifiers); // ESC during RT stops it and returns false
-            onClose(window);
-            glfwSetWindowShouldClose(window, GL_TRUE);
+            onClose(myWindow);
+            glfwSetWindowShouldClose(myWindow, GL_TRUE);
         }
     }
-    else
-
-      // Toggle fullscreen mode
-      if (key == K_F9 && action == GLFW_PRESS)
+    else if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
     {
         fullscreen = !fullscreen;
 
@@ -364,13 +375,13 @@ static void onKeyAction(GLFWwindow* window,
         {
             GLFWmonitor*       primary = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode    = glfwGetVideoMode(primary);
-            glfwSetWindowSize(window, mode->width, mode->height);
-            glfwSetWindowPos(window, 0, 0);
+            glfwSetWindowSize(myWindow, mode->width, mode->height);
+            glfwSetWindowPos(myWindow, 0, 0);
         }
         else
         {
-            glfwSetWindowSize(window, scrWidth, scrHeight);
-            glfwSetWindowPos(window, 10, 30);
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
         }
     }
     else
@@ -389,21 +400,16 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppNodeSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManager)
+SLSceneView* createAppNodeSceneView(SLProjectScene* scene,
+                                    int             myDPI,
+                                    SLInputManager& inputManager)
 {
-    return new AppNodeSceneView(scene, dpi, inputManager);
+    return new AppNodeSceneView(scene, myDPI, inputManager);
 }
 //-----------------------------------------------------------------------------
-/*!
-The C main procedure running the GLFW GUI application.
-*/
-int main(int argc, char* argv[])
+//! Initialises all GLFW and GL3W stuff
+void initGLFW(int screenWidth, int screenHeight)
 {
-    // set command line arguments
-    SLVstring cmdLineArgs;
-    for (int i = 0; i < argc; i++)
-        cmdLineArgs.push_back(argv[i]);
-
     if (!glfwInit())
     {
         fprintf(stderr, "Failed to initialize GLFW\n");
@@ -417,14 +423,15 @@ int main(int argc, char* argv[])
 
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    scrWidth  = 640;
-    scrHeight = 480;
+    window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
 
-    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", nullptr, nullptr);
+    //get real window size
+    glfwGetWindowSize(window, &scrWidth, &scrHeight);
+
     if (!window)
     {
         glfwTerminate();
@@ -434,41 +441,56 @@ int main(int argc, char* argv[])
     // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
-    // On some systems screen & framebuffer size are different
-    // All commands in GLFW are in screen coords but rendering in GL is
-    // in framebuffer coords
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)scrWidth;
-    scr2fbY = (float)fbHeight / (float)scrHeight;
-
-    /* Include OpenGL via GLEW
-    The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++ 
-    OpenGL developers with two tedious tasks: initializing and using extensions 
-    and writing portable applications. GLEW provides an efficient run-time 
-    mechanism to determine whether a certain extension is supported by the 
-    driver or not. OpenGL core and extension functionality is exposed via a 
-    single header file. Download GLEW at: http://glew.sourceforge.net/
-    */
-    glewExperimental = GL_TRUE;
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if (gl3wInit() != 0)
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        cerr << "Failed to initialize OpenGL" << endl;
+        exit(-1);
     }
 
     glfwSetWindowTitle(window, "SLProject Test Application");
     glfwSetWindowPos(window, 10, 30);
 
+    // With GLFW ImGui draws the cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
+    glfwSwapInterval(2);
+
+    // Get GL errors that occurred before our framework is involved
+    GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    int dpi = (int)(142 * scr2fbX);
-    cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << ")" << endl;
-    cout << "DPI             : " << dpi << endl;
+    Utils::log("SLProject", "------------------------------------------------------------------");
+    Utils::log("SLProject",
+               "GUI-Framwork     : GLFW (Version: %d.%d.%d",
+               GLFW_VERSION_MAJOR,
+               GLFW_VERSION_MINOR,
+               GLFW_VERSION_REVISION);
+    Utils::log("SLProject",
+               "Resolution (DPI) : %d",
+               dpi);
+
+    // Set GLFW callback functions
+    glfwSetKeyCallback(window, onKeyAction);
+    glfwSetWindowSizeCallback(window, onResize);
+    glfwSetMouseButtonCallback(window, onMouseButton);
+    glfwSetCursorPosCallback(window, onMouseMove);
+    glfwSetScrollCallback(window, onMouseWheel);
+    glfwSetWindowCloseCallback(window, onClose);
+}
+//-----------------------------------------------------------------------------
+/*!
+The C main procedure running the GLFW GUI application.
+*/
+int main(int argc, char* argv[])
+{
+    // set command line arguments
+    SLVstring cmdLineArgs;
+    for (int i = 0; i < argc; i++)
+        cmdLineArgs.push_back(argv[i]);
+
+    initGLFW(640, 480);
 
     // get executable path
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
@@ -487,8 +509,8 @@ int main(int argc, char* argv[])
 
     //////////////////////////////////////////////////////////
     svIndex = slCreateSceneView(SLApplication::scene,
-                                (int)(scrWidth * scr2fbX),
-                                (int)(scrHeight * scr2fbY),
+                                scrWidth,
+                                scrHeight,
                                 dpi,
                                 (SLSceneID)0,
                                 (void*)&onPaint,
@@ -496,14 +518,6 @@ int main(int argc, char* argv[])
                                 (void*)createAppNodeSceneView,
                                 (void*)AppNodeGui::build);
     //////////////////////////////////////////////////////////
-
-    // Set GLFW callback functions
-    glfwSetKeyCallback(window, onKeyAction);
-    glfwSetWindowSizeCallback(window, onResize);
-    glfwSetMouseButtonCallback(window, onMouseButton);
-    glfwSetCursorPosCallback(window, onMouseMove);
-    glfwSetScrollCallback(window, onMouseWheel);
-    glfwSetWindowCloseCallback(window, onClose);
 
     // Event loop
     while (!slShouldClose())

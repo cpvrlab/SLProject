@@ -1,7 +1,7 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
-#include <GL/glew.h> // OpenGL headers
+#include <GL/gl3w.h> // OpenGL headers
 #include <GLFW/glfw3.h>
 
 #include <iostream>

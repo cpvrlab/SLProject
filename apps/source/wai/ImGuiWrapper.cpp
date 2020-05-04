@@ -12,10 +12,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <ImGuiWrapper.h>
 #include <SLSceneView.h>
 #include <SLScene.h>
@@ -37,7 +33,7 @@ ImGuiWrapper::~ImGuiWrapper()
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
-void ImGuiWrapper::init(std::string configPath)
+void ImGuiWrapper::init(const std::string& configPath)
 {
     _fontTexture       = 0;
     _progHandle        = 0;
@@ -331,10 +327,14 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
-void ImGuiWrapper::onResize(SLint scrW, SLint scrH)
+void ImGuiWrapper::onResize(SLint   scrW,
+                            SLint   scrH,
+                            SLfloat scr2fbX,
+                            SLfloat scr2fbY)
 {
-    ImGuiIO& io    = _context->IO;
-    io.DisplaySize = ImVec2((SLfloat)scrW, (SLfloat)scrH);
+    ImGuiIO& io                = _context->IO;
+    io.DisplaySize             = ImVec2((SLfloat)scrW, (SLfloat)scrH);
+    io.DisplayFramebufferScale = ImVec2(scr2fbX, scr2fbY);
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system
@@ -402,12 +402,15 @@ void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 
     // Setup viewport
     if (viewportRect.isEmpty())
-        glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+        glViewport(0,
+                   0,
+                   (GLsizei)fb_width,
+                   (GLsizei)fb_height);
     else
-        glViewport((GLsizei)viewportRect.x,
-                   (GLsizei)viewportRect.y,
-                   (GLsizei)viewportRect.width,
-                   (GLsizei)viewportRect.height);
+        glViewport((GLsizei)(viewportRect.x * io.DisplayFramebufferScale.x),
+                   (GLsizei)(viewportRect.y * io.DisplayFramebufferScale.y),
+                   (GLsizei)(viewportRect.width * io.DisplayFramebufferScale.x),
+                   (GLsizei)(viewportRect.height * io.DisplayFramebufferScale.y));
 
     // Setup orthographic projection matrix
     // clang-format off
@@ -459,10 +462,10 @@ void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
                               (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
                               (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 else
-                    glScissor((GLsizei)viewportRect.x,
-                              (GLsizei)viewportRect.y,
-                              (GLsizei)viewportRect.width,
-                              (GLsizei)viewportRect.height);
+                    glScissor((GLsizei)(viewportRect.x * io.DisplayFramebufferScale.x),
+                              (GLsizei)(viewportRect.y * io.DisplayFramebufferScale.y),
+                              (GLsizei)(viewportRect.width * io.DisplayFramebufferScale.x),
+                              (GLsizei)(viewportRect.height * io.DisplayFramebufferScale.y));
 
                 glDrawElements(GL_TRIANGLES,
                                (GLsizei)pcmd->ElemCount,

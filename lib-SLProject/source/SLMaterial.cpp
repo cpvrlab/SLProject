@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLMaterial.h>
 #include <SLSceneView.h>
 #include <SLGLProgramManager.h>
@@ -21,8 +17,6 @@
 
 //-----------------------------------------------------------------------------
 SLfloat SLMaterial::PERFECT = 1000.0f;
-//-----------------------------------------------------------------------------
-SLMaterial* SLMaterial::current = nullptr;
 //-----------------------------------------------------------------------------
 // Default ctor
 SLMaterial::SLMaterial(SLAssetManager* s,
@@ -170,6 +164,12 @@ SLMaterial::~SLMaterial()
         delete _errorTexture;
         _errorTexture = nullptr;
     }
+
+    SLGLState* stateGL = SLGLState::instance();
+    if (stateGL->currentMaterial() == this)
+    {
+        stateGL->currentMaterial(nullptr);
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -181,12 +181,15 @@ void SLMaterial::activate(SLDrawBits     drawBits,
 {
     SLGLState* stateGL = SLGLState::instance();
 
+    if (stateGL->currentMaterial() == this && stateGL->currentMaterial()->program())
+        return;
+
     // Deactivate shader program of the current active material
-    if (current && current->program())
-        current->program()->endShader();
+    if (stateGL->currentMaterial() && stateGL->currentMaterial()->program())
+        stateGL->currentMaterial()->program()->endShader();
 
     // Set this material as the current material
-    current = this;
+    stateGL->currentMaterial(this);
 
     // If no shader program is attached add the default shader program
     //todo: this should not happen... then we would not have to do magic

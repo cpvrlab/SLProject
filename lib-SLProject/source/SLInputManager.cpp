@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLInputManager.h>
 #include <SLSceneView.h>
 
@@ -145,6 +141,12 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     sv->onResize(re->width, re->height);
                 }
                 break;
+
+                case SLInputEvent::UpdateScr2fb: {
+                    const SLUpdateScr2fbEvent* re = (const SLUpdateScr2fbEvent*)e;
+                    sv->scr2fb(re->scr2fbX, re->scr2fbY);
+                }
+                    break;
                 default: break;
             }
         }

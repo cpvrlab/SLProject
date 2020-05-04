@@ -5,12 +5,11 @@
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
+#include <WAIAutoCalibration.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
-
-#define WAI_MULTITHREAD 1
 
 TestView::TestView(sm::EventHandler& eventHandler,
                    SLInputManager&   inputManager,
@@ -50,6 +49,7 @@ TestView::TestView(sm::EventHandler& eventHandler,
     init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
     _scene.init();
     onInitialize();
+    _isCalibrated = false;
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
@@ -97,103 +97,6 @@ void TestView::startAsync()
     //_ready = true;
 }
 
-void TestView::updateModeMultiThread(TestView * ptr)
-{
-    while (1)
-    {
-        WAIFrame f;
-        while (ptr->getNextFrame(&f) && !ptr->finishRequested())
-            ptr->_mode->update(f);
-
-        if (ptr->finishRequested())
-        {
-            std::unique_lock<std::mutex> lock(ptr->_frameQueueMutex);
-
-            Utils::log("Info", "AAAA finish requested\n");
-            while (ptr->_framesQueue.size() > 0)
-               ptr->_framesQueue.pop();
-
-            break;
-        }
-
-        while (ptr->isStop() && !ptr->isFinished() && !ptr->finishRequested())
-        {
-            Utils::log("Info", "AAAA wait stop\n");
-            std::this_thread::sleep_for(25ms);
-        }
-    }
-
-    std::unique_lock<std::mutex> lock(ptr->_stateMutex);
-    ptr->_requestFinish = false;
-    ptr->_isFinish      = true;
-}
-
-int TestView::getNextFrame(WAIFrame * frame)
-{
-    int nbFrameInQueue;
-    std::unique_lock<std::mutex> lock(_frameQueueMutex);
-    nbFrameInQueue = _framesQueue.size();
-    if (nbFrameInQueue == 0)
-        return 0;
-
-    *frame = _framesQueue.front();
-    _framesQueue.pop();
-    return nbFrameInQueue;
-}
-
-void TestView::processSENSFrame(SENSFramePtr frame)
-{
-    bool iKnowWhereIAm = false;
-
-    if (_videoWriter && _videoWriter->isOpened())
-        _videoWriter->write(frame->imgRGB);
-
-    WAIFrame f;
-    _mode->createFrame(f, frame->imgGray);
-
-    std::unique_lock<std::mutex> lock(_frameQueueMutex);
-    _framesQueue.push(f);
-}
-
-void TestView::stop()
-{
-    std::unique_lock<std::mutex> lock(_stateMutex);
-    _isStop = true;
-}
-
-bool TestView::isStop()
-{
-    std::unique_lock<std::mutex> lock(_stateMutex);
-    return _isStop;
-}
-
-void TestView::requestFinish()
-{
-    std::unique_lock<std::mutex> lock(_stateMutex);
-    _requestFinish = true;
-
-    Utils::log("Info", "request Finish\n");
-}
-
-bool TestView::finishRequested()
-{
-    std::unique_lock<std::mutex> lock(_stateMutex);
-    return _requestFinish;
-}
-
-bool TestView::isFinished()
-{
-    std::unique_lock<std::mutex> lock(_stateMutex);
-    return _isFinish;
-}
-
-void TestView::resume()
-{
-    std::unique_lock<std::mutex> lock(_stateMutex);
-    _isStop = false;
-}
-
-
 bool TestView::update()
 {
     handleEvents();
@@ -217,14 +120,30 @@ bool TestView::update()
 
         if (_mode)
         {
-#ifdef WAI_MULTITHREAD
-            processSENSFrame(frame);
-#else
             _mode->update(frame->imgGray);
-#endif
 
             if (_mode->isTracking())
+            {
                 _scene.updateCameraPose(_mode->getPose());
+
+                if (!_isCalibrated)
+                {
+                    std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
+
+                    WAIFrame lastFrame = _mode->getLastFrame();
+                    if (_mode->getMatchedCorrespondances(&lastFrame, matching) > 10)
+                    {
+                        _calibrationMatchings.push_back(matching);
+                        if (_calibrationMatchings.size() > 10)
+                        {
+                            cv::Size size      = cv::Size(frame->captureWidth, frame->captureHeight);
+                            _calibrationThread = std::thread(AutoCalibration::calibrate, size, _calibrationMatchings);
+                            _calibrationMatchings.clear();
+                            _isCalibrated = true;
+                        }
+                    }
+                }
+            }
 
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
@@ -327,6 +246,31 @@ void TestView::handleEvents()
                 _scene.adjustAugmentationTransparency(adjustTransparencyEvent->kt);
 
                 delete adjustTransparencyEvent;
+            }
+            break;
+
+            case WAIEventType_EnterEditMode: {
+                WAIEventEnterEditMode* enterEditModeEvent = (WAIEventEnterEditMode*)event;
+
+                if (!_transformationNode)
+                {
+                    _transformationNode = new SLTransformNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
+                    _scene.root3D()->addChild(_transformationNode);
+                }
+
+                if (enterEditModeEvent->editMode == NodeEditMode_None)
+                {
+                    if (_scene.root3D()->deleteChild(_transformationNode))
+                    {
+                        _transformationNode = nullptr;
+                    }
+                }
+                else
+                {
+                    _transformationNode->editMode(enterEditModeEvent->editMode);
+                }
+
+                delete enterEditModeEvent;
             }
             break;
 
@@ -473,8 +417,6 @@ mapFile: path to a map or empty if no map should be used
 void TestView::startOrbSlam(SlamParams slamParams)
 {
     _gui.clearErrorMsg();
-    _lastFrameIdx         = 0;
-    _doubleBufferedOutput = false;
     if (_videoFileStream)
         _videoFileStream.release();
 
@@ -485,25 +427,9 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // reset stuff
     if (_mode)
     {
-        requestFinish();
-        _modeUpdateThread->join();
-        _mode->requestStateIdle();
-        while (!_mode->hasStateIdle())
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
         delete _mode;
         _mode = nullptr;
-        delete _modeUpdateThread;
-        _modeUpdateThread = nullptr;
     }
-
-#ifdef WAI_MULTITHREAD
-    _modeUpdateThread = new std::thread(updateModeMultiThread, this);
-    _isFinish = false;
-    _isStop = false;
-    _requestFinish = false;
-#endif
 
     // Check that files exist
     if (useVideoFile && !Utils::fileExists(slamParams.videoFile))
@@ -630,7 +556,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
-    _doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
+    //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
     voc->loadFromBinaryFile(slamParams.vocabularyFile);
@@ -677,8 +603,11 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
-    _undistortedLastFrame[0] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
-    _undistortedLastFrame[1] = cv::Mat(_videoFrameSize.height, _videoFrameSize.width, CV_8UC3);
+
+    if (_trackingExtractor->doubleBufferedOutput())
+        _imgBuffer.init(2, _videoFrameSize);
+    else
+        _imgBuffer.init(1, _videoFrameSize);
 }
 
 //todo: move to scene
@@ -752,15 +681,12 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
     _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
     if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(imgRGB, _undistortedLastFrame[_lastFrameIdx]);
+        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
     else
-        _undistortedLastFrame[_lastFrameIdx] = imgRGB;
+        _imgBuffer.inputSlot() = imgRGB;
 
-    if (_doubleBufferedOutput)
-        _lastFrameIdx = (_lastFrameIdx + 1) % 2;
-
-    _scene.updateVideoImage(_undistortedLastFrame[_lastFrameIdx],
-                            CVImage::cv2glPixelFormat(_undistortedLastFrame[_lastFrameIdx].type()));
+    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    _imgBuffer.incrementSlot();
 
     //update map point visualization
     if (_gui.uiPrefs->showMapPC)
@@ -783,7 +709,7 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
 
     //update visualization of matched map points (when WAI pose is valid)
     if (_gui.uiPrefs->showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
+        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFramePtr()));
     else
         _scene.removeMatchedMapPoints();
 

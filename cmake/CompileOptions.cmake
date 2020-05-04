@@ -12,6 +12,9 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(X64 ON)
 endif()
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+
 set(DEFAULT_PROJECT_OPTIONS
     DEBUG_POSTFIX             "-debug"
     RELEASE_POSTFIX           "-release"
@@ -79,44 +82,53 @@ endif ()
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 
-        -Wall
-        -Wno-c++98-compat
-        -Wno-c++98-compat-pedantic
-        -Wno-covered-switch-default
-        -Wno-double-promotion
-        -Wno-exit-time-destructors
-        -Wno-global-constructors
-        -Wno-gnu-zero-variadic-macro-arguments
-        -Wno-documentation
-        -Wno-missing-variable-declarations
-        -Wno-newline-eof
-        -Wno-old-style-cast
-        -Wno-shadow
-        -Wno-switch-enum
-        -Wno-unused-macros
-        -Wno-unused-function
-        -Wno-unused-parameter
-        -Wno-used-but-marked-unused
-        
-        $<$<CXX_COMPILER_ID:GNU>:
-            -Wmaybe-uninitialized
-            $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
-                -Wreturn-local-addr
+            -Wall
+            -Werror=return-type
+            -Wno-c++98-compat
+            -Wno-c++98-compat-pedantic
+            -Wno-covered-switch-default
+            -Wno-double-promotion
+            -Wno-exit-time-destructors
+            -Wno-global-constructors
+            -Wno-gnu-zero-variadic-macro-arguments
+            -Wno-documentation
+            -Wno-missing-variable-declarations
+            -Wno-newline-eof
+            -Wno-old-style-cast
+            -Wno-switch-enum
+            -Wno-unused-macros
+            -Wno-unused-function
+            -Wno-unused-parameter
+            -Wno-unused-variable
+            -Wno-unused-private-field
+            -Wno-unused-value
+            -Wno-used-but-marked-unused
+            -Wno-extra-tokens
+            -Wno-reorder
+            -Wno-switch
+            -Wno-char-subscripts
+            -Wno-injected-class-name
+            -Wno-format-security
+
+            $<$<CXX_COMPILER_ID:GNU>:
+                -Wmaybe-uninitialized
+                $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
+                    -Wreturn-local-addr
+                >
             >
-        >
-        
-        $<$<CXX_COMPILER_ID:Clang>:
-            -Weverything
-        >
-        
-        $<$<PLATFORM_ID:Darwin>:
-            -pthread
-        >
-        
-        # Required for CMake < 3.1; should be removed if minimum required CMake version is raised.
-        $<$<VERSION_LESS:${CMAKE_VERSION},3.1>:
-            -std=c++14
-        >
+
+            $<$<CXX_COMPILER_ID:Clang>:
+
+            >
+
+            $<$<PLATFORM_ID:Darwin>:
+                -pthread
+            >
+
+            # Required for CMake < 3.1; should be removed if minimum required CMake version is raised.
+            $<$<VERSION_LESS:${CMAKE_VERSION},3.1>:
+                -std=c++14
+            >
     )
 endif ()
 
@@ -140,26 +152,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     )
 endif ()
 
-# GCC and Clang compiler options
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
-
-        -w
-
-        $<$<CXX_COMPILER_ID:GNU>:
-            $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.8>:
-            >
-        >
-
-        $<$<CXX_COMPILER_ID:Clang>:
-            -Wno-everything
-        >
-
-        $<$<PLATFORM_ID:Darwin>:
-            -pthread
-        >
-    )
-endif ()
 # 
 # Linker options
 # 

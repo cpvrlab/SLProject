@@ -2,6 +2,8 @@
 #include <ErlebAR.h>
 #include <imgui_internal.h>
 #include <string>
+#include <GuiUtils.h>
+#include <ErlebAREvents.h>
 
 SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
@@ -27,16 +29,26 @@ SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
     }
     else
         Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
+
+    //init language settings combo
+    if (_resources.strings().id() == _resources.stringsItalien.id())
+        _currLanguage = 3;
+    else if (_resources.strings().id() == _resources.stringsGerman.id())
+        _currLanguage = 1;
+    else if (_resources.strings().id() == _resources.stringsFrench.id())
+        _currLanguage = 2;
+    else
+        _currLanguage = 0;
 }
 
 SettingsGui::~SettingsGui()
 {
 }
 
-void SettingsGui::onResize(SLint scrW, SLint scrH)
+void SettingsGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
 {
     resize(scrW, scrH);
-    ImGuiWrapper::onResize(scrW, scrH);
+    ImGuiWrapper::onResize(scrW, scrH, scr2fbX, scr2fbY);
 }
 
 void SettingsGui::resize(int scrW, int scrH)
@@ -51,50 +63,69 @@ void SettingsGui::resize(int scrW, int scrH)
     _buttonRounding          = _resources.style().buttonRounding * _screenH;
     _textWrapW               = 0.9f * _screenW;
     _windowPaddingContent    = _resources.style().windowPaddingContent * _screenH;
+    _framePaddingContent     = _resources.style().framePaddingContent * _screenH;
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
 void SettingsGui::build(SLScene* s, SLSceneView* sv)
 {
-    pushStyle();
+    //header bar
+    float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
+    ErlebAR::renderHeaderBar("SettingsGui",
+                             _screenW,
+                             _headerBarH,
+                             _resources.style().headerBarBackgroundColor,
+                             _resources.style().headerBarTextColor,
+                             _resources.style().headerBarBackButtonColor,
+                             _resources.style().headerBarBackButtonPressedColor,
+                             _fontBig,
+                             _buttonRounding,
+                             buttonSize,
+                             _resources.textures.texIdBackArrow,
+                             _spacingBackButtonToText,
+                             _resources.strings().settings(),
+                             [&]() { sendEvent(new GoBackEvent()); });
 
-    //header bar with backbutton
+    //render hidden button in right corner directly under header bar. It has the size of the header bar height.
     {
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _headerBarH), ImGuiCond_Always);
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
+                                            ImGuiWindowFlags_NoMove |
+                                            ImGuiWindowFlags_AlwaysAutoResize |
+                                            ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags windowFlags = childWindowFlags |
+                                       ImGuiWindowFlags_NoScrollWithMouse;
+        float hiddenButtonSize = _headerBarH * 2.f;
+        ImGui::SetNextWindowPos(ImVec2(_screenW - hiddenButtonSize, _headerBarH), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(hiddenButtonSize, hiddenButtonSize), ImGuiCond_Always);
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundColor);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().headerBarTextColor);
-        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-        ImGui::PushFont(_fontBig);
-        //hack for ArrowButton alignment (has to be called after font has been pushed
-        float h       = _context->FontSize + _context->Style.FramePadding.y * 2.0f; //same as ImGui::GetFrameHeight()
-        float spacing = 0.5f * (_headerBarH - h);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(spacing, spacing));
-
-        ImGui::Begin("Settings_header", nullptr, windowFlags);
-
-        if (ImGui::ArrowButton("Settings_backButton", ImGuiDir_Left))
+        ImGui::PushStyleColor(ImGuiCol_Button, _hiddenColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _hiddenColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedTranspColor);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, _hiddenColor);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::Begin("Settings_hiddenButton", nullptr, windowFlags);
+        if (ImGui::Button("##hiddenButton", ImVec2(hiddenButtonSize, hiddenButtonSize)))
         {
-            sendEvent(new GoBackEvent());
-        }
-        ImGui::SameLine(0.f, _spacingBackButtonToText);
-        ImGui::Text(_resources.strings().settings());
+            Utils::log("SettingsGui", "Hidden button clicked %i times", _hiddenNumClicks);
+            if (_hiddenTimer.elapsedTimeInMilliSec() < _hiddenMaxElapsedMs)
+                _hiddenNumClicks++;
+            else
+                _hiddenNumClicks = 0;
 
+            _hiddenTimer.start();
+
+            if (_hiddenNumClicks > _hiddenMinNumClicks)
+                _resources.developerMode = true;
+        }
         ImGui::End();
 
-        ImGui::PopStyleColor(5);
-        ImGui::PopFont();
-        ImGui::PopStyleVar(1);
+        ImGui::PopStyleColor(4);
+        ImGui::PopStyleVar(2);
     }
 
     //content
     {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
         ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
@@ -103,13 +134,20 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGuiWindowFlags windowFlags = childWindowFlags |
                                        ImGuiWindowFlags_NoScrollWithMouse;
 
+        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+
         ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(_framePaddingContent, _framePaddingContent));
 
         ImGui::Begin("Settings_content", nullptr, windowFlags);
         ImGui::BeginChild("Settings_content_child", ImVec2(0, 0), false, childWindowFlags);
-
         //language selection
         ImGui::PushFont(_fontSmall);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
@@ -120,70 +158,58 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushFont(_fontStandard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-        static int  currLanguage = 0;
-        const char* languages[]  = {"English",
-                                   "Deutsch",
-                                   "Français",
-                                   "Italiano"};
-        if (ImGui::Combo("##combo0", &currLanguage, languages, IM_ARRAYSIZE(languages)))
+        ImGui::PushItemWidth(_screenW * 0.3f);
+        if (ImGui::Combo("##combo0", &_currLanguage, _languages, IM_ARRAYSIZE(_languages)))
         {
-            if (currLanguage == 0)
+            if (_currLanguage == 0)
                 _resources.setLanguageEnglish();
-            else if (currLanguage == 1)
+            else if (_currLanguage == 1)
                 _resources.setLanguageGerman();
-            else if (currLanguage == 2)
+            else if (_currLanguage == 2)
                 _resources.setLanguageFrench();
             else
                 _resources.setLanguageItalien();
         }
+        ImGui::PopItemWidth();
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
         ImGui::Separator();
 
         //developer mode
-        ImGui::PushFont(_fontSmall);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().develMode());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
+        if (_resources.developerMode)
+        {
+            ImGui::PushFont(_fontSmall);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+            ImGui::Text(_resources.strings().develMode());
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
 
-        ImGui::PushFont(_fontStandard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+            ImGui::PushFont(_fontStandard);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-        ImGui::Checkbox("Enabled", &_resources.developerMode);
+            if (ImGui::Checkbox("Enabled", &_resources.developerMode))
+            {
+                if (!_resources.developerMode)
+                {
+                    _hiddenNumClicks = 0;
+                }
+            }
 
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-        ImGui::Separator();
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::Separator();
+        }
 
         ImGui::EndChild();
         ImGui::End();
 
         ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(7);
     }
-
-    popStyle();
 }
 
 void SettingsGui::onShow()
 {
     _panScroll.enable();
-}
-
-void SettingsGui::pushStyle()
-{
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-}
-
-void SettingsGui::popStyle()
-{
-    ImGui::PopStyleVar(6);
 }

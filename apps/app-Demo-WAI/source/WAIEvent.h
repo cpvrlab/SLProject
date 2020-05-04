@@ -2,6 +2,7 @@
 #define WAI_EVENT_H
 
 #include <SlamParams.h>
+#include <SLTransformNode.h>
 
 enum WAIEventType
 {
@@ -12,7 +13,8 @@ enum WAIEventType
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
-    WAIEventType_AdjustTransparency
+    WAIEventType_AdjustTransparency,
+    WAIEventType_EnterEditMode
 };
 
 struct WAIEvent
@@ -71,6 +73,13 @@ struct WAIEventAdjustTransparency : WAIEvent
     WAIEventAdjustTransparency() { type = WAIEventType_AdjustTransparency; }
 
     float kt;
+};
+
+struct WAIEventEnterEditMode : WAIEvent
+{
+    WAIEventEnterEditMode() { type = WAIEventType_EnterEditMode; }
+
+    SLNodeEditMode editMode;
 };
 
 #endif //WAI_EVENT_H
