@@ -872,7 +872,7 @@ void SLRaytracer::renderImage()
     stateGL->multiSample(false);
     stateGL->polygonLine(false);
 
-    drawSprite(true, 0.0f, 0.0f, vpRect.width, vpRect.height);
+    drawSprite(true, 0.0f, 0.0f, (SLfloat)vpRect.width, (SLfloat)vpRect.height);
 
     stateGL->depthTest(true);
     GET_GL_ERROR;
