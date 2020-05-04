@@ -40,12 +40,27 @@ bool StateMachine::update()
             {
                 stateEntry = true;
                 LOG_STATEMACHINE_DEBUG("State change: %s -> %s", getPrintableState(_currentStateId).c_str(), getPrintableState(newState).c_str());
+
+                //inform old state that we will leave it soon
+                auto itStateAction = _stateActions.find(_currentStateId);
+                if (itStateAction != _stateActions.end())
+                {
+                    itStateAction->second->invokeStateAction(this, data, false, true);
+                }
+                else
+                {
+                    std::stringstream ss;
+                    ss << "You forgot to register state " << getPrintableState(_currentStateId) << "!";
+                    Utils::exitMsg("StateMachine", ss.str().c_str(), __LINE__, __FILE__);
+                }
+
+                //update state
                 _currentStateId = newState;
             }
             auto itStateAction = _stateActions.find(_currentStateId);
             if (itStateAction != _stateActions.end())
             {
-                itStateAction->second->invokeStateAction(this, data, stateEntry);
+                itStateAction->second->invokeStateAction(this, data, stateEntry, false);
             }
             else
             {
@@ -64,7 +79,7 @@ bool StateMachine::update()
     }
 
     if (!stateWasUpdated)
-        _stateActions[_currentStateId]->invokeStateAction(this, data, stateEntry);
+        _stateActions[_currentStateId]->invokeStateAction(this, data, stateEntry, false);
 
     //ATTENTION: data ownership is not transferred to state
     delete data;

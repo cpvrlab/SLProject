@@ -875,9 +875,10 @@ void log(const char* tag, const char* format, ...)
     strcat(msg, "\n");
 
     if (fileLog)
-    {
         fileLog->post(msg);
-    }
+
+    if (customLog)
+        customLog->post(msg);
 
 #if defined(ANDROID) || defined(ANDROID_NDK)
     __android_log_print(ANDROID_LOG_INFO, tag, msg);

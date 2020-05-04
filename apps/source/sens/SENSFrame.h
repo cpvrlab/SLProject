@@ -3,6 +3,7 @@
 
 #include <opencv2/core.hpp>
 
+//Camera frame obeject
 struct SENSFrame
 {
     SENSFrame(cv::Mat imgRGB,
@@ -35,6 +36,5 @@ struct SENSFrame
     const bool mirroredV;
 };
 typedef std::shared_ptr<SENSFrame> SENSFramePtr;
-
 
 #endif //SENS_FRAME_H

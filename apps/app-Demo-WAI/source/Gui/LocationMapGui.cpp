@@ -104,7 +104,15 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
 
+        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().areaPoseButtonColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().areaPoseButtonColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().areaPoseButtonColorPressed);
+
         ImGui::Begin("LocationMapGui_content", nullptr, windowFlags);
+
+        float triangleWidth  = _resources.style().areaPoseButtonViewTriangleWidth * _screenH;
+        float triangleLength = _resources.style().areaPoseButtonViewTriangleLength * triangleWidth;
+        float circleRadius   = _resources.style().areaPoseButtonCircleRadius * triangleWidth;
 
         int   i          = 0;
         float buttonSize = 0.1f * _screenH;
@@ -113,18 +121,26 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
             const Area& area = it.second;
             ImGui::SetCursorPosX((float)(area.xPosPix - _locImgCropW) / (float)_locTextureW * _screenW);
             ImGui::SetCursorPosY((float)(area.yPosPix - _locImgCropH) / (float)_locTextureH * _screenH - _headerBarH);
-            ImGui::PushID(i);
-            if (ImGui::Button(area.name, ImVec2(buttonSize, buttonSize)))
+            //ImGui::PushID(i);
+            if (ErlebAR::PoseShapeButton(area.name,
+                                         ImVec2(buttonSize, buttonSize),
+                                         circleRadius,
+                                         triangleLength,
+                                         triangleWidth,
+                                         area.viewAngleDeg,
+                                         _resources.style().areaPoseButtonShapeColor,
+                                         _resources.style().areaPoseButtonShapeColorPressed))
             {
                 sendEvent(new AreaSelectedEvent(_loc.id, it.first));
             }
-            ImGui::PopID();
+
+            //ImGui::PopID();
             i++;
         }
 
         ImGui::End();
 
-        ImGui::PopStyleColor(1);
+        ImGui::PopStyleColor(4);
         ImGui::PopStyleVar(6);
     }
     //ImGui::ShowMetricsWindow();

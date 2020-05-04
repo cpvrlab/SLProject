@@ -19,15 +19,15 @@ public:
     {
         cameraNode->fov(cameraFovVDeg);
         // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
-        cv::Mat scMat = cameraMatUndistorted;
-        //std::cout << "scMat: " << scMat << std::endl;
-        cameraNode->intrinsics(scMat.at<double>(0, 0),
-                               scMat.at<double>(1, 1),
-                               scMat.at<double>(0, 2),
-                               scMat.at<double>(1, 2));
+        //std::cout << "cameraMatUndistorted: " << cameraMatUndistorted << std::endl;
+        cameraNode->intrinsics(cameraMatUndistorted.at<double>(0, 0),
+                               cameraMatUndistorted.at<double>(1, 1),
+                               cameraMatUndistorted.at<double>(0, 2),
+                               cameraMatUndistorted.at<double>(1, 2));
 
         //enable projection -> intrinsics mode
-        cameraNode->projection(P_monoIntrinsic);
+        //cameraNode->projection(P_monoIntrinsic);
+        cameraNode->projection(P_monoPerspective);
     }
 
     void updateCameraPose(const cv::Mat& pose);

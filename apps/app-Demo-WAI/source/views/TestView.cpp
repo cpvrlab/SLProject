@@ -1,7 +1,7 @@
 #include <views/TestView.h>
 #include <WAISlam.h>
 #include <WAIEvent.h>
-#include <SENSCamera.h>
+#include <sens/SENSCamera.h>
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
@@ -81,12 +81,12 @@ void TestView::start()
 
 void TestView::startAsync()
 {
-    //_camera->init(SENSCamera::Facing::BACK);
+    //_camera->init(SENSCameraFacing::BACK);
     ////start continious captureing request with certain configuration
-    //SENSCamera::Config camConfig;
+    //SENSCameraConfig camConfig;
     //camConfig.targetWidth          = 640;
     //camConfig.targetHeight         = 360;
-    //camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+    //camConfig.focusMode            = SENSCamera::SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
     //camConfig.convertToGray        = true;
     //camConfig.adjustAsynchronously = true;
     //_camera->start(camConfig);
@@ -288,7 +288,7 @@ void TestView::postStart()
     camera(_scene.cameraNode);
     onInitialize();
     if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
 }
 
 void TestView::loadWAISceneView(std::string location, std::string area)
@@ -299,7 +299,7 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     camera(_scene.cameraNode);
     onInitialize();
     if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
 }
 
 void TestView::saveMap(std::string location,
@@ -404,7 +404,7 @@ void TestView::saveVideo(std::string filename)
     if (_videoFileStream)
         ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _videoFileStream->getFrameSize(), true);
     else if (_camera)
-        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _camera->getFrameSize(), true);
+        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config().targetWidth, _camera->config().targetHeight), true);
     else
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
@@ -515,7 +515,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
             _gui.showErrorMsg("Camera pointer is not set!");
             return;
         }
-        _videoFrameSize = cv::Size2i(_camera->getFrameSize().width, _camera->getFrameSize().height);
+        _videoFrameSize = cv::Size2i(_camera->config().targetWidth, _camera->config().targetHeight);
     }
 
     // 2. Load Calibration

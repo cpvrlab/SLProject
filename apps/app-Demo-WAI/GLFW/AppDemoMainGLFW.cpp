@@ -503,7 +503,8 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSWebCamera>   webCamera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSCameraAsync> camera    = std::make_unique<SENSCameraAsync>(std::move(webCamera));
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
