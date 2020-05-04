@@ -11,8 +11,6 @@ Resources::Resources(std::string writableDir, std::string textureDir)
 {
     load(writableDir + "ErlebARResources.json");
 
-    registerFileLog();
-
     //load textures
     textures.load(textureDir);
     //load fonts
