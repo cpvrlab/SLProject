@@ -71,7 +71,7 @@ enum SLRenderType
     RT_gl       = 0, //!< OpenGL
     RT_rt       = 1, //!< Ray Tracing
     RT_pt       = 2, //!< Path Tracing
-    RT_ct       = 3  //!< Voxel Cone Tracing
+    RT_ct       = 3, //!< Voxel Cone Tracing
     RT_optix_rt = 4, //!< Ray Tracing with OptiX
     RT_optix_pt = 5  //!< Path Tracing with OptiX
 };

@@ -131,7 +131,6 @@ public:
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
     void     startConetracing();
-    void     printStats() { _stats3D.print(); }
     void     setViewportFromRatio(const SLVec2i&  vpRatio,
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);

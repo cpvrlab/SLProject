@@ -9,14 +9,15 @@
 #endif
 
 #ifdef SL_HAS_OPTIX
-#include <SLMaterial.h>
-#include <SLLine.h>
-#include <SLOptixDefinitions.h>
+#    include <SLMaterial.h>
+#    include <SLLine.h>
+#    include <SLOptixDefinitions.h>
 
 //-----------------------------------------------------------------------------
-SLLine::SLLine(SLVec3f     p1,
-               SLVec3f     p2,
-               SLMaterial* mat) : SLMesh("line")
+SLLine::SLLine(SLAssetManager* assetMgr,
+               SLVec3f         p1,
+               SLVec3f         p2,
+               SLMaterial*     mat) : SLMesh(assetMgr, "line")
 {
     _p1.set(p1);
     _p2.set(p2);

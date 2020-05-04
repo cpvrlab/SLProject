@@ -43,23 +43,23 @@ class CVCalibrationEstimator;
 class SLApplication
 {
 public:
-    static void    createAppAndScene(SLstring appName,
-                                     void*    onSceneLoadCallback);
-    static void    deleteAppAndScene();
-    static void    handleParallelJob();
-    static void    jobProgressMsg(string msg);
-    static void    jobProgressNum(int num) { _jobProgressNum = num; }
-    static void    jobProgressMax(int max) { _jobProgressMax = max; }
-    static string  jobProgressMsg();
-    static int     jobProgressNum() { return _jobProgressNum; }
-    static int     jobProgressMax() { return _jobProgressMax; }
+    static void   createAppAndScene(SLstring appName,
+                                    void*    onSceneLoadCallback);
+    static void   deleteAppAndScene();
+    static void   handleParallelJob();
+    static void   jobProgressMsg(string msg);
+    static void   jobProgressNum(int num) { _jobProgressNum = num; }
+    static void   jobProgressMax(int max) { _jobProgressMax = max; }
+    static string jobProgressMsg();
+    static int    jobProgressNum() { return _jobProgressNum; }
+    static int    jobProgressMax() { return _jobProgressMax; }
 
-    static SLProjectScene*           scene;        //!< scene pointer
-    static std::vector<SLSceneView*> sceneViews;   //!< vector of sceneview pointers
-    static SLGLImGui*                gui;          //!< gui pointer
-    static SLInputManager            inputManager; //!< Input events manager
-    static SLDeviceRotation          devRot;       //!< Mobile device rotation from IMU
-    static SLDeviceLocation          devLoc;       //!< Mobile device location from GPS
+    static SLProjectScene*      scene;        //!< scene pointer
+    static vector<SLSceneView*> sceneViews;   //!< vector of sceneview pointers
+    static SLGLImGui*           gui;          //!< gui pointer
+    static SLInputManager       inputManager; //!< Input events manager
+    static SLDeviceRotation     devRot;       //!< Mobile device rotation from IMU
+    static SLDeviceLocation     devLoc;       //!< Mobile device location from GPS
 
     static SLstring  name;          //!< Applcation name
     static SLstring  appTag;        //!< Tag string used in logging
@@ -68,7 +68,6 @@ public:
     static SLstring  gitBranch;     //!< Current GIT branch
     static SLstring  gitCommit;     //!< Current GIT commit short hash id
     static SLstring  gitDate;       //!< Current GIT commit date
-    //static SLint     dpi;           //!< Current UI dot per inch resolution
     static SLstring  exePath;       //!< executable root path
     static SLstring  configPath;    //!< Default path for calibration files
     static SLstring  externalPath;  //!< Default path for external file storage
@@ -88,6 +87,12 @@ public:
     static const string CALIB_FTP_USER; //!< ftp login user for calibration up and download
     static const string CALIB_FTP_PWD;  //!< ftp login pwd for calibration up and download
     static const string CALIB_FTP_DIR;  //!< ftp directory for calibration up and download
+
+#ifdef SL_HAS_OPTIX
+    static void               createOptixContext();
+    static OptixDeviceContext context;
+    static CUstream           stream;
+#endif
 
 private:
     static string      _jobProgressMsg; //!< Text message to show during progress

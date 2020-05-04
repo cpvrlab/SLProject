@@ -1370,7 +1370,7 @@ void SLCamera::UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W)
     V.normalize();
 
     SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * _focalDist;
-    SLfloat hw = hh * _aspect;
+    SLfloat hw = hh * _viewportRatio;
     V *= hh;
     U *= hw;
 }

@@ -10,11 +10,9 @@
 #ifdef SL_HAS_OPTIX
 #    include <stdafx.h> // Must be the 1st include followed by  an empty line
 #    include <SLApplication.h>
+#    include <SLProjectScene.h>
 #    include <SLSceneView.h>
 #    include <SLOptixPathtracer.h>
-#    ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#        include <debug_new.h> // memory leak detector
-#    endif
 
 //-----------------------------------------------------------------------------
 SLOptixPathtracer::SLOptixPathtracer()
@@ -118,9 +116,9 @@ void SLOptixPathtracer::setupOptix()
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::setupScene(SLSceneView* sv)
 {
-    SLScene* scene  = SLApplication::scene;
-    SLVMesh  meshes = scene->meshes();
-    _sv             = sv;
+    SLAssetManager* am     = (SLAssetManager*)SLApplication::scene;
+    SLVMesh         meshes = am->meshes();
+    _sv                    = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
     _curandBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(curandState));
@@ -151,7 +149,7 @@ void SLOptixPathtracer::setupScene(SLSceneView* sv)
       _optixDenoiser,
       SLApplication::stream,
       _sv->scrW(),
-      _sv->scrW(),
+      _sv->scrH(),
       _denoserState.devicePointer(),
       _denoiserSizes.stateSizeInBytes,
       _scratch.devicePointer(),

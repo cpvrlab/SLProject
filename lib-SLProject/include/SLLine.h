@@ -3,18 +3,19 @@
 //
 
 #ifdef SL_HAS_OPTIX
-#ifndef SLLINE_H
-#define SLLINE_H
+#    ifndef SLLINE_H
+#        define SLLINE_H
 
-#include <SLEnums.h>
-#include <SLMesh.h>
+#        include <SLEnums.h>
+#        include <SLMesh.h>
 
 class SLLine : public SLMesh
 {
 public:
-    SLLine( SLVec3f     p1,
-            SLVec3f     p2,
-            SLMaterial* mat  = nullptr);
+    SLLine(SLAssetManager* assetMgr,
+           SLVec3f         p1,
+           SLVec3f         p2,
+           SLMaterial*     mat = nullptr);
 
     void init(SLNode* node) override;
 
@@ -29,5 +30,5 @@ private:
     SLCudaBuffer<OptixAabb> _aabb = SLCudaBuffer<OptixAabb>();
 };
 
-#endif // SLLINE_H
-#endif // SL_HAS_OPTIX
+#    endif // SLLINE_H
+#endif     // SL_HAS_OPTIX

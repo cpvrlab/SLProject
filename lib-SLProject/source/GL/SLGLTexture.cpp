@@ -16,6 +16,7 @@
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
 #include <Utils.h>
+#include <SLApplication.h>
 
 #ifdef SL_HAS_OPTIX
 #include <cudaGL.h>
@@ -749,7 +750,7 @@ void SLGLTexture::bindActive(SLint texID)
     if (!_cudaGraphicsResource)
     {
         CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
-                                             _texName,
+                                             _texID,
                                              _target,
                                              CU_GRAPHICS_REGISTER_FLAGS_NONE));
     }

@@ -1272,12 +1272,14 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     }
 }
 //-----------------------------------------------------------------------------
+/*
 void SLMesh::notifyParentNodesAABBUpdate() const
 {
     SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
     for (auto node : nodes)
         node->needAABBUpdate();
 }
+*/
 //-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX
 void SLMesh::allocAndUploadData()

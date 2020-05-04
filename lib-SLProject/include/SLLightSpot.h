@@ -76,7 +76,7 @@ public:
     // Getters
     SLfloat radius() { return _radius; }
     SLuint  samples() { return _samples.samples(); }
-    SLVec4f positionWS() override { return translationWS(); }
+    SLVec4f positionWS() const override { return translationWS(); }
     SLVec3f spotDirWS() override { return forwardWS(); }
 
 #ifdef SL_HAS_OPTIX

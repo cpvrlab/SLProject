@@ -10,6 +10,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLApplication.h>
 #include <SLAnimManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
@@ -1817,9 +1818,7 @@ SLbool SLSceneView::draw3DOptixRT()
     // if the raytracer not yet got started
     if (_optixRaytracer.state() == rtReady)
     {
-        SLScene* s = SLApplication::scene;
-
-        s->root3D()->needUpdate();
+        s().root3D()->needUpdate();
 
         _optixRaytracer.updateScene(this);
 
@@ -1858,9 +1857,7 @@ SLbool SLSceneView::draw3DOptixPT()
     // if the path tracer not yet got started
     if (_optixPathtracer.state() == rtReady)
     {
-        SLScene* s = SLApplication::scene;
-
-        s->root3D()->needUpdate();
+        s().root3D()->needUpdate();
 
         // Start path tracing
         _optixPathtracer.updateScene(this);

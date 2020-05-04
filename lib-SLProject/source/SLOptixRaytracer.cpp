@@ -9,6 +9,7 @@
 
 #ifdef SL_HAS_OPTIX
 #    include <stdafx.h> // Must be the 1st include followed by  an empty line
+#    include <SLProjectScene.h>
 #    include <SLApplication.h>
 #    include <SLLightRect.h>
 #    include <SLSceneView.h>
@@ -302,7 +303,7 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
         sbt.missRecordCount             = RAY_TYPE_COUNT;
         sbt.hitgroupRecordBase          = _hitBuffer.devicePointer();
         sbt.hitgroupRecordStrideInBytes = sizeof(HitSbtRecord);
-        sbt.hitgroupRecordCount         = RAY_TYPE_COUNT * meshes.size();
+        sbt.hitgroupRecordCount         = RAY_TYPE_COUNT * (SLuint)meshes.size();
     }
 
     return sbt;
@@ -310,9 +311,9 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::setupScene(SLSceneView* sv)
 {
-    SLScene* scene  = SLApplication::scene;
-    SLVMesh  meshes = scene->meshes();
-    _sv             = sv;
+    SLAssetManager* am     = (SLAssetManager*)SLApplication::scene;
+    SLVMesh         meshes = am->meshes();
+    _sv                    = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
     _lineBuffer.resize(_sv->scrW() * _sv->scrH() * _maxDepth * 2 * sizeof(Ray));
@@ -403,7 +404,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
 SLbool SLOptixRaytracer::renderClassic()
 {
     _state      = rtBusy; // From here we state the RT as busy
-    _pcRendered = 0;      // % rendered
+    _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
     // Measure time
     double t1     = SLApplication::timeMS();
@@ -459,14 +460,14 @@ void SLOptixRaytracer::prepareImage()
         _sv->scrH() != (SLint)_images[0]->height())
     {
         // Delete the OpenGL Texture if it already exists
-        if (_texName)
+        if (_texID)
         {
-            //            if (_cudaGraphicsResource) {
-            //                CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
-            //                _cudaGraphicsResource = nullptr;
-            //            }
-            glDeleteTextures(1, &_texName);
-            _texName = 0;
+            //if (_cudaGraphicsResource) {
+            //    CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
+            //    _cudaGraphicsResource = nullptr;
+            //}
+            glDeleteTextures(1, &_texID);
+            _texID = 0;
         }
 
         _images[0]->allocate(_sv->scrW(), _sv->scrH(), PF_rgb);
@@ -515,7 +516,7 @@ void SLOptixRaytracer::renderImage()
     stateGL->multiSample(false);
     stateGL->polygonLine(false);
 
-    drawSprite(false);
+    drawSprite(false, 0.0f, 0.0f, w, h);
 
     stateGL->depthTest(true);
     GET_GL_ERROR;
@@ -540,8 +541,9 @@ void SLOptixRaytracer::saveImage()
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y)
 {
-    y              = _sv->scrH() - y;
-    SLScene* scene = SLApplication::scene;
+    SLAssetManager* assetMngr = (SLAssetManager*)SLApplication::scene;
+
+    y = _sv->scrH() - y;
 
     Ray* rays = static_cast<Ray*>(malloc(_lineBuffer.size()));
     _lineBuffer.download(rays);
@@ -550,11 +552,13 @@ void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y)
     {
         Ray ray = rays[(y * _sv->scrW() + x) * _maxDepth * 2 + i];
 
-        auto* mat  = new SLMaterial("mat",
+        auto* mat  = new SLMaterial(assetMngr,
+                                   "mat",
                                    SLCol4f(ray.color.x, ray.color.y, ray.color.z),
                                    SLCol4f::BLACK,
                                    0);
-        auto* line = new SLNode(new SLLine(SLVec3f(ray.line.p1.x,
+        auto* line = new SLNode(new SLLine(assetMngr,
+                                           SLVec3f(ray.line.p1.x,
                                                    ray.line.p1.y,
                                                    ray.line.p1.z),
                                            SLVec3f(ray.line.p2.x,
@@ -562,7 +566,7 @@ void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y)
                                                    ray.line.p2.z),
                                            mat),
                                 "line");
-        scene->root3D()->addChild(line);
+        _sv->s().root3D()->addChild(line);
     }
     setupScene(_sv);
 }
@@ -571,7 +575,7 @@ void SLOptixRaytracer::removeRays()
 {
     SLScene* scene = SLApplication::scene;
 
-    while (scene->root3D()->deleteChild("line")) {}
+    while (SLApplication::scene->root3D()->deleteChild("line")) {}
 }
 //-----------------------------------------------------------------------------
 #endif
