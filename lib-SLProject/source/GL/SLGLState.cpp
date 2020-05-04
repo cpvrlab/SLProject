@@ -14,7 +14,9 @@
 #include <SLGLState.h>
 #include <SLMaterial.h>
 #include <CVImage.h>
-
+#ifdef SL_OS_ANDROID
+#include <android/log.h>
+#endif
 //-----------------------------------------------------------------------------
 SLGLState* SLGLState::_instance = nullptr;
 //-----------------------------------------------------------------------------
@@ -602,7 +604,8 @@ void SLGLState::getGLError(const char* file,
         if (!errExists)
         {
             errors.push_back(newErr);
-#    ifdef SL_OS_ANDROID
+
+            #    ifdef SL_OS_ANDROID
             __android_log_print(ANDROID_LOG_INFO, "SLProject", "OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
 #    else
             fprintf(stderr,
@@ -611,6 +614,7 @@ void SLGLState::getGLError(const char* file,
                     line,
                     errStr.c_str());
 #    endif
+            //todo: why not use: SL_LOG("OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
         }
 
         if (quit)
