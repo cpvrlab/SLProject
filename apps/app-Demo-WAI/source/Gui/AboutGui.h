@@ -20,8 +20,7 @@ public:
              ErlebAR::Resources& resources,
              int                 dotsPerInch,
              int                 screenWidthPix,
-             int                 screenHeightPix,
-             std::string         fontPath);
+             int                 screenHeightPix);
     ~AboutGui() override;
 
     void build(SLScene* s, SLSceneView* sv) override;

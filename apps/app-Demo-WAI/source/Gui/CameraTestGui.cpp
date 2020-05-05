@@ -10,7 +10,6 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
                              int                 dotsPerInch,
                              int                 screenWidthPix,
                              int                 screenHeightPix,
-                             std::string         fontPath,
                              SENSCamera*         camera)
   : ImGuiWrapper(resources.fonts().atlas),
     sm::EventSender(eventHandler),
@@ -18,16 +17,6 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
     _camera(camera)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-    }
-    else
-        Utils::warnMsg("CameraTestGui", "font does not exist!", __LINE__, __FILE__);
 
     //keep a local copy of all available
     _camCharacs = _camera->getAllCameraCharacteristics();
@@ -91,7 +80,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonTranspColor,
                              _resources.style().headerBarBackButtonPressedTranspColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
@@ -109,9 +98,9 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
           ImGuiWindowFlags_NoBackground |
           ImGuiWindowFlags_NoScrollbar;
 
-        ImGui::PushFont(_fontBig);
+        ImGui::PushFont(_resources.fonts().headerBar);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _fontBig->FontSize) * 0.5));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _resources.fonts().headerBar->FontSize) * 0.5));
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _headerBarH);
 
         ImGui::Begin("Settings##CameraTestGui", nullptr, windowFlags);

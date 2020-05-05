@@ -19,20 +19,6 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH      = _resources.style().headerBarTextH * (float)_headerBarH;
-    float headingTextH  = _resources.style().textHeadingH * (float)screenHeightPix;
-    float standardTextH = _resources.style().textStandardH * (float)screenHeightPix;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig      = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-        _fontSmall    = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), headingTextH);
-        _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
-    }
-    else
-        Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
     //load background texture
     int cropW, cropH;
@@ -93,7 +79,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
                     _resources.style().headerBarTextColor,
                     _resources.style().headerBarBackButtonTranspColor,
                     _resources.style().headerBarBackButtonPressedTranspColor,
-                    _fontBig,
+                    _resources.fonts().headerBar,
                     _buttonRounding,
                     buttonSize,
                     _resources.textures.texIdBackArrow,

@@ -9,8 +9,7 @@ AboutGui::AboutGui(sm::EventHandler&   eventHandler,
                    ErlebAR::Resources& resources,
                    int                 dotsPerInch,
                    int                 screenWidthPix,
-                   int                 screenHeightPix,
-                   std::string         fontPath)
+                   int                 screenHeightPix)
   : ImGuiWrapper(resources.fonts().atlas),
     sm::EventSender(eventHandler),
     _resources(resources)

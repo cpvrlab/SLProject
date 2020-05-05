@@ -147,13 +147,13 @@ std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristic
     }
 
     //dummy data to debug second camera
-    //{
-    //    SENSCameraCharacteristics characteristics;
-    //    characteristics.cameraId = "1";
-    //    characteristics.provided = false;
-    //    characteristics.streamConfig.add(cv::Size(640, 654));
-    //    allCharacteristics.push_back(characteristics);
-    //}
+    {
+        SENSCameraCharacteristics characteristics;
+        characteristics.cameraId = "1";
+        characteristics.provided = false;
+        characteristics.streamConfig.add(cv::Size(640, 654));
+        allCharacteristics.push_back(characteristics);
+    }
 
     //start again with old config
     if (deviceWasOpen)

@@ -21,8 +21,7 @@ public:
                     int                        dotsPerInch,
                     int                        screenWidthPix,
                     int                        screenHeightPix,
-                    std::function<void(float)> transparencyChangedCB,
-                    std::string                fontPath);
+                    std::function<void(float)> transparencyChangedCB);
     ~AreaTrackingGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -46,7 +45,6 @@ private:
     float _itemSpacingContent;
 
     float                      _sliderValue = 0.f;
-    ImFont*                    _fontBig     = nullptr;
     ErlebAR::Area              _area;
     std::function<void(float)> _transparencyChangedCB;
 

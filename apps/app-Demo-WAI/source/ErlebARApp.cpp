@@ -206,7 +206,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                dd.scrWidth(),
                                dd.scrHeight(),
                                dd.dpi(),
-                               dd.fontDir(),
                                dd.dirs().writableDir);
 
     _settingsView = new SettingsView(*this,
@@ -215,7 +214,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                      dd.scrWidth(),
                                      dd.scrHeight(),
                                      dd.dpi(),
-                                     dd.fontDir(),
                                      dd.dirs().writableDir);
 
     _tutorialView = new TutorialView(*this,
@@ -234,7 +232,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                            dd.scrWidth(),
                                            dd.scrHeight(),
                                            dd.dpi(),
-                                           dd.fontDir(),
                                            dd.dirs().writableDir,
                                            dd.erlebARDir());
 
@@ -244,7 +241,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                      dd.scrWidth(),
                                      dd.scrHeight(),
                                      dd.dpi(),
-                                     dd.fontDir(),
                                      dd.dirs().writableDir);
 
     _areaTrackingView = new AreaTrackingView(*this,
@@ -254,7 +250,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                              dd.scrWidth(),
                                              dd.scrHeight(),
                                              dd.dpi(),
-                                             dd.fontDir(),
                                              dd.dirs().writableDir,
                                              dd.dirs().vocabularyDir);
 
@@ -265,7 +260,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                          dd.scrWidth(),
                                          dd.scrHeight(),
                                          dd.dpi(),
-                                         dd.fontDir(),
                                          dd.dirs().writableDir);
 
     addEvent(new DoneEvent());

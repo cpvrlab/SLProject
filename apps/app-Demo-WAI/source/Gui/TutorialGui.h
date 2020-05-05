@@ -43,10 +43,6 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
-    ImFont* _fontBig      = nullptr;
-    ImFont* _fontSmall    = nullptr;
-    ImFont* _fontStandard = nullptr;
-
     ErlebAR::Resources& _resources;
 
     GLuint _textureBackgroundId1 = 0;

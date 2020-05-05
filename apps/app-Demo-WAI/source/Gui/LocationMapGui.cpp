@@ -10,7 +10,6 @@ LocationMapGui::LocationMapGui(sm::EventHandler&   eventHandler,
                                int                 dotsPerInch,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
-                               std::string         fontPath,
                                std::string         erlebARDir)
   : ImGuiWrapper(resources.fonts().atlas),
     sm::EventSender(eventHandler),
@@ -18,16 +17,6 @@ LocationMapGui::LocationMapGui(sm::EventHandler&   eventHandler,
     _erlebARDir(erlebARDir)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-    }
-    else
-        Utils::warnMsg("LocationMapGui", "font does not exist!", __LINE__, __FILE__);
 }
 
 LocationMapGui::~LocationMapGui()
@@ -76,7 +65,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonTranspColor,
                              _resources.style().headerBarBackButtonPressedTranspColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,

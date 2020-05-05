@@ -9,27 +9,12 @@ AreaInfoGui::AreaInfoGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
-                         int                 screenHeightPix,
-                         std::string         fontPath)
+                         int                 screenHeightPix)
   : ImGuiWrapper(resources.fonts().atlas),
     sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH      = _resources.style().headerBarTextH * (float)_headerBarH;
-    float headingTextH  = _resources.style().textHeadingH * (float)screenHeightPix;
-    float standardTextH = _resources.style().textStandardH * (float)screenHeightPix;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig      = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-        _fontSmall    = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), headingTextH);
-        _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
-    }
-    else
-        Utils::warnMsg("AreaInfoGui", "font does not exist!", __LINE__, __FILE__);
 }
 
 AreaInfoGui::~AreaInfoGui()
@@ -94,7 +79,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonColor,
                              _resources.style().headerBarBackButtonPressedColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
@@ -127,14 +112,14 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(_screenW, _contentH), false, childWindowFlags);
 
         //general
-        ImGui::PushFont(_fontSmall);
+        ImGui::PushFont(_resources.fonts().heading);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
         ImGui::Text(_resources.strings().general());
         ImGui::PopStyleColor();
         ImGui::PopFont();
 
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
-        ImGui::PushFont(_fontStandard);
+        ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
         ImGui::Text(_resources.strings().generalContent(), _textWrapW);
 
@@ -145,13 +130,13 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Separator();
 
         //developers
-        ImGui::PushFont(_fontSmall);
+        ImGui::PushFont(_resources.fonts().heading);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
         ImGui::Text(_resources.strings().developers());
         ImGui::PopStyleColor();
         ImGui::PopFont();
 
-        ImGui::PushFont(_fontStandard);
+        ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
         ImGui::Text(_resources.strings().developerNames(), _textWrapW);
         ImGui::PopStyleColor();
@@ -176,7 +161,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-        ImGui::PushFont(_fontSmall);
+        ImGui::PushFont(_resources.fonts().heading);
 
         ImGui::SetNextWindowPos(ImVec2(0, _headerBarH + _contentH), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(_screenW, _buttonBoardH), ImGuiCond_Always);

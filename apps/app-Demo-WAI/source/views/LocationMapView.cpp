@@ -6,11 +6,10 @@ LocationMapView::LocationMapView(sm::EventHandler&   eventHandler,
                                  int                 screenWidth,
                                  int                 screenHeight,
                                  int                 dotsPerInch,
-                                 std::string         fontPath,
                                  std::string         imguiIniPath,
                                  std::string         erlebARDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, erlebARDir)
+    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, erlebARDir)
 {
     init("LocationMapView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();

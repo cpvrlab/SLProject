@@ -9,27 +9,12 @@ SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
-                         int                 screenHeightPix,
-                         std::string         fontPath)
+                         int                 screenHeightPix)
   : ImGuiWrapper(resources.fonts().atlas),
     sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH      = _resources.style().headerBarTextH * (float)_headerBarH;
-    float headingTextH  = _resources.style().textHeadingH * (float)screenHeightPix;
-    float standardTextH = _resources.style().textStandardH * (float)screenHeightPix;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig      = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-        _fontSmall    = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), headingTextH);
-        _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
-    }
-    else
-        Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
     //init language settings combo
     if (_resources.strings().id() == _resources.stringsItalien.id())
@@ -79,7 +64,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonColor,
                              _resources.style().headerBarBackButtonPressedColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
@@ -150,13 +135,13 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Begin("Settings_content", nullptr, windowFlags);
         ImGui::BeginChild("Settings_content_child", ImVec2(0, 0), false, childWindowFlags);
         //language selection
-        ImGui::PushFont(_fontSmall);
+        ImGui::PushFont(_resources.fonts().heading);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
         ImGui::Text(_resources.strings().language());
         ImGui::PopStyleColor();
         ImGui::PopFont();
 
-        ImGui::PushFont(_fontStandard);
+        ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
         ImGui::PushItemWidth(_screenW * 0.3f);
@@ -180,13 +165,13 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         //developer mode
         if (_resources.developerMode)
         {
-            ImGui::PushFont(_fontSmall);
+            ImGui::PushFont(_resources.fonts().heading);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
             ImGui::Text(_resources.strings().develMode());
             ImGui::PopStyleColor();
             ImGui::PopFont();
 
-            ImGui::PushFont(_fontStandard);
+            ImGui::PushFont(_resources.fonts().standard);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
             if (ImGui::Checkbox("Enabled##DevelMode", &_resources.developerMode))
@@ -201,13 +186,13 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
             ImGui::PopFont();
             ImGui::Separator();
 
-            ImGui::PushFont(_fontSmall);
+            ImGui::PushFont(_resources.fonts().heading);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
             ImGui::Text("Show log window");
             ImGui::PopStyleColor();
             ImGui::PopFont();
 
-            ImGui::PushFont(_fontStandard);
+            ImGui::PushFont(_resources.fonts().standard);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
             if (ImGui::Checkbox("Enabled##LogWin", &_resources.logWinEnabled))

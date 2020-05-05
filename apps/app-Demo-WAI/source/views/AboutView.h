@@ -16,7 +16,6 @@ public:
               int                 screenWidth,
               int                 screenHeight,
               int                 dotsPerInch,
-              std::string         fontPath,
               std::string         imguiIniPath);
     bool update();
     //call when view becomes visible

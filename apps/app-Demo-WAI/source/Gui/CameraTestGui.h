@@ -22,7 +22,6 @@ public:
                   int                 dotsPerInch,
                   int                 screenWidthPix,
                   int                 screenHeightPix,
-                  std::string         fontPath,
                   SENSCamera*         camera);
     ~CameraTestGui();
 
@@ -45,8 +44,6 @@ private:
     float _textWrapW;
     float _windowPaddingContent;
     float _itemSpacingContent;
-
-    ImFont* _fontBig = nullptr;
 
     ErlebAR::Resources& _resources;
 
