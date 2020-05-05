@@ -5,7 +5,9 @@
 #include <AppDemoGuiInfosFrameworks.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name, bool* activator, ImFont* font)
+AppDemoGuiInfosFrameworks::AppDemoGuiInfosFrameworks(std::string name,
+                                                     bool*       activator,
+                                                     ImFont*     font)
   : AppDemoGuiInfosDialog(name, activator, font)
 {
 }
@@ -26,7 +28,7 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
     sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
     sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
-    sprintf(m + strlen(m), "GLSL Version     : %s\n", stateGL->glSLVersionNO().c_str());
+    sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
     sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
     sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
     sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
@@ -40,3 +42,4 @@ void AppDemoGuiInfosFrameworks::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::End();
     ImGui::PopFont();
 }
+//-----------------------------------------------------------------------------

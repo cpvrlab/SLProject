@@ -525,9 +525,9 @@ SLbool SLSceneView::onPaint()
         switch (_renderType)
         {
             case RT_gl: camUpdated = draw3DGL(_s->elapsedTimeMS()); break;
-            case RT_ct: camUpdated = draw3DCT(); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
+            case RT_ct: camUpdated = draw3DCT(); break;
 
 #ifdef SL_HAS_OPTIX
             case RT_optix_rt: camUpdated = draw3DOptixRT(); break;

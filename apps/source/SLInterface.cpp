@@ -72,17 +72,17 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 
     SLGLState* stateGL = SLGLState::instance();
 
-    SL_LOG("Path to Models  : %s", modelPath.c_str());
-    SL_LOG("Path to Shaders : %s", shaderPath.c_str());
-    SL_LOG("Path to Textures: %s", texturePath.c_str());
-    SL_LOG("Path to Fonts   : %s", fontPath.c_str());
-    SL_LOG("Path to Config. : %s", configPath.c_str());
-    SL_LOG("OpenCV Version  : %d.%d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-    SL_LOG("CV has OpenCL   : %s", cv::ocl::haveOpenCL() ? "yes" : "no");
-    SL_LOG("OpenGL Version  : %s", stateGL->glVersion().c_str());
-    SL_LOG("Vendor          : %s", stateGL->glVendor().c_str());
-    SL_LOG("Renderer        : %s", stateGL->glRenderer().c_str());
-    SL_LOG("GLSL Version    : %s (%s) ", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
+    SL_LOG("Path to Models   : %s", modelPath.c_str());
+    SL_LOG("Path to Shaders  : %s", shaderPath.c_str());
+    SL_LOG("Path to Textures : %s", texturePath.c_str());
+    SL_LOG("Path to Fonts    : %s", fontPath.c_str());
+    SL_LOG("Path to Config.  : %s", configPath.c_str());
+    SL_LOG("OpenCV Version   : %d.%d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+    SL_LOG("OpenCV has OpenCL: %s", cv::ocl::haveOpenCL() ? "yes" : "no");
+    SL_LOG("OpenGL Version   : %s", stateGL->glVersion().c_str());
+    SL_LOG("OpenGL Vendor    : %s", stateGL->glVendor().c_str());
+    SL_LOG("OpenGL Renderer  : %s", stateGL->glRenderer().c_str());
+    SL_LOG("OpenGL GLSL Ver. : %s (%s) ", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
     SL_LOG("------------------------------------------------------------------");
 
     SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);

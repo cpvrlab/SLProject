@@ -15,7 +15,11 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
         SL_HAS_OPTIX
         SL_BUILD_WITH_OPTIX)
 else()
-    message("No CUDA - No OptiX")
+    if (DEFINED ENV{CUDA_PATH})
+        message("Has CUDA but OPTIX will not be built.")
+    else()
+        message("No CUDA - No OptiX")
+    endif()
 endif()
 
 file(GLOB cuda
@@ -289,7 +293,7 @@ endif ()
 
 #==============================================================================
 
-if (DEFINED ENV{CUDA_PATH})
+if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("Has-Optics: " "${OptiX_INCLUDE}")
 
     list(FIND CUDA_NVCC_FLAGS "-arch" index)

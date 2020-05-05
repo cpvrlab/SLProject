@@ -815,6 +815,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 #else
             sprintf(m + strlen(m), "Build Config.    : Release\n");
 #endif
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
             sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
             sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
@@ -822,14 +823,17 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
             sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
             sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
             sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
             sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
-            sprintf(m + strlen(m), "GLSL Version     : %s\n", stateGL->glSLVersionNO().c_str());
+            sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
             sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
             // Switch to fixed font
@@ -1678,20 +1682,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);
             ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
 #endif
-			
+
 #if defined(GL_VERSION_4_4)
-            if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
-            {
-                if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
-                    sv->startConetracing();
-            }
-            else
+            if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
+                sv->startConetracing();
+#else
+            if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
+                sv->startConetracing();
 #endif
-            {
-                if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
-                    sv->startConetracing();
-            }
-			
+
             ImGui::EndMenu();
         }
 
