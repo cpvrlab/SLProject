@@ -144,6 +144,9 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleVar(6);
     }
     //ImGui::ShowMetricsWindow();
+
+    //debug: draw log window
+    _resources.logWinDraw(_fontBig);
 }
 
 void LocationMapGui::initLocation(ErlebAR::LocationId locId)

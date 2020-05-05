@@ -128,6 +128,9 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //ImGui::ShowMetricsWindow();
+
+    //debug: draw log window
+    _resources.logWinDraw(_fontBig);
 }
 
 void AreaTrackingGui::initArea(ErlebAR::Area area)

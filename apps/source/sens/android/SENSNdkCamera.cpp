@@ -868,7 +868,7 @@ std::vector<SENSCameraCharacteristics> SENSNdkCamera::getAllCameraCharacteristic
                 {
                     for (int i = 0; i < lensInfo.count; ++i)
                     {
-                        characteristics.focalLenghts.push_back(lensInfo.data.f[i]);
+                        characteristics.focalLenghtsMM.push_back(lensInfo.data.f[i]);
                     }
                 }
             }

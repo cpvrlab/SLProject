@@ -209,7 +209,7 @@ public:
 class Resources
 {
 public:
-    Resources(std::string writableDir, std::string textureDir);
+    Resources(int screenWidth, int screenHeight, std::string writableDir, std::string textureDir);
     ~Resources();
 
     void setLanguageEnglish();
@@ -232,6 +232,11 @@ public:
 
     const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
 
+    bool logWinEnabled = false;
+    void logWinInit();
+    void logWinUnInit();
+    void logWinDraw(ImFont* font);
+
 private:
     void load(std::string resourceFileName);
     void save();
@@ -247,6 +252,9 @@ private:
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
     //writeable directory, e.g. for logfile
     std::string _writableDir;
+
+    int _screenW;
+    int _screenH;
 };
 };
 

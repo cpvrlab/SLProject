@@ -213,4 +213,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImGui::End();
     }
     popStyle();
+
+    //debug: draw log window
+    _resources.logWinDraw(_font);
 }

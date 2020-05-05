@@ -156,7 +156,7 @@ static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
 //! custom log instance, e.g. log to a ui log window
-static std::unique_ptr<CustomLog> customLog;
+extern std::unique_ptr<CustomLog> customLog;
 
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);

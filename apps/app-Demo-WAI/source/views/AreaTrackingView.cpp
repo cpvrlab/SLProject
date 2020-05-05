@@ -90,7 +90,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     {
         _calibration = std::make_unique<SENSCalibration>(chars.physicalSensorSizeMM.width,
                                                          chars.physicalSensorSizeMM.height,
-                                                         chars.focalLenghts.front(),
+                                                         chars.focalLenghtsMM.front(),
                                                          _cameraFrameTargetSize,
                                                          false,
                                                          false,

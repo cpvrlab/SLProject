@@ -1,13 +1,13 @@
 #include "Resources.h"
 
 #include "opencv2/core/persistence.hpp"
-#include <FileLog.h>
 
 namespace ErlebAR
 {
-
-Resources::Resources(std::string writableDir, std::string textureDir)
-  : _writableDir(writableDir)
+Resources::Resources(int screenWidth, int screenHeight, std::string writableDir, std::string textureDir)
+  : _screenW(screenWidth),
+    _screenH(screenHeight),
+    _writableDir(writableDir)
 {
     load(writableDir + "ErlebARResources.json");
 
@@ -17,6 +17,9 @@ Resources::Resources(std::string writableDir, std::string textureDir)
 
     //definition of erlebar locations and areas
     _locations = ErlebAR::defineLocations();
+
+    if (logWinEnabled)
+        logWinInit();
 }
 
 Resources::~Resources()
@@ -36,6 +39,8 @@ void Resources::load(std::string resourceFileName)
     {
         if (!fs["developerMode"].empty())
             fs["developerMode"] >> developerMode;
+        if (!fs["logWinEnabled"].empty())
+            fs["logWinEnabled"] >> logWinEnabled;
 
         if (!fs["languageId"].empty())
         {
@@ -71,6 +76,7 @@ void Resources::save()
     if (fs.isOpened())
     {
         fs << "developerMode" << developerMode;
+        fs << "logWinEnabled" << logWinEnabled;
         fs << "languageId" << _currStrings->id();
     }
     else
@@ -94,6 +100,26 @@ void Resources::setLanguageFrench()
 void Resources::setLanguageItalien()
 {
     _currStrings = &stringsItalien;
+}
+
+void Resources::logWinInit()
+{
+    Utils::customLog = std::make_unique<LogWindow>(_screenW, _screenH);
+}
+
+void Resources::logWinUnInit()
+{
+    if (Utils::customLog)
+        Utils::customLog.release();
+}
+
+void Resources::logWinDraw(ImFont* font)
+{
+    if (Utils::customLog)
+    {
+        LogWindow* log = static_cast<LogWindow*>(Utils::customLog.get());
+        log->draw(font, "Log");
+    }
 }
 
 Strings::Strings()

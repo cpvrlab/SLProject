@@ -188,11 +188,36 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
             ImGui::PushFont(_fontStandard);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-            if (ImGui::Checkbox("Enabled", &_resources.developerMode))
+            if (ImGui::Checkbox("Enabled##DevelMode", &_resources.developerMode))
             {
                 if (!_resources.developerMode)
                 {
                     _hiddenNumClicks = 0;
+                }
+            }
+
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::Separator();
+
+            ImGui::PushFont(_fontSmall);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+            ImGui::Text("Show log window");
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+
+            ImGui::PushFont(_fontStandard);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+            if (ImGui::Checkbox("Enabled##LogWin", &_resources.logWinEnabled))
+            {
+                if (_resources.logWinEnabled)
+                {
+                    _resources.logWinInit();
+                }
+                else
+                {
+                    _resources.logWinUnInit();
                 }
             }
 
@@ -207,6 +232,9 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor(1);
         ImGui::PopStyleVar(7);
     }
+
+    //debug: draw log window
+    _resources.logWinDraw(_fontSmall);
 }
 
 void SettingsGui::onShow()

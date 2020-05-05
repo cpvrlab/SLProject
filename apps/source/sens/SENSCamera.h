@@ -66,7 +66,7 @@ struct SENSCameraCharacteristics
     SENSCameraStreamConfigs streamConfig;
     //flags if following properties are valid (they are not available for every device)
     bool               provided = false;
-    std::vector<float> focalLenghts;
+    std::vector<float> focalLenghtsMM;
     cv::Size2f         physicalSensorSizeMM;
     SENSCameraFacing   facing = SENSCameraFacing::UNKNOWN;
 };
@@ -134,7 +134,7 @@ protected:
     SENSCameraConfig  _config;
     std::atomic<bool> _started{false};
 
-    SENSCameraCharacteristics _characteristics;
+    SENSCameraCharacteristics              _characteristics;
     std::vector<SENSCameraCharacteristics> _allCharacteristics;
 
     std::atomic<bool> _permissionGranted{false};

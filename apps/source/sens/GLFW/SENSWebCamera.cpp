@@ -120,30 +120,29 @@ std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristic
     //If you're e.g on a laptop with a builtin camera, that will be id 0, if you plug in an additional one, that's id 1.
     for (int i = 0; i < 10; ++i)
     {
-        if (_videoCapture.open(i))
-        {
-            if (_videoCapture.isOpened())
-            {
-                SENSCameraCharacteristics characteristics;
-                characteristics.cameraId = std::to_string(i);
-                characteristics.provided = false;
-                //try some standard capture sizes
-                for (auto s : testSizes)
-                {
-                    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, s.width);
-                    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, s.height);
-                    cv::Mat frame;
-                    _videoCapture >> frame;
-                    cv::Size newSize = frame.size();
-                    if (!characteristics.streamConfig.contains(newSize))
-                    {
-                        characteristics.streamConfig.add(newSize);
-                    }
-                }
+        _videoCapture.open(i);
 
-                allCharacteristics.push_back(characteristics);
-                _videoCapture.release();
+        if (_videoCapture.isOpened())
+        {
+            SENSCameraCharacteristics characteristics;
+            characteristics.cameraId = std::to_string(i);
+            characteristics.provided = false;
+            //try some standard capture sizes
+            for (auto s : testSizes)
+            {
+                _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, s.width);
+                _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, s.height);
+                cv::Mat frame;
+                _videoCapture >> frame;
+                cv::Size newSize = frame.size();
+                if (!characteristics.streamConfig.contains(newSize))
+                {
+                    characteristics.streamConfig.add(newSize);
+                }
             }
+
+            allCharacteristics.push_back(characteristics);
+            _videoCapture.release();
         }
     }
 

@@ -171,7 +171,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::Text(getPrintableFacing(currCharac->facing).c_str());
                 ImGui::Text("Physical sensor size (mm): w: %f, h: %f", currCharac->physicalSensorSizeMM.width, currCharac->physicalSensorSizeMM.height);
                 ImGui::Text("Focal lengths (mm):");
-                for (auto fl : currCharac->focalLenghts)
+                for (auto fl : currCharac->focalLenghtsMM)
                 {
                     ImGui::Text("  %f", fl);
                 }
@@ -247,4 +247,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //ImGui::ShowMetricsWindow();
+
+    //debug: draw log window
+    _resources.logWinDraw(_fontBig);
 }

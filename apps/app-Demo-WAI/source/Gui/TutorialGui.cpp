@@ -164,4 +164,7 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //ImGui::ShowMetricsWindow();
+
+    //debug: draw log window
+    _resources.logWinDraw(_fontSmall);
 }

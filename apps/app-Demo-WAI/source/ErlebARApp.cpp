@@ -155,7 +155,9 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
-    _resources = new ErlebAR::Resources(dd.dirs().writableDir,
+    _resources = new ErlebAR::Resources(dd.scrWidth(),
+                                        dd.scrHeight(),
+                                        dd.dirs().writableDir,
                                         dd.textureDir());
 
     _welcomeView = new WelcomeView(_inputManager,
