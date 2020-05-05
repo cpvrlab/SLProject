@@ -1,0 +1,19 @@
+#ifndef UTILS_CUSTOMLOG_H
+#define UTILS_CUSTOMLOG_H
+
+#include <memory>
+#include <string>
+
+namespace Utils
+{
+//!Logger interface
+class CustomLog
+{
+public:
+    virtual void post(const std::string& message) = 0;
+};
+
+//using LoggerPtr = std::unique_ptr<CustomLogger>;
+}
+
+#endif

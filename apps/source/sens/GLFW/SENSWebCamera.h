@@ -2,33 +2,21 @@
 #define SENS_WEBCAMERA_H
 
 #include <opencv2/opencv.hpp>
-#include <SENSCamera.h>
-#include <thread>
+#include <sens/SENSCamera.h>
 
-class SENSWebCamera : public SENSCamera
+class SENSWebCamera : public SENSCameraBase
 {
 public:
-    SENSWebCamera()
-    {
-        _permissionGranted = true;
-    }
-    ~SENSWebCamera();
-
-    void init(SENSCamera::Facing facing) override;
-    void start(const Config config) override;
-    void start(int width, int height) override;
+    void start(const SENSCameraConfig config) override;
+    void start(std::string id, int width, int height) override;
     void stop() override;
+    //retrieve all chamera characteristics (this may close the current capture session)
+    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override;
 
     SENSFramePtr getLatestFrame() override;
 
 private:
-    void openCamera();
-
-    bool                  _isStarting = false;
-    cv::VideoCapture      _videoCapture;
-    std::vector<cv::Size> _streamSizes;
-
-    std::thread _thread;
+    cv::VideoCapture _videoCapture;
 };
 
 #endif //SENS_WEBCAMERA_H

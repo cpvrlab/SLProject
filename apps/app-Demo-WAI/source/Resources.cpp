@@ -1,13 +1,16 @@
 #include "Resources.h"
 
 #include "opencv2/core/persistence.hpp"
+#include <FileLog.h>
 
 namespace ErlebAR
 {
 
-Resources::Resources(std::string resourceFileName, std::string textureDir)
+Resources::Resources(std::string writableDir, std::string textureDir)
+  : _writableDir(writableDir)
 {
-    load(resourceFileName);
+    load(writableDir + "ErlebARResources.json");
+
     //load textures
     textures.load(textureDir);
     //load fonts

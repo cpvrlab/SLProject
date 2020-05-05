@@ -64,7 +64,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     //header bar
     float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
 
-    ErlebAR::renderHeaderBar("AreaTrackingGuisfdlksfdölk",
+    ErlebAR::renderHeaderBar("AreaTrackingGui",
                              _screenW,
                              _headerBarH,
                              _resources.style().headerBarBackgroundTranspColor,

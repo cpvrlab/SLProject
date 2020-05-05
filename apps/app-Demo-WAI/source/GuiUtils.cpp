@@ -2,6 +2,12 @@
 #include <CVImage.h>
 #include <Utils.h>
 
+//add this to enable + operator on ImRect
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#    define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+#include <imgui_internal.h>
+
 namespace ErlebAR
 {
 void renderBackgroundTexture(float screenW, float screenH, GLuint texId)
@@ -148,5 +154,133 @@ void deleteTexture(GLuint& id)
         glDeleteTextures(1, &id);
         id = 0;
     }
+}
+
+std::vector<ImVec2> rotatePts(const std::vector<ImVec2>& pts, float angleDeg, const ImVec2& c)
+{
+    float alphaRad = DEG2RAD * angleDeg;
+    float cosAlpha = cos(alphaRad);
+    float sinAlpha = sin(alphaRad);
+
+    std::vector<ImVec2> rotPts(pts.size());
+    for (int i = 0; i < pts.size(); ++i)
+    {
+        ImVec2&       rotPt = rotPts[i];
+        const ImVec2& pt    = pts[i];
+
+        //x2 = ((x1 - x0) * cos(a)) - ((y1 - y0) * sin(a)) + x0;
+        rotPt.x = (pt.x - c.x) * cosAlpha - (pt.y - c.y) * sinAlpha + c.x;
+        //y2 = ((x1 - x0) * sin(a)) + ((y1 - y0) * cos(a)) + y0;
+        rotPt.y = (pt.x - c.x) * sinAlpha + (pt.y - c.y) * cosAlpha + c.y;
+
+        ////x' = xcos(alpha) - ysin(alpha)
+        //rotPt.x = pt.x * cosAlpha - pt.y * sinAlpha;
+        ////y' = xsin(alpha) + ycos(alpha)
+        //rotPt.y = pt.x * sinAlpha + pt.y * cosAlpha;
+    }
+    return rotPts;
+}
+
+ImRect calcBoundingBoxPts(const std::vector<ImVec2>& pts)
+{
+    float xMin, xMax, yMin, yMax;
+    xMin = yMin = std::numeric_limits<float>::max();
+    xMax = yMax = std::numeric_limits<float>::min();
+    for (const ImVec2& pt : pts)
+    {
+        if (pt.x < xMin)
+            xMin = pt.x;
+        if (pt.x > xMax)
+            xMax = pt.x;
+        if (pt.y < yMin)
+            yMin = pt.y;
+        if (pt.y > yMax)
+            yMax = pt.y;
+    }
+
+    return ImRect(ImVec2(xMin, yMin), ImVec2(xMax, yMax));
+}
+
+ImRect calcBoundingBox(const std::vector<ImVec2>& triPts, float r)
+{
+    const ImVec2&       c = triPts[0];
+    std::vector<ImVec2> circle(4);
+    circle[0] = ImVec2(c.x - r, c.y); //left
+    circle[1] = ImVec2(c.x, c.y + r); //bottom
+    circle[2] = ImVec2(c.x + r, c.y); //right
+    circle[3] = ImVec2(c.x, c.y - r); //top
+
+    circle.insert(circle.end(), triPts.begin(), triPts.end());
+    return calcBoundingBoxPts(circle);
+}
+
+std::vector<ImVec2> constructTrianglePts(const float angleDeg, const ImVec2& center, const float length, const float width)
+{
+    std::vector<ImVec2> triangle(3);
+    triangle[0] = ImVec2(center);                                    //root (point center)
+    triangle[1] = ImVec2(center.x + length, center.y + 0.5 * width); //bottom right
+    triangle[2] = ImVec2(center.x + length, center.y - 0.5 * width); //top right
+    return rotatePts(triangle, angleDeg, triangle[0]);
+}
+
+bool PoseShapeButton(const char*   label,
+                     const ImVec2& sizeArg,
+                     const float   circleRadius,
+                     const float   viewTriangleLength,
+                     const float   viewTriangleWidth,
+                     const float   viewAngleDeg,
+                     const ImVec4& colNormal,
+                     const ImVec4& colActive)
+{
+    ImGuiButtonFlags flags  = 0;
+    ImGuiWindow*     window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext&     g     = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID     id    = window->GetID(label);
+    //const ImVec2      label_size = ImGui::CalcTextSize(label, NULL, true);
+
+    ImVec2 pos = window->DC.CursorPos;
+    //construct pose icon
+    std::vector<ImVec2> rotTriPts = constructTrianglePts(viewAngleDeg, pos, viewTriangleLength, viewTriangleWidth);
+    ImRect              bb        = calcBoundingBox(rotTriPts, circleRadius);
+
+    //if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+    //    pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+    //ImVec2 size = ImGui::CalcItemSize(sizeArg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+    //const ImRect bb(pos, pos + size);
+    ImGui::ItemSize(bb.GetSize(), style.FramePadding.y);
+    if (!ImGui::ItemAdd(bb, id))
+        return false;
+
+    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
+        flags |= ImGuiButtonFlags_Repeat;
+    bool hovered, held;
+    bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+
+    // Render
+    const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+    ImGui::RenderNavHighlight(bb, id);
+    ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+    //RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+
+    //ImVec2 c(bb.Min.x, 0.5f * (bb.Max.y + bb.Min.y));
+    if (held && hovered)
+    {
+        //window->DrawList->AddTriangleFilled(c, bb.Max, ImVec2(bb.Max.x, bb.Min.y), ImGui::GetColorU32(colActive));
+        window->DrawList->AddTriangleFilled(rotTriPts[0], rotTriPts[1], rotTriPts[2], ImGui::GetColorU32(colActive));
+        window->DrawList->AddCircleFilled(pos, circleRadius, ImGui::GetColorU32(colActive));
+    }
+    else
+    {
+        //window->DrawList->AddTriangleFilled(c, bb.Max, ImVec2(bb.Max.x, bb.Min.y), ImGui::GetColorU32(colNormal));
+        window->DrawList->AddTriangleFilled(rotTriPts[0], rotTriPts[1], rotTriPts[2], ImGui::GetColorU32(colNormal));
+        window->DrawList->AddCircleFilled(pos, circleRadius, ImGui::GetColorU32(colNormal));
+    }
+
+    return pressed;
 }
 };
