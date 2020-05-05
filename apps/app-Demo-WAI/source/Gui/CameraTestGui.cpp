@@ -12,7 +12,8 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
                              int                 screenHeightPix,
                              std::string         fontPath,
                              SENSCamera*         camera)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(resources.fonts().atlas),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _camera(camera)
 {
@@ -249,5 +250,5 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw(_fontBig);
+    _resources.logWinDraw();
 }

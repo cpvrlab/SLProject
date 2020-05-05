@@ -1,10 +1,53 @@
 #include "Resources.h"
-
+#include <LogWindow.h>
 #include "opencv2/core/persistence.hpp"
+#include <sstream>
 
 namespace ErlebAR
 {
-Resources::Resources(int screenWidth, int screenHeight, std::string writableDir, std::string textureDir)
+Fonts::Fonts()
+{
+    atlas = new ImFontAtlas();
+}
+
+Fonts::~Fonts()
+{
+    if (atlas)
+        delete atlas;
+}
+
+void Fonts::load(std::string fontDir, const Style& style, int screenH)
+{
+    std::string ttf = fontDir + "Roboto-Medium.ttf";
+    if (Utils::fileExists(ttf))
+    {
+        //header bar font
+        float headerBarH     = style.headerBarPercH * (float)screenH;
+        float headerBarTextH = style.headerBarTextH * (float)headerBarH;
+        headerBar            = atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
+        //standard font
+        float standardTextH = style.textStandardH * (float)screenH;
+        standard            = atlas->AddFontFromFileTTF(ttf.c_str(), standardTextH);
+        //heading font
+        float headingTextH = style.textHeadingH * (float)screenH;
+        heading            = atlas->AddFontFromFileTTF(ttf.c_str(), headingTextH);
+        //tiny font
+        float tinyTextH = 0.035f * (float)screenH;
+        tiny            = atlas->AddFontFromFileTTF(ttf.c_str(), tinyTextH);
+    }
+    else
+    {
+        std ::stringstream ss;
+        ss << "Font does not exist: " << ttf;
+        Utils::exitMsg("Resources", ss.str().c_str(), __LINE__, __FILE__);
+    }
+}
+
+Resources::Resources(int         screenWidth,
+                     int         screenHeight,
+                     std::string writableDir,
+                     std::string textureDir,
+                     std::string fontDir)
   : _screenW(screenWidth),
     _screenH(screenHeight),
     _writableDir(writableDir)
@@ -14,6 +57,7 @@ Resources::Resources(int screenWidth, int screenHeight, std::string writableDir,
     //load textures
     textures.load(textureDir);
     //load fonts
+    _fonts.load(fontDir, _style, screenHeight);
 
     //definition of erlebar locations and areas
     _locations = ErlebAR::defineLocations();
@@ -113,12 +157,12 @@ void Resources::logWinUnInit()
         Utils::customLog.release();
 }
 
-void Resources::logWinDraw(ImFont* font)
+void Resources::logWinDraw()
 {
     if (Utils::customLog)
     {
         LogWindow* log = static_cast<LogWindow*>(Utils::customLog.get());
-        log->draw(font, "Log");
+        log->draw(fonts().tiny, fonts().standard, "Log");
     }
 }
 

@@ -12,7 +12,8 @@ WelcomeGui::WelcomeGui(ErlebAR::Resources& resources,
                        std::string         fontPath,
                        std::string         texturePath,
                        std::string         version)
-  : _versionStr(version),
+  : ImGuiWrapper(resources.fonts().atlas),
+    _versionStr(version),
     _resources(resources)
 {
     //load fonts for big ErlebAR text and verions text

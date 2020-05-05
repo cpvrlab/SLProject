@@ -1,4 +1,4 @@
-#include <AreaInfoGui.h>
+#include "AreaInfoGui.h"
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
@@ -11,7 +11,8 @@ AreaInfoGui::AreaInfoGui(sm::EventHandler&   eventHandler,
                          int                 screenWidthPix,
                          int                 screenHeightPix,
                          std::string         fontPath)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(resources.fonts().atlas),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
@@ -198,5 +199,5 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw(_fontSmall);
+    _resources.logWinDraw();
 }

@@ -26,24 +26,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Fonts
-//-----------------------------------------------------------------------------
-//class Fonts
-//{
-//public:
-//    void load(std::string fontDir)
-//    {
-//    }
-//    void free()
-//    {
-//    }
-//
-//private:
-//    //shared imgui font atlas
-//    //ImFontAtlas* fontAtlas = nullptr;
-//};
-
-//-----------------------------------------------------------------------------
 // App appearance
 //-----------------------------------------------------------------------------
 
@@ -143,6 +125,31 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// Fonts
+//-----------------------------------------------------------------------------
+/*!
+Every instance of ImGuiWrapper has its own imgui context. But we will share the
+fonts using a shared font atlas.
+*/
+class Fonts
+{
+public:
+    Fonts();
+    ~Fonts();
+
+    void load(std::string fontDir, const Style& style, int screenH);
+
+    ImFont* headerBar{nullptr}; //font in header bars
+    ImFont* standard{nullptr};  //e.g. about, widgets text
+    ImFont* heading{nullptr};   //e.g. heading above widgets, about headings
+    ImFont* big{nullptr};       //e.g. Welcome screen
+    ImFont* tiny{nullptr};      //e.g. log window
+
+    //shared imgui font atlas
+    ImFontAtlas* atlas{nullptr};
+};
+
+//-----------------------------------------------------------------------------
 // Strings (all visal text in four languages)
 //-----------------------------------------------------------------------------
 class Strings
@@ -209,7 +216,11 @@ public:
 class Resources
 {
 public:
-    Resources(int screenWidth, int screenHeight, std::string writableDir, std::string textureDir);
+    Resources(int         screenWidth,
+              int         screenHeight,
+              std::string writableDir,
+              std::string textureDir,
+              std::string fontDir);
     ~Resources();
 
     void setLanguageEnglish();
@@ -219,7 +230,7 @@ public:
 
     const Strings& strings() { return *_currStrings; }
     const Style&   style() { return _style; }
-    //const Fonts&   fonts() { return _fonts; }
+    const Fonts&   fonts() { return _fonts; }
 
     bool developerMode = false;
 
@@ -235,7 +246,7 @@ public:
     bool logWinEnabled = false;
     void logWinInit();
     void logWinUnInit();
-    void logWinDraw(ImFont* font);
+    void logWinDraw();
 
 private:
     void load(std::string resourceFileName);
@@ -244,7 +255,7 @@ private:
     Strings* _currStrings = &stringsEnglish;
 
     Style _style;
-    //Fonts _fonts;
+    Fonts _fonts;
 
     //initialized in function load()
     std::string _fileName;

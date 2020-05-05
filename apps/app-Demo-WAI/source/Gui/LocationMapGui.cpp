@@ -12,7 +12,8 @@ LocationMapGui::LocationMapGui(sm::EventHandler&   eventHandler,
                                int                 screenHeightPix,
                                std::string         fontPath,
                                std::string         erlebARDir)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(resources.fonts().atlas),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _erlebARDir(erlebARDir)
 {
@@ -146,7 +147,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw(_fontBig);
+    _resources.logWinDraw();
 }
 
 void LocationMapGui::initLocation(ErlebAR::LocationId locId)

@@ -20,9 +20,9 @@
 #include <imgui_internal.h>
 
 //-----------------------------------------------------------------------------
-ImGuiWrapper::ImGuiWrapper()
+ImGuiWrapper::ImGuiWrapper(ImFontAtlas* sharedFontAtlas)
 {
-    _context = ImGui::CreateContext();
+    _context = ImGui::CreateContext(sharedFontAtlas);
     createOpenGLObjects();
 }
 //-----------------------------------------------------------------------------

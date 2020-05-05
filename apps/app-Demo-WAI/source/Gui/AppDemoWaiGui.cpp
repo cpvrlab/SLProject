@@ -65,7 +65,8 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
                              std::function<SENSCamera*(void)>      getCameraCB,
                              std::function<CVCalibration*(void)>   getCalibrationCB,
                              std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
-  : sm::EventSender(eventHandler)
+  : ImGuiWrapper(nullptr),
+    sm::EventSender(eventHandler)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);

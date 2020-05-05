@@ -14,7 +14,8 @@ SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
                            int                 screenHeightPix,
                            std::string         fontPath,
                            std::string         texturePath)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(resources.fonts().atlas),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
@@ -215,5 +216,5 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     popStyle();
 
     //debug: draw log window
-    _resources.logWinDraw(_font);
+    _resources.logWinDraw();
 }

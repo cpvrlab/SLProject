@@ -158,7 +158,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     _resources = new ErlebAR::Resources(dd.scrWidth(),
                                         dd.scrHeight(),
                                         dd.dirs().writableDir,
-                                        dd.textureDir());
+                                        dd.textureDir(),
+                                        dd.fontDir());
 
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,

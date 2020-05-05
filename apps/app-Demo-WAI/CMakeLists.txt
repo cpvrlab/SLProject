@@ -19,6 +19,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventSender.h
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.h
+	${SL_PROJECT_ROOT}/apps/source/LogWindow.h
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
@@ -91,6 +92,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
+	${SL_PROJECT_ROOT}/apps/source/LogWindow.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp

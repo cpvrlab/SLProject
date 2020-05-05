@@ -12,7 +12,8 @@ AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
                                  int                        screenHeightPix,
                                  std::function<void(float)> transparencyChangedCB,
                                  std::string                fontPath)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(resources.fonts().atlas),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _transparencyChangedCB(transparencyChangedCB)
 {
@@ -130,7 +131,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw(_fontBig);
+    _resources.logWinDraw();
 }
 
 void AreaTrackingGui::initArea(ErlebAR::Area area)

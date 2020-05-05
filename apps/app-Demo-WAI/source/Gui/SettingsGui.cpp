@@ -11,7 +11,8 @@ SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
                          int                 screenWidthPix,
                          int                 screenHeightPix,
                          std::string         fontPath)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(resources.fonts().atlas),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
@@ -234,7 +235,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //debug: draw log window
-    _resources.logWinDraw(_fontSmall);
+    _resources.logWinDraw();
 }
 
 void SettingsGui::onShow()
