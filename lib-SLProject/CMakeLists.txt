@@ -6,7 +6,7 @@ set(target lib-SLProject)
 
 set(platform_specific_include_dirs)
 
-if (DEFINED ENV{CUDA_PATH})
+if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
     find_package(OptiX REQUIRED VERSION 7.0)
@@ -287,7 +287,6 @@ endif ()
 #==============================================================================
 
 if (DEFINED ENV{CUDA_PATH})
-
     message("Has-Optics: " "${OptiX_INCLUDE}")
 
     list(FIND CUDA_NVCC_FLAGS "-arch" index)

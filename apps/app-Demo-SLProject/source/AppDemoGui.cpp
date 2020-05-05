@@ -437,10 +437,10 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
+#if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
             else if (rType == RT_optix_rt)
             {
                 SLOptixRaytracer* rt = sv->optixRaytracer();
-
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
@@ -449,12 +449,12 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (rType == RT_optix_pt)
             {
                 SLOptixPathtracer* rt = sv->optixPathtracer();
-
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
                 sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", rt->denoiserMS());
             }
+#endif
             else if (rType == RT_pt)
             {
                 SLPathtracer* pt           = sv->pathtracer();
@@ -485,13 +485,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 // Get averages from average variables (see Averaged)
                 SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
                 SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
-                SLfloat detectTime     = CVTracked::detectTimesMS.average();
-                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
-                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
-                SLfloat matchTime      = CVTracked::matchTimesMS.average();
-                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
-                SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
                 SLfloat cullTime       = sv->cullTimesMS().average();
@@ -1674,12 +1667,17 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Path Tracing", nullptr, rType == RT_pt))
                 sv->startPathtracing(5, 10);
-			
+
+#if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
             if (ImGui::MenuItem("Ray Tracing with OptiX", nullptr, rType == RT_optix_rt))
                 sv->startOptixRaytracing(5);
 
             if (ImGui::MenuItem("Path Tracing with OptiX", nullptr, rType == RT_optix_pt))
                 sv->startOptixPathtracing(5, 10);
+#else
+            ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);
+            ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
+#endif
 			
 #if defined(GL_VERSION_4_4)
             if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
@@ -2832,6 +2830,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showInfosSensors = false;
         AppDemoGui::showSceneGraph   = false;
         AppDemoGui::showProperties   = false;
+        AppDemoGui::showDockSpace    = true;
 
         // Adjust UI padding on DPI
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);

@@ -1443,13 +1443,11 @@ is used for the trackball camera animation.
 */
 SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
 {
-    SLVec3f vec;
-
     //Calculate x & y component to the virtual unit sphere
     SLfloat r = (SLfloat)(_viewportW < _viewportH ? _viewportW / 2 : _viewportH / 2) * _trackballSize;
 
-    vec.x = (SLfloat)(x - _viewportW * 0.5f) / r;
-    vec.y = -(SLfloat)(y - _viewportH * 0.5f) / r;
+    SLVec3f vec((SLfloat)(x - _viewportW * 0.5f) / r,
+                -(SLfloat)(y - _viewportH * 0.5f) / r);
 
     // d = length of vector x,y
     SLfloat d = sqrt(vec.x * vec.x + vec.y * vec.y);
