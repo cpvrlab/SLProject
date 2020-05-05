@@ -42,6 +42,15 @@ class TestRunnerView : protected SLSceneView
         float ratio;
     };
 
+    struct TestInstance
+    {
+        std::string location;
+        std::string area;
+        std::string video;
+        std::string map;
+        std::string calibration;
+    };
+
 public:
     enum TestMode
     {
@@ -57,6 +66,7 @@ public:
                    int               dotsPerInch,
                    std::string       erlebARDir,
                    std::string       calibDir,
+                   std::string       fontPath,
                    std::string       configFile,
                    std::string       vocabularyFile,
                    std::string       imguiIniPath);
@@ -67,7 +77,7 @@ public:
 
     // getters
     // TODO(dgj1): make these save to use
-    std::string videoName() { return _videoName; }
+    std::string videoName() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].video : ""; }
     int         currentFrameIndex() { return _currentFrameIndex; }
     int         frameIndex() { return _frameCount; }
 
@@ -96,9 +106,10 @@ private:
                                              ExtractorType  extractorType,
                                              int            framerate = 0);
 
-    ErlebARTestSet loadSites(const std::string& erlebARDir,
-                             const std::string& configFile,
-                             const std::string& calibrationsDir);
+    bool loadSites(const std::string&         erlebARDir,
+                   const std::string&         configFile,
+                   const std::string&         calibrationsDir,
+                   std::vector<TestInstance>& testInstances);
 
     TestRunnerGui _gui;
 
@@ -110,18 +121,13 @@ private:
     std::string   _vocFile;
     ExtractorType _extractorType;
 
-    ErlebARTestSet _erlebARTestSet;
+    ErlebARTestSet            _erlebARTestSet;
+    std::vector<TestInstance> _testInstances;
 
     // iterators
-    ErlebARTestSet::iterator _locationIterator;
-    ErlebARTestSet::iterator _locationIteratorEnd;
-    AreaMap::iterator        _areaIterator;
-    AreaMap::iterator        _areaIteratorEnd;
-    TestDataVector::iterator _testIterator;
-    TestDataVector::iterator _testIteratorEnd;
+    int _currentTestIndex;
 
     // Current test
-    std::string                  _videoName;
     int                          _frameCount;
     bool                         _testStarted = false;
     bool                         _testsDone   = false;
@@ -130,6 +136,7 @@ private:
     int                          _relocalizationFrameCount;
     int                          _currentFrameIndex;
     WAIMap*                      _map;
+    CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
 
     std::string testResults;
 

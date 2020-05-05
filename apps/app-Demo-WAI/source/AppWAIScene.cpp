@@ -95,9 +95,15 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         if (area == "templeHill-marker")
         {
             SLAssimpImporter importer;
+            std::string      augmentationFile = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+            // TODO(dgj1): this is a hack for android... fix it better
+            if (!Utils::fileExists(augmentationFile))
+            {
+                augmentationFile = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+            }
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                             augmentationFile,
                                              true,
                                              nullptr,
                                              0.4f);

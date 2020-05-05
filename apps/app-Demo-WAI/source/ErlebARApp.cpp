@@ -194,7 +194,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry)
                                          dd.dpi(),
                                          dd.dirs().writableDir + "erleb-AR/",
                                          dd.dirs().writableDir + "calibrations/",
-                                         dd.dirs().slDataRoot + "/../apps/app-Test-WAI/TesterConfig.json",
+                                         dd.fontDir(),
+                                         dd.dirs().slDataRoot + "/config/TesterConfig.json",
                                          dd.dirs().vocabularyDir + "/ORBvoc.bin",
                                          dd.dirs().writableDir);
 

@@ -122,6 +122,9 @@ unsigned int getFileSize(const string& filename);
 //! Creates a directory with given path
 bool makeDir(const string& path);
 
+//! Creates a directory with given path recursively
+bool makeDirRecurse(string path);
+
 //! RemoveDir deletes a directory with given path
 void removeDir(const string& path);
 
@@ -146,12 +149,12 @@ void dumpFileSystemRec(const char*   logtag,
 string findFile(const string&         filename,
                 const vector<string>& pathsToCheck);
 
-  ///////////////////////
-  // Logging Functions //
-  ///////////////////////
-  //! FileLog Instance for logging to logfile. If it is instantiated the logging methods
-  //! will also output into this file. Instantiate it with initFileLog function.
-  static std::unique_ptr<FileLog> fileLog;
+///////////////////////
+// Logging Functions //
+///////////////////////
+//! FileLog Instance for logging to logfile. If it is instantiated the logging methods
+//! will also output into this file. Instantiate it with initFileLog function.
+static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
 

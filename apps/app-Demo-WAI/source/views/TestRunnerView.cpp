@@ -3,6 +3,7 @@
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <Utils.h>
+#include <FtpUtils.h>
 
 TestRunnerView::TestRunnerView(sm::EventHandler& eventHandler,
                                SLInputManager&   inputManager,
@@ -11,11 +12,12 @@ TestRunnerView::TestRunnerView(sm::EventHandler& eventHandler,
                                int               dotsPerInch,
                                std::string       erlebARDir,
                                std::string       calibDir,
+                               std::string       fontPath,
                                std::string       configFile,
                                std::string       vocabularyFile,
                                std::string       imguiIniPath)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
-    _gui(eventHandler),
+    _gui(eventHandler, dotsPerInch, fontPath),
     _scene("TestRunnerScene", nullptr),
     _testMode(TestMode_None),
     _erlebARDir(erlebARDir),
@@ -30,20 +32,21 @@ TestRunnerView::TestRunnerView(sm::EventHandler& eventHandler,
 bool TestRunnerView::start(TestMode      testMode,
                            ExtractorType extractorType)
 {
-    _erlebARTestSet      = loadSites(_erlebARDir, _configFile, _calibDir);
-    _locationIterator    = _erlebARTestSet.begin();
-    _locationIteratorEnd = _erlebARTestSet.end();
-    _areaIterator        = _locationIterator->second.begin();
-    _areaIteratorEnd     = _locationIterator->second.end();
-    _testIterator        = _areaIterator->second.begin();
-    _testIteratorEnd     = _areaIterator->second.end();
+    bool result = false;
 
-    _testsDone   = false;
-    _testStarted = true;
+    if (loadSites(_erlebARDir, _configFile, _calibDir, _testInstances))
+    {
+        _currentTestIndex = 0;
 
-    _extractorType = extractorType;
+        _testsDone   = false;
+        _testStarted = true;
 
-    return true;
+        _extractorType = extractorType;
+
+        result = true;
+    }
+
+    return result;
 }
 
 bool TestRunnerView::update()
@@ -53,8 +56,8 @@ bool TestRunnerView::update()
         SENSFramePtr sensFrame;
         if (_vStream && (sensFrame = _vStream->grabNextFrame()))
         {
-            cv::Mat intrinsic  = _testIterator->calibration.cameraMat();
-            cv::Mat distortion = _testIterator->calibration.distortion();
+            cv::Mat intrinsic  = _calibration.cameraMat();
+            cv::Mat distortion = _calibration.distortion();
 
             WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgGray,
                                              0.0f,
@@ -75,95 +78,205 @@ bool TestRunnerView::update()
             }
 
             _currentFrameIndex++;
-
-            if (_currentFrameIndex == _frameCount)
+        }
+        else
+        {
+            if (_vStream)
             {
+                TestRunnerView::TestInstance currentTest = _testInstances[_currentTestIndex];
+
                 testResults +=
-                  _locationIterator->first + ";" +
-                  _testIterator->videoFile + ";" +
-                  _testIterator->mapFile + ";" +
+                  currentTest.location + ";" +
+                  currentTest.area + ";" +
+                  currentTest.video + ";" +
+                  currentTest.map + ";" +
                   std::to_string(_frameCount) + ";" +
                   std::to_string(_relocalizationFrameCount) + ";" +
                   std::to_string(_relocalizationFrameCount / _frameCount) + "\n";
 
-                _testIterator++;
+                _currentTestIndex++;
             }
-        }
-        else
-        {
-            if (_testIterator == _testIteratorEnd)
+
+            if (_currentTestIndex == _testInstances.size())
             {
-                _areaIterator++;
+                // done with current tests
+                _testStarted = false;
+                _testsDone   = true;
 
-                if (_areaIterator == _areaIteratorEnd)
+                std::string resultDir = _erlebARDir + "TestRunner/";
+                if (!Utils::dirExists(resultDir))
+                    Utils::makeDirRecurse(resultDir);
+
+                // save results in file
+                std::string resultFileName = Utils::getDateTime2String() + "_results.csv";
+                std::string resultFile     = resultDir + resultFileName;
+
+                std::ofstream f;
+                f.open(resultFile, std::ofstream::out);
+
+                if (!f.is_open())
                 {
-                    _locationIterator++;
+                    Utils::log("WAI", "TestRunner::update: Could not open result file %s", resultFile.c_str());
+                    return false;
+                }
 
-                    if (_locationIterator == _locationIteratorEnd)
+                f << testResults;
+
+                f.flush();
+                f.close();
+
+                // upload results to pallas
+                const std::string ftpHost = "pallas.bfh.ch:21";
+                const std::string ftpUser = "upload";
+                const std::string ftpPwd  = "FaAdbD3F2a";
+                const std::string ftpDir  = "erleb-AR/TestRunner/";
+
+                std::string errorMsg;
+                if (!FtpUtils::uploadFile(resultDir,
+                                          resultFileName,
+                                          ftpHost,
+                                          ftpUser,
+                                          ftpPwd,
+                                          ftpDir,
+                                          errorMsg))
+                {
+                    Utils::log("WAI", "TestRunner::update: Could not upload results file to pallas %s", errorMsg.c_str());
+                }
+            }
+            else
+            {
+                const std::string ftpHost = "pallas.bfh.ch:21";
+                const std::string ftpUser = "upload";
+                const std::string ftpPwd  = "FaAdbD3F2a";
+                const std::string ftpDir  = "erleb-AR/";
+
+                bool instanceFound = false;
+                while (_currentTestIndex < _testInstances.size() && !instanceFound)
+                {
+                    // download files for next test instance
+                    TestRunnerView::TestInstance testInstance    = _testInstances[_currentTestIndex];
+                    std::string                  testInstanceDir = "locations/" +
+                                                  testInstance.location + "/" +
+                                                  testInstance.area + "/";
+
+                    std::string mapDir  = testInstanceDir + "maps/";
+                    std::string mapFile = _erlebARDir + mapDir + testInstance.map;
+
+                    if (!fileExists(mapFile))
                     {
-                        // done with current tests
-                        _testStarted = false;
-                        _testsDone   = true;
-
-                        std::string resultDir = _erlebARDir + "TestRunner/";
-                        if (!Utils::dirExists(resultDir))
-                            Utils::makeDir(resultDir);
-
-                        // save results in file
-                        std::string resultFile = resultDir + "results.csv";
-
-                        std::ofstream f;
-                        f.open(resultFile, std::ofstream::out);
-
-                        if (!f.is_open())
+                        std::string errorMsg;
+                        Utils::makeDirRecurse(_erlebARDir + mapDir);
+                        if (!FtpUtils::downloadFile(_erlebARDir + mapDir,
+                                                    testInstance.map,
+                                                    ftpHost,
+                                                    ftpUser,
+                                                    ftpPwd,
+                                                    ftpDir + mapDir,
+                                                    errorMsg))
                         {
-                            throw std::runtime_error("Could not open file" + resultFile);
+                            Utils::log("WAI", "TestRunner::loadSites: Failed to load map file %s: %s", testInstance.map.c_str(), errorMsg.c_str());
+                            _currentTestIndex++;
+                            continue;
                         }
+                    }
 
-                        f << testResults;
+                    std::string videoDir  = testInstanceDir + "videos/";
+                    std::string videoFile = _erlebARDir + videoDir + testInstance.video;
+                    if (!fileExists(videoFile))
+                    {
+                        std::string errorMsg;
+                        Utils::makeDirRecurse(_erlebARDir + videoDir);
+                        if (!FtpUtils::downloadFile(_erlebARDir + videoDir,
+                                                    testInstance.video,
+                                                    ftpHost,
+                                                    ftpUser,
+                                                    ftpPwd,
+                                                    ftpDir + videoDir,
+                                                    errorMsg))
+                        {
+                            Utils::log("WAI", "TestRunner::loadSites: Failed to load video file %s: %s", testInstance.video.c_str(), errorMsg.c_str());
+                            _currentTestIndex++;
+                            continue;
+                        }
+                    }
 
-                        f.flush();
-                        f.close();
+                    std::string calibrationFile = _calibDir + testInstance.calibration;
+                    if (!Utils::fileExists(calibrationFile))
+                    {
+                        std::string errorMsg;
+                        if (!FtpUtils::downloadFile(_calibDir,
+                                                    testInstance.calibration,
+                                                    ftpHost,
+                                                    ftpUser,
+                                                    ftpPwd,
+                                                    ftpDir + "calibrations/",
+                                                    errorMsg))
+                        {
+                            Utils::log("WAI", "TestRunner::loadSites: Calibration file does not exist %s: %s", calibrationFile.c_str(), errorMsg.c_str());
+                            _currentTestIndex++;
+                            continue;
+                        }
+                    }
+
+                    //load calibration file and check for aspect ratio
+                    if (!_calibration.load(_calibDir, testInstance.calibration, true))
+                    {
+                        Utils::log("WAI", "TestRunner::loadSites: Could not load calibration file: %s", calibrationFile.c_str());
+                        _currentTestIndex++;
+                        continue;
+                    }
+
+                    SlamVideoInfos slamVideoInfos;
+                    if (!extractSlamVideoInfosFromFileName(testInstance.video, &slamVideoInfos))
+                    {
+                        Utils::log("WAI", "TestRunner::loadSites: Could not extract slam video infos: %s", video.c_str());
+                        _currentTestIndex++;
+                        continue;
+                    }
+
+                    std::vector<std::string> size;
+                    Utils::splitString(slamVideoInfos.resolution, 'x', size);
+                    if (size.size() == 2)
+                    {
+                        int width  = std::stoi(size[0]);
+                        int height = std::stoi(size[1]);
+                        if (_calibration.imageSize().width != width ||
+                            _calibration.imageSize().height != height)
+                        {
+                            _calibration.adaptForNewResolution(CVSize(width, height), true);
+                        }
                     }
                     else
                     {
-                        _areaIterator    = _locationIterator->second.begin();
-                        _areaIteratorEnd = _locationIterator->second.end();
-                        _testIterator    = _areaIterator->second.begin();
-                        _testIteratorEnd = _areaIterator->second.end();
+                        Utils::log("WAI", "TestRunner::loadSites: Could not adapt calibration resolution");
+                        _currentTestIndex++;
+                        continue;
                     }
+
+                    WAIFrame::mbInitialComputations = true;
+
+                    WAIOrbVocabulary::initialize(_vocFile);
+                    ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
+                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*orbVoc);
+
+                    _map = new WAIMap(keyFrameDB);
+                    WAIMapStorage::loadMap(_map, nullptr, orbVoc, mapFile, false, true);
+
+                    if (_vStream)
+                        delete _vStream;
+
+                    _vStream = new SENSVideoStream(videoFile, false, false, false);
+
+                    CVSize2i videoSize       = _vStream->getFrameSize();
+                    float    widthOverHeight = (float)videoSize.width / (float)videoSize.height;
+                    _extractor               = _featureExtractorFactory.make(_extractorType, {videoSize.width, videoSize.height});
+
+                    _frameCount               = _vStream->frameCount();
+                    _currentFrameIndex        = 0;
+                    _relocalizationFrameCount = 0;
+
+                    instanceFound = true;
                 }
-                else
-                {
-                    _testIterator    = _areaIterator->second.begin();
-                    _testIteratorEnd = _areaIterator->second.end();
-                }
-            }
-
-            if (_testIterator != _testIteratorEnd)
-            {
-                WAIFrame::mbInitialComputations = true;
-
-                WAIOrbVocabulary::initialize(_vocFile);
-                ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
-                WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*orbVoc);
-
-                _map = new WAIMap(keyFrameDB);
-                WAIMapStorage::loadMap(_map, nullptr, orbVoc, _testIterator->mapFile, false, true);
-
-                if (_vStream)
-                    delete _vStream;
-
-                _vStream = new SENSVideoStream(_testIterator->videoFile, false, false, false);
-
-                CVSize2i videoSize       = _vStream->getFrameSize();
-                float    widthOverHeight = (float)videoSize.width / (float)videoSize.height;
-                _extractor               = _featureExtractorFactory.make(_extractorType, {videoSize.width, videoSize.height});
-
-                _videoName                = _testIterator->videoFile;
-                _frameCount               = _vStream->frameCount();
-                _currentFrameIndex        = 0;
-                _relocalizationFrameCount = 0;
             }
         }
     }
@@ -425,134 +538,182 @@ TestRunnerView::TrackingTestResult TestRunnerView::runTrackingTest(std::string  
     return result;
 }
 
-TestRunnerView::ErlebARTestSet TestRunnerView::loadSites(const std::string& erlebARDir,
-                                                         const std::string& configFile,
-                                                         const std::string& calibrationsDir)
+bool TestRunnerView::loadSites(const std::string&         erlebARDir,
+                               const std::string&         configFile,
+                               const std::string&         calibrationsDir,
+                               std::vector<TestInstance>& testInstances)
 {
-    try
+    Utils::log("debug", "TestRunnerView::loadSites");
+    //parse config file
+    cv::FileStorage fs;
+    Utils::log("debug", "TestRunnerView::loadSites: erlebBarDir %s", erlebARDir.c_str());
+    Utils::log("debug", "TestRunnerView::loadSites: configFile %s", configFile.c_str());
+
+    fs.open(configFile, cv::FileStorage::READ);
+    if (!fs.isOpened())
     {
-        ErlebARTestSet result;
+        Utils::log("Error", "TestRunner::loadSites: Could not open configFile: %s", configFile.c_str());
+        return false;
+    }
 
-        Utils::log("debug", "TestRunnerView::loadSites");
-        //parse config file
-        cv::FileStorage fs;
-        Utils::log("debug", "TestRunnerView::loadSites: erlebBarDir %s", erlebARDir.c_str());
-        Utils::log("debug", "TestRunnerView::loadSites: configFile %s", configFile.c_str());
+    //helper for areas that have been enabled
+    //std::set<std::string> enabledAreas;
 
-        fs.open(configFile, cv::FileStorage::READ);
-        if (!fs.isOpened())
-            throw std::runtime_error("TestRunnerView::loadSites: Could not open configFile: " + configFile);
+    //std::string erlebARDirUnified = Utils::unifySlashes(erlebARDir);
 
-        //helper for areas that have been enabled
-        std::set<std::string> enabledAreas;
-
-        std::string erlebARDirUnified = Utils::unifySlashes(erlebARDir);
-
-        //setup for enabled areas
-        cv::FileNode locsNode = fs["locationsEnabling"];
-        for (auto itLocs = locsNode.begin(); itLocs != locsNode.end(); ++itLocs)
+    //setup for enabled areas
+    cv::FileNode locsNode = fs["locations"];
+    for (auto itLocs = locsNode.begin(); itLocs != locsNode.end(); itLocs++)
+    {
+        cv::FileNode areasNode = (*itLocs)["areas"];
+        for (auto itAreas = areasNode.begin(); itAreas != areasNode.end(); itAreas++)
         {
-            std::string  location  = (*itLocs)["location"];
-            cv::FileNode areasNode = (*itLocs)["areas"];
-            AreaMap      areas;
-            for (auto itAreas = areasNode.begin(); itAreas != areasNode.end(); ++itAreas)
+            cv::FileNode videosNode = (*itAreas)["videos"];
+            for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); itVideos++)
             {
-                std::string area    = (*itAreas)["area"];
-                bool        enabled = false;
-                (*itAreas)["enabled"] >> enabled;
-                if (enabled)
-                {
-                    Utils::log("debug", "Tester::loadSites: enabling %s %s", location.c_str(), area.c_str());
-                    AreaMap&       areas = result[location];
-                    TestDataVector datas = TestDataVector();
+                std::string location = (*itLocs)["location"];
+                std::string area     = (*itAreas)["area"];
+                std::string map      = (*itAreas)["map"];
+                std::string video    = *itVideos;
 
-                    //insert empty Videos vector
-                    areas.insert(std::pair<std::string, TestDataVector>(area, datas));
-                    enabledAreas.insert(area);
+                TestInstance testInstance;
+                testInstance.location = location;
+                testInstance.area     = area;
+                testInstance.map      = map;
+                testInstance.video    = video;
+
+                SlamVideoInfos slamVideoInfos;
+                if (!extractSlamVideoInfosFromFileName(video, &slamVideoInfos))
+                {
+                    Utils::log("Error", "TestRunner::loadSites: Could not extract slam video infos: %s", video.c_str());
+                    return false;
+                }
+
+                testInstance.calibration = "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
+
+                testInstances.push_back(testInstance);
+            }
+        }
+    }
+
+    return true;
+
+#if 0
+    const std::string ftpHost = "pallas.bfh.ch:21";
+    const std::string ftpUser = "upload";
+    const std::string ftpPwd  = "FaAdbD3F2a";
+    const std::string ftpDir  = "erleb-AR/";
+
+    //try to find corresponding files in sites directory and add full file paths to _sites
+    cv::FileNode videoAreasNode = fs["mappingVideos"];
+    for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
+    {
+        std::string  location  = (*itVideoAreas)["location"];
+        cv::FileNode areasNode = (*itVideoAreas)["area"];
+        std::string  area;
+        std::string  map;
+        std::string  mapFile;
+        std::string  mapDir;
+        areasNode["name"] >> area;
+
+        if (enabledAreas.find(area) != enabledAreas.end())
+        {
+            areasNode["map"] >> map;
+            mapDir  = "locations/" + location + "/" + area + "/" + "maps/";
+            mapFile = erlebARDirUnified + mapDir + map;
+            if (!Utils::fileExists(erlebARDirUnified + mapDir + map))
+            {
+                std::string errorMsg;
+                Utils::makeDirRecurse(erlebARDirUnified + mapDir);
+                if (!FtpUtils::downloadFile(erlebARDirUnified + mapDir,
+                                            map,
+                                            ftpHost,
+                                            ftpUser,
+                                            ftpPwd,
+                                            ftpDir + mapDir,
+                                            errorMsg))
+                {
+                    Utils::log("Error", "TestRunner::loadSites: Failed to load map file: %s", errorMsg.c_str());
+                    return false;
+                }
+            }
+
+            cv::FileNode videosNode = (*itVideoAreas)["videos"];
+            for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
+            {
+                //check if this is enabled
+                std::string video = *itVideos;
+                TestData    testData;
+                std::string videoDir  = "locations/" + location + "/" + area + "/" + "videos/";
+                std::string videoFile = erlebARDirUnified + videoDir + video;
+                testData.videoFile    = videoFile;
+                testData.mapFile      = mapFile;
+
+                if (!Utils::fileExists(testData.videoFile))
+                {
+                    std::string errorMsg;
+                    if (!FtpUtils::downloadFile(erlebARDirUnified + videoDir,
+                                                video,
+                                                ftpHost,
+                                                ftpUser,
+                                                ftpPwd,
+                                                ftpDir + videoDir,
+                                                errorMsg))
+                    {
+                        Utils::log("Error", "TestRunner::loadSites: Failed to load video file: %s", errorMsg.c_str());
+                        return false;
+                    }
+                }
+
+                //check if calibration file exists
+                SlamVideoInfos slamVideoInfos;
+
+                if (!extractSlamVideoInfosFromFileName(video, &slamVideoInfos))
+                {
+                    Utils::log("Error", "TestRunner::loadSites: Could not extract slam video infos: %s", video.c_str());
+                    return false;
+                }
+
+                // construct calibrations file name and check if it exists
+                std::string calibFile = "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
+
+                //videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
+                if (!Utils::fileExists(calibrationsDir + calibFile))
+                {
+                    Utils::log("Error", "TestRunner::loadSites: Calibration file does not exist: %s", (calibrationsDir + calibFile).c_str());
+                    return false;
+                }
+
+                //load calibration file and check for aspect ratio
+                if (!testData.calibration.load(calibrationsDir, calibFile, true))
+                {
+                    Utils::log("Error", "TestRunner::loadSites: Could not load calibration file: %s", (calibrationsDir + calibFile).c_str());
+                    return false;
+                }
+
+                std::vector<std::string> size;
+                Utils::splitString(slamVideoInfos.resolution, 'x', size);
+                if (size.size() == 2)
+                {
+                    int width  = std::stoi(size[0]);
+                    int height = std::stoi(size[1]);
+                    if (testData.calibration.imageSize().width != width ||
+                        testData.calibration.imageSize().height != height)
+                    {
+                        testData.calibration.adaptForNewResolution(CVSize(width, height), true);
+
+                        //add video to videos vector
+                        erlebARTestSet[location][area].push_back(testData);
+                    }
+                }
+                else
+                {
+                    Utils::log("Error", "TestRunner::loadSites: Could not estimate resolution string: %s", calibFile.c_str());
+                    return false;
                 }
             }
         }
-
-        //try to find corresponding files in sites directory and add full file paths to _sites
-        cv::FileNode videoAreasNode = fs["mappingVideos"];
-        for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
-        {
-            std::string  location  = (*itVideoAreas)["location"];
-            cv::FileNode areasNode = (*itVideoAreas)["area"];
-            std::string  area;
-            std::string  map;
-            std::string  mapFile;
-            areasNode["name"] >> area;
-
-            if (enabledAreas.find(area) != enabledAreas.end())
-            {
-                areasNode["map"] >> map;
-                mapFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "maps/" + map;
-                if (!Utils::fileExists(mapFile))
-                    throw std::runtime_error("Tester::loadSites: Map file does not exist: " + mapFile);
-
-                cv::FileNode videosNode = (*itVideoAreas)["videos"];
-                for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
-                {
-                    //check if this is enabled
-                    std::string name = *itVideos;
-                    TestData    testData;
-                    testData.videoFile = erlebARDirUnified + "locations/" + location + "/" + area + "/" + "videos/" + name;
-                    testData.mapFile   = mapFile;
-
-                    if (!Utils::fileExists(testData.videoFile))
-                        throw std::runtime_error("Tester::loadSites: Video file does not exist: " + testData.videoFile);
-
-                    //check if calibration file exists
-                    SlamVideoInfos slamVideoInfos;
-
-                    if (!extractSlamVideoInfosFromFileName(name, &slamVideoInfos))
-                        throw std::runtime_error("Tester::loadSites: Could not extract slam video infos: " + name);
-
-                    // construct calibrations file name and check if it exists
-                    std::string calibFile = "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
-
-                    //videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
-                    if (!Utils::fileExists(calibrationsDir + calibFile))
-                        throw std::runtime_error("Tester::loadSites: Calibration file does not exist: " + calibrationsDir + calibFile);
-
-                    //load calibration file and check for aspect ratio
-                    if (!testData.calibration.load(calibrationsDir, calibFile, true))
-                        throw std::runtime_error("Tester::loadSites: Could not load calibration file: " + calibrationsDir + calibFile);
-
-                    std::vector<std::string> size;
-                    Utils::splitString(slamVideoInfos.resolution, 'x', size);
-                    if (size.size() == 2)
-                    {
-                        int width  = std::stoi(size[0]);
-                        int height = std::stoi(size[1]);
-                        if (testData.calibration.imageSize().width != width ||
-                            testData.calibration.imageSize().height != height)
-                        {
-                            testData.calibration.adaptForNewResolution(CVSize(width, height), true);
-
-                            //throw std::runtime_error("Resolutions of video and calibration do not fit together. Using: " + calibFile + " and " + name);
-                        }
-                    }
-                    else
-                    {
-                        throw std::runtime_error("Tester::loadSites: Could not estimate resolution string: " + calibFile);
-                    }
-
-                    //add video to videos vector
-                    result[location][area].push_back(testData);
-                }
-            }
-        }
-
-        return result;
     }
-    catch (std::exception& e)
-    {
-        throw std::runtime_error("Exception in Tester::loadSites: " + std::string(e.what()));
-    }
-    catch (...)
-    {
-        throw std::runtime_error("Unknown exception catched in Tester::loadSites!");
-    }
+#endif
+    return true;
 }

@@ -8,9 +8,15 @@ class TestRunnerGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    TestRunnerGui(sm::EventHandler& eventHandler);
+    TestRunnerGui(sm::EventHandler& eventHandler,
+                  int               dotsPerInch,
+                  std::string       fontPath);
 
     void build(SLScene* s, SLSceneView* sv) override;
+
+private:
+    ImFont* _fontPropDots = nullptr;
+    int     _dpi;
 };
 
 #endif
