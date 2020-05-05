@@ -41,7 +41,7 @@ class SLOptixPathtracer : public SLOptixRaytracer
     void setDenoiserEnabled(SLbool denoiserEnabled) { _denoiserEnabled = denoiserEnabled; }
     void samples(SLint samples) { _samples = samples; }
 
-    SLfloat   denoiserMS() const { return _denoiserMS; }
+    SLfloat denoiserMS() const { return _denoiserMS; }
 
     protected:
     SLint                     _samples;

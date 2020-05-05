@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLOptixDefinitions.h
+//  File:      SLOptixAccelStruct.h
 //  Author:    Nic Dorner
 //  Date:      October 2019
 //  Copyright: Nic Dorner
@@ -8,21 +8,21 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    ifndef SLOPTIXACCELERATIONSTRUCTURE_H
-#        define SLOPTIXACCELERATIONSTRUCTURE_H
+#    ifndef SLOPTIXACCELSTRUCT_H
+#        define SLOPTIXACCELSTRUCT_H
 #        include <optix_types.h>
 #        include <SLCudaBuffer.h>
 
 //------------------------------------------------------------------------------
-class SLOptixAccelerationStructure
+class SLOptixAccelStruct
 {
-    public:
-    SLOptixAccelerationStructure();
-    ~SLOptixAccelerationStructure();
+public:
+    SLOptixAccelStruct();
+    ~SLOptixAccelStruct();
 
     OptixTraversableHandle optixTraversableHandle() { return _handle; }
 
-    protected:
+protected:
     void buildAccelerationStructure();
     void updateAccelerationStructure();
 
@@ -33,5 +33,5 @@ class SLOptixAccelerationStructure
     SLCudaBuffer<void>*    _buffer;
 };
 //------------------------------------------------------------------------------
-#    endif // SLOPTIXACCELERATIONSTRUCTURE_H
+#    endif // SLOPTIXACCELSTRUCT_H
 #endif     // SL_HAS_OPTIX

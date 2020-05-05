@@ -15,7 +15,6 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
-#include <HighResTimer.h>
 #include <atomic>
 #include <mutex>
 #include <map>
@@ -87,12 +86,6 @@ public:
     static const string CALIB_FTP_USER; //!< ftp login user for calibration up and download
     static const string CALIB_FTP_PWD;  //!< ftp login pwd for calibration up and download
     static const string CALIB_FTP_DIR;  //!< ftp directory for calibration up and download
-
-#ifdef SL_HAS_OPTIX
-    static void               createOptixContext();
-    static OptixDeviceContext context;
-    static CUstream           stream;
-#endif
 
 private:
     static string      _jobProgressMsg; //!< Text message to show during progress

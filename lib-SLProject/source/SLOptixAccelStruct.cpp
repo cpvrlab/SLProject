@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLOptixAccelerationStructure.cpp
+//  File:      SLOptixAccelStruct.cpp
 //  Author:    Nic Dorner
 //  Date:      October 2019
 //  Copyright: Nic Dorner
@@ -8,11 +8,11 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    include <SLOptixAccelerationStructure.h>
-#    include <SL/SLApplication.h>
+#    include <SLOptixAccelStruct.h>
+#    include <SLOptixRaytracer.h>
 
 //-----------------------------------------------------------------------------
-SLOptixAccelerationStructure::SLOptixAccelerationStructure()
+SLOptixAccelStruct::SLOptixAccelStruct()
 {
     _accelBuildOptions.buildFlags = OPTIX_BUILD_FLAG_ALLOW_UPDATE |
                                     OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS |
@@ -20,14 +20,14 @@ SLOptixAccelerationStructure::SLOptixAccelerationStructure()
     _buffer = new SLCudaBuffer<void>();
 }
 //-----------------------------------------------------------------------------
-SLOptixAccelerationStructure::~SLOptixAccelerationStructure()
+SLOptixAccelStruct::~SLOptixAccelStruct()
 {
     delete _buffer;
 }
 //-----------------------------------------------------------------------------
-void SLOptixAccelerationStructure::buildAccelerationStructure()
+void SLOptixAccelStruct::buildAccelerationStructure()
 {
-    OptixDeviceContext context = SLApplication::context;
+    OptixDeviceContext context = SLOptixRaytracer::context;
 
     _accelBuildOptions.operation = OPTIX_BUILD_OPERATION_BUILD;
 
@@ -56,7 +56,7 @@ void SLOptixAccelerationStructure::buildAccelerationStructure()
 
     OPTIX_CHECK(optixAccelBuild(
       context,
-      SLApplication::stream, // CUDA stream
+      SLOptixRaytracer::stream, // CUDA stream
       &_accelBuildOptions,
       &_buildInput,
       1, // num build inputs
@@ -68,15 +68,15 @@ void SLOptixAccelerationStructure::buildAccelerationStructure()
       emitProperty, // emitted property list
       1             // num emitted properties
       ));
-    CUDA_SYNC_CHECK(SLApplication::stream);
+    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
 
     OptixAabb aabb;
     aabbBuffer.download(&aabb);
 }
 //-----------------------------------------------------------------------------
-void SLOptixAccelerationStructure::updateAccelerationStructure()
+void SLOptixAccelStruct::updateAccelerationStructure()
 {
-    OptixDeviceContext context = SLApplication::context;
+    OptixDeviceContext context = SLOptixRaytracer::context;
 
     _accelBuildOptions.operation = OPTIX_BUILD_OPERATION_UPDATE;
 
@@ -85,7 +85,7 @@ void SLOptixAccelerationStructure::updateAccelerationStructure()
 
     OPTIX_CHECK(optixAccelBuild(
       context,
-      SLApplication::stream, // CUDA stream
+      SLOptixRaytracer::stream, // CUDA stream
       &_accelBuildOptions,
       &_buildInput,
       1, // num build inputs

@@ -9,8 +9,8 @@
 
 #ifdef SL_HAS_OPTIX
 #    include <stdafx.h> // Must be the 1st include followed by  an empty line
-#    include <SLProjectScene.h>
 #    include <SLApplication.h>
+#    include <SLProjectScene.h>
 #    include <SLLightRect.h>
 #    include <SLSceneView.h>
 #    include <SLOptixRaytracer.h>
@@ -19,20 +19,19 @@
 #    include <utility>
 #    include <SLOptixHelper.h>
 #    include <SLLine.h>
+#    include <GlobalTimer.h>
 
-#    ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#        include <debug_new.h> // memory leak detector
-#    endif
-
+//-----------------------------------------------------------------------------
+// Global static Optix objects
+OptixDeviceContext SLOptixRaytracer::context = {};
+CUstream           SLOptixRaytracer::stream  = {};
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::SLOptixRaytracer()
   : SLRaytracer()
 {
     name("OptiX ray tracer");
-
     _params = {};
     _paramsBuffer.alloc(sizeof(Params));
-
     initCompileOptions();
 }
 //-----------------------------------------------------------------------------
@@ -162,7 +161,7 @@ void SLOptixRaytracer::setupOptix()
 //-----------------------------------------------------------------------------
 OptixModule SLOptixRaytracer::_createModule(string filename)
 {
-    OptixDeviceContext context = SLApplication::context;
+    OptixDeviceContext context = SLOptixRaytracer::context;
 
     OptixModule module = nullptr;
     {
@@ -185,7 +184,7 @@ OptixModule SLOptixRaytracer::_createModule(string filename)
 //-----------------------------------------------------------------------------
 OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
 {
-    OptixDeviceContext       context               = SLApplication::context;
+    OptixDeviceContext       context               = SLOptixRaytracer::context;
     OptixProgramGroup        program_group         = {};
     OptixProgramGroupOptions program_group_options = {};
 
@@ -209,7 +208,7 @@ OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
 OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup* program_groups,
                                                 unsigned int       numProgramGroups)
 {
-    OptixDeviceContext context = SLApplication::context;
+    OptixDeviceContext context = SLOptixRaytracer::context;
 
     OptixPipeline            pipeline;
     OptixPipelineLinkOptions pipeline_link_options = {};
@@ -407,21 +406,21 @@ SLbool SLOptixRaytracer::renderClassic()
     _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
     // Measure time
-    double t1     = SLApplication::timeMS();
+    double t1     = GlobalTimer::timeMS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
-      SLApplication::stream,
+      SLOptixRaytracer::stream,
       _paramsBuffer.devicePointer(),
       _paramsBuffer.size(),
       &_sbtClassic,
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1));
-    CUDA_SYNC_CHECK(SLApplication::stream);
+    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
 
-    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;
 
     return true;
 }
@@ -430,21 +429,21 @@ SLbool SLOptixRaytracer::renderDistrib()
 {
     _renderSec = 0.0f; // reset time
     // Measure time
-    double t1     = SLApplication::timeMS();
+    double t1     = GlobalTimer::timeMS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
-      SLApplication::stream,
+      SLOptixRaytracer::stream,
       _paramsBuffer.devicePointer(),
       _paramsBuffer.size(),
       &_sbtDistributed,
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1));
-    CUDA_SYNC_CHECK(SLApplication::stream);
+    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
 
-    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;
 
     return true;
 }
@@ -480,7 +479,7 @@ void SLOptixRaytracer::renderImage()
     SLGLTexture::bindActive(0);
 
     CUarray texture_ptr;
-    CUDA_CHECK(cuGraphicsMapResources(1, &_cudaGraphicsResource, SLApplication::stream));
+    CUDA_CHECK(cuGraphicsMapResources(1, &_cudaGraphicsResource, SLOptixRaytracer::stream));
     CUDA_CHECK(cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0));
 
     CUDA_ARRAY_DESCRIPTOR des;
@@ -500,7 +499,7 @@ void SLOptixRaytracer::renderImage()
     memcpy2D.Height        = des.Height;
     CUDA_CHECK(cuMemcpy2D(&memcpy2D));
 
-    CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLApplication::stream));
+    CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLOptixRaytracer::stream));
 
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();

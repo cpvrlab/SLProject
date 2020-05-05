@@ -48,6 +48,11 @@ class SLOptixRaytracer : public SLRaytracer
     void drawRay(unsigned int, unsigned int);
     void removeRays();
 
+    // Public global static Optix objects
+    static void               createOptixContext();
+    static OptixDeviceContext context;
+    static CUstream           stream;
+
     protected:
     void initCompileOptions();
 

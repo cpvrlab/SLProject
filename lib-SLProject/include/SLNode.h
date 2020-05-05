@@ -132,7 +132,7 @@ class SLNode
   : public SLObject
   , public SLEventHandler
 #ifdef SL_HAS_OPTIX
-  , public SLOptixAccelerationStructure
+  , public SLOptixAccelStruct
 #endif
 {
     friend class SLSceneView;

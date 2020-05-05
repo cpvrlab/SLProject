@@ -13,12 +13,12 @@
 
 #include <SLInterface.h>
 #include <SLApplication.h>
+#include <SLProjectScene.h>
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
-#include <SLProjectScene.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -86,10 +86,6 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     SL_LOG("------------------------------------------------------------------");
 
     SLApplication::createAppAndScene(applicationName, onSceneLoadCallback);
-
-#ifdef SL_HAS_OPTIX
-    SLApplication::createOptixContext();
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Global creation function for a SLSceneview instance returning the index of
@@ -126,6 +122,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, SLApplication::inputManager);
+
     //maintain multiple scene views in SLApplication
     SLApplication::sceneViews.push_back(sv);
 

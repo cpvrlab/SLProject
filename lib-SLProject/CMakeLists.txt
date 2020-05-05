@@ -10,7 +10,10 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
     find_package(OptiX REQUIRED VERSION 7.0)
-    set(DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS} SL_HAS_OPTIX)
+    set(DEFAULT_COMPILE_DEFINITIONS 
+        ${DEFAULT_COMPILE_DEFINITIONS} 
+        SL_HAS_OPTIX
+        SL_BUILD_WITH_OPTIX)
 else()
     message("No CUDA - No OptiX")
 endif()
@@ -118,6 +121,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptix.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixAccelerationStructure.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixHelper.h
@@ -150,7 +154,6 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibration.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibrationEstimator.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImageGeoTiff.cpp
@@ -214,7 +217,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelerationStructure.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelStruct.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixPathtracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixRaytracer.cpp

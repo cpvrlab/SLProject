@@ -277,8 +277,8 @@ protected:
 	
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix
-    SLOptixPathtracer _optixPathtracer; //!< Path tracer with Optix
     SLbool            _stopOptixRT;     //!< Flag to stop the Optix RT
+    SLOptixPathtracer _optixPathtracer; //!< Path tracer with Optix
     SLbool            _stopOptixPT;     //!< Flag to stop the Optix PT
 #endif
 

@@ -15,7 +15,7 @@
 #include <SLEnums.h>
 #include <SLGLVertexArray.h>
 #include <SLObject.h>
-#include <SLOptixAccelerationStructure.h>
+#include <SLOptixAccelStruct.h>
 #include <SLOptixDefinitions.h>
 
 class SLSceneView;
@@ -121,7 +121,7 @@ transformed vertices and normals are stored in _finalP and _finalN.
 
 class SLMesh : public SLObject
 #ifdef SL_HAS_OPTIX
-  , public SLOptixAccelerationStructure
+  , public SLOptixAccelStruct
 #endif
 
 {
@@ -157,6 +157,7 @@ public:
     virtual void    updateMeshAccelerationStructure();
     virtual HitData createHitData();
     unsigned int    sbtIndex() const { return _sbtIndex; }
+    static unsigned int meshIndex;
 #endif
 
     // Getters
@@ -194,8 +195,6 @@ public:
 
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
-
-    static unsigned int meshIndex;
 
 protected:
     SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)

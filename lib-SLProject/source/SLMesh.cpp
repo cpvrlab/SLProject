@@ -20,8 +20,6 @@
 #include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
-unsigned int SLMesh::meshIndex = 0;
-//-----------------------------------------------------------------------------
 /*! 
 The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
@@ -1282,6 +1280,8 @@ void SLMesh::notifyParentNodesAABBUpdate() const
 */
 //-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX
+unsigned int SLMesh::meshIndex = 0;
+//-----------------------------------------------------------------------------
 void SLMesh::allocAndUploadData()
 {
     _vertexBuffer.alloc_and_upload(P);

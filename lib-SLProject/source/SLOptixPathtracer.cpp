@@ -12,7 +12,9 @@
 #    include <SLApplication.h>
 #    include <SLProjectScene.h>
 #    include <SLSceneView.h>
+#    include <SLOptixRaytracer.h>
 #    include <SLOptixPathtracer.h>
+#    include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
 SLOptixPathtracer::SLOptixPathtracer()
@@ -29,7 +31,7 @@ SLOptixPathtracer::~SLOptixPathtracer()
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::setupOptix()
 {
-    OptixDeviceContext context = SLApplication::context;
+    OptixDeviceContext context = SLOptixRaytracer::context;
 
     _cameraModule  = _createModule("SLOptixPathtracerCamera.cu");
     _shadingModule = _createModule("SLOptixPathtracerShading.cu");
@@ -98,6 +100,7 @@ void SLOptixPathtracer::setupOptix()
       _occlusion_hit_group,
       _occlusion_line_hit_group,
     };
+
     _pipeline = _createPipeline(path_tracer_program_groups, 7);
 
     OptixDenoiserOptions denoiserOptions;
@@ -147,7 +150,7 @@ void SLOptixPathtracer::setupScene(SLSceneView* sv)
 
     OPTIX_CHECK(optixDenoiserSetup(
       _optixDenoiser,
-      SLApplication::stream,
+      SLOptixRaytracer::stream,
       _sv->scrW(),
       _sv->scrH(),
       _denoserState.devicePointer(),
@@ -191,25 +194,25 @@ SLbool SLOptixPathtracer::render()
 {
     _renderSec = 0.0f; // reset time
     // Measure time
-    double t1     = SLApplication::timeMS();
+    double t1     = GlobalTimer::timeMS();
     double tStart = t1;
     _state        = rtBusy; // From here we state the RT as busy
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
-      SLApplication::stream,
+      SLOptixRaytracer::stream,
       _paramsBuffer.devicePointer(),
       _paramsBuffer.size(),
       &_sbtClassic,
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1));
-    CUDA_SYNC_CHECK(SLApplication::stream);
+    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
 
-    _renderSec = (SLfloat)(SLApplication::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;
 
     // Measure denoiser time
-    double t2 = SLApplication::timeMS();
+    double t2 = GlobalTimer::timeMS();
 
     if (_denoiserEnabled)
     {
@@ -228,7 +231,7 @@ SLbool SLOptixPathtracer::render()
 
         OPTIX_CHECK(optixDenoiserInvoke(
           _optixDenoiser,
-          SLApplication::stream,
+          SLOptixRaytracer::stream,
           &denoiserParams,
           _denoserState.devicePointer(),
           _denoiserSizes.stateSizeInBytes,
@@ -239,10 +242,10 @@ SLbool SLOptixPathtracer::render()
           &optixImage2D,
           _scratch.devicePointer(),
           _denoiserSizes.recommendedScratchSizeInBytes));
-        CUDA_SYNC_CHECK(SLApplication::stream);
+        CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
     }
 
-    _denoiserMS = (SLfloat)(SLApplication::timeMS() - t2);
+    _denoiserMS = (SLfloat)(GlobalTimer::timeMS() - t2);
 
     _state = rtFinished;
     return true;
