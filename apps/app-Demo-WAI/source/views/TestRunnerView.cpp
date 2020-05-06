@@ -23,7 +23,9 @@ TestRunnerView::TestRunnerView(sm::EventHandler& eventHandler,
     _erlebARDir(erlebARDir),
     _calibDir(calibDir),
     _configFile(configFile),
-    _vocFile(vocabularyFile)
+    _vocFile(vocabularyFile),
+    _localMapping(nullptr),
+    _loopClosing(nullptr)
 {
     init("TestRunnerView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();
@@ -36,6 +38,7 @@ bool TestRunnerView::start(TestMode      testMode,
 
     if (loadSites(_erlebARDir, _configFile, _calibDir, _testInstances))
     {
+        _testMode         = testMode;
         _currentTestIndex = 0;
 
         _testsDone   = false;
@@ -67,14 +70,56 @@ bool TestRunnerView::update()
                                              WAIOrbVocabulary::get(),
                                              false);
 
-            int      inliers;
-            LocalMap localMap;
-            localMap.keyFrames.clear();
-            localMap.mapPoints.clear();
-            localMap.refKF = nullptr;
-            if (WAISlam::relocalization(currentFrame, _map, localMap, inliers))
+            switch (_testMode)
             {
-                _relocalizationFrameCount++;
+                case TestMode_Relocalization: {
+                    int      inliers;
+                    LocalMap localMap;
+                    localMap.keyFrames.clear();
+                    localMap.mapPoints.clear();
+                    localMap.refKF = nullptr;
+                    if (WAISlam::relocalization(currentFrame, _map, localMap, inliers))
+                    {
+                        _relocalizationFrameCount++;
+                    }
+                }
+                break;
+
+                case TestMode_Tracking: {
+                    if (_isTracking)
+                    {
+                        if (WAISlamTools::tracking(_map, _localMap, currentFrame, _lastFrame, _lastRelocFrameId, _velocity, _inliers))
+                        {
+                            _trackingFrameCount++;
+                            WAISlamTools::motionModel(currentFrame, _lastFrame, _velocity, _extrinsic);
+                            WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                        }
+                        else
+                        {
+                            if (_trackingFrameCount > _maxTrackingFrameCount)
+                            {
+                                _maxTrackingFrameCount = _trackingFrameCount;
+                            }
+                            _trackingFrameCount = 0;
+                            _isTracking == false;
+                        }
+                    }
+                    else
+                    {
+                        int inliers;
+                        if (WAISlam::relocalization(currentFrame, _map, _localMap, inliers))
+                        {
+                            _isTracking     = true;
+                            _relocalizeOnce = true;
+
+                            WAISlamTools::motionModel(currentFrame, _lastFrame, _velocity, _extrinsic);
+                            WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                        }
+                    }
+
+                    _lastFrame = WAIFrame(currentFrame);
+                }
+                break;
             }
 
             _currentFrameIndex++;
@@ -85,14 +130,32 @@ bool TestRunnerView::update()
             {
                 TestRunnerView::TestInstance currentTest = _testInstances[_currentTestIndex];
 
-                testResults +=
-                  currentTest.location + ";" +
-                  currentTest.area + ";" +
-                  currentTest.video + ";" +
-                  currentTest.map + ";" +
-                  std::to_string(_frameCount) + ";" +
-                  std::to_string(_relocalizationFrameCount) + ";" +
-                  std::to_string(_relocalizationFrameCount / _frameCount) + "\n";
+                switch (_testMode)
+                {
+                    case TestMode_Relocalization: {
+                        testResults +=
+                          currentTest.location + ";" +
+                          currentTest.area + ";" +
+                          currentTest.video + ";" +
+                          currentTest.map + ";" +
+                          std::to_string(_currentFrameIndex) + ";" +
+                          std::to_string(_relocalizationFrameCount) + ";" +
+                          Utils::toString((float)_relocalizationFrameCount / (float)_currentFrameIndex, 2) + "\n";
+                    }
+                    break;
+
+                    case TestMode_Tracking: {
+                        testResults +=
+                          currentTest.location + ";" +
+                          currentTest.area + ";" +
+                          currentTest.video + ";" +
+                          currentTest.map + ";" +
+                          std::to_string(_currentFrameIndex) + ";" +
+                          std::to_string(_maxTrackingFrameCount) + ";" +
+                          Utils::toString((float)_maxTrackingFrameCount / (float)_currentFrameIndex, 2) + "\n";
+                    }
+                    break;
+                }
 
                 _currentTestIndex++;
             }
@@ -107,8 +170,22 @@ bool TestRunnerView::update()
                 if (!Utils::dirExists(resultDir))
                     Utils::makeDirRecurse(resultDir);
 
+                std::string testModeString = "none";
+                switch (_testMode)
+                {
+                    case TestMode_Relocalization: {
+                        testModeString = "relocalization";
+                    }
+                    break;
+
+                    case TestMode_Tracking: {
+                        testModeString = "tracking";
+                    }
+                    break;
+                }
+
                 // save results in file
-                std::string resultFileName = Utils::getDateTime2String() + "_results.csv";
+                std::string resultFileName = Utils::getDateTime2String() + "_" + testModeString + "_results.csv";
                 std::string resultFile     = resultDir + resultFileName;
 
                 std::ofstream f;
@@ -229,7 +306,7 @@ bool TestRunnerView::update()
                     SlamVideoInfos slamVideoInfos;
                     if (!extractSlamVideoInfosFromFileName(testInstance.video, &slamVideoInfos))
                     {
-                        Utils::log("WAI", "TestRunner::loadSites: Could not extract slam video infos: %s", video.c_str());
+                        Utils::log("WAI", "TestRunner::loadSites: Could not extract slam video infos: %s", testInstance.video.c_str());
                         _currentTestIndex++;
                         continue;
                     }
@@ -262,6 +339,31 @@ bool TestRunnerView::update()
                     _map = new WAIMap(keyFrameDB);
                     WAIMapStorage::loadMap(_map, nullptr, orbVoc, mapFile, false, true);
 
+                    if (_localMapping) delete _localMapping;
+                    if (_loopClosing) delete _loopClosing;
+
+                    if (_testMode == TestMode_Tracking)
+                    {
+                        _lastKeyFrameFrameId   = 0;
+                        _lastRelocFrameId      = 0;
+                        _inliers               = 0;
+                        _trackingFrameCount    = 0;
+                        _maxTrackingFrameCount = 0;
+
+                        _isTracking     = false;
+                        _relocalizeOnce = false;
+
+                        _localMap.keyFrames.clear();
+                        _localMap.mapPoints.clear();
+                        _localMap.refKF = nullptr;
+
+                        _localMapping = new ORB_SLAM2::LocalMapping(_map, 1, orbVoc, 0.95);
+                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, orbVoc, false, false);
+
+                        _localMapping->SetLoopCloser(_loopClosing);
+                        _loopClosing->SetLocalMapper(_localMapping);
+                    }
+
                     if (_vStream)
                         delete _vStream;
 
@@ -274,6 +376,7 @@ bool TestRunnerView::update()
                     _frameCount               = _vStream->frameCount();
                     _currentFrameIndex        = 0;
                     _relocalizationFrameCount = 0;
+                    _lastFrame                = WAIFrame();
 
                     instanceFound = true;
                 }
@@ -283,45 +386,6 @@ bool TestRunnerView::update()
 
     bool result = onPaint();
     return result;
-}
-
-void TestRunnerView::launchRelocalizationTest(const Location&        location,
-                                              const Area&            area,
-                                              std::vector<TestData>& datas,
-                                              ExtractorType          extractorType,
-                                              std::string            vocabularyFile)
-{
-    Utils::log("info", "TestRunnerView::launchTest: Starting relocalization test for area: %s", area.c_str());
-    //the lastly saved map file (only valid if initialized is true)
-    bool        initialized = false;
-    std::string currentMapFileName;
-
-    const float cullRedundantPerc = 0.99f;
-
-    if (datas.size())
-    {
-        const float cullRedundantPerc = 0.95f;
-        //select one calibration (we need one to instantiate mode and we need mode to load map)
-        for (TestData testData : datas)
-        {
-            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.mapFile, vocabularyFile, testData.calibration, extractorType);
-
-            Utils::log("warn",
-                       "%s;%s;%s;%i;%i;%.2f\n",
-                       location.c_str(),
-                       testData.videoFile.c_str(),
-                       testData.mapFile.c_str(),
-                       r.frameCount,
-                       r.relocalizationFrameCount,
-                       r.ratio);
-        }
-    }
-    else
-    {
-        Utils::log("warn", "TestRunnerView::launchRelocalizationTest: No relocalization test for area: %s", area.c_str());
-    }
-
-    Utils::log("info", "TestRunnerView::launchRelocalizationTest: Finished relocalization test for area: %s", area.c_str());
 }
 
 void TestRunnerView::launchTrackingTest(const Location&        location,
@@ -369,67 +433,6 @@ void TestRunnerView::launchTrackingTest(const Location&        location,
     }
 
     Utils::log("info", "TestRunnerView::launchTrackingTest: Finished tracking test for area: %s", area.c_str());
-}
-
-TestRunnerView::RelocalizationTestResult TestRunnerView::runRelocalizationTest(std::string    videoFile,
-                                                                               std::string    mapFile,
-                                                                               std::string    vocFile,
-                                                                               CVCalibration& calibration,
-                                                                               ExtractorType  extractorType)
-{
-    RelocalizationTestResult result = {};
-
-    //TODO FIX NOW
-    // TODO(dgj1): this is kind of a hack... improve (maybe separate function call??)
-    WAIFrame::mbInitialComputations = true;
-
-    WAIOrbVocabulary::initialize(vocFile);
-    ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
-    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*orbVoc);
-
-    WAIMap* map = new WAIMap(keyFrameDB);
-    WAIMapStorage::loadMap(map, nullptr, orbVoc, mapFile, false, true);
-
-    SENSVideoStream vstream(videoFile, false, false, false);
-
-    CVSize2i                     videoSize       = vstream.getFrameSize();
-    float                        widthOverHeight = (float)videoSize.width / (float)videoSize.height;
-    std::unique_ptr<KPextractor> extractor       = _featureExtractorFactory.make(extractorType, {videoSize.width, videoSize.height});
-
-    unsigned int lastRelocFrameId         = 0;
-    int          frameCount               = 0;
-    int          relocalizationFrameCount = 0;
-    while (SENSFramePtr sensFrame = vstream.grabNextFrame())
-    {
-        cv::Mat  intrinsic    = calibration.cameraMat();
-        cv::Mat  distortion   = calibration.distortion();
-        WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgGray,
-                                         0.0f,
-                                         extractor.get(),
-                                         intrinsic,
-                                         distortion,
-                                         orbVoc,
-                                         false);
-
-        int      inliers;
-        LocalMap localMap;
-        localMap.keyFrames.clear();
-        localMap.mapPoints.clear();
-        localMap.refKF = nullptr;
-        if (WAISlam::relocalization(currentFrame, map, localMap, inliers))
-        {
-            relocalizationFrameCount++;
-        }
-
-        frameCount++;
-    }
-
-    result.frameCount               = frameCount;
-    result.relocalizationFrameCount = relocalizationFrameCount;
-    result.ratio                    = ((float)relocalizationFrameCount / (float)frameCount);
-    result.wasSuccessful            = true;
-
-    return result;
 }
 
 TestRunnerView::TrackingTestResult TestRunnerView::runTrackingTest(std::string    videoFile,
@@ -596,124 +599,5 @@ bool TestRunnerView::loadSites(const std::string&         erlebARDir,
         }
     }
 
-    return true;
-
-#if 0
-    const std::string ftpHost = "pallas.bfh.ch:21";
-    const std::string ftpUser = "upload";
-    const std::string ftpPwd  = "FaAdbD3F2a";
-    const std::string ftpDir  = "erleb-AR/";
-
-    //try to find corresponding files in sites directory and add full file paths to _sites
-    cv::FileNode videoAreasNode = fs["mappingVideos"];
-    for (auto itVideoAreas = videoAreasNode.begin(); itVideoAreas != videoAreasNode.end(); ++itVideoAreas)
-    {
-        std::string  location  = (*itVideoAreas)["location"];
-        cv::FileNode areasNode = (*itVideoAreas)["area"];
-        std::string  area;
-        std::string  map;
-        std::string  mapFile;
-        std::string  mapDir;
-        areasNode["name"] >> area;
-
-        if (enabledAreas.find(area) != enabledAreas.end())
-        {
-            areasNode["map"] >> map;
-            mapDir  = "locations/" + location + "/" + area + "/" + "maps/";
-            mapFile = erlebARDirUnified + mapDir + map;
-            if (!Utils::fileExists(erlebARDirUnified + mapDir + map))
-            {
-                std::string errorMsg;
-                Utils::makeDirRecurse(erlebARDirUnified + mapDir);
-                if (!FtpUtils::downloadFile(erlebARDirUnified + mapDir,
-                                            map,
-                                            ftpHost,
-                                            ftpUser,
-                                            ftpPwd,
-                                            ftpDir + mapDir,
-                                            errorMsg))
-                {
-                    Utils::log("Error", "TestRunner::loadSites: Failed to load map file: %s", errorMsg.c_str());
-                    return false;
-                }
-            }
-
-            cv::FileNode videosNode = (*itVideoAreas)["videos"];
-            for (auto itVideos = videosNode.begin(); itVideos != videosNode.end(); ++itVideos)
-            {
-                //check if this is enabled
-                std::string video = *itVideos;
-                TestData    testData;
-                std::string videoDir  = "locations/" + location + "/" + area + "/" + "videos/";
-                std::string videoFile = erlebARDirUnified + videoDir + video;
-                testData.videoFile    = videoFile;
-                testData.mapFile      = mapFile;
-
-                if (!Utils::fileExists(testData.videoFile))
-                {
-                    std::string errorMsg;
-                    if (!FtpUtils::downloadFile(erlebARDirUnified + videoDir,
-                                                video,
-                                                ftpHost,
-                                                ftpUser,
-                                                ftpPwd,
-                                                ftpDir + videoDir,
-                                                errorMsg))
-                    {
-                        Utils::log("Error", "TestRunner::loadSites: Failed to load video file: %s", errorMsg.c_str());
-                        return false;
-                    }
-                }
-
-                //check if calibration file exists
-                SlamVideoInfos slamVideoInfos;
-
-                if (!extractSlamVideoInfosFromFileName(video, &slamVideoInfos))
-                {
-                    Utils::log("Error", "TestRunner::loadSites: Could not extract slam video infos: %s", video.c_str());
-                    return false;
-                }
-
-                // construct calibrations file name and check if it exists
-                std::string calibFile = "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
-
-                //videoAndCalib.calibFile = erlebARDirUnified + "../calibrations/" + "camCalib_" + slamVideoInfos.deviceString + "_main.xml";
-                if (!Utils::fileExists(calibrationsDir + calibFile))
-                {
-                    Utils::log("Error", "TestRunner::loadSites: Calibration file does not exist: %s", (calibrationsDir + calibFile).c_str());
-                    return false;
-                }
-
-                //load calibration file and check for aspect ratio
-                if (!testData.calibration.load(calibrationsDir, calibFile, true))
-                {
-                    Utils::log("Error", "TestRunner::loadSites: Could not load calibration file: %s", (calibrationsDir + calibFile).c_str());
-                    return false;
-                }
-
-                std::vector<std::string> size;
-                Utils::splitString(slamVideoInfos.resolution, 'x', size);
-                if (size.size() == 2)
-                {
-                    int width  = std::stoi(size[0]);
-                    int height = std::stoi(size[1]);
-                    if (testData.calibration.imageSize().width != width ||
-                        testData.calibration.imageSize().height != height)
-                    {
-                        testData.calibration.adaptForNewResolution(CVSize(width, height), true);
-
-                        //add video to videos vector
-                        erlebARTestSet[location][area].push_back(testData);
-                    }
-                }
-                else
-                {
-                    Utils::log("Error", "TestRunner::loadSites: Could not estimate resolution string: %s", calibFile.c_str());
-                    return false;
-                }
-            }
-        }
-    }
-#endif
     return true;
 }

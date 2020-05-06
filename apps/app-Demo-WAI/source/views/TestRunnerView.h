@@ -82,11 +82,6 @@ public:
     int         frameIndex() { return _frameCount; }
 
 private:
-    void launchRelocalizationTest(const Location& location,
-                                  const Area&     area,
-                                  TestDataVector& datas,
-                                  ExtractorType   extractorType,
-                                  std::string     vocabularyFile);
     void launchTrackingTest(const Location& location,
                             const Area&     area,
                             TestDataVector& datas,
@@ -94,17 +89,12 @@ private:
                             std::string     vocabularyFile,
                             int             framerate = 0);
 
-    RelocalizationTestResult runRelocalizationTest(std::string    videoFile,
-                                                   std::string    mapFile,
-                                                   std::string    vocFile,
-                                                   CVCalibration& calibration,
-                                                   ExtractorType  extractorType);
-    TrackingTestResult       runTrackingTest(std::string    videoFile,
-                                             std::string    mapFile,
-                                             std::string    vocFile,
-                                             CVCalibration& calibration,
-                                             ExtractorType  extractorType,
-                                             int            framerate = 0);
+    TrackingTestResult runTrackingTest(std::string    videoFile,
+                                       std::string    mapFile,
+                                       std::string    vocFile,
+                                       CVCalibration& calibration,
+                                       ExtractorType  extractorType,
+                                       int            framerate = 0);
 
     bool loadSites(const std::string&         erlebARDir,
                    const std::string&         configFile,
@@ -127,16 +117,33 @@ private:
     // iterators
     int _currentTestIndex;
 
-    // Current test
+    // General test stuff
     int                          _frameCount;
     bool                         _testStarted = false;
     bool                         _testsDone   = false;
     SENSVideoStream*             _vStream     = nullptr;
     std::unique_ptr<KPextractor> _extractor;
-    int                          _relocalizationFrameCount;
-    int                          _currentFrameIndex;
     WAIMap*                      _map;
+    int                          _currentFrameIndex;
     CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
+
+    // Relocalization test stuff
+    int _relocalizationFrameCount;
+
+    // Tracking test stuff
+    WAIFrame      _lastFrame;
+    bool          _isTracking;
+    bool          _relocalizeOnce;
+    cv::Mat       _extrinsic;
+    LocalMap      _localMap;
+    int           _trackingFrameCount;
+    int           _maxTrackingFrameCount;
+    LocalMapping* _localMapping;
+    LoopClosing*  _loopClosing;
+    int           _inliers;
+    cv::Mat       _velocity;
+    unsigned long _lastKeyFrameFrameId;
+    unsigned int  _lastRelocFrameId;
 
     std::string testResults;
 

@@ -32,7 +32,7 @@ void TestRunnerGui::build(SLScene* s, SLSceneView* sv)
 
     if (ImGui::Button("Begin test"))
     {
-        view->start(TestRunnerView::TestMode_Relocalization,
+        view->start(TestRunnerView::TestMode_Tracking,
                     ExtractorType_GLSL);
     }
 
