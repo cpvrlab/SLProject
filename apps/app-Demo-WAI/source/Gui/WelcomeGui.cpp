@@ -5,14 +5,16 @@
 
 using namespace ErlebAR;
 
-WelcomeGui::WelcomeGui(ErlebAR::Resources& resources,
+WelcomeGui::WelcomeGui(const ImGuiEngine&  imGuiEngine,
+                       ErlebAR::Resources& resources,
                        int                 dotsPerInch,
                        int                 screenWidthPix,
                        int                 screenHeightPix,
                        std::string         fontPath,
                        std::string         texturePath,
                        std::string         version)
-  : _versionStr(version),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    _versionStr(version),
     _resources(resources)
 {
     ////load fonts for big ErlebAR text and verions text

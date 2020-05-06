@@ -5,13 +5,15 @@
 
 using namespace ErlebAR;
 
-LocationMapGui::LocationMapGui(sm::EventHandler&   eventHandler,
+LocationMapGui::LocationMapGui(const ImGuiEngine&  imGuiEngine,
+                               sm::EventHandler&   eventHandler,
                                ErlebAR::Resources& resources,
                                int                 dotsPerInch,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
                                std::string         erlebARDir)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _erlebARDir(erlebARDir)
 {

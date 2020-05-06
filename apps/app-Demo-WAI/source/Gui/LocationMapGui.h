@@ -16,7 +16,8 @@ class LocationMapGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    LocationMapGui(sm::EventHandler&   eventHandler,
+    LocationMapGui(const ImGuiEngine&  imGuiEngine,
+                   sm::EventHandler&   eventHandler,
                    ErlebAR::Resources& resources,
                    int                 dotsPerInch,
                    int                 screenWidthPix,

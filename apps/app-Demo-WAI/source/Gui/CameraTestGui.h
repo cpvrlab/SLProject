@@ -17,7 +17,8 @@ class CameraTestGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    CameraTestGui(sm::EventHandler&   eventHandler,
+    CameraTestGui(const ImGuiEngine&  imGuiEngine,
+                  sm::EventHandler&   eventHandler,
                   ErlebAR::Resources& resources,
                   int                 dotsPerInch,
                   int                 screenWidthPix,

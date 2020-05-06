@@ -16,7 +16,8 @@ class AreaInfoGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AreaInfoGui(sm::EventHandler&   eventHandler,
+    AreaInfoGui(const ImGuiEngine&  imGuiEngine,
+                sm::EventHandler&   eventHandler,
                 ErlebAR::Resources& resources,
                 int                 dotsPerInch,
                 int                 screenWidthPix,

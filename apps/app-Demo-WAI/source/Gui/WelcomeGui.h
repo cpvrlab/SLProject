@@ -12,7 +12,8 @@ class SLSceneView;
 class WelcomeGui : public ImGuiWrapper
 {
 public:
-    WelcomeGui(ErlebAR::Resources& resources,
+    WelcomeGui(const ImGuiEngine&  imGuiEngine,
+               ErlebAR::Resources& resources,
                int                 dotsPerInch,
                int                 screenWidthPix,
                int                 screenHeightPix,

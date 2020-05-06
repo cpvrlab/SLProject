@@ -5,6 +5,7 @@
 
 AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    SLInputManager&     inputManager,
+                                   const ImGuiEngine&  imGuiEngine,
                                    ErlebAR::Resources& resources,
                                    SENSCamera*         camera,
                                    int                 screenWidth,
@@ -13,7 +14,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    std::string         imguiIniPath,
                                    std::string         vocabularyDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(eventHandler,
+    _gui(imGuiEngine,
+         eventHandler,
          resources,
          dotsPerInch,
          screenWidth,

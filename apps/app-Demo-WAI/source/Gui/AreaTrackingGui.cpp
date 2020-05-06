@@ -5,13 +5,15 @@
 
 using namespace ErlebAR;
 
-AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
+AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
+                                 sm::EventHandler&          eventHandler,
                                  ErlebAR::Resources&        resources,
                                  int                        dotsPerInch,
                                  int                        screenWidthPix,
                                  int                        screenHeightPix,
                                  std::function<void(float)> transparencyChangedCB)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _transparencyChangedCB(transparencyChangedCB)
 {

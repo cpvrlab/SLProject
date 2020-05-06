@@ -2,6 +2,7 @@
 
 LocationMapView::LocationMapView(sm::EventHandler&   eventHandler,
                                  SLInputManager&     inputManager,
+                                 const ImGuiEngine&  imGuiEngine,
                                  ErlebAR::Resources& resources,
                                  int                 screenWidth,
                                  int                 screenHeight,
@@ -9,7 +10,7 @@ LocationMapView::LocationMapView(sm::EventHandler&   eventHandler,
                                  std::string         imguiIniPath,
                                  std::string         erlebARDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, erlebARDir)
+    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight, erlebARDir)
 {
     init("LocationMapView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();

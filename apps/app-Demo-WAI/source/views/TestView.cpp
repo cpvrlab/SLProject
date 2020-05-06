@@ -11,20 +11,24 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler& eventHandler,
-                   SLInputManager&   inputManager,
-                   SENSCamera*       camera,
-                   int               screenWidth,
-                   int               screenHeight,
-                   int               dotsPerInch,
-                   std::string       fontPath,
-                   std::string       configDir,
-                   std::string       vocabularyDir,
-                   std::string       calibDir,
-                   std::string       videoDir)
+TestView::TestView(sm::EventHandler&   eventHandler,
+                   SLInputManager&     inputManager,
+                   const ImGuiEngine&  imGuiEngine,
+                   ErlebAR::Resources& resources,
+                   SENSCamera*         camera,
+                   int                 screenWidth,
+                   int                 screenHeight,
+                   int                 dotsPerInch,
+                   std::string         fontPath,
+                   std::string         configDir,
+                   std::string         vocabularyDir,
+                   std::string         calibDir,
+                   std::string         videoDir)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
     _gui(
+      imGuiEngine,
       eventHandler,
+      resources,
       "TestScene",
       dotsPerInch,
       screenWidth,

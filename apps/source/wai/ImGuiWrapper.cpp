@@ -19,105 +19,28 @@
 
 #include <imgui_internal.h>
 
-bool         ImGuiWrapper::_openGLObjectsCreated = false;
-unsigned int ImGuiWrapper::_fontTexture          = 0; //!< OpenGL texture id for font
-int          ImGuiWrapper::_progHandle           = 0; //!< OpenGL handle for shader program
-int          ImGuiWrapper::_vertHandle           = 0; //!< OpenGL handle for vertex shader
-int          ImGuiWrapper::_fragHandle           = 0; //!< OpenGL handle for fragment shader
-int          ImGuiWrapper::_attribLocTex         = 0; //!< OpenGL attribute location for texture
-int          ImGuiWrapper::_attribLocProjMtx     = 0; //!< OpenGL attribute location for ???
-int          ImGuiWrapper::_attribLocPosition    = 0; //!< OpenGL attribute location for vertex pos.
-int          ImGuiWrapper::_attribLocUV          = 0; //!< OpenGL attribute location for texture coords
-int          ImGuiWrapper::_attribLocColor       = 0; //!< OpenGL attribute location for color
-unsigned int ImGuiWrapper::_vboHandle            = 0; //!< OpenGL handle for vertex buffer object
-unsigned int ImGuiWrapper::_vaoHandle            = 0; //!< OpenGL vertex array object handle
-unsigned int ImGuiWrapper::_elementsHandle       = 0; //!< OpenGL handle for vertex indexes
-
 //-----------------------------------------------------------------------------
-ImGuiWrapper::ImGuiWrapper()
+//! Prints the compile errors in case of a GLSL compile failure
+void ImGuiRendererOpenGL::printCompileErrors(SLint shaderHandle, const SLchar* src)
 {
-    //todo: access static imguiwrapper, that creates opengl objects
-    _context = ImGui::GetCurrentContext();
-    if (!_context)
-        _context = ImGui::CreateContext();
-    //attention: fonts have to be loaded before because the texture for the fonts
-    //is generated in the following function
-    //createOpenGLObjects();
-}
-//-----------------------------------------------------------------------------
-ImGuiWrapper::~ImGuiWrapper()
-{
-    if (_openGLObjectsCreated)
+    // Check compiler log
+    SLint compileSuccess = 0;
+    glGetShaderiv((SLuint)shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
+    if (compileSuccess == GL_FALSE)
     {
-        deleteOpenGLObjects();
-        ImGui::DestroyContext(_context);
-        _openGLObjectsCreated = false;
+        GLchar log[512];
+        glGetShaderInfoLog((SLuint)shaderHandle,
+                           sizeof(log),
+                           nullptr,
+                           &log[0]);
+        SL_LOG("*** COMPILER ERROR ***");
+        SL_LOG("%s\n---", log);
+        SL_LOG("%s", src);
     }
 }
 //-----------------------------------------------------------------------------
-//! Initializes OpenGL handles to zero and sets the ImGui key map
-void ImGuiWrapper::init(const std::string& configPath)
-{
-    if (_openGLObjectsCreated)
-        return;
-
-    _fontTexture       = 0;
-    _progHandle        = 0;
-    _vertHandle        = 0;
-    _fragHandle        = 0;
-    _attribLocTex      = 0;
-    _attribLocProjMtx  = 0;
-    _attribLocPosition = 0;
-    _attribLocUV       = 0;
-    _attribLocColor    = 0;
-    _vboHandle         = 0;
-    _vaoHandle         = 0;
-    _elementsHandle    = 0;
-
-    _mouseWheel      = 0.0f;
-    _mousePressed[0] = false;
-    _mousePressed[1] = false;
-    _mousePressed[2] = false;
-
-    ImGuiIO& io    = _context->IO;
-    _inifile       = configPath + "imgui.ini";
-    io.IniFilename = _inifile.c_str();
-
-    io.KeyMap[ImGuiKey_Tab]        = K_tab;
-    io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
-    io.KeyMap[ImGuiKey_RightArrow] = K_right;
-    io.KeyMap[ImGuiKey_UpArrow]    = K_up;
-    io.KeyMap[ImGuiKey_DownArrow]  = K_down;
-    io.KeyMap[ImGuiKey_PageUp]     = K_pageUp;
-    io.KeyMap[ImGuiKey_PageDown]   = K_pageUp;
-    io.KeyMap[ImGuiKey_Home]       = K_home;
-    io.KeyMap[ImGuiKey_End]        = K_end;
-    io.KeyMap[ImGuiKey_Delete]     = K_delete;
-    io.KeyMap[ImGuiKey_Backspace]  = K_backspace;
-    io.KeyMap[ImGuiKey_Enter]      = K_enter;
-    io.KeyMap[ImGuiKey_Escape]     = K_esc;
-    io.KeyMap[ImGuiKey_A]          = 'A';
-    io.KeyMap[ImGuiKey_C]          = 'C';
-    io.KeyMap[ImGuiKey_V]          = 'V';
-    io.KeyMap[ImGuiKey_X]          = 'X';
-    io.KeyMap[ImGuiKey_Y]          = 'Y';
-    io.KeyMap[ImGuiKey_Z]          = 'Z';
-
-    // The screen size is set again in onResize
-    io.DisplaySize             = ImVec2(0, 0);
-    io.DisplayFramebufferScale = ImVec2(1, 1);
-
-    // Change default style to show the widget border
-    //ImGuiStyle& style     = ImGui::GetStyle();
-    //style.FrameBorderSize = 1;
-
-    createOpenGLObjects();
-
-    _openGLObjectsCreated = true;
-}
-//-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
-void ImGuiWrapper::createOpenGLObjects()
+void ImGuiRendererOpenGL::createOpenGLObjects()
 {
     // Backup GL state
     GLint last_texture, last_array_buffer, last_vertex_array;
@@ -228,7 +151,7 @@ void ImGuiWrapper::createOpenGLObjects()
     GET_GL_ERROR;
 
     // Build texture atlas
-    ImGuiIO& io = _context->IO;
+    ImGuiIO& io = ImGui::GetCurrentContext()->IO;
     SLuchar* pixels;
     int      width, height;
 
@@ -264,7 +187,7 @@ void ImGuiWrapper::createOpenGLObjects()
 }
 //-----------------------------------------------------------------------------
 //! Deletes all OpenGL objects for drawing the imGui
-void ImGuiWrapper::deleteOpenGLObjects()
+void ImGuiRendererOpenGL::deleteOpenGLObjects()
 {
     if (_vaoHandle) glDeleteVertexArrays(1, &_vaoHandle);
     if (_vboHandle) glDeleteBuffers(1, &_vboHandle);
@@ -287,101 +210,55 @@ void ImGuiWrapper::deleteOpenGLObjects()
     if (_fontTexture)
     {
         glDeleteTextures(1, &_fontTexture);
-        _context->IO.Fonts->TexID = nullptr;
-        _fontTexture              = 0;
+        ImGui::GetCurrentContext()->IO.Fonts->TexID = nullptr;
+        _fontTexture                                = 0;
     }
 }
 //-----------------------------------------------------------------------------
-//! Prints the compile errors in case of a GLSL compile failure
-void ImGuiWrapper::printCompileErrors(SLint shaderHandle, const SLchar* src)
+void ImGuiEngine::init(const std::string& configPath)
 {
-    // Check compiler log
-    SLint compileSuccess = 0;
-    glGetShaderiv((SLuint)shaderHandle, GL_COMPILE_STATUS, &compileSuccess);
-    if (compileSuccess == GL_FALSE)
-    {
-        GLchar log[512];
-        glGetShaderInfoLog((SLuint)shaderHandle,
-                           sizeof(log),
-                           nullptr,
-                           &log[0]);
-        SL_LOG("*** COMPILER ERROR ***");
-        SL_LOG("%s\n---", log);
-        SL_LOG("%s", src);
-    }
+    ImGuiIO&    io          = _context->IO;
+    std::string iniFileName = configPath + "imgui.ini";
+    io.IniFilename          = iniFileName.c_str();
+
+    io.KeyMap[ImGuiKey_Tab]        = K_tab;
+    io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
+    io.KeyMap[ImGuiKey_RightArrow] = K_right;
+    io.KeyMap[ImGuiKey_UpArrow]    = K_up;
+    io.KeyMap[ImGuiKey_DownArrow]  = K_down;
+    io.KeyMap[ImGuiKey_PageUp]     = K_pageUp;
+    io.KeyMap[ImGuiKey_PageDown]   = K_pageUp;
+    io.KeyMap[ImGuiKey_Home]       = K_home;
+    io.KeyMap[ImGuiKey_End]        = K_end;
+    io.KeyMap[ImGuiKey_Delete]     = K_delete;
+    io.KeyMap[ImGuiKey_Backspace]  = K_backspace;
+    io.KeyMap[ImGuiKey_Enter]      = K_enter;
+    io.KeyMap[ImGuiKey_Escape]     = K_esc;
+    io.KeyMap[ImGuiKey_A]          = 'A';
+    io.KeyMap[ImGuiKey_C]          = 'C';
+    io.KeyMap[ImGuiKey_V]          = 'V';
+    io.KeyMap[ImGuiKey_X]          = 'X';
+    io.KeyMap[ImGuiKey_Y]          = 'Y';
+    io.KeyMap[ImGuiKey_Z]          = 'Z';
+
+    // The screen size is set again in onResize
+    io.DisplaySize             = ImVec2(0, 0);
+    io.DisplayFramebufferScale = ImVec2(1, 1);
 }
 //-----------------------------------------------------------------------------
-//! Inits a new frame for the ImGui system
-void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
+void ImGuiRendererOpenGL::render(const SLRecti& viewportRect)
 {
-    // If no build function is provided there is no ImGui
-    //if (!build) return;
-
-    //if ((SLint)ImGuiWrapper::fontPropDots != (SLint)_fontPropDots ||
-    //    (SLint)ImGuiWrapper::fontFixedDots != (SLint)_fontFixedDots)
-    //    loadFonts(ImGuiWrapper::fontPropDots, ImGuiWrapper::fontFixedDots);
-
-    if (!_fontTexture)
-        createOpenGLObjects();
-
-    ImGuiIO& io = _context->IO;
-
-    // Setup time step
-    SLfloat nowSec = GlobalTimer::timeS();
-    io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
-    if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
-    _timeSec = nowSec;
-
-    if (_panScroll.enabled())
-    {
-        io.MouseWheel = _panScroll.getScrollInMouseWheelCoords(io.MouseDown[0], _context->FontSize, nowSec);
-    }
-    else
-    {
-        io.MouseWheel = _mouseWheel;
-        _mouseWheel   = 0.0f;
-    }
-
-    // Start the frame
-    //ImGui::SetCurrentContext(_context);
-    ImGui::NewFrame();
-
-    // Call the build function. The whole UI is constructed here
-    // This function is provided by the top-level project.
-    // For the SLProject demo apps this build function is implemented in the
-    // class SLDemoGui.
-    //if (build)
-    build(s, sv);
-    //ImGui::SetCurrentContext(nullptr);
-    //SL_LOG(".");
-}
-//-----------------------------------------------------------------------------
-//! Callback if window got resized
-void ImGuiWrapper::onResize(SLint   scrW,
-                            SLint   scrH,
-                            SLfloat scr2fbX,
-                            SLfloat scr2fbY)
-{
-    ImGuiIO& io                = _context->IO;
-    io.DisplaySize             = ImVec2((SLfloat)scrW, (SLfloat)scrH);
-    io.DisplayFramebufferScale = ImVec2(scr2fbX, scr2fbY);
-}
-//-----------------------------------------------------------------------------
-//! Callback for main rendering for the ImGui GUI system
-void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
-{
-    //ImGui::SetCurrentContext(_context);
+    ImGui::SetCurrentContext(_context);
     ImGui::Render();
     ImDrawData* draw_data = ImGui::GetDrawData();
-    //ImGui::SetCurrentContext(nullptr);
 
     ImGuiIO& io = _context->IO;
 
     // Avoid rendering when minimized, scale coordinates for retina displays
     // (screen coordinates != framebuffer coordinates)
-    int fb_width  = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
-    int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
-    if (fb_width == 0 || fb_height == 0)
+    int fbWidth  = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
+    int fbHeight = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
+    if (fbWidth == 0 || fbHeight == 0)
         return;
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
@@ -434,8 +311,8 @@ void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
     if (viewportRect.isEmpty())
         glViewport(0,
                    0,
-                   (GLsizei)fb_width,
-                   (GLsizei)fb_height);
+                   (GLsizei)fbWidth,
+                   (GLsizei)fbHeight);
     else
         glViewport((GLsizei)(viewportRect.x * io.DisplayFramebufferScale.x),
                    (GLsizei)(viewportRect.y * io.DisplayFramebufferScale.y),
@@ -488,7 +365,7 @@ void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 
                 if (viewportRect.isEmpty())
                     glScissor((int)pcmd->ClipRect.x,
-                              (int)(fb_height - pcmd->ClipRect.w),
+                              (int)(fbHeight - pcmd->ClipRect.w),
                               (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
                               (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 else
@@ -548,6 +425,87 @@ void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
               last_scissor_box[1],
               (GLsizei)last_scissor_box[2],
               (GLsizei)last_scissor_box[3]);
+
+    ImGui::SetCurrentContext(nullptr);
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+ImGuiWrapper::ImGuiWrapper(ImGuiContext* context, ImGuiRenderer* renderer)
+  : _context(context),
+    _renderer(renderer)
+{
+    assert(_context);
+    assert(_renderer);
+}
+//-----------------------------------------------------------------------------
+ImGuiWrapper::~ImGuiWrapper()
+{
+}
+//-----------------------------------------------------------------------------
+//! Initializes OpenGL handles to zero and sets the ImGui key map
+void ImGuiWrapper::init(const std::string& configPath)
+{
+    _mouseWheel = 0.0f;
+}
+//-----------------------------------------------------------------------------
+//! Inits a new frame for the ImGui system
+void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
+{
+    // If no build function is provided there is no ImGui
+    //if (!build) return;
+
+    //if ((SLint)ImGuiWrapper::fontPropDots != (SLint)_fontPropDots ||
+    //    (SLint)ImGuiWrapper::fontFixedDots != (SLint)_fontFixedDots)
+    //    loadFonts(ImGuiWrapper::fontPropDots, ImGuiWrapper::fontFixedDots);
+
+    //if (!_fontTexture)
+    //    createOpenGLObjects();
+
+    ImGuiIO& io = _context->IO;
+
+    // Setup time step
+    SLfloat nowSec = GlobalTimer::timeS();
+    io.DeltaTime   = _timeSec > 0.0 ? nowSec - _timeSec : 1.0f / 60.0f;
+    if (io.DeltaTime < 0) io.DeltaTime = 1.0f / 60.0f;
+    _timeSec = nowSec;
+
+    if (_panScroll.enabled())
+    {
+        io.MouseWheel = _panScroll.getScrollInMouseWheelCoords(io.MouseDown[0], _context->FontSize, nowSec);
+    }
+    else
+    {
+        io.MouseWheel = _mouseWheel;
+        _mouseWheel   = 0.0f;
+    }
+
+    // Start the frame
+    ImGui::SetCurrentContext(_context);
+    ImGui::NewFrame();
+
+    // Call the build function to construct the ui
+    build(s, sv);
+    ImGui::SetCurrentContext(nullptr);
+    //SL_LOG(".");
+}
+//-----------------------------------------------------------------------------
+//! Callback if window got resized
+void ImGuiWrapper::onResize(SLint   scrW,
+                            SLint   scrH,
+                            SLfloat scr2fbX,
+                            SLfloat scr2fbY)
+{
+    ImGuiIO& io                = _context->IO;
+    io.DisplaySize             = ImVec2((SLfloat)scrW, (SLfloat)scrH);
+    io.DisplayFramebufferScale = ImVec2(scr2fbX, scr2fbY);
+}
+//-----------------------------------------------------------------------------
+//! Callback for main rendering for the ImGui GUI system
+void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
+{
+    //do the opengl rendering
+    _renderer->render(viewportRect);
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button down event
@@ -625,7 +583,6 @@ void ImGuiWrapper::onCharInput(SLuint c)
 //! Callback on closing the application
 void ImGuiWrapper::onClose()
 {
-    //deleteOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
 //! Renders an extra frame with the current mouse position

@@ -16,7 +16,8 @@ class AreaTrackingGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AreaTrackingGui(sm::EventHandler&          eventHandler,
+    AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
+                    sm::EventHandler&          eventHandler,
                     ErlebAR::Resources&        resources,
                     int                        dotsPerInch,
                     int                        screenWidthPix,

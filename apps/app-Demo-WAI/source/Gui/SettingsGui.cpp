@@ -5,12 +5,14 @@
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 
-SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
+SettingsGui::SettingsGui(const ImGuiEngine&  imGuiEngine,
+                         sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
                          int                 screenHeightPix)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);

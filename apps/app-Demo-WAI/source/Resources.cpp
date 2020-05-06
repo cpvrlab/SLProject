@@ -7,50 +7,50 @@ namespace ErlebAR
 {
 Fonts::Fonts()
 {
-    //atlas = new ImFontAtlas();
+    _atlas = new ImFontAtlas();
 }
 
 Fonts::~Fonts()
 {
-    //if (atlas)
-    //    delete atlas;
+    if (_atlas)
+        delete _atlas;
 }
 
 void Fonts::load(std::string fontDir, const Style& style, int screenH)
 {
-    ImGuiContext* context = ImGui::GetCurrentContext();
-    if (!context)
-        context = ImGui::CreateContext();
+    //ImGuiContext* context = ImGui::GetCurrentContext();
+    //if (!context)
+    //    context = ImGui::CreateContext();
 
-    ImFontAtlas* atlas = context->IO.Fonts;
-    std::string  ttf   = fontDir + "Roboto-Medium.ttf";
+    //ImFontAtlas* atlas = context->IO.Fonts;
+    std::string ttf = fontDir + "Roboto-Medium.ttf";
     if (Utils::fileExists(ttf))
     {
         //header bar font
         float headerBarH     = style.headerBarPercH * (float)screenH;
         float headerBarTextH = style.headerBarTextH * (float)headerBarH;
-        headerBar            = atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
+        headerBar            = _atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
         //standard font
         float standardTextH = style.textStandardH * (float)screenH;
-        standard            = atlas->AddFontFromFileTTF(ttf.c_str(), standardTextH);
+        standard            = _atlas->AddFontFromFileTTF(ttf.c_str(), standardTextH);
         //heading font
         float headingTextH = style.textHeadingH * (float)screenH;
-        heading            = atlas->AddFontFromFileTTF(ttf.c_str(), headingTextH);
+        heading            = _atlas->AddFontFromFileTTF(ttf.c_str(), headingTextH);
         //tiny font
         float tinyTextH = 0.035f * (float)screenH;
-        tiny            = atlas->AddFontFromFileTTF(ttf.c_str(), tinyTextH);
+        tiny            = _atlas->AddFontFromFileTTF(ttf.c_str(), tinyTextH);
         //big font
         float bigTextHPix      = 0.3f * (float)screenH;
         float scale            = 2.0f;
         float bigTextHPixAlloc = bigTextHPix / scale;
         float bigTextH         = 0.035f * (float)screenH;
-        big                    = atlas->AddFontFromFileTTF(ttf.c_str(), bigTextHPixAlloc);
+        big                    = _atlas->AddFontFromFileTTF(ttf.c_str(), bigTextHPixAlloc);
         big->Scale             = scale;
         //selection buttons
         int   nButVert  = 6;
         int   buttonH   = (0.6f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert;
         float selectBtn = buttonH * style.buttonTextH;
-        selectBtns      = atlas->AddFontFromFileTTF(ttf.c_str(), selectBtn);
+        selectBtns      = _atlas->AddFontFromFileTTF(ttf.c_str(), selectBtn);
     }
     else
     {

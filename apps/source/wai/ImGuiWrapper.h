@@ -25,6 +25,106 @@ class SLScene;
 class SLSceneView;
 struct ImGuiContext;
 
+/*! ImGuiRenderer is used by ImGuiWrapper to render a custom. We need this interface, as there may
+be different renderers (e.g. ImGuiRendererOpenGL) and because we want to share a common ImGuiContext
+over multiple ImGuiWrapper instances.
+*/
+class ImGuiRenderer
+{
+public:
+    ImGuiRenderer(ImGuiContext* context)
+      : _context(context)
+    {
+    }
+    virtual void render(const SLRecti& viewportRect) {}
+
+protected:
+    ImGuiContext* _context;
+};
+
+//Wraps opengl code for drawing imgui with opengl. We use the same
+//Fonts have to be defined first, because they are needed to generate the font
+//texture in the correct size.
+//
+class ImGuiRendererOpenGL : public ImGuiRenderer
+{
+public:
+    ImGuiRendererOpenGL(ImGuiContext* context)
+      : ImGuiRenderer(context)
+    {
+        //Attention: define your fonts before calling this function!
+        createOpenGLObjects();
+    }
+
+    ~ImGuiRendererOpenGL()
+    {
+        deleteOpenGLObjects();
+    }
+
+    void render(const SLRecti& viewportRect) override;
+
+private:
+    void printCompileErrors(SLint shaderHandle, const SLchar* src);
+    void createOpenGLObjects();
+    void deleteOpenGLObjects();
+
+    unsigned int _fontTexture{0};       //!< OpenGL texture id for font
+    int          _progHandle{0};        //!< OpenGL handle for shader program
+    int          _vertHandle{0};        //!< OpenGL handle for vertex shader
+    int          _fragHandle{0};        //!< OpenGL handle for fragment shader
+    int          _attribLocTex{0};      //!< OpenGL attribute location for texture
+    int          _attribLocProjMtx{0};  //!< OpenGL attribute location for ???
+    int          _attribLocPosition{0}; //!< OpenGL attribute location for vertex pos.
+    int          _attribLocUV{0};       //!< OpenGL attribute location for texture coords
+    int          _attribLocColor{0};    //!< OpenGL attribute location for color
+    unsigned int _vboHandle{0};         //!< OpenGL handle for vertex buffer object
+    unsigned int _vaoHandle{0};         //!< OpenGL vertex array object handle
+    unsigned int _elementsHandle{0};    //!< OpenGL handle for vertex indexes
+};
+
+/*! Wraps the following things:
+- Create ImGuiContext (which is shared over all instances of ImGuiWrapper)
+- Destroy ImGuiContext
+- Init general imgui stuff (e.g. define where to store ini file)
+- Load fonts (these are shared over the all ImGuiWrappers)
+- Instantiate renderer 
+*/
+class ImGuiEngine
+{
+public:
+    ImGuiEngine(std::string configDir, ImFontAtlas* fontAtlas)
+    {
+        _context = ImGui::CreateContext(fontAtlas);
+        init(configDir);
+
+        //make sure fonts are loaded before texture for fonts is generated
+        //(here fonts are transferred with font atlas)
+        _renderer = new ImGuiRendererOpenGL(_context);
+        assert(_renderer);
+    }
+
+    ~ImGuiEngine()
+    {
+        if (_renderer)
+            delete _renderer;
+        ImGui::DestroyContext(_context);
+    }
+
+    ImGuiRenderer* renderer() const { return _renderer; }
+    ImGuiContext*  context() const { return _context; }
+
+private:
+    void init(const std::string& configPath);
+
+    ImGuiRenderer* _renderer{nullptr};
+    ImGuiContext*  _context{nullptr};
+};
+
+//class ErlebARImGuiEngine : public ImGuiEngine
+//{
+//public:
+//};
+
 //e.g. scrolling of child window by touch down and move.
 //We need the possibility to turn it off because it conflicts with drag and drop of windows
 //if a window is not fixed.
@@ -146,12 +246,15 @@ The full call stack for rendering one frame is:\n
           - SLDemoGui::buildDemoGui: Builds the full UI
 */
 
+//! ImGuiWrapper implements SLUiInterface for ImGui.
+/*! The interface function are called by a SLSceneView instance
+*/
 class ImGuiWrapper : public SLUiInterface
 {
 public:
     //If ImFontAtlas is transferred, fonts my be shared over multiple ImGuiWrapper instances (or any other imgui context user)
     //else one can transfer a nullptr to signal imgui to instantiate their own ImFontAtlas.
-    ImGuiWrapper();
+    ImGuiWrapper(ImGuiContext* context, ImGuiRenderer* renderer);
     ~ImGuiWrapper() override;
     void init(const std::string& configPath) override;
 
@@ -170,40 +273,19 @@ public:
     void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) override;
     bool doNotDispatchKeyboard() override;
     bool doNotDispatchMouse() override;
-    // gui build function pattern
+
+    // Overwrite this function to implement your imgui visualization
     virtual void build(SLScene* s, SLSceneView* sv) = 0;
 
 protected:
-    ImGuiContext* _context = nullptr;
-
-    PanScrolling _panScroll;
+    PanScrolling  _panScroll;
+    ImGuiContext* _context{nullptr};
 
 private:
-    void deleteOpenGLObjects();
-    void createOpenGLObjects();
-    void printCompileErrors(SLint         shaderHandle,
-                            const SLchar* src);
+    SLfloat _timeSec;       //!< Time in seconds
+    SLfloat _mouseWheel{0}; //!< Mouse wheel position
 
-    static bool _openGLObjectsCreated;
-    SLfloat     _timeSec;         //!< Time in seconds
-    SLVec2f     _mousePosPX;      //!< Mouse cursor position
-    SLfloat     _mouseWheel;      //!< Mouse wheel position
-    SLbool      _mousePressed[3]; //!< Mouse button press state
-
-    static unsigned int _fontTexture;       //!< OpenGL texture id for font
-    static int          _progHandle;        //!< OpenGL handle for shader program
-    static int          _vertHandle;        //!< OpenGL handle for vertex shader
-    static int          _fragHandle;        //!< OpenGL handle for fragment shader
-    static int          _attribLocTex;      //!< OpenGL attribute location for texture
-    static int          _attribLocProjMtx;  //!< OpenGL attribute location for ???
-    static int          _attribLocPosition; //!< OpenGL attribute location for vertex pos.
-    static int          _attribLocUV;       //!< OpenGL attribute location for texture coords
-    static int          _attribLocColor;    //!< OpenGL attribute location for color
-    static unsigned int _vboHandle;         //!< OpenGL handle for vertex buffer object
-    static unsigned int _vaoHandle;         //!< OpenGL vertex array object handle
-    static unsigned int _elementsHandle;    //!< OpenGL handle for vertex indexes
-
-    std::string _inifile;
+    ImGuiRenderer* _renderer{nullptr};
 };
 //-----------------------------------------------------------------------------
 #endif

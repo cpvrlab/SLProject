@@ -17,7 +17,8 @@ class SelectionGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    SelectionGui(sm::EventHandler&   eventHandler,
+    SelectionGui(const ImGuiEngine&  imGuiEngine,
+                 sm::EventHandler&   eventHandler,
                  ErlebAR::Resources& resources,
                  int                 dotsPerInch,
                  int                 screenWidthPix,

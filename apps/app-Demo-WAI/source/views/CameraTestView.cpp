@@ -3,6 +3,7 @@
 
 CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
                                SLInputManager&     inputManager,
+                               const ImGuiEngine&  imGuiEngine,
                                ErlebAR::Resources& resources,
                                SENSCamera*         sensCamera,
                                int                 screenWidth,
@@ -10,7 +11,8 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
                                int                 dotsPerInch,
                                std::string         imguiIniPath)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(eventHandler,
+    _gui(imGuiEngine,
+         eventHandler,
          resources,
          dotsPerInch,
          screenWidth,

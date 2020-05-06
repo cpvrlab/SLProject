@@ -14,6 +14,7 @@ class CameraTestView : public SLSceneView
 public:
     CameraTestView(sm::EventHandler&   eventHandler,
                    SLInputManager&     inputManager,
+                   const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
                    SENSCamera*         sensCamera,
                    int                 screenWidth,

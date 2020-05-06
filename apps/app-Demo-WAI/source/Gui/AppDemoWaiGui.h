@@ -24,6 +24,7 @@
 #include <AppDemoGuiError.h>
 #include <sm/EventSender.h>
 #include <GuiUtils.h>
+#include <Resources.h>
 
 class SLScene;
 class SLSceneView;
@@ -56,7 +57,9 @@ class AppDemoWaiGui : public ImGuiWrapper
   , public sm::EventSender
 {
 public:
-    AppDemoWaiGui(sm::EventHandler&                     eventHandler,
+    AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
+                  sm::EventHandler&                     eventHandler,
+                  ErlebAR::Resources&                   resources,
                   std::string                           appName,
                   int                                   dotsPerInch,
                   int                                   windowWidthPix,
@@ -91,7 +94,7 @@ public:
     void onShow(); //call when gui becomes visible
 
 private:
-    void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
+    //void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath);
 
     void buildInfosDialogs(SLScene* s, SLSceneView* sv);
     void buildMenu(SLScene* s, SLSceneView* sv);
@@ -111,6 +114,7 @@ private:
 
     //ImFont* _fontPropDots  = nullptr;
     //ImFont* _fontFixedDots = nullptr;
+    ErlebAR::Resources& _resources;
 };
 //-----------------------------------------------------------------------------
 #endif

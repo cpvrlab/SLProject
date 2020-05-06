@@ -19,6 +19,7 @@ class AreaTrackingView : public SLSceneView
 public:
     AreaTrackingView(sm::EventHandler&   eventHandler,
                      SLInputManager&     inputManager,
+                     const ImGuiEngine&  imGuiEngine,
                      ErlebAR::Resources& resources,
                      SENSCamera*         camera,
                      int                 screenWidth,

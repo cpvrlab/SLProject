@@ -5,13 +5,15 @@
 
 using namespace ErlebAR;
 
-CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
+CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
+                             sm::EventHandler&   eventHandler,
                              ErlebAR::Resources& resources,
                              int                 dotsPerInch,
                              int                 screenWidthPix,
                              int                 screenHeightPix,
                              SENSCamera*         camera)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _camera(camera)
 {

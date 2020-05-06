@@ -5,6 +5,7 @@
 
 SelectionView::SelectionView(sm::EventHandler&   eventHandler,
                              SLInputManager&     inputManager,
+                             const ImGuiEngine&  imGuiEngine,
                              ErlebAR::Resources& resources,
                              int                 screenWidth,
                              int                 screenHeight,
@@ -14,7 +15,7 @@ SelectionView::SelectionView(sm::EventHandler&   eventHandler,
                              std::string         imguiIniPath)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     sm::EventSender(eventHandler),
-    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
+    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
     _scene("SelectionScene", nullptr)
 {
     scene(&_scene);

@@ -16,7 +16,8 @@ class AboutGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AboutGui(sm::EventHandler&   eventHandler,
+    AboutGui(const ImGuiEngine&  imGuiEngine,
+             sm::EventHandler&   eventHandler,
              ErlebAR::Resources& resources,
              int                 dotsPerInch,
              int                 screenWidthPix,

@@ -7,14 +7,16 @@
 
 using namespace ErlebAR;
 
-TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
+TutorialGui::TutorialGui(const ImGuiEngine&  imGuiEngine,
+                         sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
                          int                 screenHeightPix,
                          std::string         fontPath,
                          std::string         texturePath)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);

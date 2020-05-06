@@ -11,6 +11,7 @@ class SettingsView : public SLSceneView
 public:
     SettingsView(sm::EventHandler&   eventHandler,
                  SLInputManager&     inputManager,
+                 const ImGuiEngine&  imGuiEngine,
                  ErlebAR::Resources& resources,
                  int                 screenWidth,
                  int                 screenHeight,

@@ -16,7 +16,8 @@ class TutorialGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    TutorialGui(sm::EventHandler&   eventHandler,
+    TutorialGui(const ImGuiEngine&  imGuiEngine,
+                sm::EventHandler&   eventHandler,
                 ErlebAR::Resources& resources,
                 int                 dotsPerInch,
                 int                 screenWidthPix,

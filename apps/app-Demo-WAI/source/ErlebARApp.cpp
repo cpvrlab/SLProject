@@ -161,9 +161,12 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                         dd.textureDir(),
                                         dd.fontDir());
 
+    _imGuiEngine = new ImGuiEngine(dd.dirs().writableDir, _resources->fonts().atlas());
+
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
+                                       *_imGuiEngine,
                                        *_resources,
                                        dd.scrWidth(),
                                        dd.scrHeight(),
@@ -174,6 +177,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
+                                   *_imGuiEngine,
                                    dd.scrWidth(),
                                    dd.scrHeight(),
                                    dd.dpi(),
@@ -184,6 +188,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _testView = new TestView(*this,
                              _inputManager,
+                             *_imGuiEngine,
+                             *_resources,
                              _camera,
                              dd.scrWidth(),
                              dd.scrHeight(),
@@ -202,6 +208,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _aboutView = new AboutView(*this,
                                _inputManager,
+                               *_imGuiEngine,
                                *_resources,
                                dd.scrWidth(),
                                dd.scrHeight(),
@@ -210,6 +217,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _settingsView = new SettingsView(*this,
                                      _inputManager,
+                                     *_imGuiEngine,
                                      *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
@@ -218,6 +226,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _tutorialView = new TutorialView(*this,
                                      _inputManager,
+                                     *_imGuiEngine,
                                      *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
@@ -228,6 +237,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _locationMapView = new LocationMapView(*this,
                                            _inputManager,
+                                           *_imGuiEngine,
                                            *_resources,
                                            dd.scrWidth(),
                                            dd.scrHeight(),
@@ -237,6 +247,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _areaInfoView = new AreaInfoView(*this,
                                      _inputManager,
+                                     *_imGuiEngine,
                                      *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
@@ -245,6 +256,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
+                                             *_imGuiEngine,
                                              *_resources,
                                              _camera,
                                              dd.scrWidth(),
@@ -255,6 +267,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,
+                                         *_imGuiEngine,
                                          *_resources,
                                          _camera,
                                          dd.scrWidth(),
@@ -350,6 +363,13 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
             _camera->stop();
         }
     }
+
+    if (_imGuiEngine)
+    {
+        delete _imGuiEngine;
+        _imGuiEngine = nullptr;
+    }
+
     if (_resources)
     {
         delete _resources;

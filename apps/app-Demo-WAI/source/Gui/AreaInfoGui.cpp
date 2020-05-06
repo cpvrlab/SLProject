@@ -5,12 +5,14 @@
 
 using namespace ErlebAR;
 
-AreaInfoGui::AreaInfoGui(sm::EventHandler&   eventHandler,
+AreaInfoGui::AreaInfoGui(const ImGuiEngine&  imGuiEngine,
+                         sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
                          int                 screenHeightPix)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);

@@ -12,6 +12,7 @@ class LocationMapView : public SLSceneView
 public:
     LocationMapView(sm::EventHandler&   eventHandler,
                     SLInputManager&     inputManager,
+                    const ImGuiEngine&  imGuiEngine,
                     ErlebAR::Resources& resources,
                     int                 screenWidth,
                     int                 screenHeight,

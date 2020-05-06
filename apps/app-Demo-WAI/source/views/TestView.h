@@ -19,17 +19,19 @@ class SENSCamera;
 class TestView : protected SLSceneView
 {
 public:
-    TestView(sm::EventHandler& eventHandler,
-             SLInputManager&   inputManager,
-             SENSCamera*       camera,
-             int               screenWidth,
-             int               screenHeight,
-             int               dotsPerInch,
-             std::string       fontPath,
-             std::string       configDir,
-             std::string       vocabularyDir,
-             std::string       calibDir,
-             std::string       videoDir);
+    TestView(sm::EventHandler&   eventHandler,
+             SLInputManager&     inputManager,
+             const ImGuiEngine&  imGuiEngine,
+             ErlebAR::Resources& resources,
+             SENSCamera*         camera,
+             int                 screenWidth,
+             int                 screenHeight,
+             int                 dotsPerInch,
+             std::string         fontPath,
+             std::string         configDir,
+             std::string         vocabularyDir,
+             std::string         calibDir,
+             std::string         videoDir);
     ~TestView();
 
     bool update();

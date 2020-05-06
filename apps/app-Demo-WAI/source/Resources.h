@@ -146,8 +146,11 @@ public:
     ImFont* tiny{nullptr};       //e.g. log window
     ImFont* selectBtns{nullptr}; //buttons in selection window
 
+    ImFontAtlas* atlas() const { return _atlas; }
+
+private:
     //shared imgui font atlas
-    //ImFontAtlas* atlas{nullptr};
+    ImFontAtlas* _atlas{nullptr};
 };
 
 //-----------------------------------------------------------------------------
