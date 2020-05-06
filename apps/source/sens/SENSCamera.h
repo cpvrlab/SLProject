@@ -105,7 +105,8 @@ struct SENSCameraConfig
 class SENSCamera
 {
 public:
-    virtual void                                   start(const SENSCameraConfig config)         = 0;
+    virtual ~SENSCamera() { ; }
+    virtual void                                   start(SENSCameraConfig config)               = 0;
     virtual void                                   start(std::string id, int width, int height) = 0;
     virtual void                                   stop()                                       = 0;
     virtual std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics()                = 0;
@@ -134,7 +135,7 @@ protected:
     SENSCameraConfig  _config;
     std::atomic<bool> _started{false};
 
-    SENSCameraCharacteristics _characteristics;
+    SENSCameraCharacteristics              _characteristics;
     std::vector<SENSCameraCharacteristics> _allCharacteristics;
 
     std::atomic<bool> _permissionGranted{false};
@@ -156,7 +157,7 @@ class SENSCameraAsync : public SENSCamera
 {
 public:
     //The SENSCameraAsync takes ownership of the camera, thats why one has to provide a unique pointer
-    SENSCameraAsync(std::unique_ptr<SENSCameraBase> camera)
+    explicit SENSCameraAsync(std::unique_ptr<SENSCameraBase> camera)
     {
         _camera = std::move(camera);
         if (!_camera)
@@ -194,7 +195,7 @@ public:
         {
             //warn
         }
-        return std::move(frame);
+        return frame;
     }
 
     const SENSCameraCharacteristics& characteristics() const override

@@ -1683,13 +1683,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
 #endif
 
-#if defined(GL_VERSION_4_4)
-            if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
-                sv->startConetracing();
-#else
-            if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
-                sv->startConetracing();
-#endif
+            if (gl3wIsSupported(4, 4))
+            {
+                if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
+                    sv->startConetracing();
+            }
+            else
+                ImGui::MenuItem("Cone Tracing (GL>4.4)", nullptr, false, false);
 
             ImGui::EndMenu();
         }

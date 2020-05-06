@@ -209,7 +209,7 @@ public:
 class Resources
 {
 public:
-    Resources(std::string writableDir, std::string textureDir);
+    Resources(const std::string& writableDir, std::string textureDir);
     ~Resources();
 
     void setLanguageEnglish();
@@ -233,7 +233,7 @@ public:
     const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
 
 private:
-    void load(std::string resourceFileName);
+    void load(const std::string& resourceFileName);
     void save();
 
     Strings* _currStrings = &stringsEnglish;

@@ -421,14 +421,12 @@ void SLSceneView::onInitialize()
     initSceneViewCamera();
 
     // init conetracer if possible:
-#if defined(GL_VERSION_4_4)
-    //if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+    if (gl3wIsSupported(4, 4))
     {
         // The world's bounding box should not change during runtime.
         if (_s && _s->root3D())
             _conetracer.init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
     }
-#endif
 
     if (_gui)
         _gui->onResize(_viewportRect.width,

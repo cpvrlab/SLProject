@@ -25,25 +25,21 @@ SLGLConetracer::SLGLConetracer()
 SLGLConetracer::~SLGLConetracer()
 {
     //SL_LOG("Destructor      : ~SLGLConetracer");
-    if (_voxelizeMat)
-        delete _voxelizeMat;
-    if (_worldMat)
-        delete _worldMat;
-    if (_visualizeMat)
-        delete _visualizeMat;
-    if (_conetraceMat)
-        delete _conetraceMat;
-
-    if (_quadMesh)
-        delete _quadMesh;
-    if (_cubeMesh)
-        delete _cubeMesh;
+    delete _voxelizeMat;
+    delete _worldMat;
+    delete _visualizeMat;
+    delete _conetraceMat;
+    delete _quadMesh;
+    delete _cubeMesh;
 
     for (SLGLProgram* p : _programs)
         delete p;
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::init(SLint scrW, SLint scrH, const SLVec3f& minWs, const SLVec3f& maxWs)
+void SLGLConetracer::init(SLint          scrW,
+                          SLint          scrH,
+                          const SLVec3f& minWs,
+                          const SLVec3f& maxWs)
 {
     // enable multisampling
 #ifndef SL_GLES3
@@ -258,7 +254,8 @@ void SLGLConetracer::voxelSpaceTransform(const SLfloat l,
     //clang-format on
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::calcWS2VoxelSpaceTransform(const SLVec3f& minWs, const SLVec3f& maxWs)
+void SLGLConetracer::calcWS2VoxelSpaceTransform(const SLVec3f& minWs,
+                                                const SLVec3f& maxWs)
 {
     // upload ws to vs settings:
     // figure out biggest component:
@@ -322,10 +319,10 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&node->updateAndGetWM());
 
     // draw meshes of the node
-    for (auto mesh : node->meshes())
+    for (auto* mesh : node->meshes())
     {
-		SLMaterial* mat = mesh->mat();
-		mat->passToUniforms(program);		
+        SLMaterial* mat = mesh->mat();
+        mat->passToUniforms(program);
 
         /*
         if (!mat->textures().empty())
@@ -338,22 +335,25 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
         }
         */
 
-		// generate a VAO if it does not exist yet
-		if (!mesh->vao().vaoID())
-			mesh->generateVAO(program);
+        // generate a VAO if it does not exist yet
+        if (!mesh->vao().vaoID())
+                mesh->generateVAO(program);
 
-		// bind the buffer
-		glBindVertexArray(mesh->vao().vaoID());
-		GET_GL_ERROR;
+        // bind the buffer
+        glBindVertexArray(mesh->vao().vaoID());
+        GET_GL_ERROR;
 
-		glDrawElements(GL_TRIANGLES, mesh->vao().numIndices(), GL_UNSIGNED_SHORT, 0);
-		GET_GL_ERROR;
+        glDrawElements(GL_TRIANGLES,
+                       mesh->vao().numIndices(),
+                       GL_UNSIGNED_SHORT,
+                       nullptr);
+        GET_GL_ERROR;
     }
 
     GET_GL_ERROR;
 
 	// recursively draw the child nodes
-    for (auto child : node->children())
+    for (auto* child : node->children())
         renderNode(child, program);
 }
 //-----------------------------------------------------------------------------

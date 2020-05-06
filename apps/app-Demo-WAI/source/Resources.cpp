@@ -3,16 +3,18 @@
 #include "opencv2/core/persistence.hpp"
 #include <FileLog.h>
 
+#include <utility>
+
 namespace ErlebAR
 {
 
-Resources::Resources(std::string writableDir, std::string textureDir)
+Resources::Resources(const std::string& writableDir, std::string textureDir)
   : _writableDir(writableDir)
 {
     load(writableDir + "ErlebARResources.json");
 
     //load textures
-    textures.load(textureDir);
+    textures.load(std::move(textureDir));
     //load fonts
 
     //definition of erlebar locations and areas
@@ -27,7 +29,7 @@ Resources::~Resources()
     //delete fonts
 }
 
-void Resources::load(std::string resourceFileName)
+void Resources::load(const std::string& resourceFileName)
 {
     _fileName = resourceFileName;
 
@@ -98,7 +100,7 @@ void Resources::setLanguageItalien()
 
 Strings::Strings()
 {
-    _developerNames = "Jan Dellsperger\nLuc Girod\nMichael Göttlicher";
+    _developerNames = "Jan Dellsperger\nLuc Girod\nMichael Goettlicher";
 }
 
 StringsEnglish::StringsEnglish()
@@ -137,13 +139,13 @@ StringsFrench::StringsFrench()
 {
     _id = "French";
 
-    _settings = "Paramètres";
-    _about    = "À propos";
+    _settings = "Paramï¿½tres";
+    _about    = "ï¿½ propos";
     _tutorial = "Manuel";
 
     _general        = "";
     _generalContent = "";
-    _developers     = "développeur";
+    _developers     = "dï¿½veloppeur";
 
     _language  = "Langue";
     _develMode = "";
