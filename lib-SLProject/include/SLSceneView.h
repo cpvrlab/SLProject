@@ -149,7 +149,6 @@ public:
     void doMultiSampling(SLbool doMS) { _doMultiSampling = doMS; }
     void doDepthTest(SLbool doDT) { _doDepthTest = doDT; }
     void doFrustumCulling(SLbool doFC) { _doFrustumCulling = doFC; }
-    //void gotPainted(SLbool val) { _gotPainted = val; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
     void scr2fb(float scr2fbX, float scr2fbY)

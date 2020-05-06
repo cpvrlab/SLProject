@@ -440,19 +440,19 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 #if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
             else if (rType == RT_optix_rt)
             {
-                SLOptixRaytracer* rt = sv->optixRaytracer();
+                SLOptixRaytracer* ort = sv->optixRaytracer();
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / rt->renderSec());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
+                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / ort->renderSec());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", ort->renderSec());
             }
             else if (rType == RT_optix_pt)
             {
-                SLOptixPathtracer* rt = sv->optixPathtracer();
+                SLOptixPathtracer* opt = sv->optixPathtracer();
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", rt->renderSec());
-                sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", rt->denoiserMS());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
+                sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
             }
 #endif
             else if (rType == RT_pt)
