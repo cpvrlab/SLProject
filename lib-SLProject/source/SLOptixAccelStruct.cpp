@@ -8,6 +8,7 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
+#    include <SLOptix.h>
 #    include <SLOptixAccelStruct.h>
 #    include <SLOptixRaytracer.h>
 
@@ -27,7 +28,7 @@ SLOptixAccelStruct::~SLOptixAccelStruct()
 //-----------------------------------------------------------------------------
 void SLOptixAccelStruct::buildAccelerationStructure()
 {
-    OptixDeviceContext context = SLOptixRaytracer::context;
+    OptixDeviceContext context = SLOptix::context;
 
     _accelBuildOptions.operation = OPTIX_BUILD_OPERATION_BUILD;
 
@@ -56,7 +57,7 @@ void SLOptixAccelStruct::buildAccelerationStructure()
 
     OPTIX_CHECK(optixAccelBuild(
       context,
-      SLOptixRaytracer::stream, // CUDA stream
+      SLOptix::stream, // CUDA stream
       &_accelBuildOptions,
       &_buildInput,
       1, // num build inputs
@@ -68,7 +69,7 @@ void SLOptixAccelStruct::buildAccelerationStructure()
       emitProperty, // emitted property list
       1             // num emitted properties
       ));
-    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
+    CUDA_SYNC_CHECK(SLOptix::stream);
 
     OptixAabb aabb;
     aabbBuffer.download(&aabb);
@@ -76,7 +77,7 @@ void SLOptixAccelStruct::buildAccelerationStructure()
 //-----------------------------------------------------------------------------
 void SLOptixAccelStruct::updateAccelerationStructure()
 {
-    OptixDeviceContext context = SLOptixRaytracer::context;
+    OptixDeviceContext context = SLOptix::context;
 
     _accelBuildOptions.operation = OPTIX_BUILD_OPERATION_UPDATE;
 
@@ -85,7 +86,7 @@ void SLOptixAccelStruct::updateAccelerationStructure()
 
     OPTIX_CHECK(optixAccelBuild(
       context,
-      SLOptixRaytracer::stream, // CUDA stream
+      SLOptix::stream, // CUDA stream
       &_accelBuildOptions,
       &_buildInput,
       1, // num build inputs

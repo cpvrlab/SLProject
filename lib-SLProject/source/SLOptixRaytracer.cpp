@@ -13,6 +13,7 @@
 #    include <SLProjectScene.h>
 #    include <SLLightRect.h>
 #    include <SLSceneView.h>
+#    include <SLOptix.h>
 #    include <SLOptixRaytracer.h>
 #    include <SLOptixDefinitions.h>
 #    include <optix.h>
@@ -21,10 +22,6 @@
 #    include <SLLine.h>
 #    include <GlobalTimer.h>
 
-//-----------------------------------------------------------------------------
-// Global static Optix objects
-OptixDeviceContext SLOptixRaytracer::context = {};
-CUstream           SLOptixRaytracer::stream  = {};
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::SLOptixRaytracer()
   : SLRaytracer()
@@ -160,8 +157,6 @@ void SLOptixRaytracer::setupOptix()
 //-----------------------------------------------------------------------------
 OptixModule SLOptixRaytracer::_createModule(string filename)
 {
-    OptixDeviceContext context = SLOptixRaytracer::context;
-
     OptixModule module = nullptr;
     {
         const string ptx = getPtxStringFromFile(std::move(filename));
@@ -169,7 +164,7 @@ OptixModule SLOptixRaytracer::_createModule(string filename)
         size_t       sizeof_log = sizeof(log);
 
         OPTIX_CHECK_LOG(optixModuleCreateFromPTX(
-          context,
+          SLOptix::context,
           &_module_compile_options,
           &_pipeline_compile_options,
           ptx.c_str(),
@@ -183,23 +178,20 @@ OptixModule SLOptixRaytracer::_createModule(string filename)
 //-----------------------------------------------------------------------------
 OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
 {
-    OptixDeviceContext       context               = SLOptixRaytracer::context;
     OptixProgramGroup        program_group         = {};
     OptixProgramGroupOptions program_group_options = {};
 
     char   log[2048];
     size_t sizeof_log = sizeof(log);
 
-    {
-        OPTIX_CHECK_LOG(optixProgramGroupCreate(
-          context,
-          &desc,
-          1, // num program groups
-          &program_group_options,
-          log,
-          &sizeof_log,
-          &program_group));
-    }
+    OPTIX_CHECK_LOG(optixProgramGroupCreate(
+      SLOptix::context,
+      &desc,
+      1, // num program groups
+      &program_group_options,
+      log,
+      &sizeof_log,
+      &program_group));
 
     return program_group;
 }
@@ -207,8 +199,6 @@ OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
 OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup* program_groups,
                                                 unsigned int       numProgramGroups)
 {
-    OptixDeviceContext context = SLOptixRaytracer::context;
-
     OptixPipeline            pipeline;
     OptixPipelineLinkOptions pipeline_link_options = {};
     pipeline_link_options.maxTraceDepth            = _maxDepth;
@@ -218,7 +208,7 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup* program_group
     char   log[2048];
     size_t sizeof_log = sizeof(log);
     OPTIX_CHECK_LOG(optixPipelineCreate(
-      context,
+      SLOptix::context,
       &_pipeline_compile_options,
       &pipeline_link_options,
       program_groups,
@@ -405,21 +395,21 @@ SLbool SLOptixRaytracer::renderClassic()
     _progressPC = 0;      // % rendered
     _renderSec  = 0.0f;   // reset time
     // Measure time
-    double t1     = GlobalTimer::timeMS();
+    double t1     = GlobalTimer::timeS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
-      SLOptixRaytracer::stream,
+      SLOptix::stream,
       _paramsBuffer.devicePointer(),
       _paramsBuffer.size(),
       &_sbtClassic,
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1));
-    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
+    CUDA_SYNC_CHECK(SLOptix::stream);
 
-    _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(GlobalTimer::timeS() - tStart);
 
     return true;
 }
@@ -428,21 +418,21 @@ SLbool SLOptixRaytracer::renderDistrib()
 {
     _renderSec = 0.0f; // reset time
     // Measure time
-    double t1     = GlobalTimer::timeMS();
+    double t1     = GlobalTimer::timeS();
     double tStart = t1;
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
-      SLOptixRaytracer::stream,
+      SLOptix::stream,
       _paramsBuffer.devicePointer(),
       _paramsBuffer.size(),
       &_sbtDistributed,
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1));
-    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
+    CUDA_SYNC_CHECK(SLOptix::stream);
 
-    _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;
+    _renderSec = (SLfloat)(GlobalTimer::timeS() - tStart);
 
     return true;
 }
@@ -478,7 +468,7 @@ void SLOptixRaytracer::renderImage()
     SLGLTexture::bindActive(0);
 
     CUarray texture_ptr;
-    CUDA_CHECK(cuGraphicsMapResources(1, &_cudaGraphicsResource, SLOptixRaytracer::stream));
+    CUDA_CHECK(cuGraphicsMapResources(1, &_cudaGraphicsResource, SLOptix::stream));
     CUDA_CHECK(cuGraphicsSubResourceGetMappedArray(&texture_ptr, _cudaGraphicsResource, 0, 0));
 
     CUDA_ARRAY_DESCRIPTOR des;
@@ -498,7 +488,7 @@ void SLOptixRaytracer::renderImage()
     memcpy2D.Height        = des.Height;
     CUDA_CHECK(cuMemcpy2D(&memcpy2D));
 
-    CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLOptixRaytracer::stream));
+    CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLOptix::stream));
 
     SLfloat w = (SLfloat)_sv->scrW();
     SLfloat h = (SLfloat)_sv->scrH();

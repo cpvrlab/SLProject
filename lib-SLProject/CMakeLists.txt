@@ -227,6 +227,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptix.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelStruct.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixPathtracer.cpp

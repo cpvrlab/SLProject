@@ -529,13 +529,13 @@ void initGLFW(int screenWidth, int screenHeight)
     }
 
     glfwSetWindowTitle(window, "SLProject Test Application");
-    glfwSetWindowPos(window, 10, 30);
+    glfwSetWindowPos(window, 50, 100);
 
     // With GLFW ImGui draws the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(2);
+    glfwSwapInterval(1);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;

@@ -443,8 +443,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLOptixRaytracer* ort = sv->optixRaytracer();
                 sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / ort->renderSec());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", ort->renderSec());
+                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", 1.0f/s->fps());
             }
             else if (rType == RT_optix_pt)
             {

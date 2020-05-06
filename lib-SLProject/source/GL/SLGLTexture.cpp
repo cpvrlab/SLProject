@@ -21,6 +21,7 @@
 #ifdef SL_HAS_OPTIX
 #include <cuda.h>
 #include <cudaGL.h>
+#include <SLOptix.h>
 #include <SLOptixHelper.h>
 #include <SLOptixRaytracer.h>
 #endif
@@ -683,7 +684,7 @@ void SLGLTexture::buildCudaTexture()
 
         CUDA_CHECK(cuGraphicsMapResources(1,
                                           &_cudaGraphicsResource,
-                                          SLOptixRaytracer::stream));
+                                          SLOptix::stream));
         CUDA_CHECK(cuGraphicsSubResourceGetMappedArray(&texture_ptr,
                                                        _cudaGraphicsResource,
                                                        0,
@@ -709,7 +710,7 @@ void SLGLTexture::buildCudaTexture()
                                      nullptr));
         CUDA_CHECK(cuGraphicsUnmapResources(1,
                                             &_cudaGraphicsResource,
-                                            SLOptixRaytracer::stream));
+                                            SLOptix::stream));
     }
 }
 #endif

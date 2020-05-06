@@ -12,6 +12,7 @@
 #    include <SLApplication.h>
 #    include <SLProjectScene.h>
 #    include <SLSceneView.h>
+#    include <SLOptix.h>
 #    include <SLOptixRaytracer.h>
 #    include <SLOptixPathtracer.h>
 #    include <GlobalTimer.h>
@@ -30,8 +31,6 @@ SLOptixPathtracer::~SLOptixPathtracer()
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::setupOptix()
 {
-    OptixDeviceContext context = SLOptixRaytracer::context;
-
     _cameraModule  = _createModule("SLOptixPathtracerCamera.cu");
     _shadingModule = _createModule("SLOptixPathtracerShading.cu");
     _traceModule   = _createModule("SLOptixTrace.cu");
@@ -106,7 +105,7 @@ void SLOptixPathtracer::setupOptix()
     denoiserOptions.inputKind   = OPTIX_DENOISER_INPUT_RGB;
     denoiserOptions.pixelFormat = OPTIX_PIXEL_FORMAT_FLOAT4;
 
-    OPTIX_CHECK(optixDenoiserCreate(context,
+    OPTIX_CHECK(optixDenoiserCreate(SLOptix::context,
                                     &denoiserOptions,
                                     &_optixDenoiser));
 
@@ -149,7 +148,7 @@ void SLOptixPathtracer::setupScene(SLSceneView* sv)
 
     OPTIX_CHECK(optixDenoiserSetup(
       _optixDenoiser,
-      SLOptixRaytracer::stream,
+      SLOptix::stream,
       _sv->scrW(),
       _sv->scrH(),
       _denoserState.devicePointer(),
@@ -199,14 +198,14 @@ SLbool SLOptixPathtracer::render()
 
     OPTIX_CHECK(optixLaunch(
       _pipeline,
-      SLOptixRaytracer::stream,
+      SLOptix::stream,
       _paramsBuffer.devicePointer(),
       _paramsBuffer.size(),
       &_sbtClassic,
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1));
-    CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
+    CUDA_SYNC_CHECK(SLOptix::stream);
 
     _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;
 
@@ -230,7 +229,7 @@ SLbool SLOptixPathtracer::render()
 
         OPTIX_CHECK(optixDenoiserInvoke(
           _optixDenoiser,
-          SLOptixRaytracer::stream,
+          SLOptix::stream,
           &denoiserParams,
           _denoserState.devicePointer(),
           _denoiserSizes.stateSizeInBytes,
@@ -241,7 +240,7 @@ SLbool SLOptixPathtracer::render()
           &optixImage2D,
           _scratch.devicePointer(),
           _denoiserSizes.recommendedScratchSizeInBytes));
-        CUDA_SYNC_CHECK(SLOptixRaytracer::stream);
+        CUDA_SYNC_CHECK(SLOptix::stream);
     }
 
     _denoiserMS = (SLfloat)(GlobalTimer::timeMS() - t2);
