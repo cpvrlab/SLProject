@@ -25,7 +25,6 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBextractor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/SURFextractor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBmatcher.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBVocabulary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/WorkingSet.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.h
@@ -38,7 +37,6 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrameDB.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMapPoint.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTools.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlam.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
@@ -119,7 +117,7 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     ${OpenCV_LIBS}
     ${g2o_LIBS}
-    ${META_PROJECT_NAME}::lib-DBoW2
+    ${META_PROJECT_NAME}::lib-fbow
     ${META_PROJECT_NAME}::lib-Utils
 
     INTERFACE

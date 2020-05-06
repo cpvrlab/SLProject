@@ -47,7 +47,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
                          size_t                           N,
                          const std::vector<cv::KeyPoint>& vKeysUn,
                          const cv::Mat&                   descriptors,
-                         ORBVocabulary*                   mpORBvocabulary,
+                         fbow::Vocabulary*                vocabulary,
                          int                              nScaleLevels,
                          float                            fScaleFactor,
                          const std::vector<float>&        vScaleFactors,
@@ -112,7 +112,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     SetPose(Tcw);
 
     //compute mBowVec and mFeatVec
-    ComputeBoW(mpORBvocabulary);
+    ComputeBoW(vocabulary);
 
     //assign features to grid
     AssignFeaturesToGrid();
@@ -188,18 +188,21 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
 //-----------------------------------------------------------------------------
 
 //TODO: set levels according to vocabulary
-void WAIKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
+void WAIKeyFrame::ComputeBoW(fbow::Vocabulary* vocabulary)
 {
     if (mBowVec.empty() || mFeatVec.empty())
     {
-        vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
+        //vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
 
         // Luc: In a 6 levels and 10 branch per level voc, 4 levelup mean the 2nd level from the top
         // that make a total of 100 words. More words means more variance between keyframe and less
         // preselected keyframe but that will make also the relocalization less invariant to changes
-        orbVocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2);
+        //vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2
+
+        //TODO ensure level is now from the top
+        vocabulary->transform(mDescriptors, 2, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------

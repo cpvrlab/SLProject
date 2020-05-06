@@ -33,13 +33,14 @@
 
 #include <vector>
 #include <mutex>
+#include <string>
 
 #include <DBoW2/BowVector.h>
 #include <DBoW2/FeatureVector.h>
 #include <opencv2/core/core.hpp>
 
 #include <WAIHelper.h>
-#include <OrbSlam/ORBVocabulary.h>
+#include <fbow.h>
 #include <WAIFrame.h>
 #include <WAIMath.h>
 
@@ -71,7 +72,7 @@ public:
                 size_t                           N,
                 const std::vector<cv::KeyPoint>& vKeysUn,
                 const cv::Mat&                   descriptors,
-                ORBVocabulary*                   mpORBvocabulary,
+                fbow::Vocabulary*                vocabulary,
                 int                              nScaleLevels,
                 float                            fScaleFactor,
                 const std::vector<float>&        vScaleFactors,
@@ -95,7 +96,7 @@ public:
     cv::Mat GetTranslation();
 
     // Bag of Words Representation
-    void ComputeBoW(ORBVocabulary* orbVocabulary);
+    void ComputeBoW(fbow::Vocabulary* vocabulary);
 
     // Covisibility graph functions
     void                      AddConnection(WAIKeyFrame* pKF, int weight);
@@ -104,7 +105,7 @@ public:
     void                      UpdateBestCovisibles();
     std::set<WAIKeyFrame*>    GetConnectedKeyFrames();
     std::vector<WAIKeyFrame*> GetVectorCovisibleKeyFrames();
-    vector<WAIKeyFrame*>      GetBestCovisibilityKeyFrames(const int& N);
+    std::vector<WAIKeyFrame*>      GetBestCovisibilityKeyFrames(const int& N);
     std::vector<WAIKeyFrame*> GetCovisiblesByWeight(const int& w);
     //get weight of covisibility connection to this keyframe
     int                                GetWeight(WAIKeyFrame* pKF);
@@ -128,7 +129,7 @@ public:
     void                   EraseMapPointMatch(const size_t& idx);
     void                   ReplaceMapPointMatch(const size_t& idx, WAIMapPoint* pMP);
     std::set<WAIMapPoint*> GetMapPoints();
-    vector<WAIMapPoint*>   GetMapPointMatches();
+    std::vector<WAIMapPoint*>   GetMapPointMatches();
     int                    TrackedMapPoints(const int& minObs);
     WAIMapPoint*           GetMapPoint(const size_t& idx);
     bool                   hasMapPoint(WAIMapPoint* mp);
@@ -222,8 +223,8 @@ public:
     const cv::Mat mDescriptors;
 
     //BoW
-    DBoW2::BowVector     mBowVec;
-    DBoW2::FeatureVector mFeatVec;
+    fbow::fBow     mBowVec;
+    fbow::fBow2    mFeatVec;
 
     // Pose relative to parent (this is computed when bad flag is activated)
     cv::Mat mTcp;
@@ -289,7 +290,7 @@ public:
     std::mutex mMutexFeatures;
     //ghm1: added funtions
     //set path to texture image
-    void               setTexturePath(const string& path) { _pathToTexture = path; }
+    void               setTexturePath(const std::string& path) { _pathToTexture = path; }
     const std::string& getTexturePath() { return _pathToTexture; }
 
     //! get visual representation as SLPoints
@@ -306,7 +307,7 @@ private:
     bool PosInGrid(const cv::KeyPoint& kp, int& posX, int& posY);
 
     //path to background texture image
-    string _pathToTexture;
+    std::string _pathToTexture;
 };
 
 #endif // !WAIKEYFRAME_H

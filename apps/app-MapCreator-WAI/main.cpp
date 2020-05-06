@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include "MapCreator.h"
+#include <MapCreator.h>
 #include <Utils.h>
 #include <GLFW/glfw3.h>
 

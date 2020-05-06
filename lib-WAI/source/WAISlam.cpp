@@ -2,6 +2,7 @@
 #include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 #include <Utils.h>
+#include <fbow.h>
 
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
@@ -14,7 +15,7 @@
 
 WAISlam::WAISlam(const cv::Mat& intrinsic,
                  const cv::Mat& distortion,
-                 ORBVocabulary* voc,
+                 fbow::Vocabulary* voc,
                  KPextractor*   iniExtractor,
                  KPextractor*   extractor,
                  WAIMap*        globalMap,
@@ -36,7 +37,7 @@ WAISlam::WAISlam(const cv::Mat& intrinsic,
 
     _distortion      = distortion.clone();
     _cameraIntrinsic = intrinsic.clone();
-    _voc             = voc;
+    //_voc             = voc;
     _extractor       = extractor;
     _iniExtractor    = iniExtractor;
 

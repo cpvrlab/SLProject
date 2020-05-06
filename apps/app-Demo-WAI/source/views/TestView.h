@@ -11,6 +11,7 @@
 #include <CVCalibration.h>
 #include <queue>
 #include <ImageBuffer.h>
+#include <fbow.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -83,6 +84,7 @@ protected:
 
     //scene
     AppWAIScene _scene;
+    fbow::Vocabulary _voc;
 
     SLAssetManager _assets;
 

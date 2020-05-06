@@ -162,7 +162,7 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF, WAIFrame& F, vector<WAIMapPoint*>&
 
     vpMapPointMatches = vector<WAIMapPoint*>(F.N, static_cast<WAIMapPoint*>(NULL));
 
-    const DBoW2::FeatureVector& vFeatVecKF = pKF->mFeatVec;
+    const fbow::fBow2& vFeatVecKF = pKF->mFeatVec;
 
     int nmatches = 0;
 
@@ -643,12 +643,12 @@ int ORBmatcher::SearchForMarkerMap(WAIFrame& F1, WAIKeyFrame& F2, vector<int>& v
 int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapPoint*>& vpMatches12)
 {
     const vector<cv::KeyPoint>& vKeysUn1     = pKF1->mvKeysUn;
-    const DBoW2::FeatureVector& vFeatVec1    = pKF1->mFeatVec;
+    const fbow::fBow2&          vFeatVec1    = pKF1->mFeatVec;
     const vector<WAIMapPoint*>  vpMapPoints1 = pKF1->GetMapPointMatches();
     const cv::Mat&              Descriptors1 = pKF1->mDescriptors;
 
     const vector<cv::KeyPoint>& vKeysUn2     = pKF2->mvKeysUn;
-    const DBoW2::FeatureVector& vFeatVec2    = pKF2->mFeatVec;
+    const fbow::fBow2&          vFeatVec2    = pKF2->mFeatVec;
     const vector<WAIMapPoint*>  vpMapPoints2 = pKF2->GetMapPointMatches();
     const cv::Mat&              Descriptors2 = pKF2->mDescriptors;
 
@@ -780,8 +780,8 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapP
 
 int ORBmatcher::SearchForTriangulation(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, cv::Mat F12, vector<pair<size_t, size_t>>& vMatchedPairs, const bool bOnlyStereo)
 {
-    const DBoW2::FeatureVector& vFeatVec1 = pKF1->mFeatVec;
-    const DBoW2::FeatureVector& vFeatVec2 = pKF2->mFeatVec;
+    const fbow::fBow2& vFeatVec1 = pKF1->mFeatVec;
+    const fbow::fBow2& vFeatVec2 = pKF2->mFeatVec;
 
     //Compute epipole in second image
     cv::Mat Cw  = pKF1->GetCameraCenter();

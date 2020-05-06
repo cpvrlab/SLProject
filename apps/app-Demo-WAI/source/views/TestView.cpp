@@ -324,8 +324,9 @@ void TestView::saveMap(std::string location,
 
     if (!marker.empty())
     {
-        ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
-        voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+        //voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+        fbow::Vocabulary voc;
+        voc.readFromFile(_currentSlamParams.vocabularyFile);
 
         cv::Mat nodeTransform;
         if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
@@ -334,7 +335,7 @@ void TestView::saveMap(std::string location,
                                                     _mode->getKPextractor(),
                                                     _mode->getMap(),
                                                     _calibration.cameraMat(),
-                                                    voc))
+                                                    &voc))
         {
             _gui.showErrorMsg("Failed to do marker map preprocessing");
         }
@@ -558,21 +559,19 @@ void TestView::startOrbSlam(SlamParams slamParams)
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
-    ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
-    voc->loadFromBinaryFile(slamParams.vocabularyFile);
-    std::cout << "Vocabulary " << voc << std::endl;
+    _voc.clear();
+    _voc.readFromFile(slamParams.vocabularyFile);
     std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
     WAIMap* map = nullptr;
 
     // 5. Load map data
     if (useMapFile)
     {
-        std::cout << "Vocabulary " << voc << std::endl;
-        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
+        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
         map                    = new WAIMap(kfdb);
         bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                         _scene.mapNode,
-                                                        voc,
+                                                        &_voc,
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
@@ -589,7 +588,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
-                        voc,
+                        &_voc,
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
                         map,

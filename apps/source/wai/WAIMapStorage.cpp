@@ -212,12 +212,12 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
     return true;
 }
 
-bool WAIMapStorage::loadMap(WAIMap*        waiMap,
-                            SLNode*        mapNode,
-                            ORBVocabulary* voc,
-                            std::string    path,
-                            bool           loadImgs,
-                            bool           fixKfsAndMPts)
+bool WAIMapStorage::loadMap(WAIMap*           waiMap,
+                            SLNode*           mapNode,
+                            fbow::Vocabulary* voc,
+                            std::string       path,
+                            bool              loadImgs,
+                            bool              fixKfsAndMPts)
 {
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;

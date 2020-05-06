@@ -65,12 +65,12 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     }
 }
 
-bool WAISlamTools::initialize(InitializerData& iniData,
-                              WAIFrame&        frame,
-                              ORBVocabulary*   voc,
-                              LocalMap&        localMap,
-                              int              mapPointsNeeded,
-                              unsigned long&   lastKeyFrameFrameId)
+bool WAISlamTools::initialize(InitializerData&  iniData,
+                              WAIFrame&         frame,
+                              fbow::Vocabulary* voc,
+                              LocalMap&         localMap,
+                              int               mapPointsNeeded,
+                              unsigned long&    lastKeyFrameFrameId)
 {
     int matchesNeeded = 100;
 
@@ -270,15 +270,15 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
     return true;
 }
 
-bool WAISlamTools::oldInitialize(WAIFrame&        frame,
-                                 InitializerData& iniData,
-                                 WAIMap*          map,
-                                 LocalMap&        localMap,
-                                 LocalMapping*    localMapper,
-                                 LoopClosing*     loopCloser,
-                                 ORBVocabulary*   voc,
-                                 int              mapPointsNeeded,
-                                 unsigned long&   lastKeyFrameFrameId)
+bool WAISlamTools::oldInitialize(WAIFrame&         frame,
+                                 InitializerData&  iniData,
+                                 WAIMap*           map,
+                                 LocalMap&         localMap,
+                                 LocalMapping*     localMapper,
+                                 LoopClosing*      loopCloser,
+                                 fbow::Vocabulary* voc,
+                                 int               mapPointsNeeded,
+                                 unsigned long&    lastKeyFrameFrameId)
 {
     int matchesNeeded = 100;
 
@@ -1118,10 +1118,10 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat   velocity,
     return nmatches >= 10;
 }
 
-WAIFrame WAISlamTools::createMarkerFrame(std::string    markerFile,
-                                         KPextractor*   markerExtractor,
-                                         const cv::Mat& markerCameraIntrinsic,
-                                         ORBVocabulary* voc)
+WAIFrame WAISlamTools::createMarkerFrame(std::string       markerFile,
+                                         KPextractor*      markerExtractor,
+                                         const cv::Mat&    markerCameraIntrinsic,
+                                         fbow::Vocabulary* voc)
 {
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
@@ -1184,13 +1184,13 @@ bool WAISlamTools::findMarkerHomography(WAIFrame&    markerFrame,
     return result;
 }
 
-bool WAISlamTools::doMarkerMapPreprocessing(std::string    markerFile,
-                                            cv::Mat&       nodeTransform,
-                                            float          markerWidthInM,
-                                            KPextractor*   markerExtractor,
-                                            WAIMap*        map,
-                                            const cv::Mat& markerCameraIntrinsic,
-                                            ORBVocabulary* voc)
+bool WAISlamTools::doMarkerMapPreprocessing(std::string       markerFile,
+                                            cv::Mat&          nodeTransform,
+                                            float             markerWidthInM,
+                                            KPextractor*      markerExtractor,
+                                            WAIMap*           map,
+                                            const cv::Mat&    markerCameraIntrinsic,
+                                            fbow::Vocabulary* voc)
 {
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes

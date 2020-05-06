@@ -14,6 +14,7 @@
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
+#include <fbow.h>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
@@ -42,6 +43,17 @@ public:
         // in at least other 3 keyframes (in the same or finer scale)
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
+
+    WAISlam(const cv::Mat& intrinsic,
+                 const cv::Mat& distortion,
+                 fbow::Vocabulary* voc,
+                 KPextractor*   iniExtractor,
+                 KPextractor*   extractor,
+                 WAIMap*        globalMap,
+                 bool           trackingOnly,
+                 bool           serial,
+                 bool           retainImg,
+                 float          cullRedundantPerc);
 
     WAISlam(const cv::Mat& intrinsic,
             const cv::Mat& distortion,

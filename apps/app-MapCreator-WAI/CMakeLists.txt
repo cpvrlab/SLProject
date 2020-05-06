@@ -8,7 +8,6 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(headers
-    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
@@ -18,6 +17,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
+    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
     )
 
 set(sources
@@ -52,6 +52,7 @@ target_include_directories(${target}
     ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
+        ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/source/
         ${glfw_INCLUDE_DIR}
         PUBLIC
 
@@ -64,6 +65,7 @@ target_link_libraries(${target}
         PUBLIC
         lib-SLProject
         lib-WAI
+        lib-fbow
         ${glfw_LIBS}
         INTERFACE
     )

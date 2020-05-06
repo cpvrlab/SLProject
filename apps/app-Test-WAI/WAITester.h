@@ -5,6 +5,7 @@
 #include <Utils.h>
 #include <WAISlam.h>
 #include <WAIMapStorage.h>
+#include <fbow.h>
 
 #define WAI_DEBUG(...) Utils::log("[DEBUG]", __VA_ARGS__)
 #define WAI_INFO(...) Utils::log("[INFO ]", __VA_ARGS__)
@@ -43,18 +44,18 @@ public:
     Tester(std::string erlebARDir, std::string configFile, std::string vocFile, int testFlags, int frameRate, ExtractorType extractorType);
     ~Tester();
 
-    RelocalizationTestResult runRelocalizationTest(std::string    videoFile,
-                                                   std::string    mapFile,
-                                                   std::string    vocFile,
-                                                   CVCalibration& calibration,
-                                                   ExtractorType  extractorType);
+    RelocalizationTestResult runRelocalizationTest(std::string       videoFile,
+                                                   std::string       mapFile,
+                                                   fbow::Vocabulary& voc,
+                                                   CVCalibration&    calibration,
+                                                   ExtractorType     extractorType);
 
-    TrackingTestResult runTrackingTest(std::string    videoFile,
-                                       std::string    mapFile,
-                                       std::string    vocFile,
-                                       CVCalibration& calibration,
-                                       ExtractorType  extractorType,
-                                       int            framerate = 0);
+    TrackingTestResult runTrackingTest(std::string       videoFile,
+                                       std::string       mapFile,
+                                       fbow::Vocabulary& voc,
+                                       CVCalibration&    calibration,
+                                       ExtractorType     extractorType,
+                                       int               framerate = 0);
 
     void launchTrackingTest(const Location& location, const Area& area, Datas& datas, ExtractorType extractorType, int framerate = 0);
 
@@ -71,7 +72,8 @@ private:
     Tester() {}
     std::map<Location, Areas> _erlebAR;
     std::string               _erlebARDir;
-    std::string               _vocFile;
+    //std::string               _vocFile;
+    fbow::Vocabulary          _voc;
     int                       _testFlags;
     std::string               _calibrationsDir;
     FeatureExtractorFactory   _factory;
