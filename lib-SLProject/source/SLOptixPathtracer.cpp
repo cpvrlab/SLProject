@@ -24,8 +24,7 @@ SLOptixPathtracer::SLOptixPathtracer()
 //-----------------------------------------------------------------------------
 SLOptixPathtracer::~SLOptixPathtracer()
 {
-    SL_LOG("Destructor      : ~SLOptixPathtracer\n");
-
+    //SL_LOG("Destructor      : ~SLOptixPathtracer");
     OPTIX_CHECK(optixDenoiserDestroy(_optixDenoiser));
 }
 //-----------------------------------------------------------------------------

@@ -79,7 +79,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
             maxKFid = pKF->mnId;
     }
 
-    const float thHuber2D = sqrt(5.99);
+    const float thHuber2D = sqrt(5.99f);
 
     // Set WAIMapPoint vertices
     for (size_t i = 0; i < vpMP.size(); i++)
@@ -442,7 +442,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
     vnIndexEdgeMono.reserve(N);
     vbOutliers.resize(N);
 
-    const float deltaMono = sqrt(5.991);
+    const float deltaMono = sqrt(5.991f);
     {
         unique_lock<mutex> lock(WAIMapPoint::mGlobalMutex);
 
@@ -491,8 +491,8 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
 
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
-    const float chi2Mono[4]   = {5.991, 5.991, 5.991, 5.991};
-    const float chi2Stereo[4] = {7.815, 7.815, 7.815, 7.815};
+    const float chi2Mono[4]   = {5.991f, 5.991f, 5.991f, 5.991f};
+    const float chi2Stereo[4] = {7.815f, 7.815f, 7.815f, 7.815f};
     const int   its[4]        = {10, 10, 10, 10};
 
     int nBad = 0;
@@ -514,7 +514,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
                 e->computeError();
             }
 
-            const float chi2 = e->chi2();
+            const float chi2 = (float)e->chi2();
 
             if (chi2 > chi2Mono[it])
             {
@@ -577,7 +577,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     vbOutliers.resize(N);
 
     AVERAGE_TIMING_START("PoseOpt.Part1");
-    const float deltaMono = sqrt(5.991);
+    const float deltaMono = sqrt(5.991f);
     {
         unique_lock<mutex> lock(WAIMapPoint::mGlobalMutex);
 
@@ -631,8 +631,8 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     AVERAGE_TIMING_START("PoseOpt.Part2");
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
-    const float chi2Mono[4]   = {5.991, 5.991, 5.991, 5.991};
-    const float chi2Stereo[4] = {7.815, 7.815, 7.815, 7.815};
+    const float chi2Mono[4]   = {5.991f, 5.991f, 5.991f, 5.991f};
+    const float chi2Stereo[4] = {7.815f, 7.815f, 7.815f, 7.815f};
     const int   its[4]        = {10, 10, 10, 10};
 
     int nBad = 0;
@@ -654,7 +654,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
                 e->computeError();
             }
 
-            const float chi2 = e->chi2();
+            const float chi2 = (float)e->chi2();
 
             if (chi2 > chi2Mono[it])
             {
@@ -691,7 +691,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
             e->computeError();
         }
 
-        const float chi2 = e->chi2();
+        const float chi2 = (float)e->chi2();
 
         if (chi2 > chi2Mono[3])
         {
@@ -993,10 +993,10 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
     os->lmap.keyFrames.push_back(pKF);
     pKF->mnMarker[BA_LOCAL_KF] = pKF->mnId;
 
-    const float thHuberMono = sqrt(5.991);
+    const float thHuberMono = sqrt(5.991f);
 
     const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
-    for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
+    for (int i = 0, iend = (int)vNeighKFs.size(); i < iend; i++)
     {
         WAIKeyFrame* pKFi = vNeighKFs[i];
         if (wc.isInUseSet(pKFi))
@@ -1058,7 +1058,7 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
         vSE3->setId(pKFi->mnId);
         vSE3->setFixed(pKFi->mnId == 0 || pKFi->isFixed());
         os->optimizer.addVertex(vSE3);
-        if (pKFi->mnId > os->maxKFid)
+        if (pKFi->mnId > (unsigned long)os->maxKFid)
             os->maxKFid = pKFi->mnId;
     }
 
@@ -1071,12 +1071,12 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
         vSE3->setId(pKFi->mnId);
         vSE3->setFixed(true);
         os->optimizer.addVertex(vSE3);
-        if (pKFi->mnId > os->maxKFid)
+        if (pKFi->mnId > (unsigned long)os->maxKFid)
             os->maxKFid = pKFi->mnId;
     }
 
     // Set WAIMapPoint vertices
-    const int nExpectedSize = (os->lmap.keyFrames.size() + os->lmap.secondNeighbors.size()) * os->lmap.mapPoints.size();
+    const int nExpectedSize = (int)((os->lmap.keyFrames.size() + os->lmap.secondNeighbors.size()) * os->lmap.mapPoints.size());
 
     os->vpEdgesMono.reserve(nExpectedSize);
     os->vpEdgeKFMono.reserve(nExpectedSize);
@@ -1232,7 +1232,7 @@ void Optimizer::optimizerLocalMap(LocalMap& lmap, WAIKeyFrame* pKF)
     pKF->mnMarker[BA_LOCAL_KF] = pKF->mnId;
 
     const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
-    for (int i = 0, iend = vNeighKFs.size(); i < iend; i++)
+    for (int i = 0, iend = (int)vNeighKFs.size(); i < iend; i++)
     {
         WAIKeyFrame* pKFi = vNeighKFs[i];
 
@@ -1329,7 +1329,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
     }
 
     // Set WAIMapPoint vertices
-    const int nExpectedSize = (lmap.keyFrames.size() + lmap.secondNeighbors.size()) * lmap.mapPoints.size();
+    const int nExpectedSize = (int)((lmap.keyFrames.size() + lmap.secondNeighbors.size()) * lmap.mapPoints.size());
 
     vector<g2o::EdgeSE3ProjectXYZ*> vpEdgesMono;
     vpEdgesMono.reserve(nExpectedSize);
@@ -1351,7 +1351,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
     vpMapPointEdgeStereo.reserve(nExpectedSize);
     */
 
-    const float thHuberMono = sqrt(5.991);
+    const float thHuberMono = sqrt(5.991f);
 
     for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
     {
@@ -1583,7 +1583,7 @@ int Optimizer::OptimizeSim3(WAIKeyFrame*          pKF1,
     optimizer.addVertex(vSim3);
 
     // Set WAIMapPoint vertices
-    const int                               N            = vpMatches1.size();
+    const int                               N            = (int)vpMatches1.size();
     const vector<WAIMapPoint*>              vpMapPoints1 = pKF1->GetMapPointMatches();
     vector<g2o::EdgeSim3ProjectXYZ*>        vpEdges12;
     vector<g2o::EdgeInverseSim3ProjectXYZ*> vpEdges21;

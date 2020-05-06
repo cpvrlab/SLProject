@@ -1202,7 +1202,7 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 
 void SURFextractor::computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)
 {
-    descriptors.create(keypoints.size(), 32, CV_8U);
+    descriptors.create((int)keypoints.size(), 32, CV_8U);
     computeDescriptors(image, keypoints, descriptors, pattern);
 }
 
@@ -1233,7 +1233,7 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     }
     else
     {
-        _descriptors.create(_keypoints.size(), 32, CV_8U);
+        _descriptors.create((int)_keypoints.size(), 32, CV_8U);
         descriptors = _descriptors.getMat();
     }
 
@@ -1241,7 +1241,7 @@ void SURFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, 
     GaussianBlur(image, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
     // Compute the descriptors
-    Mat desc = descriptors.rowRange(0, _keypoints.size());
+    Mat desc = descriptors.rowRange(0, (int)_keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
 
     AVERAGE_TIMING_STOP("computeDescriptors2");

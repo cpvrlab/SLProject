@@ -37,8 +37,7 @@ SLOptixRaytracer::SLOptixRaytracer()
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::~SLOptixRaytracer()
 {
-    SL_LOG("Destructor      : ~SLOptixRaytracer\n");
-
+    //SL_LOG("Destructor      : ~SLOptixRaytracer");
     OPTIX_CHECK(optixPipelineDestroy(_pipeline));
     OPTIX_CHECK(optixProgramGroupDestroy(_radiance_hit_group));
     OPTIX_CHECK(optixProgramGroupDestroy(_occlusion_hit_group));
