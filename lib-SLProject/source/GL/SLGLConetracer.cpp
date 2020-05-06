@@ -281,10 +281,8 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)_wsToVoxelSpace->m());
 
     uploadRenderSettings(program);
-    GET_GL_ERROR;
 
     uploadLights(program);
-    GET_GL_ERROR;
 
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();
@@ -299,7 +297,6 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
 void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 {
     assert(node);
-    GET_GL_ERROR;
 
     SLGLState* stateGL = SLGLState::instance();
     GLint progID = program->progID();
@@ -341,20 +338,18 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 
         // bind the buffer
         glBindVertexArray(mesh->vao().vaoID());
-        GET_GL_ERROR;
 
         glDrawElements(GL_TRIANGLES,
                        mesh->vao().numIndices(),
                        GL_UNSIGNED_SHORT,
                        nullptr);
-        GET_GL_ERROR;
     }
-
-    GET_GL_ERROR;
 
 	// recursively draw the child nodes
     for (auto* child : node->children())
         renderNode(child, program);
+
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::voxelize()
@@ -367,21 +362,16 @@ void SLGLConetracer::voxelize()
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
     glUseProgram(program->progID());
-    GET_GL_ERROR;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    GET_GL_ERROR;
 
     glViewport(0, 0, _voxelTexSize, _voxelTexSize);
-    GET_GL_ERROR;
 
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    GET_GL_ERROR;
 
     _voxelTex->activate(program->progID(), "u_texture3D", 0);
-    GET_GL_ERROR;
 
     // Bind texture where we want to write to:
 #if defined(GL_VERSION_4_4)
@@ -393,12 +383,9 @@ void SLGLConetracer::voxelize()
                        GL_WRITE_ONLY,
                        GL_RGBA8);
 #endif
-    
-    GET_GL_ERROR;
 	
     _sv->camera()->setProjection(_sv, ET_center);
     _sv->camera()->setView(_sv, ET_center);
-    GET_GL_ERROR;
 
     renderSceneGraph(program);
 

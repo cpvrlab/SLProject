@@ -1422,7 +1422,7 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromBinaryFile(const std::string& 
     createScoringObject();
 
     m_nodes.reserve(nodeCount + 1);
-    m_words.reserve((__int64)pow((double)m_k, (double)m_L + 1));
+    m_words.reserve(pow((double)m_k, (double)m_L + 1));
 
     m_nodes.resize(nodeCount + 1);
     m_nodes[0].id = 0;

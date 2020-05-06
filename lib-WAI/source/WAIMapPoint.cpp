@@ -356,7 +356,7 @@ void WAIMapPoint::ComputeDistinctiveDescriptors()
     {
         vector<int> vDists(Distances[i], Distances[i] + N);
         sort(vDists.begin(), vDists.end());
-        int median = vDists[(unsigned __int64)(0.5 * (N - 1))];
+        int median = vDists[0.5 * (N - 1)];
 
         if (median < BestMedian)
         {
