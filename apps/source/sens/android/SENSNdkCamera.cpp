@@ -96,6 +96,12 @@ void SENSNdkCamera::openCamera()
     //init camera manager
     if (!_cameraManager)
     {
+        //init availability
+        for (const SENSCameraCharacteristics& c : _allCharacteristics)
+        {
+            _cameraAvailability[c.cameraId] = false;
+        }
+
         LOG_NDKCAM_DEBUG("openCamera: Creating camera manager ...");
         _cameraManager = ACameraManager_create();
         if (!_cameraManager)
@@ -308,6 +314,7 @@ void SENSNdkCamera::start(const SENSCameraConfig config)
                 if (_config.deviceId == c.cameraId)
                 {
                     _characteristics = c;
+                    break;
                 }
             }
         }
