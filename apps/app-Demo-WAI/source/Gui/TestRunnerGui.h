@@ -17,6 +17,9 @@ public:
 private:
     ImFont* _fontPropDots = nullptr;
     int     _dpi;
+
+    std::map<int, std::string> _availableModes;
+    int                        _selectedMode;
 };
 
 #endif
