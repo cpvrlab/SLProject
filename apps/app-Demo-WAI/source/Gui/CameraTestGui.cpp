@@ -11,8 +11,7 @@ CameraTestGui::CameraTestGui(sm::EventHandler&   eventHandler,
                              int                 screenWidthPix,
                              int                 screenHeightPix,
                              SENSCamera*         camera)
-  : ImGuiWrapper(resources.fonts().atlas),
-    sm::EventSender(eventHandler),
+  : sm::EventSender(eventHandler),
     _resources(resources),
     _camera(camera)
 {

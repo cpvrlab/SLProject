@@ -7,18 +7,23 @@ namespace ErlebAR
 {
 Fonts::Fonts()
 {
-    atlas = new ImFontAtlas();
+    //atlas = new ImFontAtlas();
 }
 
 Fonts::~Fonts()
 {
-    if (atlas)
-        delete atlas;
+    //if (atlas)
+    //    delete atlas;
 }
 
 void Fonts::load(std::string fontDir, const Style& style, int screenH)
 {
-    std::string ttf = fontDir + "Roboto-Medium.ttf";
+    ImGuiContext* context = ImGui::GetCurrentContext();
+    if (!context)
+        context = ImGui::CreateContext();
+
+    ImFontAtlas* atlas = context->IO.Fonts;
+    std::string  ttf   = fontDir + "Roboto-Medium.ttf";
     if (Utils::fileExists(ttf))
     {
         //header bar font
@@ -34,6 +39,18 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH)
         //tiny font
         float tinyTextH = 0.035f * (float)screenH;
         tiny            = atlas->AddFontFromFileTTF(ttf.c_str(), tinyTextH);
+        //big font
+        float bigTextHPix      = 0.3f * (float)screenH;
+        float scale            = 2.0f;
+        float bigTextHPixAlloc = bigTextHPix / scale;
+        float bigTextH         = 0.035f * (float)screenH;
+        big                    = atlas->AddFontFromFileTTF(ttf.c_str(), bigTextHPixAlloc);
+        big->Scale             = scale;
+        //selection buttons
+        int   nButVert  = 6;
+        int   buttonH   = (0.6f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert;
+        float selectBtn = buttonH * style.buttonTextH;
+        selectBtns      = atlas->AddFontFromFileTTF(ttf.c_str(), selectBtn);
     }
     else
     {

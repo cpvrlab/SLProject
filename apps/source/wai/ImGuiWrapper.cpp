@@ -19,22 +19,48 @@
 
 #include <imgui_internal.h>
 
+bool         ImGuiWrapper::_openGLObjectsCreated = false;
+unsigned int ImGuiWrapper::_fontTexture          = 0; //!< OpenGL texture id for font
+int          ImGuiWrapper::_progHandle           = 0; //!< OpenGL handle for shader program
+int          ImGuiWrapper::_vertHandle           = 0; //!< OpenGL handle for vertex shader
+int          ImGuiWrapper::_fragHandle           = 0; //!< OpenGL handle for fragment shader
+int          ImGuiWrapper::_attribLocTex         = 0; //!< OpenGL attribute location for texture
+int          ImGuiWrapper::_attribLocProjMtx     = 0; //!< OpenGL attribute location for ???
+int          ImGuiWrapper::_attribLocPosition    = 0; //!< OpenGL attribute location for vertex pos.
+int          ImGuiWrapper::_attribLocUV          = 0; //!< OpenGL attribute location for texture coords
+int          ImGuiWrapper::_attribLocColor       = 0; //!< OpenGL attribute location for color
+unsigned int ImGuiWrapper::_vboHandle            = 0; //!< OpenGL handle for vertex buffer object
+unsigned int ImGuiWrapper::_vaoHandle            = 0; //!< OpenGL vertex array object handle
+unsigned int ImGuiWrapper::_elementsHandle       = 0; //!< OpenGL handle for vertex indexes
+
 //-----------------------------------------------------------------------------
-ImGuiWrapper::ImGuiWrapper(ImFontAtlas* sharedFontAtlas)
+ImGuiWrapper::ImGuiWrapper()
 {
-    _context = ImGui::CreateContext(sharedFontAtlas);
-    createOpenGLObjects();
+    //todo: access static imguiwrapper, that creates opengl objects
+    _context = ImGui::GetCurrentContext();
+    if (!_context)
+        _context = ImGui::CreateContext();
+    //attention: fonts have to be loaded before because the texture for the fonts
+    //is generated in the following function
+    //createOpenGLObjects();
 }
 //-----------------------------------------------------------------------------
 ImGuiWrapper::~ImGuiWrapper()
 {
-    deleteOpenGLObjects();
-    ImGui::DestroyContext(_context);
+    if (_openGLObjectsCreated)
+    {
+        deleteOpenGLObjects();
+        ImGui::DestroyContext(_context);
+        _openGLObjectsCreated = false;
+    }
 }
 //-----------------------------------------------------------------------------
 //! Initializes OpenGL handles to zero and sets the ImGui key map
 void ImGuiWrapper::init(const std::string& configPath)
 {
+    if (_openGLObjectsCreated)
+        return;
+
     _fontTexture       = 0;
     _progHandle        = 0;
     _vertHandle        = 0;
@@ -84,6 +110,10 @@ void ImGuiWrapper::init(const std::string& configPath)
     // Change default style to show the widget border
     //ImGuiStyle& style     = ImGui::GetStyle();
     //style.FrameBorderSize = 1;
+
+    createOpenGLObjects();
+
+    _openGLObjectsCreated = true;
 }
 //-----------------------------------------------------------------------------
 //! Creates all OpenGL objects for drawing the imGui
@@ -313,7 +343,7 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     }
 
     // Start the frame
-    ImGui::SetCurrentContext(_context);
+    //ImGui::SetCurrentContext(_context);
     ImGui::NewFrame();
 
     // Call the build function. The whole UI is constructed here
@@ -322,7 +352,7 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // class SLDemoGui.
     //if (build)
     build(s, sv);
-    ImGui::SetCurrentContext(nullptr);
+    //ImGui::SetCurrentContext(nullptr);
     //SL_LOG(".");
 }
 //-----------------------------------------------------------------------------
@@ -340,10 +370,10 @@ void ImGuiWrapper::onResize(SLint   scrW,
 //! Callback for main rendering for the ImGui GUI system
 void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 {
-    ImGui::SetCurrentContext(_context);
+    //ImGui::SetCurrentContext(_context);
     ImGui::Render();
     ImDrawData* draw_data = ImGui::GetDrawData();
-    ImGui::SetCurrentContext(nullptr);
+    //ImGui::SetCurrentContext(nullptr);
 
     ImGuiIO& io = _context->IO;
 

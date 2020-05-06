@@ -14,22 +14,21 @@ SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
                            int                 screenHeightPix,
                            std::string         fontPath,
                            std::string         texturePath)
-  : ImGuiWrapper(resources.fonts().atlas),
-    sm::EventSender(eventHandler),
+  : sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    int fontHeightDots = _buttonSz.y * _resources.style().buttonTextH;
-    //add font and store index
-    SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
-    if (Utils::fileExists(DroidSans))
-    {
-        _font = _context->IO.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
-    }
-    else
-    {
-        Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
-    }
+    //int fontHeightDots = _buttonSz.y * _resources.style().buttonTextH;
+    ////add font and store index
+    //SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
+    //if (Utils::fileExists(DroidSans))
+    //{
+    //    _font = _context->IO.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
+    //}
+    //else
+    //{
+    //    Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
+    //}
 
     //load background texture
     std::string imagePath = texturePath + "earth2048_C.jpg";
@@ -119,8 +118,7 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().buttonColorPressedSelection);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
 
-    if (_font)
-        ImGui::PushFont(_font);
+    ImGui::PushFont(_resources.fonts().selectBtns);
 }
 
 void SelectionGui::popStyle()
@@ -128,8 +126,7 @@ void SelectionGui::popStyle()
     ImGui::PopStyleVar(7);
     ImGui::PopStyleColor(4);
 
-    if (_font)
-        ImGui::PopFont();
+    ImGui::PopFont();
 }
 
 void SelectionGui::build(SLScene* s, SLSceneView* sv)
@@ -216,5 +213,5 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     popStyle();
 
     //debug: draw log window
-    _resources.logWinDraw();
+    //_resources.logWinDraw();
 }

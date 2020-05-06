@@ -109,8 +109,8 @@ private:
     std::shared_ptr<AppDemoGuiError>    _errorDial;
     std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
 
-    ImFont* _fontPropDots  = nullptr;
-    ImFont* _fontFixedDots = nullptr;
+    //ImFont* _fontPropDots  = nullptr;
+    //ImFont* _fontFixedDots = nullptr;
 };
 //-----------------------------------------------------------------------------
 #endif

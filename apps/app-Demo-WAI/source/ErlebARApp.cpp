@@ -161,16 +161,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                         dd.textureDir(),
                                         dd.fontDir());
 
-    _welcomeView = new WelcomeView(_inputManager,
-                                   *_resources,
-                                   dd.scrWidth(),
-                                   dd.scrHeight(),
-                                   dd.dpi(),
-                                   dd.fontDir(),
-                                   dd.textureDir(),
-                                   dd.dirs().writableDir,
-                                   "0.12");
-
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
@@ -181,6 +171,16 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                        dd.fontDir(),
                                        dd.textureDir(),
                                        dd.dirs().writableDir);
+
+    _welcomeView = new WelcomeView(_inputManager,
+                                   *_resources,
+                                   dd.scrWidth(),
+                                   dd.scrHeight(),
+                                   dd.dpi(),
+                                   dd.fontDir(),
+                                   dd.textureDir(),
+                                   dd.dirs().writableDir,
+                                   "0.12");
 
     _testView = new TestView(*this,
                              _inputManager,

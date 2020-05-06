@@ -10,8 +10,7 @@ SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
                          int                 screenHeightPix)
-  : ImGuiWrapper(resources.fonts().atlas),
-    sm::EventSender(eventHandler),
+  : sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);

@@ -14,8 +14,7 @@ TutorialGui::TutorialGui(sm::EventHandler&   eventHandler,
                          int                 screenHeightPix,
                          std::string         fontPath,
                          std::string         texturePath)
-  : ImGuiWrapper(resources.fonts().atlas),
-    sm::EventSender(eventHandler),
+  : sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);

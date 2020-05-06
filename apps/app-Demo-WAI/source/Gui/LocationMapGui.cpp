@@ -11,8 +11,7 @@ LocationMapGui::LocationMapGui(sm::EventHandler&   eventHandler,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
                                std::string         erlebARDir)
-  : ImGuiWrapper(resources.fonts().atlas),
-    sm::EventSender(eventHandler),
+  : sm::EventSender(eventHandler),
     _resources(resources),
     _erlebARDir(erlebARDir)
 {

@@ -11,8 +11,7 @@ AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
                                  int                        screenWidthPix,
                                  int                        screenHeightPix,
                                  std::function<void(float)> transparencyChangedCB)
-  : ImGuiWrapper(resources.fonts().atlas),
-    sm::EventSender(eventHandler),
+  : sm::EventSender(eventHandler),
     _resources(resources),
     _transparencyChangedCB(transparencyChangedCB)
 {

@@ -139,14 +139,15 @@ public:
 
     void load(std::string fontDir, const Style& style, int screenH);
 
-    ImFont* headerBar{nullptr}; //font in header bars
-    ImFont* standard{nullptr};  //e.g. about, widgets text
-    ImFont* heading{nullptr};   //e.g. heading above widgets, about headings
-    ImFont* big{nullptr};       //e.g. Welcome screen
-    ImFont* tiny{nullptr};      //e.g. log window
+    ImFont* headerBar{nullptr};  //font in header bars
+    ImFont* standard{nullptr};   //e.g. about, widgets text
+    ImFont* heading{nullptr};    //e.g. heading above widgets, about headings
+    ImFont* big{nullptr};        //e.g. Welcome screen
+    ImFont* tiny{nullptr};       //e.g. log window
+    ImFont* selectBtns{nullptr}; //buttons in selection window
 
     //shared imgui font atlas
-    ImFontAtlas* atlas{nullptr};
+    //ImFontAtlas* atlas{nullptr};
 };
 
 //-----------------------------------------------------------------------------

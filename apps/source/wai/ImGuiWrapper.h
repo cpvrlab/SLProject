@@ -151,7 +151,7 @@ class ImGuiWrapper : public SLUiInterface
 public:
     //If ImFontAtlas is transferred, fonts my be shared over multiple ImGuiWrapper instances (or any other imgui context user)
     //else one can transfer a nullptr to signal imgui to instantiate their own ImFontAtlas.
-    ImGuiWrapper(ImFontAtlas* sharedFontAtlas);
+    ImGuiWrapper();
     ~ImGuiWrapper() override;
     void init(const std::string& configPath) override;
 
@@ -184,22 +184,24 @@ private:
     void printCompileErrors(SLint         shaderHandle,
                             const SLchar* src);
 
-    SLfloat _timeSec;           //!< Time in seconds
-    SLVec2f _mousePosPX;        //!< Mouse cursor position
-    SLfloat _mouseWheel;        //!< Mouse wheel position
-    SLbool  _mousePressed[3];   //!< Mouse button press state
-    SLuint  _fontTexture;       //!< OpenGL texture id for font
-    SLint   _progHandle;        //!< OpenGL handle for shader program
-    SLint   _vertHandle;        //!< OpenGL handle for vertex shader
-    SLint   _fragHandle;        //!< OpenGL handle for fragment shader
-    SLint   _attribLocTex;      //!< OpenGL attribute location for texture
-    SLint   _attribLocProjMtx;  //!< OpenGL attribute location for ???
-    SLint   _attribLocPosition; //!< OpenGL attribute location for vertex pos.
-    SLint   _attribLocUV;       //!< OpenGL attribute location for texture coords
-    SLint   _attribLocColor;    //!< OpenGL attribute location for color
-    SLuint  _vboHandle;         //!< OpenGL handle for vertex buffer object
-    SLuint  _vaoHandle;         //!< OpenGL vertex array object handle
-    SLuint  _elementsHandle;    //!< OpenGL handle for vertex indexes
+    static bool _openGLObjectsCreated;
+    SLfloat     _timeSec;         //!< Time in seconds
+    SLVec2f     _mousePosPX;      //!< Mouse cursor position
+    SLfloat     _mouseWheel;      //!< Mouse wheel position
+    SLbool      _mousePressed[3]; //!< Mouse button press state
+
+    static unsigned int _fontTexture;       //!< OpenGL texture id for font
+    static int          _progHandle;        //!< OpenGL handle for shader program
+    static int          _vertHandle;        //!< OpenGL handle for vertex shader
+    static int          _fragHandle;        //!< OpenGL handle for fragment shader
+    static int          _attribLocTex;      //!< OpenGL attribute location for texture
+    static int          _attribLocProjMtx;  //!< OpenGL attribute location for ???
+    static int          _attribLocPosition; //!< OpenGL attribute location for vertex pos.
+    static int          _attribLocUV;       //!< OpenGL attribute location for texture coords
+    static int          _attribLocColor;    //!< OpenGL attribute location for color
+    static unsigned int _vboHandle;         //!< OpenGL handle for vertex buffer object
+    static unsigned int _vaoHandle;         //!< OpenGL vertex array object handle
+    static unsigned int _elementsHandle;    //!< OpenGL handle for vertex indexes
 
     std::string _inifile;
 };

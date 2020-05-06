@@ -40,8 +40,8 @@ private:
     float _framePadding  = 0.f;
     float _buttonSpace   = 0.f; //space between buttons
 
-    ImVec2  _buttonSz;
-    ImFont* _font = nullptr;
+    ImVec2 _buttonSz;
+    //ImFont* _font = nullptr;
 
     GLuint _textureBackgroundId = 0;
     //unsigned int _textureBackgroundW;

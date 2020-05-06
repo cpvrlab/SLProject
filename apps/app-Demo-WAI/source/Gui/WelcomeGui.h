@@ -56,8 +56,8 @@ private:
     float _logoFrameBPix;
     float _logoFrameLRPix;
 
-    ImFont* _fontBig   = nullptr;
-    ImFont* _fontSmall = nullptr;
+    //ImFont* _fontBig   = nullptr;
+    //ImFont* _fontSmall = nullptr;
 
     ErlebAR::Resources& _resources;
 };
