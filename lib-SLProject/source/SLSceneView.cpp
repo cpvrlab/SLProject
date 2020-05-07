@@ -287,6 +287,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
+        //todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
         if (_gui)
             _gui->onResize(_viewportRect.width,
                            _viewportRect.height,
@@ -405,7 +406,7 @@ void SLSceneView::onInitialize()
     }
 
     // Reset timing variables
-    _cullTimeMS = 0.0f;
+    _cullTimeMS   = 0.0f;
     _draw3DTimeMS = 0.0f;
     _draw2DTimeMS = 0.0f;
     _cullTimesMS.init(60, 0.0f);
