@@ -10,6 +10,7 @@
 #include <FeatureExtractorFactory.h>
 #include <ImageBuffer.h>
 #include <WAISlam.h>
+#include <fbow.h>
 #include <sens/SENSCalibration.h>
 
 class SENSCamera;
@@ -51,12 +52,14 @@ private:
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     ImageBuffer                  _imgBuffer;
+    fbow::Vocabulary             _voc;
 
-    std::unique_ptr<WAISlam>                  _waiSlam;
-    std::unique_ptr<ORB_SLAM2::ORBVocabulary> _orbVocabulary;
-    std::unique_ptr<WAIKeyFrameDB>            _keyframeDataBase;
-    std::unique_ptr<WAIMap>                   _waiMap;
-    std::unique_ptr<SENSCalibration>          _calibration;
+    std::unique_ptr<WAISlam>         _waiSlam;
+    std::unique_ptr<WAIKeyFrameDB>   _keyframeDataBase;
+    std::unique_ptr<WAIMap>          _waiMap;
+    std::unique_ptr<SENSCalibration> _calibration;
+
+
     //parameter:
     cv::Size      _cameraFrameTargetSize       = {640, 480};
     ExtractorType _initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;

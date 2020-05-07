@@ -49,10 +49,10 @@ set_target_properties(${target}
 
 target_include_directories(${target}
         PRIVATE
-    ${SL_PROJECT_ROOT}/apps/source/
+        ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
-        ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/source/
+        ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/
         ${glfw_INCLUDE_DIR}
         PUBLIC
 

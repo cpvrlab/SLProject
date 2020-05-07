@@ -183,8 +183,6 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
-    ORBVocabulary* voc = new ORBVocabulary();
-
     WAIKeyFrameDB* kfDB          = new WAIKeyFrameDB(_voc);
     WAIMap*        map           = new WAIMap(kfDB);
     SLNode         mapNode       = SLNode();

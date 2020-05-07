@@ -83,6 +83,7 @@ target_include_directories(${target}
     ${g2o_INCLUDE_DIR}
     ${SL_PROJECT_ROOT}/externals/eigen
     ${SL_PROJECT_ROOT}/externals/DBoW2
+    ${SL_PROJECT_ROOT}/externals/DUtils
     ${SL_PROJECT_ROOT}/externals/fbow
     ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
 
@@ -119,6 +120,7 @@ target_link_libraries(${target}
     ${g2o_LIBS}
     ${META_PROJECT_NAME}::lib-fbow
     ${META_PROJECT_NAME}::lib-Utils
+    ${META_PROJECT_NAME}::lib-DUtils
 
     INTERFACE
     )

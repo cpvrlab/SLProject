@@ -33,16 +33,17 @@
 //-----------------------------------------------------------------------------
 WAIKeyFrameDB::WAIKeyFrameDB(const fbow::Vocabulary& voc) : mpVoc(&voc)
 {
-    mvInvertedFile.resize(voc.size());
+    mvInvertedFile.resize(voc.size() * voc.getK());
 }
 
 //-----------------------------------------------------------------------------
 void WAIKeyFrameDB::add(WAIKeyFrame* pKF)
 {
     std::unique_lock<std::mutex> lock(mMutex);
-
-    for (fbow::fBow::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+    for (auto vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+    {
         mvInvertedFile[vit->first].push_back(pKF);
+    }
 }
 //-----------------------------------------------------------------------------
 void WAIKeyFrameDB::erase(WAIKeyFrame* pKF)
@@ -50,7 +51,7 @@ void WAIKeyFrameDB::erase(WAIKeyFrame* pKF)
     std::unique_lock<std::mutex> lock(mMutex);
 
     // Erase elements in the Inverse File for the entry
-    for (fbow::fBow::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+    for (auto vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
     {
         // List of keyframes that share the word
         std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
@@ -86,7 +87,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
     {
         std::unique_lock<std::mutex> lock(mMutex);
 
-        for (fbow::fBow::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+        for (auto vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
         {
             std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
 

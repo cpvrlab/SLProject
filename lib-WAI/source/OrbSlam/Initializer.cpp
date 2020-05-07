@@ -20,7 +20,7 @@
 
 #include <OrbSlam/Initializer.h>
 
-#include <DUtils/Random.h>
+#include <Random.h>
 
 #include <OrbSlam/Optimizer.h>
 #include <OrbSlam/ORBmatcher.h>

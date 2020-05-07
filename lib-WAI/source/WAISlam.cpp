@@ -37,7 +37,7 @@ WAISlam::WAISlam(const cv::Mat& intrinsic,
 
     _distortion      = distortion.clone();
     _cameraIntrinsic = intrinsic.clone();
-    //_voc             = voc;
+    _voc             = voc;
     _extractor       = extractor;
     _iniExtractor    = iniExtractor;
 

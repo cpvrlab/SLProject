@@ -44,27 +44,16 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-    WAISlam(const cv::Mat& intrinsic,
-                 const cv::Mat& distortion,
-                 fbow::Vocabulary* voc,
-                 KPextractor*   iniExtractor,
-                 KPextractor*   extractor,
-                 WAIMap*        globalMap,
-                 bool           trackingOnly,
-                 bool           serial,
-                 bool           retainImg,
-                 float          cullRedundantPerc);
-
-    WAISlam(const cv::Mat& intrinsic,
-            const cv::Mat& distortion,
-            ORBVocabulary* voc,
-            KPextractor*   iniExtractor,
-            KPextractor*   extractor,
-            WAIMap*        globalMap,
-            bool           trackingOnly      = false,
-            bool           serial            = false,
-            bool           retainImg         = false,
-            float          cullRedundantPerc = 0.95f);
+    WAISlam(const cv::Mat&    intrinsic,
+            const cv::Mat&    distortion,
+            fbow::Vocabulary* voc,
+            KPextractor*      iniExtractor,
+            KPextractor*      extractor,
+            WAIMap*           globalMap,
+            bool              trackingOnly      = false,
+            bool              serial            = false,
+            bool              retainImg         = false,
+            float             cullRedundantPerc = 0.95);
 
     virtual ~WAISlam();
 
