@@ -38,7 +38,7 @@ bool CameraTestView::update()
             //add bars to image instead of viewport adjustment (we update the mat in the buffer)
             //todo: the matrices in the buffer have different sizes.. problem? no! no!
             int addW, addH;
-            SENS::extendWithBars(frame->imgRGB, this->viewportWdivH(), cv::BORDER_CONSTANT, addW, addH);
+            SENS::extendWithBars(frame->imgRGB, this->viewportWdivH(), cv::BORDER_REPLICATE, addW, addH);
             _scene.updateVideoImage(frame->imgRGB);
         }
     }

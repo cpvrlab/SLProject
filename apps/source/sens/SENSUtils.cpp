@@ -59,7 +59,7 @@ void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH)
     }
 }
 
-//opposite to crop image: extrend
+//opposite to crop image: extend
 void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW, int& addH)
 {
     //HighResTimer t;
@@ -99,45 +99,57 @@ void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW
 
             // Width must be devidable by 4
             wModulo4 = width % 4;
-            if (wModulo4 == 1) width--;
+            if (wModulo4 == 1)
+                width--;
             if (wModulo4 == 2)
             {
                 addW++;
                 width -= 2;
             }
-            if (wModulo4 == 3) width++;
+            if (wModulo4 == 3)
+                width++;
         }
 
-        int        borderType = cv::BORDER_CONSTANT;
-        cv::Scalar value(0, 0, 0);
-        copyMakeBorder(img, img, addH, addH, addW, addW, cvBorderType, value);
-        //cv::imwrite("AfterExtendWithBars.bmp", img);
+        if (cvBorderType == cv::BORDER_REPLICATE)
+        {
+            //Camera image on mobile devices have wrongly colored pixels on the right. We want to correct this
+            //by cutting away some pixels from the right border in case of BORDER_REPLICATE
+            int        numCorrPixRight = 2;
+            cv::Rect   roi(0, 0, img.size().width - numCorrPixRight, img.size().height);
+            cv::Mat    img2     = img(roi);
+            int        addLeft  = addW;
+            int        addRight = addW + numCorrPixRight;
+            cv::Scalar value(0, 0, 0);
+            //BORDER_ISOLATED enables to respect the adjusted roi
+            copyMakeBorder(img2, img, addH, addH, addLeft, addRight, cvBorderType | cv::BORDER_ISOLATED, value);
 
-        //if (cvBorderType == cv::BORDER_REPLICATE)
-        //{
-        //    if (addH > 0)
-        //    {
-        //    }
-        //    else if (addW > 0)
-        //    {
+            //Utils::log("extendWithBars", "elapsed time without smooth %f ms", t.elapsedTimeInMilliSec());
 
-        //        cv::Size iS = img.size();
-        //        //left
-        //        cv::Rect barRoiL(0, 0, addW, iS.height);
-        //        cv::Mat  barImgL = img(barRoiL);
-        //        //cv::imwrite("barleftBefore.bmp", barImgL);
-        //        cv::blur(barImgL, barImgL, cv::Size(1, 11), cv::Point(-1, -1));
-        //        //cv::imwrite("barleftAfter.bmp", barImgL);
-        //        //right
-        //        cv::Rect barRoiR(iS.width - addW, 0, addW, iS.height);
-        //        cv::Mat  barImgR = img(barRoiR);
-        //        //cv::imwrite("barRightBefore.bmp", barImgR);
-        //        cv::blur(barImgR, barImgR, cv::Size(1, 11), cv::Point(-1, -1));
-        //        //cv::imwrite("barRightAfter.bmp", barImgR);
-        //    }
-        //}
+            if (addH > 0)
+            {
+                Utils::log("extendWithBars", "addW blurring not implemented yet!!");
+            }
+            else if (addW > 0)
+            {
+
+                cv::Size iS = img.size();
+                //left
+                cv::Rect barRoiL(0, 0, addLeft, iS.height);
+                cv::Mat  barImgL = img(barRoiL);
+                cv::blur(barImgL, barImgL, cv::Size(1, 5), cv::Point(-1, -1));
+                //right
+                cv::Rect barRoiR(iS.width - addRight, 0, addRight, iS.height);
+                cv::Mat  barImgR = img(barRoiR);
+                cv::blur(barImgR, barImgR, cv::Size(1, 5), cv::Point(-1, -1));
+            }
+        }
+        else
+        {
+            cv::Scalar value(0, 0, 0);
+            copyMakeBorder(img, img, addH, addH, addW, addW, cvBorderType, value);
+        }
     }
-    //Utils::log("extendWithBars", "elapsed time %f ms", t.elapsedTimeInMilliSec());
+    //Utils::log("extendWithBars", "elapsed time total %f ms", t.elapsedTimeInMilliSec());
 }
 
 void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV)
@@ -161,5 +173,4 @@ void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV)
         img = mirrored;
     }
 }
-
 };

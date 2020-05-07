@@ -120,11 +120,6 @@ private:
     ImGuiContext*  _context{nullptr};
 };
 
-//class ErlebARImGuiEngine : public ImGuiEngine
-//{
-//public:
-//};
-
 //e.g. scrolling of child window by touch down and move.
 //We need the possibility to turn it off because it conflicts with drag and drop of windows
 //if a window is not fixed.

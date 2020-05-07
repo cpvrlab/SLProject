@@ -7,6 +7,10 @@
 class SENSWebCamera : public SENSCameraBase
 {
 public:
+    SENSWebCamera()
+    {
+        _permissionGranted = true;
+    }
     void start(const SENSCameraConfig config) override;
     void start(std::string id, int width, int height) override;
     void stop() override;
