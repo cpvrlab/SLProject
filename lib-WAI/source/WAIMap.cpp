@@ -34,7 +34,7 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-WAIMap::WAIMap(WAIKeyFrameDB * kfDB)
+WAIMap::WAIMap(WAIKeyFrameDB* kfDB)
   : mnMaxKFid(0), mnBigChangeIdx(0)
 {
     mKfDB = kfDB;
@@ -43,6 +43,8 @@ WAIMap::WAIMap(WAIKeyFrameDB * kfDB)
 WAIMap::~WAIMap()
 {
     clear();
+    if (mKfDB)
+        delete mKfDB;
 }
 //-----------------------------------------------------------------------------
 void WAIMap::AddKeyFrame(WAIKeyFrame* pKF)

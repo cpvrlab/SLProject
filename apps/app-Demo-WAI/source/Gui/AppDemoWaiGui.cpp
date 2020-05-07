@@ -82,19 +82,19 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
         sendEvent(new GoBackEvent());
     };
 
-    _backButton = BackButton(dotsPerInch,
-                             windowWidthPix,
-                             windowHeightPix,
-                             GuiAlignment::BOTTOM_RIGHT,
-                             5.f,
-                             5.f,
-                             {10.f, 7.f},
-                             std::bind(cb),
-                             _resources.fonts().standard);
+    //_backButton = BackButton(dotsPerInch,
+    //                         windowWidthPix,
+    //                         windowHeightPix,
+    //                         GuiAlignment::BOTTOM_RIGHT,
+    //                         5.f,
+    //                         5.f,
+    //                         {10.f, 7.f},
+    //                         std::bind(cb),
+    //                         _resources.fonts().standard);
 
     _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
                                                         &eventQueue,
-                                                        _resources.fonts().tiny,
+                                                        _resources.fonts().standard,
                                                         configDir + "erleb-AR/locations/",
                                                         configDir + "calibrations/",
                                                         vocabularyDir,
@@ -105,17 +105,17 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
                                                                     &uiPrefs->showInfosMapNodeTransform,
                                                                     &eventQueue,
-                                                                    _resources.fonts().tiny));
+                                                                    _resources.fonts().standard));
 
-    _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().tiny);
+    _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().standard);
     addInfoDialog(_errorDial);
     addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking",
                                                             *uiPrefs.get(),
-                                                            _resources.fonts().tiny,
+                                                            _resources.fonts().standard,
                                                             modeGetterCB));
-    addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _resources.fonts().tiny, modeGetterCB));
-    addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _resources.fonts().tiny, getCameraCB));
-    addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _resources.fonts().tiny, getVideoFileStreamCB));
+    addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _resources.fonts().standard, modeGetterCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _resources.fonts().standard, getCameraCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _resources.fonts().standard, getVideoFileStreamCB));
 
     addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _resources.fonts().tiny, getCameraCB, getCalibrationCB));
 
@@ -125,7 +125,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph, _resources.fonts().tiny));
     addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming, _resources.fonts().tiny));
     addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks, _resources.fonts().tiny));
-    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs, _resources.fonts().standard));
     addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming, _resources.fonts().tiny));
     addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform, _resources.fonts().tiny));
 }
@@ -157,7 +157,7 @@ void AppDemoWaiGui::clearInfoDialogs()
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::build(SLScene* s, SLSceneView* sv)
 {
-    _backButton.render();
+    //_backButton.render();
 
     buildInfosDialogs(s, sv);
     buildMenu(s, sv);
@@ -177,7 +177,7 @@ void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
 void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 {
     //push styles before calling BeginMainMenuBar
-    pushStyle();
+    ImGui::PushFont(_resources.fonts().standard);
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -329,19 +329,10 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         ImGui::EndMainMenuBar();
 
-        popStyle();
+        ImGui::PopFont();
     }
 }
 
-void AppDemoWaiGui::pushStyle()
-{
-    ImGui::PushFont(_resources.fonts().tiny);
-}
-
-void AppDemoWaiGui::popStyle()
-{
-    ImGui::PopFont();
-}
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
 //void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)

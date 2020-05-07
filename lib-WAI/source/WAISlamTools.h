@@ -58,9 +58,9 @@ public:
                               unsigned long&   lastKeyFrameFrameId);
 
     static int findFrameFixedMapMatches(WAIFrame&                 frame,
-                                         WAIMap*                   waiMap,
-                                         std::vector<cv::Point2f>& points2d,
-                                         std::vector<cv::Point3f>& points3d);
+                                        WAIMap*                   waiMap,
+                                        std::vector<cv::Point2f>& points2d,
+                                        std::vector<cv::Point3f>& points3d);
 
     static bool relocalization(WAIFrame& currentFrame,
                                WAIMap*   waiMap,
@@ -143,16 +143,16 @@ public:
 protected:
     WAISlamTools(){};
 
-    cv::Mat         _distortion;
-    cv::Mat         _cameraIntrinsic;
-    cv::Mat         _cameraExtrinsic;
-    InitializerData _iniData;
-    WAIFrame        _lastFrame;
-    LocalMap        _localMap;
-    WAIMap*         _globalMap;
-    ORBVocabulary*  _voc;
-    cv::Mat         _velocity;
-    bool            _initialized;
+    cv::Mat                 _distortion;
+    cv::Mat                 _cameraIntrinsic;
+    cv::Mat                 _cameraExtrinsic;
+    InitializerData         _iniData;
+    WAIFrame                _lastFrame;
+    LocalMap                _localMap;
+    std::unique_ptr<WAIMap> _globalMap;
+    ORBVocabulary*          _voc;
+    cv::Mat                 _velocity;
+    bool                    _initialized;
 
     LocalMapping*             _localMapping;
     LoopClosing*              _loopClosing;

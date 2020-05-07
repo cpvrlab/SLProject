@@ -414,6 +414,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
         config.targetHeight  = 360;
         config.convertToGray = true;
 
+        _camera->stop();
         _camera->start(config);
     }
 
@@ -430,7 +431,10 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
 void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _camera->stop();
         return;
+    }
 
     if (stateEntry)
     {
@@ -454,10 +458,12 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry,
 
     //start camera
     SENSCameraConfig config;
-    config.targetWidth   = 640;
-    config.targetHeight  = 360;
-    config.convertToGray = true;
+    config.targetWidth          = 640;
+    config.targetHeight         = 360;
+    config.convertToGray        = true;
+    config.adjustAsynchronously = true;
 
+    _camera->stop();
     _camera->start(config);
 
     addEvent(new DoneEvent());

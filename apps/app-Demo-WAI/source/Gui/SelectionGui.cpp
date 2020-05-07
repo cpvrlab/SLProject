@@ -20,17 +20,6 @@ SelectionGui::SelectionGui(const ImGuiEngine&  imGuiEngine,
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    //int fontHeightDots = _buttonSz.y * _resources.style().buttonTextH;
-    ////add font and store index
-    //SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
-    //if (Utils::fileExists(DroidSans))
-    //{
-    //    _font = _context->IO.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
-    //}
-    //else
-    //{
-    //    Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
-    //}
 
     //load background texture
     std::string imagePath = texturePath + "earth2048_C.jpg";
@@ -215,5 +204,5 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     popStyle();
 
     //debug: draw log window
-    //_resources.logWinDraw();
+    _resources.logWinDraw();
 }

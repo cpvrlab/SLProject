@@ -67,11 +67,6 @@ TestView::~TestView()
         _mode = nullptr;
         _currentSlamParams.save(_configDir + "SlamParams.json");
     }
-
-    if (_startThread.joinable())
-    {
-        _startThread.join();
-    }
 }
 
 void TestView::start()
@@ -79,26 +74,7 @@ void TestView::start()
     //if (_ready)
     //    return;
 
-    //_startThread = std::thread(&TestView::startAsync, this);
     tryLoadLastSlam();
-}
-
-void TestView::startAsync()
-{
-    //_camera->init(SENSCameraFacing::BACK);
-    ////start continious captureing request with certain configuration
-    //SENSCameraConfig camConfig;
-    //camConfig.targetWidth          = 640;
-    //camConfig.targetHeight         = 360;
-    //camConfig.focusMode            = SENSCamera::SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
-    //camConfig.convertToGray        = true;
-    //camConfig.adjustAsynchronously = true;
-    //_camera->start(camConfig);
-
-    //start thread that starts camera and tries to load slam
-    tryLoadLastSlam();
-
-    //_ready = true;
 }
 
 bool TestView::update()
@@ -286,14 +262,14 @@ void TestView::handleEvents()
     }
 }
 
-void TestView::postStart()
-{
-    doWaitOnIdle(false);
-    camera(_scene.cameraNode);
-    onInitialize();
-    if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
-}
+//void TestView::postStart()
+//{
+//    doWaitOnIdle(false);
+//    camera(_scene.cameraNode);
+//    onInitialize();
+//    if (_camera)
+//        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
+//}
 
 void TestView::loadWAISceneView(std::string location, std::string area)
 {
@@ -328,7 +304,8 @@ void TestView::saveMap(std::string location,
 
     if (!marker.empty())
     {
-        ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
+
+        std::unique_ptr<ORB_SLAM2::ORBVocabulary> voc = std::make_unique<ORB_SLAM2::ORBVocabulary>();
         voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
 
         cv::Mat nodeTransform;
@@ -338,7 +315,7 @@ void TestView::saveMap(std::string location,
                                                     _mode->getKPextractor(),
                                                     _mode->getMap(),
                                                     _calibration.cameraMat(),
-                                                    voc))
+                                                    voc.get()))
         {
             _gui.showErrorMsg("Failed to do marker map preprocessing");
         }
@@ -562,21 +539,22 @@ void TestView::startOrbSlam(SlamParams slamParams)
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
-    ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
-    voc->loadFromBinaryFile(slamParams.vocabularyFile);
-    std::cout << "Vocabulary " << voc << std::endl;
+    _voc = std::make_unique<ORB_SLAM2::ORBVocabulary>();
+    _voc->loadFromBinaryFile(slamParams.vocabularyFile);
+
+    std::cout << "Vocabulary " << _voc << std::endl;
     std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
-    WAIMap* map = nullptr;
+    std::unique_ptr<WAIMap> map;
 
     // 5. Load map data
     if (useMapFile)
     {
-        std::cout << "Vocabulary " << voc << std::endl;
-        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
-        map                    = new WAIMap(kfdb);
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+        std::cout << "Vocabulary " << _voc << std::endl;
+        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*_voc.get());
+        map                    = std::make_unique<WAIMap>(kfdb);
+        bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                         _scene.mapNode,
-                                                        voc,
+                                                        _voc.get(),
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
@@ -593,10 +571,10 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
-                        voc,
+                        _voc.get(),
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
-                        map,
+                        std::move(map),
                         slamParams.params.onlyTracking,
                         slamParams.params.serial,
                         slamParams.params.retainImg,

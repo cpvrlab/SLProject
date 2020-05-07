@@ -99,15 +99,12 @@ private:
     void buildInfosDialogs(SLScene* s, SLSceneView* sv);
     void buildMenu(SLScene* s, SLSceneView* sv);
 
-    void pushStyle();
-    void popStyle();
-
     std::string _prefsFileName;
 
     //! Vector containing all info dialogs, that belong to special scenes
     std::map<std::string, std::shared_ptr<AppDemoGuiInfosDialog>> _infoDialogs;
 
-    BackButton _backButton;
+    //BackButton _backButton;
 
     std::shared_ptr<AppDemoGuiError>    _errorDial;
     std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;

@@ -37,7 +37,7 @@ public:
     bool update();
     //try to load slam params and start slam
     void start();
-    void postStart();
+    //void postStart();
     //call when view becomes visible
     void show() { _gui.onShow(); }
 
@@ -57,7 +57,6 @@ protected:
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
-    void startAsync();
 
     //video
     CVCalibration                    _calibration = {CVCameraType::FRONTFACING, ""};
@@ -72,8 +71,9 @@ protected:
     std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
 
     //slam
-    WAISlam*   _mode = nullptr;
-    SlamParams _currentSlamParams;
+    WAISlam*                       _mode = nullptr;
+    SlamParams                     _currentSlamParams;
+    std::unique_ptr<ORBVocabulary> _voc;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
@@ -93,7 +93,6 @@ protected:
     std::string _calibDir;
     std::string _videoDir;
 
-    std::thread _startThread;
     std::thread _calibrationThread;
     bool        _isCalibrated;
 

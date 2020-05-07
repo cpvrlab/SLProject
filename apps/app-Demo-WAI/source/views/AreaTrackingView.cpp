@@ -72,8 +72,9 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 
     //load map
+    std::unique_ptr<WAIMap> waiMap;
     //_keyframeDataBase = std::make_unique<WAIKeyFrameDB>(*_orbVocabulary.get());
-    //_waiMap           = std::make_unique<WAIMap>(_keyframeDataBase.get());
+    //waiMap           = std::make_unique<WAIMap>(_keyframeDataBase.get());
     //if (!_mapFileName.empty())
     //{
     //    bool mapLoadingSuccess = WAIMapStorage::loadMap(_waiMap.get(),
@@ -153,7 +154,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
       _orbVocabulary.get(),
       _initializationExtractor.get(),
       _trackingExtractor.get(),
-      nullptr,
+      std::move(waiMap),
       false,
       false,
       false,

@@ -14,6 +14,7 @@
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
+#include <memory>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
@@ -43,16 +44,16 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-    WAISlam(const cv::Mat& intrinsic,
-            const cv::Mat& distortion,
-            ORBVocabulary* voc,
-            KPextractor*   iniExtractor,
-            KPextractor*   extractor,
-            WAIMap*        globalMap,
-            bool           trackingOnly      = false,
-            bool           serial            = false,
-            bool           retainImg         = false,
-            float          cullRedundantPerc = 0.95f);
+    WAISlam(const cv::Mat&          intrinsic,
+            const cv::Mat&          distortion,
+            ORBVocabulary*          voc,
+            KPextractor*            iniExtractor,
+            KPextractor*            extractor,
+            std::unique_ptr<WAIMap> globalMap,
+            bool                    trackingOnly      = false,
+            bool                    serial            = false,
+            bool                    retainImg         = false,
+            float                   cullRedundantPerc = 0.95f);
 
     virtual ~WAISlam();
 
@@ -74,7 +75,7 @@ public:
     int                       getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching);
 
     virtual bool                      isInitialized() { return _initialized; }
-    virtual WAIMap*                   getMap() { return _globalMap; }
+    virtual WAIMap*                   getMap() { return _globalMap.get(); }
     virtual WAIFrame                  getLastFrame();
     virtual WAIFrame*                 getLastFramePtr();
     virtual std::vector<WAIMapPoint*> getLocalMapPoints() { return _localMap.mapPoints; }
@@ -121,7 +122,7 @@ public:
     virtual int     getKeyFrameCount() { return (int)_globalMap->KeyFramesInMap(); }
     virtual int     getMapPointCount() { return (int)_globalMap->MapPointsInMap(); }
     virtual cv::Mat getPose();
-    virtual void    setMap(WAIMap* globalMap);
+    virtual void    setMap(std::unique_ptr<WAIMap> globalMap);
 
     virtual WAI::TrackingState getTrackingState() { return _state; }
 

@@ -208,11 +208,11 @@ public:
 
 private:
     bool        _enabled  = false;
-    float       _lastPosY = 0.f;    //!< mouse down start position
-    float       _diff     = 0.f;    //!< Summed up y difference between mouse move events
-    float       _vMW      = 0.f;    //!< Mouse wheel velocity: used after pan scrolling for additional scrolling
-    float       _tOld     = 0.f;    //!< Time at last call to getScrollInMouseWheelCoords
-    const float _aMW      = 100.0f; //!< Mouse wheel acceleration (subtended velocity direction)
+    float       _lastPosY = 0.f;   //!< mouse down start position
+    float       _diff     = 0.f;   //!< Summed up y difference between mouse move events
+    float       _vMW      = 0.f;   //!< Mouse wheel velocity: used after pan scrolling for additional scrolling
+    float       _tOld     = 0.f;   //!< Time at last call to getScrollInMouseWheelCoords
+    const float _aMW      = 20.0f; //!< Mouse wheel acceleration (subtended velocity direction)
 };
 
 //-----------------------------------------------------------------------------

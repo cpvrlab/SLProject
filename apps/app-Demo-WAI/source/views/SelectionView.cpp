@@ -26,5 +26,12 @@ SelectionView::SelectionView(sm::EventHandler&   eventHandler,
 
 bool SelectionView::update()
 {
+    //the viewport may be wrong when returning from TestView, which may have another ratio.
+    //setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
+    _viewportRect.set(0, 0, _scrW, _scrH);
+    _gui.onResize(_viewportRect.width,
+                  _viewportRect.height,
+                  _scr2fbX,
+                  _scr2fbY);
     return onPaint();
 }
