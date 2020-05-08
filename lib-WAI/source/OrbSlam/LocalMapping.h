@@ -27,7 +27,7 @@
 #include <queue>
 #include <thread>
 #include <opencv2/core.hpp>
-#include <OrbSlam/ORBVocabulary.h>
+#include <fbow.h>
 #include <WorkingSet.h>
 #include <LocalMap.h>
 
@@ -45,9 +45,9 @@ class LoopClosing;
 class LocalMapping
 {
 public:
-    LocalMapping(WAIMap* pMap, const float bMonocular, ORBVocabulary* mpORBvocabulary, float cullRedundantPerc = 0.9);
+    LocalMapping(WAIMap* pMap, const float bMonocular, fbow::Vocabulary* vocabulary, float cullRedundantPerc = 0.9);
     void SetLoopCloser(LoopClosing* pLoopCloser);
-    void SetVocabulary(ORBVocabulary* voc);
+    void SetVocabulary(fbow::Vocabulary* vocabulary);
 
     // Main function
     void Run();
@@ -137,7 +137,7 @@ protected:
     bool       mbAbortBA;
     std::mutex mMutexAccept;
 
-    ORBVocabulary* mpORBvocabulary = NULL;
+    fbow::Vocabulary* _vocabulary = NULL;
 
     // A keyframe is considered redundant if the _cullRedundantPerc of the MapPoints it sees, are seen
     // in at least other 3 keyframes (in the same or finer scale)

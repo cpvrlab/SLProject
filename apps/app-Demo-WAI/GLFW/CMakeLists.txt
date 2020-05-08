@@ -52,6 +52,7 @@ target_link_libraries(${target}
 
     PUBLIC
     ${META_PROJECT_NAME}::lib-WAI
+    ${META_PROJECT_NAME}::lib-fbow
     lib-SLProject
     ${glfw_LIBS}
 

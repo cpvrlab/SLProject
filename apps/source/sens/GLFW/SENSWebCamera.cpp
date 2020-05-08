@@ -23,6 +23,7 @@ void SENSWebCamera::start(const SENSCameraConfig config)
         _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
         _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
         _started = true;
+        _permissionGranted = true;
     }
     else
     {

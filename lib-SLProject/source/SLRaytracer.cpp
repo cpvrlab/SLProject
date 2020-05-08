@@ -103,6 +103,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     }
 
     _renderSec  = GlobalTimer::timeS() - tStart;
+    _raysPerMS.set(SLRay::totalNumRays() / _renderSec / 1000.0f);
     _progressPC = 100;
 
     if (_doContinuous)
@@ -173,6 +174,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     }
 
     _renderSec  = GlobalTimer::timeS() - t1;
+    _raysPerMS.set((float)SLRay::totalNumRays() / _renderSec / 1000.0f);
     _progressPC = 100;
 
     if (_doContinuous)

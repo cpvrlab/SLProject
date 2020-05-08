@@ -23,9 +23,9 @@ T that provides the following operators: =,-,+,T*float
 template<class T>
 class Averaged
 {
-    public:
+public:
     //! Ctor with a default value array size
-    Averaged(int numValues = 60, T zeroValue = 0)
+    explicit Averaged(int numValues = 60, T zeroValue = 0)
     {
         init(numValues, zeroValue);
     }
@@ -39,6 +39,7 @@ class Averaged
         _sum              = zeroValue;
         _average          = zeroValue;
         _currentValueNo   = 0;
+        _numMeasures      = 0;
     }
 
     //! Sets the current value in the value array and builds the average
@@ -51,8 +52,14 @@ class Averaged
         _sum                     = _sum - _values[_currentValueNo];
         _values[_currentValueNo] = value;
         _sum                     = _sum + _values[_currentValueNo];
-        _average                 = _sum * _oneOverNumValues; // avoid division
+
+        if (_numMeasures < _values.size())
+            _average = _sum / (float)_numMeasures; // average correct when not yet filled up
+        else
+            _average = _sum * _oneOverNumValues; // avoid division
+
         _currentValueNo++;
+        _numMeasures++;
     }
 
     //! Gets the avaraged value
@@ -61,12 +68,13 @@ class Averaged
     //! Get the last entry
     T last() { return _currentValueNo > 0 ? _currentValueNo - 1 : _values.size() - 1; }
 
-    private:
-    float     _oneOverNumValues;  //!< multiplier instead of devider
-    vector<T> _values;            //!< value array
-    int       _currentValueNo;    //!< current value index
-    T         _sum;               //!< sum of all values
-    T         _average;           //!< average value
+private:
+    float        _oneOverNumValues{}; //!< multiplier instead of devider
+    vector<T>    _values;             //!< value array
+    int          _currentValueNo{};   //!< current value index within _values
+    T            _sum;                //!< sum of all values
+    T            _average;            //!< average value
+    unsigned int _numMeasures{};      //!< num. of total measures
 };
 //-----------------------------------------------------------------------------
 typedef Averaged<float> AvgFloat;

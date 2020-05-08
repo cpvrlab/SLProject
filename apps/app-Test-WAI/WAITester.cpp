@@ -64,11 +64,11 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
     return result;
 }
 
-Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    videoFile,
-                                                               std::string    mapFile,
-                                                               std::string    vocFile,
-                                                               CVCalibration& calibration,
-                                                               ExtractorType  extractorType)
+Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string       videoFile,
+                                                               std::string       mapFile,
+                                                               fbow::Vocabulary& voc,
+                                                               CVCalibration&    calibration,
+                                                               ExtractorType     extractorType)
 {
     RelocalizationTestResult result = {};
 
@@ -76,12 +76,10 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    vi
     // TODO(dgj1): this is kind of a hack... improve (maybe separate function call??)
     WAIFrame::mbInitialComputations = true;
 
-    WAIOrbVocabulary::initialize(vocFile);
-    ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
-    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*orbVoc);
+    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(voc);
 
     WAIMap* map = new WAIMap(keyFrameDB);
-    WAIMapStorage::loadMap(map, nullptr, orbVoc, mapFile, false, true);
+    WAIMapStorage::loadMap(map, nullptr, &_voc, mapFile, false, true);
 
     SENSVideoStream vstream(videoFile, false, false, false);
 
@@ -101,7 +99,7 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    vi
                                          extractor.get(),
                                          intrinsic,
                                          distortion,
-                                         orbVoc,
+                                         &_voc,
                                          false);
 
         int      inliers;
@@ -125,26 +123,24 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string    vi
     return result;
 }
 
-Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
-                                                   std::string    mapFile,
-                                                   std::string    vocFile,
-                                                   CVCalibration& calibration,
-                                                   ExtractorType  extractorType,
-                                                   int            framerate)
+Tester::TrackingTestResult Tester::runTrackingTest(std::string       videoFile,
+                                                   std::string       mapFile,
+                                                   fbow::Vocabulary& voc,
+                                                   CVCalibration&    calibration,
+                                                   ExtractorType     extractorType,
+                                                   int               framerate)
 {
     TrackingTestResult result = {};
 
     WAIFrame::mbInitialComputations = true;
 
-    WAIOrbVocabulary::initialize(vocFile);
-    ORBVocabulary* voc        = WAIOrbVocabulary::get();
-    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*voc);
+    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(voc);
 
     WAIMap* map = new WAIMap(keyFrameDB);
-    WAIMapStorage::loadMap(map, nullptr, voc, mapFile, false, true);
+    WAIMapStorage::loadMap(map, nullptr, &voc, mapFile, false, true);
 
-    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1, voc, 0.95);
-    LoopClosing*  loopClosing  = new ORB_SLAM2::LoopClosing(map, voc, false, false);
+    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1, &voc, 0.95);
+    LoopClosing*  loopClosing  = new ORB_SLAM2::LoopClosing(map, &voc, false, false);
 
     localMapping->SetLoopCloser(loopClosing);
     loopClosing->SetLocalMapper(localMapping);
@@ -182,7 +178,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string    videoFile,
                                   extractor.get(),
                                   intrinsic,
                                   distortion,
-                                  voc,
+                                  &voc,
                                   false);
         if (isTracking)
         {
@@ -501,10 +497,10 @@ Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFi
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
-    _vocFile         = vocFile;
     _testFlags       = testFlags;
     _framerate       = frameRate;
     _extractorType   = extractorType;
+    _voc.readFromFile(vocFile);
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
@@ -526,7 +522,7 @@ void Tester::launchRelocalizationTest(const Location& location, const Area& area
         //select one calibration (we need one to instantiate mode and we need mode to load map)
         for (TestData testData : datas)
         {
-            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, extractorType);
+            RelocalizationTestResult r = runRelocalizationTest(testData.videoFile, testData.mapFile, _voc, testData.calibration, extractorType);
 
             printf("%s;%s;%s;%i;%i;%.2f\n",
                    location.c_str(),
@@ -560,7 +556,7 @@ void Tester::launchTrackingTest(const Location& location, const Area& area, Data
         //select one calibration (we need one to instantiate mode and we need mode to load map)
         for (TestData testData : datas)
         {
-            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _vocFile, testData.calibration, extractorType, _framerate);
+            TrackingTestResult r = runTrackingTest(testData.videoFile, testData.mapFile, _voc, testData.calibration, extractorType, _framerate);
 
             if (r.wasSuccessful)
             {

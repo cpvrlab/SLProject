@@ -42,7 +42,7 @@ AreaTrackingView::~AreaTrackingView()
 {
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     _waiSlam.release();
-    _orbVocabulary.release();
+    //_orbVocabulary.release();
 }
 
 bool AreaTrackingView::update()
@@ -147,19 +147,19 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //load vocabulary
     //
-    _orbVocabulary       = std::make_unique<ORB_SLAM2::ORBVocabulary>();
     std::string fileName = _vocabularyDir + _vocabularyFileName;
     if (Utils::fileExists(fileName))
     {
         Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
-        _orbVocabulary->loadFromBinaryFile(fileName);
+        _voc.clear();
+        _voc.readFromFile(fileName);
     }
 
     //init wai slam
     _waiSlam = std::make_unique<WAISlam>(
       _calibration->cameraMat(),
       _calibration->distortion(),
-      _orbVocabulary.get(),
+      &_voc,
       _initializationExtractor.get(),
       _trackingExtractor.get(),
       std::move(waiMap),

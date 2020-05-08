@@ -1,9 +1,9 @@
 #ifndef WAISLAM_H
 #define WAISLAM_H
+
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
-#include <WAIOrbVocabulary.h>
 #include <WAIModeOrbSlam2.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
@@ -15,6 +15,7 @@
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
 #include <memory>
+#include <fbow.h>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
@@ -46,7 +47,7 @@ public:
 
     WAISlam(const cv::Mat&          intrinsic,
             const cv::Mat&          distortion,
-            ORBVocabulary*          voc,
+            fbow::Vocabulary*       voc,
             KPextractor*            iniExtractor,
             KPextractor*            extractor,
             std::unique_ptr<WAIMap> globalMap,

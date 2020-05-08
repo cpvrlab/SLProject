@@ -304,9 +304,9 @@ void TestView::saveMap(std::string location,
 
     if (!marker.empty())
     {
-
-        std::unique_ptr<ORB_SLAM2::ORBVocabulary> voc = std::make_unique<ORB_SLAM2::ORBVocabulary>();
-        voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+        //voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+        fbow::Vocabulary voc;
+        voc.readFromFile(_currentSlamParams.vocabularyFile);
 
         cv::Mat nodeTransform;
         if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
@@ -315,7 +315,7 @@ void TestView::saveMap(std::string location,
                                                     _mode->getKPextractor(),
                                                     _mode->getMap(),
                                                     _calibration.cameraMat(),
-                                                    voc.get()))
+                                                    &voc))
         {
             _gui.showErrorMsg("Failed to do marker map preprocessing");
         }
@@ -539,22 +539,19 @@ void TestView::startOrbSlam(SlamParams slamParams)
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
-    _voc = std::make_unique<ORB_SLAM2::ORBVocabulary>();
-    _voc->loadFromBinaryFile(slamParams.vocabularyFile);
-
-    std::cout << "Vocabulary " << _voc << std::endl;
+    _voc.clear();
+    _voc.readFromFile(slamParams.vocabularyFile);
     std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
     std::unique_ptr<WAIMap> map;
 
     // 5. Load map data
     if (useMapFile)
     {
-        std::cout << "Vocabulary " << _voc << std::endl;
-        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*_voc.get());
+        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
         map                    = std::make_unique<WAIMap>(kfdb);
         bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                         _scene.mapNode,
-                                                        _voc.get(),
+                                                        &_voc,
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
@@ -571,7 +568,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
-                        _voc.get(),
+                        &_voc,
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
                         std::move(map),

@@ -48,6 +48,7 @@ target_link_libraries(${target}
         camera2ndk
         mediandk
         lib-WAI
+        lib-fbow
         lib-SLProject
 
     PUBLIC

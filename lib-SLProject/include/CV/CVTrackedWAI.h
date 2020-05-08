@@ -12,6 +12,7 @@
 #define CVTrackedWAI_H
 
 #include <CVTracked.h>
+#include <fbow.h>
 
 #include <WAISlam.h>
 //-----------------------------------------------------------------------------
@@ -36,7 +37,7 @@ private:
     WAISlam*                 _waiSlamer         = nullptr;
     ORB_SLAM2::ORBextractor* _trackingExtractor = nullptr;
     ORB_SLAM2::ORBextractor* _initializationExtractor = nullptr;
-    ORBVocabulary*           _voc               = nullptr;
+    fbow::Vocabulary         _voc;
 };
 //-----------------------------------------------------------------------------
 #endif

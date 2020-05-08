@@ -11,6 +11,7 @@
 #include <CVCalibration.h>
 #include <queue>
 #include <ImageBuffer.h>
+#include <fbow.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -71,9 +72,8 @@ protected:
     std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
 
     //slam
-    WAISlam*                       _mode = nullptr;
-    SlamParams                     _currentSlamParams;
-    std::unique_ptr<ORBVocabulary> _voc;
+    WAISlam*   _mode = nullptr;
+    SlamParams _currentSlamParams;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
@@ -84,7 +84,8 @@ protected:
     std::queue<WAIEvent*> _eventQueue;
 
     //scene
-    AppWAIScene _scene;
+    AppWAIScene      _scene;
+    fbow::Vocabulary _voc;
 
     SLAssetManager _assets;
 

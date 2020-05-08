@@ -39,11 +39,11 @@ namespace ORB_SLAM2
 
 LocalMapping::LocalMapping(WAIMap*        pMap,
                            const float    bMonocular,
-                           ORBVocabulary* mpORBvocabulary,
+                           fbow::Vocabulary* vocabulary,
                            float          cullRedundantPerc)
   : mpMap(pMap),
     mbMonocular(bMonocular),
-    mpORBvocabulary(mpORBvocabulary),
+    _vocabulary(vocabulary),
     mbResetRequested(false),
     mbFinishRequested(false),
     mbFinished(false),
@@ -60,12 +60,6 @@ LocalMapping::LocalMapping(WAIMap*        pMap,
 void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
 {
     mpLoopCloser = pLoopCloser;
-}
-
-// TODO: pause thread change voc and restart thread
-void LocalMapping::SetVocabulary(ORBVocabulary* voc)
-{
-    mpORBvocabulary = voc;
 }
 
 void LocalMapping::LocalOptimize()
@@ -297,7 +291,7 @@ WAIKeyFrame* LocalMapping::GetNewKeyFrame()
 void LocalMapping::ProcessNewKeyFrame(WAIKeyFrame* kf)
 {
     // Compute Bags of Words structures
-    kf->ComputeBoW(mpORBvocabulary);
+    kf->ComputeBoW(_vocabulary);
 
     // Associate MapPoints to the new keyframe and update normal and descriptor
     const vector<WAIMapPoint*> vpMapPointMatches = kf->GetMapPointMatches();

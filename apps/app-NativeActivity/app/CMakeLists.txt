@@ -116,7 +116,7 @@ target_include_directories(${target}
         ${OpenCV_INCLUDE_DIR}
         ${g2o_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/externals/eigen
-        ${SL_PROJECT_ROOT}/externals/DBoW2
+        ${SL_PROJECT_ROOT}/externals/fbow
         ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
@@ -130,6 +130,7 @@ target_link_libraries(${target}
         camera2ndk
         mediandk
         #lib-WAI
+        lib-fbow
         lib-SLProject
 
     PUBLIC
