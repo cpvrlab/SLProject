@@ -1427,9 +1427,12 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromBinaryFile(const std::string& 
     m_nodes.resize(nodeCount + 1);
     m_nodes[0].id = 0;
 
-    for (int i = 1; i < nodeCount; i++)
+    // Allocate space for all descriptors at once
+    cv::Mat allDescripors =  cv::Mat(nodeCount, F::L, CV_8U);
+
+    for (int iN = 1; iN < nodeCount; iN++)
     {
-        int   nid = i;
+        int   nid = iN;
         Node* n   = &m_nodes[nid];
         n->id     = nid;
 
@@ -1439,7 +1442,13 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromBinaryFile(const std::string& 
 
         // NOTE(jan): since we initialize the mat with a size of 1xF::L, it is always continuous in memory
         // according to https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#bool%20Mat::isContinuous()%20const
-        n->descriptor = cv::Mat(1, F::L, CV_8U);
+
+        // This small mat constructor is very slow on iOS
+        //n->descriptor = cv::Mat(1, F::L, CV_8U);
+
+        // Change (marcus)
+        n->descriptor = allDescripors.row(iN);
+
         memcpy(n->descriptor.ptr(0), bN->descriptor, sizeof(uint8_t) * F::L);
 
         n->weight = bN->weight;

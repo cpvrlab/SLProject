@@ -14,6 +14,7 @@
 #include <SLGLTexture.h>
 #include <SLVec4.h>
 #include <SLLight.h>
+#include <Averaged.h>
 
 class SLScene;
 class SLSceneView;
@@ -69,11 +70,11 @@ public:
     void    renderUIBeforeUpdate();
 
     // additional ray tracer functions
-    void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
-    void    getAAPixels();
-    SLCol4f fogBlend(SLfloat z, SLCol4f color);
-    virtual void    printStats(SLfloat sec);
-    virtual void    initStats(SLint depth);
+    void         setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
+    void         getAAPixels();
+    SLCol4f      fogBlend(SLfloat z, SLCol4f color);
+    virtual void printStats(SLfloat sec);
+    virtual void initStats(SLint depth);
 
     // Setters
     void state(SLRTState state)
@@ -123,6 +124,7 @@ public:
     SLfloat   oneOverGamma() const { return _oneOverGamma; }
     SLfloat   resolutionFactor() const { return _resolutionFactor; }
     SLint     resolutionFactorPC() const { return (SLint)(_resolutionFactor * 100.0f + 0.00001f); }
+    SLfloat   raysPerMS() { return _raysPerMS.average(); }
 
     // Render target image
     virtual void prepareImage();
@@ -140,6 +142,7 @@ protected:
     SLbool       _doFresnel;        //!< Flag for Fresnel reflection
     SLint        _progressPC;       //!< progress in %
     SLfloat      _renderSec;        //!< Rendering time in seconds
+    AvgFloat     _raysPerMS;        //!< Averaged rays per ms
 
     SLfloat     _pxSize;       //!< Pixel size
     SLVec3f     _EYE;          //!< Camera position
