@@ -308,15 +308,15 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             std::cout << "MapCreator::createNewDenseWaiMap: Can't open vocabulary file!!! " << _vocFile << std::endl;
             exit(1);
         }
-        WAIMap* map = nullptr;
+        std::unique_ptr<WAIMap> map = nullptr;
 
         //if we have an active map from one of the previously processed videos for this area then load it
         SLNode mapNode = SLNode();
         if (initialized)
         {
             WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
-            map                    = new WAIMap(kfdb);
-            bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+            map                    = std::make_unique<WAIMap>(kfdb);
+            bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                             &mapNode,
                                                             voc,
                                                             mapDir + lastMapFileName,
@@ -350,7 +350,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                                     voc,
                                     kpIniExtractorPtr,
                                     kpExtractor.get(),
-                                    map,
+                                    std::move(map),
                                     modeParams.onlyTracking,
                                     modeParams.serial,
                                     modeParams.retainImg,
@@ -444,8 +444,8 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
         std::cout << "Can't open vocabulary file!!! " << _vocFile << std::endl;
         exit(1);
     }
-    WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
-    WAIMap*        map  = new WAIMap(kfdb);
+    WAIKeyFrameDB*          kfdb = new WAIKeyFrameDB(*voc);
+    std::unique_ptr<WAIMap> map  = std::make_unique<WAIMap>(kfdb);
 
     //load the map (currentMapFileName is valid if initialized is true)
     SLNode mapNode = SLNode();
@@ -453,7 +453,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     FeatureExtractorFactory      factory;
     std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, calib.imageSize());
 
-    bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+    bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                     &mapNode,
                                                     voc,
                                                     mapDir + "/" + inputMapFile,
@@ -471,7 +471,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                 voc,
                                 kpExtractor.get(),
                                 kpExtractor.get(),
-                                map,
+                                std::move(map),
                                 modeParams.onlyTracking,
                                 modeParams.serial,
                                 modeParams.retainImg,
