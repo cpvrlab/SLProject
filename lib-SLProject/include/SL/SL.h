@@ -152,7 +152,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 // Redefinition of standard types for platform independence
-typedef std::string SLstring;
+typedef string SLstring;
 #ifndef SL_OS_ANDROID
 typedef std::wstring SLwstring;
 #endif
@@ -176,29 +176,29 @@ typedef int64_t        SLint64;
 typedef uint64_t       SLuint64;
 
 // All 1D vectors begin with SLV*
-typedef std::vector<SLbool>   SLVbool;
-typedef std::vector<SLbyte>   SLVbyte;
-typedef std::vector<SLubyte>  SLVubyte;
-typedef std::vector<SLchar>   SLVchar;
-typedef std::vector<SLuchar>  SLVuchar;
-typedef std::vector<SLshort>  SLVshort;
-typedef std::vector<SLushort> SLVushort;
-typedef std::vector<SLint>    SLVint;
-typedef std::vector<SLuint>   SLVuint;
-typedef std::vector<SLlong>   SLVlong;
-typedef std::vector<SLulong>  SLVulong;
-typedef std::vector<SLfloat>  SLVfloat;
-typedef std::vector<SLstring> SLVstring;
-typedef std::vector<size_t>   SLVsize_t;
+typedef vector<SLbool>   SLVbool;
+typedef vector<SLbyte>   SLVbyte;
+typedef vector<SLubyte>  SLVubyte;
+typedef vector<SLchar>   SLVchar;
+typedef vector<SLuchar>  SLVuchar;
+typedef vector<SLshort>  SLVshort;
+typedef vector<SLushort> SLVushort;
+typedef vector<SLint>    SLVint;
+typedef vector<SLuint>   SLVuint;
+typedef vector<SLlong>   SLVlong;
+typedef vector<SLulong>  SLVulong;
+typedef vector<SLfloat>  SLVfloat;
+typedef vector<SLstring> SLVstring;
+typedef vector<size_t>   SLVsize_t;
 
 // All 2D vectors begin with SLVV*
-typedef std::vector<vector<SLfloat>>  SLVVfloat;
-typedef std::vector<vector<SLuchar>>  SLVVuchar;
-typedef std::vector<vector<SLushort>> SLVVushort;
-typedef std::vector<vector<SLuint>>   SLVVuint;
-typedef std::vector<vector<SLchar>>   SLVVchar;
-typedef std::vector<vector<SLshort>>  SLVVshort;
-typedef std::vector<vector<SLint>>    SLVVint;
+typedef vector<vector<SLfloat>>  SLVVfloat;
+typedef vector<vector<SLuchar>>  SLVVuchar;
+typedef vector<vector<SLushort>> SLVVushort;
+typedef vector<vector<SLuint>>   SLVVuint;
+typedef vector<vector<SLchar>>   SLVVchar;
+typedef vector<vector<SLshort>>  SLVVshort;
+typedef vector<vector<SLint>>    SLVVint;
 
 //-----------------------------------------------------------------------------
 // Shortcut for size of a vector

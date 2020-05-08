@@ -84,7 +84,7 @@ int DUtils::Random::UnrepeatedRandomizer::get()
   
   DUtils::Random::SeedRandOnce();
   
-  int k = DUtils::Random::RandomInt(0, m_values.size()-1);
+  int k = DUtils::Random::RandomInt(0, (int)m_values.size()-1);
   int ret = m_values[k];
   m_values[k] = m_values.back();
   m_values.pop_back();

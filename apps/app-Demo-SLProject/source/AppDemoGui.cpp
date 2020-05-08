@@ -437,6 +437,24 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
+#if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
+            else if (rType == RT_optix_rt)
+            {
+                SLOptixRaytracer* ort = sv->optixRaytracer();
+                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", 1.0f/s->fps());
+            }
+            else if (rType == RT_optix_pt)
+            {
+                SLOptixPathtracer* opt = sv->optixPathtracer();
+                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
+                sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
+            }
+#endif
             else if (rType == RT_pt)
             {
                 SLPathtracer* pt           = sv->pathtracer();
@@ -467,13 +485,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 // Get averages from average variables (see Averaged)
                 SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
                 SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
-                SLfloat detectTime     = CVTracked::detectTimesMS.average();
-                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
-                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
-                SLfloat matchTime      = CVTracked::matchTimesMS.average();
-                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
-                SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
                 SLfloat cullTime       = sv->cullTimesMS().average();
@@ -804,6 +815,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 #else
             sprintf(m + strlen(m), "Build Config.    : Release\n");
 #endif
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
             sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
             sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
@@ -811,14 +823,17 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
             sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
             sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
             sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
             sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
-            sprintf(m + strlen(m), "GLSL Version     : %s\n", stateGL->glSLVersionNO().c_str());
+            sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
             sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
             // Switch to fixed font
@@ -1648,27 +1663,34 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL (GL)", "G", rType == RT_gl))
+            if (ImGui::MenuItem("OpenGL", "G", rType == RT_gl))
                 sv->renderType(RT_gl);
 
-            if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType == RT_rt))
+            if (ImGui::MenuItem("Ray Tracing", "R", rType == RT_rt))
                 sv->startRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing (PT)", nullptr, rType == RT_pt))
+            if (ImGui::MenuItem("Path Tracing", nullptr, rType == RT_pt))
                 sv->startPathtracing(5, 10);
 
-#if defined(GL_VERSION_4_4)
-            if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+#ifdef SL_HAS_OPTIX
+            if (ImGui::MenuItem("Ray Tracing with OptiX", nullptr, rType == RT_optix_rt))
+                sv->startOptixRaytracing(5);
+
+            if (ImGui::MenuItem("Path Tracing with OptiX", nullptr, rType == RT_optix_pt))
+                sv->startOptixPathtracing(5, 10);
+#else
+            ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);
+            ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
+#endif
+#ifdef GL_VERSION_4_4
+            if (gl3wIsSupported(4, 4))
             {
                 if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
                     sv->startConetracing();
             }
             else
 #endif
-            {
-                if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
-                    sv->startConetracing();
-            }
+                ImGui::MenuItem("Cone Tracing (GL>4.4)", nullptr, false, false);
 
             ImGui::EndMenu();
         }
@@ -1801,6 +1823,65 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+
+#ifdef SL_HAS_OPTIX
+        else if (rType == RT_optix_rt)
+        {
+            if (ImGui::BeginMenu("RT"))
+            {
+                SLOptixRaytracer* rt_optix = sv->optixRaytracer();
+
+                if (ImGui::MenuItem("Parallel distributed", nullptr, rt_optix->doDistributed()))
+                {
+                    rt_optix->doDistributed(!rt_optix->doDistributed());
+                    sv->startOptixRaytracing(rt_optix->maxDepth());
+                }
+
+                //                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
+                //                {
+                //                    rt->doFresnel(!rt->doFresnel());
+                //                    sv->startRaytracing(rt->maxDepth());
+                //                }
+
+                if (ImGui::BeginMenu("Max. Depth"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, rt_optix->maxDepth() == 1))
+                        sv->startOptixRaytracing(1);
+                    if (ImGui::MenuItem("2", nullptr, rt_optix->maxDepth() == 2))
+                        sv->startOptixRaytracing(2);
+                    if (ImGui::MenuItem("3", nullptr, rt_optix->maxDepth() == 3))
+                        sv->startOptixRaytracing(3);
+                    if (ImGui::MenuItem("5", nullptr, rt_optix->maxDepth() == 5))
+                        sv->startOptixRaytracing(5);
+                    if (ImGui::MenuItem("Max. Contribution", nullptr, rt_optix->maxDepth() == 0))
+                        sv->startOptixRaytracing(0);
+
+                    ImGui::EndMenu();
+                }
+
+                //                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
+                //                {
+                //                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
+                //                        rt->aaSamples(1);
+                //                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3))
+                //                        rt->aaSamples(3);
+                //                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5))
+                //                        rt->aaSamples(5);
+                //                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7))
+                //                        rt->aaSamples(7);
+                //                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9))
+                //                        rt->aaSamples(9);
+                //
+                //                    ImGui::EndMenu();
+                //                }
+
+                if (ImGui::MenuItem("Save Rendered Image"))
+                    rt_optix->saveImage();
+
+                ImGui::EndMenu();
+            }
+        }
+#endif
         else if (rType == RT_pt)
         {
             if (ImGui::BeginMenu("PT"))
@@ -1908,6 +1989,43 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+
+#ifdef SL_HAS_OPTIX
+        else if (rType == RT_optix_pt)
+        {
+            if (ImGui::BeginMenu("PT"))
+            {
+                SLOptixPathtracer* pt = sv->optixPathtracer();
+
+                if (ImGui::BeginMenu("NO. of Samples"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, pt->samples() == 1))
+                        sv->startOptixPathtracing(5, 1);
+                    if (ImGui::MenuItem("10", nullptr, pt->samples() == 10))
+                        sv->startOptixPathtracing(5, 10);
+                    if (ImGui::MenuItem("100", nullptr, pt->samples() == 100))
+                        sv->startOptixPathtracing(5, 100);
+                    if (ImGui::MenuItem("1000", nullptr, pt->samples() == 1000))
+                        sv->startOptixPathtracing(5, 1000);
+                    if (ImGui::MenuItem("10000", nullptr, pt->samples() == 10000))
+                        sv->startOptixPathtracing(5, 10000);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Denoiser", nullptr, pt->getDenoiserEnabled()))
+                {
+                    pt->setDenoiserEnabled(!pt->getDenoiserEnabled());
+                    sv->startOptixPathtracing(5, pt->samples());
+                }
+
+                if (ImGui::MenuItem("Save Rendered Image"))
+                    pt->saveImage();
+
+                ImGui::EndMenu();
+            }
+        }
+#endif
 
         if (ImGui::BeginMenu("Camera"))
         {
@@ -2712,6 +2830,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showInfosSensors = false;
         AppDemoGui::showSceneGraph   = false;
         AppDemoGui::showProperties   = false;
+        AppDemoGui::showDockSpace    = true;
 
         // Adjust UI padding on DPI
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);

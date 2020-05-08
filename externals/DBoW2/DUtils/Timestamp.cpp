@@ -86,8 +86,8 @@ void Timestamp::setTime(const string &stime){
 
 void Timestamp::setTime(double s)
 {
-  m_secs = (unsigned long)s;
-  m_usecs = (s - (double)m_secs) * 1e6;
+    m_secs = (unsigned long)s;
+    m_usecs = (unsigned long)((s - (double)m_secs) * 1e6);
 }
 
 double Timestamp::getFloatTime() const {

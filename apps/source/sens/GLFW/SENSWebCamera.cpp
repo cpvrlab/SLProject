@@ -135,7 +135,8 @@ std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristic
                 cv::Mat frame;
                 _videoCapture >> frame;
                 cv::Size newSize = frame.size();
-                if (!characteristics.streamConfig.contains(newSize))
+                if (!characteristics.streamConfig.contains(newSize) &&
+                    newSize != cv::Size(0, 0))
                 {
                     characteristics.streamConfig.add(newSize);
                 }

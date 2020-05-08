@@ -26,7 +26,7 @@ struct SLVertexOculus
     SLVec2f tanEyeAnglesB;
 };
 
-typedef std::vector<SLVertexOculus> SLVVertexOculus;
+typedef vector<SLVertexOculus> SLVVertexOculus;
 
 //-----------------------------------------------------------------------------
 //! Wrapper around Oculus Rift Devkit 2.

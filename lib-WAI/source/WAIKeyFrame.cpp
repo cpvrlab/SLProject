@@ -147,10 +147,10 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
     mvScaleFactors(F.mvScaleFactors),
     mvLevelSigma2(F.mvLevelSigma2),
     mvInvLevelSigma2(F.mvInvLevelSigma2),
-    mnMinX(F.mnMinX),
-    mnMinY(F.mnMinY),
-    mnMaxX(F.mnMaxX),
-    mnMaxY(F.mnMaxY),
+    mnMinX((int)F.mnMinX),
+    mnMinY((int)F.mnMinY),
+    mnMaxX((int)F.mnMaxX),
+    mnMaxY((int)F.mnMaxY),
     mK(F.mK),
     mvpMapPoints(F.mvpMapPoints),
     /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true),
@@ -322,7 +322,7 @@ vector<WAIKeyFrame*> WAIKeyFrame::GetCovisiblesByWeight(const int& w)
         return vector<WAIKeyFrame*>();
     else
     {
-        int n = it - mvOrderedWeights.begin();
+        int n = (int)(it - mvOrderedWeights.begin());
         return vector<WAIKeyFrame*>(mvpOrderedConnectedKeyFrames.begin(), mvpOrderedConnectedKeyFrames.begin() + n);
     }
 }
@@ -815,7 +815,7 @@ float WAIKeyFrame::ComputeSceneMedianDepth(const int q)
         {
             WAIMapPoint* pMP  = mvpMapPoints[i];
             cv::Mat      x3Dw = pMP->GetWorldPos();
-            float        z    = Rcw2.dot(x3Dw) + zcw;
+            float        z    = (float)Rcw2.dot(x3Dw) + zcw;
             vDepths.push_back(z);
         }
     }
@@ -835,7 +835,7 @@ cv::Mat WAIKeyFrame::getObjectMatrix()
 //! this is a function from Frame, but we need it here for map loading
 void WAIKeyFrame::AssignFeaturesToGrid()
 {
-    int nReserve = 0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS);
+    int nReserve = (int)(0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS));
     for (unsigned int i = 0; i < FRAME_GRID_COLS; i++)
         for (unsigned int j = 0; j < FRAME_GRID_ROWS; j++)
             mGrid[i][j].reserve(nReserve);
@@ -853,8 +853,8 @@ void WAIKeyFrame::AssignFeaturesToGrid()
 //! this is a function from Frame, but we need it here for map loading
 bool WAIKeyFrame::PosInGrid(const cv::KeyPoint& kp, int& posX, int& posY)
 {
-    posX = round((kp.pt.x - mnMinX) * mfGridElementWidthInv);
-    posY = round((kp.pt.y - mnMinY) * mfGridElementHeightInv);
+    posX = (int)round((kp.pt.x - mnMinX) * mfGridElementWidthInv);
+    posY = (int)round((kp.pt.y - mnMinY) * mfGridElementHeightInv);
 
     //Keypoint's coordinates are undistorted, which could cause to go out of the image
     if (posX < 0 || posX >= FRAME_GRID_COLS || posY < 0 || posY >= FRAME_GRID_ROWS)

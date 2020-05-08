@@ -144,6 +144,6 @@ class SLEventHandler
 };
 //-----------------------------------------------------------------------------
 // STL list containter of SLEventHandler pointers
-typedef std::vector<SLEventHandler*> SLVEventHandler;
+typedef vector<SLEventHandler*> SLVEventHandler;
 //-----------------------------------------------------------------------------
 #endif

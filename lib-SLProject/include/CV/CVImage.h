@@ -139,6 +139,6 @@ protected:
     string      _path;          //!< path on the filesystem
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<CVImage*> CVVImage;
+typedef vector<CVImage*> CVVImage;
 //-----------------------------------------------------------------------------
 #endif

@@ -4,7 +4,7 @@
 #include <sm/EventData.h>
 #include <sm/EventHandler.h>
 #include <Utils.h>
-#include <assert.h>
+#include <cassert>
 
 namespace sm
 {
@@ -15,6 +15,8 @@ class StateMachine;
 class StateBase
 {
 public:
+    virtual ~StateBase() { ; }
+
     /// Called by the state machine to execute a state action.
     /// @param[in] sm - A state machine instance.
     /// @param[in] data - The event data.
@@ -48,7 +50,7 @@ public:
 class StateMachine : public EventHandler
 {
 public:
-    StateMachine(unsigned int initialStateId);
+    explicit StateMachine(unsigned int initialStateId);
     virtual ~StateMachine();
     //!process events and update current state
     bool update();

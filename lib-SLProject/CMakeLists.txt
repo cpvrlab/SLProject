@@ -1,12 +1,44 @@
 # 
-# CMake congifuration for lib-SLProject
+# CMake configuration for lib-SLProject
 #
 
 set(target lib-SLProject)
 
 set(platform_specific_include_dirs)
 
-set(headers
+if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
+    message("CUDA_PATH is defined")
+    find_package(CUDA 10 REQUIRED)
+    find_package(OptiX REQUIRED VERSION 7.0)
+    set(DEFAULT_COMPILE_DEFINITIONS 
+        ${DEFAULT_COMPILE_DEFINITIONS} 
+        SL_HAS_OPTIX
+        SL_BUILD_WITH_OPTIX)
+else()
+    if (DEFINED ENV{CUDA_PATH})
+        message("Has CUDA but OPTIX will not be built.")
+    endif()
+    if (SL_BUILD_WITH_OPTIX)
+        if ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS" OR "${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+            message("For Optix you have to install the latest CUDA Toolkit ")
+            message("and the latest Optix SDK from NVidia.")
+        else()
+            message("Optix is so far only available on Windows or Linux")    
+        endif()
+    endif()
+endif()
+
+file(GLOB cuda
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerCamera.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerShading.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixTrace.cu
+        )
+
+file(GLOB headers
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixHelper.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixVectorMath.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTypedefs.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCamera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVCalibration.h
@@ -51,10 +83,8 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec4.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVector.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLApplication.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLInputEventInterface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLSkybox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLTexFont.h
@@ -76,6 +106,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCudaBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxisArrow.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCylinder.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceRotation.h
@@ -94,11 +125,18 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLight.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightRect.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightSpot.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLine.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightDirect.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMaterial.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptix.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixAccelerationStructure.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixHelper.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixPathtracer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixRaytracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPathtracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPoints.h
@@ -126,7 +164,6 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibration.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCalibrationEstimator.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVCapture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVFeatureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVImageGeoTiff.cpp
@@ -185,10 +222,16 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLight.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightRect.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightSpot.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightDirect.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptix.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelStruct.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixPathtracer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixRaytracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPoints.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPolygon.cpp
@@ -255,11 +298,54 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
 endif ()
 #==============================================================================
 
+#==============================================================================
+
+if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
+    message("Has-Optics: " "${OptiX_INCLUDE}")
+
+    list(FIND CUDA_NVCC_FLAGS "-arch" index)
+    if(index EQUAL -1)
+        list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+    endif()
+    set(flag "--use_fast_math")
+    list(FIND CUDA_NVCC_FLAGS ${flag} index)
+    if(index EQUAL -1)
+        list(APPEND CUDA_NVCC_FLAGS ${flag})
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+    endif()
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        list(APPEND CUDA_NVCC_FLAGS -lineinfo)
+        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
+    endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "-DSL_HAS_OPTIX")
+
+    cuda_include_directories(ptx
+            ${OptiX_INCLUDE}
+            ${CUDA_INCLUDE_DIRS}
+            ${SL_PROJECT_ROOT}/lib-SLProject/cuda
+            ${SL_PROJECT_ROOT}/lib-SLProject/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/cuda
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            )
+
+    cuda_compile_ptx(ptx
+            ${cuda}
+            )
+
+    add_custom_target(ptx ALL
+            DEPENDS ${cuda}
+            SOURCES ${cuda}
+            )
+endif()
+
+#==============================================================================
 add_library(${target}
         ${headers}
         ${sources}
-        ${shaders}
-        )
+        ${shaders} source/SLLine.cpp)
 
 add_library(${META_PROJECT_NAME}::${target}
         ALIAS
@@ -289,7 +375,10 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
         ${OpenCV_INCLUDE_DIR}
+        ${OptiX_INCLUDE}
+        ${CUDA_INCLUDE_DIRS}
         ${assimp_INCLUDE_DIR}
+        ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/externals/nlohmann
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
@@ -327,6 +416,9 @@ target_link_libraries(${target}
         PUBLIC
         ${PlatformLinkLibs}
         ${OpenCV_LIBS}
+        ${CUDA_LIBRARIES}
+        ${CUDA_CUDA_LIBRARY}
+        ${optix_LIBRARY}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
         lib-Utils
@@ -335,3 +427,10 @@ target_link_libraries(${target}
         INTERFACE
 
         )
+
+
+if (DEFINED ENV{CUDA_PATH})
+    add_dependencies(${target} ptx)
+endif()
+
+

@@ -321,11 +321,11 @@ typedef SLVec3<SLint>         SLVec3i;
 typedef SLVec3<SLuint>        SLVec3ui; 
 typedef SLVec3<SLshort>       SLVec3s; 
 
-typedef std::vector<SLVec3f>  SLVVec3f;
-typedef std::vector<SLCol3f>  SLVCol3f;
+typedef vector<SLVec3f>  SLVVec3f;
+typedef vector<SLCol3f>  SLVCol3f;
 
 typedef SLVec3<double>        SLVec3d;
-typedef std::vector<SLVec3d>  SLVVec3d;
+typedef vector<SLVec3d>  SLVVec3d;
 //-----------------------------------------------------------------------------
 #endif
 
