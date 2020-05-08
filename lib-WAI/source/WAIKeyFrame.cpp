@@ -166,7 +166,7 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
     mnMarker[4] = 0;
     mnMarker[5] = 0;
     mnMarker[6] = 0;
-    mnId = nNextId++;
+    mnId        = nNextId++;
 
     for (int i = 0; i < FRAME_GRID_COLS; i++)
         for (int j = 0; j < FRAME_GRID_ROWS; j++)
@@ -202,7 +202,8 @@ void WAIKeyFrame::ComputeBoW(fbow::Vocabulary* vocabulary)
         //vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2
 
         //TODO ensure level is now from the top
-        vocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
+        if (mDescriptors.rows > 0)
+            vocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------

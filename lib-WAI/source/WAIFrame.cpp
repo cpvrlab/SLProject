@@ -91,7 +91,7 @@ WAIFrame::WAIFrame(const WAIFrame& frame)
         imgGray = frame.imgGray.clone();
 }
 //-----------------------------------------------------------------------------
-WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef,  fbow::Vocabulary* vocabulary, bool retainImg)
+WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, fbow::Vocabulary* vocabulary, bool retainImg)
   : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ /*mDistCoef(distCoef.clone()),*/
     mVocabulary(vocabulary)
 {
@@ -325,7 +325,8 @@ void WAIFrame::ComputeBoW()
         // preselected keyframe but that will make also the relocalization less invariant to changes
 
         // Luc 2: I think level is from the top with the new BoW
-        mVocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
+        if (mDescriptors.rows > 0)
+            mVocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------
