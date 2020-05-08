@@ -325,7 +325,7 @@ void WAIFrame::ComputeBoW()
         // preselected keyframe but that will make also the relocalization less invariant to changes
 
         // Luc 2: I think level is from the top with the new BoW
-        mVocabulary->transform(mDescriptors, 2, mBowVec, mFeatVec);
+        mVocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------

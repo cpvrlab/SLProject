@@ -202,7 +202,7 @@ void WAIKeyFrame::ComputeBoW(fbow::Vocabulary* vocabulary)
         //vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2
 
         //TODO ensure level is now from the top
-        vocabulary->transform(mDescriptors, 2, mBowVec, mFeatVec);
+        vocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------
