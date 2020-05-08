@@ -35,6 +35,10 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
         }
         _sizesStrings[c.cameraId] = sizeStrings;
     }
+
+    _currSizeIndex = 0;
+    _currCharac    = &_camCharacs.front();
+    _currSizeStr   = &_sizesStrings[_currCharac->cameraId].front();
 }
 
 CameraTestGui::~CameraTestGui()
@@ -115,41 +119,36 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            static const SENSCameraCharacteristics* currCharac = &_camCharacs.front();
-            //selected size for previously selected camera id
-            static int                      currSizeIndex = 0;
-            const std::vector<std::string>& sizes         = _sizesStrings[currCharac->cameraId];
-            static const std::string*       currSizeStr   = &sizes.front();
-
-            if (ImGui::BeginCombo("Cameras##CameraTestGui", currCharac->cameraId.c_str()))
+            if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCharac->cameraId.c_str()))
             {
                 for (int n = 0; n < _camCharacs.size(); n++)
                 {
                     const SENSCameraCharacteristics* charac = &_camCharacs[n];
                     ImGui::PushID(charac->cameraId.c_str());
-                    if (ImGui::Selectable(charac->cameraId.c_str(), charac == currCharac))
+                    if (ImGui::Selectable(charac->cameraId.c_str(), charac == _currCharac))
                     {
-                        currCharac = charac;
+                        _currCharac = charac;
                         //reset selected size after camera selection changed
-                        currSizeIndex = 0;
-                        currSizeStr   = &_sizesStrings[currCharac->cameraId].front();
+                        _currSizeIndex = 0;
+                        _currSizeStr   = &_sizesStrings[_currCharac->cameraId].front();
                     }
                     ImGui::PopID();
                 }
                 ImGui::EndCombo();
             }
 
-            if (ImGui::BeginCombo("Sizes##CameraTestGui", currSizeStr->c_str()))
+            const std::vector<std::string>& sizes = _sizesStrings[_currCharac->cameraId];
+            if (ImGui::BeginCombo("Sizes##CameraTestGui", _currSizeStr->c_str()))
             {
                 for (int n = 0; n < sizes.size(); n++)
                 {
                     const std::string* sizeStr      = &sizes[n];
-                    bool               itemSelected = (sizeStr == currSizeStr);
+                    bool               itemSelected = (sizeStr == _currSizeStr);
                     ImGui::PushID(sizeStr->c_str());
                     if (ImGui::Selectable(sizeStr->c_str(), itemSelected))
                     {
-                        currSizeIndex = n;
-                        currSizeStr   = sizeStr;
+                        _currSizeIndex = n;
+                        _currSizeStr   = sizeStr;
                     }
                     ImGui::PopID();
                 }
@@ -157,12 +156,12 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             }
 
             //visualize current camera characteristics
-            if (currCharac->provided)
+            if (_currCharac->provided)
             {
-                ImGui::Text(getPrintableFacing(currCharac->facing).c_str());
-                ImGui::Text("Physical sensor size (mm): w: %f, h: %f", currCharac->physicalSensorSizeMM.width, currCharac->physicalSensorSizeMM.height);
+                ImGui::Text(getPrintableFacing(_currCharac->facing).c_str());
+                ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _currCharac->physicalSensorSizeMM.width, _currCharac->physicalSensorSizeMM.height);
                 ImGui::Text("Focal lengths (mm):");
-                for (auto fl : currCharac->focalLenghtsMM)
+                for (auto fl : _currCharac->focalLenghtsMM)
                 {
                     ImGui::Text("  %f", fl);
                 }
@@ -174,10 +173,10 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
-                if (currSizeIndex >= 0 && currSizeIndex < currCharac->streamConfig.getStreamSizes().size())
+                if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfig.getStreamSizes().size())
                 {
-                    const cv::Size& selectedFrameSize  = currCharac->streamConfig.getStreamSizes()[currSizeIndex];
-                    _cameraConfig.deviceId             = currCharac->cameraId;
+                    const cv::Size& selectedFrameSize  = _currCharac->streamConfig.getStreamSizes()[_currSizeIndex];
+                    _cameraConfig.deviceId             = _currCharac->cameraId;
                     _cameraConfig.targetWidth          = selectedFrameSize.width;
                     _cameraConfig.targetHeight         = selectedFrameSize.height;
                     _cameraConfig.convertToGray        = true;
@@ -201,7 +200,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 }
                 else
                 {
-                    Utils::log("CameraTestGui", "Start: invalid index %d", currSizeIndex);
+                    Utils::log("CameraTestGui", "Start: invalid index %d", _currSizeIndex);
                 }
             }
 

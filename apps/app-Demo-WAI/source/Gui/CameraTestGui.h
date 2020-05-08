@@ -59,6 +59,11 @@ private:
 
     bool        _hasException = false;
     std::string _exceptionText;
+
+    //selection values
+    const SENSCameraCharacteristics* _currCharac{nullptr};
+    int                              _currSizeIndex{0};
+    const std::string*               _currSizeStr{nullptr};
 };
 
 #endif //CAMERA_TEST_GUI_H
