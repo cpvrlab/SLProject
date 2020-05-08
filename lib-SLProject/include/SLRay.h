@@ -80,6 +80,12 @@ public:
     SLVec3f originOS; //!< Vector to the origin of ray in OS
     SLVec3f dirOS;    //!< Direction vector of ray in OS
 
+    //! Total NO. of rays shot during one RT frame
+    static SLuint totalNumRays() { return SLRay::reflectedRays +
+                                          SLRay::subsampledRays +
+                                          SLRay::refractedRays +
+                                          SLRay::shadowRays; }
+
     // Additional info for intersection
     SLRayType    type;            //!< PRIMARY, REFLECTED, REFRACTED, SHADOW
     SLfloat      lightDist;       //!< Distance to light for shadow rays

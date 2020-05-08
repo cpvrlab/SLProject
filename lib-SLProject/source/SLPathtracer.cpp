@@ -41,6 +41,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     _renderSec  = 0.0f;   // reset time
     _progressPC = 0;      // % rendered
 
+    initStats(0); // init statistics
     prepareImage();
 
     // Set second image for render update to the same size
@@ -81,6 +82,8 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     }
 
     _renderSec = GlobalTimer::timeS() - (SLfloat)t1;
+    _raysPerMS.set((float)SLRay::totalNumRays() / _renderSec / 1000.0f);
+    _progressPC = 100;
 
     SL_LOG("\nTime to render image: %6.3fsec", _renderSec);
 
