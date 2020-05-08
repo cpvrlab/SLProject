@@ -8,9 +8,6 @@
 //#############################################################################
 
 #include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT
-#include <nvwa/debug_new.h>   // memory leak detector
-#endif
 
 #include "SLRay.h"
 

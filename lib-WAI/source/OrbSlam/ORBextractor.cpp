@@ -1858,7 +1858,7 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
 
     //ComputeKeyPointsOld(allKeypoints);
 
-    AVERAGE_TIMING_START("blurAndcomputeDescriptors");
+    AVERAGE_TIMING_START("BlurAndComputeDescr");
     Mat descriptors;
 
     int nkeypoints = 0;
@@ -1910,7 +1910,7 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
         _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
     }
 
-    AVERAGE_TIMING_STOP("blurAndcomputeDescriptors");
+    AVERAGE_TIMING_STOP("BlurAndComputeDescr");
 }
 
 void ORBextractor::ComputePyramid(cv::Mat image)

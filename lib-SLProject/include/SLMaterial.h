@@ -236,9 +236,8 @@ public:
     }
 
     // Static variables & functions
-    static SLMaterial* current; //!< Current material during scene traversal
-    static SLfloat     K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
-    static SLfloat     PERFECT; //!< PM: shininess/translucency limit
+    static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
+    static SLfloat PERFECT; //!< PM: shininess/translucency limit
 
 protected:
     SLCol4f      _ambient;      //!< ambient color (RGB reflection coefficients)

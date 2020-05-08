@@ -1421,7 +1421,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
                                        bool           applyMinAccScoreFilter,
                                        bool           relocWithAllKFs)
 {
-    AVERAGE_TIMING_START("relocalization");
+    AVERAGE_TIMING_START("Relocalization");
     // Compute Bag of Words Vector
     currentFrame.ComputeBoW();
 
@@ -1448,7 +1448,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
 
     if (vpCandidateKFs.empty())
     {
-        AVERAGE_TIMING_STOP("relocalization");
+        AVERAGE_TIMING_STOP("Relocalization");
         return false;
     }
 
@@ -1594,7 +1594,7 @@ bool WAI::ModeOrbSlam2::relocalization(WAIFrame&      currentFrame,
         }
     }
 
-    AVERAGE_TIMING_STOP("relocalization");
+    AVERAGE_TIMING_STOP("Relocalization");
     if (!bMatch)
     {
         return false;
@@ -1622,7 +1622,7 @@ bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
     //6. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
     //7. If there are more than 10 valid matches the reference frame tracking was successful.
 
-    AVERAGE_TIMING_START("trackReferenceKeyFrame");
+    AVERAGE_TIMING_START("TrackReferenceKeyFrame");
     // Compute Bag of Words vector
     mCurrentFrame.ComputeBoW();
 
@@ -1635,7 +1635,7 @@ bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
 
     if (nmatches < 15)
     {
-        AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
+        AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
         return false;
     }
 
@@ -1667,7 +1667,7 @@ bool WAI::ModeOrbSlam2::trackReferenceKeyFrame()
     }
     */
 
-    AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
+    AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
     //return nmatchesMap >= 10;
     return nmatches >= 10;
 }
@@ -1948,7 +1948,7 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
     //8. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
     //9. If less than 10 matches to the local map remain the tracking with visual odometry is activated (mbVO = true) and that means no tracking with motion model or reference keyframe
     //10. The tracking with motion model was successful, if we found more than 20 matches to map points
-    AVERAGE_TIMING_START("trackWithMotionModel");
+    AVERAGE_TIMING_START("TrackWithMotionModel");
     ORBmatcher matcher(0.9, true);
 
     // Update last frame pose according to its reference keyframe
@@ -1973,7 +1973,7 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
 
     if (nmatches < 20)
     {
-        AVERAGE_TIMING_STOP("trackWithMotionModel");
+        AVERAGE_TIMING_STOP("TrackWithMotionModel");
         return false;
     }
 
@@ -2005,7 +2005,7 @@ bool WAI::ModeOrbSlam2::trackWithMotionModel()
         }
     }
 
-    AVERAGE_TIMING_STOP("trackWithMotionModel");
+    AVERAGE_TIMING_STOP("TrackWithMotionModel");
     if (_params.onlyTracking)
     {
         mbVO = nmatchesMap < 10;

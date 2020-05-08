@@ -18,16 +18,17 @@
 Drawing Bits control some visual states of the scene and are applied per scene 
 view or per single node object. Not all are used from the beginning
 */
-#define SL_DB_HIDDEN 1     //!< Flags an object as hidden
-#define SL_DB_SELECTED 2   //!< Flags an object as selected
-#define SL_DB_WIREMESH 4   //!< Draw polygons as wired mesh
-#define SL_DB_NORMALS 8    //!< Draw the vertex normals
-#define SL_DB_BBOX 16      //!< Draw the bounding boxes of a node
-#define SL_DB_AXIS 32      //!< Draw the coordinate axis of a node
-#define SL_DB_VOXELS 64    //!< Draw the voxels of the uniform grid
-#define SL_DB_SKELETON 128 //!< Draw the skeletons joints
-#define SL_DB_CULLOFF 256  //!< Turn off face culling
-#define SL_DB_TEXOFF 512   //!< Turn off texture mapping
+#define SL_DB_HIDDEN 1      //!< Flags an object as hidden
+#define SL_DB_SELECTED 2    //!< Flags an object as selected
+#define SL_DB_WIREMESH 4    //!< Draw polygons as wired mesh
+#define SL_DB_NORMALS 8     //!< Draw the vertex normals
+#define SL_DB_BBOX 16       //!< Draw the bounding boxes of a node
+#define SL_DB_AXIS 32       //!< Draw the coordinate axis of a node
+#define SL_DB_VOXELS 64     //!< Draw the voxels of the uniform grid
+#define SL_DB_SKELETON 128  //!< Draw the skeletons joints
+#define SL_DB_CULLOFF 256   //!< Turn off face culling
+#define SL_DB_TEXOFF 512    //!< Turn off texture mapping
+#define SL_DB_OVERDRAW 1024 //!< Draw node over all other nodes
 
 //-----------------------------------------------------------------------------
 //! Drawing states stored in the bits of an unsigned int
@@ -37,7 +38,7 @@ different drawing bit flags.
 */
 class SLDrawBits
 {
-    public:
+public:
     SLDrawBits() { _bits = 0; }
     ~SLDrawBits() { ; }
 
@@ -70,7 +71,7 @@ class SLDrawBits
     //! Set all bits
     void bits(SLuint b) { _bits = b; }
 
-    private:
+private:
     SLuint _bits; //!< Drawing flags as a unsigned 32-bit register
 };
 //-----------------------------------------------------------------------------

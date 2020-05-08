@@ -9,10 +9,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT
-#    include <nvwa/debug_new.h> // memory leak detector
-#endif
-
 #include <SLRay.h>
 #include <SLSceneView.h>
 
@@ -75,12 +71,12 @@ SLRay::SLRay(SLSceneView* sceneView)
 /*! 
 SLRay::SLRay constructor for primary rays
 */
-SLRay::SLRay(SLVec3f      Origin,
-             SLVec3f      Dir,
-             SLfloat      X,
-             SLfloat      Y,
-             SLCol4f      backColor,
-             SLSceneView* sceneView)
+SLRay::SLRay(const SLVec3f& Origin,
+             const SLVec3f& Dir,
+             SLfloat        X,
+             SLfloat        Y,
+             const SLCol4f& backColor,
+             SLSceneView*   sceneView)
 {
     origin = Origin;
     setDir(Dir);
@@ -108,9 +104,9 @@ SLRay::SLRay(SLVec3f      Origin,
 /*! 
 SLRay::SLRay constructor for shadow rays
 */
-SLRay::SLRay(SLfloat distToLight,
-             SLVec3f dirToLight,
-             SLRay*  rayFromHitPoint)
+SLRay::SLRay(SLfloat        distToLight,
+             const SLVec3f& dirToLight,
+             SLRay*         rayFromHitPoint)
 {
     origin = rayFromHitPoint->hitPoint;
     setDir(dirToLight);
@@ -157,7 +153,7 @@ SLRay::reflect calculates a secondary ray reflected at the normal, starting at
 the intersection point. All vectors must be normalized vectors.
 R = 2(-I*N) N + I
 */
-void SLRay::reflect(SLRay* reflected)
+void SLRay::reflect(SLRay* reflected) const
 {
 #ifdef DEBUG_RAY
     for (SLint i = 0; i < depth; ++i)
@@ -276,19 +272,9 @@ void SLRay::refract(SLRay* refracted)
         else // inside
         {
             if (srcMesh == hitMesh)
-            {
-                if (hitMatOut)
-                    refracted->isOutside = false;
-                else
-                    refracted->isOutside = true;
-            }
+                refracted->isOutside = !hitMatOut;
             else
-            {
-                if (hitFrontSide)
-                    refracted->isOutside = false; // hit from front
-                else
-                    refracted->isOutside = true; // hit from back
-            }
+                refracted->isOutside = !hitFrontSide;
         }
 
         ++refractedRays;
@@ -343,7 +329,7 @@ along z-axis and then transformed to lie along specular direction with
 rotationMatrix rotMat. The rotation matrix must be precalculated (stays the 
 same for each ray sample, needs to be be calculated only once)
 */
-bool SLRay::reflectMC(SLRay* reflected, SLMat3f rotMat)
+bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
@@ -395,7 +381,7 @@ lie along transmissive direction with rotationMatrix rotMat. The rotation
 matrix must be precalculated (stays the same for each ray sample, needs to be 
 be calculated only once)
 */
-void SLRay::refractMC(SLRay* refracted, SLMat3f rotMat)
+void SLRay::refractMC(SLRay* refracted, const SLMat3f& rotMat) const
 {
     SLfloat eta1, eta2;
     SLVec3f randVec;
@@ -440,7 +426,7 @@ This is only used for photonmapping(russian roulette).
 The random direction lies around z-Axis and is then transformed by a rotation 
 matrix to lie along the normal. The direction is calculated according to MCCABE
 */
-void SLRay::diffuseMC(SLRay* scattered)
+void SLRay::diffuseMC(SLRay* scattered) const
 {
     SLVec3f randVec;
     SLfloat eta1, eta2, eta1sqrt;

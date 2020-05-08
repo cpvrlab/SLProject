@@ -26,8 +26,8 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string&              name,
                                          std::queue<WAIEvent*>*          eventQueue,
                                          const std::vector<std::string>& extractorIdToNames)
   : AppDemoGuiInfosDialog(name, activator),
-    _eventQueue(eventQueue),
-    _extractorIdToNames(extractorIdToNames)
+    _extractorIdToNames(extractorIdToNames),
+    _eventQueue(eventQueue)
 {
     _currentId       = 2;
     _iniCurrentId    = 1;

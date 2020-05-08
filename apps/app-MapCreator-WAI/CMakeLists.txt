@@ -9,6 +9,7 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(headers
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
@@ -21,6 +22,7 @@ set(headers
 
 set(sources
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/main.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp

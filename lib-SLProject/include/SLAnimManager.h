@@ -39,8 +39,8 @@ public:
     SLAnimPlayback* lastAnimPlayback() { return _allAnimPlaybacks.back(); }
 
     SLAnimation* createNodeAnimation(SLfloat duration);
-    SLAnimation* createNodeAnimation(const SLstring& name, SLfloat duration);
-    //create and adjust animation
+    SLAnimation* createNodeAnimation(const SLstring& name,
+                                     SLfloat duration);
     SLAnimation* createNodeAnimation(const SLstring& name,
                                      SLfloat         duration,
                                      SLbool          enabled,

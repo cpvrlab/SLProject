@@ -11,9 +11,10 @@ class SLSceneView;
 class SLUiInterface
 {
 public:
-    virtual void init(std::string configPath) {}
+    virtual ~SLUiInterface() {}
+    virtual void init(const std::string& configPath) {}
     virtual void onInitNewFrame(SLScene* s, SLSceneView* sv) {}
-    virtual void onResize(SLint scrW, SLint scrH) {}
+    virtual void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) {}
     virtual void onPaint(const SLRecti& viewport) {}
     virtual void onMouseDown(SLMouseButton button, SLint x, SLint y) {}
     virtual void onMouseUp(SLMouseButton button, SLint x, SLint y) {}

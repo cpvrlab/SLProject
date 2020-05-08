@@ -24,6 +24,7 @@ public:
 private:
     void openCamera();
 
+    bool                  _isStarting = false;
     cv::VideoCapture      _videoCapture;
     std::vector<cv::Size> _streamSizes;
 

@@ -3,15 +3,17 @@
 
 #include <AppWAIScene.h>
 #include <SLSceneView.h>
+#include <SLTransformNode.h>
 #include <AppDemoWaiGui.h>
 #include <SlamParams.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <SENSVideoStream.h>
 #include <CVCalibration.h>
 #include <queue>
+#include <ImageBuffer.h>
 
 class WAISlam;
-class WAIEvent;
+struct WAIEvent;
 class SENSCamera;
 
 class TestView : protected SLSceneView
@@ -50,25 +52,6 @@ protected:
                           float            scale);
     void downloadCalibrationFilesTo(std::string dir);
 
-    // multithreading 
-    static void updateModeMultiThread(TestView * ptr);
-    int getNextFrame(WAIFrame * frame);
-    void processSENSFrame(SENSFramePtr frame);
-    void stop();
-    bool isStop();
-    void requestFinish();
-    bool finishRequested();
-    bool isFinished();
-    void resume();
-    std::thread* _modeUpdateThread;
-    std::queue<WAIFrame> _framesQueue;
-    std::mutex _frameQueueMutex;
-    std::mutex _stateMutex;
-    bool _isFinish;
-    bool _isStop;
-    bool _requestFinish;
-
-
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
@@ -84,9 +67,7 @@ protected:
     bool                             _showUndistorted      = true;
     cv::Size2i                       _videoFrameSize;
 
-    int     _lastFrameIdx;
-    cv::Mat _undistortedLastFrame[2];
-    bool    _doubleBufferedOutput;
+    std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
 
     //slam
     WAISlam*   _mode = nullptr;
@@ -96,6 +77,7 @@ protected:
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _markerExtractor;
+    ImageBuffer                  _imgBuffer;
 
     std::queue<WAIEvent*> _eventQueue;
 
@@ -110,6 +92,10 @@ protected:
     std::string _videoDir;
 
     std::thread _startThread;
+    std::thread _calibrationThread;
+    bool        _isCalibrated;
+
+    SLTransformNode* _transformationNode = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;

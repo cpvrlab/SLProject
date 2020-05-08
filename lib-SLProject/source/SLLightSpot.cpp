@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT
-#    include <nvwa/debug_new.h> // memory leak detector
-#endif
-
 #include <SLLightSpot.h>
 #include <SLRay.h>
 #include <SLScene.h>

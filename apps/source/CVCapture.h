@@ -99,16 +99,15 @@ public: //! Public static instance getter for singleton pattern
     void        videoType(CVVideoType vt);
     CVVideoType videoType() { return _videoType; }
     int         nextFrameIndex();
-    //! get number of frames in video
-    int       videoLength();
-    AvgFloat& captureTimesMS() { return _captureTimesMS; }
-    void      loadCalibrations(const string& computerInfo,
-                               const string& configPath,
-                               const string& videoPath);
-    void      setCameraSize(int sizeIndex,
-                            int sizeIndexMax,
-                            int width,
-                            int height);
+    int         videoLength(); //! get number of frames in video
+    AvgFloat&   captureTimesMS() { return _captureTimesMS; }
+    void        loadCalibrations(const string& computerInfo,
+                                 const string& configPath,
+                                 const string& videoPath);
+    void        setCameraSize(int sizeIndex,
+                              int sizeIndexMax,
+                              int width,
+                              int height);
 
     void moveCapturePosition(int n);
 

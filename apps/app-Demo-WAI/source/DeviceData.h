@@ -18,14 +18,12 @@ class DeviceData
 public:
     explicit DeviceData(int            scrWidth,
                         int            scrHeight,
-                        float          scr2fbX,
-                        float          scr2fbY,
                         int            dpi,
                         AppDirectories dirs)
     {
         _dpi       = dpi;
-        _scrWidth  = (int)(scrWidth * scr2fbX);
-        _scrHeight = (int)(scrHeight * scr2fbY);
+        _scrWidth  = scrWidth;
+        _scrHeight = scrHeight;
         _dirs      = dirs;
 
         _fontDir    = _dirs.slDataRoot + "/images/fonts/";
@@ -33,6 +31,7 @@ public:
         _videoDir   = _dirs.writableDir + "erleb-AR/locations/";
         _calibDir   = _dirs.writableDir + "calibrations/";
         _mapDir     = _dirs.writableDir + "maps/";
+        _erlebARDir = _dirs.writableDir + "erleb-AR/";
     }
     DeviceData() = delete;
 
@@ -45,6 +44,7 @@ public:
     const std::string&    videoDir() const { return _videoDir; }
     const std::string&    calibDir() const { return _calibDir; }
     const std::string&    mapDir() const { return _mapDir; }
+    const std::string&    erlebARDir() const { return _erlebARDir; }
 
 private:
     //screen width
@@ -65,6 +65,8 @@ private:
     std::string _calibDir;
     //path to maps
     std::string _mapDir;
+    //erlebar dir
+    std::string _erlebARDir;
 };
 
 #endif //DEVICE_DATA_H

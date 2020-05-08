@@ -45,34 +45,43 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
         fs.open(fileName, cv::FileStorage::READ);
         if (fs.isOpened())
         {
-            SLint  i;
-            SLbool b;
+            SLint i;
 
             if (!fs["configTime"].empty())
                 fs["configTime"] >> configTime;
 
             if (!fs["fontPropDots"].empty())
+            {
                 fs["fontPropDots"] >> i;
-            fontPropDots = (SLfloat)i;
+                fontPropDots = (SLfloat)i;
+            }
 
             if (!fs["fontFixedDots"].empty())
+            {
                 fs["fontFixedDots"] >> i;
-            fontFixedDots = (SLfloat)i;
+                fontFixedDots = (SLfloat)i;
+            }
 
             if (!fs["ItemSpacingX"].empty())
+            {
                 fs["ItemSpacingX"] >> i;
-            style.ItemSpacing.x = (SLfloat)i;
+                style.ItemSpacing.x   = (SLfloat)i;
+                style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
+            }
 
             if (!fs["ItemSpacingY"].empty())
+            {
                 fs["ItemSpacingY"] >> i;
-            style.ItemSpacing.y   = (SLfloat)i;
-            style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
-            style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+                style.ItemSpacing.y   = (SLfloat)i;
+                style.WindowPadding.y = style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+            }
 
             if (!fs["ScrollbarSize"].empty())
+            {
                 fs["ScrollbarSize"] >> i;
-            style.ScrollbarSize     = (SLfloat)i;
-            style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
+                style.ScrollbarSize     = (SLfloat)i;
+                style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
+            }
 
             //slam menu
             if (!fs["showSlamParam"].empty())

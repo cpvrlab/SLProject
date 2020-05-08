@@ -19,6 +19,17 @@ void SLInputEventInterface::resize(int sceneViewIndex, int width, int height)
     _inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
+void SLInputEventInterface::updateScr2fb(int   sceneViewIndex,
+                                         float scr2fbX,
+                                         float scr2fbY)
+{
+    SLUpdateScr2fbEvent* e = new SLUpdateScr2fbEvent;
+    e->svIndex             = sceneViewIndex;
+    e->scr2fbX             = scr2fbX;
+    e->scr2fbY             = scr2fbY;
+    _inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events.
 */
 void SLInputEventInterface::mouseDown(int           sceneViewIndex,

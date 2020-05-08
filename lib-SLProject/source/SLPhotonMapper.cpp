@@ -8,12 +8,6 @@
 //#############################################################################
 
 #include <stdafx.h>           // precompiled headers
-#ifdef SL_MEMLEAKDETECT
-#include <nvwa/debug_new.h>   // memory leak detector
-#endif
-#ifdef SL_OMP
-#include <omp.h>              // OpenMP
-#endif
 
 #include "SLPhotonMap.h"
 #include "SLPhotonMapper.h"

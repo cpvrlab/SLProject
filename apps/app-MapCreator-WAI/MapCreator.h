@@ -26,13 +26,13 @@ class MapCreator
         std::string videoFile;
         //std::string calibFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
-    };
+    } VideoAndCalib;
     typedef std::vector<VideoAndCalib> Videos;
     typedef struct AreaConfig
     {
         Videos      videos;
         std::string markerFile;
-    };
+    } AreaConfig;
     typedef std::map<Area, AreaConfig> Areas;
 
 public:
@@ -55,7 +55,7 @@ public:
 
     void thinOutNewWaiMap(const std::string& mapDir,
                           const std::string& inputMapFile,
-                          const std::string  outputMapFile,
+                          const std::string& outputMapFile,
                           CVCalibration&     calib,
                           const float        cullRedundantPerc,
                           ExtractorType      extractorType);

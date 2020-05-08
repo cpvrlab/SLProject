@@ -10,10 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
@@ -25,7 +21,7 @@
 #include <utility>
 
 //-----------------------------------------------------------------------------
-// Static update counter
+// Static updateRec counter
 SLuint SLNode::numWMUpdates = 0;
 //-----------------------------------------------------------------------------
 /*!
@@ -76,7 +72,7 @@ SLNode::~SLNode()
 {
     //SL_LOG("~SLNode: %s", name().c_str());
 
-    for (auto child : _children)
+    for (auto* child : _children)
         delete child;
     _children.clear();
 
@@ -160,10 +156,10 @@ bool SLNode::removeMesh(SLMesh* mesh)
 /*!
 Removes the specified mesh by name from the vector.
 */
-bool SLNode::removeMesh(SLstring name)
+bool SLNode::removeMesh(const SLstring& name)
 {
-    assert(name != "");
-    SLMesh* found = findMesh(std::move(name));
+    assert(!name.empty());
+    SLMesh* found = findMesh(name);
     if (found)
         return removeMesh(found);
     return false;
@@ -199,13 +195,13 @@ the node hierarchy recursively.
 */
 SLMesh* SLNode::findMesh(const SLstring& name, SLbool recursive)
 {
-    assert(name != "");
-    for (auto mesh : _meshes)
+    assert(!name.empty());
+    for (auto* mesh : _meshes)
         if (mesh->name() == name) return mesh;
 
     if (recursive && !children().empty())
     {
-        for (auto child : _children)
+        for (auto* child : _children)
         {
             SLMesh* foundMesh = child->findMesh(name, true);
             if (foundMesh)
@@ -227,7 +223,7 @@ void SLNode::setAllMeshMaterials(SLMaterial* mat, SLbool recursive)
     // Reset the nodes alpha flag
     _aabb.hasAlpha(false);
 
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
     {
         mesh->mat(mat);
 
@@ -237,7 +233,7 @@ void SLNode::setAllMeshMaterials(SLMaterial* mat, SLbool recursive)
     }
 
     if (recursive && !children().empty())
-        for (auto child : _children)
+        for (auto* child : _children)
             child->setAllMeshMaterials(mat, recursive);
 }
 //-----------------------------------------------------------------------------
@@ -246,7 +242,7 @@ Returns true if the node contains the provided mesh
 */
 SLbool SLNode::containsMesh(const SLMesh* mesh)
 {
-    for (auto m : _meshes)
+    for (auto* m : _meshes)
         if (m == mesh)
             return true;
     return false;
@@ -288,7 +284,7 @@ the opaque pass only the opaque meshes.
 void SLNode::drawMeshes(SLSceneView* sv)
 {
     SLGLState* stateGL = SLGLState::instance();
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
         if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
             (!stateGL->blend() && !mesh->mat()->hasAlpha()))
             mesh->draw(sv, this);
@@ -377,7 +373,7 @@ Searches for a child with the name 'name' and deletes it.
 */
 bool SLNode::deleteChild(const SLstring& name)
 {
-    assert(name != "");
+    assert(!name.empty());
     SLNode* found = findChild<SLNode>(name);
     if (found) return deleteChild(found);
     return false;
@@ -403,7 +399,7 @@ void SLNode::findChildrenHelper(const SLMesh*    mesh,
                                 vector<SLNode*>& list,
                                 SLbool           findRecursive)
 {
-    for (auto child : _children)
+    for (auto* child : _children)
     {
         if (child->containsMesh(mesh))
             list.push_back(child);
@@ -432,7 +428,7 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
                                 vector<SLNode*>& list,
                                 SLbool           findRecursive)
 {
-    for (auto child : _children)
+    for (auto* child : _children)
     {
         if (child->drawBits()->get(SL_DB_SELECTED))
             list.push_back(child);
@@ -466,16 +462,24 @@ void SLNode::cull3DRec(SLSceneView* sv)
     // Cull the group nodes recursively
     if (_aabb.isVisible())
     {
-        for (auto child : _children)
+        for (auto* child : _children)
             child->cull3DRec(sv);
 
-        // for leaf nodes add them to the blended vector
-        if (_aabb.hasAlpha())
-            sv->nodesBlended()->push_back(this);
+        // TODO(dgj1): dont leave this like so!! very bad way of checking
+        if (!this->drawBit(SL_DB_OVERDRAW))
+        {
+            // for leaf nodes add them to the blended vector
+            if (_aabb.hasAlpha())
+                sv->nodesBlended()->push_back(this);
 
-        // Add all nodes to the opaque list
-        // A node that has alpha meshes still can have opaque meshes
-        sv->nodesVisible()->push_back(this);
+            // Add all nodes to the opaque list
+            // A node that has alpha meshes still can have opaque meshes
+            sv->nodesVisible()->push_back(this);
+        }
+        else
+        {
+            sv->nodesOverdrawn()->push_back(this);
+        }
     }
 } //-----------------------------------------------------------------------------
 /*!
@@ -486,7 +490,7 @@ void SLNode::cull2DRec(SLSceneView* sv)
     _aabb.isVisible(true);
 
     // Cull the group nodes recursively
-    for (auto child : _children)
+    for (auto* child : _children)
         child->cull2DRec(sv);
 
     // Add all nodes to the opaque list
@@ -518,7 +522,7 @@ void SLNode::drawRec(SLSceneView* sv)
     drawMeshes(sv);
     ///////////////
 
-    for (auto child : _children)
+    for (auto* child : _children)
         child->drawRec(sv);
 
     stateGL->popModelViewMatrix();
@@ -570,9 +574,9 @@ void SLNode::statsRec(SLNodeStats& stats)
     if (typeid(*this) == typeid(SLLightRect)) stats.numLights++;
     if (typeid(*this) == typeid(SLLightDirect)) stats.numLights++;
 
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
         mesh->addStats(stats);
-    for (auto child : _children)
+    for (auto* child : _children)
         child->statsRec(stats);
 }
 //-----------------------------------------------------------------------------
@@ -610,7 +614,7 @@ bool SLNode::hitRec(SLRay* ray)
         ray->setDirOS(_wmI.mat3() * ray->dir);
 
         // test all meshes
-        for (auto mesh : _meshes)
+        for (auto* mesh : _meshes)
         {
             if (mesh->hit(ray, this) && !meshWasHit)
                 meshWasHit = true;
@@ -620,7 +624,7 @@ bool SLNode::hitRec(SLRay* ray)
     }
 
     // Test children nodes
-    for (auto child : _children)
+    for (auto* child : _children)
     {
         if (child->hitRec(ray) && !meshWasHit)
             meshWasHit = true;
@@ -649,9 +653,9 @@ SLNode* SLNode::copyRec()
     else
         copy->_animation = nullptr;
 
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
         copy->addMesh(mesh);
-    for (auto child : _children)
+    for (auto* child : _children)
         copy->addChild(child->copyRec());
 
     return copy;
@@ -671,7 +675,7 @@ void SLNode::parent(SLNode* p)
 }
 //-----------------------------------------------------------------------------
 /*!
-Flags this node for an update. This function is called
+Flags this node for an updateRec. This function is called
 automatically if the local transform of the node or of its parent changed.
 Nodes that are flagged for updating will recalculate their world transform
 the next time it is requested by updateAndGetWM().
@@ -685,15 +689,15 @@ void SLNode::needUpdate()
     _isWMUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
-    for (auto child : _children)
+    for (auto* child : _children)
         child->needUpdate();
 
-    // flag AABB for an update
+    // flag AABB for an updateRec
     needAABBUpdate();
 }
 //-----------------------------------------------------------------------------
 /*!
-Flags this node for a wm update. It is almost
+Flags this node for a wm updateRec. It is almost
 identical to the needUpdate function but it won't flag AABBs.
 This function is currently not in use but could give a slight performance
 boost if it was called instead of needUpdate for the children of a
@@ -708,13 +712,13 @@ void SLNode::needWMUpdate()
     _isWMUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
-    for (auto child : _children)
+    for (auto* child : _children)
         child->needWMUpdate();
 }
 //-----------------------------------------------------------------------------
 /*!
-Flags this node's AABB for an update. If a node
-changed we need to update it's world space AABB. This needs to also be propagated
+Flags this node's AABB for an updateRec. If a node
+changed we need to updateRec it's world space AABB. This needs to also be propagated
 up the parent chain since the AABB of a node incorporates the AABB's of child
 nodes.
 */
@@ -726,7 +730,7 @@ void SLNode::needAABBUpdate()
 
     _isAABBUpToDate = false;
 
-    // flag parent's for an AABB update too since they need to
+    // flag parent's for an AABB updateRec too since they need to
     // merge the child AABBs
     if (_parent)
         _parent->needAABBUpdate();
@@ -737,7 +741,7 @@ A helper function that updates the current _wm to reflect the local matrix.
 recursively calls the updateAndGetWM of the node's parent.
 @note
 This function is const because it has to be called from inside the updateAndGetWM
-function which has to be const. Since we only update the private cache of this
+function which has to be const. Since we only updateRec the private cache of this
 class it is ok.
 */
 void SLNode::updateWM() const
@@ -757,7 +761,7 @@ void SLNode::updateWM() const
 //-----------------------------------------------------------------------------
 /*!
 Will retrieve the current world matrix for this node.
-If the world matrix is out of date it will update it and return a current result.
+If the world matrix is out of date it will updateRec it and return a current result.
 */
 const SLMat4f&
 SLNode::updateAndGetWM() const
@@ -770,7 +774,7 @@ SLNode::updateAndGetWM() const
 //-----------------------------------------------------------------------------
 /*!
 Will retrieve the current world inverse matrix for this node.
-If the world matrix is out of date it will update it and return a current result.
+If the world matrix is out of date it will updateRec it and return a current result.
 */
 const SLMat4f&
 SLNode::updateAndGetWMI() const
@@ -783,7 +787,7 @@ SLNode::updateAndGetWMI() const
 //-----------------------------------------------------------------------------
 /*!
 Will retrieve the current world normal matrix for this node.
-If the world matrix is out of date it will update it and return a current result.
+If the world matrix is out of date it will updateRec it and return a current result.
 */
 const SLMat3f&
 SLNode::updateAndGetWMN() const
@@ -815,8 +819,8 @@ SLNode::updateAABBRec()
         ((SLCamera*)this)->buildAABB(_aabb, updateAndGetWM());
     }
 
-    // Build or update AABB of meshes & merge them to the nodes aabb in WS
-    for (auto mesh : _meshes)
+    // Build or updateRec AABB of meshes & merge them to the nodes aabb in WS
+    for (auto* mesh : _meshes)
     {
         SLAABBox aabbMesh;
         mesh->buildAABB(aabbMesh, updateAndGetWM());
@@ -824,7 +828,7 @@ SLNode::updateAABBRec()
     }
 
     // Merge children in WS except for cameras except if cameras have children
-    for (auto child : _children)
+    for (auto* child : _children)
     { /*
         bool childIsCamera = typeid(*child)==typeid(SLCamera);
         bool cameraHasChildren = false;
@@ -839,7 +843,7 @@ SLNode::updateAABBRec()
     // We need min & max also in OS for the uniform grid intersection in OS
     _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
 
-    // For visualizing the nodes orientation we finally update the axis in WS
+    // For visualizing the nodes orientation we finally updateRec the axis in WS
     _aabb.updateAxisWS(updateAndGetWM());
 
     _isAABBUpToDate = true;
@@ -859,7 +863,7 @@ void SLNode::dumpRec()
     // dump meshes of node
     if (!_meshes.empty())
     {
-        for (auto mesh : _meshes)
+        for (auto* mesh : _meshes)
         {
             for (SLint i = 0; i < _depth; ++i)
                 cout << "   ";
@@ -872,7 +876,7 @@ void SLNode::dumpRec()
     }
 
     // dump children nodes
-    for (auto child : _children)
+    for (auto* child : _children)
         child->dumpRec();
 }
 //-----------------------------------------------------------------------------
@@ -882,7 +886,7 @@ Recursively sets the specified drawbit on or off. See also SLDrawBits.
 void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
     _drawBits.set(bit, state);
-    for (auto child : _children)
+    for (auto* child : _children)
         child->setDrawBitsRec(bit, state);
 }
 //-----------------------------------------------------------------------------
@@ -891,10 +895,10 @@ Recursively sets the specified OpenGL primitive type.
 */
 void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
 {
-    for (auto child : _children)
+    for (auto* child : _children)
         child->setPrimitiveTypeRec(primitiveType);
 
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
         mesh->primitive(primitiveType);
 }
 //-----------------------------------------------------------------------------
@@ -1035,21 +1039,21 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
     }
     else if (_parent && relativeTo == TS_world)
     {
-        SLMat4f rot;
-        rot.translate(updateAndGetWM().translation());
-        rot.multiply(rotation);
-        rot.translate(-updateAndGetWM().translation());
+        SLMat4f rotWS;
+        rotWS.translate(updateAndGetWM().translation());
+        rotWS.multiply(rotation);
+        rotWS.translate(-updateAndGetWM().translation());
 
-        _om = _parent->_wm.inverted() * rot * updateAndGetWM();
+        _om = _parent->_wm.inverted() * rotWS * updateAndGetWM();
     }
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
     {
-        SLMat4f rot;
-        rot.translate(translationOS());
-        rot.multiply(rotation);
-        rot.translate(-translationOS());
+        SLMat4f rotOS;
+        rotOS.translate(translationOS());
+        rotOS.multiply(rotation);
+        rotOS.translate(-translationOS());
 
-        _om.setMatrix(rot * _om);
+        _om.setMatrix(rotOS * _om);
     }
 
     needUpdate();
@@ -1182,24 +1186,27 @@ void SLNode::resetToInitialState()
 const SLSkeleton*
 SLNode::skeleton()
 {
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
         if (mesh->skeleton())
             return mesh->skeleton();
     return nullptr;
 }
 //-----------------------------------------------------------------------------
-void SLNode::update()
+void SLNode::updateRec()
 {
     doUpdate();
-    for (auto child : _children)
-        child->update();
+    for (auto* child : _children)
+        child->updateRec();
 }
 //-----------------------------------------------------------------------------
-//update all meshes recursively
-bool SLNode::updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes)
+//! Update all skinned meshes recursively.
+/*! Do software skinning on all changed skeletons && updateRec any out of date
+ acceleration structure for RT or if they're being rendered.
+*/
+bool SLNode::updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes)
 {
     bool hasChanges = false;
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
     {
         // Do software skinning on all changed skeletons
         if (mesh->skeleton() && mesh->skeleton()->changed())
@@ -1209,7 +1216,7 @@ bool SLNode::updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes)
         }
     }
 
-    for (auto child : _children)
+    for (auto* child : _children)
         hasChanges |= child->updateMeshSkins(cbInformNodes);
 
     return hasChanges;
@@ -1217,13 +1224,13 @@ bool SLNode::updateMeshSkins(std::function<void(SLMesh*)> cbInformNodes)
 //-----------------------------------------------------------------------------
 void SLNode::updateMeshAccelStructs()
 {
-    for (auto mesh : _meshes)
+    for (auto* mesh : _meshes)
     {
-        // update any out of date acceleration structure for RT or if they're being rendered.
+        // updateRec any out of date acceleration structure for RT or if they're being rendered.
         mesh->updateAccelStruct();
     }
 
-    for (auto child : _children)
+    for (auto* child : _children)
         child->updateMeshAccelStructs();
 }
 //-----------------------------------------------------------------------------

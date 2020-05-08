@@ -10,12 +10,9 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #include <SL.h>
 #include <SLApplication.h>
+#include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <SLGLImGui.h>
 #include <utility>
@@ -32,7 +29,7 @@ SLDeviceRotation          SLApplication::devRot;
 SLDeviceLocation          SLApplication::devLoc;
 SLstring                  SLApplication::name    = "SLProjectApp";
 SLstring                  SLApplication::appTag  = "SLProject";
-SLstring                  SLApplication::version = "2.5.000";
+SLstring                  SLApplication::version = "3.0.000";
 #ifdef _DEBUG
 SLstring SLApplication::configuration = "Debug";
 #else
@@ -41,7 +38,6 @@ SLstring SLApplication::configuration = "Release";
 SLstring            SLApplication::gitBranch = SL_GIT_BRANCH;
 SLstring            SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring            SLApplication::gitDate   = SL_GIT_DATE;
-SLint               SLApplication::dpi       = 0;
 map<string, string> SLApplication::deviceParameter;
 
 CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;
@@ -103,7 +99,7 @@ void SLApplication::deleteAppAndScene()
     assert(SLApplication::scene != nullptr &&
            "You can delete an  only once");
 
-    for (auto sv : sceneViews)
+    for (auto* sv : sceneViews)
         delete sv;
     sceneViews.clear();
 

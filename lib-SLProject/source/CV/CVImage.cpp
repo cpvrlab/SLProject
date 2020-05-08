@@ -588,6 +588,8 @@ void CVImage::saveJPG(const string& filename,
             cv::flip(outImg, outImg, 0);
         if (convertBGR2RGB)
             cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
+
+        imwrite(filename, outImg, compression_params);
     }
     catch (runtime_error& ex)
     {
@@ -830,6 +832,17 @@ void CVImage::resize(int width, int height)
     _cvMat = dst;
 }
 //-----------------------------------------------------------------------------
+//! Flip X coordiantes used to make JPEGs from top-left to bottom-left images.
+void CVImage::flipX()
+{
+    if (_cvMat.cols > 0 && _cvMat.rows > 0)
+    {
+        CVMat dst = CVMat(_cvMat.rows, _cvMat.cols, _cvMat.type());
+        cv::flip(_cvMat, dst, 1);
+        _cvMat = dst;
+    }
+}
+//-----------------------------------------------------------------------------
 //! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.
 void CVImage::flipY()
 {
@@ -871,15 +884,15 @@ void CVImage::fill(uchar r, uchar g, uchar b, uchar a)
     }
 }
 //-----------------------------------------------------------------------------
-void CVImage::crop(float targetWdivH)
+void CVImage::crop(float targetWdivH, int& cropW, int& cropH)
 {
 
     float inWdivH = (float)_cvMat.cols / (float)_cvMat.rows;
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
 
-    int cropH = 0; // crop height in pixels of the source image
-    int cropW = 0; // crop width in pixels of the source image
+    cropH = 0; // crop height in pixels of the source image
+    cropW = 0; // crop width in pixels of the source image
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
         int width  = 0; // width in pixels of the destination image

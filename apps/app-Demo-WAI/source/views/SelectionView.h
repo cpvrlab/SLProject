@@ -6,6 +6,7 @@
 #include <SLSceneView.h>
 #include <ErlebAR.h>
 #include <sm/EventSender.h>
+#include <Resources.h>
 
 class SLInputManager;
 
