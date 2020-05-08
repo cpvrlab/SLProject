@@ -2977,7 +2977,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedWAI(Utils::findFile("ORBvoc.bin", {SLApplication::calibIniPath, SLApplication::exePath}));
+        tracker = new CVTrackedWAI(Utils::findFile("voc_fbow.bin", {SLApplication::calibIniPath, SLApplication::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;
 

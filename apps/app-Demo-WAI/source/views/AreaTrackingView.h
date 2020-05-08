@@ -64,7 +64,7 @@ private:
     cv::Size      _cameraFrameTargetSize       = {640, 480};
     ExtractorType _initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
     ExtractorType _trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
-    std::string   _vocabularyFileName          = "ORBvoc.bin";
+    std::string   _vocabularyFileName          = "voc_fbow.bin";
     std::string   _vocabularyDir;
     std::string   _mapFileName;
 

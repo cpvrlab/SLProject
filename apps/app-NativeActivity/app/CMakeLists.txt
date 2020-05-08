@@ -177,6 +177,7 @@ file(GLOB_RECURSE CALIBRATIONS
 
 file(GLOB_RECURSE VOC
 	${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+	${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
 	)
 
 set(APK_ASSETS

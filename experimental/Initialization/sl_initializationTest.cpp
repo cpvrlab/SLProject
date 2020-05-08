@@ -652,15 +652,15 @@ int main()
     //scene->onAfterLoad();
 
     // WAI initialization
-    std::string orbVocFile   = std::string(SL_PROJECT_ROOT) + "/data/calibrations/ORBvoc.bin";
+    std::string orbVocFile   = std::string(SL_PROJECT_ROOT) + "/data/calibrations/voc_fbow.bin";
     int         nFeatures    = 1000;
     float       fScaleFactor = 1.2;
     int         nLevels      = 1;
     int         fIniThFAST   = 20;
     int         fMinThFAST   = 7;
 
-    WAIOrbVocabulary::initialize(orbVocFile);
-    ORB_SLAM2::ORBVocabulary* orbVoc = WAIOrbVocabulary::get();
+    fbow::Vocabulary orbVoc;
+    orbVoc.readFromFile(orbVocFile);
 
     ORB_SLAM2::ORBextractor extractor = ORB_SLAM2::ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 
@@ -759,8 +759,8 @@ int main()
                 kp2.push_back(cv::KeyPoint(p2D2[i], 1.0f));
             }
 
-            WAIFrame frame1 = WAIFrame(img1Gray, &extractor, cameraMat, distortionMat, kp1, orbVoc);
-            WAIFrame frame2 = WAIFrame(img2Gray, &extractor, cameraMat, distortionMat, kp2, orbVoc);
+            WAIFrame frame1 = WAIFrame(img1Gray, &extractor, cameraMat, distortionMat, kp1, &orbVoc);
+            WAIFrame frame2 = WAIFrame(img2Gray, &extractor, cameraMat, distortionMat, kp2, &orbVoc);
 
             cv::Mat rotMat1, rotMat2;
             cv::Rodrigues(r1, rotMat1);
@@ -789,7 +789,7 @@ int main()
             ORB_SLAM2::Initializer   initializer(frame1, 1.0f, 200);
             bool                     initializationSuccess = initializer.InitializeWithKnownPose(frame1, frame2, matches, r21, t21, vP3De, triangulated);
 
-            WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*orbVoc);
+            WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(orbVoc);
 
             WAIKeyFrame* pKFini = new WAIKeyFrame(frame1, map, kfDB);
             WAIKeyFrame* pKFcur = new WAIKeyFrame(frame2, map, kfDB);
