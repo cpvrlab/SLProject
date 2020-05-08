@@ -147,12 +147,16 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //load vocabulary
     //
-    _orbVocabulary       = std::make_unique<ORB_SLAM2::ORBVocabulary>();
-    std::string fileName = _vocabularyDir + _vocabularyFileName;
-    if (Utils::fileExists(fileName))
+    if (!_orbVocabulary)
     {
-        Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
-        _orbVocabulary->loadFromBinaryFile(fileName);
+        _waiSlam.release();
+        _orbVocabulary       = std::make_unique<ORB_SLAM2::ORBVocabulary>();
+        std::string fileName = _vocabularyDir + _vocabularyFileName;
+        if (Utils::fileExists(fileName))
+        {
+            Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
+            _orbVocabulary->loadFromBinaryFile(fileName);
+        }
     }
 
     //init wai slam

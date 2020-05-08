@@ -181,6 +181,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                     _cameraConfig.targetHeight         = selectedFrameSize.height;
                     _cameraConfig.convertToGray        = true;
                     _cameraConfig.adjustAsynchronously = true;
+                    _cameraConfig.focusMode            = SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
                     Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
 
                     ////make sure the camera is stopped if there is one
