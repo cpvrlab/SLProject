@@ -1,8 +1,14 @@
-#include "vkUtils.h"
-
+// #include "vkUtils.h"
+#define GLFW_INCLUDE_VULKAN
+#include <GL/glew.h> // OpenGL headers
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 #include <string>
 #include <CVImage.h> // Image class for image loading
+#include <math/SLVec3.h>
+#include <glUtils.h>
+#include <Utils.h>
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/vertex.h"
 
 //-----------------------------------------------------------------------------
 //////////////////////
@@ -14,8 +20,8 @@ const int WINDOW_HEIGHT  = 600;
 string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.spv";
 string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.spv";
 
-GLFWwindow*          window;
-vkUtils              renderer;
+GLFWwindow* window;
+// vkUtils              renderer;
 const vector<Vertex> vertices = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
                                  {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
                                  {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
@@ -96,10 +102,12 @@ void printFPS()
     lastTimeSec = timeNowSec;
 }
 //-----------------------------------------------------------------------------
+/*
 void onWindowResize(GLFWwindow* window, int width, int height)
 {
     renderer.recreateSwapchain(window, vertices);
 }
+*/
 //-----------------------------------------------------------------------------
 void initWindow()
 {
@@ -113,13 +121,14 @@ void initWindow()
                               nullptr);
 
     glfwSetWindowSizeLimits(window, 100, 100, GLFW_DONT_CARE, GLFW_DONT_CARE);
-    glfwSetWindowUserPointer(window, &renderer);
-    glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
+    // glfwSetWindowUserPointer(window, &renderer);
+    // glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
-    glfwSetWindowSizeCallback(window, onWindowResize);
+    // glfwSetWindowSizeCallback(window, onWindowResize);
 }
+/*
 //-----------------------------------------------------------------------------
 void initVulkan()
 {
@@ -181,6 +190,7 @@ void cleanup()
     glfwTerminate();
 }
 //-----------------------------------------------------------------------------
+/*
 int main()
 {
     initWindow();
@@ -191,3 +201,53 @@ int main()
     return EXIT_SUCCESS;
 }
 //-----------------------------------------------------------------------------
+*/
+/**/
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Instance.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Device.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Swapchain.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/RenderPass.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/DescriptorSetLayout.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/ShaderModule.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Pipeline.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Framebuffer.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/TextureImage.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Sampler.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/IndexBuffer.h"
+#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/UniformBuffer.h"
+
+const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+
+int main()
+{
+    initWindow();
+
+    const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+    const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
+    CVImage                   texture;
+    texture.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png",
+                 false,
+                 false);
+
+    Instance     instance = Instance("Test", deviceExtensions, validationLayers);
+    VkSurfaceKHR surface;
+    glfwCreateWindowSurface(instance.handle, window, nullptr, &surface);
+    Device              device              = Device(instance.physicalDevice, surface, deviceExtensions);
+    Swapchain           swapchain           = Swapchain(device, window);
+    RenderPass          renderPass          = RenderPass(device, swapchain);
+    DescriptorSetLayout descriptorSetLayout = DescriptorSetLayout(device);
+    ShaderModule        vertShaderModule    = ShaderModule(device, vertShaderPath);
+    ShaderModule        fragShaderModule    = ShaderModule(device, fragShaderPath);
+    Pipeline            pipeline            = Pipeline(device, swapchain, descriptorSetLayout, renderPass, vertShaderModule, fragShaderModule);
+    Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
+    TextureImage        textureImage        = TextureImage(device, texture.data(), texture.width(), texture.height());
+    Sampler             sampler             = Sampler(device);
+    IndexBuffer         indexBuffer         = IndexBuffer(device, indices);
+    UniformBuffer       uniformbuffer       = UniformBuffer(device, swapchain);
+
+    while (1)
+    {
+    }
+
+    return EXIT_SUCCESS;
+}

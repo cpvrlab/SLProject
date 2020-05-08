@@ -92,13 +92,19 @@ public:
                                                   VK_KHR_MAINTENANCE1_EXTENSION_NAME};
 
 private:
+#pragma region Device
+    VkSurfaceKHR     surface;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice         device;
+    VkQueue          graphicsQueue;
+    VkQueue          presentQueue;
+    VkCommandPool    commandPool;
+    vector<VkFence>  inFlightFences;
+    vector<VkFence>  imagesInFlight;
+#pragma endregion
+
     VkInstance                      instance;
     VkDebugUtilsMessengerEXT        debugMessenger;
-    VkSurfaceKHR                    surface;
-    VkPhysicalDevice                physicalDevice = VK_NULL_HANDLE;
-    VkDevice                        device;
-    VkQueue                         graphicsQueue;
-    VkQueue                         presentQueue;
     VkSwapchainKHR                  swapchain;
     vector<VkImage>                 swapchainImages;
     VkFormat                        swapchainImageFormat;
@@ -110,7 +116,6 @@ private:
     VkDescriptorPool                descriptorPool;
     VkPipelineLayout                pipelineLayout;
     VkPipeline                      graphicsPipeline;
-    VkCommandPool                   commandPool;
     VkBuffer                        stagingBuffer;
     VkDeviceMemory                  stagingBufferMemory;
     VkImageView                     textureImageView;
@@ -123,8 +128,6 @@ private:
     vector<VkCommandBuffer>         commandBuffers;
     vector<VkSemaphore>             imageAvailableSemaphores;
     vector<VkSemaphore>             renderFinishedSemaphores;
-    vector<VkFence>                 inFlightFences;
-    vector<VkFence>                 imagesInFlight;
     size_t                          currentFrame       = 0;
     bool                            framebufferResized = false;
     const vector<uint16_t>          indices            = {0, 1, 2, 2, 3, 0};

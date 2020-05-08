@@ -11,6 +11,32 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
 		${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
 		${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
+		${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
+		${CMAKE_CURRENT_SOURCE_DIR}/CommandPool.h
+		${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.h
+		${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSet.h
+		${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSetLayout.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Device.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Fence.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Image.h
+		${CMAKE_CURRENT_SOURCE_DIR}/ImageView.h
+		${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Instance.h
+		${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.h
+		${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Queue.h
+		${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Sampler.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.h
+		${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.h
+		${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.h
+		${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.h
+		${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.h
+		${CMAKE_CURRENT_SOURCE_DIR}/Vertex.h
 		)
 
 file(GLOB sources
@@ -18,6 +44,31 @@ file(GLOB sources
 		${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Buffer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/CommandPool.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSet.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSetLayout.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Device.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Fence.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/ImageView.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Instance.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Queue.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Sampler.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.cpp
 		)
 
 file(GLOB shaders

@@ -1,0 +1,27 @@
+#include "UniformBuffer.h"
+
+UniformBuffer::UniformBuffer(Device& device, Swapchain& swapchain) : device{device}, swapchain{swapchain}
+{
+    VkDeviceSize bufferSize = sizeof(UniformBufferObejct);
+
+    buffers.resize(swapchain.images.size());
+
+    for (size_t i = 0; i < swapchain.images.size(); i++)
+        buffers[i] = &Buffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+}
+
+void UniformBuffer::update(uint32_t currentImage)
+{
+    UniformBufferObejct ubo{};
+    ubo.model = SLMat4f(0.0f, 0.0f, 0.0f);
+    ubo.view  = SLMat4f(0.0f, 0.0f, 0.0f);
+    ubo.proj.perspective(40,
+                         (float)swapchain.extent.width / (float)swapchain.extent.height,
+                         0.1f,
+                         20.0f);
+
+    void* data;
+    vkMapMemory(device.handle, buffers[currentImage]->memory, 0, sizeof(ubo), 0, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(device.handle, buffers[currentImage]->memory);
+}
