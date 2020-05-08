@@ -737,10 +737,10 @@ Prints some statistics after the rendering
 */
 void SLRaytracer::printStats(SLfloat sec)
 {
-    SL_LOG("\nRender time  : %10.2f sec.", sec);
-    SL_LOG("Image size   : %10d x %d", _images[0]->width(), _images[0]->height());
-    SL_LOG("Num. Threads : %10d", Utils::maxThreads());
-    SL_LOG("Allowed depth: %10d", SLRay::maxDepth);
+    SL_LOG("\nRender time       : %10.2f sec.", sec);
+    SL_LOG("Image size        : %10d x %d", _images[0]->width(), _images[0]->height());
+    SL_LOG("Num. Threads      : %10d", Utils::maxThreads());
+    SL_LOG("Allowed depth     : %10d", SLRay::maxDepth);
 
     SLuint primarys = (SLuint)(_sv->viewportRect().width * _sv->viewportRect().height);
     SLuint total    = primarys +
@@ -834,6 +834,10 @@ void SLRaytracer::prepareImage()
         // Delete the OpenGL Texture if it already exists
         if (_texID)
         {
+#ifdef SL_HAS_OPTIX
+            if (_cudaGraphicsResource)
+                CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
+#endif
             glDeleteTextures(1, &_texID);
             _texID = 0;
         }

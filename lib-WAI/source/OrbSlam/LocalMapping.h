@@ -75,7 +75,7 @@ public:
     int KeyframesInQueue()
     {
         unique_lock<std::mutex> lock(mMutexNewKFs);
-        return mlNewKeyFrames.size();
+        return (int)mlNewKeyFrames.size();
     }
 
     std::thread* AddLocalBAThread();

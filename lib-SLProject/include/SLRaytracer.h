@@ -72,8 +72,8 @@ public:
     void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
     void    getAAPixels();
     SLCol4f fogBlend(SLfloat z, SLCol4f color);
-    void    printStats(SLfloat sec);
-    void    initStats(SLint depth);
+    virtual void    printStats(SLfloat sec);
+    virtual void    initStats(SLint depth);
 
     // Setters
     void state(SLRTState state)
@@ -125,8 +125,8 @@ public:
     SLint     resolutionFactorPC() const { return (SLint)(_resolutionFactor * 100.0f + 0.00001f); }
 
     // Render target image
-    void prepareImage();
-    void renderImage();
+    virtual void prepareImage();
+    virtual void renderImage();
     virtual void saveImage();
 
 protected:

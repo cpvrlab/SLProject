@@ -222,13 +222,6 @@ inline float random(float min, float max)
     return ((float)rand() / (float)RAND_MAX) * (max - min) + min;
 }
 //-----------------------------------------------------------------------------
-inline int pow(int x, int p)
-{
-    if (p == 0) return 1;
-    if (p == 1) return x;
-    return x * pow(x, p - 1);
-}
-//-----------------------------------------------------------------------------
 //! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
 int gcd(int a, int b);
 //-----------------------------------------------------------------------------

@@ -91,7 +91,7 @@ class SLAnimPlayback
     SLbool        _gotChanged;       //!< Did this playback change in the last frame
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLAnimPlayback*>        SLVAnimPlayback;
+typedef vector<SLAnimPlayback*>        SLVAnimPlayback;
 typedef std::map<SLstring, SLAnimPlayback*> SLMAnimPlayback;
 //-----------------------------------------------------------------------------
 #endif

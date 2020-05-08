@@ -112,13 +112,13 @@ vector<WAIMapPoint*> WAIMap::GetAllMapPoints()
 long unsigned int WAIMap::KeyFramesInMap()
 {
     unique_lock<mutex> lock(mMutexMap);
-    return mspKeyFrames.size();
+    return (unsigned int)mspKeyFrames.size();
 }
 //-----------------------------------------------------------------------------
 long unsigned int WAIMap::MapPointsInMap()
 {
     unique_lock<mutex> lock(mMutexMap);
-    return mspMapPoints.size();
+    return (unsigned int)mspMapPoints.size();
 }
 //-----------------------------------------------------------------------------
 long unsigned int WAIMap::GetMaxKFid()

@@ -104,7 +104,7 @@ protected:
     SLbool          _minMaxOutOfDate; //!< dirty flag aabb rebuild
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLSkeleton*> SLVSkeleton;
+typedef vector<SLSkeleton*> SLVSkeleton;
 //-----------------------------------------------------------------------------
 
 #endif

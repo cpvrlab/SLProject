@@ -124,7 +124,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
             maxCommonWords = (*lit)->mnLoopWords;
     }
 
-    int minCommonWords = maxCommonWords * 0.8f;
+    int minCommonWords = (int)(maxCommonWords * 0.8f);
 
     // Compute similarity score. Retain the matches whose score is higher than minScore
     for (std::list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
@@ -133,7 +133,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
 
         if (pKFi->mnLoopWords > minCommonWords)
         {
-            float si = fbow::fBow::score(pKF->mBowVec, pKFi->mBowVec);
+            float si = (float)fbow::fBow::score(pKF->mBowVec, pKFi->mBowVec);
 
             pKFi->mLoopScore = si;
             if (si >= minScore)
@@ -239,7 +239,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
             maxCommonWords = (*lit)->mnRelocWords;
     }
 
-    int minCommonWords = maxCommonWords * 0.8f;
+    int minCommonWords = (int)(maxCommonWords * 0.8f);
 
     if (!applyMinAccScoreFilter)
     {
@@ -274,7 +274,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
             if (pKFi->mnRelocWords > minCommonWords)
             {
                 nscores++;
-                float si = fbow::fBow::score(F->mBowVec, pKFi->mBowVec);
+                float si = (float)fbow::fBow::score(F->mBowVec, pKFi->mBowVec);
                 //std::cout << "si: " << si << std::endl;
                 pKFi->mRelocScore = si;
                 lScoreAndMatch.push_back(std::make_pair(si, pKFi));

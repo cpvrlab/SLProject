@@ -186,7 +186,7 @@ int WAISlam::getNextFrame(WAIFrame& frame)
 {
     int                          nbFrameInQueue;
     std::unique_lock<std::mutex> lock(_frameQueueMutex);
-    nbFrameInQueue = _framesQueue.size();
+    nbFrameInQueue = (int)_framesQueue.size();
     if (nbFrameInQueue == 0)
         return 0;
 
@@ -421,7 +421,7 @@ int WAISlam::getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv
             }
         }
     }
-    return matching.first.size();
+    return (int)matching.first.size();
 }
 
 cv::Mat WAISlam::getPose()

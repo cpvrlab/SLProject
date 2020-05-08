@@ -203,8 +203,6 @@ bool LoopClosing::DetectLoop()
             continue;
         }
 
-        //const fbow::fBow& BowVec = pKF->mBowVec;
-
         float score = fbow::fBow::score(CurrentBowVec, pKF->mBowVec);
 
         if (score < minScore)
@@ -216,7 +214,7 @@ bool LoopClosing::DetectLoop()
     vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
     {
         std::lock_guard<std::mutex> lock(mMutexNumCandidates);
-        _numOfCandidates = vpCandidateKFs.size();
+        _numOfCandidates = (int)vpCandidateKFs.size();
     }
 
     // If there are no loop candidates, just add new keyframe and return false
@@ -307,7 +305,7 @@ bool LoopClosing::DetectLoop()
 
     {
         std::lock_guard<std::mutex> lock(mMutexNumConsistentCandidates);
-        _numOfConsistentCandidates = mvpEnoughConsistentCandidates.size();
+        _numOfConsistentCandidates = (int)mvpEnoughConsistentCandidates.size();
     }
 
     // Add Current Keyframe to database
@@ -333,7 +331,7 @@ bool LoopClosing::ComputeSim3()
 {
     // For each consistent loop candidate we try to compute a Sim3
 
-    const int nInitialCandidates = mvpEnoughConsistentCandidates.size();
+    const int nInitialCandidates = (int)mvpEnoughConsistentCandidates.size();
 
     // We compute first ORB matches for each candidate
     // If enough matches are found, we setup a Sim3Solver
@@ -693,7 +691,7 @@ void LoopClosing::CorrectLoop()
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
 {
-    ORBmatcher matcher(0.8);
+    ORBmatcher matcher(0.8f);
 
     for (KeyFrameAndPose::const_iterator mit = CorrectedPosesMap.begin(), mend = CorrectedPosesMap.end(); mit != mend; mit++)
     {
@@ -707,7 +705,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap)
 
         // Get Map Mutex
         unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
-        const int          nLP = mvpLoopMapPoints.size();
+        const int          nLP = (int)mvpLoopMapPoints.size();
         for (int i = 0; i < nLP; i++)
         {
             WAIMapPoint* pRep = vpReplacePoints[i];
@@ -902,13 +900,13 @@ int LoopClosing::numOfConsistentCandidates()
 int LoopClosing::numOfConsistentGroups()
 {
     std::lock_guard<std::mutex> lock(mMutexNumConsistentGroups);
-    return mvConsistentGroups.size();
+    return (int)mvConsistentGroups.size();
 }
 
 int LoopClosing::numOfKfsInQueue()
 {
     std::lock_guard<std::mutex> lock(mMutexLoopQueue);
-    return mlpLoopKeyFrameQueue.size();
+    return (int)mlpLoopKeyFrameQueue.size();
 }
 
 void LoopClosing::status(LoopCloseStatus status)

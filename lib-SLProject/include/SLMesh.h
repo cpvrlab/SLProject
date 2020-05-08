@@ -15,6 +15,8 @@
 #include <SLEnums.h>
 #include <SLGLVertexArray.h>
 #include <SLObject.h>
+#include <SLOptixAccelStruct.h>
+#include <SLOptixDefinitions.h>
 
 class SLSceneView;
 class SLNode;
@@ -118,6 +120,10 @@ transformed vertices and normals are stored in _finalP and _finalN.
 */
 
 class SLMesh : public SLObject
+#ifdef SL_HAS_OPTIX
+  , public SLOptixAccelStruct
+#endif
+
 {
 public:
     explicit SLMesh(SLAssetManager* assetMgr,
@@ -143,6 +149,16 @@ public:
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO(SLGLProgram* sp);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
+
+#ifdef SL_HAS_OPTIX
+    void            allocAndUploadData();
+    void            uploadData();
+    virtual void    createMeshAccelerationStructure();
+    virtual void    updateMeshAccelerationStructure();
+    virtual HitData createHitData();
+    unsigned int    sbtIndex() const { return _sbtIndex; }
+    static unsigned int meshIndex;
+#endif
 
     // Getters
     SLMaterial*       mat() const { return _mat; }
@@ -189,6 +205,15 @@ protected:
     SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
 
+#ifdef SL_HAS_OPTIX
+    SLCudaBuffer<SLVec3f>  _vertexBuffer;
+    SLCudaBuffer<SLVec3f>  _normalBuffer;
+    SLCudaBuffer<SLVec2f>  _textureBuffer;
+    SLCudaBuffer<SLushort> _indexShortBuffer;
+    SLCudaBuffer<SLuint>   _indexIntBuffer;
+    unsigned int           _sbtIndex;
+#endif
+
     SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid
     SLbool         _accelStructOutOfDate; //!< flag id accel.struct needs update
@@ -201,6 +226,6 @@ protected:
     //void notifyParentNodesAABBUpdate(std::function<void(void)> cbInformNodes) const;
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLMesh*> SLVMesh;
+typedef vector<SLMesh*> SLVMesh;
 //-----------------------------------------------------------------------------
 #endif //SLMESH_H

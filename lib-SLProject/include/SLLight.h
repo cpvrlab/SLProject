@@ -13,6 +13,8 @@
 
 #include <SL.h>
 #include <SLVec4.h>
+#include "SLOptixDefinitions.h"
+#include "SLOptixHelper.h"
 
 class SLRay;
 class SLNode;
@@ -69,6 +71,26 @@ public:
     SLbool  isAttenuated() const { return _isAttenuated; }
     SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
 
+#ifdef SL_HAS_OPTIX
+    virtual Light optixLight(bool)
+    {
+        return {
+          make_float4(diffuse()),
+          make_float4(ambient()),
+          make_float4(specular()),
+          make_float3({positionWS().x, positionWS().y, positionWS().z}),
+          spotCutOffDEG(),
+          spotExponent(),
+          spotCosCut(),
+          make_float3(spotDirWS()),
+          kc(),
+          kl(),
+          kq(),
+          {1, 1},
+          0.0f};
+    }
+#endif
+
     // some virtuals needed for ray tracing
     virtual SLVec4f positionWS() const           = 0;
     virtual SLVec3f spotDirWS()                  = 0;
@@ -96,6 +118,6 @@ protected:
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers
-typedef std::vector<SLLight*> SLVLight;
+typedef vector<SLLight*> SLVLight;
 //-----------------------------------------------------------------------------
 #endif

@@ -309,3 +309,4 @@ SLCamera* SLScene::nextCameraInScene(SLCamera* activeSVCam)
 
     return cams[(uint)activeIndex];
 }
+//-----------------------------------------------------------------------------

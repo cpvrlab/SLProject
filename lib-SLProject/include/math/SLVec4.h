@@ -236,12 +236,12 @@ typedef SLVec4<SLfloat>       SLVec4f;
 typedef SLVec4<SLint>         SLVec4i;
 typedef SLVec4<SLfloat>       SLCol4f;
 
-typedef std::vector<SLVec4f>  SLVVec4f;
-typedef std::vector<SLCol4f>  SLVCol4f;
+typedef vector<SLVec4f>  SLVVec4f;
+typedef vector<SLCol4f>  SLVCol4f;
 
 #ifdef SL_HAS_DOUBLE
 typedef SLVec4<SLdouble>      SLVec4d;
-typedef std::vector<SLVec4d>  SLVVec4d;
+typedef vector<SLVec4d>  SLVVec4d;
 #endif
 //-----------------------------------------------------------------------------
 #endif

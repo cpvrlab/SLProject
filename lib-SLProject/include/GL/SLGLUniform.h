@@ -134,7 +134,7 @@ typedef SLGLUniform<SLint>   SLGLUniform1i;
 typedef SLGLUniform<SLuint>  SLGLUniform1u;
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLShaderUniform1f pointers
-typedef std::vector<SLGLUniform1f*> SLVUniform1f;
-typedef std::vector<SLGLUniform1i*> SLVUniform1i;
+typedef vector<SLGLUniform1f*> SLVUniform1f;
+typedef vector<SLGLUniform1i*> SLVUniform1i;
 //-----------------------------------------------------------------------------
 #endif

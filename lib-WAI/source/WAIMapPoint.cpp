@@ -49,7 +49,7 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp)
     mNormalVector = cv::Mat::zeros(3, 1, CV_32F);
 
     //update highest used id for new map point generation
-    if (id >= nNextId)
+    if (id >= (int)nNextId)
         nNextId = id + 1;
 }
 //-----------------------------------------------------------------------------
@@ -310,7 +310,7 @@ void WAIMapPoint::ComputeDistinctiveDescriptors()
         WAIKeyFrame* pKF = mit->first;
 
         if (pKF && !pKF->isBad())
-            vDescriptors.push_back(pKF->mDescriptors.row(mit->second));
+            vDescriptors.push_back(pKF->mDescriptors.row((int)mit->second));
     }
 
     if (vDescriptors.empty())
@@ -361,7 +361,7 @@ void WAIMapPoint::ComputeDistinctiveDescriptors()
         if (median < BestMedian)
         {
             BestMedian = median;
-            BestIdx    = i;
+            BestIdx    = (int)i;
         }
     }
 
@@ -388,7 +388,7 @@ int WAIMapPoint::GetIndexInKeyFrame(WAIKeyFrame* pKF)
 {
     unique_lock<mutex> lock(mMutexFeatures);
     if (mObservations.count(pKF))
-        return mObservations[pKF];
+        return (int)mObservations[pKF];
     else
         return -1;
 }
@@ -430,7 +430,7 @@ void WAIMapPoint::UpdateNormalAndDepth()
     }
 
     cv::Mat     PC               = Pos - pRefKF->GetCameraCenter();
-    const float dist             = cv::norm(PC);
+    const float dist             = (float)cv::norm(PC);
     const int   level            = pRefKF->mvKeysUn[observations[pRefKF]].octave;
     const float levelScaleFactor = pRefKF->mvScaleFactors[level];
     const int   nLevels          = pRefKF->mnScaleLevels;
@@ -463,7 +463,7 @@ int WAIMapPoint::PredictScale(const float& currentDist, WAIKeyFrame* pKF)
         ratio = mfMaxDistance / currentDist;
     }
 
-    int nScale = ceil(log(ratio) / pKF->mfLogScaleFactor);
+    int nScale = (int)ceil(log(ratio) / pKF->mfLogScaleFactor);
     if (nScale < 0)
         nScale = 0;
     else if (nScale >= pKF->mnScaleLevels)
@@ -480,7 +480,7 @@ int WAIMapPoint::PredictScale(const float& currentDist, WAIFrame* pF)
         ratio = mfMaxDistance / currentDist;
     }
 
-    int nScale = ceil(log(ratio) / pF->mfLogScaleFactor);
+    int nScale = (int)ceil(log(ratio) / pF->mfLogScaleFactor);
     if (nScale < 0)
         nScale = 0;
     else if (nScale >= pF->mnScaleLevels)
