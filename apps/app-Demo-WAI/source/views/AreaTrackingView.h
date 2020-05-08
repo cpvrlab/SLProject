@@ -27,6 +27,8 @@ public:
                      int                 dotsPerInch,
                      std::string         imguiIniPath,
                      std::string         vocabularyDir);
+    ~AreaTrackingView();
+
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }
@@ -52,9 +54,9 @@ private:
     std::unique_ptr<KPextractor> _initializationExtractor;
     ImageBuffer                  _imgBuffer;
 
-    std::unique_ptr<WAISlam>                  _waiSlam;
     std::unique_ptr<ORB_SLAM2::ORBVocabulary> _orbVocabulary;
-    std::unique_ptr<WAIKeyFrameDB>            _keyframeDataBase;
+    //wai slam depends on _orbVocabulary and has to be uninitializd first
+    std::unique_ptr<WAISlam> _waiSlam;
 
     std::unique_ptr<SENSCalibration> _calibration;
     //parameter:

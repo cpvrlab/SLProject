@@ -1,23 +1,25 @@
-//#############################################################################
-//  File:      Color.frag
-//  Purpose:   Simple GLSL fragment program for constant color
-//  Date:      July 2014
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+[Window][SelectionGui_BackgroundTexture]
+Pos=0,0
+Size=960,540
+Collapsed=0
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+[Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
 
-varying vec4    v_color;        // interpolated color calculated in the vertex shader
-uniform float   u_oneOverGamma; // 1.0f / Gamma correction value
+[Window][WelcomeGui]
+Pos=0,0
+Size=960,540
+Collapsed=0
 
-void main()
-{     
-    gl_FragColor = v_color;
+[Window][SelectionGui_ButtonBoard]
+Pos=384,162
+Size=480,324
+Collapsed=0
 
-    // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
-}
+[Window][SelectionGui_ButtonBoardDevelMode]
+Pos=0,162
+Size=384,324
+Collapsed=0
+
