@@ -14,8 +14,8 @@
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
-    _voc.readFromFile(vocabularyFile);
     float startMS = _timer.elapsedTimeInMilliSec();
+    _voc.readFromFile(vocabularyFile);
     if (!_voc.isValid())
     {
         Utils::log("SLProject",
