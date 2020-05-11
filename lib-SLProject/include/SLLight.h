@@ -16,8 +16,9 @@
 #include "SLOptixDefinitions.h"
 #include "SLOptixHelper.h"
 
-class SLRay;
 class SLNode;
+class SLRay;
+class SLSceneView;
 
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
@@ -55,6 +56,7 @@ public:
         kl(kL);
         kq(kQ);
     }
+    void createsShadows(SLbool createsShadows) { _createsShadows = createsShadows; }
 
     // Getters
     SLint   id() const { return _id; }
@@ -70,6 +72,7 @@ public:
     SLfloat kq() const { return _kq; }
     SLbool  isAttenuated() const { return _isAttenuated; }
     SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+    SLbool  createsShadows() { return _createsShadows; }
 
 #ifdef SL_HAS_OPTIX
     virtual Light optixLight(bool)
@@ -102,6 +105,10 @@ public:
                                  const SLVec3f& L,
                                  SLfloat        lightDist,
                                  SLNode*        root3D) = 0;
+
+    // create the depth buffer(s) for shadow mapping
+    virtual void renderShadowMap(SLSceneView* sv, SLNode* root){};
+
 protected:
     SLint   _id;               //!< OpenGL light number (0-7)
     SLbool  _isOn;             //!< Flag if light is on or off
@@ -115,6 +122,7 @@ protected:
     SLfloat _kl;               //!< Linear light attenuation
     SLfloat _kq;               //!< Quadratic light attenuation
     SLbool  _isAttenuated;     //!< fast attenuation flag for ray tracing
+    SLbool  _createsShadows;   //!< Flag if light creates shadows or not
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

@@ -10,8 +10,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLApplication.h>
+#include <SLProjectScene.h>
 #include <SLArrow.h>
+#include <SLAssetManager.h>
 #include <SLLightDirect.h>
+#include <SLMaterial.h>
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -110,6 +114,12 @@ void SLLightDirect::init(SLScene* s)
             _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 }
 //-----------------------------------------------------------------------------
+SLLightDirect::~SLLightDirect()
+{
+    if (_shadowMap != nullptr)
+        delete _shadowMap;
+}
+//-----------------------------------------------------------------------------
 /*!
 SLLightDirect::hitRec calls the recursive node intersection.
 */
@@ -136,7 +146,7 @@ void SLLightDirect::statsRec(SLNodeStats& stats)
 SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes 
 method of its node.
 */
-void SLLightDirect::drawMeshes(SLSceneView* sv)
+void SLLightDirect::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
 {
     if (_id != -1)
     {
@@ -150,7 +160,7 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
                 _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 
         // now draw the meshes of the node
-        SLNode::drawMeshes(sv);
+        SLNode::drawMeshes(sv, overrideMat);
     }
 }
 //-----------------------------------------------------------------------------
@@ -212,6 +222,88 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
+/*! drawNodesIntoDepthBuffer recursively renders all objects which casts shadows
+*/
+void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMaterial* depthMat)
+{
+    SLGLState* stateGL = SLGLState::instance();
+
+    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+    stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+    if (node->castsShadows())
+        node->drawMeshes(sv, depthMat);
+
+    for (SLNode* child : node->children())
+        drawNodesIntoDepthBuffer(child, sv, depthMat);
+}
+//-----------------------------------------------------------------------------
+/*! SLLightDirect::renderShadowMap renders the shadow map of the light
+*/
+void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
+{
+    SLGLState* stateGL = SLGLState::instance();
+
+    const static unsigned int SHADOW_MAP_WIDTH = 1024, SHADOW_MAP_HEIGHT = 1024;
+    static float              borderColor[] = {1.0, 1.0, 1.0, 1.0};
+
+    static SLMaterial* depthMaterial = nullptr; // TODO
+    // static SLGLGenericProgram depthProgram(SLApplication::scene, "Depth.vert", "Depth.frag");
+    // static SLMaterial         depthMaterial(SLApplication::scene,
+    //                                 "depthMaterial",
+    //                                 nullptr,
+    //                                 nullptr,
+    //                                 nullptr,
+    //                                 nullptr,
+    //                                 &depthProgram);
+
+    if (_shadowMap == nullptr)
+        _shadowMap = new SLGLDepthBuffer(
+          SHADOW_MAP_WIDTH,
+          SHADOW_MAP_HEIGHT,
+          GL_NEAREST,
+          GL_NEAREST,
+          GL_CLAMP_TO_BORDER,
+          borderColor);
+    _shadowMap->bind();
+
+    // Initialize lightspace matrix
+    SLMat4f vm;
+    vm.lookAt(positionWS().vec3(),
+              positionWS().vec3() + spotDirWS(),
+              upWS());
+
+    // Set viewport
+    SLRecti vpRect = SLRecti(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+    stateGL->viewport(vpRect.x, vpRect.y, vpRect.width, vpRect.height);
+
+    // Set projection
+    SLfloat clipNear = 0.1f;
+    SLfloat clipFar  = 20.0f;
+    SLfloat radius   = 3.0;
+
+    stateGL->stereoEye  = ET_center;
+    stateGL->projection = P_monoOrthographic;
+    stateGL->projectionMatrix.ortho(-radius, radius, -radius, radius, -clipNear, clipFar);
+
+    // Save the light projection matrix
+    stateGL->lightProjection[_id] = stateGL->projectionMatrix * vm;
+
+    // Set view
+    stateGL->modelViewMatrix.identity();
+    stateGL->viewMatrix.setMatrix(vm);
+
+    // Clear color buffer
+    stateGL->clearColor(SLCol4f::BLACK);
+    stateGL->clearColorDepthBuffer();
+
+    // Draw meshes
+    drawNodesIntoDepthBuffer(root, sv, depthMaterial);
+    GET_GL_ERROR;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+//-----------------------------------------------------------------------------
 /*! SLLightRect::setState sets the global rendering state
 */
 void SLLightDirect::setState()
@@ -228,16 +320,18 @@ void SLLightDirect::setState()
         // The spot direction is used in the shaders for the light direction
         stateGL->lightSpotDirWS[_id] = spotDirWS();
 
-        stateGL->lightAmbient[_id]    = _ambient;
-        stateGL->lightDiffuse[_id]    = _diffuse;
-        stateGL->lightSpecular[_id]   = _specular;
-        stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;
-        stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;
-        stateGL->lightSpotExp[_id]    = _spotExponent;
-        stateGL->lightAtt[_id].x      = _kc;
-        stateGL->lightAtt[_id].y      = _kl;
-        stateGL->lightAtt[_id].z      = _kq;
-        stateGL->lightDoAtt[_id]      = isAttenuated();
+        stateGL->lightAmbient[_id]        = _ambient;
+        stateGL->lightDiffuse[_id]        = _diffuse;
+        stateGL->lightSpecular[_id]       = _specular;
+        stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
+        stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
+        stateGL->lightSpotExp[_id]        = _spotExponent;
+        stateGL->lightAtt[_id].x          = _kc;
+        stateGL->lightAtt[_id].y          = _kl;
+        stateGL->lightAtt[_id].z          = _kq;
+        stateGL->lightDoAtt[_id]          = isAttenuated();
+        stateGL->lightCreatesShadows[_id] = _createsShadows;
+        stateGL->shadowMaps[_id]          = _shadowMap;
     }
 }
 //-----------------------------------------------------------------------------

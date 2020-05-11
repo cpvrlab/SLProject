@@ -950,6 +950,55 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
+    else if (SLApplication::sceneID == SID_ShadowMapping) //......................................
+    {
+        s->name("Shadow Mapping");
+        s->info("Shadow Mapping is a technique to render shadows.");
+
+        SLGLProgram* program = new SLGLGenericProgram(s, "PerPixBlinnShadowMapping.vert", "PerPixBlinnShadowMapping.frag");
+        SLMaterial* m1 = new SLMaterial(s, "m1");
+
+        m1->program(program);
+        m1->shininess(500);
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 1, 8);
+        cam1->lookAt(0, 1, 0);
+        cam1->focalDist(8);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Define light source
+        SLLightDirect* light = new SLLightDirect(s, s);
+        light->ambient(SLCol4f(0, 0, 0));
+        light->diffuse(SLCol4f(1, 1, 1));
+        light->translation(0, 5, 0);
+        light->lookAt(0, 0, 0, 0, 0, -1);
+        light->attenuation(0, 0, 1);
+        light->createsShadows(true);
+        //light->castsShadows(false);
+        scene->addChild(light);
+
+        // Add a sphere which casts shadows
+        SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", m1));
+        sphereNode->translate(0, 2.0, 0);
+        scene->addChild(sphereNode);
+
+        SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
+        anim->createEllipticNodeTrack(sphereNode, 1.0f, A_x, 1.0f, A_z);
+
+        // Add a box which catches shadows
+        SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
+        boxNode->receivesShadows(true);
+        scene->addChild(boxNode);
+
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
     else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
              SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
     {

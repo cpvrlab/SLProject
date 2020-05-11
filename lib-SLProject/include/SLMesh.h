@@ -131,7 +131,7 @@ public:
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
-    virtual void draw(SLSceneView* sv, SLNode* node);
+    virtual void draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat = nullptr);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
@@ -151,12 +151,12 @@ public:
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
 
 #ifdef SL_HAS_OPTIX
-    void            allocAndUploadData();
-    void            uploadData();
-    virtual void    createMeshAccelerationStructure();
-    virtual void    updateMeshAccelerationStructure();
-    virtual HitData createHitData();
-    unsigned int    sbtIndex() const { return _sbtIndex; }
+    void                allocAndUploadData();
+    void                uploadData();
+    virtual void        createMeshAccelerationStructure();
+    virtual void        updateMeshAccelerationStructure();
+    virtual HitData     createHitData();
+    unsigned int        sbtIndex() const { return _sbtIndex; }
     static unsigned int meshIndex;
 #endif
 

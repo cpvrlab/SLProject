@@ -1185,6 +1185,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
+                    if (ImGui::MenuItem("Shadow Mapping", nullptr, sid == SID_ShadowMapping))
+                        s->onLoad(s, sv, SID_ShadowMapping);
 
                     ImGui::EndMenu();
                 }

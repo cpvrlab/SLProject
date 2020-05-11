@@ -56,6 +56,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFeatures.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracerTex3D.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLDepthBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLFbo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
@@ -176,6 +177,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFeatures.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracerTex3D.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLDepthBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLFbo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp

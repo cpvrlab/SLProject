@@ -35,6 +35,7 @@
 #include <SLMat4.h>
 
 class SLDrawBits;
+class SLGLDepthBuffer;
 class SLMaterial;
 
 //-----------------------------------------------------------------------------
@@ -79,21 +80,24 @@ public:
     SLMat4f textureMatrix;    //!< matrix for the texture transform
 
     // lighting
-    SLint   numLightsUsed;                  //!< NO. of lights used
-    SLint   lightIsOn[SL_MAX_LIGHTS];       //!< Flag if light is on
-    SLVec4f lightPosWS[SL_MAX_LIGHTS];      //!< position of light in world space
-    SLVec4f lightPosVS[SL_MAX_LIGHTS];      //!< position of light in view space
-    SLVec4f lightAmbient[SL_MAX_LIGHTS];    //!< ambient light intensity (Ia)
-    SLVec4f lightDiffuse[SL_MAX_LIGHTS];    //!< diffuse light intensity (Id)
-    SLVec4f lightSpecular[SL_MAX_LIGHTS];   //!< specular light intensity (Is)
-    SLVec3f lightSpotDirWS[SL_MAX_LIGHTS];  //!< spot direction in world space
-    SLVec3f lightSpotDirVS[SL_MAX_LIGHTS];  //!< spot direction in view space
-    SLfloat lightSpotCutoff[SL_MAX_LIGHTS]; //!< spot cutoff angle 1-180 degrees
-    SLfloat lightSpotCosCut[SL_MAX_LIGHTS]; //!< cosine of spot cutoff angle
-    SLfloat lightSpotExp[SL_MAX_LIGHTS];    //!< spot exponent
-    SLVec3f lightAtt[SL_MAX_LIGHTS];        //!< att. factor (const,linear,quadratic)
-    SLint   lightDoAtt[SL_MAX_LIGHTS];      //!< Flag if att. must be calculated
-    SLCol4f globalAmbientLight;             //!< global ambient light intensity
+    SLint            numLightsUsed;                      //!< NO. of lights used
+    SLint            lightIsOn[SL_MAX_LIGHTS];           //!< Flag if light is on
+    SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
+    SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
+    SLMat4f          lightProjection[SL_MAX_LIGHTS];     //!< projection matrix of the light
+    SLVec4f          lightAmbient[SL_MAX_LIGHTS];        //!< ambient light intensity (Ia)
+    SLVec4f          lightDiffuse[SL_MAX_LIGHTS];        //!< diffuse light intensity (Id)
+    SLVec4f          lightSpecular[SL_MAX_LIGHTS];       //!< specular light intensity (Is)
+    SLVec3f          lightSpotDirWS[SL_MAX_LIGHTS];      //!< spot direction in world space
+    SLVec3f          lightSpotDirVS[SL_MAX_LIGHTS];      //!< spot direction in view space
+    SLfloat          lightSpotCutoff[SL_MAX_LIGHTS];     //!< spot cutoff angle 1-180 degrees
+    SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];     //!< cosine of spot cutoff angle
+    SLfloat          lightSpotExp[SL_MAX_LIGHTS];        //!< spot exponent
+    SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
+    SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< Flag if att. must be calculated
+    SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< Flag if light creates shadows
+    SLGLDepthBuffer* shadowMaps[SL_MAX_LIGHTS];          //!< DepthBuffers for Shadow mapping
+    SLCol4f          globalAmbientLight;                 //!< global ambient light intensity
 
     // fog
     SLbool  fogIsOn;      //!< Flag if fog blending is enabled

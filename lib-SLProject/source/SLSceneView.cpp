@@ -615,6 +615,18 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     preDraw();
 
+    ///////////////////////////
+    // 0. Render shadow maps //
+    ///////////////////////////
+
+    for (SLLight* light : _s->lights())
+    {
+        if (light->createsShadows())
+        {
+            light->renderShadowMap(this, _s->root3D());
+        }
+    }
+
     /////////////////////////
     // 1. Do camera Update //
     /////////////////////////

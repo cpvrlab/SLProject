@@ -59,7 +59,7 @@ public:
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-    void    drawMeshes(SLSceneView* sv) override;
+    void    drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr) override;
     void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,

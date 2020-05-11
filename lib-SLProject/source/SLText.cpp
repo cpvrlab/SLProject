@@ -61,7 +61,7 @@ void SLText::drawRec(SLSceneView* sv)
 
     _vao.drawElementsAs(PT_triangles, (SLuint)_text.length() * 2 * 3);
 }
-void SLText::drawMeshes(SLSceneView* sv)
+void SLText::drawMeshes(SLSceneView* sv,SLMaterial* overrideMat)
 {
     drawRec(sv);
 }

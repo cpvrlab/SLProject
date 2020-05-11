@@ -300,7 +300,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 </p>
 Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
-void SLMesh::draw(SLSceneView* sv, SLNode* node)
+void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -355,10 +355,12 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 2.a) Apply mesh material if exists & differs from current
-    mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
+    SLMaterial* material = overrideMat ? overrideMat : mat();
+    material->activate(*node->drawBits(), sv->s().globalAmbiLight());
 
     // 2.b) Pass the matrices to the shader program
     SLGLProgram* sp = mat()->program();
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 

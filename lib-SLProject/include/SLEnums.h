@@ -103,6 +103,7 @@ enum SLSceneID
     SID_MassiveData,
     SID_2Dand3DText,
     SID_PointClouds,
+    SID_ShadowMapping,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,

@@ -23,7 +23,7 @@ SLKeyframeCamera::SLKeyframeCamera(SLstring name)
 Only draws the frustum lines without lighting when the camera is not the
 active one. This means that it can be seen from the active view point.
 */
-void SLKeyframeCamera::drawMeshes(SLSceneView* sv)
+void SLKeyframeCamera::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
 {
     if (sv->camera() != this)
     {

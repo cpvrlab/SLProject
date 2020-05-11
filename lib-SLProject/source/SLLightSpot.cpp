@@ -166,7 +166,7 @@ void SLLightSpot::statsRec(SLNodeStats& stats)
 SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes 
 method of its node.
 */
-void SLLightSpot::drawMeshes(SLSceneView* sv)
+void SLLightSpot::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
 {
     if (_id != -1)
     {

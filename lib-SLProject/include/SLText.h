@@ -41,7 +41,7 @@ public:
     void         statsRec(SLNodeStats& stats);
     SLAABBox&    updateAABBRec();
     SLbool       hitRec(SLRay* ray) { return false; }
-    virtual void drawMeshes(SLSceneView* sv);
+    virtual void drawMeshes(SLSceneView* sv, SLMaterial* overrideMat=nullptr);
 
     void preShade(SLRay* ray) { ; }
 

@@ -169,7 +169,7 @@ public:
     void         setAllMeshMaterials(SLMaterial* mat,
                                      SLbool      recursive = true);
     SLbool       containsMesh(const SLMesh* mesh);
-    virtual void drawMeshes(SLSceneView* sv);
+    virtual void drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr);
 
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }
@@ -270,6 +270,8 @@ public:
         needUpdate();
     }
     void         animation(SLAnimation* a) { _animation = a; }
+    void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
+    void         receivesShadows(SLbool receivesShadows) { _castsShadows = receivesShadows; }
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
@@ -287,6 +289,8 @@ public:
     SLbool            drawBit(SLuint bit) { return _drawBits.get(bit); }
     SLAABBox*         aabb() { return &_aabb; }
     SLAnimation*      animation() { return _animation; }
+    SLbool            castsShadows() { return _castsShadows; }
+    SLbool            receivesShadows() { return _receivesShadows; }
     SLVMesh&          meshes() { return _meshes; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
@@ -298,7 +302,7 @@ public:
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
     static unsigned int instanceIndex; //!< ???
-	
+
 private:
     void updateWM() const;
     template<typename T>
@@ -317,20 +321,22 @@ private:
 #endif
 
 protected:
-    SLNode*         _parent;         //!< pointer to the parent node
-    SLVNode         _children;       //!< vector of children nodes
-    SLVMesh         _meshes;         //!< vector of meshes of the node
-    SLint           _depth;          //!< depth of the node in a scene tree
-    SLMat4f         _om;             //!< object matrix for local transforms
-    SLMat4f         _initialOM;      //!< the initial om state
-    mutable SLMat4f _wm;             //!< world matrix for world transform
-    mutable SLMat4f _wmI;            //!< inverse world matrix
-    mutable SLMat3f _wmN;            //!< normal world matrix
-    mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
-    mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
-    SLDrawBits      _drawBits;       //!< node level drawing flags
-    SLAABBox        _aabb;           //!< axis aligned bounding box
-    SLAnimation*    _animation;      //!< animation of the node
+    SLNode*         _parent;          //!< pointer to the parent node
+    SLVNode         _children;        //!< vector of children nodes
+    SLVMesh         _meshes;          //!< vector of meshes of the node
+    SLint           _depth;           //!< depth of the node in a scene tree
+    SLMat4f         _om;              //!< object matrix for local transforms
+    SLMat4f         _initialOM;       //!< the initial om state
+    mutable SLMat4f _wm;              //!< world matrix for world transform
+    mutable SLMat4f _wmI;             //!< inverse world matrix
+    mutable SLMat3f _wmN;             //!< normal world matrix
+    mutable SLbool  _isWMUpToDate;    //!< is the WM of this node still valid
+    mutable SLbool  _isAABBUpToDate;  //!< is the saved aabb still valid
+    SLDrawBits      _drawBits;        //!< node level drawing flags
+    SLAABBox        _aabb;            //!< axis aligned bounding box
+    SLAnimation*    _animation;       //!< animation of the node
+    SLbool          _castsShadows;    //!< nodes cast shadows when this is true
+    SLbool          _receivesShadows; //!< nodes receive shadows when this is true
 };
 
 ////////////////////////

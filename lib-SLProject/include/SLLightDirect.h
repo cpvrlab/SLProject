@@ -11,6 +11,7 @@
 #ifndef SLLIGHTDIRECT_H
 #define SLLIGHTDIRECT_H
 
+#include <SLGLDepthBuffer.h>
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
@@ -58,12 +59,12 @@ public:
                   SLfloat         diffPower   = 10.0f,
                   SLfloat         specPower   = 10.0f,
                   SLbool          hasMesh     = true);
-    ~SLLightDirect() override { ; }
+    ~SLLightDirect();
 
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-    void    drawMeshes(SLSceneView* sv) override;
+    void    drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr) override;
     void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
@@ -73,6 +74,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root);
 
     // Getters
     SLfloat radius() { return _arrowRadius; }
@@ -90,8 +92,9 @@ public:
     SLVec3f spotDirWS() override { return forwardOS(); }
 
 private:
-    SLfloat _arrowRadius; //!< The sphere lights radius
-    SLfloat _arrowLength; //!< Length of direction line
+    SLfloat          _arrowRadius;         //!< The sphere lights radius
+    SLfloat          _arrowLength;         //!< Length of direction line
+    SLGLDepthBuffer* _shadowMap = nullptr; //!< Used for shadow mapping
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -11,11 +11,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLGLState.h>
+#include <SLAssetManager.h>
+#include <SLGLDepthBuffer.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
+#include <SLGLState.h>
 #include <SLScene.h>
-#include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for shader files used when only filename is passed in load.
@@ -266,6 +267,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             stateGL->calcLightDirVS(stateGL->numLightsUsed);
             loc = uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
             loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
+            loc = uniformMatrix4fv("u_lightProjection", nL, (SLfloat*)stateGL->lightProjection);
             loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
             loc = uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
             loc = uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
@@ -275,6 +277,12 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             loc = uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
             loc = uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
             loc = uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
+            loc = uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
+
+            for (int i = 0; i < SL_MAX_LIGHTS; ++i)
+                if (stateGL->lightCreatesShadows[i])
+                    stateGL->shadowMaps[i]->activateAsTexture(
+                      _progID, "u_shadowMap[" + std::to_string(i) + "]", 0);
 
             mat->passToUniforms(this);
         }
