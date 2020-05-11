@@ -203,18 +203,20 @@ int main()
 //-----------------------------------------------------------------------------
 */
 /**/
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Instance.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Device.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Swapchain.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/RenderPass.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/DescriptorSetLayout.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/ShaderModule.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Pipeline.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Framebuffer.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/TextureImage.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/Sampler.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/IndexBuffer.h"
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/UniformBuffer.h"
+#include "Instance.h"
+#include "Device.h"
+#include "Swapchain.h"
+#include "RenderPass.h"
+#include "DescriptorSetLayout.h"
+#include "ShaderModule.h"
+#include "Pipeline.h"
+#include "Framebuffer.h"
+#include "TextureImage.h"
+#include "Sampler.h"
+#include "IndexBuffer.h"
+#include "UniformBuffer.h"
+#include "DescriptorPool.h"
+#include "DescriptorSet.h"
 
 const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
@@ -241,9 +243,11 @@ int main()
     Pipeline            pipeline            = Pipeline(device, swapchain, descriptorSetLayout, renderPass, vertShaderModule, fragShaderModule);
     Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
     TextureImage        textureImage        = TextureImage(device, texture.data(), texture.width(), texture.height());
-    Sampler             sampler             = Sampler(device);
+    Sampler             textureSampler      = Sampler(device);
     IndexBuffer         indexBuffer         = IndexBuffer(device, indices);
     UniformBuffer       uniformbuffer       = UniformBuffer(device, swapchain);
+    DescriptorPool      descriptorPool      = DescriptorPool(device, swapchain);
+    DescriptorSet       descriptorSet       = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformbuffer, textureSampler, textureImage);
 
     while (1)
     {

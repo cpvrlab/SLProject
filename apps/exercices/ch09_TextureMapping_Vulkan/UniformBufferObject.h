@@ -2,7 +2,7 @@
 
 #include "math/SLMat4.h"
 
-struct UniformBufferObejct
+struct UniformBufferObject
 {
     SLMat4f model;
     SLMat4f view;

@@ -2,7 +2,7 @@
 
 UniformBuffer::UniformBuffer(Device& device, Swapchain& swapchain) : device{device}, swapchain{swapchain}
 {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObejct);
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
     buffers.resize(swapchain.images.size());
 
@@ -12,7 +12,7 @@ UniformBuffer::UniformBuffer(Device& device, Swapchain& swapchain) : device{devi
 
 void UniformBuffer::update(uint32_t currentImage)
 {
-    UniformBufferObejct ubo{};
+    UniformBufferObject ubo{};
     ubo.model = SLMat4f(0.0f, 0.0f, 0.0f);
     ubo.view  = SLMat4f(0.0f, 0.0f, 0.0f);
     ubo.proj.perspective(40,
