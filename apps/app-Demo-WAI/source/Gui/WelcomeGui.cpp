@@ -17,27 +17,6 @@ WelcomeGui::WelcomeGui(const ImGuiEngine&  imGuiEngine,
     _versionStr(version),
     _resources(resources)
 {
-    ////load fonts for big ErlebAR text and verions text
-    //SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    //if (Utils::fileExists(ttf))
-    //{
-    //    //ATTENTION: the big font needs 140MB of storage if in original size
-    //    //todo: use a texture for the welcome view
-    //    _bigTextHPix = 0.3f * (float)screenHeightPix;
-    //    //float scale            = 2.0f;
-    //    //float bigTextHPixAlloc = _bigTextHPix / scale;
-
-    //    _smallFontShift = (float)_bigTextHPix / 135.f * 7.f;
-    //    //_fontBig        = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextHPixAlloc);
-    //    //_fontBig->Scale = scale;
-
-    //    //_smallTextHPix = 0.05f * (float)screenHeightPix;
-    //    //_fontSmall     = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _smallTextHPix);
-    //}
-    //else
-    //    Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
-
     //load bfh logo texture
     std::string logoBFHPath = texturePath + "logo_bfh.png";
     if (Utils::fileExists(logoBFHPath))
@@ -158,20 +137,18 @@ void WelcomeGui::build(SLScene* s, SLSceneView* sv)
 
     //big text
     {
-        //_fontSmall->Scale = 5.0;
         ImGui::PushFont(_resources.fonts().big);
         ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix, _textFrameTPix), ImGuiCond_Always);
-        ImGui::BeginChild("ChildBigText", ImVec2(0, _bigTextHPix), false, windowFlags);
+        ImGui::BeginChild("ChildBigText", ImVec2(0, 0), false, windowFlags);
         ImGui::Text("ErlebAR");
         ImGui::EndChild();
         ImGui::PopFont();
-        //_fontSmall->Scale = 1.0;
     }
     //small text
     {
         ImGui::PushFont(_resources.fonts().tiny);
-        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix + _smallFontShift, _textFrameTPix + _bigTextHPix), ImGuiCond_Always);
-        ImGui::BeginChild("ChildSmallText", ImVec2(0, _smallTextHPix), false, windowFlags);
+        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix, _textFrameTPix + _resources.fonts().big->FontSize * _resources.fonts().big->Scale), ImGuiCond_Always);
+        ImGui::BeginChild("ChildSmallText", ImVec2(0, 0), false, windowFlags);
         ImGui::Text(_versionStr.c_str());
         ImGui::EndChild();
         ImGui::PopFont();
