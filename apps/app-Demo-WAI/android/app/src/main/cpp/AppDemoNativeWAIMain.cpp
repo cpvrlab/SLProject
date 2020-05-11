@@ -640,11 +640,13 @@ void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath
     }
 
     std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath + "/");
+    /*
     if (Utils::dirExists(outputPath))
     {
         //stop here, we assume everything is installed (uninstall the app if you added assets)
         return;
     }
+     */
 
     Utils::makeDir(outputPath);
 
@@ -654,10 +656,12 @@ void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath
     while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL)
     {
         std::string inputFilename = assetDirPath + "/" + std::string(filename);
+        //Utils::log("WAI", "inputFilename: %s", inputFilename.c_str());
         AAsset*     asset         = AAssetManager_open(mgr, inputFilename.c_str(), AASSET_MODE_STREAMING);
         int         nb_read       = 0;
         char        buf[BUFSIZ];
         std::string outputFilename = outputPath + std::string(filename);
+        //Utils::log("WAI", "outputFilename: %s", outputFilename.c_str());
         FILE*       out            = fopen(outputFilename.c_str(), "w");
         while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
         {

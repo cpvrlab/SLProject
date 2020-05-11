@@ -18,7 +18,7 @@ SettingsGui::SettingsGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //init language settings combo
-    if (_resources.strings().id() == _resources.stringsItalien.id())
+    if (_resources.strings().id() == _resources.stringsItalian.id())
         _currLanguage = 3;
     else if (_resources.strings().id() == _resources.stringsGerman.id())
         _currLanguage = 1;

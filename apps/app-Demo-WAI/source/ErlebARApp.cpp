@@ -159,7 +159,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                         dd.scrHeight(),
                                         dd.dirs().writableDir,
                                         dd.textureDir(),
-                                        dd.fontDir());
+                                        dd.fontDir(),
+                                        data->deviceData.dirs().slDataRoot);
 
     _imGuiEngine = new ImGuiEngine(dd.dirs().writableDir, _resources->fonts().atlas());
 
@@ -511,20 +512,6 @@ void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry,
 {
     if (stateExit)
         return;
-
-    //if (stateEntry)
-    //{
-    //    //It is a convention for this state, that if there is no data sent,
-    //    //we assume that the previous state was HOLD_TRACKING.
-    //    if (data)
-    //    {
-    //        //_areaTrackingView->initArea(data->locId, data->areaId);
-    //    }
-    //    else
-    //    {
-    //        _areaTrackingView->resume();
-    //    }
-    //}
 
     _areaTrackingView->update();
 }
