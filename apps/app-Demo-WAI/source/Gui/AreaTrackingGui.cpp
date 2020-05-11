@@ -68,7 +68,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _area.name,
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("AreaTrackingGui")); });
 
     //content
     {

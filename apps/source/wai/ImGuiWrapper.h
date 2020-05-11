@@ -36,6 +36,7 @@ public:
       : _context(context)
     {
     }
+    virtual ~ImGuiRenderer() {}
     virtual void render(const SLRecti& viewportRect) {}
 
 protected:

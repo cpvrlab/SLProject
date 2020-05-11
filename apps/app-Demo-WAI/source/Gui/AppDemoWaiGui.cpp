@@ -79,7 +79,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     //loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
 
     auto cb = [&]() {
-        sendEvent(new GoBackEvent());
+        sendEvent(new GoBackEvent("AppDemoWaiGui"));
     };
 
     //_backButton = BackButton(dotsPerInch,

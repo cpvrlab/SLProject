@@ -72,7 +72,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _loc.name,
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("LocationMapGui")); });
 
     //content
     if (_loc.id != LocationId::NONE)
@@ -122,7 +122,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                                          _resources.style().areaPoseButtonShapeColor,
                                          _resources.style().areaPoseButtonShapeColorPressed))
             {
-                sendEvent(new AreaSelectedEvent(_loc.id, it.first));
+                sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first));
             }
 
             //ImGui::PopID();

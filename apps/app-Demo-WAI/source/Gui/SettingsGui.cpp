@@ -71,7 +71,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _resources.strings().settings(),
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("SettingsGui")); });
 
     //render hidden button in right corner directly under header bar. It has the size of the header bar height.
     {

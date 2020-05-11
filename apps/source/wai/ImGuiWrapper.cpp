@@ -210,8 +210,7 @@ void ImGuiRendererOpenGL::deleteOpenGLObjects()
     if (_fontTexture)
     {
         glDeleteTextures(1, &_fontTexture);
-        ImGui::GetCurrentContext()->IO.Fonts->TexID = nullptr;
-        _fontTexture                                = 0;
+        _fontTexture = 0;
     }
 }
 //-----------------------------------------------------------------------------

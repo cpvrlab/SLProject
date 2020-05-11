@@ -86,7 +86,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _area.name,
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("AreaInfoGui")); });
 
     //content
     {
@@ -172,7 +172,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SetCursorPosY(_buttonBoardH * 0.1f);
         if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(_buttonBoardH * 2.f, buttonW)))
         {
-            sendEvent(new DoneEvent());
+            sendEvent(new DoneEvent("AreaInfoGui"));
         }
         ImGui::End();
         ImGui::PopStyleColor(4);

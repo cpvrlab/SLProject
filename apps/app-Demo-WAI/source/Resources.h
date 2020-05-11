@@ -160,6 +160,7 @@ class Strings
 {
 public:
     Strings();
+    virtual ~Strings() {}
     const char* id() const { return _id.c_str(); }
 
     const char* settings() const { return _settings.c_str(); }

@@ -91,7 +91,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              "Camera Test",
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("CameraTestGui")); });
 
     //content
     {
