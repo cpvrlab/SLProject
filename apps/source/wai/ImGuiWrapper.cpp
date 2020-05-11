@@ -151,7 +151,7 @@ void ImGuiRendererOpenGL::createOpenGLObjects()
     GET_GL_ERROR;
 
     // Build texture atlas
-    ImGuiIO& io = ImGui::GetCurrentContext()->IO;
+    ImGuiIO& io = _context->IO;
     SLuchar* pixels;
     int      width, height;
 
@@ -210,7 +210,8 @@ void ImGuiRendererOpenGL::deleteOpenGLObjects()
     if (_fontTexture)
     {
         glDeleteTextures(1, &_fontTexture);
-        _fontTexture = 0;
+        _context->IO.Fonts->TexID = nullptr;
+        _fontTexture              = 0;
     }
 }
 //-----------------------------------------------------------------------------
