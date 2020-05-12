@@ -72,10 +72,10 @@ void DirectLight(in    int  i,   // Light number
 
     // Test if the fragment is in a shadow
     if (u_lightCreatesShadows[i]) {
-        vec3 projCoords = v_P_LS[0].xyz / v_P_LS[0].w;
+        vec3 projCoords = v_P_LS[i].xyz / v_P_LS[i].w;
         projCoords = projCoords * 0.5 + 0.5;
 
-        float closestDepth = texture(u_shadowMap[0], projCoords.xy).r;
+        float closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
         float currentDepth = projCoords.z;
 
         if (currentDepth > closestDepth + 0.005) {

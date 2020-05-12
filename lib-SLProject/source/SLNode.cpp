@@ -283,13 +283,13 @@ the opaque pass only the opaque meshes.
 </li>
 </ul>
 */
-void SLNode::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
+void SLNode::drawMeshes(SLSceneView* sv)
 {
     SLGLState* stateGL = SLGLState::instance();
     for (auto* mesh : _meshes)
         if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
             (!stateGL->blend() && !mesh->mat()->hasAlpha()))
-            mesh->draw(sv, this, overrideMat);
+            mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -111,8 +111,8 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
     init(s);
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLLightSpot::init sets the light id, the light states & creates an 
+/*!
+SLLightSpot::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
@@ -163,10 +163,10 @@ void SLLightSpot::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes 
+SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.
 */
-void SLLightSpot::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
+void SLLightSpot::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -186,8 +186,8 @@ void SLLightSpot::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and 
-1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio 
+SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
+1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
 SLfloat SLLightSpot::shadowTest(SLRay*         ray,       // ray of hit point

@@ -131,7 +131,7 @@ public:
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
-    virtual void draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat = nullptr);
+    virtual void draw(SLSceneView* sv, SLNode* node = nullptr, SLMaterial* overrideMat = nullptr);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();

@@ -82,6 +82,9 @@ void SLGLProgramManager::makeProgram(SLShaderProg id)
         case SP_stereoOculusDistortion:
             _programs.insert({id, new SLGLGenericProgram(nullptr, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag")});
             break;
+        case SP_depth:
+            _programs.insert({id, new SLGLGenericProgram(nullptr, "Depth.vert", "Depth.frag")});
+            break;
         default:
             SL_EXIT_MSG("SLGLProgramManager: unknown shader id!");
     }

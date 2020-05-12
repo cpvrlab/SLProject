@@ -14,7 +14,7 @@
 #include <SLText.h>
 
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 The ctor sets all members and translates to the min. position.
 */
 SLText::SLText(SLstring   text,
@@ -34,7 +34,7 @@ SLText::SLText(SLstring   text,
     _aabb.hasAlpha(true);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLText::shapeDraw draws the text buffer objects
 */
 void SLText::drawRec(SLSceneView* sv)
@@ -61,12 +61,12 @@ void SLText::drawRec(SLSceneView* sv)
 
     _vao.drawElementsAs(PT_triangles, (SLuint)_text.length() * 2 * 3);
 }
-void SLText::drawMeshes(SLSceneView* sv,SLMaterial* overrideMat)
+void SLText::drawMeshes(SLSceneView* sv)
 {
     drawRec(sv);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLText::statsRec updates the statistics.
 */
 void SLText::statsRec(SLNodeStats& stats)
@@ -77,7 +77,7 @@ void SLText::statsRec(SLNodeStats& stats)
     stats.numTriangles += (SLuint)_text.length() * 2 + 2;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLText::buildAABB builds and returns the axis-aligned bounding box.
 */
 SLAABBox& SLText::updateAABBRec()

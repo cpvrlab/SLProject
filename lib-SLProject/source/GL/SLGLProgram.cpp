@@ -83,7 +83,7 @@ void SLGLProgram::addShader(SLGLShader* shader)
     _shaders.push_back(shader);
 }
 //-----------------------------------------------------------------------------
-/*! SLGLProgram::initRaw() does not replace any code from the shader and 
+/*! SLGLProgram::initRaw() does not replace any code from the shader and
 assumes valid syntax for the shader used. Used in SLGLConetracer
 */
 void SLGLProgram::initRaw()
@@ -239,7 +239,7 @@ void SLGLProgram::useProgram()
 }
 //-----------------------------------------------------------------------------
 /*! SLGLProgram::beginUse starts using the shaderprogram and transfers the
-the standard light and material parameter as uniform variables. It also passes 
+the standard light and material parameter as uniform variables. It also passes
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
 void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
@@ -280,9 +280,16 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             loc = uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
 
             for (int i = 0; i < SL_MAX_LIGHTS; ++i)
+            {
                 if (stateGL->lightCreatesShadows[i])
-                    stateGL->shadowMaps[i]->activateAsTexture(
-                      _progID, "u_shadowMap[" + std::to_string(i) + "]", 0);
+                {
+                    SLGLDepthBuffer* shadowMap = stateGL->shadowMaps[i];
+                    if (shadowMap != nullptr)
+                    {
+                        shadowMap->activateAsTexture(_progID, "u_shadowMap[" + std::to_string(i) + "]");
+                    }
+                }
+            }
 
             mat->passToUniforms(this);
         }

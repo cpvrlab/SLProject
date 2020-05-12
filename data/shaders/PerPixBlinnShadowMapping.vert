@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      PerPixBlinnShadowMapping.vert
-//  Purpose:   GLSL vertex program for per fragment Blinn-Phong lighting  
+//  Purpose:   GLSL vertex program for per fragment Blinn-Phong lighting
 //             (and Shadow mapping)
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -33,7 +33,7 @@ void main(void)
     v_P_WS = vec3(u_mMatrix * a_position);
     v_N_VS = vec3(u_nMatrix * a_normal);
 
-    for(int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
         if (u_lightCreatesShadows[i])
             v_P_LS[i] = u_lightProjection[i] * u_mMatrix * a_position;
 

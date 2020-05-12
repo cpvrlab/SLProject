@@ -28,8 +28,7 @@ public:
     ~SLGLDepthBuffer();
 
     void activateAsTexture(int             progId,
-                           const SLstring& samplerName,
-                           int             textureUnit = 0);
+                           const SLstring& samplerName);
     void bind();
 
 private:

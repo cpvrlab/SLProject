@@ -21,8 +21,8 @@ class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
-/*!      
-SLLightSpot is a node and a light that can have a spot mesh for its 
+/*!
+SLLightSpot is a node and a light that can have a spot mesh for its
 representation.
 If a light node is added to the scene it stays fix in the scene.\n
 If a light node is added to the camera it moves with the camera.\n
@@ -59,7 +59,7 @@ public:
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-    void    drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr) override;
+    void    drawMeshes(SLSceneView* sv) override;
     void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,

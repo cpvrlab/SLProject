@@ -22,9 +22,9 @@ class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
-/*!      
-SLLightDirect is a node and a light that can have a sphere mesh with a line for 
-its direction representation. 
+/*!
+SLLightDirect is a node and a light that can have a sphere mesh with a line for
+its direction representation.
 For directional lights the position vector is in infinite distance
 We use its homogeneos component w as zero as the directional light flag.
 The spot direction is used in the shaders for the light direction.
@@ -64,7 +64,7 @@ public:
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-    void    drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr) override;
+    void    drawMeshes(SLSceneView* sv) override;
     void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,

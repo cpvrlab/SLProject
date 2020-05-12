@@ -92,13 +92,13 @@ struct SLNodeStats
 /*!
 SLNode is the most important building block of the scene graph.
 
-A node can have 0-N children nodes in the vector _children. 
-With child nodes you can build hierarchical structures. A node without meshes 
-can act as parent node to group its children. A node without children only 
-makes sense to hold one or more meshes for visualization. 
-The pointer _parent points to the parent of a child node. 
+A node can have 0-N children nodes in the vector _children.
+With child nodes you can build hierarchical structures. A node without meshes
+can act as parent node to group its children. A node without children only
+makes sense to hold one or more meshes for visualization.
+The pointer _parent points to the parent of a child node.
 
-A node can use 0-N mesh objects in the SLMesh vector _meshes for the rendering 
+A node can use 0-N mesh objects in the SLMesh vector _meshes for the rendering
 of triangled or lined meshes. Meshes are stored in the SLScene::_meshes vector.
 Multiple nodes can point to the same mesh object.
 The nodes meshes are drawn by the methods SLNode::drawMeshes and alternatively
@@ -110,7 +110,7 @@ world matrix (_wmI) and the normal world matrix (_wmN) are derived from the
 object matrix and automatically generated and updated.
 
 A node can be transformed by one of the various transform functions such
-as translate(). Many of these functions take an additional parameter 
+as translate(). Many of these functions take an additional parameter
 'relativeTo'. This parameter tells the transform function in what space
 the transformation should be applied in. The available transform spaces
 are:\n
@@ -118,14 +118,14 @@ are:\n
    - TS_Parent: Space relative to our parent's transformation.
    - TS_Object: Space relative to our current node's origin.
 
-A node can implement one of the eventhandlers defined in the inherited 
+A node can implement one of the eventhandlers defined in the inherited
 SLEventHandler interface.
 
 The SLCamera is derived from the SLNode and implements a camera through which the
 scene can be viewed (see also SLSceneView).
 The SLLightSpot and SLLightRect are derived from SLNode and represent light
 sources in the scene.
-Cameras and lights can be placed in the scene because of their inheritance of 
+Cameras and lights can be placed in the scene because of their inheritance of
 SLNode.
 */
 class SLNode
@@ -169,7 +169,7 @@ public:
     void         setAllMeshMaterials(SLMaterial* mat,
                                      SLbool      recursive = true);
     SLbool       containsMesh(const SLMesh* mesh);
-    virtual void drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr);
+    virtual void drawMeshes(SLSceneView* sv);
 
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }

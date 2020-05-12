@@ -956,7 +956,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Shadow Mapping is a technique to render shadows.");
 
         SLGLProgram* program = new SLGLGenericProgram(s, "PerPixBlinnShadowMapping.vert", "PerPixBlinnShadowMapping.frag");
-        SLMaterial* m1 = new SLMaterial(s, "m1");
+        SLMaterial*  m1      = new SLMaterial(s, "m1");
 
         m1->program(program);
         m1->shininess(500);
@@ -972,16 +972,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         scene->addChild(cam1);
 
-        // Define light source
-        SLLightDirect* light = new SLLightDirect(s, s);
-        light->ambient(SLCol4f(0, 0, 0));
-        light->diffuse(SLCol4f(1, 1, 1));
-        light->translation(0, 5, 0);
-        light->lookAt(0, 0, 0, 0, 0, -1);
-        light->attenuation(0, 0, 1);
-        light->createsShadows(true);
-        //light->castsShadows(false);
-        scene->addChild(light);
+        // Define light sources
+        for (int i = 0; i < 3; ++i)
+        {
+            SLLightDirect* light = new SLLightDirect(s, s);
+            light->ambient(SLCol4f(0, 0, 0));
+            light->diffuse(SLCol4f(i == 0, i == 1, i == 2));
+            light->translation(2 * sin((2 * PI / 3) * i), 5, 2 * cos((2 * PI / 3) * i));
+            light->lookAt(0, 0, 0);
+            light->attenuation(0, 0, 1);
+            light->createsShadows(true);
+            //light->castsShadows(false);
+            scene->addChild(light);
+        }
 
         // Add a sphere which casts shadows
         SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", m1));

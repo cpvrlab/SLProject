@@ -21,6 +21,8 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLuint w,
                                  SLint  wrap,
                                  float  borderColor[]) : _width(w), _height(h)
 {
+    SLGLState* stateGL = SLGLState::instance();
+
     SLint previousFrameBuffer;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFrameBuffer);
 
@@ -29,7 +31,8 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLuint w,
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
 
     glGenTextures(1, &_texID);
-    glBindTexture(GL_TEXTURE_2D, _texID);
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
+    stateGL->bindTexture(GL_TEXTURE_2D, _texID);
 
     // Texture parameters.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -75,14 +78,12 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
 }
 //-----------------------------------------------------------------------------
 void SLGLDepthBuffer::activateAsTexture(const int       progId,
-                                        const SLstring& glSamplerName,
-                                        const int       textureUnit)
+                                        const SLstring& glSamplerName)
 {
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, _texID);
-    glUniform1i(glGetUniformLocation(progId,
-                                     glSamplerName.c_str()),
-                textureUnit);
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
+    stateGL->bindTexture(GL_TEXTURE_2D, _texID);
+    glUniform1i(glGetUniformLocation(progId, glSamplerName.c_str()), _texID);
 }
 //-----------------------------------------------------------------------------
 void SLGLDepthBuffer::bind()

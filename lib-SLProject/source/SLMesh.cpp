@@ -20,7 +20,7 @@
 #include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 The constructor initializes everything to 0 and adds the instance to the vector
 SLScene::_meshes. All meshes are held globally in this vector and are deallocated
 in SLScene::unInit(). The passed asset manager is responsible for deallocation.
@@ -277,7 +277,7 @@ void SLMesh::init(SLNode* node)
         calcTangents();
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES primitives
 are rendered normally with the vertex position vector P, the normal vector N,
 the vector Tc and the index vector I16 or I32. GL_LINES & GL_POINTS don't have
@@ -355,11 +355,11 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat)
     /////////////////////////////
 
     // 2.a) Apply mesh material if exists & differs from current
-    SLMaterial* material = overrideMat ? overrideMat : mat();
+    SLMaterial* material = overrideMat != nullptr ? overrideMat : mat();
     material->activate(*node->drawBits(), sv->s().globalAmbiLight());
 
     // 2.b) Pass the matrices to the shader program
-    SLGLProgram* sp = mat()->program();
+    SLGLProgram* sp = material->program();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
@@ -565,7 +565,7 @@ void SLMesh::generateVAO(SLGLProgram* sp)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMesh::hit does the ray-mesh intersection test. If no acceleration 
+SLMesh::hit does the ray-mesh intersection test. If no acceleration
 structure is defined all triangles are tested in a brute force manner.
 */
 SLbool SLMesh::hit(SLRay* ray, SLNode* node)
@@ -594,7 +594,7 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::updateStats updates the parent node statistics.
 */
 void SLMesh::addStats(SLNodeStats& stats)
@@ -621,7 +621,7 @@ void SLMesh::addStats(SLNodeStats& stats)
         _accelStruct->updateStats(stats);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::calcMinMax calculates the axis alligned minimum and maximum point
 */
 void SLMesh::calcMinMax()
@@ -753,7 +753,7 @@ void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::buildAABB builds the passed axis-aligned bounding box in OS and updates
 the min & max points in WS with the passed WM of the node.
 */
@@ -872,8 +872,8 @@ void SLMesh::calcNormals()
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcTangents computes the tangents per vertex for triangle meshes.
-/*! SLMesh::calcTangents computes the tangent and bi-tangent per vertex used 
-for GLSL normal map bump mapping. The code and mathematical derivation is in 
+/*! SLMesh::calcTangents computes the tangent and bi-tangent per vertex used
+for GLSL normal map bump mapping. The code and mathematical derivation is in
 detail explained in: http://www.terathon.com/code/tangent.html
 */
 void SLMesh::calcTangents()
@@ -986,7 +986,7 @@ void SLMesh::calcTex3DMatrix(SLNode* node)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle 
+SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle
 intersection test by Tomas Moeller and Ben Trumbore (Journal of graphics
 tools 2, 1997).
 */
@@ -1111,8 +1111,8 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMesh::preShade calculates the rest of the intersection information 
-after the final hit point is determined. Should be called just before the 
+SLMesh::preShade calculates the rest of the intersection information
+after the final hit point is determined. Should be called just before the
 shading when the final intersection point of the closest triangle was found.
 */
 void SLMesh::preShade(SLRay* ray)
@@ -1199,7 +1199,7 @@ void SLMesh::preShade(SLRay* ray)
 each vertex and normal by max. four joints of the skeleton. Each joint has
 a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
-This software skinning is also needed for ray or path tracing.  
+This software skinning is also needed for ray or path tracing.
 */
 void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
 {

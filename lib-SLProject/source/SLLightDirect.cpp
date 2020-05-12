@@ -21,6 +21,7 @@
 #include <SLSceneView.h>
 #include <SLSphere.h>
 #include <SLSpheric.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
@@ -86,8 +87,8 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     init(s);
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLLightDirect::init sets the light id, the light states & creates an 
+/*!
+SLLightDirect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
@@ -143,10 +144,10 @@ void SLLightDirect::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes 
+SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.
 */
-void SLLightDirect::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
+void SLLightDirect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -160,12 +161,12 @@ void SLLightDirect::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
                 _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
 
         // now draw the meshes of the node
-        SLNode::drawMeshes(sv, overrideMat);
+        SLNode::drawMeshes(sv);
     }
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and 
+SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and
 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
 SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point
@@ -194,7 +195,7 @@ SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightDirect::shadowTestMC returns 0.0 if the hit point is completely shaded 
+SLLightDirect::shadowTestMC returns 0.0 if the hit point is completely shaded
 and 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
 SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit point
@@ -222,9 +223,9 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
-/*! drawNodesIntoDepthBuffer recursively renders all objects which casts shadows
+/*! drawNodesIntoShadowMap recursively renders all objects which cast shadows
 */
-void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMaterial* depthMat)
+void drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv, SLMaterial* depthMat)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -232,10 +233,11 @@ void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMaterial* depthMa
     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
     if (node->castsShadows())
-        node->drawMeshes(sv, depthMat);
+        for (auto* mesh : node->meshes())
+            mesh->draw(sv, node, depthMat);
 
     for (SLNode* child : node->children())
-        drawNodesIntoDepthBuffer(child, sv, depthMat);
+        drawNodesIntoShadowMap(child, sv, depthMat);
 }
 //-----------------------------------------------------------------------------
 /*! SLLightDirect::renderShadowMap renders the shadow map of the light
@@ -298,7 +300,7 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     stateGL->clearColorDepthBuffer();
 
     // Draw meshes
-    drawNodesIntoDepthBuffer(root, sv, depthMaterial);
+    drawNodesIntoShadowMap(root, sv, depthMaterial);
     GET_GL_ERROR;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

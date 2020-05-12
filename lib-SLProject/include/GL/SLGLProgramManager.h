@@ -31,7 +31,8 @@ enum SLShaderProg
     SP_bumpNormalParallax,
     SP_fontTex,
     SP_stereoOculus,
-    SP_stereoOculusDistortion
+    SP_stereoOculusDistortion,
+    SP_depth
 };
 
 //-----------------------------------------------------------------------------

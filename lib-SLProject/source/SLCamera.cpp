@@ -137,7 +137,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 Only draws the frustum lines without lighting when the camera is not the
 active one. This means that it can be seen from the active view point.
 */
-void SLCamera::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
+void SLCamera::drawMeshes(SLSceneView* sv)
 {
     if (sv->camera() != this)
     {

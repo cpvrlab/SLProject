@@ -22,7 +22,7 @@ class SLKeyframeCamera : public SLCamera
 {
 public:
     explicit SLKeyframeCamera(SLstring name = "Camera");
-    virtual void drawMeshes(SLSceneView* sv, SLMaterial* overrideMat = nullptr);
+    virtual void drawMeshes(SLSceneView* sv);
 
     // Getters
     bool renderBackground() { return _renderBackground; }

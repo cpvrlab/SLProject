@@ -48,8 +48,8 @@ SLLightRect::SLLightRect(SLAssetManager* assetMgr,
     init(s);
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLLightRect::init sets the light id, the light states & creates an 
+/*!
+SLLightRect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
@@ -78,7 +78,7 @@ void SLLightRect::init(SLScene* s)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightRect::drawRec sets the light states and calls then the SLNode::drawRec 
+SLLightRect::drawRec sets the light states and calls then the SLNode::drawRec
 method of its node.
 */
 void SLLightRect::drawRec(SLSceneView* sv)
@@ -124,10 +124,10 @@ void SLLightRect::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightRect::drawMeshes sets the light states and calls then the drawMeshes 
+SLLightRect::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.
 */
-void SLLightRect::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
+void SLLightRect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
@@ -144,13 +144,13 @@ void SLLightRect::drawMeshes(SLSceneView* sv, SLMaterial* overrideMat)
         }
 
         // now draw the meshes of the node
-        SLNode::drawMeshes(sv, overrideMat);
+        SLNode::drawMeshes(sv);
     }
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and 
-1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio 
+SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and
+1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
 SLfloat SLLightRect::shadowTest(SLRay*         ray,       // ray of hit point
@@ -195,7 +195,7 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,       // ray of hit point
         If all of them are lighting the hit point the sample points
         in between (O) are not tested anymore.
 
-             0   1   2   3   4   5   6         
+             0   1   2   3   4   5   6
            +---+---+---+---+---+---+---+
         0  | X | . | . | X | . | . | X |
            +---+---+---+---+---+---+---+
