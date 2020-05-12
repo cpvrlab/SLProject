@@ -5,19 +5,21 @@
 #include <Utils.h>
 #include <FtpUtils.h>
 
-TestRunnerView::TestRunnerView(sm::EventHandler& eventHandler,
-                               SLInputManager&   inputManager,
-                               int               screenWidth,
-                               int               screenHeight,
-                               int               dotsPerInch,
-                               std::string       erlebARDir,
-                               std::string       calibDir,
-                               std::string       fontPath,
-                               std::string       configFile,
-                               std::string       vocabularyFile,
-                               std::string       imguiIniPath)
+TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
+                               SLInputManager&     inputManager,
+                               const ImGuiEngine&  imGuiEngine,
+                               ErlebAR::Resources& resources,
+                               int                 screenWidth,
+                               int                 screenHeight,
+                               int                 dotsPerInch,
+                               std::string         erlebARDir,
+                               std::string         calibDir,
+                               std::string         fontPath,
+                               std::string         configFile,
+                               std::string         vocabularyFile,
+                               std::string         imguiIniPath)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
-    _gui(eventHandler, dotsPerInch, fontPath),
+    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, fontPath),
     _scene("TestRunnerScene", nullptr),
     _testMode(TestMode_None),
     _erlebARDir(erlebARDir),
@@ -67,7 +69,7 @@ bool TestRunnerView::update()
                                              _extractor.get(),
                                              intrinsic,
                                              distortion,
-                                             WAIOrbVocabulary::get(),
+                                             &_voc,
                                              false);
 
             switch (_testMode)
@@ -331,12 +333,12 @@ bool TestRunnerView::update()
 
                     WAIFrame::mbInitialComputations = true;
 
-                    WAIOrbVocabulary::initialize(_vocFile);
-                    ORBVocabulary* orbVoc     = WAIOrbVocabulary::get();
-                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(*orbVoc);
+                    _voc.readFromFile(_vocFile);
+
+                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(_voc);
 
                     _map = new WAIMap(keyFrameDB);
-                    WAIMapStorage::loadMap(_map, nullptr, orbVoc, mapFile, false, true);
+                    WAIMapStorage::loadMap(_map, nullptr, &_voc, mapFile, false, true);
 
                     if (_localMapping) delete _localMapping;
                     if (_loopClosing) delete _loopClosing;
@@ -356,8 +358,8 @@ bool TestRunnerView::update()
                         _localMap.mapPoints.clear();
                         _localMap.refKF = nullptr;
 
-                        _localMapping = new ORB_SLAM2::LocalMapping(_map, 1, orbVoc, 0.95);
-                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, orbVoc, false, false);
+                        _localMapping = new ORB_SLAM2::LocalMapping(_map, 1, &_voc, 0.95);
+                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, &_voc, false, false);
 
                         _localMapping->SetLoopCloser(_loopClosing);
                         _loopClosing->SetLocalMapper(_localMapping);

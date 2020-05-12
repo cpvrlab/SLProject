@@ -58,7 +58,7 @@ private:
 
     void START_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
-    void TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry);
+    void TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 

@@ -209,6 +209,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _testRunnerView = new TestRunnerView(*this,
                                          _inputManager,
+                                         *_imGuiEngine,
+                                         *_resources,
                                          dd.scrWidth(),
                                          dd.scrHeight(),
                                          dd.dpi(),
@@ -216,7 +218,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                          dd.dirs().writableDir + "calibrations/",
                                          dd.fontDir(),
                                          dd.dirs().slDataRoot + "/config/TesterConfig.json",
-                                         dd.dirs().vocabularyDir + "/ORBvoc.bin",
+                                         dd.dirs().vocabularyDir + "/voc_fbow.bin",
                                          dd.dirs().writableDir);
 
     _startUpView = new StartUpView(_inputManager,
@@ -462,7 +464,7 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
     _testView->update();
 }
 
-void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry)
+void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     _testRunnerView->update();
 }

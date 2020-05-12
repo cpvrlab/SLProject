@@ -228,7 +228,8 @@ public:
 class StartTestRunnerEvent : public sm::Event
 {
 public:
-    StartTestRunnerEvent()
+    StartTestRunnerEvent(std::string senderInfo)
+      : sm::Event("StartTestRunnerEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::TEST_RUNNER);

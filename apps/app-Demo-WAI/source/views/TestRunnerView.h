@@ -9,6 +9,7 @@
 #include <ErlebAR.h>
 #include <KPextractor.h>
 #include <SENSVideoStream.h>
+#include <fbow.h>
 
 class TestRunnerView : protected SLSceneView
 {
@@ -30,17 +31,19 @@ public:
         TestMode_Tracking
     };
 
-    TestRunnerView(sm::EventHandler& eventHandler,
-                   SLInputManager&   inputManager,
-                   int               screenWidth,
-                   int               screenHeight,
-                   int               dotsPerInch,
-                   std::string       erlebARDir,
-                   std::string       calibDir,
-                   std::string       fontPath,
-                   std::string       configFile,
-                   std::string       vocabularyFile,
-                   std::string       imguiIniPath);
+    TestRunnerView(sm::EventHandler&   eventHandler,
+                   SLInputManager&     inputManager,
+                   const ImGuiEngine&  imGuiEngine,
+                   ErlebAR::Resources& resources,
+                   int                 screenWidth,
+                   int                 screenHeight,
+                   int                 dotsPerInch,
+                   std::string         erlebARDir,
+                   std::string         calibDir,
+                   std::string         fontPath,
+                   std::string         configFile,
+                   std::string         vocabularyFile,
+                   std::string         imguiIniPath);
 
     bool start(TestMode testMode);
     bool update();
@@ -88,6 +91,7 @@ private:
     WAIMap*                      _map;
     int                          _currentFrameIndex;
     CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
+    fbow::Vocabulary             _voc;
 
     // Relocalization test stuff
     int _relocalizationFrameCount;

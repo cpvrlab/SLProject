@@ -190,7 +190,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         }
         if (ImGui::Button("Test Runner", develButtonSize))
         {
-            sendEvent(new StartTestRunnerEvent());
+            sendEvent(new StartTestRunnerEvent("SelectionGui"));
         }
 
         if (ImGui::Button("Camera Test", develButtonSize))

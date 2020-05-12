@@ -3,21 +3,18 @@
 #include <imgui.h>
 #include <views/TestRunnerView.h>
 
-TestRunnerGui::TestRunnerGui(sm::EventHandler& eventHandler,
-                             int               dotsPerInch,
-                             std::string       fontPath)
-  : sm::EventSender(eventHandler),
+TestRunnerGui::TestRunnerGui(const ImGuiEngine&  imGuiEngine,
+                             sm::EventHandler&   eventHandler,
+                             ErlebAR::Resources& resources,
+                             int                 dotsPerInch,
+                             std::string         fontPath)
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
+    _resources(resources),
     _dpi(dotsPerInch),
     _selectedMode(TestRunnerView::TestMode_None)
 {
     ImGuiIO& io = ImGui::GetIO();
-
-    // Load proportional font for menue and text displays
-    SLstring DroidSans = fontPath + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-    {
-        _fontPropDots = io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), std::max(16.0f * (dotsPerInch / 120.0f), 16.0f));
-    }
 
     _availableModes[TestRunnerView::TestMode_None]           = "None";
     _availableModes[TestRunnerView::TestMode_Relocalization] = "Relocalization";
@@ -26,7 +23,7 @@ TestRunnerGui::TestRunnerGui(sm::EventHandler& eventHandler,
 
 void TestRunnerGui::build(SLScene* s, SLSceneView* sv)
 {
-    ImGui::PushFont(_fontPropDots);
+    ImGui::PushFont(_resources.fonts().standard);
 
     TestRunnerView* view = (TestRunnerView*)sv;
 
@@ -69,7 +66,7 @@ void TestRunnerGui::build(SLScene* s, SLSceneView* sv)
 
     if (ImGui::Button("Back"))
     {
-        sendEvent(new GoBackEvent());
+        sendEvent(new GoBackEvent("ErlebARApp::goBack()"));
     }
 
     ImGui::End();
