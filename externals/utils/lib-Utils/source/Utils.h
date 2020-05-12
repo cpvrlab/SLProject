@@ -74,7 +74,7 @@ string getDateTime2String();
 string getHostName();
 
 //! Returns a formatted string as sprintf
-string formatString(const string& fmt_str, ...);
+string formatString(string fmt_str, ...);
 
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);
@@ -156,7 +156,7 @@ static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
 //! custom log instance, e.g. log to a ui log window
-static std::unique_ptr<CustomLog> customLog;
+extern std::unique_ptr<CustomLog> customLog;
 
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);

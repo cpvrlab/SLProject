@@ -1,24 +1,92 @@
 #include "Resources.h"
-
+#include <LogWindow.h>
 #include "opencv2/core/persistence.hpp"
-#include <FileLog.h>
-
-#include <utility>
+#include <sstream>
 
 namespace ErlebAR
 {
-
-Resources::Resources(const std::string& writableDir, std::string textureDir)
-  : _writableDir(writableDir)
+Fonts::Fonts()
 {
-    load(writableDir + "ErlebARResources.json");
+    _atlas = new ImFontAtlas();
+}
 
+Fonts::~Fonts()
+{
+    if (_atlas)
+        delete _atlas;
+}
+
+void Fonts::load(std::string fontDir, const Style& style, int screenH)
+{
+    //ImGuiContext* context = ImGui::GetCurrentContext();
+    //if (!context)
+    //    context = ImGui::CreateContext();
+
+    //ImFontAtlas* atlas = context->IO.Fonts;
+    std::string ttf = fontDir + "Roboto-Medium.ttf";
+    if (Utils::fileExists(ttf))
+    {
+        //header bar font
+        float headerBarH     = style.headerBarPercH * (float)screenH;
+        float headerBarTextH = style.headerBarTextH * (float)headerBarH;
+        headerBar            = _atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
+        //standard font
+        float standardTextH = style.textStandardH * (float)screenH;
+        standard            = _atlas->AddFontFromFileTTF(ttf.c_str(), standardTextH);
+        //heading font
+        float headingTextH = style.textHeadingH * (float)screenH;
+        heading            = _atlas->AddFontFromFileTTF(ttf.c_str(), headingTextH);
+        //tiny font
+        float tinyTextH = 0.035f * (float)screenH;
+        tiny            = _atlas->AddFontFromFileTTF(ttf.c_str(), tinyTextH);
+        //big font
+        float bigTextHPix      = 0.3f * (float)screenH;
+        float scale            = 2.0f;
+        float bigTextHPixAlloc = bigTextHPix / scale;
+        float bigTextH         = 0.035f * (float)screenH;
+        big                    = _atlas->AddFontFromFileTTF(ttf.c_str(), bigTextHPixAlloc);
+        big->Scale             = scale;
+        //selection buttons
+        int   nButVert  = 6;
+        int   buttonH   = (0.6f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert;
+        float selectBtn = buttonH * style.buttonTextH;
+        selectBtns      = _atlas->AddFontFromFileTTF(ttf.c_str(), selectBtn);
+    }
+    else
+    {
+        std ::stringstream ss;
+        ss << "Font does not exist: " << ttf;
+        Utils::exitMsg("Resources", ss.str().c_str(), __LINE__, __FILE__);
+    }
+}
+
+Resources::Resources(int                screenWidth,
+                     int                screenHeight,
+                     const std::string& writableDir,
+                     const std::string& textureDir,
+                     const std::string& fontDir,
+                     const std::string& slDataRoot)
+  : _screenW(screenWidth),
+    _screenH(screenHeight),
+    _writableDir(writableDir)
+{
+    //load strings first (we need the id for string selection)
+    stringsEnglish.load(slDataRoot + "/config/StringsEnglish.json");
+    stringsGerman.load(slDataRoot + "/config/StringsGerman.json");
+    stringsFrench.load(slDataRoot + "/config/StringsFrench.json");
+    stringsItalian.load(slDataRoot + "/config/StringsItalian.json");
+    //load Resources
+    load(writableDir + "ErlebARResources.json");
     //load textures
-    textures.load(std::move(textureDir));
+    textures.load(textureDir);
     //load fonts
+    _fonts.load(fontDir, _style, screenHeight);
 
     //definition of erlebar locations and areas
     _locations = ErlebAR::defineLocations();
+
+    if (logWinEnabled)
+        logWinInit();
 }
 
 Resources::~Resources()
@@ -29,7 +97,7 @@ Resources::~Resources()
     //delete fonts
 }
 
-void Resources::load(const std::string& resourceFileName)
+void Resources::load(std::string resourceFileName)
 {
     _fileName = resourceFileName;
 
@@ -38,6 +106,8 @@ void Resources::load(const std::string& resourceFileName)
     {
         if (!fs["developerMode"].empty())
             fs["developerMode"] >> developerMode;
+        if (!fs["logWinEnabled"].empty())
+            fs["logWinEnabled"] >> logWinEnabled;
 
         if (!fs["languageId"].empty())
         {
@@ -51,9 +121,9 @@ void Resources::load(const std::string& resourceFileName)
             {
                 _currStrings = &stringsFrench;
             }
-            else if (languageId == stringsItalien.id())
+            else if (languageId == stringsItalian.id())
             {
-                _currStrings = &stringsItalien;
+                _currStrings = &stringsItalian;
             }
             else
             {
@@ -73,6 +143,7 @@ void Resources::save()
     if (fs.isOpened())
     {
         fs << "developerMode" << developerMode;
+        fs << "logWinEnabled" << logWinEnabled;
         fs << "languageId" << _currStrings->id();
     }
     else
@@ -95,12 +166,63 @@ void Resources::setLanguageFrench()
 }
 void Resources::setLanguageItalien()
 {
-    _currStrings = &stringsItalien;
+    _currStrings = &stringsItalian;
 }
 
-Strings::Strings()
+void Resources::logWinInit()
 {
-    _developerNames = "Jan Dellsperger\nLuc Girod\nMichael Goettlicher";
+    Utils::customLog = std::make_unique<LogWindow>(_screenW, _screenH);
+}
+
+void Resources::logWinUnInit()
+{
+    if (Utils::customLog)
+        Utils::customLog.release();
+}
+
+void Resources::logWinDraw()
+{
+    if (Utils::customLog)
+    {
+        LogWindow* log = static_cast<LogWindow*>(Utils::customLog.get());
+        log->draw(fonts().tiny, fonts().standard, "Log");
+    }
+}
+
+void loadString(const cv::FileStorage& fs, const std::string& name, std::string& target)
+{
+    if (!fs[name].empty())
+        fs[name] >> target;
+    else
+        Utils::log("Strings", "Warning: String %s does not exist!", name.c_str());
+}
+
+void Strings::load(std::string fileName)
+{
+    if (Utils::fileExists(fileName))
+    {
+        cv::FileStorage fs(fileName, cv::FileStorage::READ);
+        if (fs.isOpened())
+        {
+            loadString(fs, "id", _id);
+            //selection
+            loadString(fs, "settings", _settings);
+            loadString(fs, "about", _about);
+            loadString(fs, "tutorial", _tutorial);
+            //about
+            loadString(fs, "general", _general);
+            loadString(fs, "generalContent", _generalContent);
+            loadString(fs, "developers", _developers);
+            loadString(fs, "developerNames", _developerNames);
+            //settings
+            loadString(fs, "language", _language);
+            loadString(fs, "develMode", _develMode);
+        }
+    }
+    else
+    {
+        Utils::log("Strings", "Warning: Strings file does not exist: %s", fileName.c_str());
+    }
 }
 
 StringsEnglish::StringsEnglish()
@@ -114,6 +236,7 @@ StringsEnglish::StringsEnglish()
     _general        = "General";
     _generalContent = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla non scelerisque nisi, in egestas massa. Nulla non lorem nec magna consequat convallis. Integer est ex, pellentesque vitae tristique sit amet, tempor nec ante. Phasellus tristique nulla felis, non malesuada diam convallis vitae. Aliquam enim leo, molestie quis diam in, blandit venenatis neque. Cras imperdiet metus at enim egestas fringilla. Aliquam facilisis purus nisl, eget elementum ligula rutrum et. Sed et tincidunt arcu. Suspendisse interdum et dolor nec facilisis. Vivamus aliquet non dolor sit amet dignissim. Vestibulum fringilla nisi vel ultricies aliquet. Ut sed nibh at ligula posuere luctus. Maecenas turpis tortor, tincidunt a gravida sit amet, tincidunt a purus. Vestibulum vitae mollis est, non blandit massa.\nInteger in felis vestibulum, rhoncus turpis a, iaculis nulla. Sed at sapien sit amet ligula ultrices luctus vel id massa. Quisque sodales aliquet mi, sed elementum purus mattis et. Phasellus sit amet aliquet odio. Nam magna purus, ullamcorper a nibh ac, semper euismod dui. Morbi in ipsum lectus. Pellentesque id rhoncus nibh. Vivamus vulputate egestas volutpat. Morbi at luctus nunc, quis congue sem. Ut luctus ligula libero.\nDonec tempor, mauris vitae faucibus euismod, dolor ante bibendum enim, non molestie orci massa sit amet nisi. Suspendisse non nisi eget mi iaculis lacinia. Mauris tempor leo eu posuere tempor. Nunc quis magna et sem fermentum accumsan. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam non interdum lorem. Vivamus feugiat purus in congue ornare. Nulla mi eros, ullamcorper at pharetra vitae, dictum a ipsum. In mollis lorem nulla, eget laoreet tellus luctus sit amet. Etiam ac eros ex. Curabitur id arcu vitae purus pulvinar euismod sed nec lectus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin eu magna magna. Aliquam erat volutpat. Nulla sit amet porta eros.\nEtiam sodales varius pulvinar. Nam venenatis dictum turpis, vitae dignissim enim tincidunt sit amet. Quisque tristique placerat est, vel dapibus enim posuere et. Nulla commodo fermentum maximus. Ut facilisis nisi id turpis varius sodales. Fusce feugiat lobortis facilisis. Fusce sit amet efficitur purus, quis commodo diam. Donec eleifend turpis ligula, a lacinia risus porta eget.\nCras auctor ultrices tempus. Phasellus sed commodo ex, in cursus ex. Nunc ac quam et diam bibendum venenatis eget vel velit. Duis id dui dolor. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In tempor sollicitudin mauris, eget ornare tortor. Cras vel lacus non sem faucibus accumsan. Vestibulum placerat finibus elit. Integer nisl velit, egestas nec urna malesuada, malesuada dictum dui.";
     _developers     = "Developers";
+    _developerNames = "Jan Dellsperger\nLuc Girod\nMichael Göttlicher";
 
     _language  = "Language";
     _develMode = "Developer mode";
@@ -121,37 +244,37 @@ StringsEnglish::StringsEnglish()
 
 StringsGerman::StringsGerman()
 {
-    _id = "German";
+    //_id = "German";
 
-    _settings = "Einstellungen";
-    _about    = "Info";
-    _tutorial = "Anleitung";
+    //_settings = "Einstellungen";
+    //_about    = "Info";
+    //_tutorial = "Anleitung";
 
-    _general        = "Allgemein";
-    _generalContent = "";
-    _developers     = "Entwickler";
+    //_general        = "Allgemein";
+    //_generalContent = "";
+    //_developers     = "Entwickler";
 
-    _language  = "Sprache";
-    _develMode = "Entwicklermodus";
+    //_language  = "Sprache";
+    //_develMode = "Entwicklermodus";
 }
 
 StringsFrench::StringsFrench()
 {
-    _id = "French";
+    //_id = "French";
 
-    _settings = "Paramï¿½tres";
-    _about    = "ï¿½ propos";
-    _tutorial = "Manuel";
+    //_settings = "Paramètres";
+    //_about    = "À propos";
+    //_tutorial = "Manuel";
 
-    _general        = "";
-    _generalContent = "";
-    _developers     = "dï¿½veloppeur";
+    //_general        = "";
+    //_generalContent = "";
+    //_developers     = "développeur";
 
-    _language  = "Langue";
-    _develMode = "";
+    //_language  = "Langue";
+    //_develMode = "";
 }
 
-StringsItalien::StringsItalien()
+StringsItalian::StringsItalian()
 {
     _id = "Italien";
 

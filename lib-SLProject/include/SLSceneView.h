@@ -253,8 +253,8 @@ protected:
     SLint           _scrWdiv2;            //!< Screen half width in pixels
     SLint           _scrHdiv2;            //!< Screen half height in pixels
     SLfloat         _scrWdivH;            //!< Screen side aspect ratio
-    SLfloat         _scr2fbX;             //!< Horizontal screen to framebuffer ratio
-    SLfloat         _scr2fbY;             //!< Vertical screen to framebuffer ratio
+    SLfloat         _scr2fbX{1.0f};       //!< Horizontal screen to framebuffer ratio
+    SLfloat         _scr2fbY{1.0f};       //!< Vertical screen to framebuffer ratio
     int             _dpi;                 //!< dots per inch of screen
     SLVec2i         _viewportRatio;       //!< ratio of viewport
     SLViewportAlign _viewportAlign;       //!< alignment of viewport

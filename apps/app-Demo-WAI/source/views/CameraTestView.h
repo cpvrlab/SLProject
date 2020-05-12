@@ -14,12 +14,12 @@ class CameraTestView : public SLSceneView
 public:
     CameraTestView(sm::EventHandler&   eventHandler,
                    SLInputManager&     inputManager,
+                   const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
                    SENSCamera*         sensCamera,
                    int                 screenWidth,
                    int                 screenHeight,
                    int                 dotsPerInch,
-                   std::string         fontPath,
                    std::string         imguiIniPath);
     bool update();
     //call when view becomes visible

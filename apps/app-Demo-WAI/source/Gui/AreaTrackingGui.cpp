@@ -5,28 +5,19 @@
 
 using namespace ErlebAR;
 
-AreaTrackingGui::AreaTrackingGui(sm::EventHandler&          eventHandler,
+AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
+                                 sm::EventHandler&          eventHandler,
                                  ErlebAR::Resources&        resources,
                                  int                        dotsPerInch,
                                  int                        screenWidthPix,
                                  int                        screenHeightPix,
-                                 std::function<void(float)> transparencyChangedCB,
-                                 std::string                fontPath)
-  : sm::EventSender(eventHandler),
+                                 std::function<void(float)> transparencyChangedCB)
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _transparencyChangedCB(transparencyChangedCB)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-    }
-    else
-        Utils::warnMsg("AreaTrackingGui", "font does not exist!", __LINE__, __FILE__);
 }
 
 AreaTrackingGui::~AreaTrackingGui()
@@ -71,13 +62,13 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonTranspColor,
                              _resources.style().headerBarBackButtonPressedTranspColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _area.name,
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("AreaTrackingGui")); });
 
     //content
     {
@@ -128,6 +119,9 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //ImGui::ShowMetricsWindow();
+
+    //debug: draw log window
+    _resources.logWinDraw();
 }
 
 void AreaTrackingGui::initArea(ErlebAR::Area area)

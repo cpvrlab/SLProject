@@ -5,6 +5,7 @@
 
 SelectionView::SelectionView(sm::EventHandler&   eventHandler,
                              SLInputManager&     inputManager,
+                             const ImGuiEngine&  imGuiEngine,
                              ErlebAR::Resources& resources,
                              int                 screenWidth,
                              int                 screenHeight,
@@ -14,7 +15,7 @@ SelectionView::SelectionView(sm::EventHandler&   eventHandler,
                              std::string         imguiIniPath)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     sm::EventSender(eventHandler),
-    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
+    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
     _scene("SelectionScene", nullptr)
 {
     scene(&_scene);
@@ -25,5 +26,12 @@ SelectionView::SelectionView(sm::EventHandler&   eventHandler,
 
 bool SelectionView::update()
 {
+    //the viewport may be wrong when returning from TestView, which may have another ratio.
+    //setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
+    _viewportRect.set(0, 0, _scrW, _scrH);
+    _gui.onResize(_viewportRect.width,
+                  _viewportRect.height,
+                  _scr2fbX,
+                  _scr2fbY);
     return onPaint();
 }

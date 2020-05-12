@@ -17,12 +17,12 @@ class CameraTestGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    CameraTestGui(sm::EventHandler&   eventHandler,
+    CameraTestGui(const ImGuiEngine&  imGuiEngine,
+                  sm::EventHandler&   eventHandler,
                   ErlebAR::Resources& resources,
                   int                 dotsPerInch,
                   int                 screenWidthPix,
                   int                 screenHeightPix,
-                  std::string         fontPath,
                   SENSCamera*         camera);
     ~CameraTestGui();
 
@@ -46,8 +46,6 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
-    ImFont* _fontBig = nullptr;
-
     ErlebAR::Resources& _resources;
 
     SENSCamera*      _camera;
@@ -61,6 +59,11 @@ private:
 
     bool        _hasException = false;
     std::string _exceptionText;
+
+    //selection values
+    const SENSCameraCharacteristics* _currCharac{nullptr};
+    int                              _currSizeIndex{0};
+    const std::string*               _currSizeStr{nullptr};
 };
 
 #endif //CAMERA_TEST_GUI_H

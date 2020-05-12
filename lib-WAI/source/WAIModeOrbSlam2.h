@@ -8,7 +8,6 @@
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
-#include <WAIOrbVocabulary.h>
 
 #include <OrbSlam/SURFextractor.h>
 #include <OrbSlam/LocalMapping.h>

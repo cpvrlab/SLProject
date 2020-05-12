@@ -13,8 +13,6 @@ public:
     virtual void post(const std::string& message) = 0;
     virtual ~CustomLog(){;}
 };
-
-//using LoggerPtr = std::unique_ptr<CustomLogger>;
 }
 
 #endif

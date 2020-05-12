@@ -14,6 +14,7 @@
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
+<<<<<<< HEAD
     _voc = new WAIOrbVocabulary();
     float startMS = _timer.elapsedTimeInMilliSec();
 
@@ -22,6 +23,11 @@ CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
         _voc->loadFromFile(vocabularyFile);
     }
     catch(std::exception& e)
+=======
+    float startMS = _timer.elapsedTimeInMilliSec();
+    _voc.readFromFile(vocabularyFile);
+    if (!_voc.isValid())
+>>>>>>> develop
     {
         Utils::log("SLProject",
                    "Could not open the ORB vocabulary file: %s",

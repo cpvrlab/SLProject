@@ -13,16 +13,16 @@
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
 
-WAISlam::WAISlam(const cv::Mat&    intrinsic,
-                 const cv::Mat&    distortion,
-                 WAIOrbVocabulary* voc,
-                 KPextractor*      iniExtractor,
-                 KPextractor*      extractor,
-                 WAIMap*           globalMap,
-                 bool              trackingOnly,
-                 bool              serial,
-                 bool              retainImg,
-                 float             cullRedundantPerc)
+WAISlam::WAISlam(const cv::Mat&          intrinsic,
+                 const cv::Mat&          distortion,
+                 WAIOrbVocabulary*       voc,
+                 KPextractor*            iniExtractor,
+                 KPextractor*            extractor,
+                 std::unique_ptr<WAIMap> globalMap,
+                 bool                    trackingOnly,
+                 bool                    serial,
+                 bool                    retainImg,
+                 float                   cullRedundantPerc)
 {
     _iniData.initializer = nullptr;
     _serial              = serial;
@@ -44,7 +44,7 @@ WAISlam::WAISlam(const cv::Mat&    intrinsic,
     if (globalMap == nullptr)
     {
         WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(voc);
-        _globalMap          = new WAIMap(kfDB);
+        _globalMap          = std::make_unique<WAIMap>(kfDB);
         _state              = WAI::TrackingState_Initializing;
 
         WAIKeyFrame::nNextId = 0;
@@ -52,13 +52,13 @@ WAISlam::WAISlam(const cv::Mat&    intrinsic,
     }
     else
     {
-        _globalMap   = globalMap;
+        _globalMap   = std::move(globalMap);
         _state       = WAI::TrackingState_TrackingLost;
         _initialized = true;
     }
 
-    _localMapping = new ORB_SLAM2::LocalMapping(_globalMap, 1, _voc, cullRedundantPerc);
-    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap, _voc, false, false);
+    _localMapping = new ORB_SLAM2::LocalMapping(_globalMap.get(), 1, _voc, cullRedundantPerc);
+    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap.get(), _voc, false, false);
 
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
@@ -275,7 +275,7 @@ void WAISlam::updatePose(WAIFrame& frame)
 #else
             if (initialize(_iniData, frame, _voc, _localMap, 100, _lastKeyFrameFrameId))
             {
-                if (genInitialMap(_globalMap, _localMapping, _loopClosing, _localMap, _serial))
+                if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap, _serial))
                 {
                     _lastKeyFrameFrameId = frame.mnId;
                     _lastRelocFrameId    = 0;
@@ -288,16 +288,16 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingOK: {
             int inliers;
-            if (tracking(_globalMap, _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
+            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
             {
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 lock.unlock();
 
                 if (_serial)
-                    serialMapping(_globalMap, _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                    serialMapping(_globalMap.get(), _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                 else
-                    mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                    mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
 
                 _infoMatchedInliners = inliers;
             }
@@ -309,7 +309,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap, _localMap, inliers))
+            if (relocalization(frame, _globalMap.get(), _localMap, inliers))
             {
                 _lastRelocFrameId = frame.mnId;
 
@@ -318,9 +318,9 @@ void WAISlam::updatePose(WAIFrame& frame)
                 lock.unlock();
 
                 if (_serial)
-                    serialMapping(_globalMap, _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                    serialMapping(_globalMap.get(), _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                 else
-                    mapping(_globalMap, _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                    mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
 
                 _infoMatchedInliners = inliers;
                 _state               = WAI::TrackingState_TrackingOK;
@@ -389,7 +389,6 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
     }
 }
 
-
 std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
 {
     std::vector<WAIMapPoint*> result;
@@ -406,7 +405,7 @@ std::vector<WAIMapPoint*> WAISlam::getMatchedMapPoints(WAIFrame* frame)
     return result;
 }
 
-int WAISlam::getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> &matching)
+int WAISlam::getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching)
 {
     for (int i = 0; i < frame->N; i++)
     {
@@ -415,7 +414,7 @@ int WAISlam::getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv
         {
             if (!mp->isBad() && mp->Observations() > 0 && mp->isFixed())
             {
-                WAI::V3   v = mp->worldPosVec();
+                WAI::V3 v = mp->worldPosVec();
                 matching.first.push_back(frame->mvKeysUn[i].pt);
                 matching.second.push_back(cv::Point3f(v.x, v.y, v.z));
             }
@@ -464,11 +463,11 @@ bool WAISlam::retainImage()
     return false;
 }
 
-void WAISlam::setMap(WAIMap* globalMap)
+void WAISlam::setMap(std::unique_ptr<WAIMap> globalMap)
 {
     requestStateIdle();
     reset();
-    _globalMap   = globalMap;
+    _globalMap   = std::move(globalMap);
     _initialized = true;
     resume();
 }

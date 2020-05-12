@@ -54,27 +54,27 @@ void ErlebARApp::init(int            scrWidth,
 {
     //store camera so we can stop on terminate
     _camera = camera;
-    addEvent(new InitEvent(scrWidth, scrHeight, dpi, dirs));
+    addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dirs));
 }
 
 void ErlebARApp::goBack()
 {
-    addEvent(new GoBackEvent());
+    addEvent(new GoBackEvent("ErlebARApp::goBack()"));
 }
 
 void ErlebARApp::destroy()
 {
-    addEvent(new DestroyEvent());
+    addEvent(new DestroyEvent("ErlebARApp::destroy()"));
 }
 
 void ErlebARApp::hold()
 {
-    addEvent(new HoldEvent());
+    addEvent(new HoldEvent("ErlebARApp::hold()"));
 }
 
 void ErlebARApp::resume()
 {
-    addEvent(new ResumeEvent());
+    addEvent(new ResumeEvent("ErlebARApp::resume()"));
 }
 
 std::string ErlebARApp::getPrintableState(unsigned int state)
@@ -155,22 +155,19 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";
 
-    _resources = new ErlebAR::Resources(dd.dirs().writableDir,
-                                        dd.textureDir());
+    _resources = new ErlebAR::Resources(dd.scrWidth(),
+                                        dd.scrHeight(),
+                                        dd.dirs().writableDir,
+                                        dd.textureDir(),
+                                        dd.fontDir(),
+                                        data->deviceData.dirs().slDataRoot);
 
-    _welcomeView = new WelcomeView(_inputManager,
-                                   *_resources,
-                                   dd.scrWidth(),
-                                   dd.scrHeight(),
-                                   dd.dpi(),
-                                   dd.fontDir(),
-                                   dd.textureDir(),
-                                   dd.dirs().writableDir,
-                                   "0.12");
+    _imGuiEngine = new ImGuiEngine(dd.dirs().writableDir, _resources->fonts().atlas());
 
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
+                                       *_imGuiEngine,
                                        *_resources,
                                        dd.scrWidth(),
                                        dd.scrHeight(),
@@ -179,8 +176,21 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                        dd.textureDir(),
                                        dd.dirs().writableDir);
 
+    _welcomeView = new WelcomeView(_inputManager,
+                                   *_resources,
+                                   *_imGuiEngine,
+                                   dd.scrWidth(),
+                                   dd.scrHeight(),
+                                   dd.dpi(),
+                                   dd.fontDir(),
+                                   dd.textureDir(),
+                                   dd.dirs().writableDir,
+                                   "0.12");
+
     _testView = new TestView(*this,
                              _inputManager,
+                             *_imGuiEngine,
+                             *_resources,
                              _camera,
                              dd.scrWidth(),
                              dd.scrHeight(),
@@ -199,24 +209,25 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _aboutView = new AboutView(*this,
                                _inputManager,
+                               *_imGuiEngine,
                                *_resources,
                                dd.scrWidth(),
                                dd.scrHeight(),
                                dd.dpi(),
-                               dd.fontDir(),
                                dd.dirs().writableDir);
 
     _settingsView = new SettingsView(*this,
                                      _inputManager,
+                                     *_imGuiEngine,
                                      *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
                                      dd.dpi(),
-                                     dd.fontDir(),
                                      dd.dirs().writableDir);
 
     _tutorialView = new TutorialView(*this,
                                      _inputManager,
+                                     *_imGuiEngine,
                                      *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
@@ -227,45 +238,45 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _locationMapView = new LocationMapView(*this,
                                            _inputManager,
+                                           *_imGuiEngine,
                                            *_resources,
                                            dd.scrWidth(),
                                            dd.scrHeight(),
                                            dd.dpi(),
-                                           dd.fontDir(),
                                            dd.dirs().writableDir,
                                            dd.erlebARDir());
 
     _areaInfoView = new AreaInfoView(*this,
                                      _inputManager,
+                                     *_imGuiEngine,
                                      *_resources,
                                      dd.scrWidth(),
                                      dd.scrHeight(),
                                      dd.dpi(),
-                                     dd.fontDir(),
                                      dd.dirs().writableDir);
 
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
+                                             *_imGuiEngine,
                                              *_resources,
                                              _camera,
                                              dd.scrWidth(),
                                              dd.scrHeight(),
                                              dd.dpi(),
-                                             dd.fontDir(),
                                              dd.dirs().writableDir,
                                              dd.dirs().vocabularyDir);
 
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,
+                                         *_imGuiEngine,
                                          *_resources,
                                          _camera,
                                          dd.scrWidth(),
                                          dd.scrHeight(),
                                          dd.dpi(),
-                                         dd.fontDir(),
                                          dd.dirs().writableDir);
 
-    addEvent(new DoneEvent());
+    addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
 
 void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
@@ -282,7 +293,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
     _welcomeView->update();
 
     if (timer.elapsedTimeInSec() > 2.f)
-        addEvent(new DoneEvent());
+        addEvent(new DoneEvent("ErlebARApp::WELCOME"));
 }
 
 void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
@@ -353,6 +364,13 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
             _camera->stop();
         }
     }
+
+    if (_imGuiEngine)
+    {
+        delete _imGuiEngine;
+        _imGuiEngine = nullptr;
+    }
+
     if (_resources)
     {
         delete _resources;
@@ -373,7 +391,7 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
         _closeCB();
     }
 
-    addEvent(new DoneEvent());
+    addEvent(new DoneEvent("ErlebARApp::DESTROY"));
 }
 
 void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
@@ -397,13 +415,14 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
         config.targetHeight  = 360;
         config.convertToGray = true;
 
+        _camera->stop();
         _camera->start(config);
     }
 
     if (_camera->permissionGranted() && _camera->started())
     {
         _testView->start();
-        addEvent(new DoneEvent());
+        addEvent(new DoneEvent("ErlebARApp::START_TEST"));
     }
 
     assert(_startUpView != nullptr);
@@ -413,7 +432,10 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
 void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _camera->stop();
         return;
+    }
 
     if (stateEntry)
     {
@@ -437,13 +459,15 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry,
 
     //start camera
     SENSCameraConfig config;
-    config.targetWidth   = 640;
-    config.targetHeight  = 360;
-    config.convertToGray = true;
+    config.targetWidth          = 640;
+    config.targetHeight         = 360;
+    config.convertToGray        = true;
+    config.adjustAsynchronously = true;
 
+    _camera->stop();
     _camera->start(config);
 
-    addEvent(new DoneEvent());
+    addEvent(new DoneEvent("ErlebARApp::RESUME_TEST"));
 }
 
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)
@@ -488,20 +512,6 @@ void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry,
 {
     if (stateExit)
         return;
-
-    //if (stateEntry)
-    //{
-    //    //It is a convention for this state, that if there is no data sent,
-    //    //we assume that the previous state was HOLD_TRACKING.
-    //    if (data)
-    //    {
-    //        //_areaTrackingView->initArea(data->locId, data->areaId);
-    //    }
-    //    else
-    //    {
-    //        _areaTrackingView->resume();
-    //    }
-    //}
 
     _areaTrackingView->update();
 }

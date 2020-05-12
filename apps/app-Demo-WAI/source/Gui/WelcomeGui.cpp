@@ -5,31 +5,18 @@
 
 using namespace ErlebAR;
 
-WelcomeGui::WelcomeGui(ErlebAR::Resources& resources,
+WelcomeGui::WelcomeGui(const ImGuiEngine&  imGuiEngine,
+                       ErlebAR::Resources& resources,
                        int                 dotsPerInch,
                        int                 screenWidthPix,
                        int                 screenHeightPix,
                        std::string         fontPath,
                        std::string         texturePath,
                        std::string         version)
-  : _versionStr(version),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    _versionStr(version),
     _resources(resources)
 {
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _bigTextHPix    = 0.3f * (float)screenHeightPix;
-        _smallFontShift = (float)_bigTextHPix / 135.f * 7.f;
-        _fontBig        = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _bigTextHPix);
-
-        _smallTextHPix = 0.05f * (float)screenHeightPix;
-        _fontSmall     = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), _smallTextHPix);
-    }
-    else
-        Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
-
     //load bfh logo texture
     std::string logoBFHPath = texturePath + "logo_bfh.png";
     if (Utils::fileExists(logoBFHPath))
@@ -150,18 +137,18 @@ void WelcomeGui::build(SLScene* s, SLSceneView* sv)
 
     //big text
     {
-        ImGui::PushFont(_fontBig);
+        ImGui::PushFont(_resources.fonts().big);
         ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix, _textFrameTPix), ImGuiCond_Always);
-        ImGui::BeginChild("ChildBigText", ImVec2(0, _bigTextHPix), false, windowFlags);
+        ImGui::BeginChild("ChildBigText", ImVec2(0, 0), false, windowFlags);
         ImGui::Text("ErlebAR");
         ImGui::EndChild();
         ImGui::PopFont();
     }
     //small text
     {
-        ImGui::PushFont(_fontSmall);
-        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix + _smallFontShift, _textFrameTPix + _bigTextHPix), ImGuiCond_Always);
-        ImGui::BeginChild("ChildSmallText", ImVec2(0, _smallTextHPix), false, windowFlags);
+        ImGui::PushFont(_resources.fonts().tiny);
+        ImGui::SetNextWindowPos(ImVec2(_textFrameLRPix, _textFrameTPix + _resources.fonts().big->FontSize * _resources.fonts().big->Scale), ImGuiCond_Always);
+        ImGui::BeginChild("ChildSmallText", ImVec2(0, 0), false, windowFlags);
         ImGui::Text(_versionStr.c_str());
         ImGui::EndChild();
         ImGui::PopFont();

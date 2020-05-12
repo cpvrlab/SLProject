@@ -11,20 +11,24 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler& eventHandler,
-                   SLInputManager&   inputManager,
-                   SENSCamera*       camera,
-                   int               screenWidth,
-                   int               screenHeight,
-                   int               dotsPerInch,
-                   std::string       fontPath,
-                   std::string       configDir,
-                   std::string       vocabularyDir,
-                   std::string       calibDir,
-                   std::string       videoDir)
+TestView::TestView(sm::EventHandler&   eventHandler,
+                   SLInputManager&     inputManager,
+                   const ImGuiEngine&  imGuiEngine,
+                   ErlebAR::Resources& resources,
+                   SENSCamera*         camera,
+                   int                 screenWidth,
+                   int                 screenHeight,
+                   int                 dotsPerInch,
+                   std::string         fontPath,
+                   std::string         configDir,
+                   std::string         vocabularyDir,
+                   std::string         calibDir,
+                   std::string         videoDir)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
     _gui(
+      imGuiEngine,
       eventHandler,
+      resources,
       "TestScene",
       dotsPerInch,
       screenWidth,
@@ -65,11 +69,6 @@ TestView::~TestView()
         _mode = nullptr;
         _currentSlamParams.save(_configDir + "SlamParams.json");
     }
-
-    if (_startThread.joinable())
-    {
-        _startThread.join();
-    }
 }
 
 void TestView::start()
@@ -77,26 +76,7 @@ void TestView::start()
     //if (_ready)
     //    return;
 
-    //_startThread = std::thread(&TestView::startAsync, this);
     tryLoadLastSlam();
-}
-
-void TestView::startAsync()
-{
-    //_camera->init(SENSCameraFacing::BACK);
-    ////start continious captureing request with certain configuration
-    //SENSCameraConfig camConfig;
-    //camConfig.targetWidth          = 640;
-    //camConfig.targetHeight         = 360;
-    //camConfig.focusMode            = SENSCamera::SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
-    //camConfig.convertToGray        = true;
-    //camConfig.adjustAsynchronously = true;
-    //_camera->start(camConfig);
-
-    //start thread that starts camera and tries to load slam
-    tryLoadLastSlam();
-
-    //_ready = true;
 }
 
 bool TestView::update()
@@ -284,14 +264,14 @@ void TestView::handleEvents()
     }
 }
 
-void TestView::postStart()
-{
-    doWaitOnIdle(false);
-    camera(_scene.cameraNode);
-    onInitialize();
-    if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
-}
+//void TestView::postStart()
+//{
+//    doWaitOnIdle(false);
+//    camera(_scene.cameraNode);
+//    onInitialize();
+//    if (_camera)
+//        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
+//}
 
 void TestView::loadWAISceneView(std::string location, std::string area)
 {
@@ -568,14 +548,14 @@ void TestView::startOrbSlam(SlamParams slamParams)
         return;
     }
     std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
-    WAIMap* map = nullptr;
+    std::unique_ptr<WAIMap> map;
 
     // 5. Load map data
     if (useMapFile)
     {
         WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
-        map                    = new WAIMap(kfdb);
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+        map                    = std::make_unique<WAIMap>(kfdb);
+        bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                         _scene.mapNode,
                                                         _voc,
                                                         slamParams.mapFile,
@@ -597,7 +577,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
                         _voc,
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
-                        map,
+                        std::move(map),
                         slamParams.params.onlyTracking,
                         slamParams.params.serial,
                         slamParams.params.retainImg,

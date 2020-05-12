@@ -20,14 +20,16 @@ class AreaTrackingView : public SLSceneView
 public:
     AreaTrackingView(sm::EventHandler&   eventHandler,
                      SLInputManager&     inputManager,
+                     const ImGuiEngine&  imGuiEngine,
                      ErlebAR::Resources& resources,
                      SENSCamera*         camera,
                      int                 screenWidth,
                      int                 screenHeight,
                      int                 dotsPerInch,
-                     std::string         fontPath,
                      std::string         imguiIniPath,
                      std::string         vocabularyDir);
+    ~AreaTrackingView();
+
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }
@@ -54,11 +56,10 @@ private:
     ImageBuffer                  _imgBuffer;
     WAIOrbVocabulary*            _voc;
 
-    std::unique_ptr<WAISlam>         _waiSlam;
-    std::unique_ptr<WAIKeyFrameDB>   _keyframeDataBase;
-    std::unique_ptr<WAIMap>          _waiMap;
-    std::unique_ptr<SENSCalibration> _calibration;
+    //wai slam depends on _orbVocabulary and has to be uninitializd first
+    std::unique_ptr<WAISlam> _waiSlam;
 
+    std::unique_ptr<SENSCalibration> _calibration;
 
     //parameter:
     cv::Size      _cameraFrameTargetSize       = {640, 480};

@@ -96,6 +96,12 @@ void SENSNdkCamera::openCamera()
     //init camera manager
     if (!_cameraManager)
     {
+        //init availability
+        for (const SENSCameraCharacteristics& c : _allCharacteristics)
+        {
+            _cameraAvailability[c.cameraId] = false;
+        }
+
         LOG_NDKCAM_DEBUG("openCamera: Creating camera manager ...");
         _cameraManager = ACameraManager_create();
         if (!_cameraManager)
@@ -308,6 +314,7 @@ void SENSNdkCamera::start(const SENSCameraConfig config)
                 if (_config.deviceId == c.cameraId)
                 {
                     _characteristics = c;
+                    break;
                 }
             }
         }
@@ -374,7 +381,9 @@ void SENSNdkCamera::createCaptureSession()
     }
     //throw SENSException(SENSType::CAM, "Could not create capture session!", __LINE__, __FILE__);
 
-    //adjust capture request properties
+    //adjust capture request properties:
+
+    //auto focus mode
     if (_config.focusMode == SENSCameraFocusMode::FIXED_INFINITY_FOCUS)
     {
         uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
@@ -388,6 +397,21 @@ void SENSNdkCamera::createCaptureSession()
         ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_AF_MODE, 1, &afMode);
     }
 
+    //digital video stabilization (software) -> turn off by default (for now)
+    {
+        uint8_t mode = ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE_OFF;
+        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE, 1,
+                                    &mode);
+    }
+    //optical video stabilization (hardware)
+    /*
+    {
+        uint8_t mode = ACAMERA_LENS_OPTICAL_STABILIZATION_MODE_OFF;
+        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_LENS_OPTICAL_STABILIZATION_MODE, 1,
+                                    &mode);
+
+    }
+    */
     //install repeating request
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
 }
@@ -868,7 +892,7 @@ std::vector<SENSCameraCharacteristics> SENSNdkCamera::getAllCameraCharacteristic
                 {
                     for (int i = 0; i < lensInfo.count; ++i)
                     {
-                        characteristics.focalLenghts.push_back(lensInfo.data.f[i]);
+                        characteristics.focalLenghtsMM.push_back(lensInfo.data.f[i]);
                     }
                 }
             }

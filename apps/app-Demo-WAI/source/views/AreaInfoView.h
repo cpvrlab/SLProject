@@ -12,11 +12,11 @@ class AreaInfoView : public SLSceneView
 public:
     AreaInfoView(sm::EventHandler&   eventHandler,
                  SLInputManager&     inputManager,
+                 const ImGuiEngine&  imGuiEngine,
                  ErlebAR::Resources& resources,
                  int                 screenWidth,
                  int                 screenHeight,
                  int                 dotsPerInch,
-                 std::string         fontPath,
                  std::string         imguiIniPath);
     bool update();
     //call when view becomes visible

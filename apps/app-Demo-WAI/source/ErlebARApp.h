@@ -22,6 +22,7 @@ class LocationMapView;
 class AreaInfoView;
 class AreaTrackingView;
 class CameraTestView;
+class ImGuiEngine;
 
 class ErlebARApp : public sm::StateMachine
   , public SLInputEventInterface
@@ -86,7 +87,8 @@ private:
     SENSCamera*      _camera;
     CloseAppCallback _closeCB = nullptr;
 
-    ErlebAR::Resources* _resources = nullptr;
+    ErlebAR::Resources* _resources   = nullptr;
+    ImGuiEngine*        _imGuiEngine = nullptr;
 };
 
 #endif

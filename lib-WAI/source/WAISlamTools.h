@@ -150,11 +150,12 @@ protected:
     cv::Mat           _cameraExtrinsic;
     InitializerData   _iniData;
     WAIFrame          _lastFrame;
-    LocalMap          _localMap;
-    WAIMap*           _globalMap;
-    WAIOrbVocabulary* _voc;
-    cv::Mat           _velocity;
-    bool              _initialized;
+
+    std::unique_ptr<WAIMap> _globalMap;
+    LocalMap                _localMap;
+    WAIOrbVocabulary*       _voc;
+    cv::Mat                 _velocity;
+    bool                    _initialized;
 
     LocalMapping*             _localMapping;
     LoopClosing*              _loopClosing;

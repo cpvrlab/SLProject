@@ -66,7 +66,7 @@ struct SENSCameraCharacteristics
     SENSCameraStreamConfigs streamConfig;
     //flags if following properties are valid (they are not available for every device)
     bool               provided = false;
-    std::vector<float> focalLenghts;
+    std::vector<float> focalLenghtsMM;
     cv::Size2f         physicalSensorSizeMM;
     SENSCameraFacing   facing = SENSCameraFacing::UNKNOWN;
 };
@@ -105,7 +105,7 @@ struct SENSCameraConfig
 class SENSCamera
 {
 public:
-    virtual ~SENSCamera() { ; }
+    virtual ~SENSCamera() {}
     virtual void                                   start(SENSCameraConfig config)               = 0;
     virtual void                                   start(std::string id, int width, int height) = 0;
     virtual void                                   stop()                                       = 0;
