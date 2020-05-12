@@ -30,19 +30,18 @@ SLPathtracer::SLPathtracer()
     _calcIndirect = true;
     gamma(2.2f);
 }
-
 //-----------------------------------------------------------------------------
 /*!
 Main render function. The Path Tracing algorithm starts from here
 */
-SLbool
-SLPathtracer::render(SLSceneView* sv)
+SLbool SLPathtracer::render(SLSceneView* sv)
 {
     _sv         = sv;
     _state      = rtBusy; // From here we state the PT as busy
     _renderSec  = 0.0f;   // reset time
-    _pcRendered = 0;      // % rendered
+    _progressPC = 0;      // % rendered
 
+    initStats(0); // init statistics
     prepareImage();
 
     // Set second image for render update to the same size
@@ -51,37 +50,40 @@ SLPathtracer::render(SLSceneView* sv)
         delete _images[_images.size() - 1];
         _images.pop_back();
     }
-    _images.push_back(new CVImage(_sv->viewportW(), _sv->viewportH(), PF_rgb, "Pathtracer"));
-
+    _images.push_back(new CVImage(_sv->viewportW(),
+                                  _sv->viewportH(),
+                                  PF_rgb,
+                                  "Pathtracer"));
     // Measure time
     double t1 = GlobalTimer::timeS();
 
     // Bind the renderSlices method to a function object
-    auto renderSlicesFunction = bind(&SLPathtracer::renderSlices, this, _1, _2, _3, _4);
+    auto renderSlicesFunction = bind(&SLPathtracer::renderSlices, this, _1, _2);
 
     // Do multi-threading only in release config
     SL_LOG("\n\nRendering with %d samples", _aaSamples);
     SL_LOG("\nCurrent Sample:       ");
     for (int currentSample = 1; currentSample <= _aaSamples; currentSample++)
     {
-        SL_LOG("\b\b\b\b\b\b%6d", currentSample);
         vector<thread> threads; // vector for additional threads
         _next = 0;              // init _next=0. _next should be atomic
 
         // Start additional threads on the renderSlices function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.emplace_back(renderSlicesFunction, false, currentSample, sv->s().root3D(), sv->s().lights());
+            threads.emplace_back(renderSlicesFunction, false, currentSample);
 
         // Do the same work in the main thread
-        renderSlicesFunction(true, currentSample, sv->s().root3D(), sv->s().lights());
+        renderSlicesFunction(true, currentSample);
 
         for (auto& thread : threads)
             thread.join();
 
-        _pcRendered = (SLint)((SLfloat)currentSample / (SLfloat)_aaSamples * 100.0f);
+        _progressPC = (SLint)((SLfloat)currentSample / (SLfloat)_aaSamples * 100.0f);
     }
 
     _renderSec = GlobalTimer::timeS() - (SLfloat)t1;
+    _raysPerMS.set((float)SLRay::totalNumRays() / _renderSec / 1000.0f);
+    _progressPC = 100;
 
     SL_LOG("\nTime to render image: %6.3fsec", _renderSec);
 
@@ -92,7 +94,7 @@ SLPathtracer::render(SLSceneView* sv)
 /*!
 Renders a slice of 4px width.
 */
-void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample, SLNode* root, const SLVLight& lights)
+void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
 {
     // Time points
     double t1 = 0;
@@ -117,7 +119,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample, SL
                               &primaryRay);
 
                 ///////////////////////////////////
-                color += trace(&primaryRay, false, root, lights);
+                color += trace(&primaryRay, false);
                 ///////////////////////////////////
 
                 // weight old and new color for continuous rendering
@@ -127,26 +129,36 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample, SL
                     CVVec4f c4f = _images[1]->getPixeli(x, (SLint)y);
                     oldColor.set(c4f[0], c4f[1], c4f[2], c4f[3]);
 
-                    // weight old color ( examp. 3/4, 4/5, 5/6 )
+                    // weight old color (examp. 3/4, 4/5, 5/6)
                     oldColor /= (SLfloat)currentSample;
                     oldColor *= (SLfloat)(currentSample - 1);
 
-                    // weight new color ( examp. 1/4, 1/5, 1/6 )
+                    // weight new color (examp. 1/4, 1/5, 1/6)
                     color /= (SLfloat)currentSample;
 
-                    // bring them together ( examp. 4/4, 5/5, 6/6)
+                    // bring them together (examp. 4/4, 5/5, 6/6)
                     color += oldColor;
                 }
 
                 color.clampMinMax(0.0f, 1.0f);
 
                 // save image without gamma
-                _images[1]->setPixeliRGB(x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
+                _images[1]->setPixeliRGB(x,
+                                         (SLint)y,
+                                         CVVec4f(color.r,
+                                                 color.g,
+                                                 color.b,
+                                                 color.a));
 
                 color.gammaCorrect(_oneOverGamma);
 
                 // image to render
-                _images[0]->setPixeliRGB(x, (SLint)y, CVVec4f(color.r, color.g, color.b, color.a));
+                _images[0]->setPixeliRGB(x,
+                                         (SLint)y,
+                                         CVVec4f(color.r,
+                                                 color.g,
+                                                 color.b,
+                                                 color.a));
             }
 
             // update image after 500 ms
@@ -166,7 +178,7 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample, SL
 /*!
 Recursively traces ray in scene.
 */
-SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight& lights)
+SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
 {
     SLCol4f finalColor(ray->backgroundColor);
 
@@ -174,7 +186,9 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
     SLfloat absorbtion = 1.0f; // used to calculate absorbtion along the ray
     SLfloat scaleBy    = 1.0f; // used to scale surface reflectance at the end of random walk
 
-    root->hitRec(ray);
+    // Intersect scene
+    SLNode* root = _sv->s().root3D();
+    if (root) root->hitRec(ray);
 
     // end of recursion - no object hit OR max depth reached
     if (ray->length >= FLT_MAX || ray->depth > maxDepth())
@@ -219,7 +233,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
         }
 
         if (_calcDirect)
-            finalColor += shade(ray, root, &objectColor, lights) * scaleBy;
+            finalColor += shade(ray, &objectColor) * scaleBy;
 
         if (_calcIndirect)
         {
@@ -227,7 +241,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
             ray->diffuseMC(&scatter);
 
             // material emission, material diffuse and recursive indirect illumination
-            finalColor += (trace(&scatter, false, root, lights) & objectColor) * scaleBy;
+            finalColor += (trace(&scatter, false) & objectColor) * scaleBy;
         }
     }
     else if (ray->hitMatIsReflective())
@@ -248,7 +262,9 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
         }
 
         // shininess contribution * recursive indirect illumination and matrial base color
-        finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) * (trace(&reflected, true, root, lights) & objectColor)) * scaleBy;
+        finalColor += ((mat->shininess() + 2.0f) / (mat->shininess() + 1.0f) *
+                       (trace(&reflected, true) & objectColor)) *
+                      scaleBy;
     }
     else if (ray->hitMatIsTransparent())
     {
@@ -256,7 +272,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
         SLRay refracted;
         ray->refract(&refracted);
 
-        // init Schlick's approx.
+        // init Schlick's approximation
         SLVec3f rayDir = ray->dir;
         rayDir.normalize();
         SLVec3f refrDir = refracted.dir;
@@ -307,7 +323,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
             // scatter toward transmissive direction
             finalColor += ((mat->translucency() + 2.0f) /
                            (mat->translucency() + 1.0f) *
-                           (trace(&refracted, true, root, lights) & objectColor) *
+                           (trace(&refracted, true) & objectColor) *
                            refractionProbability) *
                           scaleBy;
         else
@@ -316,10 +332,10 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
             SLRay scattered;
             ray->reflect(&scattered);
 
-            // shininess contribution * recursive indirect illumination and matrial basecolor
+            // shininess contribution * recursive indirect illumination and material basecolor
             finalColor += ((mat->shininess() + 2.0f) /
                            (mat->shininess() + 1.0f) *
-                           (trace(&scattered, true, root, lights) & objectColor) *
+                           (trace(&scattered, true) & objectColor) *
                            reflectionProbability) *
                           scaleBy;
         }
@@ -331,7 +347,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em, SLNode* root, const SLVLight&
 /*!
 Calculates direct illumination for intersection point of ray
 */
-SLCol4f SLPathtracer::shade(SLRay* ray, SLNode* root, SLCol4f* objectColor, const SLVLight& lights)
+SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* mat)
 {
     SLCol4f color        = SLCol4f::BLACK;
     SLCol4f diffuseColor = SLCol4f::BLACK;
@@ -339,7 +355,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLNode* root, SLCol4f* objectColor, cons
     SLfloat lightDist, LdN, df, spotEffect, lighted;
 
     // loop over light sources in scene
-    for (auto light : lights)
+    for (auto* light : _sv->s().lights())
     {
         if (light && light->isOn())
         {
@@ -350,7 +366,11 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLNode* root, SLCol4f* objectColor, cons
             LdN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray, L, lightDist, root) : 0);
+            lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray,
+                                                                L,
+                                                                lightDist,
+                                                                _sv->s().root3D())
+                                          : 0);
 
             // calculate spot effect if light is a spotlight
             if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
@@ -376,7 +396,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLNode* root, SLCol4f* objectColor, cons
                 df = std::max(LdN, 0.0f); // diffuse factor
 
                 // material color * light emission * LdN * brdf(1/pi) * lighted(for soft shadows)
-                diffuseColor = (*objectColor & (light->diffuse() * df) * Utils::ONEOVERPI * lighted);
+                diffuseColor = (*mat & (light->diffuse() * df) * Utils::ONEOVERPI * lighted);
             }
 
             color += light->attenuation(lightDist) * spotEffect * diffuseColor;

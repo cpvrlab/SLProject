@@ -8,6 +8,7 @@
 #include <WAISlam.h>
 #include <WAIMapStorage.h>
 #include <FeatureExtractorFactory.h>
+#include <fbow.h>
 
 #define WAI_DEBUG(...) Utils::log("[DEBUG]", __VA_ARGS__)
 #define WAI_INFO(...) Utils::log("[INFO ]", __VA_ARGS__)
@@ -74,9 +75,11 @@ private:
     MapCreator() {}
     std::map<Location, Areas> _erlebAR;
     std::string               _erlebARDir;
-    std::string               _vocFile;
     std::string               _calibrationsDir;
     std::string               _outputDir;
+    fbow::Vocabulary          _voc;
+
+
 
     WAIMapPoint* _mpUL;
     WAIMapPoint* _mpUR;

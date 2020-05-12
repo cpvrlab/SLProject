@@ -58,7 +58,7 @@ public:
 
     float GetScaleFactor()
     {
-        return scaleFactor;
+        return (float)scaleFactor;
     }
 
     std::vector<float> GetScaleFactors()

@@ -22,6 +22,8 @@ class TutorialView;
 class LocationMapView;
 class AreaInfoView;
 class AreaTrackingView;
+class CameraTestView;
+class ImGuiEngine;
 
 class ErlebARApp : public sm::StateMachine
   , public SLInputEventInterface
@@ -48,27 +50,27 @@ public:
 private:
     std::string getPrintableState(unsigned int state) override;
 
-    void IDLE(const sm::NoEventData* data, const bool stateEntry);
-    void INIT(const InitEventData* data, const bool stateEntry);
-    void WELCOME(const sm::NoEventData* data, const bool stateEntry);
-    void DESTROY(const sm::NoEventData* data, const bool stateEntry);
-    void SELECTION(const sm::NoEventData* data, const bool stateEntry);
+    void IDLE(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void INIT(const InitEventData* data, const bool stateEntry, const bool stateExit);
+    void WELCOME(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void DESTROY(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void SELECTION(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
-    void START_TEST(const sm::NoEventData* data, const bool stateEntry);
-    void TEST(const sm::NoEventData* data, const bool stateEntry);
+    void START_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry);
-    void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry);
-    void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry);
+    void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
-    void LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry);
-    void AREA_INFO(const AreaEventData* data, const bool stateEntry);
-    void AREA_TRACKING(const AreaEventData* data, const bool stateEntry);
-    void HOLD_TRACKING(const sm::NoEventData* data, const bool stateEntry);
+    void LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit);
+    void AREA_INFO(const AreaEventData* data, const bool stateEntry, const bool stateExit);
+    void AREA_TRACKING(const AreaEventData* data, const bool stateEntry, const bool stateExit);
+    void HOLD_TRACKING(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
-    void TUTORIAL(const sm::NoEventData* data, const bool stateEntry);
-    void ABOUT(const sm::NoEventData* data, const bool stateEntry);
-    void SETTINGS(const sm::NoEventData* data, const bool stateEntry);
-    void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry);
+    void TUTORIAL(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void ABOUT(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
     SLInputManager _inputManager;
 
@@ -83,11 +85,13 @@ private:
     LocationMapView*  _locationMapView  = nullptr;
     AreaInfoView*     _areaInfoView     = nullptr;
     AreaTrackingView* _areaTrackingView = nullptr;
+    CameraTestView*   _cameraTestView   = nullptr;
 
-    SENSCamera*      _camera  = nullptr;
+    SENSCamera*      _camera;
     CloseAppCallback _closeCB = nullptr;
 
-    ErlebAR::Resources* _resources = nullptr;
+    ErlebAR::Resources* _resources   = nullptr;
+    ImGuiEngine*        _imGuiEngine = nullptr;
 };
 
 #endif

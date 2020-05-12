@@ -17,7 +17,8 @@ class SelectionGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    SelectionGui(sm::EventHandler&   eventHandler,
+    SelectionGui(const ImGuiEngine&  imGuiEngine,
+                 sm::EventHandler&   eventHandler,
                  ErlebAR::Resources& resources,
                  int                 dotsPerInch,
                  int                 screenWidthPix,
@@ -40,8 +41,8 @@ private:
     float _framePadding  = 0.f;
     float _buttonSpace   = 0.f; //space between buttons
 
-    ImVec2  _buttonSz;
-    ImFont* _font = nullptr;
+    ImVec2 _buttonSz;
+    //ImFont* _font = nullptr;
 
     GLuint _textureBackgroundId = 0;
     //unsigned int _textureBackgroundW;

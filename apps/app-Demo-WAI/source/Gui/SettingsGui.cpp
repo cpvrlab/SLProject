@@ -5,33 +5,20 @@
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 
-SettingsGui::SettingsGui(sm::EventHandler&   eventHandler,
+SettingsGui::SettingsGui(const ImGuiEngine&  imGuiEngine,
+                         sm::EventHandler&   eventHandler,
                          ErlebAR::Resources& resources,
                          int                 dotsPerInch,
                          int                 screenWidthPix,
-                         int                 screenHeightPix,
-                         std::string         fontPath)
-  : sm::EventSender(eventHandler),
+                         int                 screenHeightPix)
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH      = _resources.style().headerBarTextH * (float)_headerBarH;
-    float headingTextH  = _resources.style().textHeadingH * (float)screenHeightPix;
-    float standardTextH = _resources.style().textStandardH * (float)screenHeightPix;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig      = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-        _fontSmall    = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), headingTextH);
-        _fontStandard = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), standardTextH);
-    }
-    else
-        Utils::warnMsg("WelcomeGui", "font does not exist!", __LINE__, __FILE__);
 
     //init language settings combo
-    if (_resources.strings().id() == _resources.stringsItalien.id())
+    if (_resources.strings().id() == _resources.stringsItalian.id())
         _currLanguage = 3;
     else if (_resources.strings().id() == _resources.stringsGerman.id())
         _currLanguage = 1;
@@ -78,13 +65,13 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonColor,
                              _resources.style().headerBarBackButtonPressedColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _resources.strings().settings(),
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("SettingsGui")); });
 
     //render hidden button in right corner directly under header bar. It has the size of the header bar height.
     {
@@ -149,13 +136,13 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Begin("Settings_content", nullptr, windowFlags);
         ImGui::BeginChild("Settings_content_child", ImVec2(0, 0), false, childWindowFlags);
         //language selection
-        ImGui::PushFont(_fontSmall);
+        ImGui::PushFont(_resources.fonts().heading);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
         ImGui::Text(_resources.strings().language());
         ImGui::PopStyleColor();
         ImGui::PopFont();
 
-        ImGui::PushFont(_fontStandard);
+        ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
         ImGui::PushItemWidth(_screenW * 0.3f);
@@ -179,20 +166,45 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         //developer mode
         if (_resources.developerMode)
         {
-            ImGui::PushFont(_fontSmall);
+            ImGui::PushFont(_resources.fonts().heading);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
             ImGui::Text(_resources.strings().develMode());
             ImGui::PopStyleColor();
             ImGui::PopFont();
 
-            ImGui::PushFont(_fontStandard);
+            ImGui::PushFont(_resources.fonts().standard);
             ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-            if (ImGui::Checkbox("Enabled", &_resources.developerMode))
+            if (ImGui::Checkbox("Enabled##DevelMode", &_resources.developerMode))
             {
                 if (!_resources.developerMode)
                 {
                     _hiddenNumClicks = 0;
+                }
+            }
+
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::Separator();
+
+            ImGui::PushFont(_resources.fonts().heading);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+            ImGui::Text("Show log window");
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+
+            ImGui::PushFont(_resources.fonts().standard);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+            if (ImGui::Checkbox("Enabled##LogWin", &_resources.logWinEnabled))
+            {
+                if (_resources.logWinEnabled)
+                {
+                    _resources.logWinInit();
+                }
+                else
+                {
+                    _resources.logWinUnInit();
                 }
             }
 
@@ -207,6 +219,9 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor(1);
         ImGui::PopStyleVar(7);
     }
+
+    //debug: draw log window
+    _resources.logWinDraw();
 }
 
 void SettingsGui::onShow()

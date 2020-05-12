@@ -13,6 +13,7 @@ class WelcomeView : public SLSceneView
 public:
     WelcomeView(SLInputManager&     inputManager,
                 ErlebAR::Resources& resources,
+                const ImGuiEngine&  imGuiEngine,
                 int                 screenWidth,
                 int                 screenHeight,
                 int                 dotsPerInch,

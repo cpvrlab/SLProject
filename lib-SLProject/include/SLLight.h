@@ -13,6 +13,8 @@
 
 #include <SL.h>
 #include <SLVec4.h>
+#include "SLOptixDefinitions.h"
+#include "SLOptixHelper.h"
 
 class SLRay;
 class SLNode;
@@ -55,19 +57,39 @@ public:
     }
 
     // Getters
-    SLint   id() { return _id; }
-    SLbool  isOn() { return _isOn; }
+    SLint   id() const { return _id; }
+    SLbool  isOn() const { return _isOn; }
     SLCol4f ambient() { return _ambient; }
     SLCol4f diffuse() { return _diffuse; }
     SLCol4f specular() { return _specular; }
-    SLfloat spotCutOffDEG() { return _spotCutOffDEG; }
-    SLfloat spotCosCut() { return _spotCosCutOffRAD; }
-    SLfloat spotExponent() { return _spotExponent; }
-    SLfloat kc() { return _kc; }
-    SLfloat kl() { return _kl; }
-    SLfloat kq() { return _kq; }
-    SLbool  isAttenuated() { return _isAttenuated; }
-    SLfloat attenuation(SLfloat dist) { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+    SLfloat spotCutOffDEG() const { return _spotCutOffDEG; }
+    SLfloat spotCosCut() const { return _spotCosCutOffRAD; }
+    SLfloat spotExponent() const { return _spotExponent; }
+    SLfloat kc() const { return _kc; }
+    SLfloat kl() const { return _kl; }
+    SLfloat kq() const { return _kq; }
+    SLbool  isAttenuated() const { return _isAttenuated; }
+    SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+
+#ifdef SL_HAS_OPTIX
+    virtual Light optixLight(bool)
+    {
+        return {
+          make_float4(diffuse()),
+          make_float4(ambient()),
+          make_float4(specular()),
+          make_float3({positionWS().x, positionWS().y, positionWS().z}),
+          spotCutOffDEG(),
+          spotExponent(),
+          spotCosCut(),
+          make_float3(spotDirWS()),
+          kc(),
+          kl(),
+          kq(),
+          {1, 1},
+          0.0f};
+    }
+#endif
 
     // some virtuals needed for ray tracing
     virtual SLVec4f positionWS() const           = 0;
@@ -80,7 +102,6 @@ public:
                                  const SLVec3f& L,
                                  SLfloat        lightDist,
                                  SLNode*        root3D) = 0;
-
 protected:
     SLint   _id;               //!< OpenGL light number (0-7)
     SLbool  _isOn;             //!< Flag if light is on or off
@@ -97,6 +118,6 @@ protected:
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers
-typedef std::vector<SLLight*> SLVLight;
+typedef vector<SLLight*> SLVLight;
 //-----------------------------------------------------------------------------
 #endif

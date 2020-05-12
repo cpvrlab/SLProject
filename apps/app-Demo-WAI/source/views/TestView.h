@@ -1,7 +1,7 @@
 #ifndef TEST_VIEW_H
 #define TEST_VIEW_H
 
-#include <AppWAIScene.h>
+#include <scenes/AppWAIScene.h>
 #include <SLSceneView.h>
 #include <SLTransformNode.h>
 #include <AppDemoWaiGui.h>
@@ -11,6 +11,7 @@
 #include <CVCalibration.h>
 #include <queue>
 #include <ImageBuffer.h>
+#include <fbow.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -19,23 +20,25 @@ class SENSCamera;
 class TestView : protected SLSceneView
 {
 public:
-    TestView(sm::EventHandler& eventHandler,
-             SLInputManager&   inputManager,
-             SENSCamera*       camera,
-             int               screenWidth,
-             int               screenHeight,
-             int               dotsPerInch,
-             std::string       fontPath,
-             std::string       configDir,
-             std::string       vocabularyDir,
-             std::string       calibDir,
-             std::string       videoDir);
+    TestView(sm::EventHandler&   eventHandler,
+             SLInputManager&     inputManager,
+             const ImGuiEngine&  imGuiEngine,
+             ErlebAR::Resources& resources,
+             SENSCamera*         camera,
+             int                 screenWidth,
+             int                 screenHeight,
+             int                 dotsPerInch,
+             std::string         fontPath,
+             std::string         configDir,
+             std::string         vocabularyDir,
+             std::string         calibDir,
+             std::string         videoDir);
     ~TestView();
 
     bool update();
     //try to load slam params and start slam
     void start();
-    void postStart();
+    //void postStart();
     //call when view becomes visible
     void show() { _gui.onShow(); }
 
@@ -55,7 +58,6 @@ protected:
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
-    void startAsync();
 
     //video
     CVCalibration                    _calibration = {CVCameraType::FRONTFACING, ""};
@@ -66,6 +68,8 @@ protected:
     int                              _videoCursorMoveIndex = 0;
     bool                             _showUndistorted      = true;
     cv::Size2i                       _videoFrameSize;
+
+    std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
 
     //slam
     WAISlam*   _mode = nullptr;
@@ -80,7 +84,8 @@ protected:
     std::queue<WAIEvent*> _eventQueue;
 
     //scene
-    AppWAIScene _scene;
+    AppWAIScene      _scene;
+    fbow::Vocabulary _voc;
 
     SLAssetManager _assets;
 
@@ -89,7 +94,8 @@ protected:
     std::string _calibDir;
     std::string _videoDir;
 
-    std::thread _startThread;
+    std::thread _calibrationThread;
+    bool        _isCalibrated;
 
     SLTransformNode* _transformationNode = nullptr;
 

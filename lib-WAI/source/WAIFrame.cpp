@@ -57,7 +57,7 @@ WAIFrame::WAIFrame()
 //-----------------------------------------------------------------------------
 //Copy Constructor
 WAIFrame::WAIFrame(const WAIFrame& frame)
-  : mpORBvocabulary(frame.mpORBvocabulary),
+  : mVocabulary(frame.mVocabulary),
     mpORBextractorLeft(frame.mpORBextractorLeft),
     mTimeStamp(frame.mTimeStamp),
     mK(frame.mK.clone()),
@@ -91,9 +91,9 @@ WAIFrame::WAIFrame(const WAIFrame& frame)
         imgGray = frame.imgGray.clone();
 }
 //-----------------------------------------------------------------------------
-WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, ORBVocabulary* orbVocabulary, bool retainImg)
+WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, fbow::Vocabulary* vocabulary, bool retainImg)
   : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ /*mDistCoef(distCoef.clone()),*/
-    mpORBvocabulary(orbVocabulary)
+    mVocabulary(vocabulary)
 {
     AVERAGE_TIMING_START("WAIFrame");
     //ghm1: ORB_SLAM uses float precision
@@ -156,7 +156,7 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
 //-----------------------------------------------------------------------------
 void WAIFrame::AssignFeaturesToGrid()
 {
-    int nReserve = 0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS);
+    int nReserve = (int)(0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS));
     for (unsigned int i = 0; i < FRAME_GRID_COLS; i++)
         for (unsigned int j = 0; j < FRAME_GRID_ROWS; j++)
             mGrid[i][j].reserve(nReserve);
@@ -221,7 +221,7 @@ bool WAIFrame::isInFrustum(WAIMapPoint* pMP, float viewingCosLimit)
     const float   maxDistance = pMP->GetMaxDistanceInvariance();
     const float   minDistance = pMP->GetMinDistanceInvariance();
     const cv::Mat PO          = P - mOw;
-    const float   dist        = cv::norm(PO);
+    const float   dist        = (float)cv::norm(PO);
 
     if (dist < minDistance || dist > maxDistance)
         return false;
@@ -229,7 +229,7 @@ bool WAIFrame::isInFrustum(WAIMapPoint* pMP, float viewingCosLimit)
     // Check viewing angle
     cv::Mat Pn = pMP->GetNormal();
 
-    const float viewCos = PO.dot(Pn) / dist;
+    const float viewCos = (float)(PO.dot(Pn) / dist);
 
     if (viewCos < viewingCosLimit)
         return false;
@@ -319,11 +319,14 @@ void WAIFrame::ComputeBoW()
 {
     if (mBowVec.empty())
     {
-        vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
+        //vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         // Luc: In a 6 levels and 10 branch per level voc, 4 levelup mean the 2nd level from the top
         // that make a total of 100 words. More words means more variance between keyframe and less
         // preselected keyframe but that will make also the relocalization less invariant to changes
-        mpORBvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, mpORBvocabulary->getDepthLevels() - 2);
+
+        // Luc 2: I think level is from the top with the new BoW
+        if (mDescriptors.rows > 0)
+            mVocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------
@@ -366,12 +369,12 @@ void WAIFrame::ComputeImageBounds(const cv::Mat& imLeft)
         cv::Mat mat(4, 2, CV_32F);
         mat.at<float>(0, 0) = 0.0;
         mat.at<float>(0, 1) = 0.0;
-        mat.at<float>(1, 0) = imLeft.cols;
+        mat.at<float>(1, 0) = (float)imLeft.cols;
         mat.at<float>(1, 1) = 0.0;
         mat.at<float>(2, 0) = 0.0;
-        mat.at<float>(2, 1) = imLeft.rows;
-        mat.at<float>(3, 0) = imLeft.cols;
-        mat.at<float>(3, 1) = imLeft.rows;
+        mat.at<float>(2, 1) = (float)imLeft.rows;
+        mat.at<float>(3, 0) = (float)imLeft.cols;
+        mat.at<float>(3, 1) = (float)imLeft.rows;
 
         // Undistort corners
         mat = mat.reshape(2);
@@ -386,8 +389,9 @@ void WAIFrame::ComputeImageBounds(const cv::Mat& imLeft)
     else
     {
         mnMinX = 0.0f;
-        mnMaxX = imLeft.cols;
+        mnMaxX = (float)imLeft.cols;
         mnMinY = 0.0f;
-        mnMaxY = imLeft.rows;
+        mnMaxY = (float)imLeft.rows;
     }
 }
+//-----------------------------------------------------------------------------

@@ -17,6 +17,10 @@
 #include <SLMat4.h>
 #include <atomic>
 
+#ifdef SL_HAS_OPTIX
+#    include <cuda.h>
+#endif
+
 class SLGLState;
 class SLAssetManager;
 class SLGLProgram;
@@ -131,8 +135,9 @@ public:
     void clearData();
     void build(SLint texID = 0);
     void bindActive(SLint texID = 0);
+    void buildCudaTexture();
     void fullUpdate();
-    void drawSprite(SLbool doUpdate = false);
+    void drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
     void cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z, SLint& index, SLfloat& u, SLfloat& v);
 
@@ -145,10 +150,10 @@ public:
 
     // Getters
     CVVImage&     images() { return _images; }
-    SLenum        target() { return _target; }
-    SLuint        texID() { return _texID; }
+    SLenum        target() const { return _target; }
+    SLuint        texID() const { return _texID; }
     SLTextureType texType() { return _texType; }
-    SLfloat       bumpScale() { return _bumpScale; }
+    SLfloat       bumpScale() const { return _bumpScale; }
     SLCol4f       getTexelf(SLfloat s, SLfloat t, SLuint imgIndex = 0);
     SLCol4f       getTexelf(const SLVec3f& cubemapDir);
     SLbool        hasAlpha() { return (!_images.empty() &&
@@ -159,9 +164,17 @@ public:
     SLuint        height() { return _images[0]->height(); }
     SLint         depth() { return (SLint)_images.size(); }
     SLMat4f       tm() { return _tm; }
-    SLbool        autoCalcTM3D() { return _autoCalcTM3D; }
+    SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
+
+#ifdef SL_HAS_OPTIX
+    CUtexObject getCudaTextureObject()
+    {
+        buildCudaTexture();
+        return _cudaTextureObject;
+    }
+#endif
 
     // Misc
     static SLTextureType detectType(const SLstring& filename);
@@ -217,9 +230,14 @@ protected:
     SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
+
+#ifdef SL_HAS_OPTIX
+    CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
+    CUtexObject        _cudaTextureObject;
+#endif
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers
-typedef std::vector<SLGLTexture*> SLVGLTexture;
+typedef vector<SLGLTexture*> SLVGLTexture;
 //-----------------------------------------------------------------------------
 #endif

@@ -1353,6 +1353,28 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     ray->hitMesh     = nullptr;
     ray->srcTriangle = 0;
 }
+
+void SLCamera::UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W)
+{
+    SLVec3f LA, LU, LR;
+
+    // get camera vectors eye, lookAt, lookUp from view matrix
+    updateAndGetVM().lookAt(&EYE, &LA, &LU, &LR);
+
+    W = LA * _focalDist;
+
+    U.cross(W, LU);
+    U.normalize();
+
+    V.cross(U, W);
+    V.normalize();
+
+    SLfloat hh = tan(Utils::DEG2RAD * _fov * 0.5f) * _focalDist;
+    SLfloat hw = hh * _viewportRatio;
+    V *= hh;
+    U *= hw;
+}
+
 //-----------------------------------------------------------------------------
 //! Project a world position into screen coordinates
 SLVec2f SLCamera::projectWorldToNDC(const SLVec4f& worldPos) const
@@ -1421,13 +1443,11 @@ is used for the trackball camera animation.
 */
 SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
 {
-    SLVec3f vec;
-
     //Calculate x & y component to the virtual unit sphere
     SLfloat r = (SLfloat)(_viewportW < _viewportH ? _viewportW / 2 : _viewportH / 2) * _trackballSize;
 
-    vec.x = (SLfloat)(x - _viewportW * 0.5f) / r;
-    vec.y = -(SLfloat)(y - _viewportH * 0.5f) / r;
+    SLVec3f vec((SLfloat)(x - _viewportW * 0.5f) / r,
+                -(SLfloat)(y - _viewportH * 0.5f) / r);
 
     // d = length of vector x,y
     SLfloat d = sqrt(vec.x * vec.x + vec.y * vec.y);

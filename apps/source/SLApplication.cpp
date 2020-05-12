@@ -18,18 +18,19 @@
 #include <utility>
 #include <GlobalTimer.h>
 #include <SLGLProgramManager.h>
+#include <SLOptix.h>
 
 //-----------------------------------------------------------------------------
 //! Global static objects
-SLInputManager            SLApplication::inputManager;
-SLProjectScene*           SLApplication::scene = nullptr;
-std::vector<SLSceneView*> SLApplication::sceneViews;
-SLGLImGui*                SLApplication::gui = nullptr;
-SLDeviceRotation          SLApplication::devRot;
-SLDeviceLocation          SLApplication::devLoc;
-SLstring                  SLApplication::name    = "SLProjectApp";
-SLstring                  SLApplication::appTag  = "SLProject";
-SLstring                  SLApplication::version = "2.5.000";
+SLInputManager       SLApplication::inputManager;
+SLProjectScene*      SLApplication::scene = nullptr;
+vector<SLSceneView*> SLApplication::sceneViews;
+SLGLImGui*           SLApplication::gui = nullptr;
+SLDeviceRotation     SLApplication::devRot;
+SLDeviceLocation     SLApplication::devLoc;
+SLstring             SLApplication::name    = "SLProjectApp";
+SLstring             SLApplication::appTag  = "SLProject";
+SLstring             SLApplication::version = "3.0.000";
 #ifdef _DEBUG
 SLstring SLApplication::configuration = "Debug";
 #else
@@ -38,7 +39,6 @@ SLstring SLApplication::configuration = "Release";
 SLstring            SLApplication::gitBranch = SL_GIT_BRANCH;
 SLstring            SLApplication::gitCommit = SL_GIT_COMMIT;
 SLstring            SLApplication::gitDate   = SL_GIT_DATE;
-SLint               SLApplication::dpi       = 0;
 map<string, string> SLApplication::deviceParameter;
 
 CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;
@@ -87,6 +87,10 @@ void SLApplication::createAppAndScene(SLstring appName,
     name  = std::move(appName);
     scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     GlobalTimer::timerStart();
+
+#ifdef SL_HAS_OPTIX
+    SLOptix::createStreamAndContext();
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Calls the destructor of the single scene instance.

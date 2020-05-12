@@ -16,12 +16,12 @@ class AboutGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AboutGui(sm::EventHandler&   eventHandler,
+    AboutGui(const ImGuiEngine&  imGuiEngine,
+             sm::EventHandler&   eventHandler,
              ErlebAR::Resources& resources,
              int                 dotsPerInch,
              int                 screenWidthPix,
-             int                 screenHeightPix,
-             std::string         fontPath);
+             int                 screenHeightPix);
     ~AboutGui() override;
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -41,10 +41,6 @@ private:
     float _textWrapW;
     float _windowPaddingContent;
     float _itemSpacingContent;
-
-    ImFont* _fontBig      = nullptr;
-    ImFont* _fontSmall    = nullptr;
-    ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
 };

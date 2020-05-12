@@ -26,24 +26,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Fonts
-//-----------------------------------------------------------------------------
-//class Fonts
-//{
-//public:
-//    void load(std::string fontDir)
-//    {
-//    }
-//    void free()
-//    {
-//    }
-//
-//private:
-//    //shared imgui font atlas
-//    //ImFontAtlas* fontAtlas = nullptr;
-//};
-
-//-----------------------------------------------------------------------------
 // App appearance
 //-----------------------------------------------------------------------------
 
@@ -105,6 +87,18 @@ public:
                                           BFHColors::GrayLogo.b,
                                           0.3};
 
+    //area pose button
+    ImVec4 areaPoseButtonShapeColor        = {1.f, 0.f, 0.f, 0.5f};
+    ImVec4 areaPoseButtonShapeColorPressed = {1.f, 1.f, 1.f, 1.f};
+    ImVec4 areaPoseButtonColor             = {1.f, 1.f, 1.f, 0.f};
+    ImVec4 areaPoseButtonColorPressed      = {1.f, 1.f, 1.f, 0.f};
+    //percental view triangle width relative to screen heigth
+    float areaPoseButtonViewTriangleWidth = 0.1f;
+    //percental view triangle length relative to view triangle width
+    float areaPoseButtonViewTriangleLength = 1.1f;
+    //percental circle radius relative to view triangle width
+    float areaPoseButtonCircleRadius = 0.2f;
+
     //other:
     // percental standard text height relative to screen height
     float textStandardH = 0.05f;
@@ -131,13 +125,45 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// Fonts
+//-----------------------------------------------------------------------------
+/*!
+Every instance of ImGuiWrapper has its own imgui context. But we will share the
+fonts using a shared font atlas.
+*/
+class Fonts
+{
+public:
+    Fonts();
+    ~Fonts();
+
+    void load(std::string fontDir, const Style& style, int screenH);
+
+    ImFont* headerBar{nullptr};  //font in header bars
+    ImFont* standard{nullptr};   //e.g. about, widgets text
+    ImFont* heading{nullptr};    //e.g. heading above widgets, about headings
+    ImFont* big{nullptr};        //e.g. Welcome screen
+    ImFont* tiny{nullptr};       //e.g. log window
+    ImFont* selectBtns{nullptr}; //buttons in selection window
+
+    ImFontAtlas* atlas() const { return _atlas; }
+
+private:
+    //shared imgui font atlas
+    ImFontAtlas* _atlas{nullptr};
+};
+
+//-----------------------------------------------------------------------------
 // Strings (all visal text in four languages)
 //-----------------------------------------------------------------------------
 class Strings
 {
 public:
-    Strings();
-    const char* id() const { return _id.c_str(); }
+    virtual ~Strings() {}
+    const char* id() const
+    {
+        return _id.c_str();
+    }
 
     const char* settings() const { return _settings.c_str(); }
     const char* about() const { return _about.c_str(); }
@@ -150,7 +176,11 @@ public:
     const char* language() const { return _language.c_str(); }
     const char* develMode() const { return _develMode.c_str(); }
 
+    void load(std::string fileName);
+
 protected:
+    //static void loadString(const cv::FileStorage& fs, const std::string& name, std::string& target);
+
     std::string _id;
 
     //selection
@@ -185,10 +215,10 @@ public:
     StringsFrench();
 };
 
-class StringsItalien : public Strings
+class StringsItalian : public Strings
 {
 public:
-    StringsItalien();
+    StringsItalian();
 };
 
 //-----------------------------------------------------------------------------
@@ -197,7 +227,12 @@ public:
 class Resources
 {
 public:
-    Resources(std::string resourceFileName, std::string textureDir);
+    Resources(int                screenWidth,
+              int                screenHeight,
+              const std::string& writableDir,
+              const std::string& textureDir,
+              const std::string& fontDir,
+              const std::string& slDataRoot);
     ~Resources();
 
     void setLanguageEnglish();
@@ -207,18 +242,23 @@ public:
 
     const Strings& strings() { return *_currStrings; }
     const Style&   style() { return _style; }
-    //const Fonts&   fonts() { return _fonts; }
+    const Fonts&   fonts() { return _fonts; }
 
     bool developerMode = false;
 
     StringsEnglish stringsEnglish;
     StringsGerman  stringsGerman;
     StringsFrench  stringsFrench;
-    StringsItalien stringsItalien;
+    StringsItalian stringsItalian;
 
     Textures textures;
 
     const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
+
+    bool logWinEnabled = false;
+    void logWinInit();
+    void logWinUnInit();
+    void logWinDraw();
 
 private:
     void load(std::string resourceFileName);
@@ -227,12 +267,17 @@ private:
     Strings* _currStrings = &stringsEnglish;
 
     Style _style;
-    //Fonts _fonts;
+    Fonts _fonts;
 
     //initialized in function load()
     std::string _fileName;
     //erlebar locations definition
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+    //writeable directory, e.g. for logfile
+    std::string _writableDir;
+
+    int _screenW;
+    int _screenH;
 };
 };
 

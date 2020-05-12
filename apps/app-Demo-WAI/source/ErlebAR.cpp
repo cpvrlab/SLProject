@@ -117,7 +117,7 @@ const Location defineLocationBiel()
         area.name          = mapAreaIdToName(area.id);
         area.xPosPix       = 606;
         area.yPosPix       = 277;
-        area.viewAngleDeg  = 0;
+        area.viewAngleDeg  = 10.f;
         loc.areas[area.id] = area;
     }
     {
@@ -126,7 +126,7 @@ const Location defineLocationBiel()
         area.name          = mapAreaIdToName(area.id);
         area.xPosPix       = 1387;
         area.yPosPix       = 730;
-        area.viewAngleDeg  = 0;
+        area.viewAngleDeg  = 25.f;
         loc.areas[area.id] = area;
     }
     {
@@ -135,7 +135,7 @@ const Location defineLocationBiel()
         area.name          = mapAreaIdToName(area.id);
         area.xPosPix       = 606;
         area.yPosPix       = 50;
-        area.viewAngleDeg  = 0;
+        area.viewAngleDeg  = 60.f;
         loc.areas[area.id] = area;
     }
     {
@@ -144,7 +144,7 @@ const Location defineLocationBiel()
         area.name          = mapAreaIdToName(area.id);
         area.xPosPix       = 200;
         area.yPosPix       = 200;
-        area.viewAngleDeg  = 0;
+        area.viewAngleDeg  = 110.f;
         loc.areas[area.id] = area;
     }
     {
@@ -153,7 +153,7 @@ const Location defineLocationBiel()
         area.name          = mapAreaIdToName(area.id);
         area.xPosPix       = 250;
         area.yPosPix       = 250;
-        area.viewAngleDeg  = 0;
+        area.viewAngleDeg  = 270.f;
         loc.areas[area.id] = area;
     }
     return loc;

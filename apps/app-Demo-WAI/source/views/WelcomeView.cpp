@@ -2,6 +2,7 @@
 
 WelcomeView::WelcomeView(SLInputManager&     inputManager,
                          ErlebAR::Resources& resources,
+                         const ImGuiEngine&  imGuiEngine,
                          int                 screenWidth,
                          int                 screenHeight,
                          int                 dotsPerInch,
@@ -10,7 +11,7 @@ WelcomeView::WelcomeView(SLInputManager&     inputManager,
                          std::string         imguiIniPath,
                          std::string         version)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath, version)
+    _gui(imGuiEngine, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath, version)
 {
     init("WelcomeView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();

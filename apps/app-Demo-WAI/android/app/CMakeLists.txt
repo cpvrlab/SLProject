@@ -48,6 +48,7 @@ target_link_libraries(${target}
         camera2ndk
         mediandk
         lib-WAI
+        lib-fbow
         lib-SLProject
 
     PUBLIC
@@ -99,9 +100,17 @@ file(GLOB_RECURSE CALIBRATIONS
     ${SL_PROJECT_ROOT}/data/calibrations/cam_calibration_main.xml
     )
 
+set(CONFIG
+	${SL_PROJECT_ROOT}/data/config/StringsEnglish.json
+    ${SL_PROJECT_ROOT}/data/config/StringsFrench.json
+    ${SL_PROJECT_ROOT}/data/config/StringsGerman.json
+    ${SL_PROJECT_ROOT}/data/config/StringsItalian.json
+    )
+
 file(GLOB_RECURSE VOC
-	${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
-	)
+    #${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+    ${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
+    )
 
 file(GLOB_RECURSE CONFIG
     ${SL_PROJECT_ROOT}/data/config/TesterConfig.json)

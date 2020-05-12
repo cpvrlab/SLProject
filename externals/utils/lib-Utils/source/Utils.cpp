@@ -61,6 +61,11 @@ using asio::ip::tcp;
 namespace Utils
 {
 ///////////////////////////////
+// Global variables          //
+///////////////////////////////
+std::unique_ptr<CustomLog> customLog;
+
+///////////////////////////////
 // String Handling Functions //
 ///////////////////////////////
 
@@ -139,7 +144,7 @@ void replaceString(string&       source,
     newString.reserve(source.length()); // avoids a few memory allocations
 
     string::size_type lastPos = 0;
-    string::size_type findPos;
+    string::size_type findPos = 0;
 
     while (string::npos != (findPos = source.find(from, lastPos)))
     {
@@ -170,7 +175,7 @@ string replaceNonFilenameChars(string src, const char replaceChar)
 //! Returns local time as string like "Wed Feb 13 15:46:11 2019"
 string getLocalTimeString()
 {
-    time_t tm;
+    time_t tm = 0;
     time(&tm);
     struct tm* t2 = localtime(&tm);
     char       buf[1024];
@@ -181,7 +186,7 @@ string getLocalTimeString()
 //! Returns local time as string like "13.02.19-15:46"
 string getDateTime1String()
 {
-    time_t tm;
+    time_t tm = 0;
     time(&tm);
     struct tm* t = localtime(&tm);
 
@@ -200,7 +205,7 @@ string getDateTime1String()
 //! Returns local time as string like "20190213-154611"
 string getDateTime2String()
 {
-    time_t tm;
+    time_t tm = 0;
     time(&tm);
     struct tm* t = localtime(&tm);
 
@@ -224,10 +229,12 @@ string getHostName()
 }
 //-----------------------------------------------------------------------------
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...)
+string formatString(const string& fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
-    int                final_n, n = ((int)fmt_str.size()) * 2;
+    int final_n = 0;
+    int n       = ((int)fmt_str.size()) * 2;
+
     string             str;
     unique_ptr<char[]> formatted;
     va_list            ap;
@@ -278,9 +285,8 @@ string unifySlashes(const string& inputDir)
 //! Returns the path w. '\\' of path-filename string
 string getPath(const string& pathFilename)
 {
-    size_t i1, i2;
-    i1 = pathFilename.rfind('\\', pathFilename.length());
-    i2 = pathFilename.rfind('/', pathFilename.length());
+    size_t i1 = pathFilename.rfind('\\', pathFilename.length());
+    size_t i2 = pathFilename.rfind('/', pathFilename.length());
     if ((i1 != string::npos && i2 == string::npos) ||
         (i1 != string::npos && i1 > i2))
     {
@@ -467,10 +473,9 @@ bool compareNatural(const string& a, const string& b)
 //! Returns the filename of path-filename string
 string getFileName(const string& pathFilename)
 {
-    size_t i1, i2;
-    i1    = pathFilename.rfind('\\', pathFilename.length());
-    i2    = pathFilename.rfind('/', pathFilename.length());
-    int i = -1;
+    size_t i1 = pathFilename.rfind('\\', pathFilename.length());
+    size_t i2 = pathFilename.rfind('/', pathFilename.length());
+    int    i  = -1;
 
     if (i1 != string::npos && i2 != string::npos)
         i = (int)std::max(i1, i2);
@@ -486,8 +491,7 @@ string getFileName(const string& pathFilename)
 string getFileNameWOExt(const string& pathFilename)
 {
     string filename = getFileName(pathFilename);
-    size_t i;
-    i = filename.rfind('.', filename.length());
+    size_t i        = filename.rfind('.', filename.length());
     if (i != string::npos)
     {
         return (filename.substr(0, i));
@@ -499,8 +503,7 @@ string getFileNameWOExt(const string& pathFilename)
 //! Returns the file extension without dot in lower case
 string getFileExt(const string& filename)
 {
-    size_t i;
-    i = filename.rfind('.', filename.length());
+    size_t i = filename.rfind('.', filename.length());
     if (i != string::npos)
         return toLowerString(filename.substr(i + 1, filename.length() - i));
     return ("");
@@ -522,13 +525,12 @@ vector<string> getDirNamesInDir(const string& dirName)
         }
     }
 #else
-    DIR* dir;
-    dir = opendir(dirName.c_str());
+    DIR* dir = opendir(dirName.c_str());
 
     if (dir)
     {
-        struct dirent* dirContent;
-        int            i = 0;
+        struct dirent* dirContent = nullptr;
+        int            i          = 0;
 
         while ((dirContent = readdir(dir)) != nullptr)
         {
@@ -570,13 +572,12 @@ vector<string> getAllNamesInDir(const string& dirName)
 #    if TARGET_OS_IOS
     return Utils_iOS::getAllNamesInDir(dirName);
 #    else
-    DIR* dir;
-    dir = opendir(dirName.c_str());
+    DIR* dir = opendir(dirName.c_str());
 
     if (dir)
     {
-        struct dirent* dirContent;
-        int            i = 0;
+        struct dirent* dirContent = nullptr;
+        int            i          = 0;
 
         while ((dirContent = readdir(dir)) != nullptr)
         {
@@ -610,13 +611,12 @@ vector<string> getFileNamesInDir(const string& dirName)
     }
 #else
     //todo: does this part also return directories? It should only return file names..
-    DIR* dir;
-    dir = opendir(dirName.c_str());
+    DIR* dir = opendir(dirName.c_str());
 
     if (dir)
     {
-        struct dirent* dirContent;
-        int            i = 0;
+        struct dirent* dirContent = nullptr;
+        int            i          = 0;
 
         while ((dirContent = readdir(dir)) != nullptr)
         {
@@ -908,9 +908,10 @@ void log(const char* tag, const char* format, ...)
     strcat(msg, "\n");
 
     if (fileLog)
-    {
         fileLog->post(msg);
-    }
+
+    if (customLog)
+        customLog->post(msg);
 
 #if defined(ANDROID) || defined(ANDROID_NDK)
     __android_log_print(ANDROID_LOG_INFO, tag, msg);
@@ -991,12 +992,13 @@ void errorMsg(const char* tag,
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads()
 {
-#ifdef _DEBUG
+#if defined(DEBUG) || defined(_DEBUG)
     return 1;
 #else
     return std::max(thread::hardware_concurrency(), 1U);
 #endif
 }
+//-----------------------------------------------------------------------------
 
 ////////////////////////////////
 // Network Handling Functions //
@@ -1054,7 +1056,7 @@ uint64_t httpGet(const string& httpURL, const string& outFolder)
         istream response_stream(&response);
         string  httpVersion;
         response_stream >> httpVersion;
-        unsigned int statusCode;
+        unsigned int statusCode = 0;
         response_stream >> statusCode;
         string statusMsg;
         getline(response_stream, statusMsg);
@@ -1240,10 +1242,11 @@ std::string ComputerInfos::get()
     // Computer user name
     const char* envvar = std::getenv("USER");
     user               = envvar ? string(envvar) : "USER?";
+
     if (user == "USER?")
     {
-        const char* envvar = std::getenv("USERNAME");
-        user               = envvar ? string(envvar) : "USER?";
+        const char* envvarUN = std::getenv("USERNAME");
+        user                 = envvarUN ? string(envvarUN) : "USER?";
     }
 
     name  = Utils::getHostName();
@@ -1343,4 +1346,4 @@ std::string ComputerInfos::get()
     std::replace(id.begin(), id.end(), '_', '-');
     return id;
 }
-};
+}

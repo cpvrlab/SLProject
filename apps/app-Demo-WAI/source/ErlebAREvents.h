@@ -45,10 +45,12 @@ public:
 class InitEvent : public sm::Event
 {
 public:
-    InitEvent(int            scrWidth,
+    InitEvent(std::string    senderInfo,
+              int            scrWidth,
               int            scrHeight,
               int            dpi,
               AppDirectories dirs)
+      : sm::Event("InitEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::IDLE,
                          (unsigned int)StateId::INIT);
@@ -61,7 +63,8 @@ public:
 class GoBackEvent : public sm::Event
 {
 public:
-    GoBackEvent()
+    GoBackEvent(std::string senderInfo)
+      : sm::Event("GoBackEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::DESTROY);
@@ -89,7 +92,8 @@ public:
 class DestroyEvent : public sm::Event
 {
 public:
-    DestroyEvent()
+    DestroyEvent(std::string senderInfo)
+      : sm::Event("DestroyEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::INIT,
                          (unsigned int)StateId::DESTROY);
@@ -119,7 +123,8 @@ public:
 class DoneEvent : public sm::Event
 {
 public:
-    DoneEvent()
+    DoneEvent(std::string senderInfo)
+      : sm::Event("DoneEvent", senderInfo)
     {
 
         enableTransition((unsigned int)StateId::DESTROY,
@@ -142,7 +147,8 @@ public:
 class StartErlebarEvent : public sm::Event
 {
 public:
-    StartErlebarEvent(ErlebAR::LocationId location)
+    StartErlebarEvent(std::string senderInfo, ErlebAR::LocationId location)
+      : sm::Event("StartErlebarEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::LOCATION_MAP);
@@ -154,7 +160,8 @@ public:
 class AreaSelectedEvent : public sm::Event
 {
 public:
-    AreaSelectedEvent(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+    AreaSelectedEvent(std::string senderInfo, ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+      : sm::Event("AreaSelectedEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::AREA_INFO);
@@ -166,7 +173,8 @@ public:
 class StartTutorialEvent : public sm::Event
 {
 public:
-    StartTutorialEvent()
+    StartTutorialEvent(std::string senderInfo)
+      : sm::Event("StartTutorialEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::TUTORIAL);
@@ -176,7 +184,8 @@ public:
 class ShowAboutEvent : public sm::Event
 {
 public:
-    ShowAboutEvent()
+    ShowAboutEvent(std::string senderInfo)
+      : sm::Event("ShowAboutEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::ABOUT);
@@ -186,7 +195,8 @@ public:
 class ShowSettingsEvent : public sm::Event
 {
 public:
-    ShowSettingsEvent()
+    ShowSettingsEvent(std::string senderInfo)
+      : sm::Event("ShowSettingsEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::SETTINGS);
@@ -196,7 +206,8 @@ public:
 class StartCameraTestEvent : public sm::Event
 {
 public:
-    StartCameraTestEvent()
+    StartCameraTestEvent(std::string senderInfo)
+      : sm::Event("StartCameraTestEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::CAMERA_TEST);
@@ -206,7 +217,8 @@ public:
 class StartTestEvent : public sm::Event
 {
 public:
-    StartTestEvent()
+    StartTestEvent(std::string senderInfo)
+      : sm::Event("StartTestEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::START_TEST);
@@ -226,7 +238,8 @@ public:
 class HoldEvent : public sm::Event
 {
 public:
-    HoldEvent()
+    HoldEvent(std::string senderInfo)
+      : sm::Event("HoldEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::TEST,
                          (unsigned int)StateId::HOLD_TEST);
@@ -240,7 +253,8 @@ public:
 class ResumeEvent : public sm::Event
 {
 public:
-    ResumeEvent()
+    ResumeEvent(std::string senderInfo)
+      : sm::Event("ResumeEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::HOLD_TEST,
                          (unsigned int)StateId::RESUME_TEST);

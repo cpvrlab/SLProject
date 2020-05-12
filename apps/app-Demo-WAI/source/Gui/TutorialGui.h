@@ -16,7 +16,8 @@ class TutorialGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    TutorialGui(sm::EventHandler&   eventHandler,
+    TutorialGui(const ImGuiEngine&  imGuiEngine,
+                sm::EventHandler&   eventHandler,
                 ErlebAR::Resources& resources,
                 int                 dotsPerInch,
                 int                 screenWidthPix,
@@ -42,10 +43,6 @@ private:
     float _textWrapW;
     float _windowPaddingContent;
     float _itemSpacingContent;
-
-    ImFont* _fontBig      = nullptr;
-    ImFont* _fontSmall    = nullptr;
-    ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
 

@@ -21,7 +21,6 @@
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 
-
 //-----------------------------------------------------------------------------
 std::string findModelFileName(std::string file)
 {
@@ -109,7 +108,9 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView(SLProjectScene* s, int dpi, SLInputManager& inputManager)
+AppNodeSceneView::AppNodeSceneView(SLProjectScene* s,
+                                   int             dpi,
+                                   SLInputManager& inputManager)
   : SLSceneView(s, dpi, inputManager),
     _modifiers(K_none),
     _continuousInput(true),
@@ -149,7 +150,9 @@ void AppNodeSceneView::postSceneLoad()
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
-    _axesNode = importer.load(_s->animManager(), &_assets, findModelFileName("FBX/Axes/axes_blender.fbx"));
+    _axesNode = importer.load(_s->animManager(),
+                              &_assets,
+                              findModelFileName("FBX/Axes/axes_blender.fbx"));
 
     _s->root3D()->addChild(_moveBox);
     _s->root3D()->addChild(_axesNode);
@@ -469,7 +472,7 @@ void AppNodeSceneView::updateInfoText()
     keyBinds += "\nR: Reset \n";
     sprintf(m + strlen(m), "%s", keyBinds.c_str());
 
-    SLTexFont* f         = SLProjectScene::getFont(1.2f, SLApplication::dpi);
+    SLTexFont* f         = SLProjectScene::getFont(1.2f, dpi());
     AppNodeGui::infoText = m;
 }
 //-----------------------------------------------------------------------------

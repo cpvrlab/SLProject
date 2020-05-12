@@ -7,38 +7,35 @@
 #define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 #define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 
-SENSWebCamera::~SENSWebCamera()
+void SENSWebCamera::start(const SENSCameraConfig config)
 {
-    if (_thread.joinable())
-        _thread.join();
-}
-
-void SENSWebCamera::init(SENSCamera::Facing facing)
-{
-    LOG_WEBCAM_INFO("init: called but is has no effect in SENSWebCamera");
-    //_state   = State::INITIALIZED;
-    _started = false;
-}
-
-void SENSWebCamera::start(const Config config)
-{
-    _config      = config;
-    _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
-
-    if (!_started && !_isStarting)
+    if (!_videoCapture.isOpened())
     {
-        if (_thread.joinable())
-            _thread.join();
+        _config      = config;
+        _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
 
-        _isStarting = true;
-        _thread     = std::thread(&SENSWebCamera::openCamera, this);
+        int id = std::stoi(_config.deviceId);
+        _videoCapture.open(id);
+
+        if (!_videoCapture.isOpened())
+            throw SENSException(SENSType::CAM, "Could not open camera with id: " + _config.deviceId, __LINE__, __FILE__);
+
+        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
+        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
+        _started = true;
+        _permissionGranted = true;
+    }
+    else
+    {
+        LOG_WEBCAM_WARN("start: ignored because camera is already open! Call stop first!");
     }
 }
 
-void SENSWebCamera::start(int width, int height)
+void SENSWebCamera::start(std::string id, int width, int height)
 {
-    Config config;
+    SENSCameraConfig config;
 
+    config.deviceId     = stoi(id);
     config.targetWidth  = width;
     config.targetHeight = height;
 
@@ -48,9 +45,15 @@ void SENSWebCamera::start(int width, int height)
 void SENSWebCamera::stop()
 {
     if (_videoCapture.isOpened())
+    {
         _videoCapture.release();
 
-    _started = false;
+        _started = false;
+    }
+    else
+    {
+        LOG_WEBCAM_INFO("stop: ignored because camera is not open!");
+    }
 }
 
 SENSFramePtr SENSWebCamera::getLatestFrame()
@@ -58,10 +61,13 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
     SENSFramePtr sensFrame;
 
     if (!_started)
+    {
+        LOG_WEBCAM_WARN("getLatestFrame: Camera is not started!");
         return sensFrame;
+    }
 
     if (!_videoCapture.isOpened())
-        throw SENSException(SENSType::CAM, "Capture device is not open!", __LINE__, __FILE__);
+        throw SENSException(SENSType::CAM, "Capture device is not open although camera is started!", __LINE__, __FILE__);
 
     cv::Mat rgbImg;
     if (_videoCapture.read(rgbImg))
@@ -90,23 +96,70 @@ SENSFramePtr SENSWebCamera::getLatestFrame()
     return sensFrame;
 }
 
-void SENSWebCamera::openCamera()
+std::vector<SENSCameraCharacteristics> SENSWebCamera::getAllCameraCharacteristics()
 {
-    if (!_videoCapture.isOpened())
-        _videoCapture.open(0);
+    //definition of standard frame sizes that we want to test for support
+    static std::vector<cv::Size> testSizes = {
+      {640, 360},
+      {640, 480},
+      {960, 540},
+      {1280, 960},
+      {1280, 720},
+      {1920, 1080}};
 
-    //exception not possible as we are in a thread
-    //if (!_videoCapture.isOpened())
-    //throw SENSException(SENSType::CAM, "Could not open camera with id: " + std::to_string(0), __LINE__, __FILE__);
-
+    //stop running capturing
+    bool deviceWasOpen = false;
     if (_videoCapture.isOpened())
     {
-        _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-        _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-        int w = (int)_videoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
-        int h = (int)_videoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
+        stop();
+        deviceWasOpen = true;
     }
 
-    _started    = true;
-    _isStarting = false;
+    std::vector<SENSCameraCharacteristics> allCharacteristics;
+
+    //There is an invisible list of devices populated from your os and your webcams appear there in the order you plugged them in.
+    //If you're e.g on a laptop with a builtin camera, that will be id 0, if you plug in an additional one, that's id 1.
+    for (int i = 0; i < 10; ++i)
+    {
+        _videoCapture.open(i);
+
+        if (_videoCapture.isOpened())
+        {
+            SENSCameraCharacteristics characteristics;
+            characteristics.cameraId = std::to_string(i);
+            characteristics.provided = false;
+            //try some standard capture sizes
+            for (auto s : testSizes)
+            {
+                _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, s.width);
+                _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, s.height);
+                cv::Mat frame;
+                _videoCapture >> frame;
+                cv::Size newSize = frame.size();
+                if (!characteristics.streamConfig.contains(newSize) &&
+                    newSize != cv::Size(0, 0))
+                {
+                    characteristics.streamConfig.add(newSize);
+                }
+            }
+
+            allCharacteristics.push_back(characteristics);
+            _videoCapture.release();
+        }
+    }
+
+    //dummy data to debug second camera
+    {
+        SENSCameraCharacteristics characteristics;
+        characteristics.cameraId = "1";
+        characteristics.provided = false;
+        characteristics.streamConfig.add(cv::Size(640, 654));
+        allCharacteristics.push_back(characteristics);
+    }
+
+    //start again with old config
+    if (deviceWasOpen)
+        start(_config);
+
+    return allCharacteristics;
 }

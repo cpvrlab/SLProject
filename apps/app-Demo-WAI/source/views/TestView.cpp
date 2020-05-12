@@ -1,29 +1,34 @@
 #include <views/TestView.h>
 #include <WAISlam.h>
 #include <WAIEvent.h>
-#include <SENSCamera.h>
+#include <sens/SENSCamera.h>
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
+#include <WAIAutoCalibration.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler& eventHandler,
-                   SLInputManager&   inputManager,
-                   SENSCamera*       camera,
-                   int               screenWidth,
-                   int               screenHeight,
-                   int               dotsPerInch,
-                   std::string       fontPath,
-                   std::string       configDir,
-                   std::string       vocabularyDir,
-                   std::string       calibDir,
-                   std::string       videoDir)
+TestView::TestView(sm::EventHandler&   eventHandler,
+                   SLInputManager&     inputManager,
+                   const ImGuiEngine&  imGuiEngine,
+                   ErlebAR::Resources& resources,
+                   SENSCamera*         camera,
+                   int                 screenWidth,
+                   int                 screenHeight,
+                   int                 dotsPerInch,
+                   std::string         fontPath,
+                   std::string         configDir,
+                   std::string         vocabularyDir,
+                   std::string         calibDir,
+                   std::string         videoDir)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
     _gui(
+      imGuiEngine,
       eventHandler,
+      resources,
       "TestScene",
       dotsPerInch,
       screenWidth,
@@ -48,6 +53,7 @@ TestView::TestView(sm::EventHandler& eventHandler,
     init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
     _scene.init();
     onInitialize();
+    _isCalibrated = false;
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
@@ -61,11 +67,6 @@ TestView::~TestView()
         _mode = nullptr;
         _currentSlamParams.save(_configDir + "SlamParams.json");
     }
-
-    if (_startThread.joinable())
-    {
-        _startThread.join();
-    }
 }
 
 void TestView::start()
@@ -73,26 +74,7 @@ void TestView::start()
     //if (_ready)
     //    return;
 
-    //_startThread = std::thread(&TestView::startAsync, this);
     tryLoadLastSlam();
-}
-
-void TestView::startAsync()
-{
-    //_camera->init(SENSCamera::Facing::BACK);
-    ////start continious captureing request with certain configuration
-    //SENSCamera::Config camConfig;
-    //camConfig.targetWidth          = 640;
-    //camConfig.targetHeight         = 360;
-    //camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
-    //camConfig.convertToGray        = true;
-    //camConfig.adjustAsynchronously = true;
-    //_camera->start(camConfig);
-
-    //start thread that starts camera and tries to load slam
-    tryLoadLastSlam();
-
-    //_ready = true;
 }
 
 bool TestView::update()
@@ -121,7 +103,27 @@ bool TestView::update()
             _mode->update(frame->imgGray);
 
             if (_mode->isTracking())
+            {
                 _scene.updateCameraPose(_mode->getPose());
+
+                if (!_isCalibrated)
+                {
+                    std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
+
+                    WAIFrame lastFrame = _mode->getLastFrame();
+                    if (_mode->getMatchedCorrespondances(&lastFrame, matching) > 10)
+                    {
+                        _calibrationMatchings.push_back(matching);
+                        if (_calibrationMatchings.size() > 10)
+                        {
+                            cv::Size size      = cv::Size(frame->captureWidth, frame->captureHeight);
+                            _calibrationThread = std::thread(AutoCalibration::calibrate, size, _calibrationMatchings);
+                            _calibrationMatchings.clear();
+                            _isCalibrated = true;
+                        }
+                    }
+                }
+            }
 
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
@@ -245,7 +247,7 @@ void TestView::handleEvents()
                 }
                 else
                 {
-                    _transformationNode->toggleEditMode(enterEditModeEvent->editMode);
+                    _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
 
                 delete enterEditModeEvent;
@@ -260,14 +262,14 @@ void TestView::handleEvents()
     }
 }
 
-void TestView::postStart()
-{
-    doWaitOnIdle(false);
-    camera(_scene.cameraNode);
-    onInitialize();
-    if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
-}
+//void TestView::postStart()
+//{
+//    doWaitOnIdle(false);
+//    camera(_scene.cameraNode);
+//    onInitialize();
+//    if (_camera)
+//        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
+//}
 
 void TestView::loadWAISceneView(std::string location, std::string area)
 {
@@ -277,7 +279,7 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     camera(_scene.cameraNode);
     onInitialize();
     if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
+        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
 }
 
 void TestView::saveMap(std::string location,
@@ -302,8 +304,9 @@ void TestView::saveMap(std::string location,
 
     if (!marker.empty())
     {
-        ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
-        voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+        //voc->loadFromBinaryFile(_currentSlamParams.vocabularyFile);
+        fbow::Vocabulary voc;
+        voc.readFromFile(_currentSlamParams.vocabularyFile);
 
         cv::Mat nodeTransform;
         if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
@@ -312,7 +315,7 @@ void TestView::saveMap(std::string location,
                                                     _mode->getKPextractor(),
                                                     _mode->getMap(),
                                                     _calibration.cameraMat(),
-                                                    voc))
+                                                    &voc))
         {
             _gui.showErrorMsg("Failed to do marker map preprocessing");
         }
@@ -382,7 +385,7 @@ void TestView::saveVideo(std::string filename)
     if (_videoFileStream)
         ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _videoFileStream->getFrameSize(), true);
     else if (_camera)
-        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _camera->getFrameSize(), true);
+        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config().targetWidth, _camera->config().targetHeight), true);
     else
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
@@ -493,7 +496,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
             _gui.showErrorMsg("Camera pointer is not set!");
             return;
         }
-        _videoFrameSize = cv::Size2i(_camera->getFrameSize().width, _camera->getFrameSize().height);
+        _videoFrameSize = cv::Size2i(_camera->config().targetWidth, _camera->config().targetHeight);
     }
 
     // 2. Load Calibration
@@ -536,21 +539,19 @@ void TestView::startOrbSlam(SlamParams slamParams)
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
-    ORBVocabulary* voc = new ORB_SLAM2::ORBVocabulary();
-    voc->loadFromBinaryFile(slamParams.vocabularyFile);
-    std::cout << "Vocabulary " << voc << std::endl;
+    _voc.clear();
+    _voc.readFromFile(slamParams.vocabularyFile);
     std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
-    WAIMap* map = nullptr;
+    std::unique_ptr<WAIMap> map;
 
     // 5. Load map data
     if (useMapFile)
     {
-        std::cout << "Vocabulary " << voc << std::endl;
-        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
-        map                    = new WAIMap(kfdb);
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
+        map                    = std::make_unique<WAIMap>(kfdb);
+        bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                         _scene.mapNode,
-                                                        voc,
+                                                        &_voc,
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
@@ -567,10 +568,10 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _mode = new WAISlam(_calibration.cameraMat(),
                         _calibration.distortion(),
-                        voc,
+                        &_voc,
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
-                        map,
+                        std::move(map),
                         slamParams.params.onlyTracking,
                         slamParams.params.serial,
                         slamParams.params.retainImg,
@@ -687,7 +688,7 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
 
     //update visualization of matched map points (when WAI pose is valid)
     if (_gui.uiPrefs->showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFrame()));
+        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFramePtr()));
     else
         _scene.removeMatchedMapPoints();
 

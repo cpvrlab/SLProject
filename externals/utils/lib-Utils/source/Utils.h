@@ -16,6 +16,7 @@
 #include <cfloat>
 #include <memory>
 #include <FileLog.h>
+#include <CustomLog.h>
 
 using namespace std;
 
@@ -73,7 +74,7 @@ string getDateTime2String();
 string getHostName();
 
 //! Returns a formatted string as sprintf
-string formatString(const string fmt_str, ...);
+string formatString(const string& fmt_str, ...);
 
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);
@@ -157,6 +158,8 @@ string findFile(const string&         filename,
 static std::unique_ptr<FileLog> fileLog;
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
+//! custom log instance, e.g. log to a ui log window
+extern std::unique_ptr<CustomLog> customLog;
 
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);
@@ -220,13 +223,6 @@ inline bool isPowerOf2(unsigned int a)
 inline float random(float min, float max)
 {
     return ((float)rand() / (float)RAND_MAX) * (max - min) + min;
-}
-//-----------------------------------------------------------------------------
-inline int pow(int x, int p)
-{
-    if (p == 0) return 1;
-    if (p == 1) return x;
-    return x * pow(x, p - 1);
 }
 //-----------------------------------------------------------------------------
 //! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)

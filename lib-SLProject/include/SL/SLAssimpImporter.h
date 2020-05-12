@@ -81,14 +81,14 @@ protected:
     // intermediate containers
     typedef std::map<SLstring, aiNode*> SLNodeMap;
     typedef std::map<SLstring, SLMat4f> SLJointOffsetMap;
-    typedef std::vector<aiNode*>        SLVaiNode;
+    typedef vector<aiNode*>        SLVaiNode;
 
     SLNodeMap        _nodeMap;        //!< map containing name to aiNode releationships
     SLJointOffsetMap _jointOffsets;   //!< map containing name to joint offset matrices
     aiNode*          _skeletonRoot{}; //!< the common aiNode root for the skeleton of this file
 
     // SL type containers
-    typedef std::vector<SLMesh*> MeshList;
+    typedef vector<SLMesh*> MeshList;
 
     SLuint   _jointIndex{};  //!< index counter used when iterating over joints
     MeshList _skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials

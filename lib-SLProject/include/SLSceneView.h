@@ -22,6 +22,8 @@
 #include <SLGLConetracer.h>
 #include <SLScene.h>
 #include <SLSkybox.h>
+#include <SLOptixRaytracer.h>
+#include <SLOptixPathtracer.h>
 #include <SLRect.h>
 #include <SLUiInterface.h>
 
@@ -64,6 +66,7 @@ class SLSceneView : public SLObject
 {
     friend class SLNode;
     friend class SLRaytracer;
+    friend class SLOptixRaytracer;
     friend class SLPathtracer;
 
 public:
@@ -124,13 +127,14 @@ public:
 
     // Misc.
     SLstring windowTitle();
+    void     printStats() { _stats3D.print(); }
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
     void     startConetracing();
-    void     printStats() { _stats3D.print(); }
     void     setViewportFromRatio(const SLVec2i&  vpRatio,
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
+								  
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
     cbOnSelectNodeMesh onSelectedNodeMesh; //!< C-Callback for app on node selection
@@ -145,7 +149,6 @@ public:
     void doMultiSampling(SLbool doMS) { _doMultiSampling = doMS; }
     void doDepthTest(SLbool doDT) { _doDepthTest = doDT; }
     void doFrustumCulling(SLbool doFC) { _doFrustumCulling = doFC; }
-    //void gotPainted(SLbool val) { _gotPainted = val; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
     void scr2fb(float scr2fbX, float scr2fbY)
@@ -161,7 +164,7 @@ public:
     }
 
     // Getters
-    //SLuint          index() const { return _index; }
+    SLScene&        s() { return *_s; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -172,6 +175,8 @@ public:
     SLfloat         scrWdivH() const { return _scrWdivH; }
     SLfloat         scr2fbX() const { return _scr2fbX; }
     SLfloat         scr2fbY() const { return _scr2fbY; }
+    SLint           dpi() const { return _dpi; }
+    SLfloat         dpmm() const { return (float)_dpi / 25.4f; }
     SLRecti         viewportRect() const { return _viewportRect; }
     SLVec2i         viewportRatio() const { return _viewportRatio; }
     SLfloat         viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }
@@ -180,7 +185,6 @@ public:
     SLViewportAlign viewportAlign() const { return _viewportAlign; }
     SLbool          viewportSameAsVideo() const { return _viewportSameAsVideo; }
     SLUiInterface*  gui() { return _gui; }
-    //SLbool          gotPainted() const { return _gotPainted; }
     SLbool          doFrustumCulling() const { return _doFrustumCulling; }
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
@@ -201,12 +205,19 @@ public:
     AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
-    SLScene&        s() { return *_s; }
+#ifdef SL_HAS_OPTIX
+    SLOptixRaytracer* optixRaytracer(){ return &_optixRaytracer; }
+    SLOptixPathtracer* optixPathtracer() { return &_optixPathtracer; }
+    SLbool             draw3DOptixRT();
+    SLbool             draw3DOptixPT();
+    void               startOptixRaytracing(SLint maxDepth);
+    void               startOptixPathtracing(SLint maxDepth, SLint samples);
+#endif
 
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
 protected:
-    //SLuint         _index;           //!< index of this pointer in SLScene::sceneView vector
+    SLScene* _s; //!< Pointer scene observed by this scene view
     SLCamera*      _camera;          //!< Pointer to the _active camera
     SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
     SLUiInterface* _gui = nullptr;   //!< ImGui instance
@@ -242,8 +253,9 @@ protected:
     SLint           _scrWdiv2;            //!< Screen half width in pixels
     SLint           _scrHdiv2;            //!< Screen half height in pixels
     SLfloat         _scrWdivH;            //!< Screen side aspect ratio
-    SLfloat         _scr2fbX;             //!< Horizontal screen to framebuffer ratio
-    SLfloat         _scr2fbY;             //!< Vertical screen to framebuffer ratio
+    SLfloat         _scr2fbX{1.0f};       //!< Horizontal screen to framebuffer ratio
+    SLfloat         _scr2fbY{1.0f};       //!< Vertical screen to framebuffer ratio
+    int             _dpi;                 //!< dots per inch of screen
     SLVec2i         _viewportRatio;       //!< ratio of viewport
     SLViewportAlign _viewportAlign;       //!< alignment of viewport
     SLRecti         _viewportRect;        //!< rectangle of viewport
@@ -261,16 +273,19 @@ protected:
     SLPathtracer   _pathtracer; //!< Pathtracer
     SLbool         _stopPT;     //!< Flag to stop the PT
     SLGLConetracer _conetracer; //!< Conetracer CT
-
-    int _dpi; //! dots per inch of screen
+	
+#ifdef SL_HAS_OPTIX
+    SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix
+    SLbool            _stopOptixRT;     //!< Flag to stop the Optix RT
+    SLOptixPathtracer _optixPathtracer; //!< Path tracer with Optix
+    SLbool            _stopOptixPT;     //!< Flag to stop the Optix PT
+#endif
 
     SLInputManager& _inputManager;
 
     AvgFloat _cullTimesMS;   //!< Averaged time for culling in ms
     AvgFloat _draw3DTimesMS; //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS; //!< Averaged time for 2D drawing in ms
-
-    SLScene* _s; //!< Pointer scene observed by this scene view
 };
 //-----------------------------------------------------------------------------
 #endif

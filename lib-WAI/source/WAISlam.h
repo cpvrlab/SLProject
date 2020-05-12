@@ -1,9 +1,9 @@
 #ifndef WAISLAM_H
 #define WAISLAM_H
+
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
-#include <WAIOrbVocabulary.h>
 #include <WAIModeOrbSlam2.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
@@ -14,6 +14,8 @@
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
+#include <memory>
+#include <fbow.h>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
@@ -43,16 +45,16 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-    WAISlam(cv::Mat        intrinsic,
-            cv::Mat        distortion,
-            ORBVocabulary* voc,
-            KPextractor*   iniExtractor,
-            KPextractor*   extractor,
-            WAIMap*        globalMap,
-            bool           trackingOnly      = false,
-            bool           serial            = false,
-            bool           retainImg         = false,
-            float          cullRedundantPerc = 0.95f);
+    WAISlam(const cv::Mat&          intrinsic,
+            const cv::Mat&          distortion,
+            fbow::Vocabulary*       voc,
+            KPextractor*            iniExtractor,
+            KPextractor*            extractor,
+            std::unique_ptr<WAIMap> globalMap,
+            bool                    trackingOnly      = false,
+            bool                    serial            = false,
+            bool                    retainImg         = false,
+            float                   cullRedundantPerc = 0.95f);
 
     virtual ~WAISlam();
 
@@ -70,12 +72,13 @@ public:
 
     virtual bool retainImage();
 
-    static std::vector<WAIMapPoint*>                                 getMatchedMapPoints(WAIFrame* frame);
-    static std::pair<std::vector<cv::Vec3f>, std::vector<cv::Vec2f>> getMatchedCorrespondances(WAIFrame* frame);
+    std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
+    int                       getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching);
 
     virtual bool                      isInitialized() { return _initialized; }
-    virtual WAIMap*                   getMap() { return _globalMap; }
-    virtual WAIFrame*                 getLastFrame() { return &_lastFrame; }
+    virtual WAIMap*                   getMap() { return _globalMap.get(); }
+    virtual WAIFrame                  getLastFrame();
+    virtual WAIFrame*                 getLastFramePtr();
     virtual std::vector<WAIMapPoint*> getLocalMapPoints() { return _localMap.mapPoints; }
     virtual int                       getNumKeyFrames() { return (int)_globalMap->KeyFramesInMap(); }
 
@@ -120,7 +123,7 @@ public:
     virtual int     getKeyFrameCount() { return (int)_globalMap->KeyFramesInMap(); }
     virtual int     getMapPointCount() { return (int)_globalMap->MapPointsInMap(); }
     virtual cv::Mat getPose();
-    virtual void    setMap(WAIMap* globalMap);
+    virtual void    setMap(std::unique_ptr<WAIMap> globalMap);
 
     virtual WAI::TrackingState getTrackingState() { return _state; }
 

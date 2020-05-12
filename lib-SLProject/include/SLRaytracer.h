@@ -14,6 +14,7 @@
 #include <SLGLTexture.h>
 #include <SLVec4.h>
 #include <SLLight.h>
+#include <Averaged.h>
 
 class SLScene;
 class SLSceneView;
@@ -59,21 +60,21 @@ public:
     ~SLRaytracer() override;
 
     // ray tracer functions
-    SLbool         renderClassic(SLSceneView* sv);
-    SLbool         renderDistrib(SLSceneView* sv);
-    void           renderSlices(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
-    void           renderSlicesMS(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
-    SLCol4f        trace(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
-    static SLCol4f shade(SLRay* ray, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
-    void           sampleAAPixels(const bool isMainThread, SLNode* root, const SLCol4f& globalAmbiLight, const SLVLight& lights);
-    void           renderUIBeforeUpdate();
+    SLbool  renderClassic(SLSceneView* sv);
+    SLbool  renderDistrib(SLSceneView* sv);
+    void    renderSlices(bool isMainThread);
+    void    renderSlicesMS(bool isMainThread);
+    SLCol4f trace(SLRay* ray);
+    SLCol4f shade(SLRay* ray);
+    void    sampleAAPixels(bool isMainThread);
+    void    renderUIBeforeUpdate();
 
     // additional ray tracer functions
-    void    setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
-    void    getAAPixels();
-    SLCol4f fogBlend(SLfloat z, SLCol4f color);
-    void    printStats(SLfloat sec);
-    void    initStats(SLint depth);
+    void         setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay);
+    void         getAAPixels();
+    SLCol4f      fogBlend(SLfloat z, SLCol4f color);
+    virtual void printStats(SLfloat sec);
+    virtual void initStats(SLint depth);
 
     // Setters
     void state(SLRTState state)
@@ -85,6 +86,7 @@ public:
         _maxDepth = depth;
         state(rtReady);
     }
+    void resolutionFactor(SLfloat rf) { _resolutionFactor = rf; }
     void doDistributed(SLbool distrib) { _doDistributed = distrib; }
     void doContinuous(SLbool cont)
     {
@@ -115,27 +117,32 @@ public:
     SLbool    doFresnel() const { return _doFresnel; }
     SLint     aaSamples() const { return _aaSamples; }
     SLuint    numThreads() const { return Utils::maxThreads(); }
-    SLint     pcRendered() const { return _pcRendered; }
+    SLint     progressPC() const { return _progressPC; }
     SLfloat   aaThreshold() const { return _aaThreshold; }
     SLfloat   renderSec() const { return _renderSec; }
-    SLfloat   gamma() { return _gamma; }
-    SLfloat   oneOverGamma() { return _oneOverGamma; }
+    SLfloat   gamma() const { return _gamma; }
+    SLfloat   oneOverGamma() const { return _oneOverGamma; }
+    SLfloat   resolutionFactor() const { return _resolutionFactor; }
+    SLint     resolutionFactorPC() const { return (SLint)(_resolutionFactor * 100.0f + 0.00001f); }
+    SLfloat   raysPerMS() { return _raysPerMS.average(); }
 
     // Render target image
-    void prepareImage();
-    void renderImage();
-    void saveImage();
+    virtual void prepareImage();
+    virtual void renderImage();
+    virtual void saveImage();
 
 protected:
-    SLSceneView* _sv;            //!< Parent sceneview
-    SLRTState    _state;         //!< RT state;
-    SLCamera*    _cam;           //!< shortcut to the camera
-    SLint        _maxDepth;      //!< Max. allowed recursion depth
-    SLbool       _doContinuous;  //!< if true state goes into ready again
-    SLbool       _doDistributed; //!< Flag for parallel distributed RT
-    SLbool       _doFresnel;     //!< Flag for Fresnel reflection
-    SLint        _pcRendered;    //!< % rendered
-    SLfloat      _renderSec;     //!< Rendering time in seconds
+    SLSceneView* _sv;               //!< Parent sceneview
+    SLRTState    _state;            //!< RT state;
+    SLCamera*    _cam;              //!< shortcut to the camera
+    SLfloat      _resolutionFactor; //!< screen to RT image size factor (default 1.0)
+    SLint        _maxDepth;         //!< Max. allowed recursion depth
+    SLbool       _doContinuous;     //!< if true state goes into ready again
+    SLbool       _doDistributed;    //!< Flag for parallel distributed RT
+    SLbool       _doFresnel;        //!< Flag for Fresnel reflection
+    SLint        _progressPC;       //!< progress in %
+    SLfloat      _renderSec;        //!< Rendering time in seconds
+    AvgFloat     _raysPerMS;        //!< Averaged rays per ms
 
     SLfloat     _pxSize;       //!< Pixel size
     SLVec3f     _EYE;          //!< Camera position

@@ -12,11 +12,14 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventSender.h
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.h
+	${SL_PROJECT_ROOT}/apps/source/LogWindow.h
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.h
@@ -30,6 +33,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/CameraTestGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
@@ -50,11 +54,11 @@ set(erlebar_headers
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiSlamParam.h
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/DeviceData.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
@@ -62,7 +66,6 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageBuffer.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
@@ -76,6 +79,9 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/CameraTestView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.h
 	)
 	
 set(erlebar_sources
@@ -85,7 +91,10 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
+	${SL_PROJECT_ROOT}/apps/source/LogWindow.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoGuiInfosDialog.cpp
@@ -99,6 +108,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/TutorialGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/CameraTestGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
@@ -124,8 +134,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AppWAIScene.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/AreaTrackingScene.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp
@@ -138,6 +147,9 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TutorialView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/CameraTestView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.cpp
 	)
 	
 set(erlebar_include_directories

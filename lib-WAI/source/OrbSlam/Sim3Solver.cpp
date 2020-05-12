@@ -27,7 +27,7 @@
 #include <WAIKeyFrame.h>
 #include <OrbSlam/ORBmatcher.h>
 
-#include <DUtils/Random.h>
+#include <Random.h>
 
 namespace ORB_SLAM2
 {
@@ -39,7 +39,7 @@ Sim3Solver::Sim3Solver(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, const vector<WAIMap
 
     vector<WAIMapPoint*> vpKeyFrameMP1 = pKF1->GetMapPointMatches();
 
-    mN1 = vpMatched12.size();
+    mN1 = (int)vpMatched12.size();
 
     mvpMapPoints1.reserve(mN1);
     mvpMapPoints2.reserve(mN1);
@@ -81,8 +81,8 @@ Sim3Solver::Sim3Solver(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, const vector<WAIMap
             const float sigmaSquare1 = pKF1->mvLevelSigma2[kp1.octave];
             const float sigmaSquare2 = pKF2->mvLevelSigma2[kp2.octave];
 
-            mvnMaxError1.push_back(9.210 * sigmaSquare1);
-            mvnMaxError2.push_back(9.210 * sigmaSquare2);
+            mvnMaxError1.push_back((size_t)(9.210f * sigmaSquare1));
+            mvnMaxError2.push_back((size_t)(9.210f * sigmaSquare2));
 
             mvpMapPoints1.push_back(pMP1);
             mvpMapPoints2.push_back(pMP2);
@@ -114,7 +114,7 @@ void Sim3Solver::SetRansacParameters(double probability, int minInliers, int max
     mRansacMinInliers = minInliers;
     mRansacMaxIts     = maxIterations;
 
-    N = mvpMapPoints1.size(); // number of correspondences
+    N = (int)mvpMapPoints1.size(); // number of correspondences
 
     mvbInliersi.resize(N);
 
@@ -127,7 +127,7 @@ void Sim3Solver::SetRansacParameters(double probability, int minInliers, int max
     if (mRansacMinInliers == N)
         nIterations = 1;
     else
-        nIterations = ceil(log(1 - mRansacProb) / log(1 - pow(epsilon, 3)));
+        nIterations = (int)ceil(log(1 - mRansacProb) / log(1 - pow(epsilon, 3)));
 
     mRansacMaxIts = max(1, min(nIterations, mRansacMaxIts));
 
@@ -162,9 +162,9 @@ cv::Mat Sim3Solver::iterate(int nIterations, bool& bNoMore, vector<bool>& vbInli
         // Get min set of points
         for (short i = 0; i < 3; ++i)
         {
-            int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size() - 1);
+            int randi = (int)(DUtils::Random::RandomInt(0, (int)vAvailableIndices.size() - 1));
 
-            int idx = vAvailableIndices[randi];
+            int idx = (int)vAvailableIndices[randi];
 
             mvX3Dc1[idx].copyTo(P3Dc1i.col(i));
             mvX3Dc2[idx].copyTo(P3Dc2i.col(i));
@@ -300,7 +300,7 @@ void Sim3Solver::ComputeSim3(cv::Mat& P1, cv::Mat& P2)
             }
         }
 
-        ms12i = nom / den;
+        ms12i = (float)(nom / den);
     }
     else
         ms12i = 1.0f;
@@ -344,8 +344,8 @@ void Sim3Solver::CheckInliers()
         cv::Mat dist1 = mvP1im1[i] - vP2im1[i];
         cv::Mat dist2 = vP1im2[i] - mvP2im2[i];
 
-        const float err1 = dist1.dot(dist1);
-        const float err2 = dist2.dot(dist2);
+        const float err1 = (float)dist1.dot(dist1);
+        const float err2 = (float)dist2.dot(dist2);
 
         if (err1 < mvnMaxError1[i] && err2 < mvnMaxError2[i])
         {

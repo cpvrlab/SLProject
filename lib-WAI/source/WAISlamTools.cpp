@@ -20,7 +20,7 @@ void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image)
         //const auto& pt = mCurrentFrame.mvKeys[i].pt;
         const auto& pt = frame.mvKeys[i].pt;
         cv::rectangle(image,
-                      cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                      cv::Rect((int)(pt.x - 3), (int)(pt.y - 3), 7, 7),
                       cv::Scalar(0, 0, 255));
     }
 }
@@ -36,7 +36,7 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image)
                 //Use distorted points because we have to undistort the image later
                 const auto& pt = frame.mvKeys[i].pt;
                 cv::rectangle(image,
-                              cv::Rect(pt.x - 3, pt.y - 3, 7, 7),
+                              cv::Rect((int)(pt.x - 3), (int)(pt.y - 3), 7, 7),
                               cv::Scalar(0, 255, 0));
             }
         }
@@ -49,7 +49,8 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     {
         cv::rectangle(imageRGB,
                       iniData.initialFrame.mvKeys[i].pt,
-                      cv::Point(iniData.initialFrame.mvKeys[i].pt.x + 3, iniData.initialFrame.mvKeys[i].pt.y + 3),
+                      cv::Point((int)(iniData.initialFrame.mvKeys[i].pt.x + 3),
+                                (int)(iniData.initialFrame.mvKeys[i].pt.y + 3)),
                       cv::Scalar(0, 0, 255));
     }
 
@@ -65,12 +66,12 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     }
 }
 
-bool WAISlamTools::initialize(InitializerData& iniData,
-                              WAIFrame&        frame,
-                              ORBVocabulary*   voc,
-                              LocalMap&        localMap,
-                              int              mapPointsNeeded,
-                              unsigned long&   lastKeyFrameFrameId)
+bool WAISlamTools::initialize(InitializerData&  iniData,
+                              WAIFrame&         frame,
+                              fbow::Vocabulary* voc,
+                              LocalMap&         localMap,
+                              int               mapPointsNeeded,
+                              unsigned long&    lastKeyFrameFrameId)
 {
     int matchesNeeded = 100;
 
@@ -103,7 +104,7 @@ bool WAISlamTools::initialize(InitializerData& iniData,
     }
 
     // Find correspondences
-    ORBmatcher matcher(0.9, true);
+    ORBmatcher matcher(0.9f, true);
     int        nmatches = matcher.SearchForInitialization(iniData.initialFrame, frame, iniData.prevMatched, iniData.iniMatches, 100);
 
     // Check if there are enough correspondences
@@ -270,15 +271,15 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
     return true;
 }
 
-bool WAISlamTools::oldInitialize(WAIFrame&        frame,
-                                 InitializerData& iniData,
-                                 WAIMap*          map,
-                                 LocalMap&        localMap,
-                                 LocalMapping*    localMapper,
-                                 LoopClosing*     loopCloser,
-                                 ORBVocabulary*   voc,
-                                 int              mapPointsNeeded,
-                                 unsigned long&   lastKeyFrameFrameId)
+bool WAISlamTools::oldInitialize(WAIFrame&         frame,
+                                 InitializerData&  iniData,
+                                 WAIMap*           map,
+                                 LocalMap&         localMap,
+                                 LocalMapping*     localMapper,
+                                 LoopClosing*      loopCloser,
+                                 fbow::Vocabulary* voc,
+                                 int               mapPointsNeeded,
+                                 unsigned long&    lastKeyFrameFrameId)
 {
     int matchesNeeded = 100;
 
@@ -314,7 +315,7 @@ bool WAISlamTools::oldInitialize(WAIFrame&        frame,
     }
 
     // Find correspondences
-    ORBmatcher matcher(0.9, true);
+    ORBmatcher matcher(0.9f, true);
     int        nmatches = matcher.SearchForInitialization(iniData.initialFrame, frame, iniData.prevMatched, iniData.iniMatches, 100);
 
     // Check if there are enough correspondences
@@ -655,7 +656,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     }
 
     //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
-    const int nKFs = vpCandidateKFs.size();
+    const int nKFs = (int)vpCandidateKFs.size();
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
@@ -687,12 +688,13 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
             if (nmatches < 15)
             {
                 vbDiscarded[i] = true;
+
                 continue;
             }
             else
             {
                 PnPsolver* pSolver = new PnPsolver(currentFrame, vvpMapPointMatches[i]);
-                pSolver->SetRansacParameters(0.99, 10, 300, 4, 0.5, 5.991);
+                pSolver->SetRansacParameters(0.99, 10, 300, 4, 0.5f, 5.991f);
                 vpPnPsolvers[i] = pSolver;
                 nCandidates++;
             }
@@ -702,7 +704,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool       bMatch = false;
-    ORBmatcher matcher2(0.9, true);
+    ORBmatcher matcher2(0.9f, true);
 
     while (nCandidates > 0 && !bMatch)
     {
@@ -733,7 +735,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
 
                 set<WAIMapPoint*> sFound;
 
-                const int np = vbInliers.size();
+                const int np = (int)vbInliers.size();
 
                 for (int j = 0; j < np; j++)
                 {
@@ -801,7 +803,9 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     return bMatch;
 }
 
-bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WAIFrame& frame)
+bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map,
+                                          WAIFrame& lastFrame,
+                                          WAIFrame& frame)
 {
     //This routine is called if current tracking state is OK but we have NO valid motion model
     //1. Berechnung des BoW-Vectors für den current frame
@@ -812,21 +816,21 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     //6. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
     //7. If there are more than 10 valid matches the reference frame tracking was successful.
 
-    AVERAGE_TIMING_START("trackReferenceKeyFrame");
+    AVERAGE_TIMING_START("TrackReferenceKeyFrame");
 
     // Compute Bag of Words vector
     frame.ComputeBoW();
 
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
-    ORBmatcher           matcher(0.7, false); //don't test rotation
+    ORBmatcher           matcher(0.7f, false); //don't test rotation
     vector<WAIMapPoint*> vpMapPointMatches;
 
     int nmatches = matcher.SearchByBoW(map.refKF, frame, vpMapPointMatches);
 
     if (nmatches < 15)
     {
-        AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
+        AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
         return false;
     }
 
@@ -853,11 +857,13 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WA
     }
     */
 
-    AVERAGE_TIMING_STOP("trackReferenceKeyFrame");
+    AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
     return nmatches >= 10; //nmatchesMap >= 10;
 }
 
-int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, WAIFrame& frame)
+int WAISlamTools::trackLocalMapPoints(LocalMap& localMap,
+                                      int       lastRelocFrameId,
+                                      WAIFrame& frame)
 {
     // Do not search map points already matched
     for (vector<WAIMapPoint*>::iterator vit = frame.mvpMapPoints.begin(), vend = frame.mvpMapPoints.end(); vit != vend; vit++)
@@ -898,12 +904,12 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
 
     if (nToMatch > 0)
     {
-        ORBmatcher matcher(0.8);
+        ORBmatcher matcher(0.8f);
         int        th = 1;
         // If the camera has been relocalised recently, perform a coarser search
         if (frame.mnId - 1 == lastRelocFrameId)
             th = 5;
-        matcher.SearchByProjection(frame, localMap.mapPoints, th);
+        matcher.SearchByProjection(frame, localMap.mapPoints, (float)th);
     }
 
     // Optimize Pose
@@ -942,7 +948,8 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap, int lastRelocFrameId, 
     return matchesInliers;
 }
 
-void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
+void WAISlamTools::updateLocalMap(WAIFrame& frame,
+                                  LocalMap& localMap)
 {
     // Each map point vote for the keyframes in which it has been observed
     map<WAIKeyFrame*, int> keyframeCounter;
@@ -1065,64 +1072,67 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame, LocalMap& localMap)
     }
 }
 
-bool WAISlamTools::trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFrame, WAIFrame& frame)
+bool WAISlamTools::trackWithMotionModel(cv::Mat   velocity,
+                                        WAIFrame& previousFrame,
+                                        WAIFrame& frame)
 {
-    AVERAGE_TIMING_START("trackWithMotionModel");
+    AVERAGE_TIMING_START("TrackWithMotionModel");
 
     if (velocity.empty() || frame.mnId > previousFrame.mnId + 1)
         return false;
 
-    ORBmatcher matcher(0.9, true);
+    ORBmatcher matcher(0.9f, true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points if in Localization Mode
     //WAIKeyFrame* pRef = previousFrame.mpReferenceKF;
     //previousFrame.SetPose(last.lastFrameRelativePose * pRef->GetPose());
 
-    //this adds the motion differnce between the last and the before-last frame to the pose of the last frame to estimate the position of the current frame
+    //this adds the motion difference between the last and the before-last frame to the pose of the last frame to estimate the position of the current frame
+
     frame.SetPose(velocity * previousFrame.mTcw);
 
     fill(frame.mvpMapPoints.begin(), frame.mvpMapPoints.end(), static_cast<WAIMapPoint*>(NULL));
 
     // Project points seen in previous frame
     int th       = 15;
-    int nmatches = matcher.SearchByProjection(frame, previousFrame, th, true);
+    int nmatches = matcher.SearchByProjection(frame, previousFrame, (float)th, true);
 
     // If few matches, uses a wider window search
     if (nmatches < 20)
     {
         fill(frame.mvpMapPoints.begin(), frame.mvpMapPoints.end(), static_cast<WAIMapPoint*>(NULL));
-        nmatches = matcher.SearchByProjection(frame, previousFrame, 2 * th, true);
+        nmatches = matcher.SearchByProjection(frame, previousFrame, (float)(2 * th), true);
     }
 
     if (nmatches < 20)
     {
-        AVERAGE_TIMING_STOP("trackWithMotionModel");
+        AVERAGE_TIMING_STOP("TrackWithMotionModel");
         return false;
     }
 
     // Optimize frame pose with all matches
     nmatches = Optimizer::PoseOptimization(&frame);
 
-    AVERAGE_TIMING_STOP("trackWithMotionModel");
+    AVERAGE_TIMING_STOP("TrackWithMotionModel");
 
     return nmatches >= 10;
 }
 
-WAIFrame WAISlamTools::createMarkerFrame(std::string    markerFile,
-                                         KPextractor*   markerExtractor,
-                                         const cv::Mat& markerCameraIntrinsic,
-                                         ORBVocabulary* voc)
+WAIFrame WAISlamTools::createMarkerFrame(std::string       markerFile,
+                                         KPextractor*      markerExtractor,
+                                         const cv::Mat&    markerCameraIntrinsic,
+                                         fbow::Vocabulary* voc)
 {
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
     float fyCam = markerCameraIntrinsic.at<float>(1, 1);
     float cyCam = markerCameraIntrinsic.at<float>(1, 2);
-    float fov   = 2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI;
+    float fov   = (float)(2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI);
 
     float cx = (float)markerImgGray.cols * 0.5f;
     float cy = (float)markerImgGray.rows * 0.5f;
-    float fy = cy / tanf(fov * 0.5f * M_PI / 180.0);
+    float fy = (float)(cy / tanf(fov * 0.5f * (float)M_PI / 180.0f));
     float fx = fy;
 
     // TODO(dgj1): pass actual calibration for marker frame?
@@ -1142,7 +1152,7 @@ bool WAISlamTools::findMarkerHomography(WAIFrame&    markerFrame,
 {
     bool result = false;
 
-    ORBmatcher matcher(0.9, true);
+    ORBmatcher matcher(0.9f, true);
 
     std::vector<int> markerMatchesToCurrentFrame;
     int              nmatches = matcher.SearchForMarkerMap(markerFrame, *kfCand, markerMatchesToCurrentFrame);
@@ -1175,13 +1185,13 @@ bool WAISlamTools::findMarkerHomography(WAIFrame&    markerFrame,
     return result;
 }
 
-bool WAISlamTools::doMarkerMapPreprocessing(std::string    markerFile,
-                                            cv::Mat&       nodeTransform,
-                                            float          markerWidthInM,
-                                            KPextractor*   markerExtractor,
-                                            WAIMap*        map,
-                                            const cv::Mat& markerCameraIntrinsic,
-                                            ORBVocabulary* voc)
+bool WAISlamTools::doMarkerMapPreprocessing(std::string       markerFile,
+                                            cv::Mat&          nodeTransform,
+                                            float             markerWidthInM,
+                                            KPextractor*      markerExtractor,
+                                            WAIMap*           map,
+                                            const cv::Mat&    markerCameraIntrinsic,
+                                            fbow::Vocabulary* voc)
 {
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes
@@ -1198,9 +1208,9 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string    markerFile,
     WAIKeyFrame* matchedKf2 = nullptr;
 
     cv::Mat ul = cv::Mat(cv::Point3f(0, 0, 1));
-    cv::Mat ur = cv::Mat(cv::Point3f(markerFrame.imgGray.cols, 0, 1));
-    cv::Mat ll = cv::Mat(cv::Point3f(0, markerFrame.imgGray.rows, 1));
-    cv::Mat lr = cv::Mat(cv::Point3f(markerFrame.imgGray.cols, markerFrame.imgGray.rows, 1));
+    cv::Mat ur = cv::Mat(cv::Point3f((float)markerFrame.imgGray.cols, 0, 1));
+    cv::Mat ll = cv::Mat(cv::Point3f(0, (float)markerFrame.imgGray.rows, 1));
+    cv::Mat lr = cv::Mat(cv::Point3f((float)markerFrame.imgGray.cols, (float)markerFrame.imgGray.rows, 1));
 
     cv::Mat ulKf1, urKf1, llKf1, lrKf1, ulKf2, urKf2, llKf2, lrKf2;
     cv::Mat ul3D, ur3D, ll3D, lr3D;
@@ -1382,7 +1392,7 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string    markerFile,
                     cv::Mat   AD  = lr3D - ul3D;
                     cv::Vec3f vAD = AD;
 
-                    float d = cv::norm(vn.dot(vAD)) / cv::norm(vn);
+                    float d = (float)cv::norm(vn.dot(vAD)) / (float)cv::norm(vn);
                     if (d < 0.01f)
                     {
                         matchedKf1 = kfCand1;
@@ -1465,7 +1475,7 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string    markerFile,
     systemNormInv.copyTo(nodeTransform.rowRange(0, 3).colRange(0, 3));
 
     cv::Mat scaleMat         = cv::Mat::eye(4, 4, CV_32F);
-    float   markerWidthInRef = cv::norm(ul3D - ur3D);
+    float   markerWidthInRef = (float)cv::norm(ul3D - ur3D);
     float   scaleFactor      = markerWidthInM / markerWidthInRef;
     scaleMat.at<float>(0, 0) = scaleFactor;
     scaleMat.at<float>(1, 1) = scaleFactor;

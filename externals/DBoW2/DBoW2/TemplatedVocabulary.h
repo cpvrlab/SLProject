@@ -756,7 +756,7 @@ void TemplatedVocabulary<TDescriptor, F>::HKmeansStep(NodeId                    
 
                 //assoc.ref<unsigned char>(icluster, d) = 1;
 
-                groups[icluster].push_back(fit - descriptors.begin());
+                groups[icluster].push_back((unsigned int)(fit - descriptors.begin()));
                 current_association[fit - descriptors.begin()] = icluster;
             }
 
@@ -796,7 +796,7 @@ void TemplatedVocabulary<TDescriptor, F>::HKmeansStep(NodeId                    
     // create nodes
     for (unsigned int i = 0; i < clusters.size(); ++i)
     {
-        NodeId id = m_nodes.size();
+        NodeId id = (unsigned int)m_nodes.size();
         m_nodes.push_back(Node(id));
         m_nodes.back().descriptor = clusters[i];
         m_nodes.back().parent     = parent_id;
@@ -863,7 +863,7 @@ void TemplatedVocabulary<TDescriptor, F>::initiateClustersKMpp(
 
     // 1.
 
-    int ifeature = DUtils::Random::RandomInt(0, pfeatures.size() - 1);
+    int ifeature = (int)DUtils::Random::RandomInt(0, (int)pfeatures.size() - 1);
 
     // create first cluster
     clusters.push_back(*pfeatures[ifeature]);
@@ -911,7 +911,7 @@ void TemplatedVocabulary<TDescriptor, F>::initiateClustersKMpp(
             if (dit == min_dists.end())
                 ifeature = (int)pfeatures.size() - 1;
             else
-                ifeature = dit - min_dists.begin();
+                ifeature = (int)(dit - min_dists.begin());
 
             clusters.push_back(*pfeatures[ifeature]);
 
@@ -940,7 +940,7 @@ void TemplatedVocabulary<TDescriptor, F>::createWords()
         {
             if (nit->isLeaf())
             {
-                nit->word_id = m_words.size();
+                nit->word_id = (DBoW2::WordId)m_words.size();
                 m_words.push_back(&(*nit));
             }
         }
@@ -952,8 +952,8 @@ void TemplatedVocabulary<TDescriptor, F>::createWords()
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor, F>::setNodeWeights(const vector<vector<TDescriptor>>& training_features)
 {
-    const unsigned int NWords = m_words.size();
-    const unsigned int NDocs  = training_features.size();
+    const unsigned int NWords = (unsigned int)m_words.size();
+    const unsigned int NDocs  = (unsigned int)training_features.size();
 
     if (m_weighting == TF || m_weighting == BINARY)
     {
@@ -1103,7 +1103,7 @@ void TemplatedVocabulary<TDescriptor, F>::transform(
         if (!v.empty() && !must)
         {
             // unnecessary when normalizing
-            const double nd = v.size();
+            const double nd = (double)v.size();
             for (BowVector::iterator vit = v.begin(); vit != v.end(); vit++)
                 vit->second /= nd;
         }
@@ -1172,7 +1172,7 @@ void TemplatedVocabulary<TDescriptor, F>::transform(
         if (!v.empty() && !must)
         {
             // unnecessary when normalizing
-            const double nd = v.size();
+            const double nd = (double)v.size();
             for (BowVector::iterator vit = v.begin(); vit != v.end(); vit++)
                 vit->second /= nd;
         }
@@ -1422,14 +1422,17 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromBinaryFile(const std::string& 
     createScoringObject();
 
     m_nodes.reserve(nodeCount + 1);
-    m_words.reserve(pow((double)m_k, (double)m_L + 1));
+    m_words.reserve((size_t)pow((double)m_k, (double)m_L + 1));
 
     m_nodes.resize(nodeCount + 1);
     m_nodes[0].id = 0;
 
-    for (int i = 1; i < nodeCount; i++)
+    // Allocate space for all descriptors at once
+    cv::Mat allDescripors =  cv::Mat(nodeCount, F::L, CV_8U);
+
+    for (int iN = 1; iN < nodeCount; iN++)
     {
-        int   nid = i;
+        int   nid = iN;
         Node* n   = &m_nodes[nid];
         n->id     = nid;
 
@@ -1439,14 +1442,20 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromBinaryFile(const std::string& 
 
         // NOTE(jan): since we initialize the mat with a size of 1xF::L, it is always continuous in memory
         // according to https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#bool%20Mat::isContinuous()%20const
-        n->descriptor = cv::Mat(1, F::L, CV_8U);
+
+        // This small mat constructor is very slow on iOS
+        //n->descriptor = cv::Mat(1, F::L, CV_8U);
+
+        // Change (marcus)
+        n->descriptor = allDescripors.row(iN);
+
         memcpy(n->descriptor.ptr(0), bN->descriptor, sizeof(uint8_t) * F::L);
 
         n->weight = bN->weight;
 
         if (bN->isLeaf)
         {
-            int wid = m_words.size();
+            int wid = (int)m_words.size();
             m_words.resize(wid + 1);
 
             n->word_id   = wid;
@@ -1687,7 +1696,7 @@ void TemplatedVocabulary<TDescriptor, F>::save(cv::FileStorage&   f,
     typename vector<Node*>::const_iterator wit;
     for (wit = m_words.begin(); wit != m_words.end(); wit++)
     {
-        WordId id = wit - m_words.begin();
+        WordId id = (unsigned int)(wit - m_words.begin());
         f << "{:";
         f << "wordId" << (int)id;
         f << "nodeId" << (int)(*wit)->id;

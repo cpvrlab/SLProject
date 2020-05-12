@@ -27,8 +27,26 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
                      cbOnImGuiSaveConfig saveConfigCB,
                      int                 dpi)
 {
-    _build      = buildCB;
-    _saveConfig = saveConfigCB;
+    _build             = buildCB;
+    _saveConfig        = saveConfigCB;
+    _fontTexture       = 0;
+    _progHandle        = 0;
+    _vertHandle        = 0;
+    _fragHandle        = 0;
+    _attribLocTex      = 0;
+    _attribLocProjMtx  = 0;
+    _attribLocPosition = 0;
+    _attribLocUV       = 0;
+    _attribLocColor    = 0;
+    _vboHandle         = 0;
+    _vaoHandle         = 0;
+    _elementsHandle    = 0;
+    _fontPropDots      = 13.0f;
+    _fontFixedDots     = 16.0f;
+    _mouseWheel        = 0.0f;
+    _mousePressed[0]   = false;
+    _mousePressed[1]   = false;
+    _mousePressed[2]   = false;
 
     //create imgui context
     ImGui::CreateContext();
@@ -41,6 +59,7 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
     //load config
     if (loadConfigCB)
         loadConfigCB(dpi);
+
     // Load GUI fonts depending on the resolution
     loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
 }
@@ -71,16 +90,14 @@ void SLGLImGui::init(const string& configPath)
     _elementsHandle    = 0;
     _fontPropDots      = 13.0f;
     _fontFixedDots     = 16.0f;
+    _mouseWheel        = 0.0f;
+    _mousePressed[0]   = false;
+    _mousePressed[1]   = false;
+    _mousePressed[2]   = false;
 
-    _mouseWheel      = 0.0f;
-    _mousePressed[0] = false;
-    _mousePressed[1] = false;
-    _mousePressed[2] = false;
-
-    ImGuiIO&              io      = ImGui::GetIO();
-    static const SLstring inifile = configPath + "imgui.ini";
-    io.IniFilename                = inifile.c_str();
-
+    ImGuiIO&              io       = ImGui::GetIO();
+    static const SLstring inifile  = configPath + "imgui.ini";
+    io.IniFilename                 = inifile.c_str();
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
     io.KeyMap[ImGuiKey_RightArrow] = K_right;
@@ -105,7 +122,7 @@ void SLGLImGui::init(const string& configPath)
     io.DisplaySize             = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1, 1);
 
-#if defined(SL_OS_ANDROID) or defined(SL_OS_IOS)
+#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
     io.MouseDrawCursor = false;
 #else
     io.MouseDrawCursor = true;
@@ -209,7 +226,6 @@ void SLGLImGui::createOpenGLObjects()
     glAttachShader((SLuint)_progHandle, (SLuint)_vertHandle);
     glAttachShader((SLuint)_progHandle, (SLuint)_fragHandle);
     glLinkProgram((SLuint)_progHandle);
-
     GET_GL_ERROR;
 
     _attribLocTex      = glGetUniformLocation((SLuint)_progHandle, "Texture");
@@ -217,7 +233,6 @@ void SLGLImGui::createOpenGLObjects()
     _attribLocPosition = glGetAttribLocation((SLuint)_progHandle, "Position");
     _attribLocUV       = glGetAttribLocation((SLuint)_progHandle, "UV");
     _attribLocColor    = glGetAttribLocation((SLuint)_progHandle, "Color");
-
     GET_GL_ERROR;
 
     glGenBuffers(1, &_vboHandle);
@@ -294,22 +309,36 @@ void SLGLImGui::createOpenGLObjects()
 //! Deletes all OpenGL objects for drawing the imGui
 void SLGLImGui::deleteOpenGLObjects()
 {
-    if (_vaoHandle) glDeleteVertexArrays(1, &_vaoHandle);
-    if (_vboHandle) glDeleteBuffers(1, &_vboHandle);
-    if (_elementsHandle) glDeleteBuffers(1, &_elementsHandle);
-    _vaoHandle = _vboHandle = _elementsHandle = 0;
+    if (_vaoHandle)
+        glDeleteVertexArrays(1, &_vaoHandle);
+    _vaoHandle = 0;
 
-    if (_progHandle && _vertHandle) glDetachShader((SLuint)_progHandle,
-                                                   (SLuint)_vertHandle);
-    if (_vertHandle) glDeleteShader((SLuint)_vertHandle);
+    if (_vboHandle)
+        glDeleteBuffers(1, &_vboHandle);
+    _vboHandle = 0;
+
+    if (_elementsHandle)
+        glDeleteBuffers(1, &_elementsHandle);
+    _elementsHandle = 0;
+
+    if (_progHandle && _vertHandle)
+        glDetachShader((SLuint)_progHandle,
+                       (SLuint)_vertHandle);
+
+    if (_vertHandle)
+        glDeleteShader((SLuint)_vertHandle);
     _vertHandle = 0;
 
-    if (_progHandle && _fragHandle) glDetachShader((SLuint)_progHandle,
-                                                   (SLuint)_fragHandle);
-    if (_fragHandle) glDeleteShader((SLuint)_fragHandle);
+    if (_progHandle && _fragHandle)
+        glDetachShader((SLuint)_progHandle,
+                       (SLuint)_fragHandle);
+
+    if (_fragHandle)
+        glDeleteShader((SLuint)_fragHandle);
     _fragHandle = 0;
 
-    if (_progHandle) glDeleteProgram((SLuint)_progHandle);
+    if (_progHandle)
+        glDeleteProgram((SLuint)_progHandle);
     _progHandle = 0;
 
     if (_fontTexture)
@@ -318,6 +347,7 @@ void SLGLImGui::deleteOpenGLObjects()
         ImGui::GetIO().Fonts->TexID = nullptr;
         _fontTexture                = 0;
     }
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 //! Prints the compile errors in case of a GLSL compile failure

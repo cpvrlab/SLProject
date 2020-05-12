@@ -5,28 +5,19 @@
 
 using namespace ErlebAR;
 
-LocationMapGui::LocationMapGui(sm::EventHandler&   eventHandler,
+LocationMapGui::LocationMapGui(const ImGuiEngine&  imGuiEngine,
+                               sm::EventHandler&   eventHandler,
                                ErlebAR::Resources& resources,
                                int                 dotsPerInch,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
-                               std::string         fontPath,
                                std::string         erlebARDir)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources),
     _erlebARDir(erlebARDir)
 {
     resize(screenWidthPix, screenHeightPix);
-    float bigTextH = _resources.style().headerBarTextH * (float)_headerBarH;
-    //load fonts for big ErlebAR text and verions text
-    SLstring ttf = fontPath + "Roboto-Medium.ttf";
-
-    if (Utils::fileExists(ttf))
-    {
-        _fontBig = _context->IO.Fonts->AddFontFromFileTTF(ttf.c_str(), bigTextH);
-    }
-    else
-        Utils::warnMsg("LocationMapGui", "font does not exist!", __LINE__, __FILE__);
 }
 
 LocationMapGui::~LocationMapGui()
@@ -75,13 +66,13 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonTranspColor,
                              _resources.style().headerBarBackButtonPressedTranspColor,
-                             _fontBig,
+                             _resources.fonts().headerBar,
                              _buttonRounding,
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _loc.name,
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("LocationMapGui")); });
 
     //content
     if (_loc.id != LocationId::NONE)
@@ -104,7 +95,15 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
 
+        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().areaPoseButtonColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().areaPoseButtonColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().areaPoseButtonColorPressed);
+
         ImGui::Begin("LocationMapGui_content", nullptr, windowFlags);
+
+        float triangleWidth  = _resources.style().areaPoseButtonViewTriangleWidth * _screenH;
+        float triangleLength = _resources.style().areaPoseButtonViewTriangleLength * triangleWidth;
+        float circleRadius   = _resources.style().areaPoseButtonCircleRadius * triangleWidth;
 
         int   i          = 0;
         float buttonSize = 0.1f * _screenH;
@@ -113,21 +112,32 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
             const Area& area = it.second;
             ImGui::SetCursorPosX((float)(area.xPosPix - _locImgCropW) / (float)_locTextureW * _screenW);
             ImGui::SetCursorPosY((float)(area.yPosPix - _locImgCropH) / (float)_locTextureH * _screenH - _headerBarH);
-            ImGui::PushID(i);
-            if (ImGui::Button(area.name, ImVec2(buttonSize, buttonSize)))
+            //ImGui::PushID(i);
+            if (ErlebAR::PoseShapeButton(area.name,
+                                         ImVec2(buttonSize, buttonSize),
+                                         circleRadius,
+                                         triangleLength,
+                                         triangleWidth,
+                                         area.viewAngleDeg,
+                                         _resources.style().areaPoseButtonShapeColor,
+                                         _resources.style().areaPoseButtonShapeColorPressed))
             {
-                sendEvent(new AreaSelectedEvent(_loc.id, it.first));
+                sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first));
             }
-            ImGui::PopID();
+
+            //ImGui::PopID();
             i++;
         }
 
         ImGui::End();
 
-        ImGui::PopStyleColor(1);
+        ImGui::PopStyleColor(4);
         ImGui::PopStyleVar(6);
     }
     //ImGui::ShowMetricsWindow();
+
+    //debug: draw log window
+    _resources.logWinDraw();
 }
 
 void LocationMapGui::initLocation(ErlebAR::LocationId locId)

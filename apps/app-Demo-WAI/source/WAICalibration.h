@@ -1,10 +1,10 @@
 #ifndef WAICALIBRATION
 #define WAICALIBRATION
-using namespace std;
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <opencv2/opencv.hpp>
+using namespace std;
 
 enum CalibrationState
 {
