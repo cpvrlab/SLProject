@@ -208,7 +208,10 @@ void TestView::handleEvents()
             case WAIEventType_MapNodeTransform: {
                 WAIEventMapNodeTransform* mapNodeTransformEvent = (WAIEventMapNodeTransform*)event;
 
-                transformMapNode(mapNodeTransformEvent->tSpace, mapNodeTransformEvent->rotation, mapNodeTransformEvent->translation, mapNodeTransformEvent->scale);
+                transformMapNode(mapNodeTransformEvent->tSpace,
+                                 mapNodeTransformEvent->rotation,
+                                 mapNodeTransformEvent->translation,
+                                 mapNodeTransformEvent->scale);
 
                 delete mapNodeTransformEvent;
             }
@@ -234,7 +237,7 @@ void TestView::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformNode(&_assets, this, _scene.root3D()->findChild<SLNode>("map"));
+                    _transformationNode = new SLTransformNode(this, _scene.root3D()->findChild<SLNode>("map"));
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
@@ -242,6 +245,12 @@ void TestView::handleEvents()
                 {
                     if (_scene.root3D()->deleteChild(_transformationNode))
                     {
+                        auto it = find(_scene.eventHandlers().begin(),
+                                       _scene.eventHandlers().end(),
+                                       _transformationNode);
+                        if (it != _scene.eventHandlers().end())
+                            _scene.eventHandlers().erase(it);
+
                         _transformationNode = nullptr;
                     }
                 }

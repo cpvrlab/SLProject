@@ -40,11 +40,11 @@ SLProjectScene::SLProjectScene(SLstring name, cbOnSceneLoad onSceneLoadCallback)
 //----------------------------------------------------------------------------
 SLProjectScene::~SLProjectScene()
 {
-    SLScene::unInit();
     SLAssetManager::clear();
-
-    // delete fonts
+    SLScene::unInit();
     SLProjectScene::deleteFonts();
+
+    SL_LOG("Destructor      : ~SLProjectScene");
 }
 //-----------------------------------------------------------------------------
 /*! Removes the specified texture from the textures resource vector.

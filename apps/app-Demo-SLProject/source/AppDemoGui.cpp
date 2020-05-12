@@ -2989,7 +2989,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(s, sv, s->selectedNode());
+        tN = new SLTransformNode(sv, s->selectedNode());
         s->root3D()->addChild(tN);
     }
 
@@ -3001,7 +3001,14 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 void AppDemoGui::removeTransformNode(SLProjectScene* s)
 {
     SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
-    if (tN) s->root3D()->deleteChild(tN);
+    if (tN)
+    {
+        auto it = find(s->eventHandlers().begin(), s->eventHandlers().end(), tN);
+        if (it != s->eventHandlers().end())
+            s->eventHandlers().erase(it);
+
+        s->root3D()->deleteChild(tN);
+    }
     transformNode = nullptr;
 }
 //-----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      SLTransformNode.cpp
 //  Author:    Jan Dellsperger
-//  Date:      July 2016
+//  Date:      April 2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Jan Dellsperger, Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -15,9 +15,8 @@
 #include <SLDisk.h>
 
 //-----------------------------------------------------------------------------
-SLTransformNode::SLTransformNode(SLAssetManager* assetMgr,
-                                 SLSceneView*    sv,
-                                 SLNode*         targetNode)
+SLTransformNode::SLTransformNode(SLSceneView* sv,
+                                 SLNode*      targetNode)
   : SLNode("Edit Gizmos"),
     _sv(sv),
     _targetNode(targetNode),
@@ -25,40 +24,26 @@ SLTransformNode::SLTransformNode(SLAssetManager* assetMgr,
     _mouseIsDown(false),
     _gizmoScale(1.0f)
 {
-    SLMaterial* redMat = new SLMaterial(assetMgr, "Red", SLCol4f::RED);
-    redMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+    _prog = new SLGLGenericProgram(nullptr, "ColorUniformPoint.vert", "Color.frag");
+    _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
-    SLMaterial* redTransparentMat = new SLMaterial(assetMgr, "Red Transparent", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    redTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+    _matR  = new SLMaterial(nullptr, "Red Opaque", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    _matRT = new SLMaterial(nullptr, "Red Transp", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, _prog);
+    _matG  = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    _matGT = new SLMaterial(nullptr, "Green Transp", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, _prog);
+    _matB  = new SLMaterial(nullptr, "Blue Opaque", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    _matBT = new SLMaterial(nullptr, "Blue Transp", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, _prog);
+    _matY  = new SLMaterial(nullptr, "Yellow Opaque", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    _matYT = new SLMaterial(nullptr, "Yellow Transp", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, _prog);
 
-    SLMaterial* greenMat = new SLMaterial(assetMgr, "Green", SLCol4f::GREEN);
-    greenMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
-
-    SLMaterial* greenTransparentMat = new SLMaterial(assetMgr, "Green Transparent", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    greenTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-    SLMaterial* blueMat = new SLMaterial(assetMgr, "Blue", SLCol4f::BLUE);
-    blueMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-    SLMaterial* blueTransparentMat = new SLMaterial(assetMgr, "Blue Transparent", SLCol4f::BLUE, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    blueTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-    SLMaterial* yellowMat = new SLMaterial(assetMgr, "Yellow", SLCol4f::YELLOW);
-    yellowMat->program(new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    yellowMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-    SLMaterial* yellowTransparentMat = new SLMaterial(assetMgr, "Yellow Transparent", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, new SLGLGenericProgram(assetMgr, "ColorUniformPoint.vert", "Color.frag"));
-    yellowTransparentMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-    _translationAxisX = new SLNode(new SLCoordAxisArrow(assetMgr, redTransparentMat), "x-axis node");
-    _translationAxisY = new SLNode(new SLCoordAxisArrow(assetMgr, greenTransparentMat), "y-axis node");
-    _translationAxisZ = new SLNode(new SLCoordAxisArrow(assetMgr, blueTransparentMat), "z-axis node");
-
-    _translationAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
-    _translationAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+    _axisR      = new SLCoordAxisArrow(nullptr, _matRT);
+    _axisG      = new SLCoordAxisArrow(nullptr, _matGT);
+    _axisB      = new SLCoordAxisArrow(nullptr, _matBT);
+    _transAxisX = new SLNode(_axisR, "x-axis node");
+    _transAxisY = new SLNode(_axisG, "y-axis node");
+    _transAxisZ = new SLNode(_axisB, "z-axis node");
+    _transAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
+    _transAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
 
     SLVec3f  startPoint = SLVec3f(0.0f, 0.0f, -1.0f);
     SLVec3f  endPoint   = SLVec3f(0.0f, 0.0f, 1.0f);
@@ -66,42 +51,53 @@ SLTransformNode::SLTransformNode(SLAssetManager* assetMgr,
     points.push_back(startPoint);
     points.push_back(endPoint);
 
-    _translationLineX = new SLNode(new SLPolyline(assetMgr, points, false, "Translation Line Mesh X", redMat));
-    _translationLineX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
-    _translationLineX->scale(1000.0f);
+    _lineR      = new SLPolyline(nullptr, points, false, "Translation Line Mesh X", _matR);
+    _transLineX = new SLNode(_lineR);
+    _transLineX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
+    _transLineX->scale(1000.0f);
 
-    _translationLineY = new SLNode(new SLPolyline(assetMgr, points, false, "Translation Line Mesh Y", greenMat));
-    _translationLineY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
-    _translationLineY->scale(1000.0f);
+    _lineG      = new SLPolyline(nullptr, points, false, "Translation Line Mesh Y", _matG);
+    _transLineY = new SLNode(_lineG);
+    _transLineY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+    _transLineY->scale(1000.0f);
 
-    _translationLineZ = new SLNode(new SLPolyline(assetMgr, points, false, "Translation Line Mesh Z", blueMat));
-    _translationLineZ->scale(1000.0f);
+    _lineB      = new SLPolyline(nullptr, points, false, "Translation Line Mesh Z", _matB);
+    _transLineZ = new SLNode(_lineB);
+    _transLineZ->scale(1000.0f);
 
-    _scaleCircle = new SLNode(new SLCircle(assetMgr, "Scale Circle Mesh", yellowMat), "Scale Circle");
-    _scaleDisk   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", yellowTransparentMat), "Scale Disk");
+    _circY     = new SLCircle(nullptr, "Scale Circle Mesh", _matY);
+    _scaleCirc = new SLNode(_circY, "Scale Circle");
+    _diskY     = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", _matYT);
+    _scaleDisk = new SLNode(_diskY, "Scale Disk");
 
     _scaleGizmos = new SLNode("Scale Gizmos");
-    _scaleGizmos->addChild(_scaleCircle);
+    _scaleGizmos->addChild(_scaleCirc);
     _scaleGizmos->addChild(_scaleDisk);
 
-    _rotationCircleX = new SLNode(new SLCircle(assetMgr, "Rotation Circle Mesh X", redMat), "Rotation Circle X");
-    _rotationDiskX   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk X", redTransparentMat), "Rotation Disk X");
-    _rotationCircleY = new SLNode(new SLCircle(assetMgr, "Rotation Circle Mesh Y", greenMat), "Rotation Circle Y");
-    _rotationDiskY   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Y", greenTransparentMat), "Rotation Disk Y");
-    _rotationCircleZ = new SLNode(new SLCircle(assetMgr, "Rotation Circle Mesh Z", blueMat), "Rotation Circle Z");
-    _rotationDiskZ   = new SLNode(new SLDisk(assetMgr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", blueTransparentMat), "Rotation Disk Z");
+    _circR    = new SLCircle(nullptr, "Rotation Circle Mesh X", _matR);
+    _rotCircX = new SLNode(_circR, "Rotation Circle X");
+    _diskR    = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk X", _matRT);
+    _rotDiskX = new SLNode(_diskR, "Rotation Disk X");
+    _circG    = new SLCircle(nullptr, "Rotation Circle Mesh Y", _matG);
+    _rotCircY = new SLNode(_circG, "Rotation Circle Y");
+    _diskG    = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Y", _matGT);
+    _rotDiskY = new SLNode(_diskG, "Rotation Disk Y");
+    _circB    = new SLCircle(nullptr, "Rotation Circle Mesh Z", _matB);
+    _rotCircZ = new SLNode(_circB, "Rotation Circle Z");
+    _diskB    = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", _matBT);
+    _rotDiskZ = new SLNode(_diskB, "Rotation Disk Z");
 
     SLNode* rotationGizmosX = new SLNode("Rotation Gizmos X");
-    rotationGizmosX->addChild(_rotationCircleX);
-    rotationGizmosX->addChild(_rotationDiskX);
+    rotationGizmosX->addChild(_rotCircX);
+    rotationGizmosX->addChild(_rotDiskX);
 
     SLNode* rotationGizmosY = new SLNode("Rotation Gizmos Y");
-    rotationGizmosY->addChild(_rotationCircleY);
-    rotationGizmosY->addChild(_rotationDiskY);
+    rotationGizmosY->addChild(_rotCircY);
+    rotationGizmosY->addChild(_rotDiskY);
 
     SLNode* rotationGizmosZ = new SLNode("Rotation Gizmos Z");
-    rotationGizmosZ->addChild(_rotationCircleZ);
-    rotationGizmosZ->addChild(_rotationDiskZ);
+    rotationGizmosZ->addChild(_rotCircZ);
+    rotationGizmosZ->addChild(_rotDiskZ);
 
     _selectedGizmo = nullptr;
 
@@ -113,12 +109,12 @@ SLTransformNode::SLTransformNode(SLAssetManager* assetMgr,
     rotationGizmos->addChild(rotationGizmosY);
     rotationGizmos->addChild(rotationGizmosZ);
 
-    this->addChild(_translationAxisX);
-    this->addChild(_translationLineX);
-    this->addChild(_translationAxisY);
-    this->addChild(_translationLineY);
-    this->addChild(_translationAxisZ);
-    this->addChild(_translationLineZ);
+    this->addChild(_transAxisX);
+    this->addChild(_transLineX);
+    this->addChild(_transAxisY);
+    this->addChild(_transLineY);
+    this->addChild(_transAxisZ);
+    this->addChild(_transLineZ);
     this->addChild(_scaleGizmos);
     this->addChild(rotationGizmos);
 
@@ -131,11 +127,33 @@ SLTransformNode::SLTransformNode(SLAssetManager* assetMgr,
 //-----------------------------------------------------------------------------
 SLTransformNode::~SLTransformNode()
 {
-    vector<SLEventHandler*>::iterator it = std::find(_sv->s().eventHandlers().begin(),
-                                                     _sv->s().eventHandlers().end(),
-                                                     this);
-    if (it != _sv->s().eventHandlers().end())
-        _sv->s().eventHandlers().erase(it);
+    // delete all programs, materials and meshes
+    delete _prog;
+    delete _matR;
+    delete _matG;
+    delete _matB;
+    delete _matY;
+    delete _matRT;
+    delete _matGT;
+    delete _matBT;
+    delete _matYT;
+    delete _axisR;
+    delete _axisG;
+    delete _axisB;
+    delete _lineR;
+    delete _lineG;
+    delete _lineB;
+    delete _circR;
+    delete _circG;
+    delete _circB;
+    delete _circY;
+    delete _diskR;
+    delete _diskG;
+    delete _diskB;
+    delete _diskY;
+
+    // delete child nodes
+    deleteChildren();
 }
 //-----------------------------------------------------------------------------
 void SLTransformNode::editMode(SLNodeEditMode editMode)
@@ -165,9 +183,9 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
             switch (_editMode)
             {
                 case NodeEditMode_Translate: {
-                    _translationAxisX->drawBits()->set(SL_DB_HIDDEN, false);
-                    _translationAxisY->drawBits()->set(SL_DB_HIDDEN, false);
-                    _translationAxisZ->drawBits()->set(SL_DB_HIDDEN, false);
+                    _transAxisX->drawBits()->set(SL_DB_HIDDEN, false);
+                    _transAxisY->drawBits()->set(SL_DB_HIDDEN, false);
+                    _transAxisZ->drawBits()->set(SL_DB_HIDDEN, false);
                 }
                 break;
 
@@ -178,14 +196,14 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
                         lookAt(_scaleGizmos, _sv->camera());
                     }
 
-                    _scaleCircle->drawBits()->set(SL_DB_HIDDEN, false);
+                    _scaleCirc->drawBits()->set(SL_DB_HIDDEN, false);
                 }
                 break;
 
                 case NodeEditMode_Rotate: {
-                    _rotationCircleX->drawBits()->set(SL_DB_HIDDEN, false);
-                    _rotationCircleY->drawBits()->set(SL_DB_HIDDEN, false);
-                    _rotationCircleZ->drawBits()->set(SL_DB_HIDDEN, false);
+                    _rotCircX->drawBits()->set(SL_DB_HIDDEN, false);
+                    _rotCircY->drawBits()->set(SL_DB_HIDDEN, false);
+                    _rotCircZ->drawBits()->set(SL_DB_HIDDEN, false);
                 }
                 break;
 
@@ -289,16 +307,16 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                         {
                             _selectedGizmo = nullptr;
 
-                            _translationLineX->drawBits()->set(SL_DB_HIDDEN, true);
-                            _translationLineY->drawBits()->set(SL_DB_HIDDEN, true);
-                            _translationLineZ->drawBits()->set(SL_DB_HIDDEN, true);
+                            _transLineX->drawBits()->set(SL_DB_HIDDEN, true);
+                            _transLineY->drawBits()->set(SL_DB_HIDDEN, true);
+                            _transLineZ->drawBits()->set(SL_DB_HIDDEN, true);
 
                             float   dist = FLT_MAX;
                             SLVec3f axisPointCand;
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
-                                                            _translationLineX->translationWS(),
-                                                            _translationLineX->forwardWS(),
+                                                            _transLineX->translationWS(),
+                                                            _transLineX->forwardWS(),
                                                             pickRayPoint,
                                                             axisPointCand))
                             {
@@ -307,15 +325,15 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                 if (distCand < dist && distCand < (_gizmoScale * 0.1f))
                                 {
                                     dist           = distCand;
-                                    _selectedGizmo = _translationLineX;
+                                    _selectedGizmo = _transLineX;
                                     axisPoint      = axisPointCand;
                                 }
                             }
 
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
-                                                            _translationLineY->translationWS(),
-                                                            _translationLineY->forwardWS(),
+                                                            _transLineY->translationWS(),
+                                                            _transLineY->forwardWS(),
                                                             pickRayPoint,
                                                             axisPointCand))
                             {
@@ -324,15 +342,15 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                 if (distCand < dist && distCand < (_gizmoScale * 0.1f))
                                 {
                                     dist           = distCand;
-                                    _selectedGizmo = _translationLineY;
+                                    _selectedGizmo = _transLineY;
                                     axisPoint      = axisPointCand;
                                 }
                             }
 
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
-                                                            _translationLineZ->translationWS(),
-                                                            _translationLineZ->forwardWS(),
+                                                            _transLineZ->translationWS(),
+                                                            _transLineZ->forwardWS(),
                                                             pickRayPoint,
                                                             axisPointCand))
                             {
@@ -341,7 +359,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                 if (distCand < dist && distCand < (_gizmoScale * 0.1f))
                                 {
                                     dist           = distCand;
-                                    _selectedGizmo = _translationLineZ;
+                                    _selectedGizmo = _transLineZ;
                                     axisPoint      = axisPointCand;
                                 }
                             }
@@ -395,15 +413,15 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                             float t = FLT_MAX;
                             if (rayDiscIntersect(pickRay.origin,
                                                  pickRay.dir,
-                                                 _scaleCircle->translationWS(),
-                                                 _scaleCircle->forwardWS(),
+                                                 _scaleCirc->translationWS(),
+                                                 _scaleCirc->forwardWS(),
                                                  _gizmoScale,
                                                  t))
                             {
-                                _selectedGizmo = _scaleCircle;
+                                _selectedGizmo = _scaleCirc;
 
                                 SLVec3f intersectionPointWS = pickRay.origin + pickRay.dir * t;
-                                _hitCoordinate              = _scaleCircle->updateAndGetWMI() * intersectionPointWS;
+                                _hitCoordinate              = _scaleCirc->updateAndGetWMI() * intersectionPointWS;
 
                                 _scaleDisk->drawBits()->set(SL_DB_HIDDEN, false);
                             }
@@ -454,34 +472,49 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                         }
                         else
                         {
-                            _rotationDiskX->drawBits()->set(SL_DB_HIDDEN, true);
-                            _rotationDiskY->drawBits()->set(SL_DB_HIDDEN, true);
-                            _rotationDiskZ->drawBits()->set(SL_DB_HIDDEN, true);
+                            _rotDiskX->drawBits()->set(SL_DB_HIDDEN, true);
+                            _rotDiskY->drawBits()->set(SL_DB_HIDDEN, true);
+                            _rotDiskZ->drawBits()->set(SL_DB_HIDDEN, true);
 
                             _selectedGizmo = nullptr;
 
                             float t     = FLT_MAX;
                             float tCand = FLT_MAX;
-                            if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationDiskX->translationWS(), _rotationDiskX->forwardWS(), _gizmoScale, tCand))
+                            if (rayDiscIntersect(pickRay.origin,
+                                                 pickRay.dir,
+                                                 _rotDiskX->translationWS(),
+                                                 _rotDiskX->forwardWS(),
+                                                 _gizmoScale,
+                                                 tCand))
                             {
-                                _selectedGizmo = _rotationDiskX;
+                                _selectedGizmo = _rotDiskX;
                                 t              = tCand;
                             }
 
-                            if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationDiskY->translationWS(), _rotationDiskY->forwardWS(), _gizmoScale, tCand))
+                            if (rayDiscIntersect(pickRay.origin,
+                                                 pickRay.dir,
+                                                 _rotDiskY->translationWS(),
+                                                 _rotDiskY->forwardWS(),
+                                                 _gizmoScale,
+                                                 tCand))
                             {
                                 if (tCand < t)
                                 {
-                                    _selectedGizmo = _rotationDiskY;
+                                    _selectedGizmo = _rotDiskY;
                                     t              = tCand;
                                 }
                             }
 
-                            if (rayDiscIntersect(pickRay.origin, pickRay.dir, _rotationDiskZ->translationWS(), _rotationDiskZ->forwardWS(), _gizmoScale, tCand))
+                            if (rayDiscIntersect(pickRay.origin,
+                                                 pickRay.dir,
+                                                 _rotDiskZ->translationWS(),
+                                                 _rotDiskZ->forwardWS(),
+                                                 _gizmoScale,
+                                                 tCand))
                             {
                                 if (tCand < t)
                                 {
-                                    _selectedGizmo = _rotationDiskZ;
+                                    _selectedGizmo = _rotDiskZ;
                                     t              = tCand;
                                 }
                             }
