@@ -29,7 +29,6 @@
 */
 
 #include <WAIKeyFrameDB.h>
-#include <fbow.h>
 //-----------------------------------------------------------------------------
 WAIKeyFrameDB::WAIKeyFrameDB(WAIOrbVocabulary* voc) : mpVoc(voc)
 {

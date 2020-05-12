@@ -27,7 +27,6 @@
 #include <queue>
 #include <thread>
 #include <opencv2/core.hpp>
-#include <fbow.h>
 #include <WorkingSet.h>
 #include <LocalMap.h>
 
@@ -47,7 +46,6 @@ class LocalMapping
 public:
     LocalMapping(WAIMap* pMap, const float bMonocular, WAIOrbVocabulary* vocabulary, float cullRedundantPerc = 0.9);
     void SetLoopCloser(LoopClosing* pLoopCloser);
-    void SetVocabulary(fbow::Vocabulary* vocabulary);
 
     // Main function
     void Run();

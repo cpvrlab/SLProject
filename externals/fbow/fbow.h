@@ -6,9 +6,15 @@
 #include <map>
 #include <memory>
 #include <bitset>
-#ifndef __ANDROID__
-#include <immintrin.h>
+
+#ifdef __APPLE__
+    #include <TargetConditionals.h> //defines TARGET_OS_IOS
 #endif
+
+#if !defined(__ANDROID__) && !defined(TARGET_OS_IOS)
+    #include <immintrin.h>
+#endif
+
 #include "cpu.h"
 namespace fbow{
 
@@ -246,7 +252,7 @@ private:
             return d;
         }
     };
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(TARGET_OS_IOS)
     //fake elements to allow compilation
     struct L2_avx_generic:public Lx<uint64_t,float,32>{inline float computeDist(uint64_t *ptr){return std::numeric_limits<float>::max();}};
     struct L2_se3_generic:public Lx<uint64_t,float,32>{inline float computeDist(uint64_t *ptr){return std::numeric_limits<float>::max();}};

@@ -15,7 +15,6 @@
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
 #include <memory>
-#include <fbow.h>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods

@@ -109,8 +109,6 @@
 		416A8687241B8FC5009D63B0 /* FeatureVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A867D241B8FC4009D63B0 /* FeatureVector.cpp */; };
 		416A8688241B8FC5009D63B0 /* FORB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8682241B8FC4009D63B0 /* FORB.cpp */; };
 		416A8689241B8FC5009D63B0 /* ScoringObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8683241B8FC5009D63B0 /* ScoringObject.cpp */; };
-		416A868F241B8FF9009D63B0 /* Timestamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A868B241B8FF9009D63B0 /* Timestamp.cpp */; };
-		416A8690241B8FF9009D63B0 /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A868D241B8FF9009D63B0 /* Random.cpp */; };
 		416A86A8241B9044009D63B0 /* ORBextractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8692241B9043009D63B0 /* ORBextractor.cpp */; };
 		416A86A9241B9044009D63B0 /* LocalMapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8696241B9043009D63B0 /* LocalMapping.cpp */; };
 		416A86AA241B9044009D63B0 /* SURFextractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416A8699241B9043009D63B0 /* SURFextractor.cpp */; };
@@ -509,34 +507,6 @@
 		41E6EE09240305EF0063FDA1 /* SLGLConetracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE06240305EE0063FDA1 /* SLGLConetracer.cpp */; };
 		41E6EE15240306E40063FDA1 /* FtpUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE10240306E40063FDA1 /* FtpUtils.cpp */; };
 		41E6EE16240306E40063FDA1 /* AverageTiming.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E6EE14240306E40063FDA1 /* AverageTiming.cpp */; };
-		41E6EE35240307840063FDA1 /* Tiles05_NRM_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE19240307840063FDA1 /* Tiles05_NRM_2K.jpg */; };
-		41E6EE36240307840063FDA1 /* OldRooftiles_1K_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1A240307840063FDA1 /* OldRooftiles_1K_normal.png */; };
-		41E6EE37240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1B240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg */; };
-		41E6EE38240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1C240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif */; };
-		41E6EE39240307840063FDA1 /* CreamPietraSerena_NORM.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1D240307840063FDA1 /* CreamPietraSerena_NORM.jpg */; };
-		41E6EE3A240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1E240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png */; };
-		41E6EE3B240307840063FDA1 /* MediavalStoneWall2K_diff.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE1F240307840063FDA1 /* MediavalStoneWall2K_diff.jpg */; };
-		41E6EE3C240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE20240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg */; };
-		41E6EE3D240307840063FDA1 /* Rundbogen_norm.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE21240307840063FDA1 /* Rundbogen_norm.png */; };
-		41E6EE3E240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE22240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg */; };
-		41E6EE3F240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE23240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png */; };
-		41E6EE40240307840063FDA1 /* Torch_Diff.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE24240307840063FDA1 /* Torch_Diff.png */; };
-		41E6EE41240307840063FDA1 /* PineRawWood_DIFF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE25240307840063FDA1 /* PineRawWood_DIFF.jpg */; };
-		41E6EE42240307840063FDA1 /* GroundClay002_DIFF_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE26240307840063FDA1 /* GroundClay002_DIFF_2K.jpg */; };
-		41E6EE43240307840063FDA1 /* OldRooftiles_1K_albedo.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE27240307840063FDA1 /* OldRooftiles_1K_albedo.png */; };
-		41E6EE44240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE28240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg */; };
-		41E6EE45240307840063FDA1 /* Rundbogen_diff.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE29240307840063FDA1 /* Rundbogen_diff.jpg */; };
-		41E6EE46240307840063FDA1 /* MediavalStoneWall2K_norm.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2A240307840063FDA1 /* MediavalStoneWall2K_norm.jpg */; };
-		41E6EE47240307840063FDA1 /* CreamPietraSerena_DIFF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2B240307840063FDA1 /* CreamPietraSerena_DIFF.jpg */; };
-		41E6EE48240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2C240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg */; };
-		41E6EE49240307840063FDA1 /* Torch_Norm.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2D240307840063FDA1 /* Torch_Norm.png */; };
-		41E6EE4A240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2E240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png */; };
-		41E6EE4B240307840063FDA1 /* Tempel-Theater-02.gltf in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE2F240307840063FDA1 /* Tempel-Theater-02.gltf */; };
-		41E6EE4C240307840063FDA1 /* PineRawWood_NORM.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE30240307840063FDA1 /* PineRawWood_NORM.jpg */; };
-		41E6EE4D240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE31240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json */; };
-		41E6EE4E240307840063FDA1 /* Torch_Metal.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE32240307840063FDA1 /* Torch_Metal.png */; };
-		41E6EE4F240307840063FDA1 /* Tempel-Theater-02.bin in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE33240307840063FDA1 /* Tempel-Theater-02.bin */; };
-		41E6EE50240307840063FDA1 /* Tiles05_Strong_NRM_2K.png in Resources */ = {isa = PBXBuildFile; fileRef = 41E6EE34240307840063FDA1 /* Tiles05_Strong_NRM_2K.png */; };
 		41E9843A1E3BABB1003D5CCF /* CVImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E984391E3BABB1003D5CCF /* CVImage.cpp */; };
 		41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */ = {isa = PBXBuildFile; fileRef = 41EA2F4C1F558DDF00C34BC7 /* features_stones.png */; };
 		41EAAE0B2067BB3C00F7E9B9 /* CVTrackedFaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41EAAE0A2067BB3C00F7E9B9 /* CVTrackedFaces.cpp */; };
@@ -562,6 +532,10 @@
 		41FD9D1B1E523AD70063A1B7 /* Font24.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FD9D101E523AD70063A1B7 /* Font24.png */; };
 		CF3F571A1DE5906C00928DDD /* CVTracked.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF3F57191DE5906C00928DDD /* CVTracked.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		CF3F571D1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert in Resources */ = {isa = PBXBuildFile; fileRef = CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */; };
+		CFA1325A246B0F5600E69777 /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CFA13257246B0F5600E69777 /* Random.cpp */; };
+		CFA1325B246B0F5600E69777 /* Timestamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CFA13259246B0F5600E69777 /* Timestamp.cpp */; };
+		CFA13265246B133E00E69777 /* fbow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CFA13262246B133E00E69777 /* fbow.cpp */; };
+		CFA13267246B1FC000E69777 /* voc_fbow.bin in Resources */ = {isa = PBXBuildFile; fileRef = CFA13266246B1FC000E69777 /* voc_fbow.bin */; };
 		DE38C74819EFCB420069B8BB /* SLGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE38C74719EFCB420069B8BB /* SLGrid.cpp */; };
 /* End PBXBuildFile section */
 
@@ -727,10 +701,6 @@
 		416A8683241B8FC5009D63B0 /* ScoringObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScoringObject.cpp; path = ../../../externals/DBoW2/DBoW2/ScoringObject.cpp; sourceTree = "<group>"; };
 		416A8684241B8FC5009D63B0 /* ScoringObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScoringObject.h; path = ../../../externals/DBoW2/DBoW2/ScoringObject.h; sourceTree = "<group>"; };
 		416A8685241B8FC5009D63B0 /* FORB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FORB.h; path = ../../../externals/DBoW2/DBoW2/FORB.h; sourceTree = "<group>"; };
-		416A868B241B8FF9009D63B0 /* Timestamp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timestamp.cpp; path = ../../../externals/DBoW2/DUtils/Timestamp.cpp; sourceTree = "<group>"; };
-		416A868C241B8FF9009D63B0 /* Timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timestamp.h; path = ../../../externals/DBoW2/DUtils/Timestamp.h; sourceTree = "<group>"; };
-		416A868D241B8FF9009D63B0 /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Random.cpp; path = ../../../externals/DBoW2/DUtils/Random.cpp; sourceTree = "<group>"; };
-		416A868E241B8FF9009D63B0 /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Random.h; path = ../../../externals/DBoW2/DUtils/Random.h; sourceTree = "<group>"; };
 		416A8692241B9043009D63B0 /* ORBextractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ORBextractor.cpp; path = "../../../lib-WAI/source/OrbSlam/ORBextractor.cpp"; sourceTree = "<group>"; };
 		416A8693241B9043009D63B0 /* KPextractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KPextractor.h; path = "../../../lib-WAI/source/OrbSlam/KPextractor.h"; sourceTree = "<group>"; };
 		416A8694241B9043009D63B0 /* ORBextractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ORBextractor.h; path = "../../../lib-WAI/source/OrbSlam/ORBextractor.h"; sourceTree = "<group>"; };
@@ -1231,34 +1201,6 @@
 		41E6EE12240306E40063FDA1 /* Averaged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Averaged.h; path = "../../../externals/utils/lib-Utils/source/Averaged.h"; sourceTree = SOURCE_ROOT; };
 		41E6EE13240306E40063FDA1 /* AverageTiming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AverageTiming.h; path = "../../../externals/utils/lib-Utils/source/AverageTiming.h"; sourceTree = SOURCE_ROOT; };
 		41E6EE14240306E40063FDA1 /* AverageTiming.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AverageTiming.cpp; path = "../../../externals/utils/lib-Utils/source/AverageTiming.cpp"; sourceTree = SOURCE_ROOT; };
-		41E6EE19240307840063FDA1 /* Tiles05_NRM_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_NRM_2K.jpg; sourceTree = "<group>"; };
-		41E6EE1A240307840063FDA1 /* OldRooftiles_1K_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OldRooftiles_1K_normal.png; sourceTree = "<group>"; };
-		41E6EE1B240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_COL_VAR1_2K.jpg; sourceTree = "<group>"; };
-		41E6EE1C240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "DTM-Theater-Tempel-WGS84.tif"; sourceTree = "<group>"; };
-		41E6EE1D240307840063FDA1 /* CreamPietraSerena_NORM.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CreamPietraSerena_NORM.jpg; sourceTree = "<group>"; };
-		41E6EE1E240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Tiles05_NRM_VAR3_2K.png; sourceTree = "<group>"; };
-		41E6EE1F240307840063FDA1 /* MediavalStoneWall2K_diff.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MediavalStoneWall2K_diff.jpg; sourceTree = "<group>"; };
-		41E6EE20240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_COL_VAR3_2K.jpg; sourceTree = "<group>"; };
-		41E6EE21240307840063FDA1 /* Rundbogen_norm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Rundbogen_norm.png; sourceTree = "<group>"; };
-		41E6EE22240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sandstone_blocks_05_diff_2k.jpg; sourceTree = "<group>"; };
-		41E6EE23240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pavement_SlateSquare2_2K_albedo.png; sourceTree = "<group>"; };
-		41E6EE24240307840063FDA1 /* Torch_Diff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Torch_Diff.png; sourceTree = "<group>"; };
-		41E6EE25240307840063FDA1 /* PineRawWood_DIFF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = PineRawWood_DIFF.jpg; sourceTree = "<group>"; };
-		41E6EE26240307840063FDA1 /* GroundClay002_DIFF_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GroundClay002_DIFF_2K.jpg; sourceTree = "<group>"; };
-		41E6EE27240307840063FDA1 /* OldRooftiles_1K_albedo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OldRooftiles_1K_albedo.png; sourceTree = "<group>"; };
-		41E6EE28240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Tiles05_COL_VAR2_2K.jpg; sourceTree = "<group>"; };
-		41E6EE29240307840063FDA1 /* Rundbogen_diff.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Rundbogen_diff.jpg; sourceTree = "<group>"; };
-		41E6EE2A240307840063FDA1 /* MediavalStoneWall2K_norm.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MediavalStoneWall2K_norm.jpg; sourceTree = "<group>"; };
-		41E6EE2B240307840063FDA1 /* CreamPietraSerena_DIFF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CreamPietraSerena_DIFF.jpg; sourceTree = "<group>"; };
-		41E6EE2C240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sandstone_blocks_05_nor_2k.jpg; sourceTree = "<group>"; };
-		41E6EE2D240307840063FDA1 /* Torch_Norm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Torch_Norm.png; sourceTree = "<group>"; };
-		41E6EE2E240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pavement_SlateSquare2_2K_normal.png; sourceTree = "<group>"; };
-		41E6EE2F240307840063FDA1 /* Tempel-Theater-02.gltf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Tempel-Theater-02.gltf"; sourceTree = "<group>"; };
-		41E6EE30240307840063FDA1 /* PineRawWood_NORM.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = PineRawWood_NORM.jpg; sourceTree = "<group>"; };
-		41E6EE31240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "DTM-Theater-Tempel-WGS84.json"; sourceTree = "<group>"; };
-		41E6EE32240307840063FDA1 /* Torch_Metal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Torch_Metal.png; sourceTree = "<group>"; };
-		41E6EE33240307840063FDA1 /* Tempel-Theater-02.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "Tempel-Theater-02.bin"; sourceTree = "<group>"; };
-		41E6EE34240307840063FDA1 /* Tiles05_Strong_NRM_2K.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Tiles05_Strong_NRM_2K.png; sourceTree = "<group>"; };
 		41E984381E3BAB7D003D5CCF /* CVImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVImage.h; path = "../../../lib-SLProject/include/CV/CVImage.h"; sourceTree = SOURCE_ROOT; };
 		41E984391E3BABB1003D5CCF /* CVImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CVImage.cpp; path = "../../../lib-SLProject/source/CV/CVImage.cpp"; sourceTree = SOURCE_ROOT; };
 		41EA2F4C1F558DDF00C34BC7 /* features_stones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = features_stones.png; path = ../../../data/images/textures/features_stones.png; sourceTree = SOURCE_ROOT; };
@@ -1288,6 +1230,15 @@
 		41FE0B041959C9DA00486424 /* lib-SLExternal.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lib-SLExternal.xcodeproj"; path = "../../../externals/lib-SLExternal/lib-SLExternal.xcodeproj"; sourceTree = "<group>"; };
 		CF3F57191DE5906C00928DDD /* CVTracked.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = CVTracked.cpp; path = "../../../lib-SLProject/source/CV/CVTracked.cpp"; sourceTree = SOURCE_ROOT; };
 		CF3F571C1DE592F200928DDD /* PerVrtBlinnColorAttrib.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PerVrtBlinnColorAttrib.vert; path = ../../../data/shaders/PerVrtBlinnColorAttrib.vert; sourceTree = "<group>"; };
+		CFA13256246B0F5600E69777 /* Timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timestamp.h; path = ../../../externals/DUtils/Timestamp.h; sourceTree = "<group>"; };
+		CFA13257246B0F5600E69777 /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Random.cpp; path = ../../../externals/DUtils/Random.cpp; sourceTree = "<group>"; };
+		CFA13258246B0F5600E69777 /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Random.h; path = ../../../externals/DUtils/Random.h; sourceTree = "<group>"; };
+		CFA13259246B0F5600E69777 /* Timestamp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timestamp.cpp; path = ../../../externals/DUtils/Timestamp.cpp; sourceTree = "<group>"; };
+		CFA1325F246B133E00E69777 /* cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cpu.h; path = ../../../../externals/fbow/cpu.h; sourceTree = "<group>"; };
+		CFA13260246B133E00E69777 /* fbow_exports.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fbow_exports.h; path = ../../../../externals/fbow/fbow_exports.h; sourceTree = "<group>"; };
+		CFA13262246B133E00E69777 /* fbow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fbow.cpp; path = ../../../../externals/fbow/fbow.cpp; sourceTree = "<group>"; };
+		CFA13263246B133E00E69777 /* fbow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fbow.h; path = ../../../../externals/fbow/fbow.h; sourceTree = "<group>"; };
+		CFA13266246B1FC000E69777 /* voc_fbow.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = voc_fbow.bin; path = ../../../data/calibrations/voc_fbow.bin; sourceTree = "<group>"; };
 		DE38C74619EFCA5B0069B8BB /* SLGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGrid.h; path = "../../../lib-SLProject/include/SLGrid.h"; sourceTree = SOURCE_ROOT; };
 		DE38C74719EFCB420069B8BB /* SLGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGrid.cpp; path = "../../../lib-SLProject/source/SLGrid.cpp"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1494,10 +1445,10 @@
 		416A868A241B8FD0009D63B0 /* DUtils */ = {
 			isa = PBXGroup;
 			children = (
-				416A868D241B8FF9009D63B0 /* Random.cpp */,
-				416A868E241B8FF9009D63B0 /* Random.h */,
-				416A868B241B8FF9009D63B0 /* Timestamp.cpp */,
-				416A868C241B8FF9009D63B0 /* Timestamp.h */,
+				CFA13257246B0F5600E69777 /* Random.cpp */,
+				CFA13258246B0F5600E69777 /* Random.h */,
+				CFA13259246B0F5600E69777 /* Timestamp.cpp */,
+				CFA13256246B0F5600E69777 /* Timestamp.h */,
 			);
 			name = DUtils;
 			sourceTree = "<group>";
@@ -2061,6 +2012,7 @@
 		419BCD2C14865C0800D576F1 = {
 			isa = PBXGroup;
 			children = (
+				CFA1325D246B12CD00E69777 /* fbow */,
 				41A3549524179D23004520DF /* App */,
 				41901CF41959C478006795A8 /* iOS-Specific */,
 				419BCD4514865C0800D576F1 /* SLProject */,
@@ -2185,6 +2137,7 @@
 		41AD925E241653F7008D8A79 /* calibrations */ = {
 			isa = PBXGroup;
 			children = (
+				CFA13266246B1FC000E69777 /* voc_fbow.bin */,
 				4190A2DF243DF4F700AE2BBF /* ORBvoc.bin */,
 				41AD926324165452008D8A79 /* aruco_detector_params.yml */,
 				41AD926224165452008D8A79 /* haarcascade_frontalface_alt2.xml */,
@@ -2291,45 +2244,9 @@
 		41E6EE17240307840063FDA1 /* GLTF */ = {
 			isa = PBXGroup;
 			children = (
-				41E6EE18240307840063FDA1 /* AugustaRaurica */,
 			);
 			name = GLTF;
 			path = ../../../data/models/GLTF;
-			sourceTree = "<group>";
-		};
-		41E6EE18240307840063FDA1 /* AugustaRaurica */ = {
-			isa = PBXGroup;
-			children = (
-				41E6EE2B240307840063FDA1 /* CreamPietraSerena_DIFF.jpg */,
-				41E6EE1D240307840063FDA1 /* CreamPietraSerena_NORM.jpg */,
-				41E6EE31240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json */,
-				41E6EE1C240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif */,
-				41E6EE26240307840063FDA1 /* GroundClay002_DIFF_2K.jpg */,
-				41E6EE1F240307840063FDA1 /* MediavalStoneWall2K_diff.jpg */,
-				41E6EE2A240307840063FDA1 /* MediavalStoneWall2K_norm.jpg */,
-				41E6EE27240307840063FDA1 /* OldRooftiles_1K_albedo.png */,
-				41E6EE1A240307840063FDA1 /* OldRooftiles_1K_normal.png */,
-				41E6EE23240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png */,
-				41E6EE2E240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png */,
-				41E6EE25240307840063FDA1 /* PineRawWood_DIFF.jpg */,
-				41E6EE30240307840063FDA1 /* PineRawWood_NORM.jpg */,
-				41E6EE29240307840063FDA1 /* Rundbogen_diff.jpg */,
-				41E6EE21240307840063FDA1 /* Rundbogen_norm.png */,
-				41E6EE22240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg */,
-				41E6EE2C240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg */,
-				41E6EE33240307840063FDA1 /* Tempel-Theater-02.bin */,
-				41E6EE2F240307840063FDA1 /* Tempel-Theater-02.gltf */,
-				41E6EE1B240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg */,
-				41E6EE28240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg */,
-				41E6EE20240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg */,
-				41E6EE19240307840063FDA1 /* Tiles05_NRM_2K.jpg */,
-				41E6EE1E240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png */,
-				41E6EE34240307840063FDA1 /* Tiles05_Strong_NRM_2K.png */,
-				41E6EE24240307840063FDA1 /* Torch_Diff.png */,
-				41E6EE32240307840063FDA1 /* Torch_Metal.png */,
-				41E6EE2D240307840063FDA1 /* Torch_Norm.png */,
-			);
-			path = AugustaRaurica;
 			sourceTree = "<group>";
 		};
 		41F365142008E47600782F42 /* Videos */ = {
@@ -2346,6 +2263,17 @@
 				41FE0B091959C9DA00486424 /* liblib-SLExternal.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CFA1325D246B12CD00E69777 /* fbow */ = {
+			isa = PBXGroup;
+			children = (
+				CFA1325F246B133E00E69777 /* cpu.h */,
+				CFA13260246B133E00E69777 /* fbow_exports.h */,
+				CFA13262246B133E00E69777 /* fbow.cpp */,
+				CFA13263246B133E00E69777 /* fbow.h */,
+			);
+			path = fbow;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2377,7 +2305,7 @@
 				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					419BCD3614865C0800D576F1 = {
-						DevelopmentTeam = MZ552MQBH5;
+						DevelopmentTeam = B3SJ7XG37J;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -2437,14 +2365,13 @@
 				411949C51F0CBCB7009C8A9F /* LogoCPVR_256L.png in Resources */,
 				417981D31F13833000EB5315 /* i0191_0000b.png in Resources */,
 				417981561F13833000EB5315 /* i0066_0000b.png in Resources */,
+				CFA13267246B1FC000E69777 /* voc_fbow.bin in Resources */,
 				41901CFA1959C5AC006795A8 /* DAE in Resources */,
-				41E6EE44240307840063FDA1 /* Tiles05_COL_VAR2_2K.jpg in Resources */,
 				417981411F13833000EB5315 /* i0045_0000b.png in Resources */,
 				41C48E9A1F01254A0059B48C /* Cousine-Regular.ttf in Resources */,
 				41C48E9B1F01254A0059B48C /* DroidSans.ttf in Resources */,
 				4179819A1F13833000EB5315 /* i0134_0000b.png in Resources */,
 				419E11AA1B74B02000203E70 /* LiveVideoError.png in Resources */,
-				41E6EE48240307840063FDA1 /* sandstone_blocks_05_nor_2k.jpg in Resources */,
 				414D37F61EE6A7DC009DB259 /* rusty-metal_2048M.png in Resources */,
 				412F897B1FF58D94004D5982 /* ADS.vert in Resources */,
 				418BF4681B8B0D500049E387 /* TextureOnly.vert in Resources */,
@@ -2462,12 +2389,10 @@
 				417981431F13833000EB5315 /* i0047_0000b.png in Resources */,
 				417981741F13833000EB5315 /* i0096_0000b.png in Resources */,
 				417981871F13833000EB5315 /* i0115_0000b.png in Resources */,
-				41E6EE35240307840063FDA1 /* Tiles05_NRM_2K.jpg in Resources */,
 				417981961F13833000EB5315 /* i0130_0000b.png in Resources */,
 				417981171F13833000EB5315 /* i0003_0000b.png in Resources */,
 				417981901F13833000EB5315 /* i0124_0000b.png in Resources */,
 				41EA2F4D1F558DDF00C34BC7 /* features_stones.png in Resources */,
-				41E6EE36240307840063FDA1 /* OldRooftiles_1K_normal.png in Resources */,
 				417981B11F13833000EB5315 /* i0157_0000b.png in Resources */,
 				41FD9D171E523AD70063A1B7 /* Font16.png in Resources */,
 				418BF44D1B8B0D500049E387 /* FontTex.frag in Resources */,
@@ -2511,14 +2436,12 @@
 				4166ED0D200260D700B42D17 /* Desert+Y1024_C.jpg in Resources */,
 				41421AF02146A53400554495 /* earth2048_G.jpg in Resources */,
 				417981441F13833000EB5315 /* i0048_0000b.png in Resources */,
-				41E6EE39240307840063FDA1 /* CreamPietraSerena_NORM.jpg in Resources */,
 				417981981F13833000EB5315 /* i0132_0000b.png in Resources */,
 				417981B41F13833000EB5315 /* i0160_0000b.png in Resources */,
 				417E0EBD148A70DE0015B5B0 /* brickwall0512_G.jpg in Resources */,
 				417E0EBE148A70DE0015B5B0 /* brickwall0512_H.jpg in Resources */,
 				417E0EBF148A70DE0015B5B0 /* brickwall0512_N.jpg in Resources */,
 				418BF4571B8B0D500049E387 /* PerVrtBlinnSkinned.vert in Resources */,
-				41E6EE3D240307840063FDA1 /* Rundbogen_norm.png in Resources */,
 				414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */,
 				417981BE1F13833000EB5315 /* i0170_0000b.png in Resources */,
 				417981921F13833000EB5315 /* i0126_0000b.png in Resources */,
@@ -2531,8 +2454,6 @@
 				417981421F13833000EB5315 /* i0046_0000b.png in Resources */,
 				417981311F13833000EB5315 /* i0029_0000b.png in Resources */,
 				414D37ED1EE6A72C009DB259 /* PerPixCookTorrance.vert in Resources */,
-				41E6EE41240307840063FDA1 /* PineRawWood_DIFF.jpg in Resources */,
-				41E6EE47240307840063FDA1 /* CreamPietraSerena_DIFF.jpg in Resources */,
 				417981991F13833000EB5315 /* i0133_0000b.png in Resources */,
 				417981791F13833000EB5315 /* i0101_0000b.png in Resources */,
 				414D37EC1EE6A72C009DB259 /* PerPixCookTorrance.frag in Resources */,
@@ -2540,13 +2461,10 @@
 				4190A2E0243DF4F700AE2BBF /* ORBvoc.bin in Resources */,
 				4179814A1F13833000EB5315 /* i0054_0000b.png in Resources */,
 				417E0EC1148A70DE0015B5B0 /* Chess0256_C.bmp in Resources */,
-				41E6EE4F240307840063FDA1 /* Tempel-Theater-02.bin in Resources */,
 				41B7BDDD1E49B4BC007B8B39 /* cursor.png in Resources */,
-				41E6EE46240307840063FDA1 /* MediavalStoneWall2K_norm.jpg in Resources */,
 				417981A41F13833000EB5315 /* i0144_0000b.png in Resources */,
 				417981B31F13833000EB5315 /* i0159_0000b.png in Resources */,
 				417981751F13833000EB5315 /* i0097_0000b.png in Resources */,
-				41E6EE42240307840063FDA1 /* GroundClay002_DIFF_2K.jpg in Resources */,
 				41FD9D181E523AD70063A1B7 /* Font18.png in Resources */,
 				418BF44F1B8B0D500049E387 /* PerPixBlinn.frag in Resources */,
 				4166ED0E200260D700B42D17 /* Desert-Z1024_C.jpg in Resources */,
@@ -2561,16 +2479,13 @@
 				417981481F13833000EB5315 /* i0052_0000b.png in Resources */,
 				41F365182008E49B00782F42 /* street3.mp4 in Resources */,
 				417981D11F13833000EB5315 /* i0189_0000b.png in Resources */,
-				41E6EE3F240307840063FDA1 /* Pavement_SlateSquare2_2K_albedo.png in Resources */,
 				417981941F13833000EB5315 /* i0128_0000b.png in Resources */,
 				417981841F13833000EB5315 /* i0112_0000b.png in Resources */,
 				41FD9D151E523AD70063A1B7 /* Font12.png in Resources */,
 				4179816B1F13833000EB5315 /* i0087_0000b.png in Resources */,
-				41E6EE3A240307840063FDA1 /* Tiles05_NRM_VAR3_2K.png in Resources */,
 				417981361F13833000EB5315 /* i0034_0000b.png in Resources */,
 				417981471F13833000EB5315 /* i0051_0000b.png in Resources */,
 				417981391F13833000EB5315 /* i0037_0000b.png in Resources */,
-				41E6EE4E240307840063FDA1 /* Torch_Metal.png in Resources */,
 				418BF44B1B8B0D4F0049E387 /* ErrorTex.frag in Resources */,
 				4179816D1F13833000EB5315 /* i0089_0000b.png in Resources */,
 				4179819B1F13833000EB5315 /* i0135_0000b.png in Resources */,
@@ -2578,7 +2493,6 @@
 				417981911F13833000EB5315 /* i0125_0000b.png in Resources */,
 				41421AEE2146A53400554495 /* earth1024_C.jpg in Resources */,
 				4179813B1F13833000EB5315 /* i0039_0000b.png in Resources */,
-				41E6EE4C240307840063FDA1 /* PineRawWood_NORM.jpg in Resources */,
 				417E0EC6148A70DE0015B5B0 /* earthCloud1024_A.jpg in Resources */,
 				417981A51F13833000EB5315 /* i0145_0000b.png in Resources */,
 				41421AEB2146A53400554495 /* earth1024_G.jpg in Resources */,
@@ -2594,8 +2508,6 @@
 				417981581F13833000EB5315 /* i0068_0000b.png in Resources */,
 				417E0ECC148A70DE0015B5B0 /* MuttenzerBox-Y0512_C.png in Resources */,
 				412F897A1FF58D94004D5982 /* VolumeRenderingRayCastLighted.frag in Resources */,
-				41E6EE49240307840063FDA1 /* Torch_Norm.png in Resources */,
-				41E6EE3E240307840063FDA1 /* sandstone_blocks_05_diff_2k.jpg in Resources */,
 				417981721F13833000EB5315 /* i0094_0000b.png in Resources */,
 				418BF4541B8B0D500049E387 /* PerPixBlinnTexSkinned.vert in Resources */,
 				417E0ECD148A70DE0015B5B0 /* MuttenzerBox-Z0512_C.png in Resources */,
@@ -2608,7 +2520,6 @@
 				417E0ED0148A70DE0015B5B0 /* MuttenzerBox+Z0512_C.png in Resources */,
 				4179817D1F13833000EB5315 /* i0105_0000b.png in Resources */,
 				4179816C1F13833000EB5315 /* i0088_0000b.png in Resources */,
-				41E6EE40240307840063FDA1 /* Torch_Diff.png in Resources */,
 				417E0ED1148A70DE0015B5B0 /* Testmap_0512_C.png in Resources */,
 				412F89751FF58D94004D5982 /* ADSTex.frag in Resources */,
 				417E0ED2148A70DE0015B5B0 /* tile1_0256_C.jpg in Resources */,
@@ -2633,7 +2544,6 @@
 				4179818B1F13833000EB5315 /* i0119_0000b.png in Resources */,
 				417981A21F13833000EB5315 /* i0142_0000b.png in Resources */,
 				417981A61F13833000EB5315 /* i0146_0000b.png in Resources */,
-				41E6EE3B240307840063FDA1 /* MediavalStoneWall2K_diff.jpg in Resources */,
 				417E0ED3148A70DE0015B5B0 /* tree1_1024_C.png in Resources */,
 				412F89741FF58D94004D5982 /* ADSTex3D.frag in Resources */,
 				417981661F13833000EB5315 /* i0082_0000b.png in Resources */,
@@ -2654,7 +2564,6 @@
 				417981E01F13833000EB5315 /* i0204_0000b.png in Resources */,
 				417981B81F13833000EB5315 /* i0164_0000b.png in Resources */,
 				4179815A1F13833000EB5315 /* i0070_0000b.png in Resources */,
-				41E6EE37240307840063FDA1 /* Tiles05_COL_VAR1_2K.jpg in Resources */,
 				417981461F13833000EB5315 /* i0050_0000b.png in Resources */,
 				4179818A1F13833000EB5315 /* i0118_0000b.png in Resources */,
 				4166CE0E22A1B0D20040E992 /* Wave_radial10_256C.jpg in Resources */,
@@ -2677,7 +2586,6 @@
 				417981C51F13833000EB5315 /* i0177_0000b.png in Resources */,
 				414D37EF1EE6A72C009DB259 /* PerPixCookTorranceTex.vert in Resources */,
 				4179812C1F13833000EB5315 /* i0024_0000b.png in Resources */,
-				41E6EE4B240307840063FDA1 /* Tempel-Theater-02.gltf in Resources */,
 				417981C01F13833000EB5315 /* i0172_0000b.png in Resources */,
 				41421AED2146A53400554495 /* earth1024_H.jpg in Resources */,
 				418BF45F1B8B0D500049E387 /* RefractReflectDisp.frag in Resources */,
@@ -2693,7 +2601,6 @@
 				417981491F13833000EB5315 /* i0053_0000b.png in Resources */,
 				4166ED0B200260D700B42D17 /* Desert-Y1024_C.jpg in Resources */,
 				417981321F13833000EB5315 /* i0030_0000b.png in Resources */,
-				41E6EE45240307840063FDA1 /* Rundbogen_diff.jpg in Resources */,
 				4179817E1F13833000EB5315 /* i0106_0000b.png in Resources */,
 				4179816A1F13833000EB5315 /* i0086_0000b.png in Resources */,
 				4179812E1F13833000EB5315 /* i0026_0000b.png in Resources */,
@@ -2705,7 +2612,6 @@
 				4179814B1F13833000EB5315 /* i0055_0000b.png in Resources */,
 				418BF4461B8B0D4F0049E387 /* ColorAttribute.vert in Resources */,
 				417981B61F13833000EB5315 /* i0162_0000b.png in Resources */,
-				41E6EE38240307840063FDA1 /* DTM-Theater-Tempel-WGS84.tif in Resources */,
 				4179811C1F13833000EB5315 /* i0008_0000b.png in Resources */,
 				417E0EE1148A71220015B5B0 /* Pool+X0512_C.png in Resources */,
 				417981C71F13833000EB5315 /* i0179_0000b.png in Resources */,
@@ -2724,12 +2630,10 @@
 				417981291F13833000EB5315 /* i0021_0000b.png in Resources */,
 				417E0EE2148A71220015B5B0 /* Pool+Y0512_C.png in Resources */,
 				4179812D1F13833000EB5315 /* i0025_0000b.png in Resources */,
-				41E6EE4A240307840063FDA1 /* Pavement_SlateSquare2_2K_normal.png in Resources */,
 				417981D61F13833000EB5315 /* i0194_0000b.png in Resources */,
 				418BF4521B8B0D500049E387 /* PerPixBlinnTex.frag in Resources */,
 				418BF4611B8B0D500049E387 /* ShadowMapping.frag in Resources */,
 				417981331F13833000EB5315 /* i0031_0000b.png in Resources */,
-				41E6EE43240307840063FDA1 /* OldRooftiles_1K_albedo.png in Resources */,
 				417981AB1F13833000EB5315 /* i0151_0000b.png in Resources */,
 				418BF4561B8B0D500049E387 /* PerVrtBlinn.vert in Resources */,
 				417E0EE3148A71220015B5B0 /* Pool+Z0512_C.png in Resources */,
@@ -2767,10 +2671,8 @@
 				417981511F13833000EB5315 /* i0061_0000b.png in Resources */,
 				417981891F13833000EB5315 /* i0117_0000b.png in Resources */,
 				418BF4471B8B0D4F0049E387 /* ColorUniform.vert in Resources */,
-				41E6EE4D240307840063FDA1 /* DTM-Theater-Tempel-WGS84.json in Resources */,
 				417981341F13833000EB5315 /* i0032_0000b.png in Resources */,
 				417981231F13833000EB5315 /* i0015_0000b.png in Resources */,
-				41E6EE3C240307840063FDA1 /* Tiles05_COL_VAR3_2K.jpg in Resources */,
 				418BF45A1B8B0D500049E387 /* PerVrtBlinnTexSkinned.vert in Resources */,
 				412F89731FF58D94004D5982 /* ADSTex3D.vert in Resources */,
 				417981801F13833000EB5315 /* i0108_0000b.png in Resources */,
@@ -2799,7 +2701,6 @@
 				4179816F1F13833000EB5315 /* i0091_0000b.png in Resources */,
 				4179817C1F13833000EB5315 /* i0104_0000b.png in Resources */,
 				4179814C1F13833000EB5315 /* i0056_0000b.png in Resources */,
-				41E6EE50240307840063FDA1 /* Tiles05_Strong_NRM_2K.png in Resources */,
 				417981611F13833000EB5315 /* i0077_0000b.png in Resources */,
 				417981681F13833000EB5315 /* i0084_0000b.png in Resources */,
 				417981D41F13833000EB5315 /* i0192_0000b.png in Resources */,
@@ -2874,6 +2775,7 @@
 				419E11A81B74AF0000203E70 /* SLBackground.cpp in Sources */,
 				41C7A68A241A3D200017EE82 /* WAIHelper.cpp in Sources */,
 				41D43A5D24483EC9006EB54D /* SLApplication.cpp in Sources */,
+				CFA1325B246B0F5600E69777 /* Timestamp.cpp in Sources */,
 				41E6EDFB2402FECB0063FDA1 /* CVImageGeoTiff.cpp in Sources */,
 				414AC53D1F52A8070003867A /* CVRaulMurOrb.cpp in Sources */,
 				41FBDBCB232636CA0055338A /* AppDemoVideo.cpp in Sources */,
@@ -2896,18 +2798,18 @@
 				41FC947D19F7D6410026919B /* SLGLShader.cpp in Sources */,
 				41C7A686241A3D200017EE82 /* WAIKeyFrame.cpp in Sources */,
 				41A6A0801FF5887200C795A4 /* SLSkybox.cpp in Sources */,
+				CFA13265246B133E00E69777 /* fbow.cpp in Sources */,
 				418178281FC5D68F00200D02 /* SLDeviceLocation.cpp in Sources */,
 				4143338C1DE041310027E1C3 /* SLTriangle.cpp in Sources */,
+				CFA1325A246B0F5600E69777 /* Random.cpp in Sources */,
 				41C7A682241A3D200017EE82 /* WAISlam.cpp in Sources */,
 				41E6EE15240306E40063FDA1 /* FtpUtils.cpp in Sources */,
 				41A3550B1A7E676800791841 /* SLInputManager.cpp in Sources */,
-				416A868F241B8FF9009D63B0 /* Timestamp.cpp in Sources */,
 				41A354EC1A7E634F00791841 /* SLAssimpImporter.cpp in Sources */,
 				41A354EB1A7E634F00791841 /* SLImporter.cpp in Sources */,
 				4127F1D32451B8DF003AA071 /* SLCoordAxisArrow.cpp in Sources */,
 				41E6EE07240305EF0063FDA1 /* SLGLConetracerTex3D.cpp in Sources */,
 				4143337C1DE03D590027E1C3 /* CVTrackedChessboard.cpp in Sources */,
-				416A8690241B8FF9009D63B0 /* Random.cpp in Sources */,
 				4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */,
 				41FC947F19F7D6410026919B /* SLGLState.cpp in Sources */,
 				416A86A8241B9044009D63B0 /* ORBextractor.cpp in Sources */,
@@ -3178,7 +3080,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MZ552MQBH5;
+				DEVELOPMENT_TEAM = B3SJ7XG37J;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"../../../externals/prebuilt/iosV8_opencv_4.2.0/debug/**",
@@ -3232,6 +3134,8 @@
 					../../../externals/g2o,
 					../../../externals/eigen,
 					../../../externals,
+					../../../externals/fbow,
+					../../../externals/DUtils,
 				);
 				INFOPLIST_FILE = AppInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3243,7 +3147,7 @@
 					../../../externals/prebuilt/iosV8_g2o/Debug,
 				);
 				MARKETING_VERSION = 2.50;
-				PRODUCT_BUNDLE_IDENTIFIER = "ch.bfh.ti.cpvrLab.App-Demo-SLProject";
+				PRODUCT_BUNDLE_IDENTIFIER = "ch.bfh.ti.cpvrLab.App-Demo-SLProjectId";
 				PRODUCT_NAME = "Demo-SLProject";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3264,7 +3168,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MZ552MQBH5;
+				DEVELOPMENT_TEAM = B3SJ7XG37J;
 				ENABLE_OPENMP_SUPPORT = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3315,6 +3219,8 @@
 					../../../externals/g2o,
 					../../../externals/eigen,
 					../../../externals,
+					../../../externals/fbow,
+					../../../externals/DUtils,
 				);
 				INFOPLIST_FILE = AppInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -3326,7 +3232,7 @@
 					../../../externals/prebuilt/iosV8_g2o/Release,
 				);
 				MARKETING_VERSION = 2.50;
-				PRODUCT_BUNDLE_IDENTIFIER = "ch.bfh.ti.cpvrLab.App-Demo-SLProject";
+				PRODUCT_BUNDLE_IDENTIFIER = "ch.bfh.ti.cpvrLab.App-Demo-SLProjectId";
 				PRODUCT_NAME = "Demo-SLProject";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
