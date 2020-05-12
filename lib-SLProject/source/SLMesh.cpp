@@ -16,6 +16,7 @@
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLMesh.h>
 #include <SLAssetManager.h>
 
 //-----------------------------------------------------------------------------
@@ -84,6 +85,13 @@ void SLMesh::deleteData()
     _vao.deleteGL();
     _vaoN.deleteGL();
     _vaoT.deleteGL();
+
+#ifdef SL_HAS_OPTIX
+    _vertexBuffer.free();
+    _normalBuffer.free();
+    _indexShortBuffer.free();
+    _indexIntBuffer.free();
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Deletes the rectangle selected vertices and the dependend triangles.
@@ -1261,4 +1269,114 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);
     }
 }
+//-----------------------------------------------------------------------------
+/*
+void SLMesh::notifyParentNodesAABBUpdate() const
+{
+    SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
+    for (auto node : nodes)
+        node->needAABBUpdate();
+}
+*/
+//-----------------------------------------------------------------------------
+#ifdef SL_HAS_OPTIX
+unsigned int SLMesh::meshIndex = 0;
+//-----------------------------------------------------------------------------
+void SLMesh::allocAndUploadData()
+{
+    _vertexBuffer.alloc_and_upload(P);
+
+    _normalBuffer.alloc_and_upload(N);
+
+    if (Tc.data())
+        _textureBuffer.alloc_and_upload(Tc);
+
+    if (!I16.empty())
+        _indexShortBuffer.alloc_and_upload(I16);
+    else
+        _indexIntBuffer.alloc_and_upload(I32);
+}
+//-----------------------------------------------------------------------------
+void SLMesh::uploadData()
+{
+    _vertexBuffer.upload(*_finalP);
+    _normalBuffer.upload(*_finalN);
+}
+//-----------------------------------------------------------------------------
+void SLMesh::createMeshAccelerationStructure()
+{
+    if (!_vertexBuffer.isAllocated())
+    {
+        allocAndUploadData();
+    }
+
+    // Build triangle GAS
+    uint32_t _buildInput_flags[1] = {OPTIX_GEOMETRY_FLAG_NONE};
+
+    _buildInput.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+    if (!I16.empty())
+    {
+        _buildInput.triangleArray.indexFormat      = OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3;
+        _buildInput.triangleArray.numIndexTriplets = (SLuint)(I16.size() / 3);
+        _buildInput.triangleArray.indexBuffer      = _indexShortBuffer.devicePointer();
+    }
+    else
+    {
+        _buildInput.triangleArray.indexFormat      = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        _buildInput.triangleArray.numIndexTriplets = (SLuint)(I32.size() / 3);
+        _buildInput.triangleArray.indexBuffer      = _indexIntBuffer.devicePointer();
+    }
+    _buildInput.triangleArray.vertexFormat                = OPTIX_VERTEX_FORMAT_FLOAT3;
+    _buildInput.triangleArray.vertexBuffers               = _vertexBuffer.devicePointerPointer();
+    _buildInput.triangleArray.numVertices                 = (SLuint)P.size();
+    _buildInput.triangleArray.flags                       = _buildInput_flags;
+    _buildInput.triangleArray.numSbtRecords               = 1;
+    _buildInput.triangleArray.sbtIndexOffsetBuffer        = 0;
+    _buildInput.triangleArray.sbtIndexOffsetSizeInBytes   = 0;
+    _buildInput.triangleArray.sbtIndexOffsetStrideInBytes = 0;
+
+    _sbtIndex = RAY_TYPE_COUNT * meshIndex++;
+
+    buildAccelerationStructure();
+}
+//-----------------------------------------------------------------------------
+void SLMesh::updateMeshAccelerationStructure()
+{
+    if (!_accelStructOutOfDate)
+        return;
+
+    uploadData();
+
+    // Build triangle GAS
+    uint32_t _buildInput_flags[1]   = {OPTIX_GEOMETRY_FLAG_NONE};
+    _buildInput.triangleArray.flags = _buildInput_flags;
+
+    updateAccelerationStructure();
+}
+//-----------------------------------------------------------------------------
+HitData SLMesh::createHitData()
+{
+    HitData hitData = {};
+
+    hitData.sbtIndex = 0;
+    hitData.normals  = reinterpret_cast<float3*>(_normalBuffer.devicePointer());
+    hitData.indices  = reinterpret_cast<short3*>(_indexShortBuffer.devicePointer());
+    hitData.texCords = reinterpret_cast<float2*>(_textureBuffer.devicePointer());
+    if (!mat()->textures().empty())
+    {
+        hitData.textureObject = mat()->textures()[0]->getCudaTextureObject();
+    }
+    hitData.material.kn                = mat()->kn();
+    hitData.material.kt                = mat()->kt();
+    hitData.material.kr                = mat()->kr();
+    hitData.material.shininess         = mat()->shininess();
+    hitData.material.ambient_color     = make_float4(mat()->ambient());
+    hitData.material.specular_color    = make_float4(mat()->specular());
+    hitData.material.transmissiv_color = make_float4(mat()->transmissiv());
+    hitData.material.diffuse_color     = make_float4(mat()->diffuse());
+    hitData.material.emissive_color    = make_float4(mat()->emissive());
+
+    return hitData;
+}
+#endif
 //-----------------------------------------------------------------------------

@@ -419,7 +419,7 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
-
+//! Initialises all GLFW and GL3W stuff
 void GLFWInit()
 {
     if (!glfwInit())
@@ -433,11 +433,13 @@ void GLFWInit()
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
+#ifdef __APPLE__
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
     touch2.set(-1, -1);
     touchDelta.set(-1, -1);
@@ -503,7 +505,8 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera> camera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSWebCamera>   webCamera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSCameraAsync> camera    = std::make_unique<SENSCameraAsync>(std::move(webCamera));
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";

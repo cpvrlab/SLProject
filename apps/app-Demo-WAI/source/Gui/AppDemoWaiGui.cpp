@@ -51,7 +51,9 @@
 using namespace ErlebAR;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
+AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
+                             sm::EventHandler&                     eventHandler,
+                             ErlebAR::Resources&                   resources,
                              std::string                           appName,
                              int                                   dotsPerInch,
                              int                                   windowWidthPix,
@@ -65,32 +67,34 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
                              std::function<SENSCamera*(void)>      getCameraCB,
                              std::function<CVCalibration*(void)>   getCalibrationCB,
                              std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
-  : sm::EventSender(eventHandler)
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
+    _resources(resources)
 {
     //load preferences
     uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
     _prefsFileName = Utils::unifySlashes(configDir) + appName + ".yml";
-    uiPrefs->load(_prefsFileName, _context->Style);
+    uiPrefs->load(_prefsFileName, imGuiEngine.context()->Style);
     //load fonts
-    loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
+    //loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
 
     auto cb = [&]() {
-        sendEvent(new GoBackEvent());
+        sendEvent(new GoBackEvent("AppDemoWaiGui"));
     };
 
-    _backButton = BackButton(dotsPerInch,
-                             windowWidthPix,
-                             windowHeightPix,
-                             GuiAlignment::BOTTOM_RIGHT,
-                             5.f,
-                             5.f,
-                             {10.f, 7.f},
-                             std::bind(cb),
-                             _fontPropDots);
+    //_backButton = BackButton(dotsPerInch,
+    //                         windowWidthPix,
+    //                         windowHeightPix,
+    //                         GuiAlignment::BOTTOM_RIGHT,
+    //                         5.f,
+    //                         5.f,
+    //                         {10.f, 7.f},
+    //                         std::bind(cb),
+    //                         _resources.fonts().standard);
 
     _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
                                                         &eventQueue,
-                                                        _fontPropDots,
+                                                        _resources.fonts().standard,
                                                         configDir + "erleb-AR/locations/",
                                                         configDir + "calibrations/",
                                                         vocabularyDir,
@@ -101,29 +105,29 @@ AppDemoWaiGui::AppDemoWaiGui(sm::EventHandler&                     eventHandler,
     addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
                                                                     &uiPrefs->showInfosMapNodeTransform,
                                                                     &eventQueue,
-                                                                    _fontPropDots));
+                                                                    _resources.fonts().standard));
 
-    _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _fontPropDots);
+    _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().standard);
     addInfoDialog(_errorDial);
     addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking",
                                                             *uiPrefs.get(),
-                                                            _fontPropDots,
+                                                            _resources.fonts().standard,
                                                             modeGetterCB));
-    addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _fontPropDots, modeGetterCB));
-    addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _fontPropDots, getCameraCB));
-    addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _fontPropDots, getVideoFileStreamCB));
+    addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _resources.fonts().standard, modeGetterCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _resources.fonts().standard, getCameraCB));
+    addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _resources.fonts().standard, getVideoFileStreamCB));
 
-    addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _fontFixedDots, getCameraCB, getCalibrationCB));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _resources.fonts().tiny, getCameraCB, getCalibrationCB));
 
-    addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene, _fontPropDots));
-    addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors, _fontFixedDots));
-    addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties, _fontFixedDots));
-    addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph, _fontFixedDots));
-    addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming, _fontFixedDots));
-    addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks, _fontFixedDots));
-    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs, _fontPropDots));
-    addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming, _fontFixedDots));
-    addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform, _fontPropDots));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiSceneGraph>("scene graph", &uiPrefs->showSceneGraph, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsDebugTiming>("debug timing", &uiPrefs->showStatsDebugTiming, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiInfosFrameworks>("frameworks", &uiPrefs->showInfosFrameworks, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiUIPrefs>("prefs", uiPrefs.get(), &uiPrefs->showUIPrefs, _resources.fonts().standard));
+    addInfoDialog(std::make_shared<AppDemoGuiStatsTiming>("timing", &uiPrefs->showStatsTiming, _resources.fonts().tiny));
+    addInfoDialog(std::make_shared<AppDemoGuiTransform>("transform", &uiPrefs->showTransform, _resources.fonts().tiny));
 }
 //-----------------------------------------------------------------------------
 AppDemoWaiGui::~AppDemoWaiGui()
@@ -153,7 +157,7 @@ void AppDemoWaiGui::clearInfoDialogs()
 //-----------------------------------------------------------------------------
 void AppDemoWaiGui::build(SLScene* s, SLSceneView* sv)
 {
-    _backButton.render();
+    //_backButton.render();
 
     buildInfosDialogs(s, sv);
     buildMenu(s, sv);
@@ -173,7 +177,7 @@ void AppDemoWaiGui::buildInfosDialogs(SLScene* s, SLSceneView* sv)
 void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 {
     //push styles before calling BeginMainMenuBar
-    pushStyle();
+    ImGui::PushFont(_resources.fonts().standard);
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -325,48 +329,37 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         ImGui::EndMainMenuBar();
 
-        popStyle();
+        ImGui::PopFont();
     }
 }
 
-void AppDemoWaiGui::pushStyle()
-{
-    if (_fontPropDots)
-        ImGui::PushFont(_fontPropDots);
-}
-
-void AppDemoWaiGui::popStyle()
-{
-    if (_fontPropDots)
-        ImGui::PopFont();
-}
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
-{
-    ImGuiIO& io = _context->IO;
-    //io.Fonts->Clear();
-
-    // Load proportional font for menue and text displays
-    SLstring DroidSans = fontPath + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-    {
-        _fontPropDots = io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
-    }
-    else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
-
-    // Load fixed size font for statistics windows
-    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
-    if (Utils::fileExists(ProggyClean))
-    {
-        _fontFixedDots = io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
-        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
-    }
-    else
-        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
-}
+//void AppDemoWaiGui::loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, std::string fontPath)
+//{
+//    ImGuiIO& io = _context->IO;
+//    //io.Fonts->Clear();
+//
+//    // Load proportional font for menue and text displays
+//    SLstring DroidSans = fontPath + "DroidSans.ttf";
+//    if (Utils::fileExists(DroidSans))
+//    {
+//        _fontPropDots = io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDots);
+//        SL_LOG("ImGuiWrapper::loadFonts: %f", fontPropDots);
+//    }
+//    else
+//        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
+//
+//    // Load fixed size font for statistics windows
+//    SLstring ProggyClean = fontPath + "ProggyClean.ttf";
+//    if (Utils::fileExists(ProggyClean))
+//    {
+//        _fontFixedDots = io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDots);
+//        SL_LOG("ImGuiWrapper::loadFonts: %f", fontFixedDots);
+//    }
+//    else
+//        SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
+//}
 
 void AppDemoWaiGui::showErrorMsg(std::string msg)
 {

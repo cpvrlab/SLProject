@@ -25,25 +25,21 @@ SLGLConetracer::SLGLConetracer()
 SLGLConetracer::~SLGLConetracer()
 {
     //SL_LOG("Destructor      : ~SLGLConetracer");
-    if (_voxelizeMat)
-        delete _voxelizeMat;
-    if (_worldMat)
-        delete _worldMat;
-    if (_visualizeMat)
-        delete _visualizeMat;
-    if (_conetraceMat)
-        delete _conetraceMat;
-
-    if (_quadMesh)
-        delete _quadMesh;
-    if (_cubeMesh)
-        delete _cubeMesh;
+    delete _voxelizeMat;
+    delete _worldMat;
+    delete _visualizeMat;
+    delete _conetraceMat;
+    delete _quadMesh;
+    delete _cubeMesh;
 
     for (SLGLProgram* p : _programs)
         delete p;
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::init(SLint scrW, SLint scrH, const SLVec3f& minWs, const SLVec3f& maxWs)
+void SLGLConetracer::init(SLint          scrW,
+                          SLint          scrH,
+                          const SLVec3f& minWs,
+                          const SLVec3f& maxWs)
 {
     // enable multisampling
 #ifndef SL_GLES3
@@ -258,7 +254,8 @@ void SLGLConetracer::voxelSpaceTransform(const SLfloat l,
     //clang-format on
 }
 //-----------------------------------------------------------------------------
-void SLGLConetracer::calcWS2VoxelSpaceTransform(const SLVec3f& minWs, const SLVec3f& maxWs)
+void SLGLConetracer::calcWS2VoxelSpaceTransform(const SLVec3f& minWs,
+                                                const SLVec3f& maxWs)
 {
     // upload ws to vs settings:
     // figure out biggest component:
@@ -284,10 +281,8 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)_wsToVoxelSpace->m());
 
     uploadRenderSettings(program);
-    GET_GL_ERROR;
 
     uploadLights(program);
-    GET_GL_ERROR;
 
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();
@@ -302,7 +297,6 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
 void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 {
     assert(node);
-    GET_GL_ERROR;
 
     SLGLState* stateGL = SLGLState::instance();
     GLint progID = program->progID();
@@ -322,10 +316,10 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&node->updateAndGetWM());
 
     // draw meshes of the node
-    for (auto mesh : node->meshes())
+    for (auto* mesh : node->meshes())
     {
-		SLMaterial* mat = mesh->mat();
-		mat->passToUniforms(program);		
+        SLMaterial* mat = mesh->mat();
+        mat->passToUniforms(program);
 
         /*
         if (!mat->textures().empty())
@@ -338,23 +332,24 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
         }
         */
 
-		// generate a VAO if it does not exist yet
-		if (!mesh->vao().vaoID())
-			mesh->generateVAO(program);
+        // generate a VAO if it does not exist yet
+        if (!mesh->vao().vaoID())
+                mesh->generateVAO(program);
 
-		// bind the buffer
-		glBindVertexArray(mesh->vao().vaoID());
-		GET_GL_ERROR;
+        // bind the buffer
+        glBindVertexArray(mesh->vao().vaoID());
 
-		glDrawElements(GL_TRIANGLES, mesh->vao().numIndices(), GL_UNSIGNED_SHORT, 0);
-		GET_GL_ERROR;
+        glDrawElements(GL_TRIANGLES,
+                       mesh->vao().numIndices(),
+                       GL_UNSIGNED_SHORT,
+                       nullptr);
     }
 
-    GET_GL_ERROR;
-
 	// recursively draw the child nodes
-    for (auto child : node->children())
+    for (auto* child : node->children())
         renderNode(child, program);
+
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::voxelize()
@@ -367,21 +362,16 @@ void SLGLConetracer::voxelize()
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
     glUseProgram(program->progID());
-    GET_GL_ERROR;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    GET_GL_ERROR;
 
     glViewport(0, 0, _voxelTexSize, _voxelTexSize);
-    GET_GL_ERROR;
 
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    GET_GL_ERROR;
 
     _voxelTex->activate(program->progID(), "u_texture3D", 0);
-    GET_GL_ERROR;
 
     // Bind texture where we want to write to:
 #if defined(GL_VERSION_4_4)
@@ -393,12 +383,9 @@ void SLGLConetracer::voxelize()
                        GL_WRITE_ONLY,
                        GL_RGBA8);
 #endif
-    
-    GET_GL_ERROR;
 	
     _sv->camera()->setProjection(_sv, ET_center);
     _sv->camera()->setView(_sv, ET_center);
-    GET_GL_ERROR;
 
     renderSceneGraph(program);
 

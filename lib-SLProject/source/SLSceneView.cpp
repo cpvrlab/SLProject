@@ -10,6 +10,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLApplication.h>
 #include <SLAnimManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
@@ -287,6 +288,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
+        //todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
         if (_gui)
             _gui->onResize(_viewportRect.width,
                            _viewportRect.height,
@@ -371,6 +373,11 @@ void SLSceneView::onInitialize()
     _renderType   = RT_gl;
     _isFirstFrame = true;
 
+#ifdef SL_HAS_OPTIX
+    _optixRaytracer.setupOptix();
+    _optixPathtracer.setupOptix();
+#endif
+
     // init 3D scene with initial depth 1
     if (_s && _s->root3D() && _s->root3D()->aabb()->radiusOS() < 0.0001f)
     {
@@ -405,7 +412,7 @@ void SLSceneView::onInitialize()
     }
 
     // Reset timing variables
-    _cullTimeMS = 0.0f;
+    _cullTimeMS   = 0.0f;
     _draw3DTimeMS = 0.0f;
     _draw2DTimeMS = 0.0f;
     _cullTimesMS.init(60, 0.0f);
@@ -415,8 +422,8 @@ void SLSceneView::onInitialize()
     initSceneViewCamera();
 
     // init conetracer if possible:
-#if defined(GL_VERSION_4_4)
-    //if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+#ifdef GL_VERSION_4_4
+    if (gl3wIsSupported(4, 4))
     {
         // The world's bounding box should not change during runtime.
         if (_s && _s->root3D())
@@ -519,9 +526,14 @@ SLbool SLSceneView::onPaint()
         switch (_renderType)
         {
             case RT_gl: camUpdated = draw3DGL(_s->elapsedTimeMS()); break;
-            case RT_ct: camUpdated = draw3DCT(); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
+            case RT_ct: camUpdated = draw3DCT(); break;
+
+#ifdef SL_HAS_OPTIX
+            case RT_optix_rt: camUpdated = draw3DOptixRT(); break;
+            case RT_optix_pt: camUpdated = draw3DOptixPT(); break;
+#endif
         }
     }
 
@@ -1790,6 +1802,82 @@ SLbool SLSceneView::draw3DPT()
 
     return updated;
 }
+//-----------------------------------------------------------------------------
+#ifdef SL_HAS_OPTIX
+void SLSceneView::startOptixRaytracing(SLint maxDepth)
+{
+    _renderType  = RT_optix_rt;
+    _stopOptixRT = false;
+    _optixRaytracer.maxDepth(maxDepth);
+    _optixRaytracer.setupScene(this);
+}
+//-----------------------------------------------------------------------------
+SLbool SLSceneView::draw3DOptixRT()
+{
+    SLbool updated = false;
+
+    // if the raytracer not yet got started
+    if (_optixRaytracer.state() == rtReady)
+    {
+        s().root3D()->needUpdate();
+
+        _optixRaytracer.updateScene(this);
+
+        if (_optixRaytracer.doDistributed())
+            _optixRaytracer.renderDistrib();
+        else
+            _optixRaytracer.renderClassic();
+    }
+
+    // Refresh the render image during RT
+    _optixRaytracer.renderImage();
+
+    // React on the stop flag (e.g. ESC)
+    if (_stopOptixRT)
+    {
+        _renderType = RT_gl;
+        updated     = true;
+    }
+
+    return updated;
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::startOptixPathtracing(SLint maxDepth, SLint samples)
+{
+    _renderType  = RT_optix_pt;
+    _stopOptixPT = false;
+    _optixPathtracer.maxDepth(maxDepth);
+    _optixPathtracer.samples(samples);
+    _optixPathtracer.setupScene(this);
+}
+//-----------------------------------------------------------------------------
+SLbool SLSceneView::draw3DOptixPT()
+{
+    SLbool updated = false;
+
+    // if the path tracer not yet got started
+    if (_optixPathtracer.state() == rtReady)
+    {
+        s().root3D()->needUpdate();
+
+        // Start path tracing
+        _optixPathtracer.updateScene(this);
+        _optixPathtracer.render();
+    }
+
+    // Refresh the render image during RT
+    _optixPathtracer.renderImage();
+
+    // React on the stop flag (e.g. ESC)
+    if (_stopOptixPT)
+    {
+        _renderType = RT_gl;
+        updated     = true;
+    }
+
+    return updated;
+}
+#endif
 //-----------------------------------------------------------------------------
 /*!
 Starts the voxel cone tracing

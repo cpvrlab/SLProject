@@ -16,12 +16,12 @@ class AreaInfoGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AreaInfoGui(sm::EventHandler&   eventHandler,
+    AreaInfoGui(const ImGuiEngine&  imGuiEngine,
+                sm::EventHandler&   eventHandler,
                 ErlebAR::Resources& resources,
                 int                 dotsPerInch,
                 int                 screenWidthPix,
-                int                 screenHeightPix,
-                std::string         fontPath);
+                int                 screenHeightPix);
     ~AreaInfoGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -45,9 +45,9 @@ private:
     float _itemSpacingContent;
     float _buttonBoardH;
 
-    ImFont* _fontBig      = nullptr;
-    ImFont* _fontSmall    = nullptr;
-    ImFont* _fontStandard = nullptr;
+    //ImFont* _fontBig      = nullptr;
+    //ImFont* _fontSmall    = nullptr;
+    //ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
     ErlebAR::Area       _area;

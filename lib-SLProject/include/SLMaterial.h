@@ -29,7 +29,7 @@ the shininess parameter can be used as shininess exponent.
 For Cook-Torrance shading the parameters roughness and metallic are provided.
 In addition it has coeffitients for reflectivity (kr), transparency (kt) and
 refraction index (kn) that can be used in special shaders and ray tracing.
-A material can have multiple texture in the std::vector _textures.
+A material can have multiple texture in the vector _textures.
 The shading has to be implemented in the GLSL program (SLGLProgram) with a
 vertex and fragment shader.
 All parameters get synced into their corresponding parameter in SLGLState
@@ -259,8 +259,7 @@ protected:
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers
-typedef std::vector<SLMaterial*> SLVMaterial;
-
+typedef vector<SLMaterial*> SLVMaterial;
 //-----------------------------------------------------------------------------
 //! Global default gray color material for meshes that don't define their own.
 class SLMaterialDefaultGray : public SLMaterial

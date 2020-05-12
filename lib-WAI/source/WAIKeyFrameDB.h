@@ -31,9 +31,11 @@
 #ifndef WAIKEYFRAMEDB_H
 #define WAIKEYFRAMEDB_H
 
+#include <vector>
+#include <list>
 #include <WAIHelper.h>
 #include <WAIKeyFrame.h>
-#include <OrbSlam/ORBVocabulary.h>
+#include <fbow.h>
 
 #include <mutex>
 
@@ -44,9 +46,7 @@
 class WAI_API WAIKeyFrameDB
 {
     public:
-    WAIKeyFrameDB(const ORB_SLAM2::ORBVocabulary& voc);
-
-    void changeVocabulary(ORBVocabulary& voc, std::vector<WAIKeyFrame*> kfs);
+    WAIKeyFrameDB(const fbow::Vocabulary& voc);
 
     void add(WAIKeyFrame* pKF);
     void erase(WAIKeyFrame* pKF);
@@ -67,9 +67,9 @@ class WAI_API WAIKeyFrameDB
 
     protected:
     // Associated vocabulary
-    const ORBVocabulary* mpVoc;
+    const fbow::Vocabulary* mpVoc;
     // Inverted file
-    std::vector<list<WAIKeyFrame*>> mvInvertedFile;
+    std::vector<std::list<WAIKeyFrame*>> mvInvertedFile;
 
     // Mutex
     std::mutex mMutex;

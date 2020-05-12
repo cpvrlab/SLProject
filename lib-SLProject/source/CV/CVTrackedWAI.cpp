@@ -14,9 +14,9 @@
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
-    _voc = new ORB_SLAM2::ORBVocabulary();
     float startMS = _timer.elapsedTimeInMilliSec();
-    if (!_voc->loadFromBinaryFile(vocabularyFile))
+    _voc.readFromFile(vocabularyFile);
+    if (!_voc.isValid())
     {
         Utils::log("SLProject",
                    "Could not open the ORB vocabulary file: %s",
@@ -28,7 +28,6 @@ CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 //-----------------------------------------------------------------------------
 CVTrackedWAI::~CVTrackedWAI()
 {
-    delete _voc;
     delete _trackingExtractor;
     delete _waiSlamer;
 }
@@ -52,11 +51,11 @@ bool CVTrackedWAI::track(CVMat          imageGray,
 
     if (!_waiSlamer)
     {
-        if (!_voc)
+        if (!_voc.isValid())
             return false;
 
         int   nf           = 1000; // NO. of features
-        float fScaleFactor = 1.2;  // Scale factor for pyramid construction
+        float fScaleFactor = 1.2f;  // Scale factor for pyramid construction
         int   nLevels      = 8;    // NO. of pyramid levels
         int   fIniThFAST   = 20;   // Init threshold for FAST corner detector
         int   fMinThFAST   = 7;    // Min. threshold for FAST corner detector
@@ -73,7 +72,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                                fMinThFAST);
         _waiSlamer = new WAISlam(calib->cameraMat(),
                                  calib->distortion(),
-                                 _voc,
+                                 &_voc,
                                  _initializationExtractor,
                                  _trackingExtractor,
                                  nullptr, // global map

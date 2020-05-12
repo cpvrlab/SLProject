@@ -2,6 +2,7 @@
 
 TutorialView::TutorialView(sm::EventHandler&   eventHandler,
                            SLInputManager&     inputManager,
+                           const ImGuiEngine&  imGuiEngine,
                            ErlebAR::Resources& resources,
                            int                 screenWidth,
                            int                 screenHeight,
@@ -10,7 +11,7 @@ TutorialView::TutorialView(sm::EventHandler&   eventHandler,
                            std::string         imguiIniPath,
                            std::string         texturePath)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath)
+    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath)
 {
     init("TutorialView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
     onInitialize();

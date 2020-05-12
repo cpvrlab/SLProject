@@ -34,7 +34,7 @@
 using namespace cv;
 
 //-----------------------------------------------------------------------------
-WAIMap::WAIMap(WAIKeyFrameDB * kfDB)
+WAIMap::WAIMap(WAIKeyFrameDB* kfDB)
   : mnMaxKFid(0), mnBigChangeIdx(0)
 {
     mKfDB = kfDB;
@@ -43,6 +43,8 @@ WAIMap::WAIMap(WAIKeyFrameDB * kfDB)
 WAIMap::~WAIMap()
 {
     clear();
+    if (mKfDB)
+        delete mKfDB;
 }
 //-----------------------------------------------------------------------------
 void WAIMap::AddKeyFrame(WAIKeyFrame* pKF)
@@ -112,13 +114,13 @@ vector<WAIMapPoint*> WAIMap::GetAllMapPoints()
 long unsigned int WAIMap::KeyFramesInMap()
 {
     unique_lock<mutex> lock(mMutexMap);
-    return mspKeyFrames.size();
+    return (unsigned int)mspKeyFrames.size();
 }
 //-----------------------------------------------------------------------------
 long unsigned int WAIMap::MapPointsInMap()
 {
     unique_lock<mutex> lock(mMutexMap);
-    return mspMapPoints.size();
+    return (unsigned int)mspMapPoints.size();
 }
 //-----------------------------------------------------------------------------
 long unsigned int WAIMap::GetMaxKFid()

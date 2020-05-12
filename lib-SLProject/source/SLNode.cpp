@@ -20,6 +20,8 @@
 
 #include <utility>
 
+unsigned int SLNode::instanceIndex = 0;
+
 //-----------------------------------------------------------------------------
 // Static updateRec counter
 SLuint SLNode::numWMUpdates = 0;
@@ -1174,7 +1176,7 @@ void SLNode::setInitialState()
 }
 //-----------------------------------------------------------------------------
 /*!
-sesets this object to its initial state
+Resets this object to its initial state
 */
 void SLNode::resetToInitialState()
 {
@@ -1233,4 +1235,167 @@ void SLNode::updateMeshAccelStructs()
     for (auto* child : _children)
         child->updateMeshAccelStructs();
 }
+//-----------------------------------------------------------------------------
+#ifdef SL_HAS_OPTIX
+void SLNode::createInstanceAccelerationStructureTree()
+{
+    vector<OptixInstance> instances;
+
+    for (auto child : children())
+    {
+        if (!child->optixTraversableHandle())
+        {
+            child->createInstanceAccelerationStructureTree();
+        }
+
+        if (child->optixTraversableHandle())
+        {
+            OptixInstance instance;
+
+            const SLMat4f mat4x4        = om();
+            float         transform[12] = {mat4x4.m(0),
+                                   mat4x4.m(4),
+                                   mat4x4.m(8),
+                                   mat4x4.m(12),
+                                   mat4x4.m(1),
+                                   mat4x4.m(5),
+                                   mat4x4.m(9),
+                                   mat4x4.m(13),
+                                   mat4x4.m(2),
+                                   mat4x4.m(6),
+                                   mat4x4.m(10),
+                                   mat4x4.m(14)};
+            memcpy(instance.transform, transform, sizeof(float) * 12);
+
+            instance.instanceId        = instanceIndex++;
+            instance.visibilityMask    = 255;
+            instance.flags             = OPTIX_INSTANCE_FLAG_NONE;
+            instance.traversableHandle = child->optixTraversableHandle();
+            instance.sbtOffset         = 0;
+
+            instances.push_back(instance);
+        }
+    }
+
+    for (auto mesh : meshes())
+    {
+        mesh->updateMeshAccelerationStructure();
+        OptixInstance instance;
+
+        const SLMat4f& mat4x4        = om();
+        float          transform[12] = {mat4x4.m(0),
+                               mat4x4.m(4),
+                               mat4x4.m(8),
+                               mat4x4.m(12),
+                               mat4x4.m(1),
+                               mat4x4.m(5),
+                               mat4x4.m(9),
+                               mat4x4.m(13),
+                               mat4x4.m(2),
+                               mat4x4.m(6),
+                               mat4x4.m(10),
+                               mat4x4.m(14)};
+        memcpy(instance.transform, transform, sizeof(float) * 12);
+
+        instance.instanceId = instanceIndex++;
+        if (mesh->mat()->emissive().length() > 0)
+        {
+            instance.visibilityMask = 253;
+        }
+        else
+        {
+            instance.visibilityMask = 255;
+        }
+        instance.flags             = OPTIX_INSTANCE_FLAG_NONE;
+        instance.traversableHandle = mesh->optixTraversableHandle();
+        instance.sbtOffset         = mesh->sbtIndex();
+
+        instances.push_back(instance);
+    }
+
+    if (instances.empty())
+    {
+        return;
+    }
+
+    SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
+    instanceBuffer.alloc_and_upload(instances);
+
+    _buildInput.type                       = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    _buildInput.instanceArray.instances    = instanceBuffer.devicePointer();
+    _buildInput.instanceArray.numInstances = (SLuint)instances.size();
+
+    buildAccelerationStructure();
+}
+//-----------------------------------------------------------------------------
+void SLNode::createInstanceAccelerationStructureFlat()
+{
+    vector<OptixInstance> instances;
+
+    createOptixInstances(instances);
+
+    if (instances.empty())
+    {
+        return;
+    }
+
+    SLCudaBuffer<OptixInstance> instanceBuffer = SLCudaBuffer<OptixInstance>();
+    instanceBuffer.alloc_and_upload(instances);
+
+    _buildInput.type                       = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    _buildInput.instanceArray.instances    = instanceBuffer.devicePointer();
+    _buildInput.instanceArray.numInstances = (SLuint)instances.size();
+
+    buildAccelerationStructure();
+}
+//-----------------------------------------------------------------------------
+void SLNode::createOptixInstances(vector<OptixInstance>& instances)
+{
+    for (auto child : children())
+    {
+        child->createOptixInstances(instances);
+    }
+
+    for (auto mesh : meshes())
+    {
+        mesh->updateMeshAccelerationStructure();
+        OptixInstance instance;
+
+        const SLMat4f& mat4x4        = updateAndGetWM();
+        float          transform[12] = {mat4x4.m(0),
+                               mat4x4.m(4),
+                               mat4x4.m(8),
+                               mat4x4.m(12),
+                               mat4x4.m(1),
+                               mat4x4.m(5),
+                               mat4x4.m(9),
+                               mat4x4.m(13),
+                               mat4x4.m(2),
+                               mat4x4.m(6),
+                               mat4x4.m(10),
+                               mat4x4.m(14)};
+        memcpy(instance.transform, transform, sizeof(float) * 12);
+
+        instance.instanceId = instanceIndex++;
+        if (mesh->name().find("LightSpot") != -1 ||
+            mesh->name() == "line")
+        {
+            instance.visibilityMask = 252;
+        }
+        else if (mesh->name().find("LightRect") != -1)
+        {
+            instance.visibilityMask = 254;
+        }
+        else
+        {
+            instance.visibilityMask = 255;
+        }
+        instance.flags             = OPTIX_INSTANCE_FLAG_NONE;
+        instance.traversableHandle = mesh->optixTraversableHandle();
+        instance.sbtOffset         = mesh->sbtIndex();
+
+        instances.push_back(instance);
+    }
+}
+#endif
 //-----------------------------------------------------------------------------

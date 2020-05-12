@@ -15,12 +15,12 @@ class SettingsGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    SettingsGui(sm::EventHandler&   eventHandler,
+    SettingsGui(const ImGuiEngine&  imGuiEngine,
+                sm::EventHandler&   eventHandler,
                 ErlebAR::Resources& resources,
                 int                 dotsPerInch,
                 int                 screenWidthPix,
-                int                 screenHeightPix,
-                std::string         fontPath);
+                int                 screenHeightPix);
     ~SettingsGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -47,10 +47,6 @@ private:
                                  "Deutsch",
                                  "Français",
                                  "Italiano"};
-
-    ImFont* _fontBig      = nullptr;
-    ImFont* _fontSmall    = nullptr;
-    ImFont* _fontStandard = nullptr;
 
     ErlebAR::Resources& _resources;
 

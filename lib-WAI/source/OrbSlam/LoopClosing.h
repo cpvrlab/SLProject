@@ -47,10 +47,10 @@ class LoopClosing
     typedef map<WAIKeyFrame*, g2o::Sim3, std::less<WAIKeyFrame*>, Eigen::aligned_allocator<std::pair<WAIKeyFrame* const, g2o::Sim3>>> KeyFrameAndPose;
 
     public:
-    LoopClosing(WAIMap* pMap, ORBVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
+    LoopClosing(WAIMap* pMap, fbow::Vocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
-    void SetVocabulary(ORBVocabulary* voc);
+    void SetVocabulary(fbow::Vocabulary* voc);
 
     // Main function
     void Run();
@@ -128,7 +128,7 @@ class LoopClosing
     WAIMap*   mpMap;
     Tracking* mpTracker;
 
-    ORBVocabulary* mpORBVocabulary;
+    fbow::Vocabulary* mpVocabulary;
 
     LocalMapping* mpLocalMapper;
 

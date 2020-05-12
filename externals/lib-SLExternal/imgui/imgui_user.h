@@ -2,6 +2,7 @@
 #define IMGUI_USER_H
 
 #include "imgui.h"
+#include <vector>
 
 namespace ImGui
 {

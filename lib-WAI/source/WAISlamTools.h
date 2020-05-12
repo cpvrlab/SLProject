@@ -3,7 +3,7 @@
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
-#include <WAIOrbVocabulary.h>
+#include <fbow.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
 #include <OrbSlam/Initializer.h>
@@ -34,12 +34,12 @@ public:
     static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image);
     static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageRGB);
 
-    static bool initialize(InitializerData& iniData,
-                           WAIFrame&        frame,
-                           ORBVocabulary*   voc,
-                           LocalMap&        localMap,
-                           int              mapPointsNeeded,
-                           unsigned long&   lastKeyFrameFrameId);
+    static bool initialize(InitializerData&  iniData,
+                           WAIFrame&         frame,
+                           fbow::Vocabulary* voc,
+                           LocalMap&         localMap,
+                           int               mapPointsNeeded,
+                           unsigned long&    lastKeyFrameFrameId);
 
     static bool genInitialMap(WAIMap*       globalMap,
                               LocalMapping* localMapper,
@@ -47,20 +47,20 @@ public:
                               LocalMap&     localMap,
                               bool          serial);
 
-    static bool oldInitialize(WAIFrame&        frame,
-                              InitializerData& iniData,
-                              WAIMap*          map,
-                              LocalMap&        localMap,
-                              LocalMapping*    localMapper,
-                              LoopClosing*     loopCloser,
-                              ORBVocabulary*   voc,
-                              int              mapPointsNeeded,
-                              unsigned long&   lastKeyFrameFrameId);
+    static bool oldInitialize(WAIFrame&         frame,
+                              InitializerData&  iniData,
+                              WAIMap*           map,
+                              LocalMap&         localMap,
+                              LocalMapping*     localMapper,
+                              LoopClosing*      loopCloser,
+                              fbow::Vocabulary* voc,
+                              int               mapPointsNeeded,
+                              unsigned long&    lastKeyFrameFrameId);
 
     static int findFrameFixedMapMatches(WAIFrame&                 frame,
-                                         WAIMap*                   waiMap,
-                                         std::vector<cv::Point2f>& points2d,
-                                         std::vector<cv::Point3f>& points3d);
+                                        WAIMap*                   waiMap,
+                                        std::vector<cv::Point2f>& points2d,
+                                        std::vector<cv::Point3f>& points3d);
 
     static bool relocalization(WAIFrame& currentFrame,
                                WAIMap*   waiMap,
@@ -124,35 +124,37 @@ public:
                                   WAIFrame&      frame,
                                   unsigned long& lastKeyFrameFrameId);
 
-    static WAIFrame createMarkerFrame(std::string    markerFile,
-                                      KPextractor*   markerExtractor,
-                                      const cv::Mat& markerCameraIntrinsic,
-                                      ORBVocabulary* voc);
+    static WAIFrame createMarkerFrame(std::string       markerFile,
+                                      KPextractor*      markerExtractor,
+                                      const cv::Mat&    markerCameraIntrinsic,
+                                      fbow::Vocabulary* voc);
+
     static bool     findMarkerHomography(WAIFrame&    markerFrame,
                                          WAIKeyFrame* kfCand,
                                          cv::Mat&     homography,
                                          int          minMatches);
-    static bool     doMarkerMapPreprocessing(std::string    markerFile,
-                                             cv::Mat&       nodeTransform,
-                                             float          markerWidthInM,
-                                             KPextractor*   markerExtractor,
-                                             WAIMap*        map,
-                                             const cv::Mat& markerCameraIntrinsic,
-                                             ORBVocabulary* voc);
+
+    static bool     doMarkerMapPreprocessing(std::string       markerFile,
+                                             cv::Mat&          nodeTransform,
+                                             float             markerWidthInM,
+                                             KPextractor*      markerExtractor,
+                                             WAIMap*           map,
+                                             const cv::Mat&    markerCameraIntrinsic,
+                                             fbow::Vocabulary* voc);
 
 protected:
     WAISlamTools(){};
 
-    cv::Mat         _distortion;
-    cv::Mat         _cameraIntrinsic;
-    cv::Mat         _cameraExtrinsic;
-    InitializerData _iniData;
-    WAIFrame        _lastFrame;
-    LocalMap        _localMap;
-    WAIMap*         _globalMap;
-    ORBVocabulary*  _voc;
-    cv::Mat         _velocity;
-    bool            _initialized;
+    cv::Mat           _distortion;
+    cv::Mat           _cameraIntrinsic;
+    cv::Mat           _cameraExtrinsic;
+    InitializerData   _iniData;
+    WAIFrame          _lastFrame;
+    LocalMap          _localMap;
+    std::unique_ptr<WAIMap> _globalMap;
+    fbow::Vocabulary* _voc;
+    cv::Mat                 _velocity;
+    bool                    _initialized;
 
     LocalMapping*             _localMapping;
     LoopClosing*              _loopClosing;

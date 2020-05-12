@@ -3,7 +3,7 @@
 
 #include <SLSceneView.h>
 #include <WAIHelper.h>
-#include <OrbSlam/ORBVocabulary.h>
+#include <fbow.h>
 #include <WAIModeOrbSlam2.h>
 #include <Utils.h>
 
@@ -15,12 +15,12 @@ public:
                         std::string fileName,
                         std::string imgDir = "");
 
-    static bool loadMap(WAIMap*        waiMap,
-                        SLNode*        mapNode,
-                        ORBVocabulary* voc,
-                        std::string    path,
-                        bool           loadImgs,
-                        bool           fixKfsAndMPts);
+    static bool loadMap(WAIMap*           waiMap,
+                        SLNode*           mapNode,
+                        fbow::Vocabulary* voc,
+                        std::string       path,
+                        bool              loadImgs,
+                        bool              fixKfsAndMPts);
 
     static cv::Mat convertToCVMat(const SLMat4f slMat);
     static SLMat4f convertToSLMat(const cv::Mat& cvMat);

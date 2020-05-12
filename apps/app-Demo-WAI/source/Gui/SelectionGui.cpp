@@ -7,28 +7,19 @@
 
 using namespace ErlebAR;
 
-SelectionGui::SelectionGui(sm::EventHandler&   eventHandler,
+SelectionGui::SelectionGui(const ImGuiEngine&  imGuiEngine,
+                           sm::EventHandler&   eventHandler,
                            ErlebAR::Resources& resources,
                            int                 dotsPerInch,
                            int                 screenWidthPix,
                            int                 screenHeightPix,
                            std::string         fontPath,
                            std::string         texturePath)
-  : sm::EventSender(eventHandler),
+  : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
+    sm::EventSender(eventHandler),
     _resources(resources)
 {
     resize(screenWidthPix, screenHeightPix);
-    int fontHeightDots = _buttonSz.y * _resources.style().buttonTextH;
-    //add font and store index
-    SLstring DroidSans = fontPath + "Roboto-Medium.ttf";
-    if (Utils::fileExists(DroidSans))
-    {
-        _font = _context->IO.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontHeightDots);
-    }
-    else
-    {
-        Utils::warnMsg("SelectionGui", "SelectionGui: font does not exist!", __LINE__, __FILE__);
-    }
 
     //load background texture
     std::string imagePath = texturePath + "earth2048_C.jpg";
@@ -118,8 +109,7 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().buttonColorPressedSelection);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f));
 
-    if (_font)
-        ImGui::PushFont(_font);
+    ImGui::PushFont(_resources.fonts().selectBtns);
 }
 
 void SelectionGui::popStyle()
@@ -127,8 +117,7 @@ void SelectionGui::popStyle()
     ImGui::PopStyleVar(7);
     ImGui::PopStyleColor(4);
 
-    if (_font)
-        ImGui::PopFont();
+    ImGui::PopFont();
 }
 
 void SelectionGui::build(SLScene* s, SLSceneView* sv)
@@ -156,32 +145,32 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
 
         if (ImGui::Button("Avenches", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(LocationId::AVENCHES));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AVENCHES));
         }
 
         if (ImGui::Button("Augst", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(LocationId::AUGST));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AUGST));
         }
 
         if (ImGui::Button("Christoffel", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(LocationId::CHRISTOFFEL));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::CHRISTOFFEL));
         }
 
         if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
         {
-            sendEvent(new StartTutorialEvent());
+            sendEvent(new StartTutorialEvent("SelectionGui"));
         }
 
         if (ImGui::Button(_resources.strings().settings(), _buttonSz))
         {
-            sendEvent(new ShowSettingsEvent());
+            sendEvent(new ShowSettingsEvent("SelectionGui"));
         }
 
         if (ImGui::Button(_resources.strings().about(), _buttonSz))
         {
-            sendEvent(new ShowAboutEvent());
+            sendEvent(new ShowAboutEvent("SelectionGui"));
         }
 
         ImGui::End();
@@ -197,20 +186,23 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImVec2 develButtonSize(-FLT_MIN /*_screenWPix - _buttonSz.x*/, _buttonSz.y);
         if (ImGui::Button("Test", develButtonSize))
         {
-            sendEvent(new StartTestEvent());
+            sendEvent(new StartTestEvent("SelectionGui"));
         }
 
         if (ImGui::Button("Camera Test", develButtonSize))
         {
-            sendEvent(new StartCameraTestEvent());
+            sendEvent(new StartCameraTestEvent("SelectionGui"));
         }
 
         if (ImGui::Button("Biel", develButtonSize))
         {
-            sendEvent(new StartErlebarEvent(LocationId::BIEL));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BIEL));
         }
 
         ImGui::End();
     }
     popStyle();
+
+    //debug: draw log window
+    _resources.logWinDraw();
 }

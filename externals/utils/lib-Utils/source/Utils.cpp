@@ -61,6 +61,11 @@ using asio::ip::tcp;
 namespace Utils
 {
 ///////////////////////////////
+// Global variables          //
+///////////////////////////////
+std::unique_ptr<CustomLog> customLog;
+
+///////////////////////////////
 // String Handling Functions //
 ///////////////////////////////
 
@@ -224,7 +229,7 @@ string getHostName()
 }
 //-----------------------------------------------------------------------------
 //! Returns a formatted string as sprintf
-string formatString(const string& fmt_str, ...)
+string formatString(string fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
     int final_n = 0;
@@ -875,9 +880,10 @@ void log(const char* tag, const char* format, ...)
     strcat(msg, "\n");
 
     if (fileLog)
-    {
         fileLog->post(msg);
-    }
+
+    if (customLog)
+        customLog->post(msg);
 
 #if defined(ANDROID) || defined(ANDROID_NDK)
     __android_log_print(ANDROID_LOG_INFO, tag, msg);

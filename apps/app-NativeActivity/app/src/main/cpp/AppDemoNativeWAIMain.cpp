@@ -477,10 +477,10 @@ void Engine::startCamera()
             ndkCamera->init(SENSCamera::Facing::BACK);
 
             //start continious captureing request with certain configuration
-            SENSCamera::Config camConfig;
+            SENSCameraConfig camConfig;
             camConfig.targetWidth          = 640;
             camConfig.targetHeight         = 360;
-            camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;
+            camConfig.focusMode            = SENSCamera::SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
             camConfig.convertToGray        = true;
             camConfig.adjustAsynchronously = true;
             ndkCamera->start(camConfig);
@@ -1034,7 +1034,7 @@ void startCamera()
             //get all information about available cameras
             ndkCamera = new SENSNdkCamera(SENSCamera::Facing::BACK);
             //start continious captureing request with certain configuration
-            SENSCamera::Config camConfig;
+            SENSCameraConfig camConfig;
             camConfig.targetWidth          = 640;
             camConfig.targetHeight         = 360;
             camConfig.focusMode            = SENSCamera::FocusMode::FIXED_INFINITY_FOCUS;

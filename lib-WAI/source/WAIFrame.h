@@ -37,7 +37,8 @@
 #include <DBoW2/FeatureVector.h>
 
 #include <OrbSlam/ORBextractor.h>
-#include <OrbSlam/ORBVocabulary.h>
+#include <vector>
+#include <fbow.h>
 
 class WAIMapPoint;
 class WAIKeyFrame;
@@ -54,7 +55,7 @@ public:
     //!copy constructor
     WAIFrame(const WAIFrame& frame);
     //!constructor used for detection in tracking
-    WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, ORBVocabulary* orbVocabulary, bool retainImg = false);
+    WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, fbow::Vocabulary* vocabulary, bool retainImg = false);
 
     // Extract feature points on the image
     void ExtractFeaturePoints(const cv::Mat& im);
@@ -99,11 +100,11 @@ public:
     // Compute the cell of a keypoint (return false if outside the grid)
     bool PosInGrid(const cv::KeyPoint& kp, int& posX, int& posY);
 
-    vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r, const int minLevel = -1, const int maxLevel = -1) const;
+    std::vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r, const int minLevel = -1, const int maxLevel = -1) const;
 
 public:
     // Vocabulary used for relocalization.
-    ORBVocabulary* mpORBvocabulary = NULL;
+    fbow::Vocabulary* mVocabulary = NULL;
 
     // Feature extractor. The right is used only in the stereo case.
     KPextractor* mpORBextractorLeft = NULL;
@@ -136,8 +137,8 @@ public:
     std::vector<float> mvDepth;
 
     // Bag of Words Vector structures.
-    DBoW2::BowVector     mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
-    DBoW2::FeatureVector mFeatVec;
+    fbow::fBow     mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
+    fbow::fBow2    mFeatVec;
 
     // ORB descriptor, each row associated to a keypoint.
     cv::Mat mDescriptors;
@@ -170,10 +171,10 @@ public:
     int           mnScaleLevels;
     float         mfScaleFactor;
     float         mfLogScaleFactor;
-    vector<float> mvScaleFactors;
-    vector<float> mvInvScaleFactors;
-    vector<float> mvLevelSigma2;
-    vector<float> mvInvLevelSigma2;
+    std::vector<float> mvScaleFactors;
+    std::vector<float> mvInvScaleFactors;
+    std::vector<float> mvLevelSigma2;
+    std::vector<float> mvInvLevelSigma2;
 
     // Undistorted Image Bounds (computed once).
     static float mnMinX;

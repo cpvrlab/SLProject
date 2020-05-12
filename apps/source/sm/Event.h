@@ -2,6 +2,7 @@
 #define SM_EVENT_H
 
 #include <map>
+#include <string>
 #include <sm/EventData.h>
 
 namespace sm
@@ -14,6 +15,12 @@ public:
     {
         EVENT_IGNORED = 0xFE,
     };
+
+    Event(std::string name, std::string senderInfo)
+      : _name(name),
+        _senderInfo(senderInfo)
+    {
+    }
 
     virtual ~Event(){};
 
@@ -42,11 +49,17 @@ public:
         return _eventData;
     }
 
+    const char* name() const { return _name.c_str(); }
+    const char* senderInfo() const { return _senderInfo.c_str(); }
+
 protected:
     EventData* _eventData = nullptr;
 
 private:
     std::map<unsigned int, unsigned int> _transitions;
+
+    std::string _name;
+    std::string _senderInfo;
 };
 }
 

@@ -6,6 +6,8 @@
 #endif
 #include "imgui_internal.h"
 
+#include <limits>
+
 namespace ImGui
 {
 // frame_padding < 0: uses FramePadding from style (default)

@@ -16,12 +16,12 @@ class LocationMapGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    LocationMapGui(sm::EventHandler&   eventHandler,
+    LocationMapGui(const ImGuiEngine&  imGuiEngine,
+                   sm::EventHandler&   eventHandler,
                    ErlebAR::Resources& resources,
                    int                 dotsPerInch,
                    int                 screenWidthPix,
                    int                 screenHeightPix,
-                   std::string         fontPath,
                    std::string         erlebARDir);
     ~LocationMapGui();
 
@@ -45,7 +45,6 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
-    ImFont*             _fontBig = nullptr;
     ErlebAR::Resources& _resources;
 
     GLuint _locMapTexId = 0;

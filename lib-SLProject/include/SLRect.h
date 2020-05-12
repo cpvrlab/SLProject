@@ -104,7 +104,7 @@ class SLRect
 //-----------------------------------------------------------------------------
 typedef SLRect<SLint, SLVec2i>      SLRecti;
 typedef SLRect<SLfloat, SLVec2f>    SLRectf;
-typedef std::vector<SLRecti>        SLVRecti;
-typedef std::vector<SLRectf>        SLVRectf;
+typedef vector<SLRecti>        SLVRecti;
+typedef vector<SLRectf>        SLVRectf;
 //-----------------------------------------------------------------------------
 #endif

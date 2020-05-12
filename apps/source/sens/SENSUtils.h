@@ -5,9 +5,9 @@
 
 namespace SENS
 {
-
 void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH);
 void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV);
+void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW, int& addH);
 };
 
 #endif //SENS_UTILS_H

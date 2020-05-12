@@ -64,7 +64,7 @@ class SLTransformKeyframe : public SLAnimKeyframe
     SLVec3f  _scale;
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLAnimKeyframe*> SLVKeyframe;
+typedef vector<SLAnimKeyframe*> SLVKeyframe;
 //-----------------------------------------------------------------------------
 
 #endif

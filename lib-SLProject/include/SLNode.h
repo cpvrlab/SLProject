@@ -25,7 +25,7 @@ class SLAnimation;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typdef for a vector of SLNodes
-typedef std::vector<SLNode*> SLVNode;
+typedef vector<SLNode*> SLVNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
 /*! The SLNodeStats struct holds some statistics that are set in the recursive
@@ -131,6 +131,9 @@ SLNode.
 class SLNode
   : public SLObject
   , public SLEventHandler
+#ifdef SL_HAS_OPTIX
+  , public SLOptixAccelStruct
+#endif
 {
     friend class SLSceneView;
 
@@ -150,6 +153,8 @@ public:
     virtual void      dumpRec();
     void              setDrawBitsRec(SLuint bit, SLbool state);
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
+    void              createInstanceAccelerationStructureTree();
+    void              createInstanceAccelerationStructureFlat();
 
     // Mesh methods (see impl. for details)
     SLint        numMeshes() { return (SLint)_meshes.size(); }
@@ -292,6 +297,8 @@ public:
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
+    static unsigned int instanceIndex; //!< ???
+	
 private:
     void updateWM() const;
     template<typename T>
@@ -305,6 +312,9 @@ private:
     void findChildrenHelper(SLuint           drawbit,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
+#ifdef SL_HAS_OPTIX
+    void createOptixInstances(vector<OptixInstance>&);
+#endif
 
 protected:
     SLNode*         _parent;         //!< pointer to the parent node
@@ -321,7 +331,6 @@ protected:
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
-    //CVTracked*    _tracker;        //!< OpenCV Augmented Reality Tracker
 };
 
 ////////////////////////

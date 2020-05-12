@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 set(SL_PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SL_PROJECT_ROOT}/cmake/")
+
 # Register general cmake commands (set_policy, source_group_by_path, list_extract)
 include(cmake/CustomCommands.cmake)
 
@@ -23,39 +25,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-option(SL_BUILD_WAI
-	   "Specified if the WAI apps and library should be built"
-	   ON)
-option(SL_BUILD_APPS
-	   "Specifies if sample apps should be built"
-	   ON)
-option(SL_BUILD_VULKAN_APPS
-	   "Specified if vulkan apps should be built"
-	   ON)
+option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded"  ON)
+option(SL_BUILD_WAI          "Specifies if the WAI apps and library should be built" ON)
+option(SL_BUILD_APPS         "Specifies if sample apps should be built"              ON)
+option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"              ON)
+option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"          OFF)
 
+message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")
 message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
 message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
+message(STATUS "SL_BUILD_VULKAN_APPS: ${SL_BUILD_VULKAN_APPS}")
+message(STATUS "SL_BUILD_WITH_OPTIX: ${SL_BUILD_WITH_OPTIX}")
 
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
 
-option(SL_DOWNLOAD_PREBUILTS 
-	   "Specifies if prebuilt libraries should be downloaded" 
-	   ON)
 if (SL_DOWNLOAD_PREBUILTS)
-    message(STATUS "Downloading prebuilts")
 	include(cmake/DownloadPrebuilts.cmake)
 endif()
-
-option(SL_BUILD_WAI
-	   "Specified if the WAI apps and library should be built"
-	   ON)
-option(SL_BUILD_APPS
-	   "Specifies if sample apps should be built"
-	   ON)
-
-message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
-message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
 	message(STATUS "SL_APP: ${SL_APP}")

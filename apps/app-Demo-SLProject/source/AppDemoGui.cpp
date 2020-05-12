@@ -35,6 +35,7 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
+#include <Eigen/Dense>
 
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoTracking
@@ -412,17 +413,16 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
                 SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
                 SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
-                SLuint       rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
+                SLuint       rayTotal     = SLRay::totalNumRays();
                 SLfloat      renderSec    = rt->renderSec();
-                SLfloat      rpms         = renderSec > 0.001f ? rayTotal / renderSec / 1000.0f : 0.0f;
                 SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
 
                 sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
                 sprintf(m + strlen(m), "Progress   :%3d%%\n", rt->progressPC());
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", renderSec);
-                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", renderSec);
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
                 sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
                 sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
                 sprintf(m + strlen(m), "---------------------------\n");
@@ -437,21 +437,38 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                 sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
             }
+#if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
+            else if (rType == RT_optix_rt)
+            {
+                SLOptixRaytracer* ort = sv->optixRaytracer();
+                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", 1.0f / s->fps());
+            }
+            else if (rType == RT_optix_pt)
+            {
+                SLOptixPathtracer* opt = sv->optixPathtracer();
+                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
+                sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
+            }
+#endif
             else if (rType == RT_pt)
             {
                 SLPathtracer* pt           = sv->pathtracer();
                 SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
                 SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
                 SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
-                SLuint        rayTotal     = rayPrimaries + SLRay::reflectedRays + SLRay::subsampledRays + SLRay::refractedRays + SLRay::shadowRays;
-                SLfloat       rpms         = pt->renderSec() > 0.0f ? rayTotal / pt->renderSec() / 1000.0f : 0.0f;
+                SLuint        rayTotal     = SLRay::totalNumRays();
 
                 sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
                 sprintf(m + strlen(m), "Progress   :%3d%%\n", pt->progressPC());
                 sprintf(m + strlen(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
                 sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
                 sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
-                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rpms);
+                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", pt->raysPerMS());
                 sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
                 sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
                 sprintf(m + strlen(m), "---------------------------\n");
@@ -467,13 +484,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 // Get averages from average variables (see Averaged)
                 SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
                 SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
-                SLfloat detectTime     = CVTracked::detectTimesMS.average();
-                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
-                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
-                SLfloat matchTime      = CVTracked::matchTimesMS.average();
-                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
-                SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
                 SLfloat cullTime       = sv->cullTimesMS().average();
@@ -804,6 +814,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 #else
             sprintf(m + strlen(m), "Build Config.    : Release\n");
 #endif
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
             sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
             sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
@@ -811,14 +822,24 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
             sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
             sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
             sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
             sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
-            sprintf(m + strlen(m), "GLSL Version     : %s\n", stateGL->glSLVersionNO().c_str());
+            sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
             sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
+            sprintf(m + strlen(m), "-----------------:\n");
+            sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
+#ifdef EIGEN_VECTORIZE
+            sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
+#else
+            sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+#endif
+            sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
             // Switch to fixed font
@@ -1648,27 +1669,34 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL (GL)", "G", rType == RT_gl))
+            if (ImGui::MenuItem("OpenGL", "G", rType == RT_gl))
                 sv->renderType(RT_gl);
 
-            if (ImGui::MenuItem("Ray Tracing (RT)", "R", rType == RT_rt))
+            if (ImGui::MenuItem("Ray Tracing", "R", rType == RT_rt))
                 sv->startRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing (PT)", nullptr, rType == RT_pt))
+            if (ImGui::MenuItem("Path Tracing", nullptr, rType == RT_pt))
                 sv->startPathtracing(5, 10);
 
-#if defined(GL_VERSION_4_4)
-            if (gl3wIsSupported("GL_ARB_clear_texture GL_ARB_shader_image_load_store GL_ARB_texture_storage"))
+#ifdef SL_HAS_OPTIX
+            if (ImGui::MenuItem("Ray Tracing with OptiX", nullptr, rType == RT_optix_rt))
+                sv->startOptixRaytracing(5);
+
+            if (ImGui::MenuItem("Path Tracing with OptiX", nullptr, rType == RT_optix_pt))
+                sv->startOptixPathtracing(5, 10);
+#else
+            ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);
+            ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
+#endif
+#ifdef GL_VERSION_4_4
+            if (gl3wIsSupported(4, 4))
             {
                 if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
                     sv->startConetracing();
             }
             else
 #endif
-            {
-                if (ImGui::MenuItem("Cone Tracing (CT) (GL 4.4 or higher)", nullptr, rType == RT_ct, false))
-                    sv->startConetracing();
-            }
+                ImGui::MenuItem("Cone Tracing (GL>4.4)", nullptr, false, false);
 
             ImGui::EndMenu();
         }
@@ -1756,7 +1784,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 if (ImGui::MenuItem("Continuously", nullptr, rt->doContinuous()))
+                {
                     rt->doContinuous(!rt->doContinuous());
+                    sv->doWaitOnIdle(!rt->doContinuous());
+                }
 
                 if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
                 {
@@ -1801,6 +1832,65 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+
+#ifdef SL_HAS_OPTIX
+        else if (rType == RT_optix_rt)
+        {
+            if (ImGui::BeginMenu("RT"))
+            {
+                SLOptixRaytracer* rt_optix = sv->optixRaytracer();
+
+                if (ImGui::MenuItem("Parallel distributed", nullptr, rt_optix->doDistributed()))
+                {
+                    rt_optix->doDistributed(!rt_optix->doDistributed());
+                    sv->startOptixRaytracing(rt_optix->maxDepth());
+                }
+
+                //                if (ImGui::MenuItem("Fresnel Reflection", nullptr, rt->doFresnel()))
+                //                {
+                //                    rt->doFresnel(!rt->doFresnel());
+                //                    sv->startRaytracing(rt->maxDepth());
+                //                }
+
+                if (ImGui::BeginMenu("Max. Depth"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, rt_optix->maxDepth() == 1))
+                        sv->startOptixRaytracing(1);
+                    if (ImGui::MenuItem("2", nullptr, rt_optix->maxDepth() == 2))
+                        sv->startOptixRaytracing(2);
+                    if (ImGui::MenuItem("3", nullptr, rt_optix->maxDepth() == 3))
+                        sv->startOptixRaytracing(3);
+                    if (ImGui::MenuItem("5", nullptr, rt_optix->maxDepth() == 5))
+                        sv->startOptixRaytracing(5);
+                    if (ImGui::MenuItem("Max. Contribution", nullptr, rt_optix->maxDepth() == 0))
+                        sv->startOptixRaytracing(0);
+
+                    ImGui::EndMenu();
+                }
+
+                //                if (ImGui::BeginMenu("Anti-Aliasing Samples"))
+                //                {
+                //                    if (ImGui::MenuItem("Off", nullptr, rt->aaSamples() == 1))
+                //                        rt->aaSamples(1);
+                //                    if (ImGui::MenuItem("3x3", nullptr, rt->aaSamples() == 3))
+                //                        rt->aaSamples(3);
+                //                    if (ImGui::MenuItem("5x5", nullptr, rt->aaSamples() == 5))
+                //                        rt->aaSamples(5);
+                //                    if (ImGui::MenuItem("7x7", nullptr, rt->aaSamples() == 7))
+                //                        rt->aaSamples(7);
+                //                    if (ImGui::MenuItem("9x9", nullptr, rt->aaSamples() == 9))
+                //                        rt->aaSamples(9);
+                //
+                //                    ImGui::EndMenu();
+                //                }
+
+                if (ImGui::MenuItem("Save Rendered Image"))
+                    rt_optix->saveImage();
+
+                ImGui::EndMenu();
+            }
+        }
+#endif
         else if (rType == RT_pt)
         {
             if (ImGui::BeginMenu("PT"))
@@ -1908,6 +1998,43 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
+
+#ifdef SL_HAS_OPTIX
+        else if (rType == RT_optix_pt)
+        {
+            if (ImGui::BeginMenu("PT"))
+            {
+                SLOptixPathtracer* pt = sv->optixPathtracer();
+
+                if (ImGui::BeginMenu("NO. of Samples"))
+                {
+                    if (ImGui::MenuItem("1", nullptr, pt->samples() == 1))
+                        sv->startOptixPathtracing(5, 1);
+                    if (ImGui::MenuItem("10", nullptr, pt->samples() == 10))
+                        sv->startOptixPathtracing(5, 10);
+                    if (ImGui::MenuItem("100", nullptr, pt->samples() == 100))
+                        sv->startOptixPathtracing(5, 100);
+                    if (ImGui::MenuItem("1000", nullptr, pt->samples() == 1000))
+                        sv->startOptixPathtracing(5, 1000);
+                    if (ImGui::MenuItem("10000", nullptr, pt->samples() == 10000))
+                        sv->startOptixPathtracing(5, 10000);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Denoiser", nullptr, pt->getDenoiserEnabled()))
+                {
+                    pt->setDenoiserEnabled(!pt->getDenoiserEnabled());
+                    sv->startOptixPathtracing(5, pt->samples());
+                }
+
+                if (ImGui::MenuItem("Save Rendered Image"))
+                    pt->saveImage();
+
+                ImGui::EndMenu();
+            }
+        }
+#endif
 
         if (ImGui::BeginMenu("Camera"))
         {
@@ -2219,468 +2346,481 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-    if (node && sv->camera()->selectedRect().isEmpty())
+    if (sv->renderType() != RT_gl)
     {
-
         ImGui::Begin("Properties of Selection", &showProperties);
-
-        if (ImGui::TreeNode("Single Node Properties"))
+        ImGui::Text("Node selection and the");
+        ImGui::Text("properties of it can only");
+        ImGui::Text("be shown in the OpenGL");
+        ImGui::Text("renderer.");
+        ImGui::End();
+    }
+    else
+    {
+        if (node && sv->camera()->selectedRect().isEmpty())
         {
-            if (node)
+
+            ImGui::Begin("Properties of Selection", &showProperties);
+
+            if (ImGui::TreeNode("Single Node Properties"))
             {
-                SLuint c = (SLuint)node->children().size();
-                SLuint m = (SLuint)node->meshes().size();
-
-                ImGui::Text("Node Name       : %s", node->name().c_str());
-                ImGui::Text("No. of children : %u", c);
-                ImGui::Text("No. of meshes   : %u", m);
-                if (ImGui::TreeNode("Drawing Flags"))
+                if (node)
                 {
-                    SLbool db = node->drawBit(SL_DB_HIDDEN);
-                    if (ImGui::Checkbox("Hide", &db))
-                        node->drawBits()->set(SL_DB_HIDDEN, db);
+                    SLuint c = (SLuint)node->children().size();
+                    SLuint m = (SLuint)node->meshes().size();
 
-                    db = node->drawBit(SL_DB_WIREMESH);
-                    if (ImGui::Checkbox("Show wireframe", &db))
-                        node->drawBits()->set(SL_DB_WIREMESH, db);
-
-                    db = node->drawBit(SL_DB_NORMALS);
-                    if (ImGui::Checkbox("Show normals", &db))
-                        node->drawBits()->set(SL_DB_NORMALS, db);
-
-                    db = node->drawBit(SL_DB_VOXELS);
-                    if (ImGui::Checkbox("Show voxels", &db))
-                        node->drawBits()->set(SL_DB_VOXELS, db);
-
-                    db = node->drawBit(SL_DB_BBOX);
-                    if (ImGui::Checkbox("Show bounding boxes", &db))
-                        node->drawBits()->set(SL_DB_BBOX, db);
-
-                    db = node->drawBit(SL_DB_AXIS);
-                    if (ImGui::Checkbox("Show axis", &db))
-                        node->drawBits()->set(SL_DB_AXIS, db);
-
-                    db = node->drawBit(SL_DB_CULLOFF);
-                    if (ImGui::Checkbox("Show back faces", &db))
-                        node->drawBits()->set(SL_DB_CULLOFF, db);
-
-                    db = node->drawBit(SL_DB_TEXOFF);
-                    if (ImGui::Checkbox("No textures", &db))
-                        node->drawBits()->set(SL_DB_TEXOFF, db);
-
-                    ImGui::TreePop();
-                }
-
-                if (ImGui::TreeNode("Local Transform"))
-                {
-                    SLMat4f om(node->om());
-                    SLVec3f trn, rot, scl;
-                    om.decompose(trn, rot, scl);
-                    rot *= Utils::RAD2DEG;
-
-                    ImGui::Text("Translation  : %s", trn.toString().c_str());
-                    ImGui::Text("Rotation     : %s", rot.toString().c_str());
-                    ImGui::Text("Scaling      : %s", scl.toString().c_str());
-                    ImGui::TreePop();
-                }
-
-                // Show special camera properties
-                if (typeid(*node) == typeid(SLCamera))
-                {
-                    SLCamera* cam = (SLCamera*)node;
-
-                    if (ImGui::TreeNode("Camera"))
+                    ImGui::Text("Node Name       : %s", node->name().c_str());
+                    ImGui::Text("No. of children : %u", c);
+                    ImGui::Text("No. of meshes   : %u", m);
+                    if (ImGui::TreeNode("Drawing Flags"))
                     {
-                        SLfloat clipN     = cam->clipNear();
-                        SLfloat clipF     = cam->clipFar();
-                        SLfloat focalDist = cam->focalDist();
-                        SLfloat fov       = cam->fov();
+                        SLbool db = node->drawBit(SL_DB_HIDDEN);
+                        if (ImGui::Checkbox("Hide", &db))
+                            node->drawBits()->set(SL_DB_HIDDEN, db);
 
-                        const char* projections[] = {"Mono Perspective",
-                                                     "Mono Orthographic",
-                                                     "Stereo Side By Side",
-                                                     "Stereo Side By Side Prop.",
-                                                     "Stereo Side By Side Dist.",
-                                                     "Stereo Line By Line",
-                                                     "Stereo Column By Column",
-                                                     "Stereo Pixel By Pixel",
-                                                     "Stereo Color Red Cyan",
-                                                     "Stereo Color Red Green",
-                                                     "Stereo Color Red Blue",
-                                                     "Stereo Color Yelle Blue"};
+                        db = node->drawBit(SL_DB_WIREMESH);
+                        if (ImGui::Checkbox("Show wireframe", &db))
+                            node->drawBits()->set(SL_DB_WIREMESH, db);
 
-                        int proj = cam->projection();
-                        if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
-                            cam->projection((SLProjection)proj);
+                        db = node->drawBit(SL_DB_NORMALS);
+                        if (ImGui::Checkbox("Show normals", &db))
+                            node->drawBits()->set(SL_DB_NORMALS, db);
 
-                        if (cam->projection() > P_monoOrthographic)
+                        db = node->drawBit(SL_DB_VOXELS);
+                        if (ImGui::Checkbox("Show voxels", &db))
+                            node->drawBits()->set(SL_DB_VOXELS, db);
+
+                        db = node->drawBit(SL_DB_BBOX);
+                        if (ImGui::Checkbox("Show bounding boxes", &db))
+                            node->drawBits()->set(SL_DB_BBOX, db);
+
+                        db = node->drawBit(SL_DB_AXIS);
+                        if (ImGui::Checkbox("Show axis", &db))
+                            node->drawBits()->set(SL_DB_AXIS, db);
+
+                        db = node->drawBit(SL_DB_CULLOFF);
+                        if (ImGui::Checkbox("Show back faces", &db))
+                            node->drawBits()->set(SL_DB_CULLOFF, db);
+
+                        db = node->drawBit(SL_DB_TEXOFF);
+                        if (ImGui::Checkbox("No textures", &db))
+                            node->drawBits()->set(SL_DB_TEXOFF, db);
+
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Local Transform"))
+                    {
+                        SLMat4f om(node->om());
+                        SLVec3f trn, rot, scl;
+                        om.decompose(trn, rot, scl);
+                        rot *= Utils::RAD2DEG;
+
+                        ImGui::Text("Translation  : %s", trn.toString().c_str());
+                        ImGui::Text("Rotation     : %s", rot.toString().c_str());
+                        ImGui::Text("Scaling      : %s", scl.toString().c_str());
+                        ImGui::TreePop();
+                    }
+
+                    // Show special camera properties
+                    if (typeid(*node) == typeid(SLCamera))
+                    {
+                        SLCamera* cam = (SLCamera*)node;
+
+                        if (ImGui::TreeNode("Camera"))
                         {
-                            SLfloat eyeSepar = cam->eyeSeparation();
-                            if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
-                                cam->eyeSeparation(eyeSepar);
+                            SLfloat clipN     = cam->clipNear();
+                            SLfloat clipF     = cam->clipFar();
+                            SLfloat focalDist = cam->focalDist();
+                            SLfloat fov       = cam->fov();
+
+                            const char* projections[] = {"Mono Perspective",
+                                                         "Mono Orthographic",
+                                                         "Stereo Side By Side",
+                                                         "Stereo Side By Side Prop.",
+                                                         "Stereo Side By Side Dist.",
+                                                         "Stereo Line By Line",
+                                                         "Stereo Column By Column",
+                                                         "Stereo Pixel By Pixel",
+                                                         "Stereo Color Red Cyan",
+                                                         "Stereo Color Red Green",
+                                                         "Stereo Color Red Blue",
+                                                         "Stereo Color Yelle Blue"};
+
+                            int proj = cam->projection();
+                            if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
+                                cam->projection((SLProjection)proj);
+
+                            if (cam->projection() > P_monoOrthographic)
+                            {
+                                SLfloat eyeSepar = cam->eyeSeparation();
+                                if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
+                                    cam->eyeSeparation(eyeSepar);
+                            }
+
+                            if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))
+                                cam->fov(fov);
+
+                            if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
+                                cam->clipNear(clipN);
+
+                            if (ImGui::SliderFloat("Far Clip", &clipF, clipN, std::min(clipF * 1.1f, 1000000.f)))
+                                cam->clipFar(clipF);
+
+                            if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
+                                cam->focalDist(focalDist);
+
+                            ImGui::TreePop();
+                        }
+                    }
+
+                    // Show special light properties
+                    if (typeid(*node) == typeid(SLLightSpot) ||
+                        typeid(*node) == typeid(SLLightRect) ||
+                        typeid(*node) == typeid(SLLightDirect))
+                    {
+                        SLLight* light = nullptr;
+                        SLstring typeName;
+                        if (typeid(*node) == typeid(SLLightSpot))
+                        {
+                            light    = (SLLight*)(SLLightSpot*)node;
+                            typeName = "Light (spot):";
+                        }
+                        if (typeid(*node) == typeid(SLLightRect))
+                        {
+                            light    = (SLLight*)(SLLightRect*)node;
+                            typeName = "Light (rectangular):";
+                        }
+                        if (typeid(*node) == typeid(SLLightDirect))
+                        {
+                            light    = (SLLight*)(SLLightDirect*)node;
+                            typeName = "Light (directional):";
                         }
 
-                        if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))
-                            cam->fov(fov);
-
-                        if (ImGui::SliderFloat("Near Clip", &clipN, 0.001f, 10.f))
-                            cam->clipNear(clipN);
-
-                        if (ImGui::SliderFloat("Far Clip", &clipF, clipN, std::min(clipF * 1.1f, 1000000.f)))
-                            cam->clipFar(clipF);
-
-                        if (ImGui::SliderFloat("Focal Dist.", &focalDist, clipN, clipF))
-                            cam->focalDist(focalDist);
-
-                        ImGui::TreePop();
-                    }
-                }
-
-                // Show special light properties
-                if (typeid(*node) == typeid(SLLightSpot) ||
-                    typeid(*node) == typeid(SLLightRect) ||
-                    typeid(*node) == typeid(SLLightDirect))
-                {
-                    SLLight* light = nullptr;
-                    SLstring typeName;
-                    if (typeid(*node) == typeid(SLLightSpot))
-                    {
-                        light    = (SLLight*)(SLLightSpot*)node;
-                        typeName = "Light (spot):";
-                    }
-                    if (typeid(*node) == typeid(SLLightRect))
-                    {
-                        light    = (SLLight*)(SLLightRect*)node;
-                        typeName = "Light (rectangular):";
-                    }
-                    if (typeid(*node) == typeid(SLLightDirect))
-                    {
-                        light    = (SLLight*)(SLLightDirect*)node;
-                        typeName = "Light (directional):";
-                    }
-
-                    if (light && ImGui::TreeNode(typeName.c_str()))
-                    {
-                        SLbool on = light->isOn();
-                        if (ImGui::Checkbox("Is on", &on))
-                            light->isOn(on);
-
-                        ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
-                        SLCol4f             a     = light->ambient();
-                        if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
-                            light->ambient(a);
-
-                        SLCol4f diff = light->diffuse();
-                        if (ImGui::InputFloat3("Diffuse", (float*)&diff, 1, flags))
-                            light->diffuse(diff);
-
-                        SLCol4f spec = light->specular();
-                        if (ImGui::InputFloat3("Specular", (float*)&spec, 1, flags))
-                            light->specular(spec);
-
-                        float cutoff = light->spotCutOffDEG();
-                        if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
-                            light->spotCutOffDEG(cutoff);
-
-                        float kc = light->kc();
-                        if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
-                            light->kc(kc);
-
-                        float kl = light->kl();
-                        if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
-                            light->kl(kl);
-
-                        float kq = light->kq();
-                        if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
-                            light->kq(kq);
-
-                        ImGui::TreePop();
-                    }
-                }
-            }
-            else
-            {
-                ImGui::Text("No single node selected.");
-            }
-            ImGui::TreePop();
-        }
-
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-        ImGui::Separator();
-        if (ImGui::TreeNode("Single Mesh Properties"))
-        {
-            if (mesh)
-            {
-                SLuint      v = (SLuint)mesh->P.size();
-                SLuint      t = (SLuint)(!mesh->I16.empty() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
-                SLMaterial* m = mesh->mat();
-                ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
-                ImGui::Text("No. of Vertices : %u", v);
-                ImGui::Text("No. of Triangles: %u", t);
-
-                if (m && ImGui::TreeNode("Material"))
-                {
-                    ImGui::Text("Material Name: %s", m->name().c_str());
-
-                    if (ImGui::TreeNode("Reflection colors"))
-                    {
-                        SLCol4f ac = m->ambient();
-                        if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
-                            m->ambient(ac);
-
-                        SLCol4f dc = m->diffuse();
-                        if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
-                            m->diffuse(dc);
-
-                        SLCol4f sc = m->specular();
-                        if (ImGui::ColorEdit3("Specular color", (float*)&sc))
-                            m->specular(sc);
-
-                        SLCol4f ec = m->emissive();
-                        if (ImGui::ColorEdit3("Emissive color", (float*)&ec))
-                            m->emissive(ec);
-
-                        ImGui::TreePop();
-                    }
-
-                    if (ImGui::TreeNode("Other variables"))
-                    {
-                        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-
-                        SLfloat shine = m->shininess();
-                        if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
-                            m->shininess(shine);
-
-                        SLfloat rough = m->roughness();
-                        if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
-                            m->roughness(rough);
-
-                        SLfloat metal = m->metalness();
-                        if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
-                            m->metalness(metal);
-
-                        SLfloat kr = m->kr();
-                        if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
-                            m->kr(kr);
-
-                        SLfloat kt = m->kt();
-                        if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
-                            m->kt(kt);
-
-                        SLfloat kn = m->kn();
-                        if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
-                            m->kn(kn);
-
-                        ImGui::PopItemWidth();
-                        ImGui::TreePop();
-                    }
-
-                    if (!m->textures().empty() && ImGui::TreeNode("Textures"))
-                    {
-                        ImGui::Text("No. of textures: %lu", m->textures().size());
-
-                        //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
-                        SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
-
-                        for (auto& i : m->textures())
+                        if (light && ImGui::TreeNode(typeName.c_str()))
                         {
-                            SLGLTexture* tex    = i;
-                            void*        tid    = (ImTextureID)(intptr_t)tex->texID();
-                            SLfloat      w      = (SLfloat)tex->width();
-                            SLfloat      h      = (SLfloat)tex->height();
-                            SLfloat      h_to_w = h / w;
+                            SLbool on = light->isOn();
+                            if (ImGui::Checkbox("Is on", &on))
+                                light->isOn(on);
 
-                            if (ImGui::TreeNode(tex->name().c_str()))
+                            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+                            SLCol4f             a     = light->ambient();
+                            if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
+                                light->ambient(a);
+
+                            SLCol4f diff = light->diffuse();
+                            if (ImGui::InputFloat3("Diffuse", (float*)&diff, 1, flags))
+                                light->diffuse(diff);
+
+                            SLCol4f spec = light->specular();
+                            if (ImGui::InputFloat3("Specular", (float*)&spec, 1, flags))
+                                light->specular(spec);
+
+                            float cutoff = light->spotCutOffDEG();
+                            if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
+                                light->spotCutOffDEG(cutoff);
+
+                            float kc = light->kc();
+                            if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
+                                light->kc(kc);
+
+                            float kl = light->kl();
+                            if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
+                                light->kl(kl);
+
+                            float kq = light->kq();
+                            if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
+                                light->kq(kq);
+
+                            ImGui::TreePop();
+                        }
+                    }
+                }
+                else
+                {
+                    ImGui::Text("No single node selected.");
+                }
+                ImGui::TreePop();
+            }
+
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+            ImGui::Separator();
+            if (ImGui::TreeNode("Single Mesh Properties"))
+            {
+                if (mesh)
+                {
+                    SLuint      v = (SLuint)mesh->P.size();
+                    SLuint      t = (SLuint)(!mesh->I16.empty() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
+                    SLMaterial* m = mesh->mat();
+                    ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
+                    ImGui::Text("No. of Vertices : %u", v);
+                    ImGui::Text("No. of Triangles: %u", t);
+
+                    if (m && ImGui::TreeNode("Material"))
+                    {
+                        ImGui::Text("Material Name: %s", m->name().c_str());
+
+                        if (ImGui::TreeNode("Reflection colors"))
+                        {
+                            SLCol4f ac = m->ambient();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
+                                m->ambient(ac);
+
+                            SLCol4f dc = m->diffuse();
+                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
+                                m->diffuse(dc);
+
+                            SLCol4f sc = m->specular();
+                            if (ImGui::ColorEdit3("Specular color", (float*)&sc))
+                                m->specular(sc);
+
+                            SLCol4f ec = m->emissive();
+                            if (ImGui::ColorEdit3("Emissive color", (float*)&ec))
+                                m->emissive(ec);
+
+                            ImGui::TreePop();
+                        }
+
+                        if (ImGui::TreeNode("Other variables"))
+                        {
+                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+
+                            SLfloat shine = m->shininess();
+                            if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
+                                m->shininess(shine);
+
+                            SLfloat rough = m->roughness();
+                            if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
+                                m->roughness(rough);
+
+                            SLfloat metal = m->metalness();
+                            if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
+                                m->metalness(metal);
+
+                            SLfloat kr = m->kr();
+                            if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
+                                m->kr(kr);
+
+                            SLfloat kt = m->kt();
+                            if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
+                                m->kt(kt);
+
+                            SLfloat kn = m->kn();
+                            if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
+                                m->kn(kn);
+
+                            ImGui::PopItemWidth();
+                            ImGui::TreePop();
+                        }
+
+                        if (!m->textures().empty() && ImGui::TreeNode("Textures"))
+                        {
+                            ImGui::Text("No. of textures: %lu", m->textures().size());
+
+                            //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                            SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
+
+                            for (auto& i : m->textures())
                             {
-                                ImGui::Text("Size    : %d x %d x %d", tex->width(), tex->height(), tex->depth());
-                                ImGui::Text("Type    : %s", tex->typeName().c_str());
+                                SLGLTexture* tex    = i;
+                                void*        tid    = (ImTextureID)(intptr_t)tex->texID();
+                                SLfloat      w      = (SLfloat)tex->width();
+                                SLfloat      h      = (SLfloat)tex->height();
+                                SLfloat      h_to_w = h / w;
 
-                                if (tex->depth() > 1)
+                                if (ImGui::TreeNode(tex->name().c_str()))
                                 {
-                                    if (tex->target() == GL_TEXTURE_CUBE_MAP)
-                                        ImGui::Text("Cube maps can not be displayed.");
-                                    else if (tex->target() == GL_TEXTURE_3D)
-                                        ImGui::Text("3D textures can not be displayed.");
-                                }
-                                else
-                                {
-                                    if (typeid(*tex) == typeid(SLTransferFunction))
+                                    ImGui::Text("Size    : %d x %d x %d", tex->width(), tex->height(), tex->depth());
+                                    ImGui::Text("Type    : %s", tex->typeName().c_str());
+
+                                    if (tex->depth() > 1)
                                     {
-                                        SLTransferFunction* tf = (SLTransferFunction*)i;
-                                        if (ImGui::TreeNode("Color Points in Transfer Function"))
-                                        {
-                                            for (SLulong c = 0; c < tf->colors().size(); ++c)
-                                            {
-                                                SLCol3f color = tf->colors()[c].color;
-                                                SLchar  label[20];
-                                                sprintf(label, "Color %lu", c);
-                                                if (ImGui::ColorEdit3(label, (float*)&color))
-                                                {
-                                                    tf->colors()[c].color = color;
-                                                    tf->generateTexture();
-                                                }
-                                                ImGui::SameLine();
-                                                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                                                sprintf(label, "Pos. %lu", c);
-                                                SLfloat pos = tf->colors()[c].pos;
-                                                if (c > 0 && c < tf->colors().size() - 1)
-                                                {
-                                                    SLfloat min = tf->colors()[c - 1].pos + 2.0f / (SLfloat)tf->length();
-                                                    SLfloat max = tf->colors()[c + 1].pos - 2.0f / (SLfloat)tf->length();
-                                                    if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                    {
-                                                        tf->colors()[c].pos = pos;
-                                                        tf->generateTexture();
-                                                    }
-                                                }
-                                                else
-                                                    ImGui::Text("%3.2f Pos. %lu", pos, c);
-                                                ImGui::PopItemWidth();
-                                            }
-
-                                            ImGui::TreePop();
-                                        }
-
-                                        if (ImGui::TreeNode("Alpha Points in Transfer Function"))
-                                        {
-                                            for (SLulong a = 0; a < tf->alphas().size(); ++a)
-                                            {
-                                                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
-                                                SLfloat alpha = tf->alphas()[a].alpha;
-                                                SLchar  label[20];
-                                                sprintf(label, "Alpha %lu", a);
-                                                if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
-                                                {
-                                                    tf->alphas()[a].alpha = alpha;
-                                                    tf->generateTexture();
-                                                }
-                                                ImGui::SameLine();
-                                                sprintf(label, "Pos. %lu", a);
-                                                SLfloat pos = tf->alphas()[a].pos;
-                                                if (a > 0 && a < tf->alphas().size() - 1)
-                                                {
-                                                    SLfloat min = tf->alphas()[a - 1].pos + 2.0f / (SLfloat)tf->length();
-                                                    SLfloat max = tf->alphas()[a + 1].pos - 2.0f / (SLfloat)tf->length();
-                                                    if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                    {
-                                                        tf->alphas()[a].pos = pos;
-                                                        tf->generateTexture();
-                                                    }
-                                                }
-                                                else
-                                                    ImGui::Text("%3.2f Pos. %lu", pos, a);
-
-                                                ImGui::PopItemWidth();
-                                            }
-
-                                            ImGui::TreePop();
-                                        }
-
-                                        ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
-
-                                        SLVfloat allAlpha = tf->allAlphas();
-                                        ImGui::PlotLines("", allAlpha.data(), (SLint)allAlpha.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
+                                        if (tex->target() == GL_TEXTURE_CUBE_MAP)
+                                            ImGui::Text("Cube maps can not be displayed.");
+                                        else if (tex->target() == GL_TEXTURE_3D)
+                                            ImGui::Text("3D textures can not be displayed.");
                                     }
                                     else
                                     {
-                                        ImGui::Image(tid,
-                                                     ImVec2(texW, texW * h_to_w),
-                                                     ImVec2(0, 1),
-                                                     ImVec2(1, 0),
-                                                     ImVec4(1, 1, 1, 1),
-                                                     ImVec4(1, 1, 1, 1));
+                                        if (typeid(*tex) == typeid(SLTransferFunction))
+                                        {
+                                            SLTransferFunction* tf = (SLTransferFunction*)i;
+                                            if (ImGui::TreeNode("Color Points in Transfer Function"))
+                                            {
+                                                for (SLulong c = 0; c < tf->colors().size(); ++c)
+                                                {
+                                                    SLCol3f color = tf->colors()[c].color;
+                                                    SLchar  label[20];
+                                                    sprintf(label, "Color %lu", c);
+                                                    if (ImGui::ColorEdit3(label, (float*)&color))
+                                                    {
+                                                        tf->colors()[c].color = color;
+                                                        tf->generateTexture();
+                                                    }
+                                                    ImGui::SameLine();
+                                                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                                                    sprintf(label, "Pos. %lu", c);
+                                                    SLfloat pos = tf->colors()[c].pos;
+                                                    if (c > 0 && c < tf->colors().size() - 1)
+                                                    {
+                                                        SLfloat min = tf->colors()[c - 1].pos + 2.0f / (SLfloat)tf->length();
+                                                        SLfloat max = tf->colors()[c + 1].pos - 2.0f / (SLfloat)tf->length();
+                                                        if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                        {
+                                                            tf->colors()[c].pos = pos;
+                                                            tf->generateTexture();
+                                                        }
+                                                    }
+                                                    else
+                                                        ImGui::Text("%3.2f Pos. %lu", pos, c);
+                                                    ImGui::PopItemWidth();
+                                                }
+
+                                                ImGui::TreePop();
+                                            }
+
+                                            if (ImGui::TreeNode("Alpha Points in Transfer Function"))
+                                            {
+                                                for (SLulong a = 0; a < tf->alphas().size(); ++a)
+                                                {
+                                                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
+                                                    SLfloat alpha = tf->alphas()[a].alpha;
+                                                    SLchar  label[20];
+                                                    sprintf(label, "Alpha %lu", a);
+                                                    if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
+                                                    {
+                                                        tf->alphas()[a].alpha = alpha;
+                                                        tf->generateTexture();
+                                                    }
+                                                    ImGui::SameLine();
+                                                    sprintf(label, "Pos. %lu", a);
+                                                    SLfloat pos = tf->alphas()[a].pos;
+                                                    if (a > 0 && a < tf->alphas().size() - 1)
+                                                    {
+                                                        SLfloat min = tf->alphas()[a - 1].pos + 2.0f / (SLfloat)tf->length();
+                                                        SLfloat max = tf->alphas()[a + 1].pos - 2.0f / (SLfloat)tf->length();
+                                                        if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                        {
+                                                            tf->alphas()[a].pos = pos;
+                                                            tf->generateTexture();
+                                                        }
+                                                    }
+                                                    else
+                                                        ImGui::Text("%3.2f Pos. %lu", pos, a);
+
+                                                    ImGui::PopItemWidth();
+                                                }
+
+                                                ImGui::TreePop();
+                                            }
+
+                                            ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
+
+                                            SLVfloat allAlpha = tf->allAlphas();
+                                            ImGui::PlotLines("", allAlpha.data(), (SLint)allAlpha.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
+                                        }
+                                        else
+                                        {
+                                            ImGui::Image(tid,
+                                                         ImVec2(texW, texW * h_to_w),
+                                                         ImVec2(0, 1),
+                                                         ImVec2(1, 0),
+                                                         ImVec4(1, 1, 1, 1),
+                                                         ImVec4(1, 1, 1, 1));
+                                        }
                                     }
+
+                                    ImGui::TreePop();
                                 }
-
-                                ImGui::TreePop();
                             }
+
+                            ImGui::TreePop();
                         }
 
-                        ImGui::TreePop();
-                    }
-
-                    if (ImGui::TreeNode("GLSL Program"))
-                    {
-                        for (auto* shd : m->program()->shaders())
+                        if (ImGui::TreeNode("GLSL Program"))
                         {
-                            SLfloat lineH = ImGui::GetTextLineHeight();
-
-                            if (ImGui::TreeNode(s->name().c_str()))
+                            for (auto* shd : m->program()->shaders())
                             {
-                                SLchar text[1024 * 16];
-                                strcpy(text, shd->code().c_str());
-                                ImGui::InputTextMultiline(s->name().c_str(),
-                                                          text,
-                                                          IM_ARRAYSIZE(text),
-                                                          ImVec2(-1.0f, lineH * 16));
-                                ImGui::TreePop();
+                                SLfloat lineH = ImGui::GetTextLineHeight();
+
+                                if (ImGui::TreeNode(s->name().c_str()))
+                                {
+                                    SLchar text[1024 * 16];
+                                    strcpy(text, shd->code().c_str());
+                                    ImGui::InputTextMultiline(s->name().c_str(),
+                                                              text,
+                                                              IM_ARRAYSIZE(text),
+                                                              ImVec2(-1.0f, lineH * 16));
+                                    ImGui::TreePop();
+                                }
                             }
+
+                            ImGui::TreePop();
                         }
 
                         ImGui::TreePop();
                     }
-
-                    ImGui::TreePop();
                 }
-            }
-            else
-            {
-                ImGui::Text("No single mesh selected.");
+                else
+                {
+                    ImGui::Text("No single mesh selected.");
+                }
+
+                ImGui::TreePop();
             }
 
-            ImGui::TreePop();
+            ImGui::PopStyleColor();
+            ImGui::End();
         }
-
-        ImGui::PopStyleColor();
-        ImGui::End();
-    }
-    else if (!node && !sv->camera()->selectedRect().isEmpty())
-    {
-        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+        else if (!node && !sv->camera()->selectedRect().isEmpty())
+        {
+            /* The selection rectangle is defined in SLScene::selectRect and gets set and
         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
         not empty the SLScene::selectedNode is null. All vertices that are within the
         selectRect are listed in SLMesh::IS32. The selection evaluation is done during
         drawing in SLMesh::draw and is only valid for the current frame.
         All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
 
-        vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
+            vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
 
-        ImGui::Begin("Properties of Selection", &showProperties);
+            ImGui::Begin("Properties of Selection", &showProperties);
 
-        for (auto* selectedNode : selectedNodes)
-        {
-            if (!selectedNode->meshes().empty())
+            for (auto* selectedNode : selectedNodes)
             {
-                ImGui::Text("Node: %s", selectedNode->name().c_str());
-                for (auto* selectedMesh : selectedNode->meshes())
+                if (!selectedNode->meshes().empty())
                 {
-                    if (!selectedMesh->IS32.empty())
+                    ImGui::Text("Node: %s", selectedNode->name().c_str());
+                    for (auto* selectedMesh : selectedNode->meshes())
                     {
-                        ImGui::Text("   Mesh: %s {%u v.}",
-                                    selectedMesh->name().c_str(),
-                                    (SLuint)selectedMesh->IS32.size());
-                        ImGui::SameLine();
-                        SLstring delBtn = "DEL##" + selectedMesh->name();
-                        if (ImGui::Button(delBtn.c_str()))
+                        if (!selectedMesh->IS32.empty())
                         {
-                            selectedMesh->deleteSelected(selectedNode);
+                            ImGui::Text("   Mesh: %s {%u v.}",
+                                        selectedMesh->name().c_str(),
+                                        (SLuint)selectedMesh->IS32.size());
+                            ImGui::SameLine();
+                            SLstring delBtn = "DEL##" + selectedMesh->name();
+                            if (ImGui::Button(delBtn.c_str()))
+                            {
+                                selectedMesh->deleteSelected(selectedNode);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        ImGui::End();
-    }
-    else
-    { // Nothing is selected
-        ImGui::Begin("Properties of Selection", &showProperties);
-        ImGui::Text("There is nothing selected.");
-        ImGui::Text("Please select a single node");
-        ImGui::Text("by double-clicking or");
-        ImGui::Text("select multiple nodes by");
-        ImGui::Text("CTRL-LMB rectangle selection.");
-        ImGui::End();
+            ImGui::End();
+        }
+        else
+        {
+            // Nothing is selected
+            ImGui::Begin("Properties of Selection", &showProperties);
+            ImGui::Text("There is nothing selected.");
+            ImGui::Text("Please select a single node");
+            ImGui::Text("by double-clicking or");
+            ImGui::Text("select multiple nodes by");
+            ImGui::Text("CTRL-LMB rectangle selection.");
+            ImGui::End();
+        }
     }
     ImGui::PopFont();
 }
@@ -2712,6 +2852,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showInfosSensors = false;
         AppDemoGui::showSceneGraph   = false;
         AppDemoGui::showProperties   = false;
+        AppDemoGui::showDockSpace    = true;
 
         // Adjust UI padding on DPI
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);
