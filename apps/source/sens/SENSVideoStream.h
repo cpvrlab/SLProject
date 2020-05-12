@@ -21,6 +21,7 @@ public:
     float              fps() const { return _fps; }
 
     bool isOpened() const { return _cap.isOpened(); }
+    void restartVideo();
 
 private:
     void moveCapturePosition(int n);

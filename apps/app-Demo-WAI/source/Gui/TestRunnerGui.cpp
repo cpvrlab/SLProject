@@ -30,32 +30,40 @@ void TestRunnerGui::build(SLScene* s, SLSceneView* sv)
 
     TestRunnerView* view = (TestRunnerView*)sv;
 
-    ImGui::Begin("Slam Load", 0, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Testrunner", 0, ImGuiWindowFlags_AlwaysAutoResize);
 
-    ImGui::Text("Video: %s", view->videoName().c_str());
-    ImGui::Text("Frame: %i / %i", view->currentFrameIndex(), view->frameIndex());
-
-    if (ImGui::BeginCombo("Mode", _availableModes[_selectedMode].c_str()))
+    if (view->testsRunning())
     {
-        for (auto modeIt = _availableModes.begin();
-             modeIt != _availableModes.end();
-             modeIt++)
+        ImGui::Text("Mode: %s", _availableModes[_selectedMode].c_str());
+        ImGui::Text("Test: %i / %i", view->testIndex(), view->testCount());
+        ImGui::Text("Location: %s", view->location().c_str());
+        ImGui::Text("Area: %s", view->area().c_str());
+        ImGui::Text("Video: %s", view->video().c_str());
+        ImGui::Text("Frame: %i / %i", view->currentFrameIndex(), view->frameIndex());
+    }
+    else
+    {
+        if (ImGui::BeginCombo("Mode", _availableModes[_selectedMode].c_str()))
         {
-            if (ImGui::Selectable(modeIt->second.c_str(), _selectedMode == modeIt->first))
+            for (auto modeIt = _availableModes.begin();
+                 modeIt != _availableModes.end();
+                 modeIt++)
             {
-                _selectedMode = modeIt->first;
+                if (ImGui::Selectable(modeIt->second.c_str(), _selectedMode == modeIt->first))
+                {
+                    _selectedMode = modeIt->first;
+                }
             }
+
+            ImGui::EndCombo();
         }
 
-        ImGui::EndCombo();
-    }
-
-    if (ImGui::Button("Begin test"))
-    {
-        if (_selectedMode)
+        if (ImGui::Button("Begin test"))
         {
-            view->start((TestRunnerView::TestMode)_selectedMode,
-                        ExtractorType_GLSL);
+            if (_selectedMode)
+            {
+                view->start((TestRunnerView::TestMode)_selectedMode);
+            }
         }
     }
 

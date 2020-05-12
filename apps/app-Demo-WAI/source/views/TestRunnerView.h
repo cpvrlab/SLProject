@@ -12,36 +12,6 @@
 
 class TestRunnerView : protected SLSceneView
 {
-    struct TestData
-    {
-        std::string   mapFile;
-        std::string   videoFile;
-        CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
-    };
-
-    typedef std::string Location;
-    typedef std::string Area;
-
-    typedef std::vector<TestData>          TestDataVector;
-    typedef std::map<Area, TestDataVector> AreaMap;
-    typedef std::map<Location, AreaMap>    ErlebARTestSet;
-
-    struct RelocalizationTestResult
-    {
-        bool  wasSuccessful;
-        int   frameCount;
-        int   relocalizationFrameCount;
-        float ratio;
-    };
-
-    struct TrackingTestResult
-    {
-        bool  wasSuccessful;
-        int   frameCount;
-        int   trackingFrameCount;
-        float ratio;
-    };
-
     struct TestInstance
     {
         std::string location;
@@ -49,6 +19,7 @@ class TestRunnerView : protected SLSceneView
         std::string video;
         std::string map;
         std::string calibration;
+        std::string extractorType;
     };
 
 public:
@@ -71,31 +42,20 @@ public:
                    std::string       vocabularyFile,
                    std::string       imguiIniPath);
 
-    bool start(TestMode      testMode,
-               ExtractorType extractorType);
+    bool start(TestMode testMode);
     bool update();
 
     // getters
-    // TODO(dgj1): make these save to use
-    std::string videoName() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].video : ""; }
+    int         testIndex() { return (_currentTestIndex + 1); }
+    int         testCount() { return _testInstances.size(); }
+    std::string location() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].location : ""; }
+    std::string area() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].area : ""; }
+    std::string video() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].video : ""; }
     int         currentFrameIndex() { return _currentFrameIndex; }
     int         frameIndex() { return _frameCount; }
+    bool        testsRunning() { return _testStarted; }
 
 private:
-    void launchTrackingTest(const Location& location,
-                            const Area&     area,
-                            TestDataVector& datas,
-                            ExtractorType   extractorType,
-                            std::string     vocabularyFile,
-                            int             framerate = 0);
-
-    TrackingTestResult runTrackingTest(std::string    videoFile,
-                                       std::string    mapFile,
-                                       std::string    vocFile,
-                                       CVCalibration& calibration,
-                                       ExtractorType  extractorType,
-                                       int            framerate = 0);
-
     bool loadSites(const std::string&         erlebARDir,
                    const std::string&         configFile,
                    const std::string&         calibrationsDir,
@@ -103,15 +63,18 @@ private:
 
     TestRunnerGui _gui;
 
+    std::string _ftpHost;
+    std::string _ftpUser;
+    std::string _ftpPwd;
+    std::string _ftpDir;
+
     TestMode    _testMode;
     std::string _erlebARDir;
     std::string _calibDir;
     std::string _configFile;
 
-    std::string   _vocFile;
-    ExtractorType _extractorType;
+    std::string _vocFile;
 
-    ErlebARTestSet            _erlebARTestSet;
     std::vector<TestInstance> _testInstances;
 
     // iterators
@@ -120,7 +83,6 @@ private:
     // General test stuff
     int                          _frameCount;
     bool                         _testStarted = false;
-    bool                         _testsDone   = false;
     SENSVideoStream*             _vStream     = nullptr;
     std::unique_ptr<KPextractor> _extractor;
     WAIMap*                      _map;
@@ -145,7 +107,7 @@ private:
     unsigned long _lastKeyFrameFrameId;
     unsigned int  _lastRelocFrameId;
 
-    std::string testResults;
+    std::string _testResults;
 
     // SL
     SLScene _scene;

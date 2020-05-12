@@ -46,6 +46,22 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
     }
 }
 
+std::unique_ptr<KPextractor> FeatureExtractorFactory::make(std::string extractorType, const cv::Size& videoFrameSize)
+{
+    std::unique_ptr<KPextractor> result = nullptr;
+
+    for (int i = 0; i < _extractorIdToNames.size(); i++)
+    {
+        if (_extractorIdToNames[i] == extractorType)
+        {
+            result = make((ExtractorType)i, videoFrameSize);
+            break;
+        }
+    }
+
+    return result;
+}
+
 std::unique_ptr<KPextractor> FeatureExtractorFactory::orbExtractor(int nf)
 {
     float fScaleFactor = 1.2;
