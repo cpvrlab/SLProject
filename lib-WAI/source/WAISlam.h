@@ -45,29 +45,16 @@ public:
         float cullRedundantPerc = 0.95f; //originally it was 0.9
     };
 
-<<<<<<< HEAD
-    WAISlam(const cv::Mat&    intrinsic,
-            const cv::Mat&    distortion,
-            WAIOrbVocabulary* voc,
-            KPextractor*      iniExtractor,
-            KPextractor*      extractor,
-            WAIMap*           globalMap,
-            bool              trackingOnly      = false,
-            bool              serial            = false,
-            bool              retainImg         = false,
-            float             cullRedundantPerc = 0.95);
-=======
     WAISlam(const cv::Mat&          intrinsic,
             const cv::Mat&          distortion,
-            fbow::Vocabulary*       voc,
+            WAIOrbVocabulary*       voc,
             KPextractor*            iniExtractor,
             KPextractor*            extractor,
             std::unique_ptr<WAIMap> globalMap,
             bool                    trackingOnly      = false,
             bool                    serial            = false,
             bool                    retainImg         = false,
-            float                   cullRedundantPerc = 0.95f);
->>>>>>> develop
+            float                   cullRedundantPerc = 0.95);
 
     virtual ~WAISlam();
 

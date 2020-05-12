@@ -91,11 +91,7 @@ WAIFrame::WAIFrame(const WAIFrame& frame)
         imgGray = frame.imgGray.clone();
 }
 //-----------------------------------------------------------------------------
-<<<<<<< HEAD
 WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, WAIOrbVocabulary* vocabulary, bool retainImg)
-=======
-WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, fbow::Vocabulary* vocabulary, bool retainImg)
->>>>>>> develop
   : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ /*mDistCoef(distCoef.clone()),*/
     mVocabulary(vocabulary)
 {
@@ -328,13 +324,7 @@ void WAIFrame::ComputeBoW()
         // that make a total of 100 words. More words means more variance between keyframe and less
         // preselected keyframe but that will make also the relocalization less invariant to changes
 
-<<<<<<< HEAD
         mVocabulary->transform(mDescriptors, mBowVec, mFeatVec);
-=======
-        // Luc 2: I think level is from the top with the new BoW
-        if (mDescriptors.rows > 0)
-            mVocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
->>>>>>> develop
     }
 }
 //-----------------------------------------------------------------------------
