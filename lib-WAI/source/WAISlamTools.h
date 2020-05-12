@@ -3,7 +3,7 @@
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
-#include <fbow.h>
+#include <WAIOrbVocabulary.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
 #include <OrbSlam/Initializer.h>
@@ -36,7 +36,7 @@ public:
 
     static bool initialize(InitializerData&  iniData,
                            WAIFrame&         frame,
-                           fbow::Vocabulary* voc,
+                           WAIOrbVocabulary* voc,
                            LocalMap&         localMap,
                            int               mapPointsNeeded,
                            unsigned long&    lastKeyFrameFrameId);
@@ -53,7 +53,7 @@ public:
                               LocalMap&         localMap,
                               LocalMapping*     localMapper,
                               LoopClosing*      loopCloser,
-                              fbow::Vocabulary* voc,
+                              WAIOrbVocabulary* voc,
                               int               mapPointsNeeded,
                               unsigned long&    lastKeyFrameFrameId);
 
@@ -127,20 +127,20 @@ public:
     static WAIFrame createMarkerFrame(std::string       markerFile,
                                       KPextractor*      markerExtractor,
                                       const cv::Mat&    markerCameraIntrinsic,
-                                      fbow::Vocabulary* voc);
+                                      WAIOrbVocabulary* voc);
 
-    static bool     findMarkerHomography(WAIFrame&    markerFrame,
-                                         WAIKeyFrame* kfCand,
-                                         cv::Mat&     homography,
-                                         int          minMatches);
+    static bool findMarkerHomography(WAIFrame&    markerFrame,
+                                     WAIKeyFrame* kfCand,
+                                     cv::Mat&     homography,
+                                     int          minMatches);
 
-    static bool     doMarkerMapPreprocessing(std::string       markerFile,
-                                             cv::Mat&          nodeTransform,
-                                             float             markerWidthInM,
-                                             KPextractor*      markerExtractor,
-                                             WAIMap*           map,
-                                             const cv::Mat&    markerCameraIntrinsic,
-                                             fbow::Vocabulary* voc);
+    static bool doMarkerMapPreprocessing(std::string       markerFile,
+                                         cv::Mat&          nodeTransform,
+                                         float             markerWidthInM,
+                                         KPextractor*      markerExtractor,
+                                         WAIMap*           map,
+                                         const cv::Mat&    markerCameraIntrinsic,
+                                         WAIOrbVocabulary* voc);
 
 protected:
     WAISlamTools(){};
@@ -152,7 +152,7 @@ protected:
     WAIFrame          _lastFrame;
     LocalMap          _localMap;
     WAIMap*           _globalMap;
-    fbow::Vocabulary* _voc;
+    WAIOrbVocabulary* _voc;
     cv::Mat           _velocity;
     bool              _initialized;
 

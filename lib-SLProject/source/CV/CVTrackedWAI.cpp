@@ -14,9 +14,14 @@
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
 {
-    _voc.readFromFile(vocabularyFile);
+    _voc = new WAIOrbVocabulary();
     float startMS = _timer.elapsedTimeInMilliSec();
-    if (!_voc.isValid())
+
+    try
+    {
+        _voc->loadFromFile(vocabularyFile);
+    }
+    catch(std::exception& e)
     {
         Utils::log("SLProject",
                    "Could not open the ORB vocabulary file: %s",
@@ -51,7 +56,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
 
     if (!_waiSlamer)
     {
-        if (!_voc.isValid())
+        if (_voc == nullptr)
             return false;
 
         int   nf           = 1000; // NO. of features
@@ -72,7 +77,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                                fMinThFAST);
         _waiSlamer = new WAISlam(calib->cameraMat(),
                                  calib->distortion(),
-                                 &_voc,
+                                 _voc,
                                  _initializationExtractor,
                                  _trackingExtractor,
                                  nullptr, // global map

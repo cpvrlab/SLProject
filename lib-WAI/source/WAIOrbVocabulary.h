@@ -10,39 +10,63 @@
 
 #ifndef WAI_ORBVOCABULARY_H
 #define WAI_ORBVOCABULARY_H
-
 #include <string>
-
 #include <WAIHelper.h>
-#include <OrbSlam/ORBVocabulary.h>
+
+
+#define USE_FBOW
+#ifdef USE_FBOW
+    #include <fbow.h>
+#else 
+    #include <OrbSlam/ORBVocabulary.h>
+#endif
 
 /*!Singleton class used to load, store and delete ORB_SLAM2::ORBVocabulary instance.
 */
+
+
+struct WAIBowVector
+{
+    WAIBowVector() { isFill = false; }
+    bool isFill;
+#ifdef USE_FBOW
+    fbow::fBow data;
+    fbow::fBow& getWordScoreMapping() { return data; }
+#else
+    DBoW2::BowVector data;
+    DBoW2::BowVector& getWordScoreMapping() { return data; }
+#endif
+};
+
+
+struct WAIFeatVector
+{
+    WAIFeatVector() { isFill = false; }
+    bool isFill;
+#ifdef USE_FBOW
+    fbow::fBow2 data;
+    fbow::fBow2& getFeatMapping() { return data; }
+#else  
+    DBoW2::FeatureVector data;
+    DBoW2::FeatureVector& getFeatMapping() { return data; }
+#endif
+};
+
 class WAI_API WAIOrbVocabulary
 {
-    public:
+public:
     ~WAIOrbVocabulary();
-
-    static bool initialize(std::string filename);
-
-    //!get vocabulary
-    static ORB_SLAM2::ORBVocabulary* get();
-    //!delete vocabulary (free storage)
-    static void free();
-
-    private:
-    static WAIOrbVocabulary& instance()
-    {
-        static WAIOrbVocabulary s_instance;
-        return s_instance;
-    }
-
-    bool                      loadFromFile(std::string strVocFile);
-    void                      doFree();
-    ORB_SLAM2::ORBVocabulary* doGet();
-    bool                      doInitialize(std::string filename);
-
-    ORB_SLAM2::ORBVocabulary* _vocabulary = nullptr;
+    void loadFromFile(std::string strVocFile);
+    void transform(const cv::Mat &features, WAIBowVector &bow, WAIFeatVector &feat);
+    double score(WAIBowVector& bow1, WAIBowVector& bow2);
+    size_t size();
+private :
+#ifdef USE_FBOW
+      fbow::Vocabulary* _vocabulary = nullptr;
+#else
+      ORB_SLAM2::ORBVocabulary* _vocabulary = nullptr;
+#endif
 };
+
 
 #endif // !WAI_ORBVOCABULARY_H

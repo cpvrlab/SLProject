@@ -46,7 +46,7 @@ public:
 
     WAISlam(const cv::Mat&    intrinsic,
             const cv::Mat&    distortion,
-            fbow::Vocabulary* voc,
+            WAIOrbVocabulary* voc,
             KPextractor*      iniExtractor,
             KPextractor*      extractor,
             WAIMap*           globalMap,

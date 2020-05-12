@@ -47,7 +47,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
                          size_t                           N,
                          const std::vector<cv::KeyPoint>& vKeysUn,
                          const cv::Mat&                   descriptors,
-                         fbow::Vocabulary*                vocabulary,
+                         WAIOrbVocabulary*                vocabulary,
                          int                              nScaleLevels,
                          float                            fScaleFactor,
                          const std::vector<float>&        vScaleFactors,
@@ -188,9 +188,9 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
 //-----------------------------------------------------------------------------
 
 //TODO: set levels according to vocabulary
-void WAIKeyFrame::ComputeBoW(fbow::Vocabulary* vocabulary)
+void WAIKeyFrame::ComputeBoW(WAIOrbVocabulary* vocabulary)
 {
-    if (mBowVec.empty() || mFeatVec.empty())
+    if (mBowVec.data.empty() || mFeatVec.data.empty())
     {
         //vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
@@ -202,7 +202,7 @@ void WAIKeyFrame::ComputeBoW(fbow::Vocabulary* vocabulary)
         //vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2
 
         //TODO ensure level is now from the top
-        vocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
+        vocabulary->transform(mDescriptors, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------

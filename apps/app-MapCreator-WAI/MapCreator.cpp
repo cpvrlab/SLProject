@@ -13,8 +13,12 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::stri
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
 
-    _voc.readFromFile(vocFile);
-    if (!_voc.isValid())
+    _voc = new WAIOrbVocabulary();
+    try
+    {
+        _voc->loadFromFile(vocFile);
+    }
+    catch(std::exception& std)
     {
         std::cout << "Can't open vocabulary file!!! " << vocFile << std::endl;
         exit(1);
@@ -190,7 +194,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                     &mapNode,
-                                                    &_voc,
+                                                    _voc,
                                                     mapDir + "/" + mapFile,
                                                     false,
                                                     modeParams.fixOldKfs);
@@ -212,7 +216,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
                                                          kpExtractor.get(),
                                                          map,
                                                          areaConfig.videos.front().calibration.cameraMat(), // TODO(dgj1): use actual calibration for marker image
-                                                         &_voc);
+                                                         _voc);
 
     return result;
 }
@@ -312,7 +316,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             map                    = new WAIMap(kfdb);
             bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                             &mapNode,
-                                                            &_voc,
+                                                            _voc,
                                                             mapDir + lastMapFileName,
                                                             false,
                                                             modeParams.fixOldKfs);
@@ -341,7 +345,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         std::unique_ptr<WAISlam> waiMode =
           std::make_unique<WAISlam>(calibration.cameraMat(),
                                     calibration.distortion(),
-                                    &_voc,
+                                    _voc,
                                     kpIniExtractorPtr,
                                     kpExtractor.get(),
                                     map,
@@ -443,7 +447,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                     &mapNode,
-                                                    &_voc,
+                                                    _voc,
                                                     mapDir + "/" + inputMapFile,
                                                     false,
                                                     modeParams.fixOldKfs);
@@ -456,7 +460,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     std::unique_ptr<WAISlam> waiMode =
       std::make_unique<WAISlam>(calib.cameraMat(),
                                 calib.distortion(),
-                                &_voc,
+                                _voc,
                                 kpExtractor.get(),
                                 kpExtractor.get(),
                                 map,

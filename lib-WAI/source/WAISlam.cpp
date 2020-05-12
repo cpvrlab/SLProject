@@ -13,16 +13,16 @@
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
 
-WAISlam::WAISlam(const cv::Mat& intrinsic,
-                 const cv::Mat& distortion,
-                 fbow::Vocabulary* voc,
-                 KPextractor*   iniExtractor,
-                 KPextractor*   extractor,
-                 WAIMap*        globalMap,
-                 bool           trackingOnly,
-                 bool           serial,
-                 bool           retainImg,
-                 float          cullRedundantPerc)
+WAISlam::WAISlam(const cv::Mat&    intrinsic,
+                 const cv::Mat&    distortion,
+                 WAIOrbVocabulary* voc,
+                 KPextractor*      iniExtractor,
+                 KPextractor*      extractor,
+                 WAIMap*           globalMap,
+                 bool              trackingOnly,
+                 bool              serial,
+                 bool              retainImg,
+                 float             cullRedundantPerc)
 {
     _iniData.initializer = nullptr;
     _serial              = serial;
@@ -43,7 +43,7 @@ WAISlam::WAISlam(const cv::Mat& intrinsic,
 
     if (globalMap == nullptr)
     {
-        WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
+        WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(voc);
         _globalMap          = new WAIMap(kfDB);
         _state              = WAI::TrackingState_Initializing;
 

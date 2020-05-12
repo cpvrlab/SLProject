@@ -31,16 +31,16 @@
 #include <WAIKeyFrameDB.h>
 #include <fbow.h>
 //-----------------------------------------------------------------------------
-WAIKeyFrameDB::WAIKeyFrameDB(const fbow::Vocabulary& voc) : mpVoc(&voc)
+WAIKeyFrameDB::WAIKeyFrameDB(WAIOrbVocabulary* voc) : mpVoc(voc)
 {
-    mvInvertedFile.resize(voc.size() * voc.getK());
+    mvInvertedFile.resize(mpVoc->size());
 }
 
 //-----------------------------------------------------------------------------
 void WAIKeyFrameDB::add(WAIKeyFrame* pKF)
 {
     std::unique_lock<std::mutex> lock(mMutex);
-    for (auto vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+    for (auto vit = pKF->mBowVec.getWordScoreMapping().begin(), vend = pKF->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
     {
         mvInvertedFile[vit->first].push_back(pKF);
     }
@@ -51,7 +51,7 @@ void WAIKeyFrameDB::erase(WAIKeyFrame* pKF)
     std::unique_lock<std::mutex> lock(mMutex);
 
     // Erase elements in the Inverse File for the entry
-    for (auto vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+    for (auto vit = pKF->mBowVec.getWordScoreMapping().begin(), vend = pKF->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
     {
         // List of keyframes that share the word
         std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
@@ -87,7 +87,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
     {
         std::unique_lock<std::mutex> lock(mMutex);
 
-        for (auto vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++)
+        for (auto vit = pKF->mBowVec.getWordScoreMapping().begin(), vend = pKF->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
         {
             std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
 
@@ -133,7 +133,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
 
         if (pKFi->mnLoopWords > minCommonWords)
         {
-            float si = (float)fbow::fBow::score(pKF->mBowVec, pKFi->mBowVec);
+            float si = (float)mpVoc->score(pKF->mBowVec, pKFi->mBowVec);
 
             pKFi->mLoopScore = si;
             if (si >= minScore)
@@ -210,7 +210,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
     {
         std::unique_lock<std::mutex> lock(mMutex);
 
-        for (fbow::fBow::const_iterator vit = F->mBowVec.begin(), vend = F->mBowVec.end(); vit != vend; vit++)
+        for (auto vit = F->mBowVec.getWordScoreMapping().begin(), vend = F->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
         {
             std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
 
@@ -274,7 +274,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
             if (pKFi->mnRelocWords > minCommonWords)
             {
                 nscores++;
-                float si = (float)fbow::fBow::score(F->mBowVec, pKFi->mBowVec);
+                float si = (float)mpVoc->score(F->mBowVec, pKFi->mBowVec);
                 //std::cout << "si: " << si << std::endl;
                 pKFi->mRelocScore = si;
                 lScoreAndMatch.push_back(std::make_pair(si, pKFi));

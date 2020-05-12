@@ -8,71 +8,82 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <Converter.h>
 #include <WAIOrbVocabulary.h>
 #include <Utils.h>
 
 WAIOrbVocabulary::~WAIOrbVocabulary()
 {
     if (_vocabulary)
+    {
+#ifdef USE_FBOW
+        _vocabulary->clear();
+#endif
         delete _vocabulary;
-}
-//-----------------------------------------------------------------------------
-bool WAIOrbVocabulary::initialize(std::string filename)
-{
-    bool result = instance().doInitialize(filename);
-
-    return result;
-}
-//-----------------------------------------------------------------------------
-bool WAIOrbVocabulary::loadFromFile(std::string strVocFile)
-{
-    bool result = false;
-
-    if (!_vocabulary)
-    {
-        _vocabulary = new ORB_SLAM2::ORBVocabulary();
     }
-
-    bool bVocLoad = _vocabulary->loadFromBinaryFile(strVocFile);
-    if (!bVocLoad)
-    {
-        Utils::log("WAI", "Wrong path to vocabulary. Failed to open at: %s", strVocFile.c_str());
-        Utils::log("WAI", "WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
-    }
-    else
-    {
-        result = true;
-    }
-
-    return result;
-}
-//-----------------------------------------------------------------------------
-ORB_SLAM2::ORBVocabulary* WAIOrbVocabulary::get()
-{
-    return instance().doGet();
-}
-//-----------------------------------------------------------------------------
-void WAIOrbVocabulary::free()
-{
-    instance().doFree();
-}
-//-----------------------------------------------------------------------------
-void WAIOrbVocabulary::doFree()
-{
-    if (_vocabulary)
-        delete _vocabulary;
 
     _vocabulary = nullptr;
 }
-//-----------------------------------------------------------------------------
-ORB_SLAM2::ORBVocabulary* WAIOrbVocabulary::doGet()
-{
-    return _vocabulary;
-}
-//-----------------------------------------------------------------------------
-bool WAIOrbVocabulary::doInitialize(std::string filename)
-{
-    bool result = loadFromFile(filename);
 
-    return result;
+//-----------------------------------------------------------------------------
+void WAIOrbVocabulary::loadFromFile(std::string strVocFile)
+{
+    if (!_vocabulary)
+    {
+#ifdef USE_FBOW
+        _vocabulary = new fbow::Vocabulary();
+#else
+        _vocabulary = new ORB_SLAM2::ORBVocabulary();
+#endif
+    }
+
+#ifdef USE_FBOW
+    try
+    {
+        _vocabulary->readFromFile(strVocFile);
+    }
+    catch(std::exception& e)
+    {
+        throw std::runtime_error("WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
+    }
+#else
+    bool bVocLoad = _vocabulary->loadFromBinaryFile(strVocFile);
+
+    if (!bVocLoad)
+    {
+        throw std::runtime_error("WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
+    }
+#endif
 }
+
+void WAIOrbVocabulary::transform(const cv::Mat &descriptors, WAIBowVector &bow, WAIFeatVector &feat)
+{
+    bow.isFill = true;
+    feat.isFill = true;
+#ifdef USE_FBOW
+    _vocabulary->transform(descriptors, 1, bow.data, feat.data);
+#else
+    vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(descriptors);
+    _vocabulary->transform(vCurrentDesc, bow.data, feat.data, _vocabulary->getDepthLevels() - 2);
+#endif
+}
+
+double WAIOrbVocabulary::score(WAIBowVector &bow1, WAIBowVector &bow2)
+{
+#ifdef USE_FBOW
+    return fbow::fBow::score(bow1.data, bow2.data);
+#else
+    return _vocabulary->score(bow1.data, bow2.data);
+#endif
+}
+
+size_t WAIOrbVocabulary::size()
+{
+#ifdef USE_FBOW
+    return _vocabulary->size() * _vocabulary->getK();
+#else
+    return _vocabulary->size();
+#endif
+}
+
+

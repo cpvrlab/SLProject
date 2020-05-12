@@ -31,6 +31,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     //_scene.init();
     //_scene.build();
     onInitialize();
+    _voc = new WAIOrbVocabulary();
     //set scene camera into sceneview
     //(camera node not initialized yet)
     //this->camera(_scene.cameraNode);
@@ -142,15 +143,14 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     if (Utils::fileExists(fileName))
     {
         Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
-        _voc.clear();
-        _voc.readFromFile(fileName);
+        _voc->loadFromFile(fileName);
     }
 
     //init wai slam
     _waiSlam = std::make_unique<WAISlam>(
       _calibration->cameraMat(),
       _calibration->distortion(),
-      &_voc,
+      _voc,
       _initializationExtractor.get(),
       _trackingExtractor.get(),
       nullptr,
