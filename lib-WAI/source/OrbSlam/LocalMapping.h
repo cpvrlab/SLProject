@@ -45,7 +45,7 @@ class LoopClosing;
 class LocalMapping
 {
 public:
-    LocalMapping(WAIMap* pMap, const float bMonocular, fbow::Vocabulary* vocabulary, float cullRedundantPerc = 0.9);
+    LocalMapping(WAIMap* pMap, const float bMonocular, WAIOrbVocabulary* vocabulary, float cullRedundantPerc = 0.9);
     void SetLoopCloser(LoopClosing* pLoopCloser);
     void SetVocabulary(fbow::Vocabulary* vocabulary);
 
@@ -137,7 +137,7 @@ protected:
     bool       mbAbortBA;
     std::mutex mMutexAccept;
 
-    fbow::Vocabulary* _vocabulary = NULL;
+    WAIOrbVocabulary* _vocabulary = NULL;
 
     // A keyframe is considered redundant if the _cullRedundantPerc of the MapPoints it sees, are seen
     // in at least other 3 keyframes (in the same or finer scale)

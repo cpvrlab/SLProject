@@ -33,12 +33,9 @@
 #include <WAIHelper.h>
 
 #include <opencv2/opencv.hpp>
-#include <DBoW2/BowVector.h>
-#include <DBoW2/FeatureVector.h>
-
+#include <WAIOrbVocabulary.h>
 #include <OrbSlam/ORBextractor.h>
 #include <vector>
-#include <fbow.h>
 
 class WAIMapPoint;
 class WAIKeyFrame;
@@ -55,7 +52,7 @@ public:
     //!copy constructor
     WAIFrame(const WAIFrame& frame);
     //!constructor used for detection in tracking
-    WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, fbow::Vocabulary* vocabulary, bool retainImg = false);
+    WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, WAIOrbVocabulary* vocabulary, bool retainImg = false);
 
     // Extract feature points on the image
     void ExtractFeaturePoints(const cv::Mat& im);
@@ -104,7 +101,7 @@ public:
 
 public:
     // Vocabulary used for relocalization.
-    fbow::Vocabulary* mVocabulary = NULL;
+    WAIOrbVocabulary* mVocabulary = NULL;
 
     // Feature extractor. The right is used only in the stereo case.
     KPextractor* mpORBextractorLeft = NULL;
@@ -137,8 +134,8 @@ public:
     std::vector<float> mvDepth;
 
     // Bag of Words Vector structures.
-    fbow::fBow     mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
-    fbow::fBow2    mFeatVec;
+    WAIBowVector  mBowVec; //ghm1: used for search of relocalization candidates similar to current frame
+    WAIFeatVector mFeatVec;
 
     // ORB descriptor, each row associated to a keypoint.
     cv::Mat mDescriptors;

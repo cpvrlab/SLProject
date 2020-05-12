@@ -68,7 +68,7 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
 
 bool WAISlamTools::initialize(InitializerData&  iniData,
                               WAIFrame&         frame,
-                              fbow::Vocabulary* voc,
+                              WAIOrbVocabulary* voc,
                               LocalMap&         localMap,
                               int               mapPointsNeeded,
                               unsigned long&    lastKeyFrameFrameId)
@@ -277,7 +277,7 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
                                  LocalMap&         localMap,
                                  LocalMapping*     localMapper,
                                  LoopClosing*      loopCloser,
-                                 fbow::Vocabulary* voc,
+                                 WAIOrbVocabulary* voc,
                                  int               mapPointsNeeded,
                                  unsigned long&    lastKeyFrameFrameId)
 {
@@ -1122,7 +1122,7 @@ bool WAISlamTools::trackWithMotionModel(cv::Mat   velocity,
 WAIFrame WAISlamTools::createMarkerFrame(std::string       markerFile,
                                          KPextractor*      markerExtractor,
                                          const cv::Mat&    markerCameraIntrinsic,
-                                         fbow::Vocabulary* voc)
+                                         WAIOrbVocabulary* voc)
 {
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
@@ -1191,7 +1191,7 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string       markerFile,
                                             KPextractor*      markerExtractor,
                                             WAIMap*           map,
                                             const cv::Mat&    markerCameraIntrinsic,
-                                            fbow::Vocabulary* voc)
+                                            WAIOrbVocabulary* voc)
 {
     // Additional steps to save marker map
     // 1. Find matches to marker on two keyframes

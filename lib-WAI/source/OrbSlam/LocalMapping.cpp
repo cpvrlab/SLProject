@@ -37,10 +37,10 @@ using namespace std::literals;
 namespace ORB_SLAM2
 {
 
-LocalMapping::LocalMapping(WAIMap*        pMap,
-                           const float    bMonocular,
-                           fbow::Vocabulary* vocabulary,
-                           float          cullRedundantPerc)
+LocalMapping::LocalMapping(WAIMap*           pMap,
+                           const float       bMonocular,
+                           WAIOrbVocabulary* vocabulary,
+                           float             cullRedundantPerc)
   : mpMap(pMap),
     mbMonocular(bMonocular),
     _vocabulary(vocabulary),

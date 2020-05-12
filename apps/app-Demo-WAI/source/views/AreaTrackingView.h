@@ -10,8 +10,8 @@
 #include <FeatureExtractorFactory.h>
 #include <ImageBuffer.h>
 #include <WAISlam.h>
-#include <fbow.h>
 #include <sens/SENSCalibration.h>
+#include <WAIOrbVocabulary.h>
 
 class SENSCamera;
 
@@ -54,7 +54,7 @@ private:
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     ImageBuffer                  _imgBuffer;
-    fbow::Vocabulary             _voc;
+    WAIOrbVocabulary*            _voc;
 
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     std::unique_ptr<WAISlam> _waiSlam;

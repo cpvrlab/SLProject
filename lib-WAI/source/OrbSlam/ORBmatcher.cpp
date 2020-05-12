@@ -162,7 +162,7 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF, WAIFrame& F, vector<WAIMapPoint*>&
 
     vpMapPointMatches = vector<WAIMapPoint*>(F.N, static_cast<WAIMapPoint*>(NULL));
 
-    const fbow::fBow2& vFeatVecKF = pKF->mFeatVec;
+    WAIFeatVector& vFeatVecKF = pKF->mFeatVec;
 
     int nmatches = 0;
 
@@ -176,10 +176,10 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF, WAIFrame& F, vector<WAIMapPoint*>&
     const float factor = 1.0f / HISTO_LENGTH;
 
     // We perform the matching over ORB that belong to the same vocabulary node (at a certain level)
-    DBoW2::FeatureVector::const_iterator KFit  = vFeatVecKF.begin();
-    DBoW2::FeatureVector::const_iterator Fit   = F.mFeatVec.begin();
-    DBoW2::FeatureVector::const_iterator KFend = vFeatVecKF.end();
-    DBoW2::FeatureVector::const_iterator Fend  = F.mFeatVec.end();
+    auto KFit  = vFeatVecKF.getFeatMapping().begin();
+    auto Fit   = F.mFeatVec.getFeatMapping().begin();
+    auto KFend = vFeatVecKF.getFeatMapping().end();
+    auto Fend  = F.mFeatVec.getFeatMapping().end();
 
     while (KFit != KFend && Fit != Fend)
     {
@@ -258,11 +258,11 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF, WAIFrame& F, vector<WAIMapPoint*>&
         }
         else if (KFit->first < Fit->first)
         {
-            KFit = vFeatVecKF.lower_bound(Fit->first);
+            KFit = vFeatVecKF.getFeatMapping().lower_bound(Fit->first);
         }
         else
         {
-            Fit = F.mFeatVec.lower_bound(KFit->first);
+            Fit = F.mFeatVec.getFeatMapping().lower_bound(KFit->first);
         }
     }
 
@@ -643,12 +643,12 @@ int ORBmatcher::SearchForMarkerMap(WAIFrame& F1, WAIKeyFrame& F2, vector<int>& v
 int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapPoint*>& vpMatches12)
 {
     const vector<cv::KeyPoint>& vKeysUn1     = pKF1->mvKeysUn;
-    const fbow::fBow2&          vFeatVec1    = pKF1->mFeatVec;
+    WAIFeatVector&              vFeatVec1    = pKF1->mFeatVec;
     const vector<WAIMapPoint*>  vpMapPoints1 = pKF1->GetMapPointMatches();
     const cv::Mat&              Descriptors1 = pKF1->mDescriptors;
 
     const vector<cv::KeyPoint>& vKeysUn2     = pKF2->mvKeysUn;
-    const fbow::fBow2&          vFeatVec2    = pKF2->mFeatVec;
+    WAIFeatVector&              vFeatVec2    = pKF2->mFeatVec;
     const vector<WAIMapPoint*>  vpMapPoints2 = pKF2->GetMapPointMatches();
     const cv::Mat&              Descriptors2 = pKF2->mDescriptors;
 
@@ -666,10 +666,10 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapP
 
     int nmatches = 0;
 
-    DBoW2::FeatureVector::const_iterator f1it  = vFeatVec1.begin();
-    DBoW2::FeatureVector::const_iterator f2it  = vFeatVec2.begin();
-    DBoW2::FeatureVector::const_iterator f1end = vFeatVec1.end();
-    DBoW2::FeatureVector::const_iterator f2end = vFeatVec2.end();
+    auto f1it  = vFeatVec1.getFeatMapping().begin();
+    auto f2it  = vFeatVec2.getFeatMapping().begin();
+    auto f1end = vFeatVec1.getFeatMapping().end();
+    auto f2end = vFeatVec2.getFeatMapping().end();
 
     while (f1it != f1end && f2it != f2end)
     {
@@ -747,11 +747,11 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapP
         }
         else if (f1it->first < f2it->first)
         {
-            f1it = vFeatVec1.lower_bound(f2it->first);
+            f1it = vFeatVec1.getFeatMapping().lower_bound(f2it->first);
         }
         else
         {
-            f2it = vFeatVec2.lower_bound(f1it->first);
+            f2it = vFeatVec2.getFeatMapping().lower_bound(f1it->first);
         }
     }
 
@@ -780,8 +780,8 @@ int ORBmatcher::SearchByBoW(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, vector<WAIMapP
 
 int ORBmatcher::SearchForTriangulation(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, cv::Mat F12, vector<pair<size_t, size_t>>& vMatchedPairs, const bool bOnlyStereo)
 {
-    const fbow::fBow2& vFeatVec1 = pKF1->mFeatVec;
-    const fbow::fBow2& vFeatVec2 = pKF2->mFeatVec;
+    WAIFeatVector& vFeatVec1 = pKF1->mFeatVec;
+    WAIFeatVector& vFeatVec2 = pKF2->mFeatVec;
 
     //Compute epipole in second image
     cv::Mat Cw  = pKF1->GetCameraCenter();
@@ -807,10 +807,10 @@ int ORBmatcher::SearchForTriangulation(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, cv:
 
     const float factor = 1.0f / HISTO_LENGTH;
 
-    DBoW2::FeatureVector::const_iterator f1it  = vFeatVec1.begin();
-    DBoW2::FeatureVector::const_iterator f2it  = vFeatVec2.begin();
-    DBoW2::FeatureVector::const_iterator f1end = vFeatVec1.end();
-    DBoW2::FeatureVector::const_iterator f2end = vFeatVec2.end();
+    auto f1it  = vFeatVec1.getFeatMapping().begin();
+    auto f2it  = vFeatVec2.getFeatMapping().begin();
+    auto f1end = vFeatVec1.getFeatMapping().end();
+    auto f2end = vFeatVec2.getFeatMapping().end();
 
     while (f1it != f1end && f2it != f2end)
     {
@@ -906,11 +906,11 @@ int ORBmatcher::SearchForTriangulation(WAIKeyFrame* pKF1, WAIKeyFrame* pKF2, cv:
         }
         else if (f1it->first < f2it->first)
         {
-            f1it = vFeatVec1.lower_bound(f2it->first);
+            f1it = vFeatVec1.getFeatMapping().lower_bound(f2it->first);
         }
         else
         {
-            f2it = vFeatVec2.lower_bound(f1it->first);
+            f2it = vFeatVec2.getFeatMapping().lower_bound(f1it->first);
         }
     }
 
