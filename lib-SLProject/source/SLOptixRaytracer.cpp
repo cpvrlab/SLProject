@@ -34,16 +34,26 @@ SLOptixRaytracer::SLOptixRaytracer()
 //-----------------------------------------------------------------------------
 SLOptixRaytracer::~SLOptixRaytracer()
 {
-    //SL_LOG("Destructor      : ~SLOptixRaytracer");
-    OPTIX_CHECK(optixPipelineDestroy(_pipeline));
-    OPTIX_CHECK(optixProgramGroupDestroy(_radiance_hit_group));
-    OPTIX_CHECK(optixProgramGroupDestroy(_occlusion_hit_group));
-    OPTIX_CHECK(optixProgramGroupDestroy(_radiance_miss_group));
-    OPTIX_CHECK(optixProgramGroupDestroy(_occlusion_miss_group));
-    OPTIX_CHECK(optixProgramGroupDestroy(_pinhole_raygen_prog_group));
-    OPTIX_CHECK(optixModuleDestroy(_cameraModule));
-    OPTIX_CHECK(optixModuleDestroy(_shadingModule));
-    OPTIX_CHECK(optixModuleDestroy(_traceModule));
+    SL_LOG("Destructor      : ~SLOptixRaytracer");
+
+    try
+    {
+        OPTIX_CHECK(optixPipelineDestroy(_pipeline));
+        OPTIX_CHECK(optixProgramGroupDestroy(_radiance_hit_group));
+        OPTIX_CHECK(optixProgramGroupDestroy(_occlusion_hit_group));
+        OPTIX_CHECK(optixProgramGroupDestroy(_radiance_miss_group));
+        OPTIX_CHECK(optixProgramGroupDestroy(_occlusion_miss_group));
+        OPTIX_CHECK(optixProgramGroupDestroy(_pinhole_raygen_prog_group));
+        OPTIX_CHECK(optixModuleDestroy(_cameraModule));
+        OPTIX_CHECK(optixModuleDestroy(_shadingModule));
+        OPTIX_CHECK(optixModuleDestroy(_traceModule));
+    }
+    catch (exception e)
+    {
+        Utils::log("SLProject",
+                   "Exception in ~SLOptixRaytracer: %s",
+                   e.what());
+    }
 }
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::initCompileOptions()
@@ -54,17 +64,15 @@ void SLOptixRaytracer::initCompileOptions()
 #    ifdef NDEBUG
     _module_compile_options.optLevel   = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     _module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
-
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 #    else
     _module_compile_options.optLevel   = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     _module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_USER;
 #    endif
 
     _pipeline_compile_options.usesMotionBlur = false;
-    //    _pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
+    //_pipeline_compile_options.traversableGraphFlags            = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     _pipeline_compile_options.traversableGraphFlags            = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     _pipeline_compile_options.numPayloadValues                 = 7;
     _pipeline_compile_options.numAttributeValues               = 2;
