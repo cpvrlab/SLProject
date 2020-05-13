@@ -982,13 +982,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light->lookAt(0, 0, 0);
             light->attenuation(0, 0, 1);
             light->createsShadows(true);
-            light->castsShadows(false);
             scene->addChild(light);
         }
 
         // Add a sphere which casts shadows
         SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", m1));
         sphereNode->translate(0, 2.0, 0);
+        sphereNode->castsShadows(true);
         scene->addChild(sphereNode);
 
         SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
