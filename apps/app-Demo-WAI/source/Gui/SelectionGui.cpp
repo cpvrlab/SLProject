@@ -90,7 +90,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
     int nButVert = 6; //number of buttons in vertical direction
-    int buttonH  = (_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert;
+    int buttonH  = (int)((_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert);
     _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
 
