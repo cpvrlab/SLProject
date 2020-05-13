@@ -52,7 +52,7 @@ public:
     SLGLShader();
     SLGLShader(const SLstring&     filename,
                SLShaderType type);
-    ~SLGLShader();
+    ~SLGLShader() override;
 
     void     load(const SLstring& filename);
     void     loadFromMemory(const SLstring& program);
@@ -63,7 +63,7 @@ public:
 
     // Getters
     SLShaderType type() { return _type; }
-    SLuint       shaderID() { return _shaderID; }
+    SLuint       shaderID() const { return _shaderID; }
     SLstring     code() { return _code; }
 
 protected:

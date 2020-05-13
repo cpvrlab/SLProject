@@ -2,7 +2,6 @@
 #include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 #include <Utils.h>
-#include <fbow.h>
 
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
@@ -15,7 +14,7 @@
 
 WAISlam::WAISlam(const cv::Mat&          intrinsic,
                  const cv::Mat&          distortion,
-                 fbow::Vocabulary*       voc,
+                 WAIOrbVocabulary*       voc,
                  KPextractor*            iniExtractor,
                  KPextractor*            extractor,
                  std::unique_ptr<WAIMap> globalMap,
@@ -43,7 +42,7 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
 
     if (globalMap == nullptr)
     {
-        WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(*voc);
+        WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(voc);
         _globalMap          = std::make_unique<WAIMap>(kfDB);
         _state              = WAI::TrackingState_Initializing;
 

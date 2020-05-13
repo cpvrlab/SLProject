@@ -9,7 +9,7 @@
 #include <ErlebAR.h>
 #include <KPextractor.h>
 #include <SENSVideoStream.h>
-#include <fbow.h>
+#include <WAIOrbVocabulary.h>
 
 class TestRunnerView : protected SLSceneView
 {
@@ -89,7 +89,7 @@ private:
     WAIMap*                      _map         = nullptr;
     int                          _currentFrameIndex;
     CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
-    fbow::Vocabulary             _voc;
+    WAIOrbVocabulary             _voc;
     bool                         _videoWasDownloaded;
     float                        _summedTime;
 

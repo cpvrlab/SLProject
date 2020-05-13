@@ -38,15 +38,15 @@ enum SLShaderProg
 class SLGLProgramManager
 {
 public:
-    //get program reference for given id
+    //! Get program reference for given id
     static SLGLGenericProgram* get(SLShaderProg id);
-    //delete all instantiated programs
+    //! Delete all instantiated programs
     static void deletePrograms();
 
 private:
-    //make a program if it is not contained in _programs
+    //! Make a program if it is not contained in _programs
     static void makeProgram(SLShaderProg id);
-    //instantiated programs
+    //! Instantiated programs
     static std::map<SLShaderProg, SLGLGenericProgram*> _programs;
 };
 //-----------------------------------------------------------------------------

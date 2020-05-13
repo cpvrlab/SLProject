@@ -80,8 +80,9 @@ public:
     SLVec3f originOS; //!< Vector to the origin of ray in OS
     SLVec3f dirOS;    //!< Direction vector of ray in OS
 
-    //! Total NO. of rays shot during one RT frame
-    static SLuint totalNumRays() { return SLRay::reflectedRays +
+    //! Total NO. of rays shot during RT
+    static SLuint totalNumRays() { return SLRay::primaryRays +
+                                          SLRay::reflectedRays +
                                           SLRay::subsampledRays +
                                           SLRay::refractedRays +
                                           SLRay::shadowRays; }
@@ -120,6 +121,7 @@ public:
     // static variables for statistics
     static SLint   maxDepth;         //!< Max. recursion depth
     static SLfloat minContrib;       //!< Min. contibution to color (1/256)
+    static SLuint  primaryRays;      //!< NO. of primary rays shot
     static SLuint  reflectedRays;    //!< NO. of reflected rays
     static SLuint  refractedRays;    //!< NO. of refracted rays
     static SLuint  ignoredRays;      //!< NO. of ignore refraction rays

@@ -115,6 +115,7 @@ SLbool   AppDemoGui::showProperties      = false;
 SLbool   AppDemoGui::showChristoffel     = false;
 SLbool   AppDemoGui::showUIPrefs         = false;
 SLbool   AppDemoGui::showTransform       = false;
+SLbool   AppDemoGui::showResources       = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -2825,6 +2826,16 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
+//! Builds the resources dialog once per frame
+void AppDemoGui::buildResources(SLScene* s)
+{
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::Begin("Resources", &showResources);
+
+    ImGui::End();
+    ImGui::PopFont();
+}
+//-----------------------------------------------------------------------------
 //! Loads the UI configuration
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
@@ -2890,11 +2901,12 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
             fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
             fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
-            fs["showStatsWAI"] >> b;      AppDemoGui::showStatsWAI = b;
+            fs["showStatsWAI"] >> b;        AppDemoGui::showStatsWAI = b;
             fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosDevice = b;
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
+            fs["showResources"] >> b;       AppDemoGui::showResources = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
@@ -2971,6 +2983,7 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
+    fs << "showResources" << AppDemoGui::showResources;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
@@ -2989,7 +3002,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(s, sv, s->selectedNode());
+        tN = new SLTransformNode(sv, s->selectedNode());
         s->root3D()->addChild(tN);
     }
 
@@ -3001,7 +3014,14 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 void AppDemoGui::removeTransformNode(SLProjectScene* s)
 {
     SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
-    if (tN) s->root3D()->deleteChild(tN);
+    if (tN)
+    {
+        auto it = find(s->eventHandlers().begin(), s->eventHandlers().end(), tN);
+        if (it != s->eventHandlers().end())
+            s->eventHandlers().erase(it);
+
+        s->root3D()->deleteChild(tN);
+    }
     transformNode = nullptr;
 }
 //-----------------------------------------------------------------------------

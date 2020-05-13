@@ -34,7 +34,7 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
 {
     init("TestRunnerView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
 
-    _voc.readFromFile(vocabularyFile);
+    _voc.loadFromFile(vocabularyFile);
 
     std::string configPath = "TestRunner/config/";
     std::string configDir  = _erlebARDir + configPath;
@@ -377,7 +377,7 @@ bool TestRunnerView::update()
 
                     WAIFrame::mbInitialComputations = true;
 
-                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(_voc);
+                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(&_voc);
 
                     if (_map)
                         delete _map;

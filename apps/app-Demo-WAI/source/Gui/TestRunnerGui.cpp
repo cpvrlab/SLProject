@@ -14,8 +14,6 @@ TestRunnerGui::TestRunnerGui(const ImGuiEngine&  imGuiEngine,
     _dpi(dotsPerInch),
     _selectedMode(TestRunnerView::TestMode_None)
 {
-    ImGuiIO& io = ImGui::GetIO();
-
     _availableModes[TestRunnerView::TestMode_None]           = "None";
     _availableModes[TestRunnerView::TestMode_Relocalization] = "Relocalization";
     _availableModes[TestRunnerView::TestMode_Tracking]       = "Tracking";

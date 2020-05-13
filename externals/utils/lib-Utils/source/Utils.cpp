@@ -229,7 +229,7 @@ string getHostName()
 }
 //-----------------------------------------------------------------------------
 //! Returns a formatted string as sprintf
-string formatString(const string& fmt_str, ...)
+string formatString(string fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
     int final_n = 0;
