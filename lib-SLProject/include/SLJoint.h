@@ -56,6 +56,6 @@ class SLJoint : public SLNode
     SLfloat     _radius;    //!< info for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
 };
 //-----------------------------------------------------------------------------
-typedef std::vector<SLJoint*> SLVJoint;
+typedef vector<SLJoint*> SLVJoint;
 //-----------------------------------------------------------------------------
 #endif

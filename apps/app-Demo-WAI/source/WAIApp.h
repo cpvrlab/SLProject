@@ -31,6 +31,7 @@
 #include <SLInputManager.h>
 #include <WAIEvent.h>
 #include <SlamParams.h>
+#include <fbow.h>
 
 //#include <sm/Event.h>
 //#include <sm/EventHandler.h>

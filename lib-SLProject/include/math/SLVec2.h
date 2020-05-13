@@ -135,11 +135,11 @@ template<class T> SLVec2<T> SLVec2<T>::ZERO = SLVec2<T>(0,0);
 typedef SLVec2<SLint>         SLVec2i;
 typedef SLVec2<SLfloat>       SLVec2f;
 
-typedef std::vector<SLVec2f>  SLVVec2f;
+typedef vector<SLVec2f>  SLVVec2f;
 
 #ifdef SL_HAS_DOUBLE
 typedef SLVec2<SLdouble>      SLVec2d;
-typedef std::vector<SLVec2d>  SLVVec2d;
+typedef vector<SLVec2d>  SLVVec2d;
 #endif
 //-----------------------------------------------------------------------------
 #endif

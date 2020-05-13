@@ -39,11 +39,11 @@ namespace ORB_SLAM2
 
 LocalMapping::LocalMapping(WAIMap*        pMap,
                            const float    bMonocular,
-                           ORBVocabulary* mpORBvocabulary,
+                           fbow::Vocabulary* vocabulary,
                            float          cullRedundantPerc)
   : mpMap(pMap),
     mbMonocular(bMonocular),
-    mpORBvocabulary(mpORBvocabulary),
+    _vocabulary(vocabulary),
     mbResetRequested(false),
     mbFinishRequested(false),
     mbFinished(false),
@@ -60,12 +60,6 @@ LocalMapping::LocalMapping(WAIMap*        pMap,
 void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
 {
     mpLoopCloser = pLoopCloser;
-}
-
-// TODO: pause thread change voc and restart thread
-void LocalMapping::SetVocabulary(ORBVocabulary* voc)
-{
-    mpORBvocabulary = voc;
 }
 
 void LocalMapping::LocalOptimize()
@@ -297,7 +291,7 @@ WAIKeyFrame* LocalMapping::GetNewKeyFrame()
 void LocalMapping::ProcessNewKeyFrame(WAIKeyFrame* kf)
 {
     // Compute Bags of Words structures
-    kf->ComputeBoW(mpORBvocabulary);
+    kf->ComputeBoW(_vocabulary);
 
     // Associate MapPoints to the new keyframe and update normal and descriptor
     const vector<WAIMapPoint*> vpMapPointMatches = kf->GetMapPointMatches();
@@ -386,7 +380,7 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
     //        nn = 20;
     const vector<WAIKeyFrame*> vpNeighKFs = kf->GetBestCovisibilityKeyFrames(nn);
 
-    ORBmatcher matcher(0.6, false);
+    ORBmatcher matcher(0.6f, false);
 
     cv::Mat Rcw1 = kf->GetRotation();
     cv::Mat Rwc1 = Rcw1.t();
@@ -419,7 +413,7 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
         cv::Mat Ow2       = pKF2->GetCameraCenter();
         cv::Mat vBaseline = Ow2 - Ow1;
 
-        const float baseline = cv::norm(vBaseline);
+        const float baseline = (float)cv::norm(vBaseline);
 
         //if(!mbMonocular)
         //{
@@ -457,11 +451,11 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
         const float& invfy2 = pKF2->invfy;
 
         // Triangulate each match
-        const int nmatches = vMatchedIndices.size();
+        const int nmatches = (int)vMatchedIndices.size();
         for (int ikp = 0; ikp < nmatches; ikp++)
         {
-            const int& idx1 = vMatchedIndices[ikp].first;
-            const int& idx2 = vMatchedIndices[ikp].second;
+            const int& idx1 = (int)vMatchedIndices[ikp].first;
+            const int& idx2 = (int)vMatchedIndices[ikp].second;
 
             const cv::KeyPoint& kp1 = kf->mvKeysUn[idx1];
             //const float kp1_ur=mpCurrentKeyFrame->mvuRight[idx1];
@@ -479,7 +473,7 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
 
             cv::Mat     ray1            = Rwc1 * xn1;
             cv::Mat     ray2            = Rwc2 * xn2;
-            const float cosParallaxRays = ray1.dot(ray2) / (cv::norm(ray1) * cv::norm(ray2));
+            const float cosParallaxRays = (float)(ray1.dot(ray2) / (cv::norm(ray1) * cv::norm(ray2)));
 
             float cosParallaxStereo = cosParallaxRays + 1;
             //float cosParallaxStereo1 = cosParallaxStereo;
@@ -527,19 +521,19 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
             cv::Mat x3Dt = x3D.t();
 
             //Check triangulation in front of cameras
-            float z1 = Rcw1.row(2).dot(x3Dt) + tcw1.at<float>(2);
+            float z1 = (float)(Rcw1.row(2).dot(x3Dt) + tcw1.at<float>(2));
             if (z1 <= 0)
                 continue;
 
-            float z2 = Rcw2.row(2).dot(x3Dt) + tcw2.at<float>(2);
+            float z2 = (float)(Rcw2.row(2).dot(x3Dt) + tcw2.at<float>(2));
             if (z2 <= 0)
                 continue;
 
             //Check reprojection error in first keyframe
             const float& sigmaSquare1 = kf->mvLevelSigma2[kp1.octave];
-            const float  x1           = Rcw1.row(0).dot(x3Dt) + tcw1.at<float>(0);
-            const float  y1           = Rcw1.row(1).dot(x3Dt) + tcw1.at<float>(1);
-            const float  invz1        = 1.0 / z1;
+            const float  x1           = (float)(Rcw1.row(0).dot(x3Dt) + tcw1.at<float>(0));
+            const float  y1           = (float)(Rcw1.row(1).dot(x3Dt) + tcw1.at<float>(1));
+            const float  invz1        = 1.0f / z1;
 
             //if(!bStereo1)
             //{
@@ -564,9 +558,9 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
 
             //Check reprojection error in second keyframe
             const float sigmaSquare2 = pKF2->mvLevelSigma2[kp2.octave];
-            const float x2           = Rcw2.row(0).dot(x3Dt) + tcw2.at<float>(0);
-            const float y2           = Rcw2.row(1).dot(x3Dt) + tcw2.at<float>(1);
-            const float invz2        = 1.0 / z2;
+            const float x2           = (float)(Rcw2.row(0).dot(x3Dt) + tcw2.at<float>(0));
+            const float y2           = (float)(Rcw2.row(1).dot(x3Dt) + tcw2.at<float>(1));
+            const float invz2        = 1.0f / z2;
             //if(!bStereo2)
             //{
             float u2    = fx2 * x2 * invz2 + cx2;
@@ -590,10 +584,10 @@ void LocalMapping::CreateNewMapPoints(WAIKeyFrame* kf)
 
             //Check scale consistency
             cv::Mat normal1 = x3D - Ow1;
-            float   dist1   = cv::norm(normal1);
+            float   dist1   = (float)cv::norm(normal1);
 
             cv::Mat normal2 = x3D - Ow2;
-            float   dist2   = cv::norm(normal2);
+            float   dist2   = (float)cv::norm(normal2);
 
             if (dist1 == 0 || dist2 == 0)
                 continue;

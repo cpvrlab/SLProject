@@ -1,18 +1,24 @@
-#include "MapCreator.h"
 #include <memory>
 #include <CVCamera.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
 #include <sens/SENSVideoStream.h>
+#include <MapCreator.h>
 
 MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile, ExtractorType extractorType)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
     _calibrationsDir = _erlebARDir + "calibrations/";
-    _vocFile         = vocFile;
     _outputDir       = _erlebARDir + "MapCreator/";
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
+
+    _voc.readFromFile(vocFile);
+    if (!_voc.isValid())
+    {
+        std::cout << "Can't open vocabulary file!!! " << vocFile << std::endl;
+        exit(1);
+    }
 
     _mpUL = nullptr;
     _mpUR = nullptr;
@@ -177,20 +183,14 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
-    ORBVocabulary* voc = new ORBVocabulary();
-    if (!voc->loadFromBinaryFile(_vocFile))
-    {
-        std::cout << "Can't open vocabulary file!!! " << _vocFile << std::endl;
-        exit(1);
-    }
-    WAIKeyFrameDB* kfDB          = new WAIKeyFrameDB(*voc);
+    WAIKeyFrameDB* kfDB          = new WAIKeyFrameDB(_voc);
     WAIMap*        map           = new WAIMap(kfDB);
     SLNode         mapNode       = SLNode();
     cv::Mat        nodeTransform = cv::Mat::eye(4, 4, CV_32F);
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                     &mapNode,
-                                                    voc,
+                                                    &_voc,
                                                     mapDir + "/" + mapFile,
                                                     false,
                                                     modeParams.fixOldKfs);
@@ -212,7 +212,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
                                                          kpExtractor.get(),
                                                          map,
                                                          areaConfig.videos.front().calibration.cameraMat(), // TODO(dgj1): use actual calibration for marker image
-                                                         voc);
+                                                         &_voc);
 
     return result;
 }
@@ -302,23 +302,17 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         FeatureExtractorFactory      factory;
         std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {frameSize.width, frameSize.height});
 
-        ORBVocabulary* voc = new ORBVocabulary();
-        if (!voc->loadFromBinaryFile(_vocFile))
-        {
-            std::cout << "MapCreator::createNewDenseWaiMap: Can't open vocabulary file!!! " << _vocFile << std::endl;
-            exit(1);
-        }
-        WAIMap* map = nullptr;
+        std::unique_ptr<WAIMap> map = nullptr;
 
         //if we have an active map from one of the previously processed videos for this area then load it
         SLNode mapNode = SLNode();
         if (initialized)
         {
-            WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(*voc);
-            map                    = new WAIMap(kfdb);
-            bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+            WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
+            map                    = std::make_unique<WAIMap>(kfdb);
+            bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                             &mapNode,
-                                                            voc,
+                                                            &_voc,
                                                             mapDir + lastMapFileName,
                                                             false,
                                                             modeParams.fixOldKfs);
@@ -347,10 +341,10 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
         std::unique_ptr<WAISlam> waiMode =
           std::make_unique<WAISlam>(calibration.cameraMat(),
                                     calibration.distortion(),
-                                    voc,
+                                    &_voc,
                                     kpIniExtractorPtr,
                                     kpExtractor.get(),
-                                    map,
+                                    std::move(map),
                                     modeParams.onlyTracking,
                                     modeParams.serial,
                                     modeParams.retainImg,
@@ -438,14 +432,8 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
-    ORBVocabulary* voc = new ORBVocabulary();
-    if (!voc->loadFromBinaryFile(_vocFile))
-    {
-        std::cout << "Can't open vocabulary file!!! " << _vocFile << std::endl;
-        exit(1);
-    }
-    WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(*voc);
-    WAIMap*        map  = new WAIMap(kfdb);
+    WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(_voc);
+    std::unique_ptr<WAIMap> map  = std::make_unique<WAIMap>(kfdb);
 
     //load the map (currentMapFileName is valid if initialized is true)
     SLNode mapNode = SLNode();
@@ -453,9 +441,9 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     FeatureExtractorFactory      factory;
     std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, calib.imageSize());
 
-    bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
+    bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                     &mapNode,
-                                                    voc,
+                                                    &_voc,
                                                     mapDir + "/" + inputMapFile,
                                                     false,
                                                     modeParams.fixOldKfs);
@@ -468,10 +456,10 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     std::unique_ptr<WAISlam> waiMode =
       std::make_unique<WAISlam>(calib.cameraMat(),
                                 calib.distortion(),
-                                voc,
+                                &_voc,
                                 kpExtractor.get(),
                                 kpExtractor.get(),
-                                map,
+                                std::move(map),
                                 modeParams.onlyTracking,
                                 modeParams.serial,
                                 modeParams.retainImg,

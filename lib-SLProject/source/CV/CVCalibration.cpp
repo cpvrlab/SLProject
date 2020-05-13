@@ -397,11 +397,9 @@ void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
                                          int   imageHeightPX,
                                          float fovH)
 {
-    // aspect ratio
-    float withOverHeight = (float)imageWidthPX / (float)imageHeightPX;
-
-    // the vertical fov is derived from the width because it could be cropped
-    float fovV = fovH / withOverHeight;
+    //if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
+    float f    = (0.5f * imageWidthPX) / tanf(fovH * 0.5f * Utils::DEG2RAD);
+    float fovV = 2.0f * (float)atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm

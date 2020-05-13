@@ -40,7 +40,7 @@ CVCapture::CVCapture()
     videoDefaultPath   = "../data/videos/";
     videoFilename      = "";
     videoLoops         = true;
-    fps                = 1.0f;
+    fps                = 1;
     frameCount         = 0;
     activeCamSizeIndex = -1;
     activeCamera       = nullptr;
@@ -140,6 +140,7 @@ CVSize2i CVCapture::openFile()
     catch (exception& e)
     {
         Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s", e.what());
+
     }
     return CVSize2i(0, 0);
 }
@@ -916,9 +917,7 @@ void CVCapture::setCameraSize(int sizeIndex,
     camSizes[(uint)sizeIndex].height = height;
 }
 //-----------------------------------------------------------------------------
-/*
-Moves the current frame position in a video file.
-*/
+//! Moves the current frame position in a video file.
 void CVCapture::moveCapturePosition(int n)
 {
     if (_videoType != VT_FILE) return;
@@ -932,6 +931,7 @@ void CVCapture::moveCapturePosition(int n)
     _captureDevice.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
 }
 //-----------------------------------------------------------------------------
+//! Returns the next frame index number
 int CVCapture::nextFrameIndex()
 {
     int result = 0;

@@ -47,7 +47,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
                          size_t                           N,
                          const std::vector<cv::KeyPoint>& vKeysUn,
                          const cv::Mat&                   descriptors,
-                         ORBVocabulary*                   mpORBvocabulary,
+                         fbow::Vocabulary*                vocabulary,
                          int                              nScaleLevels,
                          float                            fScaleFactor,
                          const std::vector<float>&        vScaleFactors,
@@ -112,7 +112,7 @@ WAIKeyFrame::WAIKeyFrame(const cv::Mat&                   Tcw,
     SetPose(Tcw);
 
     //compute mBowVec and mFeatVec
-    ComputeBoW(mpORBvocabulary);
+    ComputeBoW(vocabulary);
 
     //assign features to grid
     AssignFeaturesToGrid();
@@ -147,10 +147,10 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
     mvScaleFactors(F.mvScaleFactors),
     mvLevelSigma2(F.mvLevelSigma2),
     mvInvLevelSigma2(F.mvInvLevelSigma2),
-    mnMinX(F.mnMinX),
-    mnMinY(F.mnMinY),
-    mnMaxX(F.mnMaxX),
-    mnMaxY(F.mnMaxY),
+    mnMinX((int)F.mnMinX),
+    mnMinY((int)F.mnMinY),
+    mnMaxX((int)F.mnMaxX),
+    mnMaxY((int)F.mnMaxY),
     mK(F.mK),
     mvpMapPoints(F.mvpMapPoints),
     /*mpORBvocabulary(F.mpORBvocabulary),*/ mbFirstConnection(true),
@@ -166,7 +166,7 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
     mnMarker[4] = 0;
     mnMarker[5] = 0;
     mnMarker[6] = 0;
-    mnId = nNextId++;
+    mnId        = nNextId++;
 
     for (int i = 0; i < FRAME_GRID_COLS; i++)
         for (int j = 0; j < FRAME_GRID_ROWS; j++)
@@ -188,18 +188,22 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
 //-----------------------------------------------------------------------------
 
 //TODO: set levels according to vocabulary
-void WAIKeyFrame::ComputeBoW(ORBVocabulary* orbVocabulary)
+void WAIKeyFrame::ComputeBoW(fbow::Vocabulary* vocabulary)
 {
     if (mBowVec.empty() || mFeatVec.empty())
     {
-        vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
+        //vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
 
         // Luc: In a 6 levels and 10 branch per level voc, 4 levelup mean the 2nd level from the top
         // that make a total of 100 words. More words means more variance between keyframe and less
         // preselected keyframe but that will make also the relocalization less invariant to changes
-        orbVocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2);
+        //vCurrentDesc, mBowVec, mFeatVec, orbVocabulary->getDepthLevels() - 2
+
+        //TODO ensure level is now from the top
+        if (mDescriptors.rows > 0)
+            vocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------
@@ -322,7 +326,7 @@ vector<WAIKeyFrame*> WAIKeyFrame::GetCovisiblesByWeight(const int& w)
         return vector<WAIKeyFrame*>();
     else
     {
-        int n = it - mvOrderedWeights.begin();
+        int n = (int)(it - mvOrderedWeights.begin());
         return vector<WAIKeyFrame*>(mvpOrderedConnectedKeyFrames.begin(), mvpOrderedConnectedKeyFrames.begin() + n);
     }
 }
@@ -815,7 +819,7 @@ float WAIKeyFrame::ComputeSceneMedianDepth(const int q)
         {
             WAIMapPoint* pMP  = mvpMapPoints[i];
             cv::Mat      x3Dw = pMP->GetWorldPos();
-            float        z    = Rcw2.dot(x3Dw) + zcw;
+            float        z    = (float)Rcw2.dot(x3Dw) + zcw;
             vDepths.push_back(z);
         }
     }
@@ -835,7 +839,7 @@ cv::Mat WAIKeyFrame::getObjectMatrix()
 //! this is a function from Frame, but we need it here for map loading
 void WAIKeyFrame::AssignFeaturesToGrid()
 {
-    int nReserve = 0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS);
+    int nReserve = (int)(0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS));
     for (unsigned int i = 0; i < FRAME_GRID_COLS; i++)
         for (unsigned int j = 0; j < FRAME_GRID_ROWS; j++)
             mGrid[i][j].reserve(nReserve);
@@ -853,8 +857,8 @@ void WAIKeyFrame::AssignFeaturesToGrid()
 //! this is a function from Frame, but we need it here for map loading
 bool WAIKeyFrame::PosInGrid(const cv::KeyPoint& kp, int& posX, int& posY)
 {
-    posX = round((kp.pt.x - mnMinX) * mfGridElementWidthInv);
-    posY = round((kp.pt.y - mnMinY) * mfGridElementHeightInv);
+    posX = (int)round((kp.pt.x - mnMinX) * mfGridElementWidthInv);
+    posY = (int)round((kp.pt.y - mnMinY) * mfGridElementHeightInv);
 
     //Keypoint's coordinates are undistorted, which could cause to go out of the image
     if (posX < 0 || posX >= FRAME_GRID_COLS || posY < 0 || posY >= FRAME_GRID_ROWS)

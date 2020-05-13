@@ -55,35 +55,26 @@ public:
     SLCamera(const SLstring& name = "Camera");
     ~SLCamera() { ; }
 
-    void statsRec(SLNodeStats& stats);
-
-    virtual void   drawMeshes(SLSceneView* sv);
+    void           statsRec(SLNodeStats& stats) override;
+    void           drawMeshes(SLSceneView* sv) override;
     virtual SLbool camUpdate(SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
     void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;
     void           buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
 
     // Event handlers for camera animation
-    virtual SLbool onMouseDown(SLMouseButton button,
-                               SLint         x,
-                               SLint         y,
-                               SLKey         mod);
-    virtual SLbool onMouseMove(SLMouseButton button,
-                               SLint         x,
-                               SLint         y,
-                               SLKey         mod);
-    virtual SLbool onMouseUp(SLMouseButton button,
-                             SLint         x,
-                             SLint         y,
-                             SLKey         mod);
-    virtual SLbool onMouseWheel(SLint delta, SLKey mod);
-    virtual SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2);
-    virtual SLbool onKeyPress(SLKey key, SLKey mod);
-    virtual SLbool onKeyRelease(SLKey key, SLKey mod);
+    SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod) override;
+    SLbool onMouseMove(SLMouseButton button, SLint x, SLint y, SLKey mod) override;
+    SLbool onMouseUp(SLMouseButton button, SLint x, SLint y, SLKey mod) override;
+    SLbool onMouseWheel(SLint delta, SLKey mod) override;
+    SLbool onTouch2Down(SLint x1, SLint y1, SLint x2, SLint y2) override;
+    SLbool onTouch2Move(SLint x1, SLint y1, SLint x2, SLint y2) override;
+    SLbool onTouch2Up(SLint x1, SLint y1, SLint x2, SLint y2) override;
+    SLbool onKeyPress(SLKey key, SLKey mod) override;
+    SLbool onKeyRelease(SLKey key, SLKey mod) override;
 
     void    eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray);
+    void    UVWFrame(SLVec3f& EYE, SLVec3f& U, SLVec3f& V, SLVec3f& W);
     SLVec2f projectWorldToNDC(const SLVec4f& worldPos) const;
     SLVec3f trackballVec(SLint x, SLint y) const;
     SLbool  isInFrustum(SLAABBox* aabb);
@@ -95,8 +86,6 @@ public:
     void setFrustumPlanes();
 
     // Setters
-    void unitScaling(SLfloat s) { _unitScaling = s; }
-
     void projection(SLProjection p)
     {
         _projection       = p;

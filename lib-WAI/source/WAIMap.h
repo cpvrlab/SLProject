@@ -76,7 +76,7 @@ public:
 
     std::vector<WAIKeyFrame*> GetAllKeyFrames();
     std::vector<WAIMapPoint*> GetAllMapPoints();
-    WAIKeyFrameDB* GetKeyFrameDB() { return mKfDB; }
+    WAIKeyFrameDB*            GetKeyFrameDB() { return mKfDB; }
 
     long unsigned int MapPointsInMap();
     long unsigned int KeyFramesInMap();
@@ -111,7 +111,7 @@ public:
 protected:
     std::set<WAIMapPoint*> mspMapPoints;
     std::set<WAIKeyFrame*> mspKeyFrames;
-    WAIKeyFrameDB*         mKfDB;
+    WAIKeyFrameDB*         mKfDB{nullptr};
 
     std::vector<WAIMapPoint*> mvpReferenceMapPoints;
 

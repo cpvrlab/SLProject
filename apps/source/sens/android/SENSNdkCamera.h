@@ -19,17 +19,17 @@ enum class CaptureSessionState
     MAX_STATE
 };
 
-class SENSNdkCamera : public SENSCamera
+class SENSNdkCamera : public SENSCameraBase
 {
 public:
     SENSNdkCamera();
     ~SENSNdkCamera();
 
-    void         init(SENSCamera::Facing facing) override;
-    void         start(const SENSCamera::Config config) override;
-    void         start(int width, int height) override;
+    void         start(const SENSCameraConfig config) override;
+    void         start(std::string id, int width, int height) override;
     void         stop() override;
     SENSFramePtr getLatestFrame() override;
+    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);
@@ -39,8 +39,6 @@ public:
     void imageCallback(AImageReader* reader);
 
 private:
-    //select camera id to open
-    void initOptimalCamera(SENSCamera::Facing facing);
     //start camera selected in initOptimalCamera as soon as it is available
     void openCamera();
     void createCaptureSession();
@@ -52,13 +50,8 @@ private:
     //run routine for asynchronous adjustment
     void run();
 
-    ACameraManager* _cameraManager = nullptr;
-
-    std::string        _cameraId;
-    ACameraDevice*     _cameraDevice = nullptr;
-    std::vector<float> _focalLenghts;
-    cv::Size2f         _physicalSensorSizeMM;
-
+    ACameraManager*                 _cameraManager                 = nullptr;
+    ACameraDevice*                  _cameraDevice                  = nullptr;
     AImageReader*                   _imageReader                   = nullptr;
     ANativeWindow*                  _surface                       = nullptr;
     ACaptureSessionOutput*          _captureSessionOutput          = nullptr;
@@ -66,10 +59,13 @@ private:
     ACameraOutputTarget*            _cameraOutputTarget            = nullptr;
     ACaptureRequest*                _captureRequest                = nullptr;
     ACameraCaptureSession*          _captureSession                = nullptr;
-    CaptureSessionState             _captureSessionState           = CaptureSessionState::MAX_STATE;
+
+    CaptureSessionState     _captureSessionState = CaptureSessionState::MAX_STATE;
+    std::condition_variable _captureSessionStateCV;
+    std::mutex              _captureSessionStateMutex;
 
     //! initialized is true as soon as init was run. After that we selected a desired camera device id and can retrieve stream configuration sizes.
-    volatile bool _initialized = false;
+    //volatile bool _initialized = false;
     //! flags if our camera device is available (selected by _cameraId)
 
     //map to track, which cameras are available (we start our camera () as soon as it is available and
@@ -77,14 +73,11 @@ private:
     std::map<std::string, bool> _cameraAvailability;
     std::mutex                  _cameraAvailabilityMutex;
     //async camera start
-    std::thread             _openCameraThread;
-    std::condition_variable _openCameraCV;
+    //std::unique_ptr<std::thread> _openCameraThread;
+    std::condition_variable      _openCameraCV;
 
     //wait in start() until camera is opened
-    bool                    _cameraDeviceOpened = false; // free to use ( no other apps are using it)
-    std::mutex              _cameraDeviceOpenedMutex;
-    std::condition_variable _cameraDeviceOpenedCV;
-    camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
+    std::atomic<bool> _cameraDeviceOpened{false}; // free to use ( no other apps are using it)
 
     //async image processing
     std::condition_variable      _waitCondition;
@@ -97,6 +90,16 @@ private:
 
     std::runtime_error _threadException;
     bool               _threadHasException = false;
+
+    //camera state
+    //State             _state = State::CLOSED;
+    cv::Size          _captureSize;
+    std::atomic<bool> _captureSessionActive{false};
+
+    bool                    _cameraIsOpening = false;
+    std::mutex              _cameraDeviceOpeningMutex;
+    std::condition_variable _cameraDeviceOpeningCV;
+    //camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
 };
 
 #endif //SENS_NDKCAMERA_H

@@ -32,18 +32,18 @@ public:
     SLbool render(SLSceneView* sv);
 
     // Getters
-    SLfloat diffuseConeAngle() { return _diffuseConeAngle; };
+    SLfloat diffuseConeAngle() const { return _diffuseConeAngle; };
     void    diffuseConeAngle(SLfloat angle) { _diffuseConeAngle = angle; };
-    SLfloat specularConeAngle() { return _specularConeAngle; };
+    SLfloat specularConeAngle() const { return _specularConeAngle; };
     void    specularConeAngle(SLfloat angle) { _specularConeAngle = angle; };
-    SLfloat lightMeshSize() { return _lightMeshSize; };
-    SLfloat shadowConeAngle() { return _shadowConeAngle; };
-    SLbool  showVoxels() { return _showVoxels; }
-    SLbool  doDirectIllum() { return _doDirectIllum; }
-    SLbool  doDiffuseIllum() { return _doDiffuseIllum; }
-    SLbool  doSpecularIllum() { return _doSpecularIllum; }
-    SLbool  shadows() { return _doShadows; }
-    SLfloat gamma() { return _gamma; };
+    SLfloat lightMeshSize() const { return _lightMeshSize; };
+    SLfloat shadowConeAngle() const { return _shadowConeAngle; };
+    SLbool  showVoxels() const { return _showVoxels; }
+    SLbool  doDirectIllum() const { return _doDirectIllum; }
+    SLbool  doDiffuseIllum() const { return _doDiffuseIllum; }
+    SLbool  doSpecularIllum() const { return _doSpecularIllum; }
+    SLbool  shadows() const { return _doShadows; }
+    SLfloat gamma() const { return _gamma; };
 
     // Setters
     void lightMeshSize(SLfloat size) { _lightMeshSize = size; };
@@ -83,7 +83,7 @@ private:
                                 SLfloat t,
                                 SLfloat n,
                                 SLfloat f);
-    SLfloat oneOverGamma() { return (1.0f / _gamma); }
+    SLfloat oneOverGamma() const { return (1.0f / _gamma); }
 
     SLfloat _gamma             = 2.2f;
     SLfloat _diffuseConeAngle  = 0.5f;

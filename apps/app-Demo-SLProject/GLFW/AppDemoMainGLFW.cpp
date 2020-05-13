@@ -499,11 +499,13 @@ void initGLFW(int screenWidth, int screenHeight)
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
+#ifdef __APPLE__
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
     window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
 
@@ -527,13 +529,13 @@ void initGLFW(int screenWidth, int screenHeight)
     }
 
     glfwSetWindowTitle(window, "SLProject Test Application");
-    glfwSetWindowPos(window, 10, 30);
+    glfwSetWindowPos(window, 50, 100);
 
     // With GLFW ImGui draws the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(2);
+    glfwSwapInterval(1);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;

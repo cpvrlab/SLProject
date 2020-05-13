@@ -1,13 +1,12 @@
 #ifndef WAIAUTOCALIBRATION
 #define WAIAUTOCALIBRATION
 
-using namespace std;
-
 #include <WAICalibration.h>
 #include <vector>
 #include <deque>
-
 #include <opencv2/core/core.hpp>
+
+using namespace std;
 
 class AutoCalibration
 {

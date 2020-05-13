@@ -1,6 +1,6 @@
 #include <AppDemoGuiStatsVideo.h>
 
-#include <SENSCamera.h>
+#include <sens/SENSCamera.h>
 #include <CVCalibration.h>
 
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
     // clang-format off
     if (cam)
     {
-        sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->getFrameSize().width, cam->getFrameSize().height);
+        sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config().targetWidth, cam->config().targetHeight);
     }
     else
     {

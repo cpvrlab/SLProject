@@ -17,6 +17,10 @@
 #include <SLMat4.h>
 #include <atomic>
 
+#ifdef SL_HAS_OPTIX
+#    include <cuda.h>
+#endif
+
 class SLGLState;
 class SLAssetManager;
 class SLGLProgram;
@@ -131,6 +135,7 @@ public:
     void clearData();
     void build(SLint texID = 0);
     void bindActive(SLint texID = 0);
+    void buildCudaTexture();
     void fullUpdate();
     void drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
@@ -162,6 +167,14 @@ public:
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
+
+#ifdef SL_HAS_OPTIX
+    CUtexObject getCudaTextureObject()
+    {
+        buildCudaTexture();
+        return _cudaTextureObject;
+    }
+#endif
 
     // Misc
     static SLTextureType detectType(const SLstring& filename);
@@ -217,9 +230,14 @@ protected:
     SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
+
+#ifdef SL_HAS_OPTIX
+    CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
+    CUtexObject        _cudaTextureObject;
+#endif
 };
 //-----------------------------------------------------------------------------
 //! STL vector of SLGLTexture pointers
-typedef std::vector<SLGLTexture*> SLVGLTexture;
+typedef vector<SLGLTexture*> SLVGLTexture;
 //-----------------------------------------------------------------------------
 #endif

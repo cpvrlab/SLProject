@@ -144,9 +144,10 @@ void AverageTiming::doGetTimingMessage(char* m)
     }
 
     // calculate longest blockname
-    int maxLen = 0;
+    size_t maxLen = 0;
     for (auto* block : blocks)
-        if (block->name.length() > maxLen) maxLen = block->name.length();
+        if (block->name.length() > maxLen) 
+            maxLen = block->name.length();
 
     //insert time measurements
     for (auto* block : blocks)
