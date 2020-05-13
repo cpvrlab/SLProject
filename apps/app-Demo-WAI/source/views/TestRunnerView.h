@@ -76,8 +76,6 @@ private:
     std::string _calibDir;
     std::string _configFile;
 
-    std::string _vocFile;
-
     std::vector<TestInstance> _testInstances;
 
     // iterators
@@ -92,6 +90,8 @@ private:
     int                          _currentFrameIndex;
     CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
     fbow::Vocabulary             _voc;
+    bool                         _videoWasDownloaded;
+    float                        _summedTime;
 
     // Relocalization test stuff
     int _relocalizationFrameCount;

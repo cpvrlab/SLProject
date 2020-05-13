@@ -3,24 +3,11 @@
 		{
 			"location": "augst",
 			"areas": [
-				{ 
-					"area": "templeHillTheaterBottom",
-					"map": "map_20200121-140754_augst_templeHillTheaterBottom_GLSL.json",
-					"videos": [
-						"20191009-102457_rainy_NOKIA6-1_relocalization_640x360.mp4",
-						"20191009-102554_rainy_ASUSAR-1_relocalization_640x360.mp4",
-						"20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
-						"20200122-094650_cloudy_PIXEL3-1_relocalization_640x360.mp4",
-						"20200122-094711_cloudy_PIXEL3-2_relocalization_640x360.mp4",
-						"20200122-094750_cloudy_ASUSAR-1_relocalization_640x360.mp4",
-						"20200122-094822_cloudy_PIXEL3-1_relocalization_640x360.mp4",
-						"20200122-094843_cloudy_NOKIA6-1_relocalization_640x360.mp4",
-						"20200122-094950_cloudy_PIXEL3-1_relocalization_640x360.mp4"
-					]
-				},
 				{
 					"area": "templeHill-marker",
 					"maps": [
+						"loopClosed-ASUSAR-1-map_20200117-084756_augst_templeHill-marker_FAST-ORBS-1000.json",
+						"t-loopClosed-map_20200121-155304_augst_templeHill-marker_GLSL.json",
 						"marker-ASUSAR-1-map_20200117-083625_augst_templeHill-marker_FAST-ORBS-1000.json",
 						"t-marker-map_20200121-150644_augst_templeHill-marker_GLSL.json"
 					],

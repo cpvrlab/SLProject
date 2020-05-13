@@ -146,14 +146,6 @@ SENSFramePtr SENSVideoStream::grabPreviousFrame()
     return grabNextFrame();
 }
 
-void SENSVideoStream::restartVideo()
-{
-    if (_cap.isOpened())
-    {
-        _cap.set(cv::CAP_PROP_POS_FRAMES, 0);
-    }
-}
-
 void SENSVideoStream::moveCapturePosition(int n)
 {
     int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);

@@ -25,15 +25,19 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _erlebARDir(erlebARDir),
     _calibDir(calibDir),
     _configFile(configFile),
-    _vocFile(vocabularyFile),
     _localMapping(nullptr),
     _loopClosing(nullptr),
     _ftpHost("pallas.bfh.ch:21"),
     _ftpUser("upload"),
     _ftpPwd("FaAdbD3F2a"),
-    _ftpDir("erleb-AR/")
+    _ftpDir("erleb-AR/"),
+    _videoWasDownloaded(false),
+    _summedTime(0.0f)
 {
     init("TestRunnerView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+
+    _voc.readFromFile(vocabularyFile);
+
     onInitialize();
 }
 
@@ -63,6 +67,8 @@ bool TestRunnerView::update()
         {
             cv::Mat intrinsic  = _calibration.cameraMat();
             cv::Mat distortion = _calibration.distortion();
+
+            HighResTimer timer = HighResTimer();
 
             WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgGray,
                                              0.0f,
@@ -124,6 +130,9 @@ bool TestRunnerView::update()
                 break;
             }
 
+            timer.stop();
+            _summedTime += timer.elapsedTimeInMilliSec();
+
             _currentFrameIndex++;
         }
         else
@@ -131,6 +140,8 @@ bool TestRunnerView::update()
             if (_vStream)
             {
                 TestRunnerView::TestInstance currentTest = _testInstances[_currentTestIndex];
+
+                float avgTime = _summedTime / (float)_currentFrameIndex;
 
                 switch (_testMode)
                 {
@@ -141,6 +152,7 @@ bool TestRunnerView::update()
                           currentTest.video + ";" +
                           currentTest.map + ";" +
                           currentTest.extractorType + ";" +
+                          std::to_string(avgTime) + ";" +
                           std::to_string(_currentFrameIndex) + ";" +
                           std::to_string(_relocalizationFrameCount) + ";" +
                           Utils::toString((float)_relocalizationFrameCount / (float)_currentFrameIndex, 2) + "\n";
@@ -159,11 +171,29 @@ bool TestRunnerView::update()
                           currentTest.video + ";" +
                           currentTest.map + ";" +
                           currentTest.extractorType + ";" +
+                          std::to_string(avgTime) + ";" +
                           std::to_string(_currentFrameIndex) + ";" +
                           std::to_string(_maxTrackingFrameCount) + ";" +
                           Utils::toString((float)_maxTrackingFrameCount / (float)_currentFrameIndex, 2) + "\n";
                     }
                     break;
+                }
+
+                if (_videoWasDownloaded)
+                {
+                    TestRunnerView::TestInstance testInstance    = _testInstances[_currentTestIndex];
+                    std::string                  testInstanceDir = "locations/" +
+                                                  testInstance.location + "/" +
+                                                  testInstance.area + "/";
+
+                    std::string videoDir  = testInstanceDir + "videos/";
+                    std::string videoFile = _erlebARDir + videoDir + testInstance.video;
+                    if (fileExists(videoFile))
+                    {
+                        Utils::deleteFile(videoFile);
+                    }
+
+                    _videoWasDownloaded = false;
                 }
 
                 _currentTestIndex++;
@@ -276,6 +306,8 @@ bool TestRunnerView::update()
                             _currentTestIndex++;
                             continue;
                         }
+
+                        _videoWasDownloaded = true;
                     }
 
                     std::string calibrationFile = _calibDir + testInstance.calibration;
@@ -333,15 +365,18 @@ bool TestRunnerView::update()
 
                     WAIFrame::mbInitialComputations = true;
 
-                    _voc.readFromFile(_vocFile);
-
                     WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(_voc);
+
+                    if (_map)
+                        delete _map;
 
                     _map = new WAIMap(keyFrameDB);
                     WAIMapStorage::loadMap(_map, nullptr, &_voc, mapFile, false, true);
 
-                    if (_localMapping) delete _localMapping;
-                    if (_loopClosing) delete _loopClosing;
+                    if (_localMapping)
+                        delete _localMapping;
+                    if (_loopClosing)
+                        delete _loopClosing;
 
                     if (_testMode == TestMode_Tracking)
                     {
@@ -387,11 +422,14 @@ bool TestRunnerView::update()
                         _frameCount++;
                     }
 
-                    _vStream->restartVideo();
+                    // TODO(dgj1): this restarts the video, as setting the prop in android didn't work...
+                    delete _vStream;
+                    _vStream = new SENSVideoStream(videoFile, false, false, false);
 
                     _currentFrameIndex        = 0;
                     _relocalizationFrameCount = 0;
                     _lastFrame                = WAIFrame();
+                    _summedTime               = 0.0f;
 
                     instanceFound = true;
                 }
