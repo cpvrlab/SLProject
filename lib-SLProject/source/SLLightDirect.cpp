@@ -10,16 +10,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLApplication.h>
 #include <SLArrow.h>
-#include <SLAssetManager.h>
-#include <SLGLProgramManager.h>
 #include <SLLightDirect.h>
-#include <SLMaterial.h>
-#include <SLProjectScene.h>
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLShadowMap.h>
 #include <SLSphere.h>
 #include <SLSpheric.h>
 
@@ -30,15 +26,9 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLbool          hasMesh)
   : SLNode("LightDirect Node")
 {
-    _arrowRadius         = arrowLength * 0.1f;
-    _arrowLength         = arrowLength;
-    _shadowMap           = nullptr;
-    _shadowMapFrustumVAO = nullptr;
-    _shadowMapMaterial   = nullptr;
-    _shadowMapClipNear   = 0.1f;
-    _shadowMapClipFar    = 20.0f;
-    _shadowMapSize.set(10.0f, 10.0f);
-    _shadowMapTextureSize.set(128, 128);
+    _arrowRadius = arrowLength * 0.1f;
+    _arrowLength = arrowLength;
+    _shadowMap   = nullptr;
 
     if (hasMesh)
     {
@@ -72,15 +62,10 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
   : SLNode("Directional Light"),
     SLLight(ambiPower, diffPower, specPower)
 {
-    _arrowRadius         = arrowLength * 0.1f;
-    _arrowLength         = arrowLength;
-    _shadowMap           = nullptr;
-    _shadowMapFrustumVAO = nullptr;
-    _shadowMapMaterial   = nullptr;
-    _shadowMapClipNear   = 0.1f;
-    _shadowMapClipFar    = 20.0f;
-    _shadowMapSize.set(10.0f, 10.0f);
-    _shadowMapTextureSize.set(128, 128);
+    _arrowRadius = arrowLength * 0.1f;
+    _arrowLength = arrowLength;
+    _shadowMap   = nullptr;
+    translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
     {
@@ -98,6 +83,11 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                             mat));
     }
     init(s);
+}
+//-----------------------------------------------------------------------------
+SLLightDirect::~SLLightDirect()
+{
+    if (_shadowMap != nullptr) delete _shadowMap;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -126,18 +116,6 @@ void SLLightDirect::init(SLScene* s)
     if (!_meshes.empty())
         if (_meshes[0]->mat())
             _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
-}
-//-----------------------------------------------------------------------------
-SLLightDirect::~SLLightDirect()
-{
-    if (_shadowMap != nullptr)
-        delete _shadowMap;
-
-    if (_shadowMapFrustumVAO != nullptr)
-        delete _shadowMapFrustumVAO;
-
-    if (_shadowMapMaterial != nullptr)
-        delete _shadowMapMaterial;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -183,8 +161,8 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
         SLNode::drawMeshes(sv);
 
         // Draw the volume affected by the shadow-map
-        if (_createsShadows && sv->s().selectedNode() == this)
-            drawShadowMapFrustum();
+        if (_createsShadows && _isOn && sv->s().selectedNode() == this)
+            _shadowMap->drawFrustum();
     }
 }
 //-----------------------------------------------------------------------------
@@ -246,121 +224,13 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
-/*! SLLightDirect::drawShadowMapFrustum draws the volume affected by the shadow-map
-*/
-void SLLightDirect::drawShadowMapFrustum()
-{
-    // clang-format off
-    static SLVVec3f P = {
-        {-1,  1, -1}, { 1,  1, -1}, // lower rect
-        {-1,  1, -1}, {-1,  1,  1},
-        { 1,  1,  1}, {-1,  1,  1},
-        { 1,  1,  1}, { 1,  1, -1},
-
-        {-1, -1, -1}, { 1, -1, -1}, // upper rect
-        {-1, -1, -1}, {-1, -1,  1},
-        { 1, -1,  1}, {-1, -1,  1},
-        { 1, -1,  1}, { 1, -1, -1},
-
-        {-1, -1, -1}, {-1,  1, -1}, // vertical lines
-        { 1, -1, -1}, { 1,  1, -1},
-        {-1, -1,  1}, {-1,  1,  1},
-        { 1, -1,  1}, { 1,  1,  1},
-    };
-    // clang-format on
-
-    if (_shadowMapFrustumVAO == nullptr)
-    {
-        _shadowMapFrustumVAO = new SLGLVertexArrayExt();
-        _shadowMapFrustumVAO->generateVertexPos(&P);
-    }
-
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->modelViewMatrix.setMatrix(
-      stateGL->viewMatrix * stateGL->lightProjection[_id].inverted());
-    _shadowMapFrustumVAO->drawArrayAsColored(PT_lines, SLCol3f(0, 1, 0), 1.0f, 0, (SLuint)P.size());
-}
-//-----------------------------------------------------------------------------
-/*!
-SLLightDirect::drawNodesIntoShadowMap recursively renders all objects which
-cast shadows
-*/
-void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv)
-{
-    SLGLState* stateGL = SLGLState::instance();
-
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-    stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
-
-    if (node->castsShadows())
-        for (auto* mesh : node->meshes())
-            mesh->draw(sv, node, _shadowMapMaterial, true);
-
-    for (SLNode* child : node->children())
-        drawNodesIntoShadowMap(child, sv);
-}
-//-----------------------------------------------------------------------------
 /*! SLLightDirect::renderShadowMap renders the shadow map of the light
 */
 void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    SLGLState* stateGL = SLGLState::instance();
-
-    if (_shadowMapMaterial == nullptr)
-        _shadowMapMaterial = new SLMaterial(
-          nullptr,
-          "shadowMapMaterial",
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr,
-          SLGLProgramManager::get(SP_depth));
-
-    static float borderColor[] = {1.0, 1.0, 1.0, 1.0};
-
-    if (_shadowMap == nullptr || _shadowMap->dimensions() != _shadowMapTextureSize)
-    {
-        delete _shadowMap;
-        _shadowMap = new SLGLDepthBuffer(
-          _shadowMapTextureSize,
-          GL_NEAREST,
-          GL_NEAREST,
-          GL_CLAMP_TO_BORDER,
-          borderColor);
-    }
-    _shadowMap->bind();
-
-    // Initialize lightspace matrix
-    SLMat4f vm;
-    vm.lookAt(positionWS().vec3(),
-              positionWS().vec3() + spotDirWS(),
-              upWS());
-
-    // Set viewport
-    stateGL->viewport(0, 0, _shadowMapTextureSize.x, _shadowMapTextureSize.y);
-
-    // Set projection
-    SLVec2f halfSize    = _shadowMapSize / 2;
-    stateGL->stereoEye  = ET_center;
-    stateGL->projection = P_monoOrthographic;
-    stateGL->projectionMatrix.ortho(-halfSize.x, halfSize.x, -halfSize.y, halfSize.y, -_shadowMapClipNear, _shadowMapClipFar);
-
-    // Save the light projection matrix
-    stateGL->lightProjection[_id] = stateGL->projectionMatrix * vm;
-
-    // Set view
-    stateGL->modelViewMatrix.identity();
-    stateGL->viewMatrix.setMatrix(vm);
-
-    // Clear color buffer
-    stateGL->clearColor(SLCol4f::BLACK);
-    stateGL->clearColorDepthBuffer();
-
-    // Draw meshes
-    drawNodesIntoShadowMap(root, sv);
-    GET_GL_ERROR;
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap();
+    _shadowMap->updateLightSpaceMatrix(this);
+    _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------
 /*! SLLightRect::setState sets the global rendering state
@@ -390,7 +260,12 @@ void SLLightDirect::setState()
         stateGL->lightAtt[_id].z          = _kq;
         stateGL->lightDoAtt[_id]          = isAttenuated();
         stateGL->lightCreatesShadows[_id] = _createsShadows;
-        stateGL->shadowMaps[_id]          = _shadowMap;
+
+        if (_shadowMap != nullptr)
+        {
+            stateGL->lightSpace[_id] = _shadowMap->lightSpace();
+            stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
+        }
     }
 }
 //-----------------------------------------------------------------------------

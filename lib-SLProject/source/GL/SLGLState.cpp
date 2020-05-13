@@ -53,7 +53,6 @@ void SLGLState::initAll()
         lightIsOn[i]       = 0;
         lightPosWS[i]      = SLVec4f(0, 0, 1, 1);
         lightPosVS[i]      = SLVec4f(0, 0, 1, 1);
-        lightProjection[i] = SLMat4f();
         lightAmbient[i]    = SLCol4f::BLACK;
         lightDiffuse[i]    = SLCol4f::BLACK;
         lightSpecular[i]   = SLCol4f::BLACK;
@@ -64,6 +63,7 @@ void SLGLState::initAll()
         lightSpotExp[i]    = 1.0f;
         lightAtt[i].set(1.0f, 0.0f, 0.0f);
         lightDoAtt[i]          = 0;
+        lightSpace[i]          = SLMat4f();
         lightCreatesShadows[i] = 0;
         shadowMaps[i]          = nullptr;
     }

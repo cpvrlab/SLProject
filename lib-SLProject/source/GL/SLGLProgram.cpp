@@ -267,7 +267,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             stateGL->calcLightDirVS(stateGL->numLightsUsed);
             loc = uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
             loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
-            loc = uniformMatrix4fv("u_lightProjection", nL, (SLfloat*)stateGL->lightProjection);
+            loc = uniformMatrix4fv("u_lightSpace", nL, (SLfloat*)stateGL->lightSpace);
             loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
             loc = uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
             loc = uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
@@ -280,7 +280,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             loc = uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
 
             for (int i = 0; i < SL_MAX_LIGHTS; ++i)
-                if (stateGL->lightCreatesShadows[i])
+                if (stateGL->lightIsOn[i] && stateGL->lightCreatesShadows[i])
                     if ((loc = getUniformLocation(("u_shadowMap[" + std::to_string(i) + "]").c_str())) >= 0)
                         stateGL->shadowMaps[i]->activateAsTexture(loc);
 

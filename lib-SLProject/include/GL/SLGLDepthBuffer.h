@@ -26,9 +26,9 @@ public:
 
     ~SLGLDepthBuffer();
 
-    SLVec2i dimensions() { return _dimensions; }
     void    activateAsTexture(int loc);
     void    bind();
+    SLVec2i dimensions() { return _dimensions; }
 
 private:
     SLVec2i _dimensions;

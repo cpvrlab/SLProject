@@ -17,7 +17,7 @@ uniform     mat4  u_mMatrix;                //!< model matrix
 uniform     mat4  u_mvMatrix;               //!< modelview matrix
 uniform     mat3  u_nMatrix;                //!< normal matrix=transpose(inverse(mv))
 uniform     mat4  u_mvpMatrix;              //!< = projection * modelView
-uniform     mat4  u_lightProjection[8];     //!< projection matrices for lights
+uniform     mat4  u_lightSpace[8];          //!< projection matrices for lights
 uniform     bool  u_lightCreatesShadows[8]; //!< flag if light creates shadows
 
 varying     vec3  v_P_VS;                   //!< Point of illumination in view space (VS)
@@ -35,7 +35,7 @@ void main(void)
 
     for (int i = 0; i < 8; i++)
         if (u_lightCreatesShadows[i])
-            v_P_LS[i] = u_lightProjection[i] * u_mMatrix * a_position;
+            v_P_LS[i] = u_lightSpace[i] * u_mMatrix * a_position;
 
     v_texCoord = a_texCoord;
 

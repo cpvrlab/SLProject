@@ -11,14 +11,14 @@
 #ifndef SLLIGHTDIRECT_H
 #define SLLIGHTDIRECT_H
 
-#include <SLGLDepthBuffer.h>
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
 
-class SLSceneView;
 class SLRay;
 class SLScene;
+class SLSceneView;
+class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
@@ -75,7 +75,6 @@ public:
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
     void    renderShadowMap(SLSceneView* sv, SLNode* root);
-    void    SLLightDirect::drawShadowMapFrustum();
 
     // Getters
     SLfloat radius() { return _arrowRadius; }
@@ -93,17 +92,9 @@ public:
     SLVec3f spotDirWS() override { return forwardOS(); }
 
 private:
-    void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv);
-
-    SLfloat             _arrowRadius;          //!< The sphere lights radius
-    SLfloat             _arrowLength;          //!< Length of direction line
-    SLGLDepthBuffer*    _shadowMap;            //!< Used for shadow mapping
-    SLGLVertexArrayExt* _shadowMapFrustumVAO;  //!< Used to draw frustum of shadow-map
-    SLMaterial*         _shadowMapMaterial;    //!< Material used to create shadow-maps
-    SLfloat             _shadowMapClipNear;    //!< Near clipping plane of the shadow-map
-    SLfloat             _shadowMapClipFar;     //!< Far clipping plane of the shadow-map
-    SLVec2f             _shadowMapSize;        //!< Size of the region affected by the shadow-map
-    SLVec2i             _shadowMapTextureSize; //!< Size of the shadow-map-texture
+    SLfloat      _arrowRadius; //!< The sphere lights radius
+    SLfloat      _arrowLength; //!< Length of direction line
+    SLShadowMap* _shadowMap;   //!< Used for shadow-mapping
 };
 //-----------------------------------------------------------------------------
 #endif
