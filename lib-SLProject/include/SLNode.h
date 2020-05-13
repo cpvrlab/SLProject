@@ -297,6 +297,12 @@ public:
 
     static unsigned int instanceIndex; //!< ???
 
+#ifdef SL_HAS_OPTIX
+    void createInstanceAccelerationStructureTree();
+    void createInstanceAccelerationStructureFlat();
+    void createOptixInstances(vector<OptixInstance>&);
+#endif
+
 private:
     void updateWM() const;
     template<typename T>
@@ -310,11 +316,6 @@ private:
     void findChildrenHelper(SLuint           drawbit,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
-#ifdef SL_HAS_OPTIX
-    void createInstanceAccelerationStructureTree();
-    void createInstanceAccelerationStructureFlat();
-    void createOptixInstances(vector<OptixInstance>&);
-#endif
 
 protected:
     SLNode*         _parent;         //!< pointer to the parent node

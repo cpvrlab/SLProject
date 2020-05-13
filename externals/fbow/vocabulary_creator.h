@@ -64,7 +64,7 @@ private:
             {
                 auto nrows=features->at(midx).rows;
                 for(int i=0;i<nrows;i++)
-                    fInfo.push_back(feature_info(midx,i));
+                    fInfo.push_back(feature_info((uint32_t)midx, (uint32_t)i));
             }
         }
         size_t size()const {return fInfo.size();}
