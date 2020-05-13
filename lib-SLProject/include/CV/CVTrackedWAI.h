@@ -12,8 +12,7 @@
 #define CVTrackedWAI_H
 
 #include <CVTracked.h>
-#include <fbow.h>
-
+#include <WAIOrbVocabulary.h>
 #include <WAISlam.h>
 //-----------------------------------------------------------------------------
 //! Tracker that uses the ORB-Slam based WAI library (Where Am I)
@@ -37,7 +36,7 @@ private:
     WAISlam*                 _waiSlamer         = nullptr;
     ORB_SLAM2::ORBextractor* _trackingExtractor = nullptr;
     ORB_SLAM2::ORBextractor* _initializationExtractor = nullptr;
-    fbow::Vocabulary         _voc;
+    WAIOrbVocabulary*        _voc;
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -84,7 +84,7 @@ class SLGLUniform : public SLEventHandler
     }
 
     //! Key press eventhandler
-    SLbool onKeyPress(const SLKey key, const SLKey mod)
+    SLbool onKeyPress(const SLKey key, const SLKey mod) override
     {
         if (_keyInc != K_none)
         {

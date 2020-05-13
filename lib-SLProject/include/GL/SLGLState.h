@@ -128,8 +128,8 @@ public:
     inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
     const SLMat4f*        mvpMatrix();     //!< builds and returns proj.mat. x mv mat.
     const SLCol4f*        globalAmbient(); //!< returns global ambient color
-    inline bool           hasMultiSampling() { return _multiSampleSamples > 0; }
-    inline SLfloat        gamma() { return _gamma; }
+    inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
+    inline SLfloat        gamma() const { return _gamma; }
 
     // misc.
     void   buildInverseMatrix();          //!< build inverse matrix from MV
@@ -162,16 +162,16 @@ public:
     void currentMaterial(SLMaterial* mat) { _currentMaterial = mat; }
 
     // state getters
-    SLbool      blend() { return _blend; }
+    SLbool      blend() const { return _blend; }
     SLstring    glVersion() { return _glVersion; }
     SLstring    glVersionNO() { return _glVersionNO; }
-    SLfloat     glVersionNOf() { return _glVersionNOf; }
+    SLfloat     glVersionNOf() const { return _glVersionNOf; }
     SLstring    glVendor() { return _glVendor; }
     SLstring    glRenderer() { return _glRenderer; }
     SLstring    glSLVersion() { return _glSLVersion; }
     SLstring    glSLVersionNO() { return _glSLVersionNO; }
-    SLbool      glIsES2() { return _glIsES2; }
-    SLbool      glIsES3() { return _glIsES3; }
+    SLbool      glIsES2() const { return _glIsES2; }
+    SLbool      glIsES3() const { return _glIsES3; }
     SLbool      hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
     SLVec4i     getViewport() { return _viewport; }
     SLMaterial* currentMaterial() { return _currentMaterial; }

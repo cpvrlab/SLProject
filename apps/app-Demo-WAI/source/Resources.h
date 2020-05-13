@@ -159,8 +159,11 @@ private:
 class Strings
 {
 public:
-    Strings();
-    const char* id() const { return _id.c_str(); }
+    virtual ~Strings() {}
+    const char* id() const
+    {
+        return _id.c_str();
+    }
 
     const char* settings() const { return _settings.c_str(); }
     const char* about() const { return _about.c_str(); }
@@ -173,7 +176,11 @@ public:
     const char* language() const { return _language.c_str(); }
     const char* develMode() const { return _develMode.c_str(); }
 
+    void load(std::string fileName);
+
 protected:
+    //static void loadString(const cv::FileStorage& fs, const std::string& name, std::string& target);
+
     std::string _id;
 
     //selection
@@ -208,10 +215,10 @@ public:
     StringsFrench();
 };
 
-class StringsItalien : public Strings
+class StringsItalian : public Strings
 {
 public:
-    StringsItalien();
+    StringsItalian();
 };
 
 //-----------------------------------------------------------------------------
@@ -220,11 +227,12 @@ public:
 class Resources
 {
 public:
-    Resources(int         screenWidth,
-              int         screenHeight,
-              std::string writableDir,
-              std::string textureDir,
-              std::string fontDir);
+    Resources(int                screenWidth,
+              int                screenHeight,
+              const std::string& writableDir,
+              const std::string& textureDir,
+              const std::string& fontDir,
+              const std::string& slDataRoot);
     ~Resources();
 
     void setLanguageEnglish();
@@ -241,7 +249,7 @@ public:
     StringsEnglish stringsEnglish;
     StringsGerman  stringsGerman;
     StringsFrench  stringsFrench;
-    StringsItalien stringsItalien;
+    StringsItalian stringsItalian;
 
     Textures textures;
 

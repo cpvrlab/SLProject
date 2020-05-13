@@ -66,7 +66,7 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
 
 Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string       videoFile,
                                                                std::string       mapFile,
-                                                               fbow::Vocabulary& voc,
+                                                               WAIOrbVocabulary* voc,
                                                                CVCalibration&    calibration,
                                                                ExtractorType     extractorType)
 {
@@ -79,7 +79,7 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string      
     WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(voc);
 
     WAIMap* map = new WAIMap(keyFrameDB);
-    WAIMapStorage::loadMap(map, nullptr, &_voc, mapFile, false, true);
+    WAIMapStorage::loadMap(map, nullptr, _voc, mapFile, false, true);
 
     SENSVideoStream vstream(videoFile, false, false, false);
 
@@ -99,7 +99,7 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string      
                                          extractor.get(),
                                          intrinsic,
                                          distortion,
-                                         &_voc,
+                                         voc,
                                          false);
 
         int      inliers;
@@ -125,7 +125,7 @@ Tester::RelocalizationTestResult Tester::runRelocalizationTest(std::string      
 
 Tester::TrackingTestResult Tester::runTrackingTest(std::string       videoFile,
                                                    std::string       mapFile,
-                                                   fbow::Vocabulary& voc,
+                                                   WAIOrbVocabulary* voc,
                                                    CVCalibration&    calibration,
                                                    ExtractorType     extractorType,
                                                    int               framerate)
@@ -137,10 +137,10 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string       videoFile,
     WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(voc);
 
     WAIMap* map = new WAIMap(keyFrameDB);
-    WAIMapStorage::loadMap(map, nullptr, &voc, mapFile, false, true);
+    WAIMapStorage::loadMap(map, nullptr, voc, mapFile, false, true);
 
-    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1, &voc, 0.95);
-    LoopClosing*  loopClosing  = new ORB_SLAM2::LoopClosing(map, &voc, false, false);
+    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1, voc, 0.95);
+    LoopClosing*  loopClosing  = new ORB_SLAM2::LoopClosing(map, voc, false, false);
 
     localMapping->SetLoopCloser(loopClosing);
     loopClosing->SetLocalMapper(localMapping);
@@ -178,7 +178,7 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string       videoFile,
                                   extractor.get(),
                                   intrinsic,
                                   distortion,
-                                  &voc,
+                                  voc,
                                   false);
         if (isTracking)
         {
@@ -500,7 +500,8 @@ Tester::Tester(std::string erlebARDir, std::string configFile, std::string vocFi
     _testFlags       = testFlags;
     _framerate       = frameRate;
     _extractorType   = extractorType;
-    _voc.readFromFile(vocFile);
+    _voc = new WAIOrbVocabulary();
+    _voc->loadFromFile(vocFile);
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.

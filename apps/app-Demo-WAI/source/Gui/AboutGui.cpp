@@ -66,7 +66,7 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _resources.strings().about(),
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("AboutGui")); });
 
     //content
     {

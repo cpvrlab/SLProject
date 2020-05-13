@@ -34,6 +34,8 @@ bool StateMachine::update()
         unsigned int newState = e->getNewState(_currentStateId);
         data                  = e->getEventData();
 
+        LOG_STATEMACHINE_DEBUG("Event %s received sent by %s", e->name(), e->senderInfo());
+
         if (newState != Event::EVENT_IGNORED)
         {
             if (_currentStateId != newState)
@@ -72,7 +74,7 @@ bool StateMachine::update()
         }
         else
         {
-            LOG_STATEMACHINE_DEBUG("Event ignored");
+            LOG_STATEMACHINE_DEBUG("Event %s ignored in state %s", e->name(), getPrintableState(_currentStateId).c_str());
         }
 
         delete e;

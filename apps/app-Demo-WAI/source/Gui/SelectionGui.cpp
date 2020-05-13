@@ -145,32 +145,32 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
 
         if (ImGui::Button("Avenches", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(LocationId::AVENCHES));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AVENCHES));
         }
 
         if (ImGui::Button("Augst", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(LocationId::AUGST));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AUGST));
         }
 
         if (ImGui::Button("Christoffel", _buttonSz))
         {
-            sendEvent(new StartErlebarEvent(LocationId::CHRISTOFFEL));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::CHRISTOFFEL));
         }
 
         if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
         {
-            sendEvent(new StartTutorialEvent());
+            sendEvent(new StartTutorialEvent("SelectionGui"));
         }
 
         if (ImGui::Button(_resources.strings().settings(), _buttonSz))
         {
-            sendEvent(new ShowSettingsEvent());
+            sendEvent(new ShowSettingsEvent("SelectionGui"));
         }
 
         if (ImGui::Button(_resources.strings().about(), _buttonSz))
         {
-            sendEvent(new ShowAboutEvent());
+            sendEvent(new ShowAboutEvent("SelectionGui"));
         }
 
         ImGui::End();
@@ -186,17 +186,17 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImVec2 develButtonSize(-FLT_MIN /*_screenWPix - _buttonSz.x*/, _buttonSz.y);
         if (ImGui::Button("Test", develButtonSize))
         {
-            sendEvent(new StartTestEvent());
+            sendEvent(new StartTestEvent("SelectionGui"));
         }
 
         if (ImGui::Button("Camera Test", develButtonSize))
         {
-            sendEvent(new StartCameraTestEvent());
+            sendEvent(new StartCameraTestEvent("SelectionGui"));
         }
 
         if (ImGui::Button("Biel", develButtonSize))
         {
-            sendEvent(new StartErlebarEvent(LocationId::BIEL));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BIEL));
         }
 
         ImGui::End();

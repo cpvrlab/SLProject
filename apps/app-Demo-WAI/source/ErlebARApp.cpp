@@ -54,27 +54,27 @@ void ErlebARApp::init(int            scrWidth,
 {
     //store camera so we can stop on terminate
     _camera = camera;
-    addEvent(new InitEvent(scrWidth, scrHeight, dpi, dirs));
+    addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dirs));
 }
 
 void ErlebARApp::goBack()
 {
-    addEvent(new GoBackEvent());
+    addEvent(new GoBackEvent("ErlebARApp::goBack()"));
 }
 
 void ErlebARApp::destroy()
 {
-    addEvent(new DestroyEvent());
+    addEvent(new DestroyEvent("ErlebARApp::destroy()"));
 }
 
 void ErlebARApp::hold()
 {
-    addEvent(new HoldEvent());
+    addEvent(new HoldEvent("ErlebARApp::hold()"));
 }
 
 void ErlebARApp::resume()
 {
-    addEvent(new ResumeEvent());
+    addEvent(new ResumeEvent("ErlebARApp::resume()"));
 }
 
 std::string ErlebARApp::getPrintableState(unsigned int state)
@@ -159,7 +159,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                         dd.scrHeight(),
                                         dd.dirs().writableDir,
                                         dd.textureDir(),
-                                        dd.fontDir());
+                                        dd.fontDir(),
+                                        data->deviceData.dirs().slDataRoot);
 
     _imGuiEngine = new ImGuiEngine(dd.dirs().writableDir, _resources->fonts().atlas());
 
@@ -275,7 +276,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                          dd.dpi(),
                                          dd.dirs().writableDir);
 
-    addEvent(new DoneEvent());
+    addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
 
 void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
@@ -292,7 +293,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
     _welcomeView->update();
 
     if (timer.elapsedTimeInSec() > 2.f)
-        addEvent(new DoneEvent());
+        addEvent(new DoneEvent("ErlebARApp::WELCOME"));
 }
 
 void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
@@ -390,7 +391,7 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
         _closeCB();
     }
 
-    addEvent(new DoneEvent());
+    addEvent(new DoneEvent("ErlebARApp::DESTROY"));
 }
 
 void ErlebARApp::SELECTION(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
@@ -421,7 +422,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
     if (_camera->permissionGranted() && _camera->started())
     {
         _testView->start();
-        addEvent(new DoneEvent());
+        addEvent(new DoneEvent("ErlebARApp::START_TEST"));
     }
 
     assert(_startUpView != nullptr);
@@ -466,7 +467,7 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry,
     _camera->stop();
     _camera->start(config);
 
-    addEvent(new DoneEvent());
+    addEvent(new DoneEvent("ErlebARApp::RESUME_TEST"));
 }
 
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)
@@ -511,20 +512,6 @@ void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry,
 {
     if (stateExit)
         return;
-
-    //if (stateEntry)
-    //{
-    //    //It is a convention for this state, that if there is no data sent,
-    //    //we assume that the previous state was HOLD_TRACKING.
-    //    if (data)
-    //    {
-    //        //_areaTrackingView->initArea(data->locId, data->areaId);
-    //    }
-    //    else
-    //    {
-    //        _areaTrackingView->resume();
-    //    }
-    //}
 
     _areaTrackingView->update();
 }

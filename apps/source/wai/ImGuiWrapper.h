@@ -35,7 +35,9 @@ public:
     ImGuiRenderer(ImGuiContext* context)
       : _context(context)
     {
+        assert(context);
     }
+    virtual ~ImGuiRenderer() {}
     virtual void render(const SLRecti& viewportRect) {}
 
 protected:
@@ -108,6 +110,7 @@ public:
         if (_renderer)
             delete _renderer;
         ImGui::DestroyContext(_context);
+        _context = nullptr;
     }
 
     ImGuiRenderer* renderer() const { return _renderer; }

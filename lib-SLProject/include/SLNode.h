@@ -66,7 +66,7 @@ struct SLNodeStats
     }
 
     //! Prints all statistic informations on the std out stream.
-    void print()
+    void print() const
     {
         SLfloat voxelsEmpty = numVoxels ? (SLfloat)numVoxEmpty /
                                             (SLfloat)numVoxels * 100.0f
@@ -126,7 +126,7 @@ scene can be viewed (see also SLSceneView).
 The SLLightSpot and SLLightRect are derived from SLNode and represent light
 sources in the scene.
 Cameras and lights can be placed in the scene because of their inheritance of
-SLNode.
+SLNode.\n
 */
 class SLNode
   : public SLObject
@@ -153,8 +153,6 @@ public:
     virtual void      dumpRec();
     void              setDrawBitsRec(SLuint bit, SLbool state);
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
-    void              createInstanceAccelerationStructureTree();
-    void              createInstanceAccelerationStructureFlat();
 
     // Mesh methods (see impl. for details)
     SLint        numMeshes() { return (SLint)_meshes.size(); }
@@ -303,6 +301,12 @@ public:
 
     static unsigned int instanceIndex; //!< ???
 
+#ifdef SL_HAS_OPTIX
+    void createInstanceAccelerationStructureTree();
+    void createInstanceAccelerationStructureFlat();
+    void createOptixInstances(vector<OptixInstance>&);
+#endif
+
 private:
     void updateWM() const;
     template<typename T>
@@ -316,9 +320,6 @@ private:
     void findChildrenHelper(SLuint           drawbit,
                             vector<SLNode*>& list,
                             SLbool           findRecursive);
-#ifdef SL_HAS_OPTIX
-    void createOptixInstances(vector<OptixInstance>&);
-#endif
 
 protected:
     SLNode*         _parent;          //!< pointer to the parent node

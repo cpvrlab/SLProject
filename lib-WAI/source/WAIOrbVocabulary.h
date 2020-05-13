@@ -10,63 +10,57 @@
 
 #ifndef WAI_ORBVOCABULARY_H
 #define WAI_ORBVOCABULARY_H
+#define USE_FBOW 1
+
 #include <string>
 #include <WAIHelper.h>
 
-
-#define USE_FBOW
-#ifdef USE_FBOW
-    #include <fbow.h>
-#else 
-    #include <OrbSlam/ORBVocabulary.h>
+#if USE_FBOW
+#    include <fbow.h>
+#else
+#    include <OrbSlam/ORBVocabulary.h>
 #endif
-
-/*!Singleton class used to load, store and delete ORB_SLAM2::ORBVocabulary instance.
-*/
-
 
 struct WAIBowVector
 {
-    WAIBowVector() { isFill = false; }
-    bool isFill;
-#ifdef USE_FBOW
-    fbow::fBow data;
+    bool isFill = false;
+#if USE_FBOW
+    fbow::fBow  data;
     fbow::fBow& getWordScoreMapping() { return data; }
 #else
-    DBoW2::BowVector data;
-    DBoW2::BowVector& getWordScoreMapping() { return data; }
+    DBoW2::BowVector          data;
+    DBoW2::BowVector&         getWordScoreMapping() { return data; }
 #endif
 };
 
-
 struct WAIFeatVector
 {
-    WAIFeatVector() { isFill = false; }
-    bool isFill;
-#ifdef USE_FBOW
-    fbow::fBow2 data;
+    bool isFill = false;
+#if USE_FBOW
+    fbow::fBow2  data;
     fbow::fBow2& getFeatMapping() { return data; }
-#else  
-    DBoW2::FeatureVector data;
-    DBoW2::FeatureVector& getFeatMapping() { return data; }
+#else
+    DBoW2::FeatureVector      data;
+    DBoW2::FeatureVector&     getFeatMapping() { return data; }
 #endif
 };
 
 class WAI_API WAIOrbVocabulary
 {
 public:
+    WAIOrbVocabulary();
     ~WAIOrbVocabulary();
     void loadFromFile(std::string strVocFile);
-    void transform(const cv::Mat &features, WAIBowVector &bow, WAIFeatVector &feat);
+
+#if USE_FBOW
+    fbow::Vocabulary* _vocabulary = nullptr;
+#else
+    ORB_SLAM2::ORBVocabulary* _vocabulary = nullptr;
+#endif
+
+    void   transform(const cv::Mat& descriptors, WAIBowVector& bow, WAIFeatVector& feat);
     double score(WAIBowVector& bow1, WAIBowVector& bow2);
     size_t size();
-private :
-#ifdef USE_FBOW
-      fbow::Vocabulary* _vocabulary = nullptr;
-#else
-      ORB_SLAM2::ORBVocabulary* _vocabulary = nullptr;
-#endif
 };
-
 
 #endif // !WAI_ORBVOCABULARY_H

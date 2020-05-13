@@ -77,7 +77,7 @@ public:
     void addUniform1i(SLGLUniform1i* u); //!< add int uniform
 
     //Getters
-    SLuint       progID() { return _progID; }
+    SLuint       progID() const { return _progID; }
     SLVGLShader& shaders() { return _shaders; }
 
     //Variable location getters
@@ -109,7 +109,7 @@ public:
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false);
-    void  uniformMatrix2fv(const SLint    loc,
+    void  uniformMatrix2fv(SLint          loc,
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false);
@@ -117,7 +117,7 @@ public:
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false);
-    void  uniformMatrix3fv(const SLint    loc,
+    void  uniformMatrix3fv(SLint          loc,
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false);
@@ -125,7 +125,7 @@ public:
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false);
-    void  uniformMatrix4fv(const SLint    loc,
+    void  uniformMatrix4fv(SLint          loc,
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false);

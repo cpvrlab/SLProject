@@ -214,7 +214,7 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
 
 bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                             SLNode*           mapNode,
-                            fbow::Vocabulary* voc,
+                            WAIOrbVocabulary* voc,
                             std::string       path,
                             bool              loadImgs,
                             bool              fixKfsAndMPts)

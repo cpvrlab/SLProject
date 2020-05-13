@@ -135,7 +135,6 @@ public:
     void clearData();
     void build(SLint texID = 0);
     void bindActive(SLint texID = 0);
-    void buildCudaTexture();
     void fullUpdate();
     void drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
@@ -169,6 +168,7 @@ public:
     SLstring      typeName();
 
 #ifdef SL_HAS_OPTIX
+    void buildCudaTexture();
     CUtexObject getCudaTextureObject()
     {
         buildCudaTexture();

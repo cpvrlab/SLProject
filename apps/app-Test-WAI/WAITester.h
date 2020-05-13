@@ -46,13 +46,13 @@ public:
 
     RelocalizationTestResult runRelocalizationTest(std::string       videoFile,
                                                    std::string       mapFile,
-                                                   fbow::Vocabulary& voc,
+                                                   WAIOrbVocabulary* voc,
                                                    CVCalibration&    calibration,
                                                    ExtractorType     extractorType);
 
     TrackingTestResult runTrackingTest(std::string       videoFile,
                                        std::string       mapFile,
-                                       fbow::Vocabulary& voc,
+                                       WAIOrbVocabulary* voc,
                                        CVCalibration&    calibration,
                                        ExtractorType     extractorType,
                                        int               framerate = 0);
@@ -73,7 +73,7 @@ private:
     std::map<Location, Areas> _erlebAR;
     std::string               _erlebARDir;
     //std::string               _vocFile;
-    fbow::Vocabulary          _voc;
+    WAIOrbVocabulary*         _voc;
     int                       _testFlags;
     std::string               _calibrationsDir;
     FeatureExtractorFactory   _factory;

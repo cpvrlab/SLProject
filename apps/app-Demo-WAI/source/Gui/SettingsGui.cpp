@@ -18,7 +18,7 @@ SettingsGui::SettingsGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //init language settings combo
-    if (_resources.strings().id() == _resources.stringsItalien.id())
+    if (_resources.strings().id() == _resources.stringsItalian.id())
         _currLanguage = 3;
     else if (_resources.strings().id() == _resources.stringsGerman.id())
         _currLanguage = 1;
@@ -71,7 +71,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
                              _resources.strings().settings(),
-                             [&]() { sendEvent(new GoBackEvent()); });
+                             [&]() { sendEvent(new GoBackEvent("SettingsGui")); });
 
     //render hidden button in right corner directly under header bar. It has the size of the header bar height.
     {
