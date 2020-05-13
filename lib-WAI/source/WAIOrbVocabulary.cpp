@@ -12,11 +12,20 @@
 #include <WAIOrbVocabulary.h>
 #include <Utils.h>
 
+WAIOrbVocabulary::WAIOrbVocabulary()
+{
+#if USE_FBOW
+    _vocabulary = new fbow::Vocabulary();
+#else
+    _vocabulary = new ORB_SLAM2::ORBVocabulary();
+#endif
+}
+
 WAIOrbVocabulary::~WAIOrbVocabulary()
 {
     if (_vocabulary)
     {
-#ifdef USE_FBOW
+#if USE_FBOW
         _vocabulary->clear();
 #endif
         delete _vocabulary;
@@ -30,14 +39,14 @@ void WAIOrbVocabulary::loadFromFile(std::string strVocFile)
 {
     if (!_vocabulary)
     {
-#ifdef USE_FBOW
+#if USE_FBOW
         _vocabulary = new fbow::Vocabulary();
 #else
         _vocabulary = new ORB_SLAM2::ORBVocabulary();
 #endif
     }
 
-#ifdef USE_FBOW
+#if USE_FBOW
     try
     {
         _vocabulary->readFromFile(strVocFile);
@@ -60,7 +69,11 @@ void WAIOrbVocabulary::transform(const cv::Mat &descriptors, WAIBowVector &bow, 
 {
     bow.isFill = true;
     feat.isFill = true;
-#ifdef USE_FBOW
+
+    if(descriptors.rows == 0)
+        return;
+
+#if USE_FBOW
     _vocabulary->transform(descriptors, 1, bow.data, feat.data);
 #else
     vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(descriptors);
@@ -70,7 +83,7 @@ void WAIOrbVocabulary::transform(const cv::Mat &descriptors, WAIBowVector &bow, 
 
 double WAIOrbVocabulary::score(WAIBowVector &bow1, WAIBowVector &bow2)
 {
-#ifdef USE_FBOW
+#if USE_FBOW
     return fbow::fBow::score(bow1.data, bow2.data);
 #else
     return _vocabulary->score(bow1.data, bow2.data);
@@ -79,11 +92,12 @@ double WAIOrbVocabulary::score(WAIBowVector &bow1, WAIBowVector &bow2)
 
 size_t WAIOrbVocabulary::size()
 {
-#ifdef USE_FBOW
+#if USE_FBOW
     return _vocabulary->size() * _vocabulary->getK();
 #else
     return _vocabulary->size();
 #endif
 }
+
 
 

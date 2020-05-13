@@ -66,6 +66,7 @@ target_link_libraries(${target}
         lib-SLProject
         lib-WAI
         lib-fbow
+        lib-DBoW2
         ${glfw_LIBS}
         INTERFACE
     )

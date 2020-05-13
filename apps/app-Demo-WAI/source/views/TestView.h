@@ -9,9 +9,9 @@
 #include <AppDemoGuiSlamLoad.h>
 #include <SENSVideoStream.h>
 #include <CVCalibration.h>
+#include <WAIOrbVocabulary.h>
 #include <queue>
 #include <ImageBuffer.h>
-#include <fbow.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -84,8 +84,8 @@ protected:
     std::queue<WAIEvent*> _eventQueue;
 
     //scene
-    AppWAIScene      _scene;
-    fbow::Vocabulary _voc;
+    AppWAIScene       _scene;
+    WAIOrbVocabulary* _voc;
 
     SLAssetManager _assets;
 

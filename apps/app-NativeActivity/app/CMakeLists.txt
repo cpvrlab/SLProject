@@ -131,6 +131,7 @@ target_link_libraries(${target}
         mediandk
         #lib-WAI
         lib-fbow
+        lib-DBoW2
         lib-SLProject
 
     PUBLIC

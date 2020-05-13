@@ -8,7 +8,7 @@
 #include <WAISlam.h>
 #include <WAIMapStorage.h>
 #include <FeatureExtractorFactory.h>
-#include <fbow.h>
+#include <WAIOrbVocabulary.h>
 
 #define WAI_DEBUG(...) Utils::log("[DEBUG]", __VA_ARGS__)
 #define WAI_INFO(...) Utils::log("[INFO ]", __VA_ARGS__)
@@ -77,7 +77,7 @@ private:
     std::string               _erlebARDir;
     std::string               _calibrationsDir;
     std::string               _outputDir;
-    fbow::Vocabulary          _voc;
+    WAIOrbVocabulary*         _voc;
 
 
 
