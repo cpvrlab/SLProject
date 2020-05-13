@@ -30,8 +30,10 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLbool          hasMesh)
   : SLNode("LightDirect Node")
 {
-    _arrowRadius = arrowLength * 0.1f;
-    _arrowLength = arrowLength;
+    _arrowRadius         = arrowLength * 0.1f;
+    _arrowLength         = arrowLength;
+    _shadowMap           = nullptr;
+    _shadowMapFrustumVAO = nullptr;
 
     if (hasMesh)
     {
@@ -65,8 +67,10 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
   : SLNode("Directional Light"),
     SLLight(ambiPower, diffPower, specPower)
 {
-    _arrowRadius = arrowLength * 0.1f;
-    _arrowLength = arrowLength;
+    _arrowRadius         = arrowLength * 0.1f;
+    _arrowLength         = arrowLength;
+    _shadowMap           = nullptr;
+    _shadowMapFrustumVAO = nullptr;
     translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
@@ -119,6 +123,9 @@ SLLightDirect::~SLLightDirect()
 {
     if (_shadowMap != nullptr)
         delete _shadowMap;
+
+    if (_shadowMapFrustumVAO != nullptr)
+        delete _shadowMapFrustumVAO;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -162,6 +169,15 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
 
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
+
+        // Draw the volume affected by the shadow-map
+        if (_createsShadows && sv->s().selectedNode() == this)
+        {
+            SLGLState* stateGL = SLGLState::instance();
+            stateGL->modelViewMatrix.setMatrix(
+              stateGL->viewMatrix * stateGL->lightProjection[_id].inverted());
+            drawShadowMapFrustum();
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -223,9 +239,42 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
-/*! drawNodesIntoShadowMap recursively renders all objects which cast shadows
+/*! SLLightDirect::drawShadowMapFrustum draws the volume affected by the shadow-map
 */
-void drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv, SLMaterial* depthMat)
+void SLLightDirect::drawShadowMapFrustum()
+{
+    // clang-format off
+    static SLVVec3f P = {
+        {-1,  1, -1}, { 1,  1, -1}, // lower rect
+        {-1,  1, -1}, {-1,  1,  1},
+        { 1,  1,  1}, {-1,  1,  1},
+        { 1,  1,  1}, { 1,  1, -1},
+
+        {-1, -1, -1}, { 1, -1, -1}, // upper rect
+        {-1, -1, -1}, {-1, -1,  1},
+        { 1, -1,  1}, {-1, -1,  1},
+        { 1, -1,  1}, { 1, -1, -1},
+
+        {-1, -1, -1}, {-1,  1, -1}, // vertical lines
+        { 1, -1, -1}, { 1,  1, -1},
+        {-1, -1,  1}, {-1,  1,  1},
+        { 1, -1,  1}, { 1,  1,  1},
+    };
+    // clang-format on
+
+    if (_shadowMapFrustumVAO == nullptr)
+    {
+        _shadowMapFrustumVAO = new SLGLVertexArrayExt();
+        _shadowMapFrustumVAO->generateVertexPos(&P);
+    }
+    _shadowMapFrustumVAO->drawArrayAsColored(PT_lines, SLCol3f(0, 1, 0), 1.0f, 0, (SLuint)P.size());
+}
+//-----------------------------------------------------------------------------
+/*!
+SLLightDirect::drawNodesIntoShadowMap recursively renders all objects which
+cast shadows
+*/
+void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv, SLMaterial* depthMat)
 {
     SLGLState* stateGL = SLGLState::instance();
 
