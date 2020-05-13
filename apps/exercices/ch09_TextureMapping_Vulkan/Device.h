@@ -1,11 +1,11 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #include <vector>
 
 #include "Instance.h"
-#include "CommandPool.h"
+#include "Swapchain.h"
+
+class Swapchain;
 
 struct QueueFamilyIndices
 {
@@ -19,6 +19,7 @@ public:
     Device(const VkPhysicalDevice&, VkSurfaceKHR, const std::vector<const char*> extensions);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void               createCommandPool();
+    void               createSyncObjects(Swapchain& swapchain);
 
 public:
     const VkPhysicalDevice&            physicalDevice;
@@ -29,6 +30,8 @@ public:
     VkQueue                            graphicsQueue;
     VkQueue                            presentQueue;
     VkCommandPool                      commandPool;
-    std::vector<VkFence>               inFlightFence;
-    std::vector<VkFence>               imageInFlight;
+    std::vector<VkFence>               inFlightFences;
+    std::vector<VkFence>               imagesInFlight;
+    std::vector<VkSemaphore>           imageAvailableSemaphores;
+    std::vector<VkSemaphore>           renderFinishedSemaphores;
 };

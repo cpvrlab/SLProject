@@ -1,3 +1,4 @@
+/*
 #include "IndexBuffer.h"
 
 IndexBuffer::IndexBuffer(Device& device, const std::vector<uint16_t> indices) : device{device}
@@ -17,3 +18,4 @@ IndexBuffer::IndexBuffer(Device& device, const std::vector<uint16_t> indices) : 
 
     stagingBuffer.free();
 }
+*/

@@ -1,9 +1,72 @@
 #include "Pipeline.h"
-#include "Vertex.h"
 
 Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : device{device}
 {
     createGraphicsPipeline(swapchain.extent, descriptorSetLayout.handle, renderPass.handle, vertShaderModule.shaderModule, fragShaderModule.shaderModule);
+}
+
+void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
+{
+    vkWaitForFences(device.handle,
+                    1,
+                    &device.inFlightFences[currentFrame],
+                    VK_TRUE,
+                    UINT64_MAX);
+
+    uint32_t imageIndex;
+    VkResult result = vkAcquireNextImageKHR(device.handle,
+                                            swapchain.handle,
+                                            UINT64_MAX,
+                                            device.imageAvailableSemaphores[currentFrame],
+                                            VK_NULL_HANDLE,
+                                            &imageIndex);
+    if (result != VK_SUCCESS)
+        cerr << "failed to acquire swapchain image!" << endl;
+
+    uniformBuffer.update(imageIndex);
+
+    if (device.imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+        vkWaitForFences(device.handle, 1, &device.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    device.imagesInFlight[imageIndex] = device.inFlightFences[currentFrame];
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore          waitSemaphores[] = {device.imageAvailableSemaphores[currentFrame]};
+    VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount         = 1;
+    submitInfo.pWaitSemaphores            = waitSemaphores;
+    submitInfo.pWaitDstStageMask          = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &commandBuffer.handles[imageIndex];
+
+    VkSemaphore signalSemaphores[]  = {device.renderFinishedSemaphores[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores    = signalSemaphores;
+
+    vkResetFences(device.handle, 1, &device.inFlightFences[currentFrame]);
+
+    result = vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, device.inFlightFences[currentFrame]);
+    ASSERT_VULKAN(result, "Failed to submit draw command buffer");
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores    = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapchain.handle};
+    presentInfo.swapchainCount  = 1;
+    presentInfo.pSwapchains     = swapChains;
+
+    presentInfo.pImageIndices = &imageIndex;
+
+    result = vkQueuePresentKHR(device.presentQueue, &presentInfo);
+    if (result != VK_SUCCESS)
+        cerr << "Failed to present swapchain image" << endl;
+
+    currentFrame = (currentFrame + 1) % 2;
 }
 
 void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout, VkRenderPass renderPass, VkShaderModule vertShader, VkShaderModule fragShader)

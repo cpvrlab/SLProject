@@ -14,6 +14,6 @@ DescriptorPool::DescriptorPool(Device& device, Swapchain& swapchain) : device{de
     poolInfo.pPoolSizes    = poolSizes.data();
     poolInfo.maxSets       = static_cast<uint32_t>(swapchain.images.size());
 
-    VkResult result = vkCreateDescriptorPool(device.handle, &poolInfo, nullptr, &descriptorPool);
+    VkResult result = vkCreateDescriptorPool(device.handle, &poolInfo, nullptr, &handle);
     ASSERT_VULKAN(result, "Failed to create descriptor pool");
 }

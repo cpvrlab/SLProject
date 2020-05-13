@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Device.h"
-#include "Swapchain.h"
 
 #include <array>
 #include <vector>
+
+class Swapchain;
 
 class DescriptorPool
 {

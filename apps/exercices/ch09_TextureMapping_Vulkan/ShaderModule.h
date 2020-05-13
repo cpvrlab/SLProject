@@ -2,6 +2,7 @@
 
 #include "Device.h"
 #include <string>
+
 class ShaderModule
 {
 public:

@@ -144,7 +144,7 @@ VkResult Instance::CreateDebugUtilsMessengerEXT(VkInstance                      
 
 void Instance::setupDebugMessenger()
 {
-#    if !IS_DEBUGMODE_ON
+#    if !defined(VK_DEBUG)
     return;
 #    endif
     VkDebugUtilsMessengerCreateInfoEXT createInfo;

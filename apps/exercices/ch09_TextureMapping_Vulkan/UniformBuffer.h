@@ -1,18 +1,22 @@
 #pragma once
 
-#include "Device.h"
 #include "Buffer.h"
 #include "UniformBufferObject.h"
-#include "Swapchain.h"
+#include <math/SLMat4.h>
+
+class Swapchain;
+class Device;
+class Buffer;
 
 class UniformBuffer
 {
 public:
-    UniformBuffer(Device& device, Swapchain& swapchain);
+    UniformBuffer(Device& device, Swapchain& swapchain, SLMat4f& camera);
     void update(uint32_t currentImage);
 
 public:
     Device&              device;
     Swapchain&           swapchain;
     std::vector<Buffer*> buffers;
+    SLMat4f&             camera;
 };

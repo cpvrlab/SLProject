@@ -85,3 +85,33 @@ void Device::createCommandPool()
     VkResult result = vkCreateCommandPool(handle, &poolInfo, nullptr, &commandPool);
     ASSERT_VULKAN(result, "Failed to create command pool");
 }
+
+void Device::createSyncObjects(Swapchain& swapchain)
+{
+    imageAvailableSemaphores.resize(2);
+    renderFinishedSemaphores.resize(2);
+    inFlightFences.resize(2);
+    imagesInFlight.resize(swapchain.images.size(), VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < 2; i++)
+        if (vkCreateSemaphore(handle,
+                              &semaphoreInfo,
+                              nullptr,
+                              &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(handle,
+                              &semaphoreInfo,
+                              nullptr,
+                              &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(handle,
+                          &fenceInfo,
+                          nullptr,
+                          &inFlightFences[i]) != VK_SUCCESS)
+            cerr << "failed to create synchronization objects for a frame!" << endl;
+}

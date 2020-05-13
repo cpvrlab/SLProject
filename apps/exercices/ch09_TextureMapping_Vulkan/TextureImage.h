@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Device.h"
+#include "Buffer.h"
 
 // forward decalaration
 class Buffer;
+class CommandBuffer;
+class Device;
 
 class TextureImage
 {

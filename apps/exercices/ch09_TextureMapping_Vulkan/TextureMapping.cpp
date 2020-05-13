@@ -1,6 +1,8 @@
-// #include "vkUtils.h"
+#define oldProject 0
+
 #define GLFW_INCLUDE_VULKAN
-#include <GL/glew.h> // OpenGL headers
+// #include <GL/glew.h> // OpenGL headers
+#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <string>
@@ -8,12 +10,37 @@
 #include <math/SLVec3.h>
 #include <glUtils.h>
 #include <Utils.h>
-#include "../../../build-Win64-VS2019/apps/exercices/ch09_TextureMapping_Vulkan/vertex.h"
+
+#if !oldProject
+#else
+#    include "vkUtils.h"
+#    include "Vertex.cpp"
+#endif
+
+#if !oldProject
+#    include "Instance.h"
+#    include "Device.h"
+#    include "Swapchain.h"
+#    include "RenderPass.h"
+#    include "DescriptorSetLayout.h"
+#    include "ShaderModule.h"
+#    include "Pipeline.h"
+#    include "Framebuffer.h"
+#    include "TextureImage.h"
+#    include "Sampler.h"
+#    include "IndexBuffer.h"
+#    include "UniformBuffer.h"
+#    include "DescriptorPool.h"
+#    include "DescriptorSet.h"
+#    include "VertexBuffer.h"
 
 //-----------------------------------------------------------------------------
 //////////////////////
 // Global Variables //
 //////////////////////
+
+struct Vertex;
+#endif
 
 const int WINDOW_WIDTH   = 800;
 const int WINDOW_HEIGHT  = 600;
@@ -21,11 +48,13 @@ string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader
 string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.spv";
 
 GLFWwindow* window;
-// vkUtils              renderer;
-const vector<Vertex> vertices = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-                                 {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-                                 {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-                                 {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
+#if oldProject
+vkUtils renderer;
+#endif
+const std::vector<Vertex> vertices = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+                                      {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+                                      {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+                                      {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
 // Camera
 SLMat4f _viewMatrix;
 float   _camZ = 6.0f;
@@ -102,12 +131,12 @@ void printFPS()
     lastTimeSec = timeNowSec;
 }
 //-----------------------------------------------------------------------------
-/*
+#if oldProject
 void onWindowResize(GLFWwindow* window, int width, int height)
 {
     renderer.recreateSwapchain(window, vertices);
 }
-*/
+#endif
 //-----------------------------------------------------------------------------
 void initWindow()
 {
@@ -121,14 +150,16 @@ void initWindow()
                               nullptr);
 
     glfwSetWindowSizeLimits(window, 100, 100, GLFW_DONT_CARE, GLFW_DONT_CARE);
-    // glfwSetWindowUserPointer(window, &renderer);
-    // glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
-    // glfwSetWindowSizeCallback(window, onWindowResize);
+#if oldProject
+    glfwSetWindowUserPointer(window, &renderer);
+    glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
+    glfwSetWindowSizeCallback(window, onWindowResize);
+#endif
 }
-/*
+#if oldProject
 //-----------------------------------------------------------------------------
 void initVulkan()
 {
@@ -163,6 +194,7 @@ void initVulkan()
     renderer.createSyncObjects();
 }
 //-----------------------------------------------------------------------------
+#endif
 void updateCamera()
 {
     _viewMatrix = SLMat4f();
@@ -171,6 +203,7 @@ void updateCamera()
     SLVec3f a = (_viewMatrix.axisZ()) * _camZ;
     _viewMatrix.lookAt(a, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
 }
+#if oldProject
 //-----------------------------------------------------------------------------
 void mainLoop()
 {
@@ -190,7 +223,7 @@ void cleanup()
     glfwTerminate();
 }
 //-----------------------------------------------------------------------------
-/*
+
 int main()
 {
     initWindow();
@@ -201,22 +234,8 @@ int main()
     return EXIT_SUCCESS;
 }
 //-----------------------------------------------------------------------------
-*/
-/**/
-#include "Instance.h"
-#include "Device.h"
-#include "Swapchain.h"
-#include "RenderPass.h"
-#include "DescriptorSetLayout.h"
-#include "ShaderModule.h"
-#include "Pipeline.h"
-#include "Framebuffer.h"
-#include "TextureImage.h"
-#include "Sampler.h"
-#include "IndexBuffer.h"
-#include "UniformBuffer.h"
-#include "DescriptorPool.h"
-#include "DescriptorSet.h"
+
+#else
 
 const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
@@ -244,14 +263,28 @@ int main()
     Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
     TextureImage        textureImage        = TextureImage(device, texture.data(), texture.width(), texture.height());
     Sampler             textureSampler      = Sampler(device);
-    IndexBuffer         indexBuffer         = IndexBuffer(device, indices);
-    UniformBuffer       uniformbuffer       = UniformBuffer(device, swapchain);
-    DescriptorPool      descriptorPool      = DescriptorPool(device, swapchain);
-    DescriptorSet       descriptorSet       = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformbuffer, textureSampler, textureImage);
+    Buffer              indexBuffer         = Buffer(device);
+    indexBuffer.createIndexBuffer(indices);
+    UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix);
+    DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
+    DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureSampler, textureImage);
+    Buffer         vertexBuffer   = Buffer(device);
+    vertexBuffer.createVertexBuffer(vertices);
+    CommandBuffer commandBuffer = CommandBuffer(device);
+    commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, indices.size());
+    device.createSyncObjects(swapchain);
 
     while (1)
     {
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            updateCamera();
+            pipeline.draw(swapchain, uniformBuffer, commandBuffer);
+            printFPS();
+        }
     }
 
     return EXIT_SUCCESS;
 }
+#endif

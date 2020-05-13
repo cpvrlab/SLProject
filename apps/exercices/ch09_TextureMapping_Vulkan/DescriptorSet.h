@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Device.h"
-#include "Swapchain.h"
 #include "DescriptorSetLayout.h"
 #include "DescriptorPool.h"
 #include "UniformBuffer.h"
 #include "Sampler.h"
 #include "TextureImage.h"
 
-#include <vector>
+class Device;
+class Swapchain;
+class UniformBuffer;
+class TextureImage;
 
 class DescriptorSet
 {

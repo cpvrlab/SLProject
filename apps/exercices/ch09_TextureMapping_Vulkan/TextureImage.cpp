@@ -1,6 +1,4 @@
 #include "TextureImage.h"
-#include "Buffer.h"
-#include "CommandBuffer.h"
 
 TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, unsigned int texHeight) : device{device}
 {
@@ -9,7 +7,8 @@ TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, 
     if (texWidth == 0)
         cerr << "Failed to load texture image" << endl;
 
-    buffer = &Buffer(device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    buffer = new Buffer(device);
+    buffer->createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
     vkMapMemory(device.handle, buffer->memory, 0, imageSize, 0, &data);

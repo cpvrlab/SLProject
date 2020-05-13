@@ -14,6 +14,7 @@
 #include <glUtils.h>
 #include <Utils.h>
 #include <math/SLVec3.h>
+#include "Vertex.cpp"
 
 #define ASSERT_VULKAN(result, msg) \
     if (result != VK_SUCCESS) \
@@ -42,6 +43,7 @@ struct UniformBufferObject
     SLMat4f proj;
 };
 //-----------------------------------------------------------------------------
+/*
 struct Vertex
 {
     SLVec2f pos;
@@ -80,6 +82,7 @@ struct Vertex
         return attributeDescriptions;
     }
 };
+*/
 //-----------------------------------------------------------------------------
 class vkUtils
 {

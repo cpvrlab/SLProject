@@ -1,7 +1,9 @@
 #pragma once
-
-#include "Device.h"
+/*
 #include "Buffer.h"
+
+class Device;
+class Buffer;
 
 class IndexBuffer
 {
@@ -12,3 +14,4 @@ public:
     Device& device;
     Buffer* buffer;
 };
+*/

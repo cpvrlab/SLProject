@@ -2,8 +2,10 @@
 
 #include "Device.h"
 #include "RenderPass.h"
-#include "Swapchain.h"
+
 #include <vector>
+
+class Swapchain;
 
 class Framebuffer
 {
