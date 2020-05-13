@@ -280,16 +280,9 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             loc = uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
 
             for (int i = 0; i < SL_MAX_LIGHTS; ++i)
-            {
                 if (stateGL->lightCreatesShadows[i])
-                {
-                    SLGLDepthBuffer* shadowMap = stateGL->shadowMaps[i];
-                    if (shadowMap != nullptr)
-                    {
-                        shadowMap->activateAsTexture(_progID, "u_shadowMap[" + std::to_string(i) + "]");
-                    }
-                }
-            }
+                    if ((loc = getUniformLocation(("u_shadowMap[" + std::to_string(i) + "]").c_str())) >= 0)
+                        stateGL->shadowMaps[i]->activateAsTexture(loc);
 
             mat->passToUniforms(this);
         }

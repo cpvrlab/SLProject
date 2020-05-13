@@ -77,13 +77,12 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
     glDeleteFramebuffers(1, &_fboID);
 }
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::activateAsTexture(const int       progId,
-                                        const SLstring& glSamplerName)
+void SLGLDepthBuffer::activateAsTexture(int loc)
 {
     SLGLState* stateGL = SLGLState::instance();
     stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
     stateGL->bindTexture(GL_TEXTURE_2D, _texID);
-    glUniform1i(glGetUniformLocation(progId, glSamplerName.c_str()), _texID);
+    glUniform1i(loc, _texID);
 }
 //-----------------------------------------------------------------------------
 void SLGLDepthBuffer::bind()
