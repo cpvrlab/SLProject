@@ -85,6 +85,7 @@ void SLMesh::deleteData()
     _vao.deleteGL();
     _vaoN.deleteGL();
     _vaoT.deleteGL();
+    _vaoD.deleteGL();
 
 #ifdef SL_HAS_OPTIX
     _vertexBuffer.free();
@@ -183,6 +184,7 @@ void SLMesh::deleteSelected(SLNode* node)
 
     // delete vertex array object so it gets regenerated
     _vao.deleteGL();
+    _vaoD.deleteGL();
 
     // delete the selection indexes
     IS32.clear();
@@ -300,7 +302,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 </p>
 Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
-void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat)
+void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool depthPass)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -398,17 +400,22 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat)
     // 3) Generate Vertex Array Object once
     ///////////////////////////////////////
 
-    if (!_vao.vaoID())
-        generateVAO(sp);
+    SLGLVertexArray* vao = depthPass ? &_vaoD : &_vao;
+
+    if (!vao->vaoID())
+        generateVAO(sp, vao);
 
     ///////////////////////////////
     // 4): Finally do the draw call
     ///////////////////////////////
 
     if (_primitive == PT_points)
-        _vao.drawArrayAs(PT_points);
+        vao->drawArrayAs(PT_points);
     else
-        _vao.drawElementsAs(primitiveType);
+        vao->drawElementsAs(primitiveType);
+
+    // The remaining visualizations are not needed for depth passes
+    if (depthPass) return;
 
     //////////////////////////////////////
     // 5) Draw optional normals & tangents
@@ -551,17 +558,19 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat)
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
-void SLMesh::generateVAO(SLGLProgram* sp)
+void SLMesh::generateVAO(SLGLProgram* sp, SLGLVertexArray* vao)
 {
-    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
-    if (!I16.empty()) _vao.setIndices(&I16);
-    if (!I32.empty()) _vao.setIndices(&I32);
+    if (vao == nullptr) vao = &_vao;
 
-    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
+    vao->setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
+    if (!N.empty()) vao->setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
+    if (!Tc.empty()) vao->setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
+    if (!C.empty()) vao->setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+    if (!T.empty()) vao->setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    if (!I16.empty()) vao->setIndices(&I16);
+    if (!I32.empty()) vao->setIndices(&I32);
+
+    vao->generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1269,6 +1278,10 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     {
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);
+    }
+    if (_vaoD.vaoID())
+    {
+        _vaoD.updateAttrib(AT_position, _finalP);
     }
 }
 //-----------------------------------------------------------------------------

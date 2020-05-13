@@ -75,6 +75,7 @@ public:
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
     void    renderShadowMap(SLSceneView* sv, SLNode* root);
+    void    SLLightDirect::drawShadowMapFrustum();
 
     // Getters
     SLfloat radius() { return _arrowRadius; }
@@ -92,13 +93,13 @@ public:
     SLVec3f spotDirWS() override { return forwardOS(); }
 
 private:
-    void SLLightDirect::drawShadowMapFrustum();
-    void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv, SLMaterial* depthMat);
+    void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv);
 
     SLfloat             _arrowRadius;         //!< The sphere lights radius
     SLfloat             _arrowLength;         //!< Length of direction line
     SLGLDepthBuffer*    _shadowMap;           //!< Used for shadow mapping
     SLGLVertexArrayExt* _shadowMapFrustumVAO; //!< Used to draw frustum of shadow-map
+    SLMaterial*         _shadowMapMaterial;   //!< Material used to create shadow-maps
 };
 //-----------------------------------------------------------------------------
 #endif

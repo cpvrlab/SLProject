@@ -11,17 +11,17 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLApplication.h>
-#include <SLProjectScene.h>
 #include <SLArrow.h>
 #include <SLAssetManager.h>
+#include <SLGLProgramManager.h>
 #include <SLLightDirect.h>
 #include <SLMaterial.h>
+#include <SLProjectScene.h>
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLSphere.h>
 #include <SLSpheric.h>
-#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
@@ -34,6 +34,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     _arrowLength         = arrowLength;
     _shadowMap           = nullptr;
     _shadowMapFrustumVAO = nullptr;
+    _shadowMapMaterial   = nullptr;
 
     if (hasMesh)
     {
@@ -71,6 +72,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     _arrowLength         = arrowLength;
     _shadowMap           = nullptr;
     _shadowMapFrustumVAO = nullptr;
+    _shadowMapMaterial   = nullptr;
     translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
@@ -126,6 +128,9 @@ SLLightDirect::~SLLightDirect()
 
     if (_shadowMapFrustumVAO != nullptr)
         delete _shadowMapFrustumVAO;
+
+    if (_shadowMapMaterial != nullptr)
+        delete _shadowMapMaterial;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -172,12 +177,7 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
 
         // Draw the volume affected by the shadow-map
         if (_createsShadows && sv->s().selectedNode() == this)
-        {
-            SLGLState* stateGL = SLGLState::instance();
-            stateGL->modelViewMatrix.setMatrix(
-              stateGL->viewMatrix * stateGL->lightProjection[_id].inverted());
             drawShadowMapFrustum();
-        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -267,6 +267,10 @@ void SLLightDirect::drawShadowMapFrustum()
         _shadowMapFrustumVAO = new SLGLVertexArrayExt();
         _shadowMapFrustumVAO->generateVertexPos(&P);
     }
+
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->modelViewMatrix.setMatrix(
+      stateGL->viewMatrix * stateGL->lightProjection[_id].inverted());
     _shadowMapFrustumVAO->drawArrayAsColored(PT_lines, SLCol3f(0, 1, 0), 1.0f, 0, (SLuint)P.size());
 }
 //-----------------------------------------------------------------------------
@@ -274,7 +278,7 @@ void SLLightDirect::drawShadowMapFrustum()
 SLLightDirect::drawNodesIntoShadowMap recursively renders all objects which
 cast shadows
 */
-void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv, SLMaterial* depthMat)
+void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -283,10 +287,10 @@ void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv, SLMate
 
     if (node->castsShadows())
         for (auto* mesh : node->meshes())
-            mesh->draw(sv, node, depthMat);
+            mesh->draw(sv, node, _shadowMapMaterial, true);
 
     for (SLNode* child : node->children())
-        drawNodesIntoShadowMap(child, sv, depthMat);
+        drawNodesIntoShadowMap(child, sv);
 }
 //-----------------------------------------------------------------------------
 /*! SLLightDirect::renderShadowMap renders the shadow map of the light
@@ -298,15 +302,15 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     const static unsigned int SHADOW_MAP_WIDTH = 1024, SHADOW_MAP_HEIGHT = 1024;
     static float              borderColor[] = {1.0, 1.0, 1.0, 1.0};
 
-    static SLMaterial* depthMaterial = nullptr; // TODO
-    // static SLGLGenericProgram depthProgram(SLApplication::scene, "Depth.vert", "Depth.frag");
-    // static SLMaterial         depthMaterial(SLApplication::scene,
-    //                                 "depthMaterial",
-    //                                 nullptr,
-    //                                 nullptr,
-    //                                 nullptr,
-    //                                 nullptr,
-    //                                 &depthProgram);
+    if (_shadowMapMaterial == nullptr)
+        _shadowMapMaterial = new SLMaterial(
+          nullptr,
+          "shadowMapMaterial",
+          nullptr,
+          nullptr,
+          nullptr,
+          nullptr,
+          SLGLProgramManager::get(SP_depth));
 
     if (_shadowMap == nullptr)
         _shadowMap = new SLGLDepthBuffer(
@@ -349,8 +353,7 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     stateGL->clearColorDepthBuffer();
 
     // Draw meshes
-    stateGL->currentMaterial(nullptr);
-    drawNodesIntoShadowMap(root, sv, depthMaterial);
+    drawNodesIntoShadowMap(root, sv);
     GET_GL_ERROR;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

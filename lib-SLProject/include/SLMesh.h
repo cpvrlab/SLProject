@@ -131,7 +131,10 @@ public:
     ~SLMesh() override;
 
     virtual void init(SLNode* node);
-    virtual void draw(SLSceneView* sv, SLNode* node = nullptr, SLMaterial* overrideMat = nullptr);
+    virtual void draw(SLSceneView* sv,
+                      SLNode*      node        = nullptr,
+                      SLMaterial*  overrideMat = nullptr,
+                      bool         depthPass   = false);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
@@ -147,7 +150,7 @@ public:
     virtual void calcMinMax();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO(SLGLProgram* sp);
+    void         generateVAO(SLGLProgram* sp, SLGLVertexArray* vao = nullptr);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
 
 #ifdef SL_HAS_OPTIX
@@ -204,6 +207,7 @@ protected:
     SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
+    SLGLVertexArrayExt _vaoD;      //!< OpenGL VAO for depth material
 
 #ifdef SL_HAS_OPTIX
     SLCudaBuffer<SLVec3f>  _vertexBuffer;
