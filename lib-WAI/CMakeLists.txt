@@ -76,16 +76,17 @@ target_include_directories(${target}
     PRIVATE
 
     PUBLIC
-    ${DEFAULT_INCLUDE_DIRECTORIES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/source
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam
-    ${OpenCV_INCLUDE_DIR}
-    ${g2o_INCLUDE_DIR}
-    ${SL_PROJECT_ROOT}/externals/eigen
-    ${SL_PROJECT_ROOT}/externals/DBoW2
-    ${SL_PROJECT_ROOT}/externals/DUtils
-    ${SL_PROJECT_ROOT}/externals/fbow
-    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
+        ${DEFAULT_INCLUDE_DIRECTORIES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam
+        ${OpenCV_INCLUDE_DIR}
+        ${g2o_INCLUDE_DIR}
+        ${SL_PROJECT_ROOT}/externals
+        ${SL_PROJECT_ROOT}/externals/eigen
+        ${SL_PROJECT_ROOT}/externals/DBoW2
+        ${SL_PROJECT_ROOT}/externals/DUtils
+        ${SL_PROJECT_ROOT}/externals/fbow
+        ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
 
     INTERFACE
     )

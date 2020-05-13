@@ -79,8 +79,16 @@ bool  cpu::detect_OS_x64(){
 ////////////////////////////////////
 
 #   elif defined(__GNUC__) || defined(__clang__)
-void cpu::cpuid(int32_t out[4], int32_t x){ __cpuid_count(x, 0, out[0], out[1], out[2], out[3]); }
-uint64_t cpu::xgetbv(unsigned int index){ uint32_t eax, edx;  __asm__ __volatile__("xgetbv" : "=a"(eax), "=d"(edx) : "c"(index)); return ((uint64_t)edx << 32) | eax;}
+#      ifdef __APPLE__
+#define __cpuid_count(__leaf, __count, __eax, __ebx, __ecx, __edx) \
+                      __asm("cpuid" : "=a"(__eax), "=b" (__ebx), "=c"(__ecx), "=d"(__edx) \
+                      : "0"(__leaf), "2"(__count))
+
+          void cpu::cpuid(int32_t out[4], int32_t x){ __cpuid_count(x, 0, out[0], out[1], out[2], out[3]); }
+#      else
+          void cpu::cpuid(int32_t out[4], int32_t x){ __cpuid_count(x, 0, out[0], out[1], out[2], out[3]); }
+#      endif
+       uint64_t cpu::xgetbv(unsigned int index){ uint32_t eax, edx;  __asm__ __volatile__("xgetbv" : "=a"(eax), "=d"(edx) : "c"(index)); return ((uint64_t)edx << 32) | eax;}
 ////////////////////////////////////////////////////////////////////////////////
 //  Detect 64-bit. We only support x64 on Linux.
 bool  cpu::detect_OS_x64(){ return true;}
