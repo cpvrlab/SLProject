@@ -55,11 +55,30 @@ void TestRunnerGui::build(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
+        if (ImGui::BeginCombo("Config", Utils::getFileName(_selectedConfigFile).c_str()))
+        {
+            std::vector<std::string> configFiles = view->configFiles();
+
+            for (int i = 0; i < configFiles.size(); i++)
+            {
+                std::string configFile = configFiles[i];
+                bool        isSelected = (_selectedConfigFile == configFile);
+                if (ImGui::Selectable(Utils::getFileName(configFile).c_str(), isSelected))
+                {
+                    _selectedConfigFile = configFile;
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus();
+            }
+
+            ImGui::EndCombo();
+        }
+
         if (ImGui::Button("Begin test"))
         {
             if (_selectedMode)
             {
-                view->start((TestRunnerView::TestMode)_selectedMode);
+                view->start((TestRunnerView::TestMode)_selectedMode, _selectedConfigFile);
             }
         }
     }

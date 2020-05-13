@@ -41,22 +41,22 @@ public:
                    std::string         erlebARDir,
                    std::string         calibDir,
                    std::string         fontPath,
-                   std::string         configFile,
                    std::string         vocabularyFile,
                    std::string         imguiIniPath);
 
-    bool start(TestMode testMode);
+    bool start(TestMode testMode, std::string configFile);
     bool update();
 
     // getters
-    int         testIndex() { return (_currentTestIndex + 1); }
-    int         testCount() { return _testInstances.size(); }
-    std::string location() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].location : ""; }
-    std::string area() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].area : ""; }
-    std::string video() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].video : ""; }
-    int         currentFrameIndex() { return _currentFrameIndex; }
-    int         frameIndex() { return _frameCount; }
-    bool        testsRunning() { return _testStarted; }
+    int                      testIndex() { return (_currentTestIndex + 1); }
+    int                      testCount() { return _testInstances.size(); }
+    std::string              location() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].location : ""; }
+    std::string              area() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].area : ""; }
+    std::string              video() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].video : ""; }
+    int                      currentFrameIndex() { return _currentFrameIndex; }
+    int                      frameIndex() { return _frameCount; }
+    bool                     testsRunning() { return _testStarted; }
+    std::vector<std::string> configFiles() { return _configFiles; }
 
 private:
     bool loadSites(const std::string&         erlebARDir,
@@ -74,8 +74,8 @@ private:
     TestMode    _testMode;
     std::string _erlebARDir;
     std::string _calibDir;
-    std::string _configFile;
 
+    std::vector<std::string>  _configFiles;
     std::vector<TestInstance> _testInstances;
 
     // iterators
@@ -85,8 +85,8 @@ private:
     int                          _frameCount;
     bool                         _testStarted = false;
     SENSVideoStream*             _vStream     = nullptr;
-    std::unique_ptr<KPextractor> _extractor;
-    WAIMap*                      _map;
+    std::unique_ptr<KPextractor> _extractor   = nullptr;
+    WAIMap*                      _map         = nullptr;
     int                          _currentFrameIndex;
     CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
     fbow::Vocabulary             _voc;

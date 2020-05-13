@@ -23,6 +23,7 @@ private:
 
     std::map<int, std::string> _availableModes;
     int                        _selectedMode;
+    std::string                _selectedConfigFile;
 };
 
 #endif

@@ -15,7 +15,6 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
                                std::string         erlebARDir,
                                std::string         calibDir,
                                std::string         fontPath,
-                               std::string         configFile,
                                std::string         vocabularyFile,
                                std::string         imguiIniPath)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
@@ -24,7 +23,6 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _testMode(TestMode_None),
     _erlebARDir(erlebARDir),
     _calibDir(calibDir),
-    _configFile(configFile),
     _localMapping(nullptr),
     _loopClosing(nullptr),
     _ftpHost("pallas.bfh.ch:21"),
@@ -38,14 +36,28 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
 
     _voc.readFromFile(vocabularyFile);
 
+    std::string configPath = "TestRunner/config/";
+    std::string configDir  = _erlebARDir + configPath;
+    Utils::makeDirRecurse(configDir);
+
+    std::string errorMsg;
+    FtpUtils::downloadAllFilesFromDir(configDir,
+                                      _ftpHost,
+                                      _ftpUser,
+                                      _ftpPwd,
+                                      _ftpDir + configPath,
+                                      errorMsg);
+
+    _configFiles = Utils::getAllNamesInDir(configDir);
+
     onInitialize();
 }
 
-bool TestRunnerView::start(TestMode testMode)
+bool TestRunnerView::start(TestMode testMode, std::string configFile)
 {
     bool result = false;
 
-    if (loadSites(_erlebARDir, _configFile, _calibDir, _testInstances))
+    if (loadSites(_erlebARDir, configFile, _calibDir, _testInstances))
     {
         _testMode         = testMode;
         _currentTestIndex = 0;
