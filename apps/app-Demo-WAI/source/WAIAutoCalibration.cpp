@@ -418,6 +418,12 @@ void AutoCalibration::calibrate(cv::Size size,
 
     matchings.clear();
 
+    float fy = (float)intrinsic.at<double>(1, 1);
+    float cy = (float)intrinsic.at<double>(1, 2);
+    float fx = (float)intrinsic.at<double>(0, 0);
+    float cx = (float)intrinsic.at<double>(0, 2);
+
     Utils::log("Info", "AAAAAAAA vfov %f\n", calcCameraVerticalFOV(intrinsic));
     Utils::log("Info", "AAAAAAAA hfov %f\n", calcCameraHorizontalFOV(intrinsic));
+    Utils::log("Info", "AAAAAAAA fx fy cx cy %f %f %f %f\n", fx, fy, cx, cy);
 }
