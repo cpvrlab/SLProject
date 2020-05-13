@@ -349,6 +349,7 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     stateGL->clearColorDepthBuffer();
 
     // Draw meshes
+    stateGL->currentMaterial(nullptr);
     drawNodesIntoShadowMap(root, sv, depthMaterial);
     GET_GL_ERROR;
 

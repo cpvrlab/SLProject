@@ -982,7 +982,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light->lookAt(0, 0, 0);
             light->attenuation(0, 0, 1);
             light->createsShadows(true);
-            //light->castsShadows(false);
+            light->castsShadows(false);
             scene->addChild(light);
         }
 
