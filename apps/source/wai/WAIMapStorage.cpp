@@ -337,10 +337,10 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                                              vScaleFactor,
                                              vLevelSigma2,
                                              vInvLevelSigma2,
-                                             nMinX,
-                                             nMinY,
-                                             nMaxX,
-                                             nMaxY,
+                                             (int)nMinX,
+                                             (int)nMinY,
+                                             (int)nMaxX,
+                                             (int)nMaxY,
                                              K);
 
         if (imgDir != "")

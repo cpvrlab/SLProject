@@ -37,7 +37,6 @@ public:
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
     static void buildProperties(SLScene* s, SLSceneView* sv);
-    static void buildResources(SLScene* s);
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
 
@@ -65,7 +64,6 @@ public:
     static SLbool   showChristoffel;     //!< Flag if Christoffel infos should be shown
     static SLbool   showUIPrefs;         //!< Flag if UI preferences
     static SLbool   showTransform;       //!< Flag if tranform dialog should be shown
-    static SLbool   showResources;       //!< Flag if resources dialog should be shown
 
 private:
     static void setTransformEditMode(SLProjectScene* s,
