@@ -95,11 +95,15 @@ public:
 private:
     void SLLightDirect::drawNodesIntoShadowMap(SLNode* node, SLSceneView* sv);
 
-    SLfloat             _arrowRadius;         //!< The sphere lights radius
-    SLfloat             _arrowLength;         //!< Length of direction line
-    SLGLDepthBuffer*    _shadowMap;           //!< Used for shadow mapping
-    SLGLVertexArrayExt* _shadowMapFrustumVAO; //!< Used to draw frustum of shadow-map
-    SLMaterial*         _shadowMapMaterial;   //!< Material used to create shadow-maps
+    SLfloat             _arrowRadius;          //!< The sphere lights radius
+    SLfloat             _arrowLength;          //!< Length of direction line
+    SLGLDepthBuffer*    _shadowMap;            //!< Used for shadow mapping
+    SLGLVertexArrayExt* _shadowMapFrustumVAO;  //!< Used to draw frustum of shadow-map
+    SLMaterial*         _shadowMapMaterial;    //!< Material used to create shadow-maps
+    SLfloat             _shadowMapClipNear;    //!< Near clipping plane of the shadow-map
+    SLfloat             _shadowMapClipFar;     //!< Far clipping plane of the shadow-map
+    SLVec2f             _shadowMapSize;        //!< Size of the region affected by the shadow-map
+    SLVec2i             _shadowMapTextureSize; //!< Size of the shadow-map-texture
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -35,6 +35,10 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     _shadowMap           = nullptr;
     _shadowMapFrustumVAO = nullptr;
     _shadowMapMaterial   = nullptr;
+    _shadowMapClipNear   = 0.1f;
+    _shadowMapClipFar    = 20.0f;
+    _shadowMapSize.set(10.0f, 10.0f);
+    _shadowMapTextureSize.set(128, 128);
 
     if (hasMesh)
     {
@@ -73,7 +77,10 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     _shadowMap           = nullptr;
     _shadowMapFrustumVAO = nullptr;
     _shadowMapMaterial   = nullptr;
-    translate(posx, posy, posz, TS_object);
+    _shadowMapClipNear   = 0.1f;
+    _shadowMapClipFar    = 20.0f;
+    _shadowMapSize.set(10.0f, 10.0f);
+    _shadowMapTextureSize.set(128, 128);
 
     if (hasMesh)
     {
@@ -299,9 +306,6 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
     SLGLState* stateGL = SLGLState::instance();
 
-    const static unsigned int SHADOW_MAP_WIDTH = 1024, SHADOW_MAP_HEIGHT = 1024;
-    static float              borderColor[] = {1.0, 1.0, 1.0, 1.0};
-
     if (_shadowMapMaterial == nullptr)
         _shadowMapMaterial = new SLMaterial(
           nullptr,
@@ -312,14 +316,18 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
           nullptr,
           SLGLProgramManager::get(SP_depth));
 
-    if (_shadowMap == nullptr)
+    static float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+
+    if (_shadowMap == nullptr || _shadowMap->dimensions() != _shadowMapTextureSize)
+    {
+        delete _shadowMap;
         _shadowMap = new SLGLDepthBuffer(
-          SHADOW_MAP_WIDTH,
-          SHADOW_MAP_HEIGHT,
+          _shadowMapTextureSize,
           GL_NEAREST,
           GL_NEAREST,
           GL_CLAMP_TO_BORDER,
           borderColor);
+    }
     _shadowMap->bind();
 
     // Initialize lightspace matrix
@@ -329,17 +337,13 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
               upWS());
 
     // Set viewport
-    SLRecti vpRect = SLRecti(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
-    stateGL->viewport(vpRect.x, vpRect.y, vpRect.width, vpRect.height);
+    stateGL->viewport(0, 0, _shadowMapTextureSize.x, _shadowMapTextureSize.y);
 
     // Set projection
-    SLfloat clipNear = 0.1f;
-    SLfloat clipFar  = 20.0f;
-    SLfloat radius   = 3.0;
-
+    SLVec2f halfSize    = _shadowMapSize / 2;
     stateGL->stereoEye  = ET_center;
     stateGL->projection = P_monoOrthographic;
-    stateGL->projectionMatrix.ortho(-radius, radius, -radius, radius, -clipNear, clipFar);
+    stateGL->projectionMatrix.ortho(-halfSize.x, halfSize.x, -halfSize.y, halfSize.y, -_shadowMapClipNear, _shadowMapClipFar);
 
     // Save the light projection matrix
     stateGL->lightProjection[_id] = stateGL->projectionMatrix * vm;

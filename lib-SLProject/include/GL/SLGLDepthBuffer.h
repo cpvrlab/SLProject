@@ -18,23 +18,22 @@
 class SLGLDepthBuffer
 {
 public:
-    SLGLDepthBuffer(SLuint w,
-                    SLuint h,
-                    SLenum magFilter     = GL_NEAREST,
-                    SLenum minFilter     = GL_NEAREST,
-                    SLint  wrap          = GL_REPEAT,
-                    float  borderColor[] = nullptr);
+    SLGLDepthBuffer(SLVec2i dimensions,
+                    SLenum  magFilter     = GL_NEAREST,
+                    SLenum  minFilter     = GL_NEAREST,
+                    SLint   wrap          = GL_REPEAT,
+                    float   borderColor[] = nullptr);
 
     ~SLGLDepthBuffer();
 
-    void activateAsTexture(int loc);
-    void bind();
+    SLVec2i dimensions() { return _dimensions; }
+    void    activateAsTexture(int loc);
+    void    bind();
 
 private:
-    SLuint _width;
-    SLuint _height;
-    SLuint _fboID;
-    SLuint _texID;
+    SLVec2i _dimensions;
+    SLuint  _fboID;
+    SLuint  _texID;
 };
 //-----------------------------------------------------------------------------
 #endif //SLGLDEPTHBUFFER_H

@@ -14,12 +14,11 @@
 #include <SLGLDepthBuffer.h>
 
 //-----------------------------------------------------------------------------
-SLGLDepthBuffer::SLGLDepthBuffer(SLuint w,
-                                 SLuint h,
-                                 SLenum magFilter,
-                                 SLenum minFilter,
-                                 SLint  wrap,
-                                 float  borderColor[]) : _width(w), _height(h)
+SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
+                                 SLenum  magFilter,
+                                 SLenum  minFilter,
+                                 SLint   wrap,
+                                 float   borderColor[]) : _dimensions(dimensions)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -48,8 +47,8 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLuint w,
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_DEPTH_COMPONENT,
-                 w,
-                 h,
+                 _dimensions.x,
+                 _dimensions.y,
                  0,
                  GL_DEPTH_COMPONENT,
                  GL_FLOAT,
