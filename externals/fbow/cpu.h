@@ -48,7 +48,7 @@ private:
     static bool inline detect_OS_AVX512();
     static inline uint64_t xgetbv(unsigned int x);
 };
-#if !defined(__ANDROID__) && !defined(TARGET_OS_IOS)
+#if defined(__ANDROID__) || defined(TARGET_OS_IOS)
 
 void cpu::cpuid(int32_t out[4], int32_t x){}
 #else
