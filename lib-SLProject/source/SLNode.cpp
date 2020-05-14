@@ -654,7 +654,7 @@ SLNode* SLNode::copyRec()
     copy->_drawBits       = _drawBits;
     copy->_aabb           = _aabb;
     copy->_castsShadows    = _castsShadows;
-    copy->_receivesShadows = _castsShadows;
+    copy->_receivesShadows = _receivesShadows;
 
     if (_animation)
         copy->_animation = new SLAnimation(*_animation);

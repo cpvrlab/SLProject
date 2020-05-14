@@ -84,6 +84,13 @@ void SLGLDepthBuffer::activateAsTexture(int loc)
     glUniform1i(loc, _texID);
 }
 //-----------------------------------------------------------------------------
+float SLGLDepthBuffer::getDepth(SLint x, SLint y)
+{
+    float depth;
+    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    return depth;
+}
+//-----------------------------------------------------------------------------
 void SLGLDepthBuffer::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);

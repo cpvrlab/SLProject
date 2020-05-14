@@ -49,6 +49,7 @@ public:
 
     // Other methods
     void drawFrustum();
+    void drawRays();
     void updateMVP(SLLight* light, SLProjection projection);
     void render(SLSceneView* sv, SLNode* root);
 
@@ -60,6 +61,7 @@ private:
     SLMat4f             _mvp;         //!< Model-view-projection matrix
     SLGLDepthBuffer*    _depthBuffer; //!< Framebuffer and texture
     SLGLVertexArrayExt* _frustumVAO;  //!< Visualization of light-space-furstum
+    SLVec2f             _rayCount;    //!< Amount of rays drawn by drawRays()
     SLMaterial*         _mat;         //!< Material used to render the shadow-map
     SLfloat             _clipNear;    //!< Near clipping plane
     SLfloat             _clipFar;     //!< Far clipping plane

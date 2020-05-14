@@ -155,7 +155,10 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
 
         // Draw the volume affected by the shadow-map
         if (_createsShadows && _isOn && sv->s().selectedNode() == this)
+        {
             _shadowMap->drawFrustum();
+            _shadowMap->drawRays();
+        }
     }
 }
 //-----------------------------------------------------------------------------

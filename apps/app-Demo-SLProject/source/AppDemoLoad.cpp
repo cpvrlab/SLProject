@@ -976,6 +976,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
+            //SLLightDirect* light = new SLLightDirect(s, s);
             light->ambient(SLCol4f(0, 0, 0));
             SLCol4f color;
             color.hsva2rgba(SLVec3f(360.0f * i / SL_MAX_LIGHTS, 1.0f, 1.0f));

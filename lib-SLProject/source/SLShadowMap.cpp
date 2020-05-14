@@ -26,9 +26,10 @@ SLShadowMap::SLShadowMap()
 {
     _depthBuffer = nullptr;
     _frustumVAO  = nullptr;
-    _mat         = nullptr;
-    _clipNear    = 0.1f;
-    _clipFar     = 20.0f;
+    _rayCount.set(16, 16);
+    _mat      = nullptr;
+    _clipNear = 0.1f;
+    _clipFar  = 20.0f;
     _size.set(8.0f, 8.0f);
     _halfSize = _size / 2;
     _textureSize.set(512, 512);
@@ -40,9 +41,8 @@ SLShadowMap::~SLShadowMap()
     delete _frustumVAO;
     delete _mat;
 }
-
 //-----------------------------------------------------------------------------
-/*! SLShadowMap::drawShadowMapFrustum draws the volume affected by the shadow-map
+/*! SLShadowMap::drawFrustum draws the volume affected by the shadow-map
 */
 void SLShadowMap::drawFrustum()
 {
@@ -71,15 +71,61 @@ void SLShadowMap::drawFrustum()
         _frustumVAO->generateVertexPos(&P);
     }
 
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->modelViewMatrix.setMatrix(
-      stateGL->viewMatrix * _mvp.inverted());
+    SLGLState* stateGL       = SLGLState::instance();
+    stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp.inverted();
 
     _frustumVAO->drawArrayAsColored(PT_lines,
                                     SLCol3f(0, 1, 0),
                                     1.0f,
                                     0,
                                     (SLuint)P.size());
+}
+//-----------------------------------------------------------------------------
+/*! SLShadowMap::drawRays draws sample rays of the light.
+*/
+void SLShadowMap::drawRays()
+{
+    SLGLState* stateGL = SLGLState::instance();
+    SLVVec3f   P;
+
+    _depthBuffer->bind();
+
+    SLint w = _rayCount.x + 1;
+    SLint h = _rayCount.y + 1;
+
+    for (SLint x = 1; x < w; x++)
+    {
+        for (SLint y = 1; y < h; y++)
+        {
+            SLint pixelX = (SLint)round((SLfloat)_textureSize.x * x / w);
+            SLint pixelY = (SLint)round((SLint)_textureSize.y * y / h);
+
+            SLfloat viewSpaceX = Utils::lerp((SLfloat)x / w, -1.0f, 1.0f);
+            SLfloat viewSpaceY = Utils::lerp((SLfloat)y / w, -1.0f, 1.0f);
+
+            SLfloat depth = _depthBuffer->getDepth(pixelX, pixelY) * 2 - 1;
+
+            if (depth == 1.0f) continue;
+
+            P.push_back(SLVec3f(viewSpaceX, viewSpaceY, -1.0f));
+            P.push_back(SLVec3f(viewSpaceX, viewSpaceY, depth));
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (P.size() == 0) return;
+
+    SLGLVertexArrayExt vao;
+    vao.generateVertexPos(&P);
+
+    stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp.inverted();
+
+    vao.drawArrayAsColored(PT_lines,
+                           SLCol3f(1, 1, 0),
+                           1.0f,
+                           0,
+                           (SLuint)P.size());
 }
 //-----------------------------------------------------------------------------
 /*!

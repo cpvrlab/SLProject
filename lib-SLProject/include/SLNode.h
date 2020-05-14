@@ -269,7 +269,7 @@ public:
     }
     void         animation(SLAnimation* a) { _animation = a; }
     void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
-    void         receivesShadows(SLbool receivesShadows) { _castsShadows = receivesShadows; }
+    void         receivesShadows(SLbool receivesShadows) { _receivesShadows = receivesShadows; }
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
