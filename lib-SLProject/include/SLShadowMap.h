@@ -12,11 +12,13 @@
 #define SLSHADOWMAP_H
 
 #include <SL.h>
+#include <SLEnums.h>
 
 class SLGLDepthBuffer;
 class SLGLVertexArrayExt;
 class SLLight;
 class SLLightDirect;
+class SLLightSpot;
 class SLMaterial;
 class SLMaterial;
 class SLNode;
@@ -42,26 +44,27 @@ public:
 
     // Getters
     SLVec2f          size() { return _size; }
-    SLMat4f          lightSpace() { return _mvp; }
+    SLMat4f          mvp() { return _mvp; }
     SLGLDepthBuffer* depthBuffer() { return _depthBuffer; }
 
     // Other methods
     void drawFrustum();
-    void updateLightSpaceMatrix(SLLightDirect* light);
+    void updateMVP(SLLight* light, SLProjection projection);
     void render(SLSceneView* sv, SLNode* root);
 
 private:
     void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv);
 
-    SLMat4f             _vm;          //!< Look-at matrix of the shadow-map
-    SLMat4f             _p;           //!< Projection of the shadow-map
-    SLMat4f             _mvp;         //!< Used to convert WorldSpace to LightSpace
+    SLMat4f             _v;           //!< View matrix
+    SLMat4f             _p;           //!< Projection matrix
+    SLMat4f             _mvp;         //!< Model-view-projection matrix
     SLGLDepthBuffer*    _depthBuffer; //!< Framebuffer and texture
     SLGLVertexArrayExt* _frustumVAO;  //!< Visualization of light-space-furstum
     SLMaterial*         _mat;         //!< Material used to render the shadow-map
     SLfloat             _clipNear;    //!< Near clipping plane
     SLfloat             _clipFar;     //!< Far clipping plane
-    SLVec2f             _size;        //!< Height and width of the frustum
+    SLVec2f             _size;        //!< Height and width of the frustum (only for SLLightDirect)
+    SLVec2f             _halfSize;    //!< _size divided by 2
     SLVec2i             _textureSize; //!< Size of the shadow-map-texture
 };
 //-----------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 class SLSceneView;
 class SLRay;
 class SLScene;
+class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
@@ -55,6 +56,7 @@ public:
                 SLfloat         diffPower    = 10.0f,
                 SLfloat         specPower    = 10.0f,
                 SLbool          hasMesh      = true);
+    ~SLLightSpot();
 
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
@@ -69,6 +71,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Setters
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
@@ -115,8 +118,9 @@ public:
 #endif
 
 private:
-    SLfloat     _radius;  //!< The sphere lights radius
-    SLSamples2D _samples; //!< 2D samplepoints for soft shadows
+    SLfloat      _radius;    //!< The sphere lights radius
+    SLSamples2D  _samples;   //!< 2D samplepoints for soft shadows
+    SLShadowMap* _shadowMap; //!< Used for shadow-mapping
 };
 //-----------------------------------------------------------------------------
 #endif

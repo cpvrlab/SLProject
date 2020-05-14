@@ -24,6 +24,7 @@ SLLight::SLLight(SLfloat ambiPower,
     _spotCutOffDEG    = 180.0f;
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
     _spotExponent     = 1.0f;
+    _createsShadows   = false;
 
     // Set parameters of inherited SLMaterial
     _ambient.set(ambiPower, ambiPower, ambiPower);

@@ -74,7 +74,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
-    void    renderShadowMap(SLSceneView* sv, SLNode* root);
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Getters
     SLfloat radius() { return _arrowRadius; }

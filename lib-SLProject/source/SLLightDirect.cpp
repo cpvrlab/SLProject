@@ -87,7 +87,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
 //-----------------------------------------------------------------------------
 SLLightDirect::~SLLightDirect()
 {
-    if (_shadowMap != nullptr) delete _shadowMap;
+    delete _shadowMap;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -229,7 +229,7 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
 void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
     if (_shadowMap == nullptr) _shadowMap = new SLShadowMap();
-    _shadowMap->updateLightSpaceMatrix(this);
+    _shadowMap->updateMVP(this, P_monoOrthographic);
     _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ void SLLightDirect::setState()
 
         if (_shadowMap != nullptr)
         {
-            stateGL->lightSpace[_id] = _shadowMap->lightSpace();
+            stateGL->lightSpace[_id] = _shadowMap->mvp();
             stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
         }
     }

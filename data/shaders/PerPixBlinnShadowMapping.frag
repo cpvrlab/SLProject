@@ -48,6 +48,23 @@ uniform mat3   u_stereoColorFilter;      //!< color filter matrix
 uniform sampler2D u_shadowMap[8];        //!< shadow maps of the lights
 
 //-----------------------------------------------------------------------------
+bool shadowTest(in int i) // Light number
+{
+    if (u_lightCreatesShadows[i]) {
+        vec3 projCoords = v_P_LS[i].xyz / v_P_LS[i].w;
+        projCoords = projCoords * 0.5 + 0.5;
+
+        float closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
+        float currentDepth = projCoords.z;
+
+        if (currentDepth > closestDepth + 0.005) {
+            return true;
+        }
+    }
+
+    return false;
+}
+//-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal at P_VS
                  in    vec3 E,   // Normalized vector from P_VS to eye in VS
@@ -69,20 +86,7 @@ void DirectLight(in    int  i,   // Light number
 
     // Accumulate directional light intesities w/o attenuation
     Ia += u_lightAmbient[i];
-
-    // Test if the fragment is in a shadow
-    if (u_lightCreatesShadows[i]) {
-        vec3 projCoords = v_P_LS[i].xyz / v_P_LS[i].w;
-        projCoords = projCoords * 0.5 + 0.5;
-
-        float closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
-        float currentDepth = projCoords.z;
-
-        if (currentDepth > closestDepth + 0.005) {
-            return;
-        }
-    }
-
+    if (shadowTest(i)) return;
     Id += u_lightDiffuse[i] * diffFactor;
     Is += u_lightSpecular[i] * specFactor;
 }
@@ -130,6 +134,7 @@ void PointLight (in    int  i,      // Light number
 
     // Accumulate light intesities
     Ia += att * u_lightAmbient[i];
+    if (shadowTest(i)) return;
     Id += att * u_lightDiffuse[i] * diffFactor;
     Is += att * u_lightSpecular[i] * specFactor;
 }

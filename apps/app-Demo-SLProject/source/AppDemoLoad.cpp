@@ -972,15 +972,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         scene->addChild(cam1);
 
-        // Define light sources
-        for (int i = 0; i < 3; ++i)
+                // Define light sources
+        for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
-            SLLightDirect* light = new SLLightDirect(s, s);
+            SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
             light->ambient(SLCol4f(0, 0, 0));
-            light->diffuse(SLCol4f(i == 0, i == 1, i == 2));
-            light->translation(2 * sin((2 * PI / 3) * i), 5, 2 * cos((2 * PI / 3) * i));
+            SLCol4f color;
+            color.hsva2rgba(SLVec3f(360.0f * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
+            light->diffuse(color);
+            light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
             light->lookAt(0, 0, 0);
-            light->attenuation(0, 0, 1);
+            light->attenuation(0.1f, 0.1f, 0.1f);
             light->createsShadows(true);
             scene->addChild(light);
         }
@@ -994,7 +996,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
         anim->createEllipticNodeTrack(sphereNode, 1.0f, A_x, 1.0f, A_z);
 
-        // Add a box which catches shadows
+        // Add a box which receives shadows
         SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
         boxNode->receivesShadows(true);
         scene->addChild(boxNode);
@@ -3035,7 +3037,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         vocFileName = "voc_fbow.bin";
 #else
         vocFileName = "ORBvoc.bin";
-#endif        
+#endif
         tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {SLApplication::calibIniPath, SLApplication::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;

@@ -16,6 +16,7 @@
 #include <SLGLVertexArrayExt.h>
 #include <SLLight.h>
 #include <SLLightDirect.h>
+#include <SLLightSpot.h>
 #include <SLMaterial.h>
 #include <SLNode.h>
 #include <SLShadowMap.h>
@@ -29,14 +30,15 @@ SLShadowMap::SLShadowMap()
     _clipNear    = 0.1f;
     _clipFar     = 20.0f;
     _size.set(8.0f, 8.0f);
+    _halfSize = _size / 2;
     _textureSize.set(512, 512);
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::~SLShadowMap()
 {
-    if (_depthBuffer != nullptr) delete _depthBuffer;
-    if (_frustumVAO != nullptr) delete _frustumVAO;
-    if (_mat != nullptr) delete _mat;
+    delete _depthBuffer;
+    delete _frustumVAO;
+    delete _mat;
 }
 
 //-----------------------------------------------------------------------------
@@ -81,24 +83,35 @@ void SLShadowMap::drawFrustum()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLShadowMap::updateLightSpaceMatrix creates a lightSpace matrix for a directional
+SLShadowMap::updateMVP creates a lightSpace matrix for a directional
 light.
 */
-void SLShadowMap::updateLightSpaceMatrix(SLLightDirect* light)
+void SLShadowMap::updateMVP(SLLight* light, SLProjection projection)
 {
-    // Set view-model matrix
-    _vm.lookAt(light->positionWS().vec3(),
-               light->positionWS().vec3() + light->spotDirWS(),
-               light->upWS());
+    // Set view matrix
+    SLNode* node = dynamic_cast<SLNode*>(light);
+    _v.lookAt(light->positionWS().vec3(),
+              light->positionWS().vec3() + node->forwardOS(),
+              node->upWS());
 
     // Set projection matrix
-    SLVec2f halfSize = _size / 2;
-    _p.ortho(-halfSize.x, halfSize.x, -halfSize.y, halfSize.y, -_clipNear, _clipFar);
+    switch (projection)
+    {
+        case P_monoOrthographic:
+            _p.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, _clipNear, _clipFar);
+            break;
+
+        case P_monoPerspective:
+            _p.perspective(light->spotCutOffDEG() * 2, 1.0f, _clipNear, _clipFar);
+            break;
+
+        default:
+            SL_EXIT_MSG("Unsupported light projection");
+    }
 
     // Set the model-view-projection matrix
-    _mvp = _p * _vm;
+    _mvp = _p * _v;
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
@@ -106,10 +119,8 @@ cast shadows
 */
 void SLShadowMap::drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv)
 {
-    SLGLState* stateGL = SLGLState::instance();
-
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-    stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+    SLGLState* stateGL       = SLGLState::instance();
+    stateGL->modelViewMatrix = _v * node->updateAndGetWM();
 
     if (node->castsShadows())
         for (auto* mesh : node->meshes())
@@ -125,6 +136,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 {
     SLGLState* stateGL = SLGLState::instance();
 
+    // Create Material
     if (_mat == nullptr)
         _mat = new SLMaterial(
           nullptr,
@@ -135,6 +147,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
           nullptr,
           SLGLProgramManager::get(SP_depth));
 
+    // Create depthbuffer
     static float borderColor[] = {1.0, 1.0, 1.0, 1.0};
 
     if (_depthBuffer == nullptr || _depthBuffer->dimensions() != _textureSize)
@@ -152,14 +165,9 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
     // Set viewport
     stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
 
-    // Set projection
-    stateGL->stereoEye        = ET_center;
-    stateGL->projection       = P_monoOrthographic;
+    // Set matrices
+    stateGL->viewMatrix       = _v;
     stateGL->projectionMatrix = _p;
-
-    // Set view
-    stateGL->modelViewMatrix.identity();
-    stateGL->viewMatrix.setMatrix(_vm);
 
     // Clear color buffer
     stateGL->clearColor(SLCol4f::BLACK);
