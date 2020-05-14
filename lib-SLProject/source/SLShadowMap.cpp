@@ -42,7 +42,7 @@ SLShadowMap::~SLShadowMap()
     delete _mat;
 }
 //-----------------------------------------------------------------------------
-/*! SLShadowMap::drawFrustum draws the volume affected by the shadow-map
+/*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
 */
 void SLShadowMap::drawFrustum()
 {
@@ -90,18 +90,21 @@ void SLShadowMap::drawRays()
 
     _depthBuffer->bind();
 
-    SLint w = _rayCount.x + 1;
-    SLint h = _rayCount.y + 1;
+    SLint w = _rayCount.x;
+    SLint h = _rayCount.y;
 
-    for (SLint x = 1; x < w; x++)
+    SLfloat pixelWidth  = (float)_textureSize.x / w;
+    SLfloat pixelHeight = (float)_textureSize.y / h;
+
+    for (SLint x = 0; x < w; ++x)
     {
-        for (SLint y = 1; y < h; y++)
+        for (SLint y = 0; y < h; ++y)
         {
-            SLint pixelX = (SLint)round((SLfloat)_textureSize.x * x / w);
-            SLint pixelY = (SLint)round((SLint)_textureSize.y * y / h);
+            SLint pixelX = (int)pixelWidth * x;
+            SLint pixelY = (int)pixelHeight * y;
 
-            SLfloat viewSpaceX = Utils::lerp((SLfloat)x / w, -1.0f, 1.0f);
-            SLfloat viewSpaceY = Utils::lerp((SLfloat)y / w, -1.0f, 1.0f);
+            SLfloat viewSpaceX = Utils::lerp((x + 0.5f) / w, -1.0f, 1.0f);
+            SLfloat viewSpaceY = Utils::lerp((y + 0.5f) / w, -1.0f, 1.0f);
 
             SLfloat depth = _depthBuffer->getDepth(pixelX, pixelY) * 2 - 1;
 

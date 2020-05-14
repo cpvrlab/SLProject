@@ -160,7 +160,7 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
 
-        // Draw the volume affected by the shadow-map
+        // Draw the volume affected by the shadow map
         if (_createsShadows && _isOn && sv->s().selectedNode() == this)
         {
             _shadowMap->drawFrustum();

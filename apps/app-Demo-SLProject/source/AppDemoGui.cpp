@@ -24,6 +24,7 @@
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
+#include <SLShadowMap.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <SLNode.h>
@@ -591,7 +592,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             ImGui::Text("Resources:");
-
 
             if (ImGui::TreeNode("Meshes"))
             {
@@ -2459,6 +2459,70 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         ImGui::Text("Translation  : %s", trn.toString().c_str());
                         ImGui::Text("Rotation     : %s", rot.toString().c_str());
                         ImGui::Text("Scaling      : %s", scl.toString().c_str());
+                        ImGui::TreePop();
+                    }
+
+                    // Properties related to shadow mapping
+                    if (ImGui::TreeNode("Shadow Mapping"))
+                    {
+                        SLbool castsShadows = node->castsShadows();
+                        if (ImGui::Checkbox("Casts shadows", &castsShadows))
+                            node->castsShadows(castsShadows);
+
+                        SLbool receivesShadows = node->receivesShadows();
+                        if (ImGui::Checkbox("Receives shadows", &receivesShadows))
+                            node->receivesShadows(receivesShadows);
+
+                        if (SLLight* light = dynamic_cast<SLLight*>(node))
+                        {
+                            SLbool createsShadows = light->createsShadows();
+                            if (ImGui::Checkbox("Creates shadows", &createsShadows))
+                                light->createsShadows(createsShadows);
+
+                            if (createsShadows)
+                            {
+                                SLShadowMap* shadowMap = nullptr;
+
+                                if (SLLightSpot* spotLight = dynamic_cast<SLLightSpot*>(light))
+                                    shadowMap = spotLight->shadowMap();
+
+                                if (SLLightRect* rectLight = dynamic_cast<SLLightRect*>(light))
+                                    shadowMap = rectLight->shadowMap();
+
+                                if (SLLightDirect* directLight = dynamic_cast<SLLightDirect*>(light))
+                                    shadowMap = directLight->shadowMap();
+
+                                if (shadowMap != nullptr)
+                                {
+                                    SLfloat clipNear = shadowMap->clipNear();
+                                    if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.1f, 100.0f))
+                                        shadowMap->clipNear(clipNear);
+
+                                    SLfloat clipFar = shadowMap->clipFar();
+                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, 0.1f, 100.0f))
+                                        shadowMap->clipFar(clipFar);
+
+                                    SLVec2i textureSize = shadowMap->textureSize();
+                                    if (ImGui::InputInt2("Texture resolution", (int*)&textureSize))
+                                        shadowMap->textureSize(textureSize);
+
+                                    if (typeid(*node) == typeid(SLLightRect) ||
+                                        typeid(*node) == typeid(SLLightDirect))
+                                    {
+                                        SLVec2f size = shadowMap->size();
+                                        if (ImGui::InputFloat2("Size", (float*)&size))
+                                            shadowMap->size(size);
+                                    }
+
+                                    SLVec2i rayCount = shadowMap->rayCount();
+                                    if (ImGui::InputInt2("Visualization rays", (int*)&rayCount))
+                                        shadowMap->rayCount(rayCount);
+
+                                    ImGui::Text("Light space matrix:\n%s", shadowMap->mvp().toString().c_str());
+                                }
+                            }
+                        }
+
                         ImGui::TreePop();
                     }
 

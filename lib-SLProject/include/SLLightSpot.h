@@ -75,12 +75,14 @@ public:
 
     // Setters
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
+    void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
 
     // Getters
-    SLfloat radius() { return _radius; }
-    SLuint  samples() { return _samples.samples(); }
-    SLVec4f positionWS() const override { return translationWS(); }
-    SLVec3f spotDirWS() override { return forwardWS(); }
+    SLfloat      radius() { return _radius; }
+    SLuint       samples() { return _samples.samples(); }
+    SLVec4f      positionWS() const override { return translationWS(); }
+    SLVec3f      spotDirWS() override { return forwardWS(); }
+    SLShadowMap* shadowMap() { return _shadowMap; }
 
 #ifdef SL_HAS_OPTIX
     Light optixLight(bool doDistributed)
@@ -120,7 +122,7 @@ public:
 private:
     SLfloat      _radius;    //!< The sphere lights radius
     SLSamples2D  _samples;   //!< 2D samplepoints for soft shadows
-    SLShadowMap* _shadowMap; //!< Used for shadow-mapping
+    SLShadowMap* _shadowMap; //!< Used for shadow mapping
 };
 //-----------------------------------------------------------------------------
 #endif
