@@ -22,7 +22,10 @@ float AutoCalibration::calibrate_opencv(cv::Mat& intrinsic,
                         tvecs,
                         cv::CALIB_USE_INTRINSIC_GUESS |
                         cv::CALIB_ZERO_TANGENT_DIST | 
-                        cv::CALIB_FIX_ASPECT_RATIO);
+                        cv::CALIB_FIX_ASPECT_RATIO |
+                        cv::CALIB_FIX_PRINCIPAL_POINT |
+                        cv::CALIB_FIX_S1_S2_S3_S4 |
+                        cv::CALIB_FIX_K1 | CALIB_FIX_K2 | CALIB_FIX_K3 | CALIB_FIX_K4 | CALIB_FIX_K5 | CALIB_FIX_K6);
 
     distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
 
@@ -115,38 +118,44 @@ void AutoCalibration::computeMatrix(cv::Size size, cv::Mat& mat, cv::Mat &distor
     distortion = (Mat_<float>(1, 5) << 0, 0, 0, 0, 0);
 }
 
-void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
-                                          cv::Mat &distortion,
+bool AutoCalibration::calibrateBruteForce(cv::Mat&                               intrinsic,
                                           std::vector<std::vector<cv::Point2f>>& vvP2D,
                                           std::vector<std::vector<cv::Point3f>>& vvP3Dw,
-                                          std::vector<cv::Mat>& rvecs,
-                                          std::vector<cv::Mat>& tvecs,
-                                          cv::Size size,
-                                          float &error)
+                                          std::vector<cv::Mat>&                  rvecs,
+                                          std::vector<cv::Mat>&                  tvecs,
+                                          cv::Size                               size,
+                                          float&                                 error)
 {
+    bool ret = false;
     error = 999999999.0;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 6; i++)
     {
-        float fov = 30 + 10 * i;
+        float fov = 57 + 3 * i;
         std::vector<cv::Mat> rotvecs, trvecs;
         cv::Mat matrix;
+        cv::Mat distortion;
         computeMatrix(size, matrix, distortion, fov);
 
         float err = calibrate_opencv(matrix, distortion, size, rotvecs, trvecs, vvP2D, vvP3Dw);
 
-        if (err < error)
+        float fx = matrix.at<double>(0, 0);
+        float cx = matrix.at<double>(0, 2);
+        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+
+        if (err < error && hfov > 50 && hfov < 90)
         {
             error     = err;
             intrinsic = matrix.clone();
             rvecs     = rotvecs;
             tvecs     = trvecs;
+            ret       = true;
         }
     }
+    return ret;
 }
 
-void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
-                                          cv::Mat &distortion,
+bool AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
                                           std::vector<cv::Point2f>& vP2D,
                                           std::vector<cv::Point3f>& vP3Dw,
                                           cv::Mat& rvec,
@@ -154,11 +163,12 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
                                           cv::Size size,
                                           float &error)
 {
+    bool ret = false;
     error = 999999999.0;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 6; i++)
     {
-        float fov = 30 + 10 * i;
+        float fov = 57 + 3 * i;
         std::vector<cv::Mat> rotvecs, trvecs;
         rotvecs.resize(1);
         trvecs.resize(1);
@@ -169,23 +179,24 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
         vvP3Dw.push_back(vP3Dw);
 
         cv::Mat matrix;
-        cv::Mat distort;
-        computeMatrix(size, matrix, distort, fov);
-        float err = calibrate_opencv(matrix, distort, size, rotvecs, trvecs, vvP2D, vvP3Dw);
+        cv::Mat distortion;
+        computeMatrix(size, matrix, distortion, fov);
+        float err = calibrate_opencv(matrix, distortion, size, rotvecs, trvecs, vvP2D, vvP3Dw);
 
-        if (err < error)
+        float fx = matrix.at<double>(0, 0);
+        float cx = matrix.at<double>(0, 2);
+        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+
+        if (err < error && hfov > 50 && hfov < 90)
         {
-            float fy  = matrix.at<double>(1, 1);
-            float cy  = matrix.at<double>(1, 2);
-            float fov = 2.0 * atan2(cy, fy) * 180.0 / M_PI;
-
-            error        = err;
-            intrinsic    = matrix.clone();
-            distortion   = distort.clone();
-            rvec         = rotvecs[0];
-            tvec         = trvecs[0];
+            error     = err;
+            intrinsic = matrix.clone();
+            rvec      = rotvecs[0];
+            tvec      = trvecs[0];
+            ret       = true;
         }
     }
+    return ret;
 }
 
 float AutoCalibration::ransac_frame_points(cv::Size&                 size,
@@ -217,7 +228,6 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
 
     //Model parameters to optimize
     cv::Mat matrix;
-    cv::Mat distort;
     float total_error = 999999999.0;
 
     float error;
@@ -238,15 +248,19 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
         if (skp.size() < 6)
             continue;
 
-        calibrateBruteForce(matrix, distort, skp, swp, rvec, tvec, size, error);
+        if (!calibrateBruteForce(matrix, skp, swp, rvec, tvec, size, error))
+            continue;
 
         //add complement points that match the current model
-        cv::projectPoints(nswp, rvec, tvec, matrix, distort, projected);
+
+        cv::Mat distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
+        cv::projectPoints(nswp, rvec, tvec, matrix, distortion, projected);
 
         for (int i = 0; i < nswp.size(); i++)
         {
             cv::Point2f p = nskp[i] - projected[i];
             float       t = sqrt(p.x * p.x + p.y * p.y);
+
             if (t < threshold)
             {
                 skp.push_back(nskp[i]);
@@ -254,25 +268,20 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
             }
         }
 
-        if (skp.size() < 6)
+        if (!calibrateBruteForce(matrix, skp, swp, rvec, tvec, size, error))
             continue;
 
-        calibrateBruteForce(matrix, distort, skp, swp, rvec, tvec, size, error);
+        float fx  = matrix.at<double>(0, 0);
+        float cx  = matrix.at<double>(0, 2);
+        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
 
         // If there is more than d elements that fit the current model and
         //  the total error with this model is the lowest we have so far => keeps this model
-        if (error < total_error)
+        if (error < total_error && hfov > 50 && hfov < 90)
         {
-            float fy  = matrix.at<double>(1, 1);
-            float cy  = matrix.at<double>(1, 2);
-            float fov = 2.0 * atan2(cy, fy) * 180.0 / M_PI;
-
-            if (fov > 30 && fov < 50) //filter impossible values
-            {
-                total_error = error;
-                outKeypoints = skp;
-                outWorldpoints = swp;
-            }
+            total_error    = error;
+            outKeypoints   = skp;
+            outWorldpoints = swp;
         }
     }
 
@@ -281,7 +290,6 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
 
 float AutoCalibration::calibrate_frames_ransac(cv::Size&                              size,
                                                cv::Mat&                               intrinsic,
-                                               cv::Mat&                               distortion,
                                                int                                    nbIter,
                                                float                                  threshold,
                                                int                                    iniModelSize,
@@ -300,10 +308,10 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
 
     //Model parameters to optimize
     cv::Mat              matrix;
-    cv::Mat              distort;
     std::vector<cv::Mat> rvecs, tvecs;
     float                total_error = 999999999.0;
     float                error       = 0;
+
 
     for (int k = 0; k < nbIter; k++)
     {
@@ -317,15 +325,17 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
 
         // Compute parameters for selected model
         float error;
-        calibrateBruteForce(matrix, distort, skp, swp, rvecs, tvecs, size, error);
+        if (!calibrateBruteForce(matrix, skp, swp, rvecs, tvecs, size, error))
+            continue;
 
         // Add complement points that match the current model
         for (int i = 0; i < nswp.size(); i++)
         {
             std::vector<cv::Point2f> projected;
             cv::Mat rvec, tvec;
-            cv::solvePnP(nswp[i], nskp[i], matrix, distort, rvec, tvec);
-            cv::projectPoints(nswp[i], rvec, tvec, matrix, distort, projected);
+            cv::Mat distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
+            cv::solvePnP(nswp[i], nskp[i], matrix, distortion, rvec, tvec);
+            cv::projectPoints(nswp[i], rvec, tvec, matrix, distortion, projected);
 
             for (int j = 0; j < nskp[i].size(); j++)
             {
@@ -341,20 +351,19 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
         }
 
         //Compute error on complete model
-        calibrateBruteForce(matrix, distortion, skp, swp, rvecs, tvecs, size, error);
+        calibrateBruteForce(matrix, skp, swp, rvecs, tvecs, size, error);
+
+        float fx  = matrix.at<double>(0, 0);
+        float cx  = matrix.at<double>(0, 2);
+        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
 
         // If the total error with this model is the lowest we have so far => keeps this model
-        if (error < total_error)
+        if (error < total_error && hfov > 50 && hfov < 90)
         {
-            float fy  = matrix.at<double>(1, 1);
-            float cy  = matrix.at<double>(1, 2);
-            float fov = 360.0 * atan2(cy, fy) / M_PI;
-
-            if (fov > 30 && fov < 50)
+            if (hfov > 50 && hfov < 90)
             {
                 total_error  = error;
                 intrinsic    = matrix.clone();
-                distortion   = distort;
             }
         }
     }
@@ -399,19 +408,21 @@ void AutoCalibration::calibrate(cv::Size size,
                                           preselectedKeyPoints[nbFill],
                                           preselectedWorldPoints[nbFill]);
 
-        if (preselectedKeyPoints[nbFill].size() > 0)
+        if (preselectedKeyPoints[nbFill].size() > 6)
             nbFill++;
     }
 
+    std::cout << "nbFill " << nbFill << std::endl;
+    if (nbFill < 3)
+        return;
+
     cv::Mat intrinsic;
-    cv::Mat distortion;
 
     float error = calibrate_frames_ransac(size,
                                           intrinsic,
-                                          distortion,
                                           10,
                                           3.0, //threshold
-                                          4,
+                                          2,
                                           preselectedKeyPoints,
                                           preselectedWorldPoints,
                                           nbFill);

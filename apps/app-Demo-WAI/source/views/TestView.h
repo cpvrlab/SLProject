@@ -70,6 +70,9 @@ protected:
     cv::Size2i                       _videoFrameSize;
 
     std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
+    std::vector<cv::Mat> _framesDir;
+    std::vector<cv::Mat> _framesPos;
+    float                _map_size;
 
     //slam
     WAISlam*   _mode = nullptr;

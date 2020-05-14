@@ -11,17 +11,15 @@ using namespace std;
 class AutoCalibration
 {
     public:
-        static void calibrateBruteForce(cv::Mat&                                intrinsic,
-                                        cv::Mat&                                distortion,
+        static bool calibrateBruteForce(cv::Mat&                               intrinsic,
                                         std::vector<std::vector<cv::Point2f>>& vvP2D,
                                         std::vector<std::vector<cv::Point3f>>& vvP3Dw,
-                                        std::vector<cv::Mat>&                   rvecs,
-                                        std::vector<cv::Mat>&                   tvecs,
-                                        cv::Size                                size,
-                                        float&                                  error);
+                                        std::vector<cv::Mat>&                  rvecs,
+                                        std::vector<cv::Mat>&                  tvecs,
+                                        cv::Size                               size,
+                                        float&                                 error);
 
-        static void calibrateBruteForce(cv::Mat&                  intrinsic,
-                                        cv::Mat&                  distortion,
+        static bool calibrateBruteForce(cv::Mat&                  intrinsic,
                                         std::vector<cv::Point2f>& vP2D,
                                         std::vector<cv::Point3f>& vP3Dw,
                                         cv::Mat&                  rvec,
@@ -40,7 +38,6 @@ class AutoCalibration
 
         static float calibrate_frames_ransac(cv::Size&                              size,
                                              cv::Mat&                               intrinsic,
-                                             cv::Mat&                               distortion,
                                              int                                    nb_iter,
                                              float                                  threshold,
                                              int                                    iniModelSize,

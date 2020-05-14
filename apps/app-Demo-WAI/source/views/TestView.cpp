@@ -113,10 +113,26 @@ bool TestView::update()
                     std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
 
                     WAIFrame lastFrame = _mode->getLastFrame();
-                    if (_mode->getMatchedCorrespondances(&lastFrame, matching) > 10)
+
+                    cv::Mat t   = lastFrame.mTcw.col(3).rowRange(0, 3);
+                    cv::Mat rot = lastFrame.mTcw.rowRange(0, 3).colRange(0, 3);
+                    cv::Mat v   = rot * cv::Mat(cv::Vec3f(0, 0, -1));
+
+                    bool addframe = true;
+                    for (int i = 0; i < _framesDir.size(); i++)
                     {
+                        cv::Mat vs = _framesDir[i];
+                        cv::Mat ts = _framesPos[i];
+                        if (vs.dot(v) > 0.95 && cv::norm(ts-t) < (_map_size * 0.05))
+                            addframe = false;
+                    }
+
+                    if (addframe && _mode->getMatchedCorrespondances(&lastFrame, matching) > 10)
+                    {
+                        _framesDir.push_back(v);
+                        _framesPos.push_back(t);
                         _calibrationMatchings.push_back(matching);
-                        if (_calibrationMatchings.size() > 10)
+                        if (_calibrationMatchings.size() > 8)
                         {
                             cv::Size size      = cv::Size(frame->captureWidth, frame->captureHeight);
                             _calibrationThread = std::thread(AutoCalibration::calibrate, size, _calibrationMatchings);
@@ -439,13 +455,16 @@ void TestView::startOrbSlam(SlamParams slamParams)
             SlamVideoInfos slamVideoInfos;
             std::string    videoFileName = Utils::getFileNameWOExt(slamParams.videoFile);
 
-            if (!extractSlamVideoInfosFromFileName(videoFileName, &slamVideoInfos))
+            if (extractSlamVideoInfosFromFileName(videoFileName, &slamVideoInfos))
             {
-                _gui.showErrorMsg("Could not extract computer infos from video filename.");
-                return;
+                computerInfo = slamVideoInfos.deviceString;
+                //_gui.showErrorMsg("Could not extract computer infos from video filename.");
+                //return;
             }
-
-            computerInfo = slamVideoInfos.deviceString;
+            else
+            {
+                computerInfo = Utils::ComputerInfos::get();
+            }
         }
         else
         {
@@ -454,17 +473,25 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
         calibrationFileName        = "camCalib_" + computerInfo + "_main.xml";
         slamParams.calibrationFile = _calibDir + calibrationFileName;
+
+        if (!Utils::fileExists(slamParams.calibrationFile))
+        {
+            calibrationFileName        = "";
+            slamParams.calibrationFile = "";
+        }
+
     }
     else
     {
         calibrationFileName = Utils::getFileName(slamParams.calibrationFile);
+
+        if (!Utils::fileExists(slamParams.calibrationFile))
+        {
+            _gui.showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
+            return;
+        }
     }
 
-    if (!Utils::fileExists(slamParams.calibrationFile))
-    {
-        _gui.showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
-        return;
-    }
 
     /*
     if (!checkCalibration(calibDir, calibrationFileName))
@@ -510,7 +537,19 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    if (!_calibration.load(_calibDir, Utils::getFileName(slamParams.calibrationFile), false))
+    if (slamParams.calibrationFile == "")
+    {
+        _calibration = CVCalibration(_videoFrameSize,
+                                     40,
+                                     false,
+                                     false,
+                                     CVCameraType::BACKFACING,
+                                     "");
+
+        cv::Mat m = _calibration.distortion();
+        m = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
+    }
+    else if (!_calibration.load(_calibDir, Utils::getFileName(slamParams.calibrationFile), false))
     {
         _gui.showErrorMsg("Error when loading calibration from file: " +
                           slamParams.calibrationFile);
@@ -521,11 +560,17 @@ void TestView::startOrbSlam(SlamParams slamParams)
     {
         _calibration.adaptForNewResolution(_videoFrameSize, true);
     }
-    else
+    else if (slamParams.calibrationFile != "")
+    {
         _calibration.buildUndistortionMaps();
+        // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
+        _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
+    }
+    else
+    {
+        _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
+    }
 
-    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
     //  _scene.cameraNode->fov(_calibration.cameraFovVDeg());
     //// Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     //cv::Mat scMat = _calibration.cameraMatUndistorted();
@@ -579,6 +624,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
         SlamMapInfos slamMapInfos = {};
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
+
+        _map_size = map->GetSize();
     }
 
     _mode = new WAISlam(_calibration.cameraMat(),
