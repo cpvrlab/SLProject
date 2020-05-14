@@ -27,7 +27,7 @@ class SLSceneView;
 //-----------------------------------------------------------------------------
 //! Class for shadow mapping
 /*!
-shadow mapping is a technique to render shadows. The scene gets rendered from
+Shadow mapping is a technique to render shadows. The scene gets rendered from
 the point of view of the lights which cast shadows. The resulting depth-map of
 that render-pass can be used to determine which fragments are affected by which
 lights.

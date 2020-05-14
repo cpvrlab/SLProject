@@ -17,6 +17,7 @@
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
+#include <SLGLDepthBuffer.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -2519,6 +2520,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         shadowMap->rayCount(rayCount);
 
                                     ImGui::Text("Light space matrix:\n%s", shadowMap->mvp().toString().c_str());
+
+                                    ImGui::Text("Depth Buffer:");
+                                    ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(), ImVec2(200, 200));
                                 }
                             }
                         }

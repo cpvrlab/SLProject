@@ -26,8 +26,9 @@ public:
 
     ~SLGLDepthBuffer();
 
+    float   depth(SLint x, SLint y);
+    SLint   texID() { return _texID; }
     void    activateAsTexture(int loc);
-    float   getDepth(SLint x, SLint y);
     void    bind();
     SLVec2i dimensions() { return _dimensions; }
 

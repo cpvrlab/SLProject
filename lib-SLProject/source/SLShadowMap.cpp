@@ -106,7 +106,7 @@ void SLShadowMap::drawRays()
             SLfloat viewSpaceX = Utils::lerp((x + 0.5f) / w, -1.0f, 1.0f);
             SLfloat viewSpaceY = Utils::lerp((y + 0.5f) / w, -1.0f, 1.0f);
 
-            SLfloat depth = _depthBuffer->getDepth(pixelX, pixelY) * 2 - 1;
+            SLfloat depth = _depthBuffer->depth(pixelX, pixelY) * 2 - 1;
 
             if (depth == 1.0f) continue;
 
