@@ -15,6 +15,14 @@
 #include <SLDisk.h>
 
 //-----------------------------------------------------------------------------
+/*!
+ * Constructor for a transform node.
+ * Because a transform node will be added and removed on the fly to the
+ * scenegraph it well be the owner of its meshes (SLMesh), materials (SLMaterial)
+ * and shader programs (SLGLProgram). It has to delete them in the destructor.
+ * @param sv Pointer to the SLSceneView
+ * @param targetNode Pointer to the node that should be transformed.
+ */
 SLTransformNode::SLTransformNode(SLSceneView* sv,
                                  SLNode*      targetNode)
   : SLNode("Edit Gizmos"),
@@ -125,6 +133,12 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _sv->s().eventHandlers().push_back(this);
 }
 //-----------------------------------------------------------------------------
+/*!
+ * Destructor for a transform node.
+ * Because a transform node will be added and removed on the fly to the
+ * scenegraph it is the owner of its meshes (SLMesh), materials (SLMaterial)
+ * and shader programs (SLGLProgram). It has to delete them in here.
+ */
 SLTransformNode::~SLTransformNode()
 {
     // delete all programs, materials and meshes
@@ -156,6 +170,11 @@ SLTransformNode::~SLTransformNode()
     deleteChildren();
 }
 //-----------------------------------------------------------------------------
+/*!
+ * Setter function for the edit mode. It shows or hides the appropriate gizmo
+ * meshes for the mouse interaction.
+ * @param editMode New edit mode to switch to.
+ */
 void SLTransformNode::editMode(SLNodeEditMode editMode)
 {
     _editMode = editMode;
@@ -223,6 +242,7 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
     }
 }
 //-----------------------------------------------------------------------------
+//! onMouseDown event hanlder during editing interaction
 SLbool SLTransformNode::onMouseDown(SLMouseButton button,
                                     SLint         x,
                                     SLint         y,
@@ -239,6 +259,7 @@ SLbool SLTransformNode::onMouseDown(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
+//! onMouseUp event hanlder during editing interaction
 SLbool SLTransformNode::onMouseUp(SLMouseButton button,
                                   SLint         x,
                                   SLint         y,
@@ -262,6 +283,7 @@ SLbool SLTransformNode::onMouseUp(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
+//! onMouseMove event hanlder during editing interaction
 SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                     SLint               x,
                                     SLint               y,

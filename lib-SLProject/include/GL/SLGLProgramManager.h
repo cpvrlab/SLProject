@@ -15,9 +15,9 @@
 
 //-----------------------------------------------------------------------------
 //! Enumeration for standard shader programs
-enum SLShaderProg
+enum SLStdShaderProg
 {
-    SP_colorAttribute,
+    SP_colorAttribute = 0,
     SP_colorUniform,
     SP_perVrtBlinn,
     SP_perVrtBlinnColorAttrib,
@@ -35,19 +35,31 @@ enum SLShaderProg
 };
 
 //-----------------------------------------------------------------------------
+//! Static container for standard shader programs
+/*!
+ * Static container for standard shader programs that are not deleted after
+ * scene deallocation. The shader program allocation and compilation will be
+ * done at the first use.
+ * All non standard shader programs will be attached to the asset manager.
+ */
 class SLGLProgramManager
 {
 public:
     //! Get program reference for given id
-    static SLGLGenericProgram* get(SLShaderProg id);
+    static SLGLGenericProgram* get(SLStdShaderProg id);
+
     //! Delete all instantiated programs
     static void deletePrograms();
 
+    //! Returns the size of the program map
+    static size_t size() { return _programs.size(); }
+
 private:
     //! Make a program if it is not contained in _programs
-    static void makeProgram(SLShaderProg id);
+    static void makeProgram(SLStdShaderProg id);
+
     //! Instantiated programs
-    static std::map<SLShaderProg, SLGLGenericProgram*> _programs;
+    static std::map<SLStdShaderProg, SLGLGenericProgram*> _programs;
 };
 //-----------------------------------------------------------------------------
 

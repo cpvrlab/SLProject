@@ -23,7 +23,8 @@ enum SLNodeEditMode
 };
 //-----------------------------------------------------------------------------
 //! Class that holds all visible gizmo node during mouse transforms
-/*! An SLTransform node is added to the scenegraph during edit mode. Depending
+/*!
+ * An SLTransformNode is added to the scenegraph during edit mode. Depending
  on the transform type (translation, rotation or scaling) arrows or disks and
  circles get shown or hidden. The transform node gets added and removed on the
  fly. So the assets have to be delete in the destructor.

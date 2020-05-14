@@ -26,10 +26,25 @@ SLstring SLGLProgram::defaultPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders";
 extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
 //! Ctor with a vertex and a fragment shader filename.
+/*!
+ * Constructor for shader programs. Shader programs can be used in multiple
+ * materials and can belong therefore to the global assets such as meshes
+ * (SLMesh), materials (SLMaterial), textures (SLGLTexture) and shader programs
+ * (SLGLProgram).
+ * @param s Pointer to a global asset manager. If passed the asset manager is
+ * the owner of the instance and will do the deallocation. If a nullptr is passed
+ * the creator is responsible for the deallocation.
+ * @param vertShaderFile Name of the vertex shader file. If only a filename is
+ * passed it will be search on the SLGLProgram::defaultPath.
+ * @param fragShaderFile Name of the fragment shader file. If only a filename is
+ * passed it will be search on the SLGLProgram::defaultPath.
+ * @param geomShaderFile Name of the geometry shader file. If only a filename is
+ * passed it will be search on the SLGLProgram::defaultPath.
+ */
 SLGLProgram::SLGLProgram(SLAssetManager* s,
-                         SLstring        vertShaderFile,
-                         SLstring        fragShaderFile,
-                         SLstring        geomShaderFile) : SLObject("")
+                         const SLstring& vertShaderFile,
+                         const SLstring& fragShaderFile,
+                         const SLstring& geomShaderFile) : SLObject("")
 {
     _isLinked = false;
     _progID   = 0;
@@ -45,7 +60,12 @@ SLGLProgram::SLGLProgram(SLAssetManager* s,
         s->programs().push_back(this);
 }
 //-----------------------------------------------------------------------------
-//! The destructor detaches all shader objects and deletes them
+/*!
+ * The destructor should be called by the owner of the shader program. If an
+ * asset manager was passed in the constructor it will do it after scene destruction.
+ * The destructor deletes all shader objects (SLGLShader) in the RAM as well
+ * as on the GPU.
+*/
 SLGLProgram::~SLGLProgram()
 {
     //SL_LOG("~SLGLProgram");
@@ -207,7 +227,7 @@ void SLGLProgram::init()
     {
         _isLinked = true;
         for (auto shader : _shaders)
-            _name += "+" + shader->name();
+            _name += shader->name() + ", ";
         //SL_LOG("Linked: %s", _name.c_str());
     }
     else
@@ -256,53 +276,53 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
 
         // 2: Pass light & material parameters
         stateGL->globalAmbientLight = globalAmbientLight;
-        SLint loc                   = uniform4fv("u_globalAmbient", 1, (const SLfloat*)stateGL->globalAmbient());
-        loc                         = uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
+        uniform4fv("u_globalAmbient", 1, (const SLfloat*)stateGL->globalAmbient());
+        uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
 
         if (stateGL->numLightsUsed > 0)
         {
             SLint nL = SL_MAX_LIGHTS;
             stateGL->calcLightPosVS(stateGL->numLightsUsed);
             stateGL->calcLightDirVS(stateGL->numLightsUsed);
-            loc = uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
-            loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
-            loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
-            loc = uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
-            loc = uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
-            loc = uniform3fv("u_lightSpotDirVS", nL, (SLfloat*)stateGL->lightSpotDirVS);
-            loc = uniform1fv("u_lightSpotCutoff", nL, (SLfloat*)stateGL->lightSpotCutoff);
-            loc = uniform1fv("u_lightSpotCosCut", nL, (SLfloat*)stateGL->lightSpotCosCut);
-            loc = uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
-            loc = uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
-            loc = uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
+            uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
+            uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
+            uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
+            uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
+            uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
+            uniform3fv("u_lightSpotDirVS", nL, (SLfloat*)stateGL->lightSpotDirVS);
+            uniform1fv("u_lightSpotCutoff", nL, (SLfloat*)stateGL->lightSpotCutoff);
+            uniform1fv("u_lightSpotCosCut", nL, (SLfloat*)stateGL->lightSpotCosCut);
+            uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
+            uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
+            uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
 
             mat->passToUniforms(this);
         }
 
         // 2b: Set stereo states
-        loc = uniform1i("u_projection", stateGL->projection);
-        loc = uniform1i("u_stereoEye", stateGL->stereoEye);
-        loc = uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&stateGL->stereoColorFilter);
+        uniform1i("u_projection", stateGL->projection);
+        uniform1i("u_stereoEye", stateGL->stereoEye);
+        uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&stateGL->stereoColorFilter);
 
         // 2c: Pass diffuse color for uniform color shader
         SLCol4f diffuse = mat->diffuse();
-        loc             = uniform4fv("u_color", 1, (SLfloat*)&diffuse);
+        uniform4fv("u_color", 1, (SLfloat*)&diffuse);
 
         // 2d: Pass gamma correction value
-        loc = uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
+        uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
 
         // 3: Pass the custom uniform1f variables of the list
         for (auto uf : _uniforms1f)
-            loc = uniform1f(uf->name(), uf->value());
+            uniform1f(uf->name(), uf->value());
         for (auto ui : _uniforms1i)
-            loc = uniform1i(ui->name(), ui->value());
+            uniform1i(ui->name(), ui->value());
 
         // 4: Send texture units as uniforms texture samplers
         for (SLint i = 0; i < (SLint)mat->textures().size(); ++i)
         {
             SLchar name[100];
             sprintf(name, "u_texture%d", i);
-            loc = uniform1i(name, i);
+            uniform1i(name, i);
         }
         GET_GL_ERROR;
     }
@@ -331,7 +351,7 @@ void SLGLProgram::addUniform1i(SLGLUniform1i* u)
     _uniforms1i.push_back(u);
 }
 //-----------------------------------------------------------------------------
-SLint SLGLProgram::getUniformLocation(const SLchar* name)
+SLint SLGLProgram::getUniformLocation(const SLchar* name) const
 {
     SLint loc = glGetUniformLocation(_progID, name);
 #ifdef _GLDEBUG
@@ -340,7 +360,7 @@ SLint SLGLProgram::getUniformLocation(const SLchar* name)
     return loc;
 }
 //-----------------------------------------------------------------------------
-SLint SLGLProgram::getAttribLocation(const SLchar* name)
+SLint SLGLProgram::getAttribLocation(const SLchar* name) const
 {
     SLint loc = glGetAttribLocation(_progID, name);
 #ifdef _GLDEBUG
@@ -350,7 +370,7 @@ SLint SLGLProgram::getAttribLocation(const SLchar* name)
 }
 //-----------------------------------------------------------------------------
 //! Passes the float value v0 to the uniform variable "name"
-SLint SLGLProgram::uniform1f(const SLchar* name, SLfloat v0)
+SLint SLGLProgram::uniform1f(const SLchar* name, SLfloat v0) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1f(loc, v0);
@@ -358,7 +378,9 @@ SLint SLGLProgram::uniform1f(const SLchar* name, SLfloat v0)
 }
 //-----------------------------------------------------------------------------
 //! Passes the float values v0 & v1 to the uniform variable "name"
-SLint SLGLProgram::uniform2f(const SLchar* name, SLfloat v0, SLfloat v1)
+SLint SLGLProgram::uniform2f(const SLchar* name,
+                             SLfloat       v0,
+                             SLfloat       v1) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2f(loc, v0, v1);
@@ -369,7 +391,7 @@ SLint SLGLProgram::uniform2f(const SLchar* name, SLfloat v0, SLfloat v1)
 SLint SLGLProgram::uniform3f(const SLchar* name,
                              SLfloat       v0,
                              SLfloat       v1,
-                             SLfloat       v2)
+                             SLfloat       v2) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform3f(loc, v0, v1, v2);
@@ -381,7 +403,7 @@ SLint SLGLProgram::uniform4f(const SLchar* name,
                              SLfloat       v0,
                              SLfloat       v1,
                              SLfloat       v2,
-                             SLfloat       v3)
+                             SLfloat       v3) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform4f(loc, v0, v1, v2, v3);
@@ -389,7 +411,7 @@ SLint SLGLProgram::uniform4f(const SLchar* name,
 }
 //-----------------------------------------------------------------------------
 //! Passes the int values v0 to the uniform variable "name"
-SLint SLGLProgram::uniform1i(const SLchar* name, SLint v0)
+SLint SLGLProgram::uniform1i(const SLchar* name, SLint v0) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1i(loc, v0);
@@ -399,7 +421,7 @@ SLint SLGLProgram::uniform1i(const SLchar* name, SLint v0)
 //! Passes the int values v0 & v1 to the uniform variable "name"
 SLint SLGLProgram::uniform2i(const SLchar* name,
                              SLint         v0,
-                             SLint         v1)
+                             SLint         v1) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2i(loc, v0, v1);
@@ -410,7 +432,7 @@ SLint SLGLProgram::uniform2i(const SLchar* name,
 SLint SLGLProgram::uniform3i(const SLchar* name,
                              SLint         v0,
                              SLint         v1,
-                             SLint         v2)
+                             SLint         v2) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform3i(loc, v0, v1, v2);
@@ -422,7 +444,7 @@ SLint SLGLProgram::uniform4i(const SLchar* name,
                              SLint         v0,
                              SLint         v1,
                              SLint         v2,
-                             SLint         v3)
+                             SLint         v3) const
 {
     SLint loc = getUniformLocation(name);
     if (loc == -1) return false;
@@ -433,7 +455,7 @@ SLint SLGLProgram::uniform4i(const SLchar* name,
 //! Passes 1 float value py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform1fv(const SLchar*  name,
                               SLsizei        count,
-                              const SLfloat* value)
+                              const SLfloat* value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1fv(loc, count, value);
@@ -443,7 +465,7 @@ SLint SLGLProgram::uniform1fv(const SLchar*  name,
 //! Passes 2 float values py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform2fv(const SLchar*  name,
                               SLsizei        count,
-                              const SLfloat* value)
+                              const SLfloat* value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2fv(loc, count, value);
@@ -453,7 +475,7 @@ SLint SLGLProgram::uniform2fv(const SLchar*  name,
 //! Passes 3 float values py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform3fv(const SLchar*  name,
                               SLsizei        count,
-                              const SLfloat* value)
+                              const SLfloat* value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc == -1) return false;
@@ -464,7 +486,7 @@ SLint SLGLProgram::uniform3fv(const SLchar*  name,
 //! Passes 4 float values py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform4fv(const SLchar*  name,
                               SLsizei        count,
-                              const SLfloat* value)
+                              const SLfloat* value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform4fv(loc, count, value);
@@ -474,7 +496,7 @@ SLint SLGLProgram::uniform4fv(const SLchar*  name,
 //! Passes 1 int value py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform1iv(const SLchar* name,
                               SLsizei       count,
-                              const SLint*  value)
+                              const SLint*  value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform1iv(loc, count, value);
@@ -484,7 +506,7 @@ SLint SLGLProgram::uniform1iv(const SLchar* name,
 //! Passes 2 int values py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform2iv(const SLchar* name,
                               SLsizei       count,
-                              const SLint*  value)
+                              const SLint*  value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform2iv(loc, count, value);
@@ -494,7 +516,7 @@ SLint SLGLProgram::uniform2iv(const SLchar* name,
 //! Passes 3 int values py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform3iv(const SLchar* name,
                               SLsizei       count,
-                              const SLint*  value)
+                              const SLint*  value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform3iv(loc, count, value);
@@ -504,7 +526,7 @@ SLint SLGLProgram::uniform3iv(const SLchar* name,
 //! Passes 4 int values py pointer to the uniform variable "name"
 SLint SLGLProgram::uniform4iv(const SLchar* name,
                               SLsizei       count,
-                              const SLint*  value)
+                              const SLint*  value) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniform4iv(loc, count, value);
@@ -515,7 +537,7 @@ SLint SLGLProgram::uniform4iv(const SLchar* name,
 SLint SLGLProgram::uniformMatrix2fv(const SLchar*  name,
                                     SLsizei        count,
                                     const SLfloat* value,
-                                    GLboolean      transpose)
+                                    GLboolean      transpose) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniformMatrix2fv(loc, count, transpose, value);
@@ -526,7 +548,7 @@ SLint SLGLProgram::uniformMatrix2fv(const SLchar*  name,
 void SLGLProgram::uniformMatrix2fv(const SLint    loc,
                                    SLsizei        count,
                                    const SLfloat* value,
-                                   GLboolean      transpose)
+                                   GLboolean      transpose) const
 {
     glUniformMatrix2fv(loc, count, transpose, value);
 }
@@ -535,7 +557,7 @@ void SLGLProgram::uniformMatrix2fv(const SLint    loc,
 SLint SLGLProgram::uniformMatrix3fv(const SLchar*  name,
                                     SLsizei        count,
                                     const SLfloat* value,
-                                    GLboolean      transpose)
+                                    GLboolean      transpose) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniformMatrix3fv(loc, count, transpose, value);
@@ -546,7 +568,7 @@ SLint SLGLProgram::uniformMatrix3fv(const SLchar*  name,
 void SLGLProgram::uniformMatrix3fv(const SLint    loc,
                                    SLsizei        count,
                                    const SLfloat* value,
-                                   GLboolean      transpose)
+                                   GLboolean      transpose) const
 {
     glUniformMatrix3fv(loc, count, transpose, value);
 }
@@ -555,7 +577,7 @@ void SLGLProgram::uniformMatrix3fv(const SLint    loc,
 SLint SLGLProgram::uniformMatrix4fv(const SLchar*  name,
                                     SLsizei        count,
                                     const SLfloat* value,
-                                    GLboolean      transpose)
+                                    GLboolean      transpose) const
 {
     SLint loc = getUniformLocation(name);
     if (loc >= 0) glUniformMatrix4fv(loc, count, transpose, value);
@@ -566,7 +588,7 @@ SLint SLGLProgram::uniformMatrix4fv(const SLchar*  name,
 void SLGLProgram::uniformMatrix4fv(const SLint    loc,
                                    SLsizei        count,
                                    const SLfloat* value,
-                                   GLboolean      transpose)
+                                   GLboolean      transpose) const
 {
     glUniformMatrix4fv(loc, count, transpose, value);
 }

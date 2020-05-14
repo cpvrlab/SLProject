@@ -17,6 +17,7 @@
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
+#include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -590,37 +591,49 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
             ImGui::Separator();
 
-            ImGui::Text("Resources:");
+            ImGui::Text("Global Resources:");
 
-
-            if (ImGui::TreeNode("Meshes"))
+            if (s->meshes().size() && ImGui::TreeNode("Meshes"))
             {
-                for (auto* mesh : s->meshes())
-                    ImGui::Text("%s {%u v.}", mesh->name().c_str(), (SLuint)mesh->P.size());
+                for (SLuint i = 0; i < s->meshes().size(); ++i)
+                    ImGui::Text("[%d] %s (%u v.)",
+                                i,
+                                s->meshes()[i]->name().c_str(),
+                                (SLuint)s->meshes()[i]->P.size());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Materials"))
+            if (s->materials().size() && ImGui::TreeNode("Materials"))
             {
-                for (auto* mat : s->materials())
-                    ImGui::Text("%s", mat->name().c_str());
+                for (SLuint i = 0; i < s->materials().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Textures"))
+            if (s->textures().size() && ImGui::TreeNode("Textures"))
             {
-                for (auto* tex : s->textures())
-                    ImGui::Text("%s", tex->name().c_str());
+                for (SLuint i = 0; i < s->textures().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Programs"))
+            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
             {
-                for (auto* prg : s->programs())
-                    ImGui::Text("%s", prg->name().c_str());
+                for (SLuint i = 0; i < s->programs().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (standard)"))
+            {
+                for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
+                    ImGui::Text("[%u] %s",
+                                i,
+                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
 
                 ImGui::TreePop();
             }
