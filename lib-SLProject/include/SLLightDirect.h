@@ -59,7 +59,7 @@ public:
                   SLfloat         diffPower   = 10.0f,
                   SLfloat         specPower   = 10.0f,
                   SLbool          hasMesh     = true);
-    ~SLLightDirect();
+    ~SLLightDirect() override;
 
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;

@@ -18,6 +18,7 @@ class SLSceneView;
 class SLRay;
 class SLAssetManager;
 class SLScene;
+class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
@@ -47,7 +48,7 @@ public:
                 SLfloat         width   = 1,
                 SLfloat         height  = 1,
                 SLbool          hasMesh = true);
-    ~SLLightRect() override { ; }
+    ~SLLightRect() override;
 
     void init(SLScene* s);
     void drawRec(SLSceneView* sv) override;
@@ -64,6 +65,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Setters
     void width(const SLfloat w)
@@ -92,11 +94,12 @@ public:
     }
 
 private:
-    SLfloat _width;      //!< Width of square light in x direction
-    SLfloat _height;     //!< Lenght of square light in y direction
-    SLfloat _halfWidth;  //!< Half width of square light in x dir
-    SLfloat _halfHeight; //!< Half height of square light in y dir
-    SLVec2i _samples;    //!< Uneven NO. of samples in x and y dir
+    SLfloat      _width;      //!< Width of square light in x direction
+    SLfloat      _height;     //!< Lenght of square light in y direction
+    SLfloat      _halfWidth;  //!< Half width of square light in x dir
+    SLfloat      _halfHeight; //!< Half height of square light in y dir
+    SLVec2i      _samples;    //!< Uneven NO. of samples in x and y dir
+    SLShadowMap* _shadowMap;  //!< Used for shadow-mapping
 };
 //-----------------------------------------------------------------------------
 #endif

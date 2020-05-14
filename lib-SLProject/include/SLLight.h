@@ -107,7 +107,7 @@ public:
                                  SLNode*        root3D) = 0;
 
     // create the depth buffer(s) for shadow mapping
-    virtual void renderShadowMap(SLSceneView* sv, SLNode* root){};
+    virtual void renderShadowMap(SLSceneView* sv, SLNode* root) = 0;
 
 protected:
     SLint   _id;               //!< OpenGL light number (0-7)

@@ -972,7 +972,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         scene->addChild(cam1);
 
-                // Define light sources
+        // Define light sources
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
@@ -1164,7 +1164,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add 4 point light
-        SLfloat power = 1000.0f;
+        SLfloat      power  = 1000.0f;
         SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
         light1->attenuation(0, 0, 1);
         SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
@@ -3033,11 +3033,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create OpenCV Tracker for the box node
         std::string vocFileName;
-#if USE_FBOW
+#    if USE_FBOW
         vocFileName = "voc_fbow.bin";
-#else
+#    else
         vocFileName = "ORBvoc.bin";
-#endif
+#    endif
         tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {SLApplication::calibIniPath, SLApplication::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;

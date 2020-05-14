@@ -15,6 +15,7 @@
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLShadowMap.h>
 
 extern SLfloat rnd01();
 
@@ -36,6 +37,7 @@ SLLightRect::SLLightRect(SLAssetManager* assetMgr,
 
     spotCutOffDEG(90.0f);
     spotExponent(1.0);
+    _shadowMap = nullptr;
 
     if (hasMesh)
     {
@@ -46,6 +48,11 @@ SLLightRect::SLLightRect(SLAssetManager* assetMgr,
         addMesh(new SLPolygon(assetMgr, w, h, "LightRect Mesh", mat));
     }
     init(s);
+}
+//-----------------------------------------------------------------------------
+SLLightRect::~SLLightRect()
+{
+    delete _shadowMap;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -145,6 +152,10 @@ void SLLightRect::drawMeshes(SLSceneView* sv)
 
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
+
+        // Draw the volume affected by the shadow-map
+        if (_createsShadows && _isOn && sv->s().selectedNode() == this)
+            _shadowMap->drawFrustum();
     }
 }
 //-----------------------------------------------------------------------------
@@ -289,26 +300,42 @@ SLfloat SLLightRect::shadowTestMC(SLRay*         ray,       // ray of hit point
     return (shadowRay.length < spDistWS) ? 0.0f : 1.0f;
 }
 //-----------------------------------------------------------------------------
+/*! SLLightRect::renderShadowMap renders the shadow map of the light
+*/
+void SLLightRect::renderShadowMap(SLSceneView* sv, SLNode* root)
+{
+    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap();
+    _shadowMap->updateMVP(this, P_monoOrthographic);
+    _shadowMap->render(sv, root);
+}
+//-----------------------------------------------------------------------------
 /*! SLLightRect::setState sets the global rendering state
 */
 void SLLightRect::setState()
 {
     if (_id != -1)
     {
-        SLGLState* stateGL            = SLGLState::instance();
-        stateGL->lightIsOn[_id]       = _isOn;
-        stateGL->lightPosWS[_id]      = positionWS();
-        stateGL->lightSpotDirWS[_id]  = spotDirWS();
-        stateGL->lightAmbient[_id]    = _ambient;
-        stateGL->lightDiffuse[_id]    = _diffuse;
-        stateGL->lightSpecular[_id]   = _specular;
-        stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;
-        stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;
-        stateGL->lightSpotExp[_id]    = _spotExponent;
-        stateGL->lightAtt[_id].x      = _kc;
-        stateGL->lightAtt[_id].y      = _kl;
-        stateGL->lightAtt[_id].z      = _kq;
-        stateGL->lightDoAtt[_id]      = isAttenuated();
+        SLGLState* stateGL                = SLGLState::instance();
+        stateGL->lightIsOn[_id]           = _isOn;
+        stateGL->lightPosWS[_id]          = positionWS();
+        stateGL->lightSpotDirWS[_id]      = spotDirWS();
+        stateGL->lightAmbient[_id]        = _ambient;
+        stateGL->lightDiffuse[_id]        = _diffuse;
+        stateGL->lightSpecular[_id]       = _specular;
+        stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
+        stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
+        stateGL->lightSpotExp[_id]        = _spotExponent;
+        stateGL->lightAtt[_id].x          = _kc;
+        stateGL->lightAtt[_id].y          = _kl;
+        stateGL->lightAtt[_id].z          = _kq;
+        stateGL->lightDoAtt[_id]          = isAttenuated();
+        stateGL->lightCreatesShadows[_id] = _createsShadows;
+
+        if (_shadowMap != nullptr)
+        {
+            stateGL->lightSpace[_id] = _shadowMap->mvp();
+            stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
+        }
     }
 }
 //-----------------------------------------------------------------------------
