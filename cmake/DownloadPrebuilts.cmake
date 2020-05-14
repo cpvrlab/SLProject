@@ -632,8 +632,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	    endif()
 	endif()
 	
-elseif(FALSE) #ios
-	
+#elseif(CMAKE_SYSTEM_NAME MATCHES iOS) #ios
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+		
+	message(STATUS "Download prebuilds iOS")
     ##################
     # OpenCV for iOS #
     ##################
@@ -643,7 +645,7 @@ elseif(FALSE) #ios
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
-    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+	    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include/opencv4")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
@@ -656,6 +658,21 @@ elseif(FALSE) #ios
             WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
+	
+    foreach(lib ${OpenCV_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} 
+			PROPERTIES 
+			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
+			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
+			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4")
+			
+		#message(STATUS ${lib})
+        set(OpenCV_LIBS
+                ${OpenCV_LIBS}
+                optimized ${lib}
+                debug ${lib})
+    endforeach(lib)
 	
     #################
     # g2o for iOS #
