@@ -255,7 +255,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(assimp_LINK_DIR "${assimp_DIR}/lib")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
-    set(assimp_LINK_LIBS assimp-mt)
+    #set(assimp_LINK_LIBS_WIN assimp-mt)
 
     if (NOT EXISTS "${assimp_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
@@ -368,28 +368,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
 
+	set(COPY_LIBS_TO_CONFIG_FOLDER TRUE)
+	
     ############################
-    # OpenCV for iOS and MacOS #
+    # OpenCV for MacOS #
     ############################
-
-    # Download first for iOS
-    set(OpenCV_VERSION "4.2.0")
-    set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
-    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
-    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
-        message(STATUS "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
-        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-    endif ()
 
     # Now download for MacOS
     set(OpenCV_VERSION "4.1.1")
@@ -416,25 +399,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     endif ()
 
     foreach(lib ${OpenCV_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} 
+			PROPERTIES 
+			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.dylib"
+			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.dylib")
+			
+		#message(STATUS ${lib})
         set(OpenCV_LIBS
                 ${OpenCV_LIBS}
                 optimized ${lib}
                 debug ${lib})
     endforeach(lib)
+	
+	if (COPY_LIBS_TO_CONFIG_FOLDER)
+		file(GLOB OpenCV_LIBS_to_copy_debug
+		        ${OpenCV_LIBS_to_copy_debug}
+		        ${OpenCV_DIR}/Debug/libopencv_*.dylib
+		        )
+		file(GLOB OpenCV_LIBS_to_copy_release
+		        ${OpenCV_LIBS_to_copy_release}
+		        ${OpenCV_DIR}/Release/libopencv_*.dylib
+		        )
 
-    file(GLOB OpenCV_LIBS_to_copy_debug
-            ${OpenCV_LIBS_to_copy_debug}
-            ${OpenCV_DIR}/Debug/libopencv_*.dylib
-            )
-    file(GLOB OpenCV_LIBS_to_copy_release
-            ${OpenCV_LIBS_to_copy_release}
-            ${OpenCV_DIR}/Release/libopencv_*.dylib
-            )
-
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-        file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    endif()
+		if(${CMAKE_GENERATOR} STREQUAL Xcode)
+		    file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+		    file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+		endif()
+	endif()
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
@@ -450,25 +442,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     #################
     # g2o for MacOS #
     #################
-
-    #Download g2o for iOS
-    set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
-    set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
-    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
-
-    if (NOT EXISTS "${g2o_DIR}")
-        message(STATUS "g2o_DIR: ${g2o_DIR}")
-        message(STATUS "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}")
-        message(STATUS "Download to: ${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
-
+	
     #Download g2o for MacOS
     set(g2o_DIR ${PREBUILT_PATH}/mac64_g2o)
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
@@ -486,36 +460,36 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
-        set_target_properties(lib${lib} PROPERTIES IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.dylib")
+        set_target_properties(lib${lib} 
+			PROPERTIES 
+			IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/Debug/lib${lib}.dylib"
+			IMPORTED_LOCATION_RELEASE "${g2o_LINK_DIR}/Release/lib${lib}.dylib")
+			
         set(g2o_LIBS
             ${g2o_LIBS}
             lib${lib}
             )
     endforeach(lib)
+	
+	if (COPY_TO_CONFIG_FOLDER)	
+	    file(GLOB g2o_LIBS_to_copy_debug
+	            ${g2o_LIBS_to_copy_debug}
+	            ${OpenCV_DIR}/debug/g2o_*.dylib
+	            )
+	    file(GLOB g2o_LIBS_to_copy_release
+	            ${g2o_LIBS_to_copy_release}
+	            ${OpenCV_DIR}/release/libopencv_*.dylib
+	            )
+
+	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+	        file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	    endif()
+	endif()
 
     ####################
     # Assimp for MacOS #
     ####################
-
-    # Download first for iOS
-    set(assimp_VERSION "5.0")
-    set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
-    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
-    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${assimp_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-
-        if( NOT EXISTS "${assimp_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
-        endif()
-    endif ()
 
     # Download now for macos
     set(assimp_VERSION "5.0")
@@ -537,26 +511,35 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         endif()
     endif ()
 
-    set(assimp_LIBS
-            ${assimp_LIBS}
-            optimized libassimp.dylib
-            debug libassimpd.dylib)
+	foreach(lib ${assimp_LINK_LIBS})
+		add_library(${lib} SHARED IMPORTED)
+		set_target_properties(${lib} 
+			PROPERTIES
+			IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.dylib
+			IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib )
+			
+	    set(assimp_LIBS
+	        ${assimp_LIBS}
+			${lib})	
+	endforeach()
 
-    file(GLOB assimp_LIBS_to_copy_debug
-            ${assimp_LIBS_to_copy_debug}
-            ${assimp_DIR}/Debug/libassimpd*.dylib
-            ${assimp_DIR}/Debug/libIrrXMLd.dylib
-            )
-    file(GLOB assimp_LIBS_to_copy_release
-            ${assimp_LIBS_to_copy_release}
-            ${assimp_DIR}/Release/libassimp*.dylib
-            ${assimp_DIR}/Release/libIrrXML.dylib
-            )
+	if (COPY_LIBS_TO_CONFIG_FOLDER)
+	    file(GLOB assimp_LIBS_to_copy_debug
+	            ${assimp_LIBS_to_copy_debug}
+	            ${assimp_DIR}/Debug/libassimpd*.dylib
+	            ${assimp_DIR}/Debug/libIrrXMLd.dylib
+	            )
+	    file(GLOB assimp_LIBS_to_copy_release
+	            ${assimp_LIBS_to_copy_release}
+	            ${assimp_DIR}/Release/libassimp*.dylib
+	            ${assimp_DIR}/Release/libIrrXML.dylib
+	            )
 
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    endif()
+	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+	        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	    endif()
+	endif()
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
@@ -574,6 +557,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     ####################
 
     set(vk_VERSION "1.2.135.0")
+	set(vk_VERSIONLIBNAME "1.2.135")
     set(vk_DIR ${PREBUILT_PATH}/mac64_vulkan_${vk_VERSION})
     set(vk_PREBUILT_ZIP "mac64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
@@ -600,7 +584,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         file(COPY ${vk_LINK_DIR}/libSPIRV-Tools-shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libVkLayer_api_dump.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libVkLayer_khronos_validation.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${vk_LINK_DIR}/libvulkan.1.2.131.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${vk_LINK_DIR}/libvulkan.${vk_VERSIONLIBNAME}.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libshaderc_shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libvulkan.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
@@ -611,7 +595,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         file(COPY ${vk_LINK_DIR}/libSPIRV-Tools-shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libVkLayer_api_dump.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libVkLayer_khronos_validation.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${vk_LINK_DIR}/libvulkan.1.2.131.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${vk_LINK_DIR}/libvulkan.${vk_VERSIONLIBNAME}.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libshaderc_shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libvulkan.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -640,12 +624,85 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     add_library(libglfw.3 SHARED IMPORTED)
     set_target_properties(libglfw.3 PROPERTIES IMPORTED_LOCATION "${glfw_LINK_DIR}/libglfw.3.dylib")
     set(glfw_LIBS libglfw.3)
+	
+	if (COPY_LIBS_TO_CONFIG_FOLDER)
+	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+	        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	    endif()
+	endif()
+	
+elseif(FALSE) #ios
+	
+    ##################
+    # OpenCV for iOS #
+    ##################
 
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    endif()
+    # Download first for iOS
+    set(OpenCV_VERSION "4.2.0")
+    set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
+    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
+    if (NOT EXISTS "${OpenCV_DIR}")
+        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+        message(STATUS "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
+        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+    endif ()
+	
+    #################
+    # g2o for iOS #
+    #################
+
+    #Download g2o for iOS
+    set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
+    set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
+    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
+    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
+    set(g2o_LINK_DIR ${g2o_DIR}/${CMoAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
+
+    if (NOT EXISTS "${g2o_DIR}")
+        message(STATUS "g2o_DIR: ${g2o_DIR}")
+        message(STATUS "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}")
+        message(STATUS "Download to: ${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+    endif ()
+	
+    ##################
+    # Assimp for iOS #
+    ##################
+
+    # Download first for iOS
+    set(assimp_VERSION "5.0")
+    set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${assimp_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
+
+        if( NOT EXISTS "${assimp_DIR}" )
+            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
+        endif()
+    endif ()
+	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
     ######################
