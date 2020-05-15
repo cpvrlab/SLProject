@@ -51,10 +51,10 @@ GLFWwindow* window;
 #if oldProject
 vkUtils renderer;
 #endif
-const std::vector<Vertex> vertices = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-                                      {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-                                      {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-                                      {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
+const std::vector<Vertex> vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+                                      {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+                                      {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+                                      {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
 // Camera
 SLMat4f _viewMatrix;
 float   _camZ = 6.0f;
@@ -245,34 +245,40 @@ int main()
     // Needed data
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
-    CVImage                   texture;
-    texture.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png",
-                 false,
-                 false);
     // Setting up vulkan
     Instance     instance = Instance("Test", deviceExtensions, validationLayers);
     VkSurfaceKHR surface;
     glfwCreateWindowSurface(instance.handle, window, nullptr, &surface);
-    Device              device              = Device(instance, instance.physicalDevice, surface, deviceExtensions);
-    Swapchain           swapchain           = Swapchain(device, window);
-    RenderPass          renderPass          = RenderPass(device, swapchain);
+    Device     device     = Device(instance, instance.physicalDevice, surface, deviceExtensions);
+    Swapchain  swapchain  = Swapchain(device, window);
+    RenderPass renderPass = RenderPass(device, swapchain);
+
+    // Shader program setup
     DescriptorSetLayout descriptorSetLayout = DescriptorSetLayout(device);
     ShaderModule        vertShaderModule    = ShaderModule(device, vertShaderPath);
     ShaderModule        fragShaderModule    = ShaderModule(device, fragShaderPath);
     Pipeline            pipeline            = Pipeline(device, swapchain, descriptorSetLayout, renderPass, vertShaderModule, fragShaderModule);
     Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
-    TextureImage        textureImage        = TextureImage(device, texture.data(), texture.width(), texture.height());
-    Sampler             textureSampler      = Sampler(device);
-    Buffer              indexBuffer         = Buffer(device);
+
+    // Texture setup
+    CVImage texture;
+    texture.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png", false, false);
+    TextureImage textureImage   = TextureImage(device, texture.data(), texture.width(), texture.height());
+    Sampler      textureSampler = Sampler(device);
+
+    // Mesh setup
+    Buffer indexBuffer = Buffer(device);
     indexBuffer.createIndexBuffer(indices);
     UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix);
     DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
     DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureSampler, textureImage);
     Buffer         vertexBuffer   = Buffer(device);
     vertexBuffer.createVertexBuffer(vertices);
+    // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
     commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, indices.size());
     device.createSyncObjects(swapchain);
+
     // Render
     while (!glfwWindowShouldClose(window))
     {
