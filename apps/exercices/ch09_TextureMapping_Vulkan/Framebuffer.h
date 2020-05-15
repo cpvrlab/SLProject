@@ -10,7 +10,8 @@ class Swapchain;
 class Framebuffer
 {
 public:
-    Framebuffer(Device& device, const RenderPass renderPass, const Swapchain swapchain);
+    Framebuffer(Device& device, const RenderPass& renderPass, const Swapchain& swapchain);
+    void destroy();
 
 private:
     void createFramebuffer(const VkRenderPass renderPass, const VkExtent2D swapchainExtent, const std::vector<VkImageView> swapchainImageViews);

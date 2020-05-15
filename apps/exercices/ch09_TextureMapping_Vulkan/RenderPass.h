@@ -7,6 +7,7 @@ class RenderPass
 {
 public:
     RenderPass(Device& device, Swapchain& swapchain);
+    void destroy();
 
 public:
     Device&      device;

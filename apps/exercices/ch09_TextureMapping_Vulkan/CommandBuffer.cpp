@@ -1,5 +1,15 @@
 #include "CommandBuffer.h"
 
+void CommandBuffer::destroy()
+{
+    if (handle != VK_NULL_HANDLE)
+        vkFreeCommandBuffers(device.handle, device.commandPool, 1, &handle);
+
+    for (size_t i = 0; i < handles.size(); i++)
+        if (handles[i] != VK_NULL_HANDLE)
+            vkFreeCommandBuffers(device.handle, device.commandPool, 1, &handles[i]);
+}
+
 VkResult CommandBuffer::begin()
 {
     VkCommandBufferAllocateInfo allocInfo{};

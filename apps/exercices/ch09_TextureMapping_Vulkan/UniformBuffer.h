@@ -12,6 +12,7 @@ class UniformBuffer
 {
 public:
     UniformBuffer(Device& device, Swapchain& swapchain, SLMat4f& camera);
+    void destroy();
     void update(uint32_t currentImage);
 
 public:

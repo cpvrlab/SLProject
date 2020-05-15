@@ -253,7 +253,7 @@ int main()
     Instance     instance = Instance("Test", deviceExtensions, validationLayers);
     VkSurfaceKHR surface;
     glfwCreateWindowSurface(instance.handle, window, nullptr, &surface);
-    Device              device              = Device(instance.physicalDevice, surface, deviceExtensions);
+    Device              device              = Device(instance, instance.physicalDevice, surface, deviceExtensions);
     Swapchain           swapchain           = Swapchain(device, window);
     RenderPass          renderPass          = RenderPass(device, swapchain);
     DescriptorSetLayout descriptorSetLayout = DescriptorSetLayout(device);
@@ -274,16 +274,30 @@ int main()
     commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, indices.size());
     device.createSyncObjects(swapchain);
 
-    while (1)
+    while (!glfwWindowShouldClose(window))
     {
-        while (!glfwWindowShouldClose(window))
-        {
-            glfwPollEvents();
-            updateCamera();
-            pipeline.draw(swapchain, uniformBuffer, commandBuffer);
-            printFPS();
-        }
+        glfwPollEvents();
+        updateCamera();
+        pipeline.draw(swapchain, uniformBuffer, commandBuffer);
+        printFPS();
     }
+
+    device.waitIdle();
+
+    framebuffer.destroy();
+    commandBuffer.destroy();
+    pipeline.destroy();
+    renderPass.destroy();
+    swapchain.destroy();
+    uniformBuffer.destroy();
+    descriptorPool.destroy();
+    textureImage.destroy();
+    descriptorSetLayout.destroy();
+    indexBuffer.destroy();
+    vertShaderModule.destroy();
+    fragShaderModule.destroy();
+    device.destroy();
+    instance.destroy();
 
     return EXIT_SUCCESS;
 }

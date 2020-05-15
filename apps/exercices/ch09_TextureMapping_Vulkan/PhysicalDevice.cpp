@@ -6,7 +6,3 @@ PhysicalDevice::PhysicalDevice(const Instance* instance, VkPhysicalDevice physic
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 }
-
-PhysicalDevice::~PhysicalDevice()
-{
-}

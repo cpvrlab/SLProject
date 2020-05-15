@@ -43,7 +43,7 @@ Instance::Instance(const char* applicationName, const std::vector<const char*>& 
     setupDebugMessenger();
 }
 
-Instance::~Instance()
+void Instance::destroy()
 {
 #if defined(VKB_DEBUG) || defined(VKB_VALIDATION_LAYERS)
     if (debug_utils_messenger != VK_NULL_HANDLE)

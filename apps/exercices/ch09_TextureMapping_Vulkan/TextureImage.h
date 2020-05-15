@@ -11,6 +11,7 @@ class TextureImage
 {
 public:
     TextureImage(Device& device, void* pixels, unsigned int texWidth, unsigned int texHeight);
+    void destroy();
 
 private:
     void        createImage(uint32_t              width,

@@ -41,6 +41,15 @@ TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, 
     textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 }
 
+void TextureImage::destroy()
+{
+    if (buffer != nullptr)
+        delete (buffer);
+
+    if (textureImageView != VK_NULL_HANDLE)
+        vkDestroyImageView(device.handle, textureImageView, nullptr);
+}
+
 void TextureImage::createImage(uint32_t              width,
                                uint32_t              height,
                                VkFormat              format,

@@ -22,7 +22,7 @@ public:
              const std::vector<const char*>& requiredExtensions,
              const std::vector<const char*>& requiredValidationLayer);
 
-    ~Instance();
+    void destroy();
 
 private:
     void                     findSuitableGPU();

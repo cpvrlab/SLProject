@@ -15,7 +15,8 @@ class UniformBuffer;
 class Pipeline
 {
 public:
-    Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule);
+    Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule);
+    void destroy();
 
     void draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer);
 

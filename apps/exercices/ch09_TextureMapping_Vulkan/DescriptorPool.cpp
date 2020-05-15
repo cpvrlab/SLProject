@@ -17,3 +17,9 @@ DescriptorPool::DescriptorPool(Device& device, Swapchain& swapchain) : device{de
     VkResult result = vkCreateDescriptorPool(device.handle, &poolInfo, nullptr, &handle);
     ASSERT_VULKAN(result, "Failed to create descriptor pool");
 }
+
+void DescriptorPool::destroy()
+{
+    if (handle != VK_NULL_HANDLE)
+        vkDestroyDescriptorPool(device.handle, handle, nullptr);
+}

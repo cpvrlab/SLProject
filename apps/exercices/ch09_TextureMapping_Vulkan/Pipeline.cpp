@@ -1,8 +1,17 @@
 #include "Pipeline.h"
 
-Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : device{device}
+Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : device{device}
 {
-    createGraphicsPipeline(swapchain.extent, descriptorSetLayout.handle, renderPass.handle, vertShaderModule.shaderModule, fragShaderModule.shaderModule);
+    createGraphicsPipeline(swapchain.extent, descriptorSetLayout.handle, renderPass.handle, vertShaderModule.handle, fragShaderModule.handle);
+}
+
+void Pipeline::destroy()
+{
+    if (graphicsPipeline != VK_NULL_HANDLE)
+        vkDestroyPipeline(device.handle, graphicsPipeline, nullptr);
+
+    if (pipelineLayout != VK_NULL_HANDLE)
+        vkDestroyPipelineLayout(device.handle, pipelineLayout, nullptr);
 }
 
 void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)

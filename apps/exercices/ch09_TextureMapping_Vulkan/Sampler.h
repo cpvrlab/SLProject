@@ -6,6 +6,7 @@ class Sampler
 {
 public:
     Sampler(Device& device);
+    void destroy();
 
 public:
     Device&   device;

@@ -1,7 +1,7 @@
 #include "Device.h"
 #include <set>
 
-Device::Device(const VkPhysicalDevice& physicalDevice, VkSurfaceKHR surface, const std::vector<const char*> extensions) : physicalDevice{physicalDevice}, surface{surface}
+Device::Device(Instance& instance, const VkPhysicalDevice& physicalDevice, VkSurfaceKHR surface, const std::vector<const char*> extensions) : instance{instance}, physicalDevice{physicalDevice}, surface{surface}
 {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -42,6 +42,25 @@ Device::Device(const VkPhysicalDevice& physicalDevice, VkSurfaceKHR surface, con
     vkGetDeviceQueue(handle, indices.presentFamily, 0, &presentQueue);
 
     createCommandPool();
+}
+
+void Device::destroy()
+{
+    for (size_t i = 0; i < 2; i++)
+    {
+        if (renderFinishedSemaphores[i] != VK_NULL_HANDLE)
+            vkDestroySemaphore(handle, renderFinishedSemaphores[i], nullptr);
+        if (imageAvailableSemaphores[i] != VK_NULL_HANDLE)
+            vkDestroySemaphore(handle, imageAvailableSemaphores[i], nullptr);
+        if (inFlightFences[i] != VK_NULL_HANDLE)
+            vkDestroyFence(handle, inFlightFences[i], nullptr);
+        // if (imagesInFlight[i] != VK_NULL_HANDLE)
+        //     vkDestroyFence(handle, imagesInFlight[i], nullptr);
+    }
+
+    vkDestroyCommandPool(handle, commandPool, nullptr);
+    vkDestroyDevice(handle, nullptr);
+    vkDestroySurfaceKHR(instance.handle, surface, nullptr);
 }
 
 QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
@@ -114,4 +133,9 @@ void Device::createSyncObjects(Swapchain& swapchain)
                           nullptr,
                           &inFlightFences[i]) != VK_SUCCESS)
             cerr << "failed to create synchronization objects for a frame!" << endl;
+}
+
+void Device::waitIdle()
+{
+    vkDeviceWaitIdle(handle);
 }

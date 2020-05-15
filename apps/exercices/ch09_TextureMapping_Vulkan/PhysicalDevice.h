@@ -6,7 +6,7 @@ class PhysicalDevice
 {
 public:
     PhysicalDevice(const Instance* instance, VkPhysicalDevice physicalDevice);
-    ~PhysicalDevice();
+    void destroy();
 
 public:
     const Instance*                  instance;

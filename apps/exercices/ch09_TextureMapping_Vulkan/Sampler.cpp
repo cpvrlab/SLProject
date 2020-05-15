@@ -20,3 +20,9 @@ Sampler::Sampler(Device& device) : device{device}
     VkResult result = vkCreateSampler(device.handle, &samplerInfo, nullptr, &handle);
     ASSERT_VULKAN(result, "Failed to create texture sampler");
 }
+
+void Sampler::destroy()
+{
+    if (handle != VK_NULL_HANDLE)
+        vkDestroySampler(device.handle, handle, nullptr);
+}

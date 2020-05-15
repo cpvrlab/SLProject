@@ -26,3 +26,9 @@ DescriptorSetLayout::DescriptorSetLayout(Device& device) : device{device}
     VkResult result = vkCreateDescriptorSetLayout(device.handle, &layoutInfo, nullptr, &handle);
     ASSERT_VULKAN(result, "Failed to crete descriptor set layout");
 }
+
+void DescriptorSetLayout::destroy()
+{
+    if (handle != VK_NULL_HANDLE)
+        vkDestroyDescriptorSetLayout(device.handle, handle, nullptr);
+}

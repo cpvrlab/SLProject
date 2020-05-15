@@ -9,6 +9,7 @@ class Buffer
 {
 public:
     Buffer(Device& device) : device{device} {};
+    void     destroy();
     void     free();
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void     copy(Buffer src, VkDeviceSize size);

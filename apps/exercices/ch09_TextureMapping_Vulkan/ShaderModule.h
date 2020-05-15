@@ -7,6 +7,7 @@ class ShaderModule
 {
 public:
     ShaderModule(Device& device, const string& shaderPath);
+    void destroy();
 
 private:
     void         createShaderModule(const std::vector<char>& code);
@@ -14,5 +15,5 @@ private:
 
 public:
     Device&        device;
-    VkShaderModule shaderModule;
+    VkShaderModule handle;
 };

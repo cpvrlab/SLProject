@@ -11,6 +11,7 @@ class DescriptorPool
 {
 public:
     DescriptorPool(Device& device, Swapchain& swapchain);
+    void destroy();
 
 public:
     Device&          device;

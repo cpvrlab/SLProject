@@ -6,6 +6,7 @@ class DescriptorSetLayout
 {
 public:
     DescriptorSetLayout(Device& device);
+    void destroy();
 
 public:
     Device&               device;

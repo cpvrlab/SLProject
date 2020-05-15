@@ -1,5 +1,14 @@
 #include "Buffer.h"
 
+void Buffer::destroy()
+{
+    if (handle != VK_NULL_HANDLE)
+    {
+        vkDestroyBuffer(device.handle, handle, nullptr);
+        vkFreeMemory(device.handle, memory, nullptr);
+    }
+}
+
 void Buffer::free()
 {
     vkDestroyBuffer(device.handle, handle, nullptr);

@@ -55,6 +55,16 @@ Swapchain::Swapchain(Device&     device,
     createImageViews();
 }
 
+void Swapchain::destroy()
+{
+    for (size_t i = 0; i < imageViews.size(); i++)
+        if (imageViews[i] != VK_NULL_HANDLE)
+            vkDestroyImageView(device.handle, imageViews[i], nullptr);
+
+    if (handle != VK_NULL_HANDLE)
+        vkDestroySwapchainKHR(device.handle, handle, nullptr);
+}
+
 VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)

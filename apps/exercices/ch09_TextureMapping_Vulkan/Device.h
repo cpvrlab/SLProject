@@ -16,12 +16,15 @@ struct QueueFamilyIndices
 class Device
 {
 public:
-    Device(const VkPhysicalDevice&, VkSurfaceKHR, const std::vector<const char*> extensions);
+    Device(Instance& instance, const VkPhysicalDevice&, VkSurfaceKHR, const std::vector<const char*> extensions);
+    void               destroy();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void               createCommandPool();
     void               createSyncObjects(Swapchain& swapchain);
+    void               waitIdle();
 
 public:
+    Instance&                          instance;
     const VkPhysicalDevice&            physicalDevice;
     VkSurfaceKHR                       surface{VK_NULL_HANDLE};
     VkDevice                           handle{VK_NULL_HANDLE};

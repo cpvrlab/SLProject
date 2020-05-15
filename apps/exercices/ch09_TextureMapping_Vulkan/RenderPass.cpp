@@ -42,3 +42,9 @@ RenderPass::RenderPass(Device& device, Swapchain& swapchain) : device{device}
     VkResult result = vkCreateRenderPass(device.handle, &renderPassInfo, nullptr, &handle);
     ASSERT_VULKAN(result, "Failed to crete render pass");
 }
+
+void RenderPass::destroy()
+{
+    if (handle != VK_NULL_HANDLE)
+        vkDestroyRenderPass(device.handle, handle, nullptr);
+}

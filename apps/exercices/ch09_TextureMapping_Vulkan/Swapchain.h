@@ -22,6 +22,7 @@ class Swapchain
 public:
     Swapchain(Device&     device,
               GLFWwindow* window);
+    void destroy();
 
 private:
     VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats);
