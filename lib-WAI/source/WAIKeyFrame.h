@@ -40,7 +40,7 @@
 #include <opencv2/core/core.hpp>
 
 #include <WAIHelper.h>
-#include <fbow.h>
+#include <WAIOrbVocabulary.h>
 #include <WAIFrame.h>
 #include <WAIMath.h>
 
@@ -72,7 +72,7 @@ public:
                 size_t                           N,
                 const std::vector<cv::KeyPoint>& vKeysUn,
                 const cv::Mat&                   descriptors,
-                fbow::Vocabulary*                vocabulary,
+                WAIOrbVocabulary*                vocabulary,
                 int                              nScaleLevels,
                 float                            fScaleFactor,
                 const std::vector<float>&        vScaleFactors,
@@ -96,7 +96,7 @@ public:
     cv::Mat GetTranslation();
 
     // Bag of Words Representation
-    void ComputeBoW(fbow::Vocabulary* vocabulary);
+    void ComputeBoW(WAIOrbVocabulary* vocabulary);
 
     // Covisibility graph functions
     void                      AddConnection(WAIKeyFrame* pKF, int weight);
@@ -223,8 +223,8 @@ public:
     const cv::Mat mDescriptors;
 
     //BoW
-    fbow::fBow     mBowVec;
-    fbow::fBow2    mFeatVec;
+    WAIBowVector  mBowVec;
+    WAIFeatVector mFeatVec;
 
     // Pose relative to parent (this is computed when bad flag is activated)
     cv::Mat mTcp;

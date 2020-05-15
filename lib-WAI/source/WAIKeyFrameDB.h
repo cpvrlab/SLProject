@@ -35,7 +35,7 @@
 #include <list>
 #include <WAIHelper.h>
 #include <WAIKeyFrame.h>
-#include <fbow.h>
+#include <WAIOrbVocabulary.h>
 
 #include <mutex>
 
@@ -46,7 +46,7 @@
 class WAI_API WAIKeyFrameDB
 {
     public:
-    WAIKeyFrameDB(const fbow::Vocabulary& voc);
+    WAIKeyFrameDB(WAIOrbVocabulary* voc);
 
     void add(WAIKeyFrame* pKF);
     void erase(WAIKeyFrame* pKF);
@@ -67,7 +67,7 @@ class WAI_API WAIKeyFrameDB
 
     protected:
     // Associated vocabulary
-    const fbow::Vocabulary* mpVoc;
+    WAIOrbVocabulary* mpVoc;
     // Inverted file
     std::vector<std::list<WAIKeyFrame*>> mvInvertedFile;
 

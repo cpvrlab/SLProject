@@ -25,8 +25,18 @@ SLOptixPathtracer::SLOptixPathtracer()
 //-----------------------------------------------------------------------------
 SLOptixPathtracer::~SLOptixPathtracer()
 {
-    //SL_LOG("Destructor      : ~SLOptixPathtracer");
-    OPTIX_CHECK(optixDenoiserDestroy(_optixDenoiser));
+    SL_LOG("Destructor      : ~SLOptixPathtracer");
+
+    try
+    {
+        OPTIX_CHECK(optixDenoiserDestroy(_optixDenoiser));
+    }
+    catch (exception e)
+    {
+        Utils::log("SLProject",
+                   "Exception in ~SLOptixRaytracer: %s",
+                   e.what());
+    }
 }
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::setupOptix()

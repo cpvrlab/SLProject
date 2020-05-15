@@ -89,9 +89,9 @@ class SLGLVertexBuffer
     void disableAttrib();
 
     // Getters
-    SLuint           id() { return _id; }
+    SLuint           id() const { return _id; }
     SLVVertexAttrib& attribs() { return _attribs; }
-    SLbool           outputInterleaved() { return _outputInterleaved; }
+    SLbool           outputInterleaved() const { return _outputInterleaved; }
 
     // Setters
     void dataType(SLGLBufferType dt) { _dataType = dt; }

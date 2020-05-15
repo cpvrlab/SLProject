@@ -15,7 +15,6 @@
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
 #include <memory>
-#include <fbow.h>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
@@ -47,14 +46,14 @@ public:
 
     WAISlam(const cv::Mat&          intrinsic,
             const cv::Mat&          distortion,
-            fbow::Vocabulary*       voc,
+            WAIOrbVocabulary*       voc,
             KPextractor*            iniExtractor,
             KPextractor*            extractor,
             std::unique_ptr<WAIMap> globalMap,
             bool                    trackingOnly      = false,
             bool                    serial            = false,
             bool                    retainImg         = false,
-            float                   cullRedundantPerc = 0.95f);
+            float                   cullRedundantPerc = 0.95);
 
     virtual ~WAISlam();
 

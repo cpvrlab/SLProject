@@ -91,7 +91,7 @@ WAIFrame::WAIFrame(const WAIFrame& frame)
         imgGray = frame.imgGray.clone();
 }
 //-----------------------------------------------------------------------------
-WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, fbow::Vocabulary* vocabulary, bool retainImg)
+WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* extractor, cv::Mat& K, cv::Mat& distCoef, WAIOrbVocabulary* vocabulary, bool retainImg)
   : mpORBextractorLeft(extractor), mTimeStamp(timeStamp), /*mK(K.clone()),*/ /*mDistCoef(distCoef.clone()),*/
     mVocabulary(vocabulary)
 {
@@ -132,8 +132,8 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
     {
         ComputeImageBounds(imGray);
 
-        mfGridElementWidthInv  = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
-        mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
+        mfGridElementWidthInv  = static_cast<float>(FRAME_GRID_COLS) / (mnMaxX - mnMinX);
+        mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / (mnMaxY - mnMinY);
 
         fx    = mK.at<float>(0, 0);
         fy    = mK.at<float>(1, 1);
@@ -317,16 +317,14 @@ bool WAIFrame::PosInGrid(const cv::KeyPoint& kp, int& posX, int& posY)
 //-----------------------------------------------------------------------------
 void WAIFrame::ComputeBoW()
 {
-    if (mBowVec.empty())
+    if (!mBowVec.isFill)
     {
         //vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         // Luc: In a 6 levels and 10 branch per level voc, 4 levelup mean the 2nd level from the top
         // that make a total of 100 words. More words means more variance between keyframe and less
         // preselected keyframe but that will make also the relocalization less invariant to changes
 
-        // Luc 2: I think level is from the top with the new BoW
-        if (mDescriptors.rows > 0)
-            mVocabulary->transform(mDescriptors, 1, mBowVec, mFeatVec);
+        mVocabulary->transform(mDescriptors, mBowVec, mFeatVec);
     }
 }
 //-----------------------------------------------------------------------------

@@ -15,6 +15,7 @@
 // init static variables
 SLint   SLRay::maxDepth         = 0;
 SLfloat SLRay::minContrib       = 1.0 / 256.0;
+SLuint  SLRay::primaryRays      = 0;
 SLuint  SLRay::reflectedRays    = 0;
 SLuint  SLRay::refractedRays    = 0;
 SLuint  SLRay::ignoredRays      = 0;
@@ -33,13 +34,10 @@ SLfloat SLRay::avgDepth         = 0;
 used in SLRay, SLLightRect and SLPathtracer. So far they work perfectly with 
 CPP11 multithreading.
 */
-auto    random01 = bind(uniform_real_distribution<SLfloat>(0.0, 1.0),
+auto random01 = bind(uniform_real_distribution<SLfloat>(0.0, 1.0),
                      mt19937((SLuint)time(nullptr)));
-SLfloat rnd01();
-SLfloat rnd01()
-{
-    return random01();
-}
+
+SLfloat rnd01() { return random01(); }
 //-----------------------------------------------------------------------------
 /*! 
 SLRay::SLRay default constructor

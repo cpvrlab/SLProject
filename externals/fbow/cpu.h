@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#ifdef __ANDROID__
-
+#if defined(__ANDROID__) || defined(TARGET_OS_IOS)
+//#   error "Bla bla da da"
 #else
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386) || defined(_M_IX86)
 #   if _WIN32
@@ -48,7 +48,7 @@ private:
     static bool inline detect_OS_AVX512();
     static inline uint64_t xgetbv(unsigned int x);
 };
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(TARGET_OS_IOS)
 
 void cpu::cpuid(int32_t out[4], int32_t x){}
 #else
@@ -79,8 +79,16 @@ bool  cpu::detect_OS_x64(){
 ////////////////////////////////////
 
 #   elif defined(__GNUC__) || defined(__clang__)
-void cpu::cpuid(int32_t out[4], int32_t x){ __cpuid_count(x, 0, out[0], out[1], out[2], out[3]); }
-uint64_t cpu::xgetbv(unsigned int index){ uint32_t eax, edx;  __asm__ __volatile__("xgetbv" : "=a"(eax), "=d"(edx) : "c"(index)); return ((uint64_t)edx << 32) | eax;}
+#      ifdef __APPLE__
+#define __cpuid_count(__leaf, __count, __eax, __ebx, __ecx, __edx) \
+                      __asm("cpuid" : "=a"(__eax), "=b" (__ebx), "=c"(__ecx), "=d"(__edx) \
+                      : "0"(__leaf), "2"(__count))
+
+          void cpu::cpuid(int32_t out[4], int32_t x){ __cpuid_count(x, 0, out[0], out[1], out[2], out[3]); }
+#      else
+          void cpu::cpuid(int32_t out[4], int32_t x){ __cpuid_count(x, 0, out[0], out[1], out[2], out[3]); }
+#      endif
+       uint64_t cpu::xgetbv(unsigned int index){ uint32_t eax, edx;  __asm__ __volatile__("xgetbv" : "=a"(eax), "=d"(edx) : "c"(index)); return ((uint64_t)edx << 32) | eax;}
 ////////////////////////////////////////////////////////////////////////////////
 //  Detect 64-bit. We only support x64 on Linux.
 bool  cpu::detect_OS_x64(){ return true;}
@@ -91,7 +99,7 @@ bool  cpu::detect_OS_x64(){ return true;}
 ////////////////////////////////////////////////////////////////////////////////
 bool cpu::detect_OS_AVX(){
     //  Copied from: http://stackoverflow.com/a/22521619/922184
-#ifndef __ANDROID__
+#if !defined(__ANDROID__) && !defined(TARGET_OS_IOS)
 
     bool avxSupported = false;
     int cpuInfo[4]; cpuid(cpuInfo, 1);
@@ -105,7 +113,7 @@ bool cpu::detect_OS_AVX(){
 }
 bool cpu::detect_OS_AVX512(){
 
-#ifndef __ANDROID__
+#if !defined(__ANDROID__) && !defined(TARGET_OS_IOS)
     if (!detect_OS_AVX())
         return false;
     uint64_t xcrFeatureMask = xgetbv(_XCR_XFEATURE_ENABLED_MASK);
@@ -118,7 +126,7 @@ bool cpu::detect_OS_AVX512(){
 std::string cpu::get_vendor_string(){ int32_t CPUInfo[4]; char name[13];cpuid(CPUInfo, 0); memcpy(name + 0, &CPUInfo[1], 4);memcpy(name + 4, &CPUInfo[3], 4); memcpy(name + 8, &CPUInfo[2], 4); name[12] = '\0'; return name;}
 void cpu::detect_host(){
 
-#ifndef __ANDROID__
+#if !defined(__ANDROID__) && !defined(TARGET_OS_IOS)
 
     OS_x64 = detect_OS_x64();
     OS_AVX = detect_OS_AVX();

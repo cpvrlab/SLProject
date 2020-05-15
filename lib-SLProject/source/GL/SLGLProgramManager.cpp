@@ -12,10 +12,10 @@
 
 #include <SLGLProgramManager.h>
 
-std::map<SLShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
+std::map<SLStdShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
 
 //-----------------------------------------------------------------------------
-SLGLGenericProgram* SLGLProgramManager::get(SLShaderProg id)
+SLGLGenericProgram* SLGLProgramManager::get(SLStdShaderProg id)
 {
     auto it = _programs.find(id);
     if (it == _programs.end())
@@ -33,7 +33,7 @@ void SLGLProgramManager::deletePrograms()
     _programs.clear();
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramManager::makeProgram(SLShaderProg id)
+void SLGLProgramManager::makeProgram(SLStdShaderProg id)
 {
     switch (id)
     {

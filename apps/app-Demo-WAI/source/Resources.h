@@ -47,7 +47,7 @@ public:
     ImVec4 headerBarBackgroundTranspColor = {BFHColors::Gray2.r,
                                              BFHColors::Gray2.g,
                                              BFHColors::Gray2.b,
-                                             0.2};
+                                             0.2f};
 
     ImVec4 headerBarTextColor = {1.f, 1.f, 1.f, 1.f}; //white
                                                       //selection gui button color
@@ -80,12 +80,12 @@ public:
     ImVec4 buttonColorSelection = {BFHColors::OrangePrimary.r,
                                    BFHColors::OrangePrimary.g,
                                    BFHColors::OrangePrimary.b,
-                                   0.3};
+                                   0.3f};
     //selection gui pressed button color
     ImVec4 buttonColorPressedSelection = {BFHColors::GrayLogo.r,
                                           BFHColors::GrayLogo.g,
                                           BFHColors::GrayLogo.b,
-                                          0.3};
+                                          0.3f};
 
     //area pose button
     ImVec4 areaPoseButtonShapeColor        = {1.f, 0.f, 0.f, 0.5f};

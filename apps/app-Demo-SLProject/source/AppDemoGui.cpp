@@ -17,6 +17,7 @@
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
+#include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -587,6 +588,56 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Scene Statistics", &showStatsScene, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
+
+            ImGui::Separator();
+
+            ImGui::Text("Global Resources:");
+
+            if (s->meshes().size() && ImGui::TreeNode("Meshes"))
+            {
+                for (SLuint i = 0; i < s->meshes().size(); ++i)
+                    ImGui::Text("[%d] %s (%u v.)",
+                                i,
+                                s->meshes()[i]->name().c_str(),
+                                (SLuint)s->meshes()[i]->P.size());
+
+                ImGui::TreePop();
+            }
+
+            if (s->materials().size() && ImGui::TreeNode("Materials"))
+            {
+                for (SLuint i = 0; i < s->materials().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (s->textures().size() && ImGui::TreeNode("Textures"))
+            {
+                for (SLuint i = 0; i < s->textures().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
+            {
+                for (SLuint i = 0; i < s->programs().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (standard)"))
+            {
+                for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
+                    ImGui::Text("[%u] %s",
+                                i,
+                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+
+                ImGui::TreePop();
+            }
+
             ImGui::End();
             ImGui::PopFont();
         }
@@ -2890,7 +2941,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
             fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
             fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
-            fs["showStatsWAI"] >> b;      AppDemoGui::showStatsWAI = b;
+            fs["showStatsWAI"] >> b;        AppDemoGui::showStatsWAI = b;
             fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosDevice = b;
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
@@ -2989,7 +3040,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(s, sv, s->selectedNode());
+        tN = new SLTransformNode(sv, s->selectedNode());
         s->root3D()->addChild(tN);
     }
 
@@ -3001,7 +3052,14 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 void AppDemoGui::removeTransformNode(SLProjectScene* s)
 {
     SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
-    if (tN) s->root3D()->deleteChild(tN);
+    if (tN)
+    {
+        auto it = find(s->eventHandlers().begin(), s->eventHandlers().end(), tN);
+        if (it != s->eventHandlers().end())
+            s->eventHandlers().erase(it);
+
+        s->root3D()->deleteChild(tN);
+    }
     transformNode = nullptr;
 }
 //-----------------------------------------------------------------------------

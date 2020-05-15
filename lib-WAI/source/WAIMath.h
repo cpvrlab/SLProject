@@ -122,10 +122,10 @@ inline M3x3 rotateXM3x3(float theta)
 {
     M3x3 result = identityM3x3();
 
-    result.e[1][1] = (float)cos(theta);
-    result.e[1][2] = (float)sin(theta);
-    result.e[2][1] = -1 * (float)sin(theta);
-    result.e[2][2] = (float)cos(theta);
+    result.e[1][1] = cos(theta);
+    result.e[1][2] = sin(theta);
+    result.e[2][1] = -1 * sin(theta);
+    result.e[2][2] = cos(theta);
 
     return result;
 }
