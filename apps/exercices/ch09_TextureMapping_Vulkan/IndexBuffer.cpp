@@ -1,7 +1,7 @@
 /*
 #include "IndexBuffer.h"
 
-IndexBuffer::IndexBuffer(Device& device, const std::vector<uint16_t> indices) : device{device}
+IndexBuffer::IndexBuffer(Device& device, const vector<uint16_t> indices) : device{device}
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 

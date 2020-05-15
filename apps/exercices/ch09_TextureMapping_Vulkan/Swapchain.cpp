@@ -3,6 +3,7 @@
 #include "GLFW/glfw3.h"
 #include <algorithm>
 
+//-----------------------------------------------------------------------------
 Swapchain::Swapchain(Device&     device,
                      GLFWwindow* window) : device{device}
 {
@@ -54,7 +55,7 @@ Swapchain::Swapchain(Device&     device,
 
     createImageViews();
 }
-
+//-----------------------------------------------------------------------------
 void Swapchain::destroy()
 {
     for (size_t i = 0; i < imageViews.size(); i++)
@@ -64,7 +65,7 @@ void Swapchain::destroy()
     if (handle != VK_NULL_HANDLE)
         vkDestroySwapchainKHR(device.handle, handle, nullptr);
 }
-
+//-----------------------------------------------------------------------------
 VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)
@@ -74,7 +75,7 @@ VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const vector<VkSurfaceForm
 
     return availableFormats[0];
 }
-
+//-----------------------------------------------------------------------------
 VkPresentModeKHR Swapchain::chooseSwapPresentMode(const vector<VkPresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
@@ -84,7 +85,7 @@ VkPresentModeKHR Swapchain::chooseSwapPresentMode(const vector<VkPresentModeKHR>
     // VK_PRESENT_MODE_FIFO_KHR: First in first out. If the queue is full, the program waits
     return VK_PRESENT_MODE_FIFO_KHR;
 }
-
+//-----------------------------------------------------------------------------
 VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
                                        GLFWwindow*                     window)
 {
@@ -107,7 +108,7 @@ VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
         return actualExtent;
     }
 }
-
+//-----------------------------------------------------------------------------
 SwapchainSupportDetails Swapchain::querySwapchainSupport(Device& device)
 {
     SwapchainSupportDetails details;
@@ -148,7 +149,7 @@ SwapchainSupportDetails Swapchain::querySwapchainSupport(Device& device)
 
     return details;
 }
-
+//-----------------------------------------------------------------------------
 void Swapchain::createImageViews()
 {
     imageViews.resize(images.size());
@@ -156,7 +157,7 @@ void Swapchain::createImageViews()
     for (size_t i = 0; i < images.size(); i++)
         imageViews[i] = createImageView(images[i], surfaceFormat.format);
 }
-
+//-----------------------------------------------------------------------------
 VkImageView Swapchain::createImageView(VkImage image, VkFormat format)
 {
     VkImageViewCreateInfo viewInfo{};
@@ -177,3 +178,4 @@ VkImageView Swapchain::createImageView(VkImage image, VkFormat format)
 
     return imageView;
 }
+//-----------------------------------------------------------------------------

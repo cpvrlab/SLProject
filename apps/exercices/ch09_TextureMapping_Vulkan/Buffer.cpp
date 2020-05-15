@@ -1,5 +1,6 @@
 #include "Buffer.h"
 
+//-----------------------------------------------------------------------------
 void Buffer::destroy()
 {
     if (handle != VK_NULL_HANDLE)
@@ -8,14 +9,16 @@ void Buffer::destroy()
         vkFreeMemory(device.handle, memory, nullptr);
     }
 }
-
+//-----------------------------------------------------------------------------
 void Buffer::free()
 {
     vkDestroyBuffer(device.handle, handle, nullptr);
     vkFreeMemory(device.handle, memory, nullptr);
 }
-
-void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+//-----------------------------------------------------------------------------
+void Buffer::createBuffer(VkDeviceSize          size,
+                          VkBufferUsageFlags    usage,
+                          VkMemoryPropertyFlags properties)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -40,8 +43,9 @@ void Buffer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryP
     result = vkBindBufferMemory(device.handle, handle, memory, 0);
     ASSERT_VULKAN(result, "Failed to bind Buffer memory!");
 }
-
-uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+//-----------------------------------------------------------------------------
+uint32_t Buffer::findMemoryType(uint32_t              typeFilter,
+                                VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(device.physicalDevice, &memProperties);
@@ -56,7 +60,7 @@ uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 
     return UINT32_MAX;
 }
-
+//-----------------------------------------------------------------------------
 void Buffer::copy(Buffer src, VkDeviceSize size)
 {
     CommandBuffer commandBuffer = CommandBuffer(device);
@@ -71,7 +75,7 @@ void Buffer::copy(Buffer src, VkDeviceSize size)
     // handle = src.handle;
     // memory = src.memory;
 }
-
+//-----------------------------------------------------------------------------
 void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
@@ -94,15 +98,16 @@ void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 
     stagingBuffer.free();
 }
-
-void Buffer::createIndexBuffer(const std::vector<uint16_t> indices)
+//-----------------------------------------------------------------------------
+void Buffer::createIndexBuffer(const vector<uint16_t> indices)
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     Buffer stagingBuffer = Buffer(device);
     stagingBuffer.createBuffer(bufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
     vkMapMemory(device.handle, stagingBuffer.memory, 0, bufferSize, 0, &data);
@@ -117,3 +122,4 @@ void Buffer::createIndexBuffer(const std::vector<uint16_t> indices)
 
     stagingBuffer.free();
 }
+//-----------------------------------------------------------------------------

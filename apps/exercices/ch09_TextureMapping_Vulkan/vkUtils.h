@@ -159,10 +159,10 @@ public:
     void     createUniformBuffers();
     void     createDescriptorPool();
     void     createDescriptorSets();
-    void     createCommandBuffers(const std::vector<Vertex>& vertices);
+    void     createCommandBuffers(const vector<Vertex>& vertices);
     void     createSyncObjects();
     void     setCameraMatrix(SLMat4f*);
-    void     recreateSwapchain(GLFWwindow* window, const std::vector<Vertex>& vertices);
+    void     recreateSwapchain(GLFWwindow* window, const vector<Vertex>& vertices);
 
 private:
     void     cleanupSwapchain();

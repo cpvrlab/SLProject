@@ -1,6 +1,10 @@
 #include "TextureImage.h"
 
-TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, unsigned int texHeight) : device{device}
+//-----------------------------------------------------------------------------
+TextureImage::TextureImage(Device&      device,
+                           void*        pixels,
+                           unsigned int texWidth,
+                           unsigned int texHeight) : device{device}
 {
     VkDeviceSize imageSize = texWidth * texHeight * 4; // * 4 because of RGBA
 
@@ -8,7 +12,10 @@ TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, 
         cerr << "Failed to load texture image" << endl;
 
     buffer = new Buffer(device);
-    buffer->createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    buffer->createBuffer(imageSize,
+                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
     vkMapMemory(device.handle, buffer->memory, 0, imageSize, 0, &data);
@@ -40,7 +47,7 @@ TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, 
 
     textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 }
-
+//-----------------------------------------------------------------------------
 void TextureImage::destroy()
 {
     if (buffer != nullptr)
@@ -49,7 +56,7 @@ void TextureImage::destroy()
     if (textureImageView != VK_NULL_HANDLE)
         vkDestroyImageView(device.handle, textureImageView, nullptr);
 }
-
+//-----------------------------------------------------------------------------
 void TextureImage::createImage(uint32_t              width,
                                uint32_t              height,
                                VkFormat              format,
@@ -90,7 +97,7 @@ void TextureImage::createImage(uint32_t              width,
 
     vkBindImageMemory(device.handle, image, imageMemory, 0);
 }
-
+//-----------------------------------------------------------------------------
 void TextureImage::transitionImageLayout(VkImage       image,
                                          VkFormat      format,
                                          VkImageLayout oldLayout,
@@ -112,8 +119,8 @@ void TextureImage::transitionImageLayout(VkImage       image,
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount     = 1;
 
-    VkPipelineStageFlags sourceStage;
-    VkPipelineStageFlags destinationStage;
+    VkPipelineStageFlags sourceStage{};
+    VkPipelineStageFlags destinationStage{};
 
     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
         newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
@@ -148,7 +155,7 @@ void TextureImage::transitionImageLayout(VkImage       image,
                          &barrier);
     commandBuffer.end();
 }
-
+//-----------------------------------------------------------------------------
 void TextureImage::copyBufferToImage(VkBuffer buffer,
                                      VkImage  image,
                                      uint32_t width,
@@ -176,8 +183,9 @@ void TextureImage::copyBufferToImage(VkBuffer buffer,
                            &imageCopyBuffer);
     commandBuffer.end();
 }
-
-VkImageView TextureImage::createImageView(VkImage image, VkFormat format)
+//-----------------------------------------------------------------------------
+VkImageView TextureImage::createImageView(VkImage  image,
+                                          VkFormat format)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -197,3 +205,4 @@ VkImageView TextureImage::createImageView(VkImage image, VkFormat format)
 
     return imageView;
 }
+//-----------------------------------------------------------------------------

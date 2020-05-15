@@ -7,6 +7,7 @@
 
 class Swapchain;
 
+//-----------------------------------------------------------------------------
 class DescriptorPool
 {
 public:
@@ -17,3 +18,4 @@ public:
     Device&          device;
     VkDescriptorPool handle{VK_NULL_HANDLE};
 };
+//-----------------------------------------------------------------------------

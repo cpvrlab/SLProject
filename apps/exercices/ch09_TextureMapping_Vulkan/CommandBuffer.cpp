@@ -43,7 +43,7 @@ void CommandBuffer::end()
     vkFreeCommandBuffers(device.handle, device.commandPool, 1, &handle);
 }
 
-void CommandBuffer::setVertices(const std::vector<Vertex>& vertices, Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, Buffer& vertexBuffer, Buffer& indexBuffer, Pipeline& pipeline, DescriptorSet& descriptorSet, int indicesSize)
+void CommandBuffer::setVertices(const vector<Vertex>& vertices, Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, Buffer& vertexBuffer, Buffer& indexBuffer, Pipeline& pipeline, DescriptorSet& descriptorSet, int indicesSize)
 {
     handles.resize(framebuffer.handle.size());
 

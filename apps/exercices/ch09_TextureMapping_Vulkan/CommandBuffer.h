@@ -14,6 +14,7 @@ class DescriptorSet;
 class Buffer;
 class Pipeline;
 
+//-----------------------------------------------------------------------------
 class CommandBuffer
 {
 public:
@@ -22,10 +23,19 @@ public:
 
     VkResult begin();
     void     end();
-    void     setVertices(const std::vector<Vertex>& vertices, Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, Buffer& vertexBuffer, Buffer& indexBuffer, Pipeline& pipeline, DescriptorSet& descriptorSet, int indicesSize);
+    void     setVertices(const vector<Vertex>& vertices,
+                         Swapchain&            swapchain,
+                         Framebuffer&          framebuffer,
+                         RenderPass&           renderPass,
+                         Buffer&               vertexBuffer,
+                         Buffer&               indexBuffer,
+                         Pipeline&             pipeline,
+                         DescriptorSet&        descriptorSet,
+                         int                   indicesSize);
 
 public:
-    Device&                      device;
-    VkCommandBuffer              handle{VK_NULL_HANDLE};
-    std::vector<VkCommandBuffer> handles;
+    Device&                 device;
+    VkCommandBuffer         handle{VK_NULL_HANDLE};
+    vector<VkCommandBuffer> handles;
 };
+//-----------------------------------------------------------------------------

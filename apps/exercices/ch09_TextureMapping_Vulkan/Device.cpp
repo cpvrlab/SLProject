@@ -1,7 +1,13 @@
 #include "Device.h"
 #include <set>
 
-Device::Device(Instance& instance, const VkPhysicalDevice& physicalDevice, VkSurfaceKHR surface, const std::vector<const char*> extensions) : instance{instance}, physicalDevice{physicalDevice}, surface{surface}
+//-----------------------------------------------------------------------------
+Device::Device(Instance&                 instance,
+               const VkPhysicalDevice&   physicalDevice,
+               VkSurfaceKHR              surface,
+               const vector<const char*> extensions) : instance{instance},
+                                                       physicalDevice{physicalDevice},
+                                                       surface{surface}
 {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -43,7 +49,7 @@ Device::Device(Instance& instance, const VkPhysicalDevice& physicalDevice, VkSur
 
     createCommandPool();
 }
-
+//-----------------------------------------------------------------------------
 void Device::destroy()
 {
     for (size_t i = 0; i < 2; i++)
@@ -62,7 +68,7 @@ void Device::destroy()
     vkDestroyDevice(handle, nullptr);
     vkDestroySurfaceKHR(instance.handle, surface, nullptr);
 }
-
+//-----------------------------------------------------------------------------
 QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices{};
@@ -92,7 +98,7 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
 
     return indices;
 }
-
+//-----------------------------------------------------------------------------
 void Device::createCommandPool()
 {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
@@ -104,7 +110,7 @@ void Device::createCommandPool()
     VkResult result = vkCreateCommandPool(handle, &poolInfo, nullptr, &commandPool);
     ASSERT_VULKAN(result, "Failed to create command pool");
 }
-
+//-----------------------------------------------------------------------------
 void Device::createSyncObjects(Swapchain& swapchain)
 {
     imageAvailableSemaphores.resize(2);
@@ -134,8 +140,9 @@ void Device::createSyncObjects(Swapchain& swapchain)
                           &inFlightFences[i]) != VK_SUCCESS)
             cerr << "failed to create synchronization objects for a frame!" << endl;
 }
-
+//-----------------------------------------------------------------------------
 void Device::waitIdle()
 {
     vkDeviceWaitIdle(handle);
 }
+//-----------------------------------------------------------------------------

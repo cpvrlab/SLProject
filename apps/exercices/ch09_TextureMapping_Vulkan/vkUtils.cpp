@@ -91,9 +91,9 @@ void vkUtils::createInstance()
     createInfo.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
     // Extensions that should be enabled
-    std::vector<const char*> extensions = getRequiredExtensions();
-    createInfo.enabledExtensionCount    = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames  = extensions.data();
+    vector<const char*> extensions     = getRequiredExtensions();
+    createInfo.enabledExtensionCount   = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
 
 #if IS_DEBUGMODE_ON
     createInfo.enabledLayerCount   = static_cast<uint32_t>(validationLayers.size());
@@ -940,7 +940,7 @@ void vkUtils::copyBuffer(VkBuffer     srcBuffer,
 /*!
 Allocates and records drawing commands
 */
-void vkUtils::createCommandBuffers(const std::vector<Vertex>& vertices)
+void vkUtils::createCommandBuffers(const vector<Vertex>& vertices)
 {
     commandBuffers.resize(swapchainFramebuffers.size());
 
@@ -1048,7 +1048,7 @@ void vkUtils::setCameraMatrix(SLMat4f* mat)
 {
     cameraMatrix = mat;
 }
-void vkUtils::recreateSwapchain(GLFWwindow* window, const std::vector<Vertex>& vertices)
+void vkUtils::recreateSwapchain(GLFWwindow* window, const vector<Vertex>& vertices)
 {
     vkDeviceWaitIdle(device);
 

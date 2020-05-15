@@ -4,8 +4,8 @@
 
 DescriptorSet::DescriptorSet(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, DescriptorPool& descriptorPool, UniformBuffer& uniformBuffer, Sampler& textureSampler, TextureImage& textureImage) : device{device}
 {
-    std::vector<VkDescriptorSetLayout> layouts(swapchain.images.size(), descriptorSetLayout.handle);
-    VkDescriptorSetAllocateInfo        allocInfo{};
+    vector<VkDescriptorSetLayout> layouts(swapchain.images.size(), descriptorSetLayout.handle);
+    VkDescriptorSetAllocateInfo   allocInfo{};
     allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool     = descriptorPool.handle;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(swapchain.images.size());

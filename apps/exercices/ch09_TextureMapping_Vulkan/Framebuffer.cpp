@@ -1,18 +1,25 @@
 #include "Framebuffer.h"
 
-Framebuffer::Framebuffer(Device& device, const RenderPass& renderPass, const Swapchain& swapchain) : device{device}
+//-----------------------------------------------------------------------------
+Framebuffer::Framebuffer(Device&           device,
+                         const RenderPass& renderPass,
+                         const Swapchain&  swapchain) : device{device}
 {
-    createFramebuffer(renderPass.handle, swapchain.extent, swapchain.imageViews);
+    createFramebuffer(renderPass.handle,
+                      swapchain.extent,
+                      swapchain.imageViews);
 }
-
+//-----------------------------------------------------------------------------
 void Framebuffer::destroy()
 {
     for (size_t i = 0; i < handle.size(); i++)
         if (handle[i] != VK_NULL_HANDLE)
             vkDestroyFramebuffer(device.handle, handle[i], nullptr);
 }
-
-void Framebuffer::createFramebuffer(const VkRenderPass renderPass, const VkExtent2D swapchainExtent, const std::vector<VkImageView> swapchainImageViews)
+//-----------------------------------------------------------------------------
+void Framebuffer::createFramebuffer(const VkRenderPass        renderPass,
+                                    const VkExtent2D          swapchainExtent,
+                                    const vector<VkImageView> swapchainImageViews)
 {
     handle.resize(swapchainImageViews.size());
 
@@ -33,3 +40,4 @@ void Framebuffer::createFramebuffer(const VkRenderPass renderPass, const VkExten
         ASSERT_VULKAN(result, "Failed to create framebuffer");
     }
 }
+//-----------------------------------------------------------------------------

@@ -7,11 +7,20 @@ class Buffer;
 class CommandBuffer;
 class Device;
 
+//-----------------------------------------------------------------------------
 class TextureImage
 {
 public:
-    TextureImage(Device& device, void* pixels, unsigned int texWidth, unsigned int texHeight);
+    TextureImage(Device&      device,
+                 void*        pixels,
+                 unsigned int texWidth,
+                 unsigned int texHeight);
     void destroy();
+
+    Device&     device;
+    VkImage     image;
+    VkImageView textureImageView;
+    Buffer*     buffer;
 
 private:
     void        createImage(uint32_t              width,
@@ -30,10 +39,5 @@ private:
                                   uint32_t width,
                                   uint32_t height);
     VkImageView createImageView(VkImage image, VkFormat format);
-
-public:
-    Device&     device;
-    VkImage     image;
-    VkImageView textureImageView;
-    Buffer*     buffer;
 };
+//-----------------------------------------------------------------------------

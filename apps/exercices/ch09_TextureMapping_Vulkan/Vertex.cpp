@@ -3,6 +3,7 @@
 #include "math/SLVec3.h"
 #include <array>
 
+//-----------------------------------------------------------------------------
 struct Vertex
 {
     SLVec3f pos;
@@ -41,3 +42,4 @@ struct Vertex
         return attributeDescriptions;
     }
 };
+//-----------------------------------------------------------------------------
