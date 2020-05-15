@@ -32,7 +32,7 @@ namespace ORB_SLAM2
 {
 
 LoopClosing::LoopClosing(WAIMap*           pMap,
-                         fbow::Vocabulary* pVoc,
+                         WAIOrbVocabulary* pVoc,
                          const bool        bFixScale,
                          const bool        manualLoopClose)
   : mbResetRequested(false),
@@ -59,7 +59,7 @@ void LoopClosing::SetLocalMapper(LocalMapping* pLocalMapper)
     mpLocalMapper = pLocalMapper;
 }
 
-void LoopClosing::SetVocabulary(fbow::Vocabulary* voc)
+void LoopClosing::SetVocabulary(WAIOrbVocabulary* voc)
 {
     mpVocabulary = voc;
 }
@@ -193,7 +193,7 @@ bool LoopClosing::DetectLoop()
     // This is the lowest score to a connected keyframe in the covisibility graph
     // We will impose loop candidates to have a higher similarity than this
     const vector<WAIKeyFrame*> vpConnectedKeyFrames = mpCurrentKF->GetVectorCovisibleKeyFrames();
-    const fbow::fBow&          CurrentBowVec        = mpCurrentKF->mBowVec;
+    WAIBowVector&              CurrentBowVec        = mpCurrentKF->mBowVec;
     float                      minScore             = 1;
     for (size_t i = 0; i < vpConnectedKeyFrames.size(); i++)
     {
@@ -203,7 +203,7 @@ bool LoopClosing::DetectLoop()
             continue;
         }
 
-        float score = fbow::fBow::score(CurrentBowVec, pKF->mBowVec);
+        float score = mpVocabulary->score(CurrentBowVec, pKF->mBowVec);
 
         if (score < minScore)
             minScore = score;

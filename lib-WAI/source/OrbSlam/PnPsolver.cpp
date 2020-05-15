@@ -55,7 +55,7 @@
 #include <vector>
 #include <cmath>
 #include <opencv2/core/core.hpp>
-#include <Random.h>
+#include <DUtils/Random.h>
 #include <algorithm>
 
 using namespace std;
@@ -188,7 +188,7 @@ cv::Mat PnPsolver::iterate(int nIterations, bool& bNoMore, vector<bool>& vbInlie
         // Get min set of points
         for (short i = 0; i < mRansacMinSet; ++i)
         {
-            int randi = (int)DUtils::Random::RandomInt(0, (int)vAvailableIndices.size() - 1);
+            int randi = DUtils::Random::RandomInt(0, (int)vAvailableIndices.size() - 1);
 
             int idx = (int)vAvailableIndices[randi];
 
@@ -1064,7 +1064,7 @@ void PnPsolver::mat_to_quat(const double R[3][3], double q[4])
         q[3] = R[0][1] - R[1][0];
         n4   = q[2];
     }
-    double scale = 0.5f / double(sqrt(n4));
+    double scale = 0.5 / sqrt(n4);
 
     q[0] *= scale;
     q[1] *= scale;

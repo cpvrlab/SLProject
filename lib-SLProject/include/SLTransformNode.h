@@ -22,12 +22,18 @@ enum SLNodeEditMode
     NodeEditMode_Rotate
 };
 //-----------------------------------------------------------------------------
+//! Class that holds all visible gizmo node during mouse transforms
+/*!
+ * An SLTransformNode is added to the scenegraph during edit mode. Depending
+ on the transform type (translation, rotation or scaling) arrows or disks and
+ circles get shown or hidden. The transform node gets added and removed on the
+ fly. So the assets have to be delete in the destructor.
+ */
 class SLTransformNode : public SLNode
 {
 public:
-    SLTransformNode(SLAssetManager* assetMgr,
-                    SLSceneView*    sv,
-                    SLNode*         targetNode);
+    SLTransformNode(SLSceneView* sv,
+                    SLNode*      targetNode);
     ~SLTransformNode() override;
 
     SLbool onMouseDown(SLMouseButton button,
@@ -54,7 +60,29 @@ private:
 
     SLNodeEditMode _editMode;
 
-    //SLNode* _editGizmos = nullptr;
+    SLGLProgram* _prog  = nullptr;
+    SLMaterial*  _matR  = nullptr;
+    SLMaterial*  _matG  = nullptr;
+    SLMaterial*  _matB  = nullptr;
+    SLMaterial*  _matY  = nullptr;
+    SLMaterial*  _matRT = nullptr;
+    SLMaterial*  _matGT = nullptr;
+    SLMaterial*  _matBT = nullptr;
+    SLMaterial*  _matYT = nullptr;
+    SLMesh*      _axisR = nullptr;
+    SLMesh*      _axisG = nullptr;
+    SLMesh*      _axisB = nullptr;
+    SLMesh*      _lineR = nullptr;
+    SLMesh*      _lineG = nullptr;
+    SLMesh*      _lineB = nullptr;
+    SLMesh*      _circR = nullptr;
+    SLMesh*      _circG = nullptr;
+    SLMesh*      _circB = nullptr;
+    SLMesh*      _circY = nullptr;
+    SLMesh*      _diskR = nullptr;
+    SLMesh*      _diskG = nullptr;
+    SLMesh*      _diskB = nullptr;
+    SLMesh*      _diskY = nullptr;
 
     bool    _mouseIsDown;
     float   _gizmoScale;
@@ -62,25 +90,25 @@ private:
     SLNode* _selectedGizmo = nullptr;
 
     // Translation stuff
-    SLNode* _translationAxisX = nullptr;
-    SLNode* _translationAxisY = nullptr;
-    SLNode* _translationAxisZ = nullptr;
-    SLNode* _translationLineX = nullptr;
-    SLNode* _translationLineY = nullptr;
-    SLNode* _translationLineZ = nullptr;
+    SLNode* _transAxisX = nullptr;
+    SLNode* _transAxisY = nullptr;
+    SLNode* _transAxisZ = nullptr;
+    SLNode* _transLineX = nullptr;
+    SLNode* _transLineY = nullptr;
+    SLNode* _transLineZ = nullptr;
 
     // Scale stuff
-    SLNode* _scaleGizmos;
-    SLNode* _scaleDisk;
-    SLNode* _scaleCircle;
+    SLNode* _scaleGizmos = nullptr;
+    SLNode* _scaleDisk   = nullptr;
+    SLNode* _scaleCirc   = nullptr;
 
     // Rotation stuff
-    SLNode* _rotationCircleX;
-    SLNode* _rotationDiskX;
-    SLNode* _rotationCircleY;
-    SLNode* _rotationDiskY;
-    SLNode* _rotationCircleZ;
-    SLNode* _rotationDiskZ;
+    SLNode* _rotCircX = nullptr;
+    SLNode* _rotDiskX = nullptr;
+    SLNode* _rotCircY = nullptr;
+    SLNode* _rotDiskY = nullptr;
+    SLNode* _rotCircZ = nullptr;
+    SLNode* _rotDiskZ = nullptr;
 
     bool getClosestPointsBetweenRays(const SLVec3f& ray1O,
                                      const SLVec3f& ray1Dir,
@@ -104,6 +132,7 @@ private:
                            const SLVec3f& discO,
                            const SLVec3f& discN,
                            float&         t);
+
     bool isCCW(const SLVec2f& a, const SLVec2f& b, const SLVec2f& c);
     void setDrawBitRecursive(SLuint bit, SLNode* node, bool value);
     void lookAt(SLNode* node, SLCamera* camera);

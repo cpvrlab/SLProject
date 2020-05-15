@@ -102,7 +102,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
         }
     }
 
-    _renderSec  = GlobalTimer::timeS() - tStart;
+    _renderSec = GlobalTimer::timeS() - tStart;
     _raysPerMS.set(SLRay::totalNumRays() / _renderSec / 1000.0f);
     _progressPC = 100;
 
@@ -173,7 +173,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
             thread.join();
     }
 
-    _renderSec  = GlobalTimer::timeS() - t1;
+    _renderSec = GlobalTimer::timeS() - t1;
     _raysPerMS.set((float)SLRay::totalNumRays() / _renderSec / 1000.0f);
     _progressPC = 100;
 
@@ -443,6 +443,7 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
                                                                              y,
                                                                              (SLfloat)_images[0]->width(),
                                                                              (SLfloat)_images[0]->height());
+    SLRay::primaryRays++;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -722,6 +723,7 @@ Initialises the statistic variables in SLRay to zero
 void SLRaytracer::initStats(SLint depth)
 {
     SLRay::maxDepth         = (depth) ? depth : SL_MAXTRACE;
+    SLRay::primaryRays      = 0;
     SLRay::reflectedRays    = 0;
     SLRay::refractedRays    = 0;
     SLRay::tirRays          = 0;

@@ -116,8 +116,8 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
                                  const Point*    pattern,
                                  uchar*          desc)
 {
-    float angle = (float)kpt.angle * factorPI;
-    float a = (float)cos(angle), b = (float)sin(angle);
+    float angle = kpt.angle * factorPI;
+    float a = cos(angle), b = sin(angle);
 
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
@@ -1207,7 +1207,7 @@ ORBextractor::ORBextractor(int   _nfeatures,
     for (int i = 1; i < nlevels; i++)
     {
         mvScaleFactor[i] = (float)(mvScaleFactor[i - 1] * scaleFactor);
-        mvLevelSigma2[i] = (float)(mvScaleFactor[i] * mvScaleFactor[i]);
+        mvLevelSigma2[i] = mvScaleFactor[i] * mvScaleFactor[i];
     }
 
     mvInvScaleFactor.resize(nlevels);

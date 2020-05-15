@@ -50,7 +50,7 @@ public:
     }
 
     //! Returns either the VAO id or the VBO id
-    SLint vaoID() { return _vaoID; }
+    SLint vaoID() const { return _vaoID; }
 
     //! Adds a vertex attribute with data pointer and an element size
     void setAttrib(SLGLAttributeType type,
@@ -134,8 +134,8 @@ public:
                      SLint             firstVertex   = 0,
                      SLsizei           countVertices = 0);
     // Some getters
-    SLuint numVertices() { return _numVertices; }
-    SLuint numIndices() { return _numIndices; }
+    SLuint numVertices() const { return _numVertices; }
+    SLuint numIndices() const { return _numIndices; }
 
     // Some statistics
     static SLuint totalDrawCalls; //! static total no. of draw calls
