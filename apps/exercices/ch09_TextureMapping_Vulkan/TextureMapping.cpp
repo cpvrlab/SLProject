@@ -242,14 +242,14 @@ const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 int main()
 {
     initWindow();
-
+    // Needed data
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
     CVImage                   texture;
     texture.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png",
                  false,
                  false);
-
+    // Setting up vulkan
     Instance     instance = Instance("Test", deviceExtensions, validationLayers);
     VkSurfaceKHR surface;
     glfwCreateWindowSurface(instance.handle, window, nullptr, &surface);
@@ -273,7 +273,7 @@ int main()
     CommandBuffer commandBuffer = CommandBuffer(device);
     commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, indices.size());
     device.createSyncObjects(swapchain);
-
+    // Render
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -281,7 +281,7 @@ int main()
         pipeline.draw(swapchain, uniformBuffer, commandBuffer);
         printFPS();
     }
-
+    // Destroy
     device.waitIdle();
 
     framebuffer.destroy();

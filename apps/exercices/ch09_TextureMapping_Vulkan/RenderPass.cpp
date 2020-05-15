@@ -2,7 +2,6 @@
 
 RenderPass::RenderPass(Device& device, Swapchain& swapchain) : device{device}
 {
-
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format         = swapchain.surfaceFormat.format;
     colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;

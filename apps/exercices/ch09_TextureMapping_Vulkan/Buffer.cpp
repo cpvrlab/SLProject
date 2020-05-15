@@ -51,7 +51,10 @@ uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
             (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
             return i;
 
+    // TODO:
     cerr << "failed to find suitable memory type!" << endl;
+
+    return UINT32_MAX;
 }
 
 void Buffer::copy(Buffer src, VkDeviceSize size)
