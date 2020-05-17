@@ -50,7 +50,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
     if (location == "avenches")
     {
-        if (area == "entrance")
+        if (area == "entrance" || area == "arena")
         {
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
@@ -59,36 +59,56 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                                              true,
                                              nullptr,
                                              0.4f);
-
-            // Set some ambient light
-            for (auto child : augmentationRoot->children())
-            {
-                for (auto mesh : child->meshes())
-                {
-                    mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
-                    mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
-                    mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
-                }
-            }
-
-            SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
-            if (n)
-            {
-                n->drawBits()->set(SL_DB_CULLOFF, true);
-            }
-
-            // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-            light->ambient(SLCol4f(1, 1, 1));
-            light->diffuse(SLCol4f(1, 1, 1));
-            light->specular(SLCol4f(1, 1, 1));
-            light->attenuation(1, 0, 0);
-            light->translation(0, 10, 0);
-            light->lookAt(10, 0, 10);
-
-            _root3D->addChild(augmentationRoot);
-            _root3D->addChild(light);
         }
+        else if (area == "cigonier-marker")
+        {
+            SLAssimpImporter importer;
+            augmentationRoot = importer.load(_animManager,
+                                             &assets,
+                                             SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Cigognier1.gltf",
+                                             true,
+                                             nullptr,
+                                             0.4f);
+        }
+        else if (area == "theater-marker")
+        {
+            SLAssimpImporter importer;
+            augmentationRoot = importer.load(_animManager,
+                                             &assets,
+                                             SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Theater1.gltf",
+                                             true,
+                                             nullptr,
+                                             0.4f);
+        }
+
+        // Set some ambient light
+        for (auto child : augmentationRoot->children())
+        {
+            for (auto mesh : child->meshes())
+            {
+                mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
+                mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
+                mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
+            }
+        }
+
+        SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
+        if (n)
+        {
+            n->drawBits()->set(SL_DB_CULLOFF, true);
+        }
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
+        light->ambient(SLCol4f(0.3, 0.3, 0.3));
+        light->diffuse(SLCol4f(1.0, 0.7, 1.0));
+        light->specular(SLCol4f(1, 1, 1));
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        _root3D->addChild(augmentationRoot);
+        _root3D->addChild(light);
     }
     else if (location == "augst")
     {
