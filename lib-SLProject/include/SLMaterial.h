@@ -40,8 +40,8 @@ variables in SLGLProgram::beginUse.
 class SLMaterial : public SLObject
 {
 public:
-    //! Default ctor
-    explicit SLMaterial(SLAssetManager* s,
+    //! Default ctor for materials without textures
+    explicit SLMaterial(SLAssetManager* am,
                         const SLchar*   name,
                         const SLCol4f&  amdi      = SLCol4f::WHITE,
                         const SLCol4f&  spec      = SLCol4f::WHITE,
@@ -51,8 +51,8 @@ public:
                         SLfloat         kn        = 1.0f,
                         SLGLProgram*    program   = nullptr);
 
-    //! Ctor for textures
-    SLMaterial(SLAssetManager* s,
+    //! Ctor for textured materials
+    SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture1,
                SLGLTexture*    texture2 = nullptr,
@@ -60,8 +60,8 @@ public:
                SLGLTexture*    texture4 = nullptr,
                SLGLProgram*    program  = nullptr);
 
-    //! Ctor for Cook-Torrance shading
-    SLMaterial(SLAssetManager* s,
+    //! Ctor for Cook-Torrance shaded materials
+    SLMaterial(SLAssetManager* am,
                SLGLProgram*    perPixCookTorranceProgram,
                const SLchar*   name,
                const SLCol4f&  diffuse,
@@ -69,13 +69,13 @@ public:
                SLfloat         metalness);
 
     //! Ctor for uniform color material without lighting
-    explicit SLMaterial(SLAssetManager* s,
+    explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,
                         const SLCol4f&  uniformColor,
                         const SLchar*   name = (const char*)"Uniform color");
 
     //! Ctor for cone tracer
-    SLMaterial(SLAssetManager* s,
+    SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLProgram*    program);
 

@@ -17,6 +17,7 @@
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
+#include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -115,7 +116,6 @@ SLbool   AppDemoGui::showProperties      = false;
 SLbool   AppDemoGui::showChristoffel     = false;
 SLbool   AppDemoGui::showUIPrefs         = false;
 SLbool   AppDemoGui::showTransform       = false;
-SLbool   AppDemoGui::showResources       = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -588,6 +588,56 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Scene Statistics", &showStatsScene, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
+
+            ImGui::Separator();
+
+            ImGui::Text("Global Resources:");
+
+            if (s->meshes().size() && ImGui::TreeNode("Meshes"))
+            {
+                for (SLuint i = 0; i < s->meshes().size(); ++i)
+                    ImGui::Text("[%d] %s (%u v.)",
+                                i,
+                                s->meshes()[i]->name().c_str(),
+                                (SLuint)s->meshes()[i]->P.size());
+
+                ImGui::TreePop();
+            }
+
+            if (s->materials().size() && ImGui::TreeNode("Materials"))
+            {
+                for (SLuint i = 0; i < s->materials().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (s->textures().size() && ImGui::TreeNode("Textures"))
+            {
+                for (SLuint i = 0; i < s->textures().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
+            {
+                for (SLuint i = 0; i < s->programs().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (standard)"))
+            {
+                for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
+                    ImGui::Text("[%u] %s",
+                                i,
+                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+
+                ImGui::TreePop();
+            }
+
             ImGui::End();
             ImGui::PopFont();
         }
@@ -2826,16 +2876,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-//! Builds the resources dialog once per frame
-void AppDemoGui::buildResources(SLScene* s)
-{
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::Begin("Resources", &showResources);
-
-    ImGui::End();
-    ImGui::PopFont();
-}
-//-----------------------------------------------------------------------------
 //! Loads the UI configuration
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
@@ -2906,7 +2946,6 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
-            fs["showResources"] >> b;       AppDemoGui::showResources = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
@@ -2983,7 +3022,6 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
-    fs << "showResources" << AppDemoGui::showResources;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;

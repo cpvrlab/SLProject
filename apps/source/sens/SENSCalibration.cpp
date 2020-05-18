@@ -374,7 +374,7 @@ void SENSCalibration::createFromGuessedFOV(int   imageWidthPX,
 {
     //if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
     float f    = (0.5f * imageWidthPX) / tanf(fovH * 0.5f * Utils::DEG2RAD);
-    float fovV = 2.0f * (float)atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
+    float fovV = 2.0f * atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm
@@ -489,15 +489,15 @@ void SENSCalibration::calculateUndistortedCameraMat()
                                    inner,
                                    outer);
 
-        double s0 = std::max(std::max(std::max((double)cx / (cx0 - inner.x),
-                                               (double)cy / (cy0 - inner.y)),
-                                      (double)cx / (inner.x + inner.width - cx0)),
-                             (double)cy / (inner.y + inner.height - cy0));
+        double s0 = std::max(std::max(std::max(cx / (cx0 - inner.x),
+                                               cy / (cy0 - inner.y)),
+                                      cx / (inner.x + inner.width - cx0)),
+                             cy / (inner.y + inner.height - cy0));
 
-        double s1 = std::min(std::min(std::min((double)cx / (cx0 - outer.x),
-                                               (double)cy / (cy0 - outer.y)),
-                                      (double)cx / (outer.x + outer.width - cx0)),
-                             (double)cy / (outer.y + outer.height - cy0));
+        double s1 = std::min(std::min(std::min(cx / (cx0 - outer.x),
+                                               cy / (cy0 - outer.y)),
+                                      cx / (outer.x + outer.width - cx0)),
+                             cy / (outer.y + outer.height - cy0));
 
         double s = s0 * (1 - alpha) + s1 * alpha;
 
@@ -533,7 +533,7 @@ void SENSCalibration::calcCameraFovFromUndistortedCameraMat()
     float fy       = (float)_cameraMatUndistorted.at<double>(1, 1);
     float cx       = (float)_cameraMatUndistorted.at<double>(0, 2);
     float cy       = (float)_cameraMatUndistorted.at<double>(1, 2);
-    _cameraFovHDeg = 2.0f * (float)atan2(cx, fx) * Utils::RAD2DEG;
-    _cameraFovVDeg = 2.0f * (float)atan2(cy, fy) * Utils::RAD2DEG;
+    _cameraFovHDeg = 2.0f * atan2(cx, fx) * Utils::RAD2DEG;
+    _cameraFovVDeg = 2.0f * atan2(cy, fy) * Utils::RAD2DEG;
 }
 //-----------------------------------------------------------------------------
