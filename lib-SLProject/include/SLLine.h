@@ -21,7 +21,7 @@ public:
 
     void    createMeshAccelerationStructure() override;
     void    updateMeshAccelerationStructure() override;
-    HitData createHitData() override;
+    ortHitData createHitData() override;
 
 private:
     SLVec3f _p1; //!< origin point

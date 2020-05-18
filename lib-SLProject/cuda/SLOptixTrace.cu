@@ -15,8 +15,8 @@
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __intersection__line()
 {
-    auto*      rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
-    const Line line    = rt_data->geometry.line;
+    auto*         rt_data = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
+    const ortLine line    = rt_data->geometry.line;
 
     const float3 ray_orig = optixGetWorldRayOrigin();
     const float3 ray_dir  = optixGetWorldRayDirection();
@@ -54,7 +54,7 @@ extern "C" __global__ void __anyhit__line_occlusion()
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __closesthit__line_radiance()
 {
-    auto* rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
+    auto* rt_data = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
 
     // Set color to payload
     setColor(rt_data->material.diffuse_color);

@@ -4,10 +4,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#ifdef SL_MEMLEAKDETECT    // set in SL.h for debug config only
-#    include <debug_new.h> // memory leak detector
-#endif
-
 #ifdef SL_HAS_OPTIX
 #    include <SLMaterial.h>
 #    include <SLLine.h>
@@ -59,9 +55,9 @@ void SLLine::updateMeshAccelerationStructure()
 {
 }
 //-----------------------------------------------------------------------------
-HitData SLLine::createHitData()
+ortHitData SLLine::createHitData()
 {
-    HitData hitData          = SLMesh::createHitData();
+    ortHitData hitData          = SLMesh::createHitData();
     hitData.geometry.line.p1 = make_float3(_p1);
     hitData.geometry.line.p2 = make_float3(_p2);
 

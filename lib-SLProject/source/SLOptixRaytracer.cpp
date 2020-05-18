@@ -28,7 +28,7 @@ SLOptixRaytracer::SLOptixRaytracer()
 {
     name("OptiX ray tracer");
     _params = {};
-    _paramsBuffer.alloc(sizeof(Params));
+    _paramsBuffer.alloc(sizeof(ortParams));
     initCompileOptions();
 }
 //-----------------------------------------------------------------------------
@@ -312,10 +312,10 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv)
     _sv                    = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
-    _lineBuffer.resize(_sv->scrW() * _sv->scrH() * _maxDepth * 2 * sizeof(Ray));
+    _lineBuffer.resize(_sv->scrW() * _sv->scrH() * _maxDepth * 2 * sizeof(ortRay));
 
     _params.image     = reinterpret_cast<float4*>(_imageBuffer.devicePointer());
-    _params.rays      = reinterpret_cast<Ray*>(_lineBuffer.devicePointer());
+    _params.rays      = reinterpret_cast<ortRay*>(_lineBuffer.devicePointer());
     _params.width     = _sv->scrW();
     _params.height    = _sv->scrH();
     _params.max_depth = _maxDepth;
@@ -345,7 +345,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
 
     SLVec3f eye, u, v, w;
     camera->UVWFrame(eye, u, v, w);
-    CameraData cameraData{};
+    ortCamera cameraData{};
     cameraData.eye = make_float3(eye);
     cameraData.U   = make_float3(u);
     cameraData.V   = make_float3(v);
@@ -378,7 +378,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         _rayGenClassicBuffer.upload(&rayGenSbtRecord);
     }
 
-    vector<Light> lights;
+    vector<ortLight> lights;
     _lightBuffer.free();
     unsigned int light_count = 0;
     for (auto light : scene->lights())
@@ -390,7 +390,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         }
     }
     _lightBuffer.alloc_and_upload(lights);
-    _params.lights             = reinterpret_cast<Light*>(_lightBuffer.devicePointer());
+    _params.lights             = reinterpret_cast<ortLight*>(_lightBuffer.devicePointer());
     _params.numLights          = light_count;
     _params.globalAmbientColor = make_float4(scene->globalAmbiLight());
 
@@ -535,6 +535,7 @@ void SLOptixRaytracer::saveImage()
     SLRaytracer::saveImage();
 }
 //-----------------------------------------------------------------------------
+/*
 void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y)
 {
     SLAssetManager* assetMngr = (SLAssetManager*)SLApplication::scene;
@@ -573,5 +574,6 @@ void SLOptixRaytracer::removeRays()
 
     while (SLApplication::scene->root3D()->deleteChild("line")) {}
 }
+*/
 //-----------------------------------------------------------------------------
 #endif

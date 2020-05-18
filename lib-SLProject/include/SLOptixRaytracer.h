@@ -45,8 +45,8 @@ class SLOptixRaytracer : public SLRaytracer
 
     void saveImage() override;
 
-    void drawRay(unsigned int, unsigned int);
-    void removeRays();
+    //void drawRay(unsigned int, unsigned int);
+    //void removeRays();
 
     protected:
     void initCompileOptions();
@@ -57,9 +57,9 @@ class SLOptixRaytracer : public SLRaytracer
     OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&, const bool);
 
     SLCudaBuffer<float4> _imageBuffer  = SLCudaBuffer<float4>();
-    SLCudaBuffer<Ray>    _lineBuffer   = SLCudaBuffer<Ray>();
-    SLCudaBuffer<Params> _paramsBuffer = SLCudaBuffer<Params>();
-    SLCudaBuffer<Light>  _lightBuffer  = SLCudaBuffer<Light>();
+    SLCudaBuffer<ortRay>    _lineBuffer   = SLCudaBuffer<ortRay>();
+    SLCudaBuffer<ortParams> _paramsBuffer = SLCudaBuffer<ortParams>();
+    SLCudaBuffer<ortLight>  _lightBuffer  = SLCudaBuffer<ortLight>();
 
     OptixModule                 _cameraModule{};
     OptixModule                 _shadingModule{};
@@ -68,7 +68,7 @@ class SLOptixRaytracer : public SLRaytracer
     OptixPipelineCompileOptions _pipeline_compile_options{};
 
     OptixTraversableHandle _handle{};
-    Params                 _params{};
+    ortParams                 _params{};
 
     SLCudaBuffer<MissSbtRecord>              _missBuffer              = SLCudaBuffer<MissSbtRecord>();
     SLCudaBuffer<HitSbtRecord>               _hitBuffer               = SLCudaBuffer<HitSbtRecord>();

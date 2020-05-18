@@ -180,7 +180,7 @@ void SLOptixPathtracer::updateScene(SLSceneView* sv)
 
     SLVec3f eye, u, v, w;
     camera->UVWFrame(eye, u, v, w);
-    CameraData cameraData{};
+    ortCamera cameraData{};
     cameraData.eye = make_float3(eye);
     cameraData.U   = make_float3(u);
     cameraData.V   = make_float3(v);
