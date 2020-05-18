@@ -93,15 +93,15 @@ void SLShadowMap::drawRays()
     SLint w = _rayCount.x;
     SLint h = _rayCount.y;
 
-    SLfloat pixelWidth  = (float)_textureSize.x / w;
-    SLfloat pixelHeight = (float)_textureSize.y / h;
+    SLfloat pixelWidth  = (SLfloat)_textureSize.x / w;
+    SLfloat pixelHeight = (SLfloat)_textureSize.y / h;
 
     for (SLint x = 0; x < w; ++x)
     {
         for (SLint y = 0; y < h; ++y)
         {
-            SLint pixelX = (int)pixelWidth * x;
-            SLint pixelY = (int)pixelHeight * y;
+            SLint pixelX = (SLint)(pixelWidth * (x + 0.5f));
+            SLint pixelY = (SLint)(pixelHeight * (y + 0.5f));
 
             SLfloat viewSpaceX = Utils::lerp((x + 0.5f) / w, -1.0f, 1.0f);
             SLfloat viewSpaceY = Utils::lerp((y + 0.5f) / w, -1.0f, 1.0f);

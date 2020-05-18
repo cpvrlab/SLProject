@@ -95,7 +95,7 @@ public:
     SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
     SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< Flag if att. must be calculated
     SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< Flag if light creates shadows
-    SLMat4f          lightSpace[SL_MAX_LIGHTS];     //!< projection matrix of the light
+    SLMat4f          lightSpace[SL_MAX_LIGHTS];          //!< projection matrix of the light
     SLGLDepthBuffer* shadowMaps[SL_MAX_LIGHTS];          //!< DepthBuffers for Shadow mapping
     SLCol4f          globalAmbientLight;                 //!< global ambient light intensity
 
