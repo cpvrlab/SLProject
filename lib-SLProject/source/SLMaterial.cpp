@@ -32,11 +32,12 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _ambient = _diffuse = amdi;
     _specular           = spec;
     _emissive.set(0, 0, 0, 0);
-    _shininess    = shininess;
-    _roughness    = 0.5f;
-    _metalness    = 0.0f;
-    _translucency = 0.0f;
-    _program      = program;
+    _shininess       = shininess;
+    _roughness       = 0.5f;
+    _metalness       = 0.0f;
+    _translucency    = 0.0f;
+    _receivesShadows = true;
+    _program         = program;
 
     _kr = kr;
     _kt = kt;
@@ -64,15 +65,16 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
     _emissive.set(0, 0, 0, 0);
-    _shininess    = 125;
-    _roughness    = 0.5f;
-    _metalness    = 0.0f;
-    _translucency = 0.0f;
-    _program      = shaderProg;
-    _kr           = 0.0f;
-    _kt           = 0.0f;
-    _kn           = 1.0f;
-    _diffuse.w    = 1.0f - _kt;
+    _shininess       = 125;
+    _roughness       = 0.5f;
+    _metalness       = 0.0f;
+    _translucency    = 0.0f;
+    _receivesShadows = true;
+    _program         = shaderProg;
+    _kr              = 0.0f;
+    _kt              = 0.0f;
+    _kn              = 1.0f;
+    _diffuse.w       = 1.0f - _kt;
 
     if (texture1) _textures.push_back(texture1);
     if (texture2) _textures.push_back(texture2);
@@ -89,11 +91,12 @@ SLMaterial::SLMaterial(SLAssetManager* s,
                        const SLchar*   name,
                        SLGLProgram*    shaderProg) : SLObject(name)
 {
-    _program      = shaderProg;
-    _shininess    = 125.0f;
-    _roughness    = 0.0f;
-    _metalness    = 0.0f;
-    _translucency = 0.0f;
+    _program         = shaderProg;
+    _shininess       = 125.0f;
+    _roughness       = 0.0f;
+    _metalness       = 0.0f;
+    _translucency    = 0.0f;
+    _receivesShadows = true;
 
     // Add pointer to the global resource vectors for deallocation
     if (s)
@@ -111,16 +114,17 @@ SLMaterial::SLMaterial(SLAssetManager* s,
 {
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
-    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
-    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness    = roughness;
-    _metalness    = metalness;
-    _translucency = 0.0f;
-    _kr           = 0.0f;
-    _kt           = 0.0f;
-    _kn           = 1.0f;
-    _program      = perPixCookTorranceProgram;
+    _specular.set(1, 1, 1);                         // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                      // not used in Cook-Torrance
+    _shininess       = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness       = roughness;
+    _metalness       = metalness;
+    _translucency    = 0.0f;
+    _receivesShadows = true;
+    _kr              = 0.0f;
+    _kt              = 0.0f;
+    _kn              = 1.0f;
+    _program         = perPixCookTorranceProgram;
 
     // Add pointer to the global resource vectors for deallocation
     if (s)
@@ -138,11 +142,12 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _diffuse = uniformColor;
     _specular.set(0, 0, 0);
     _emissive.set(0, 0, 0, 0);
-    _shininess    = 125;
-    _roughness    = 0.5f;
-    _metalness    = 0.0f;
-    _translucency = 0.0f;
-    _program      = colorUniformProgram;
+    _shininess       = 125;
+    _roughness       = 0.5f;
+    _metalness       = 0.0f;
+    _translucency    = 0.0f;
+    _receivesShadows = true;
+    _program         = colorUniformProgram;
     //_program      = s->programs(SP_colorUniform);
     _kr = 0.0f;
     _kt = 0.0f;
@@ -153,7 +158,7 @@ SLMaterial::SLMaterial(SLAssetManager* s,
         s->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 The destructor doesn't delete attached the textures or shader program because
 Such shared resources get deleted in the arrays of SLScene.
 */
@@ -243,6 +248,7 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     loc = program->uniform1f("u_matKr", _kr);
     loc = program->uniform1f("u_matKt", _kt);
     loc = program->uniform1f("u_matKn", _kn);
+    loc = program->uniform1i("u_receivesShadows", _receivesShadows);
     loc = program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 }
 //-----------------------------------------------------------------------------

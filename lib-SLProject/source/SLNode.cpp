@@ -42,7 +42,6 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _isWMUpToDate    = false;
     _isAABBUpToDate  = false;
     _castsShadows    = false;
-    _receivesShadows = false;
     //_tracker = nullptr;
 }
 //-----------------------------------------------------------------------------
@@ -62,7 +61,6 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _isWMUpToDate    = false;
     _isAABBUpToDate  = false;
     _castsShadows    = false;
-    _receivesShadows = false;
     //_tracker = nullptr;
 
     addMesh(mesh);
@@ -654,7 +652,6 @@ SLNode* SLNode::copyRec()
     copy->_drawBits       = _drawBits;
     copy->_aabb           = _aabb;
     copy->_castsShadows    = _castsShadows;
-    copy->_receivesShadows = _receivesShadows;
 
     if (_animation)
         copy->_animation = new SLAnimation(*_animation);

@@ -22,8 +22,8 @@ class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! Defines a standard CG material with textures and a shader program
-/*!      
-The SLMatrial class defines a material with properties for ambient, diffuse, 
+/*!
+The SLMatrial class defines a material with properties for ambient, diffuse,
 specular and emissive light RGBA-reflection. For classic Blinn-Phong shading
 the shininess parameter can be used as shininess exponent.
 For Cook-Torrance shading the parameters roughness and metallic are provided.
@@ -172,6 +172,10 @@ public:
         assert(kn >= 0.0f);
         _kn = kn;
     }
+    void receivesShadows(SLbool receivesShadows)
+    {
+        _receivesShadows = receivesShadows;
+    }
     void program(SLGLProgram* sp)
     {
         _program = sp;
@@ -226,6 +230,10 @@ public:
     {
         return _kn;
     }
+    SLbool receivesShadows()
+    {
+        return _receivesShadows;
+    }
     SLVGLTexture& textures()
     {
         return _textures;
@@ -240,20 +248,21 @@ public:
     static SLfloat PERFECT; //!< PM: shininess/translucency limit
 
 protected:
-    SLCol4f      _ambient;      //!< ambient color (RGB reflection coefficients)
-    SLCol4f      _diffuse;      //!< diffuse color (RGB reflection coefficients)
-    SLCol4f      _specular;     //!< specular color (RGB reflection coefficients)
-    SLCol4f      _transmissive; //!< PM: transmissive color (RGB reflection coefficients)
-    SLCol4f      _emissive;     //!< emissive color coefficients
-    SLfloat      _shininess;    //!< shininess exponent in Blinn model
-    SLfloat      _roughness;    //!< roughness property (0-1) in Cook-Torrance model
-    SLfloat      _metalness;    //!< metallic property (0-1) in Cook-Torrance model
-    SLfloat      _translucency; //!< PM: translucency exponent for light refraction
-    SLfloat      _kr{};         //!< reflection coefficient 0.0 - 1.0
-    SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
-    SLfloat      _kn{};         //!< refraction index
-    SLVGLTexture _textures;     //!< vector of texture pointers
-    SLGLProgram* _program{};    //!< pointer to a GLSL shader program
+    SLCol4f      _ambient;         //!< ambient color (RGB reflection coefficients)
+    SLCol4f      _diffuse;         //!< diffuse color (RGB reflection coefficients)
+    SLCol4f      _specular;        //!< specular color (RGB reflection coefficients)
+    SLCol4f      _transmissive;    //!< PM: transmissive color (RGB reflection coefficients)
+    SLCol4f      _emissive;        //!< emissive color coefficients
+    SLfloat      _shininess;       //!< shininess exponent in Blinn model
+    SLfloat      _roughness;       //!< roughness property (0-1) in Cook-Torrance model
+    SLfloat      _metalness;       //!< metallic property (0-1) in Cook-Torrance model
+    SLfloat      _translucency;    //!< PM: translucency exponent for light refraction
+    SLfloat      _kr{};            //!< reflection coefficient 0.0 - 1.0
+    SLfloat      _kt{};            //!< transmission coefficient 0.0 - 1.0
+    SLfloat      _kn{};            //!< refraction index
+    SLbool       _receivesShadows; //!< true if shadows are visible on this material
+    SLVGLTexture _textures;        //!< vector of texture pointers
+    SLGLProgram* _program{};       //!< pointer to a GLSL shader program
 
     SLGLTexture* _errorTexture = nullptr;
 };

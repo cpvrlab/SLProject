@@ -999,7 +999,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add a box which receives shadows
         SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
-        boxNode->receivesShadows(true);
         scene->addChild(boxNode);
 
         sv->camera(cam1);

@@ -269,7 +269,6 @@ public:
     }
     void         animation(SLAnimation* a) { _animation = a; }
     void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
-    void         receivesShadows(SLbool receivesShadows) { _receivesShadows = receivesShadows; }
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
@@ -288,7 +287,6 @@ public:
     SLAABBox*         aabb() { return &_aabb; }
     SLAnimation*      animation() { return _animation; }
     SLbool            castsShadows() { return _castsShadows; }
-    SLbool            receivesShadows() { return _receivesShadows; }
     SLVMesh&          meshes() { return _meshes; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
@@ -337,7 +335,6 @@ protected:
     SLAABBox        _aabb;            //!< axis aligned bounding box
     SLAnimation*    _animation;       //!< animation of the node
     SLbool          _castsShadows;    //!< nodes cast shadows when this is true
-    SLbool          _receivesShadows; //!< nodes receive shadows when this is true
 };
 
 ////////////////////////

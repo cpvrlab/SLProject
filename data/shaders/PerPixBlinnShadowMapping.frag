@@ -31,6 +31,7 @@ uniform float  u_lightSpotExp[8];        //!< spot exponent
 uniform vec3   u_lightAtt[8];            //!< attenuation (const,linear,quadr.)
 uniform bool   u_lightDoAtt[8];          //!< flag if att. must be calc.
 uniform bool   u_lightCreatesShadows[8]; //!< flag if light creates shadows
+uniform bool   u_receivesShadows;        //!< flag if material receives shadows
 uniform vec4   u_globalAmbient;          //!< Global ambient scene color
 
 uniform vec4   u_matAmbient;             //!< ambient color reflection coefficient (ka)
@@ -86,7 +87,7 @@ void DirectLight(in    int  i,   // Light number
 
     // Accumulate directional light intesities w/o attenuation
     Ia += u_lightAmbient[i];
-    if (shadowTest(i)) return;
+    if (u_receivesShadows && shadowTest(i)) return;
     Id += u_lightDiffuse[i] * diffFactor;
     Is += u_lightSpecular[i] * specFactor;
 }
@@ -134,7 +135,7 @@ void PointLight (in    int  i,      // Light number
 
     // Accumulate light intesities
     Ia += att * u_lightAmbient[i];
-    if (shadowTest(i)) return;
+    if (u_receivesShadows && shadowTest(i)) return;
     Id += att * u_lightDiffuse[i] * diffFactor;
     Is += att * u_lightSpecular[i] * specFactor;
 }

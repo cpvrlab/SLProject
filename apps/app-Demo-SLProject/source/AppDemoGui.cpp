@@ -2470,17 +2470,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     if (ImGui::TreeNode("Shadow Mapping"))
                     {
                         SLbool castsShadows = node->castsShadows();
-                        if (ImGui::Checkbox("Casts shadows", &castsShadows))
+                        if (ImGui::Checkbox("Casts Shadows", &castsShadows))
                             node->castsShadows(castsShadows);
-
-                        SLbool receivesShadows = node->receivesShadows();
-                        if (ImGui::Checkbox("Receives shadows", &receivesShadows))
-                            node->receivesShadows(receivesShadows);
 
                         if (SLLight* light = dynamic_cast<SLLight*>(node))
                         {
                             SLbool createsShadows = light->createsShadows();
-                            if (ImGui::Checkbox("Creates shadows", &createsShadows))
+                            if (ImGui::Checkbox("Creates Shadows", &createsShadows))
                                 light->createsShadows(createsShadows);
 
                             if (createsShadows)
@@ -2719,6 +2715,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLfloat kn = m->kn();
                             if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
                                 m->kn(kn);
+
+                            SLbool receivesShadows = m->receivesShadows();
+                            if (ImGui::Checkbox("Receives Shadows", &receivesShadows))
+                                m->receivesShadows(receivesShadows);
 
                             ImGui::PopItemWidth();
                             ImGui::TreePop();
