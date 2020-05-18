@@ -48,7 +48,7 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
 
 std::unique_ptr<KPextractor> FeatureExtractorFactory::orbExtractor(int nf)
 {
-    float fScaleFactor = 1.2;
+    float fScaleFactor = 1.2f;
     int   nLevels      = 8;
     int   fIniThFAST   = 20;
     int   fMinThFAST   = 7;

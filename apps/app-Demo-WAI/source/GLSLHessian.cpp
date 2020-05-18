@@ -1012,8 +1012,8 @@ void GLSLHessian::nms(int w, int h)
     glUseProgram(edge);
     glBindFramebuffer(GL_FRAMEBUFFER, renderFBO[REMOVEEDGE]);
 
-    glUniform1f(edgeWLoc, m_w);
-    glUniform1f(edgeHLoc, m_h);
+    glUniform1f(edgeWLoc, (float)m_w);
+    glUniform1f(edgeHLoc, (float)m_h);
     glUniform1i(edgeTexLoc, INPUT);
     glUniform1i(edgeDetLoc, NMSY);
     glUniform1i(edgeGxxLoc, GXX);
@@ -1302,7 +1302,7 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
                     }
 
                     if (highThrsX > 15 && highThrsX < m_w - 15 && highThrsY > 15 && highThrsY < m_h - 15)
-                        kps.push_back(cv::KeyPoint(cv::Point2f(highThrsX, highThrsY), 1));
+                        kps.push_back(cv::KeyPoint(cv::Point2f((float)highThrsX, (float)highThrsY), 1));
                 }
             }
             else

@@ -525,21 +525,23 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[2550]; // message character array
             m[0] = 0;       // set zero length
 
-            SLNodeStats& stats3D         = sv->stats3D();
-            SLfloat      vox             = (SLfloat)stats3D.numVoxels;
-            SLfloat      voxEmpty        = (SLfloat)stats3D.numVoxEmpty;
-            SLfloat      voxelsEmpty     = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
-            SLfloat      numRTTria       = (SLfloat)stats3D.numTriangles;
-            SLfloat      avgTriPerVox    = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOpaqueNodes  = (int)sv->nodesVisible()->size();
-            SLint        numBlendedNodes = (int)sv->nodesBlended()->size();
-            SLint        numVisibleNodes = numOpaqueNodes + numBlendedNodes;
-            SLint        numGroupPC      = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLeafPC       = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLightsPC     = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOpaquePC     = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numBlendedPC    = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numVisiblePC    = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLNodeStats& stats3D           = sv->stats3D();
+            SLfloat      vox               = (SLfloat)stats3D.numVoxels;
+            SLfloat      voxEmpty          = (SLfloat)stats3D.numVoxEmpty;
+            SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
+            SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
+            SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
+            SLint        numOpaqueNodes    = (int)sv->nodesVisible()->size();
+            SLint        numBlendedNodes   = (int)sv->nodesBlended()->size();
+            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn()->size();
+            SLint        numVisibleNodes   = numOpaqueNodes + numBlendedNodes + numOverdrawnNodes;
+            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOpaquePC       = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numBlendedPC      = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
 
             // Calculate total size of texture bytes on CPU
             SLfloat cpuMBTexture = 0;
@@ -567,6 +569,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
             sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
             sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+            sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
             sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
             sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
             sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
@@ -591,7 +594,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             ImGui::Text("Resources:");
-
 
             if (ImGui::TreeNode("Meshes"))
             {

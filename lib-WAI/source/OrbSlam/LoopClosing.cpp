@@ -203,7 +203,7 @@ bool LoopClosing::DetectLoop()
             continue;
         }
 
-        float score = mpVocabulary->score(CurrentBowVec, pKF->mBowVec);
+        float score = (float)mpVocabulary->score(CurrentBowVec, pKF->mBowVec);
 
         if (score < minScore)
             minScore = score;

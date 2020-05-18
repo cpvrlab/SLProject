@@ -167,7 +167,7 @@ void GLSLextractor::operator()(InputArray        _image,
     }
     else
     {
-        _descriptors.create(_keypoints.size(), 32, CV_8U);
+        _descriptors.create((int)_keypoints.size(), 32, CV_8U);
         descriptors = _descriptors.getMat();
     }
 
@@ -176,7 +176,7 @@ void GLSLextractor::operator()(InputArray        _image,
     GaussianBlur(images[idx], workingMat, cv::Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
     // Compute the descriptors
-    Mat desc = descriptors.rowRange(0, _keypoints.size());
+    Mat desc = descriptors.rowRange(0, (int)_keypoints.size());
     computeDescriptors(workingMat, _keypoints, desc, pattern);
 
     AVERAGE_TIMING_STOP("GLSL Hessian");
