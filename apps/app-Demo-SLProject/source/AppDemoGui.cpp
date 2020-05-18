@@ -370,6 +370,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat poseTime       = CVTracked::poseTimesMS.average();
                 SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                 SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                 SLfloat cullTime       = sv->cullTimesMS().average();
                 SLfloat draw3DTime     = sv->draw3DTimesMS().average();
                 SLfloat draw2DTime     = sv->draw2DTimesMS().average();
@@ -384,30 +385,32 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
-                sprintf(m + strlen(m), "Renderer   : OpenGL\n");
-                sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
-                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                sprintf(m + strlen(m), "  Tracking :%5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                sprintf(m + strlen(m), "   Detect  :%5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                sprintf(m + strlen(m), "    Det1   :%5.1f ms\n", detect1Time);
-                sprintf(m + strlen(m), "    Det2   :%5.1f ms\n", detect2Time);
-                sprintf(m + strlen(m), "   Match   :%5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                sprintf(m + strlen(m), "   OptFlow :%5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                sprintf(m + strlen(m), "   Pose    :%5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                sprintf(m + strlen(m), "Renderer     : OpenGL\n");
+                sprintf(m + strlen(m), "Window size  : %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Frambuffer   : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
+                sprintf(m + strlen(m), "Drawcalls    : %d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "FPS          :%5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time   :%5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), " Capture     :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), " Update      :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "  Anim.      :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "  AABB       :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                sprintf(m + strlen(m), "  Tracking   :%5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                sprintf(m + strlen(m), "   Detect    :%5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                sprintf(m + strlen(m), "    Det1     :%5.1f ms\n", detect1Time);
+                sprintf(m + strlen(m), "    Det2     :%5.1f ms\n", detect2Time);
+                sprintf(m + strlen(m), "   Match     :%5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                sprintf(m + strlen(m), "   OptFlow   :%5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                sprintf(m + strlen(m), "   Pose      :%5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                sprintf(m + strlen(m), " Shadows Maps:%5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
+                sprintf(m + strlen(m), " Culling     :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), " Drawing 3D  :%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), " Drawing 2D  :%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
             }
             else if (rType == RT_rt)
             {
