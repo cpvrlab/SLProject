@@ -34,7 +34,7 @@ bool StateMachine::update()
         unsigned int newState = e->getNewState(_currentStateId);
         data                  = e->getEventData();
 
-        LOG_STATEMACHINE_DEBUG("Event %s received send by %s", e->name(), e->senderInfo());
+        LOG_STATEMACHINE_DEBUG("Event %s received sent by %s", e->name(), e->senderInfo());
 
         if (newState != Event::EVENT_IGNORED)
         {

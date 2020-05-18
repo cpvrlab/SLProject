@@ -21,9 +21,6 @@
 #    include <OrbSlam/ORBVocabulary.h>
 #endif
 
-/*!Singleton class used to load, store and delete ORB_SLAM2::ORBVocabulary instance.
-*/
-
 struct WAIBowVector
 {
     bool isFill = false;
