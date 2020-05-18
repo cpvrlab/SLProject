@@ -125,7 +125,6 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLight.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightRect.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightSpot.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLine.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightDirect.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMaterial.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
@@ -222,7 +221,6 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLight.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightRect.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightSpot.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightDirect.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
@@ -345,7 +343,7 @@ endif()
 add_library(${target}
         ${headers}
         ${sources}
-        ${shaders} source/SLLine.cpp)
+        ${shaders})
 
 add_library(${META_PROJECT_NAME}::${target}
         ALIAS

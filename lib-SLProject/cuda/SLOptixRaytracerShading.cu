@@ -187,16 +187,6 @@ extern "C" __global__ void __closesthit__radiance()
                   rt_data->material.kt);
     }
 
-    // Collect ray information
-    ortRay ray;
-    ray.line = {
-      optixGetWorldRayOrigin(),
-      P,
-    };
-    ray.color                                    = color;
-    params.rays[(idx.y * dim.x + idx.x) * params.max_depth * 2 +
-                (getDepth() - 1) + getRayType()] = ray;
-
     // Set color to payload
     setColor(color);
 }

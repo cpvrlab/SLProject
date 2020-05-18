@@ -24,11 +24,13 @@ struct ortLine
 };
 //------------------------------------------------------------------------------
 //! Optix ray tracing ray struct
+/*
 struct ortRay
 {
     ortLine line;
     float4  color;
 };
+*/
 //------------------------------------------------------------------------------
 //! Optix ray tracing sample struct
 struct ortSamples
@@ -97,7 +99,7 @@ struct ortParams
         };
     };
 
-    ortRay* rays;
+    //ortRay* rays;
 };
 //------------------------------------------------------------------------------
 //! Optix ray tracing ray type enumeration
