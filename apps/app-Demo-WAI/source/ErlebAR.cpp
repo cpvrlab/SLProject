@@ -27,7 +27,7 @@ const char* mapAreaIdToName(AreaId id)
     switch (id)
     {
         case AreaId::NONE:
-            return "Undefined location";
+            return "Undefined area";
         //augst
         case AreaId::AUGST_TEMPLE_HILL_MARKER:
             return "Temple-Hill";

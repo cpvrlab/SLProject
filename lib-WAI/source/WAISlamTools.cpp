@@ -1132,7 +1132,7 @@ WAIFrame WAISlamTools::createMarkerFrame(std::string       markerFile,
 
     float cx = (float)markerImgGray.cols * 0.5f;
     float cy = (float)markerImgGray.rows * 0.5f;
-    float fy = (float)(cy / tanf(fov * 0.5f * (float)M_PI / 180.0f));
+    float fy = cy / tanf(fov * 0.5f * (float)M_PI / 180.0f);
     float fx = fy;
 
     // TODO(dgj1): pass actual calibration for marker frame?

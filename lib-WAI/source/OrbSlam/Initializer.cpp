@@ -91,7 +91,7 @@ bool Initializer::Initialize(const WAIFrame&           CurrentFrame,
         // Select a minimum set
         for (size_t j = 0; j < 8; j++)
         {
-            int randi = (int)DUtils::Random::RandomInt(0, (int)vAvailableIndices.size() - 1);
+            int randi = DUtils::Random::RandomInt(0, (int)vAvailableIndices.size() - 1);
             int idx   = (int)vAvailableIndices[randi];
 
             mvSets[it][j] = idx;

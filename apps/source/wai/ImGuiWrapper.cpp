@@ -217,9 +217,9 @@ void ImGuiRendererOpenGL::deleteOpenGLObjects()
 //-----------------------------------------------------------------------------
 void ImGuiEngine::init(const std::string& configPath)
 {
-    ImGuiIO&    io          = _context->IO;
-    std::string iniFileName = configPath + "imgui.ini";
-    io.IniFilename          = iniFileName.c_str();
+    ImGuiIO& io    = _context->IO;
+    _iniFilename   = configPath + "imgui.ini";
+    io.IniFilename = _iniFilename.c_str();
 
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]  = K_left;

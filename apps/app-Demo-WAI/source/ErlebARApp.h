@@ -13,6 +13,7 @@
 class InitEventData;
 class SelectionView;
 class TestView;
+class TestRunnerView;
 class StartUpView;
 class WelcomeView;
 class SettingsView;
@@ -57,6 +58,7 @@ private:
 
     void START_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
@@ -74,6 +76,7 @@ private:
 
     SelectionView*    _selectionView    = nullptr;
     TestView*         _testView         = nullptr;
+    TestRunnerView*   _testRunnerView   = nullptr;
     StartUpView*      _startUpView      = nullptr;
     WelcomeView*      _welcomeView      = nullptr;
     AboutView*        _aboutView        = nullptr;

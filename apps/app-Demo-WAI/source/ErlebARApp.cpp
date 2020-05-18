@@ -4,6 +4,7 @@
 #include <SLAssimpImporter.h>
 #include <views/SelectionView.h>
 #include <views/TestView.h>
+#include <views/TestRunnerView.h>
 #include <views/StartUpView.h>
 #include <views/WelcomeView.h>
 #include <views/SettingsView.h>
@@ -34,6 +35,8 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST>((unsigned int)StateId::TEST);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TEST>((unsigned int)StateId::HOLD_TEST);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::RESUME_TEST>((unsigned int)StateId::RESUME_TEST);
+
+    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST_RUNNER>((unsigned int)StateId::TEST_RUNNER);
 
     registerState<ErlebARApp, ErlebarEventData, &ErlebARApp::LOCATION_MAP>((unsigned int)StateId::LOCATION_MAP);
     registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_INFO>((unsigned int)StateId::AREA_INFO);
@@ -101,6 +104,9 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
             return "HOLD_TEST";
         case StateId::RESUME_TEST:
             return "RESUME_TEST";
+
+        case StateId::TEST_RUNNER:
+            return "TEST_RUNNER";
 
         case StateId::LOCATION_MAP:
             return "LOCATION_MAP";
@@ -200,6 +206,19 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                              dd.dirs().vocabularyDir,
                              dd.calibDir(),
                              dd.videoDir());
+
+    _testRunnerView = new TestRunnerView(*this,
+                                         _inputManager,
+                                         *_imGuiEngine,
+                                         *_resources,
+                                         dd.scrWidth(),
+                                         dd.scrHeight(),
+                                         dd.dpi(),
+                                         dd.dirs().writableDir + "erleb-AR/",
+                                         dd.dirs().writableDir + "calibrations/",
+                                         dd.fontDir(),
+                                         dd.dirs().vocabularyDir + "/voc_fbow.bin",
+                                         dd.dirs().writableDir);
 
     _startUpView = new StartUpView(_inputManager,
                                    dd.scrWidth(),
@@ -442,6 +461,11 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
         _testView->show();
     }
     _testView->update();
+}
+
+void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
+{
+    _testRunnerView->update();
 }
 
 void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)

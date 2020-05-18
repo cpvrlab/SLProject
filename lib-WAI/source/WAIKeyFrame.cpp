@@ -758,7 +758,7 @@ vector<size_t> WAIKeyFrame::GetFeaturesInArea(const float& x, const float& y, co
     if (nMinCellX >= mnGridCols)
         return vIndices;
 
-    const int nMaxCellX = min((int)mnGridCols - 1, (int)ceil((x - mnMinX + r) * mfGridElementWidthInv));
+    const int nMaxCellX = min(mnGridCols - 1, (int)ceil((x - mnMinX + r) * mfGridElementWidthInv));
     if (nMaxCellX < 0)
         return vIndices;
 
@@ -766,7 +766,7 @@ vector<size_t> WAIKeyFrame::GetFeaturesInArea(const float& x, const float& y, co
     if (nMinCellY >= mnGridRows)
         return vIndices;
 
-    const int nMaxCellY = min((int)mnGridRows - 1, (int)ceil((y - mnMinY + r) * mfGridElementHeightInv));
+    const int nMaxCellY = min(mnGridRows - 1, (int)ceil((y - mnMinY + r) * mfGridElementHeightInv));
     if (nMaxCellY < 0)
         return vIndices;
 

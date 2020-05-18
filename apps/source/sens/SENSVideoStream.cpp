@@ -5,10 +5,10 @@
 #include "SENSUtils.h"
 
 SENSVideoStream::SENSVideoStream(const std::string& videoFileName,
-                                 bool videoLoops, 
-                                 bool mirrorH, 
-                                 bool mirrorV, 
-                                 float targetFps)
+                                 bool               videoLoops,
+                                 bool               mirrorH,
+                                 bool               mirrorV,
+                                 float              targetFps)
   : _videoLoops(videoLoops),
     _mirrorH(mirrorH),
     _mirrorV(mirrorV)
@@ -31,8 +31,7 @@ SENSVideoStream::SENSVideoStream(const std::string& videoFileName,
     else
         _targetFps = targetFps;
 
-
-    _videoFileName  = videoFileName;
+    _videoFileName = videoFileName;
 }
 
 SENSFramePtr SENSVideoStream::grabNextFrame()
@@ -85,20 +84,19 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     cv::Mat      grayImg;
 
     float frameDuration = 1.0f / _targetFps;
-    int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
-    int skippedFrame = 0;
+    int   frameIndex    = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
+    int   skippedFrame  = 0;
     float frameTime;
     float lastFrameTime = frameIndex / _fps;
     do
     {
         skippedFrame++;
         frameTime = (float)(frameIndex + skippedFrame) / _fps;
-    }
-    while ((frameTime - lastFrameTime) < frameDuration);
+    } while ((frameTime - lastFrameTime) < frameDuration);
 
-    float frameError = (frameTime - lastFrameTime - frameDuration);  //Compute overflow
-    int nbFrame = (int)(frameIndex * _targetFps / _fps);             //Expected number of frames
-    float totalError = (nbFrame * frameError);                       //Total cumulated error
+    float frameError = (frameTime - lastFrameTime - frameDuration); //Compute overflow
+    int   nbFrame    = (int)(frameIndex * _targetFps / _fps);       //Expected number of frames
+    float totalError = (nbFrame * frameError);                      //Total cumulated error
     if ((fmod(totalError, frameDuration) + frameError) > frameDuration && skippedFrame > 1)
     {
         skippedFrame--;
@@ -127,8 +125,8 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
 
 SENSFramePtr SENSVideoStream::grabPreviousResampledFrame()
 {
-    int frameIndex = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
-    int skippedFrame = 0;
+    int   frameIndex   = (int)_cap.get(cv::CAP_PROP_POS_FRAMES);
+    int   skippedFrame = 0;
     float frameTime;
     float currentFrameTime = frameIndex / _fps;
 
@@ -136,10 +134,9 @@ SENSFramePtr SENSVideoStream::grabPreviousResampledFrame()
     {
         frameTime = frameIndex - skippedFrame / _fps;
         skippedFrame++;
-    }
-    while ((currentFrameTime - frameTime) > 1.0 / _targetFps);
+    } while ((currentFrameTime - frameTime) > 1.0 / _targetFps);
 
-    moveCapturePosition(-skippedFrame+1);
+    moveCapturePosition(-skippedFrame + 1);
     return grabNextFrame();
 }
 
