@@ -1361,9 +1361,9 @@ void SLMesh::updateMeshAccelerationStructure()
     updateAccelerationStructure();
 }
 //-----------------------------------------------------------------------------
-HitData SLMesh::createHitData()
+ortHitData SLMesh::createHitData()
 {
-    HitData hitData = {};
+    ortHitData hitData = {};
 
     hitData.sbtIndex = 0;
     hitData.normals  = reinterpret_cast<float3*>(_normalBuffer.devicePointer());

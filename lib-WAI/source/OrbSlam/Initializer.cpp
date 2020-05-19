@@ -44,12 +44,12 @@ Initializer::Initializer(const WAIFrame& ReferenceFrame, float sigma, int iterat
     DUtils::Random::SeedRand(1337);
 }
 
-bool Initializer::Initialize(const WAIFrame& CurrentFrame,
-                             const std::vector<int>& vMatches12,
-                             cv::Mat& R21,
-                             cv::Mat& t21,
+bool Initializer::Initialize(const WAIFrame&           CurrentFrame,
+                             const std::vector<int>&   vMatches12,
+                             cv::Mat&                  R21,
+                             cv::Mat&                  t21,
                              std::vector<cv::Point3f>& vP3D,
-                             std::vector<bool>& vbTriangulated)
+                             std::vector<bool>&        vbTriangulated)
 {
     // Fill structures with current keypoints and matches with reference frame
     // Reference Frame: 1, Current Frame: 2
@@ -103,8 +103,8 @@ bool Initializer::Initialize(const WAIFrame& CurrentFrame,
 
     // Launch threads to compute in parallel a fundamental matrix and a homography
     std::vector<bool> vbMatchesInliersH, vbMatchesInliersF;
-    float        SH, SF;
-    cv::Mat      H, F;
+    float             SH, SF;
+    cv::Mat           H, F;
 
     thread threadH(&Initializer::FindHomography, this, ref(vbMatchesInliersH), ref(SH), ref(H));
     thread threadF(&Initializer::FindFundamental, this, ref(vbMatchesInliersF), ref(SF), ref(F));
@@ -197,7 +197,7 @@ bool Initializer::InitializeWithKnownPose(const std::vector<cv::KeyPoint>& mvKey
 
     // Normalize coordinates
     std::vector<cv::Point2f> vPn1, vPn2;
-    cv::Mat             T1, T2;
+    cv::Mat                  T1, T2;
     Normalize(mvKeys1, vPn1, T1);
     Normalize(mvKeys2, vPn2, T2);
     cv::Mat T2t = T2.t();
@@ -254,14 +254,14 @@ bool Initializer::InitializeWithKnownPose(const std::vector<cv::KeyPoint>& mvKey
     return result;
 }
 
-bool Initializer::InitializeWithKnownPose(const WAIFrame& InitialFrame,
-                                          const WAIFrame& CurrentFrame,
-                                          const std::vector<int>& vMatches12, 
-                                          cv::Mat& R21, 
-                                          cv::Mat& t21, 
+bool Initializer::InitializeWithKnownPose(const WAIFrame&           InitialFrame,
+                                          const WAIFrame&           CurrentFrame,
+                                          const std::vector<int>&   vMatches12,
+                                          cv::Mat&                  R21,
+                                          cv::Mat&                  t21,
                                           std::vector<cv::Point3f>& vP3D,
-                                          std::vector<bool>& vbTriangulated, 
-                                          int minTriangulated)
+                                          std::vector<bool>&        vbTriangulated,
+                                          int                       minTriangulated)
 {
     bool result = InitializeWithKnownPose(InitialFrame.mvKeysUn,
                                           CurrentFrame.mvKeysUn,
@@ -286,7 +286,7 @@ void Initializer::FindHomography(std::vector<bool>& vbMatchesInliers, float& sco
 
     // Normalize coordinates
     std::vector<cv::Point2f> vPn1, vPn2;
-    cv::Mat             T1, T2;
+    cv::Mat                  T1, T2;
     Normalize(mvKeys1, vPn1, T1);
     Normalize(mvKeys2, vPn2, T2);
     cv::Mat T2inv = T2.inv();
@@ -330,15 +330,15 @@ void Initializer::FindHomography(std::vector<bool>& vbMatchesInliers, float& sco
 }
 
 void Initializer::FindFundamental(std::vector<bool>& vbMatchesInliers,
-                                  float& score,
-                                  cv::Mat& F21)
+                                  float&             score,
+                                  cv::Mat&           F21)
 {
     // Number of putative matches
     const int N = (int)vbMatchesInliers.size();
 
     // Normalize coordinates
     std::vector<cv::Point2f> vPn1, vPn2;
-    cv::Mat             T1, T2;
+    cv::Mat                  T1, T2;
     Normalize(mvKeys1, vPn1, T1);
     Normalize(mvKeys2, vPn2, T2);
     cv::Mat T2t = T2.t();
@@ -350,9 +350,9 @@ void Initializer::FindFundamental(std::vector<bool>& vbMatchesInliers,
     // Iteration variables
     std::vector<cv::Point2f> vPn1i(8);
     std::vector<cv::Point2f> vPn2i(8);
-    cv::Mat             F21i;
+    cv::Mat                  F21i;
     std::vector<bool>        vbCurrentInliers(N, false);
-    float               currentScore;
+    float                    currentScore;
 
     // Perform all RANSAC iterations and save the solution with highest score
     for (int it = 0; it < mMaxIterations; it++)
@@ -624,15 +624,15 @@ float Initializer::CheckFundamental(const cv::Mat& F21, std::vector<bool>& vbMat
     return score;
 }
 
-bool Initializer::ReconstructF(std::vector<bool>& vbMatchesInliers,
-                               cv::Mat& F21,
-                               cv::Mat& K,
-                               cv::Mat& R21,
-                               cv::Mat& t21,
+bool Initializer::ReconstructF(std::vector<bool>&        vbMatchesInliers,
+                               cv::Mat&                  F21,
+                               cv::Mat&                  K,
+                               cv::Mat&                  R21,
+                               cv::Mat&                  t21,
                                std::vector<cv::Point3f>& vP3D,
-                               std::vector<bool>& vbTriangulated,
-                               float minParallax,
-                               int minTriangulated)
+                               std::vector<bool>&        vbTriangulated,
+                               float                     minParallax,
+                               int                       minTriangulated)
 {
     int N = 0;
     for (size_t i = 0, iend = vbMatchesInliers.size(); i < iend; i++)
@@ -653,7 +653,7 @@ bool Initializer::ReconstructF(std::vector<bool>& vbMatchesInliers,
     // Reconstruct with the 4 hyphoteses and check
     std::vector<cv::Point3f> vP3D1, vP3D2, vP3D3, vP3D4;
     std::vector<bool>        vbTriangulated1, vbTriangulated2, vbTriangulated3, vbTriangulated4;
-    float               parallax1, parallax2, parallax3, parallax4;
+    float                    parallax1, parallax2, parallax3, parallax4;
 
     int nGood1 = CheckRT(R1, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D1, 4.0f * mSigma2, vbTriangulated1, parallax1);
     int nGood2 = CheckRT(R2, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D2, 4.0f * mSigma2, vbTriangulated2, parallax2);
@@ -736,15 +736,15 @@ bool Initializer::ReconstructF(std::vector<bool>& vbMatchesInliers,
     return false;
 }
 
-bool Initializer::ReconstructH(std::vector<bool>& vbMatchesInliers,
-                               cv::Mat& H21,
-                               cv::Mat& K,
-                               cv::Mat& R21,
-                               cv::Mat& t21,
+bool Initializer::ReconstructH(std::vector<bool>&        vbMatchesInliers,
+                               cv::Mat&                  H21,
+                               cv::Mat&                  K,
+                               cv::Mat&                  R21,
+                               cv::Mat&                  t21,
                                std::vector<cv::Point3f>& vP3D,
-                               std::vector<bool>& vbTriangulated,
-                               float minParallax,
-                               int minTriangulated)
+                               std::vector<bool>&        vbTriangulated,
+                               float                     minParallax,
+                               int                       minTriangulated)
 {
     int N = 0;
     for (size_t i = 0, iend = vbMatchesInliers.size(); i < iend; i++)
@@ -863,10 +863,10 @@ bool Initializer::ReconstructH(std::vector<bool>& vbMatchesInliers,
         vn.push_back(n);
     }
 
-    int                 bestGood        = 0;
-    int                 secondBestGood  = 0;
-    int                 bestSolutionIdx = -1;
-    float               bestParallax    = -1;
+    int                      bestGood        = 0;
+    int                      secondBestGood  = 0;
+    int                      bestSolutionIdx = -1;
+    float                    bestParallax    = -1;
     std::vector<cv::Point3f> bestP3D;
     std::vector<bool>        bestTriangulated;
 
@@ -877,7 +877,18 @@ bool Initializer::ReconstructH(std::vector<bool>& vbMatchesInliers,
         float                    parallaxi;
         std::vector<cv::Point3f> vP3Di;
         std::vector<bool>        vbTriangulatedi;
-        int                      nGood = CheckRT(vR[i], vt[i], mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3Di, 4.0 * mSigma2, vbTriangulatedi, parallaxi);
+
+        int nGood = CheckRT(vR[i],
+                            vt[i],
+                            mvKeys1,
+                            mvKeys2,
+                            mvMatches12,
+                            vbMatchesInliers,
+                            K,
+                            vP3Di,
+                            4.0f * mSigma2,
+                            vbTriangulatedi,
+                            parallaxi);
 
         if (nGood > bestGood)
         {
@@ -927,8 +938,8 @@ void Initializer::Triangulate(const cv::Point& p1,
 }
 
 void Initializer::Normalize(const std::vector<cv::KeyPoint>& vKeys,
-                            std::vector<cv::Point2f>& vNormalizedPoints,
-                            cv::Mat& T)
+                            std::vector<cv::Point2f>&        vNormalizedPoints,
+                            cv::Mat&                         T)
 {
     float     meanX = 0;
     float     meanY = 0;
@@ -976,17 +987,17 @@ void Initializer::Normalize(const std::vector<cv::KeyPoint>& vKeys,
     T.at<float>(1, 2) = -meanY * sY;
 }
 
-int Initializer::CheckRT(const cv::Mat& R,
-                         const cv::Mat& t,
+int Initializer::CheckRT(const cv::Mat&                   R,
+                         const cv::Mat&                   t,
                          const std::vector<cv::KeyPoint>& vKeys1,
                          const std::vector<cv::KeyPoint>& vKeys2,
-                         const std::vector<Match>& vMatches12,
-                         std::vector<bool>& vbMatchesInliers,
-                         const cv::Mat& K,
-                         std::vector<cv::Point3f>& vP3D,
-                         float th2,
-                         std::vector<bool>& vbGood,
-                         float& parallax)
+                         const std::vector<Match>&        vMatches12,
+                         std::vector<bool>&               vbMatchesInliers,
+                         const cv::Mat&                   K,
+                         std::vector<cv::Point3f>&        vP3D,
+                         float                            th2,
+                         std::vector<bool>&               vbGood,
+                         float&                           parallax)
 {
     // Calibration parameters
     const float fx = K.at<float>(0, 0);

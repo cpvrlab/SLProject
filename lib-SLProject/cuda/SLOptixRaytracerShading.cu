@@ -14,12 +14,12 @@
 
 //-----------------------------------------------------------------------------
 extern "C" {
-__constant__ Params params;
+__constant__ ortParams params;
 }
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __miss__radiance()
 {
-    auto* rt_data = reinterpret_cast<MissData*>(optixGetSbtDataPointer());
+    auto* rt_data = reinterpret_cast<ortMissData*>(optixGetSbtDataPointer());
     setColor(rt_data->bg_color);
 }
 //-----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ extern "C" __global__ void __anyhit__radiance()
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __anyhit__occlusion()
 {
-    auto* rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
+    auto* rt_data = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
     setLighted(getLighted() - (1.0f - rt_data->material.kt));
     optixIgnoreIntersection();
 }
@@ -44,7 +44,7 @@ extern "C" __global__ void __closesthit__radiance()
     const uint3 dim = optixGetLaunchDimensions();
 
     // Get all data for the hit point
-    auto*        rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
+    auto*        rt_data = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
     const float3 ray_dir = optixGetWorldRayDirection();
 
     // calculate normal vector
@@ -60,7 +60,6 @@ extern "C" __global__ void __closesthit__radiance()
     {
         float4 local_color    = make_float4(0.0f);
         float4 specular_color = make_float4(0.0f);
-        ;
 
         // Add emissive and ambient to current color
         local_color += rt_data->material.emissive_color;
@@ -69,10 +68,10 @@ extern "C" __global__ void __closesthit__radiance()
         // calculate local illumination for every light source
         for (int i = 0; i < params.numLights; i++)
         {
-            const Light  light = params.lights[i];
-            const float  Ldist = length(light.position - P);
-            const float3 L     = normalize(light.position - P);
-            const float  nDl   = dot(L, N);
+            const ortLight light = params.lights[i];
+            const float    Ldist = length(light.position - P);
+            const float3   L     = normalize(light.position - P);
+            const float    nDl   = dot(L, N);
 
             // Phong specular reflection
             // const float3 R = normalize(reflect(-L, N));
@@ -88,9 +87,9 @@ extern "C" __global__ void __closesthit__radiance()
 
                 float3 lightDiscX = normalize(make_float3(1, 1, (-1 * (L.x + L.y) / L.z)));
                 float3 lightDiscY = cross(L, lightDiscX);
-
-                bool outerCircleIsLighting    = true;
-                bool innerCircleIsNotLighting = true;
+                
+                //bool outerCircleIsLighting    = true;
+                //bool innerCircleIsNotLighting = true;
 
                 for (unsigned int r = 1; r <= light.samples.samplesX; r++)
                 {
@@ -107,10 +106,10 @@ extern "C" __global__ void __closesthit__radiance()
                         if (sample > 0)
                         {
                             lighted += sample / (light.samples.samplesX * light.samples.samplesY);
-                            innerCircleIsNotLighting = false;
+                            //innerCircleIsNotLighting = false;
                         }
-                        if (sample < 1.0f)
-                            outerCircleIsLighting = false;
+                        //if (sample < 1.0f)
+                            //outerCircleIsLighting = false;
                     }
 
                     //if (outerCircleIsLighting)
@@ -120,7 +119,7 @@ extern "C" __global__ void __closesthit__radiance()
                     //}
                     //if (innerCircleIsNotLighting) break;
 
-                    innerCircleIsNotLighting = true;
+                    //innerCircleIsNotLighting = true;
                 }
 
                 // Phong shading
@@ -187,16 +186,6 @@ extern "C" __global__ void __closesthit__radiance()
                                      rt_data->material.kn) *
                   rt_data->material.kt);
     }
-
-    // Collect ray information
-    Ray ray;
-    ray.line = {
-      optixGetWorldRayOrigin(),
-      P,
-    };
-    ray.color                                    = color;
-    params.rays[(idx.y * dim.x + idx.x) * params.max_depth * 2 +
-                (getDepth() - 1) + getRayType()] = ray;
 
     // Set color to payload
     setColor(color);

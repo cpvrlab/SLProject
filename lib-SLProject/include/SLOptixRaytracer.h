@@ -27,7 +27,7 @@ class SLCamera;
 //! SLOptixRaytracer hold all the methods for Whitted style Ray Tracing.
 class SLOptixRaytracer : public SLRaytracer
 {
-    public:
+public:
     SLOptixRaytracer();
     ~SLOptixRaytracer() override;
 
@@ -42,13 +42,9 @@ class SLOptixRaytracer : public SLRaytracer
     SLbool       renderClassic();
     SLbool       renderDistrib();
     virtual void renderImage() override;
+    void         saveImage() override;
 
-    void saveImage() override;
-
-    void drawRay(unsigned int, unsigned int);
-    void removeRays();
-
-    protected:
+protected:
     void initCompileOptions();
 
     OptixModule             _createModule(string);
@@ -56,10 +52,10 @@ class SLOptixRaytracer : public SLRaytracer
     OptixPipeline           _createPipeline(OptixProgramGroup*, unsigned int);
     OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&, const bool);
 
-    SLCudaBuffer<float4> _imageBuffer  = SLCudaBuffer<float4>();
-    SLCudaBuffer<Ray>    _lineBuffer   = SLCudaBuffer<Ray>();
-    SLCudaBuffer<Params> _paramsBuffer = SLCudaBuffer<Params>();
-    SLCudaBuffer<Light>  _lightBuffer  = SLCudaBuffer<Light>();
+    SLCudaBuffer<float4> _imageBuffer = SLCudaBuffer<float4>();
+    //SLCudaBuffer<ortRay>    _lineBuffer   = SLCudaBuffer<ortRay>();
+    SLCudaBuffer<ortParams> _paramsBuffer = SLCudaBuffer<ortParams>();
+    SLCudaBuffer<ortLight>  _lightBuffer  = SLCudaBuffer<ortLight>();
 
     OptixModule                 _cameraModule{};
     OptixModule                 _shadingModule{};
@@ -68,7 +64,7 @@ class SLOptixRaytracer : public SLRaytracer
     OptixPipelineCompileOptions _pipeline_compile_options{};
 
     OptixTraversableHandle _handle{};
-    Params                 _params{};
+    ortParams              _params{};
 
     SLCudaBuffer<MissSbtRecord>              _missBuffer              = SLCudaBuffer<MissSbtRecord>();
     SLCudaBuffer<HitSbtRecord>               _hitBuffer               = SLCudaBuffer<HitSbtRecord>();

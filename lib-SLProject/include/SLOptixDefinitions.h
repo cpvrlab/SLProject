@@ -16,25 +16,31 @@
 #        include <curand_kernel.h>
 
 //------------------------------------------------------------------------------
-struct Line
+//! Optix ray tracing line struct
+struct ortLine
 {
     float3 p1;
     float3 p2;
 };
 //------------------------------------------------------------------------------
-struct Ray
+//! Optix ray tracing ray struct
+/*
+struct ortRay
 {
-    Line   line;
-    float4 color;
+    ortLine line;
+    float4  color;
 };
+*/
 //------------------------------------------------------------------------------
-struct Samples
+//! Optix ray tracing sample struct
+struct ortSamples
 {
     unsigned int samplesX;
     unsigned int samplesY;
 };
 //------------------------------------------------------------------------------
-struct Material
+//! Optix ray tracing material information struct
+struct ortMaterial
 {
     float4 diffuse_color;
     float4 ambient_color;
@@ -47,24 +53,25 @@ struct Material
     float  kn;
 };
 //------------------------------------------------------------------------------
-struct Light
+//! Optix ray tracing light information struct
+struct ortLight
 {
-    float4  diffuse_color;
-    float4  ambient_color;
-    float4  specular_color;
-    float3  position;
-    float   spotCutOffDEG;
-    float   spotExponent;
-    float   spotCosCut;
-    float3  spotDirWS;
-    float   kc;
-    float   kl;
-    float   kq;
-    Samples samples;
-    float   radius;
+    float4     diffuse_color;
+    float4     ambient_color;
+    float4     specular_color;
+    float3     position;
+    float      spotCutOffDEG;
+    float      spotExponent;
+    float      spotCosCut;
+    float3     spotDirWS;
+    float      kc;
+    float      kl;
+    float      kq;
+    ortSamples samples;
+    float      radius;
 };
 //------------------------------------------------------------------------------
-struct Params
+struct ortParams
 {
     float4*      image;
     unsigned int width;
@@ -79,7 +86,7 @@ struct Params
     {
         struct
         {
-            Light*       lights;
+            ortLight*    lights;
             unsigned int numLights;
             float4       globalAmbientColor;
         };
@@ -92,17 +99,19 @@ struct Params
         };
     };
 
-    Ray* rays;
+    //ortRay* rays;
 };
 //------------------------------------------------------------------------------
-enum RayType
+//! Optix ray tracing ray type enumeration
+enum ortRayType
 {
     RAY_TYPE_RADIANCE  = 0,
     RAY_TYPE_OCCLUSION = 1,
     RAY_TYPE_COUNT
 };
 //------------------------------------------------------------------------------
-struct CameraData
+//! Optix ray tracing camera info for pinhole camera
+struct ortCamera
 {
     float3 eye;
     float3 U;
@@ -110,32 +119,34 @@ struct CameraData
     float3 W;
 };
 //------------------------------------------------------------------------------
-struct LensCameraData
+//! Optix ray tracing camera info for lens camera
+struct ortLensCamera
 {
-    CameraData camera;
-    Samples    samples;
+    ortCamera  camera;
+    ortSamples samples;
     float      lensDiameter;
 };
 //------------------------------------------------------------------------------
-struct MissData
+//! Optix ray tracing intersection miss data
+struct ortMissData
 {
     float4 bg_color;
 };
 //------------------------------------------------------------------------------
-struct HitData
+//! Optix ray tracing intersection hit data
+struct ortHitData
 {
     union
     {
-        Line line;
+        ortLine line;
     } geometry;
 
-    Material    material;
+    ortMaterial material;
     CUtexObject textureObject;
-
-    int     sbtIndex;
-    float3* normals;
-    short3* indices;
-    float2* texCords;
+    int         sbtIndex;
+    float3*     normals;
+    short3*     indices;
+    float2*     texCords;
 };
 //------------------------------------------------------------------------------
 template<typename T>
@@ -145,10 +156,10 @@ struct SbtRecord
     T data;
 };
 //------------------------------------------------------------------------------
-typedef SbtRecord<CameraData>     RayGenClassicSbtRecord;
-typedef SbtRecord<LensCameraData> RayGenDistributedSbtRecord;
-typedef SbtRecord<MissData>       MissSbtRecord;
-typedef SbtRecord<HitData>        HitSbtRecord;
+typedef SbtRecord<ortCamera>     RayGenClassicSbtRecord;
+typedef SbtRecord<ortLensCamera> RayGenDistributedSbtRecord;
+typedef SbtRecord<ortMissData>   MissSbtRecord;
+typedef SbtRecord<ortHitData>    HitSbtRecord;
 //------------------------------------------------------------------------------
 #    endif // SLOPTIXDEFINITIONS_H
 #endif     // SL_HAS_OPTIX

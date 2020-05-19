@@ -19,7 +19,6 @@
 #    include <optix.h>
 #    include <utility>
 #    include <SLOptixHelper.h>
-#    include <SLLine.h>
 #    include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -28,7 +27,7 @@ SLOptixRaytracer::SLOptixRaytracer()
 {
     name("OptiX ray tracer");
     _params = {};
-    _paramsBuffer.alloc(sizeof(Params));
+    _paramsBuffer.alloc(sizeof(ortParams));
     initCompileOptions();
 }
 //-----------------------------------------------------------------------------
@@ -62,12 +61,12 @@ void SLOptixRaytracer::initCompileOptions()
     _module_compile_options                  = {};
     _module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 #    ifdef NDEBUG
-    _module_compile_options.optLevel   = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-    _module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
+    _module_compile_options.optLevel         = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+    _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 #    else
-    _module_compile_options.optLevel   = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-    _module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    _module_compile_options.optLevel         = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+    _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_USER;
 #    endif
 
@@ -312,10 +311,8 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv)
     _sv                    = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
-    _lineBuffer.resize(_sv->scrW() * _sv->scrH() * _maxDepth * 2 * sizeof(Ray));
 
     _params.image     = reinterpret_cast<float4*>(_imageBuffer.devicePointer());
-    _params.rays      = reinterpret_cast<Ray*>(_lineBuffer.devicePointer());
     _params.width     = _sv->scrW();
     _params.height    = _sv->scrH();
     _params.max_depth = _maxDepth;
@@ -345,7 +342,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
 
     SLVec3f eye, u, v, w;
     camera->UVWFrame(eye, u, v, w);
-    CameraData cameraData{};
+    ortCamera cameraData{};
     cameraData.eye = make_float3(eye);
     cameraData.U   = make_float3(u);
     cameraData.V   = make_float3(v);
@@ -378,7 +375,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         _rayGenClassicBuffer.upload(&rayGenSbtRecord);
     }
 
-    vector<Light> lights;
+    vector<ortLight> lights;
     _lightBuffer.free();
     unsigned int light_count = 0;
     for (auto light : scene->lights())
@@ -390,7 +387,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         }
     }
     _lightBuffer.alloc_and_upload(lights);
-    _params.lights             = reinterpret_cast<Light*>(_lightBuffer.devicePointer());
+    _params.lights             = reinterpret_cast<ortLight*>(_lightBuffer.devicePointer());
     _params.numLights          = light_count;
     _params.globalAmbientColor = make_float4(scene->globalAmbiLight());
 
@@ -533,45 +530,6 @@ void SLOptixRaytracer::saveImage()
     }
 
     SLRaytracer::saveImage();
-}
-//-----------------------------------------------------------------------------
-void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y)
-{
-    SLAssetManager* assetMngr = (SLAssetManager*)SLApplication::scene;
-
-    y = _sv->scrH() - y;
-
-    Ray* rays = static_cast<Ray*>(malloc(_lineBuffer.size()));
-    _lineBuffer.download(rays);
-
-    for (int i = 0; i < _maxDepth * 2; i++)
-    {
-        Ray ray = rays[(y * _sv->scrW() + x) * _maxDepth * 2 + i];
-
-        auto* mat  = new SLMaterial(assetMngr,
-                                   "mat",
-                                   SLCol4f(ray.color.x, ray.color.y, ray.color.z),
-                                   SLCol4f::BLACK,
-                                   0);
-        auto* line = new SLNode(new SLLine(assetMngr,
-                                           SLVec3f(ray.line.p1.x,
-                                                   ray.line.p1.y,
-                                                   ray.line.p1.z),
-                                           SLVec3f(ray.line.p2.x,
-                                                   ray.line.p2.y,
-                                                   ray.line.p2.z),
-                                           mat),
-                                "line");
-        _sv->s().root3D()->addChild(line);
-    }
-    setupScene(_sv);
-}
-//-----------------------------------------------------------------------------
-void SLOptixRaytracer::removeRays()
-{
-    SLScene* scene = SLApplication::scene;
-
-    while (SLApplication::scene->root3D()->deleteChild("line")) {}
 }
 //-----------------------------------------------------------------------------
 #endif

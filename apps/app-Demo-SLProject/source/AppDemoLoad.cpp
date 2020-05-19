@@ -40,7 +40,6 @@
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SLTransferFunction.h>
-#include <SLLine.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 
