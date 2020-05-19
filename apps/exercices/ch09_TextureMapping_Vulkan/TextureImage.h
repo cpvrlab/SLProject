@@ -20,8 +20,9 @@ private:
                             VkImageTiling         tiling,
                             VkImageUsageFlags     usage,
                             VkMemoryPropertyFlags properties,
-                            VkImage&              image);
-    void        transitionImageLayout(VkImage       image,
+                            VkImage&              image,
+                            Buffer*               buffer);
+    void        transitionImageLayout(VkImage&      image,
                                       VkFormat      format,
                                       VkImageLayout oldLayout,
                                       VkImageLayout newLayout);
@@ -29,11 +30,12 @@ private:
                                   VkImage  image,
                                   uint32_t width,
                                   uint32_t height);
-    VkImageView createImageView(VkImage image, VkFormat format);
+    VkImageView createImageView(VkImage& image, VkFormat format);
 
 public:
-    Device&     device;
-    VkImage     image;
-    VkImageView textureImageView;
-    Buffer*     buffer;
+    Device&        device;
+    VkImage        image;
+    VkDeviceMemory imageMemory;
+    VkImageView    textureImageView;
+    // Buffer*     buffer;
 };

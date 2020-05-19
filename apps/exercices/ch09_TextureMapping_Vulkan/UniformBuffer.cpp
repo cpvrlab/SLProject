@@ -17,7 +17,10 @@ void UniformBuffer::destroy()
 {
     for (size_t i = 0; i < buffers.size(); i++)
         if (buffers[i] != nullptr)
+        {
+            buffers[i]->destroy();
             delete (buffers[i]);
+        }
 }
 
 void UniformBuffer::update(uint32_t currentImage)

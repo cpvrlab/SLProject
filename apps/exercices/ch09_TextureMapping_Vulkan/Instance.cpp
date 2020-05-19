@@ -1,6 +1,5 @@
-#include "PhysicalDevice.h"
 #include "Instance.h"
-#include <iostream>
+#include "PhysicalDevice.h"
 
 Instance::Instance(const char* applicationName, const std::vector<const char*>& requiredExtensions, const std::vector<const char*>& validationLayer)
 {
@@ -45,15 +44,15 @@ Instance::Instance(const char* applicationName, const std::vector<const char*>& 
 
 void Instance::destroy()
 {
-#if defined(VKB_DEBUG) || defined(VKB_VALIDATION_LAYERS)
-    if (debug_utils_messenger != VK_NULL_HANDLE)
-    {
-        vkDestroyDebugUtilsMessengerEXT(handle, debug_utils_messenger, nullptr);
-    }
-    if (debug_report_callback != VK_NULL_HANDLE)
-    {
-        vkDestroyDebugReportCallbackEXT(handle, debug_report_callback, nullptr);
-    }
+#if defined(VK_DEBUG)
+    // if (debugUtilsMessenger != VK_NULL_HANDLE)
+    //     vkDestroyDebugUtilsMessengerEXT(handle, debugUtilsMessenger, nullptr);
+    // if (debugReportCallback != VK_NULL_HANDLE)
+    //     vkDestroyDebugReportCallbackEXT(handle, debugReportCallback, nullptr);
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(handle,
+                                                                           "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr)
+        func(handle, debugUtilsMessenger, nullptr);
 #endif
 
     if (handle != VK_NULL_HANDLE)

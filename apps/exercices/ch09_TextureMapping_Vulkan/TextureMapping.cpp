@@ -297,9 +297,11 @@ int main()
     swapchain.destroy();
     uniformBuffer.destroy();
     descriptorPool.destroy();
-    textureImage.destroy();
     descriptorSetLayout.destroy();
+    textureImage.destroy();
+    textureSampler.destroy();
     indexBuffer.destroy();
+    vertexBuffer.destroy();
     vertShaderModule.destroy();
     fragShaderModule.destroy();
     device.destroy();

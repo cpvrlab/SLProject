@@ -7,7 +7,7 @@ TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, 
     if (texWidth == 0)
         cerr << "Failed to load texture image" << endl;
 
-    buffer = new Buffer(device);
+    Buffer* buffer = new Buffer(device);
     buffer->createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
@@ -15,39 +15,48 @@ TextureImage::TextureImage(Device& device, void* pixels, unsigned int texWidth, 
     memcpy(data, pixels, static_cast<size_t>(imageSize));
     vkUnmapMemory(device.handle, buffer->memory);
 
-    VkImage textureImage;
     createImage(texWidth,
                 texHeight,
                 VK_FORMAT_R8G8B8A8_SRGB,
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                textureImage);
-    transitionImageLayout(textureImage,
+                image,
+                buffer);
+    transitionImageLayout(image,
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     copyBufferToImage(buffer->handle,
-                      textureImage,
+                      image,
                       static_cast<uint32_t>(texWidth),
                       static_cast<uint32_t>(texHeight));
-    transitionImageLayout(textureImage,
+    transitionImageLayout(image,
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     buffer->free();
 
-    textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    textureImageView = createImageView(image, VK_FORMAT_R8G8B8A8_SRGB);
 }
 
 void TextureImage::destroy()
 {
-    if (buffer != nullptr)
-        delete (buffer);
-
     if (textureImageView != VK_NULL_HANDLE)
         vkDestroyImageView(device.handle, textureImageView, nullptr);
+
+    // if (buffer != nullptr)
+    // {
+    //     buffer->destroy();
+    //     delete (buffer);
+    // }
+
+    if (image != VK_NULL_HANDLE)
+    {
+        vkDestroyImage(device.handle, image, nullptr);
+        vkFreeMemory(device.handle, imageMemory, nullptr);
+    }
 }
 
 void TextureImage::createImage(uint32_t              width,
@@ -56,7 +65,8 @@ void TextureImage::createImage(uint32_t              width,
                                VkImageTiling         tiling,
                                VkImageUsageFlags     usage,
                                VkMemoryPropertyFlags properties,
-                               VkImage&              image)
+                               VkImage&              image,
+                               Buffer*               buffer)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -84,14 +94,13 @@ void TextureImage::createImage(uint32_t              width,
     allocInfo.allocationSize  = memRequirements.size;
     allocInfo.memoryTypeIndex = buffer->findMemoryType(memRequirements.memoryTypeBits, properties);
 
-    VkDeviceMemory imageMemory;
     result = vkAllocateMemory(device.handle, &allocInfo, nullptr, &imageMemory);
     ASSERT_VULKAN(result, "Failed to allocate image memory");
 
     vkBindImageMemory(device.handle, image, imageMemory, 0);
 }
 
-void TextureImage::transitionImageLayout(VkImage       image,
+void TextureImage::transitionImageLayout(VkImage&      image,
                                          VkFormat      format,
                                          VkImageLayout oldLayout,
                                          VkImageLayout newLayout)
@@ -177,7 +186,7 @@ void TextureImage::copyBufferToImage(VkBuffer buffer,
     commandBuffer.end();
 }
 
-VkImageView TextureImage::createImageView(VkImage image, VkFormat format)
+VkImageView TextureImage::createImageView(VkImage& image, VkFormat format)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
