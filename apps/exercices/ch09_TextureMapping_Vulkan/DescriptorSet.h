@@ -11,12 +11,20 @@ class Swapchain;
 class UniformBuffer;
 class TextureImage;
 
+//-----------------------------------------------------------------------------
 class DescriptorSet
 {
 public:
-    DescriptorSet(Device&, Swapchain&, DescriptorSetLayout&, DescriptorPool&, UniformBuffer&, Sampler&, TextureImage&);
+    DescriptorSet(Device&,
+                  Swapchain&,
+                  DescriptorSetLayout&,
+                  DescriptorPool&,
+                  UniformBuffer&,
+                  Sampler&,
+                  TextureImage&);
 
 public:
-    Device&                      device;
-    std::vector<VkDescriptorSet> handles;
+    Device&                 device;
+    vector<VkDescriptorSet> handles;
 };
+//-----------------------------------------------------------------------------

@@ -15,22 +15,24 @@
 // forward declare
 class PhysicalDevice;
 
+//-----------------------------------------------------------------------------
 class Instance
 {
 public:
-    Instance(const char*                     applicationName,
-             const std::vector<const char*>& requiredExtensions,
-             const std::vector<const char*>& requiredValidationLayer);
+    Instance(const char*                applicationName,
+             const vector<const char*>& requiredExtensions,
+             const vector<const char*>& requiredValidationLayer);
 
     void destroy();
 
 private:
-    void                     findSuitableGPU();
-    bool                     checkValidationLayerSupport(const std::vector<const char*>&);
-    std::vector<const char*> getRequiredExtensions();
+    void                findSuitableGPU();
+    bool                checkValidationLayerSupport(const vector<const char*>&);
+    vector<const char*> getRequiredExtensions();
 
 #if defined(VK_DEBUG)
-    void                                  populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
+    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT             messageType,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -51,7 +53,8 @@ private:
 #endif
 
 public:
-    VkInstance               handle{VK_NULL_HANDLE};
-    std::vector<const char*> enabled_extensions;
-    VkPhysicalDevice         physicalDevice;
+    VkInstance          handle{VK_NULL_HANDLE};
+    vector<const char*> enabled_extensions;
+    VkPhysicalDevice    physicalDevice;
 };
+//-----------------------------------------------------------------------------

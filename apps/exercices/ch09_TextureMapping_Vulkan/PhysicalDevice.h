@@ -2,10 +2,12 @@
 
 #include "Instance.h"
 
+//-----------------------------------------------------------------------------
 class PhysicalDevice
 {
 public:
-    PhysicalDevice(const Instance* instance, VkPhysicalDevice physicalDevice);
+    PhysicalDevice(const Instance*  instance,
+                   VkPhysicalDevice physicalDevice);
     void destroy();
 
 public:
@@ -15,3 +17,4 @@ public:
     VkPhysicalDeviceProperties       properties;
     VkPhysicalDeviceMemoryProperties memoryProperties;
 };
+//-----------------------------------------------------------------------------

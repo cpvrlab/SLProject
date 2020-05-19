@@ -8,7 +8,7 @@
 class VertexBuffer
 {
 public:
-    VertexBuffer(Device& device, const std::vector<Vertex>& vertices);
+    VertexBuffer(Device& device, const vector<Vertex>& vertices);
 
 private:
     void copy(Buffer src, VkDeviceSize size);

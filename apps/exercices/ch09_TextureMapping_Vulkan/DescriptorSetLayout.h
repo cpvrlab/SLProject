@@ -2,6 +2,7 @@
 
 #include "Device.h"
 
+//-----------------------------------------------------------------------------
 class DescriptorSetLayout
 {
 public:
@@ -12,3 +13,4 @@ public:
     Device&               device;
     VkDescriptorSetLayout handle{VK_NULL_HANDLE};
 };
+//-----------------------------------------------------------------------------

@@ -8,21 +8,31 @@
 
 #include "Device.h"
 
+//-----------------------------------------------------------------------------
 struct SwapchainSupportDetails
 {
     VkSurfaceCapabilitiesKHR   capabilities;
     vector<VkSurfaceFormatKHR> formats;
     vector<VkPresentModeKHR>   presentModes;
 };
-
+//-----------------------------------------------------------------------------
 class Device;
-
+//-----------------------------------------------------------------------------
 class Swapchain
 {
 public:
     Swapchain(Device&     device,
               GLFWwindow* window);
     void destroy();
+
+    Device&                  device;
+    VkSwapchainKHR           handle{VK_NULL_HANDLE};
+    VkExtent2D               extent;
+    vector<VkImage>     images;
+    VkSurfaceFormatKHR       surfaceFormat;
+    VkPresentModeKHR         presentMode;
+    SwapchainSupportDetails  swapchainSupport;
+    vector<VkImageView> imageViews;
 
 private:
     VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats);
@@ -32,14 +42,5 @@ private:
     SwapchainSupportDetails querySwapchainSupport(Device& device);
     void                    createImageViews();
     VkImageView             createImageView(VkImage image, VkFormat format);
-
-public:
-    Device&                  device;
-    VkSwapchainKHR           handle{VK_NULL_HANDLE};
-    VkExtent2D               extent;
-    std::vector<VkImage>     images;
-    VkSurfaceFormatKHR       surfaceFormat;
-    VkPresentModeKHR         presentMode;
-    SwapchainSupportDetails  swapchainSupport;
-    std::vector<VkImageView> imageViews;
 };
+//-----------------------------------------------------------------------------

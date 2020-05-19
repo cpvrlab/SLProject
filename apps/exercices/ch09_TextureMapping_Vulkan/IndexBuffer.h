@@ -8,7 +8,7 @@ class Buffer;
 class IndexBuffer
 {
 public:
-    IndexBuffer(Device& device, const std::vector<uint16_t> indices);
+    IndexBuffer(Device& device, const vector<uint16_t> indices);
 
 public:
     Device& device;

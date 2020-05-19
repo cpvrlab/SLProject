@@ -1,6 +1,11 @@
 #include "UniformBuffer.h"
 
-UniformBuffer::UniformBuffer(Device& device, Swapchain& swapchain, SLMat4f& camera) : device{device}, swapchain{swapchain}, camera{camera}
+//-----------------------------------------------------------------------------
+UniformBuffer::UniformBuffer(Device&    device,
+                             Swapchain& swapchain,
+                             SLMat4f&   camera) : device{device},
+                                                swapchain{swapchain},
+                                                camera{camera}
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
@@ -9,10 +14,13 @@ UniformBuffer::UniformBuffer(Device& device, Swapchain& swapchain, SLMat4f& came
     for (size_t i = 0; i < swapchain.images.size(); i++)
     {
         buffers[i] = new Buffer(device);
-        buffers[i]->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        buffers[i]->createBuffer(bufferSize,
+                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     }
 }
-
+//-----------------------------------------------------------------------------
 void UniformBuffer::destroy()
 {
     for (size_t i = 0; i < buffers.size(); i++)
@@ -22,7 +30,7 @@ void UniformBuffer::destroy()
             delete (buffers[i]);
         }
 }
-
+//-----------------------------------------------------------------------------
 void UniformBuffer::update(uint32_t currentImage)
 {
     UniformBufferObject ubo{};
@@ -38,3 +46,4 @@ void UniformBuffer::update(uint32_t currentImage)
     memcpy(data, &ubo, sizeof(ubo));
     vkUnmapMemory(device.handle, buffers[currentImage]->memory);
 }
+//-----------------------------------------------------------------------------

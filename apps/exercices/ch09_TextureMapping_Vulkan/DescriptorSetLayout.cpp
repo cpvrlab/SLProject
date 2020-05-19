@@ -1,6 +1,7 @@
 #include "DescriptorSetLayout.h"
 #include <array>
 
+//-----------------------------------------------------------------------------
 DescriptorSetLayout::DescriptorSetLayout(Device& device) : device{device}
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -23,12 +24,16 @@ DescriptorSetLayout::DescriptorSetLayout(Device& device) : device{device}
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings    = bindings.data();
 
-    VkResult result = vkCreateDescriptorSetLayout(device.handle, &layoutInfo, nullptr, &handle);
+    VkResult result = vkCreateDescriptorSetLayout(device.handle,
+                                                  &layoutInfo,
+                                                  nullptr,
+                                                  &handle);
     ASSERT_VULKAN(result, "Failed to crete descriptor set layout");
 }
-
+//-----------------------------------------------------------------------------
 void DescriptorSetLayout::destroy()
 {
     if (handle != VK_NULL_HANDLE)
         vkDestroyDescriptorSetLayout(device.handle, handle, nullptr);
 }
+//-----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
 #include "VertexBuffer.h"
 
-VertexBuffer::VertexBuffer(Device& device, const std::vector<Vertex>& vertices) : device{device}
+VertexBuffer::VertexBuffer(Device& device, const vector<Vertex>& vertices) : device{device}
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 

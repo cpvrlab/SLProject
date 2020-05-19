@@ -12,16 +12,28 @@ class Swapchain;
 class CommandBuffer;
 class UniformBuffer;
 
+//-----------------------------------------------------------------------------
 class Pipeline
 {
 public:
-    Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule);
+    Pipeline(Device&              device,
+             Swapchain&           swapchain,
+             DescriptorSetLayout& descriptorSetLayout,
+             RenderPass&          renderPass,
+             ShaderModule&        vertShaderModule,
+             ShaderModule&        fragShaderModule);
     void destroy();
 
-    void draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer);
+    void draw(Swapchain&     swapchain,
+              UniformBuffer& uniformBuffer,
+              CommandBuffer& commandBuffer);
 
 private:
-    void createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout, VkRenderPass renderPass, VkShaderModule vertShader, VkShaderModule fragShader);
+    void createGraphicsPipeline(VkExtent2D            swapchainExtent,
+                                VkDescriptorSetLayout descriptorSetLayout,
+                                VkRenderPass          renderPass,
+                                VkShaderModule        vertShader,
+                                VkShaderModule        fragShader);
 
 public:
     Device&          device;
@@ -29,3 +41,4 @@ public:
     VkPipeline       graphicsPipeline;
     int              currentFrame = 0;
 };
+//-----------------------------------------------------------------------------

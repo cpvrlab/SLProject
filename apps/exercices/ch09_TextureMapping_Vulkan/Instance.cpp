@@ -1,7 +1,10 @@
 #include "Instance.h"
 #include "PhysicalDevice.h"
 
-Instance::Instance(const char* applicationName, const std::vector<const char*>& requiredExtensions, const std::vector<const char*>& validationLayer)
+//-----------------------------------------------------------------------------
+Instance::Instance(const char*                applicationName,
+                   const vector<const char*>& requiredExtensions,
+                   const vector<const char*>& validationLayer)
 {
 #if defined(VK_DEBUG)
     if (!checkValidationLayerSupport(validationLayer))
@@ -19,9 +22,9 @@ Instance::Instance(const char* applicationName, const std::vector<const char*>& 
     createInfo.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
     // Extensions that should be enabled
-    std::vector<const char*> extensions = getRequiredExtensions();
-    createInfo.enabledExtensionCount    = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames  = extensions.data();
+    vector<const char*> extensions     = getRequiredExtensions();
+    createInfo.enabledExtensionCount   = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
 
 #if defined(VK_DEBUG)
     createInfo.enabledLayerCount   = static_cast<uint32_t>(validationLayer.size());
@@ -41,7 +44,7 @@ Instance::Instance(const char* applicationName, const std::vector<const char*>& 
     findSuitableGPU();
     setupDebugMessenger();
 }
-
+//-----------------------------------------------------------------------------
 void Instance::destroy()
 {
 #if defined(VK_DEBUG)
@@ -58,7 +61,7 @@ void Instance::destroy()
     if (handle != VK_NULL_HANDLE)
         vkDestroyInstance(handle, nullptr);
 }
-
+//-----------------------------------------------------------------------------
 void Instance::findSuitableGPU()
 {
     uint32_t physicalDeviceCount = 0;
@@ -67,17 +70,17 @@ void Instance::findSuitableGPU()
     if (physicalDeviceCount < 1)
         std::cerr << "Could not find a physical device that supports Vulkan!" << std::endl;
 
-    std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
+    vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
     vkEnumeratePhysicalDevices(handle, &physicalDeviceCount, physicalDevices.data());
     physicalDevice = physicalDevices[0];
 }
-
-bool Instance::checkValidationLayerSupport(const std::vector<const char*>& validationLayers)
+//-----------------------------------------------------------------------------
+bool Instance::checkValidationLayerSupport(const vector<const char*>& validationLayers)
 {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
     for (const char* layerName : validationLayers)
@@ -97,22 +100,22 @@ bool Instance::checkValidationLayerSupport(const std::vector<const char*>& valid
 
     return true;
 }
-
-std::vector<const char*> Instance::getRequiredExtensions()
+//-----------------------------------------------------------------------------
+vector<const char*> Instance::getRequiredExtensions()
 {
     uint32_t     glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char*> extensions(glfwExtensions,
-                                        glfwExtensions + glfwExtensionCount);
+    vector<const char*> extensions(glfwExtensions,
+                                   glfwExtensions + glfwExtensionCount);
 
 #if defined(VK_DEBUG)
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
     return extensions;
 }
-
+//-----------------------------------------------------------------------------
 #if defined(VK_DEBUG)
 void Instance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 {
@@ -126,7 +129,7 @@ void Instance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoE
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debugCallback;
 }
-
+//-----------------------------------------------------------------------------
 VkResult Instance::CreateDebugUtilsMessengerEXT(VkInstance                                instance,
                                                 const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                                 const VkAllocationCallbacks*              pAllocator,
@@ -140,7 +143,7 @@ VkResult Instance::CreateDebugUtilsMessengerEXT(VkInstance                      
     else
         return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
-
+//-----------------------------------------------------------------------------
 void Instance::setupDebugMessenger()
 {
 #    if !defined(VK_DEBUG)
@@ -156,3 +159,4 @@ void Instance::setupDebugMessenger()
     ASSERT_VULKAN(result, "Failed to set up debug messenger");
 }
 #endif
+//-----------------------------------------------------------------------------
