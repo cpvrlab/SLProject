@@ -31,6 +31,8 @@ public:
     SLOptixRaytracer();
     ~SLOptixRaytracer() override;
 
+    void destroy();
+
     // setup raytracer
     virtual void setupOptix();
     virtual void setupScene(SLSceneView* sv);
@@ -41,25 +43,23 @@ public:
     // ray tracer functions
     SLbool       renderClassic();
     SLbool       renderDistrib();
-    virtual void renderImage() override;
+    virtual void renderImage(bool updateTextureGL) override;
     void         saveImage() override;
 
 protected:
     void initCompileOptions();
 
-    OptixModule             _createModule(string);
-    OptixProgramGroup       _createProgram(OptixProgramGroupDesc);
-    OptixPipeline           _createPipeline(OptixProgramGroup*, unsigned int);
-    OptixShaderBindingTable _createShaderBindingTable(const SLVMesh&, const bool);
+    OptixModule             createModule(string);
+    OptixProgramGroup       createProgram(OptixProgramGroupDesc);
+    OptixPipeline           createPipeline(OptixProgramGroup*, unsigned int);
+    OptixShaderBindingTable createShaderBindingTable(const SLVMesh&, const bool);
 
-    SLCudaBuffer<float4> _imageBuffer = SLCudaBuffer<float4>();
-    //SLCudaBuffer<ortRay>    _lineBuffer   = SLCudaBuffer<ortRay>();
+    SLCudaBuffer<float4>    _imageBuffer  = SLCudaBuffer<float4>();
     SLCudaBuffer<ortParams> _paramsBuffer = SLCudaBuffer<ortParams>();
     SLCudaBuffer<ortLight>  _lightBuffer  = SLCudaBuffer<ortLight>();
 
     OptixModule                 _cameraModule{};
     OptixModule                 _shadingModule{};
-    OptixModule                 _traceModule{};
     OptixModuleCompileOptions   _module_compile_options{};
     OptixPipelineCompileOptions _pipeline_compile_options{};
 
@@ -79,9 +79,7 @@ protected:
     OptixProgramGroup _radiance_miss_group{};
     OptixProgramGroup _occlusion_miss_group{};
     OptixProgramGroup _radiance_hit_group{};
-    OptixProgramGroup _radiance_line_hit_group;
     OptixProgramGroup _occlusion_hit_group{};
-    OptixProgramGroup _occlusion_line_hit_group;
 
     OptixShaderBindingTable _sbtClassic{};
     OptixShaderBindingTable _sbtDistributed{};

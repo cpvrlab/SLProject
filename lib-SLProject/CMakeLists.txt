@@ -33,7 +33,6 @@ file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerShading.cu
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
-        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixTrace.cu
         )
 
 file(GLOB headers

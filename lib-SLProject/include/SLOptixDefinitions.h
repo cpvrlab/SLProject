@@ -16,22 +16,6 @@
 #        include <curand_kernel.h>
 
 //------------------------------------------------------------------------------
-//! Optix ray tracing line struct
-struct ortLine
-{
-    float3 p1;
-    float3 p2;
-};
-//------------------------------------------------------------------------------
-//! Optix ray tracing ray struct
-/*
-struct ortRay
-{
-    ortLine line;
-    float4  color;
-};
-*/
-//------------------------------------------------------------------------------
 //! Optix ray tracing sample struct
 struct ortSamples
 {
@@ -98,8 +82,6 @@ struct ortParams
             curandState* states;
         };
     };
-
-    //ortRay* rays;
 };
 //------------------------------------------------------------------------------
 //! Optix ray tracing ray type enumeration
@@ -136,11 +118,6 @@ struct ortMissData
 //! Optix ray tracing intersection hit data
 struct ortHitData
 {
-    union
-    {
-        ortLine line;
-    } geometry;
-
     ortMaterial material;
     CUtexObject textureObject;
     int         sbtIndex;
