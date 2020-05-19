@@ -109,7 +109,7 @@ void AutoCalibration::computeMatrix(cv::Size size, cv::Mat& mat, cv::Mat &distor
 {
     float cx   = (float)size.width * 0.5f;
     float cy   = (float)size.height * 0.5f;
-    float fx   = cx / tanf(fov * 0.5f * M_PI / 180.0f);
+    float fx   = cx / tanf(fov * 0.5f * (float)M_PI / 180.0f);
     float fy   = fx;
     mat        = (Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     distortion = (Mat_<float>(1, 5) << 0, 0, 0, 0, 0);
@@ -128,7 +128,7 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
 
     for (int i = 0; i < 2; i++)
     {
-        float fov = 30 + 10 * i;
+        float fov = (float)(30 + 10 * i);
         std::vector<cv::Mat> rotvecs, trvecs;
         cv::Mat matrix;
         computeMatrix(size, matrix, distortion, fov);
@@ -177,7 +177,7 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
         {
             float fy  = (float)matrix.at<double>(1, 1);
             float cy  = (float)matrix.at<double>(1, 2);
-            float fov = 2.0f * atan2(cy, fy) * 180.0f / M_PI;
+            float fov = 2.0f * atan2(cy, fy) * 180.0f / (float)M_PI;
 
             error        = err;
             intrinsic    = matrix.clone();
@@ -265,7 +265,7 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
         {
             float fy  = (float)matrix.at<double>(1, 1);
             float cy  = (float)matrix.at<double>(1, 2);
-            float fov = 2.0f * atan2(cy, fy) * 180.0f / M_PI;
+            float fov = 2.0f * atan2(cy, fy) * 180.0f / (float)M_PI;
 
             if (fov > 30 && fov < 50) //filter impossible values
             {
@@ -348,7 +348,7 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
         {
             float fy  = (float)matrix.at<double>(1, 1);
             float cy  = (float)matrix.at<double>(1, 2);
-            float fov = 360.0f * atan2(cy, fy) / M_PI;
+            float fov = 360.0f * atan2(cy, fy) / (float)M_PI;
 
             if (fov > 30 && fov < 50)
             {
@@ -365,14 +365,14 @@ float AutoCalibration::calcCameraVerticalFOV(cv::Mat& cameraMat)
 {
     float fy = (float)cameraMat.at<double>(1, 1);
     float cy = (float)cameraMat.at<double>(1, 2);
-    return 2.0f * atan2(cy, fy) * 180.0f / M_PI;
+    return 2.0f * atan2(cy, fy) * 180.0f / (float)M_PI;
 }
 
 float AutoCalibration::calcCameraHorizontalFOV(cv::Mat& cameraMat)
 {
     float fx = (float)cameraMat.at<double>(0, 0);
     float cx = (float)cameraMat.at<double>(0, 2);
-    return 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+    return 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 }
 
 void AutoCalibration::calibrate(cv::Size size,
@@ -393,7 +393,7 @@ void AutoCalibration::calibrate(cv::Size size,
         float error = ransac_frame_points(size,
                                           10,
                                           3.0f, //threshold
-                                          p2f.size() * 0.4f,
+                                          (int)(p2f.size() * 0.4f),
                                           p2f,
                                           p3f,
                                           preselectedKeyPoints[nbFill],
