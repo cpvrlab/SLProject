@@ -46,6 +46,7 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
                                       _ftpUser,
                                       _ftpPwd,
                                       _ftpDir + configPath,
+                                      "json",
                                       errorMsg);
 
     _configFiles = Utils::getAllNamesInDir(configDir);

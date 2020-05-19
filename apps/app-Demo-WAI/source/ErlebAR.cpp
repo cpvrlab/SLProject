@@ -31,6 +31,8 @@ const char* mapAreaIdToName(AreaId id)
         //augst
         case AreaId::AUGST_TEMPLE_HILL_MARKER:
             return "Temple-Hill";
+        case AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM:
+            return "Temple-Hill-Bottom";
         //avenches
         case AreaId::AVENCHES_ARENA:
             return "Arena";
@@ -61,11 +63,21 @@ const Location defineLocationAugst()
     loc.areaMapImageFileName = "locations/augst/locationMapImgAugst.jpg";
     {
         Area area;
-        area.id            = AreaId::AUGST_TEMPLE_HILL_MARKER;
+        area.id              = AreaId::AUGST_TEMPLE_HILL_MARKER;
+        area.name            = mapAreaIdToName(area.id);
+        area.xPosPix         = 496;
+        area.yPosPix         = 566;
+        area.viewAngleDeg    = 120;
+        area.slamMapFileName = "marker-ASUSAR-1-map_20200117-083625_augst_templeHill-marker_FAST-ORBS-1000.json";
+        loc.areas[area.id]   = area;
+    }
+    {
+        Area area;
+        area.id            = AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
         area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 50;
-        area.yPosPix       = 50;
-        area.viewAngleDeg  = 0;
+        area.xPosPix       = 627;
+        area.yPosPix       = 606;
+        area.viewAngleDeg  = -18;
         loc.areas[area.id] = area;
     }
     return loc;
