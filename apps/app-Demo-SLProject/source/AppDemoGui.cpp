@@ -2494,12 +2494,20 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 if (shadowMap != nullptr)
                                 {
+                                    if (shadowMap->projection() == P_monoPerspective && light->spotCutOffDEG() < 90.0f)
+                                    {
+                                        SLbool useCubemap = shadowMap->useCubemap();
+                                        if (ImGui::Checkbox("Uses Cubemap", &useCubemap))
+                                            shadowMap->useCubemap(useCubemap);
+                                    }
+
                                     SLfloat clipNear = shadowMap->clipNear();
-                                    if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.1f, 100.0f))
+                                    SLfloat clipFar  = shadowMap->clipFar();
+
+                                    if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.01f, clipFar))
                                         shadowMap->clipNear(clipNear);
 
-                                    SLfloat clipFar = shadowMap->clipFar();
-                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, 0.1f, 100.0f))
+                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 50.0f))
                                         shadowMap->clipFar(clipFar);
 
                                     SLVec2i textureSize = shadowMap->textureSize();
@@ -2518,10 +2526,24 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::InputInt2("Visualization rays", (int*)&rayCount))
                                         shadowMap->rayCount(rayCount);
 
-                                    ImGui::Text("Light space matrix:\n%s", shadowMap->mvp().toString().c_str());
+                                    if (ImGui::TreeNode(shadowMap->useCubemap()
+                                                          ? "Light space matrices"
+                                                          : "Light space matrix"))
+                                    {
+                                        if (shadowMap->useCubemap())
+                                            for (SLint i = 0; i < 6; ++i)
+                                                ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->mvp()[i].toString().c_str());
+                                        else
+                                            ImGui::Text(shadowMap->mvp()[0].toString().c_str());
 
-                                    ImGui::Text("Depth Buffer:");
-                                    ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(), ImVec2(200, 200));
+                                        ImGui::TreePop();
+                                    }
+
+                                    if (!shadowMap->useCubemap())
+                                    {
+                                        ImGui::Text("Depth Buffer:");
+                                        ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(), ImVec2(200, 200));
+                                    }
                                 }
                             }
                         }

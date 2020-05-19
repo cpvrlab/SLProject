@@ -22,20 +22,24 @@ public:
                     SLenum  magFilter     = GL_NEAREST,
                     SLenum  minFilter     = GL_NEAREST,
                     SLint   wrap          = GL_REPEAT,
-                    float   borderColor[] = nullptr);
+                    SLfloat borderColor[] = nullptr,
+                    SLenum  target        = GL_TEXTURE_2D);
 
     ~SLGLDepthBuffer();
 
-    float   depth(SLint x, SLint y);
+    SLfloat depth(SLint x, SLint y);
     SLint   texID() { return _texID; }
-    void    activateAsTexture(int loc);
+    SLint   target() { return _target; }
+    void    activateAsTexture(SLuint loc);
     void    bind();
+    void    bindFace(SLenum face);
     SLVec2i dimensions() { return _dimensions; }
 
 private:
-    SLVec2i _dimensions;
-    SLuint  _fboID;
-    SLuint  _texID;
+    SLVec2i _dimensions; //<! Size of the texture
+    SLuint  _fboID;      //<! ID of the framebuffer object
+    SLuint  _texID;      //<! ID of the texture
+    SLenum  _target;     //<! GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
 };
 //-----------------------------------------------------------------------------
 #endif //SLGLDEPTHBUFFER_H

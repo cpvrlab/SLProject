@@ -22,17 +22,20 @@
 #include <SLShadowMap.h>
 
 //-----------------------------------------------------------------------------
-SLShadowMap::SLShadowMap()
+SLShadowMap::SLShadowMap(SLProjection projection, SLLight* light)
 {
+    _light       = light;
+    _projection  = projection;
+    _useCubemap  = false;
     _depthBuffer = nullptr;
     _frustumVAO  = nullptr;
     _rayCount.set(16, 16);
     _mat      = nullptr;
-    _clipNear = 0.1f;
+    _clipNear = 0.01f;
     _clipFar  = 20.0f;
     _size.set(8.0f, 8.0f);
     _halfSize = _size / 2;
-    _textureSize.set(512, 512);
+    _textureSize.set(1024, 1024);
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::~SLShadowMap()
@@ -71,20 +74,26 @@ void SLShadowMap::drawFrustum()
         _frustumVAO->generateVertexPos(&P);
     }
 
-    SLGLState* stateGL       = SLGLState::instance();
-    stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp.inverted();
+    SLGLState* stateGL = SLGLState::instance();
 
-    _frustumVAO->drawArrayAsColored(PT_lines,
-                                    SLCol3f(0, 1, 0),
-                                    1.0f,
-                                    0,
-                                    (SLuint)P.size());
+    for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
+    {
+        stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
+
+        _frustumVAO->drawArrayAsColored(PT_lines,
+                                        SLCol3f(0, 1, 0),
+                                        1.0f,
+                                        0,
+                                        (SLuint)P.size());
+    }
 }
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawRays draws sample rays of the light.
 */
 void SLShadowMap::drawRays()
 {
+    if (_useCubemap) return; // Not implemented for cubemap
+
     SLGLState* stateGL = SLGLState::instance();
     SLVVec3f   P;
 
@@ -122,7 +131,7 @@ void SLShadowMap::drawRays()
     SLGLVertexArrayExt vao;
     vao.generateVertexPos(&P);
 
-    stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp.inverted();
+    stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[0].inverted();
 
     vao.drawArrayAsColored(PT_lines,
                            SLCol3f(1, 1, 0),
@@ -135,23 +144,44 @@ void SLShadowMap::drawRays()
 SLShadowMap::updateMVP creates a lightSpace matrix for a directional
 light.
 */
-void SLShadowMap::updateMVP(SLLight* light, SLProjection projection)
+void SLShadowMap::updateMVP()
 {
     // Set view matrix
-    SLNode* node = dynamic_cast<SLNode*>(light);
-    _v.lookAt(light->positionWS().vec3(),
-              light->positionWS().vec3() + node->forwardOS(),
-              node->upWS());
+    SLVec3f positionWS = _light->positionWS().vec3();
+
+    if (_useCubemap)
+    {
+        _v[0].lookAt(positionWS, positionWS + SLVec3f::AXISX, -SLVec3f::AXISY);
+        _v[1].lookAt(positionWS, positionWS - SLVec3f::AXISX, -SLVec3f::AXISY);
+        _v[2].lookAt(positionWS, positionWS + SLVec3f::AXISY, SLVec3f::AXISZ);
+        _v[3].lookAt(positionWS, positionWS - SLVec3f::AXISY, -SLVec3f::AXISZ);
+        _v[4].lookAt(positionWS, positionWS + SLVec3f::AXISZ, -SLVec3f::AXISY);
+        _v[5].lookAt(positionWS, positionWS - SLVec3f::AXISZ, -SLVec3f::AXISY);
+    }
+    else
+    {
+        SLNode* node = dynamic_cast<SLNode*>(_light);
+        _v[0].lookAt(positionWS, positionWS + node->forwardOS(), node->upWS());
+    }
 
     // Set projection matrix
-    switch (projection)
+    float fov;
+
+    switch (_projection)
     {
         case P_monoOrthographic:
             _p.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, _clipNear, _clipFar);
             break;
 
         case P_monoPerspective:
-            _p.perspective(light->spotCutOffDEG() * 2, 1.0f, _clipNear, _clipFar);
+            fov = _light->spotCutOffDEG() * 2;
+
+            if (fov >= 180.0) _useCubemap = true;
+
+            if (_useCubemap)
+                _p.perspective(90.0f, 1.0f, _clipNear, _clipFar);
+            else
+                _p.perspective(fov, 1.0f, _clipNear, _clipFar);
             break;
 
         default:
@@ -159,24 +189,25 @@ void SLShadowMap::updateMVP(SLLight* light, SLProjection projection)
     }
 
     // Set the model-view-projection matrix
-    _mvp = _p * _v;
+    for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
+        _mvp[i] = _p * _v[i];
 }
 //-----------------------------------------------------------------------------
 /*!
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
 cast shadows
 */
-void SLShadowMap::drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv)
+void SLShadowMap::drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f v)
 {
     SLGLState* stateGL       = SLGLState::instance();
-    stateGL->modelViewMatrix = _v * node->updateAndGetWM();
+    stateGL->modelViewMatrix = v * node->updateAndGetWM();
 
     if (node->castsShadows())
         for (auto* mesh : node->meshes())
             mesh->draw(sv, node, _mat, true);
 
     for (SLNode* child : node->children())
-        drawNodesIntoDepthBuffer(child, sv);
+        drawNodesIntoDepthBuffer(child, sv, v);
 }
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::render renders the shadow map of the light
@@ -196,35 +227,52 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
           nullptr,
           SLGLProgramManager::get(SP_depth));
 
-    // Create depthbuffer
-    static float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+    // Create depth buffer
+    static SLfloat borderColor[] = {1.0, 1.0, 1.0, 1.0};
 
-    if (_depthBuffer == nullptr || _depthBuffer->dimensions() != _textureSize)
+    updateMVP();
+
+    if (_depthBuffer == nullptr ||
+        _depthBuffer->dimensions() != _textureSize ||
+        (_depthBuffer->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap)
     {
         delete _depthBuffer;
+
         _depthBuffer = new SLGLDepthBuffer(
           _textureSize,
           GL_NEAREST,
           GL_NEAREST,
           GL_CLAMP_TO_BORDER,
-          borderColor);
+          borderColor,
+          this->_useCubemap
+            ? GL_TEXTURE_CUBE_MAP
+            : GL_TEXTURE_2D);
     }
     _depthBuffer->bind();
 
-    // Set viewport
-    stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
+    for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
+    {
+        if (_useCubemap)
+            _depthBuffer->bindFace(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
 
-    // Set matrices
-    stateGL->viewMatrix       = _v;
-    stateGL->projectionMatrix = _p;
+        // Set viewport
+        stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
 
-    // Clear color buffer
-    stateGL->clearColor(SLCol4f::BLACK);
-    stateGL->clearColorDepthBuffer();
+        // Set matrices
+        stateGL->viewMatrix       = _v[i];
+        stateGL->projectionMatrix = _p;
 
-    // Draw meshes
-    drawNodesIntoDepthBuffer(root, sv);
+        // Clear color buffer
+        stateGL->clearColor(SLCol4f::BLACK);
+        stateGL->clearColorDepthBuffer();
+
+        // Draw meshes
+        drawNodesIntoDepthBuffer(root, sv, _v[i]);
+    }
+
+#ifdef _GLDEBUG
     GET_GL_ERROR;
+#endif
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

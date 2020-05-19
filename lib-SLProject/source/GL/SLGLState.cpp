@@ -65,6 +65,7 @@ void SLGLState::initAll()
         lightDoAtt[i]          = 0;
         lightSpace[i]          = SLMat4f();
         lightCreatesShadows[i] = 0;
+        lightUsesCubemap[i]    = 0;
         shadowMaps[i]          = nullptr;
     }
 

@@ -390,8 +390,8 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray,       // ray of hit point
 */
 void SLLightSpot::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap();
-    _shadowMap->updateMVP(this, P_monoPerspective);
+    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap(
+                                 P_monoPerspective, this);
     _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------
@@ -416,10 +416,14 @@ void SLLightSpot::setState()
         stateGL->lightAtt[_id].z          = _kq;
         stateGL->lightDoAtt[_id]          = isAttenuated();
         stateGL->lightCreatesShadows[_id] = _createsShadows;
+        stateGL->lightUsesCubemap[_id]    = false;
 
         if (_shadowMap != nullptr)
         {
-            stateGL->lightSpace[_id] = _shadowMap->mvp();
+            stateGL->lightUsesCubemap[_id] = _shadowMap->useCubemap();
+
+            SLMat4f* mvp = _shadowMap->mvp();
+            for (SLint i = 0; i < 6; ++i) stateGL->lightSpace[_id * 6 + i] = mvp[i];
             stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
         }
     }

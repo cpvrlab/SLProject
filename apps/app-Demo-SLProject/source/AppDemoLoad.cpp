@@ -964,42 +964,81 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Base root group node for the scene
         SLNode* scene = new SLNode;
 
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1, 8);
-        cam1->lookAt(0, 1, 0);
-        cam1->focalDist(8);
-        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        // Create camera
+        SLCamera* cam1 = new SLCamera;
+        cam1->translation(0.0f, 0.40f, 6.35f);
+        cam1->lookAt(0.0f, -0.05f, 0.0f);
+        cam1->fov(27);
+        cam1->focalDist(cam1->translationOS().length());
+        cam1->background().colors(SLCol4f(0.0f, 0.0f, 0.0f));
         cam1->setInitialState();
-        scene->addChild(cam1);
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        // Define light sources
-        for (int i = 0; i < SL_MAX_LIGHTS; ++i)
+        // Create light
+        SLLightSpot* light = new SLLightSpot(s, s, 0.1f, 30.0f);
+        light->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
+        light->diffuse(SLCol4f(0.4f, 0.4f, 0.4f));
+        light->attenuation(0.1f, 0.1f, 0.1f);
+        light->createsShadows(true);
+        scene->addChild(light);
+
+        // Animate the light
+        SLAnimation* anim = s->animManager().createNodeAnimation("light_anim", 4.0f);
+        anim->createEllipticNodeTrack(light, 0.2f, A_x, 0.2f, A_z);
+
+        // Create wall polygons
+        SLfloat pL = -1.48f, pR = 1.48f; // left/right
+        SLfloat pB = -1.25f, pT = 1.19f; // bottom/top
+        SLfloat pN = 1.79f, pF = -1.55f; // near/far
+
+        // Bottom plane
+        SLNode* b = new SLNode(new SLRectangle(s, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", m1));
+        b->rotate(90, -1, 0, 0);
+        b->translate(0, 0, pB, TS_object);
+        scene->addChild(b);
+
+        // Top plane
+        SLNode* t = new SLNode(new SLRectangle(s, SLVec2f(pL, pF), SLVec2f(pR, pN), 6, 6, "top", m1));
+        t->rotate(90, 1, 0, 0);
+        t->translate(0, 0, -pT, TS_object);
+        scene->addChild(t);
+
+        // Far plane
+        SLNode* f = new SLNode(new SLRectangle(s, SLVec2f(pL, pB), SLVec2f(pR, pT), 6, 6, "far", m1));
+        f->translate(0, 0, pF, TS_object);
+        scene->addChild(f);
+
+        // near plane
+        SLNode* n = new SLNode(new SLRectangle(s, SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", m1));
+        n->translate(0, 0, pN, TS_object);
+        scene->addChild(n);
+
+        // left plane
+        SLNode* l = new SLNode(new SLRectangle(s, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", m1));
+        l->rotate(90, 0, 1, 0);
+        l->translate(0, 0, pL, TS_object);
+        scene->addChild(l);
+
+        // Right plane
+        SLNode* r = new SLNode(new SLRectangle(s, SLVec2f(pF, pB), SLVec2f(pN, pT), 6, 6, "right", m1));
+        r->rotate(90, 0, -1, 0);
+        r->translate(0, 0, -pR, TS_object);
+        scene->addChild(r);
+
+        // Create cubes which cast shadows
+        for (SLint i = 0; i < 128; ++i)
         {
-            SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
-            //SLLightDirect* light = new SLLightDirect(s, s);
-            light->ambient(SLCol4f(0, 0, 0));
-            SLCol4f color;
-            color.hsva2rgba(SLVec3f(360.0f * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
-            light->diffuse(color);
-            light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
-            light->lookAt(0, 0, 0);
-            light->attenuation(0.1f, 0.1f, 0.1f);
-            light->createsShadows(true);
-            scene->addChild(light);
+            SLNode* boxNode = new SLNode(new SLBox(s));
+
+            boxNode->scale(Utils::random(0.05f, 0.25f));
+            boxNode->translate(Utils::random(pL + 0.3f, pR - 0.3f),
+                               Utils::random(pB + 0.3f, pT - 0.3f),
+                               Utils::random(pF + 0.3f, pN - 0.3f),
+                               TS_world);
+            boxNode->castsShadows(true);
+
+            scene->addChild(boxNode);
         }
-
-        // Add a sphere which casts shadows
-        SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", m1));
-        sphereNode->translate(0, 2.0, 0);
-        sphereNode->castsShadows(true);
-        scene->addChild(sphereNode);
-
-        SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
-        anim->createEllipticNodeTrack(sphereNode, 1.0f, A_x, 1.0f, A_z);
-
-        // Add a box which receives shadows
-        SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
-        scene->addChild(boxNode);
 
         sv->camera(cam1);
         s->root3D(scene);
@@ -3156,7 +3195,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(f);
 
         //        // near plane
-        //        SLNode* n = new SLNode(new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
+        //        SLNode* n = new SLNode(s, new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
         //        n->translate(0, 0, pN, TS_object);
         //        scene->addChild(n);
 

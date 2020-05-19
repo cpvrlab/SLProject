@@ -266,6 +266,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             stateGL->calcLightPosVS(stateGL->numLightsUsed);
             stateGL->calcLightDirVS(stateGL->numLightsUsed);
             loc = uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
+            loc = uniform4fv("u_lightPosWS", nL, (SLfloat*)stateGL->lightPosWS);
             loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
             loc = uniformMatrix4fv("u_lightSpace", nL, (SLfloat*)stateGL->lightSpace);
             loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
@@ -278,11 +279,21 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             loc = uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
             loc = uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
             loc = uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
+            loc = uniform1iv("u_lightUsesCubemap", nL, (SLint*)stateGL->lightUsesCubemap);
 
             for (int i = 0; i < SL_MAX_LIGHTS; ++i)
+            {
                 if (stateGL->lightIsOn[i] && stateGL->lightCreatesShadows[i])
-                    if ((loc = getUniformLocation(("u_shadowMap[" + std::to_string(i) + "]").c_str())) >= 0)
+                {
+                    SLstring uniformName = (stateGL->lightUsesCubemap[i]
+                                              ? "u_shadowMapCube["
+                                              : "u_shadowMap[") +
+                                           std::to_string(i) + "]";
+
+                    if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
                         stateGL->shadowMaps[i]->activateAsTexture(loc);
+                }
+            }
 
             mat->passToUniforms(this);
         }

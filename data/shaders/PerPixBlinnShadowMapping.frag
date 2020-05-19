@@ -1,6 +1,9 @@
 //#############################################################################
 //  File:      PerPixBlinnShadowMapping.frag
 //  Purpose:   GLSL per pixel lighting without texturing (and Shadow mapping)
+//             Parts of this shader are based on the tutorial on
+//             https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+//             by Joey de Vries.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -12,55 +15,90 @@
 precision mediump float;
 #endif
 
-varying vec3   v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
-varying vec3   v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
-varying vec4   v_P_LS[8];                //!< Interpol. point of illuminations in object space of the lights
-varying vec3   v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
-varying vec2   v_texCoord;               //!< interpol. texture coordinate
+varying vec3        v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
+varying vec3        v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
+varying vec3        v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
+varying vec2        v_texCoord;               //!< interpol. texture coordinate
 
-uniform int    u_numLightsUsed;          //!< NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];           //!< flag if light is on
-uniform vec4   u_lightPosVS[8];          //!< position of light in view space
-uniform vec4   u_lightAmbient[8];        //!< ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];        //!< diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];       //!< specular light intensity (Is)
-uniform vec3   u_lightSpotDirVS[8];      //!< spot direction in view space
-uniform float  u_lightSpotCutoff[8];     //!< spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCosCut[8];     //!< cosine of spot cutoff angle
-uniform float  u_lightSpotExp[8];        //!< spot exponent
-uniform vec3   u_lightAtt[8];            //!< attenuation (const,linear,quadr.)
-uniform bool   u_lightDoAtt[8];          //!< flag if att. must be calc.
-uniform bool   u_lightCreatesShadows[8]; //!< flag if light creates shadows
-uniform bool   u_receivesShadows;        //!< flag if material receives shadows
-uniform vec4   u_globalAmbient;          //!< Global ambient scene color
+uniform int         u_numLightsUsed;          //!< NO. of lights used light arrays
+uniform bool        u_lightIsOn[8];           //!< flag if light is on
+uniform vec4        u_lightPosWS[8];          //!< position of light in world space
+uniform vec4        u_lightPosVS[8];          //!< position of light in view space
+uniform vec4        u_lightAmbient[8];        //!< ambient light intensity (Ia)
+uniform vec4        u_lightDiffuse[8];        //!< diffuse light intensity (Id)
+uniform vec4        u_lightSpecular[8];       //!< specular light intensity (Is)
+uniform vec3        u_lightSpotDirVS[8];      //!< spot direction in view space
+uniform float       u_lightSpotCutoff[8];     //!< spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCosCut[8];     //!< cosine of spot cutoff angle
+uniform float       u_lightSpotExp[8];        //!< spot exponent
+uniform vec3        u_lightAtt[8];            //!< attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[8];          //!< flag if att. must be calc.
+uniform mat4        u_lightSpace[8 * 6];      //!< projection matrices for lights
+uniform bool        u_lightCreatesShadows[8]; //!< flag if light creates shadows
+uniform bool        u_lightUsesCubemap[8];    //!< flag if light has a cube shadow map
+uniform bool        u_receivesShadows;        //!< flag if material receives shadows
+uniform vec4        u_globalAmbient;          //!< Global ambient scene color
 
-uniform vec4   u_matAmbient;             //!< ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;             //!< diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;            //!< specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;            //!< emissive color for selfshining materials
-uniform float  u_matShininess;           //!< shininess exponent
+uniform vec4        u_matAmbient;             //!< ambient color reflection coefficient (ka)
+uniform vec4        u_matDiffuse;             //!< diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpecular;            //!< specular color reflection coefficient (ks)
+uniform vec4        u_matEmissive;            //!< emissive color for selfshining materials
+uniform float       u_matShininess;           //!< shininess exponent
 
-uniform float  u_oneOverGamma;           //!< 1.0f / Gamma correction value
+uniform float       u_oneOverGamma;           //!< 1.0f / Gamma correction value
 
-uniform int    u_projection;             //!< type of stereo
-uniform int    u_stereoEye;              //!< -1=left, 0=center, 1=right
-uniform mat3   u_stereoColorFilter;      //!< color filter matrix
+uniform int         u_projection;             //!< type of stereo
+uniform int         u_stereoEye;              //!< -1=left, 0=center, 1=right
+uniform mat3        u_stereoColorFilter;      //!< color filter matrix
 
-uniform sampler2D u_shadowMap[8];        //!< shadow maps of the lights
+uniform sampler2D   u_shadowMap[8];           //!< shadow maps of the lights
+uniform samplerCube u_shadowMapCube[8];       //!< cube maps for point shadows
 
+//-----------------------------------------------------------------------------
+int vectorToFace(vec3 vec) // Vector to process
+{
+    vec3 absVec = abs(vec);
+
+    if (absVec.x > absVec.y && absVec.x > absVec.z)
+        return int(vec.x < 0);
+
+    else if (absVec.y > absVec.x && absVec.y > absVec.z)
+        return 2 + int(vec.y < 0);
+
+    else
+        return 4 + int(vec.z < 0);
+}
 //-----------------------------------------------------------------------------
 bool shadowTest(in int i) // Light number
 {
     if (u_lightCreatesShadows[i]) {
-        vec3 projCoords = v_P_LS[i].xyz / v_P_LS[i].w;
+
+        // Calculate position in light space
+        mat4 lightSpace;
+        vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
+
+        if (u_lightUsesCubemap[i])
+            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
+        else
+            lightSpace = u_lightSpace[i * 6];
+
+        vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
+        vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
         projCoords = projCoords * 0.5 + 0.5;
 
-        float closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
         float currentDepth = projCoords.z;
 
-        if (currentDepth > closestDepth + 0.005) {
+        // Look up depth from shadow map
+        float closestDepth;
+
+        if (u_lightUsesCubemap[i])
+            closestDepth = texture(u_shadowMapCube[i], lightToFragment).r;
+        else
+            closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
+
+        // The fragment is in shadow if the light doesn't "see" the it
+        if (currentDepth > closestDepth + 0.005)
             return true;
-        }
     }
 
     return false;

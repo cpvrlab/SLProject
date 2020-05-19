@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      Depth.frag
 //  Purpose:   Simple depth shader
-//  Author:    Michael Schertenleib, Marcus Hudritsch
+//  Author:    Marcus Hudritsch, Michael Schertenleib
 //  Date:      March 2020
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License

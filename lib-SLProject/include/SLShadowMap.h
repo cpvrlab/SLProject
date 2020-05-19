@@ -35,13 +35,14 @@ lights.
 class SLShadowMap
 {
 public:
-    SLShadowMap();
+    SLShadowMap(SLProjection projection, SLLight* light);
     ~SLShadowMap();
 
     // Setters
+    void useCubemap(SLbool useCubemap) { _useCubemap = useCubemap; }
     void rayCount(SLVec2i rayCount) { _rayCount.set(rayCount); }
-    void clipNear(float clipNear) { _clipNear = clipNear; }
-    void clipFar(float clipFar) { _clipFar = clipFar; }
+    void clipNear(SLfloat clipNear) { _clipNear = clipNear; }
+    void clipFar(SLfloat clipFar) { _clipFar = clipFar; }
     void size(SLVec2f size)
     {
         _size.set(size);
@@ -50,7 +51,9 @@ public:
     void textureSize(SLVec2i textureSize) { _textureSize.set(textureSize); }
 
     // Getters
-    SLMat4f          mvp() { return _mvp; }
+    SLProjection     projection() { return _projection; }
+    SLbool           useCubemap() { return _useCubemap; }
+    SLMat4f*         mvp() { return _mvp; }
     SLGLDepthBuffer* depthBuffer() { return _depthBuffer; }
     SLVec2i          rayCount() { return _rayCount; }
     SLfloat          clipNear() { return _clipNear; }
@@ -61,15 +64,17 @@ public:
     // Other methods
     void drawFrustum();
     void drawRays();
-    void updateMVP(SLLight* light, SLProjection projection);
+    void updateMVP();
+    void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f v);
     void render(SLSceneView* sv, SLNode* root);
 
 private:
-    void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv);
-
-    SLMat4f             _v;           //!< View matrix
+    SLLight*            _light;       //!< The light which uses this shadow map
+    SLProjection        _projection;  //!< Projection to use to create shadow map
+    SLbool              _useCubemap;  //!< Flag if cubemap should be used for perspective projections
+    SLMat4f             _v[6];        //!< View matrices
     SLMat4f             _p;           //!< Projection matrix
-    SLMat4f             _mvp;         //!< Model-view-projection matrix
+    SLMat4f             _mvp[6];      //!< Model-view-projection matrices
     SLGLDepthBuffer*    _depthBuffer; //!< Framebuffer and texture
     SLGLVertexArrayExt* _frustumVAO;  //!< Visualization of light-space-furstum
     SLVec2i             _rayCount;    //!< Amount of rays drawn by drawRays()
