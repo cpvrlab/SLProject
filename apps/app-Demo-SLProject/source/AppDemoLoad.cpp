@@ -974,17 +974,21 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        // Create light
-        SLLightSpot* light = new SLLightSpot(s, s, 0.1f, 30.0f);
-        light->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light->diffuse(SLCol4f(0.4f, 0.4f, 0.4f));
-        light->attenuation(0.1f, 0.1f, 0.1f);
-        light->createsShadows(true);
-        scene->addChild(light);
-
-        // Animate the light
+        // Create lights
         SLAnimation* anim = s->animManager().createNodeAnimation("light_anim", 4.0f);
-        anim->createEllipticNodeTrack(light, 0.2f, A_x, 0.2f, A_z);
+
+        for (SLint i = 0; i < 3; ++i)
+        {
+            SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
+            light->ambient(SLCol4f(i == 0, i == 1, i == 2) * 0.2f);
+            light->diffuse(SLCol4f(i == 0, i == 1, i == 2) * 0.4f);
+            light->attenuation(0.1f, 0.1f, 0.1f);
+            light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
+            light->createsShadows(true);
+            scene->addChild(light);
+
+            anim->createEllipticNodeTrack(light, 0.2f, A_x, 0.2f, A_z);
+        }
 
         // Create wall polygons
         SLfloat pL = -1.48f, pR = 1.48f; // left/right
@@ -1026,11 +1030,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(r);
 
         // Create cubes which cast shadows
-        for (SLint i = 0; i < 128; ++i)
+        for (SLint i = 0; i < 64; ++i)
         {
             SLNode* boxNode = new SLNode(new SLBox(s));
 
-            boxNode->scale(Utils::random(0.05f, 0.25f));
+            boxNode->scale(Utils::random(0.01f, 0.1f));
             boxNode->translate(Utils::random(pL + 0.3f, pR - 0.3f),
                                Utils::random(pB + 0.3f, pT - 0.3f),
                                Utils::random(pF + 0.3f, pN - 0.3f),

@@ -232,6 +232,8 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 
     updateMVP();
 
+    if (this->_useCubemap) this->_textureSize.y = this->_textureSize.x;
+
     if (_depthBuffer == nullptr ||
         _depthBuffer->dimensions() != _textureSize ||
         (_depthBuffer->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap)
