@@ -19,11 +19,11 @@
 #include <SLApplication.h>
 
 #ifdef SL_HAS_OPTIX
-#include <cuda.h>
-#include <cudaGL.h>
-#include <SLOptix.h>
-#include <SLOptixHelper.h>
-#include <SLOptixRaytracer.h>
+#    include <cuda.h>
+#    include <cudaGL.h>
+#    include <SLOptix.h>
+#    include <SLOptixHelper.h>
+#    include <SLOptixRaytracer.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -842,17 +842,17 @@ void SLGLTexture::bindActive(SLint texID)
             fullUpdate();
             _needsUpdate = false;
         }
-    }
 
 #ifdef SL_HAS_OPTIX
-    if (!_cudaGraphicsResource)
-    {
-        CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
-                                             _texID,
-                                             _target,
-                                             CU_GRAPHICS_REGISTER_FLAGS_NONE));
-    }
+        if (!_cudaGraphicsResource)
+        {
+            CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
+                                                 _texID,
+                                                 _target,
+                                                 CU_GRAPHICS_REGISTER_FLAGS_NONE));
+        }
 #endif
+    }
 
     GET_GL_ERROR;
 }

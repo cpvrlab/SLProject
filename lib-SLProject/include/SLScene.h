@@ -89,6 +89,7 @@ public:
     virtual void unInit();
     void         selectNode(SLNode* nodeToSelect);
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
+  
     SLGLOculus* oculus() { return &_oculus; }
 
 protected:

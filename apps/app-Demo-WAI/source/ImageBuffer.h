@@ -23,7 +23,7 @@ public:
     {
         int inputIdx = _currentIdx - 1;
         if (inputIdx < 0)
-            inputIdx = _images.size() - 1;
+            inputIdx = (int)_images.size() - 1;
         return _images[inputIdx];
     }
 

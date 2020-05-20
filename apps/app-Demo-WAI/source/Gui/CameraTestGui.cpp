@@ -105,7 +105,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::PushFont(_resources.fonts().headerBar);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _resources.fonts().headerBar->FontSize) * 0.5));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _resources.fonts().headerBar->FontSize) * 0.5f));
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _headerBarH);
 
         ImGui::Begin("Settings##CameraTestGui", nullptr, windowFlags);
