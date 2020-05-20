@@ -283,7 +283,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                              dd.scrHeight(),
                                              dd.dpi(),
                                              dd.dirs().writableDir,
-                                             dd.dirs().vocabularyDir);
+                                             dd.dirs().vocabularyDir,
+                                             dd.erlebARDir());
 
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,

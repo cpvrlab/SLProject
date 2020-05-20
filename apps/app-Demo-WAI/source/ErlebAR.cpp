@@ -68,7 +68,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 496;
         area.yPosPix         = 566;
         area.viewAngleDeg    = 120;
-        area.slamMapFileName = "marker-ASUSAR-1-map_20200117-083625_augst_templeHill-marker_FAST-ORBS-1000.json";
+        area.slamMapFileName = "locations/augst/templeHill-marker/maps/marker-ASUSAR-1-map_20200117-083625_augst_templeHill-marker_FAST-ORBS-1000.json";
         loc.areas[area.id]   = area;
     }
     {

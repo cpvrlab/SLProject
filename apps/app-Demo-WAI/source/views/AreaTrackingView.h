@@ -27,7 +27,8 @@ public:
                      int                 screenHeight,
                      int                 dotsPerInch,
                      std::string         imguiIniPath,
-                     std::string         vocabularyDir);
+                     std::string         vocabularyDir,
+                     std::string         erlebARDir);
     ~AreaTrackingView();
 
     bool update();
@@ -67,6 +68,7 @@ private:
     ExtractorType _trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
     std::string   _vocabularyFileName          = "voc_fbow.bin";
     std::string   _vocabularyDir;
+    std::string   _erlebARDir;
     std::string   _mapFileName;
 
     //debug visualization
