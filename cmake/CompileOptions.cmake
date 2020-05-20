@@ -130,6 +130,22 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
                 -std=c++14
             >
     )
+	
+	if ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+		message(STATUS "Compile options: ios identified")
+		#iOS minimum supported version (deployment target version of iOS)
+		set(DEPLOYMENT_TARGET 8.0)
+
+		set(DEFAULT_PROJECT_OPTIONS
+			${DEFAULT_PROJECT_OPTIONS}
+			XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
+		)
+		
+	    set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
+			-fobjc-arc #enable automatic reference counting
+		)
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS} -fobjc-arc" )
+	endif()
 endif ()
 
 set(EXTERNAL_LIB_COMPILE_OPTIONS)

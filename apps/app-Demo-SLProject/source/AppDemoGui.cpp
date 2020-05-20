@@ -701,7 +701,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
-
+#ifdef SL_BUILD_WAI
         if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
         {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -721,7 +721,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
-
+#endif
         if (showImGuiMetrics)
         {
             ImGui::ShowMetricsWindow();
@@ -2288,8 +2288,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+#ifdef SL_BUILD_WAI
             if (SLApplication::sceneID == SID_VideoTrackWAI)
                 ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
+#endif
             ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
