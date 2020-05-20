@@ -58,16 +58,31 @@ set(sources
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
 	${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm
-    )
+	)
 
-set(resources
+# define resources
+set(XIB_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPad.xib
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
 )
 
-# Group source files
-#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
-#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
+file(GLOB SHADERS ${SL_PROJECT_ROOT}/data/shaders/*)
+file(GLOB FONTS ${SL_PROJECT_ROOT}/data/images/fonts/*)
+file(GLOB TEXTURES ${SL_PROJECT_ROOT}/data/images/textures/*)
+
+set(resources
+	${XIB_FILES}
+	${SHADERS}
+	${FONTS}
+	${TEXTURES}
+)
+	
+# Group resource files
+source_group(Resources FILES ${XIB_FILES})
+source_group(Resources\\data\\shaders FILES ${SHADERS})
+source_group(Resources\\data\\fonts FILES ${FONTS})
+source_group(Resources\\data\\textures FILES ${TEXTURES})
+
 
 add_executable(
         ${target}
@@ -87,9 +102,6 @@ find_library(OPENGLES OpenGLES required)
 find_library(GLKIT GLKit required)
 find_library(CORELOCATION CoreLocation required)
 
-message(STATUS "OPENGLES: ${OPENGLES}")
-
-
 set_target_properties(
         ${target}
         PROPERTIES
@@ -98,7 +110,7 @@ set_target_properties(
 		
         XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
         XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Prefix.pch" #this is a precompiled header!
-        RESOURCE "${RESOURCES}"
+        RESOURCE "${resources}"
         XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}

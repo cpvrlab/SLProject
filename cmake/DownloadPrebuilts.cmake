@@ -213,7 +213,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
             ${lib}
         )
     endforeach(lib)
-    
+	   
     set(g2o_PREBUILT_ZIP "win64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
       
@@ -665,13 +665,47 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 			PROPERTIES 
 			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
 			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
-			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4")
+			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
+		)
 			
-		#message(STATUS ${lib})
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                optimized ${lib}
-                debug ${lib})
+		#get_target_property(VARVAL ${lib} IMPORTED_LOCATION_DEBUG
+		#)
+		#message(STATUS "VARVAL: ${VARVAL}")
+			
+		#debug and optimized seams to mess things up in ios
+        #set(OpenCV_LIBS
+        #        ${OpenCV_LIBS}
+        #        optimized ${lib}
+        #        debug ${lib})
+		set(OpenCV_LIBS
+		    ${OpenCV_LIBS}
+		    ${lib})
+    endforeach(lib)
+	
+	
+	#add special libs
+	set(OpenCV_LINK_LIBS_IOS
+		libwebp
+		libjpeg-turbo
+		libpng
+		zlib
+	)
+	
+    foreach(lib ${OpenCV_LINK_LIBS_IOS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} 
+			PROPERTIES 
+			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
+			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
+		)
+		
+		get_target_property(VARVAL ${lib} IMPORTED_LOCATION_DEBUG
+		)
+		message(STATUS "VARVAL: ${VARVAL}")
+			
+		set(OpenCV_LIBS
+		    ${OpenCV_LIBS}
+		    ${lib})
     endforeach(lib)
 	
     #################
@@ -696,6 +730,22 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 	
+    foreach(lib ${g2o_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} 
+			PROPERTIES 
+			#we use Release libs for both configurations
+			IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}Release/lib${lib}.a"
+			IMPORTED_LOCATION_RELEASE "${g2o_LINK_DIR}Release/lib${lib}.a"
+			INTERFACE_INCLUDE_DIRECTORIES "${g2o_LINK_DIR}include"
+		)
+				
+        set(g2o_LIBS
+            ${g2o_LIBS}
+            ${lib}
+            )
+    endforeach(lib)
+	
     ##################
     # Assimp for iOS #
     ##################
@@ -719,6 +769,20 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
             message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
         endif()
     endif ()
+	
+	foreach(lib ${assimp_LINK_LIBS})
+		add_library(${lib} STATIC IMPORTED)
+		set_target_properties(${lib} 
+			PROPERTIES
+			IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/lib${lib}d.a"
+			IMPORTED_LOCATION_RELEASE "${assimp_DIR}/Release/lib${lib}.a" 
+			INTERFACE_INCLUDE_DIRECTORIES "${assimp_DIR}/include" 
+		)
+			
+	    set(assimp_LIBS
+	        ${assimp_LIBS}
+			${lib})	
+	endforeach()
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
