@@ -45,6 +45,7 @@
 #include <AppDemoGuiTrackedMapping.h>
 #include <AppDemoGuiVideoStorage.h>
 #include <AppDemoGuiVideoControls.h>
+#include <AppDemoGuiAutoCalibration.h>
 
 #include <AppDemoGuiInfosMapNodeTransform.h>
 
@@ -116,6 +117,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _resources.fonts().standard, modeGetterCB));
     addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _resources.fonts().standard, getCameraCB));
     addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _resources.fonts().standard, getVideoFileStreamCB));
+    addInfoDialog(std::make_shared<AppDemoGuiAutoCalibration>("auto calibration", &uiPrefs->showAutoCalibration, &eventQueue, getCameraCB, getCalibrationCB, resources.fonts().standard));
 
     addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _resources.fonts().tiny, getCameraCB, getCalibrationCB));
 
@@ -302,6 +304,9 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
                 ImGui::PopItemWidth();
                 ImGui::EndMenu();
             }
+
+            ImGui::MenuItem("Auto-Calibration", nullptr, &uiPrefs->showAutoCalibration);
+
 
             ImGui::EndMenu();
         }

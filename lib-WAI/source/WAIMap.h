@@ -83,6 +83,7 @@ public:
 
     long unsigned int GetMaxKFid();
 
+    float GetSize();
     void clear();
 
     vector<WAIKeyFrame*> mvpKeyFrameOrigins;

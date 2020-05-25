@@ -156,6 +156,12 @@ void WAISlam::reset()
     _state                          = WAI::TrackingState_Initializing;
 }
 
+void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
+{
+    _cameraIntrinsic = intrinsic;
+    _distortion = distortion;
+}
+
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
     if (getTrackingState() == WAI::TrackingState_Initializing)
@@ -411,7 +417,7 @@ int WAISlam::getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv
         WAIMapPoint* mp = frame->mvpMapPoints[i];
         if (mp)
         {
-            if (!mp->isBad() && mp->Observations() > 0 && mp->isFixed())
+            if (mp->isFixed())
             {
                 WAI::V3 v = mp->worldPosVec();
                 matching.first.push_back(frame->mvKeysUn[i].pt);
