@@ -2,6 +2,17 @@
 # CMake configuration for Demo-SL (app-Demo-SLProject) application for ios
 #
 
+#find system frameworks (libraries)	
+find_library(AVFOUNDATION AVFoundation required)
+find_library(COREGRAPHICS CoreGraphics required)
+find_library(COREVIDEO CoreVideo required)
+find_library(COREMOTION CoreMotion required)
+find_library(COREMEDIA CoreMedia required)
+find_library(UIKIT UIKit required)
+find_library(OPENGLES OpenGLES required)
+find_library(GLKIT GLKit required)
+find_library(CORELOCATION CoreLocation required)
+
 set(target Demo-SL)
 set(DEVELOPMENT_TEAM_ID "858Y9EWZ4B")               # <== Set to your team ID from Apple
 set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvrlab.demo-sl") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
@@ -64,25 +75,73 @@ set(sources
 set(XIB_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPad.xib
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
-)
+	)
 
+
+#calibrations
+set(CALIBRATIONS 
+	${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
+	${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+	${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
+	${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt2.xml
+	${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
+	${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
+	)
+
+#models
+file(GLOB MODELS_3DS
+	${SL_PROJECT_ROOT}/data/models/3DS
+	#${SL_PROJECT_ROOT}/data/models/3DS/Halloween
+	)
+	
+file(GLOB MODELS_DAE
+	${SL_PROJECT_ROOT}/data/models/DAE
+	#${SL_PROJECT_ROOT}/data/models/DAE/AstroBoy
+	#${SL_PROJECT_ROOT}/data/models/DAE/Crate
+	#${SL_PROJECT_ROOT}/data/models/DAE/Hands
+	#${SL_PROJECT_ROOT}/data/models/DAE/Sintel
+	#${SL_PROJECT_ROOT}/data/models/DAE/SkinnedCube
+	#${SL_PROJECT_ROOT}/data/models/DAE/Table
+	)
+	
+file(GLOB MODELS_FBX
+	${SL_PROJECT_ROOT}/data/models/FBX	
+	#${SL_PROJECT_ROOT}/data/models/FBX/Axes/*
+	#${SL_PROJECT_ROOT}/data/models/FBX/Brunnen.fbx
+	#${SL_PROJECT_ROOT}/data/models/FBX/Christoffel/*
+	#${SL_PROJECT_ROOT}/data/models/FBX/Duck/*
+	#${SL_PROJECT_ROOT}/data/models/FBX/Sunglasses.fbx
+	#${SL_PROJECT_ROOT}/data/models/FBX/Suzanne/*
+	#${SL_PROJECT_ROOT}/data/models/FBX/Teapot/*
+	)	
+	
 file(GLOB SHADERS ${SL_PROJECT_ROOT}/data/shaders/*)
 file(GLOB FONTS ${SL_PROJECT_ROOT}/data/images/fonts/*)
 file(GLOB TEXTURES ${SL_PROJECT_ROOT}/data/images/textures/*)
+file(GLOB VIDEOS ${SL_PROJECT_ROOT}/data/videos/*)
 
 set(resources
 	${XIB_FILES}
+	${CALIBRATIONS}
 	${SHADERS}
 	${FONTS}
 	${TEXTURES}
-)
+	${VIDEOS}
+	${MODELS_3DS}
+	${MODELS_DAE}
+	${MODELS_FBX}
+	)
 	
 # Group resource files
 source_group(Resources FILES ${XIB_FILES})
+source_group(Resources\\data\\calibrations FILES ${CALIBRATIONS})
 source_group(Resources\\data\\shaders FILES ${SHADERS})
-source_group(Resources\\data\\fonts FILES ${FONTS})
-source_group(Resources\\data\\textures FILES ${TEXTURES})
-
+source_group(Resources\\data\\images\\fonts FILES ${FONTS})
+source_group(Resources\\data\\images\\textures FILES ${TEXTURES})
+source_group(Resources\\data\\models FILES ${MODELS_3DS})
+source_group(Resources\\data\\models FILES ${MODELS_DAE})
+source_group(Resources\\data\\models FILES ${MODELS_FBX})
+source_group(Resources\\data\\videos FILES ${VIDEOS})
 
 add_executable(
         ${target}
@@ -91,16 +150,6 @@ add_executable(
         ${sources}
 		${resources}
     )
-	
-find_library(AVFOUNDATION AVFoundation required)
-find_library(COREGRAPHICS CoreGraphics required)
-find_library(COREVIDEO CoreVideo required)
-find_library(COREMOTION CoreMotion required)
-find_library(COREMEDIA CoreMedia required)
-find_library(UIKIT UIKit required)
-find_library(OPENGLES OpenGLES required)
-find_library(GLKIT GLKit required)
-find_library(CORELOCATION CoreLocation required)
 
 set_target_properties(
         ${target}
@@ -165,9 +214,6 @@ target_link_libraries(
 		
         INTERFACE
     )
-	
-#message(STATUS "OpenCV_LIBS: ${OpenCV_LIBS}")
-#message(STATUS "UIKIT: ${UIKIT}")
 
 target_compile_definitions(${target}
     PRIVATE

@@ -68,5 +68,9 @@
     <key>NSAllowsArbitraryLoads</key>
     <true/>
   </dict>
+  <key>NSCameraUsageDescription</key>
+  <string>Used for Augmented Reality rendering</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Used to determine the users global position with GPS</string>
 </dict>
 </plist>
