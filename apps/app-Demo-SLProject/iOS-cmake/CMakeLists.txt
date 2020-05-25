@@ -22,7 +22,7 @@ set(CODE_SIGN_IDENTITY "Apple Development: Michael Göttlicher (KMX9985DR7)")  #
 set(DEPLOYMENT_TARGET 8.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
-include(BundleUtilities)
+#include(BundleUtilities)
 
 set(PRODUCT_NAME ${target})
 set(EXECUTABLE_NAME ${target})
@@ -31,16 +31,11 @@ set(MACOSX_BUNDLE_EXECUTABLE_NAME ${target})
 set(MACOSX_BUNDLE_INFO_STRING ${APP_BUNDLE_IDENTIFIER})
 set(MACOSX_BUNDLE_GUI_IDENTIFIER ${APP_BUNDLE_IDENTIFIER})
 set(MACOSX_BUNDLE_BUNDLE_NAME ${APP_BUNDLE_IDENTIFIER})
-#set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/images/SLProject-Icon.icns")
-#set(MACOSX_BUNDLE_ICON_FILE "AppIcon")
 set(MACOSX_BUNDLE_LONG_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
 set(MACOSX_BUNDLE_COPYRIGHT "Copyright Berner Fachhochschule (Marcus Hudritsch)")
 set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
-
-# Turn on ARC (TODO: MOVE TO COMPILE OPTIONS!)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc")
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -126,7 +121,6 @@ file(GLOB TEXTURES ${SL_PROJECT_ROOT}/data/images/textures/*)
 file(GLOB VIDEOS ${SL_PROJECT_ROOT}/data/videos/*)
 
 set(resources
-	#${MACOSX_BUNDLE_ICON_FILE}
 	${ASSET_CATALOG}
 	${XIB_FILES}
 	${CALIBRATIONS}
