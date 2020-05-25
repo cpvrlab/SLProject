@@ -19,11 +19,11 @@
 #include <SLApplication.h>
 
 #ifdef SL_HAS_OPTIX
-#include <cuda.h>
-#include <cudaGL.h>
-#include <SLOptix.h>
-#include <SLOptixHelper.h>
-#include <SLOptixRaytracer.h>
+#    include <cuda.h>
+#    include <cudaGL.h>
+#    include <SLOptix.h>
+#    include <SLOptixHelper.h>
+#    include <SLOptixRaytracer.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -38,7 +38,6 @@ SLfloat SLGLTexture::maxAnisotropy = -1.0f;
 //! NO. of texture byte allocated on GPU
 SLuint SLGLTexture::numBytesInTextures = 0;
 //-----------------------------------------------------------------------------
-//! Default ctor for all stack instances (not created with new)
 /*! Default ctor for all stack instances such as the video textures in SLScene
 or the textures inherited by SLRaytracer. All other contructors add the this
 pointer to the SLScene::_texture vector for global deallocation.
@@ -65,7 +64,19 @@ SLGLTexture::SLGLTexture()
 }
 
 //-----------------------------------------------------------------------------
-//! ctor for empty 2D textures
+/*!
+ * Conststructor for empty 2D textures.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param wrapS Texture wrapping in S direction (OpenGL constant)
+ * @param wrapT Texture wrapping in T direction (OpenGL constant)
+ */
 SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          SLint           min_filter,
                          SLint           mag_filter,
@@ -91,7 +102,24 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 }
 
 //-----------------------------------------------------------------------------
-//! ctor for 2D textures from byte pointer
+/*!
+ * Constructor for 2D texture with a passed image data pointer.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param data Data pointer to the first top-left pixel
+ * @param width Width of the image in pixels
+ * @param height Height of the image in pixels
+ * @param cvtype OpenCV image type
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param type Type of the texture
+ * @param wrapS Texture wrapping in S direction (OpenGL constant)
+ * @param wrapT Texture wrapping in T direction (OpenGL constant)
+ */
 SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          unsigned char*  data,
                          int             width,
@@ -127,7 +155,22 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 }
 
 //-----------------------------------------------------------------------------
-//! ctor 2D textures with internal image allocation
+/*!
+ * Constructor for 2D textures from image file with internal image allocation.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param filename Name of the texture image file. If only a filename is
+ * passed it will be search on the SLGLTexture::defaultPath.
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param type Type of the texture
+ * @param wrapS Texture wrapping in S direction (OpenGL constant)
+ * @param wrapT Texture wrapping in T direction (OpenGL constant)
+ */
 SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          const SLstring& filename,
                          SLint           min_filter,
@@ -165,7 +208,24 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
         assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
-//! ctor for 3D texture
+/*!
+ * Constructor for 3D textures from image files with internal image allocation.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param files Vector of texture image files. If only filenames are
+ * passed they will be searched on the SLGLTexture::defaultPath.
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param wrapS Texture wrapping in S direction (OpenGL constant)
+ * @param wrapT Texture wrapping in T direction (OpenGL constant)
+ * @param name Name of the 3D texture
+ * @param loadGrayscaleIntoAlpha Flag if grayscale image should be loaded into
+ * alpha channel.
+ */
 SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
                          const SLVstring& files,
                          SLint            min_filter,
@@ -204,7 +264,20 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
         assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
-//! ctor for 1D texture
+/*!
+ * Constructor for 1D texture from a color vector.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param colors Vector of colors
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param wrapS Texture wrapping in S direction (OpenGL constant)
+ * @param name Name of the 1D texture
+ */
 SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          const SLVCol4f& colors,
                          SLint           min_filter,
@@ -243,7 +316,24 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
         assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
-//! ctor for cube mapping with internal image allocation
+/*!
+ * Constructor for a cubemap texture from 6 image files.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param filenameXPos Filename of the cubemap image in the pos. X direction.
+ * @param filenameXNeg Filename of the cubemap image in the neg. X direction.
+ * @param filenameYPos Filename of the cubemap image in the pos. Y direction.
+ * @param filenameYNeg Filename of the cubemap image in the neg. Y direction.
+ * @param filenameZPos Filename of the cubemap image in the pos. Z direction.
+ * @param filenameZNeg Filename of the cubemap image in the neg. Z direction.
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param type Texture Type
+ */
 SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          const SLstring& filenameXPos,
                          const SLstring& filenameXNeg,
@@ -291,6 +381,12 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
         assetMgr->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
+/*!
+ * The destructor should be called by the owner of the texture. If an asset
+ * manager was passed in the constructor it will do it after scene destruction.
+ * The destructor deletes all images in the RAM as well as the texture objects
+ * on the GPU.
+*/
 SLGLTexture::~SLGLTexture()
 {
     //SL_LOG("~SLGLTexture(%s)", name().c_str());
@@ -746,17 +842,17 @@ void SLGLTexture::bindActive(SLint texID)
             fullUpdate();
             _needsUpdate = false;
         }
-    }
 
 #ifdef SL_HAS_OPTIX
-    if (!_cudaGraphicsResource)
-    {
-        CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
-                                             _texID,
-                                             _target,
-                                             CU_GRAPHICS_REGISTER_FLAGS_NONE));
-    }
+        if (!_cudaGraphicsResource)
+        {
+            CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
+                                                 _texID,
+                                                 _target,
+                                                 CU_GRAPHICS_REGISTER_FLAGS_NONE));
+        }
 #endif
+    }
 
     GET_GL_ERROR;
 }

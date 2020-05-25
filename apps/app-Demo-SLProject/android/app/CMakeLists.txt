@@ -67,28 +67,28 @@ target_link_libraries(
 #
 file(
         GLOB_RECURSE TEXTURES
-        ${SL_PROJECT_ROOT}/data/images/textures/CompileError.png
         ${SL_PROJECT_ROOT}/data/images/textures/brick0512_C.png
         ${SL_PROJECT_ROOT}/data/images/textures/brick*.jpg
+        ${SL_PROJECT_ROOT}/data/images/textures/CompileError.png
         ${SL_PROJECT_ROOT}/data/images/textures/Checkerboard0512_C.png
         ${SL_PROJECT_ROOT}/data/images/textures/Chess0256_C.bmp
+        ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
+        ${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
         ${SL_PROJECT_ROOT}/data/images/textures/earth*.jpg
+        ${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
         ${SL_PROJECT_ROOT}/data/images/textures/grass0512_C.jpg
         ${SL_PROJECT_ROOT}/data/images/textures/gray_0256_C.jpg
+        ${SL_PROJECT_ROOT}/data/images/textures/i*_0000b.png
+        ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
+        ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
         ${SL_PROJECT_ROOT}/data/images/textures/MuttenzerBox*.png
-        ${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.png
         ${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
+        ${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.jpg
         ${SL_PROJECT_ROOT}/data/images/textures/Testmap_0512_C.png
         ${SL_PROJECT_ROOT}/data/images/textures/tile1_0256_C.jpg
         ${SL_PROJECT_ROOT}/data/images/textures/tree1_1024_C.png
-        ${SL_PROJECT_ROOT}/data/images/textures/wood*.jpg
-        ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
         ${SL_PROJECT_ROOT}/data/images/textures/Vision*.png
-        ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
-        ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
-        ${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
-        ${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
-        ${SL_PROJECT_ROOT}/data/images/textures/i*_0000b.png
+        ${SL_PROJECT_ROOT}/data/images/textures/wood*.jpg
         ${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
     )
 
@@ -106,7 +106,11 @@ file(
 # If you add new models you must delete ${CMAKE_CURRENT_LIST_DIR}/src/main/assets
 file(
         GLOB_RECURSE MODELS
-        ${SL_PROJECT_ROOT}/data/models/*
+        ${SL_PROJECT_ROOT}/data/models/3DS/*
+        ${SL_PROJECT_ROOT}/data/models/DAE/*
+        ${SL_PROJECT_ROOT}/data/models/FBX/*
+        #${SL_PROJECT_ROOT}/data/models/GLTF/* # exclude these models from releas apk
+        #${SL_PROJECT_ROOT}/data/models/PLY/* # exclude these models from releas apk
     )
 
 file(
@@ -118,7 +122,7 @@ file(
 file(
         GLOB_RECURSE CALIBRATIONS
         ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
-        ${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+        #${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
         ${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
         ${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
         ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml

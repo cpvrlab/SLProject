@@ -53,14 +53,16 @@ void WAIOrbVocabulary::loadFromFile(std::string strVocFile)
     }
     catch(std::exception& e)
     {
-        throw std::runtime_error("WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
+        std::string err = "WAIOrbVocabulary::loadFromFile: failed to load vocabulary " + strVocFile;
+        throw std::runtime_error(err);
     }
 #else
     bool bVocLoad = _vocabulary->loadFromBinaryFile(strVocFile);
 
     if (!bVocLoad)
     {
-        throw std::runtime_error("WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
+        std::string err = "WAIOrbVocabulary::loadFromFile: failed to load vocabulary " + strVocFile;
+        throw std::runtime_error(err);
     }
 #endif
 }

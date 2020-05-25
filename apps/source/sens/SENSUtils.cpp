@@ -1,6 +1,5 @@
 #include "SENSUtils.h"
 #include <Utils.h>
-#include <HighResTimer.h>
 
 namespace SENS
 {

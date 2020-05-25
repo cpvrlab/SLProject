@@ -37,7 +37,11 @@ class MapCreator
     typedef std::map<Area, AreaConfig> Areas;
 
 public:
-    MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile, ExtractorType extractorType);
+    MapCreator(std::string   erlebARDir,
+               std::string   calibrationsDir,
+               std::string   configFile,
+               std::string   vocFile,
+               ExtractorType extractorType);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -78,8 +82,6 @@ private:
     std::string               _calibrationsDir;
     std::string               _outputDir;
     WAIOrbVocabulary*         _voc;
-
-
 
     WAIMapPoint* _mpUL;
     WAIMapPoint* _mpUR;

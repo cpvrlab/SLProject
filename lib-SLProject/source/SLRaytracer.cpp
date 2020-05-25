@@ -838,10 +838,6 @@ void SLRaytracer::prepareImage()
         // Delete the OpenGL Texture if it already exists
         if (_texID)
         {
-#ifdef SL_HAS_OPTIX
-            if (_cudaGraphicsResource)
-                CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
-#endif
             glDeleteTextures(1, &_texID);
             _texID = 0;
         }
@@ -859,13 +855,11 @@ void SLRaytracer::prepareImage()
 /*! 
 Draw the RT-Image as a textured quad in 2D-Orthographic projection
 */
-void SLRaytracer::renderImage()
+void SLRaytracer::renderImage(bool updateTextureGL)
 {
     SLRecti vpRect = _sv->viewportRect();
     SLfloat w      = (SLfloat)vpRect.width;
     SLfloat h      = (SLfloat)vpRect.height;
-    //if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
-    //if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
@@ -880,7 +874,7 @@ void SLRaytracer::renderImage()
     stateGL->multiSample(false);
     stateGL->polygonLine(false);
 
-    drawSprite(true, 0.0f, 0.0f, (SLfloat)vpRect.width, (SLfloat)vpRect.height);
+    drawSprite(updateTextureGL, 0.0f, 0.0f, w, h);
 
     stateGL->depthTest(true);
     GET_GL_ERROR;

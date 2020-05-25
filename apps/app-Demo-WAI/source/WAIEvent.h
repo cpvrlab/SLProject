@@ -9,6 +9,7 @@ enum WAIEventType
     WAIEventType_None,
     WAIEventType_StartOrbSlam,
     WAIEventType_SaveMap,
+    WAIEventType_AutoCalibration,
     WAIEventType_VideoControl,
     WAIEventType_VideoRecording,
     WAIEventType_MapNodeTransform,
@@ -36,6 +37,14 @@ struct WAIEventSaveMap : WAIEvent
     std::string location;
     std::string area;
     std::string marker;
+};
+
+struct WAIEventAutoCalibration : WAIEvent
+{
+    WAIEventAutoCalibration() { type = WAIEventType_AutoCalibration; }
+    bool tryCalibrate;
+    bool restoreOriginalCalibration;
+    bool useGuessCalibration;
 };
 
 struct WAIEventVideoControl : WAIEvent

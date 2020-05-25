@@ -54,13 +54,12 @@ Android applications they are copied to the appropriate file system locations.
 class SLGLProgram : public SLObject
 {
 public:
-    //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLProgram(SLAssetManager* s,
-                SLstring        vertShaderFile,
-                SLstring        fragShaderFile,
-                SLstring        geomShaderFile = "");
+                const SLstring& vertShaderFile,
+                const SLstring& fragShaderFile,
+                const SLstring& geomShaderFile = "");
 
-    virtual ~SLGLProgram();
+    ~SLGLProgram() override;
 
     void addShader(SLGLShader* shader);
     void init(); //!< create, attach & link shaders
@@ -81,54 +80,54 @@ public:
     SLVGLShader& shaders() { return _shaders; }
 
     //Variable location getters
-    SLint getUniformLocation(const SLchar* name);
-    SLint getAttribLocation(const SLchar* name);
+    SLint getUniformLocation(const SLchar* name) const;
+    SLint getAttribLocation(const SLchar* name) const;
 
     //Send uniform variables to program
-    SLint uniform1f(const SLchar* name, SLfloat v0);
-    SLint uniform2f(const SLchar* name, SLfloat v0, SLfloat v1);
-    SLint uniform3f(const SLchar* name, SLfloat v0, SLfloat v1, SLfloat v2);
-    SLint uniform4f(const SLchar* name, SLfloat v0, SLfloat v1, SLfloat v2, SLfloat v3);
+    SLint uniform1f(const SLchar* name, SLfloat v0) const;
+    SLint uniform2f(const SLchar* name, SLfloat v0, SLfloat v1) const;
+    SLint uniform3f(const SLchar* name, SLfloat v0, SLfloat v1, SLfloat v2) const;
+    SLint uniform4f(const SLchar* name, SLfloat v0, SLfloat v1, SLfloat v2, SLfloat v3) const;
 
-    SLint uniform1i(const SLchar* name, SLint v0);
-    SLint uniform2i(const SLchar* name, SLint v0, SLint v1);
-    SLint uniform3i(const SLchar* name, SLint v0, SLint v1, SLint v2);
-    SLint uniform4i(const SLchar* name, SLint v0, SLint v1, SLint v2, SLint v3);
+    SLint uniform1i(const SLchar* name, SLint v0) const;
+    SLint uniform2i(const SLchar* name, SLint v0, SLint v1) const;
+    SLint uniform3i(const SLchar* name, SLint v0, SLint v1, SLint v2) const;
+    SLint uniform4i(const SLchar* name, SLint v0, SLint v1, SLint v2, SLint v3) const;
 
-    SLint uniform1fv(const SLchar* name, SLsizei count, const SLfloat* value);
-    SLint uniform2fv(const SLchar* name, SLsizei count, const SLfloat* value);
-    SLint uniform3fv(const SLchar* name, SLsizei count, const SLfloat* value);
-    SLint uniform4fv(const SLchar* name, SLsizei count, const SLfloat* value);
+    SLint uniform1fv(const SLchar* name, SLsizei count, const SLfloat* value) const;
+    SLint uniform2fv(const SLchar* name, SLsizei count, const SLfloat* value) const;
+    SLint uniform3fv(const SLchar* name, SLsizei count, const SLfloat* value) const;
+    SLint uniform4fv(const SLchar* name, SLsizei count, const SLfloat* value) const;
 
-    SLint uniform1iv(const SLchar* name, SLsizei count, const SLint* value);
-    SLint uniform2iv(const SLchar* name, SLsizei count, const SLint* value);
-    SLint uniform3iv(const SLchar* name, SLsizei count, const SLint* value);
-    SLint uniform4iv(const SLchar* name, GLsizei count, const SLint* value);
+    SLint uniform1iv(const SLchar* name, SLsizei count, const SLint* value) const;
+    SLint uniform2iv(const SLchar* name, SLsizei count, const SLint* value) const;
+    SLint uniform3iv(const SLchar* name, SLsizei count, const SLint* value) const;
+    SLint uniform4iv(const SLchar* name, GLsizei count, const SLint* value) const;
 
     SLint uniformMatrix2fv(const SLchar*  name,
                            SLsizei        count,
                            const SLfloat* value,
-                           GLboolean      transpose = false);
+                           GLboolean      transpose = false) const;
     void  uniformMatrix2fv(SLint          loc,
                            SLsizei        count,
                            const SLfloat* value,
-                           GLboolean      transpose = false);
+                           GLboolean      transpose = false) const;
     SLint uniformMatrix3fv(const SLchar*  name,
                            SLsizei        count,
                            const SLfloat* value,
-                           GLboolean      transpose = false);
+                           GLboolean      transpose = false) const;
     void  uniformMatrix3fv(SLint          loc,
                            SLsizei        count,
                            const SLfloat* value,
-                           GLboolean      transpose = false);
+                           GLboolean      transpose = false) const;
     SLint uniformMatrix4fv(const SLchar*  name,
                            SLsizei        count,
                            const SLfloat* value,
-                           GLboolean      transpose = false);
+                           GLboolean      transpose = false) const;
     void  uniformMatrix4fv(SLint          loc,
                            SLsizei        count,
                            const SLfloat* value,
-                           GLboolean      transpose = false);
+                           GLboolean      transpose = false) const;
     // statics
     static SLstring defaultPath; //!< default path for GLSL programs
 

@@ -12,6 +12,49 @@
 AppWAIScene::AppWAIScene(SLstring name)
   : SLScene(name, nullptr) {}
 
+
+void AppWAIScene::loadMesh(std::string path)
+{
+
+    SLAssimpImporter importer;
+    augmentationRoot = importer.load(_animManager,
+                                 &assets,
+                                 path,
+                                 true,
+                                 nullptr,
+                                 0.4f);
+
+    // Set some ambient light
+    for (auto child : augmentationRoot->children())
+    {
+        for (auto mesh : child->meshes())
+        {
+            mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
+            mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
+            mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
+        }
+    }
+
+    SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
+    if (n)
+    {
+        n->drawBits()->set(SL_DB_CULLOFF, true);
+    }
+
+    // Create directional light for the sun light
+    SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
+    light->ambient(SLCol4f(0.3, 0.3, 0.3));
+    light->diffuse(SLCol4f(1.0, 0.7, 1.0));
+    light->specular(SLCol4f(1, 1, 1));
+    light->attenuation(1, 0, 0);
+    light->translation(0, 10, 0);
+    light->lookAt(10, 0, 10);
+
+    _root3D->addChild(augmentationRoot);
+    _root3D->addChild(light);
+}
+
+
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
     //init(); //uninitializes everything
@@ -49,55 +92,55 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     cameraNode->background().texture(_videoImage);
 
     if (location == "avenches")
-    {
-        if (area == "entrance")
+    {   
+        std::string modelPath;
+        if (area == "entrance" || area == "arena")
         {
-            SLAssimpImporter importer;
-            augmentationRoot = importer.load(_animManager,
-                                             &assets,
-                                             SLImporter::defaultPath + "GLTF/Avenches/AvenchesEntrance.gltf",
-                                             true,
-                                             nullptr,
-                                             0.4f);
-
-            // Set some ambient light
-            for (auto child : augmentationRoot->children())
-            {
-                for (auto mesh : child->meshes())
-                {
-                    mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
-                    mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
-                    mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
-                }
-            }
-
-            SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
-            if (n)
-            {
-                n->drawBits()->set(SL_DB_CULLOFF, true);
-            }
-
-            // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-            light->ambient(SLCol4f(1, 1, 1));
-            light->diffuse(SLCol4f(1, 1, 1));
-            light->specular(SLCol4f(1, 1, 1));
-            light->attenuation(1, 0, 0);
-            light->translation(0, 10, 0);
-            light->lookAt(10, 0, 10);
-
-            _root3D->addChild(augmentationRoot);
-            _root3D->addChild(light);
+            #ifdef SL_OS_ANDROID
+            modelPath = SLImporter::defaultPath + "AvenchesEntrance.gltf";
+            #else
+            modelPath = SLImporter::defaultPath + "GLTF/Avenches/AvenchesEntrance.gltf";
+            #endif
+            loadMesh(modelPath);
+        }
+        else if (area == "cigonier-marker")
+        {
+            #ifdef SL_OS_ANDROID
+            modelPath = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf";
+            #else
+            modelPath = SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            #endif
+            loadMesh(modelPath);
+        }
+        else if (area == "theater-marker")
+        {
+            #ifdef SL_OS_ANDROID
+            modelPath = SLImporter::defaultPath + "Aventicum-Theater1.gltf";
+            #else
+            modelPath = SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Theater1.gltf";
+            #endif
+            loadMesh(modelPath);
         }
     }
     else if (location == "augst")
     {
         if (area == "templeHill-marker")
         {
+            #ifdef SL_OS_ANDROID
+            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+            #else
+            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+            #endif
             SLAssimpImporter importer;
+            std::string      augmentationFile = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+            // TODO(dgj1): this is a hack for android... fix it better
+            if (!Utils::fileExists(augmentationFile))
+            {
+                augmentationFile = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+            }
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                             modelPath,
                                              true,
                                              nullptr,
                                              0.4f);
@@ -128,10 +171,15 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         }
         else if (area == "templeHillTheaterBottom")
         {
+            #ifdef SL_OS_ANDROID
+            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+            #else
+            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+            #endif
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
-                                             "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                             modelPath,
                                              true,
                                              nullptr,
                                              0.4f);

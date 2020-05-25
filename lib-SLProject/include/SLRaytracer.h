@@ -128,7 +128,7 @@ public:
 
     // Render target image
     virtual void prepareImage();
-    virtual void renderImage();
+    virtual void renderImage(bool updateTextureGL);
     virtual void saveImage();
 
 protected:

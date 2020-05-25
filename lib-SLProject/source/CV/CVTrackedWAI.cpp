@@ -25,7 +25,7 @@ CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
     {
         Utils::log("SLProject",
                    "Could not open the ORB vocabulary file: %s",
-                   vocabularyFile.c_str());
+                   e.what());
         exit(0);
     }
     SL_LOG("Loaded voc file : %f ms", _timer.elapsedTimeInMilliSec() - startMS);

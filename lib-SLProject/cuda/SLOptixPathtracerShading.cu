@@ -14,12 +14,12 @@
 
 //-----------------------------------------------------------------------------
 extern "C" {
-__constant__ Params params;
+__constant__ ortParams params;
 }
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __miss__sample()
 {
-    auto* rt_data = reinterpret_cast<MissData*>(optixGetSbtDataPointer());
+    auto* rt_data = reinterpret_cast<ortMissData*>(optixGetSbtDataPointer());
     setColor(rt_data->bg_color);
 }
 //-----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ extern "C" __global__ void __anyhit__radiance()
 extern "C" __global__ void __closesthit__radiance()
 {
     // Get all data for the hit point
-    auto*        rt_data = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
+    auto*        rt_data = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
     const float3 ray_dir = optixGetWorldRayDirection();
 
     if (getDepth() > params.max_depth)
