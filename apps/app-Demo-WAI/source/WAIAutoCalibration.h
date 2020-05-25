@@ -107,6 +107,7 @@ class AutoCalibration
         cv::Size             _frameSize;
         CVCalibration        _calibration = {CVCameraType::FRONTFACING, ""};
         bool                 _hasCalibration;
+        bool                 _isRunning;
         bool                 _isFinished;
         std::mutex           _calibrationMutex;
 };
