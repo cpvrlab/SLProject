@@ -116,7 +116,7 @@ bool TestView::update()
                 }
             }
 
-            if (_autoCal->hasCalibration())
+            if (_autoCal && _autoCal->hasCalibration())
             {
                 _calibration = _autoCal->consumeCalibration();
                 _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
