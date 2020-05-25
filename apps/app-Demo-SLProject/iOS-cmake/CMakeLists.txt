@@ -26,11 +26,13 @@ include(BundleUtilities)
 
 set(PRODUCT_NAME ${target})
 set(EXECUTABLE_NAME ${target})
+# MACOSX_BUNDLE_... variables are used in plist.in to generate the Info.plist file used by xcode. (see https://cmake.org/cmake/help/v3.17/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html)
 set(MACOSX_BUNDLE_EXECUTABLE_NAME ${target})
 set(MACOSX_BUNDLE_INFO_STRING ${APP_BUNDLE_IDENTIFIER})
 set(MACOSX_BUNDLE_GUI_IDENTIFIER ${APP_BUNDLE_IDENTIFIER})
 set(MACOSX_BUNDLE_BUNDLE_NAME ${APP_BUNDLE_IDENTIFIER})
-#set(MACOSX_BUNDLE_ICON_FILE "")
+#set(MACOSX_BUNDLE_ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/images/SLProject-Icon.icns")
+set(MACOSX_BUNDLE_ICON_FILE "AppIcon")
 set(MACOSX_BUNDLE_LONG_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
@@ -77,6 +79,9 @@ set(XIB_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
 	)
 
+set(ASSET_CATALOG
+	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
+)
 
 #calibrations
 set(CALIBRATIONS 
@@ -121,6 +126,8 @@ file(GLOB TEXTURES ${SL_PROJECT_ROOT}/data/images/textures/*)
 file(GLOB VIDEOS ${SL_PROJECT_ROOT}/data/videos/*)
 
 set(resources
+	#${MACOSX_BUNDLE_ICON_FILE}
+	${ASSET_CATALOG}
 	${XIB_FILES}
 	${CALIBRATIONS}
 	${SHADERS}
@@ -134,6 +141,7 @@ set(resources
 	
 # Group resource files
 source_group(Resources FILES ${XIB_FILES})
+source_group(Resources FILES ${ASSET_CATALOG})
 source_group(Resources\\data\\calibrations FILES ${CALIBRATIONS})
 source_group(Resources\\data\\shaders FILES ${SHADERS})
 source_group(Resources\\data\\images\\fonts FILES ${FONTS})
@@ -172,6 +180,7 @@ set_target_properties(
         XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
         XCODE_ATTRIBUTE_ENABLE_TESTABILITY NO
         XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
+		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
     )
 	
 target_include_directories(
