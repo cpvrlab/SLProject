@@ -53,8 +53,8 @@ TestView::TestView(sm::EventHandler&   eventHandler,
     init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
     _scene.init();
     onInitialize();
-    _isCalibrated = false;
-    _voc          = new WAIOrbVocabulary();
+    _fillAutoCalibration = false;
+    _voc                 = new WAIOrbVocabulary();
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
@@ -107,23 +107,21 @@ bool TestView::update()
             {
                 _scene.updateCameraPose(_mode->getPose());
 
-                if (!_isCalibrated)
+                if (_fillAutoCalibration)
                 {
-                    std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
-
                     WAIFrame lastFrame = _mode->getLastFrame();
-                    if (_mode->getMatchedCorrespondances(&lastFrame, matching) > 10)
-                    {
-                        _calibrationMatchings.push_back(matching);
-                        if (_calibrationMatchings.size() > 10)
-                        {
-                            cv::Size size      = cv::Size(frame->captureWidth, frame->captureHeight);
-                            _calibrationThread = std::thread(AutoCalibration::calibrate, size, _calibrationMatchings);
-                            _calibrationMatchings.clear();
-                            _isCalibrated = true;
-                        }
-                    }
+                    std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
+                    _mode->getMatchedCorrespondances(&lastFrame, matching);
+                    _autoCal->fillFrame(matching, lastFrame.mTcw);
                 }
+            }
+
+            if (_autoCal->hasCalibration())
+            {
+                _calibration = _autoCal->consumeCalibration();
+                _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
+                _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
+                _fillAutoCalibration = false;
             }
 
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
@@ -175,6 +173,43 @@ void TestView::handleEvents()
                 delete saveMapEvent;
             }
             break;
+
+            case WAIEventType_AutoCalibration: {
+                WAIEventAutoCalibration* autoCalEvent = (WAIEventAutoCalibration*)event;
+                if (autoCalEvent->tryCalibrate)
+                {
+                    _autoCal->reset();
+                    _fillAutoCalibration = true;
+                }
+                else if (autoCalEvent->useGuessCalibration)
+                {
+                    SENSCameraCharacteristics cc = _camera->characteristics();
+                    if (cc.focalLenghtsMM.size() > 0)
+                    {
+                        _calibration = CVCalibration(cc.physicalSensorSizeMM.width,
+                                                     cc.physicalSensorSizeMM.height,
+                                                     cc.focalLenghtsMM[0],
+                                                     _videoFrameSize,
+                                                     false,
+                                                     false,
+                                                     CVCameraType::BACKFACING,
+                                                     Utils::ComputerInfos::get());
+                    }
+                    else
+                    {
+                        _calibration = CVCalibration(_videoFrameSize, 65, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
+                    }
+
+                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
+                    _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
+                }
+                else if (autoCalEvent->restoreOriginalCalibration)
+                {
+                    _calibration = _calibrationLoaded;
+                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
+                    _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
+                }
+            }
 
             case WAIEventType_VideoControl: {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
@@ -420,6 +455,12 @@ void TestView::startOrbSlam(SlamParams slamParams)
         _mode = nullptr;
     }
 
+    if (_autoCal)
+    {
+        delete _autoCal;
+        _autoCal = nullptr;
+    }
+
     // Check that files exist
     if (useVideoFile && !Utils::fileExists(slamParams.videoFile))
     {
@@ -523,6 +564,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     else
         _calibration.buildUndistortionMaps();
 
+    _calibrationLoaded = _calibration;
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
     _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
     //  _scene.cameraNode->fov(_calibration.cameraFovVDeg());
@@ -569,6 +611,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
+
+        _autoCal = new AutoCalibration(_videoFrameSize, map->GetSize());
 
         if (!mapLoadingSuccess)
         {

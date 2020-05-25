@@ -1,7 +1,6 @@
 #ifndef SL_IMGUI_INFO_SCENE_H
 #define SL_IMGUI_INFO_SCENE_H
 
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <SL.h>
 #include <SLSceneView.h>

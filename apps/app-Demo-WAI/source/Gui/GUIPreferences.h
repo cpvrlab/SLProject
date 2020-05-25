@@ -20,6 +20,9 @@ public:
     bool showVideoControls = false;
     bool showVideoStorage  = false;
 
+    //Auto calibration menu
+    bool showAutoCalibration = false;
+
     //map menu
     bool showInfosMapNodeTransform = false;
 
