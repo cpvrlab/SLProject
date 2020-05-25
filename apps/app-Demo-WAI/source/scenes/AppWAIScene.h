@@ -67,6 +67,8 @@ private:
                          SLMaterial*&                     material);
     void removeMesh(SLNode* node, SLMesh* mesh);
 
+    void loadMesh(std::string path);
+
     SLNode* mapPC             = nullptr;
     SLNode* mapMatchedPC      = nullptr;
     SLNode* mapLocalPC        = nullptr;
