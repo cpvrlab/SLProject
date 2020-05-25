@@ -39,8 +39,6 @@
     <string>fetch</string>
     <string>remote-notification</string>
   </array>
-  <key>UILaunchStoryboardName</key>
-  <string>ViewController_iPad</string>
   <key>UIRequiredDeviceCapabilities</key>
   <array>
     <string>arm64</string>
