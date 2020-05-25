@@ -114,6 +114,10 @@ file(GLOB MODELS_FBX
 	#${SL_PROJECT_ROOT}/data/models/FBX/Suzanne/*
 	#${SL_PROJECT_ROOT}/data/models/FBX/Teapot/*
 	)	
+
+file(GLOB MODELS
+	${SL_PROJECT_ROOT}/data/models
+)
 	
 file(GLOB SHADERS ${SL_PROJECT_ROOT}/data/shaders/*)
 file(GLOB FONTS ${SL_PROJECT_ROOT}/data/images/fonts/*)
@@ -128,9 +132,10 @@ set(resources
 	${FONTS}
 	${TEXTURES}
 	${VIDEOS}
-	${MODELS_3DS}
-	${MODELS_DAE}
-	${MODELS_FBX}
+	#${MODELS_3DS}
+	#${MODELS_DAE}
+	#${MODELS_FBX}
+	${MODELS}
 	)
 	
 # Group resource files
@@ -140,9 +145,10 @@ source_group(Resources\\data\\calibrations FILES ${CALIBRATIONS})
 source_group(Resources\\data\\shaders FILES ${SHADERS})
 source_group(Resources\\data\\images\\fonts FILES ${FONTS})
 source_group(Resources\\data\\images\\textures FILES ${TEXTURES})
-source_group(Resources\\data\\models FILES ${MODELS_3DS})
-source_group(Resources\\data\\models FILES ${MODELS_DAE})
-source_group(Resources\\data\\models FILES ${MODELS_FBX})
+#source_group(Resources\\data\\models FILES ${MODELS_3DS})
+#source_group(Resources\\data\\models FILES ${MODELS_DAE})
+#source_group(Resources\\data\\models FILES ${MODELS_FBX})
+source_group(Resources\\data FILES ${MODELS})
 source_group(Resources\\data\\videos FILES ${VIDEOS})
 
 add_executable(
