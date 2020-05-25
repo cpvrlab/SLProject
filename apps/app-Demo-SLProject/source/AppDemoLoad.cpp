@@ -1086,10 +1086,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
-                                            new SLGLTexture(s, "rusty-metal_2048C.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048N.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048M.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048R.png"),
+                                            new SLGLTexture(s, "rusty-metal_2048C.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048N.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048M.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048R.jpg"),
                                             SLGLProgramManager::get(SP_perPixCookTorranceTex));
                 }
                 else
@@ -2398,7 +2398,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create feature tracker and let it pose the camera for AR posing
-        tracker = new CVTrackedFeatures("features_stones.png");
+        tracker = new CVTrackedFeatures("features_stones.jpg");
+        //tracker = new CVTrackedFeatures("features_abstract.jpg");
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -3299,7 +3300,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing lens test scene.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.png");
+        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.jpg");
         //SLGLTexture* texC = new SLGLTexture(s, "Checkerboard0512_C.png");
 
         SLMaterial* mT = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);

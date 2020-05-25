@@ -58,8 +58,8 @@ void cv_extractAndDrawKeyPoints(OrbExtractionState*    state,
 int main(int argc, char** argv)
 {
     cv::Mat image1, image2;
-    image1 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena.tiff", cv::IMREAD_COLOR);
-    image2 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena_s.tiff", cv::IMREAD_COLOR);
+    image1 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena.jpg", cv::IMREAD_COLOR);
+    image2 = cv::imread("/home/jdellsperger/projects/WAI/data/images/textures/Lena_s.jpg", cv::IMREAD_COLOR);
 
     if (!image1.data || !image2.data)
     {
