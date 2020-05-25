@@ -18,8 +18,24 @@
 //-----------------------------------------------------------------------------
 SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
-// Default ctor
-SLMaterial::SLMaterial(SLAssetManager* s,
+/*!
+ * Default constructor for materials without textures.
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param name Name of the material
+ * @param amdi Ambient and diffuse color
+ * @param spec Specular color
+ * @param shininess Shininess exponent (the higher the sharper the gloss)
+ * @param kr Reflection coefficient used for ray tracing. (0.0-1.0)
+ * @param kt Tranparency coeffitient used for ray tracing. (0.0-1.0)
+ * @param kn Refraction index used for ray tracing (1.0-2.5)
+ * @param program Pointer to the shader program for the material
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        const SLCol4f&  amdi,
                        const SLCol4f&  spec,
@@ -47,12 +63,30 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     if (_diffuse.w > 1) _kt = 1.0f - _diffuse.w;
 
     // Add pointer to the global resource vectors for deallocation
-    if (s)
-        s->materials().push_back(this);
+    if (am)
+        am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-// Ctor for textures
-SLMaterial::SLMaterial(SLAssetManager* s,
+/*!
+ * Constructor for textured materials.
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param name Name of the material
+ * @param texture1 Texture 1 image filename. If only a filename is
+ * passed it will be search on the SLGLTexture::defaultPath.
+ * @param texture2 Texture 2 image filename. If only a filename is
+ * passed it will be search on the SLGLTexture::defaultPath.
+ * @param texture3 Texture 3 image filename. If only a filename is
+ * passed it will be search on the SLGLTexture::defaultPath.
+ * @param texture4 Texture 4 image filename. If only a filename is
+ * passed it will be search on the SLGLTexture::defaultPath.
+ * @param shaderProg Pointer to the shader program for the material
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLGLTexture*    texture1,
                        SLGLTexture*    texture2,
@@ -80,12 +114,22 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     if (texture4) _textures.push_back(texture4);
 
     // Add pointer to the global resource vectors for deallocation
-    if (s)
-        s->materials().push_back(this);
+    if (am)
+        am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-// Ctor for cone tracer
-SLMaterial::SLMaterial(SLAssetManager* s,
+/*!
+ * Constructor for materials used within the cone tracer (SLGLConetracer).
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param name Name of the material
+ * @param shaderProg Pointer to the shader program for the material.
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLGLProgram*    shaderProg) : SLObject(name)
 {
@@ -96,13 +140,27 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _translucency = 0.0f;
 
     // Add pointer to the global resource vectors for deallocation
-    if (s)
-        s->materials().push_back(this);
+    if (am)
+        am->materials().push_back(this);
 }
 
 //-----------------------------------------------------------------------------
-// Ctor for Cook-Torrance shading
-SLMaterial::SLMaterial(SLAssetManager* s,
+/*!
+ * Constructor for Cook-Torrance shaded materials with roughness and metalness.
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param perPixCookTorranceProgram Pointer to the shader program for
+ * Cook-Torrance shading
+ * @param name Name of the material
+ * @param diffuse Diffuse reflection color
+ * @param roughness Roughness (0.0-1.0)
+ * @param metalness Metalness (0.0-1.0)
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    perPixCookTorranceProgram,
                        const SLchar*   name,
                        const SLCol4f&  diffuse,
@@ -123,12 +181,23 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _program      = perPixCookTorranceProgram;
 
     // Add pointer to the global resource vectors for deallocation
-    if (s)
-        s->materials().push_back(this);
+    if (am)
+        am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-// Ctor for uniform color material without lighting
-SLMaterial::SLMaterial(SLAssetManager* s,
+/*!
+ * Constructor for uniform color material without lighting
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param colorUniformProgram Pointer to shader program for uniform coloring.
+ * @param uniformColor Color to apply
+ * @param name Name of the material.
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    colorUniformProgram,
                        const SLCol4f&  uniformColor,
                        const SLchar*   name)
@@ -143,19 +212,20 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _program      = colorUniformProgram;
-    //_program      = s->programs(SP_colorUniform);
     _kr = 0.0f;
     _kt = 0.0f;
     _kn = 1.0f;
 
     // Add pointer to the global resource vectors for deallocation
-    if (s)
-        s->materials().push_back(this);
+    if (am)
+        am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*! 
-The destructor doesn't delete attached the textures or shader program because
-Such shared resources get deleted in the arrays of SLScene.
+/*!
+ * The destructor should be called by the owner of the material. If an asset
+ * manager was passed in the constructor it will do it after scene destruction.
+ * The textures (SLGLTexture) and the shader program (SLGLProgram) that the
+ * material uses will not be deallocated.
 */
 SLMaterial::~SLMaterial()
 {

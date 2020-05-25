@@ -100,7 +100,7 @@ public:
     {
         {
             ImGuiStyle& style   = ImGui::GetStyle();
-            style.WindowPadding = ImVec2(0, _windowPadding); //space l, r, b, t between window and buttons (window padding left does not work as expected)
+            style.WindowPadding = ImVec2(0, (float)_windowPadding); //space l, r, b, t between window and buttons (window padding left does not work as expected)
 
             //back button
             ImGui::SetNextWindowPos(_windowPos, ImGuiCond_Always);
@@ -114,7 +114,7 @@ public:
             if (_font)
                 ImGui::PushFont(_font);
             ImGui::NewLine();
-            ImGui::SameLine(_windowPadding);
+            ImGui::SameLine((float)_windowPadding);
             if (ImGui::Button("back", _buttonSizePix))
             {
                 if (_pressedCB)
@@ -147,7 +147,7 @@ private:
     //button size (in pixel)
     ImVec2 _buttonSizePix;
     //distance between button border and window border
-    int _windowPadding = 2.f;
+    int _windowPadding = 2;
 
     Callback _pressedCB = nullptr;
 

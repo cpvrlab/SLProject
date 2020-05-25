@@ -72,7 +72,7 @@ public:
     SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
 
 #ifdef SL_HAS_OPTIX
-    virtual Light optixLight(bool)
+    virtual ortLight optixLight(bool)
     {
         return {
           make_float4(diffuse()),

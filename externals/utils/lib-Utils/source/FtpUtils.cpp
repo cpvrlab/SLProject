@@ -281,6 +281,7 @@ bool downloadAllFilesFromDir(const string& fileDir,
                              const string& ftpUser,
                              const string& ftpPwd,
                              const string& ftpDir,
+                             const string& searchFileTag,
                              string&       errorMsg)
 {
     bool   success = true;
@@ -296,7 +297,7 @@ bool downloadAllFilesFromDir(const string& fileDir,
                 vector<string> retrievedFileNames;
                 if ((success = getAllFileNamesWithTag(ftp,
                                                       fileDir,
-                                                      "xml",
+                                                      searchFileTag,
                                                       retrievedFileNames,
                                                       errorMsg)))
                 {

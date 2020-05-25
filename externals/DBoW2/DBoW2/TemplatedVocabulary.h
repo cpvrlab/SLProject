@@ -863,7 +863,7 @@ void TemplatedVocabulary<TDescriptor, F>::initiateClustersKMpp(
 
     // 1.
 
-    int ifeature = (int)DUtils::Random::RandomInt(0, (int)pfeatures.size() - 1);
+    int ifeature = DUtils::Random::RandomInt(0, (int)pfeatures.size() - 1);
 
     // create first cluster
     clusters.push_back(*pfeatures[ifeature]);

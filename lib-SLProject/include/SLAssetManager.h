@@ -22,9 +22,11 @@ class SLCamera;
 class SLInputManager;
 
 //-----------------------------------------------------------------------------
-//! Toplevel holder of the assets (shader programs, meshes, textures & materials
+//! Toplevel holder of the assets meshes, materials, textures and shader progs.
 /*! This class is inherited by SLProjectScene that combines it with SLScene.
  All these assets can be shared among instances of SLScene, SLNode and SLMaterial.
+ Shared assets are meshes (SLMesh), materials (SLMaterial), textures (SLGLTexture)
+ and shader programs (SLGLProgram).
 */
 class SLAssetManager
 {
@@ -34,11 +36,13 @@ public:
     void clear()
     {
         // delete materials
-        for (auto m : _materials) delete m;
+        for (auto m : _materials)
+            delete m;
         _materials.clear();
 
         // delete textures
-        for (auto t : _textures) delete t;
+        for (auto t : _textures)
+            delete t;
         _textures.clear();
 
         // delete meshes
@@ -47,7 +51,8 @@ public:
         _meshes.clear();
 
         // delete shader programs
-        for (auto p : _programs) delete p;
+        for (auto p : _programs)
+            delete p;
         _programs.clear();
     }
 
@@ -66,16 +71,16 @@ public:
         return false;
     }
 
-    SLVGLProgram& programs() { return _programs; }
+    SLVMesh&      meshes() { return _meshes; }
     SLVMaterial&  materials() { return _materials; }
     SLVGLTexture& textures() { return _textures; }
-    SLVMesh&      meshes() { return _meshes; }
+    SLVGLProgram& programs() { return _programs; }
 
 protected:
-    SLVGLProgram _programs;  //!< Vector of all shader program pointers
+    SLVMesh      _meshes;    //!< Vector of all meshes
     SLVMaterial  _materials; //!< Vector of all materials pointers
     SLVGLTexture _textures;  //!< Vector of all texture pointers
-    SLVMesh      _meshes;    //!< Vector of all meshes
+    SLVGLProgram _programs;  //!< Vector of all shader program pointers
 };
 //-----------------------------------------------------------------------------
 #endif //SLASSETMANAGER_H

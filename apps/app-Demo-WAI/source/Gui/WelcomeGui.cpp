@@ -113,8 +113,8 @@ void WelcomeGui::resize(int scrW, int scrH)
     _screenWPix = (float)scrW;
     _screenHPix = (float)scrH;
 
-    _textFrameLRPix = _screenWPix * 0.15;
-    _textFrameTPix  = _screenHPix * 0.2;
+    _textFrameLRPix = _screenWPix * 0.15f;
+    _textFrameTPix  = _screenHPix * 0.2f;
     _logoFrameBPix  = 0.07f * _screenHPix;
     _logoFrameLRPix = _logoFrameBPix;
 

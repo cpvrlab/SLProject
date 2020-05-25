@@ -95,12 +95,12 @@ cv::Mat Converter::toCvSE3(const Eigen::Matrix<double, 3, 3>& R, const Eigen::Ma
     {
         for (int j = 0; j < 3; j++)
         {
-            cvMat.at<float>(i, j) = R(i, j);
+            cvMat.at<float>(i, j) = (float)R(i, j);
         }
     }
     for (int i = 0; i < 3; i++)
     {
-        cvMat.at<float>(i, 3) = t(i);
+        cvMat.at<float>(i, 3) = (float)t(i);
     }
 
     return cvMat.clone();

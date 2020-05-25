@@ -74,7 +74,7 @@ CVCalibration CamCalibrationManager::calculateCalibration(
                               _boardSize,
                               _squareSize,
                               totalAvgErr,
-                              _calibCorners.size(),
+                              (int)_calibCorners.size(),
                               Utils::getLocalTimeString(),
                               false,
                               false,

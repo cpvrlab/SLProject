@@ -33,8 +33,8 @@ float AutoCalibration::calibrate_opencv(cv::Mat& intrinsic,
     {
         cv::projectPoints(worldpoints[i], rvecs[i], tvecs[i], intrinsic, distortion, projected);
 
-        error += norm(keypoints[i], projected, NORM_L2);
-        n = n + keypoints[i].size();
+        error += (float)norm(keypoints[i], projected, NORM_L2);
+        n = n + (int)keypoints[i].size();
     }
     return error / n;
 }
@@ -109,7 +109,7 @@ void AutoCalibration::computeMatrix(cv::Size size, cv::Mat& mat, cv::Mat &distor
 {
     float cx   = (float)size.width * 0.5f;
     float cy   = (float)size.height * 0.5f;
-    float fx   = cx / tanf(fov * 0.5f * M_PI / 180.0);
+    float fx   = cx / tanf(fov * 0.5f * (float)M_PI / 180.0f);
     float fy   = fx;
     mat        = (Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     distortion = (Mat_<float>(1, 5) << 0, 0, 0, 0, 0);
@@ -124,11 +124,11 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
                                           cv::Size size,
                                           float &error)
 {
-    error = 999999999.0;
+    error = 999999999.0f;
 
     for (int i = 0; i < 2; i++)
     {
-        float fov = 30 + 10 * i;
+        float fov = (float)(30 + 10 * i);
         std::vector<cv::Mat> rotvecs, trvecs;
         cv::Mat matrix;
         computeMatrix(size, matrix, distortion, fov);
@@ -154,11 +154,11 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
                                           cv::Size size,
                                           float &error)
 {
-    error = 999999999.0;
+    error = 999999999.0f;
 
     for (int i = 0; i < 2; i++)
     {
-        float fov = 30 + 10 * i;
+        float fov = (float)(30 + 10 * i);
         std::vector<cv::Mat> rotvecs, trvecs;
         rotvecs.resize(1);
         trvecs.resize(1);
@@ -175,9 +175,9 @@ void AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
 
         if (err < error)
         {
-            float fy  = matrix.at<double>(1, 1);
-            float cy  = matrix.at<double>(1, 2);
-            float fov = 2.0 * atan2(cy, fy) * 180.0 / M_PI;
+            float fy  = (float)matrix.at<double>(1, 1);
+            float cy  = (float)matrix.at<double>(1, 2);
+            float fov = 2.0f * atan2(cy, fy) * 180.0f / (float)M_PI;
 
             error        = err;
             intrinsic    = matrix.clone();
@@ -197,7 +197,7 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
                                            std::vector<cv::Point2f>& outKeypoints,
                                            std::vector<cv::Point3f>& outWorldpoints)
 {
-    int     N = keypoints.size();
+    int     N = (int)keypoints.size();
     cv::Mat rvec, tvec;
 
     //Create temporary vectors
@@ -218,7 +218,7 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
     //Model parameters to optimize
     cv::Mat matrix;
     cv::Mat distort;
-    float total_error = 999999999.0;
+    float total_error = 999999999.0f;
 
     float error;
 
@@ -263,9 +263,9 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
         //  the total error with this model is the lowest we have so far => keeps this model
         if (error < total_error)
         {
-            float fy  = matrix.at<double>(1, 1);
-            float cy  = matrix.at<double>(1, 2);
-            float fov = 2.0 * atan2(cy, fy) * 180.0 / M_PI;
+            float fy  = (float)matrix.at<double>(1, 1);
+            float cy  = (float)matrix.at<double>(1, 2);
+            float fov = 2.0f * atan2(cy, fy) * 180.0f / (float)M_PI;
 
             if (fov > 30 && fov < 50) //filter impossible values
             {
@@ -302,7 +302,7 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
     cv::Mat              matrix;
     cv::Mat              distort;
     std::vector<cv::Mat> rvecs, tvecs;
-    float                total_error = 999999999.0;
+    float                total_error = 999999999.0f;
     float                error       = 0;
 
     for (int k = 0; k < nbIter; k++)
@@ -346,9 +346,9 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
         // If the total error with this model is the lowest we have so far => keeps this model
         if (error < total_error)
         {
-            float fy  = matrix.at<double>(1, 1);
-            float cy  = matrix.at<double>(1, 2);
-            float fov = 360.0 * atan2(cy, fy) / M_PI;
+            float fy  = (float)matrix.at<double>(1, 1);
+            float cy  = (float)matrix.at<double>(1, 2);
+            float fov = 360.0f * atan2(cy, fy) / (float)M_PI;
 
             if (fov > 30 && fov < 50)
             {
@@ -365,14 +365,14 @@ float AutoCalibration::calcCameraVerticalFOV(cv::Mat& cameraMat)
 {
     float fy = (float)cameraMat.at<double>(1, 1);
     float cy = (float)cameraMat.at<double>(1, 2);
-    return 2.0 * atan2(cy, fy) * 180.0 / M_PI;
+    return 2.0f * atan2(cy, fy) * 180.0f / (float)M_PI;
 }
 
 float AutoCalibration::calcCameraHorizontalFOV(cv::Mat& cameraMat)
 {
     float fx = (float)cameraMat.at<double>(0, 0);
     float cx = (float)cameraMat.at<double>(0, 2);
-    return 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+    return 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 }
 
 void AutoCalibration::calibrate(cv::Size size,
@@ -392,8 +392,8 @@ void AutoCalibration::calibrate(cv::Size size,
 
         float error = ransac_frame_points(size,
                                           10,
-                                          3.0, //threshold
-                                          p2f.size() * 0.4,
+                                          3.0f, //threshold
+                                          (int)(p2f.size() * 0.4f),
                                           p2f,
                                           p3f,
                                           preselectedKeyPoints[nbFill],

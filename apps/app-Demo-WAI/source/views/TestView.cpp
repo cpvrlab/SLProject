@@ -54,8 +54,7 @@ TestView::TestView(sm::EventHandler&   eventHandler,
     _scene.init();
     onInitialize();
     _isCalibrated = false;
-    _voc = new WAIOrbVocabulary();
-    
+    _voc          = new WAIOrbVocabulary();
 
     setupDefaultErlebARDirTo(_configDir);
     //tryLoadLastSlam();
@@ -631,6 +630,7 @@ void TestView::downloadCalibrationFilesTo(std::string dir)
                                            ftpUser,
                                            ftpPwd,
                                            ftpDir,
+                                           "xml",
                                            errorMsg))
     {
         errorMsg = "Failed to download calibration files. Error: " + errorMsg;

@@ -151,12 +151,12 @@ public:
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
 
 #ifdef SL_HAS_OPTIX
-    void            allocAndUploadData();
-    void            uploadData();
-    virtual void    createMeshAccelerationStructure();
-    virtual void    updateMeshAccelerationStructure();
-    virtual HitData createHitData();
-    unsigned int    sbtIndex() const { return _sbtIndex; }
+    void                allocAndUploadData();
+    void                uploadData();
+    virtual void        createMeshAccelerationStructure();
+    virtual void        updateMeshAccelerationStructure();
+    virtual ortHitData  createHitData();
+    unsigned int        sbtIndex() const { return _sbtIndex; }
     static unsigned int meshIndex;
 #endif
 

@@ -38,17 +38,33 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
         case ExtractorType_FAST_ORBS_4000:
             return orbExtractor(4000);
         case ExtractorType_GLSL_1:
-            return glslExtractor(videoFrameSize, 16, 16, 0.5, 0.10, 1.9, 1.3);
+            return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.3f);
         case ExtractorType_GLSL:
-            return glslExtractor(videoFrameSize, 16, 16, 0.5, 0.10, 1.9, 1.4);
+            return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.4f);
         default:
             return surfExtractor(1000);
     }
 }
 
+std::unique_ptr<KPextractor> FeatureExtractorFactory::make(std::string extractorType, const cv::Size& videoFrameSize)
+{
+    std::unique_ptr<KPextractor> result = nullptr;
+
+    for (int i = 0; i < _extractorIdToNames.size(); i++)
+    {
+        if (_extractorIdToNames[i] == extractorType)
+        {
+            result = make((ExtractorType)i, videoFrameSize);
+            break;
+        }
+    }
+
+    return result;
+}
+
 std::unique_ptr<KPextractor> FeatureExtractorFactory::orbExtractor(int nf)
 {
-    float fScaleFactor = 1.2;
+    float fScaleFactor = 1.2f;
     int   nLevels      = 8;
     int   fIniThFAST   = 20;
     int   fMinThFAST   = 7;

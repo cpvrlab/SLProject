@@ -24,7 +24,7 @@ CamCalibration::CamCalibration(cv::Size imgSize, double horizFOV)
 {
     double cx = imgSize.width / 2;
     double cy = imgSize.height / 2;
-    double f  = cx / tanf(horizFOV * 0.5 * DEGTORAD);
+    double f  = cx / tanf(horizFOV * 0.5 * (double)DEGTORAD);
 
     _cameraMat                  = cv::Mat::eye(3, 3, CV_64F);
     _cameraMat.at<double>(0, 0) = f;
@@ -106,7 +106,7 @@ void CamCalibration::save(const std::string& filePath)
 
 void CamCalibration::scale(double scaleFactor)
 {
-    _scaleFactor = scaleFactor;
+    _scaleFactor = (float)scaleFactor;
     _cameraMat *= scaleFactor;
     _cameraMat.at<double>(2, 2) = 1.0;
 }
@@ -114,7 +114,7 @@ void CamCalibration::scale(double scaleFactor)
 const float CamCalibration::getHorizontalFOV() const
 {
     //FOV = 2*atan(width*0.5/distance) *180 / PI()
-    float f   = 0.5 * (_cameraMat.at<double>(0, 0) + _cameraMat.at<double>(1, 1));
-    float fov = 2 * atanf(0.5 * _imgSize.width / f) * RADTODEG;
+    float f   = 0.5f * (float)(_cameraMat.at<double>(0, 0) + _cameraMat.at<double>(1, 1));
+    float fov = 2.0f * atanf(0.5f * (float)_imgSize.width / f) * RADTODEG;
     return fov;
 }

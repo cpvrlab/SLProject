@@ -1,26 +1,26 @@
 #ifndef TARGET_OS_IOS
 
-#include <AverageTiming.h>
-#include <GLSLHessian.h>
-#include <SLSceneView.h>
-#include <SLPoints.h>
-#include <SLPolyline.h>
-#include <CVCalibration.h>
-#include <BRIEFPattern.h>
+#    include <AverageTiming.h>
+#    include <GLSLHessian.h>
+#    include <SLSceneView.h>
+#    include <SLPoints.h>
+#    include <SLPolyline.h>
+#    include <CVCalibration.h>
+#    include <BRIEFPattern.h>
 
-#define INPUT 0
-#define D2GDX2 1
-#define D2GDY2 2
-#define DGDX 3
-#define GXX 4
-#define GYY 5
-#define GXY 6
-#define DETH 7
-#define NMSX 8
-#define NMSY 9
-#define REMOVEEDGE 10
-#define EXTRACTOR 11
-#define PATTERN 12
+#    define INPUT 0
+#    define D2GDX2 1
+#    define D2GDY2 2
+#    define DGDX 3
+#    define GXX 4
+#    define GYY 5
+#    define GXY 6
+#    define DETH 7
+#    define NMSX 8
+#    define NMSY 9
+#    define REMOVEEDGE 10
+#    define EXTRACTOR 11
+#    define PATTERN 12
 
 static std::string textureOfstFct = "\n"
                                     "vec2 Ix(float ofst)\n"
@@ -1012,8 +1012,8 @@ void GLSLHessian::nms(int w, int h)
     glUseProgram(edge);
     glBindFramebuffer(GL_FRAMEBUFFER, renderFBO[REMOVEEDGE]);
 
-    glUniform1f(edgeWLoc, m_w);
-    glUniform1f(edgeHLoc, m_h);
+    glUniform1f(edgeWLoc, (float)m_w);
+    glUniform1f(edgeHLoc, (float)m_h);
     glUniform1i(edgeTexLoc, INPUT);
     glUniform1i(edgeDetLoc, NMSY);
     glUniform1i(edgeGxxLoc, GXX);
@@ -1038,10 +1038,10 @@ void GLSLHessian::extract(int w, int h, int curr)
     glBindVertexArray(vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboi);
 
-    float offsetx = 15.0 / (float)m_w;
-    float offsety = 15.0 / (float)m_h;
-    float sizex   = ((float)m_w - 30.0) / (8.0 * float(m_w));
-    float sizey   = ((float)m_h - 30.0) / (8.0 * float(m_h));
+    float offsetx = 15.0f / (float)m_w;
+    float offsety = 15.0f / (float)m_h;
+    float sizex   = ((float)m_w - 30.0f) / (8.0f * float(m_w));
+    float sizey   = ((float)m_h - 30.0f) / (8.0f * float(m_h));
 
     glUniform2f(extractorSizeLoc, sizex, sizey);
 
@@ -1061,14 +1061,14 @@ void GLSLHessian::extract(int w, int h, int curr)
 /* These function are scaled such that the value after all filters are about between 0-1 */
 string GLSLHessian::gaussian(int size, int halfSize, float sigma)
 {
-    float v = 2.0 * (1.0 / sigma) * exp(-(halfSize * halfSize) / (2.0 * sigma * sigma));
+    float v = 2.0f * (1.0f / sigma) * exp(-(halfSize * halfSize) / (2.0f * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - halfSize);
-        float v = 2.0 * (1.0 / sigma) * exp(-(x * x) / (2.0 * sigma * sigma));
+        float v = 2.0f * (1.0f / sigma) * exp(-(x * x) / (2.0f * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -1078,14 +1078,14 @@ string GLSLHessian::gaussian(int size, int halfSize, float sigma)
 
 string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
 {
-    float v = -2.0 * (half_size / (sigma * sigma * sigma)) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
+    float v = -2.0f * (half_size / (sigma * sigma * sigma)) * exp(-(half_size * half_size) / (2.0f * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = -2.0 * (x / (sigma * sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma));
+        float v = -2.0f * (x / (sigma * sigma * sigma)) * exp(-(x * x) / (2.0f * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -1095,14 +1095,14 @@ string GLSLHessian::gaussianD1(int size, int half_size, float sigma)
 
 string GLSLHessian::gaussianD2(int size, int half_size, float sigma)
 {
-    float v = 2.0 * (half_size * half_size - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(half_size * half_size) / (2.0 * sigma * sigma));
+    float v = 2.0f * (half_size * half_size - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(half_size * half_size) / (2.0f * sigma * sigma));
 
     string fctStr = std::to_string(v);
 
     for (int i = 1; i < size; i++)
     {
         float x = (float)(i - half_size);
-        float v = 2.0 * (x * x - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(x * x) / (2.0 * sigma * sigma));
+        float v = 2.0f * (x * x - sigma * sigma) / (sigma * sigma * sigma * sigma * sigma) * exp(-(x * x) / (2.0f * sigma * sigma));
 
         fctStr = fctStr + ", ";
         fctStr = fctStr + std::to_string(v);
@@ -1301,8 +1301,11 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
                         break;
                     }
 
-                    if (highThrsX > 15 && highThrsX < m_w - 15 && highThrsY > 15 && highThrsY < m_h - 15)
-                        kps.push_back(cv::KeyPoint(cv::Point2f(highThrsX, highThrsY), 1));
+                    if (highThrsX > 15 && 
+                        highThrsX < m_w - 15 && 
+                        highThrsY > 15 && 
+                        highThrsY < m_h - 15)
+                        kps.push_back(cv::KeyPoint(cv::Point2f((float)highThrsX, (float)highThrsY), 1));
                 }
             }
             else
@@ -1310,14 +1313,17 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
                 for (j = 0; j < mNbKeypointsBigSigma; j++)
                 {
                     int idx      = (i * mNbKeypointsBigSigma + j) * 4;
-                    int lowThrsX = bigSigmaData[idx + 2];
-                    int lowThrsY = bigSigmaData[idx + 3];
+                    int lowThrsX = (int)bigSigmaData[idx + 2];
+                    int lowThrsY = (int)bigSigmaData[idx + 3];
                     if (lowThrsX == 0)
                     {
                         break;
                     }
-                    if (lowThrsX > 15 && lowThrsX < m_w - 15 && lowThrsY > 15 && lowThrsY < m_h - 15)
-                        kps.push_back(cv::KeyPoint(cv::Point2f(lowThrsX, lowThrsY), 1));
+                    if (lowThrsX > 15 && 
+                        lowThrsX < m_w - 15 && 
+                        lowThrsY > 15 && 
+                        lowThrsY < m_h - 15)
+                        kps.push_back(cv::KeyPoint(cv::Point2f((float)lowThrsX, (float)lowThrsY), 1));
                 }
             }
 
@@ -1335,8 +1341,11 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
                         {
                             break;
                         }
-                        if (highThrsX > 15 && highThrsX < m_w - 15 && highThrsY > 15 && highThrsY < m_h - 15)
-                            kps.push_back(cv::KeyPoint(cv::Point2f(highThrsX, highThrsY), 1));
+                        if (highThrsX > 15 &&
+                            highThrsX < m_w - 15 &&
+                            highThrsY > 15 &&
+                            highThrsY < m_h - 15)
+                            kps.push_back(cv::KeyPoint(cv::Point2f((float)highThrsX, (float)highThrsY), 1));
                     }
                 }
                 else
@@ -1350,8 +1359,11 @@ void GLSLHessian::readResult(std::vector<cv::KeyPoint>& kps)
                         {
                             break;
                         }
-                        if (lowThrsX > 15 && lowThrsX < m_w - 15 && lowThrsY > 15 && lowThrsY < m_h - 15)
-                            kps.push_back(cv::KeyPoint(cv::Point2f(lowThrsX, lowThrsY), 1));
+                        if (lowThrsX > 15 &&
+                            lowThrsX < m_w - 15 && 
+                            lowThrsY > 15 && 
+                            lowThrsY < m_h - 15)
+                            kps.push_back(cv::KeyPoint(cv::Point2f((float)lowThrsX, (float)lowThrsY), 1));
                     }
                 }
             }

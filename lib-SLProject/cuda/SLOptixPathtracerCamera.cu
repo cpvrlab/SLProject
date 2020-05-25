@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 extern "C" {
-__constant__ Params params;
+__constant__ ortParams params;
 }
 //-----------------------------------------------------------------------------
 extern "C" __global__ void __raygen__sample_camera()
@@ -23,7 +23,7 @@ extern "C" __global__ void __raygen__sample_camera()
     uint3       idx = optixGetLaunchIndex();
     const uint3 dim = optixGetLaunchDimensions();
 
-    const CameraData* rtData = (CameraData*)optixGetSbtDataPointer();
+    const ortCamera* rtData = (ortCamera*)optixGetSbtDataPointer();
 
     // Generate curand state
     curandState state;
@@ -31,6 +31,7 @@ extern "C" __global__ void __raygen__sample_camera()
     params.states[idx.y * dim.x + idx.x] = state;
 
     float4 color = make_float4(0.0f);
+
     // loop over samples
     for (int i = 0; i < params.samples; i++)
     {

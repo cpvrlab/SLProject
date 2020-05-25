@@ -17,6 +17,7 @@
 #include <CVCapture.h>
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
+#include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -115,7 +116,6 @@ SLbool   AppDemoGui::showProperties      = false;
 SLbool   AppDemoGui::showChristoffel     = false;
 SLbool   AppDemoGui::showUIPrefs         = false;
 SLbool   AppDemoGui::showTransform       = false;
-SLbool   AppDemoGui::showResources       = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -526,21 +526,23 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[2550]; // message character array
             m[0] = 0;       // set zero length
 
-            SLNodeStats& stats3D         = sv->stats3D();
-            SLfloat      vox             = (SLfloat)stats3D.numVoxels;
-            SLfloat      voxEmpty        = (SLfloat)stats3D.numVoxEmpty;
-            SLfloat      voxelsEmpty     = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
-            SLfloat      numRTTria       = (SLfloat)stats3D.numTriangles;
-            SLfloat      avgTriPerVox    = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOpaqueNodes  = (int)sv->nodesVisible()->size();
-            SLint        numBlendedNodes = (int)sv->nodesBlended()->size();
-            SLint        numVisibleNodes = numOpaqueNodes + numBlendedNodes;
-            SLint        numGroupPC      = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLeafPC       = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLightsPC     = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOpaquePC     = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numBlendedPC    = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numVisiblePC    = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLNodeStats& stats3D           = sv->stats3D();
+            SLfloat      vox               = (SLfloat)stats3D.numVoxels;
+            SLfloat      voxEmpty          = (SLfloat)stats3D.numVoxEmpty;
+            SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
+            SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
+            SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
+            SLint        numOpaqueNodes    = (int)sv->nodesVisible()->size();
+            SLint        numBlendedNodes   = (int)sv->nodesBlended()->size();
+            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn()->size();
+            SLint        numVisibleNodes   = numOpaqueNodes + numBlendedNodes + numOverdrawnNodes;
+            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOpaquePC       = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numBlendedPC      = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
 
             // Calculate total size of texture bytes on CPU
             SLfloat cpuMBTexture = 0;
@@ -568,6 +570,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
             sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
             sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+            sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
             sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
             sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
             sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
@@ -588,6 +591,56 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Scene Statistics", &showStatsScene, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
+
+            ImGui::Separator();
+
+            ImGui::Text("Global Resources:");
+
+            if (s->meshes().size() && ImGui::TreeNode("Meshes"))
+            {
+                for (SLuint i = 0; i < s->meshes().size(); ++i)
+                    ImGui::Text("[%d] %s (%u v.)",
+                                i,
+                                s->meshes()[i]->name().c_str(),
+                                (SLuint)s->meshes()[i]->P.size());
+
+                ImGui::TreePop();
+            }
+
+            if (s->materials().size() && ImGui::TreeNode("Materials"))
+            {
+                for (SLuint i = 0; i < s->materials().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (s->textures().size() && ImGui::TreeNode("Textures"))
+            {
+                for (SLuint i = 0; i < s->textures().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
+            {
+                for (SLuint i = 0; i < s->programs().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (standard)"))
+            {
+                for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
+                    ImGui::Text("[%u] %s",
+                                i,
+                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+
+                ImGui::TreePop();
+            }
+
             ImGui::End();
             ImGui::PopFont();
         }
@@ -1266,7 +1319,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
                     SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-
                     if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
                         if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
                             s->onLoad(s, sv, SID_VideoAugustaRaurica);
@@ -1276,7 +1328,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
                         if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
                             s->onLoad(s, sv, SID_VideoAventicumAmphi);
-
+                    /*
                     SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
                     SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
@@ -1288,6 +1340,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
                         if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
                             s->onLoad(s, sv, SID_VideoAventicumCigonier);
+                    */
 
                     ImGui::EndMenu();
                 }
@@ -2826,16 +2879,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
-//! Builds the resources dialog once per frame
-void AppDemoGui::buildResources(SLScene* s)
-{
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::Begin("Resources", &showResources);
-
-    ImGui::End();
-    ImGui::PopFont();
-}
-//-----------------------------------------------------------------------------
 //! Loads the UI configuration
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
@@ -2906,7 +2949,6 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
-            fs["showResources"] >> b;       AppDemoGui::showResources = b;
             fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
@@ -2983,7 +3025,6 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
-    fs << "showResources" << AppDemoGui::showResources;
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;

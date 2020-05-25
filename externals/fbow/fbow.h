@@ -426,7 +426,7 @@ private:
     fBow _transform(const cv::Mat& features)
     {
         Computer comp;
-        comp.setParams(_params._desc_size, _params._desc_size_bytes_wp);
+        comp.setParams(_params._desc_size, (int)_params._desc_size_bytes_wp);
         using DType = typename Computer::DType; //distance type
         using TData = typename Computer::TData; //data type
 
@@ -464,7 +464,7 @@ private:
     void _transform2(const cv::Mat& features, uint32_t storeLevel, fBow& r1, fBow2& r2)
     {
         Computer comp;
-        comp.setParams(_params._desc_size, _params._desc_size_bytes_wp);
+        comp.setParams(_params._desc_size, (int)_params._desc_size_bytes_wp);
         using DType = typename Computer::DType; //distance type
         using TData = typename Computer::TData; //data type
 
