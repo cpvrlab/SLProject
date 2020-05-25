@@ -3,6 +3,7 @@
 
 #include <FeatureExtractorFactory.h>
 #include <WAISlam.h>
+#include <Utils.h>
 
 struct ExtractorIds
 {

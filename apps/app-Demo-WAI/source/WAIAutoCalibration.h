@@ -3,14 +3,29 @@
 
 #include <WAICalibration.h>
 #include <vector>
-#include <deque>
 #include <opencv2/core/core.hpp>
+#include <thread>
+#include <CVCalibration.h>
 
 using namespace std;
 
 class AutoCalibration
 {
     public:
+
+        AutoCalibration(cv::Size frameSize, float mapDimension);
+
+        static void calibrateFrames(AutoCalibration* ac);
+
+        bool fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching,
+                       cv::Mat tcw);
+
+        bool hasSucceed();
+        bool hasCalibration();
+
+        CVCalibration consumeCalibration();
+        void reset();
+
         static bool calibrateBruteForce(cv::Mat&                               intrinsic,
                                         std::vector<std::vector<cv::Point2f>>& vvP2D,
                                         std::vector<std::vector<cv::Point3f>>& vvP3Dw,
@@ -62,8 +77,8 @@ class AutoCalibration
                                 std::vector<std::vector<cv::Point3f>>& swp,
                                 std::vector<std::vector<cv::Point2f>>& nskp,
                                 std::vector<std::vector<cv::Point3f>>& nswp,
-                                std::vector<std::vector<cv::Point2f>>&  keypoints,
-                                std::vector<std::vector<cv::Point3f>>&  worldpoints);
+                                std::vector<std::vector<cv::Point2f>>& keypoints,
+                                std::vector<std::vector<cv::Point3f>>& worldpoints);
 
         static float calibrate_opencv(cv::Mat&                               matrix,
                                       cv::Mat&                               distortion,
@@ -73,13 +88,26 @@ class AutoCalibration
                                       std::vector<std::vector<cv::Point2f>>& keypoints,
                                       std::vector<std::vector<cv::Point3f>>& worldpoints);
 
-        static void calibrate(cv::Size                                                                  size,
-                              std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> matchings);
+        static bool calibrate(CVCalibration&                                                              calibration,
+                              cv::Size                                                                    size,
+                              std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>& matchings);
 
     private:
 
         static float calcCameraVerticalFOV(cv::Mat& cameraMat);
         static float calcCameraHorizontalFOV(cv::Mat& cameraMat);
         static void genIntrinsicMatrix(int width, int height, cv::Mat& mat, float fov);
+
+        std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
+
+        std::vector<cv::Mat> _framesDir;
+        std::vector<cv::Mat> _framesPos;
+        float                _mapDimension;
+        std::thread          _calibrationThread;
+        cv::Size             _frameSize;
+        CVCalibration        _calibration = {CVCameraType::FRONTFACING, ""};
+        bool                 _hasCalibration;
+        bool                 _isFinished;
+        std::mutex           _calibrationMutex;
 };
 #endif
