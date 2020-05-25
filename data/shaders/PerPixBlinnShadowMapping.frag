@@ -37,6 +37,7 @@ uniform mat4        u_lightSpace[8 * 6];      //!< projection matrices for light
 uniform bool        u_lightCreatesShadows[8]; //!< flag if light creates shadows
 uniform bool        u_lightUsesCubemap[8];    //!< flag if light has a cube shadow map
 uniform bool        u_receivesShadows;        //!< flag if material receives shadows
+uniform float       u_shadowBias;             //!< Bias to use to prevent shadow acne
 uniform vec4        u_globalAmbient;          //!< Global ambient scene color
 
 uniform vec4        u_matAmbient;             //!< ambient color reflection coefficient (ka)
@@ -97,7 +98,7 @@ bool shadowTest(in int i) // Light number
             closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
 
         // The fragment is in shadow if the light doesn't "see" the it
-        if (currentDepth > closestDepth + 0.005)
+        if (currentDepth > closestDepth + u_shadowBias)
             return true;
     }
 

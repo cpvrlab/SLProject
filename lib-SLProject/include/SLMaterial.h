@@ -176,6 +176,10 @@ public:
     {
         _receivesShadows = receivesShadows;
     }
+    void shadowBias(SLfloat shadowBias)
+    {
+        _shadowBias = shadowBias;
+    }
     void program(SLGLProgram* sp)
     {
         _program = sp;
@@ -234,6 +238,10 @@ public:
     {
         return _receivesShadows;
     }
+    SLfloat shadowBias()
+    {
+        return _shadowBias;
+    }
     SLVGLTexture& textures()
     {
         return _textures;
@@ -261,6 +269,7 @@ protected:
     SLfloat      _kt{};            //!< transmission coefficient 0.0 - 1.0
     SLfloat      _kn{};            //!< refraction index
     SLbool       _receivesShadows; //!< true if shadows are visible on this material
+    SLfloat      _shadowBias;      //!< bias to use to prevent shadow acne
     SLVGLTexture _textures;        //!< vector of texture pointers
     SLGLProgram* _program{};       //!< pointer to a GLSL shader program
 

@@ -2742,6 +2742,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Receives Shadows", &receivesShadows))
                                 m->receivesShadows(receivesShadows);
 
+                            SLfloat shadowBias = m->shadowBias();
+                            if (ImGui::SliderFloat("Shadow Bias", &shadowBias, 0.0f, 0.01f, "%.04f"))
+                                m->shadowBias(shadowBias);
+
                             ImGui::PopItemWidth();
                             ImGui::TreePop();
                         }
