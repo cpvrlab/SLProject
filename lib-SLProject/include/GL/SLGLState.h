@@ -81,7 +81,7 @@ public:
 
     // lighting
     SLint            numLightsUsed;                      //!< NO. of lights used
-    SLint            lightIsOn[SL_MAX_LIGHTS];           //!< Flag if light is on
+    SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
     SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
     SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
     SLVec4f          lightAmbient[SL_MAX_LIGHTS];        //!< ambient light intensity (Ia)
@@ -93,8 +93,9 @@ public:
     SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];     //!< cosine of spot cutoff angle
     SLfloat          lightSpotExp[SL_MAX_LIGHTS];        //!< spot exponent
     SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
-    SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< Flag if att. must be calculated
-    SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< Flag if light creates shadows
+    SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< flag if att. must be calculated
+    SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< flag if light creates shadows
+    SLint            lightDoesPCF[SL_MAX_LIGHTS];        //!< flag if percentage-closer filtering is enabled
     SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
     SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
     SLGLDepthBuffer* shadowMaps[SL_MAX_LIGHTS];          //!< DepthBuffers for Shadow mapping

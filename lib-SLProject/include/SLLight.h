@@ -57,6 +57,7 @@ public:
         kq(kQ);
     }
     virtual void createsShadows(SLbool createsShadows) { _createsShadows = createsShadows; }
+    void         doesPCF(SLbool doesPCF) { _doesPCF = doesPCF; }
 
     // Getters
     SLint   id() const { return _id; }
@@ -73,6 +74,7 @@ public:
     SLbool  isAttenuated() const { return _isAttenuated; }
     SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
     SLbool  createsShadows() { return _createsShadows; }
+    SLbool  doesPCF() { return _doesPCF; }
 
 #ifdef SL_HAS_OPTIX
     virtual Light optixLight(bool)
@@ -122,7 +124,8 @@ protected:
     SLfloat _kl;               //!< Linear light attenuation
     SLfloat _kq;               //!< Quadratic light attenuation
     SLbool  _isAttenuated;     //!< fast attenuation flag for ray tracing
-    SLbool  _createsShadows;   //!< Flag if light creates shadows or not
+    SLbool  _createsShadows;   //!< flag if light creates shadows or not
+    SLbool  _doesPCF;          //!< flag if percentage-closer filtering is enabled
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

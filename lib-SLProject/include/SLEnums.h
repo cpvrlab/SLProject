@@ -118,7 +118,6 @@ enum SLSceneID
     SID_ShadowMappingLightTypes,
     SID_ShadowMappingPointLights,
     SID_ShadowMappingSpotLights,
-    SID_ShadowMappingAlphaChannel,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,

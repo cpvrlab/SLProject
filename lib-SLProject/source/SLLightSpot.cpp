@@ -416,6 +416,7 @@ void SLLightSpot::setState()
         stateGL->lightAtt[_id].z          = _kq;
         stateGL->lightDoAtt[_id]          = isAttenuated();
         stateGL->lightCreatesShadows[_id] = _createsShadows;
+        stateGL->lightDoesPCF[_id]        = _doesPCF;
         stateGL->lightUsesCubemap[_id]    = false;
 
         if (_shadowMap != nullptr)

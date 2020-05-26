@@ -1611,6 +1611,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         m1->program(program);
         m1->shininess(500);
+        m1->shadowBias(0.01f);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1628,7 +1629,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->ambient(SLCol4f(0, 0, 0));
         light->diffuse(SLCol4f(1, 1, 1));
         light->translation(0, 5, 0);
-        light->lookAt(0, 0, 0, 0, 0, -1);
+        light->lookAt(0, 0, 0);
         light->attenuation(0, 0, 1);
         light->createsShadows(true);
         light->castsShadows(false);
@@ -1659,6 +1660,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         m1->program(program);
         m1->shininess(500);
+        m1->shadowBias(0.01f);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1688,7 +1690,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light->diffuse(SLCol4f(0.4f, 0.4f, 0.4f));
             node->translation(x, 5, 0);
             node->lookAt(x, 0, 0);
-            light->attenuation(0.1f, 0.1f, 0.1f);
+            light->attenuation(0, 0, 1);
             light->createsShadows(true);
             scene->addChild(node);
         }
@@ -1740,10 +1742,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light->ambient(SLCol4f(0, 0, 0));
             SLCol4f color;
             color.hsva2rgba(SLVec3f(360.0f * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
+            color *= 5.0f;
             light->diffuse(color);
             light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
             light->lookAt(0, 0, 0);
-            light->attenuation(0.1f, 0.1f, 0.1f);
+            light->attenuation(0, 0, 1);
             light->createsShadows(true);
             scene->addChild(light);
         }
@@ -1796,7 +1799,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
             light->ambient(SLCol4f(i == 0, i == 1, i == 2) * 0.2f);
             light->diffuse(SLCol4f(i == 0, i == 1, i == 2) * 0.4f);
-            light->attenuation(0.1f, 0.1f, 0.1f);
+            light->attenuation(0, 0, 1);
             light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
             light->createsShadows(true);
             scene->addChild(light);
@@ -1860,127 +1863,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             scene->addChild(boxNode);
         }
-
-        sv->camera(cam1);
-        s->root3D(scene);
-    }
-    else if (SLApplication::sceneID == SID_ShadowMappingAlphaChannel) //......................................
-    {
-        s->name("Shadow Mapping with Alpha channel");
-        s->info("Light passes through transparent objects.");
-
-        SLGLProgram* program = new SLGLGenericProgram(s, "PerPixBlinnShadowMapping.vert", "PerPixBlinnShadowMapping.frag");
-
-        SLGLTexture* t1 = new SLGLTexture(s, "tree1_1024_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, TT_color, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        SLGLTexture* t2 = new SLGLTexture(s, "grass0512_C.jpg", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-
-        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
-        SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
-        m1->program(SLGLProgramManager::get(SP_TextureOnly));
-        m2->program(program);
-        m1->textures().push_back(t1);
-        m2->textures().push_back(t2);
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 3, 25);
-        cam1->lookAt(0, 0, 10);
-        cam1->focalDist(25);
-        cam1->background().colors(SLCol4f(0.6f, 0.6f, 1));
-        cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
-
-        SLLightDirect* light = new SLLightDirect(s, s);
-        light->translation(5, 5, 5);
-        light->lookAt(10, 0, 0);
-        light->attenuation(1, 0, 0);
-        light->createsShadows(true);
-
-        // Build arrays for polygon vertices and texcoords for tree
-        SLVVec3f pNW, pSE;
-        SLVVec2f tNW, tSE;
-        pNW.push_back(SLVec3f(0, 0, 0));
-        tNW.push_back(SLVec2f(0.5f, 0.0f));
-        pNW.push_back(SLVec3f(1, 0, 0));
-        tNW.push_back(SLVec2f(1.0f, 0.0f));
-        pNW.push_back(SLVec3f(1, 2, 0));
-        tNW.push_back(SLVec2f(1.0f, 1.0f));
-        pNW.push_back(SLVec3f(0, 2, 0));
-        tNW.push_back(SLVec2f(0.5f, 1.0f));
-        pSE.push_back(SLVec3f(-1, 0, 0));
-        tSE.push_back(SLVec2f(0.0f, 0.0f));
-        pSE.push_back(SLVec3f(0, 0, 0));
-        tSE.push_back(SLVec2f(0.5f, 0.0f));
-        pSE.push_back(SLVec3f(0, 2, 0));
-        tSE.push_back(SLVec2f(0.5f, 1.0f));
-        pSE.push_back(SLVec3f(-1, 2, 0));
-        tSE.push_back(SLVec2f(0.0f, 1.0f));
-
-        // Build tree out of 4 polygons
-        SLNode* p1 = new SLNode(new SLPolygon(s, pNW, tNW, "Tree+X", m1));
-        SLNode* p2 = new SLNode(new SLPolygon(s, pNW, tNW, "Tree-Z", m1));
-        p2->rotate(90, 0, 1, 0);
-        SLNode* p3 = new SLNode(new SLPolygon(s, pSE, tSE, "Tree-X", m1));
-        SLNode* p4 = new SLNode(new SLPolygon(s, pSE, tSE, "Tree+Z", m1));
-        p4->rotate(90, 0, 1, 0);
-
-        // Enable shadow casting
-        p1->castsShadows(true);
-        p2->castsShadows(true);
-        p3->castsShadows(true);
-        p4->castsShadows(true);
-
-        // Turn face culling off so that we see both sides
-        p1->drawBits()->on(SL_DB_CULLOFF);
-        p2->drawBits()->on(SL_DB_CULLOFF);
-        p3->drawBits()->on(SL_DB_CULLOFF);
-        p4->drawBits()->on(SL_DB_CULLOFF);
-
-        // Build tree group
-        SLNode* tree = new SLNode("grTree");
-        tree->addChild(p1);
-        tree->addChild(p2);
-        tree->addChild(p3);
-        tree->addChild(p4);
-
-        // Build arrays for polygon vertices and texcoords for ground
-        SLVVec3f pG;
-        SLVVec2f tG;
-        SLfloat  size = 22.0f;
-        pG.push_back(SLVec3f(-size, 0, size));
-        tG.push_back(SLVec2f(0, 0));
-        pG.push_back(SLVec3f(size, 0, size));
-        tG.push_back(SLVec2f(30, 0));
-        pG.push_back(SLVec3f(size, 0, -size));
-        tG.push_back(SLVec2f(30, 30));
-        pG.push_back(SLVec3f(-size, 0, -size));
-        tG.push_back(SLVec2f(0, 30));
-
-        SLNode* scene = new SLNode("grScene");
-        scene->addChild(light);
-        scene->addChild(tree);
-        scene->addChild(new SLNode(new SLPolygon(s, pG, tG, "Ground", m2)));
-
-        //create 21*21*21-1 references around the center tree
-        SLint res = 10;
-        for (SLint iZ = -res; iZ <= res; ++iZ)
-        {
-            for (SLint iX = -res; iX <= res; ++iX)
-            {
-                if (iX != 0 || iZ != 0)
-                {
-                    SLNode* t = tree->copyRec();
-                    t->translate(float(iX) * 2 + Utils::random(0.7f, 1.4f),
-                                 0,
-                                 float(iZ) * 2 + Utils::random(0.7f, 1.4f),
-                                 TS_object);
-                    t->rotate(Utils::random(0, 90), 0, 1, 0);
-                    t->scale(Utils::random(0.5f, 1.0f));
-                    scene->addChild(t);
-                }
-            }
-        }
-
-        scene->addChild(cam1);
 
         sv->camera(cam1);
         s->root3D(scene);

@@ -35,6 +35,7 @@ uniform vec3        u_lightAtt[8];            //!< attenuation (const,linear,qua
 uniform bool        u_lightDoAtt[8];          //!< flag if att. must be calc.
 uniform mat4        u_lightSpace[8 * 6];      //!< projection matrices for lights
 uniform bool        u_lightCreatesShadows[8]; //!< flag if light creates shadows
+uniform bool        u_lightDoesPCF[8];        //!< flag if percentage-closer filtering is enabled
 uniform bool        u_lightUsesCubemap[8];    //!< flag if light has a cube shadow map
 uniform bool        u_receivesShadows;        //!< flag if material receives shadows
 uniform float       u_shadowBias;             //!< Bias to use to prevent shadow acne
@@ -70,7 +71,7 @@ int vectorToFace(vec3 vec) // Vector to process
         return vec.z > 0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
-bool shadowTest(in int i) // Light number
+float shadowTest(in int i) // Light number
 {
     if (u_lightCreatesShadows[i]) {
 
@@ -90,19 +91,38 @@ bool shadowTest(in int i) // Light number
         float currentDepth = projCoords.z;
 
         // Look up depth from shadow map
+        float shadow = 0.0;
         float closestDepth;
 
-        if (u_lightUsesCubemap[i])
-            closestDepth = texture(u_shadowMapCube[i], lightToFragment).r;
-        else
-            closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
+        // Use percentage-closer filtering (PCF) for softer shadows (if enabled)
+        if (!u_lightUsesCubemap[i] && u_lightDoesPCF[i]) {
+            vec2 texelSize = 1.0 / textureSize(u_shadowMap[i], 0);
 
-        // The fragment is in shadow if the light doesn't "see" the it
-        if (currentDepth > closestDepth + u_shadowBias)
-            return true;
+            for (int x = -1; x <= 1; ++x)
+            {
+                for (int y = -1; y <= 1; ++y)
+                {
+                    closestDepth = texture(u_shadowMap[i], projCoords.xy + vec2(x, y) * texelSize).r;
+                    shadow += currentDepth - u_shadowBias > closestDepth ? 1.0 : 0.0;
+                }
+            }
+            shadow /= 9.0;
+
+        } else {
+            if (u_lightUsesCubemap[i])
+                closestDepth = texture(u_shadowMapCube[i], lightToFragment).r;
+            else
+                closestDepth = texture(u_shadowMap[i], projCoords.xy).r;
+
+            // The fragment is in shadow if the light doesn't "see" it
+            if (currentDepth > closestDepth + u_shadowBias)
+                shadow = 1.0;
+        }
+
+        return shadow;
     }
 
-    return false;
+    return 0.0;
 }
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
@@ -126,9 +146,9 @@ void DirectLight(in    int  i,   // Light number
 
     // Accumulate directional light intesities w/o attenuation
     Ia += u_lightAmbient[i];
-    if (u_receivesShadows && shadowTest(i)) return;
-    Id += u_lightDiffuse[i] * diffFactor;
-    Is += u_lightSpecular[i] * specFactor;
+    float shadow = u_receivesShadows ? shadowTest(i) : 0.0;
+    Id += u_lightDiffuse[i] * diffFactor * (1.0 - shadow);
+    Is += u_lightSpecular[i] * specFactor * (1.0 - shadow);
 }
 //-----------------------------------------------------------------------------
 void PointLight (in    int  i,      // Light number
@@ -174,9 +194,9 @@ void PointLight (in    int  i,      // Light number
 
     // Accumulate light intesities
     Ia += att * u_lightAmbient[i];
-    if (u_receivesShadows && shadowTest(i)) return;
-    Id += att * u_lightDiffuse[i] * diffFactor;
-    Is += att * u_lightSpecular[i] * specFactor;
+    float shadow = u_receivesShadows ? shadowTest(i) : 0.0;
+    Id += att * u_lightDiffuse[i] * diffFactor * (1.0 - shadow);
+    Is += att * u_lightSpecular[i] * specFactor * (1.0 - shadow);
 }
 //-----------------------------------------------------------------------------
 void main()

@@ -1263,8 +1263,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             s->onLoad(s, sv, SID_ShadowMappingSpotLights);
                         if (ImGui::MenuItem("Multiple Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
                             s->onLoad(s, sv, SID_ShadowMappingPointLights);
-                        if (ImGui::MenuItem("Alpha Channel (WIP)", nullptr, sid == SID_ShadowMappingAlphaChannel))
-                            s->onLoad(s, sv, SID_ShadowMappingAlphaChannel);
 
                         ImGui::EndMenu();
                     }
@@ -2483,13 +2481,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     if (ImGui::TreeNode("Shadow Mapping"))
                     {
                         SLbool castsShadows = node->castsShadows();
-                        if (ImGui::Checkbox("Casts Shadows", &castsShadows))
+                        if (ImGui::Checkbox("Casts shadows", &castsShadows))
                             node->castsShadows(castsShadows);
 
                         if (SLLight* light = dynamic_cast<SLLight*>(node))
                         {
                             SLbool createsShadows = light->createsShadows();
-                            if (ImGui::Checkbox("Creates Shadows", &createsShadows))
+                            if (ImGui::Checkbox("Creates shadows", &createsShadows))
                                 light->createsShadows(createsShadows);
 
                             if (createsShadows)
@@ -2533,6 +2531,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         SLVec2f size = shadowMap->size();
                                         if (ImGui::InputFloat2("Size", (float*)&size))
                                             shadowMap->size(size);
+                                    }
+
+                                    if (!shadowMap->useCubemap())
+                                    {
+                                        SLbool doesPCF = light->doesPCF();
+                                        if (ImGui::Checkbox("Percentage-closer filtering enabled", &doesPCF))
+                                            light->doesPCF(doesPCF);
                                     }
 
                                     SLVec2i rayCount = shadowMap->rayCount();
@@ -2752,11 +2757,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 m->kn(kn);
 
                             SLbool receivesShadows = m->receivesShadows();
-                            if (ImGui::Checkbox("Receives Shadows", &receivesShadows))
+                            if (ImGui::Checkbox("Receives shadows", &receivesShadows))
                                 m->receivesShadows(receivesShadows);
 
                             SLfloat shadowBias = m->shadowBias();
-                            if (ImGui::SliderFloat("Shadow Bias", &shadowBias, 0.0f, 0.01f, "%.04f"))
+                            if (ImGui::SliderFloat("Shadow bias", &shadowBias, 0.0f, 0.01f, "%.04f"))
                                 m->shadowBias(shadowBias);
 
                             ImGui::PopItemWidth();
