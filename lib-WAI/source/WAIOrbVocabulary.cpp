@@ -51,7 +51,7 @@ void WAIOrbVocabulary::loadFromFile(std::string strVocFile)
     {
         _vocabulary->readFromFile(strVocFile);
     }
-    catch(std::exception& e)
+    catch (std::exception& e)
     {
         throw std::runtime_error("WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
     }
@@ -60,17 +60,18 @@ void WAIOrbVocabulary::loadFromFile(std::string strVocFile)
 
     if (!bVocLoad)
     {
+        Utils::log("WAI", "WAIOrbVocabulary::loadFromFile: failed to load vocabulary %s", strVocFile.c_str());
         throw std::runtime_error("WAIOrbVocabulary::loadFromFile: failed to load vocabulary");
     }
 #endif
 }
 
-void WAIOrbVocabulary::transform(const cv::Mat &descriptors, WAIBowVector &bow, WAIFeatVector &feat)
+void WAIOrbVocabulary::transform(const cv::Mat& descriptors, WAIBowVector& bow, WAIFeatVector& feat)
 {
-    bow.isFill = true;
+    bow.isFill  = true;
     feat.isFill = true;
 
-    if(descriptors.rows == 0)
+    if (descriptors.rows == 0)
         return;
 
 #if USE_FBOW
@@ -81,7 +82,7 @@ void WAIOrbVocabulary::transform(const cv::Mat &descriptors, WAIBowVector &bow, 
 #endif
 }
 
-double WAIOrbVocabulary::score(WAIBowVector &bow1, WAIBowVector &bow2)
+double WAIOrbVocabulary::score(WAIBowVector& bow1, WAIBowVector& bow2)
 {
 #if USE_FBOW
     return fbow::fBow::score(bow1.data, bow2.data);
@@ -98,6 +99,3 @@ size_t WAIOrbVocabulary::size()
     return _vocabulary->size();
 #endif
 }
-
-
-

@@ -37,7 +37,12 @@ void readArgs(int argc, char* argv[], Config& config)
     config.extractorType   = ExtractorType_GLSL;
     config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
     config.calibrationsDir = Utils::getAppsWritableDir() + "calibrations/";
-    config.vocFile         = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
+
+#if USE_FBOW
+    config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
+#else
+    config.vocFile = Utils::getAppsWritableDir() + "voc/ORBvoc.bin";
+#endif
 
     for (int i = 1; i < argc; ++i)
     {

@@ -217,7 +217,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                          dd.dirs().writableDir + "erleb-AR/",
                                          dd.dirs().writableDir + "calibrations/",
                                          dd.fontDir(),
-                                         dd.dirs().vocabularyDir + "/voc_fbow.bin",
+                                         dd.dirs().vocabularyDir,
                                          dd.dirs().writableDir);
 
     _startUpView = new StartUpView(_inputManager,
