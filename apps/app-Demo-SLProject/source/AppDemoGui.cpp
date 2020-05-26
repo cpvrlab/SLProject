@@ -2492,16 +2492,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             if (createsShadows)
                             {
-                                SLShadowMap* shadowMap = nullptr;
-
-                                if (SLLightSpot* spotLight = dynamic_cast<SLLightSpot*>(light))
-                                    shadowMap = spotLight->shadowMap();
-
-                                if (SLLightRect* rectLight = dynamic_cast<SLLightRect*>(light))
-                                    shadowMap = rectLight->shadowMap();
-
-                                if (SLLightDirect* directLight = dynamic_cast<SLLightDirect*>(light))
-                                    shadowMap = directLight->shadowMap();
+                                SLShadowMap* shadowMap = light->shadowMap();
 
                                 if (shadowMap != nullptr)
                                 {

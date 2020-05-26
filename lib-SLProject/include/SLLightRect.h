@@ -13,7 +13,6 @@
 
 #include <SLLight.h>
 #include <SLNode.h>
-#include <SLShadowMap.h>
 
 class SLSceneView;
 class SLRay;
@@ -80,16 +79,6 @@ public:
     }
     void samples(SLVec2i samples);
     void samplesXY(SLint x, SLint y);
-    void createsShadows(SLbool createsShadows) override
-    {
-        _createsShadows = createsShadows;
-        if (!createsShadows)
-        {
-            delete _shadowMap;
-            _shadowMap = nullptr;
-        }
-    }
-    void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
 
     // Getters
     SLfloat width() { return _width; }
@@ -102,7 +91,6 @@ public:
                        _wm.m(10)) *
                -1.0;
     }
-    SLShadowMap* shadowMap() { return _shadowMap; }
 
 private:
     SLfloat      _width;      //!< Width of square light in x direction
@@ -110,7 +98,6 @@ private:
     SLfloat      _halfWidth;  //!< Half width of square light in x dir
     SLfloat      _halfHeight; //!< Half height of square light in y dir
     SLVec2i      _samples;    //!< Uneven NO. of samples in x and y dir
-    SLShadowMap* _shadowMap;  //!< Used for shadow mapping
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -28,7 +28,6 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
 {
     _arrowRadius = arrowLength * 0.1f;
     _arrowLength = arrowLength;
-    _shadowMap   = nullptr;
 
     if (hasMesh)
     {
@@ -64,7 +63,6 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
 {
     _arrowRadius = arrowLength * 0.1f;
     _arrowLength = arrowLength;
-    _shadowMap   = nullptr;
     translate(posx, posy, posz, TS_object);
 
     if (hasMesh)

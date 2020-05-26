@@ -11,6 +11,7 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include "SLLight.h"
+#include "SLShadowMap.h"
 
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
@@ -25,6 +26,7 @@ SLLight::SLLight(SLfloat ambiPower,
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
     _spotExponent     = 1.0f;
     _createsShadows   = false;
+    _shadowMap        = nullptr;
     _doesPCF          = false;
 
     // Set parameters of inherited SLMaterial
@@ -66,5 +68,15 @@ void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
 {
     _spotCutOffDEG    = cutOffAngleDEG;
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
+}
+//-----------------------------------------------------------------------------
+void SLLight::createsShadows(SLbool createsShadows)
+{
+    _createsShadows = createsShadows;
+    if (!createsShadows)
+    {
+        delete _shadowMap;
+        _shadowMap = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------

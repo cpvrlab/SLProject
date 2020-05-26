@@ -37,7 +37,6 @@ SLLightRect::SLLightRect(SLAssetManager* assetMgr,
 
     spotCutOffDEG(90.0f);
     spotExponent(1.0);
-    _shadowMap = nullptr;
 
     if (hasMesh)
     {

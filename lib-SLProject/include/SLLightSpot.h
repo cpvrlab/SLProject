@@ -14,7 +14,6 @@
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
-#include <SLShadowMap.h>
 
 class SLSceneView;
 class SLRay;
@@ -75,23 +74,12 @@ public:
 
     // Setters
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
-    void createsShadows(SLbool createsShadows) override
-    {
-        _createsShadows = createsShadows;
-        if (!createsShadows)
-        {
-            delete _shadowMap;
-            _shadowMap = nullptr;
-        }
-    }
-    void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
 
     // Getters
     SLfloat      radius() { return _radius; }
     SLuint       samples() { return _samples.samples(); }
     SLVec4f      positionWS() const override { return translationWS(); }
     SLVec3f      spotDirWS() override { return forwardWS(); }
-    SLShadowMap* shadowMap() { return _shadowMap; }
 
 #ifdef SL_HAS_OPTIX
     Light optixLight(bool doDistributed)
@@ -131,7 +119,6 @@ public:
 private:
     SLfloat      _radius;    //!< The sphere lights radius
     SLSamples2D  _samples;   //!< 2D samplepoints for soft shadows
-    SLShadowMap* _shadowMap; //!< Used for shadow mapping
 };
 //-----------------------------------------------------------------------------
 #endif

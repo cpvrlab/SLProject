@@ -19,6 +19,7 @@
 class SLNode;
 class SLRay;
 class SLSceneView;
+class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
@@ -56,25 +57,27 @@ public:
         kl(kL);
         kq(kQ);
     }
-    virtual void createsShadows(SLbool createsShadows) { _createsShadows = createsShadows; }
-    void         doesPCF(SLbool doesPCF) { _doesPCF = doesPCF; }
+    void createsShadows(SLbool createsShadows);
+    void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
+    void doesPCF(SLbool doesPCF) { _doesPCF = doesPCF; }
 
     // Getters
-    SLint   id() const { return _id; }
-    SLbool  isOn() const { return _isOn; }
-    SLCol4f ambient() { return _ambient; }
-    SLCol4f diffuse() { return _diffuse; }
-    SLCol4f specular() { return _specular; }
-    SLfloat spotCutOffDEG() const { return _spotCutOffDEG; }
-    SLfloat spotCosCut() const { return _spotCosCutOffRAD; }
-    SLfloat spotExponent() const { return _spotExponent; }
-    SLfloat kc() const { return _kc; }
-    SLfloat kl() const { return _kl; }
-    SLfloat kq() const { return _kq; }
-    SLbool  isAttenuated() const { return _isAttenuated; }
-    SLfloat attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
-    SLbool  createsShadows() { return _createsShadows; }
-    SLbool  doesPCF() { return _doesPCF; }
+    SLint        id() const { return _id; }
+    SLbool       isOn() const { return _isOn; }
+    SLCol4f      ambient() { return _ambient; }
+    SLCol4f      diffuse() { return _diffuse; }
+    SLCol4f      specular() { return _specular; }
+    SLfloat      spotCutOffDEG() const { return _spotCutOffDEG; }
+    SLfloat      spotCosCut() const { return _spotCosCutOffRAD; }
+    SLfloat      spotExponent() const { return _spotExponent; }
+    SLfloat      kc() const { return _kc; }
+    SLfloat      kl() const { return _kl; }
+    SLfloat      kq() const { return _kq; }
+    SLbool       isAttenuated() const { return _isAttenuated; }
+    SLfloat      attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+    SLbool       createsShadows() { return _createsShadows; }
+    SLShadowMap* shadowMap() { return _shadowMap; }
+    SLbool       doesPCF() { return _doesPCF; }
 
 #ifdef SL_HAS_OPTIX
     virtual Light optixLight(bool)
@@ -112,20 +115,21 @@ public:
     virtual void renderShadowMap(SLSceneView* sv, SLNode* root) = 0;
 
 protected:
-    SLint   _id;               //!< OpenGL light number (0-7)
-    SLbool  _isOn;             //!< Flag if light is on or off
-    SLCol4f _ambient;          //!< Ambient light intensity Ia
-    SLCol4f _diffuse;          //!< Diffuse light intensity Id
-    SLCol4f _specular;         //!< Specular light intensity Is
-    SLfloat _spotCutOffDEG;    //!< Half the spot cone angle
-    SLfloat _spotCosCutOffRAD; //!< cosine of spotCutoff angle
-    SLfloat _spotExponent;     //!< Spot attenuation from center to edge of cone
-    SLfloat _kc;               //!< Constant light attenuation
-    SLfloat _kl;               //!< Linear light attenuation
-    SLfloat _kq;               //!< Quadratic light attenuation
-    SLbool  _isAttenuated;     //!< fast attenuation flag for ray tracing
-    SLbool  _createsShadows;   //!< flag if light creates shadows or not
-    SLbool  _doesPCF;          //!< flag if percentage-closer filtering is enabled
+    SLint        _id;               //!< OpenGL light number (0-7)
+    SLbool       _isOn;             //!< Flag if light is on or off
+    SLCol4f      _ambient;          //!< Ambient light intensity Ia
+    SLCol4f      _diffuse;          //!< Diffuse light intensity Id
+    SLCol4f      _specular;         //!< Specular light intensity Is
+    SLfloat      _spotCutOffDEG;    //!< Half the spot cone angle
+    SLfloat      _spotCosCutOffRAD; //!< cosine of spotCutoff angle
+    SLfloat      _spotExponent;     //!< Spot attenuation from center to edge of cone
+    SLfloat      _kc;               //!< Constant light attenuation
+    SLfloat      _kl;               //!< Linear light attenuation
+    SLfloat      _kq;               //!< Quadratic light attenuation
+    SLbool       _isAttenuated;     //!< fast attenuation flag for ray tracing
+    SLbool       _createsShadows;   //!< flag if light creates shadows or not
+    SLShadowMap* _shadowMap;        //!< Used for shadow mapping
+    SLbool       _doesPCF;          //!< flag if percentage-closer filtering is enabled
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

@@ -14,7 +14,6 @@
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
-#include <SLShadowMap.h>
 
 class SLRay;
 class SLScene;
@@ -76,18 +75,6 @@ public:
                          SLNode*        root3D) override;
     void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
-    // Setters
-    void createsShadows(SLbool createsShadows) override
-    {
-        _createsShadows = createsShadows;
-        if (!createsShadows)
-        {
-            delete _shadowMap;
-            _shadowMap = nullptr;
-        }
-    }
-    void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
-
     // Getters
     SLfloat radius() { return _arrowRadius; }
     SLfloat dirLength() { return _arrowLength; }
@@ -101,12 +88,10 @@ public:
         return pos;
     }
     SLVec3f      spotDirWS() override { return forwardOS(); }
-    SLShadowMap* shadowMap() { return _shadowMap; }
 
 private:
     SLfloat      _arrowRadius; //!< The sphere lights radius
     SLfloat      _arrowLength; //!< Length of direction line
-    SLShadowMap* _shadowMap;   //!< Used for shadow mapping
 };
 //-----------------------------------------------------------------------------
 #endif

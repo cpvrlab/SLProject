@@ -28,7 +28,6 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
     _radius = radius;
     _samples.samples(1, 1, false);
     spotCutOffDEG(spotAngleDEG);
-    _shadowMap = nullptr;
 
     if (hasMesh)
     {
@@ -79,7 +78,6 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
     _radius = radius;
     _samples.samples(1, 1, false);
     spotCutOffDEG(spotAngleDEG);
-    _shadowMap = nullptr;
 
     translate(posx, posy, posz, TS_object);
 
