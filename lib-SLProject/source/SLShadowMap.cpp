@@ -31,7 +31,7 @@ SLShadowMap::SLShadowMap(SLProjection projection, SLLight* light)
     _frustumVAO  = nullptr;
     _rayCount.set(16, 16);
     _mat      = nullptr;
-    _clipNear = 0.01f;
+    _clipNear = 0.1f;
     _clipFar  = 20.0f;
     _size.set(8.0f, 8.0f);
     _halfSize = _size / 2;

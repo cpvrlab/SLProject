@@ -333,13 +333,14 @@ void SLLightRect::setState()
         stateGL->lightDoAtt[_id]          = isAttenuated();
         stateGL->lightCreatesShadows[_id] = _createsShadows;
         stateGL->lightDoesPCF[_id]        = _doesPCF;
-        stateGL->lightUsesCubemap[_id]    = false;
 
         if (_shadowMap != nullptr)
         {
-            SLMat4f* mvp                 = _shadowMap->mvp();
-            stateGL->lightSpace[_id * 6] = _shadowMap->mvp()[0];
-            stateGL->shadowMaps[_id]     = _shadowMap->depthBuffer();
+            stateGL->lightUsesCubemap[_id] = _shadowMap->useCubemap();
+
+            SLMat4f* mvp = _shadowMap->mvp();
+            for (SLint i = 0; i < 6; ++i) stateGL->lightSpace[_id * 6 + i] = mvp[i];
+            stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
         }
     }
 }

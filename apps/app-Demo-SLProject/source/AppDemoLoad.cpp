@@ -1611,13 +1611,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         m1->program(program);
         m1->shininess(500);
-        m1->shadowBias(0.01f);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1, 8);
+        cam1->translation(0, 7, 12);
         cam1->lookAt(0, 1, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -1641,6 +1640,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sphereNode->castsShadows(true);
         scene->addChild(sphereNode);
 
+        SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
+        anim->createEllipticNodeTrack(sphereNode, 0.5f, A_x, 0.5f, A_z);
+
         // Add a box which receives shadows
         SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
         scene->addChild(boxNode);
@@ -1660,7 +1662,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         m1->program(program);
         m1->shininess(500);
-        m1->shadowBias(0.01f);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1687,7 +1688,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLfloat  x     = (i - (lights.size() - 1.0f) / 2.0f) * 5;
 
             light->ambient(SLCol4f(0, 0, 0));
-            light->diffuse(SLCol4f(0.4f, 0.4f, 0.4f));
+
+            if (i == 0) // Make direct light less bright
+                light->diffuse(SLCol4f(0.4f, 0.4f, 0.4f));
+            else
+                light->diffuse(SLCol4f(2.0f, 2.0f, 2.0f));
+
             node->translation(x, 5, 0);
             node->lookAt(x, 0, 0);
             light->attenuation(0, 0, 1);
@@ -1696,12 +1702,30 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add teapots which cast shadows
+        SLAnimation* teapotAnim = s->animManager().createNodeAnimation("teapot_anim", 8.0f, true, EC_linear, AL_loop);
+
         for (SLLight* light : lights)
         {
             SLNode* teapot = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, m1);
             teapot->translate(light->positionWS().x, 2, 0);
             teapot->children()[0]->castsShadows(true);
             scene->addChild(teapot);
+
+            // Create animation
+            SLNodeAnimTrack* track = teapotAnim->createNodeAnimationTrack();
+            track->animatedNode(teapot);
+
+            SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
+            frame0->translation(teapot->translationWS());
+            frame0->rotation(SLQuat4f(0, 0, 0));
+
+            SLTransformKeyframe* frame1 = track->createNodeKeyframe(4.0f);
+            frame1->translation(teapot->translationWS());
+            frame1->rotation(SLQuat4f(0, 1 * PI, 0));
+
+            SLTransformKeyframe* frame2 = track->createNodeKeyframe(8.0f);
+            frame2->translation(teapot->translationWS());
+            frame2->rotation(SLQuat4f(0, 2 * PI, 0));
         }
 
         // Add a box which receives shadows
@@ -1798,7 +1822,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
             light->ambient(SLCol4f(i == 0, i == 1, i == 2) * 0.2f);
-            light->diffuse(SLCol4f(i == 0, i == 1, i == 2) * 0.4f);
+            light->diffuse(SLCol4f(i == 0, i == 1, i == 2) * 1.5f);
             light->attenuation(0, 0, 1);
             light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
             light->createsShadows(true);

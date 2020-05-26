@@ -37,7 +37,7 @@ SLMaterial::SLMaterial(SLAssetManager* s,
     _metalness       = 0.0f;
     _translucency    = 0.0f;
     _receivesShadows = true;
-    _shadowBias      = 0.0005f;
+    _shadowBias      = 0.005f;
     _program         = program;
 
     _kr = kr;
