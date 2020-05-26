@@ -28,11 +28,13 @@ class SLGLGenericProgram : public SLGLProgram
 {
 public:
     virtual ~SLGLGenericProgram() {}
+
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLGenericProgram(SLAssetManager* s,
                        const char*     vertShaderFile,
                        const char*     fragShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile) { ; }
+
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLGenericProgram(SLAssetManager* s,
                        const char*     vertShaderFile,
@@ -43,5 +45,6 @@ public:
     virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }
     virtual void endShader() { endUse(); }
 };
+//-----------------------------------------------------------------------------
 
 #endif

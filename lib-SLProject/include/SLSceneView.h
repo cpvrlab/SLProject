@@ -134,7 +134,7 @@ public:
     void     setViewportFromRatio(const SLVec2i&  vpRatio,
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
-								  
+
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
     cbOnSelectNodeMesh onSelectedNodeMesh; //!< C-Callback for app on node selection
@@ -206,7 +206,11 @@ public:
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
 #ifdef SL_HAS_OPTIX
-    SLOptixRaytracer* optixRaytracer(){ return &_optixRaytracer; }
+
+    SLOptixRaytracer* optixRaytracer()
+    {
+        return &_optixRaytracer;
+    }
     SLOptixPathtracer* optixPathtracer() { return &_optixPathtracer; }
     SLbool             draw3DOptixRT();
     SLbool             draw3DOptixPT();
@@ -217,7 +221,7 @@ public:
     static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
 protected:
-    SLScene* _s; //!< Pointer scene observed by this scene view
+    SLScene*       _s;               //!< Pointer scene observed by this scene view
     SLCamera*      _camera;          //!< Pointer to the _active camera
     SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
     SLUiInterface* _gui = nullptr;   //!< ImGui instance
@@ -273,7 +277,7 @@ protected:
     SLPathtracer   _pathtracer; //!< Pathtracer
     SLbool         _stopPT;     //!< Flag to stop the PT
     SLGLConetracer _conetracer; //!< Conetracer CT
-	
+
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix
     SLbool            _stopOptixRT;     //!< Flag to stop the Optix RT

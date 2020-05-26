@@ -168,7 +168,7 @@ public:
     SLstring      typeName();
 
 #ifdef SL_HAS_OPTIX
-    void buildCudaTexture();
+    void        buildCudaTexture();
     CUtexObject getCudaTextureObject()
     {
         buildCudaTexture();
@@ -211,8 +211,8 @@ public:
 protected:
     // loading the image files
     void load(const SLstring& filename,
-              SLbool   flipVertical           = true,
-              SLbool   loadGrayscaleIntoAlpha = false);
+              SLbool          flipVertical           = true,
+              SLbool          loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
     CVVImage        _images;        //!< vector of CVImage pointers

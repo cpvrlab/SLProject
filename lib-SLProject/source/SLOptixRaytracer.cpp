@@ -19,7 +19,6 @@
 #    include <optix.h>
 #    include <utility>
 #    include <SLOptixHelper.h>
-#    include <SLLine.h>
 #    include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -28,7 +27,7 @@ SLOptixRaytracer::SLOptixRaytracer()
 {
     name("OptiX ray tracer");
     _params = {};
-    _paramsBuffer.alloc(sizeof(Params));
+    _paramsBuffer.alloc(sizeof(ortParams));
     initCompileOptions();
 }
 //-----------------------------------------------------------------------------
@@ -36,6 +35,11 @@ SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer");
 
+    destroy();
+}
+//-----------------------------------------------------------------------------
+void SLOptixRaytracer::destroy()
+{
     try
     {
         OPTIX_CHECK(optixPipelineDestroy(_pipeline));
@@ -46,12 +50,11 @@ SLOptixRaytracer::~SLOptixRaytracer()
         OPTIX_CHECK(optixProgramGroupDestroy(_pinhole_raygen_prog_group));
         OPTIX_CHECK(optixModuleDestroy(_cameraModule));
         OPTIX_CHECK(optixModuleDestroy(_shadingModule));
-        OPTIX_CHECK(optixModuleDestroy(_traceModule));
     }
     catch (exception e)
     {
         Utils::log("SLProject",
-                   "Exception in ~SLOptixRaytracer: %s",
+                   "Exception in SLOptixRaytracer::destroy: %s",
                    e.what());
     }
 }
@@ -61,18 +64,18 @@ void SLOptixRaytracer::initCompileOptions()
     // Set compile options for modules and pipelines
     _module_compile_options                  = {};
     _module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+
 #    ifdef NDEBUG
-    _module_compile_options.optLevel   = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-    _module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
+    _module_compile_options.optLevel         = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+    _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 #    else
-    _module_compile_options.optLevel   = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-    _module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    _module_compile_options.optLevel         = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+    _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_USER;
 #    endif
 
-    _pipeline_compile_options.usesMotionBlur = false;
-    //_pipeline_compile_options.traversableGraphFlags            = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
+    _pipeline_compile_options.usesMotionBlur                   = false;
     _pipeline_compile_options.traversableGraphFlags            = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     _pipeline_compile_options.numPayloadValues                 = 7;
     _pipeline_compile_options.numAttributeValues               = 2;
@@ -81,39 +84,38 @@ void SLOptixRaytracer::initCompileOptions()
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::setupOptix()
 {
-    _cameraModule  = _createModule("SLOptixRaytracerCamera.cu");
-    _shadingModule = _createModule("SLOptixRaytracerShading.cu");
-    _traceModule   = _createModule("SLOptixTrace.cu");
+    _cameraModule  = createModule("SLOptixRaytracerCamera.cu");
+    _shadingModule = createModule("SLOptixRaytracerShading.cu");
 
     OptixProgramGroupDesc pinhole_raygen_desc    = {};
     pinhole_raygen_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
     pinhole_raygen_desc.raygen.module            = _cameraModule;
     pinhole_raygen_desc.raygen.entryFunctionName = "__raygen__pinhole_camera";
-    _pinhole_raygen_prog_group                   = _createProgram(pinhole_raygen_desc);
+    _pinhole_raygen_prog_group                   = createProgram(pinhole_raygen_desc);
 
     OptixProgramGroupDesc lens_raygen_desc    = {};
     lens_raygen_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
     lens_raygen_desc.raygen.module            = _cameraModule;
     lens_raygen_desc.raygen.entryFunctionName = "__raygen__lens_camera";
-    _lens_raygen_prog_group                   = _createProgram(lens_raygen_desc);
+    _lens_raygen_prog_group                   = createProgram(lens_raygen_desc);
 
     OptixProgramGroupDesc orthographic_raygen_desc    = {};
     orthographic_raygen_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
     orthographic_raygen_desc.raygen.module            = _cameraModule;
     orthographic_raygen_desc.raygen.entryFunctionName = "__raygen__orthographic_camera";
-    _orthographic_raygen_prog_group                   = _createProgram(orthographic_raygen_desc);
+    _orthographic_raygen_prog_group                   = createProgram(orthographic_raygen_desc);
 
     OptixProgramGroupDesc radiance_miss_desc  = {};
     radiance_miss_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
     radiance_miss_desc.miss.module            = _shadingModule;
     radiance_miss_desc.miss.entryFunctionName = "__miss__radiance";
-    _radiance_miss_group                      = _createProgram(radiance_miss_desc);
+    _radiance_miss_group                      = createProgram(radiance_miss_desc);
 
     OptixProgramGroupDesc occlusion_miss_desc  = {};
     occlusion_miss_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
     occlusion_miss_desc.miss.module            = _shadingModule;
     occlusion_miss_desc.miss.entryFunctionName = "__miss__occlusion";
-    _occlusion_miss_group                      = _createProgram(occlusion_miss_desc);
+    _occlusion_miss_group                      = createProgram(occlusion_miss_desc);
 
     OptixProgramGroupDesc radiance_hitgroup_desc        = {};
     radiance_hitgroup_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
@@ -121,17 +123,7 @@ void SLOptixRaytracer::setupOptix()
     radiance_hitgroup_desc.hitgroup.entryFunctionNameAH = "__anyhit__radiance";
     radiance_hitgroup_desc.hitgroup.moduleCH            = _shadingModule;
     radiance_hitgroup_desc.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
-    _radiance_hit_group                                 = _createProgram(radiance_hitgroup_desc);
-
-    OptixProgramGroupDesc radiance_hitgroup_line_desc        = {};
-    radiance_hitgroup_line_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    radiance_hitgroup_line_desc.hitgroup.moduleIS            = _traceModule;
-    radiance_hitgroup_line_desc.hitgroup.entryFunctionNameIS = "__intersection__line";
-    radiance_hitgroup_line_desc.hitgroup.moduleAH            = _traceModule;
-    radiance_hitgroup_line_desc.hitgroup.entryFunctionNameAH = "__anyhit__line_radiance";
-    radiance_hitgroup_line_desc.hitgroup.moduleCH            = _traceModule;
-    radiance_hitgroup_line_desc.hitgroup.entryFunctionNameCH = "__closesthit__line_radiance";
-    _radiance_line_hit_group                                 = _createProgram(radiance_hitgroup_line_desc);
+    _radiance_hit_group                                 = createProgram(radiance_hitgroup_desc);
 
     OptixProgramGroupDesc occlusion_hitgroup_desc        = {};
     occlusion_hitgroup_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
@@ -139,31 +131,19 @@ void SLOptixRaytracer::setupOptix()
     occlusion_hitgroup_desc.hitgroup.entryFunctionNameAH = "__anyhit__occlusion";
     occlusion_hitgroup_desc.hitgroup.moduleCH            = nullptr;
     occlusion_hitgroup_desc.hitgroup.entryFunctionNameCH = nullptr;
-    _occlusion_hit_group                                 = _createProgram(occlusion_hitgroup_desc);
-
-    OptixProgramGroupDesc occlusion_hitgroup_line_desc        = {};
-    occlusion_hitgroup_line_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    occlusion_hitgroup_line_desc.hitgroup.moduleIS            = _traceModule;
-    occlusion_hitgroup_line_desc.hitgroup.entryFunctionNameIS = "__intersection__line";
-    occlusion_hitgroup_line_desc.hitgroup.moduleAH            = _traceModule;
-    occlusion_hitgroup_line_desc.hitgroup.entryFunctionNameAH = "__anyhit__line_occlusion";
-    occlusion_hitgroup_line_desc.hitgroup.moduleCH            = nullptr;
-    occlusion_hitgroup_line_desc.hitgroup.entryFunctionNameCH = nullptr;
-    _occlusion_line_hit_group                                 = _createProgram(occlusion_hitgroup_line_desc);
+    _occlusion_hit_group                                 = createProgram(occlusion_hitgroup_desc);
 
     OptixProgramGroup program_groups[] = {
       _pinhole_raygen_prog_group,
       _radiance_miss_group,
       _occlusion_miss_group,
       _radiance_hit_group,
-      _radiance_line_hit_group,
       _occlusion_hit_group,
-      _occlusion_line_hit_group,
     };
-    _pipeline = _createPipeline(program_groups, 7);
+    _pipeline = createPipeline(program_groups, 5);
 }
 //-----------------------------------------------------------------------------
-OptixModule SLOptixRaytracer::_createModule(string filename)
+OptixModule SLOptixRaytracer::createModule(string filename)
 {
     OptixModule module = nullptr;
     {
@@ -184,7 +164,7 @@ OptixModule SLOptixRaytracer::_createModule(string filename)
     return module;
 }
 //-----------------------------------------------------------------------------
-OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
+OptixProgramGroup SLOptixRaytracer::createProgram(OptixProgramGroupDesc desc)
 {
     OptixProgramGroup        program_group         = {};
     OptixProgramGroupOptions program_group_options = {};
@@ -204,8 +184,8 @@ OptixProgramGroup SLOptixRaytracer::_createProgram(OptixProgramGroupDesc desc)
     return program_group;
 }
 //-----------------------------------------------------------------------------
-OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup* program_groups,
-                                                unsigned int       numProgramGroups)
+OptixPipeline SLOptixRaytracer::createPipeline(OptixProgramGroup* program_groups,
+                                               unsigned int       numProgramGroups)
 {
     OptixPipeline            pipeline;
     OptixPipelineLinkOptions pipeline_link_options = {};
@@ -228,8 +208,8 @@ OptixPipeline SLOptixRaytracer::_createPipeline(OptixProgramGroup* program_group
     return pipeline;
 }
 //-----------------------------------------------------------------------------
-OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMesh& meshes,
-                                                                    const bool     doDistributed)
+OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh& meshes,
+                                                                   const bool     doDistributed)
 {
     SLCamera* camera = _sv->camera();
 
@@ -268,11 +248,13 @@ OptixShaderBindingTable SLOptixRaytracer::_createShaderBindingTable(const SLVMes
         {
             OptixProgramGroup hitgroup_radicance = _radiance_hit_group;
             OptixProgramGroup hitgroup_occlusion = _occlusion_hit_group;
-            if (mesh->name() == "line")
-            {
-                hitgroup_radicance = _radiance_line_hit_group;
-                hitgroup_occlusion = _occlusion_line_hit_group;
-            }
+
+            //if (mesh->name() == "line")
+            //{
+            //    hitgroup_radicance = _radiance_line_hit_group;
+            //    hitgroup_occlusion = _occlusion_line_hit_group;
+            //}
+
             HitSbtRecord radiance_hg_sbt;
             OPTIX_CHECK(optixSbtRecordPackHeader(hitgroup_radicance, &radiance_hg_sbt));
             radiance_hg_sbt.data = mesh->createHitData();
@@ -312,10 +294,8 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv)
     _sv                    = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
-    _lineBuffer.resize(_sv->scrW() * _sv->scrH() * _maxDepth * 2 * sizeof(Ray));
 
     _params.image     = reinterpret_cast<float4*>(_imageBuffer.devicePointer());
-    _params.rays      = reinterpret_cast<Ray*>(_lineBuffer.devicePointer());
     _params.width     = _sv->scrW();
     _params.height    = _sv->scrH();
     _params.max_depth = _maxDepth;
@@ -327,8 +307,8 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv)
         mesh->createMeshAccelerationStructure();
     }
 
-    _sbtClassic     = _createShaderBindingTable(meshes, false);
-    _sbtDistributed = _createShaderBindingTable(meshes, true);
+    _sbtClassic     = createShaderBindingTable(meshes, false);
+    _sbtDistributed = createShaderBindingTable(meshes, true);
 }
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::updateScene(SLSceneView* sv)
@@ -345,7 +325,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
 
     SLVec3f eye, u, v, w;
     camera->UVWFrame(eye, u, v, w);
-    CameraData cameraData{};
+    ortCamera cameraData{};
     cameraData.eye = make_float3(eye);
     cameraData.U   = make_float3(u);
     cameraData.V   = make_float3(v);
@@ -378,7 +358,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         _rayGenClassicBuffer.upload(&rayGenSbtRecord);
     }
 
-    vector<Light> lights;
+    vector<ortLight> lights;
     _lightBuffer.free();
     unsigned int light_count = 0;
     for (auto light : scene->lights())
@@ -390,7 +370,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
         }
     }
     _lightBuffer.alloc_and_upload(lights);
-    _params.lights             = reinterpret_cast<Light*>(_lightBuffer.devicePointer());
+    _params.lights             = reinterpret_cast<ortLight*>(_lightBuffer.devicePointer());
     _params.numLights          = light_count;
     _params.globalAmbientColor = make_float4(scene->globalAmbiLight());
 
@@ -399,10 +379,9 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 SLbool SLOptixRaytracer::renderClassic()
 {
-    _state      = rtBusy; // From here we state the RT as busy
-    _progressPC = 0;      // % rendered
-    _renderSec  = 0.0f;   // reset time
-    // Measure time
+    _state        = rtBusy; // From here we state the RT as busy
+    _progressPC   = 0;      // % rendered
+    _renderSec    = 0.0f;
     double t1     = GlobalTimer::timeS();
     double tStart = t1;
 
@@ -424,8 +403,7 @@ SLbool SLOptixRaytracer::renderClassic()
 //-----------------------------------------------------------------------------
 SLbool SLOptixRaytracer::renderDistrib()
 {
-    _renderSec = 0.0f; // reset time
-    // Measure time
+    _renderSec    = 0.0f;
     double t1     = GlobalTimer::timeS();
     double tStart = t1;
 
@@ -458,19 +436,22 @@ void SLOptixRaytracer::prepareImage()
         // Delete the OpenGL Texture if it already exists
         if (_texID)
         {
-            //if (_cudaGraphicsResource) {
-            //    CUDA_CHECK( cuGraphicsUnregisterResource(_cudaGraphicsResource) );
-            //    _cudaGraphicsResource = nullptr;
-            //}
+            if (_cudaGraphicsResource)
+            {
+                CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
+                _cudaGraphicsResource = nullptr;
+            }
+
             glDeleteTextures(1, &_texID);
             _texID = 0;
         }
 
+        _vaoSprite.clearAttribs();
         _images[0]->allocate(_sv->scrW(), _sv->scrH(), PF_rgb);
     }
 }
 //-----------------------------------------------------------------------------
-void SLOptixRaytracer::renderImage()
+void SLOptixRaytracer::renderImage(bool updateTextureGL)
 {
     prepareImage(); // Setup image & precalculations
     SLGLTexture::bindActive(0);
@@ -498,24 +479,7 @@ void SLOptixRaytracer::renderImage()
 
     CUDA_CHECK(cuGraphicsUnmapResources(1, &_cudaGraphicsResource, SLOptix::stream));
 
-    SLfloat w = (SLfloat)_sv->scrW();
-    SLfloat h = (SLfloat)_sv->scrH();
-    if (Utils::abs(_images[0]->width() - w) > 0.0001f) return;
-    if (Utils::abs(_images[0]->height() - h) > 0.0001f) return;
-
-    // Set orthographic projection with the size of the window
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
-    stateGL->modelViewMatrix.identity();
-    stateGL->clearColorBuffer();
-    stateGL->depthTest(false);
-    stateGL->multiSample(false);
-    stateGL->polygonLine(false);
-
-    drawSprite(false, 0.0f, 0.0f, w, h);
-
-    stateGL->depthTest(true);
-    GET_GL_ERROR;
+    SLRaytracer::renderImage(updateTextureGL);
 }
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::saveImage()
@@ -533,45 +497,6 @@ void SLOptixRaytracer::saveImage()
     }
 
     SLRaytracer::saveImage();
-}
-//-----------------------------------------------------------------------------
-void SLOptixRaytracer::drawRay(unsigned int x, unsigned int y)
-{
-    SLAssetManager* assetMngr = (SLAssetManager*)SLApplication::scene;
-
-    y = _sv->scrH() - y;
-
-    Ray* rays = static_cast<Ray*>(malloc(_lineBuffer.size()));
-    _lineBuffer.download(rays);
-
-    for (int i = 0; i < _maxDepth * 2; i++)
-    {
-        Ray ray = rays[(y * _sv->scrW() + x) * _maxDepth * 2 + i];
-
-        auto* mat  = new SLMaterial(assetMngr,
-                                   "mat",
-                                   SLCol4f(ray.color.x, ray.color.y, ray.color.z),
-                                   SLCol4f::BLACK,
-                                   0);
-        auto* line = new SLNode(new SLLine(assetMngr,
-                                           SLVec3f(ray.line.p1.x,
-                                                   ray.line.p1.y,
-                                                   ray.line.p1.z),
-                                           SLVec3f(ray.line.p2.x,
-                                                   ray.line.p2.y,
-                                                   ray.line.p2.z),
-                                           mat),
-                                "line");
-        _sv->s().root3D()->addChild(line);
-    }
-    setupScene(_sv);
-}
-//-----------------------------------------------------------------------------
-void SLOptixRaytracer::removeRays()
-{
-    SLScene* scene = SLApplication::scene;
-
-    while (SLApplication::scene->root3D()->deleteChild("line")) {}
 }
 //-----------------------------------------------------------------------------
 #endif

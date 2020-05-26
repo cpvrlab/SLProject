@@ -673,6 +673,34 @@ bool makeDir(const string& path)
 #endif
 }
 //-----------------------------------------------------------------------------
+//! Creates a directory with given path recursively
+bool makeDirRecurse(std::string path)
+{
+    std::string delimiter = "/";
+
+    size_t      pos = 0;
+    std::string token;
+
+    std::string createdPath;
+
+    while ((pos = path.find(delimiter)) != std::string::npos)
+    {
+        createdPath += path.substr(0, pos) + "/";
+
+        if (!dirExists(createdPath))
+        {
+            if (!makeDir(createdPath))
+            {
+                return false;
+            }
+        }
+
+        path.erase(0, pos + delimiter.length());
+    }
+
+    return true;
+}
+//-----------------------------------------------------------------------------
 //! Removes a directory with given path
 void removeDir(const string& path)
 {

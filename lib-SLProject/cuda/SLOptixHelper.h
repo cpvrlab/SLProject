@@ -58,7 +58,7 @@ static __forceinline__ __device__ float getLighted()
     return int_as_float(optixGetPayload_0());
 }
 //-----------------------------------------------------------------------------
-static __forceinline__ __device__ float lightAttenuation(Light light, float dist)
+static __forceinline__ __device__ float lightAttenuation(ortLight light, float dist)
 {
     return 1.0f / (light.kc + light.kl * dist + light.kq * dist * dist);
 }
@@ -85,7 +85,7 @@ static __device__ __inline__ float3 getNormalVector()
 {
     float3 N;
 
-    auto*        rt_data                = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
+    auto*        rt_data                = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
     unsigned int idx                    = optixGetPrimitiveIndex();
     const float2 barycentricCoordinates = optixGetTriangleBarycentrics();
     const float  u                      = barycentricCoordinates.x;
@@ -125,7 +125,7 @@ static __device__ __inline__ float4 getTextureColor()
 {
     float4 texture_color = make_float4(1.0);
 
-    auto*        rt_data                = reinterpret_cast<HitData*>(optixGetSbtDataPointer());
+    auto*        rt_data                = reinterpret_cast<ortHitData*>(optixGetSbtDataPointer());
     unsigned int idx                    = optixGetPrimitiveIndex();
     const float2 barycentricCoordinates = optixGetTriangleBarycentrics();
     const float  u                      = barycentricCoordinates.x;

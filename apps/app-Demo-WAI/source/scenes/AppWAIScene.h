@@ -20,10 +20,10 @@ public:
         cameraNode->fov(cameraFovVDeg);
         // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
         //std::cout << "cameraMatUndistorted: " << cameraMatUndistorted << std::endl;
-        cameraNode->intrinsics(cameraMatUndistorted.at<double>(0, 0),
-                               cameraMatUndistorted.at<double>(1, 1),
-                               cameraMatUndistorted.at<double>(0, 2),
-                               cameraMatUndistorted.at<double>(1, 2));
+        cameraNode->intrinsics((float)cameraMatUndistorted.at<double>(0, 0),
+                               (float)cameraMatUndistorted.at<double>(1, 1),
+                               (float)cameraMatUndistorted.at<double>(0, 2),
+                               (float)cameraMatUndistorted.at<double>(1, 2));
 
         //enable projection -> intrinsics mode
         //cameraNode->projection(P_monoIntrinsic);
@@ -66,6 +66,8 @@ private:
                          SLPoints*&                       mesh,
                          SLMaterial*&                     material);
     void removeMesh(SLNode* node, SLMesh* mesh);
+
+    void loadMesh(std::string path);
 
     SLNode* mapPC             = nullptr;
     SLNode* mapMatchedPC      = nullptr;

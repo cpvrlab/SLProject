@@ -139,13 +139,13 @@ Tester::TrackingTestResult Tester::runTrackingTest(std::string       videoFile,
     WAIMap* map = new WAIMap(keyFrameDB);
     WAIMapStorage::loadMap(map, nullptr, voc, mapFile, false, true);
 
-    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1, voc, 0.95);
+    LocalMapping* localMapping = new ORB_SLAM2::LocalMapping(map, 1.0f, voc, 0.95f);
     LoopClosing*  loopClosing  = new ORB_SLAM2::LoopClosing(map, voc, false, false);
 
     localMapping->SetLoopCloser(loopClosing);
     loopClosing->SetLocalMapper(localMapping);
 
-    SENSVideoStream              vstream(videoFile, false, false, false, framerate);
+    SENSVideoStream              vstream(videoFile, false, false, false, (float)framerate);
     CVSize2i                     videoSize       = vstream.getFrameSize();
     float                        widthOverHeight = (float)videoSize.width / (float)videoSize.height;
     std::unique_ptr<KPextractor> extractor       = _factory.make(extractorType, {videoSize.width, videoSize.height});

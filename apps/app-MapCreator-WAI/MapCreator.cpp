@@ -5,10 +5,14 @@
 #include <sens/SENSVideoStream.h>
 #include <MapCreator.h>
 
-MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::string vocFile, ExtractorType extractorType)
+MapCreator::MapCreator(std::string   erlebARDir,
+                       std::string   calibrationsDir,
+                       std::string   configFile,
+                       std::string   vocFile,
+                       ExtractorType extractorType)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
-    _calibrationsDir = _erlebARDir + "calibrations/";
+    _calibrationsDir = calibrationsDir;
     _outputDir       = _erlebARDir + "MapCreator/";
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
@@ -18,7 +22,7 @@ MapCreator::MapCreator(std::string erlebARDir, std::string configFile, std::stri
     {
         _voc->loadFromFile(vocFile);
     }
-    catch(std::exception& std)
+    catch (std::exception& std)
     {
         std::cout << "Can't open vocabulary file!!! " << vocFile << std::endl;
         exit(1);
@@ -436,7 +440,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = true;
 
-    WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(_voc);
+    WAIKeyFrameDB*          kfdb = new WAIKeyFrameDB(_voc);
     std::unique_ptr<WAIMap> map  = std::make_unique<WAIMap>(kfdb);
 
     //load the map (currentMapFileName is valid if initialized is true)
