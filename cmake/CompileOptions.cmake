@@ -3,6 +3,7 @@
 # 
 # Get upper case system name
 string(TOUPPER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_UPPER)
+message(STATUS "SYSTEM_NAME_UPPER: ${SYSTEM_NAME_UPPER} (CompileOptions.cmake)")
 
 # Determine architecture (32/64 bit)
 set(X64 OFF)
@@ -129,7 +130,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
     )
 
 	if ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
-		message(STATUS "Compile options: ios identified")
 		#iOS minimum supported version (deployment target version of iOS)
 		set(DEPLOYMENT_TARGET 8.0)
 

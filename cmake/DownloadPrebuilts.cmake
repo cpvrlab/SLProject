@@ -63,7 +63,6 @@ set(glfw_LINK_LIBS)
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
-message(STATUS "SYSTEM_NAME_UPPER: ${SYSTEM_NAME_UPPER}")
 #=======================================================================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
@@ -633,7 +632,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 		
-	message(STATUS "Download prebuilds iOS")
     ##################
     # OpenCV for iOS #
     ##################
@@ -666,11 +664,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
 		)
 			
-		#get_target_property(VARVAL ${lib} IMPORTED_LOCATION_DEBUG
-		#)
-		#message(STATUS "VARVAL: ${VARVAL}")
-			
-		#debug and optimized seams to mess things up in ios
+		#ATTENTION: debug and optimized seams to mess things up in ios
         #set(OpenCV_LIBS
         #        ${OpenCV_LIBS}
         #        optimized ${lib}
@@ -696,10 +690,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
 			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
 		)
-		
-		get_target_property(VARVAL ${lib} IMPORTED_LOCATION_DEBUG
-		)
-		message(STATUS "VARVAL: ${VARVAL}")
 			
 		set(OpenCV_LIBS
 		    ${OpenCV_LIBS}
@@ -710,12 +700,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
     # g2o for iOS #
     #################
 
-    #Download g2o for iOS
     set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
     set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMoAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
 
     if (NOT EXISTS "${g2o_DIR}")
         message(STATUS "g2o_DIR: ${g2o_DIR}")
@@ -733,9 +721,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
         set_target_properties(${lib} 
 			PROPERTIES 
 			#we use Release libs for both configurations
-			IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}Release/lib${lib}.a"
-			IMPORTED_LOCATION_RELEASE "${g2o_LINK_DIR}Release/lib${lib}.a"
-			INTERFACE_INCLUDE_DIRECTORIES "${g2o_LINK_DIR}include"
+			IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Release/lib${lib}.a"
+			IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.a"
+			INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
 		)
 				
         set(g2o_LIBS
@@ -752,7 +740,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    #set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
