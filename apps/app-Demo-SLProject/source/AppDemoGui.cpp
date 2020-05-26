@@ -2516,8 +2516,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::InputInt2("Texture resolution", (int*)&textureSize))
                                         shadowMap->textureSize(textureSize);
 
-                                    if (typeid(*node) == typeid(SLLightRect) ||
-                                        typeid(*node) == typeid(SLLightDirect))
+                                    if (typeid(*node) == typeid(SLLightDirect))
                                     {
                                         SLVec2f size = shadowMap->size();
                                         if (ImGui::InputFloat2("Size", (float*)&size))
