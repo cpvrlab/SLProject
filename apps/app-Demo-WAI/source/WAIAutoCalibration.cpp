@@ -16,6 +16,7 @@ AutoCalibration::AutoCalibration(cv::Size frameSize, float mapDimension)
     _frameSize = frameSize;
     _isFinished = false;
     _hasCalibration = false;
+    _isRunning = false;
 }
 
 void AutoCalibration::calibrateFrames(AutoCalibration* ac)
@@ -39,6 +40,8 @@ void AutoCalibration::calibrateFrames(AutoCalibration* ac)
     }
     else
         Utils::log("Info", "Auto calibration failed\n");
+
+    ac->_isRunning = false;
 }
 
 bool AutoCalibration::fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching,
@@ -47,6 +50,8 @@ bool AutoCalibration::fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<
     std::unique_lock<std::mutex> lock(_calibrationMutex);
     if (_hasCalibration || _isFinished || matching.first.size() < 10)
         return false;
+    
+    lock.unlock();
 
     cv::Mat t   = tcw.col(3).rowRange(0, 3);
     cv::Mat rot = tcw.rowRange(0, 3).colRange(0, 3);
@@ -69,17 +74,19 @@ bool AutoCalibration::fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<
         _framesDir.push_back(v);
         _framesPos.push_back(t);
 
+        lock.lock();
         _calibrationMatchings.push_back(matching);
 
-        if (_calibrationMatchings.size() >= NB_SAMPLES)
+        if (!_isRunning && !_isFinished && !_hasCalibration && _calibrationMatchings.size() >= NB_SAMPLES)
         {
-            Utils::log("Info", "Start auto calibration thread\n");
+            Utils::log("Info", "AAAAA Start auto calibration thread\n");
+            _isRunning = true;
             _calibrationThread = std::thread(calibrateFrames, this);
             _calibrationThread.detach();
             return true;
         }
+        lock.unlock();
     }
-
 
     return false;
 }
@@ -106,10 +113,7 @@ void AutoCalibration::reset()
     _calibrationMatchings.clear();
     _framesPos.clear();
     _framesDir.clear();
-    std::cout << "reset" << std::endl;
 }
-
-
 
 float AutoCalibration::calibrate_opencv(cv::Mat& intrinsic, 
                                         cv::Mat& distortion,
