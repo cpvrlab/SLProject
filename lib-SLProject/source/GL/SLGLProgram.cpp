@@ -268,7 +268,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             loc = uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
             loc = uniform4fv("u_lightPosWS", nL, (SLfloat*)stateGL->lightPosWS);
             loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
-            loc = uniformMatrix4fv("u_lightSpace", nL, (SLfloat*)stateGL->lightSpace);
+            loc = uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)stateGL->lightSpace);
             loc = uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
             loc = uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
             loc = uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);

@@ -62,8 +62,9 @@ void SLGLState::initAll()
         lightSpotCosCut[i] = cos(Utils::DEG2RAD * lightSpotCutoff[i]);
         lightSpotExp[i]    = 1.0f;
         lightAtt[i].set(1.0f, 0.0f, 0.0f);
-        lightDoAtt[i]          = 0;
-        lightSpace[i]          = SLMat4f();
+        lightDoAtt[i] = 0;
+        for (SLint ii = 0; ii < 6; ++ii)
+            lightSpace[i * 6 + ii] = SLMat4f();
         lightCreatesShadows[i] = 0;
         lightUsesCubemap[i]    = 0;
         shadowMaps[i]          = nullptr;
