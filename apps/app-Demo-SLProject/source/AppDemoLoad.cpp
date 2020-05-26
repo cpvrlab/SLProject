@@ -1703,10 +1703,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add teapots which cast shadows
         SLAnimation* teapotAnim = s->animManager().createNodeAnimation("teapot_anim", 8.0f, true, EC_linear, AL_loop);
+        SLNode* teapotModel = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, m1);
 
         for (SLLight* light : lights)
         {
-            SLNode* teapot = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, m1);
+            SLNode *teapot = teapotModel->copyRec();
+            
             teapot->translate(light->positionWS().x, 2, 0);
             teapot->children()[0]->castsShadows(true);
             scene->addChild(teapot);
@@ -1727,6 +1729,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             frame2->translation(teapot->translationWS());
             frame2->rotation(SLQuat4f(0, 2 * PI, 0));
         }
+
+        delete teapotModel;
 
         // Add a box which receives shadows
         SLfloat minx    = lights.front()->positionWS().x - 3;
