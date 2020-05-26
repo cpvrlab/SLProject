@@ -1227,8 +1227,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
-                    if (ImGui::MenuItem("Shadow Mapping", nullptr, sid == SID_ShadowMapping))
-                        s->onLoad(s, sv, SID_ShadowMapping);
 
                     ImGui::EndMenu();
                 }
@@ -1255,6 +1253,21 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderEarth);
                     if (ImGui::MenuItem("Voxel Cone Tracing Shader", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
+                    if (ImGui::BeginMenu("Shadow Mapping"))
+                    {
+                        if (ImGui::MenuItem("Basic Scene", nullptr, sid == SID_ShadowMappingBasicScene))
+                            s->onLoad(s, sv, SID_ShadowMappingBasicScene);
+                        if (ImGui::MenuItem("Light Types", nullptr, sid == SID_ShadowMappingLightTypes))
+                            s->onLoad(s, sv, SID_ShadowMappingLightTypes);
+                        if (ImGui::MenuItem("Multiple Spot Lights", nullptr, sid == SID_ShadowMappingSpotLights))
+                            s->onLoad(s, sv, SID_ShadowMappingSpotLights);
+                        if (ImGui::MenuItem("Multiple Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
+                            s->onLoad(s, sv, SID_ShadowMappingPointLights);
+                        if (ImGui::MenuItem("Alpha Channel (WIP)", nullptr, sid == SID_ShadowMappingAlphaChannel))
+                            s->onLoad(s, sv, SID_ShadowMappingAlphaChannel);
+
+                        ImGui::EndMenu();
+                    }
 
                     ImGui::EndMenu();
                 }

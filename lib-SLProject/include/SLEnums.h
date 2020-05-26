@@ -103,7 +103,6 @@ enum SLSceneID
     SID_MassiveData,
     SID_2Dand3DText,
     SID_PointClouds,
-    SID_ShadowMapping,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
@@ -115,6 +114,11 @@ enum SLSceneID
     SID_ShaderSkyBox,
     SID_ShaderEarth,
     SID_ShaderVoxelConeDemo,
+    SID_ShadowMappingBasicScene,
+    SID_ShadowMappingLightTypes,
+    SID_ShadowMappingPointLights,
+    SID_ShadowMappingSpotLights,
+    SID_ShadowMappingAlphaChannel,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
@@ -233,8 +237,8 @@ enum SLAnimLooping
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for animation easing curves
-/*! 
-Enumerations copied from Qt class QEasingCurve. 
+/*!
+Enumerations copied from Qt class QEasingCurve.
 See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 enum SLEasingCurve
