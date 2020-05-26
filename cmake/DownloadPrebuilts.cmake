@@ -63,6 +63,7 @@ set(glfw_LINK_LIBS)
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
 
+message(STATUS "SYSTEM_NAME_UPPER: ${SYSTEM_NAME_UPPER}")
 #=======================================================================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
@@ -378,7 +379,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
@@ -448,7 +448,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
+	set(g2o_LINK_DIR ${g2o_DIR}) 
 
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
@@ -458,12 +458,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
+	message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib} 
 			PROPERTIES 
-			IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/Debug/lib${lib}.dylib"
-			IMPORTED_LOCATION_RELEASE "${g2o_LINK_DIR}/Release/lib${lib}.dylib")
+			IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.dylib"
+			IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.dylib")
 			
         set(g2o_LIBS
             ${g2o_LIBS}
@@ -474,11 +475,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	if (COPY_TO_CONFIG_FOLDER)	
 	    file(GLOB g2o_LIBS_to_copy_debug
 	            ${g2o_LIBS_to_copy_debug}
-	            ${OpenCV_DIR}/debug/g2o_*.dylib
+	            ${g2o_DIR}/Debug/lib${lib}.dylib
 	            )
 	    file(GLOB g2o_LIBS_to_copy_release
 	            ${g2o_LIBS_to_copy_release}
-	            ${OpenCV_DIR}/release/libopencv_*.dylib
+	            ${g2o_DIR}/Release/lib${lib}.dylib
 	            )
 
 	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
@@ -495,7 +496,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "mac64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
@@ -543,8 +543,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
-    set(MACOS_PLIST_FILE
-            ${SL_PROJECT_ROOT}/data/config/info.plist)
+    set(MACOS_PLIST_FILE ${SL_PROJECT_ROOT}/data/config/info.plist)
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -632,7 +631,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	    endif()
 	endif()
 	
-#elseif(CMAKE_SYSTEM_NAME MATCHES iOS) #ios
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 		
 	message(STATUS "Download prebuilds iOS")
@@ -754,7 +752,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
+    #set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 

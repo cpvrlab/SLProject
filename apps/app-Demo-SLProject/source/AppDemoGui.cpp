@@ -36,7 +36,10 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
-#include <Eigen/Dense>
+
+#ifdef SL_BUILD_WAI
+    #include <Eigen/Dense>
+#endif
 
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoTracking
@@ -887,11 +890,14 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
             sprintf(m + strlen(m), "-----------------:\n");
-            sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
-#ifdef EIGEN_VECTORIZE
-            sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
-#else
-            sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+            
+#ifdef SL_BUILD_WAI
+                sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
+    #ifdef EIGEN_VECTORIZE
+                sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
+    #else
+                sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+    #endif
 #endif
             sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());

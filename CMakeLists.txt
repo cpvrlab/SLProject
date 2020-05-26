@@ -31,11 +31,6 @@ option(SL_BUILD_APPS         "Specifies if sample apps should be built"         
 option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"              ON)
 option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"          OFF)
 
-if(SL_BUILD_WAI)
-    message(STATUS "Adding Wai")
-    add_compile_definitions(SL_BUILD_WAI)
-endif()
-
 message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")
 message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
 message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
