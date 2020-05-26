@@ -33,13 +33,24 @@ target_include_directories(${target}
 
 target_link_libraries(${target}
         PRIVATE
-        
+
         PUBLIC
         ${DEFAULT_LINKER_OPTIONS}
-        tbb
 
         INTERFACE
         )
+
+if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+        target_link_libraries(${target}
+                PRIVATE
+                tbb
+
+                PUBLIC
+                ${DEFAULT_LINKER_OPTIONS}
+
+                INTERFACE
+                )
+endif()
 
 target_compile_definitions(${target}
         PRIVATE

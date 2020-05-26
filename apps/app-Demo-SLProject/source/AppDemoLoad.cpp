@@ -93,8 +93,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     SLApplication::sceneID = sceneID;
 
     // reset existing sceneviews
-    for (auto* sv : SLApplication::sceneViews)
-        sv->unInit();
+    for (auto* sceneview : SLApplication::sceneViews)
+        sceneview->unInit();
 
     // Initialize all preloaded stuff from SLScene
     s->init();
@@ -150,7 +150,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_Figure) //....................................................
     {
         s->name("Hierarchical Figure Test");
-        s->info("Hierarchical scenegraph with multiple subgroups.");
+        s->info("Hierarchical scenegraph with multiple subgroups in the figure. The goal is to visualize how you can design a figure with hierarchical transforms containing only rotations and translations. View the bounding boxes with GL > Bounding Boxes. Try also ray tracing.");
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
@@ -195,7 +195,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_MeshLoad) //..................................................
     {
         s->name("Mesh 3D Loader Test");
-        s->info("3D file import test for: 3DS, DAE & FBX");
+        s->info("3D file import test. We use the assimp library to load all 3D file formats including materials, skeletons and animations. ");
 
         SLMaterial* matBlu = new SLMaterial(s, "Blue", SLCol4f(0, 0, 0.2f), SLCol4f(1, 1, 1), 100, 0.8f, 0);
         SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.2f, 0, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
@@ -458,15 +458,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
-#ifdef SL_OS_ANDROID
-        SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
-#else
-        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
-#endif
+        SLstring largeFile = findModelFileName("PLY/xyzrgb_dragon.ply");
+
         if (Utils::fileExists(largeFile))
         {
             s->name("Large Model Test");
             s->info("Large Model with 7.2 mio. triangles.");
+
+            // Material for glass
+            SLMaterial* diffuseMat = new SLMaterial(s, "diffuseMat", SLCol4f::WHITE, SLCol4f::WHITE);
 
             SLCamera* cam1 = new SLCamera("Camera 1");
             cam1->translation(0, 0, 220);
@@ -479,7 +479,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
             SLLightSpot* light1 = new SLLightSpot(s, s, 200, 200, 200, 1);
-            light1->ambient(SLCol4f(1, 1, 1));
+            light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
             light1->diffuse(SLCol4f(1, 1, 1));
             light1->specular(SLCol4f(1, 1, 1));
             light1->attenuation(1, 0, 0);
@@ -488,10 +488,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLfloat          timeStart  = GlobalTimer::timeS();
             SLNode*          largeModel = importer.load(s->animManager(),
                                                s,
-                                               findModelFileName("PLY/xyzrgb_dragon.ply"),
+                                               largeFile,
                                                true,
-                                               nullptr,
-                                               0.0f,
+                                               diffuseMat,
+                                               0.2f,
                                                SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
 
             SLfloat timeEnd = GlobalTimer::timeS();
@@ -747,9 +747,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 {
                     if (iX != 0 || iY != 0 || iZ != 0)
                     {
-                        SLNode* s = sphere->copyRec();
-                        s->translate(float(iX), float(iY), float(iZ), TS_object);
-                        scene->addChild(s);
+                        SLNode* sph = sphere->copyRec();
+                        sph->translate(float(iX), float(iY), float(iZ), TS_object);
+                        scene->addChild(sph);
                     }
                 }
             }
@@ -1086,10 +1086,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
-                                            new SLGLTexture(s, "rusty-metal_2048C.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048N.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048M.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048R.png"),
+                                            new SLGLTexture(s, "rusty-metal_2048C.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048N.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048M.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048R.jpg"),
                                             SLGLProgramManager::get(SP_perPixCookTorranceTex));
                 }
                 else
@@ -1109,7 +1109,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add 4 point light
-        SLfloat power = 1000.0f;
+        SLfloat      power  = 1000.0f;
         SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
         light1->attenuation(0, 0, 1);
         SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
@@ -1442,11 +1442,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texG  = new SLGLTexture(s, "earth2048_G.jpg");      // gloss map
         SLGLTexture* texNC = new SLGLTexture(s, "earthNight2048_C.jpg"); // night color  map
 #else
-        SLGLTexture* texC      = new SLGLTexture(s, "earth1024_C.jpg");      // color map
-        SLGLTexture* texN      = new SLGLTexture(s, "earth1024_N.jpg");      // normal map
-        SLGLTexture* texH      = new SLGLTexture(s, "earth1024_H.jpg");      // height map
-        SLGLTexture* texG      = new SLGLTexture(s, "earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC     = new SLGLTexture(s, "earthNight1024_C.jpg"); // night color  map
+        SLGLTexture* texC  = new SLGLTexture(s, "earth1024_C.jpg");      // color map
+        SLGLTexture* texN  = new SLGLTexture(s, "earth1024_N.jpg");      // normal map
+        SLGLTexture* texH  = new SLGLTexture(s, "earth1024_H.jpg");      // height map
+        SLGLTexture* texG  = new SLGLTexture(s, "earth1024_G.jpg");      // gloss map
+        SLGLTexture* texNC = new SLGLTexture(s, "earthNight1024_C.jpg"); // night color  map
 #endif
         SLGLTexture* texClC = new SLGLTexture(s, "earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture(s, "earthCloud1024_A.jpg"); // cloud alpha map
@@ -2057,7 +2057,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef APP_USES_GLES
         SLint size = 4;
 #else
-        SLint        size      = 8;
+        SLint        size  = 8;
 #endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
@@ -2398,7 +2398,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create feature tracker and let it pose the camera for AR posing
-        tracker = new CVTrackedFeatures("features_stones.png");
+        tracker = new CVTrackedFeatures("features_stones.jpg");
+        //tracker = new CVTrackedFeatures("features_abstract.jpg");
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -2978,11 +2979,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create OpenCV Tracker for the box node
         std::string vocFileName;
-#if USE_FBOW
+#    if USE_FBOW
         vocFileName = "voc_fbow.bin";
-#else
+#    else
         vocFileName = "ORBvoc.bin";
-#endif        
+#    endif
         tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {SLApplication::calibIniPath, SLApplication::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;
@@ -3299,7 +3300,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing lens test scene.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.png");
+        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.jpg");
         //SLGLTexture* texC = new SLGLTexture(s, "Checkerboard0512_C.png");
 
         SLMaterial* mT = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
@@ -3346,15 +3347,23 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, 0, -0.0f, TS_object);
 
         // Lens from eye prescription card
-        //SLNode* lensA = new SLNode(new SLLens(0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
+        //SLNode* lensA = new SLNode(new SLLens(s, 0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
         //lensA->translate(-2, 1, -2);
-        //SLNode* lensB = new SLNode(new SLLens(-0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
+        //SLNode* lensB = new SLNode(new SLLens(s, -0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
         //lensB->translate(2, 1, -2);
 
         // Lens with radius
-        //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
+        //SLNode* lensC = new SLNode(new SLLens(s, 5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
         //lensC->translate(-2, 1, 2);
-        SLNode* lensD = new SLNode(new SLLens(s, -15.0f, -15.0f, 1.0f, 0.1f, res, res, "myopic", matLens)); // Kurzsichtig
+        SLNode* lensD = new SLNode(new SLLens(s,
+                                              -15.0f,
+                                              -15.0f,
+                                              1.0f,
+                                              0.1f,
+                                              res,
+                                              res,
+                                              "myopic",
+                                              matLens)); // Kurzsichtig
         lensD->translate(0, 6, 0);
 
         // Node
@@ -3450,10 +3459,10 @@ SLNode* SphereGroup(SLProjectScene* s,
     SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
     if (depth == 0)
     {
-        SLSphere* sphere = new SLSphere(s, 0.5f * scale, resolution, resolution, name, matRed);
-        SLNode*   s      = new SLNode(sphere, "Sphere");
-        s->translate(x, y, z, TS_object);
-        return s;
+        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, name, matRed);
+        SLNode*   sphNode = new SLNode(sphere, "Sphere");
+        sphNode->translate(x, y, z, TS_object);
+        return sphNode;
     }
     else
     {
