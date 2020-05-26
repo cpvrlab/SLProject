@@ -56,7 +56,7 @@ public:
         kl(kL);
         kq(kQ);
     }
-    void createsShadows(SLbool createsShadows) { _createsShadows = createsShadows; }
+    virtual void createsShadows(SLbool createsShadows) { _createsShadows = createsShadows; }
 
     // Getters
     SLint   id() const { return _id; }

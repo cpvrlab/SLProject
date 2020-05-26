@@ -1032,7 +1032,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create cubes which cast shadows
         for (SLint i = 0; i < 64; ++i)
         {
-            SLNode* boxNode = new SLNode(new SLBox(s));
+            SLBox*  box     = new SLBox(s);
+            SLNode* boxNode = new SLNode(box);
+
+            box->mat(m1);
 
             boxNode->scale(Utils::random(0.01f, 0.1f));
             boxNode->translate(Utils::random(pL + 0.3f, pR - 0.3f),

@@ -14,11 +14,11 @@
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
+#include <SLShadowMap.h>
 
 class SLRay;
 class SLScene;
 class SLSceneView;
-class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
@@ -77,6 +77,15 @@ public:
     void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Setters
+    void createsShadows(SLbool createsShadows) override
+    {
+        _createsShadows = createsShadows;
+        if (!createsShadows)
+        {
+            delete _shadowMap;
+            _shadowMap = nullptr;
+        }
+    }
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
 
     // Getters

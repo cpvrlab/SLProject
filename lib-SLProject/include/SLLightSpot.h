@@ -14,11 +14,11 @@
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
+#include <SLShadowMap.h>
 
 class SLSceneView;
 class SLRay;
 class SLScene;
-class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
@@ -75,6 +75,15 @@ public:
 
     // Setters
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
+    void createsShadows(SLbool createsShadows) override
+    {
+        _createsShadows = createsShadows;
+        if (!createsShadows)
+        {
+            delete _shadowMap;
+            _shadowMap = nullptr;
+        }
+    }
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
 
     // Getters

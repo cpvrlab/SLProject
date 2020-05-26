@@ -13,12 +13,12 @@
 
 #include <SLLight.h>
 #include <SLNode.h>
+#include <SLShadowMap.h>
 
 class SLSceneView;
 class SLRay;
 class SLAssetManager;
 class SLScene;
-class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
@@ -80,6 +80,15 @@ public:
     }
     void samples(SLVec2i samples);
     void samplesXY(SLint x, SLint y);
+    void createsShadows(SLbool createsShadows) override
+    {
+        _createsShadows = createsShadows;
+        if (!createsShadows)
+        {
+            delete _shadowMap;
+            _shadowMap = nullptr;
+        }
+    }
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
 
     // Getters

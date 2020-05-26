@@ -61,13 +61,13 @@ int vectorToFace(vec3 vec) // Vector to process
     vec3 absVec = abs(vec);
 
     if (absVec.x > absVec.y && absVec.x > absVec.z)
-        return int(vec.x < 0);
+        return vec.x > 0 ? 0 : 1;
 
     else if (absVec.y > absVec.x && absVec.y > absVec.z)
-        return 2 + int(vec.y < 0);
+        return vec.y > 0 ? 2 : 3;
 
     else
-        return 4 + int(vec.z < 0);
+        return vec.z > 0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
 bool shadowTest(in int i) // Light number
