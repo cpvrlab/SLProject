@@ -77,6 +77,9 @@ void WAIMap::EraseKeyFrame(WAIKeyFrame* pKF)
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
     mKfDB->erase(pKF);
+
+    //_deletedKeyFrames.push_back(pKF);
+
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
@@ -148,6 +151,15 @@ void WAIMap::clear()
     mvpKeyFrameOrigins.clear();
     setNumLoopClosings(0);
     mKfDB->clear();
+
+#if 0
+    for (WAIKeyFrame* kf : _deletedKeyFrames)
+    {
+        delete kf;
+    }
+
+    _deletedKeyFrames.clear();
+#endif
 
     WAIKeyFrame::nNextId = 0;
     WAIFrame::nNextId    = 0;
