@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------------
 //! Default path for texture files used when only filename is passed in load.
 //! Is overwritten in slCreateAppAndScene.
-SLstring SLGLTexture::defaultPath      = SLstring(SL_PROJECT_ROOT) + "/data/images/textures/";
 SLstring SLGLTexture::defaultPathFonts = SLstring(SL_PROJECT_ROOT) + "/data/images/fonts/";
 
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
@@ -424,15 +423,13 @@ void SLGLTexture::load(const SLstring& filename,
                        SLbool          flipVertical,
                        SLbool          loadGrayscaleIntoAlpha)
 {
-    string pathFilename = Utils::findFile(filename,
-                                          {defaultPath});
-    if (!Utils::fileExists(pathFilename))
+    if (!Utils::fileExists(filename))
     {
         SLstring msg = "SLGLTexture: File not found: " + filename;
         SL_EXIT_MSG(msg.c_str());
     }
 
-    _images.push_back(new CVImage(pathFilename,
+    _images.push_back(new CVImage(filename,
                                   flipVertical,
                                   loadGrayscaleIntoAlpha));
 }

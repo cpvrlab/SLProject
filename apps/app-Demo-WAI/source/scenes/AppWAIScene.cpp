@@ -22,6 +22,7 @@ void AppWAIScene::loadMesh(std::string path)
     augmentationRoot = importer.load(_animManager,
                                      &assets,
                                      path,
+                                     _dataDir + "images/textures/",
                                      true,
                                      nullptr,
                                      0.4f);
@@ -89,7 +90,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
     yellowMat = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
 
-    _videoImage = new SLGLTexture(&assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     cameraNode->background().texture(_videoImage);
 
     if (location == "avenches")

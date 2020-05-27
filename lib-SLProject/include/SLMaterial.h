@@ -43,22 +43,24 @@ public:
     //! Default ctor for materials without textures
     explicit SLMaterial(SLAssetManager* am,
                         const SLchar*   name,
-                        const SLCol4f&  amdi      = SLCol4f::WHITE,
-                        const SLCol4f&  spec      = SLCol4f::WHITE,
-                        SLfloat         shininess = 100.0f,
-                        SLfloat         kr        = 0.0,
-                        SLfloat         kt        = 0.0f,
-                        SLfloat         kn        = 1.0f,
-                        SLGLProgram*    program   = nullptr);
+                        const SLCol4f&  amdi                    = SLCol4f::WHITE,
+                        const SLCol4f&  spec                    = SLCol4f::WHITE,
+                        SLfloat         shininess               = 100.0f,
+                        SLfloat         kr                      = 0.0,
+                        SLfloat         kt                      = 0.0f,
+                        SLfloat         kn                      = 1.0f,
+                        SLGLProgram*    program                 = nullptr,
+                        SLstring        compileErrorTexFilePath = "");
 
     //! Ctor for textured materials
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture1,
-               SLGLTexture*    texture2 = nullptr,
-               SLGLTexture*    texture3 = nullptr,
-               SLGLTexture*    texture4 = nullptr,
-               SLGLProgram*    program  = nullptr);
+               SLGLTexture*    texture2                = nullptr,
+               SLGLTexture*    texture3                = nullptr,
+               SLGLTexture*    texture4                = nullptr,
+               SLGLProgram*    program                 = nullptr,
+               SLstring        compileErrorTexFilePath = "");
 
     //! Ctor for Cook-Torrance shaded materials
     SLMaterial(SLAssetManager* am,
@@ -66,18 +68,21 @@ public:
                const SLchar*   name,
                const SLCol4f&  diffuse,
                SLfloat         roughness,
-               SLfloat         metalness);
+               SLfloat         metalness,
+               SLstring        compileErrorTexFilePath = "");
 
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,
                         const SLCol4f&  uniformColor,
-                        const SLchar*   name = (const char*)"Uniform color");
+                        const SLchar*   name                    = (const char*)"Uniform color",
+                        SLstring        compileErrorTexFilePath = "");
 
     //! Ctor for cone tracer
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
-               SLGLProgram*    program);
+               SLGLProgram*    program,
+               SLstring        compileErrorTexFilePath = "");
 
     ~SLMaterial();
 
@@ -256,6 +261,7 @@ protected:
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
     SLGLTexture* _errorTexture = nullptr;
+    SLstring     _compileErrorTexFilePath;
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers

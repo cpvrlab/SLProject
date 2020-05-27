@@ -47,11 +47,16 @@ SLstring                     SLApplication::calibIniPath;
 SLstring                     SLApplication::calibFilePath;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring                    SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
-SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLstring                    SLApplication::dataPath     = SLstring(SL_PROJECT_ROOT) + "/data/";
-SLSceneID                   SLApplication::sceneID      = SID_Empty;
+SLstring SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
+SLstring SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring SLApplication::dataPath;
+SLstring SLApplication::shaderPath;
+SLstring SLApplication::modelPath;
+SLstring SLApplication::texturePath;
+SLstring SLApplication::fontPath;
+
+SLSceneID                   SLApplication::sceneID = SID_Empty;
 deque<function<void(void)>> SLApplication::jobsToBeThreaded;
 deque<function<void(void)>> SLApplication::jobsToFollowInMain;
 atomic<bool>                SLApplication::jobIsRunning(false);

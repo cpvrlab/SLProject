@@ -76,6 +76,7 @@ public:
     virtual SLNode* load(SLAnimManager&  aniMan,
                          SLAssetManager* assetMgr,
                          SLstring        pathFilename,
+                         SLstring        texturePath,
                          SLbool          loadMeshesOnly = true,
                          SLMaterial*     overrideMat    = nullptr,
                          float           ambientFactor  = 0.0f,

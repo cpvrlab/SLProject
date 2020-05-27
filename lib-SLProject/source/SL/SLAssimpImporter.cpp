@@ -271,7 +271,8 @@ materials within the file are ignored.
 */
 SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
                                SLAssetManager* assetMgr,
-                               SLstring        pathAndFile,    //!< File with path or on default path
+                               SLstring        pathAndFile, //!< File with path or on default path
+                               SLstring        texturePath,
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
@@ -315,6 +316,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
                                              i,
                                              scene->mMaterials[i],
                                              modelPath,
+                                             texturePath,
                                              ambientFactor));
     }
 
@@ -652,6 +654,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                            SLint           index,
                                            aiMaterial*     material,
                                            const SLstring& modelPath,
+                                           const SLstring& texturePath,
                                            float           ambientFactor)
 {
     // Get the materials name
@@ -690,7 +693,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                                   : textureType == aiTextureType_OPACITY
                                                       ? TT_color
                                                       : TT_unknown;
-            SLstring texFile = checkFilePath(modelPath, aipath.data);
+            SLstring texFile = checkFilePath(modelPath, aipath.data, texturePath);
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation
@@ -1276,6 +1279,7 @@ If a model contains absolute path it is best to put all texture files beside the
 model file in the same folder.
 */
 SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
+                                         const SLstring& texturePath,
                                          SLstring        aiTexFile)
 {
     // Check path & file combination
@@ -1297,6 +1301,6 @@ SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
     SL_WARN_MSG(msg.c_str());
 
     // Return path for texture not found image;
-    return SLGLTexture::defaultPath + "TexNotFound.png";
+    return texturePath + "TexNotFound.png";
 }
 //-----------------------------------------------------------------------------

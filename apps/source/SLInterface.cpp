@@ -53,6 +53,7 @@ See examples usages in:
   - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
 void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& dataPath,
                          const SLstring& shaderPath,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
@@ -64,11 +65,13 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    //SLGLProgram::defaultPath      = shaderPath;
-    SLGLTexture::defaultPath      = texturePath;
-    SLGLTexture::defaultPathFonts = fontPath;
-    SLAssimpImporter::defaultPath = modelPath;
-    SLApplication::configPath     = configPath;
+    SLApplication::dataPath    = Utils::unifySlashes(dataPath);
+    SLApplication::shaderPath  = SLApplication::dataPath + "shaders/";
+    SLApplication::modelPath   = SLApplication::dataPath + "models/";
+    SLApplication::texturePath = SLApplication::dataPath + "images/textures/";
+    SLApplication::fontPath    = SLApplication::dataPath + "images/fonts/";
+
+    SLApplication::configPath = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 

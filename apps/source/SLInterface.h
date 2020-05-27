@@ -36,6 +36,7 @@ See the implementation for more information.<br>
 */
 //-----------------------------------------------------------------------------
 void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& dataPath,
                          const SLstring& shaderPath,
                          const SLstring& modelPath,
                          const SLstring& texturePath,

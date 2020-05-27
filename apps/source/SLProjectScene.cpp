@@ -16,6 +16,7 @@
 #include <SLLightDirect.h>
 #include <SLSceneView.h>
 #include <SLGLProgramManager.h>
+#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static font pointers
@@ -87,6 +88,7 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
     SLNode* loaded = importer.load(_animManager,
                                    this,
                                    assetFile,
+                                   SLApplication::texturePath,
                                    true,
                                    nullptr,
                                    0.0f,

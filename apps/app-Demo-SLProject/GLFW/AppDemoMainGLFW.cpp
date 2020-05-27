@@ -571,7 +571,6 @@ void initSL(SLVstring& cmdLineArgs)
     //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
     //setup platform dependent data path
-    SLApplication::dataPath      = projectRoot + "/data/";
     SLApplication::calibFilePath = configDir;
     CVImage::defaultPath         = projectRoot + "/data/images/textures/";
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
@@ -581,6 +580,7 @@ void initSL(SLVstring& cmdLineArgs)
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
+                        projectRoot + "/data/",
                         projectRoot + "/data/shaders/",
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
