@@ -41,7 +41,7 @@ public:
                    std::string         erlebARDir,
                    std::string         calibDir,
                    std::string         fontPath,
-                   std::string         vocabularyFile,
+                   std::string         vocabularyDir,
                    std::string         imguiIniPath);
 
     bool start(TestMode testMode, std::string configFile);

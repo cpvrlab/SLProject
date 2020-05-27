@@ -3,6 +3,9 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weverything"
+
 #include "gzguts.h"
 
 /* Local functions */
@@ -575,3 +578,4 @@ int ZEXPORT gzclose_w(file)
     free(state);
     return ret;
 }
+#pragma GCC diagnostic pop

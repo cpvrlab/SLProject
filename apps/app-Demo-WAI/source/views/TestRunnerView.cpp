@@ -15,7 +15,7 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
                                std::string         erlebARDir,
                                std::string         calibDir,
                                std::string         fontPath,
-                               std::string         vocabularyFile,
+                               std::string         vocabularyDir,
                                std::string         imguiIniPath)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
     _gui(imGuiEngine, eventHandler, resources, dotsPerInch, fontPath),
@@ -34,7 +34,13 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
 {
     init("TestRunnerView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
 
-    _voc.loadFromFile(vocabularyFile);
+#if USE_FBOW
+    std::string vocabularyFile = "/voc_fbow.bin";
+#else
+    std::string vocabularyFile = "/ORBvoc.bin";
+#endif
+
+    _voc.loadFromFile(vocabularyDir + vocabularyFile);
 
     std::string configPath = "TestRunner/config/";
     std::string configDir  = _erlebARDir + configPath;
