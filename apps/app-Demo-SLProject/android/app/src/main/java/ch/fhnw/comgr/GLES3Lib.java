@@ -12,6 +12,7 @@
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
+import android.content.res.AssetManager;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.util.Log;
@@ -106,15 +107,29 @@ public class GLES3Lib {
     public static void extractAPK() throws IOException {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
-        extractAPKFolder(FilesPath, "textures");
-        extractAPKFolder(FilesPath, "videos");
-        extractAPKFolder(FilesPath, "fonts");
-        extractAPKFolder(FilesPath, "models");
-        extractAPKFolder(FilesPath, "shaders");
-        extractAPKFolder(FilesPath, "calibrations");
-        extractAPKFolder(FilesPath, "config");
+        extractAPKFolder(FilesPath, "data");
+        //extractAPKFolder(FilesPath, "textures");
+        //extractAPKFolder(FilesPath, "videos");
+        //extractAPKFolder(FilesPath, "fonts");
+        //extractAPKFolder(FilesPath, "models");
+        //extractAPKFolder(FilesPath, "shaders");
+        //extractAPKFolder(FilesPath, "calibrations");
+        //extractAPKFolder(FilesPath, "config");
     }
+    public static void extractAPK(AssetManager assetManager) throws IOException {
+        FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
+        Log.i("SLProject", "Destination: " + FilesPath);
 
+        extractRecursive(assetManager, FilesPath, "data");
+
+        //extractAPKFolder(FilesPath, "textures");
+        //extractAPKFolder(FilesPath, "videos");
+        //extractAPKFolder(FilesPath, "fonts");
+        //extractAPKFolder(FilesPath, "models");
+        //extractAPKFolder(FilesPath, "shaders");
+        //extractAPKFolder(FilesPath, "calibrations");
+        //extractAPKFolder(FilesPath, "config");
+    }
     /**
      * Extract a folder inside the APK File. If we have a subfolder we just skip it.
      * If a file already exists we skip it => we don't update it!
@@ -141,6 +156,52 @@ public class GLES3Lib {
             copyFile(App.getAssets().open(AssetPath + "/" + file), new FileOutputStream(FilesPath + "/" + AssetPath + "/" + file));
             Log.i("SLProject", "File: " + FilesPath + "/" + AssetPath + "/" + file + "\r\n");
         }
+    }
+
+
+    private static void extractRecursive(AssetManager assetManager, String path, String assetFolder) throws IOException{
+        File directory = new File(path, assetFolder);
+        createEmptyDirectory(directory);
+        String[] assets = assetManager.list(assetFolder);
+        for (String asset : assets){
+            if (asset.contains(".")){
+                // assumes file
+                File destinationFile = new File(directory, asset);
+                InputStream in = assetManager.open(assetFolder + File.separator + asset);
+                copy(in, destinationFile);
+            } else {
+                // assume directory
+                extractRecursive(assetManager, path, assetFolder + File.separator + asset);
+            }
+        }
+    }
+
+    private static void createEmptyDirectory(File dir){
+        deleteRecursive(dir);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+    }
+
+    private static void copy(InputStream in, File destination) throws IOException {
+        OutputStream out = new FileOutputStream(destination);
+        // Transfer bytes from in to out
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = in.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
+        }
+        in.close();
+        out.close();
+        // Todo: proper stream closing!
+    }
+
+    public static void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
     }
 
     /**

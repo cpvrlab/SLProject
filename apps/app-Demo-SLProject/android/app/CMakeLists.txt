@@ -63,4 +63,4 @@ target_link_libraries(
 # Copy APK contents
 #
 include(CopyResourcesAppDemoSLProject)
-copy_resources_slprojectdemo("${CMAKE_CURRENT_LIST_DIR}/src/main/assets")
+copy_resources_slprojectdemo("${CMAKE_CURRENT_LIST_DIR}/src/main/assets/data")

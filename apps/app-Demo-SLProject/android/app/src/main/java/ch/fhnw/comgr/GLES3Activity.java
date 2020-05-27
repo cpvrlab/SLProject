@@ -70,7 +70,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         try {
             Log.i(TAG, "extractAPK");
             GLES3Lib.App = getApplication();
-            GLES3Lib.extractAPK();
+            GLES3Lib.extractAPK(getAssets());
         } catch (IOException e) {
             Log.e(TAG, "Error extracting files from the APK archive: " + e.getMessage());
         }
