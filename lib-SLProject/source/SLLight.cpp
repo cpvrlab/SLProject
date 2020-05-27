@@ -26,9 +26,12 @@ SLLight::SLLight(SLfloat ambiPower,
     _spotExponent     = 1.0f;
 
     // Set parameters of inherited SLMaterial
-    _ambient.set(ambiPower, ambiPower, ambiPower);
-    _diffuse.set(diffPower, diffPower, diffPower);
-    _specular.set(specPower, specPower, specPower);
+    _ambientColor.set(1, 1, 1);
+    _ambientPower = ambiPower;
+    _diffuseColor.set(1, 1, 1);
+    _diffusePower = diffPower;
+    _specularColor.set(1, 1, 1);
+    _specularPower = specPower;
 
     // By default there is no attenuation set. This is physically not correct
     // Default OpenGL:      kc=1, kl=0, kq=0

@@ -2557,18 +2557,29 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Is on", &on))
                                 light->isOn(on);
 
-                            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
-                            SLCol4f             a     = light->ambient();
-                            if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
-                                light->ambient(a);
+                            SLCol4f ac = light->ambientColor();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
+                                light->ambientColor(ac);
 
-                            SLCol4f diff = light->diffuse();
-                            if (ImGui::InputFloat3("Diffuse", (float*)&diff, 1, flags))
-                                light->diffuse(diff);
+                            SLCol4f dc = light->diffuseColor();
+                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
+                                light->diffuseColor(dc);
 
-                            SLCol4f spec = light->specular();
-                            if (ImGui::InputFloat3("Specular", (float*)&spec, 1, flags))
-                                light->specular(spec);
+                            SLCol4f sc = light->specularColor();
+                            if (ImGui::ColorEdit3("Specular color", (float*)&sc))
+                                light->specularColor(sc);
+
+                            float ap = light->ambientPower();
+                            if (ImGui::SliderFloat("Ambient power", &ap, 0.0f, 10.0f))
+                                light->ambientPower(ap);
+
+                            float dp = light->diffusePower();
+                            if (ImGui::SliderFloat("Diffuse power", &dp, 0.0f, 10.0f))
+                                light->diffusePower(dp);
+
+                            float sp = light->specularPower();
+                            if (ImGui::SliderFloat("Specular power", &sp, 0.0f, 10.0f))
+                                light->specularPower(sp);
 
                             float cutoff = light->spotCutOffDEG();
                             if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
