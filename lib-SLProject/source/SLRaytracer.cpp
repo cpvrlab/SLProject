@@ -461,7 +461,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLMaterial*   mat        = ray->hitMesh->mat();
     SLVGLTexture& texture    = mat->textures();
     SLVec3f       L, N, H;
-    SLfloat       lightDist, LdN, NdH, df, sf, spotEffect, att, lighted;
+    SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
     SLScene&      s = _sv->s();
@@ -479,23 +479,27 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 
             // Distinguish between point and directional lights
             SLVec4f lightPos = light->positionWS();
+
+            // Check if directional light on last component w (0 = light is in infintiy)
             if (lightPos.w == 0.0f)
-            { // directional light
+            { 
+                // directional light
                 L         = lightPos.vec3().normalized();
                 lightDist = FLT_MAX; // = infinity
             }
             else
-            { // Point light
+            { 
+                // Point light
                 L.sub(lightPos.vec3(), ray->hitPoint);
                 lightDist = L.length();
                 L /= lightDist;
             }
 
             // Cosine between L and N
-            LdN = L.dot(N);
+            LdotN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
+            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();
@@ -525,9 +529,9 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             {
                 H.sub(L, ray->dir); // half vector between light & eye
                 H.normalize();
-                df  = std::max(LdN, 0.0f); // diffuse factor
-                NdH = std::max(N.dot(H), 0.0f);
-                sf  = pow(NdH, (SLfloat)mat->shininess()); // specular factor
+                df  = std::max(LdotN, 0.0f); // diffuse factor
+                NdotH = std::max(N.dot(H), 0.0f);
+                sf  = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
 
                 amdi += lighted * df * light->diffuse() & mat->diffuse();
                 spec = lighted * sf * light->specular() & mat->specular();

@@ -1,5 +1,7 @@
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-variable"
+
+#if defined(__clang__)
+#    pragma clang diagnostic ignored "-Wunused-variable"
+#endif
 
 #include "vocabulary_creator.h"
 #ifdef USE_OPENMP
@@ -473,4 +475,5 @@ float VocabularyCreator::distance_float_generic(const cv::Mat& a, const cv::Mat&
 }
 
 }
-#pragma clang diagnostic pop
+
+

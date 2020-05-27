@@ -2,8 +2,9 @@
  * Copyright (C) 1995-2012 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
- #pragma GCC diagnostic push
- #pragma GCC diagnostic ignored "-Weverything"
+#if defined(__clang__)
+#    pragma GCC diagnostic ignored "-Wall"
+#endif
 
 /*
  * Change history:
@@ -1513,4 +1514,3 @@ z_streamp strm;
             (state->mode == MATCH ? state->was - state->length : 0));
 }
 
-#pragma GCC diagnostic pop

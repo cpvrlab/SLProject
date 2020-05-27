@@ -8,11 +8,11 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#include <cuda_runtime.h>
-#include <optix.h>
-#include <optix_types.h>
-#include <SLOptixDefinitions.h>
-#include <SLOptixVectorMath.h>
+#    include <cuda_runtime.h>
+#    include <optix.h>
+#    include <optix_types.h>
+#    include <SLOptixDefinitions.h>
+#    include <SLOptixVectorMath.h>
 
 //-----------------------------------------------------------------------------
 static __device__ __inline__ float2 getPixelOffset(uint3 idx)
@@ -154,7 +154,7 @@ static __forceinline__ __device__ void cosine_sample_hemisphere(const float  u1,
     const float r   = sqrtf(u1);
     const float phi = 2.0f * M_PIf * u2;
     p               = r * cosf(phi) * discX +
-                      r * sinf(phi) * discY;
+        r * sinf(phi) * discY;
 
     // Project up to hemisphere.
     float l = sqrtf(fmaxf(0.0f, 1.0f - length(p) * length(p)));
@@ -250,13 +250,13 @@ static __device__ __inline__ float4 traceSecondaryRay(
     return payload_rgb;
 }
 //-----------------------------------------------------------------------------
-static __device__ __inline__ float traceShadowRay(
-  OptixTraversableHandle handle,
-  float3                 origin,
-  float3                 direction,
-  float                  dist)
+static __device__ __inline__ float traceShadowRay(OptixTraversableHandle handle,
+                                                  float3                 origin,
+                                                  float3                 direction,
+                                                  float                  dist)
 {
     uint32_t p0 = float_as_int(1.0f);
+
     // Send shadow ray
     optixTrace(
       handle,
@@ -272,6 +272,7 @@ static __device__ __inline__ float traceShadowRay(
       RAY_TYPE_OCCLUSION, // missSBTIndex
       p0                  // payload
     );
+
     float lighted = min(int_as_float(p0), 1.0f);
 
     return lighted;
