@@ -271,21 +271,6 @@ void new_rvalue_references()
     cout << "Time used with move: " << duration_cast<nanoseconds>(t2 - t1).count() << "ns.\n";
 
     cout << "\nMove test: --------------------------------------------------------\n";
-    //string a = " a long long string";
-    //string b;
-    //const char* pa = a.c_str();
-    //const char* pb = b.c_str();
-    //cout << "a before the move: " << a << endl;
-    //cout << "b before the move: " << b << endl;
-    //b = move(a);
-    //cout << "a after  the move: " << a << endl;
-    //cout << "b after  the move: " << b << endl;
-    //pa = a.c_str();
-    //pb = b.c_str();
-    //if (pa == pb)
-    //     cout << "b points to the old memory" << endl;
-    //else cout << "b points to the new memory " << endl;
-
     string a = " a long long string";
     string b;
     const char* pa1 = a.c_str();
@@ -298,14 +283,17 @@ void new_rvalue_references()
     printf("a after  the move: %x: %s\n", pa2, pa2);
     printf("b after  the move: %x: %s\n", pb2, pb2);
     if (pa1 == pa2)
-         cout << "pa points to OLD memory" << endl;
+        cout << "pa points to OLD memory" << endl;
     else cout << "pa points to NEW memory" << endl;
     if (pb1 == pb2)
-         cout << "pb points to OLD memory" << endl;
+        cout << "pb points to OLD memory" << endl;
+    else cout << "pb points to NEW memory" << endl;
+    if (pb2 == pa1)
+        cout << "pb points to old pa" << endl;
     else cout << "pb points to NEW memory" << endl;
 
     // Results in n 2015     2016     2017     2018     2020
-    // Linux GCC    OLD/OLD  OLD/OLD  OLD/OLD  NEW/NEW
+    // Linux GCC    OLD/OLD  OLD/OLD  OLD/OLD  NEW/NEW  NEW/NEW
     // Mac Clang    NEW/NEW  OLD/OLD  OLD/OLD  OLD/OLD  OLD/OLD
     // Win VSC++    NEW/NEW  NEW/NEW  NEW/NEW  NEW/NEW  NEW/NEW
 }
