@@ -42,9 +42,9 @@ void AppWAIScene::loadMesh(std::string path)
 
     // Create directional light for the sun light
     SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-    light->ambient(SLCol4f(0.3, 0.3, 0.3));
-    light->diffuse(SLCol4f(1.0, 0.7, 1.0));
-    light->specular(SLCol4f(1, 1, 1));
+    light->ambientColor(SLCol4f(0.3, 0.3, 0.3));
+    light->diffuseColor(SLCol4f(1.0, 0.7, 1.0));
+    light->specularColor(SLCol4f(1, 1, 1));
     light->attenuation(1, 0, 0);
     light->translation(0, 10, 0);
     light->lookAt(10, 0, 10);
@@ -156,9 +156,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
             // Create directional light for the sun light
             SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambient(SLCol4f(1, 1, 1));
-            light->diffuse(SLCol4f(1, 1, 1));
-            light->specular(SLCol4f(1, 1, 1));
+            light->ambientColor(SLCol4f(1, 1, 1));
+            light->diffuseColor(SLCol4f(1, 1, 1));
+            light->specularColor(SLCol4f(1, 1, 1));
             light->attenuation(1, 0, 0);
             light->translation(0, 10, 0);
             light->lookAt(10, 0, 10);
@@ -195,9 +195,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
             // Create directional light for the sun light
             SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambient(SLCol4f(1, 1, 1));
-            light->diffuse(SLCol4f(1, 1, 1));
-            light->specular(SLCol4f(1, 1, 1));
+            light->ambientColor(SLCol4f(1, 1, 1));
+            light->diffuseColor(SLCol4f(1, 1, 1));
+            light->specularColor(SLCol4f(1, 1, 1));
             light->attenuation(1, 0, 0);
             light->translation(0, 10, 0);
             light->lookAt(10, 0, 10);
