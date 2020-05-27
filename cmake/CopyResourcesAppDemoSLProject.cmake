@@ -1,8 +1,10 @@
-# # Definition of resource files for SLProject-demo application and distribution to iOS and Android bundles
-
+# Definition of resource files for SLProject-demo application and distribution to iOS and Android bundles
 function(copy_resources_slprojectdemo TARGET_DIR)
 	
+	#definition of directory to copy
+	#(filenames are defined relative to SL_PROJECT_DATA_ROOT so that we can easily concetenate the target fullpath-filename)
 	set(SL_PROJECT_DATA_ROOT ${SL_PROJECT_ROOT}/data/)
+	
 	# Definition
 	file(GLOB_RECURSE 
 		TEXTURES
@@ -48,7 +50,6 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	    ${SL_PROJECT_ROOT}/data/images/fonts/*.ttf
 	    )
 
-	# If you add new models you must delete ${CMAKE_CURRENT_LIST_DIR}/src/main/assets
 	file(GLOB_RECURSE 
 		MODELS
 		RELATIVE
@@ -60,8 +61,6 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	    #${SL_PROJECT_ROOT}/data/models/PLY/* # exclude these models from releas apk
 	    )
 		
-	#message(STATUS "models: ${MODELS}")
-
 	file(GLOB_RECURSE 
 		SHADERS
 		RELATIVE
@@ -99,89 +98,9 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 		${CONFIG}
 		)
 		
-	foreach(filetocopy ${RESOURCES})
-		message(STATUS "${SL_PROJECT_DATA_ROOT}/${filetocopy}")
-		get_filename_component(filepath ${filetocopy} DIRECTORY)
-		message(STATUS "${TARGET_DIR}/${filepath}")
-
-		file(COPY "${SL_PROJECT_DATA_ROOT}/${filetocopy}" DESTINATION "${TARGET_DIR}/${filepath}")
-	
+	foreach(FILE_TO_COPY ${RESOURCES})
+		get_filename_component(PATH_TO_COPY ${FILE_TO_COPY} DIRECTORY)
+		file(COPY "${SL_PROJECT_DATA_ROOT}/${FILE_TO_COPY}" DESTINATION "${TARGET_DIR}/${PATH_TO_COPY}")	
 	endforeach()	
-	
-	
-	#old
-	if(FALSE)
-		if("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
-			message(STATUS "Copying resources for android to ${TARGET_DIR} (BundleResourcesAppDemoSLProject.cmake)")
-
-			file(MAKE_DIRECTORY
-			    ${TARGET_DIR}/fonts
-			    ${TARGET_DIR}/textures
-			    ${TARGET_DIR}/videos
-			    ${TARGET_DIR}/models
-			    ${TARGET_DIR}/shaders
-			    ${TARGET_DIR}/calibrations
-			    ${TARGET_DIR}/config
-			    )
-
-			file(COPY ${FONTS}          DESTINATION ${TARGET_DIR}/fonts)
-			file(COPY ${TEXTURES}       DESTINATION ${TARGET_DIR}/textures)
-			file(COPY ${VIDEOS}         DESTINATION ${TARGET_DIR}/videos)
-			file(COPY ${MODELS}         DESTINATION ${TARGET_DIR}/models)
-			file(COPY ${SHADERS}        DESTINATION ${TARGET_DIR}/shaders)
-			file(COPY ${CALIBRATIONS}   DESTINATION ${TARGET_DIR}/calibrations)
-			file(COPY ${CONFIG}         DESTINATION ${TARGET_DIR}/config)
-		
-		elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
-			message(STATUS "Copying resources for iOS to ${TARGET_DIR} (BundleResourcesAppDemoSLProject.cmake)")
-		
-
-			#install(${TEST}         DESTINATION ${TARGET_DIR})
-			# In this case we copy the selected resources to the build directory. In this way we can use a trick
-			# to add a folder reference (blue folders in Xcode) that allows us to preserve the directory structure in the bundle and on iOS device.
-			
-			file(MAKE_DIRECTORY
-			    ${TARGET_DIR}/fonts
-			    ${TARGET_DIR}/textures
-			    ${TARGET_DIR}/videos
-			    ${TARGET_DIR}/models
-			    ${TARGET_DIR}/shaders
-			    ${TARGET_DIR}/calibrations
-			    ${TARGET_DIR}/config
-			    )
-			
-			file(COPY ${FONTS}          DESTINATION ${TARGET_DIR}/fonts)
-			file(COPY ${TEXTURES}       DESTINATION ${TARGET_DIR}/textures)
-			file(COPY ${VIDEOS}         DESTINATION ${TARGET_DIR}/videos)
-			file(COPY ${MODELS}         DESTINATION ${TARGET_DIR}/models)
-			file(COPY ${SHADERS}        DESTINATION ${TARGET_DIR}/shaders)
-			file(COPY ${CALIBRATIONS}   DESTINATION ${TARGET_DIR}/calibrations)
-			file(COPY ${CONFIG}         DESTINATION ${TARGET_DIR}/config)
-		
-		endif()
-		
-	endif()
-	
-	#TEST
-	if(FALSE)
-		file(GLOB_RECURSE 
-			TEST
-			RELATIVE
-			${SL_PROJECT_ROOT}/data/
-			${SL_PROJECT_ROOT}/data/test1/*
-		)
-		
-		file(MAKE_DIRECTORY ${TARGET_DIR}/test1)
-		message(STATUS "TEST: ${TEST}")
-		foreach(filetocopy ${TEST})
-			message(STATUS "${SL_PROJECT_ROOT}/data/${filetocopy}")
-			get_filename_component(filepath ${filetocopy} DIRECTORY)
-			message(STATUS "${TARGET_DIR}/${filepath}")
-			#file(MAKE_DIRECTORY ${filepath})
-			
-			file(COPY "${SL_PROJECT_ROOT}/data/${filetocopy}" DESTINATION "${TARGET_DIR}/${filepath}" FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_WRITE GROUP_READ WORLD_READ)
-		
-		endforeach()
-	endif()
 
 endfunction(copy_resources_slprojectdemo)

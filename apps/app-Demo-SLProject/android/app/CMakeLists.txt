@@ -51,12 +51,12 @@ target_include_directories(
     )
 
 target_link_libraries(
-        ${target}
-        ${DEFAULT_LIBRARIES}
-        libc++_shared.so
-        ${OpenCV_LIBS}
-        ${assimp_LIBS}
-        ${META_PROJECT_NAME}::lib-SLProject
+    ${target}
+    ${DEFAULT_LIBRARIES}
+    libc++_shared.so
+    ${OpenCV_LIBS}
+    ${assimp_LIBS}
+    ${META_PROJECT_NAME}::lib-SLProject
     )
 
 #
