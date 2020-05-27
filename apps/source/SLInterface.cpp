@@ -133,7 +133,8 @@ SLint slCreateSceneView(SLProjectScene* scene,
     SLApplication::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
                                        (cbOnImGuiLoadConfig)onImGuiLoadConfig,
                                        (cbOnImGuiSaveConfig)onImGuiSaveConfig,
-                                       dotsPerInch);
+                                       dotsPerInch,
+                                       SLApplication::fontPath);
 
     sv->init("SceneView",
              screenWidth,

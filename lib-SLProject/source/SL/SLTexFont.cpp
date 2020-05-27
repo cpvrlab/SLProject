@@ -88,12 +88,8 @@ void SLTexFont::create(SLstring fontFilename)
     // Check the font filename with path
     if (!Utils::fileExists(fontFilename))
     {
-        fontFilename = defaultPathFonts + fontFilename;
-        if (!Utils::fileExists(fontFilename))
-        {
-            SLstring msg = "SLTexFont::create: File not found: " + fontFilename;
-            SL_EXIT_MSG(msg.c_str());
-        }
+        SLstring msg = "SLTexFont::create: File not found: " + fontFilename;
+        SL_EXIT_MSG(msg.c_str());
     }
 
     CVImage img;

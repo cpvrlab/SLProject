@@ -203,9 +203,8 @@ public:
     SLVec2f dsdt(SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
 
     // Statics
-    static SLstring defaultPathFonts;   //!< Default path for fonts images
-    static SLfloat  maxAnisotropy;      //!< max. anisotropy available
-    static SLuint   numBytesInTextures; //!< NO. of texture bytes on GPU
+    static SLfloat maxAnisotropy;      //!< max. anisotropy available
+    static SLuint  numBytesInTextures; //!< NO. of texture bytes on GPU
 
 protected:
     // loading the image files

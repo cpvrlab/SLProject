@@ -26,11 +26,6 @@
 #    include <SLOptixRaytracer.h>
 #endif
 
-//-----------------------------------------------------------------------------
-//! Default path for texture files used when only filename is passed in load.
-//! Is overwritten in slCreateAppAndScene.
-SLstring SLGLTexture::defaultPathFonts = SLstring(SL_PROJECT_ROOT) + "/data/images/fonts/";
-
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
 
