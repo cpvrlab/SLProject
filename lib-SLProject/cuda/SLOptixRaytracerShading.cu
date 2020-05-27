@@ -49,6 +49,7 @@ extern "C" __global__ void __closesthit__radiance()
 
     // calculate normal vector
     float3 N = getNormalVector();
+
     // calculate texture color
     float4 texture_color = getTextureColor();
 
@@ -71,7 +72,7 @@ extern "C" __global__ void __closesthit__radiance()
             const ortLight light = params.lights[i];
             const float    Ldist = length(light.position - P);
             const float3   L     = normalize(light.position - P);
-            const float    nDl   = dot(L, N);
+            const float    LdotN = dot(L, N);
 
             // Phong specular reflection
             // const float3 R = normalize(reflect(-L, N));
@@ -81,15 +82,12 @@ extern "C" __global__ void __closesthit__radiance()
             // Blinn specular reflection
             const float3 H = normalize(L - ray_dir); // half vector between light & eye
 
-            if (nDl > 0.0f)
+            if (LdotN > 0.0f)
             {
                 float lighted = 0.0f;
 
                 float3 lightDiscX = normalize(make_float3(1, 1, (-1 * (L.x + L.y) / L.z)));
                 float3 lightDiscY = cross(L, lightDiscX);
-                
-                //bool outerCircleIsLighting    = true;
-                //bool innerCircleIsNotLighting = true;
 
                 for (unsigned int r = 1; r <= light.samples.samplesX; r++)
                 {
@@ -102,24 +100,15 @@ extern "C" __global__ void __closesthit__radiance()
                         const float3 direction = normalize(discPoint - P);
                         const float  discDist  = length(discPoint - P);
 
-                        const float sample = traceShadowRay(params.handle, P, direction, discDist);
-                        if (sample > 0)
+                        const float sampleLighted = traceShadowRay(params.handle,
+                                                                   P,
+                                                                   direction,
+                                                                   discDist);
+                        if (sampleLighted > 0)
                         {
-                            lighted += sample / (light.samples.samplesX * light.samples.samplesY);
-                            //innerCircleIsNotLighting = false;
+                            lighted += sampleLighted / (light.samples.samplesX * light.samples.samplesY);
                         }
-                        //if (sample < 1.0f)
-                            //outerCircleIsLighting = false;
                     }
-
-                    //if (outerCircleIsLighting)
-                    //{
-                    //    lighted = 1.0f;
-                    //    break;
-                    //}
-                    //if (innerCircleIsNotLighting) break;
-
-                    //innerCircleIsNotLighting = true;
                 }
 
                 // Phong shading
@@ -145,10 +134,10 @@ extern "C" __global__ void __closesthit__radiance()
                     }
 
                     local_color +=
-                      (rt_data->material.diffuse_color * max(nDl, 0.0f)) // diffuse
-                      * lighted                                          // lighted
-                      * light.diffuse_color                              // multiply with diffuse light color
-                      * lightAttenuation(light, Ldist)                   // multiply with light attenuation
+                      (rt_data->material.diffuse_color * max(LdotN, 0.0f)) // diffuse
+                      * lighted                                            // lighted
+                      * light.diffuse_color                                // multiply with diffuse light color
+                      * lightAttenuation(light, Ldist)                     // multiply with light attenuation
                       * spotEffect;
 
                     specular_color +=
