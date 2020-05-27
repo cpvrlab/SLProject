@@ -1733,8 +1733,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
-            SLCol4f color;
-            color.hsva2rgba(SLVec3f(360.0f * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
+            SLCol4f      color;
+            color.hsva2rgba(SLVec3f(Utils::TWOPI * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
             light->powers(0.0f, 5.0f, 5.0f, color);
             light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
             light->lookAt(0, 0, 0);
