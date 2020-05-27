@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 //! Default constructor
-SLSkybox::SLSkybox(SLstring name) : SLNode(name)
+SLSkybox::SLSkybox(SLstring shaderFilePath, SLstring name) : SLNode(name)
 {
 }
 //-----------------------------------------------------------------------------
@@ -29,6 +29,7 @@ SLSkybox::SLSkybox(SLstring name) : SLNode(name)
 materials, programs and meshes and get deleted at scene destruction.
 */
 SLSkybox::SLSkybox(SLAssetManager* assetMgr,
+                   SLstring        shaderFilePath,
                    SLstring        cubeMapXPos,
                    SLstring        cubeMapXNeg,
                    SLstring        cubeMapYPos,
@@ -47,7 +48,7 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
                                            cubeMapZNeg);
     SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
-    SLGLProgram* sp = new SLGLGenericProgram(assetMgr, "SkyBox.vert", "SkyBox.frag");
+    SLGLProgram* sp = new SLGLGenericProgram(assetMgr, shaderFilePath + "SkyBox.vert", shaderFilePath + "SkyBox.frag");
     matCubeMap->program(sp);
 
     // Create a box with max. point at min. parameter and vice versa.

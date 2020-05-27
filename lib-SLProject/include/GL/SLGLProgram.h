@@ -128,8 +128,6 @@ public:
                            SLsizei        count,
                            const SLfloat* value,
                            GLboolean      transpose = false) const;
-    // statics
-    static SLstring defaultPath; //!< default path for GLSL programs
 
 private:
     SLuint       _progID;     //!< OpenGL shader program object ID

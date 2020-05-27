@@ -9,8 +9,11 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 
-AppWAIScene::AppWAIScene(SLstring name)
-  : SLScene(name, nullptr) {}
+AppWAIScene::AppWAIScene(SLstring name, std::string dataDir)
+  : SLScene(name, nullptr),
+    _dataDir(dataDir)
+{
+}
 
 void AppWAIScene::loadMesh(std::string path)
 {
@@ -76,13 +79,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     loopEdges         = new SLNode("LoopEdges");
 
     redMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
-    redMat->program(new SLGLGenericProgram(&assets, "ColorUniformPoint.vert", "Color.frag"));
+    redMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
     greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::GREEN, "Green");
-    greenMat->program(new SLGLGenericProgram(&assets, "ColorUniformPoint.vert", "Color.frag"));
+    greenMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
     blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::BLUE, "Blue");
-    blueMat->program(new SLGLGenericProgram(&assets, "ColorUniformPoint.vert", "Color.frag"));
+    blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
     yellowMat = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
 

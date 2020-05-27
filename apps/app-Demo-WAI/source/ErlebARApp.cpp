@@ -156,7 +156,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     const DeviceData&  dd         = data->deviceData;
     const std::string& slDataRoot = data->deviceData.dirs().slDataRoot;
     // setup magic paths
-    SLGLProgram::defaultPath      = slDataRoot + "/shaders/";
+    //SLGLProgram::defaultPath      = slDataRoot + "/shaders/";
     SLGLTexture::defaultPath      = slDataRoot + "/images/textures/";
     SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
     SLAssimpImporter::defaultPath = slDataRoot + "/models/";

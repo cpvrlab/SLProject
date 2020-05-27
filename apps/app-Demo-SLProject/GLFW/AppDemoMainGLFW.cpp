@@ -570,6 +570,8 @@ void initSL(SLVstring& cmdLineArgs)
     slSetupExternalDir(projectRoot + "/data/");
     //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
+    //setup platform dependent data path
+    SLApplication::dataPath      = projectRoot + "/data/";
     SLApplication::calibFilePath = configDir;
     CVImage::defaultPath         = projectRoot + "/data/images/textures/";
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath

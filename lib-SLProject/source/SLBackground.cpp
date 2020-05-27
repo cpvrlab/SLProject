@@ -17,7 +17,7 @@
 
 //-----------------------------------------------------------------------------
 //! The constructor initializes to a uniform black background color
-SLBackground::SLBackground()
+SLBackground::SLBackground(SLstring shaderDir)
   : SLObject("Background")
 {
     _colors.push_back(SLCol4f::BLACK); // bottom left
@@ -31,11 +31,11 @@ SLBackground::SLBackground()
     _resY         = -1;
 
     _textureOnlyProgram    = new SLGLGenericProgram(nullptr,
-                                                 "TextureOnly.vert",
-                                                 "TextureOnly.frag");
+                                                 shaderDir + "TextureOnly.vert",
+                                                 shaderDir + "TextureOnly.frag");
     _colorAttributeProgram = new SLGLGenericProgram(nullptr,
-                                                    "ColorAttribute.vert",
-                                                    "Color.frag");
+                                                    shaderDir + "ColorAttribute.vert",
+                                                    shaderDir + "Color.frag");
     _deletePrograms        = true;
 }
 //-----------------------------------------------------------------------------

@@ -64,7 +64,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath      = shaderPath;
+    //SLGLProgram::defaultPath      = shaderPath;
     SLGLTexture::defaultPath      = texturePath;
     SLGLTexture::defaultPathFonts = fontPath;
     SLAssimpImporter::defaultPath = modelPath;
@@ -122,6 +122,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, SLApplication::inputManager);
+    sv->initConeTracer(SLApplication::dataPath + "shaders/");
 
     //maintain multiple scene views in SLApplication
     SLApplication::sceneViews.push_back(sv);

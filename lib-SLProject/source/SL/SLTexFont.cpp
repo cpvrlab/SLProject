@@ -9,7 +9,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>        // Must be the 1st include followed by  an empty line
+#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLScene.h>
 #include <SLTexFont.h>
@@ -21,16 +21,34 @@
 //-----------------------------------------------------------------------------
 SLTexFont::SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram)
 {
-    if (fontTexProgram)
+    assert(fontTexProgram);
+    _fontTexProgram = fontTexProgram;
+    _deleteProgram  = false;
+
+    // Init texture members
+    _texType    = TT_font;
+    _wrap_s     = GL_CLAMP_TO_EDGE;
+    _wrap_t     = GL_CLAMP_TO_EDGE;
+    _min_filter = GL_NEAREST;
+    _mag_filter = GL_NEAREST;
+
+    for (auto& i : chars)
     {
-        _fontTexProgram = fontTexProgram;
-        _deleteProgram  = false;
+        i.width = 0;
+        i.tx1   = 0;
+        i.tx2   = 0;
+        i.ty1   = 0;
+        i.ty2   = 0;
     }
-    else
-    {
-        _fontTexProgram = new SLGLGenericProgram(nullptr, "FontTex.vert", "FontTex.frag");
-        _deleteProgram  = true;
-    }
+    charsHeight = 0;
+
+    create(std::move(fontFilename));
+}
+//-----------------------------------------------------------------------------
+SLTexFont::SLTexFont(SLstring fontFilename, SLstring shaderDir)
+{
+    _fontTexProgram = new SLGLGenericProgram(nullptr, shaderDir + "FontTex.vert", shaderDir + "FontTex.frag");
+    _deleteProgram  = true;
 
     // Init texture members
     _texType    = TT_font;

@@ -31,15 +31,15 @@ public:
 
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLGenericProgram(SLAssetManager* s,
-                       const char*     vertShaderFile,
-                       const char*     fragShaderFile)
+                       const SLstring& vertShaderFile,
+                       const SLstring& fragShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile) { ; }
 
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLGenericProgram(SLAssetManager* s,
-                       const char*     vertShaderFile,
-                       const char*     fragShaderFile,
-                       const char*     geomShaderFile)
+                       const SLstring& vertShaderFile,
+                       const SLstring& fragShaderFile,
+                       const SLstring& geomShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile, geomShaderFile) { ; }
 
     virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }

@@ -50,6 +50,7 @@ SLstring                     SLApplication::calibFilePath;
 SLstring                    SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
 SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring                    SLApplication::dataPath     = SLstring(SL_PROJECT_ROOT) + "/data/";
 SLSceneID                   SLApplication::sceneID      = SID_Empty;
 deque<function<void(void)>> SLApplication::jobsToBeThreaded;
 deque<function<void(void)>> SLApplication::jobsToFollowInMain;
@@ -84,8 +85,10 @@ void SLApplication::createAppAndScene(SLstring appName,
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
 
-    name  = std::move(appName);
+    name = std::move(appName);
+    SLGLProgramManager::init(dataPath + "shaders/");
     scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+    scene->initOculus(dataPath + "shaders/");
     GlobalTimer::timerStart();
 
 #ifdef SL_HAS_OPTIX

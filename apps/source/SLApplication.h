@@ -70,6 +70,7 @@ public:
     static SLstring  exePath;       //!< executable root path
     static SLstring  configPath;    //!< Default path for calibration files
     static SLstring  externalPath;  //!< Default path for external file storage
+    static SLstring  dataPath;      //!< Path to data directory (it is set platform dependent)
     static SLSceneID sceneID;       //!< ID of last loaded scene
 
     static map<string, string>         deviceParameter;    //!< Generic device parameter
