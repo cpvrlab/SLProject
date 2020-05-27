@@ -3,6 +3,9 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+
 #include "gzguts.h"
 
 /* Local functions */
@@ -592,3 +595,5 @@ int ZEXPORT gzclose_r(file)
     free(state);
     return ret ? Z_ERRNO : err;
 }
+
+#pragma GCC diagnostic pop
