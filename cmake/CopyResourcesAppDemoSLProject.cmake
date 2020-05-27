@@ -1,9 +1,13 @@
 # # Definition of resource files for SLProject-demo application and distribution to iOS and Android bundles
 
 function(copy_resources_slprojectdemo TARGET_DIR)
+	
+	set(SL_PROJECT_DATA_ROOT ${SL_PROJECT_ROOT}/data/)
 	# Definition
 	file(GLOB_RECURSE 
 		TEXTURES
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 	    ${SL_PROJECT_ROOT}/data/images/textures/brick0512_C.png
 	    ${SL_PROJECT_ROOT}/data/images/textures/brick*.jpg
 	    ${SL_PROJECT_ROOT}/data/images/textures/CompileError.png
@@ -29,17 +33,26 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	    ${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
 	    )
 
-	file(GLOB_RECURSE VIDEOS
+	file(GLOB_RECURSE 
+		VIDEOS
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 	    ${SL_PROJECT_ROOT}/data/videos/street3.mp4
 	    )
 
-	file(GLOB_RECURSE FONTS
+	file(GLOB_RECURSE 
+		FONTS
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 	    ${SL_PROJECT_ROOT}/data/images/fonts/*.png
 	    ${SL_PROJECT_ROOT}/data/images/fonts/*.ttf
 	    )
 
 	# If you add new models you must delete ${CMAKE_CURRENT_LIST_DIR}/src/main/assets
-	file(GLOB_RECURSE MODELS
+	file(GLOB_RECURSE 
+		MODELS
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 	    "${SL_PROJECT_ROOT}/data/models/3DS/*"
 	    "${SL_PROJECT_ROOT}/data/models/DAE/*"
 	    "${SL_PROJECT_ROOT}/data/models/FBX/*"		
@@ -49,12 +62,18 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 		
 	#message(STATUS "models: ${MODELS}")
 
-	file(GLOB_RECURSE SHADERS
+	file(GLOB_RECURSE 
+		SHADERS
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 	    ${SL_PROJECT_ROOT}/data/shaders/*.vert
 	    ${SL_PROJECT_ROOT}/data/shaders/*.frag
 	    )
 
-	file(GLOB_RECURSE CALIBRATIONS
+	file(GLOB_RECURSE 
+		CALIBRATIONS
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 	    ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
 	    #${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
 	    ${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
@@ -62,62 +81,64 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	    ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
 	    )
 
-	file(GLOB_RECURSE CONFIG
+	file(GLOB_RECURSE 
+		CONFIG
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
 		${SL_PROJECT_ROOT}/data/config/dummyFile.txt
 	    )
 	
-	if(FALSE)
-		file(GLOB_RECURSE 
-			TEST
-			RELATIVE
-			${SL_PROJECT_ROOT}/data/
-			${SL_PROJECT_ROOT}/data/test1/*
+	# Distribution
+	set(RESOURCES
+		${TEXTURES}
+		${VIDEOS}
+		${FONTS}
+		${MODELS}
+		${SHADERS}
+		${CALIBRATIONS}
+		${CONFIG}
 		)
 		
-		file(MAKE_DIRECTORY ${TARGET_DIR}/test1)
-		message(STATUS "TEST: ${TEST}")
-		foreach(filetocopy ${TEST})
-			message(STATUS "${SL_PROJECT_ROOT}/data/${filetocopy}")
-			get_filename_component(filepath ${filetocopy} DIRECTORY)
-			message(STATUS "${TARGET_DIR}/${filepath}")
-			#file(MAKE_DIRECTORY ${filepath})
-			
-			file(COPY "${SL_PROJECT_ROOT}/data/${filetocopy}" DESTINATION "${TARGET_DIR}/${filepath}" FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_WRITE GROUP_READ WORLD_READ)
+	foreach(filetocopy ${RESOURCES})
+		message(STATUS "${SL_PROJECT_DATA_ROOT}/${filetocopy}")
+		get_filename_component(filepath ${filetocopy} DIRECTORY)
+		message(STATUS "${TARGET_DIR}/${filepath}")
+
+		file(COPY "${SL_PROJECT_DATA_ROOT}/${filetocopy}" DESTINATION "${TARGET_DIR}/${filepath}")
+	
+	endforeach()	
+	
+	
+	#old
+	if(FALSE)
+		if("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
+			message(STATUS "Copying resources for android to ${TARGET_DIR} (BundleResourcesAppDemoSLProject.cmake)")
+
+			file(MAKE_DIRECTORY
+			    ${TARGET_DIR}/fonts
+			    ${TARGET_DIR}/textures
+			    ${TARGET_DIR}/videos
+			    ${TARGET_DIR}/models
+			    ${TARGET_DIR}/shaders
+			    ${TARGET_DIR}/calibrations
+			    ${TARGET_DIR}/config
+			    )
+
+			file(COPY ${FONTS}          DESTINATION ${TARGET_DIR}/fonts)
+			file(COPY ${TEXTURES}       DESTINATION ${TARGET_DIR}/textures)
+			file(COPY ${VIDEOS}         DESTINATION ${TARGET_DIR}/videos)
+			file(COPY ${MODELS}         DESTINATION ${TARGET_DIR}/models)
+			file(COPY ${SHADERS}        DESTINATION ${TARGET_DIR}/shaders)
+			file(COPY ${CALIBRATIONS}   DESTINATION ${TARGET_DIR}/calibrations)
+			file(COPY ${CONFIG}         DESTINATION ${TARGET_DIR}/config)
 		
-		endforeach()
-	endif()
-
-	# Distribution
-	if("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
-		message(STATUS "Copying resources for android to ${TARGET_DIR} (BundleResourcesAppDemoSLProject.cmake)")
-
-		file(MAKE_DIRECTORY
-		    ${TARGET_DIR}/fonts
-		    ${TARGET_DIR}/textures
-		    ${TARGET_DIR}/videos
-		    ${TARGET_DIR}/models
-		    ${TARGET_DIR}/shaders
-		    ${TARGET_DIR}/calibrations
-		    ${TARGET_DIR}/config
-		    )
-
-		file(COPY ${FONTS}          DESTINATION ${TARGET_DIR}/fonts)
-		file(COPY ${TEXTURES}       DESTINATION ${TARGET_DIR}/textures)
-		file(COPY ${VIDEOS}         DESTINATION ${TARGET_DIR}/videos)
-		#file(COPY ${MODELS}         DESTINATION ${TARGET_DIR}/models)
-		install(${MODELS}         DESTINATION ${TARGET_DIR}/models)
-		file(COPY ${SHADERS}        DESTINATION ${TARGET_DIR}/shaders)
-		file(COPY ${CALIBRATIONS}   DESTINATION ${TARGET_DIR}/calibrations)
-		file(COPY ${CONFIG}         DESTINATION ${TARGET_DIR}/config)
-		
-	elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
-		message(STATUS "Copying resources for iOS to ${TARGET_DIR} (BundleResourcesAppDemoSLProject.cmake)")
+		elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+			message(STATUS "Copying resources for iOS to ${TARGET_DIR} (BundleResourcesAppDemoSLProject.cmake)")
 		
 
-		#install(${TEST}         DESTINATION ${TARGET_DIR})
-		# In this case we copy the selected resources to the build directory. In this way we can use a trick
-		# to add a folder reference (blue folders in Xcode) that allows us to preserve the directory structure in the bundle and on iOS device.
-		if(FALSE)
+			#install(${TEST}         DESTINATION ${TARGET_DIR})
+			# In this case we copy the selected resources to the build directory. In this way we can use a trick
+			# to add a folder reference (blue folders in Xcode) that allows us to preserve the directory structure in the bundle and on iOS device.
 			
 			file(MAKE_DIRECTORY
 			    ${TARGET_DIR}/fonts
@@ -139,6 +160,28 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 		
 		endif()
 		
+	endif()
+	
+	#TEST
+	if(FALSE)
+		file(GLOB_RECURSE 
+			TEST
+			RELATIVE
+			${SL_PROJECT_ROOT}/data/
+			${SL_PROJECT_ROOT}/data/test1/*
+		)
+		
+		file(MAKE_DIRECTORY ${TARGET_DIR}/test1)
+		message(STATUS "TEST: ${TEST}")
+		foreach(filetocopy ${TEST})
+			message(STATUS "${SL_PROJECT_ROOT}/data/${filetocopy}")
+			get_filename_component(filepath ${filetocopy} DIRECTORY)
+			message(STATUS "${TARGET_DIR}/${filepath}")
+			#file(MAKE_DIRECTORY ${filepath})
+			
+			file(COPY "${SL_PROJECT_ROOT}/data/${filetocopy}" DESTINATION "${TARGET_DIR}/${filepath}" FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_WRITE GROUP_READ WORLD_READ)
+		
+		endforeach()
 	endif()
 
 endfunction(copy_resources_slprojectdemo)

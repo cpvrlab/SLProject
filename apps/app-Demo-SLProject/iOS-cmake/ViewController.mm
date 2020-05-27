@@ -161,17 +161,17 @@ float GetSeconds()
     SLApplication::calibIniPath  = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
     //Utils::dumpFileSystemRec("SLProject", SLApplication::exePath);
     
-    CVImage::defaultPath = SLApplication::exePath;
+    CVImage::defaultPath = SLApplication::exePath + "data/";
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
                                             SLApplication::configPath,   // for stored calibrations
-                                            SLApplication::exePath);     // for videos
+                                            SLApplication::exePath + "data/videos/");     // for videos
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        SLApplication::exePath,
-                        SLApplication::exePath,
-                        SLApplication::exePath,
-                        SLApplication::exePath,
+                        SLApplication::exePath + "data/shaders/",
+                        SLApplication::exePath + "data/models/",
+                        SLApplication::exePath + "data/images/textures/",
+                        SLApplication::exePath + "data/images/fonts/",
                         SLApplication::configPath,
                         "AppDemo_iOS",
                         (void*)appDemoLoadScene);

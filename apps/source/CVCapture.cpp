@@ -37,7 +37,7 @@ CVCapture::CVCapture()
 {
     startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
-    videoDefaultPath   = "../data/videos/";
+    videoDefaultPath   = "/data/videos/";
     videoFilename      = "";
     videoLoops         = true;
     fps                = 1;
