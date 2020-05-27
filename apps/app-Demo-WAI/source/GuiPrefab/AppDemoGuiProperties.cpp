@@ -170,17 +170,17 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                             light->isOn(on);
 
                         ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
-                        SLCol4f             a     = light->ambient();
+                        SLCol4f             a     = light->ambientColor();
                         if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
-                            light->ambient(a);
+                            light->ambientColor(a);
 
-                        SLCol4f d = light->diffuse();
+                        SLCol4f d = light->diffuseColor();
                         if (ImGui::InputFloat3("Diffuse", (float*)&d, 1, flags))
-                            light->diffuse(d);
+                            light->diffuseColor(d);
 
-                        SLCol4f s = light->specular();
+                        SLCol4f s = light->specularColor();
                         if (ImGui::InputFloat3("Specular", (float*)&s, 1, flags))
-                            light->specular(s);
+                            light->specularColor(s);
 
                         float cutoff = light->spotCutOffDEG();
                         if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
