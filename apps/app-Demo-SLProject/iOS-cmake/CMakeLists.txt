@@ -37,8 +37,8 @@ set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
 set(MACOSX_BUNDLE_COPYRIGHT "Copyright Berner Fachhochschule (Marcus Hudritsch)")
 set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
-set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
+#set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
+#set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
 set(headers
@@ -68,7 +68,13 @@ set(sources
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm
 	)
 
-# define resources
+#copy defined resources to build directory and add get folder reference using file(GLOB) (this is a secret trick that nobody knows)
+include(CopyResourcesAppDemoSLProject)
+set(DATA_DIR "${CMAKE_BINARY_DIR}/data")
+copy_resources_slprojectdemo("${DATA_DIR}")
+file(GLOB DATA "${DATA_DIR}")
+
+# define additional Xcode app resources
 set(XIB_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPad.xib
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
@@ -76,87 +82,25 @@ set(XIB_FILES
 
 set(ASSET_CATALOG
 	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
-)
-
-#calibrations
-set(CALIBRATIONS 
-	${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
-	${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
-	${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
-	${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt2.xml
-	${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
-	${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
 	)
 
-#models
-file(GLOB MODELS_3DS
-	${SL_PROJECT_ROOT}/data/models/3DS
-	#${SL_PROJECT_ROOT}/data/models/3DS/Halloween
-	)
-	
-file(GLOB MODELS_DAE
-	${SL_PROJECT_ROOT}/data/models/DAE
-	#${SL_PROJECT_ROOT}/data/models/DAE/AstroBoy
-	#${SL_PROJECT_ROOT}/data/models/DAE/Crate
-	#${SL_PROJECT_ROOT}/data/models/DAE/Hands
-	#${SL_PROJECT_ROOT}/data/models/DAE/Sintel
-	#${SL_PROJECT_ROOT}/data/models/DAE/SkinnedCube
-	#${SL_PROJECT_ROOT}/data/models/DAE/Table
-	)
-	
-file(GLOB MODELS_FBX
-	${SL_PROJECT_ROOT}/data/models/FBX	
-	#${SL_PROJECT_ROOT}/data/models/FBX/Axes/*
-	#${SL_PROJECT_ROOT}/data/models/FBX/Brunnen.fbx
-	#${SL_PROJECT_ROOT}/data/models/FBX/Christoffel/*
-	#${SL_PROJECT_ROOT}/data/models/FBX/Duck/*
-	#${SL_PROJECT_ROOT}/data/models/FBX/Sunglasses.fbx
-	#${SL_PROJECT_ROOT}/data/models/FBX/Suzanne/*
-	#${SL_PROJECT_ROOT}/data/models/FBX/Teapot/*
-	)	
-
-file(GLOB MODELS
-	${SL_PROJECT_ROOT}/data/models
-)
-	
-file(GLOB SHADERS ${SL_PROJECT_ROOT}/data/shaders/*)
-file(GLOB FONTS ${SL_PROJECT_ROOT}/data/images/fonts/*)
-file(GLOB TEXTURES ${SL_PROJECT_ROOT}/data/images/textures/*)
-file(GLOB VIDEOS ${SL_PROJECT_ROOT}/data/videos/*)
-
-set(resources
-	${ASSET_CATALOG}
-	${XIB_FILES}
-	${CALIBRATIONS}
-	${SHADERS}
-	${FONTS}
-	${TEXTURES}
-	${VIDEOS}
-	#${MODELS_3DS}
-	#${MODELS_DAE}
-	#${MODELS_FBX}
-	${MODELS}
-	)
-	
-# Group resource files
+# Group data resource files in Xcode Resource directory
 source_group(Resources FILES ${XIB_FILES})
 source_group(Resources FILES ${ASSET_CATALOG})
-source_group(Resources\\data\\calibrations FILES ${CALIBRATIONS})
-source_group(Resources\\data\\shaders FILES ${SHADERS})
-source_group(Resources\\data\\images\\fonts FILES ${FONTS})
-source_group(Resources\\data\\images\\textures FILES ${TEXTURES})
-#source_group(Resources\\data\\models FILES ${MODELS_3DS})
-#source_group(Resources\\data\\models FILES ${MODELS_DAE})
-#source_group(Resources\\data\\models FILES ${MODELS_FBX})
-source_group(Resources\\data FILES ${MODELS})
-source_group(Resources\\data\\videos FILES ${VIDEOS})
+source_group(Resources FILES ${DATA})
+
+set(RESOURCES
+	${ASSET_CATALOG}
+	${XIB_FILES}
+	${DATA}
+	)
 
 add_executable(
         ${target}
 		MACOSX_BUNDLE
         ${headers}
         ${sources}
-		${resources}
+		${RESOURCES}
     )
 
 set_target_properties(
@@ -167,7 +111,7 @@ set_target_properties(
 		
         XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
         XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Prefix.pch" #this is a precompiled header!
-        RESOURCE "${resources}"
+        RESOURCE "${RESOURCES}"
         XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
@@ -246,3 +190,5 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
+	
+	
