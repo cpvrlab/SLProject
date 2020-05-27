@@ -1126,13 +1126,13 @@ WAIFrame WAISlamTools::createMarkerFrame(std::string       markerFile,
 {
     cv::Mat markerImgGray = cv::imread(markerFile, cv::IMREAD_GRAYSCALE);
 
-    float fyCam = markerCameraIntrinsic.at<float>(1, 1);
-    float cyCam = markerCameraIntrinsic.at<float>(1, 2);
+    float fyCam = (float)markerCameraIntrinsic.at<double>(1, 1);
+    float cyCam = (float)markerCameraIntrinsic.at<double>(1, 2);
     float fov   = (float)(2.0f * atan2(cyCam, fyCam) * 180.0f / M_PI);
 
     float cx = (float)markerImgGray.cols * 0.5f;
     float cy = (float)markerImgGray.rows * 0.5f;
-    float fy = (float)(cy / tanf(fov * 0.5f * (float)M_PI / 180.0f));
+    float fy = cy / tanf(fov * 0.5f * (float)M_PI / 180.0f);
     float fx = fy;
 
     // TODO(dgj1): pass actual calibration for marker frame?

@@ -40,7 +40,6 @@
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SLTransferFunction.h>
-#include <SLLine.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 
@@ -94,8 +93,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     SLApplication::sceneID = sceneID;
 
     // reset existing sceneviews
-    for (auto* sv : SLApplication::sceneViews)
-        sv->unInit();
+    for (auto* sceneview : SLApplication::sceneViews)
+        sceneview->unInit();
 
     // Initialize all preloaded stuff from SLScene
     s->init();
@@ -151,7 +150,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_Figure) //....................................................
     {
         s->name("Hierarchical Figure Test");
-        s->info("Hierarchical scenegraph with multiple subgroups.");
+        s->info("Hierarchical scenegraph with multiple subgroups in the figure. The goal is to visualize how you can design a figure with hierarchical transforms containing only rotations and translations. View the bounding boxes with GL > Bounding Boxes. Try also ray tracing.");
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
@@ -175,9 +174,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 5, 0, 5, 0.5f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.9f, 0.9f, 0.9f));
-        light1->specular(SLCol4f(0.9f, 0.9f, 0.9f));
+        light1->powers(0.2f, 0.9f, 0.9f);
         light1->attenuation(1, 0, 0);
 
         SLNode* figure = BuildFigureGroup(s, m1);
@@ -196,7 +193,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_MeshLoad) //..................................................
     {
         s->name("Mesh 3D Loader Test");
-        s->info("3D file import test for: 3DS, DAE & FBX");
+        s->info("3D file import test. We use the assimp library to load all 3D file formats including materials, skeletons and animations. ");
 
         SLMaterial* matBlu = new SLMaterial(s, "Blue", SLCol4f(0, 0, 0.2f), SLCol4f(1, 1, 1), 100, 0.8f, 0);
         SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.2f, 0, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
@@ -218,18 +215,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2.5f, 2.5f, 2.5f, 0.2f);
-        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light1->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
-        light1->specular(SLCol4f(1.0f, 1.0f, 1.0f));
+        light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         SLAnimation* anim = s->animManager().createNodeAnimation("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
-        //SLAnimation* anim = SLAnimation::create("anim_light1_backforth", 2.0f, true, EC_inOutQuad, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light1, SLVec3f(0.0f, 0.0f, -5.0f));
 
         SLLightSpot* light2 = new SLLightSpot(s, s, -2.5f, -2.5f, 2.5f, 0.2f);
-        light2->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light2->diffuse(SLCol4f(1.0f, 1.0f, 1.0f));
-        light2->specular(SLCol4f(1.0f, 1.0f, 1.0f));
+        light2->powers(0.1f, 1.0f, 1.0f);
         light2->attenuation(1, 0, 0);
         anim = s->animManager().createNodeAnimation("anim_light2_updown", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
         anim->createSimpleTranslationNodeTrack(light2, SLVec3f(0.0f, 5.0f, 0.0f));
@@ -347,9 +339,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0, 4, 0, 0.3f);
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.2f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         SLAnimation* anim = s->animManager().createNodeAnimation("light1_anim", 4.0f);
         anim->createEllipticNodeTrack(light1, 6.0f, A_z, 6.0f, A_x);
@@ -459,15 +449,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
-#ifdef SL_OS_ANDROID
-        SLstring largeFile = SLImporter::defaultPath + "xyzrgb_dragon.ply";
-#else
-        SLstring     largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
-#endif
+        SLstring largeFile = findModelFileName("PLY/xyzrgb_dragon.ply");
+
         if (Utils::fileExists(largeFile))
         {
             s->name("Large Model Test");
             s->info("Large Model with 7.2 mio. triangles.");
+
+            // Material for glass
+            SLMaterial* diffuseMat = new SLMaterial(s, "diffuseMat", SLCol4f::WHITE, SLCol4f::WHITE);
 
             SLCamera* cam1 = new SLCamera("Camera 1");
             cam1->translation(0, 0, 220);
@@ -480,19 +470,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
             SLLightSpot* light1 = new SLLightSpot(s, s, 200, 200, 200, 1);
-            light1->ambient(SLCol4f(1, 1, 1));
-            light1->diffuse(SLCol4f(1, 1, 1));
-            light1->specular(SLCol4f(1, 1, 1));
+            light1->powers(0.1f, 1.0f, 1.0f);
             light1->attenuation(1, 0, 0);
 
             SLAssimpImporter importer;
             SLfloat          timeStart  = GlobalTimer::timeS();
             SLNode*          largeModel = importer.load(s->animManager(),
                                                s,
-                                               findModelFileName("PLY/xyzrgb_dragon.ply"),
+                                               largeFile,
                                                true,
-                                               nullptr,
-                                               0.0f,
+                                               diffuseMat,
+                                               0.2f,
                                                SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
 
             SLfloat timeEnd = GlobalTimer::timeS();
@@ -724,9 +712,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.2f, 0.8f, 1.0f);
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
@@ -748,9 +734,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 {
                     if (iX != 0 || iY != 0 || iZ != 0)
                     {
-                        SLNode* s = sphere->copyRec();
-                        s->translate(float(iX), float(iY), float(iZ), TS_object);
-                        scene->addChild(s);
+                        SLNode* sph = sphere->copyRec();
+                        sph->translate(float(iX), float(iY), float(iZ), TS_object);
+                        scene->addChild(sph);
                     }
                 }
             }
@@ -781,9 +767,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.2f, 0.8f, 1.0f);
         light1->attenuation(1, 0, 0);
 
         // Because all text objects get their sizes in pixels we have to scale them down
@@ -861,9 +845,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.2f, 0.8f, 1.0f);
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
@@ -922,9 +904,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.8f, 0.8f, 0.8f));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.2f, 0.8f, 1.0f);
         light1->attenuation(1, 0, 0);
 
         SLMaterial* pcMat1 = new SLMaterial(s, "Red", SLCol4f::RED);
@@ -985,8 +965,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Define 5 light sources
         // A rectangluar wight light on top
         SLLightRect* light0 = new SLLightRect(s, s, 2.0f, 1.0f);
-        light0->ambient(SLCol4f(0, 0, 0));
-        light0->diffuse(SLCol4f(1, 1, 1));
+        light0->ambiDiffPowers(0, 1);
         light0->translation(0, 3, 0);
         light0->lookAt(0, 0, 0, 0, 0, -1);
         light0->attenuation(0, 0, 1);
@@ -994,9 +973,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // A red point light from from front left
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.1f);
-        light1->ambient(SLCol4f(0, 0, 0));
-        light1->diffuse(SLCol4f(1, 0, 0));
-        light1->specular(SLCol4f(1, 0, 0));
+        light1->ambientColor(SLCol4f(0, 0, 0));
+        light1->diffuseColor(SLCol4f(1, 0, 0));
+        light1->specularColor(SLCol4f(1, 0, 0));
         light1->translation(0, 0, 2);
         light1->lookAt(0, 0, 0);
         light1->attenuation(0, 0, 1);
@@ -1014,9 +993,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // A green spot head light with 40 deg. spot angle from front right
         SLLightSpot* light2 = new SLLightSpot(s, s, 0.1f, 20.0f, true);
-        light2->ambient(SLCol4f(0, 0, 0));
-        light2->diffuse(SLCol4f(0, 1, 0));
-        light2->specular(SLCol4f(0, 1, 0));
+        light2->ambientColor(SLCol4f(0, 0, 0));
+        light2->diffuseColor(SLCol4f(0, 1, 0));
+        light2->specularColor(SLCol4f(0, 1, 0));
         light2->translation(1.5f, 0.5f, -6.5f);
         light2->lookAt(0.5f, -0.5f, -7.5f);
         light2->attenuation(0, 0, 1);
@@ -1024,9 +1003,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // A blue spot light with 40 deg. spot angle from front left
         SLLightSpot* light3 = new SLLightSpot(s, s, 0.1f, 20.0f, true);
-        light3->ambient(SLCol4f(0, 0, 0));
-        light3->diffuse(SLCol4f(0, 0, 1));
-        light3->specular(SLCol4f(0, 0, 1));
+        light3->ambientColor(SLCol4f(0, 0, 0));
+        light3->diffuseColor(SLCol4f(0, 0, 1));
+        light3->specularColor(SLCol4f(0, 0, 1));
         light3->translation(-1.5f, 1.5f, 1.5f);
         light3->lookAt(0, 0, 0);
         light3->attenuation(0, 0, 1);
@@ -1034,9 +1013,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // A yellow directional light from the back-bottom
         SLLightDirect* light4 = new SLLightDirect(s, s);
-        light4->ambient(SLCol4f(0, 0, 0));
-        light4->diffuse(SLCol4f(1, 1, 0));
-        light4->specular(SLCol4f(1, 1, 0));
+        light4->ambientColor(SLCol4f(0, 0, 0));
+        light4->diffuseColor(SLCol4f(1, 1, 0));
+        light4->specularColor(SLCol4f(1, 1, 0));
         light4->translation(-1.5f, -1.5f, -1.5f);
         light4->lookAt(0, 0, 0);
         scene->addChild(light4);
@@ -1069,8 +1048,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         const SLint nrRows  = 7;
         const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = ((float)nrCols / 2.0f) * spacing;
-        SLfloat     maxY    = ((float)nrRows / 2.0f) * spacing;
+        SLfloat     maxX    = (float)(nrCols - 1) * spacing * 0.5f;
+        SLfloat     maxY    = (float)(nrRows - 1) * spacing * 0.5f;
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
@@ -1087,10 +1066,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
-                                            new SLGLTexture(s, "rusty-metal_2048C.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048N.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048M.png"),
-                                            new SLGLTexture(s, "rusty-metal_2048R.png"),
+                                            new SLGLTexture(s, "rusty-metal_2048C.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048N.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048M.jpg"),
+                                            new SLGLTexture(s, "rusty-metal_2048R.jpg"),
                                             SLGLProgramManager::get(SP_perPixCookTorranceTex));
                 }
                 else
@@ -1110,7 +1089,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add 4 point light
-        SLfloat      power  = 1000.0f;
+        SLfloat      power  = 2000.0f;
         SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
         light1->attenuation(0, 0, 1);
         SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
@@ -1160,8 +1139,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         wave->rotate(90, -1, 0, 0);
 
         SLLightSpot* light0 = new SLLightSpot(s, s);
-        light0->ambient(SLCol4f(0, 0, 0));
-        light0->diffuse(SLCol4f(1, 1, 1));
+        light0->ambiDiffPowers(0, 1);
         light0->translate(0, 4, -4, TS_object);
         light0->attenuation(1, 0, 0);
 
@@ -1238,8 +1216,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rectB->translate(0, 0, -Utils::PI / 6, TS_object);
 
         SLLightSpot* light0 = new SLLightSpot(s, s);
-        light0->ambient(SLCol4f(0, 0, 0));
-        light0->diffuse(SLCol4f(1, 1, 1));
+        light0->ambiDiffPowers(0, 1);
         light0->translate(0, 4, -4, TS_object);
         light0->attenuation(1, 0, 0);
 
@@ -1279,9 +1256,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
-        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(0, 0, 5);
         light1->lookAt(0, 0, 0);
@@ -1332,9 +1307,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
-        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(0, 0, 5);
         light1->lookAt(0, 0, 0);
@@ -1387,7 +1360,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // But ray tracing needs light sources
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 0.5f);
-        light->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+        light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
         light->attenuation(1, 0, 0);
         light->translate(1, 1, -1);
         light->lookAt(-1, -1, 1);
@@ -1443,11 +1416,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texG  = new SLGLTexture(s, "earth2048_G.jpg");      // gloss map
         SLGLTexture* texNC = new SLGLTexture(s, "earthNight2048_C.jpg"); // night color  map
 #else
-        SLGLTexture* texC      = new SLGLTexture(s, "earth1024_C.jpg");      // color map
-        SLGLTexture* texN      = new SLGLTexture(s, "earth1024_N.jpg");      // normal map
-        SLGLTexture* texH      = new SLGLTexture(s, "earth1024_H.jpg");      // height map
-        SLGLTexture* texG      = new SLGLTexture(s, "earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC     = new SLGLTexture(s, "earthNight1024_C.jpg"); // night color  map
+        SLGLTexture* texC  = new SLGLTexture(s, "earth1024_C.jpg");      // color map
+        SLGLTexture* texN  = new SLGLTexture(s, "earth1024_N.jpg");      // normal map
+        SLGLTexture* texH  = new SLGLTexture(s, "earth1024_H.jpg");      // height map
+        SLGLTexture* texG  = new SLGLTexture(s, "earth1024_G.jpg");      // gloss map
+        SLGLTexture* texNC = new SLGLTexture(s, "earthNight1024_C.jpg"); // night color  map
 #endif
         SLGLTexture* texClC = new SLGLTexture(s, "earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture(s, "earthCloud1024_A.jpg"); // cloud alpha map
@@ -1469,9 +1442,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* sun = new SLLightSpot(s, s);
-        sun->ambient(SLCol4f(0, 0, 0));
-        sun->diffuse(SLCol4f(1, 1, 1));
-        sun->specular(SLCol4f(0.2f, 0.2f, 0.2f));
+        sun->powers(0.0f, 1.0f, 0.2f);
         sun->attenuation(1, 0, 0);
 
         SLAnimation* anim = s->animManager().createNodeAnimation("light1_anim", 24.0f);
@@ -1592,9 +1563,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //light0->init();
         light0->spotCutOffDEG(170);
         light0->spotExponent(1.0);
-        light0->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-        light0->diffuse(SLCol4f(2.0f, 2.0f, 2.0f));
-        light0->specular(SLCol4f::WHITE);
+        light0->powers(0.3f, 2.0f, 1.0f);
         light0->attenuation(0, 0, 1);
         scene->addChild(light0);
 
@@ -1625,8 +1594,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create light source
         SLLightDirect* light = new SLLightDirect(s, s);
-        light->ambient(SLCol4f(0, 0, 0));
-        light->diffuse(SLCol4f(1, 1, 1));
+        light->powers(0.0f, 1.0f, 1.0f);
         light->translation(0, 5, 0);
         light->lookAt(0, 0, 0);
         light->attenuation(0, 0, 1);
@@ -1687,12 +1655,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLNode*  node  = dynamic_cast<SLNode*>(light);
             SLfloat  x     = (i - (lights.size() - 1.0f) / 2.0f) * 5;
 
-            light->ambient(SLCol4f(0, 0, 0));
-
             if (i == 0) // Make direct light less bright
-                light->diffuse(SLCol4f(0.4f, 0.4f, 0.4f));
+                light->powers(0.0f, 0.4f, 0.4f);
             else
-                light->diffuse(SLCol4f(2.0f, 2.0f, 2.0f));
+                light->powers(0.0f, 2.0f, 2.0f);
 
             node->translation(x, 5, 0);
             node->lookAt(x, 0, 0);
@@ -1702,13 +1668,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add teapots which cast shadows
-        SLAnimation* teapotAnim = s->animManager().createNodeAnimation("teapot_anim", 8.0f, true, EC_linear, AL_loop);
-        SLNode* teapotModel = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, m1);
+        SLAnimation* teapotAnim  = s->animManager().createNodeAnimation("teapot_anim", 8.0f, true, EC_linear, AL_loop);
+        SLNode*      teapotModel = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), true, m1);
 
         for (SLLight* light : lights)
         {
-            SLNode *teapot = teapotModel->copyRec();
-            
+            SLNode* teapot = teapotModel->copyRec();
+
             teapot->translate(light->positionWS().x, 2, 0);
             teapot->children()[0]->castsShadows(true);
             scene->addChild(teapot);
@@ -1767,11 +1733,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
-            light->ambient(SLCol4f(0, 0, 0));
             SLCol4f color;
             color.hsva2rgba(SLVec3f(360.0f * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
-            color *= 5.0f;
-            light->diffuse(color);
+            light->powers(0.0f, 5.0f, 5.0f, color);
             light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
             light->lookAt(0, 0, 0);
             light->attenuation(0, 0, 1);
@@ -1815,7 +1779,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0.0f, -0.05f, 0.0f);
         cam1->fov(27);
         cam1->focalDist(cam1->translationOS().length());
-        cam1->background().colors(SLCol4f(0.0f, 0.0f, 0.0f));
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
@@ -1825,8 +1789,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (SLint i = 0; i < 3; ++i)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
-            light->ambient(SLCol4f(i == 0, i == 1, i == 2) * 0.2f);
-            light->diffuse(SLCol4f(i == 0, i == 1, i == 2) * 1.5f);
+            light->powers(0.2f, 1.5f, 1.0f, SLCol4f(i == 0, i == 1, i == 2));
             light->attenuation(0, 0, 1);
             light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
             light->createsShadows(true);
@@ -1946,9 +1909,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Set light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
-        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(5, 5, 5);
 
@@ -2014,9 +1975,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Set light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
-        light1->ambient(SLCol4f(0.1f, 0.1f, 0.1f));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(5, 5, 5);
 
@@ -2052,9 +2011,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // light
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 5, 0.5f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(0.2f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         scene->addChild(light1);
 
@@ -2182,17 +2139,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam3->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0, 2, 0, 0.5f);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.9f, 0.9f, 0.9f));
-        light1->specular(SLCol4f(0.9f, 0.9f, 0.9f));
+        light1->powers(0.2f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         SLAnimation* light1Anim = s->animManager().createNodeAnimation("Light1_anim", 4.0f);
         light1Anim->createEllipticNodeTrack(light1, 6, A_z, 6, A_x);
 
         SLLightSpot* light2 = new SLLightSpot(s, s, 0, 0, 0, 0.2f);
-        light2->ambient(SLCol4f(0.2f, 0.0f, 0.0f));
-        light2->diffuse(SLCol4f(0.9f, 0.0f, 0.0f));
-        light2->specular(SLCol4f(0.9f, 0.9f, 0.9f));
+        light2->powers(0.1f, 1.0f, 1.0f);
         light2->attenuation(1, 0, 0);
         light2->translate(-8, -4, 0, TS_world);
         light2->setInitialState();
@@ -2311,9 +2264,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define a light
         SLLightSpot* light1 = new SLLightSpot(s, s, 100, 40, 100, 1);
-        light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));
-        light1->diffuse(SLCol4f(0.9f, 0.9f, 0.9f));
-        light1->specular(SLCol4f(0.9f, 0.9f, 0.9f));
+        light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
 
         // Define camera
@@ -2352,7 +2303,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef APP_USES_GLES
         SLint size = 4;
 #else
-        SLint        size      = 8;
+        SLint        size  = 8;
 #endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
@@ -2655,21 +2606,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 420, 420, 420, 1);
-        light1->ambient(SLCol4f(1, 1, 1));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
-        light1->attenuation(1, 0, 0);
+        light1->powers(1.0f, 1.0f, 1.0f);
 
         SLLightSpot* light2 = new SLLightSpot(s, s, -450, -340, 420, 1);
-        light2->ambient(SLCol4f(1, 1, 1));
-        light2->diffuse(SLCol4f(1, 1, 1));
-        light2->specular(SLCol4f(1, 1, 1));
+        light2->powers(1.0f, 1.0f, 1.0f);
         light2->attenuation(1, 0, 0);
 
         SLLightSpot* light3 = new SLLightSpot(s, s, 450, -370, 0, 1);
-        light3->ambient(SLCol4f(1, 1, 1));
-        light3->diffuse(SLCol4f(1, 1, 1));
-        light3->specular(SLCol4f(1, 1, 1));
+        light3->powers(1.0f, 1.0f, 1.0f);
         light3->attenuation(1, 0, 0);
 
         // Coordinate axis node
@@ -2693,7 +2637,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create feature tracker and let it pose the camera for AR posing
-        tracker = new CVTrackedFeatures("features_stones.png");
+        tracker = new CVTrackedFeatures("features_stones.jpg");
+        //tracker = new CVTrackedFeatures("features_abstract.jpg");
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -2738,9 +2683,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 1);
-        light1->ambient(SLCol4f(1, 1, 1));
-        light1->diffuse(SLCol4f(1, 1, 1));
-        light1->specular(SLCol4f(1, 1, 1));
+        light1->powers(1.0f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
 
         // Load sunglasses
@@ -2796,9 +2739,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 1.0f);
-        light->ambient(SLCol4f(1, 1, 1));
-        light->diffuse(SLCol4f(1, 1, 1));
-        light->specular(SLCol4f(1, 1, 1));
+        light->powers(1.0f, 1.0f, 1.0f);
         light->attenuation(1, 0, 0);
 
         // Let the sun be rotated by time and location
@@ -2861,9 +2802,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->ambient(SLCol4f(1, 1, 1));
-        light->diffuse(SLCol4f(1, 1, 1));
-        light->specular(SLCol4f(1, 1, 1));
+        light->powers(1.0f, 1.0f, 1.0f);
         light->attenuation(1, 0, 0);
 
         // Let the sun be rotated by time and location
@@ -2988,9 +2927,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->ambient(SLCol4f(1, 1, 1));
-        light->diffuse(SLCol4f(1, 1, 1));
-        light->specular(SLCol4f(1, 1, 1));
+        light->powers(1.0f, 1.0f, 1.0f);
         light->attenuation(1, 0, 0);
         light->translation(0, 10, 0);
         light->lookAt(10, 0, 10);
@@ -3080,16 +3017,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->ambient(SLCol4f(1, 1, 1));
-        light->diffuse(SLCol4f(1, 1, 1));
-        light->specular(SLCol4f(1, 1, 1));
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
@@ -3109,7 +3044,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(amphiTheatre);
         scene->addChild(cam1);
@@ -3162,9 +3097,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->ambient(SLCol4f(1, 1, 1));
-        light->diffuse(SLCol4f(1, 1, 1));
-        light->specular(SLCol4f(1, 1, 1));
+        light->powers(1.0f, 1.0f, 1.0f);
         light->attenuation(1, 0, 0);
         light->translation(0, 10, 0);
         light->lookAt(10, 0, 10);
@@ -3349,13 +3282,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
-        lightRect->ambient(SLCol4f::BLACK);
-        lightRect->diffuse(lightEmisRGB);
-        //lightRect->specular(SLCol4f::BLACK);
+        lightRect->ambientColor(SLCol4f::BLACK);
+        lightRect->diffuseColor(lightEmisRGB);
         lightRect->attenuation(0, 0, 1);
         lightRect->samplesXY(11, 7);
 
-        //_globalAmbiLight.set(SLCol4f::BLACK);
         s->globalAmbiLight().set(lightEmisRGB * 0.05f);
 
         // create camera
@@ -3440,15 +3371,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, -1, -0.5f, TS_object);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 2, 0.1f);
-        light1->ambient(SLCol4f(1, 1, 1));
-        light1->diffuse(SLCol4f(7, 7, 7));
-        light1->specular(SLCol4f(7, 7, 7));
+        light1->powers(1, 7, 7);
         light1->attenuation(0, 0, 1);
 
         SLLightSpot* light2 = new SLLightSpot(s, s, 2, 2, -2, 0.1f);
-        light2->ambient(SLCol4f(1, 1, 1));
-        light2->diffuse(SLCol4f(7, 7, 7));
-        light2->specular(SLCol4f(7, 7, 7));
+        light2->powers(1, 7, 7);
         light2->attenuation(0, 0, 1);
 
         SLNode* scene = new SLNode;
@@ -3594,7 +3521,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing lens test scene.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.png");
+        SLGLTexture* texC = new SLGLTexture(s, "VisionExample.jpg");
         //SLGLTexture* texC = new SLGLTexture(s, "Checkerboard0512_C.png");
 
         SLMaterial* mT = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
@@ -3641,15 +3568,23 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, 0, -0.0f, TS_object);
 
         // Lens from eye prescription card
-        //SLNode* lensA = new SLNode(new SLLens(0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
+        //SLNode* lensA = new SLNode(new SLLens(s, 0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
         //lensA->translate(-2, 1, -2);
-        //SLNode* lensB = new SLNode(new SLLens(-0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
+        //SLNode* lensB = new SLNode(new SLLens(s, -0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
         //lensB->translate(2, 1, -2);
 
         // Lens with radius
-        //SLNode* lensC = new SLNode(new SLLens(5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
+        //SLNode* lensC = new SLNode(new SLLens(s, 5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
         //lensC->translate(-2, 1, 2);
-        SLNode* lensD = new SLNode(new SLLens(s, -15.0f, -15.0f, 1.0f, 0.1f, res, res, "myopic", matLens)); // Kurzsichtig
+        SLNode* lensD = new SLNode(new SLLens(s,
+                                              -15.0f,
+                                              -15.0f,
+                                              1.0f,
+                                              0.1f,
+                                              res,
+                                              res,
+                                              "myopic",
+                                              matLens)); // Kurzsichtig
         lensD->translate(0, 6, 0);
 
         // Node
@@ -3745,10 +3680,10 @@ SLNode* SphereGroup(SLProjectScene* s,
     SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
     if (depth == 0)
     {
-        SLSphere* sphere = new SLSphere(s, 0.5f * scale, resolution, resolution, name, matRed);
-        SLNode*   s      = new SLNode(sphere, "Sphere");
-        s->translate(x, y, z, TS_object);
-        return s;
+        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, name, matRed);
+        SLNode*   sphNode = new SLNode(sphere, "Sphere");
+        sphNode->translate(x, y, z, TS_object);
+        return sphNode;
     }
     else
     {

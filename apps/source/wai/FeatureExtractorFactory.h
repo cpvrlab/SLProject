@@ -26,6 +26,7 @@ class FeatureExtractorFactory
 public:
     FeatureExtractorFactory();
     std::unique_ptr<ORB_SLAM2::KPextractor> make(ExtractorType id, const cv::Size& videoFrameSize);
+    std::unique_ptr<ORB_SLAM2::KPextractor> make(std::string extractorType, const cv::Size& videoFrameSize);
 
     const std::vector<std::string>& getExtractorIdToNames() const
     {

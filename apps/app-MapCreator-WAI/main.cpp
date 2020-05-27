@@ -8,6 +8,7 @@
 struct Config
 {
     std::string   erlebARDir;
+    std::string   calibrationsDir;
     std::string   configFile;
     std::string   vocFile;
     std::string   mapOutputDir;
@@ -33,9 +34,15 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType = ExtractorType_GLSL;
-    config.erlebARDir    = Utils::getAppsWritableDir() + "/erleb-AR/";
-    config.vocFile       = config.erlebARDir + "voc/ORBvoc.bin";
+    config.extractorType   = ExtractorType_GLSL;
+    config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
+    config.calibrationsDir = Utils::getAppsWritableDir() + "calibrations/";
+
+#if USE_FBOW
+    config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
+#else
+    config.vocFile = Utils::getAppsWritableDir() + "voc/ORBvoc.bin";
+#endif
 
     for (int i = 1; i < argc; ++i)
     {
@@ -131,7 +138,7 @@ void GLFWInit()
     glfwMakeContextCurrent(window);
 
     // Init OpenGL access library gl3w
-    if (gl3wInit()!=0)
+    if (gl3wInit() != 0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
@@ -155,7 +162,7 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.configFile, config.vocFile, config.extractorType);
+        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

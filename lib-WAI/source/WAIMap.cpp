@@ -77,6 +77,9 @@ void WAIMap::EraseKeyFrame(WAIKeyFrame* pKF)
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
     mKfDB->erase(pKF);
+
+    //_deletedKeyFrames.push_back(pKF);
+
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }
@@ -128,6 +131,30 @@ long unsigned int WAIMap::GetMaxKFid()
     unique_lock<mutex> lock(mMutexMap);
     return mnMaxKFid;
 }
+
+float WAIMap::GetSize()
+{
+    std::vector<WAIMapPoint*> mpv = GetAllMapPoints();
+    WAI::V3 a = mpv[0]->worldPosVec();
+    WAI::V3 b = a;
+
+    for (WAIMapPoint * mp : mpv)
+    {
+        WAI::V3 v = mp->worldPosVec();
+        a.x = fmax(v.x, a.x);
+        a.y = fmax(v.y, a.y);
+        a.z = fmax(v.z, a.z);
+
+        b.x = fmin(v.x, b.x);
+        b.y = fmin(v.y, b.y);
+        b.z = fmin(v.z, b.z);
+    }
+
+    a = WAI::v3(a.x-b.x, a.y-b.y, a.z-b.z);
+
+    return sqrt(a.x*a.x + a.y*a.y + a.z*a.z);
+}
+
 //-----------------------------------------------------------------------------
 void WAIMap::clear()
 {
@@ -148,6 +175,15 @@ void WAIMap::clear()
     mvpKeyFrameOrigins.clear();
     setNumLoopClosings(0);
     mKfDB->clear();
+
+#if 0
+    for (WAIKeyFrame* kf : _deletedKeyFrames)
+    {
+        delete kf;
+    }
+
+    _deletedKeyFrames.clear();
+#endif
 
     WAIKeyFrame::nNextId = 0;
     WAIFrame::nNextId    = 0;

@@ -82,9 +82,9 @@ public:
     SLVec3f      spotDirWS() override { return forwardWS(); }
 
 #ifdef SL_HAS_OPTIX
-    Light optixLight(bool doDistributed)
+    ortLight optixLight(bool doDistributed)
     {
-        Samples loc_samples{};
+        ortSamples loc_samples{};
         float   loc_radius;
         if (doDistributed)
         {

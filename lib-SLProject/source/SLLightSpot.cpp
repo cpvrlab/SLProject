@@ -403,9 +403,9 @@ void SLLightSpot::setState()
         stateGL->lightIsOn[_id]           = _isOn;
         stateGL->lightPosWS[_id]          = positionWS();
         stateGL->lightSpotDirWS[_id]      = spotDirWS();
-        stateGL->lightAmbient[_id]        = _ambient;
-        stateGL->lightDiffuse[_id]        = _diffuse;
-        stateGL->lightSpecular[_id]       = _specular;
+        stateGL->lightAmbient[_id]        = ambient();
+        stateGL->lightDiffuse[_id]        = diffuse();
+        stateGL->lightSpecular[_id]       = specular();
         stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
         stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
         stateGL->lightSpotExp[_id]        = _spotExponent;

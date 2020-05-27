@@ -12,7 +12,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    int                 screenHeight,
                                    int                 dotsPerInch,
                                    std::string         imguiIniPath,
-                                   std::string         vocabularyDir)
+                                   std::string         vocabularyDir,
+                                   std::string         erlebARDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     _gui(imGuiEngine,
          eventHandler,
@@ -23,7 +24,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1)),
     _scene("AreaTrackingScene"),
     _camera(camera),
-    _vocabularyDir(vocabularyDir)
+    _vocabularyDir(vocabularyDir),
+    _erlebARDir(erlebARDir)
 {
     scene(&_scene);
     init("AreaTrackingView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
@@ -67,7 +69,8 @@ bool AreaTrackingView::update()
 
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
-    _gui.initArea(_locations[locId].areas[areaId]);
+    ErlebAR::Area& area = _locations[locId].areas[areaId];
+    _gui.initArea(area);
     //start camera
     startCamera();
 
@@ -78,20 +81,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     this->camera(_scene.cameraNode);
     //onInitialize();
     //setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
-
-    //load map
-    std::unique_ptr<WAIMap> waiMap;
-    //WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(*_orbVocabulary.get());
-    //waiMap           = std::make_unique<WAIMap>(keyframeDataBase);
-    //if (!_mapFileName.empty())
-    //{
-    //    bool mapLoadingSuccess = WAIMapStorage::loadMap(_waiMap.get(),
-    //                                                    _scene.mapNode,
-    //                                                    _orbVocabulary.get(),
-    //                                                    _mapFileName,
-    //                                                    false,
-    //                                                    true);
-    //}
 
     //calibration
     const SENSCameraCharacteristics& chars = _camera->characteristics();
@@ -147,12 +136,31 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize);
 
     //load vocabulary
-    //
     std::string fileName = _vocabularyDir + _vocabularyFileName;
     if (Utils::fileExists(fileName))
     {
         Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
         _voc->loadFromFile(fileName);
+    }
+
+    //load map
+    std::unique_ptr<WAIMap> waiMap;
+    if (!area.slamMapFileName.empty())
+    {
+        Utils::log("AreaTrackingView", "map for area is: %s", area.slamMapFileName.c_str());
+        std::string mapFileName = _erlebARDir + area.slamMapFileName;
+        if (Utils::fileExists(mapFileName))
+        {
+            Utils::log("AreaTrackingView", "loading map file from: %s", mapFileName.c_str());
+            WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(_voc);
+            waiMap                          = std::make_unique<WAIMap>(keyframeDataBase);
+            bool mapLoadingSuccess          = WAIMapStorage::loadMap(waiMap.get(),
+                                                            _scene.mapNode,
+                                                            _voc,
+                                                            mapFileName,
+                                                            false,
+                                                            true);
+        }
     }
 
     //init wai slam

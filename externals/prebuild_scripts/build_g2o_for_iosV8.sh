@@ -1,8 +1,10 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for g2o for Linux
+# Build script for g2o for iOS
 # ####################################################
+# 
+# chmod a+x build_g2o_iosV8.sh
 
 ARCH=iosV8
 ZIPFILE="$ARCH"_g2o

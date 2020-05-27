@@ -57,6 +57,7 @@ bool downloadAllFilesFromDir(const string& fileDir,
                              const string& ftpUser,
                              const string& ftpPwd,
                              const string& ftpDir,
+                             const string& searchFileTag,
                              string&       errorMsg);
 
 //! get a list of all filenames with given search file tag in remote directory

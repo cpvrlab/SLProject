@@ -121,6 +121,7 @@ private:
 
     ImGuiRenderer* _renderer{nullptr};
     ImGuiContext*  _context{nullptr};
+    std::string    _iniFilename;
 };
 
 //e.g. scrolling of child window by touch down and move.

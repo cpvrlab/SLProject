@@ -21,10 +21,15 @@
 
 //-----------------------------------------------------------------------------
 /*!
-The constructor initializes everything to 0 and adds the instance to the vector
-SLScene::_meshes. All meshes are held globally in this vector and are deallocated
-in SLScene::unInit(). The passed asset manager is responsible for deallocation.
-*/
+ * Constructor for mesh objects.
+ * Meshes can be used in multiple nodes (SLNode). Meshes can belong
+ * therefore to the global assets such as meshes (SLMesh), materials
+ * (SLMaterial), textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param name Name of the mesh
+ */
 SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
 {
     _primitive = PT_triangles;
@@ -46,8 +51,10 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
 }
 //-----------------------------------------------------------------------------
 //! The destructor deletes everything by calling deleteData.
-/*! All meshes are held globally in the vector SLScene::_meshes and are
-deallocated when the scene is disposed in SLScene::unInit().
+/*!
+ * The destructor should be called by the owner of the mesh. If an asset manager
+ * was passed in the constructor it will do it after scene destruction.
+ * The material (SLMaterial) that the mesh uses will not be deallocated.
 */
 SLMesh::~SLMesh()
 {
@@ -1369,9 +1376,9 @@ void SLMesh::updateMeshAccelerationStructure()
     updateAccelerationStructure();
 }
 //-----------------------------------------------------------------------------
-HitData SLMesh::createHitData()
+ortHitData SLMesh::createHitData()
 {
-    HitData hitData = {};
+    ortHitData hitData = {};
 
     hitData.sbtIndex = 0;
     hitData.normals  = reinterpret_cast<float3*>(_normalBuffer.devicePointer());

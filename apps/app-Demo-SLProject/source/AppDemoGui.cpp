@@ -18,6 +18,7 @@
 #include <CVImage.h>
 #include <CVTrackedFeatures.h>
 #include <SLGLDepthBuffer.h>
+#include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLImporter.h>
@@ -530,21 +531,23 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[2550]; // message character array
             m[0] = 0;       // set zero length
 
-            SLNodeStats& stats3D         = sv->stats3D();
-            SLfloat      vox             = (SLfloat)stats3D.numVoxels;
-            SLfloat      voxEmpty        = (SLfloat)stats3D.numVoxEmpty;
-            SLfloat      voxelsEmpty     = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
-            SLfloat      numRTTria       = (SLfloat)stats3D.numTriangles;
-            SLfloat      avgTriPerVox    = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOpaqueNodes  = (int)sv->nodesVisible()->size();
-            SLint        numBlendedNodes = (int)sv->nodesBlended()->size();
-            SLint        numVisibleNodes = numOpaqueNodes + numBlendedNodes;
-            SLint        numGroupPC      = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLeafPC       = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLightsPC     = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOpaquePC     = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numBlendedPC    = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numVisiblePC    = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLNodeStats& stats3D           = sv->stats3D();
+            SLfloat      vox               = (SLfloat)stats3D.numVoxels;
+            SLfloat      voxEmpty          = (SLfloat)stats3D.numVoxEmpty;
+            SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
+            SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
+            SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
+            SLint        numOpaqueNodes    = (int)sv->nodesVisible()->size();
+            SLint        numBlendedNodes   = (int)sv->nodesBlended()->size();
+            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn()->size();
+            SLint        numVisibleNodes   = numOpaqueNodes + numBlendedNodes + numOverdrawnNodes;
+            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOpaquePC       = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numBlendedPC      = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
 
             // Calculate total size of texture bytes on CPU
             SLfloat cpuMBTexture = 0;
@@ -572,6 +575,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
             sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
             sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+            sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
             sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
             sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
             sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
@@ -595,36 +599,49 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
             ImGui::Separator();
 
-            ImGui::Text("Resources:");
+            ImGui::Text("Global Resources:");
 
-            if (ImGui::TreeNode("Meshes"))
+            if (s->meshes().size() && ImGui::TreeNode("Meshes"))
             {
-                for (auto* mesh : s->meshes())
-                    ImGui::Text("%s {%u v.}", mesh->name().c_str(), (SLuint)mesh->P.size());
+                for (SLuint i = 0; i < s->meshes().size(); ++i)
+                    ImGui::Text("[%d] %s (%u v.)",
+                                i,
+                                s->meshes()[i]->name().c_str(),
+                                (SLuint)s->meshes()[i]->P.size());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Materials"))
+            if (s->materials().size() && ImGui::TreeNode("Materials"))
             {
-                for (auto* mat : s->materials())
-                    ImGui::Text("%s", mat->name().c_str());
+                for (SLuint i = 0; i < s->materials().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Textures"))
+            if (s->textures().size() && ImGui::TreeNode("Textures"))
             {
-                for (auto* tex : s->textures())
-                    ImGui::Text("%s", tex->name().c_str());
+                for (SLuint i = 0; i < s->textures().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Programs"))
+            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
             {
-                for (auto* prg : s->programs())
-                    ImGui::Text("%s", prg->name().c_str());
+                for (SLuint i = 0; i < s->programs().size(); ++i)
+                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (standard)"))
+            {
+                for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
+                    ImGui::Text("[%u] %s",
+                                i,
+                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
 
                 ImGui::TreePop();
             }
@@ -1320,7 +1337,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
                     SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-
                     if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
                         if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
                             s->onLoad(s, sv, SID_VideoAugustaRaurica);
@@ -1330,7 +1346,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
                         if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
                             s->onLoad(s, sv, SID_VideoAventicumAmphi);
-
+                    /*
                     SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
                     SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
@@ -1342,6 +1358,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
                         if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
                             s->onLoad(s, sv, SID_VideoAventicumCigonier);
+                    */
 
                     ImGui::EndMenu();
                 }
@@ -2640,18 +2657,29 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Is on", &on))
                                 light->isOn(on);
 
-                            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
-                            SLCol4f             a     = light->ambient();
-                            if (ImGui::InputFloat3("Ambient", (float*)&a, 1, flags))
-                                light->ambient(a);
+                            SLCol4f ac = light->ambientColor();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
+                                light->ambientColor(ac);
 
-                            SLCol4f diff = light->diffuse();
-                            if (ImGui::InputFloat3("Diffuse", (float*)&diff, 1, flags))
-                                light->diffuse(diff);
+                            SLCol4f dc = light->diffuseColor();
+                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
+                                light->diffuseColor(dc);
 
-                            SLCol4f spec = light->specular();
-                            if (ImGui::InputFloat3("Specular", (float*)&spec, 1, flags))
-                                light->specular(spec);
+                            SLCol4f sc = light->specularColor();
+                            if (ImGui::ColorEdit3("Specular color", (float*)&sc))
+                                light->specularColor(sc);
+
+                            float ap = light->ambientPower();
+                            if (ImGui::SliderFloat("Ambient power", &ap, 0.0f, 10.0f))
+                                light->ambientPower(ap);
+
+                            float dp = light->diffusePower();
+                            if (ImGui::SliderFloat("Diffuse power", &dp, 0.0f, 10.0f))
+                                light->diffusePower(dp);
+
+                            float sp = light->specularPower();
+                            if (ImGui::SliderFloat("Specular power", &sp, 0.0f, 10.0f))
+                                light->specularPower(sp);
 
                             float cutoff = light->spotCutOffDEG();
                             if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))

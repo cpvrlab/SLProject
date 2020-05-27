@@ -105,7 +105,7 @@ public:
     void                      UpdateBestCovisibles();
     std::set<WAIKeyFrame*>    GetConnectedKeyFrames();
     std::vector<WAIKeyFrame*> GetVectorCovisibleKeyFrames();
-    std::vector<WAIKeyFrame*>      GetBestCovisibilityKeyFrames(const int& N);
+    std::vector<WAIKeyFrame*> GetBestCovisibilityKeyFrames(const int& N);
     std::vector<WAIKeyFrame*> GetCovisiblesByWeight(const int& w);
     //get weight of covisibility connection to this keyframe
     int                                GetWeight(WAIKeyFrame* pKF);
@@ -124,15 +124,15 @@ public:
     std::set<WAIKeyFrame*> GetLoopEdges();
 
     // MapPoint observation functions
-    void                   AddMapPoint(WAIMapPoint* pMP, size_t idx);
-    void                   EraseMapPointMatch(WAIMapPoint* pMP);
-    void                   EraseMapPointMatch(const size_t& idx);
-    void                   ReplaceMapPointMatch(const size_t& idx, WAIMapPoint* pMP);
-    std::set<WAIMapPoint*> GetMapPoints();
-    std::vector<WAIMapPoint*>   GetMapPointMatches();
-    int                    TrackedMapPoints(const int& minObs);
-    WAIMapPoint*           GetMapPoint(const size_t& idx);
-    bool                   hasMapPoint(WAIMapPoint* mp);
+    void                      AddMapPoint(WAIMapPoint* pMP, size_t idx);
+    void                      EraseMapPointMatch(WAIMapPoint* pMP);
+    void                      EraseMapPointMatch(const size_t& idx);
+    void                      ReplaceMapPointMatch(const size_t& idx, WAIMapPoint* pMP);
+    std::set<WAIMapPoint*>    GetMapPoints();
+    std::vector<WAIMapPoint*> GetMapPointMatches();
+    int                       TrackedMapPoints(const int& minObs);
+    WAIMapPoint*              GetMapPoint(const size_t& idx);
+    bool                      hasMapPoint(WAIMapPoint* mp);
 
     bool isFixed() const;
 
@@ -281,7 +281,6 @@ protected:
     bool mbNotErase;
     bool mbToBeErased;
     bool mbBad;
-;
 
 public:
 

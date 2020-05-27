@@ -48,6 +48,7 @@ enum class AreaId
     NONE,
     //AUGST
     AUGST_TEMPLE_HILL_MARKER,
+    AUGST_TEMPLE_HILL_THEATER_BOTTOM,
     //AVENCHES
     AVENCHES_ARENA,
     //CHRISTOFFEL
@@ -114,6 +115,8 @@ enum class StateId
     TEST,
     HOLD_TEST,
     RESUME_TEST,
+
+    TEST_RUNNER,
 
     LOCATION_MAP,
     AREA_INFO,

@@ -532,7 +532,6 @@ SLbool SLSceneView::onPaint()
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
             case RT_ct: camUpdated = draw3DCT(); break;
-
 #ifdef SL_HAS_OPTIX
             case RT_optix_rt: camUpdated = draw3DOptixRT(); break;
             case RT_optix_pt: camUpdated = draw3DOptixPT(); break;
@@ -1761,7 +1760,7 @@ SLbool SLSceneView::draw3DRT()
     }
 
     // Refresh the render image during RT
-    _raytracer.renderImage();
+    _raytracer.renderImage(true);
 
     // React on the stop flag (e.g. ESC)
     if (_stopRT)
@@ -1811,7 +1810,7 @@ SLbool SLSceneView::draw3DPT()
     }
 
     // Refresh the render image during PT
-    _pathtracer.renderImage();
+    _pathtracer.renderImage(true);
 
     // React on the stop flag (e.g. ESC)
     if (_stopPT)
@@ -1850,7 +1849,7 @@ SLbool SLSceneView::draw3DOptixRT()
     }
 
     // Refresh the render image during RT
-    _optixRaytracer.renderImage();
+    _optixRaytracer.renderImage(false);
 
     // React on the stop flag (e.g. ESC)
     if (_stopOptixRT)
@@ -1886,7 +1885,7 @@ SLbool SLSceneView::draw3DOptixPT()
     }
 
     // Refresh the render image during RT
-    _optixPathtracer.renderImage();
+    _optixPathtracer.renderImage(false);
 
     // React on the stop flag (e.g. ESC)
     if (_stopOptixPT)

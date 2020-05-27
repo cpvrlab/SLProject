@@ -1,3 +1,6 @@
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+
 #include "vocabulary_creator.h"
 #ifdef USE_OPENMP
 #    include <omp.h>
@@ -123,7 +126,7 @@ void VocabularyCreator::createLevel(int parent, int curL, bool recursive)
         {
             id_assigments.create((uint32_t)(parent * _params.k + 1 + i),
                                  (uint32_t)(findices.size() / _params.k));
-            assigments_ref.push_back(id_assigments[parent * _params.k + 1 + i]);
+            assigments_ref.push_back(id_assigments[(uint32_t)(parent * _params.k + 1 + i)]);
         }
 
         //initialize clusters
@@ -408,7 +411,7 @@ void VocabularyCreator::convertIntoVoc(Vocabulary& Voc, std::string desc_name)
         if (!node.second.isLeaf())
         {
             auto binfo = Voc.getBlock(nodeid_blockid[node.first]);
-            binfo.setN(node.second.children.size());
+            binfo.setN((uint16_t)(node.second.children.size()));
             binfo.setParentId(node.first);
             bool areAllChildrenLeaf = true;
             for (size_t c = 0; c < node.second.children.size(); c++)
@@ -470,3 +473,4 @@ float VocabularyCreator::distance_float_generic(const cv::Mat& a, const cv::Mat&
 }
 
 }
+#pragma clang diagnostic pop

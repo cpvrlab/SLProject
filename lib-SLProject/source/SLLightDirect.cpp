@@ -250,9 +250,9 @@ void SLLightDirect::setState()
         // The spot direction is used in the shaders for the light direction
         stateGL->lightSpotDirWS[_id] = spotDirWS();
 
-        stateGL->lightAmbient[_id]        = _ambient;
-        stateGL->lightDiffuse[_id]        = _diffuse;
-        stateGL->lightSpecular[_id]       = _specular;
+        stateGL->lightAmbient[_id]        = ambient();
+        stateGL->lightDiffuse[_id]        = diffuse();
+        stateGL->lightSpecular[_id]       = specular();
         stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
         stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
         stateGL->lightSpotExp[_id]        = _spotExponent;

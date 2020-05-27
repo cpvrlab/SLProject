@@ -112,6 +112,9 @@ file(GLOB_RECURSE VOC
     ${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
     )
 
+file(GLOB_RECURSE CONFIG
+    ${SL_PROJECT_ROOT}/data/config/TesterConfig.json)
+
 set(APK_ASSETS
     ${CMAKE_CURRENT_LIST_DIR}/src/main/assets)
 

@@ -12,6 +12,7 @@
 #include <WAIOrbVocabulary.h>
 #include <queue>
 #include <ImageBuffer.h>
+#include <WAIAutoCalibration.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -60,16 +61,15 @@ protected:
     void setupDefaultErlebARDirTo(std::string dir);
 
     //video
-    CVCalibration                    _calibration = {CVCameraType::FRONTFACING, ""};
-    SENSCamera*                      _camera      = nullptr;
-    cv::VideoWriter*                 _videoWriter = nullptr;
+    CVCalibration                    _calibration       = {CVCameraType::FRONTFACING, ""};
+    CVCalibration                    _calibrationLoaded = {CVCameraType::FRONTFACING, ""};
+    SENSCamera*                      _camera            = nullptr;
+    cv::VideoWriter*                 _videoWriter       = nullptr;
     std::unique_ptr<SENSVideoStream> _videoFileStream;
     bool                             _pauseVideo           = false;
     int                              _videoCursorMoveIndex = 0;
     bool                             _showUndistorted      = true;
     cv::Size2i                       _videoFrameSize;
-
-    std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> _calibrationMatchings;
 
     //slam
     WAISlam*   _mode = nullptr;
@@ -94,8 +94,8 @@ protected:
     std::string _calibDir;
     std::string _videoDir;
 
-    std::thread _calibrationThread;
-    bool        _isCalibrated;
+    bool             _fillAutoCalibration;
+    AutoCalibration* _autoCal = nullptr;
 
     SLTransformNode* _transformationNode = nullptr;
 

@@ -59,6 +59,7 @@ public:
 
     virtual void reset();
 
+    void changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion);
     void createFrame(WAIFrame& frame, cv::Mat& imageGray);
 
     virtual void updatePose(WAIFrame& frame);

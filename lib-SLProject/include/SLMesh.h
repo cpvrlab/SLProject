@@ -158,7 +158,7 @@ public:
     void                uploadData();
     virtual void        createMeshAccelerationStructure();
     virtual void        updateMeshAccelerationStructure();
-    virtual HitData     createHitData();
+    virtual ortHitData  createHitData();
     unsigned int        sbtIndex() const { return _sbtIndex; }
     static unsigned int meshIndex;
 #endif

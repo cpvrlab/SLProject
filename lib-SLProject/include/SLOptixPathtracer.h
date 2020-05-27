@@ -22,7 +22,7 @@ class SLCamera;
 //-----------------------------------------------------------------------------
 class SLOptixPathtracer : public SLOptixRaytracer
 {
-    public:
+public:
     SLOptixPathtracer();
     ~SLOptixPathtracer();
 
@@ -33,7 +33,6 @@ class SLOptixPathtracer : public SLOptixRaytracer
 
     // path tracer functions
     SLbool render();
-    void   renderImage() override;
 
     SLbool getDenoiserEnabled() const { return _denoiserEnabled; }
     SLint  samples() const { return _samples; }
@@ -43,20 +42,19 @@ class SLOptixPathtracer : public SLOptixRaytracer
 
     SLfloat denoiserMS() const { return _denoiserMS; }
 
-    protected:
+protected:
     SLint                     _samples;
     SLCudaBuffer<curandState> _curandBuffer = SLCudaBuffer<curandState>();
 
-    private:
+private:
     OptixDenoiser      _optixDenoiser;
     OptixDenoiserSizes _denoiserSizes;
     SLCudaBuffer<void> _denoserState;
     SLCudaBuffer<void> _scratch;
 
     //Settings
-    SLbool _denoiserEnabled = true;
-
-    SLfloat _denoiserMS;     //!< Denoiser time in ms
+    SLbool  _denoiserEnabled = true;
+    SLfloat _denoiserMS; //!< Denoiser time in ms
 };
 //-----------------------------------------------------------------------------
 #    endif // SLOPTIXPATHTRACER_H

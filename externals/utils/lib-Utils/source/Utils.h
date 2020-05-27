@@ -123,6 +123,9 @@ unsigned int getFileSize(const string& filename);
 //! Creates a directory with given path
 bool makeDir(const string& path);
 
+//! Creates a directory with given path recursively
+bool makeDirRecurse(string path);
+
 //! RemoveDir deletes a directory with given path
 void removeDir(const string& path);
 
