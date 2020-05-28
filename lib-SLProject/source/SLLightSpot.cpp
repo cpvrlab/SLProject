@@ -142,7 +142,7 @@ void SLLightSpot::init(SLScene* s)
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
         if (_meshes[0]->mat())
-            _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
+            _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -184,7 +184,7 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
-                _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
+                _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
 
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
