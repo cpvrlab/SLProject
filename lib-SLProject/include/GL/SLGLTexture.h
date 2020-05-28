@@ -230,6 +230,7 @@ protected:
     SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
+    std::mutex      _mutex;         //!< Mutex to protect parallel access
 
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object

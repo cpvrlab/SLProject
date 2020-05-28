@@ -3,7 +3,7 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 #if defined(__clang__)
-#    pragma GCC diagnostic ignored "-Wall"
+#    pragma GCC diagnostic ignored "-Weverything"
 #endif
 
 /*

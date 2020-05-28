@@ -66,7 +66,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     for (int currentSample = 1; currentSample <= _aaSamples; currentSample++)
     {
         vector<thread> threads; // vector for additional threads
-        _next = 0;              // init _next=0. _next should be atomic
+        _nextLine = 0;
 
         // Start additional threads on the renderSlices function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
@@ -99,12 +99,14 @@ void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
     // Time points
     double t1 = 0;
 
-    while (_next < (SLint)_images[0]->width())
+    while (_nextLine < (SLint)_images[0]->width())
     {
-        const SLint minX = _next;
-
-        // The next line should be theoretically atomic
-        _next += 4;
+        // The next section must be protected
+        // Making _nextLine an atomic was not sufficient.
+        _mutex.lock();
+        SLint minX = _nextLine;
+        _nextLine += 4;
+        _mutex.unlock();
 
         for (SLint x = minX; x < minX + 4; ++x)
         {
