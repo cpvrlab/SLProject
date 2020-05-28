@@ -111,17 +111,17 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env
 
     SLApplication::calibFilePath = devicePath + "/data/config/"; //thats where calibrations are stored an loaded from
     SLApplication::calibIniPath  = devicePath + "/data/calibrations/";
-    CVImage::defaultPath         = devicePath + "/data/images/textures/";
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
-                                            SLApplication::calibFilePath,      // for calibrations made
-                                            devicePath + "/data/videos/");          // for videos
+                                            SLApplication::calibFilePath);      // for calibrations made
 
     ////////////////////////////////////////////////////
     slCreateAppAndScene(*cmdLineArgs,
+                        devicePath + "/data/",
                         devicePath + "/data/shaders/",
                         devicePath + "/data/models/",
                         devicePath + "/data/images/textures/",
                         devicePath + "/data/images/fonts/",
+                        devicePath + "/data/videos/",
                         devicePath + "/data/config/",
                         "AppDemoAndroid",
                         (void*)appDemoLoadScene);
