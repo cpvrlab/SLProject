@@ -16,7 +16,6 @@
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
 #include <Utils.h>
-#include <SLApplication.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -1219,7 +1218,7 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
                 // Calculate progress in percent
                 cntVoxels++;
                 SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
-                SLApplication::jobProgressNum(progress);
+                //SLApplication::jobProgressNum(progress);
             }
         }
     }
@@ -1284,7 +1283,7 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
                 // Calculate progress in percent
                 cntVoxels++;
                 SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
-                SLApplication::jobProgressNum(progress);
+                //SLApplication::jobProgressNum(progress);
             }
         }
     }
