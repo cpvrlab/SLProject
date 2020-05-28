@@ -510,7 +510,7 @@ int main(int argc, char* argv[])
 
         AppDirectories dirs;
         dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
-        dirs.slDataRoot    = SLstring(SL_PROJECT_ROOT) + "/data";
+        dirs.slDataRoot    = SLstring(SL_PROJECT_ROOT) + "/data/";
         dirs.writableDir   = Utils::getAppsWritableDir();
         dirs.vocabularyDir = dirs.writableDir + "voc/";
         dirs.logFileDir    = dirs.writableDir + "log/";

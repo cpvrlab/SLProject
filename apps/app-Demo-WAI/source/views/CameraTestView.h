@@ -20,7 +20,8 @@ public:
                    int                 screenWidth,
                    int                 screenHeight,
                    int                 dotsPerInch,
-                   std::string         imguiIniPath);
+                   std::string         imguiIniPath,
+                   std::string         dataDir);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }

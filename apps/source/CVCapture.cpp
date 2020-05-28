@@ -37,7 +37,6 @@ CVCapture::CVCapture()
 {
     startCaptureTimeMS = 0.0f;
     hasSecondaryCamera = true;
-    videoDefaultPath   = "../data/videos/";
     videoFilename      = "";
     videoLoops         = true;
     fps                = 1;
@@ -108,12 +107,8 @@ CVSize2i CVCapture::openFile()
     { // Load the file directly
         if (!Utils::fileExists(videoFilename))
         {
-            videoFilename = videoDefaultPath + videoFilename;
-            if (!Utils::fileExists(videoFilename))
-            {
-                string msg = "CVCapture::openFile: File not found: " + videoFilename;
-                Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
-            }
+            string msg = "CVCapture::openFile: File not found: " + videoFilename;
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
 
         _captureDevice.open(videoFilename);
@@ -140,7 +135,6 @@ CVSize2i CVCapture::openFile()
     catch (exception& e)
     {
         Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s", e.what());
-
     }
     return CVSize2i(0, 0);
 }
@@ -834,12 +828,8 @@ void CVCapture::videoType(CVVideoType vt)
 }
 //-----------------------------------------------------------------------------
 void CVCapture::loadCalibrations(const string& computerInfo,
-                                 const string& configPath,
-                                 const string& videoPath)
+                                 const string& configPath)
 {
-
-    videoDefaultPath = videoPath;
-
     string mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
     string scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
 

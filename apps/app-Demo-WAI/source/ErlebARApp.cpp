@@ -155,11 +155,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     const DeviceData&  dd         = data->deviceData;
     const std::string& slDataRoot = data->deviceData.dirs().slDataRoot;
-    // setup magic paths
-    //SLGLProgram::defaultPath      = slDataRoot + "/shaders/";
-    SLGLTexture::defaultPath      = slDataRoot + "/images/textures/";
-    SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
-    SLAssimpImporter::defaultPath = slDataRoot + "/models/";
+
+    SLGLProgramManager::init(slDataRoot + "shaders/");
 
     _resources = new ErlebAR::Resources(dd.scrWidth(),
                                         dd.scrHeight(),
@@ -205,7 +202,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                              dd.dirs().writableDir,
                              dd.dirs().vocabularyDir,
                              dd.calibDir(),
-                             dd.videoDir());
+                             dd.videoDir(),
+                             slDataRoot);
 
     _testRunnerView = new TestRunnerView(*this,
                                          _inputManager,
@@ -284,7 +282,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                              dd.dpi(),
                                              dd.dirs().writableDir,
                                              dd.dirs().vocabularyDir,
-                                             dd.erlebARDir());
+                                             dd.erlebARDir(),
+                                             slDataRoot);
 
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,
@@ -294,7 +293,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                          dd.scrWidth(),
                                          dd.scrHeight(),
                                          dd.dpi(),
-                                         dd.dirs().writableDir);
+                                         dd.dirs().writableDir,
+                                         slDataRoot);
 
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }

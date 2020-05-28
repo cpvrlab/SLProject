@@ -33,7 +33,8 @@ public:
              std::string         configDir,
              std::string         vocabularyDir,
              std::string         calibDir,
-             std::string         videoDir);
+             std::string         videoDir,
+             std::string         dataDir);
     ~TestView();
 
     bool update();
@@ -93,6 +94,7 @@ protected:
     std::string _vocabularyDir;
     std::string _calibDir;
     std::string _videoDir;
+    std::string _dataDir;
 
     bool             _fillAutoCalibration;
     AutoCalibration* _autoCal = nullptr;

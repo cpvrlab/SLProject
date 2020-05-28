@@ -23,7 +23,8 @@ TestView::TestView(sm::EventHandler&   eventHandler,
                    std::string         configDir,
                    std::string         vocabularyDir,
                    std::string         calibDir,
-                   std::string         videoDir)
+                   std::string         videoDir,
+                   std::string         dataDir)
   : SLSceneView(&_scene, dotsPerInch, inputManager),
     _gui(
       imGuiEngine,
@@ -42,12 +43,13 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       [&]() { return _camera; },                 //getter callback for current camera
       [&]() { return &_calibration; },           //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
-    _scene("TestScene"),
+    _scene("TestScene", dataDir),
     _camera(camera),
     _configDir(configDir),
     _vocabularyDir(vocabularyDir),
     _calibDir(calibDir),
-    _videoDir(videoDir)
+    _videoDir(videoDir),
+    _dataDir(dataDir)
 {
     scene(&_scene);
     init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
@@ -109,7 +111,7 @@ bool TestView::update()
 
                 if (_fillAutoCalibration)
                 {
-                    WAIFrame lastFrame = _mode->getLastFrame();
+                    WAIFrame                                                      lastFrame = _mode->getLastFrame();
                     std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
                     _mode->getMatchedCorrespondances(&lastFrame, matching);
                     _autoCal->fillFrame(matching, lastFrame.mTcw);
@@ -273,7 +275,7 @@ void TestView::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformNode(this, _scene.root3D()->findChild<SLNode>("map"));
+                    _transformationNode = new SLTransformNode(this, _scene.root3D()->findChild<SLNode>("map"), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_transformationNode);
                 }
 

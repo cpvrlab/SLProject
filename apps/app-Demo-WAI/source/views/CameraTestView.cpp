@@ -9,7 +9,8 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
                                int                 screenWidth,
                                int                 screenHeight,
                                int                 dotsPerInch,
-                               std::string         imguiIniPath)
+                               std::string         imguiIniPath,
+                               std::string         dataDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     _gui(imGuiEngine,
          eventHandler,
@@ -18,7 +19,7 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
          screenWidth,
          screenHeight,
          sensCamera),
-    _scene("CameraTestScene"),
+    _scene("CameraTestScene", dataDir),
     _sensCamera(sensCamera)
 {
     scene(&_scene);

@@ -13,7 +13,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    int                 dotsPerInch,
                                    std::string         imguiIniPath,
                                    std::string         vocabularyDir,
-                                   std::string         erlebARDir)
+                                   std::string         erlebARDir,
+                                   std::string         dataDir)
   : SLSceneView(nullptr, dotsPerInch, inputManager),
     _gui(imGuiEngine,
          eventHandler,
@@ -22,7 +23,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          screenWidth,
          screenHeight,
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1)),
-    _scene("AreaTrackingScene"),
+    _scene("AreaTrackingScene", dataDir),
     _camera(camera),
     _vocabularyDir(vocabularyDir),
     _erlebARDir(erlebARDir)

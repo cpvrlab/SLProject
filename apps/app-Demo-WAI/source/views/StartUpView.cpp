@@ -33,16 +33,16 @@ StartUpView::StartUpView(SLInputManager& inputManager,
     sceneCamera->setInitialState();
 
     // Now create 2D text but don't scale it (all sizes in pixels)
-    std::string txt       = "ErlebAR";
-    SLTexFont*  _textFont = new SLTexFont("Font24.png", SLGLProgramManager::get(SP_fontTex));
-    SLVec2f     size      = _textFont->calcTextSize(txt);
+    //std::string txt       = "ErlebAR";
+    //SLTexFont*  _textFont = new SLTexFont("Font24.png", SLGLProgramManager::get(SP_fontTex));
+    //SLVec2f     size      = _textFont->calcTextSize(txt);
     //calc scale for target height mm
-    float   targetHeightMM  = 10.f;
-    float   targetHeightPix = targetHeightMM * _pixPerMM;
-    float   scale           = targetHeightPix / size.y;
-    SLNode* text2D          = new SLText(txt, _textFont);
-    text2D->translate(-size.x * 0.5f * scale, -size.y * 0.5f * scale, 0);
-    text2D->scale(scale);
+    //float   targetHeightMM  = 10.f;
+    //float   targetHeightPix = targetHeightMM * _pixPerMM;
+    //float   scale           = targetHeightPix / size.y;
+    //SLNode* text2D          = new SLText(txt, _textFont);
+    //text2D->translate(-size.x * 0.5f * scale, -size.y * 0.5f * scale, 0);
+    //text2D->scale(scale);
     // Assemble 3D scene as usual with camera and light
     SLNode* scene3D = new SLNode("root3D");
     scene3D->addChild(sceneCamera);
@@ -51,7 +51,7 @@ StartUpView::StartUpView(SLInputManager& inputManager,
 
     // Assemble 2D scene
     SLNode* scene2D = new SLNode("root2D");
-    scene2D->addChild(text2D);
+    //scene2D->addChild(text2D);
     _s.root2D(scene2D);
 
     _sv.camera(sceneCamera);

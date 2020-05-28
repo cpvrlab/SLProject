@@ -11,7 +11,7 @@
 
 AppWAIScene::AppWAIScene(SLstring name, std::string dataDir)
   : SLScene(name, nullptr),
-    _dataDir(dataDir)
+    _dataDir(Utils::unifySlashes(dataDir))
 {
 }
 
@@ -101,7 +101,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #ifdef SL_OS_ANDROID
             modelPath = SLImporter::defaultPath + "AvenchesEntrance.gltf";
 #else
-            modelPath             = SLImporter::defaultPath + "GLTF/Avenches/AvenchesEntrance.gltf";
+            modelPath             = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
 #endif
             loadMesh(modelPath);
         }
@@ -110,7 +110,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #ifdef SL_OS_ANDROID
             modelPath = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf";
 #else
-            modelPath             = SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            modelPath             = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
 #endif
             loadMesh(modelPath);
         }
@@ -119,7 +119,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #ifdef SL_OS_ANDROID
             modelPath = SLImporter::defaultPath + "Aventicum-Theater1.gltf";
 #else
-            modelPath             = SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Theater1.gltf";
+            modelPath             = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
 #endif
             loadMesh(modelPath);
         }
@@ -131,17 +131,18 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #ifdef SL_OS_ANDROID
             std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
 #else
-            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
 #endif
             SLAssimpImporter importer;
             // TODO(dgj1): this is a hack for android... fix it better
             if (!Utils::fileExists(modelPath))
             {
-                modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+                modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
             }
             augmentationRoot = importer.load(_animManager,
                                              &assets,
                                              modelPath,
+                                             _dataDir + "images/textures/",
                                              true,
                                              nullptr,
                                              0.4f);
@@ -175,12 +176,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #ifdef SL_OS_ANDROID
             std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
 #else
-            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+            std::string modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
 #endif
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
                                              modelPath,
+                                             _dataDir + "images/textures/",
                                              true,
                                              nullptr,
                                              0.4f);

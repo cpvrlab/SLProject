@@ -28,7 +28,8 @@ public:
                      int                 dotsPerInch,
                      std::string         imguiIniPath,
                      std::string         vocabularyDir,
-                     std::string         erlebARDir);
+                     std::string         erlebARDir,
+                     std::string         dataDir);
     ~AreaTrackingView();
 
     bool update();
