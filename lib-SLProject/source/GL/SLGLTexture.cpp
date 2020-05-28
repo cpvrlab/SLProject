@@ -1177,6 +1177,8 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
     SLint   volX       = (SLint)_images[0]->width();
     SLint   volY       = (SLint)_images[0]->height();
     SLint   volZ       = (SLint)_images.size();
+    SLuint  numVoxels  = volX * volY * volZ;
+    SLuint  cntVoxels  = 0;
     SLfloat oneOver255 = 1.0f / 255.0f;
 
     // check that all images in depth have the same size
@@ -1213,11 +1215,14 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[0] = (SLuchar)(normal.x * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[1] = (SLuchar)(normal.y * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[2] = (SLuchar)(normal.z * 0.5f * 255.0f);
+
+                // Calculate progress in percent
+                cntVoxels++;
+                SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
+                SLApplication::jobProgressNum(progress);
             }
         }
     }
-
-    smooth3DGradients(1);
 
     // Debug check
     //for (auto img : _images)
@@ -1234,6 +1239,8 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
     SLint   volX       = (SLint)_images[0]->width();
     SLint   volY       = (SLint)_images[0]->height();
     SLint   volZ       = (SLint)_images.size();
+    SLuint  numVoxels  = volX * volY * volZ;
+    SLuint  cntVoxels  = 0;
     SLfloat oneOver255 = 1.0f / 255.0f;
 
     // check that all images in depth have the same size
@@ -1273,6 +1280,11 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[0] = (SLuchar)(filtered.x * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[1] = (SLuchar)(filtered.y * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[2] = (SLuchar)(filtered.z * 0.5f * 255.0f);
+
+                // Calculate progress in percent
+                cntVoxels++;
+                SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
+                SLApplication::jobProgressNum(progress);
             }
         }
     }
