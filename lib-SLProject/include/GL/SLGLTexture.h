@@ -197,8 +197,8 @@ public:
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
-    void calc3DGradients(SLint sampleRadius);
-    void smooth3DGradients(SLint smoothRadius);
+    void calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress);
+    void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
 
     // Bumpmap methods
     SLVec2f dsdt(SLfloat s, SLfloat t); //! Returns the derivation as [s,t]

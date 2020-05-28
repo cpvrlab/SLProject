@@ -1686,8 +1686,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         "mri_head_front_to_back",
                                         true);
 
-            gTexMRI3D->calc3DGradients(1);
-            gTexMRI3D->smooth3DGradients(1);
+            gTexMRI3D->calc3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+            //gTexMRI3D->smooth3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
         }
 
         // Create transfer LUT 1D texture
