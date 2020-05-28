@@ -40,7 +40,7 @@ void SLGLProgramManager::deletePrograms()
 //-----------------------------------------------------------------------------
 void SLGLProgramManager::makeProgram(SLStdShaderProg id)
 {
-    assert(!_shaderDir.empty());
+    assert(!_shaderDir.empty() && "Error in SLGLProgramManager: Please set call SLGLProgramManager::init and transfer the location of the default shader files!");
 
     switch (id)
     {

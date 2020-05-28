@@ -572,7 +572,6 @@ void initSL(SLVstring& cmdLineArgs)
 
     //setup platform dependent data path
     SLApplication::calibFilePath = configDir;
-    CVImage::defaultPath         = projectRoot + "/data/images/textures/";
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),
                                             SLApplication::calibFilePath); // for calibrations made
