@@ -67,7 +67,6 @@ SLNode* SphereGroup(SLProjectScene* s,
 SLNode* BuildFigureGroup(SLProjectScene* s,
                          SLMaterial*     mat,
                          SLbool          withAnimation = false);
-string  findModelFileName(std::string file);
 
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
@@ -228,9 +227,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
 
-        SLNode* mesh3DS = importer.load(s->animManager(), s, findModelFileName("3DS/Halloween/jackolan.3ds"), SLApplication::texturePath);
-        SLNode* meshFBX = importer.load(s->animManager(), s, findModelFileName("FBX/Duck/duck.fbx"), SLApplication::texturePath);
-        SLNode* meshDAE = importer.load(s->animManager(), s, findModelFileName("DAE/AstroBoy/AstroBoy.dae"), SLApplication::texturePath);
+        SLNode* mesh3DS = importer.load(s->animManager(), s, SLApplication::modelPath + "3DS/Halloween/jackolan.3ds", SLApplication::texturePath);
+        SLNode* meshFBX = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Duck/duck.fbx", SLApplication::texturePath);
+        SLNode* meshDAE = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae", SLApplication::texturePath);
 
         // Start animation
         SLAnimPlayback* charAnim = s->animManager().lastAnimPlayback();
@@ -455,7 +454,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_LargeModel) //................................................
     {
-        SLstring largeFile = findModelFileName("PLY/xyzrgb_dragon.ply");
+        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
 
         if (Utils::fileExists(largeFile))
         {
@@ -1392,12 +1391,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // load teapot
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), SLApplication::texturePath, true, refl);
+        SLNode*          teapot = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Teapot/Teapot.fbx", SLApplication::texturePath, true, refl);
         teapot->translate(-1.5f, -0.5f, 0);
         scene->addChild(teapot);
 
         // load Suzanne
-        SLNode* suzanne = importer.load(s->animManager(), s, findModelFileName("FBX/Suzanne/Suzanne.fbx"), SLApplication::texturePath, true, refr);
+        SLNode* suzanne = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Suzanne/Suzanne.fbx", SLApplication::texturePath, true, refr);
         suzanne->translate(1.5f, -0.5f, 0);
         scene->addChild(suzanne);
 
@@ -1508,7 +1507,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
 
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(), s, findModelFileName("FBX/Teapot/Teapot.fbx"), SLApplication::texturePath, true, teapotMat);
+        SLNode*          teapot = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Teapot/Teapot.fbx", SLApplication::texturePath, true, teapotMat);
 
         teapot->scale(0.5);
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
@@ -1753,14 +1752,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(new SLNode(grid, "grid"));
 
         // Astro boy character
-        SLNode* char1 = importer.load(s->animManager(), s, findModelFileName("DAE/AstroBoy/AstroBoy.dae"), SLApplication::texturePath);
+        SLNode* char1 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae", SLApplication::texturePath);
         char1->translate(-1, 0, 0);
         SLAnimPlayback* char1Anim = s->animManager().lastAnimPlayback();
         char1Anim->playForward();
         scene->addChild(char1);
 
         // Sintel character
-        SLNode* char2 = importer.load(s->animManager(), s, findModelFileName("DAE/Sintel/SintelLowResOwnRig.dae"), SLApplication::texturePath
+        SLNode* char2 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/Sintel/SintelLowResOwnRig.dae", SLApplication::texturePath
                                       //,true
                                       //,SLProcess_JoinIdenticalVertices
                                       //|SLProcess_RemoveRedundantMaterials
@@ -1775,7 +1774,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(char2);
 
         // Skinned cube 1
-        SLNode* cube1 = importer.load(s->animManager(), s, findModelFileName("DAE/SkinnedCube/skinnedcube2.dae"), SLApplication::texturePath);
+        SLNode* cube1 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube2.dae", SLApplication::texturePath);
         cube1->translate(3, 0, 0);
         SLAnimPlayback* cube1Anim = s->animManager().lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
@@ -1783,7 +1782,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube1);
 
         // Skinned cube 2
-        SLNode* cube2 = importer.load(s->animManager(), s, findModelFileName("DAE/SkinnedCube/skinnedcube4.dae"), SLApplication::texturePath);
+        SLNode* cube2 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube4.dae", SLApplication::texturePath);
         cube2->translate(-3, 0, 0);
         SLAnimPlayback* cube2Anim = s->animManager().lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
@@ -1791,7 +1790,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube2);
 
         // Skinned cube 3
-        SLNode* cube3 = importer.load(s->animManager(), s, findModelFileName("DAE/SkinnedCube/skinnedcube5.dae"), SLApplication::texturePath);
+        SLNode* cube3 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube5.dae", SLApplication::texturePath);
         cube3->translate(0, 3, 0);
         SLAnimPlayback* cube3Anim = s->animManager().lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
@@ -2021,7 +2020,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->rotate(90, -1, 0, 0);
 
         SLAssimpImporter importer;
-        SLNode*          center = importer.load(s->animManager(), s, findModelFileName("DAE/AstroBoy/AstroBoy.dae"), SLApplication::texturePath);
+        SLNode*          center = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae", SLApplication::texturePath);
         s->animManager().lastAnimPlayback()->playForward();
 
         // Assemble scene
@@ -2074,7 +2073,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
             CVCapture::instance()->videoType(VT_FILE);
-            CVCapture::instance()->videoFilename = "street3.mp4";
+            CVCapture::instance()->videoFilename = SLApplication::videoPath + "street3.mp4";
             CVCapture::instance()->videoLoops    = true;
         }
         sv->viewportSameAsVideo(true);
@@ -2420,7 +2419,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load sunglasses
         SLAssimpImporter importer;
-        SLNode*          glasses = importer.load(s->animManager(), s, findModelFileName("FBX/Sunglasses.fbx"), SLApplication::texturePath);
+        SLNode*          glasses = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Sunglasses.fbx", SLApplication::texturePath);
         glasses->scale(0.01f);
 
         // Add axis arrows at world center
@@ -2541,7 +2540,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          bern = importer.load(s->animManager(), s, findModelFileName("FBX/Christoffel/Bern-Bahnhofsplatz.fbx"), SLApplication::texturePath);
+        SLNode*          bern = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Christoffel/Bern-Bahnhofsplatz.fbx", SLApplication::texturePath);
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -2670,7 +2669,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
                                                  s,
-                                                 findModelFileName("GLTF/AugustaRaurica/Tempel-Theater-02.gltf"),
+                                                 SLApplication::modelPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
                                                  SLApplication::texturePath,
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
@@ -2762,7 +2761,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
                                              s,
-                                             findModelFileName("GLTF/Aventicum/Aventicum-Amphitheater1.gltf"),
+                                             SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf",
                                              SLApplication::texturePath,
                                              true,    // only meshes
                                              nullptr, // no replacement material
@@ -2842,7 +2841,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          findModelFileName("GLTF/Aventicum/Aventicum-Cigognier1.gltf"),
+                                          SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Cigognier1.gltf",
                                           SLApplication::texturePath,
                                           true,    // only meshes
                                           nullptr, // no replacement material
@@ -3541,13 +3540,5 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     }
 
     return figure;
-}
-//-----------------------------------------------------------------------------
-std::string findModelFileName(std::string file)
-{
-    return Utils::findFile(Utils::getFileName(file),
-                           {SLApplication::modelPath,
-                            SLApplication::modelPath + Utils::getPath(file),
-                            SLApplication::exePath});
 }
 //-----------------------------------------------------------------------------

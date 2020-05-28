@@ -41,6 +41,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
                          const SLstring& fontPath,
+                         const SLstring& videoPath,
                          const SLstring& configPath,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);

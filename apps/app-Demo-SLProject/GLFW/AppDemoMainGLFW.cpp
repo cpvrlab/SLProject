@@ -575,8 +575,7 @@ void initSL(SLVstring& cmdLineArgs)
     CVImage::defaultPath         = projectRoot + "/data/images/textures/";
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),
-                                            SLApplication::calibFilePath,   // for calibrations made
-                                            projectRoot + "/data/videos/"); // for videos
+                                            SLApplication::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -585,6 +584,7 @@ void initSL(SLVstring& cmdLineArgs)
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
                         projectRoot + "/data/images/fonts/",
+                        projectRoot + "/data/videos/",
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);

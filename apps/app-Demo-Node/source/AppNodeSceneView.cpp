@@ -22,14 +22,6 @@
 #include "AppNodeSceneView.h"
 
 //-----------------------------------------------------------------------------
-std::string findModelFileName(std::string file)
-{
-    return Utils::findFile(Utils::getFileName(file),
-                           {SLImporter::defaultPath,
-                            SLImporter::defaultPath + Utils::getPath(file),
-                            SLApplication::exePath});
-}
-//-----------------------------------------------------------------------------
 void drawXZGrid(const SLMat4f& mat)
 {
     // for now we don't want to updateRec the mesh implementation
@@ -152,7 +144,8 @@ void AppNodeSceneView::postSceneLoad()
     SLAssimpImporter importer;
     _axesNode = importer.load(_s->animManager(),
                               &_assets,
-                              findModelFileName("FBX/Axes/axes_blender.fbx"));
+                              SLApplication::modelPath + "FBX/Axes/axes_blender.fbx",
+                              SLApplication::texturePath);
 
     _s->root3D()->addChild(_moveBox);
     _s->root3D()->addChild(_axesNode);

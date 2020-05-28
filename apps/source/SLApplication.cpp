@@ -55,6 +55,7 @@ SLstring SLApplication::shaderPath;
 SLstring SLApplication::modelPath;
 SLstring SLApplication::texturePath;
 SLstring SLApplication::fontPath;
+SLstring SLApplication::videoPath;
 
 SLSceneID                   SLApplication::sceneID = SID_Empty;
 deque<function<void(void)>> SLApplication::jobsToBeThreaded;

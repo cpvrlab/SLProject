@@ -58,6 +58,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
                          const SLstring& fontPath,
+                         const SLstring& videoPath,
                          const SLstring& configPath,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback)
@@ -66,10 +67,11 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 
     // Default paths for all loaded resources
     SLApplication::dataPath    = Utils::unifySlashes(dataPath);
-    SLApplication::shaderPath  = SLApplication::dataPath + "shaders/";
-    SLApplication::modelPath   = SLApplication::dataPath + "models/";
-    SLApplication::texturePath = SLApplication::dataPath + "images/textures/";
-    SLApplication::fontPath    = SLApplication::dataPath + "images/fonts/";
+    SLApplication::shaderPath  = shaderPath;
+    SLApplication::modelPath   = modelPath;
+    SLApplication::texturePath = texturePath;
+    SLApplication::fontPath    = fontPath;
+    SLApplication::videoPath   = videoPath;
 
     SLApplication::configPath = configPath;
 

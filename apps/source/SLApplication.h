@@ -75,6 +75,7 @@ public:
     static SLstring modelPath;
     static SLstring texturePath;
     static SLstring fontPath;
+    static SLstring videoPath;
 
     static SLSceneID sceneID; //!< ID of last loaded scene
 
