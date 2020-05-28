@@ -52,7 +52,9 @@
 extern SLGLTexture* videoTexture;
 extern CVTracked*   tracker;
 extern SLNode*      trackedNode;
-
+//-----------------------------------------------------------------------------
+//! Global pointer to 3D MRI texture for volume rendering for threaded loading
+SLGLTexture* gTexMRI3D = nullptr;
 //-----------------------------------------------------------------------------
 // Forward declarations for helper functions used only in this file
 SLNode* SphereGroup(SLProjectScene* s,
@@ -64,11 +66,12 @@ SLNode* SphereGroup(SLProjectScene* s,
                     SLuint,
                     SLMaterial*,
                     SLMaterial*);
+//-----------------------------------------------------------------------------
 SLNode* BuildFigureGroup(SLProjectScene* s,
                          SLMaterial*     mat,
                          SLbool          withAnimation = false);
-string  findModelFileName(std::string file);
-
+//-----------------------------------------------------------------------------
+string findModelFileName(std::string file);
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
@@ -85,10 +88,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
+    // Reset asset pointer from previous scenes
     delete tracker;
     tracker      = nullptr;
     videoTexture = nullptr; // The video texture will be deleted by scene uninit
     trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
+    if (sceneID != SID_VolumeRayCastLighted)
+        gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
 
     SLApplication::sceneID = sceneID;
 
@@ -474,20 +480,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light1->attenuation(1, 0, 0);
 
             SLAssimpImporter importer;
-            SLfloat          timeStart  = GlobalTimer::timeS();
-            SLNode*          largeModel = importer.load(s->animManager(),
-                                               s,
-                                               largeFile,
-                                               true,
-                                               diffuseMat,
-                                               0.2f,
-                                               SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
+            SLNode*          dragonModel = importer.load(s->animManager(),
+                                                s,
+                                                largeFile,
+                                                true,
+                                                diffuseMat,
+                                                0.2f,
+                                                SLProcess_Triangulate |
+                                                  SLProcess_JoinIdenticalVertices);
 
-            SLfloat timeEnd = GlobalTimer::timeS();
-            SL_LOG("Time to load  : %4.2f sec.", timeEnd - timeStart);
             SLNode* scene = new SLNode("Scene");
             scene->addChild(light1);
-            scene->addChild(largeModel);
+            scene->addChild(dragonModel);
             scene->addChild(cam1);
 
             sv->camera(cam1);
@@ -1048,8 +1052,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         const SLint nrRows  = 7;
         const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (float)(nrCols-1) * spacing * 0.5f;
-        SLfloat     maxY    = (float)(nrRows-1) * spacing * 0.5f;
+        SLfloat     maxX    = (float)(nrCols - 1) * spacing * 0.5f;
+        SLfloat     maxY    = (float)(nrRows - 1) * spacing * 0.5f;
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
@@ -1639,24 +1643,32 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Volume Ray Cast Lighted Test");
         s->info("Volume Rendering of an angiographic MRI scan with lighting");
 
-        // Load volume data into 3D texture
-        SLVstring mriImages;
-        for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
+        // The MRI Images got loaded in advance
+        if (gTexMRI3D && gTexMRI3D->images().size() > 0)
+        {
+            // Add pointer to the global resource vectors for deallocation
+            if (s)
+                s->textures().push_back(gTexMRI3D);
+        }
+        else
+        {
+            // Load volume data into 3D texture
+            SLVstring mriImages;
+            for (SLint i = 0; i < 207; ++i)
+                mriImages.push_back(Utils::formatString("i%04u_0000b.png", i));
 
-        SLint clamping3D = GL_CLAMP_TO_EDGE;
-        if (SLGLState::instance()->getSLVersionNO() > "320")
-            clamping3D = 0x812D; // GL_CLAMP_TO_BORDER
+            gTexMRI3D = new SLGLTexture(s,
+                                        mriImages,
+                                        GL_LINEAR,
+                                        GL_LINEAR,
+                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                        "mri_head_front_to_back",
+                                        true);
 
-        SLGLTexture* texMRI = new SLGLTexture(s,
-                                              mriImages,
-                                              GL_LINEAR,
-                                              GL_LINEAR,
-                                              clamping3D,
-                                              clamping3D,
-                                              "mri_head_front_to_back",
-                                              true);
-        texMRI->calc3DGradients(1);
+            gTexMRI3D->calc3DGradients(1);
+            gTexMRI3D->smooth3DGradients(1);
+        }
 
         // Create transfer LUT 1D texture
         SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
@@ -1666,15 +1678,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLGenericProgram(s, "VolumeRenderingRayCast.vert", "VolumeRenderingRayCastLighted.frag");
-        SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
-        SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
-        SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
+        SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)gTexMRI3D->images()[0]->width());
+        SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)gTexMRI3D->images()[0]->height());
+        SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)gTexMRI3D->images().size());
         sp->addUniform1f(volX);
         sp->addUniform1f(volY);
         sp->addUniform1f(volZ);
 
         // Create volume rendering material
-        SLMaterial* matVR = new SLMaterial(s, "matVR", texMRI, tf, nullptr, nullptr, sp);
+        SLMaterial* matVR = new SLMaterial(s, "matVR", gTexMRI3D, tf, nullptr, nullptr, sp);
 
         // Create camera
         SLCamera* cam1 = new SLCamera("Camera 1");
