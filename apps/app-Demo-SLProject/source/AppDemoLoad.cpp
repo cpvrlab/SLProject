@@ -2706,9 +2706,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
 
         // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
-        SLstring tif = SLImporter::defaultPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
+        SLstring tif = SLApplication::modelPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
         if (!Utils::fileExists(tif))
-            tif = SLImporter::defaultPath + "DTM-Theater-Tempel-WGS84.tif"; //Android path
+            tif = SLApplication::modelPath + "DTM-Theater-Tempel-WGS84.tif"; //Android path
         SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -3546,8 +3546,8 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
 std::string findModelFileName(std::string file)
 {
     return Utils::findFile(Utils::getFileName(file),
-                           {SLImporter::defaultPath,
-                            SLImporter::defaultPath + Utils::getPath(file),
+                           {SLApplication::modelPath,
+                            SLApplication::modelPath + Utils::getPath(file),
                             SLApplication::exePath});
 }
 //-----------------------------------------------------------------------------

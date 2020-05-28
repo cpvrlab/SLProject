@@ -1161,7 +1161,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #if !defined(SL_OS_ANDROID) && !defined(SL_OS_IOS)
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
-                        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_LargeModel);
                         else
@@ -1183,12 +1183,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                      &remoteSize,
                                                      ftplib::transfermode::image);
                                             ftpXferSizeMax  = remoteSize;
-                                            SLstring plyDir = SLImporter::defaultPath + "PLY";
+                                            SLstring plyDir = SLApplication::modelPath + "PLY";
                                             if (!Utils::dirExists(plyDir))
                                                 Utils::makeDir(plyDir);
                                             if (Utils::dirExists(plyDir))
                                             {
-                                                SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.ply",
                                                              ftplib::transfermode::image))
@@ -1211,7 +1211,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             };
 
                             auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                                SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                                 if (Utils::fileExists(largeFile))
                                     s->onLoad(s, sv, SID_LargeModel);
                             };
@@ -1317,26 +1317,26 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
 
-                    SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
-                    SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+                    SLstring modelAR1 = SLApplication::modelPath + "Tempel-Theater-02.gltf"; // Android
+                    SLstring modelAR2 = SLApplication::modelPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
                     if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
                         if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
                             s->onLoad(s, sv, SID_VideoAugustaRaurica);
 
-                    SLstring modelAV11 = SLImporter::defaultPath + "Aventicum-Amphitheater1.gltf"; // Android
-                    SLstring modelAV12 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
+                    SLstring modelAV11 = SLApplication::modelPath + "Aventicum-Amphitheater1.gltf"; // Android
+                    SLstring modelAV12 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
                     if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
                         if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
                             s->onLoad(s, sv, SID_VideoAventicumAmphi);
                     /*
-                    SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
-                    SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
+                    SLstring modelAV21 = SLApplication::modelPath + "Aventicum-Theater1.gltf"; // Android
+                    SLstring modelAV22 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
                         if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
                             s->onLoad(s, sv, SID_VideoAventicumTheatre);
 
-                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf"; // Android
-                    SLstring modelAV32 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Cigonier1.gltf";
+                    SLstring modelAV31 = SLApplication::modelPath + "Aventicum-Cigognier1.gltf"; // Android
+                    SLstring modelAV32 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Cigonier1.gltf";
                     if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
                         if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
                             s->onLoad(s, sv, SID_VideoAventicumCigonier);

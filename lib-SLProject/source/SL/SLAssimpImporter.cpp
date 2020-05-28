@@ -693,7 +693,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                                   : textureType == aiTextureType_OPACITY
                                                       ? TT_color
                                                       : TT_unknown;
-            SLstring texFile = checkFilePath(modelPath, aipath.data, texturePath);
+            SLstring texFile = checkFilePath(modelPath, texturePath, aipath.data);
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation

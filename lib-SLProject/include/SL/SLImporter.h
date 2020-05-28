@@ -114,8 +114,6 @@ public:
     SLSkeleton*   skeleton() { return _skeleton; }
     SLVAnimation& nodeAnimations() { return _nodeAnimations; }
 
-    static SLstring defaultPath;
-
 protected:
     ofstream       _log;                 //!< log stream
     SLstring       _logFile;             //!< name of the log file
