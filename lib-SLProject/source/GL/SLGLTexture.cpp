@@ -1170,7 +1170,7 @@ SLstring SLGLTexture::typeName()
 gradient of all images and stores them in the RGB components.
 \param sampleRadius Distance from center to calculate the gradient
 */
-void SLGLTexture::calc3DGradients(SLint sampleRadius)
+void SLGLTexture::calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress)
 {
     SLint   r          = sampleRadius;
     SLint   volX       = (SLint)_images[0]->width();
@@ -1218,7 +1218,7 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
                 // Calculate progress in percent
                 cntVoxels++;
                 SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
-                //SLApplication::jobProgressNum(progress);
+                onUpdateProgress(progress);
             }
         }
     }
@@ -1232,7 +1232,7 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
 of all images.
 \param smoothRadius Soothing radius
 */
-void SLGLTexture::smooth3DGradients(SLint smoothRadius)
+void SLGLTexture::smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress)
 {
     SLint   r          = smoothRadius;
     SLint   volX       = (SLint)_images[0]->width();
@@ -1283,7 +1283,7 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
                 // Calculate progress in percent
                 cntVoxels++;
                 SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
-                //SLApplication::jobProgressNum(progress);
+                onUpdateProgress(progress);
             }
         }
     }

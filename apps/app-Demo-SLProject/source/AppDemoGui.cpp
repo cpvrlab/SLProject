@@ -1383,15 +1383,17 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         auto calculateGradients = []() {
                             SLApplication::jobProgressMsg("Calculate MRI Volume Gradients");
                             SLApplication::jobProgressMax(100);
-                            gTexMRI3D->calc3DGradients(1);
+                            gTexMRI3D->calc3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
                             SLApplication::jobIsRunning = false;
                         };
+
                         auto smoothGradients = []() {
                             SLApplication::jobProgressMsg("Smooth MRI Volume Gradients");
                             SLApplication::jobProgressMax(100);
-                            gTexMRI3D->smooth3DGradients(1);
+                            gTexMRI3D->smooth3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
                             SLApplication::jobIsRunning = false;
                         };
+
                         auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
                             s->onLoad(s, sv, SID_VolumeRayCastLighted);
                         };
