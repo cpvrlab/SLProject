@@ -36,7 +36,10 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
-#include <Eigen/Dense>
+
+#ifdef SL_BUILD_WAI
+    #include <Eigen/Dense>
+#endif
 
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoTracking
@@ -717,7 +720,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
-
+#ifdef SL_BUILD_WAI
         if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
         {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -737,7 +740,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
-
+#endif
         if (showImGuiMetrics)
         {
             ImGui::ShowMetricsWindow();
@@ -887,11 +890,14 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
             sprintf(m + strlen(m), "-----------------:\n");
-            sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
-#ifdef EIGEN_VECTORIZE
-            sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
-#else
-            sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+            
+#ifdef SL_BUILD_WAI
+                sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
+    #ifdef EIGEN_VECTORIZE
+                sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
+    #else
+                sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+    #endif
 #endif
             sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
@@ -2304,8 +2310,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+#ifdef SL_BUILD_WAI
             if (SLApplication::sceneID == SID_VideoTrackWAI)
                 ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
+#endif
             ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
