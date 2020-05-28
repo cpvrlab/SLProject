@@ -98,29 +98,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "entrance" || area == "arena")
         {
-#ifdef SL_OS_ANDROID
-            modelPath = SLImporter::defaultPath + "AvenchesEntrance.gltf";
-#else
             modelPath             = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
-#endif
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-#ifdef SL_OS_ANDROID
-            modelPath = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf";
-#else
             modelPath             = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
-#endif
             loadMesh(modelPath);
         }
         else if (area == "theater-marker")
         {
-#ifdef SL_OS_ANDROID
-            modelPath = SLImporter::defaultPath + "Aventicum-Theater1.gltf";
-#else
             modelPath             = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
-#endif
             loadMesh(modelPath);
         }
     }
@@ -128,11 +116,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     {
         if (area == "templeHill-marker")
         {
-#ifdef SL_OS_ANDROID
-            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
-#else
             std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-#endif
             SLAssimpImporter importer;
             // TODO(dgj1): this is a hack for android... fix it better
             if (!Utils::fileExists(modelPath))
@@ -173,11 +157,8 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         }
         else if (area == "templeHillTheaterBottom")
         {
-#ifdef SL_OS_ANDROID
-            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-#else
             std::string modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
-#endif
+
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
