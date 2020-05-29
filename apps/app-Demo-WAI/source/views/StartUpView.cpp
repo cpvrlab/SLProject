@@ -8,16 +8,13 @@
 #include <SelectionGui.h>
 #include <SLGLProgramManager.h>
 
-StartUpView::StartUpView(SLInputManager& inputManager,
-                         int             screenWidth,
-                         int             screenHeight,
-                         int             dotsPerInch,
-                         std::string     imguiIniPath)
+StartUpView::StartUpView(SLInputManager&   inputManager,
+                         const DeviceData& deviceData)
   : _s("StartUpScene", nullptr),
-    _sv(&_s, dotsPerInch, inputManager),
-    _pixPerMM((float)dotsPerInch / 25.4f)
+    _sv(&_s, deviceData.dpi(), inputManager),
+    _pixPerMM((float)deviceData.dpi() / 25.4f)
 {
-    _sv.init("StartUpSceneView", screenWidth, screenHeight, nullptr, nullptr, nullptr, imguiIniPath);
+    _sv.init("StartUpSceneView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, nullptr, deviceData.writableDir());
     _s.init();
 
     SLMaterial* m1 = new SLMaterial(&_assets, "m1", SLCol4f::BLUE);

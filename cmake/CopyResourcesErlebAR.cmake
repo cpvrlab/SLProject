@@ -69,6 +69,13 @@ function(copy_resources_erlebar TARGET_DIR)
 		${SL_PROJECT_ROOT}/data/config/StringsItalian.json
 		${SL_PROJECT_ROOT}/data/config/TesterConfig.json
 	    )
+	
+	file(GLOB_RECURSE 
+		ERLEBAR
+		RELATIVE
+		${SL_PROJECT_DATA_ROOT}
+		${SL_PROJECT_ROOT}/data/erlebAR/*
+	    )
 		
 	# Distribution
 	set(RESOURCES
@@ -79,6 +86,7 @@ function(copy_resources_erlebar TARGET_DIR)
 		${SHADERS}
 		${CALIBRATIONS}
 		${CONFIG}
+		${ERLEBAR}
 		)
 		
 	foreach(FILE_TO_COPY ${RESOURCES})

@@ -4,14 +4,11 @@ AreaInfoView::AreaInfoView(sm::EventHandler&   eventHandler,
                            SLInputManager&     inputManager,
                            const ImGuiEngine&  imGuiEngine,
                            ErlebAR::Resources& resources,
-                           int                 screenWidth,
-                           int                 screenHeight,
-                           int                 dotsPerInch,
-                           std::string         imguiIniPath)
-  : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight)
+                           const DeviceData&   deviceData)
+  : SLSceneView(nullptr, deviceData.dpi(), inputManager),
+    _gui(imGuiEngine, eventHandler, resources, deviceData.dpi(), deviceData.scrWidth(), deviceData.scrHeight())
 {
-    init("AreaInfoView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    init("AreaInfoView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
 }
 

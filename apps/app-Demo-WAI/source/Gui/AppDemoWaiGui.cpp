@@ -56,12 +56,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
                              sm::EventHandler&                     eventHandler,
                              ErlebAR::Resources&                   resources,
                              std::string                           appName,
-                             int                                   dotsPerInch,
-                             int                                   windowWidthPix,
-                             int                                   windowHeightPix,
-                             std::string                           configDir,
-                             std::string                           fontPath,
-                             std::string                           vocabularyDir,
+                             const DeviceData&                     deviceData,
                              const std::vector<std::string>&       extractorIdToNames,
                              std ::queue<WAIEvent*>&               eventQueue,
                              std::function<WAISlam*(void)>         modeGetterCB,
@@ -73,8 +68,8 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     _resources(resources)
 {
     //load preferences
-    uiPrefs        = std::make_unique<GUIPreferences>(dotsPerInch);
-    _prefsFileName = Utils::unifySlashes(configDir) + appName + ".yml";
+    uiPrefs        = std::make_unique<GUIPreferences>(deviceData.dpi());
+    _prefsFileName = Utils::unifySlashes(deviceData.writableDir()) + appName + ".yml";
     uiPrefs->load(_prefsFileName, imGuiEngine.context()->Style);
     //load fonts
     //loadFonts(uiPrefs->fontPropDots, uiPrefs->fontFixedDots, fontPath);
@@ -96,9 +91,9 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     _guiSlamLoad = std::make_shared<AppDemoGuiSlamLoad>("slam load",
                                                         &eventQueue,
                                                         _resources.fonts().standard,
-                                                        configDir + "erleb-AR/locations/",
-                                                        configDir + "calibrations/",
-                                                        vocabularyDir,
+                                                        deviceData.erlebARTestDir() + "locations/",
+                                                        deviceData.erlebARCalibTestDir(),
+                                                        deviceData.vocabularyDir(),
                                                         extractorIdToNames,
                                                         &uiPrefs->showSlamLoad,
                                                         std::bind(&AppDemoWaiGui::showErrorMsg, this, std::placeholders::_1));
@@ -306,7 +301,6 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
             }
 
             ImGui::MenuItem("Auto-Calibration", nullptr, &uiPrefs->showAutoCalibration);
-
 
             ImGui::EndMenu();
         }

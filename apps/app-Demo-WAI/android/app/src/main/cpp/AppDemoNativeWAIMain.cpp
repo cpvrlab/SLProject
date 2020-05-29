@@ -282,7 +282,7 @@ void Engine::extractRecursive(AAssetManager* mgr, const std::string& internalPat
 {
     //create new output directory
     std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath);
-    if(Utils::dirExists(outputPath))
+    if (Utils::dirExists(outputPath))
         Utils::removeDir(outputPath);
     Utils::makeDir(outputPath);
 
@@ -293,7 +293,7 @@ void Engine::extractRecursive(AAssetManager* mgr, const std::string& internalPat
     {
         if (s.find('.') == std::string::npos)
         {
-            //it is a directory extract it recursively
+            //it is a directory, extract it recursively
             extractRecursive(mgr, internalPath, assetDirPath + "/" + s);
         }
     }

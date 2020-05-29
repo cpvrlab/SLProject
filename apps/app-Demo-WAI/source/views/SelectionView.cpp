@@ -7,19 +7,27 @@ SelectionView::SelectionView(sm::EventHandler&   eventHandler,
                              SLInputManager&     inputManager,
                              const ImGuiEngine&  imGuiEngine,
                              ErlebAR::Resources& resources,
-                             int                 screenWidth,
-                             int                 screenHeight,
-                             int                 dotsPerInch,
-                             std::string         fontPath,
-                             std::string         texturePath,
-                             std::string         imguiIniPath)
-  : SLSceneView(nullptr, dotsPerInch, inputManager),
+                             const DeviceData&   deviceData)
+  : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     sm::EventSender(eventHandler),
-    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath),
+    _gui(imGuiEngine,
+         eventHandler,
+         resources,
+         deviceData.dpi(),
+         deviceData.scrWidth(),
+         deviceData.scrHeight(),
+         deviceData.fontDir(),
+         deviceData.textureDir()),
     _scene("SelectionScene", nullptr)
 {
     scene(&_scene);
-    init("SelectionSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    init("SelectionSceneView",
+         deviceData.scrWidth(),
+         deviceData.scrHeight(),
+         nullptr,
+         nullptr,
+         &_gui,
+         deviceData.writableDir());
     _scene.init();
     onInitialize();
 }
