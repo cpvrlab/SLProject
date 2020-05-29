@@ -73,6 +73,8 @@ void detectFaceAndDisplay(Mat frame)
 //-----------------------------------------------------------------------------
 int main()
 {
+    // Be aware that on Windows not more than one process can access the camera at the time.
+    // Be aware that on many OS you have to grant access rights to the camera system
     VideoCapture capture;
     Mat          frame;
 
