@@ -35,7 +35,7 @@ public:
     int scrHeight() const { return _scrHeight; }
     //dots per inch of screen
     int dpi() const { return _dpi; }
-    //data directory (e.g. on desktop SLProject/data/. For mobile devices it is not visible to the user)
+    //data directory (e.g. on desktop SLProject/data/. For mobile devices it is not visible to the user ("/data/user/0/ch.cpvr.wai/files"))
     const std::string& dataDir() const { return _dataDir; }
     //writable external app dir (e.g.AppData/Roaming on windows, <sd>/Android/data/ch.cpvr.wai/files on android)
     const std::string& writableDir() const { return _writableDir; }

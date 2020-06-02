@@ -100,7 +100,6 @@ private:
     ErlebARApp _earApp;
     bool       _earAppIsInitialized = false;
 
-    AppDirectories _dirs;
     int32_t        _dpi;
 
     EGLConfig  _config;
@@ -160,15 +159,12 @@ void Engine::onInit()
 
         initDisplay();
 
-        std::string path = getInternalDir();
-        extractAPKFolder(path, "data");
+        std::string internalPath = getInternalDir();
+        //extract folder data in apk to internalPath + "/data"
+        extractAPKFolder(internalPath, "data");
         std::string externalPath = getExternalDir();
-
-        _dirs.slDataRoot    = path + "/data/";
-        _dirs.waiDataRoot   = path + "/data/";
-        _dirs.vocabularyDir = path + "/data/calibrations/";
-        _dirs.writableDir   = externalPath + "/";
-        _dirs.logFileDir    = externalPath + "/log/";
+        //extract folder erleb-AR in apk to externalPath + "/erleb-AR"
+        extractAPKFolder(externalPath, "erleb-AR");
 
         AConfiguration* appConfig = AConfiguration_new();
         AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
@@ -177,8 +173,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        //todo: _earApp.init
-        _earApp.init(_width, _height, _dpi, _dirs, _camera);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
         _earAppIsInitialized = true;
     }
     else
@@ -190,7 +185,10 @@ void Engine::onInit()
             _earApp.destroy();
             terminateDisplay();
             initDisplay();
-            _earApp.init(_width, _height, _dpi, _dirs, _camera);
+
+            std::string internalPath = getInternalDir();
+            std::string externalPath = getExternalDir();
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
         }
         else
         {
