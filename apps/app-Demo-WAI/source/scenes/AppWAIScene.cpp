@@ -98,17 +98,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "entrance" || area == "arena")
         {
-            modelPath             = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-            modelPath             = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "theater-marker")
         {
-            modelPath             = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
             loadMesh(modelPath);
         }
     }
@@ -116,9 +116,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     {
         if (area == "templeHill-marker")
         {
-            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+            std::string      modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
             SLAssimpImporter importer;
-            // TODO(dgj1): this is a hack for android... fix it better
+
             if (!Utils::fileExists(modelPath))
             {
                 modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
@@ -157,7 +157,44 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         }
         else if (area == "templeHillTheaterBottom")
         {
-            std::string modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
+            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+
+            SLAssimpImporter importer;
+            augmentationRoot = importer.load(_animManager,
+                                             &assets,
+                                             modelPath,
+                                             _dataDir + "images/textures/",
+                                             true,
+                                             nullptr,
+                                             0.4f);
+
+            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
+            if (portikusSockel)
+            {
+                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
+            if (boden)
+            {
+                boden->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            // Create directional light for the sun light
+            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
+            light->ambientColor(SLCol4f(1, 1, 1));
+            light->diffuseColor(SLCol4f(1, 1, 1));
+            light->specularColor(SLCol4f(1, 1, 1));
+            light->attenuation(1, 0, 0);
+            light->translation(0, 10, 0);
+            light->lookAt(10, 0, 10);
+
+            _root3D->addChild(augmentationRoot);
+            _root3D->addChild(light);
+        }
+        else if (area == "templeHillTheater")
+        {
+            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
 
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
