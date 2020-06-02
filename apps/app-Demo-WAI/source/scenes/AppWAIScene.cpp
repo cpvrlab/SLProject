@@ -130,7 +130,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
 #endif
             SLAssimpImporter importer;
-            // TODO(dgj1): this is a hack for android... fix it better
+
             if (!Utils::fileExists(modelPath))
             {
                 modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
@@ -169,9 +169,48 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         else if (area == "templeHillTheaterBottom")
         {
 #ifdef SL_OS_ANDROID
-            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-#else
             std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+#else
+            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+#endif
+            SLAssimpImporter importer;
+            augmentationRoot = importer.load(_animManager,
+                                             &assets,
+                                             modelPath,
+                                             true,
+                                             nullptr,
+                                             0.4f);
+
+            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
+            if (portikusSockel)
+            {
+                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
+            if (boden)
+            {
+                boden->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            // Create directional light for the sun light
+            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
+            light->ambient(SLCol4f(1, 1, 1));
+            light->diffuse(SLCol4f(1, 1, 1));
+            light->specular(SLCol4f(1, 1, 1));
+            light->attenuation(1, 0, 0);
+            light->translation(0, 10, 0);
+            light->lookAt(10, 0, 10);
+
+            _root3D->addChild(augmentationRoot);
+            _root3D->addChild(light);
+        }
+        else if (area == "templeHillTheater")
+        {
+#ifdef SL_OS_ANDROID
+            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+#else
+            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
 #endif
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
