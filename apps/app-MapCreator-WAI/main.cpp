@@ -74,6 +74,8 @@ void readArgs(int argc, char* argv[], Config& config)
                 config.extractorType = ExtractorType_FAST_ORBS_2000;
             else if (!strcmp(argv[i], "FAST_ORBS_4000"))
                 config.extractorType = ExtractorType_FAST_ORBS_4000;
+            else if (!strcmp(argv[i], "FAST_ORBS_6000"))
+                config.extractorType = ExtractorType_FAST_ORBS_6000;
             else if (!strcmp(argv[i], "GLSL_1"))
                 config.extractorType = ExtractorType_GLSL_1;
             else if (!strcmp(argv[i], "GLSL"))
