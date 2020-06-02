@@ -489,7 +489,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLNode*          dragonModel = importer.load(s->animManager(),
                                                 s,
                                                 largeFile,
-                                               SLApplication::texturePath,
+                                                SLApplication::texturePath,
                                                 true,
                                                 diffuseMat,
                                                 0.2f,
@@ -1675,7 +1675,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             // Load volume data into 3D texture
             SLVstring mriImages;
             for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(Utils::formatString(SLApplication::texturePath + "i%04u_0000b.png", i));
+                mriImages.push_back(Utils::formatString(SLApplication::texturePath + "i%04u_0000b.png", i));
 
             gTexMRI3D = new SLGLTexture(s,
                                         mriImages,
@@ -1686,7 +1686,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         "mri_head_front_to_back",
                                         true);
 
-            gTexMRI3D->calc3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+            gTexMRI3D->calc3DGradients(1, [](int progress) { SLApplication::jobProgressNum(progress); });
             //gTexMRI3D->smooth3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
         }
 
@@ -2823,10 +2823,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAventicumCigonier) //....................................
+    else if (SLApplication::sceneID == SID_VideoAventicumCigognier) //...................................
     {
-        s->name("Aventicum Amphitheatre AR");
-        s->info("Augmented Reality for Aventicum Amphitheatre");
+        s->name("Aventicum Cigonier AR");
+        s->info("Augmented Reality for Aventicum Cigonier Temple");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);

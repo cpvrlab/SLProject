@@ -128,7 +128,7 @@ enum SLSceneID
     SID_VideoChristoffel,
     SID_VideoAugustaRaurica,
     SID_VideoAventicumAmphi,
-    SID_VideoAventicumCigonier,
+    SID_VideoAventicumCigognier,
     SID_VideoAventicumTheatre,
     SID_VideoCalibrateMain,
     SID_VideoCalibrateScnd,

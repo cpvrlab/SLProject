@@ -164,12 +164,12 @@ float GetSeconds()
     
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-	                    SLApplication::exePath + "data/
+	                    SLApplication::exePath + "data/",
                         SLApplication::exePath + "data/shaders/",
                         SLApplication::exePath + "data/models/",
                         SLApplication::exePath + "data/images/textures/",
                         SLApplication::exePath + "data/images/fonts/",
-						SLApplication::exePath + "data/videos/"
+						SLApplication::exePath + "data/videos/",
                         SLApplication::configPath,
                         "AppDemo_iOS",
                         (void*)appDemoLoadScene);
