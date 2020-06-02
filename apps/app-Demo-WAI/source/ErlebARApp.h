@@ -34,7 +34,12 @@ public:
     ErlebARApp();
 
     //external events:
-    void init(int scrWidth, int scrHeight, int dpi, AppDirectories dirs, SENSCamera* camera);
+    void init(int                scrWidth,
+              int                scrHeight,
+              int                dpi,
+              const std::string& dataDir,
+              const std::string& writableDir,
+              SENSCamera*        camera);
     //go back (e.g. from android back-button)
     void goBack();
     //call to completely uninitialize app

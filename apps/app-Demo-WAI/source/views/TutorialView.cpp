@@ -4,16 +4,11 @@ TutorialView::TutorialView(sm::EventHandler&   eventHandler,
                            SLInputManager&     inputManager,
                            const ImGuiEngine&  imGuiEngine,
                            ErlebAR::Resources& resources,
-                           int                 screenWidth,
-                           int                 screenHeight,
-                           int                 dotsPerInch,
-                           std::string         fontPath,
-                           std::string         imguiIniPath,
-                           std::string         texturePath)
-  : SLSceneView(nullptr, dotsPerInch, inputManager),
-    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, screenWidth, screenHeight, fontPath, texturePath)
+                           const DeviceData&   deviceData)
+  : SLSceneView(nullptr, deviceData.dpi(), inputManager),
+    _gui(imGuiEngine, eventHandler, resources, deviceData.dpi(), deviceData.scrWidth(), deviceData.scrHeight(), deviceData.fontDir(), deviceData.textureDir())
 {
-    init("TutorialView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    init("TutorialView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
 }
 

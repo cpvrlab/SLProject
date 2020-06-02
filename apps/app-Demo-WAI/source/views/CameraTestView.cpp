@@ -6,24 +6,20 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
                                const ImGuiEngine&  imGuiEngine,
                                ErlebAR::Resources& resources,
                                SENSCamera*         sensCamera,
-                               int                 screenWidth,
-                               int                 screenHeight,
-                               int                 dotsPerInch,
-                               std::string         imguiIniPath,
-                               std::string         dataDir)
-  : SLSceneView(nullptr, dotsPerInch, inputManager),
+                               const DeviceData&   deviceData)
+  : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
          eventHandler,
          resources,
-         dotsPerInch,
-         screenWidth,
-         screenHeight,
+         deviceData.dpi(),
+         deviceData.scrWidth(),
+         deviceData.scrHeight(),
          sensCamera),
-    _scene("CameraTestScene", dataDir),
+    _scene("CameraTestScene", deviceData.dataDir()),
     _sensCamera(sensCamera)
 {
     scene(&_scene);
-    init("CameraTestView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    init("CameraTestView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
     //set the cameraNode as active camera so that we see the video image
     camera(_scene.cameraNode);

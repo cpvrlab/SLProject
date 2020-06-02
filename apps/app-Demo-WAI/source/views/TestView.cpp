@@ -16,49 +16,36 @@ TestView::TestView(sm::EventHandler&   eventHandler,
                    const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
                    SENSCamera*         camera,
-                   int                 screenWidth,
-                   int                 screenHeight,
-                   int                 dotsPerInch,
-                   std::string         fontPath,
-                   std::string         configDir,
-                   std::string         vocabularyDir,
-                   std::string         calibDir,
-                   std::string         videoDir,
-                   std::string         dataDir)
-  : SLSceneView(&_scene, dotsPerInch, inputManager),
+                   const DeviceData&   deviceData)
+  : SLSceneView(&_scene, deviceData.dpi(), inputManager),
     _gui(
       imGuiEngine,
       eventHandler,
       resources,
       "TestScene",
-      dotsPerInch,
-      screenWidth,
-      screenHeight,
-      configDir,
-      fontPath,
-      vocabularyDir,
+      deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),
       _eventQueue,
       [&]() { return _mode; },                   //getter callback for current mode
       [&]() { return _camera; },                 //getter callback for current camera
       [&]() { return &_calibration; },           //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
-    _scene("TestScene", dataDir),
+    _scene("TestScene", deviceData.dataDir()),
     _camera(camera),
-    _configDir(configDir),
-    _vocabularyDir(vocabularyDir),
-    _calibDir(calibDir),
-    _videoDir(videoDir),
-    _dataDir(dataDir)
+    _configDir(deviceData.writableDir()),
+    _vocabularyDir(deviceData.vocabularyDir()),
+    _calibDir(deviceData.erlebARCalibTestDir()),
+    _videoDir(deviceData.erlebARTestDir() + "videos/"),
+    _dataDir(deviceData.dataDir())
 {
     scene(&_scene);
-    init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
+    init("TestSceneView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, _configDir);
     _scene.init();
     onInitialize();
     _fillAutoCalibration = false;
     _voc                 = new WAIOrbVocabulary();
 
-    setupDefaultErlebARDirTo(_configDir);
+    setupDefaultErlebARDirTo(deviceData.erlebARTestDir());
     //tryLoadLastSlam();
 }
 
@@ -778,12 +765,6 @@ void TestView::setupDefaultErlebARDirTo(std::string dir)
     if (!Utils::dirExists(dir + "calibrations/"))
     {
         Utils::makeDir(dir + "calibrations/");
-    }
-
-    dir += "erleb-AR/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
     }
 
     dir += "locations/";

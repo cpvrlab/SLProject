@@ -63,3 +63,5 @@ target_link_libraries(${target}
 #
 include(CopyResourcesErlebAR)
 copy_resources_erlebar("${CMAKE_CURRENT_LIST_DIR}/src/main/assets/data")
+#does not work because of size of erleb-AR directory
+#copy_resources_erlebar_test("${CMAKE_CURRENT_LIST_DIR}/src/main/assets/erleb-AR")

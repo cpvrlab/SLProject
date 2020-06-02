@@ -9,20 +9,13 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
                                SLInputManager&     inputManager,
                                const ImGuiEngine&  imGuiEngine,
                                ErlebAR::Resources& resources,
-                               int                 screenWidth,
-                               int                 screenHeight,
-                               int                 dotsPerInch,
-                               std::string         erlebARDir,
-                               std::string         calibDir,
-                               std::string         fontPath,
-                               std::string         vocabularyDir,
-                               std::string         imguiIniPath)
-  : SLSceneView(&_scene, dotsPerInch, inputManager),
-    _gui(imGuiEngine, eventHandler, resources, dotsPerInch, fontPath),
+                               const DeviceData&   deviceData)
+  : SLSceneView(&_scene, deviceData.dpi(), inputManager),
+    _gui(imGuiEngine, eventHandler, resources, deviceData.dpi(), deviceData.fontDir()),
     _scene("TestRunnerScene", nullptr),
     _testMode(TestMode_None),
-    _erlebARDir(erlebARDir),
-    _calibDir(calibDir),
+    _erlebARDir(deviceData.erlebARTestDir()),
+    _calibDir(deviceData.erlebARCalibTestDir()),
     _localMapping(nullptr),
     _loopClosing(nullptr),
     _ftpHost("pallas.bfh.ch:21"),
@@ -32,15 +25,15 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _videoWasDownloaded(false),
     _summedTime(0.0f)
 {
-    init("TestRunnerView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    init("TestRunnerView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
 
 #if USE_FBOW
-    std::string vocabularyFile = "/voc_fbow.bin";
+    std::string vocabularyFile = "voc_fbow.bin";
 #else
-    std::string vocabularyFile = "/ORBvoc.bin";
+    std::string vocabularyFile = "ORBvoc.bin";
 #endif
 
-    _voc.loadFromFile(vocabularyDir + vocabularyFile);
+    _voc.loadFromFile(deviceData.vocabularyDir() + vocabularyFile);
 
     std::string configPath = "TestRunner/config/";
     std::string configDir  = _erlebARDir + configPath;
