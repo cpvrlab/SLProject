@@ -33,7 +33,8 @@ class SLTransformNode : public SLNode
 {
 public:
     SLTransformNode(SLSceneView* sv,
-                    SLNode*      targetNode);
+                    SLNode*      targetNode,
+                    SLstring     shaderDir);
     ~SLTransformNode() override;
 
     SLbool onMouseDown(SLMouseButton button,

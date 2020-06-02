@@ -23,12 +23,7 @@ public:
                      const ImGuiEngine&  imGuiEngine,
                      ErlebAR::Resources& resources,
                      SENSCamera*         camera,
-                     int                 screenWidth,
-                     int                 screenHeight,
-                     int                 dotsPerInch,
-                     std::string         imguiIniPath,
-                     std::string         vocabularyDir,
-                     std::string         erlebARDir);
+                     const DeviceData&   deviceData);
     ~AreaTrackingView();
 
     bool update();

@@ -1,5 +1,8 @@
+#if defined(__clang__)
+#pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
+#endif
+
 #include <TutorialGui.h>
-#include <imgui_internal.h>
 #include <CVImage.h>
 #include <GuiUtils.h>
 #include <SLVec2.h>

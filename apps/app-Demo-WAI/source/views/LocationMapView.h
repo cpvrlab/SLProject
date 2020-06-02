@@ -14,11 +14,7 @@ public:
                     SLInputManager&     inputManager,
                     const ImGuiEngine&  imGuiEngine,
                     ErlebAR::Resources& resources,
-                    int                 screenWidth,
-                    int                 screenHeight,
-                    int                 dotsPerInch,
-                    std::string         imguiIniPath,
-                    std::string         erlebARDir);
+                    const DeviceData&   deviceData);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }

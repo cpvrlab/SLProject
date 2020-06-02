@@ -76,6 +76,7 @@ public:
     virtual SLNode* load(SLAnimManager&  aniMan,
                          SLAssetManager* assetMgr,
                          SLstring        pathFilename,
+                         SLstring        texturePath,
                          SLbool          loadMeshesOnly = true,
                          SLMaterial*     overrideMat    = nullptr,
                          float           ambientFactor  = 0.0f,
@@ -112,8 +113,6 @@ public:
     SLVMesh&      meshes() { return _meshes; }
     SLSkeleton*   skeleton() { return _skeleton; }
     SLVAnimation& nodeAnimations() { return _nodeAnimations; }
-
-    static SLstring defaultPath;
 
 protected:
     ofstream       _log;                 //!< log stream

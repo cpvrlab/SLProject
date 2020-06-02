@@ -35,14 +35,7 @@ public:
                    SLInputManager&     inputManager,
                    const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
-                   int                 screenWidth,
-                   int                 screenHeight,
-                   int                 dotsPerInch,
-                   std::string         erlebARDir,
-                   std::string         calibDir,
-                   std::string         fontPath,
-                   std::string         vocabularyDir,
-                   std::string         imguiIniPath);
+                   const DeviceData&   deviceData);
 
     bool start(TestMode testMode, std::string configFile);
     bool update();

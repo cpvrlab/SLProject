@@ -53,10 +53,12 @@ See examples usages in:
   - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
 void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& dataPath,
                          const SLstring& shaderPath,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
                          const SLstring& fontPath,
+                         const SLstring& videoPath,
                          const SLstring& configPath,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback)
@@ -64,11 +66,14 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath      = shaderPath;
-    SLGLTexture::defaultPath      = texturePath;
-    SLGLTexture::defaultPathFonts = fontPath;
-    SLAssimpImporter::defaultPath = modelPath;
-    SLApplication::configPath     = configPath;
+    SLApplication::dataPath    = Utils::unifySlashes(dataPath);
+    SLApplication::shaderPath  = shaderPath;
+    SLApplication::modelPath   = modelPath;
+    SLApplication::texturePath = texturePath;
+    SLApplication::fontPath    = fontPath;
+    SLApplication::videoPath   = videoPath;
+
+    SLApplication::configPath = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
@@ -122,6 +127,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, SLApplication::inputManager);
+    sv->initConeTracer(SLApplication::dataPath + "shaders/");
 
     //maintain multiple scene views in SLApplication
     SLApplication::sceneViews.push_back(sv);
@@ -129,7 +135,8 @@ SLint slCreateSceneView(SLProjectScene* scene,
     SLApplication::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
                                        (cbOnImGuiLoadConfig)onImGuiLoadConfig,
                                        (cbOnImGuiSaveConfig)onImGuiSaveConfig,
-                                       dotsPerInch);
+                                       dotsPerInch,
+                                       SLApplication::fontPath);
 
     sv->init("SceneView",
              screenWidth,

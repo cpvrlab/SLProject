@@ -16,7 +16,6 @@
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
 #include <Utils.h>
-#include <SLApplication.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -25,12 +24,6 @@
 #    include <SLOptixHelper.h>
 #    include <SLOptixRaytracer.h>
 #endif
-
-//-----------------------------------------------------------------------------
-//! Default path for texture files used when only filename is passed in load.
-//! Is overwritten in slCreateAppAndScene.
-SLstring SLGLTexture::defaultPath      = SLstring(SL_PROJECT_ROOT) + "/data/images/textures/";
-SLstring SLGLTexture::defaultPathFonts = SLstring(SL_PROJECT_ROOT) + "/data/images/fonts/";
 
 //! maxAnisotropy=-1 show that GL_EXT_texture_filter_anisotropic is not checked
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
@@ -424,15 +417,13 @@ void SLGLTexture::load(const SLstring& filename,
                        SLbool          flipVertical,
                        SLbool          loadGrayscaleIntoAlpha)
 {
-    string pathFilename = Utils::findFile(filename,
-                                          {defaultPath});
-    if (!Utils::fileExists(pathFilename))
+    if (!Utils::fileExists(filename))
     {
         SLstring msg = "SLGLTexture: File not found: " + filename;
         SL_EXIT_MSG(msg.c_str());
     }
 
-    _images.push_back(new CVImage(pathFilename,
+    _images.push_back(new CVImage(filename,
                                   flipVertical,
                                   loadGrayscaleIntoAlpha));
 }
@@ -1179,12 +1170,14 @@ SLstring SLGLTexture::typeName()
 gradient of all images and stores them in the RGB components.
 \param sampleRadius Distance from center to calculate the gradient
 */
-void SLGLTexture::calc3DGradients(SLint sampleRadius)
+void SLGLTexture::calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress)
 {
     SLint   r          = sampleRadius;
     SLint   volX       = (SLint)_images[0]->width();
     SLint   volY       = (SLint)_images[0]->height();
     SLint   volZ       = (SLint)_images.size();
+    SLuint  numVoxels  = volX * volY * volZ;
+    SLuint  cntVoxels  = 0;
     SLfloat oneOver255 = 1.0f / 255.0f;
 
     // check that all images in depth have the same size
@@ -1221,11 +1214,14 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[0] = (SLuchar)(normal.x * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[1] = (SLuchar)(normal.y * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[2] = (SLuchar)(normal.z * 0.5f * 255.0f);
+
+                // Calculate progress in percent
+                cntVoxels++;
+                SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
+                onUpdateProgress(progress);
             }
         }
     }
-
-    smooth3DGradients(1);
 
     // Debug check
     //for (auto img : _images)
@@ -1236,12 +1232,14 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius)
 of all images.
 \param smoothRadius Soothing radius
 */
-void SLGLTexture::smooth3DGradients(SLint smoothRadius)
+void SLGLTexture::smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress)
 {
     SLint   r          = smoothRadius;
     SLint   volX       = (SLint)_images[0]->width();
     SLint   volY       = (SLint)_images[0]->height();
     SLint   volZ       = (SLint)_images.size();
+    SLuint  numVoxels  = volX * volY * volZ;
+    SLuint  cntVoxels  = 0;
     SLfloat oneOver255 = 1.0f / 255.0f;
 
     // check that all images in depth have the same size
@@ -1281,6 +1279,11 @@ void SLGLTexture::smooth3DGradients(SLint smoothRadius)
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[0] = (SLuchar)(filtered.x * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[1] = (SLuchar)(filtered.y * 0.5f * 255.0f);
                 _images[(SLuint)z]->cvMat().at<cv::Vec4b>(y, x)[2] = (SLuchar)(filtered.z * 0.5f * 255.0f);
+
+                // Calculate progress in percent
+                cntVoxels++;
+                SLint progress = (SLint)((SLfloat)cntVoxels / (SLfloat)numVoxels * 100.0f);
+                onUpdateProgress(progress);
             }
         }
     }

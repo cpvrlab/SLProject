@@ -1,7 +1,8 @@
 #include "CameraOnlyScene.h"
 
-CameraOnlyScene::CameraOnlyScene(std::string name)
-  : SLScene(name, nullptr)
+CameraOnlyScene::CameraOnlyScene(std::string name, std::string dataDir)
+  : SLScene(name, nullptr),
+    _dataDir(dataDir)
 {
     init();
     build();
@@ -13,7 +14,7 @@ void CameraOnlyScene::build()
     cameraNode = new SLCamera("Camera 1");
     _mapNode   = new SLNode("map");
 
-    _videoImage = new SLGLTexture(&assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     cameraNode->background().texture(_videoImage);
 
     _root3D->addChild(_mapNode);

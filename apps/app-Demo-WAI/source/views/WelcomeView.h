@@ -14,12 +14,7 @@ public:
     WelcomeView(SLInputManager&     inputManager,
                 ErlebAR::Resources& resources,
                 const ImGuiEngine&  imGuiEngine,
-                int                 screenWidth,
-                int                 screenHeight,
-                int                 dotsPerInch,
-                std::string         fontPath,
-                std::string         texturePath,
-                std::string         imguiIniPath,
+                const DeviceData&   deviceData,
                 std::string         version);
     bool update();
 

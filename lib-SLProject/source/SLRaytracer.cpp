@@ -78,7 +78,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             ///////////////////////////////////
 
             color.gammaCorrect(_oneOverGamma);
-
+            
             _images[0]->setPixeliRGB((SLint)x,
                                      (SLint)y,
                                      CVVec4f(color.r,
@@ -141,7 +141,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Do multi-threading only in release config
     // Render image without anti-aliasing
     vector<thread> threads1; // vector for additional threads
-    _next = 0;               // init _next=0. _next should be atomic
+    _nextLine = 0;           // reset _nextLine=0 be for multithreading starts
 
     // Start additional threads on the renderSlices function
     for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
@@ -159,7 +159,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     {
         getAAPixels();           // Fills in the AA pixels by contrast
         vector<thread> threads2; // vector for additional threads
-        _next = 0;               // init _next=0. _next should be atomic
+        _nextLine = 0;           // reset _nextLine=0 be for multithreading starts
 
         // Start additional threads on the sampleAAPixelFunction function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
@@ -190,22 +190,24 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 /*!
 Renders slices of 4 rows until the full width of the image is rendered. This
 method can be called as a function by multiple threads.
-The _next index is used and incremented by every thread. So it should be locked
-or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done properly some pixels may get ray traced twice. Only the
-main thread is allowed to call a repaint of the image.
+The _nextLine index is used and incremented by every thread. So it should be
+locked or an atomic index. I prefer not protecting it because it's faster.
+If the increment is not done properly some pixels may get ray traced twice.
+Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlices(const bool isMainThread)
 {
     // Time points
     double t1 = 0;
 
-    while (_next < (SLint)_images[0]->height())
+    while (_nextLine < (SLint)_images[0]->height())
     {
-        const SLint minY = _next;
-
-        // The next line should be atomic
-        _next += 4;
+        // The next section must be protected
+        // Making _nextLine an atomic was not sufficient.
+        _mutex.lock();
+        SLint minY = _nextLine;
+        _nextLine += 4;
+        _mutex.unlock();
 
         for (SLint y = minY; y < minY + 4; ++y)
         {
@@ -220,12 +222,14 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 
                 color.gammaCorrect(_oneOverGamma);
 
+                //_mutex.lock();
                 _images[0]->setPixeliRGB((SLint)x,
                                          (SLint)y,
                                          CVVec4f(color.r,
                                                  color.g,
                                                  color.b,
                                                  color.a));
+                //_mutex.unlock();
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached,
@@ -253,10 +257,10 @@ void SLRaytracer::renderSlices(const bool isMainThread)
 Renders slices of 4 rows multisampled until the full width of the image is
 rendered. Every pixel is multisampled for depth of field lens sampling. This
 method can be called as a function by multiple threads.
-The _next index is used and incremented by every thread. So it should be locked
-or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done properly some pixels may get ray traced twice. Only the
-main thread is allowed to call a repaint of the image.
+The _nextLine index is used and incremented by every thread. So it should be
+locked or an atomic index. I prefer not protecting it because it's faster.
+If the increment is not done properly some pixels may get ray traced twice.
+Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlicesMS(const bool isMainThread)
 {
@@ -267,12 +271,14 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
     SLVec3f lensRadiusX = _LR * (_cam->lensDiameter() * 0.5f);
     SLVec3f lensRadiusY = _LU * (_cam->lensDiameter() * 0.5f);
 
-    while (_next < (SLint)_images[0]->width())
+    while (_nextLine < (SLint)_images[0]->width())
     {
-        const SLint minY = _next;
-
-        // The next line should be atomic
-        _next += 4;
+        // The next section must be protected
+        // Making _nextLine an atomic was not sufficient.
+        _mutex.lock();
+        SLint minY = _nextLine;
+        _nextLine += 4;
+        _mutex.unlock();
 
         for (SLint y = minY; y < minY + 4; ++y)
         {
@@ -318,8 +324,10 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 color /= (SLfloat)_cam->lensSamples()->samples();
 
                 color.gammaCorrect(_oneOverGamma);
-
+                
+                //_mutex.lock();
                 _images[0]->setPixeliRGB((SLint)x, y, CVVec4f(color.r, color.g, color.b, color.a));
+                //_mutex.unlock();
 
                 SLRay::avgDepth += SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached, SLRay::maxDepthReached);
@@ -461,7 +469,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLMaterial*   mat        = ray->hitMesh->mat();
     SLVGLTexture& texture    = mat->textures();
     SLVec3f       L, N, H;
-    SLfloat       lightDist, LdN, NdH, df, sf, spotEffect, att, lighted;
+    SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
     SLScene&      s = _sv->s();
@@ -479,23 +487,27 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 
             // Distinguish between point and directional lights
             SLVec4f lightPos = light->positionWS();
+
+            // Check if directional light on last component w (0 = light is in infintiy)
             if (lightPos.w == 0.0f)
-            { // directional light
+            { 
+                // directional light
                 L         = lightPos.vec3().normalized();
                 lightDist = FLT_MAX; // = infinity
             }
             else
-            { // Point light
+            { 
+                // Point light
                 L.sub(lightPos.vec3(), ray->hitPoint);
                 lightDist = L.length();
                 L /= lightDist;
             }
 
             // Cosine between L and N
-            LdN = L.dot(N);
+            LdotN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
+            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();
@@ -525,9 +537,9 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             {
                 H.sub(L, ray->dir); // half vector between light & eye
                 H.normalize();
-                df  = std::max(LdN, 0.0f); // diffuse factor
-                NdH = std::max(N.dot(H), 0.0f);
-                sf  = pow(NdH, (SLfloat)mat->shininess()); // specular factor
+                df  = std::max(LdotN, 0.0f); // diffuse factor
+                NdotH = std::max(N.dot(H), 0.0f);
+                sf  = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
 
                 amdi += lighted * df * light->diffuse() & mat->diffuse();
                 spec = lighted * sf * light->specular() & mat->specular();
@@ -616,20 +628,24 @@ void SLRaytracer::getAAPixels()
 SLRaytracer::sampleAAPixels does the subsampling of the pixels that need to be
 antialiased. See also getAAPixels. This routine can be called by multiple
 threads.
-The _next index is used and incremented by every thread. So it should be locked
-or an atomic index. I prefer not protecting it because it's faster. If the
-increment is not done properly some pixels may get ray traced twice. Only the
-main thread is allowed to call a repaint of the image.
+The _nextLine index is used and incremented by every thread. So it should be
+locked or an atomic index. I prefer not protecting it because it's faster.
+If the increment is not done properly some pixels may get ray traced twice.
+Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2 = 0;
 
-    while (_next < (SLint)_aaPixels.size())
+    while (_nextLine < (SLint)_aaPixels.size())
     {
-        SLuint mini = (SLuint)_next;
-        _next += 4;
+        // The next section must be protected
+        // Making _nextLine an atomic was not sufficient.
+        _mutex.lock();
+        SLuint mini = (SLuint)_nextLine;
+        _nextLine += 4;
+        _mutex.unlock();
 
         for (SLuint i = mini; i < mini + 4 && i < _aaPixels.size(); ++i)
         {
@@ -665,12 +681,14 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
 
             color.gammaCorrect(_oneOverGamma);
 
+            //_mutex.lock();
             _images[0]->setPixeliRGB((SLint)x,
                                      (SLint)y,
                                      CVVec4f(color.r,
                                              color.g,
                                              color.b,
                                              color.a));
+            //_mutex.unlock();
         }
 
         if (isMainThread && !_doContinuous)
@@ -678,7 +696,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             t2 = GlobalTimer::timeS();
             if (t2 - t1 > 0.5)
             {
-                _progressPC = 50 + (SLint)((SLfloat)_next / (SLfloat)_aaPixels.size() * 50);
+                _progressPC = 50 + (SLint)((SLfloat)_nextLine / (SLfloat)_aaPixels.size() * 50);
                 renderUIBeforeUpdate();
                 _sv->onWndUpdate();
                 t1 = GlobalTimer::timeS();

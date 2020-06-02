@@ -13,7 +13,12 @@
 #include <SLGLProgramManager.h>
 
 std::map<SLStdShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
-
+std::string                                    SLGLProgramManager::_shaderDir;
+//-----------------------------------------------------------------------------
+void SLGLProgramManager::init(std::string shaderDir)
+{
+    _shaderDir = shaderDir;
+}
 //-----------------------------------------------------------------------------
 SLGLGenericProgram* SLGLProgramManager::get(SLStdShaderProg id)
 {
@@ -35,52 +40,57 @@ void SLGLProgramManager::deletePrograms()
 //-----------------------------------------------------------------------------
 void SLGLProgramManager::makeProgram(SLStdShaderProg id)
 {
+    assert(!_shaderDir.empty() && "Error in SLGLProgramManager: Please set call SLGLProgramManager::init and transfer the location of the default shader files!");
+
     switch (id)
     {
         case SP_colorAttribute:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "ColorAttribute.vert", "Color.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "ColorAttribute.vert", _shaderDir + "Color.frag")});
             break;
         case SP_colorUniform:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "ColorUniform.vert", "Color.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "ColorUniform.vert", _shaderDir + "Color.frag")});
             break;
         case SP_perVrtBlinn:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerVrtBlinn.vert", "PerVrtBlinn.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerVrtBlinn.vert", _shaderDir + "PerVrtBlinn.frag")});
             break;
         case SP_perVrtBlinnColorAttrib:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerVrtBlinnColorAttrib.vert", "PerVrtBlinn.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerVrtBlinnColorAttrib.vert", _shaderDir + "PerVrtBlinn.frag")});
             break;
         case SP_perVrtBlinnTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerVrtBlinnTex.vert", "PerVrtBlinnTex.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerVrtBlinnTex.vert", _shaderDir + "PerVrtBlinnTex.frag")});
             break;
         case SP_TextureOnly:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "TextureOnly.vert", "TextureOnly.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "TextureOnly.vert", _shaderDir + "TextureOnly.frag")});
             break;
         case SP_perPixBlinn:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixBlinn.vert", "PerPixBlinn.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixBlinn.vert", _shaderDir + "PerPixBlinn.frag")});
             break;
         case SP_perPixBlinnTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixBlinnTex.vert", "PerPixBlinnTex.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixBlinnTex.vert", _shaderDir + "PerPixBlinnTex.frag")});
             break;
         case SP_perPixCookTorrance:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixCookTorrance.vert", "PerPixCookTorrance.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixCookTorrance.vert", _shaderDir + "PerPixCookTorrance.frag")});
             break;
         case SP_perPixCookTorranceTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "PerPixCookTorranceTex.vert", "PerPixCookTorranceTex.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixCookTorranceTex.vert", _shaderDir + "PerPixCookTorranceTex.frag")});
             break;
         case SP_bumpNormal:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "BumpNormal.vert", "BumpNormal.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "BumpNormal.vert", _shaderDir + "BumpNormal.frag")});
             break;
         case SP_bumpNormalParallax:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "BumpNormal.vert", "BumpNormalParallax.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "BumpNormal.vert", _shaderDir + "BumpNormalParallax.frag")});
             break;
         case SP_fontTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "FontTex.vert", "FontTex.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "FontTex.vert", _shaderDir + "FontTex.frag")});
             break;
         case SP_stereoOculus:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "StereoOculus.vert", "StereoOculus.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "StereoOculus.vert", _shaderDir + "StereoOculus.frag")});
             break;
         case SP_stereoOculusDistortion:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag")});
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "StereoOculusDistortionMesh.vert", _shaderDir + "StereoOculusDistortionMesh.frag")});
+            break;
+        case SP_errorTex:
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "ErrorTex.vert", _shaderDir + "ErrorTex.frag")});
             break;
         default:
             SL_EXIT_MSG("SLGLProgramManager: unknown shader id!");

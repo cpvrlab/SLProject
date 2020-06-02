@@ -45,6 +45,7 @@ public:
     SLNode* load(SLAnimManager&  aniMan,
                  SLAssetManager* assetMgr,
                  SLstring        pathAndFile,
+                 SLstring        texturePath,
                  SLbool          loadMeshesOnly = true,
                  SLMaterial*     overrideMat    = nullptr,
                  float           ambientFactor  = 0.0f,
@@ -81,7 +82,7 @@ protected:
     // intermediate containers
     typedef std::map<SLstring, aiNode*> SLNodeMap;
     typedef std::map<SLstring, SLMat4f> SLJointOffsetMap;
-    typedef vector<aiNode*>        SLVaiNode;
+    typedef vector<aiNode*>             SLVaiNode;
 
     SLNodeMap        _nodeMap;        //!< map containing name to aiNode releationships
     SLJointOffsetMap _jointOffsets;   //!< map containing name to joint offset matrices
@@ -109,6 +110,7 @@ protected:
                                      SLint           index,
                                      aiMaterial*     material,
                                      const SLstring& modelPath,
+                                     const SLstring& texturePath,
                                      float           ambientFactor = 0.0f);
     static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
                                     SLstring&       path,
@@ -119,7 +121,7 @@ protected:
                                      SLMeshMap& meshes,
                                      SLbool     loadMeshesOnly = true);
     SLAnimation*        loadAnimation(SLAnimManager& animManager, aiAnimation* anim);
-    static SLstring     checkFilePath(const SLstring& modelPath, SLstring texFile);
+    static SLstring     checkFilePath(const SLstring& modelPath, const SLstring& texturePath, SLstring texFile);
     SLbool              aiNodeHasMesh(aiNode* node);
 
     // misc helper

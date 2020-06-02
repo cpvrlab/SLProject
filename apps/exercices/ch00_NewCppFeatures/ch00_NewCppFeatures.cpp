@@ -107,18 +107,18 @@ void new_parallel_algorithms();
 int main()
 {
     new_rvalue_references();
-    //new_variadic_templates();
-    //new_uniform_intializers();
-    //new_lambda_expressions();
-    //new_type_deduction();
-    //new_basic_types_and_type_traits();
-    //new_functional();
-    //new_threading();
-    //new_random_generators();
-    //new_const_expression();
-    //new_userdefined_literals();
-    //new_if_switch_statement();
-    //new_structured_binding();
+    new_variadic_templates();
+    new_uniform_intializers();
+    new_lambda_expressions();
+    new_type_deduction();
+    new_basic_types_and_type_traits();
+    new_functional();
+    new_threading();
+    new_random_generators();
+    new_const_expression();
+    new_userdefined_literals();
+    new_if_switch_statement();
+    new_structured_binding();
 #ifndef __APPLE__
     new_filesystem();
     new_parallel_algorithms();
@@ -271,41 +271,29 @@ void new_rvalue_references()
     cout << "Time used with move: " << duration_cast<nanoseconds>(t2 - t1).count() << "ns.\n";
 
     cout << "\nMove test: --------------------------------------------------------\n";
-    //string a = " a long long string";
-    //string b;
-    //const char* pa = a.c_str();
-    //const char* pb = b.c_str();
-    //cout << "a before the move: " << a << endl;
-    //cout << "b before the move: " << b << endl;
-    //b = move(a);
-    //cout << "a after  the move: " << a << endl;
-    //cout << "b after  the move: " << b << endl;
-    //pa = a.c_str();
-    //pb = b.c_str();
-    //if (pa == pb)
-    //     cout << "b points to the old memory" << endl;
-    //else cout << "b points to the new memory " << endl;
-
     string a = " a long long string";
     string b;
     const char* pa1 = a.c_str();
     const char* pb1 = b.c_str();
-    printf("a before the move: %x: %s\n", pa1, pa1);
-    printf("b before the move: %x: %s\n", pb1, pb1);
+    cout << "a before the move: " << std::hex << pa1 << ", " << pa1 << endl;
+    cout << "b before the move: " << std::hex << pb1 << ", " << pb1 << endl;
     b = move(a);
     const char* pa2 = a.c_str();
     const char* pb2 = b.c_str();
-    printf("a after  the move: %x: %s\n", pa2, pa2);
-    printf("b after  the move: %x: %s\n", pb2, pb2);
+    cout << "a after  the move: " << std::hex << pa2 << ", " << pa2 << endl;
+    cout << "b after  the move: " << std::hex << pb2 << ", " << pb2 << endl;
     if (pa1 == pa2)
-         cout << "pa points to OLD memory" << endl;
+        cout << "pa points to OLD memory" << endl;
     else cout << "pa points to NEW memory" << endl;
     if (pb1 == pb2)
-         cout << "pb points to OLD memory" << endl;
+        cout << "pb points to OLD memory" << endl;
+    else cout << "pb points to NEW memory" << endl;
+    if (pb2 == pa1)
+        cout << "pb points to old pa" << endl;
     else cout << "pb points to NEW memory" << endl;
 
     // Results in n 2015     2016     2017     2018     2020
-    // Linux GCC    OLD/OLD  OLD/OLD  OLD/OLD  NEW/NEW
+    // Linux GCC    OLD/OLD  OLD/OLD  OLD/OLD  NEW/NEW  NEW/NEW
     // Mac Clang    NEW/NEW  OLD/OLD  OLD/OLD  OLD/OLD  OLD/OLD
     // Win VSC++    NEW/NEW  NEW/NEW  NEW/NEW  NEW/NEW  NEW/NEW
 }
