@@ -141,6 +141,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
 	    set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 			-fobjc-arc #enable automatic reference counting
 		)
+		
+		set(DEFAULT_COMPILE_DEFINITIONS
+			TARGET_OS_IOS #disable GLSLExtractor
+		)
 		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS} -fobjc-arc" )
 	endif()
 endif ()

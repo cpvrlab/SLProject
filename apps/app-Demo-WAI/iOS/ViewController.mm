@@ -20,23 +20,19 @@
 // C++ includes for the SceneLibrary
 #include <Utils.h>
 #include "Utils_iOS.h"
-#include <SLInterface.h>
-#include <CVCapture.h>
-#include <SLApplication.h>
-#include <AppDemoGui.h>
-#include <AppDemoSceneView.h>
+
 #include <mach/mach_time.h>
 #import <sys/utsname.h>
 #import <mach-o/arch.h>
 
 // Forward declaration of C functions in other files
-extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
-extern bool onUpdateVideo();
+//extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
+//extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
 // C-Prototypes
 float GetSeconds();
-SLbool onPaintRTGL();
+//SLbool onPaintRTGL();
 //-----------------------------------------------------------------------------
 // Global pointer to the GLView instance that can be accessed by onPaintRTGL
 GLKView* myView = 0;
@@ -47,22 +43,6 @@ int svIndex = 0;
 // Global screen scale (2.0 for retina, 1.0 else)
 float screenScale = 1.0f;
 
-//-----------------------------------------------------------------------------
-// C-Function used as C-function callback for raytracing update
-SLbool onPaintRTGL()
-{  [myView display];
-   return true;
-}
-
-//-----------------------------------------------------------------------------
-//! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
-                                    int             dpi,
-                                    SLInputManager& inputManager)
-{
-    // The sceneview will be deleted by SLScene::~SLScene()
-    return new AppDemoSceneView(scene, dpi, inputManager);
-}
 //-----------------------------------------------------------------------------
 /*!
  Returns the absolute time in seconds since the system started. It is based
@@ -81,10 +61,10 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 @interface ViewController () <CLLocationManagerDelegate>
 {
-    SLfloat  m_lastFrameTimeSec;  //!< Timestamp for passing highres time
-    SLfloat  m_lastTouchTimeSec;  //!< Frame time of the last touch event
-    SLfloat  m_lastTouchDownSec;  //!< Time of last touch down
-    SLint    m_touchDowns;        //!< No. of finger touchdowns
+    float  m_lastFrameTimeSec;  //!< Timestamp for passing highres time
+    float  m_lastTouchTimeSec;  //!< Frame time of the last touch event
+    float  m_lastTouchDownSec;  //!< Time of last touch down
+    int    m_touchDowns;        //!< No. of finger touchdowns
 
     // Video stuff
     AVCaptureSession*   m_avSession;            //!< Audio video session
@@ -105,18 +85,16 @@ float GetSeconds()
 
 - (void)dealloc
 {
-   [_context release];
-   [super dealloc];
 }
 //-----------------------------------------------------------------------------
 - (void)viewDidLoad
 {
     [super viewDidLoad];
    
-    self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3] autorelease];
+    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     if (!self.context)
     {   NSLog(@"Failed to create ES3 context");
-        self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
+        self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         if (!self.context) NSLog(@"Failed to create ES2 context");
     }
     
@@ -143,9 +121,9 @@ float GetSeconds()
          dpi = 163 * screenScale;
     else dpi = 160 * screenScale;
    
-    SLVstring cmdLineArgs;
-    SLApplication::exePath = Utils_iOS::getCurrentWorkingDir();
-    SLApplication::configPath = Utils_iOS::getAppsWritableDir();
+    //SLVstring cmdLineArgs;
+    //SLApplication::exePath = Utils_iOS::getCurrentWorkingDir();
+    //SLApplication::configPath = Utils_iOS::getAppsWritableDir();
     
     // Some some computer informations
     struct utsname systemInfo; uname(&systemInfo);
@@ -158,15 +136,11 @@ float GetSeconds()
     Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
     
-    SLApplication::calibIniPath  = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
+    //SLApplication::calibIniPath  = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
     //Utils::dumpFileSystemRec("SLProject", SLApplication::exePath);
     
-    CVImage::defaultPath = SLApplication::exePath;
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
-                                            SLApplication::configPath,   // for stored calibrations
-                                            SLApplication::exePath);     // for videos
-    
     /////////////////////////////////////////////
+    /*
     slCreateAppAndScene(cmdLineArgs,
                         SLApplication::exePath,
                         SLApplication::exePath,
@@ -187,6 +161,7 @@ float GetSeconds()
                                 (void*)AppDemoGui::build,
 								(void*)AppDemoGui::loadConfig,
                                 (void*)AppDemoGui::saveConfig);
+     */
     ///////////////////////////////////////////////////////////////////////
     
     [self setupMotionManager: 1.0/20.0];
@@ -194,9 +169,9 @@ float GetSeconds()
     
     // Set the available capture resolutions
     
-    CVCapture::instance()->setCameraSize(0, 3, 1920, 1080);
-    CVCapture::instance()->setCameraSize(1, 3, 1280,  720);
-    CVCapture::instance()->setCameraSize(2, 3,  640,  480);
+    //CVCapture::instance()->setCameraSize(0, 3, 1920, 1080);
+    //CVCapture::instance()->setCameraSize(1, 3, 1280,  720);
+    //CVCapture::instance()->setCameraSize(2, 3,  640,  480);
     m_lastVideoSizeIndex = -1; // default size index
 }
 //-----------------------------------------------------------------------------
@@ -206,43 +181,51 @@ float GetSeconds()
     
     [super didReceiveMemoryWarning];
    
-    slTerminate();
+    //slTerminate();
    
     if ([EAGLContext currentContext] == self.context)
-    {   [EAGLContext setCurrentContext:nil];
+    {
+        [EAGLContext setCurrentContext:nil];
     }
     self.context = nil;
-    [super dealloc];
+    //[super dealloc];
 }
 //-----------------------------------------------------------------------------
 - (void)update
 {
+    /*
     slResize(svIndex, self.view.bounds.size.width  * screenScale,
                       self.view.bounds.size.height * screenScale);
+     */
 }
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
+    /*
     [self setVideoType:CVCapture::instance()->videoType()
           videoSizeIndex:CVCapture::instance()->activeCamera->camSizeIndex()];
     
     if (slUsesLocation())
          [self startLocationManager];
-    else [self stopLocationManager];
+    else
+        [self stopLocationManager];
+    */
     
     /////////////////////////////////////////////
-    bool trackingGotUpdated = onUpdateVideo();
-    bool jobIsRunning       = slUpdateParallelJob();
-    bool viewsNeedsRepaint  = slPaintAllViews();
+    //bool trackingGotUpdated = onUpdateVideo();
+    //bool jobIsRunning       = slUpdateParallelJob();
+    //bool viewsNeedsRepaint  = slPaintAllViews();
     /////////////////////////////////////////////
     
     m_lastVideoImageIsConsumed = true;
     
+    /*
     if (slShouldClose())
     {
         slTerminate();
         exit(0);
     }
+     */
 }
 //-----------------------------------------------------------------------------
 // touchesBegan receives the finger thouch down events
@@ -259,9 +242,9 @@ float GetSeconds()
     if (m_touchDowns > 0)
     {
         if (m_touchDowns == 1)
-            slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            ;//slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
         if (m_touchDowns == 2)
-            slTouch2Up(svIndex, 0, 0, 0, 0);
+            ;//slTouch2Up(svIndex, 0, 0, 0, 0);
       
         // Reset touch counter if last touch event is older than a second.
         // This resolves the problem off loosing track in touch counting e.g.
@@ -274,22 +257,24 @@ float GetSeconds()
     //printf("Begin tD: %d, touches count: %u\n", m_touchDowns, (SLuint)[touches count]);
    
     if (m_touchDowns == 1 && [touches count] == 1)
-    {   if (touchDownNowSec - m_lastTouchDownSec < 0.3f)
-            slDoubleClick(svIndex, MB_left, pos1.x, pos1.y, K_none);
+    {
+        if (touchDownNowSec - m_lastTouchDownSec < 0.3f)
+            ;//slDoubleClick(svIndex, MB_left, pos1.x, pos1.y, K_none);
         else
-            slMouseDown(svIndex, MB_left, pos1.x, pos1.y, K_none);
-    } else
-    if (m_touchDowns == 2)
+            ;//slMouseDown(svIndex, MB_left, pos1.x, pos1.y, K_none);
+    }
+    else if (m_touchDowns == 2)
     {
         if ([touches count] == 2)
-        {   UITouch* touch2 = [myTouches objectAtIndex:1];
+        {
+            UITouch* touch2 = [myTouches objectAtIndex:1];
             CGPoint pos2 = [touch2 locationInView:touch2.view];
             pos2.x *= screenScale;
             pos2.y *= screenScale;
-            slTouch2Down(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
-        } else
-        if ([touches count] == 1) // delayed 2nd finger touch
-            slTouch2Down(svIndex, 0, 0, 0, 0);
+            //slTouch2Down(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        }
+        else if ([touches count] == 1) // delayed 2nd finger touch
+            ;//slTouch2Down(svIndex, 0, 0, 0, 0);
     }
    
     m_lastTouchTimeSec = m_lastTouchDownSec = touchDownNowSec;
@@ -305,14 +290,16 @@ float GetSeconds()
     pos1.y *= screenScale;
    
     if (m_touchDowns == 1 && [touches count] == 1)
-    {   slMouseMove(svIndex, pos1.x, pos1.y);
-    } else
-    if (m_touchDowns == 2 && [touches count] == 2)
-    {   UITouch* touch2 = [myTouches objectAtIndex:1];
+    {
+        //slMouseMove(svIndex, pos1.x, pos1.y);
+    }
+    else if (m_touchDowns == 2 && [touches count] == 2)
+    {
+        UITouch* touch2 = [myTouches objectAtIndex:1];
         CGPoint pos2 = [touch2 locationInView:touch2.view];
         pos2.x *= screenScale;
         pos2.y *= screenScale;
-        slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        //slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
    
     m_lastTouchTimeSec = m_lastFrameTimeSec;
@@ -328,14 +315,16 @@ float GetSeconds()
     pos1.y *= screenScale;
    
     if (m_touchDowns == 1 || [touches count] == 1)
-    {   slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
-    } else
-    if (m_touchDowns == 2 && [touches count] >= 2)
-    {   UITouch* touch2 = [myTouches objectAtIndex:1];
+    {
+        //slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+    }
+    else if (m_touchDowns == 2 && [touches count] >= 2)
+    {
+        UITouch* touch2 = [myTouches objectAtIndex:1];
         CGPoint pos2 = [touch2 locationInView:touch2.view];
         pos2.x *= screenScale;
         pos2.y *= screenScale;
-        slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        //slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
 
     m_touchDowns = 0;
@@ -353,15 +342,18 @@ float GetSeconds()
     CGPoint pos1 = [touch1 locationInView:touch1.view];
    
     if (m_touchDowns == 1 || [touches count] == 1)
-    {   slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
-    } else
-    if (m_touchDowns == 2 && [touches count] >= 2)
-    {   UITouch* touch2 = [myTouches objectAtIndex:1];
+    {
+        //slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+    }
+    else if (m_touchDowns == 2 && [touches count] >= 2)
+    {
+        UITouch* touch2 = [myTouches objectAtIndex:1];
         CGPoint pos2 = [touch2 locationInView:touch2.view];
-        slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        //slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
     m_touchDowns -= (int)[touches count];
-    if (m_touchDowns < 0) m_touchDowns = 0;
+    if (m_touchDowns < 0)
+        m_touchDowns = 0;
    
     //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
    
@@ -374,7 +366,8 @@ float GetSeconds()
         fromConnection:(AVCaptureConnection *)connection
 {
     // Don't copy the available image if the last wasn't consumed
-    if (!m_lastVideoImageIsConsumed) return;
+    if (!m_lastVideoImageIsConsumed)
+        return;
         
     CVReturn err;
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
@@ -386,20 +379,23 @@ float GetSeconds()
     unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
         
     if(!data)
-    {   NSLog(@"No pixel buffer data");
+    {
+        NSLog(@"No pixel buffer data");
         return;
     }
     
-    SLSceneView* sv = SLApplication::sceneViews[0];
-    CVCapture* capture = CVCapture::instance();
+    //SLSceneView* sv = SLApplication::sceneViews[0];
+    //CVCapture* capture = CVCapture::instance();
     float videoImgWdivH = (float)imgWidth / (float)imgHeight;
 
+    /*
     if (sv->viewportSameAsVideo())
     {
         // If video aspect has changed we need to tell the new viewport to the sceneview
         if (Utils::abs(videoImgWdivH - sv->viewportWdivH()) > 0.01f)
             sv->setViewportFromRatio(SLVec2i(imgWidth, imgHeight), sv->viewportAlign(), true);
     }
+
         
     CVCapture::instance()->loadIntoLastFrame(sv->viewportWdivH(),
                                              imgWidth,
@@ -407,6 +403,7 @@ float GetSeconds()
                                              PF_bgra,
                                              data,
                                              false);
+    */
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
@@ -427,6 +424,7 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 -(void)onMotionData:(CMAttitude*)attitude
 {
+    /*
     if (slUsesRotation())
     {
         if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft)
@@ -452,13 +450,15 @@ float GetSeconds()
             NSLog(@"UIDeviceOrientationPortraitUpsideDown");
         }
     }
+    */
 }
 //-----------------------------------------------------------------------------
 //! Prepares the video capture (taken from the GLCameraRipple example)
 - (void)setupVideo: (bool)useFaceCamera videoSizeIndex:(int)sizeIndex
 {
     switch(sizeIndex)
-    {   case 0: m_avSessionPreset = AVCaptureSessionPreset1920x1080; break;
+    {
+        case 0: m_avSessionPreset = AVCaptureSessionPreset1920x1080; break;
         case 1: m_avSessionPreset = AVCaptureSessionPreset1280x720; break;
         default : m_avSessionPreset = AVCaptureSessionPreset640x480;
     }
@@ -528,6 +528,7 @@ float GetSeconds()
 - (void) setVideoType:(int)videoType
          videoSizeIndex:(int)sizeIndex
 {
+    /*
     if (videoType == VT_NONE) // No video needed. Turn off any video
     {
         if (m_avSession != nil && ![m_avSession isRunning])
@@ -627,6 +628,7 @@ float GetSeconds()
     
     m_lastVideoType = videoType;
     m_lastVideoSizeIndex = sizeIndex;
+     */
 }
 //-----------------------------------------------------------------------------
 //! Starts the motion data update if the interval time > 0 else it stops
@@ -651,6 +653,7 @@ float GetSeconds()
 //-----------------------------------------------------------------------------
 - (void)onDeviceMotionUpdate:(CMDeviceMotion*)motion
 {
+    /*
     if (slUsesRotation())
     {
         CMDeviceMotion *motionData = self.motionManager.deviceMotion;
@@ -673,6 +676,7 @@ float GetSeconds()
         // SLScene::onRotationQUAT calculates the offset if _zeroYawAtStart is true
         // SLCamera::setView how the device rotation is processed for the camera's view
     }
+    */
 }
 //-----------------------------------------------------------------------------
 //! Starts the location data update if the interval time > 0 else it stops
@@ -690,10 +694,13 @@ float GetSeconds()
         // "when-in-use" authorization grants access to the user's location.
         // important: be sure to include NSLocationWhenInUseUsageDescription along with its
         // explanation string in your Info.plist or startUpdatingLocation will not work
-        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)])
+        {
             [self.locationManager requestWhenInUseAuthorization];
         }
-    } else {
+    }
+    else
+    {
         /* Location services are not enabled.
          Take appropriate action: for instance, prompt the
          user to enable the location services */
@@ -733,10 +740,12 @@ float GetSeconds()
     // negative horizontal accuracy means no location fix
     if (newLocation.horizontalAccuracy > 0.0)
     {
+        /*
         slLocationLLA(newLocation.coordinate.latitude,
                       newLocation.coordinate.longitude,
                       newLocation.altitude,
                       newLocation.horizontalAccuracy);
+        */
     }
 }
 //-----------------------------------------------------------------------------

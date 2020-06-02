@@ -1,5 +1,5 @@
 # 
-# CMake configuration for Demo-SL (app-Demo-SLProject) application for ios
+# CMake configuration for ErlebAR application for ios
 #
 
 #find system frameworks (libraries)	
@@ -13,10 +13,10 @@ find_library(OPENGLES OpenGLES required)
 find_library(GLKIT GLKit required)
 find_library(CORELOCATION CoreLocation required)
 
-set(target Demo-SL)
+set(target ErlebAR)
 set(DEVELOPMENT_TEAM_ID "858Y9EWZ4B")               # <== Set to your team ID from Apple
-set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvrlab.demo-sl") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
-set(PROVISIONING_PROFILE "Demo SL Development")
+set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvr.erlebar") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
+set(PROVISIONING_PROFILE "ErlebAR - Development")
 set(CODE_SIGN_IDENTITY "Apple Development: Michael Göttlicher (KMX9985DR7)")  # <== Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
 
 set(DEPLOYMENT_TARGET 8.0)                                  # <== Set your deployment target version of iOS
@@ -42,26 +42,14 @@ set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
 set(headers
-    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/AppDemoGui.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/AppDemoSceneView.h
-	${SL_PROJECT_ROOT}/apps/source/CVCapture.h
-	${SL_PROJECT_ROOT}/apps/source/SLApplication.h
-	${SL_PROJECT_ROOT}/apps/source/SLInterface.h
-    ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+	${erlebar_headers}
 	${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
 	#${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
     )
 
 set(sources
-    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoGui.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoLoad.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoVideo.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoSceneView.cpp
-	${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
-	${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
-	${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
-    ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+	${erlebar_sources}
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
 	#${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.mm
@@ -69,9 +57,9 @@ set(sources
 	)
 
 #copy defined resources to build directory and add get folder reference using file(GLOB) (this is a secret trick that nobody knows)
-include(CopyResourcesAppDemoSLProject)
+include(CopyResourcesErlebAR)
 set(DATA_DIR "${CMAKE_BINARY_DIR}/data")
-copy_resources_slprojectdemo("${DATA_DIR}")
+copy_resources_erlebar("${DATA_DIR}")
 file(GLOB DATA "${DATA_DIR}")
 
 # define additional Xcode app resources
@@ -131,6 +119,7 @@ set_target_properties(
 target_include_directories(
         ${target}
         PRIVATE
+		${erlebar_include_directories}
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/lib-SLProject/include
@@ -174,6 +163,7 @@ target_compile_definitions(${target}
     ${compile_definitions}
     PUBLIC
     ${DEFAULT_COMPILE_DEFINITIONS}
+	${TARGET_OS_IOS} #disable GLSLExtractor
     INTERFACE
     )
 

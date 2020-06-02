@@ -41,6 +41,17 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
     )
+    
+if("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+    set(headers
+        ${headers}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils_iOS.h
+        )
+    set(sources
+        ${sources}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils_iOS.mm
+        )
+endif()
 	
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")

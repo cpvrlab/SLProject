@@ -76,6 +76,7 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::surfExtractor(int th)
     return std::make_unique<ORB_SLAM2::SURFextractor>(th);
 }
 
+#ifndef TARGET_OS_IOS
 std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Size&
                                                                       videoFrameSize,
                                                                     int   nbKeypointsBigSigma,
@@ -95,3 +96,4 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Si
                                            bigSigma,
                                            smallSigma);
 }
+#endif
