@@ -24,7 +24,8 @@
  * @param targetNode Pointer to the node that should be transformed.
  */
 SLTransformNode::SLTransformNode(SLSceneView* sv,
-                                 SLNode*      targetNode)
+                                 SLNode*      targetNode,
+                                 SLstring     shaderDir)
   : SLNode("Edit Gizmos"),
     _sv(sv),
     _targetNode(targetNode),
@@ -32,7 +33,7 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _mouseIsDown(false),
     _gizmoScale(1.0f)
 {
-    _prog = new SLGLGenericProgram(nullptr, "ColorUniformPoint.vert", "Color.frag");
+    _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
     _matR  = new SLMaterial(nullptr, "Red Opaque", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);

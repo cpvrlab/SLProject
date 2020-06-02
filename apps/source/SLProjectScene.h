@@ -19,7 +19,7 @@ class SLTexFont;
 
 //-----------------------------------------------------------------------------
 //! Class for the toplevel combination of SLScene and SLAssetManager
-/*! SLProjectScene combines the scene with the asset manager. In additin it
+/*! SLProjectScene combines the scene with the asset manager. In addition it
 holds the font textures that are used by the imgui-UI.
 */
 class SLProjectScene : public SLScene
@@ -39,17 +39,18 @@ public:
     static void       generateFonts(SLGLProgram& fontTexProgram);
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
-    static SLTexFont* font07;
-    static SLTexFont* font08;
-    static SLTexFont* font09;
-    static SLTexFont* font10;
-    static SLTexFont* font12;
-    static SLTexFont* font14;
-    static SLTexFont* font16;
-    static SLTexFont* font18;
-    static SLTexFont* font20;
-    static SLTexFont* font22;
-    static SLTexFont* font24;
+
+    static SLTexFont* font07; //!< 7 pixel high fixed size font
+    static SLTexFont* font08; //!< 8 pixel high fixed size font
+    static SLTexFont* font09; //!< 9 pixel high fixed size font
+    static SLTexFont* font10; //!< 10 pixel high fixed size font
+    static SLTexFont* font12; //!< 12 pixel high fixed size font
+    static SLTexFont* font14; //!< 14 pixel high fixed size font
+    static SLTexFont* font16; //!< 16 pixel high fixed size font
+    static SLTexFont* font18; //!< 18 pixel high fixed size font
+    static SLTexFont* font20; //!< 20 pixel high fixed size font
+    static SLTexFont* font22; //!< 22 pixel high fixed size font
+    static SLTexFont* font24; //!< 24 pixel high fixed size font
 };
 //-----------------------------------------------------------------------------
 

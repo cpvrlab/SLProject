@@ -3,6 +3,10 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#if defined(__clang__)
+#    pragma GCC diagnostic ignored "-Wall"
+#endif
+
 #include "gzguts.h"
 
 /* Local functions */
@@ -592,3 +596,4 @@ int ZEXPORT gzclose_r(file)
     free(state);
     return ret ? Z_ERRNO : err;
 }
+

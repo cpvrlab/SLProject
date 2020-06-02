@@ -28,7 +28,7 @@ camera or in SLCamera::drawMeshes for inactive ones.
 class SLBackground : public SLObject
 {
 public:
-    SLBackground();
+    SLBackground(SLstring shaderDir);
     SLBackground(SLGLProgram* textureOnlyProgram, SLGLProgram* colorAttributeProgram);
     ~SLBackground();
 

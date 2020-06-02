@@ -14,10 +14,6 @@
 #include <cstdarg> // only needed because we wrap printf in logMessage, read the todo and fix it!
 
 //-----------------------------------------------------------------------------
-//! Default path for 3DS models used when only filename is passed in load.
-//! //! Is overwritten in slCreateAppAndScene.
-SLstring SLImporter::defaultPath = SLstring(SL_PROJECT_ROOT) + "data/models/";
-//-----------------------------------------------------------------------------
 /*! Default constructor, doesn't log anything
 */
 SLImporter::SLImporter()

@@ -227,12 +227,7 @@ public:
 class Resources
 {
 public:
-    Resources(int                screenWidth,
-              int                screenHeight,
-              const std::string& writableDir,
-              const std::string& textureDir,
-              const std::string& fontDir,
-              const std::string& slDataRoot);
+    Resources(const DeviceData& deviceData);
     ~Resources();
 
     void setLanguageEnglish();

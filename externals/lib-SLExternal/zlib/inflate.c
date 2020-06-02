@@ -2,6 +2,9 @@
  * Copyright (C) 1995-2012 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
+#if defined(__clang__)
+#    pragma GCC diagnostic ignored "-Weverything"
+#endif
 
 /*
  * Change history:
@@ -1510,3 +1513,4 @@ z_streamp strm;
         (state->mode == COPY ? state->length :
             (state->mode == MATCH ? state->was - state->length : 0));
 }
+

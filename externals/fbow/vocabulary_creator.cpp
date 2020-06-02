@@ -1,3 +1,8 @@
+
+#if defined(__clang__)
+#    pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
 #include "vocabulary_creator.h"
 #ifdef USE_OPENMP
 #    include <omp.h>
@@ -470,3 +475,5 @@ float VocabularyCreator::distance_float_generic(const cv::Mat& a, const cv::Mat&
 }
 
 }
+
+

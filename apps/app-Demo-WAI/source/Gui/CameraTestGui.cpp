@@ -37,8 +37,11 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
     }
 
     _currSizeIndex = 0;
-    _currCharac    = &_camCharacs.front();
-    _currSizeStr   = &_sizesStrings[_currCharac->cameraId].front();
+    if (_camCharacs.size())
+    {
+        _currCharac  = &_camCharacs.front();
+        _currSizeStr = &_sizesStrings[_currCharac->cameraId].front();
+    }
 }
 
 CameraTestGui::~CameraTestGui()

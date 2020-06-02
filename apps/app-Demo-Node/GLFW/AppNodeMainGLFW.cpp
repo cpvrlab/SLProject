@@ -500,10 +500,12 @@ int main(int argc, char* argv[])
 
     //////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
+                        projectRoot + "/data/",
                         projectRoot + "/data/shaders/",
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
                         projectRoot + "/data/images/fonts/",
+                        projectRoot + "/data/videos/",
                         configPath,
                         "AppNode_GLFW",
                         (void*)appNodeLoadScene);

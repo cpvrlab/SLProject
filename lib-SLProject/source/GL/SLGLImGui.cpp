@@ -25,7 +25,9 @@ SLfloat SLGLImGui::fontFixedDots = 13.0f;
 SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
                      cbOnImGuiLoadConfig loadConfigCB,
                      cbOnImGuiSaveConfig saveConfigCB,
-                     int                 dpi)
+                     int                 dpi,
+                     SLstring            fontDir)
+  : _fontDir(fontDir)
 {
     _build             = buildCB;
     _saveConfig        = saveConfigCB;
@@ -61,7 +63,7 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
         loadConfigCB(dpi);
 
     // Load GUI fonts depending on the resolution
-    loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+    loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots, fontDir);
 }
 //-----------------------------------------------------------------------------
 SLGLImGui::~SLGLImGui()
@@ -134,8 +136,9 @@ void SLGLImGui::init(const string& configPath)
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
-void SLGLImGui::loadFonts(SLfloat fontPropDotsToLoad,
-                          SLfloat fontFixedDotsToLoad)
+void SLGLImGui::loadFonts(SLfloat  fontPropDotsToLoad,
+                          SLfloat  fontFixedDotsToLoad,
+                          SLstring fontDir)
 {
     _fontPropDots  = fontPropDotsToLoad;
     _fontFixedDots = fontFixedDotsToLoad;
@@ -144,14 +147,14 @@ void SLGLImGui::loadFonts(SLfloat fontPropDotsToLoad,
     io.Fonts->Clear();
 
     // Load proportional font for menue and text displays
-    SLstring DroidSans = SLGLTexture::defaultPathFonts + "DroidSans.ttf";
+    SLstring DroidSans = fontDir + "DroidSans.ttf";
     if (Utils::fileExists(DroidSans))
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
-    SLstring ProggyClean = SLGLTexture::defaultPathFonts + "ProggyClean.ttf";
+    SLstring ProggyClean = fontDir + "ProggyClean.ttf";
     if (Utils::fileExists(ProggyClean))
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
     else
@@ -377,7 +380,7 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 
     if ((SLint)SLGLImGui::fontPropDots != (SLint)_fontPropDots ||
         (SLint)SLGLImGui::fontFixedDots != (SLint)_fontFixedDots)
-        loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots);
+        loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots, _fontDir);
 
     if (!_fontTexture)
         createOpenGLObjects();

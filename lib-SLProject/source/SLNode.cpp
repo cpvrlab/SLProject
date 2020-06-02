@@ -462,7 +462,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
         _aabb.isVisible(true);
 
     // Cull the group nodes recursively
-    if (_aabb.isVisible())
+    if (_aabb.isVisible() && !this->drawBit(SL_DB_HIDDEN))
     {
         for (auto* child : _children)
             child->cull3DRec(sv);

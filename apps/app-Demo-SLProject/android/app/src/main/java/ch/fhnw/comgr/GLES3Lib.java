@@ -12,6 +12,7 @@
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.fhnw.comgr;
 
+import android.content.res.AssetManager;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.util.Log;
@@ -98,84 +99,60 @@ public class GLES3Lib {
     }
 
     /**
-     * Extracts the relevant folders from the assets in our private storage on the device
-     * internal storage. We extract all files from the folders textures, models, shaders, etc.
-     * into the corresponding folders. This has to be done because most files in the apk/assets
+     * Extracts the data folder from the assets in our private storage on the device's
+     * internal storage. We extract all files and creates sub-folders recursively.
+     * Folders that already exist are deleted.
+     * This has to be done because most files in the apk/assets
      * folder are compressed and can not be read with standard C-file IO.
      */
     public static void extractAPK() throws IOException {
         FilesPath = App.getApplicationContext().getFilesDir().getAbsolutePath();
         Log.i("SLProject", "Destination: " + FilesPath);
-        extractAPKFolder(FilesPath, "textures");
-        extractAPKFolder(FilesPath, "videos");
-        extractAPKFolder(FilesPath, "fonts");
-        extractAPKFolder(FilesPath, "models");
-        extractAPKFolder(FilesPath, "shaders");
-        extractAPKFolder(FilesPath, "calibrations");
-        extractAPKFolder(FilesPath, "config");
+
+        extractRecursive(App.getAssets(), FilesPath, "data");
     }
 
-    /**
-     * Extract a folder inside the APK File. If we have a subfolder we just skip it.
-     * If a file already exists we skip it => we don't update it!
-     *
-     * @param FilesPath where we want to store the path. Usually this is some writable path on the device. No / at the end
-     * @param AssetPath path inside the asset folder. No leading or closing /
-     * @throws IOException
-     */
-    public static void extractAPKFolder(String FilesPath, String AssetPath) throws IOException {
-        String[] files = App.getAssets().list(AssetPath);
-
-        for (String file : files)
-        {
-            if (!file.contains("."))
-                continue;
-
-            File f = new File(FilesPath + "/" + AssetPath + "/" + file);
-            if (f.exists())
-                continue;
-
-            if (createDir(FilesPath + "/" + AssetPath))
-                Log.i("SLProject", "Folder created: " + FilesPath + "/" + AssetPath + "/ -------------------------------------------\r\n");
-
-            copyFile(App.getAssets().open(AssetPath + "/" + file), new FileOutputStream(FilesPath + "/" + AssetPath + "/" + file));
-            Log.i("SLProject", "File: " + FilesPath + "/" + AssetPath + "/" + file + "\r\n");
+    private static void extractRecursive(AssetManager assetManager, String path, String assetFolder) throws IOException{
+        File directory = new File(path, assetFolder);
+        createEmptyDirectory(directory);
+        String[] assets = assetManager.list(assetFolder);
+        for (String asset : assets){
+            if (asset.contains(".")){
+                // assumes file
+                File destinationFile = new File(directory, asset);
+                InputStream in = assetManager.open(assetFolder + File.separator + asset);
+                copy(in, destinationFile);
+            } else {
+                // assume directory
+                extractRecursive(assetManager, path, assetFolder + File.separator + asset);
+            }
         }
     }
 
-    /**
-     * Create the full directory tree up to our path
-     *
-     * @param Path to create
-     * @throws IOException
-     */
-    public static boolean createDir(String Path) throws IOException {
-        File directory = new File(Path);
-        if (directory.exists())
-            return false;
-        if (!directory.mkdirs())
-            throw new IOException("Directory couldn't be created: " + Path);
-        return true;
+    private static void createEmptyDirectory(File dir){
+        deleteRecursive(dir);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
     }
 
-    /**
-     * Copy from an Input to an Output stream. We use a buffer of 1024 and close both streams at the end
-     *
-     * @param is
-     * @param os
-     * @throws IOException
-     */
-    public static void copyFile(InputStream is, OutputStream os) throws IOException {
+    private static void copy(InputStream in, File destination) throws IOException {
+        OutputStream out = new FileOutputStream(destination);
+        // Transfer bytes from in to out
         byte[] buffer = new byte[1024];
-
-        int length;
-        while ((length = is.read(buffer)) > 0)
-        {
-            os.write(buffer, 0, length);
+        int len;
+        while ((len = in.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
         }
-        os.flush();
-        os.close();
-        is.close();
+        in.close();
+        out.close();
     }
 
+    public static void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
+    }
 }

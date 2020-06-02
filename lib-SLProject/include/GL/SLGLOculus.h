@@ -37,7 +37,7 @@ for devkit2 under windows.
 class SLGLOculus
 {
 public:
-    SLGLOculus();
+    SLGLOculus(SLstring shaderDir);
     ~SLGLOculus();
 
     void init();
@@ -104,6 +104,8 @@ private:
     SLbool _hmdSettingsChanged; //!< settings need to be updated flag
 
     SLGLProgram* _stereoOculusDistProgram = nullptr;
+
+    SLstring _shaderFileDir;
 };
 //-----------------------------------------------------------------------------
 

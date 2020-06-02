@@ -144,7 +144,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(OpenCV_VERSION "4.1.2")
     #set(OpenCV_VERSION "4.3.0") 
     #version 4 slows down video capture. There are others with the same problem: http://www.emgu.com/forum/viewtopic.php?f=7&t=21526
-    set(OpenCV_VERSION "3.4.1")
+    #set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
@@ -213,7 +213,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
             ${lib}
         )
     endforeach(lib)
-    
+	   
     set(g2o_PREBUILT_ZIP "win64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
       
@@ -378,7 +378,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(OpenCV_VERSION "4.1.1")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
@@ -448,7 +447,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
+	set(g2o_LINK_DIR ${g2o_DIR}) 
 
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
@@ -458,12 +457,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
+	message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib} 
 			PROPERTIES 
-			IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/Debug/lib${lib}.dylib"
-			IMPORTED_LOCATION_RELEASE "${g2o_LINK_DIR}/Release/lib${lib}.dylib")
+			IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.dylib"
+			IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.dylib")
 			
         set(g2o_LIBS
             ${g2o_LIBS}
@@ -474,11 +474,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	if (COPY_TO_CONFIG_FOLDER)	
 	    file(GLOB g2o_LIBS_to_copy_debug
 	            ${g2o_LIBS_to_copy_debug}
-	            ${OpenCV_DIR}/debug/g2o_*.dylib
+	            ${g2o_DIR}/Debug/lib${lib}.dylib
 	            )
 	    file(GLOB g2o_LIBS_to_copy_release
 	            ${g2o_LIBS_to_copy_release}
-	            ${OpenCV_DIR}/release/libopencv_*.dylib
+	            ${g2o_DIR}/Release/lib${lib}.dylib
 	            )
 
 	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
@@ -495,7 +495,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "mac64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
@@ -543,8 +542,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
-    set(MACOS_PLIST_FILE
-            ${SL_PROJECT_ROOT}/data/config/info.plist)
+    set(MACOS_PLIST_FILE ${SL_PROJECT_ROOT}/data/config/info.plist)
     if(${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -632,10 +630,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	    endif()
 	endif()
 	
-#elseif(CMAKE_SYSTEM_NAME MATCHES iOS) #ios
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 		
-	message(STATUS "Download prebuilds iOS")
     ##################
     # OpenCV for iOS #
     ##################
@@ -665,25 +661,49 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 			PROPERTIES 
 			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
 			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
-			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4")
+			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
+		)
 			
-		#message(STATUS ${lib})
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                optimized ${lib}
-                debug ${lib})
+		#ATTENTION: debug and optimized seams to mess things up in ios
+        #set(OpenCV_LIBS
+        #        ${OpenCV_LIBS}
+        #        optimized ${lib}
+        #        debug ${lib})
+		set(OpenCV_LIBS
+		    ${OpenCV_LIBS}
+		    ${lib})
+    endforeach(lib)
+	
+	
+	#add special libs
+	set(OpenCV_LINK_LIBS_IOS
+		libwebp
+		libjpeg-turbo
+		libpng
+		zlib
+	)
+	
+    foreach(lib ${OpenCV_LINK_LIBS_IOS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} 
+			PROPERTIES 
+			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
+			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
+		)
+			
+		set(OpenCV_LIBS
+		    ${OpenCV_LIBS}
+		    ${lib})
     endforeach(lib)
 	
     #################
     # g2o for iOS #
     #################
 
-    #Download g2o for iOS
     set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
     set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMoAKE_BUILD_TYPE})   #don't forget to add the this link dir down at the bottom
 
     if (NOT EXISTS "${g2o_DIR}")
         message(STATUS "g2o_DIR: ${g2o_DIR}")
@@ -696,6 +716,22 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 	
+    foreach(lib ${g2o_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} 
+			PROPERTIES 
+			#we use Release libs for both configurations
+			IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Release/lib${lib}.a"
+			IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.a"
+			INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+		)
+				
+        set(g2o_LIBS
+            ${g2o_LIBS}
+            ${lib}
+            )
+    endforeach(lib)
+	
     ##################
     # Assimp for iOS #
     ##################
@@ -704,7 +740,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/${CMAKE_BUILD_TYPE}")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
@@ -719,6 +754,20 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
             message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
         endif()
     endif ()
+	
+	foreach(lib ${assimp_LINK_LIBS})
+		add_library(${lib} STATIC IMPORTED)
+		set_target_properties(${lib} 
+			PROPERTIES
+			IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/lib${lib}d.a"
+			IMPORTED_LOCATION_RELEASE "${assimp_DIR}/Release/lib${lib}.a" 
+			INTERFACE_INCLUDE_DIRECTORIES "${assimp_DIR}/include" 
+		)
+			
+	    set(assimp_LIBS
+	        ${assimp_LIBS}
+			${lib})	
+	endforeach()
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 

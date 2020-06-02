@@ -102,8 +102,7 @@ public: //! Public static instance getter for singleton pattern
     int         videoLength(); //! get number of frames in video
     AvgFloat&   captureTimesMS() { return _captureTimesMS; }
     void        loadCalibrations(const string& computerInfo,
-                                 const string& configPath,
-                                 const string& videoPath);
+                                 const string& configPath);
     void        setCameraSize(int sizeIndex,
                               int sizeIndexMax,
                               int width,
@@ -118,7 +117,6 @@ public: //! Public static instance getter for singleton pattern
     CVSize      captureSize;        //!< size of captured frame
     float       startCaptureTimeMS; //!< start time of capturing in ms
     bool        hasSecondaryCamera; //!< flag if device has secondary camera
-    string      videoDefaultPath;   //!< default path for video files
     string      videoFilename;      //!< video filename to load
     bool        videoLoops;         //!< flag if video should loop
     float       fps;

@@ -40,6 +40,7 @@ message(STATUS "SL_BUILD_WITH_OPTIX: ${SL_BUILD_WITH_OPTIX}")
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
 
+
 if (SL_DOWNLOAD_PREBUILTS)
 	include(cmake/DownloadPrebuilts.cmake)
 endif()

@@ -60,27 +60,22 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH)
     }
 }
 
-Resources::Resources(int                screenWidth,
-                     int                screenHeight,
-                     const std::string& writableDir,
-                     const std::string& textureDir,
-                     const std::string& fontDir,
-                     const std::string& slDataRoot)
-  : _screenW(screenWidth),
-    _screenH(screenHeight),
-    _writableDir(writableDir)
+Resources::Resources(const DeviceData& deviceData)
+  : _screenW(deviceData.scrWidth()),
+    _screenH(deviceData.scrHeight()),
+    _writableDir(deviceData.writableDir())
 {
     //load strings first (we need the id for string selection)
-    stringsEnglish.load(slDataRoot + "/config/StringsEnglish.json");
-    stringsGerman.load(slDataRoot + "/config/StringsGerman.json");
-    stringsFrench.load(slDataRoot + "/config/StringsFrench.json");
-    stringsItalian.load(slDataRoot + "/config/StringsItalian.json");
+    stringsEnglish.load(deviceData.dataDir() + "config/StringsEnglish.json");
+    stringsGerman.load(deviceData.dataDir() + "config/StringsGerman.json");
+    stringsFrench.load(deviceData.dataDir() + "config/StringsFrench.json");
+    stringsItalian.load(deviceData.dataDir() + "config/StringsItalian.json");
     //load Resources
-    load(writableDir + "ErlebARResources.json");
+    load(deviceData.writableDir() + "ErlebARResources.json");
     //load textures
-    textures.load(textureDir);
+    textures.load(deviceData.textureDir());
     //load fonts
-    _fonts.load(fontDir, _style, screenHeight);
+    _fonts.load(deviceData.fontDir(), _style, _screenH);
 
     //definition of erlebar locations and areas
     _locations = ErlebAR::defineLocations();

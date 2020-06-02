@@ -60,27 +60,34 @@ public:
     static SLDeviceRotation     devRot;       //!< Mobile device rotation from IMU
     static SLDeviceLocation     devLoc;       //!< Mobile device location from GPS
 
-    static SLstring  name;          //!< Applcation name
-    static SLstring  appTag;        //!< Tag string used in logging
-    static SLstring  version;       //!< SLProject version string
-    static SLstring  configuration; //!< Debug or Release configuration
-    static SLstring  gitBranch;     //!< Current GIT branch
-    static SLstring  gitCommit;     //!< Current GIT commit short hash id
-    static SLstring  gitDate;       //!< Current GIT commit date
-    static SLstring  exePath;       //!< executable root path
-    static SLstring  configPath;    //!< Default path for calibration files
-    static SLstring  externalPath;  //!< Default path for external file storage
-    static SLSceneID sceneID;       //!< ID of last loaded scene
+    static SLstring name;          //!< Application name
+    static SLstring appTag;        //!< Tag string used in logging
+    static SLstring version;       //!< SLProject version string
+    static SLstring configuration; //!< Debug or Release configuration
+    static SLstring gitBranch;     //!< Current GIT branch
+    static SLstring gitCommit;     //!< Current GIT commit short hash id
+    static SLstring gitDate;       //!< Current GIT commit date
+    static SLstring exePath;       //!< executable root path
+    static SLstring configPath;    //!< Default path for calibration files
+    static SLstring externalPath;  //!< Default path for external file storage
+    static SLstring dataPath;      //!< Path to data directory (it is set platform dependent)
+    static SLstring shaderPath;
+    static SLstring modelPath;
+    static SLstring texturePath;
+    static SLstring fontPath;
+    static SLstring videoPath;
 
-    static map<string, string>         deviceParameter;    //! Generic device parameter
-    static deque<function<void(void)>> jobsToBeThreaded;   //!< queue of functions to be executed in a thread
-    static deque<function<void(void)>> jobsToFollowInMain; //!< queue of function to follow in the main thread
+    static SLSceneID sceneID; //!< ID of last loaded scene
+
+    static map<string, string>         deviceParameter;    //!< Generic device parameter
+    static deque<function<void(void)>> jobsToBeThreaded;   //!< Queue of functions to be executed in a thread
+    static deque<function<void(void)>> jobsToFollowInMain; //!< Queue of function to follow in the main thread
     static atomic<bool>                jobIsRunning;       //!< True if a parallel job is running
 
     static CVCalibrationEstimatorParams calibrationEstimatorParams;
     static CVCalibrationEstimator*      calibrationEstimator;
-    static SLstring                     calibIniPath;  //!<thats where data/calibrations folder is located
-    static SLstring                     calibFilePath; //!<thats where calibrations are stored and loaded from
+    static SLstring                     calibIniPath;  //!< That's where data/calibrations folder is located
+    static SLstring                     calibFilePath; //!< That's where calibrations are stored and loaded from
 
     static const string CALIB_FTP_HOST; //!< ftp host for calibration up and download
     static const string CALIB_FTP_USER; //!< ftp login user for calibration up and download
@@ -89,7 +96,7 @@ public:
 
 private:
     static string      _jobProgressMsg; //!< Text message to show during progress
-    static atomic<int> _jobProgressNum; //!< Integer value to show progess
+    static atomic<int> _jobProgressNum; //!< Integer value to show progress
     static atomic<int> _jobProgressMax; //!< Max. integer progress value
     static mutex       _jobMutex;       //!< Mutex to protect parallel access
 };

@@ -3,6 +3,10 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#if defined(__clang__)
+#pragma GCC diagnostic ignored "-Wall"
+#endif
+
 #include "gzguts.h"
 
 #if defined(_WIN32) && !defined(__BORLANDC__)

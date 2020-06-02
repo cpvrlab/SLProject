@@ -426,8 +426,8 @@ void SLSceneView::onInitialize()
     if (gl3wIsSupported(4, 4))
     {
         // The world's bounding box should not change during runtime.
-        if (_s && _s->root3D())
-            _conetracer.init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
+        if (_s && _s->root3D() && _conetracer)
+            _conetracer->init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
     }
 #endif
 
@@ -1894,10 +1894,15 @@ SLbool SLSceneView::draw3DCT()
     //SL_LOG("Rendering VXC ");
     SLfloat startMS = GlobalTimer::timeMS();
 
-    SLbool rendered = _conetracer.render(this);
+    SLbool rendered = _conetracer->render(this);
 
     _draw3DTimeMS = GlobalTimer::timeMS() - startMS;
 
     return true;
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::initConeTracer(SLstring shaderDir)
+{
+    _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
 }
 //-----------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 class AppWAIScene : public SLScene
 {
 public:
-    AppWAIScene(SLstring name);
+    AppWAIScene(SLstring name, std::string dataDir);
 
     void updateCameraIntrinsics(float cameraFovVDeg, cv::Mat cameraMatUndistorted)
     {
@@ -95,6 +95,9 @@ private:
     SLPolyline* loopEdgesMesh             = nullptr;
 
     SLGLTexture* _videoImage = nullptr;
+
+    //path to data directory
+    std::string _dataDir;
 };
 
 #endif

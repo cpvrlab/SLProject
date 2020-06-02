@@ -42,6 +42,7 @@ class SLTexFont : public SLGLTexture
 {
 public:
     SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram);
+    SLTexFont(SLstring fontFilename, SLstring shaderDir);
     ~SLTexFont();
 
     void         create(SLstring fontFilename);

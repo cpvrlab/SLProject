@@ -43,7 +43,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLfloat         kr,
                        SLfloat         kt,
                        SLfloat         kn,
-                       SLGLProgram*    program) : SLObject(name)
+                       SLGLProgram*    program,
+                       SLstring        compileErrorTexFilePath) : SLObject(name)
 {
     _ambient = _diffuse = amdi;
     _specular           = spec;
@@ -92,7 +93,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture2,
                        SLGLTexture*    texture3,
                        SLGLTexture*    texture4,
-                       SLGLProgram*    shaderProg) : SLObject(name)
+                       SLGLProgram*    shaderProg,
+                       SLstring        compileErrorTexFilePath) : SLObject(name)
 {
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
@@ -131,7 +133,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
-                       SLGLProgram*    shaderProg) : SLObject(name)
+                       SLGLProgram*    shaderProg,
+                       SLstring        compileErrorTexFilePath) : SLObject(name)
 {
     _program      = shaderProg;
     _shininess    = 125.0f;
@@ -165,7 +168,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        const SLCol4f&  diffuse,
                        SLfloat         roughness,
-                       SLfloat         metalness) : SLObject(name)
+                       SLfloat         metalness,
+                       SLstring        compileErrorTexFilePath) : SLObject(name)
 {
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
@@ -200,7 +204,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    colorUniformProgram,
                        const SLCol4f&  uniformColor,
-                       const SLchar*   name)
+                       const SLchar*   name,
+                       SLstring        compileErrorTexFilePath)
   : SLObject(name)
 {
     _ambient.set(0, 0, 0);
@@ -212,9 +217,9 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _program      = colorUniformProgram;
-    _kr = 0.0f;
-    _kt = 0.0f;
-    _kn = 1.0f;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -280,7 +285,11 @@ void SLMaterial::activate(SLDrawBits     drawBits,
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
         _textures.clear();
-        _errorTexture = new SLGLTexture(nullptr, "CompileError.png");
+        //"CompileError.png"
+        if (!_errorTexture && !_compileErrorTexFilePath.empty())
+        {
+            _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
+        }
         _textures.push_back(_errorTexture);
     }
 

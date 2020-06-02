@@ -2,6 +2,9 @@
  * Copyright (C) 2004, 2005, 2010, 2011, 2012, 2013 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
+#if defined(__clang__)
+#    pragma GCC diagnostic ignored "-Wall"
+#endif
 
 #include "gzguts.h"
 
@@ -575,3 +578,6 @@ int ZEXPORT gzclose_w(file)
     free(state);
     return ret;
 }
+
+
+

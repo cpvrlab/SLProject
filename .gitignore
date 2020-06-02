@@ -24,6 +24,8 @@
 *.xcuserstate
 *~
 
+erleb-AR
+data/erleb-AR
 data/models/PLY/xyzrgb_dragon.ply
 data/models/DAE/Aventicum
 data/models/GLTF/Aventicum

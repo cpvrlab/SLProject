@@ -70,8 +70,6 @@ SLScene::SLScene(const SLstring& name,
     _fps              = 0;
     _frameTimeMS      = 0;
     _lastUpdateTimeMS = 0;
-
-    _oculus.init();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -308,5 +306,11 @@ SLCamera* SLScene::nextCameraInScene(SLCamera* activeSVCam)
              !dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex])->allowAsActiveCam());
 
     return cams[(uint)activeIndex];
+}
+//-----------------------------------------------------------------------------
+void SLScene::initOculus(SLstring shaderDir)
+{
+    _oculus = std::make_unique<SLGLOculus>(shaderDir);
+    _oculus->init();
 }
 //-----------------------------------------------------------------------------

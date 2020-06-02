@@ -110,9 +110,10 @@ public:
     int  getNumLoopClosings();
 
 protected:
-    std::set<WAIMapPoint*> mspMapPoints;
-    std::set<WAIKeyFrame*> mspKeyFrames;
-    WAIKeyFrameDB*         mKfDB{nullptr};
+    std::set<WAIMapPoint*>    mspMapPoints;
+    std::set<WAIKeyFrame*>    mspKeyFrames;
+    std::vector<WAIKeyFrame*> _deletedKeyFrames;
+    WAIKeyFrameDB*            mKfDB{nullptr};
 
     std::vector<WAIMapPoint*> mvpReferenceMapPoints;
 

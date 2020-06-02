@@ -25,7 +25,7 @@ class SLCamera;
 class SLGLConetracer
 {
 public:
-    SLGLConetracer();
+    SLGLConetracer(SLstring shaderFilePath);
     ~SLGLConetracer();
 
     void   init(SLint scrW, SLint scrH, const SLVec3f& minWs, const SLVec3f& maxWs);
@@ -96,6 +96,9 @@ private:
     SLbool _doDiffuseIllum  = true;
     SLbool _doSpecularIllum = true;
     SLbool _doShadows       = true;
+
+    //path to shader files
+    SLstring _shaderFilePath;
 
     std::vector<SLGLProgram*> _programs;
 

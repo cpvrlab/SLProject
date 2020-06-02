@@ -19,14 +19,16 @@
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
 */
-SLGLOculus::SLGLOculus() : _usingDebugHmd(false),
-                           _positionTrackingEnabled(false),
-                           _lowPersistanceEnabled(false),
-                           _timeWarpEnabled(false),
-                           _displaySleep(false),
-                           _isConnected(false),
-                           _isCameraConnected(false),
-                           _isPositionTracked(false)
+SLGLOculus::SLGLOculus(SLstring shaderDir)
+  : _usingDebugHmd(false),
+    _positionTrackingEnabled(false),
+    _lowPersistanceEnabled(false),
+    _timeWarpEnabled(false),
+    _displaySleep(false),
+    _isConnected(false),
+    _isCameraConnected(false),
+    _isPositionTracked(false),
+    _shaderFileDir(shaderDir)
 {
 }
 //-----------------------------------------------------------------------------
@@ -53,7 +55,9 @@ void SLGLOculus::dispose()
 */
 void SLGLOculus::init()
 {
-    _stereoOculusDistProgram = new SLGLGenericProgram(nullptr, "StereoOculusDistortionMesh.vert", "StereoOculusDistortionMesh.frag");
+    _stereoOculusDistProgram = new SLGLGenericProgram(nullptr,
+                                                      _shaderFileDir + "StereoOculusDistortionMesh.vert",
+                                                      _shaderFileDir + "StereoOculusDistortionMesh.frag");
     _resolutionScale         = 1.25f;
     _resolution.set(1920, 1080);
     renderResolution(1920, 1080);

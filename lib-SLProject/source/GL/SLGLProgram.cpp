@@ -16,11 +16,12 @@
 #include <SLGLShader.h>
 #include <SLScene.h>
 #include <SLAssetManager.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 //! Default path for shader files used when only filename is passed in load.
 //! Is overwritten in slCreateAppAndScene.
-SLstring SLGLProgram::defaultPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders";
+//SLstring SLGLProgram::defaultPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders";
 //-----------------------------------------------------------------------------
 // Error Strings defined in SLGLShader.h
 extern char* aGLSLErrorString[];
@@ -50,10 +51,10 @@ SLGLProgram::SLGLProgram(SLAssetManager* s,
     _progID   = 0;
 
     // optional load vertex and/or fragment shaders
-    addShader(new SLGLShader(defaultPath + vertShaderFile, ST_vertex));
-    addShader(new SLGLShader(defaultPath + fragShaderFile, ST_fragment));
+    addShader(new SLGLShader(vertShaderFile, ST_vertex));
+    addShader(new SLGLShader(fragShaderFile, ST_fragment));
     if (!geomShaderFile.empty())
-        addShader(new SLGLShader(defaultPath + geomShaderFile, ST_geometry));
+        addShader(new SLGLShader(geomShaderFile, ST_geometry));
 
     // Add pointer to the global resource vectors for deallocation
     if (s)
@@ -190,19 +191,19 @@ void SLGLProgram::init()
         _uniforms1f.clear();
         _uniforms1i.clear();
 
-        addShader(new SLGLShader(defaultPath + "ErrorTex.vert", ST_vertex));
-        addShader(new SLGLShader(defaultPath + "ErrorTex.frag", ST_fragment));
+        //addShader(new SLGLShader(defaultPath + "ErrorTex.vert", ST_vertex));
+        //addShader(new SLGLShader(defaultPath + "ErrorTex.frag", ST_fragment));
 
-        allSuccuessfullyCompiled = true;
-        for (auto shader : _shaders)
-        {
-            if (!shader->createAndCompile())
-            {
-                allSuccuessfullyCompiled = false;
-                break;
-            }
-            GET_GL_ERROR;
-        }
+        //allSuccuessfullyCompiled = true;
+        //for (auto shader : _shaders)
+        //{
+        //    if (!shader->createAndCompile())
+        //    {
+        //        allSuccuessfullyCompiled = false;
+        //        break;
+        //    }
+        //    GET_GL_ERROR;
+        //}
     }
 
     // attach all shader objects

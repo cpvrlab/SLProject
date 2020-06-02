@@ -36,10 +36,12 @@ See the implementation for more information.<br>
 */
 //-----------------------------------------------------------------------------
 void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& dataPath,
                          const SLstring& shaderPath,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
                          const SLstring& fontPath,
+                         const SLstring& videoPath,
                          const SLstring& configPath,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);
