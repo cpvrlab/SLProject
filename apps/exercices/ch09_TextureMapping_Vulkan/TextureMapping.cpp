@@ -200,8 +200,8 @@ void initVulkan()
 void updateCamera()
 {
     _viewMatrix = SLMat4f();
-    _viewMatrix.rotate(_rotX - _deltaX, 1.0f, 0.0f, 0.0f);
     _viewMatrix.rotate(_rotY - _deltaY, 0.0f, 1.0f, 0.0f);
+    _viewMatrix.rotate(_rotX - _deltaX, 1.0f, 0.0f, 0.0f);
     SLVec3f a = (_viewMatrix.axisZ()) * _camZ;
     _viewMatrix.lookAt(a, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
 }
