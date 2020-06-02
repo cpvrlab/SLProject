@@ -72,10 +72,10 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/Vertex.cpp
         )
 
-file(GLOB shaders
-        ${SL_PROJECT_ROOT}/data/shaders/vertShader.spv
-        ${SL_PROJECT_ROOT}/data/shaders/fragShader.spv
-        )
+# file(GLOB shaders
+#         ${SL_PROJECT_ROOT}/data/shaders/vertShader.spv
+#         ${SL_PROJECT_ROOT}/data/shaders/fragShader.spv
+#         )
 
 add_executable(${target}
         ${headers}
@@ -135,3 +135,43 @@ target_compile_options(${target}
         INTERFACE
         )
 
+
+
+
+# Generates glsl shader to spirv
+set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.131.2/Bin32/glslc.exe")
+
+# To convert all shader in folder, replace filename with *.vert / *.frag
+file(GLOB SHADER_SOURCE_FILES
+    "${SL_PROJECT_ROOT}/data/shaders/vertShader.vert"
+    "${SL_PROJECT_ROOT}/data/shaders/fragShader.frag"
+    )
+
+foreach(SHADER ${SHADER_SOURCE_FILES})
+    
+    get_filename_component(FILE_NAME ${SHADER} NAME)
+    
+    set(SPIRV_OUTPUT "${SL_PROJECT_ROOT}/data/shaders/${FILE_NAME}.spv") 
+
+    message(STATUS "------------------------------------")
+    message(STATUS ${SHADER})
+
+    add_custom_command(
+        OUTPUT ${SPIRV_OUTPUT}
+        COMMAND ${GLSLC} ${SHADER} -o ${SPIRV_OUTPUT}
+         DEPENDS ${SHADER})
+        
+        message(STATUS ${SPIRV_OUTPUT})
+
+        list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUTPUT})
+
+        message(STATUS "------------------------------")
+        message(STATUS ${SPIRV_BINARY_FILES})
+
+endforeach(SHADER)
+
+ add_custom_target(
+     Shaders
+     DEPENDS ${SPIRV_BINARY_FILES})
+
+ add_dependencies(${target} Shaders)

@@ -11,21 +11,16 @@ TextureImage::TextureImage(Device&      device,
     if (texWidth == 0)
         cerr << "Failed to load texture image" << endl;
 
-<<<<<<< HEAD
-    Buffer* buffer = new Buffer(device);
-    buffer->createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-=======
-    buffer = new Buffer(device);
-    buffer->createBuffer(imageSize,
-                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
->>>>>>> ce5d1776aea304843f913843590178106811f4ae
+    Buffer buffer = Buffer(device);
+    buffer.createBuffer(imageSize,
+                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
-    vkMapMemory(device.handle, buffer->memory, 0, imageSize, 0, &data);
+    vkMapMemory(device.handle, buffer.memory, 0, imageSize, 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(device.handle, buffer->memory);
+    vkUnmapMemory(device.handle, buffer.memory);
 
     createImage(texWidth,
                 texHeight,
@@ -34,12 +29,12 @@ TextureImage::TextureImage(Device&      device,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 image,
-                buffer);
+                &buffer);
     transitionImageLayout(image,
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    copyBufferToImage(buffer->handle,
+    copyBufferToImage(buffer.handle,
                       image,
                       static_cast<uint32_t>(texWidth),
                       static_cast<uint32_t>(texHeight));
@@ -48,7 +43,7 @@ TextureImage::TextureImage(Device&      device,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    buffer->free();
+    buffer.free();
 
     textureImageView = createImageView(image, VK_FORMAT_R8G8B8A8_SRGB);
 }
@@ -111,13 +106,8 @@ void TextureImage::createImage(uint32_t              width,
 
     vkBindImageMemory(device.handle, image, imageMemory, 0);
 }
-<<<<<<< HEAD
-
-void TextureImage::transitionImageLayout(VkImage&      image,
-=======
 //-----------------------------------------------------------------------------
-void TextureImage::transitionImageLayout(VkImage       image,
->>>>>>> ce5d1776aea304843f913843590178106811f4ae
+void TextureImage::transitionImageLayout(VkImage&      image,
                                          VkFormat      format,
                                          VkImageLayout oldLayout,
                                          VkImageLayout newLayout)
@@ -202,14 +192,9 @@ void TextureImage::copyBufferToImage(VkBuffer buffer,
                            &imageCopyBuffer);
     commandBuffer.end();
 }
-<<<<<<< HEAD
-
-VkImageView TextureImage::createImageView(VkImage& image, VkFormat format)
-=======
 //-----------------------------------------------------------------------------
-VkImageView TextureImage::createImageView(VkImage  image,
+VkImageView TextureImage::createImageView(VkImage& image,
                                           VkFormat format)
->>>>>>> ce5d1776aea304843f913843590178106811f4ae
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

@@ -17,11 +17,6 @@ public:
                  unsigned int texHeight);
     void destroy();
 
-    Device&     device;
-    VkImage     image;
-    VkImageView textureImageView;
-    Buffer*     buffer;
-
 private:
     void        createImage(uint32_t              width,
                             uint32_t              height,
@@ -39,7 +34,6 @@ private:
                                   VkImage  image,
                                   uint32_t width,
                                   uint32_t height);
-<<<<<<< HEAD
     VkImageView createImageView(VkImage& image, VkFormat format);
 
 public:
@@ -48,8 +42,5 @@ public:
     VkDeviceMemory imageMemory;
     VkImageView    textureImageView;
     // Buffer*     buffer;
-=======
-    VkImageView createImageView(VkImage image, VkFormat format);
->>>>>>> ce5d1776aea304843f913843590178106811f4ae
 };
 //-----------------------------------------------------------------------------

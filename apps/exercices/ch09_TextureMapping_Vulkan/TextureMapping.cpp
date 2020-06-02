@@ -44,8 +44,8 @@ struct Vertex;
 
 const int WINDOW_WIDTH   = 800;
 const int WINDOW_HEIGHT  = 600;
-string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.spv";
-string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.spv";
+string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv";
+string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv";
 
 GLFWwindow* window;
 #if oldProject
