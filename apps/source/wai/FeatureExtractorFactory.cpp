@@ -15,6 +15,7 @@ FeatureExtractorFactory::FeatureExtractorFactory()
     _extractorIdToNames[ExtractorType_FAST_ORBS_1000]  = "FAST-ORBS-1000";
     _extractorIdToNames[ExtractorType_FAST_ORBS_2000]  = "FAST-ORBS-2000";
     _extractorIdToNames[ExtractorType_FAST_ORBS_4000]  = "FAST-ORBS-4000";
+    _extractorIdToNames[ExtractorType_FAST_ORBS_6000]  = "FAST-ORBS-6000";
     _extractorIdToNames[ExtractorType_GLSL_1]          = "GLSL-1";
     _extractorIdToNames[ExtractorType_GLSL]            = "GLSL";
 }
@@ -37,6 +38,8 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
             return orbExtractor(2000);
         case ExtractorType_FAST_ORBS_4000:
             return orbExtractor(4000);
+        case ExtractorType_FAST_ORBS_6000:
+            return orbExtractor(6000);
         case ExtractorType_GLSL_1:
             return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.3f);
         case ExtractorType_GLSL:

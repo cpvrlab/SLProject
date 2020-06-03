@@ -16,9 +16,10 @@ enum ExtractorType
     ExtractorType_FAST_ORBS_1000  = 4,
     ExtractorType_FAST_ORBS_2000  = 5,
     ExtractorType_FAST_ORBS_4000  = 6,
-    ExtractorType_GLSL_1          = 7,
-    ExtractorType_GLSL            = 8,
-    ExtractorType_Last            = 9
+    ExtractorType_FAST_ORBS_6000  = 7,
+    ExtractorType_GLSL_1          = 8,
+    ExtractorType_GLSL            = 9,
+    ExtractorType_Last            = 10
 };
 
 class FeatureExtractorFactory

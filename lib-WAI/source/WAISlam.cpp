@@ -64,13 +64,16 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
 
     if (!_serial)
     {
+        if (!_trackingOnly)
+        {
 #if MULTI_MAPPING_THREADS
-        _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
-        _mappingThreads.push_back(_localMapping->AddLocalBAThread());
+            _processNewKeyFrameThread = new std::thread(&LocalMapping::ProcessKeyFrames, _localMapping);
+            _mappingThreads.push_back(_localMapping->AddLocalBAThread());
 #else
-        _mappingThreads.push_back(new std::thread(&LocalMapping::Run, _localMapping));
+            _mappingThreads.push_back(new std::thread(&LocalMapping::Run, _localMapping));
 #endif
-        _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
+            _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
+        }
 
 #if MULTI_THREAD_FRAME_PROCESSING
         _poseUpdateThread = new std::thread(updatePoseThread, this);
