@@ -460,7 +460,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                 }
                 else
                 {
-                    cout << "keyframe with id " << i << " not found!";
+                    cout << "keyframe with id " << i << " not found!" << endl;
                 }
             }
             mapPoints.push_back(newPt);
