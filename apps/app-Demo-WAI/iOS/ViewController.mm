@@ -81,7 +81,8 @@ float GetSeconds()
 @end
 //-----------------------------------------------------------------------------
 @implementation ViewController
-@synthesize context = _context;
+//I think this is not necessary, it is done automatically if we dont synthesize getters and setters
+//@synthesize context = _context;
 
 - (void)dealloc
 {

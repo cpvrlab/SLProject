@@ -49,7 +49,6 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
 	${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
-	#${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
     )
 
@@ -64,7 +63,6 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
-	#${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm
 	)
 

@@ -44,7 +44,6 @@ set(compile_definitions SL_STARTSCENE=SID_Minimal)
 set(headers
 	${erlebar_headers}
 	${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
-	#${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
     )
 
@@ -52,7 +51,6 @@ set(sources
 	${erlebar_sources}
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
-	#${CMAKE_CURRENT_SOURCE_DIR}/Utils_iOS.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm
 	)
 
@@ -163,7 +161,6 @@ target_compile_definitions(${target}
     ${compile_definitions}
     PUBLIC
     ${DEFAULT_COMPILE_DEFINITIONS}
-	${TARGET_OS_IOS} #disable GLSLExtractor
     INTERFACE
     )
 
