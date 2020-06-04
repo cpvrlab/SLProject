@@ -42,6 +42,7 @@
 #include <SLTransferFunction.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
+#include <Instrumentor.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -84,6 +85,8 @@ SLNode* BuildFigureGroup(SLProjectScene* s,
 */
 void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
+    PROFILE_FUNCTION();
+
     // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
@@ -2903,6 +2906,86 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+    else if (SLApplication::sceneID == SID_VideoAventicumTheatre) //...................................
+    {
+        s->name("Aventicum Cigonier AR");
+        s->info("Augmented Reality for Aventicum Cigonier Temple");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
+        light->powers(1.0f, 1.0f, 1.0f);
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLAssimpImporter importer;
+        SLNode*          cigognier = importer.load(s->animManager(),
+                                                   s,
+                                                   SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf",
+                                                   SLApplication::texturePath,
+                                                   true,    // only meshes
+                                                   nullptr, // no replacement material
+                                                   0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(cigognier);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
+        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
 #ifdef SL_BUILD_WAI
     else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
     {
@@ -3128,7 +3211,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, 30, matGla, matRed));
+        scene->addChild(SphereGroup(s, 4, 0, 0, 0, 1, 30, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -3424,6 +3507,8 @@ SLNode* SphereGroup(SLProjectScene* s,
                     SLMaterial*     matGlass,   // material for center sphere
                     SLMaterial*     matRed)         // material for orbiting spheres
 {
+    PROFILE_FUNCTION();
+
     SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
     if (depth == 0)
     {
@@ -3437,7 +3522,7 @@ SLNode* SphereGroup(SLProjectScene* s,
         depth--;
         SLNode* sGroup = new SLNode("SphereGroup");
         sGroup->translate(x, y, z, TS_object);
-        SLuint newRes = (SLuint)std::max((SLint)resolution - 8, 8);
+        SLuint newRes = (SLuint)std::max((SLint)resolution - 4, 8);
         sGroup->addChild(new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));

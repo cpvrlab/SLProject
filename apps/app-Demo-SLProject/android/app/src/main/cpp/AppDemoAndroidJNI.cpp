@@ -210,8 +210,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNI
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv* env, jclass obj)
 {
-    SL_LOG("onClose\n ");
-
+    SL_LOG("onClose");
     slTerminate();
 }
 //-----------------------------------------------------------------------------

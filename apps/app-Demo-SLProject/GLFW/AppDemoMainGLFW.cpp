@@ -24,6 +24,7 @@
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 #include <GLFW/glfw3.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
@@ -66,6 +67,8 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
+    PROFILE_SCOPE("GLFW::onPaint");
+
     if (SLApplication::sceneViews.empty())
         return false;
     SLSceneView* sv = SLApplication::sceneViews[svIndex];

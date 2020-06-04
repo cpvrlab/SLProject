@@ -30,6 +30,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
     )
 set(sources
@@ -74,11 +75,11 @@ target_include_directories(${target}
     PRIVATE
 
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/source
-    ${platform_specific_include_dirs}
-    ${UTILS_ROOT}/thirdparty/asio/include
-    ${UTILS_ROOT}/thirdparty/ftplibpp
-    ${DEFAULT_INCLUDE_DIRECTORIES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source
+        ${platform_specific_include_dirs}
+        ${UTILS_ROOT}/thirdparty/asio/include
+        ${UTILS_ROOT}/thirdparty/ftplibpp
+        ${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
     )

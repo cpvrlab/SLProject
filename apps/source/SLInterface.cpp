@@ -19,6 +19,8 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
+#include <Instrumentor.h>
+#include <FtpUtils.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -64,6 +66,15 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          void*           onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
+
+    // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
+#if PROFILING
+    SLstring computerInfo = Utils::ComputerInfos::get();
+    SLstring profileFile  = configPath + "Profile_" + computerInfo + ".json";
+    Instrumentor::get().beginSession("Profile_" + computerInfo,
+                                     true,
+                                     profileFile.c_str());
+#endif
 
     // Default paths for all loaded resources
     SLApplication::dataPath    = Utils::unifySlashes(dataPath);
@@ -198,6 +209,40 @@ void slTerminate()
 {
     // Deletes all remaining sceneviews the current scene instance
     SLApplication::deleteAppAndScene();
+
+    // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
+#if PROFILING
+    SLstring filePathName = Instrumentor::get().filePath();
+
+    Instrumentor::get().endSession();
+
+    if (Utils::fileExists(filePathName))
+    {
+        SLstring errorMsg;
+        SLstring path = Utils::getPath(filePathName);
+        SLstring file = Utils::getFileName(filePathName);
+
+        SL_LOG("Profile Uploading ...");
+
+        if (FtpUtils::uploadFile(path,
+                                 file,
+                                 SLApplication::CALIB_FTP_HOST,
+                                 SLApplication::CALIB_FTP_USER,
+                                 SLApplication::CALIB_FTP_PWD,
+                                 SLApplication::PROFILE_FTP_DIR,
+                                 errorMsg))
+        {
+            SL_LOG("Uploaded Profile: %s", filePathName.c_str());
+        } else
+            SL_LOG(errorMsg.c_str());
+    } else
+        SL_LOG("No Profile File to upload: %s", filePathName.c_str());
+#else
+    SL_LOG("No Profiling");
+#endif
+
+    SL_LOG("End of Terminate");
+    SL_LOG("------------------------------------------------------------------");
 }
 //-----------------------------------------------------------------------------
 /*!

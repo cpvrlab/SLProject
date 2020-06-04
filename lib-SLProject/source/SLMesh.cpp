@@ -18,6 +18,7 @@
 #include <SLSkybox.h>
 #include <SLMesh.h>
 #include <SLAssetManager.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 /*!
