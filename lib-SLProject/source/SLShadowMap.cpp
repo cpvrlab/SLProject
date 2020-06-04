@@ -146,6 +146,21 @@ light.
 */
 void SLShadowMap::updateMVP()
 {
+    // Calculate FOV
+    SLfloat fov;
+
+    if (_projection == P_monoPerspective)
+    {
+        fov = _light->spotCutOffDEG() * 2;
+
+        // Automatically use cube-map when perspective projection makes no sense
+        if (fov >= 180.0f)
+            _useCubemap = true;
+
+        if (_useCubemap)
+            fov = 90.0f;
+    }
+
     // Set view matrix
     SLVec3f positionWS = _light->positionWS().vec3();
 
@@ -165,8 +180,6 @@ void SLShadowMap::updateMVP()
     }
 
     // Set projection matrix
-    float fov;
-
     switch (_projection)
     {
         case P_monoOrthographic:
@@ -174,14 +187,7 @@ void SLShadowMap::updateMVP()
             break;
 
         case P_monoPerspective:
-            fov = _light->spotCutOffDEG() * 2;
-
-            if (fov >= 180.0) _useCubemap = true;
-
-            if (_useCubemap)
-                _p.perspective(90.0f, 1.0f, _clipNear, _clipFar);
-            else
-                _p.perspective(fov, 1.0f, _clipNear, _clipFar);
+            _p.perspective(fov, 1.0f, _clipNear, _clipFar);
             break;
 
         default:
