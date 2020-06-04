@@ -1,3 +1,5 @@
+#ifndef BRIEF_PATTERN_H
+#define BRIEF_PATTERN_H
 
 static int bit_pattern_31[256 * 4] =
   {
@@ -1026,3 +1028,5 @@ static int bit_pattern_31[256 * 4] =
     0,
     -11 /*mean (0.127148), correlation (0.547401)*/
 };
+
+#endif

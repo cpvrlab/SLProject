@@ -82,9 +82,12 @@ cd .. # back to glfw
 rm -rf "$ZIPFOLDER"
 mkdir "$ZIPFOLDER"
 
-cp -R "$BUILD_R/install/include"       "$ZIPFOLDER/"
-cp -R "$BUILD_R/install/lib64"           "$ZIPFOLDER/Release"
-cp -R "$BUILD_D/install/lib64"           "$ZIPFOLDER/Debug"
+cp -R "$BUILD_R/install/include"     "$ZIPFOLDER/"
+[ -d "$BUILD_R/install/lib64" ] && cp -R "$BUILD_R/install/lib64" "$ZIPFOLDER/Release"
+[ -d "$BUILD_D/install/lib64" ] && cp -R "$BUILD_D/install/lib64" "$ZIPFOLDER/Debug"
+[ -d "$BUILD_R/install/lib" ]   && cp -R "$BUILD_R/install/lib"   "$ZIPFOLDER/Release"
+[ -d "$BUILD_D/install/lib" ]   && cp -R "$BUILD_D/install/lib"   "$ZIPFOLDER/Debug"
+
 cp LICENSE.md "$ZIPFOLDER"
 cp README.md "$ZIPFOLDER"
 

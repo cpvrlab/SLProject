@@ -56,7 +56,6 @@ set(erlebar_headers
 	#${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIApp.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/DeviceData.h
