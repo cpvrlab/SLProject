@@ -122,8 +122,6 @@ public:
     string        path() { return _path; }
     static string typeString(int cvMatTypeInt);
 
-    static string defaultPath; //!< Default path for images
-
 protected:
     static uint bytesPerPixel(CVPixFormat pixelFormat);
     static uint bytesPerLine(uint        width,

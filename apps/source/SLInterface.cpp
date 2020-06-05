@@ -19,6 +19,8 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
+#include <Instrumentor.h>
+#include <FtpUtils.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -53,22 +55,36 @@ See examples usages in:
   - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
 */
 void slCreateAppAndScene(SLVstring&      cmdLineArgs,
+                         const SLstring& dataPath,
                          const SLstring& shaderPath,
                          const SLstring& modelPath,
                          const SLstring& texturePath,
                          const SLstring& fontPath,
+                         const SLstring& videoPath,
                          const SLstring& configPath,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback)
 {
     assert(SLApplication::scene == nullptr && "SLScene is already created!");
 
+    // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
+#if PROFILING
+    SLstring computerInfo = Utils::ComputerInfos::get();
+    SLstring profileFile  = configPath + "Profile_" + computerInfo + ".json";
+    Instrumentor::get().beginSession("Profile_" + computerInfo,
+                                     true,
+                                     profileFile.c_str());
+#endif
+
     // Default paths for all loaded resources
-    SLGLProgram::defaultPath      = shaderPath;
-    SLGLTexture::defaultPath      = texturePath;
-    SLGLTexture::defaultPathFonts = fontPath;
-    SLAssimpImporter::defaultPath = modelPath;
-    SLApplication::configPath     = configPath;
+    SLApplication::dataPath    = Utils::unifySlashes(dataPath);
+    SLApplication::shaderPath  = shaderPath;
+    SLApplication::modelPath   = modelPath;
+    SLApplication::texturePath = texturePath;
+    SLApplication::fontPath    = fontPath;
+    SLApplication::videoPath   = videoPath;
+
+    SLApplication::configPath = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
@@ -122,6 +138,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, SLApplication::inputManager);
+    sv->initConeTracer(SLApplication::dataPath + "shaders/");
 
     //maintain multiple scene views in SLApplication
     SLApplication::sceneViews.push_back(sv);
@@ -129,7 +146,8 @@ SLint slCreateSceneView(SLProjectScene* scene,
     SLApplication::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
                                        (cbOnImGuiLoadConfig)onImGuiLoadConfig,
                                        (cbOnImGuiSaveConfig)onImGuiSaveConfig,
-                                       dotsPerInch);
+                                       dotsPerInch,
+                                       SLApplication::fontPath);
 
     sv->init("SceneView",
              screenWidth,
@@ -191,6 +209,40 @@ void slTerminate()
 {
     // Deletes all remaining sceneviews the current scene instance
     SLApplication::deleteAppAndScene();
+
+    // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
+#if PROFILING
+    SLstring filePathName = Instrumentor::get().filePath();
+
+    Instrumentor::get().endSession();
+
+    if (Utils::fileExists(filePathName))
+    {
+        SLstring errorMsg;
+        SLstring path = Utils::getPath(filePathName);
+        SLstring file = Utils::getFileName(filePathName);
+
+        SL_LOG("Profile Uploading ...");
+
+        if (FtpUtils::uploadFile(path,
+                                 file,
+                                 SLApplication::CALIB_FTP_HOST,
+                                 SLApplication::CALIB_FTP_USER,
+                                 SLApplication::CALIB_FTP_PWD,
+                                 SLApplication::PROFILE_FTP_DIR,
+                                 errorMsg))
+        {
+            SL_LOG("Uploaded Profile: %s", filePathName.c_str());
+        } else
+            SL_LOG(errorMsg.c_str());
+    } else
+        SL_LOG("No Profile File to upload: %s", filePathName.c_str());
+#else
+    SL_LOG("No Profiling");
+#endif
+
+    SL_LOG("End of Terminate");
+    SL_LOG("------------------------------------------------------------------");
 }
 //-----------------------------------------------------------------------------
 /*!

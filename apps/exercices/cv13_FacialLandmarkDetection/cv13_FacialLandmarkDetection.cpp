@@ -31,6 +31,8 @@ int main()
     // Set up webcam for video capture
     VideoCapture cam(0);
 
+    // Be aware that on Windows not more than one process can access the camera at the time.
+    // Be aware that on many OS you have to grant access rights to the camera system
     // Variable to store a video frame and its grayscale
     Mat frame, gray;
 

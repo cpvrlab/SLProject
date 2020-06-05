@@ -46,12 +46,17 @@ class SLScene : public SLObject
     friend class SLNode;
 
 public:
-    SLScene(const SLstring&      name,
-            cbOnSceneLoad onSceneLoadCallback);
+    SLScene(const SLstring& name,
+            cbOnSceneLoad   onSceneLoadCallback);
     ~SLScene() override;
 
+    void initOculus(SLstring shaderDir);
+
     // Setters
-    void root3D(SLNode* root3D) { _root3D = root3D; }
+    void root3D(SLNode* root3D)
+    {
+        _root3D = root3D;
+    }
     void root2D(SLNode* root2D) { _root2D = root2D; }
     void globalAmbiLight(const SLCol4f& gloAmbi) { _globalAmbiLight = gloAmbi; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
@@ -89,8 +94,8 @@ public:
     virtual void unInit();
     void         selectNode(SLNode* nodeToSelect);
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
-  
-    SLGLOculus* oculus() { return &_oculus; }
+
+    SLGLOculus* oculus() { return _oculus.get(); }
 
 protected:
     SLVLight        _lights;        //!< Vector of all lights
@@ -118,7 +123,7 @@ protected:
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 
-    SLGLOculus _oculus; //!< Oculus Rift interface
+    std::unique_ptr<SLGLOculus> _oculus; //!< Oculus Rift interface
 };
 
 #endif

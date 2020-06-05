@@ -96,6 +96,7 @@ void new_basic_types_and_type_traits();
 void new_functional();
 void new_threading();
 void new_random_generators();
+void new_smart_pointers();
 void new_const_expression();
 void new_userdefined_literals();
 void new_if_switch_statement();
@@ -107,18 +108,19 @@ void new_parallel_algorithms();
 int main()
 {
     new_rvalue_references();
-    //new_variadic_templates();
-    //new_uniform_intializers();
-    //new_lambda_expressions();
-    //new_type_deduction();
-    //new_basic_types_and_type_traits();
-    //new_functional();
-    //new_threading();
-    //new_random_generators();
-    //new_const_expression();
-    //new_userdefined_literals();
-    //new_if_switch_statement();
-    //new_structured_binding();
+    new_variadic_templates();
+    new_uniform_intializers();
+    new_lambda_expressions();
+    new_type_deduction();
+    new_basic_types_and_type_traits();
+    new_functional();
+    new_threading();
+    new_random_generators();
+    new_smart_pointers();
+    new_const_expression();
+    new_userdefined_literals();
+    new_if_switch_statement();
+    new_structured_binding();
 #ifndef __APPLE__
     new_filesystem();
     new_parallel_algorithms();
@@ -275,13 +277,13 @@ void new_rvalue_references()
     string b;
     const char* pa1 = a.c_str();
     const char* pb1 = b.c_str();
-    printf("a before the move: %x: %s\n", pa1, pa1);
-    printf("b before the move: %x: %s\n", pb1, pb1);
+    cout << "a before the move: " << std::hex << pa1 << ", " << pa1 << endl;
+    cout << "b before the move: " << std::hex << pb1 << ", " << pb1 << endl;
     b = move(a);
     const char* pa2 = a.c_str();
     const char* pb2 = b.c_str();
-    printf("a after  the move: %x: %s\n", pa2, pa2);
-    printf("b after  the move: %x: %s\n", pb2, pb2);
+    cout << "a after  the move: " << std::hex << pa2 << ", " << pa2 << endl;
+    cout << "b after  the move: " << std::hex << pb2 << ", " << pb2 << endl;
     if (pa1 == pa2)
         cout << "pa points to OLD memory" << endl;
     else cout << "pa points to NEW memory" << endl;
@@ -587,7 +589,7 @@ void new_threading()
     // counter should be zero:
 
     t1 = high_resolution_clock::now();
-    for (int t = 0; t < 10; t++)
+    for (int j = 0; j < 10; j++)
     {
         vector<thread> threads;
         for(int i = 0; i < NUM_THREADS; ++i)
@@ -606,7 +608,7 @@ void new_threading()
     // with a mutex:
 
     t1 = high_resolution_clock::now();
-    for (int t = 0; t < 10; t++)
+    for (int j = 0; j < 10; j++)
     {
         vector<thread> threads;
         for(int i = 0; i < NUM_THREADS; ++i)
@@ -626,7 +628,7 @@ void new_threading()
     // mutex. This should be a lot faster:
 
     t1 = high_resolution_clock::now();
-    for (int t = 0; t < 10; t++)
+    for (int j = 0; j < 10; j++)
     {
         vector<thread> threads;
         for(int i = 0; i < NUM_THREADS; ++i)
@@ -695,6 +697,9 @@ void new_smart_pointers()
 
         upA1->f1();
         upA2->f1();
+
+        // A unique pointer is unique. It can not be assigned to another unique pointer
+        //unique_ptr<A> upA3 = upA1; // compile error
 
     } cout << "No, memory leak." << endl;
 
@@ -838,6 +843,9 @@ void new_userdefined_literals()
     // See the definition of class Length in CPP1.h
     // See https://www.codeproject.com/Articles/447922/Application-of-Cplusplus11-User-Defined-Literals-t
     // for a more sophisticated unit system
+    // We have an f as literal for floats
+    //           \/
+    float f = 1.0f;
 
     //Length len0 = 1.0;    // Compile Error
     Length len1 = 1.0_m;            cout << len1.lenghtInMeters() << " m" << endl;

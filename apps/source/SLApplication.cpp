@@ -47,10 +47,17 @@ SLstring                     SLApplication::calibIniPath;
 SLstring                     SLApplication::calibFilePath;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring                    SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
-SLstring                    SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLstring                    SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLSceneID                   SLApplication::sceneID      = SID_Empty;
+SLstring SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
+SLstring SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring SLApplication::dataPath;
+SLstring SLApplication::shaderPath;
+SLstring SLApplication::modelPath;
+SLstring SLApplication::texturePath;
+SLstring SLApplication::fontPath;
+SLstring SLApplication::videoPath;
+
+SLSceneID                   SLApplication::sceneID = SID_Empty;
 deque<function<void(void)>> SLApplication::jobsToBeThreaded;
 deque<function<void(void)>> SLApplication::jobsToFollowInMain;
 atomic<bool>                SLApplication::jobIsRunning(false);
@@ -59,10 +66,11 @@ atomic<int>                 SLApplication::_jobProgressNum(0);
 atomic<int>                 SLApplication::_jobProgressMax(0);
 mutex                       SLApplication::_jobMutex;
 
-const string SLApplication::CALIB_FTP_HOST = "pallas.bfh.ch:21";
-const string SLApplication::CALIB_FTP_USER = "upload";
-const string SLApplication::CALIB_FTP_PWD  = "FaAdbD3F2a";
-const string SLApplication::CALIB_FTP_DIR  = "calibrations";
+const string SLApplication::CALIB_FTP_HOST  = "pallas.bfh.ch:21";
+const string SLApplication::CALIB_FTP_USER  = "upload";
+const string SLApplication::CALIB_FTP_PWD   = "FaAdbD3F2a";
+const string SLApplication::CALIB_FTP_DIR   = "calibrations";
+const string SLApplication::PROFILE_FTP_DIR = "profiles";
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -84,8 +92,10 @@ void SLApplication::createAppAndScene(SLstring appName,
     assert(SLApplication::scene == nullptr &&
            "You can create only one SLApplication");
 
-    name  = std::move(appName);
+    name = std::move(appName);
+    SLGLProgramManager::init(dataPath + "shaders/");
     scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+    scene->initOculus(dataPath + "shaders/");
     GlobalTimer::timerStart();
 
 #ifdef SL_HAS_OPTIX

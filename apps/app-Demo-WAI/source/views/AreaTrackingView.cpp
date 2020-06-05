@@ -8,27 +8,22 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    const ImGuiEngine&  imGuiEngine,
                                    ErlebAR::Resources& resources,
                                    SENSCamera*         camera,
-                                   int                 screenWidth,
-                                   int                 screenHeight,
-                                   int                 dotsPerInch,
-                                   std::string         imguiIniPath,
-                                   std::string         vocabularyDir,
-                                   std::string         erlebARDir)
-  : SLSceneView(nullptr, dotsPerInch, inputManager),
+                                   const DeviceData&   deviceData)
+  : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
          eventHandler,
          resources,
-         dotsPerInch,
-         screenWidth,
-         screenHeight,
+         deviceData.dpi(),
+         deviceData.scrWidth(),
+         deviceData.scrHeight(),
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1)),
-    _scene("AreaTrackingScene"),
+    _scene("AreaTrackingScene", deviceData.dataDir()),
     _camera(camera),
-    _vocabularyDir(vocabularyDir),
-    _erlebARDir(erlebARDir)
+    _vocabularyDir(deviceData.vocabularyDir()),
+    _erlebARDir(deviceData.erlebARDir())
 {
     scene(&_scene);
-    init("AreaTrackingView", screenWidth, screenHeight, nullptr, nullptr, &_gui, imguiIniPath);
+    init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     //todo: ->moved to constructor of AreaTrackingScene: can this lead to any problems?
     //_scene.init();
     //_scene.build();

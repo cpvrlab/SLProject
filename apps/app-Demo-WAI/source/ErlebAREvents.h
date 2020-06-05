@@ -45,17 +45,18 @@ public:
 class InitEvent : public sm::Event
 {
 public:
-    InitEvent(std::string    senderInfo,
-              int            scrWidth,
-              int            scrHeight,
-              int            dpi,
-              AppDirectories dirs)
+    InitEvent(std::string        senderInfo,
+              int                scrWidth,
+              int                scrHeight,
+              int                dpi,
+              const std::string& dataDir,
+              const std::string& writableDir)
       : sm::Event("InitEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::IDLE,
                          (unsigned int)StateId::INIT);
 
-        DeviceData deviceData(scrWidth, scrHeight, dpi, dirs);
+        DeviceData deviceData(scrWidth, scrHeight, dpi, dataDir, writableDir);
         _eventData = new InitEventData(deviceData);
     }
 };

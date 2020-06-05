@@ -48,8 +48,6 @@
 	<string>Used to determine the users global position with GPS</string>
 	<key>UIApplicationExitsOnSuspend</key>
 	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>ViewController_iPad</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>

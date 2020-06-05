@@ -16,6 +16,7 @@
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
 #include <atomic>
+#include <mutex>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -196,17 +197,15 @@ public:
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
-    void calc3DGradients(SLint sampleRadius);
-    void smooth3DGradients(SLint smoothRadius);
+    void calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress);
+    void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
 
     // Bumpmap methods
     SLVec2f dsdt(SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
 
     // Statics
-    static SLstring defaultPath;        //!< Default path for textures
-    static SLstring defaultPathFonts;   //!< Default path for fonts images
-    static SLfloat  maxAnisotropy;      //!< max. anisotropy available
-    static SLuint   numBytesInTextures; //!< NO. of texture bytes on GPU
+    static SLfloat maxAnisotropy;      //!< max. anisotropy available
+    static SLuint  numBytesInTextures; //!< NO. of texture bytes on GPU
 
 protected:
     // loading the image files
@@ -230,6 +229,7 @@ protected:
     SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
     atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
+    mutex           _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
 
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object

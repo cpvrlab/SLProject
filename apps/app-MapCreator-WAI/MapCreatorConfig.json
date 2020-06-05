@@ -1,21 +1,25 @@
 {
 	"locationsEnabling": [
 		{
+			"location": "avenches",
+			"areas": [
+				{ "area": "arena", "enabled": false },
+				{ "area": "cygonier-marker", "enabled": false, "marker": "marker.png" },
+				{ "area": "entrance", "enabled": false },
+				{ "area": "temple", "enabled": false },
+				{ "area": "teather-marker", "enabled": false }
+			]
+		},
+		{
 			"location": "augst",
 			"areas": [
+				{ "area": "templeHillTheater", "enabled": true },
 				{ "area": "templeHillTheaterBottom", "enabled": false },
 				{ "area": "templeHillTheaterTop", "enabled": false },
 				{ "area": "theaterArena", "enabled": false },
 				{ "area": "theaterMid", "enabled": false },
 				{ "area": "theaterTop", "enabled": false },
-				{ "area": "templeHill-marker", "enabled": true, "marker": "20191009_103456_ASUSAR-1_640x360.jpg"}
-			]
-		},
-		{
-			"location": "avenches",
-			"areas": [
-				{ "area": "arena", "enabled": false },
-				{ "area": "entrance", "enabled": false }
+				{ "area": "templeHill-marker", "enabled": false, "marker": "20191009_103456_ASUSAR-1_640x360.jpg"}
 			]
 		},
 		{
@@ -32,6 +36,79 @@
 	],
 	"mappingVideos": [
 		{
+			"location": "avenches",
+			"area": "arena",
+			"videos": [
+                "20190925_115458_HUAWEIP20-1_sunny_640x360.mp4",
+                "20190925_115824_HUAWEIP20-1_sunny_640x360.mp4",
+                "20200311_145701_GALAXYS6-1_shade_640x360.mp4",
+                "20200517_170518_PIXEL4_sunny_640x360.mp4",
+                "20200311_150303_HUAWEIP20_shade_640x360.mp4"
+			]
+		},
+		{
+			"location": "avenches",
+			"area": "cygonier-marker",
+			"videos": [
+                "cut-20200311_154537_HUAWEIP20_shade_640x360.mp4",
+                "cut-20200311_154639_GALAXYS6-1_shade_640x360.mp4",
+                "cut-20200517_174827_PIXEL4_sunny_640x360.mp4"
+			]
+		},
+		{
+			"location": "avenches",
+			"area": "entrance",
+			"videos": [
+                "2019072_sunny_HUAWEIP20-1_relocalization_640x360.mp4",
+                "2019081_sunny_HUAWEIP20-1_relocalization_640x320.mp4",
+                "2019082_cloudy_HUAWEIP20-1_relocalization_640x320.2.mp4",
+                "2019082_cloudy_HUAWEIP20-1_relocalization_640x320.mp4",
+                "2019083_cloudy_HUAWEIP20-1_relocalization_640x320.mp4",
+                "2019084_cloudy_HUAWEIP20-1_relocalization_640x320.mp4",
+                "20190901-173020_sunny_HUAWEIP20-1_relocalization_640x320.mp4",
+                "20190916-120000_cloudy_HUAWEIP20-1_relocalization_640x360.mp4",
+                "20190916-120001_sunny_HUAWEIP20-1_relocalization_640x360.mp4",
+                "20191004-120000_cloudy_HUAWEIP20-1_relocalization_640x360.mp4",
+                "20191007-103443_cloudy_HUAWEIP20-1_relocalization_640x360.mp4",
+                "20200108-155818_shade_PIXEL3-1_relocalization_640x360.mp4",
+                "20200108-155831_shade_ASUSAR-1_relocalization_640x360.mp4",
+                "20200108-170642_shade_ASUSAR-1_relocalization_640x360.mp4"
+			]
+		},
+		{
+			"location": "avenches",
+			"area": "temple",
+			"videos": [
+                "20200108_154145_ASUSAR-1_shade_640x360.mp4",
+                "20200108_154611_HUAWEIP20-1_shade_640x360.mp4",
+                "20200108_154649_ASUSAR-1_shade_640x360.mp4",
+                "20200108_170057_ASUSAR-1_shade_640x360.mp4",
+                "20200108_173020_ASUSAR-1_shade_640x360.mp4",
+                "20200311_153324_HUAWEIP20_shade_640x360.mp4",
+                "20200311_153432_GALAXYS6-1_shade_640x360.mp4",
+                "20200517_172704_PIXEL4_sunny_640x360.mp4"
+			]
+		},
+		{
+			"location": "augst",
+			"area": "templeHillTheater",
+			"videos": [
+				"20191009-102457_rainy_NOKIA6-1_relocalization_640x360.mp4",
+				"20191009-102554_rainy_ASUSAR-1_relocalization_640x360.mp4",
+				"20191009-102705_rainy_NOKIA6-1_relocalization_640x360.mp4",
+				"20191009-102829_rainy_ASUSAR-1_map_640x360.mp4",
+				"20191009-103057_rainy_ASUSAR-1_relocalization_640x360.mp4",
+				"20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
+				"20200122-094650_cloudy_PIXEL3-1_relocalization_640x360.mp4",
+				"20200122-094711_cloudy_PIXEL3-2_relocalization_640x360.mp4",
+				"20200122-094750_cloudy_ASUSAR-1_relocalization_640x360.mp4",
+				"20200122-094822_cloudy_PIXEL3-1_relocalization_640x360.mp4",
+				"20200122-094843_cloudy_NOKIA6-1_relocalization_640x360.mp4",
+				"20200122-094950_cloudy_PIXEL3-1_relocalization_640x360.mp4",
+				"20200122-112132_cloudy_ASUSAR-1_augmentation_640x360.mp4"
+			]
+		},
+		{
 			"location": "augst",
 			"area": "templeHillTheaterBottom",
 			"videos": [
@@ -43,8 +120,7 @@
 				"20200122-094750_cloudy_ASUSAR-1_relocalization_640x360.mp4",
 				"20200122-094822_cloudy_PIXEL3-1_relocalization_640x360.mp4",
 				"20200122-094843_cloudy_NOKIA6-1_relocalization_640x360.mp4",
-				"20200122-094950_cloudy_PIXEL3-1_relocalization_640x360.mp4",
-				"20200122-102637_cloudy_GALAXYS3-1_relocalization_640x360.mp4"
+				"20200122-094950_cloudy_PIXEL3-1_relocalization_640x360.mp4"
 			]
 		},
 		{
@@ -103,21 +179,6 @@
 				"20200122-101455_cloudy_PIXEL3-2_marker_640x360.mp4",
 				"20200122-101527_cloudy_ASUSAR-1_marker_640x360.mp4",
 				"20200122-101618_cloudy_NOKIA6-1_marker_640x360.mp4"
-			]
-		},
-		{
-			"location": "avenches",
-			"area": "arena",
-			"videos": [
-			]
-		},
-		{
-			"location": "avenches",
-			"area": "entrance",
-			"videos": [
-				"20190916-120000_cloudy_HUAWEIP20-1_relocalization_640x360.mp4",
-				"20190916-120001_sunny_HUAWEIP20-1_relocalization_640x360.mp4",
-				"20191004-120000_cloudy_HUAWEIP20-1_relocalization_640x360.mp4"
 			]
 		},
 		{

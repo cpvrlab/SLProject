@@ -283,14 +283,12 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-feature"))
         {
             i++;
-            if (!strcmp(argv[i], "SURF_BRIEF_500"))
-                config.extractorType = ExtractorType_SURF_BRIEF_500;
-            else if (!strcmp(argv[i], "SURF_BRIEF_800"))
-                config.extractorType = ExtractorType_SURF_BRIEF_800;
-            else if (!strcmp(argv[i], "SURF_BRIEF_1000"))
-                config.extractorType = ExtractorType_SURF_BRIEF_1000;
-            else if (!strcmp(argv[i], "SURF_BRIEF_1200"))
-                config.extractorType = ExtractorType_SURF_BRIEF_1200;
+            if (!strcmp(argv[i], "FAST_BRIEF_1000"))
+                config.extractorType = ExtractorType_FAST_BRIEF_1000;
+            else if (!strcmp(argv[i], "FAST_BRIEF_2000"))
+                config.extractorType = ExtractorType_FAST_BRIEF_2000;
+            else if (!strcmp(argv[i], "FAST_BRIEF_4000"))
+                config.extractorType = ExtractorType_FAST_BRIEF_4000;
             else if (!strcmp(argv[i], "FAST_ORBS_1000"))
                 config.extractorType = ExtractorType_FAST_ORBS_1000;
             else if (!strcmp(argv[i], "FAST_ORBS_2000"))

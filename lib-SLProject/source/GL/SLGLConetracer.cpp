@@ -17,7 +17,8 @@
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
-SLGLConetracer::SLGLConetracer()
+SLGLConetracer::SLGLConetracer(SLstring shaderFilePath)
+  : _shaderFilePath(shaderFilePath)
 {
     //SL_LOG("Constructor     : SLGLConetracer");
 }
@@ -57,9 +58,9 @@ void SLGLConetracer::init(SLint          scrW,
 
     // Initialize voxelization:
     SLGLProgram* voxelizeShader = new SLGLGenericProgram(nullptr,
-                                                         "CTVoxelization.vert",
-                                                         "CTVoxelization.frag",
-                                                         "CTVoxelization.geom");
+                                                         _shaderFilePath + "CTVoxelization.vert",
+                                                         _shaderFilePath + "CTVoxelization.frag",
+                                                         _shaderFilePath + "CTVoxelization.geom");
     voxelizeShader->initRaw();
     _programs.push_back(voxelizeShader);
     _voxelizeMat = new SLMaterial(nullptr, "Voxelization-Material", voxelizeShader);
@@ -67,24 +68,24 @@ void SLGLConetracer::init(SLint          scrW,
 
     // initialize voxel visualization:
     SLGLProgram* worldPosProg = new SLGLGenericProgram(nullptr,
-                                                       "CTWorldpos.vert",
-                                                       "CTWorldpos.frag");
+                                                       _shaderFilePath + "CTWorldpos.vert",
+                                                       _shaderFilePath + "CTWorldpos.frag");
     worldPosProg->initRaw();
     _programs.push_back(worldPosProg);
     _worldMat = new SLMaterial(nullptr, "World-Material", worldPosProg);
 
     // initialize voxel visualization:
     SLGLProgram* visualizeShader = new SLGLGenericProgram(nullptr,
-                                                          "CTVisualize.vert",
-                                                          "CTVisualize.frag");
+                                                          _shaderFilePath + "CTVisualize.vert",
+                                                          _shaderFilePath + "CTVisualize.frag");
     visualizeShader->initRaw();
     _programs.push_back(visualizeShader);
     _visualizeMat = new SLMaterial(nullptr, "World-Material", visualizeShader);
 
     // initialize voxel conetracing material:
     SLGLProgram* ctShader = new SLGLGenericProgram(nullptr,
-                                                   "CT.vert",
-                                                   "CT.frag");
+                                                   _shaderFilePath + "CT.vert",
+                                                   _shaderFilePath + "CT.frag");
     ctShader->initRaw();
     _programs.push_back(ctShader);
     _conetraceMat = new SLMaterial(nullptr, "Conetrace Material", ctShader);

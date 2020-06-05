@@ -18,12 +18,7 @@ public:
                   SLInputManager&     inputManager,
                   const ImGuiEngine&  imGuiEngine,
                   ErlebAR::Resources& resources,
-                  int                 screenWidth,
-                  int                 screenHeight,
-                  int                 dotsPerInch,
-                  std::string         fontPath,
-                  std::string         texturePath,
-                  std::string         imguiIniPath);
+                  const DeviceData&   deviceData);
     SelectionView() = delete;
     bool update();
 

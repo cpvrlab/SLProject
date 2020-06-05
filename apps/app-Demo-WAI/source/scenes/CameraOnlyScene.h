@@ -7,7 +7,7 @@
 class CameraOnlyScene : public SLScene
 {
 public:
-    CameraOnlyScene(std::string name);
+    CameraOnlyScene(std::string name, std::string dataDir);
 
     void updateVideoImage(const cv::Mat& image);
     void build();
@@ -20,6 +20,8 @@ private:
 
     SLNode*      _mapNode    = nullptr;
     SLGLTexture* _videoImage = nullptr;
+
+    std::string _dataDir;
 };
 
 #endif // !AREA_TRACKING_SCENE_H

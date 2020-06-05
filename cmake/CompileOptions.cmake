@@ -1,10 +1,9 @@
-
 # 
 # Platform and architecture setup
 # 
-
 # Get upper case system name
 string(TOUPPER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_UPPER)
+message(STATUS "SYSTEM_NAME_UPPER: ${SYSTEM_NAME_UPPER} (CompileOptions.cmake)")
 
 # Determine architecture (32/64 bit)
 set(X64 OFF)
@@ -37,11 +36,10 @@ set(DEFAULT_COMPILE_DEFINITIONS
     )
 
 if (SL_BUILD_WAI)
-set(DEFAULT_COMPILE_DEFINITIONS
-    ${DEFAULT_COMPILE_DEFINITIONS}
-    SL_BUILD_WAI)
+	set(DEFAULT_COMPILE_DEFINITIONS
+	    ${DEFAULT_COMPILE_DEFINITIONS}
+	    SL_BUILD_WAI)
 endif()
-#message(STATUS "DEFAULT_COMPILE_DEFINITIONS ${DEFAULT_COMPILE_DEFINITIONS}")
 
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
@@ -66,14 +64,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         /wd4804       # -> disable warning: unsichere Verwendung des Typs "bool" in einer Operation	C:\Users\hsm4\Documents\GitHub\SLProject	C:\Users\hsm4\Documents\GitHub\SLProject\lib-SLProject\include\SLMaterial.h	88	
 
         /bigobj
-        
+    
         $<$<CONFIG:Release>: 
         /Gw           # -> whole program global optimization
         /GS-          # -> buffer security check: no 
         /GL           # -> whole program optimization: enable link-time code generation (disables Zi)
         /GF           # -> enable string pooling
         >
-        
+    
         # No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
     )
 endif ()
@@ -130,6 +128,21 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
                 -std=c++14
             >
     )
+
+	if ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+		#iOS minimum supported version (deployment target version of iOS)
+		set(DEPLOYMENT_TARGET 8.0)
+
+		set(DEFAULT_PROJECT_OPTIONS
+			${DEFAULT_PROJECT_OPTIONS}
+			XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
+		)
+	
+	    set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
+			-fobjc-arc #enable automatic reference counting
+		)
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS} -fobjc-arc" )
+	endif()
 endif ()
 
 set(EXTERNAL_LIB_COMPILE_OPTIONS)

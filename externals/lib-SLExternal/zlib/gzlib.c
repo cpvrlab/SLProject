@@ -3,8 +3,9 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma GCC diagnostic ignored "-Wall"
+#endif
 
 #include "gzguts.h"
 
@@ -635,4 +636,3 @@ unsigned ZLIB_INTERNAL gz_intmax()
     return q >> 1;
 }
 #endif
-#pragma GCC diagnostic pop

@@ -9,8 +9,11 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 
-AppWAIScene::AppWAIScene(SLstring name)
-  : SLScene(name, nullptr) {}
+AppWAIScene::AppWAIScene(SLstring name, std::string dataDir)
+  : SLScene(name, nullptr),
+    _dataDir(Utils::unifySlashes(dataDir))
+{
+}
 
 void AppWAIScene::loadMesh(std::string path)
 {
@@ -19,6 +22,7 @@ void AppWAIScene::loadMesh(std::string path)
     augmentationRoot = importer.load(_animManager,
                                      &assets,
                                      path,
+                                     _dataDir + "images/textures/",
                                      true,
                                      nullptr,
                                      0.4f);
@@ -42,9 +46,9 @@ void AppWAIScene::loadMesh(std::string path)
 
     // Create directional light for the sun light
     SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-    light->ambient(SLCol4f(0.3, 0.3, 0.3));
-    light->diffuse(SLCol4f(1.0, 0.7, 1.0));
-    light->specular(SLCol4f(1, 1, 1));
+    light->ambientColor(SLCol4f(0.3, 0.3, 0.3));
+    light->diffuseColor(SLCol4f(1.0, 0.7, 1.0));
+    light->specularColor(SLCol4f(1, 1, 1));
     light->attenuation(1, 0, 0);
     light->translation(0, 10, 0);
     light->lookAt(10, 0, 10);
@@ -76,17 +80,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     loopEdges         = new SLNode("LoopEdges");
 
     redMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
-    redMat->program(new SLGLGenericProgram(&assets, "ColorUniformPoint.vert", "Color.frag"));
+    redMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
     greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::GREEN, "Green");
-    greenMat->program(new SLGLGenericProgram(&assets, "ColorUniformPoint.vert", "Color.frag"));
+    greenMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
     blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::BLUE, "Blue");
-    blueMat->program(new SLGLGenericProgram(&assets, "ColorUniformPoint.vert", "Color.frag"));
+    blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
     yellowMat = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
 
-    _videoImage = new SLGLTexture(&assets, "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+    _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     cameraNode->background().texture(_videoImage);
 
     if (location == "avenches")
@@ -94,29 +98,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "entrance" || area == "arena")
         {
-#ifdef SL_OS_ANDROID
-            modelPath = SLImporter::defaultPath + "AvenchesEntrance.gltf";
-#else
-            modelPath             = SLImporter::defaultPath + "GLTF/Avenches/AvenchesEntrance.gltf";
-#endif
+            modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-#ifdef SL_OS_ANDROID
-            modelPath = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf";
-#else
-            modelPath             = SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Cigognier1.gltf";
-#endif
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "theater-marker")
         {
-#ifdef SL_OS_ANDROID
-            modelPath = SLImporter::defaultPath + "Aventicum-Theater1.gltf";
-#else
-            modelPath             = SLImporter::defaultPath + "GLTF/Avenches/Aventicum-Theater1.gltf";
-#endif
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
             loadMesh(modelPath);
         }
     }
@@ -124,20 +116,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     {
         if (area == "templeHill-marker")
         {
-#ifdef SL_OS_ANDROID
-            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
-#else
-            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-#endif
+            std::string      modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
             SLAssimpImporter importer;
-            // TODO(dgj1): this is a hack for android... fix it better
+
             if (!Utils::fileExists(modelPath))
             {
-                modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
+                modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
             }
             augmentationRoot = importer.load(_animManager,
                                              &assets,
                                              modelPath,
+                                             _dataDir + "images/textures/",
                                              true,
                                              nullptr,
                                              0.4f);
@@ -156,9 +145,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
             // Create directional light for the sun light
             SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambient(SLCol4f(1, 1, 1));
-            light->diffuse(SLCol4f(1, 1, 1));
-            light->specular(SLCol4f(1, 1, 1));
+            light->ambientColor(SLCol4f(1, 1, 1));
+            light->diffuseColor(SLCol4f(1, 1, 1));
+            light->specularColor(SLCol4f(1, 1, 1));
             light->attenuation(1, 0, 0);
             light->translation(0, 10, 0);
             light->lookAt(10, 0, 10);
@@ -168,15 +157,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         }
         else if (area == "templeHillTheaterBottom")
         {
-#ifdef SL_OS_ANDROID
-            std::string modelPath = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-#else
-            std::string modelPath = SLImporter::defaultPath + "Tempel-Theater-02.gltf";
-#endif
+            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+
             SLAssimpImporter importer;
             augmentationRoot = importer.load(_animManager,
                                              &assets,
                                              modelPath,
+                                             _dataDir + "images/textures/",
                                              true,
                                              nullptr,
                                              0.4f);
@@ -195,9 +182,46 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
             // Create directional light for the sun light
             SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambient(SLCol4f(1, 1, 1));
-            light->diffuse(SLCol4f(1, 1, 1));
-            light->specular(SLCol4f(1, 1, 1));
+            light->ambientColor(SLCol4f(1, 1, 1));
+            light->diffuseColor(SLCol4f(1, 1, 1));
+            light->specularColor(SLCol4f(1, 1, 1));
+            light->attenuation(1, 0, 0);
+            light->translation(0, 10, 0);
+            light->lookAt(10, 0, 10);
+
+            _root3D->addChild(augmentationRoot);
+            _root3D->addChild(light);
+        }
+        else if (area == "templeHillTheater")
+        {
+            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+
+            SLAssimpImporter importer;
+            augmentationRoot = importer.load(_animManager,
+                                             &assets,
+                                             modelPath,
+                                             _dataDir + "images/textures/",
+                                             true,
+                                             nullptr,
+                                             0.4f);
+
+            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
+            if (portikusSockel)
+            {
+                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
+            if (boden)
+            {
+                boden->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+
+            // Create directional light for the sun light
+            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
+            light->ambientColor(SLCol4f(1, 1, 1));
+            light->diffuseColor(SLCol4f(1, 1, 1));
+            light->specularColor(SLCol4f(1, 1, 1));
             light->attenuation(1, 0, 0);
             light->translation(0, 10, 0);
             light->lookAt(10, 0, 10);

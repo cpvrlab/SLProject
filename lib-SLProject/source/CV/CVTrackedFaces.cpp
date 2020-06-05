@@ -18,6 +18,7 @@ for a good top down information.
 */
 #include <CVTrackedFaces.h>
 #include <Utils.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for the facial landmark tracker
@@ -102,6 +103,8 @@ bool CVTrackedFaces::track(CVMat          imageGray,
                            CVMat          imageRgb,
                            CVCalibration* calib)
 {
+    PROFILE_FUNCTION();
+
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");

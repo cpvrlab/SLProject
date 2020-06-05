@@ -8,17 +8,15 @@
 #include <SLSceneView.h>
 #include <SLAssetManager.h>
 #include <HighResTimer.h>
+#include <DeviceData.h>
 
 class SLTexFont;
 
 class StartUpView : public View
 {
 public:
-    StartUpView(SLInputManager& inputManager,
-                int             screenWidth,
-                int             screenHeight,
-                int             dotsPerInch,
-                std::string     imguiIniPath);
+    StartUpView(SLInputManager&   inputManager,
+                const DeviceData& deviceData);
     ~StartUpView();
     bool update() override;
 

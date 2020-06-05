@@ -49,15 +49,16 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::CAMERA_TEST>((unsigned int)StateId::CAMERA_TEST);
 }
 
-void ErlebARApp::init(int            scrWidth,
-                      int            scrHeight,
-                      int            dpi,
-                      AppDirectories dirs,
-                      SENSCamera*    camera)
+void ErlebARApp::init(int                scrWidth,
+                      int                scrHeight,
+                      int                dpi,
+                      const std::string& dataDir,
+                      const std::string& writableDir,
+                      SENSCamera*        camera)
 {
     //store camera so we can stop on terminate
     _camera = camera;
-    addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dirs));
+    addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dataDir, writableDir));
 }
 
 void ErlebARApp::goBack()
@@ -153,44 +154,23 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     if (data == nullptr)
         return;
 
-    const DeviceData&  dd         = data->deviceData;
-    const std::string& slDataRoot = data->deviceData.dirs().slDataRoot;
-    // setup magic paths
-    SLGLProgram::defaultPath      = slDataRoot + "/shaders/";
-    SLGLTexture::defaultPath      = slDataRoot + "/images/textures/";
-    SLGLTexture::defaultPathFonts = slDataRoot + "/images/fonts/";
-    SLAssimpImporter::defaultPath = slDataRoot + "/models/";
+    const DeviceData& dd = data->deviceData;
 
-    _resources = new ErlebAR::Resources(dd.scrWidth(),
-                                        dd.scrHeight(),
-                                        dd.dirs().writableDir,
-                                        dd.textureDir(),
-                                        dd.fontDir(),
-                                        data->deviceData.dirs().slDataRoot);
-
-    _imGuiEngine = new ImGuiEngine(dd.dirs().writableDir, _resources->fonts().atlas());
+    SLGLProgramManager::init(dd.shaderDir());
+    _resources   = new ErlebAR::Resources(dd);
+    _imGuiEngine = new ImGuiEngine(dd.writableDir(), _resources->fonts().atlas());
 
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
                                        *_imGuiEngine,
                                        *_resources,
-                                       dd.scrWidth(),
-                                       dd.scrHeight(),
-                                       dd.dpi(),
-                                       dd.fontDir(),
-                                       dd.textureDir(),
-                                       dd.dirs().writableDir);
+                                       dd);
 
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
                                    *_imGuiEngine,
-                                   dd.scrWidth(),
-                                   dd.scrHeight(),
-                                   dd.dpi(),
-                                   dd.fontDir(),
-                                   dd.textureDir(),
-                                   dd.dirs().writableDir,
+                                   dd,
                                    "0.12");
 
     _testView = new TestView(*this,
@@ -198,103 +178,60 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                              *_imGuiEngine,
                              *_resources,
                              _camera,
-                             dd.scrWidth(),
-                             dd.scrHeight(),
-                             dd.dpi(),
-                             dd.fontDir(),
-                             dd.dirs().writableDir,
-                             dd.dirs().vocabularyDir,
-                             dd.calibDir(),
-                             dd.videoDir());
+                             dd);
 
     _testRunnerView = new TestRunnerView(*this,
                                          _inputManager,
                                          *_imGuiEngine,
                                          *_resources,
-                                         dd.scrWidth(),
-                                         dd.scrHeight(),
-                                         dd.dpi(),
-                                         dd.dirs().writableDir + "erleb-AR/",
-                                         dd.dirs().writableDir + "calibrations/",
-                                         dd.fontDir(),
-                                         dd.dirs().vocabularyDir,
-                                         dd.dirs().writableDir);
+                                         dd);
 
     _startUpView = new StartUpView(_inputManager,
-                                   dd.scrWidth(),
-                                   dd.scrHeight(),
-                                   dd.dpi(),
-                                   dd.dirs().writableDir);
+                                   dd);
 
     _aboutView = new AboutView(*this,
                                _inputManager,
                                *_imGuiEngine,
                                *_resources,
-                               dd.scrWidth(),
-                               dd.scrHeight(),
-                               dd.dpi(),
-                               dd.dirs().writableDir);
+                               dd);
 
     _settingsView = new SettingsView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
                                      *_resources,
-                                     dd.scrWidth(),
-                                     dd.scrHeight(),
-                                     dd.dpi(),
-                                     dd.dirs().writableDir);
+                                     dd);
 
     _tutorialView = new TutorialView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
                                      *_resources,
-                                     dd.scrWidth(),
-                                     dd.scrHeight(),
-                                     dd.dpi(),
-                                     dd.fontDir(),
-                                     dd.dirs().writableDir,
-                                     dd.textureDir());
+                                     dd);
 
     _locationMapView = new LocationMapView(*this,
                                            _inputManager,
                                            *_imGuiEngine,
                                            *_resources,
-                                           dd.scrWidth(),
-                                           dd.scrHeight(),
-                                           dd.dpi(),
-                                           dd.dirs().writableDir,
-                                           dd.erlebARDir());
+                                           dd);
 
     _areaInfoView = new AreaInfoView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
                                      *_resources,
-                                     dd.scrWidth(),
-                                     dd.scrHeight(),
-                                     dd.dpi(),
-                                     dd.dirs().writableDir);
+                                     dd);
 
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
                                              *_imGuiEngine,
                                              *_resources,
                                              _camera,
-                                             dd.scrWidth(),
-                                             dd.scrHeight(),
-                                             dd.dpi(),
-                                             dd.dirs().writableDir,
-                                             dd.dirs().vocabularyDir,
-                                             dd.erlebARDir());
+                                             dd);
 
     _cameraTestView = new CameraTestView(*this,
                                          _inputManager,
                                          *_imGuiEngine,
                                          *_resources,
                                          _camera,
-                                         dd.scrWidth(),
-                                         dd.scrHeight(),
-                                         dd.dpi(),
-                                         dd.dirs().writableDir);
+                                         dd);
 
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }

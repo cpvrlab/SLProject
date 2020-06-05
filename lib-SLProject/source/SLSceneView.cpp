@@ -18,6 +18,7 @@
 #include <SLSceneView.h>
 #include <GlobalTimer.h>
 #include <SLInputManager.h>
+#include <Instrumentor.h>
 
 #include <utility>
 
@@ -428,8 +429,8 @@ void SLSceneView::onInitialize()
     if (gl3wIsSupported(4, 4))
     {
         // The world's bounding box should not change during runtime.
-        if (_s && _s->root3D())
-            _conetracer.init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
+        if (_s && _s->root3D() && _conetracer)
+            _conetracer->init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
     }
 #endif
 
@@ -487,6 +488,8 @@ the 2D or 3D graph was updated or waitEvents is false.
 */
 SLbool SLSceneView::onPaint()
 {
+    PROFILE_FUNCTION();
+
     _shadowMapTimesMS.set(_shadowMapTimeMS);
     _cullTimesMS.set(_cullTimeMS);
     _draw3DTimesMS.set(_draw3DTimeMS);
@@ -613,6 +616,8 @@ is drawn.
 */
 SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 {
+    PROFILE_FUNCTION();
+
     SLGLState* stateGL = SLGLState::instance();
 
     preDraw();
@@ -761,6 +766,8 @@ pass only the alpha meshes and in the opaque pass only the opaque meshes.
 */
 void SLSceneView::draw3DGLAll()
 {
+    PROFILE_FUNCTION();
+
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
     draw3DGLNodes(_nodesVisible, false, false);
     draw3DGLLines(_nodesVisible);
@@ -837,6 +844,8 @@ Yellow: AABB of selected node
 */
 void SLSceneView::draw3DGLLines(SLVNode& nodes)
 {
+    PROFILE_FUNCTION();
+
     if (nodes.empty()) return;
 
     SLGLState* stateGL = SLGLState::instance();
@@ -885,6 +894,8 @@ as overlayed
 */
 void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
+    PROFILE_FUNCTION();
+
     // draw the opaque shapes directly w. their wm transform
     for (auto* node : nodes)
     {
@@ -973,6 +984,8 @@ update is done to the 2D scenegraph.
 */
 void SLSceneView::draw2DGL()
 {
+    PROFILE_FUNCTION();
+
     SLGLState* stateGL = SLGLState::instance();
     SLfloat    startMS = GlobalTimer::timeMS();
 
@@ -1043,6 +1056,8 @@ SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
 */
 void SLSceneView::draw2DGLNodes()
 {
+    PROFILE_FUNCTION();
+
     SLfloat    depth   = 1.0f;                           // Render depth between -1 & 1
     SLfloat    cs      = std::min(_scrW, _scrH) * 0.01f; // center size
     SLGLState* stateGL = SLGLState::instance();
@@ -1673,6 +1688,11 @@ Returns the window title with name & FPS
 SLstring SLSceneView::windowTitle()
 {
     SLchar title[255];
+    SLstring profiling = "";
+
+#if PROFILING
+    profiling = " *** PROFILING *** ";
+#endif
 
     if (_renderType == RT_rt)
     {
@@ -1717,7 +1737,7 @@ SLstring SLSceneView::windowTitle()
                     nr,
                     _stats3D.numNodes);
     }
-    return SLstring(title);
+    return profiling + SLstring(title) + profiling;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1914,10 +1934,15 @@ SLbool SLSceneView::draw3DCT()
     //SL_LOG("Rendering VXC ");
     SLfloat startMS = GlobalTimer::timeMS();
 
-    SLbool rendered = _conetracer.render(this);
+    SLbool rendered = _conetracer->render(this);
 
     _draw3DTimeMS = GlobalTimer::timeMS() - startMS;
 
     return true;
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::initConeTracer(SLstring shaderDir)
+{
+    _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
 }
 //-----------------------------------------------------------------------------

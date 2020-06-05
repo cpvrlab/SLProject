@@ -10,6 +10,7 @@
 
 #include <CVTrackedWAI.h>
 #include <SL.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)
@@ -50,6 +51,8 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                          CVMat          imageRgb,
                          CVCalibration* calib)
 {
+    PROFILE_FUNCTION();
+
     bool result = false;
 
     float startMS = _timer.elapsedTimeInMilliSec();

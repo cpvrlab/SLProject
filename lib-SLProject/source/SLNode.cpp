@@ -17,6 +17,7 @@
 #include <SLLightSpot.h>
 #include <SLNode.h>
 #include <SLSceneView.h>
+#include <Instrumentor.h>
 
 #include <utility>
 
@@ -452,6 +453,8 @@ _blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
 {
+    //PROFILE_FUNCTION();
+
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this) != typeid(SLCamera) &&
@@ -464,7 +467,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
         _aabb.isVisible(true);
 
     // Cull the group nodes recursively
-    if (_aabb.isVisible())
+    if (_aabb.isVisible() && !this->drawBit(SL_DB_HIDDEN))
     {
         for (auto* child : _children)
             child->cull3DRec(sv);
@@ -485,12 +488,15 @@ void SLNode::cull3DRec(SLSceneView* sv)
             sv->nodesOverdrawn()->push_back(this);
         }
     }
-} //-----------------------------------------------------------------------------
+}
+//-----------------------------------------------------------------------------
 /*!
 Adds all 2D Nodes to the visible nodes vector
 */
 void SLNode::cull2DRec(SLSceneView* sv)
 {
+    //PROFILE_FUNCTION();
+
     _aabb.isVisible(true);
 
     // Cull the group nodes recursively
@@ -514,6 +520,8 @@ The drawRec method is <b>still used</b> for the rendering of the 2D menu!
 */
 void SLNode::drawRec(SLSceneView* sv)
 {
+    //PROFILE_FUNCTION();
+
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() && !_aabb.isVisible()) return;
 
@@ -566,6 +574,8 @@ and calls recursively the same method for all children.
 */
 void SLNode::statsRec(SLNodeStats& stats)
 {
+    //PROFILE_FUNCTION();
+
     stats.numBytes += sizeof(SLNode);
     stats.numNodes++;
 
@@ -687,6 +697,8 @@ the next time it is requested by updateAndGetWM().
 */
 void SLNode::needUpdate()
 {
+    //PROFILE_FUNCTION();
+
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
         return;
@@ -1199,6 +1211,8 @@ SLNode::skeleton()
 //-----------------------------------------------------------------------------
 void SLNode::updateRec()
 {
+    //PROFILE_FUNCTION();
+
     doUpdate();
     for (auto* child : _children)
         child->updateRec();

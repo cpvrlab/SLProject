@@ -20,6 +20,7 @@
 #include <FtpUtils.h>
 #include <GlobalTimer.h>
 #include <SLProjectScene.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -41,6 +42,8 @@ SLNode* trackedNode = nullptr;
 //but we have to update the tracking camera only!
 void updateTrackingSceneCamera(CVCamera* ac)
 {
+    PROFILE_FUNCTION();
+
     if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
     {
         SLCamera* trackingCam = dynamic_cast<SLCamera*>(trackedNode);
@@ -51,6 +54,8 @@ void updateTrackingSceneCamera(CVCamera* ac)
 //CVCalibrationEstimator* calibrationEstimator = nullptr;
 void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     AppDemoSceneView* adSv                 = dynamic_cast<AppDemoSceneView*>(sv);
     static bool       processedCalibResult = false;
     try
@@ -151,6 +156,8 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 //! logic that ensures that we have a valid calibration state
 void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     //we have to make sure calibration process is stopped if someone stopps calibrating
     if (SLApplication::calibrationEstimator)
     {
@@ -202,6 +209,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 */
 bool onUpdateVideo()
 {
+    PROFILE_FUNCTION();
+
     if (SLApplication::sceneViews.empty())
         return false;
 

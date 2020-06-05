@@ -24,6 +24,7 @@
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 #include <GLFW/glfw3.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
@@ -66,6 +67,8 @@ onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
+    PROFILE_SCOPE("GLFW::onPaint");
+
     if (SLApplication::sceneViews.empty())
         return false;
     SLSceneView* sv = SLApplication::sceneViews[svIndex];
@@ -570,19 +573,20 @@ void initSL(SLVstring& cmdLineArgs)
     slSetupExternalDir(projectRoot + "/data/");
     //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
+    //setup platform dependent data path
     SLApplication::calibFilePath = configDir;
-    CVImage::defaultPath         = projectRoot + "/data/images/textures/";
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),
-                                            SLApplication::calibFilePath,   // for calibrations made
-                                            projectRoot + "/data/videos/"); // for videos
+                                            SLApplication::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
+                        projectRoot + "/data/",
                         projectRoot + "/data/shaders/",
                         projectRoot + "/data/models/",
                         projectRoot + "/data/images/textures/",
                         projectRoot + "/data/images/fonts/",
+                        projectRoot + "/data/videos/",
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);

@@ -14,6 +14,7 @@
 #include <Utils.h>
 #include <SLKeyframeCamera.h>
 #include <GlobalTimer.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
@@ -70,8 +71,6 @@ SLScene::SLScene(const SLstring& name,
     _fps              = 0;
     _frameTimeMS      = 0;
     _lastUpdateTimeMS = 0;
-
-    _oculus.init();
 }
 //-----------------------------------------------------------------------------
 /*! The destructor does the final total deallocation of all global resources.
@@ -144,6 +143,8 @@ void SLScene::unInit()
 bool SLScene::onUpdate(bool renderTypeIsRT,
                        bool voxelsAreShown)
 {
+    PROFILE_FUNCTION();
+
     /////////////////////////////
     // 1) Calculate frame time //
     /////////////////////////////
@@ -308,5 +309,11 @@ SLCamera* SLScene::nextCameraInScene(SLCamera* activeSVCam)
              !dynamic_cast<SLKeyframeCamera*>(cams[(uint)activeIndex])->allowAsActiveCam());
 
     return cams[(uint)activeIndex];
+}
+//-----------------------------------------------------------------------------
+void SLScene::initOculus(SLstring shaderDir)
+{
+    _oculus = std::make_unique<SLGLOculus>(shaderDir);
+    _oculus->init();
 }
 //-----------------------------------------------------------------------------

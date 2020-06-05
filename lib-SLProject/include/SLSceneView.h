@@ -134,6 +134,7 @@ public:
     void     setViewportFromRatio(const SLVec2i&  vpRatio,
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
+    void     initConeTracer(SLstring shaderDir);
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
@@ -195,7 +196,7 @@ public:
     SLVNode*        nodesOverdrawn() { return &_nodesOverdrawn; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
-    SLGLConetracer* conetracer() { return &_conetracer; }
+    SLGLConetracer* conetracer() { return _conetracer.get(); }
     SLRenderType    renderType() const { return _renderType; }
     SLGLOculusFB*   oculusFB() { return &_oculusFB; }
     SLDrawBits*     drawBits() { return &_drawBits; }
@@ -273,11 +274,11 @@ protected:
     SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
     SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
 
-    SLRaytracer    _raytracer;  //!< Whitted style raytracer
-    SLbool         _stopRT;     //!< Flag to stop the RT
-    SLPathtracer   _pathtracer; //!< Pathtracer
-    SLbool         _stopPT;     //!< Flag to stop the PT
-    SLGLConetracer _conetracer; //!< Conetracer CT
+    SLRaytracer                     _raytracer;  //!< Whitted style raytracer
+    SLbool                          _stopRT;     //!< Flag to stop the RT
+    SLPathtracer                    _pathtracer; //!< Pathtracer
+    SLbool                          _stopPT;     //!< Flag to stop the PT
+    std::unique_ptr<SLGLConetracer> _conetracer; //!< Conetracer CT
 
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix

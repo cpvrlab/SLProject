@@ -111,12 +111,8 @@ void CVTrackedFeatures::loadMarker(string markerFilename)
     // Load the file directly
     if (!Utils::fileExists(markerFilename))
     {
-        markerFilename = CVImage::defaultPath + markerFilename;
-        if (!Utils::fileExists(markerFilename))
-        {
-            string msg = "CVTrackedFeatures::loadMarker: File not found: " + markerFilename;
-            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
-        }
+        string msg = "CVTrackedFeatures::loadMarker: File not found: " + markerFilename;
+        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
     CVImage img(markerFilename);

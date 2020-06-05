@@ -16,47 +16,36 @@ TestView::TestView(sm::EventHandler&   eventHandler,
                    const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
                    SENSCamera*         camera,
-                   int                 screenWidth,
-                   int                 screenHeight,
-                   int                 dotsPerInch,
-                   std::string         fontPath,
-                   std::string         configDir,
-                   std::string         vocabularyDir,
-                   std::string         calibDir,
-                   std::string         videoDir)
-  : SLSceneView(&_scene, dotsPerInch, inputManager),
+                   const DeviceData&   deviceData)
+  : SLSceneView(&_scene, deviceData.dpi(), inputManager),
     _gui(
       imGuiEngine,
       eventHandler,
       resources,
       "TestScene",
-      dotsPerInch,
-      screenWidth,
-      screenHeight,
-      configDir,
-      fontPath,
-      vocabularyDir,
+      deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),
       _eventQueue,
       [&]() { return _mode; },                   //getter callback for current mode
       [&]() { return _camera; },                 //getter callback for current camera
       [&]() { return &_calibration; },           //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
-    _scene("TestScene"),
+    _scene("TestScene", deviceData.dataDir()),
     _camera(camera),
-    _configDir(configDir),
-    _vocabularyDir(vocabularyDir),
-    _calibDir(calibDir),
-    _videoDir(videoDir)
+    _configDir(deviceData.writableDir()),
+    _vocabularyDir(deviceData.vocabularyDir()),
+    _calibDir(deviceData.erlebARCalibTestDir()),
+    _videoDir(deviceData.erlebARTestDir() + "videos/"),
+    _dataDir(deviceData.dataDir())
 {
     scene(&_scene);
-    init("TestSceneView", screenWidth, screenHeight, nullptr, nullptr, &_gui, _configDir);
+    init("TestSceneView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, _configDir);
     _scene.init();
     onInitialize();
     _fillAutoCalibration = false;
     _voc                 = new WAIOrbVocabulary();
 
-    setupDefaultErlebARDirTo(_configDir);
+    setupDefaultErlebARDirTo(deviceData.erlebARTestDir());
     //tryLoadLastSlam();
 }
 
@@ -109,7 +98,7 @@ bool TestView::update()
 
                 if (_fillAutoCalibration)
                 {
-                    WAIFrame lastFrame = _mode->getLastFrame();
+                    WAIFrame                                                      lastFrame = _mode->getLastFrame();
                     std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>> matching;
                     _mode->getMatchedCorrespondances(&lastFrame, matching);
                     _autoCal->fillFrame(matching, lastFrame.mTcw);
@@ -273,7 +262,7 @@ void TestView::handleEvents()
 
                 if (!_transformationNode)
                 {
-                    _transformationNode = new SLTransformNode(this, _scene.root3D()->findChild<SLNode>("map"));
+                    _transformationNode = new SLTransformNode(this, _scene.root3D()->findChild<SLNode>("map"), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
@@ -776,12 +765,6 @@ void TestView::setupDefaultErlebARDirTo(std::string dir)
     if (!Utils::dirExists(dir + "calibrations/"))
     {
         Utils::makeDir(dir + "calibrations/");
-    }
-
-    dir += "erleb-AR/";
-    if (!Utils::dirExists(dir))
-    {
-        Utils::makeDir(dir);
     }
 
     dir += "locations/";

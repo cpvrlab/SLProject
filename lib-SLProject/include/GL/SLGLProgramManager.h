@@ -32,7 +32,8 @@ enum SLStdShaderProg
     SP_fontTex,
     SP_stereoOculus,
     SP_stereoOculusDistortion,
-    SP_depth
+    SP_depth,
+    SP_errorTex
 };
 
 //-----------------------------------------------------------------------------
@@ -46,6 +47,9 @@ enum SLStdShaderProg
 class SLGLProgramManager
 {
 public:
+    //! Init by providing path to standard shader files
+    static void init(std::string shaderDir);
+
     //! Get program reference for given id
     static SLGLGenericProgram* get(SLStdShaderProg id);
 
@@ -61,6 +65,8 @@ private:
 
     //! Instantiated programs
     static std::map<SLStdShaderProg, SLGLGenericProgram*> _programs;
+    //! Directory containing all standard shaders
+    static std::string _shaderDir;
 };
 //-----------------------------------------------------------------------------
 

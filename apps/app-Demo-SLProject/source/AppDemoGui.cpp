@@ -38,12 +38,16 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
-#include <Eigen/Dense>
+#include <Instrumentor.h>
+
+#ifdef SL_BUILD_WAI
+#    include <Eigen/Dense>
+#endif
 
 //-----------------------------------------------------------------------------
-// Global pointers declared in AppDemoTracking
-extern CVTracked* tracker;
-extern SLNode*    trackedNode;
+extern CVTracked*   tracker;     // Global pointer declared in AppDemoTracking
+extern SLNode*      trackedNode; // Global pointer declared in AppDemoTracking
+extern SLGLTexture* gTexMRI3D;   // Global pointer declared in AppDemoLoad
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -220,6 +224,8 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
  */
 void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     ///////////////////////////////////
     // Show modeless fullscreen dialogs
     ///////////////////////////////////
@@ -270,8 +276,12 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::SetNextWindowViewport(viewport->ID);
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-                window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-                window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+                window_flags |= ImGuiWindowFlags_NoTitleBar |
+                                ImGuiWindowFlags_NoCollapse |
+                                ImGuiWindowFlags_NoResize |
+                                ImGuiWindowFlags_NoMove |
+                                ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                ImGuiWindowFlags_NoNavFocus;
             }
 
             // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
@@ -722,7 +732,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
-
+#ifdef SL_BUILD_WAI
         if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
         {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -742,7 +752,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
-
+#endif
         if (showImGuiMetrics)
         {
             ImGui::ShowMetricsWindow();
@@ -892,11 +902,14 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
             sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
             sprintf(m + strlen(m), "-----------------:\n");
+
+#ifdef SL_BUILD_WAI
             sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
-#ifdef EIGEN_VECTORIZE
+#    ifdef EIGEN_VECTORIZE
             sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
-#else
+#    else
             sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+#    endif
 #endif
             sprintf(m + strlen(m), "-----------------:\n");
             sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
@@ -1139,6 +1152,8 @@ CVCalibration guessCalibration(bool         mirroredH,
 //! Builds the entire menu bar once per frame
 void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     SLSceneID    sid           = SLApplication::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
     CVCapture*   capture       = CVCapture::instance();
@@ -1163,16 +1178,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Minimal);
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-#if !defined(SL_OS_ANDROID) && !defined(SL_OS_IOS)
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
-                        SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_LargeModel);
                         else
                         {
                             auto downloadJob = []() {
-                                SLApplication::jobProgressMsg("Downloading large Dragon file from pallas.bfh.ch");
+                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.bfh.ch");
                                 SLApplication::jobProgressMax(100);
                                 ftplib ftp;
                                 if (ftp.Connect("pallas.bfh.ch:21"))
@@ -1188,12 +1202,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                      &remoteSize,
                                                      ftplib::transfermode::image);
                                             ftpXferSizeMax  = remoteSize;
-                                            SLstring plyDir = SLImporter::defaultPath + "PLY";
+                                            SLstring plyDir = SLApplication::modelPath + "PLY";
                                             if (!Utils::dirExists(plyDir))
                                                 Utils::makeDir(plyDir);
                                             if (Utils::dirExists(plyDir))
                                             {
-                                                SLstring outFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.ply",
                                                              ftplib::transfermode::image))
@@ -1216,7 +1230,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             };
 
                             auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                                SLstring largeFile = SLImporter::defaultPath + "PLY/xyzrgb_dragon.ply";
+                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                                 if (Utils::fileExists(largeFile))
                                     s->onLoad(s, sv, SID_LargeModel);
                             };
@@ -1227,7 +1241,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
-#endif
                     if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
                         s->onLoad(s, sv, SID_MeshLoad);
                     if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
@@ -1335,30 +1348,29 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
                         s->onLoad(s, sv, SID_VideoChristoffel);
 
-                    SLstring modelAR1 = SLImporter::defaultPath + "Tempel-Theater-02.gltf"; // Android
-                    SLstring modelAR2 = SLImporter::defaultPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+                    SLstring modelAR1 = SLApplication::modelPath + "Tempel-Theater-02.gltf"; // Android
+                    SLstring modelAR2 = SLApplication::modelPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
                     if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
                         if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
                             s->onLoad(s, sv, SID_VideoAugustaRaurica);
 
-                    SLstring modelAV11 = SLImporter::defaultPath + "Aventicum-Amphitheater1.gltf"; // Android
-                    SLstring modelAV12 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
+                    SLstring modelAV11 = SLApplication::modelPath + "Aventicum-Amphitheater1.gltf"; // Android
+                    SLstring modelAV12 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
                     if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
                         if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
                             s->onLoad(s, sv, SID_VideoAventicumAmphi);
-                    /*
-                    SLstring modelAV21 = SLImporter::defaultPath + "Aventicum-Theater1.gltf"; // Android
-                    SLstring modelAV22 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
+
+                    SLstring modelAV31 = SLApplication::modelPath + "Aventicum-Cigognier1.gltf"; // Android
+                    SLstring modelAV32 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Cigognier1.gltf";
+                    if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
+                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
+                            s->onLoad(s, sv, SID_VideoAventicumCigognier);
+
+                    SLstring modelAV21 = SLApplication::modelPath + "Aventicum-Theater1.gltf"; // Android
+                    SLstring modelAV22 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
                         if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
                             s->onLoad(s, sv, SID_VideoAventicumTheatre);
-
-                    SLstring modelAV31 = SLImporter::defaultPath + "Aventicum-Cigognier1.gltf"; // Android
-                    SLstring modelAV32 = SLImporter::defaultPath + "GLTF/Aventicum/Aventicum-Cigonier1.gltf";
-                    if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
-                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigonier))
-                            s->onLoad(s, sv, SID_VideoAventicumCigonier);
-                    */
 
                     ImGui::EndMenu();
                 }
@@ -1367,10 +1379,54 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
                         s->onLoad(s, sv, SID_VolumeRayCast);
-#ifndef SL_GLES
+
                     if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid == SID_VolumeRayCastLighted))
-                        s->onLoad(s, sv, SID_VolumeRayCastLighted);
-#endif
+                    {
+                        auto loadMRIImages = []() {
+                            SLApplication::jobProgressMsg("Load MRI Images");
+                            SLApplication::jobProgressMax(100);
+
+                            // Load volume data into 3D texture
+                            SLVstring mriImages;
+                            for (SLint i = 0; i < 207; ++i)
+                                mriImages.push_back(SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
+
+                            gTexMRI3D                   = new SLGLTexture(nullptr,
+                                                        mriImages,
+                                                        GL_LINEAR,
+                                                        GL_LINEAR,
+                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                        "mri_head_front_to_back",
+                                                        true);
+                            SLApplication::jobIsRunning = false;
+                        };
+
+                        auto calculateGradients = []() {
+                            SLApplication::jobProgressMsg("Calculate MRI Volume Gradients");
+                            SLApplication::jobProgressMax(100);
+                            gTexMRI3D->calc3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+                            SLApplication::jobIsRunning = false;
+                        };
+
+                        auto smoothGradients = []() {
+                            SLApplication::jobProgressMsg("Smooth MRI Volume Gradients");
+                            SLApplication::jobProgressMax(100);
+                            gTexMRI3D->smooth3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+                            SLApplication::jobIsRunning = false;
+                        };
+
+                        auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                            s->onLoad(s, sv, SID_VolumeRayCastLighted);
+                        };
+                        function<void(void)> onLoadScene = bind(jobToFollow1, s, sv);
+
+                        SLApplication::jobsToBeThreaded.emplace_back(loadMRIImages);
+                        SLApplication::jobsToBeThreaded.emplace_back(calculateGradients);
+                        //SLApplication::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
+                        SLApplication::jobsToFollowInMain.push_back(onLoadScene);
+                    }
+
                     ImGui::EndMenu();
                 }
 
@@ -1409,7 +1465,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Multithreaded Job demo"))
             {
                 auto job1 = []() {
-                    uint maxIter = 1000000;
+                    uint maxIter = 100000;
                     SLApplication::jobProgressMsg("Super long job 1");
                     SLApplication::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
@@ -2322,8 +2378,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+#ifdef SL_BUILD_WAI
             if (SLApplication::sceneID == SID_VideoTrackWAI)
                 ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
+#endif
             ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
@@ -2354,6 +2412,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 //! Builds the scenegraph dialog once per frame
 void AppDemoGui::buildSceneGraph(SLScene* s)
 {
+    PROFILE_FUNCTION();
+
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Scenegraph", &showSceneGraph);
 
@@ -2367,6 +2427,8 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
 //! Builds the node information once per frame
 void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
+    PROFILE_FUNCTION();
+
     SLbool isSelectedNode = s->selectedNode() == node;
     SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
 
@@ -2413,6 +2475,8 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 //! Builds the properties dialog once per frame
 void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
@@ -3130,7 +3194,11 @@ void AppDemoGui::saveConfig()
     fs << "configTime" << Utils::getLocalTimeString();
     fs << "fontPropDots" << (SLint)SLGLImGui::fontPropDots;
     fs << "fontFixedDots" << (SLint)SLGLImGui::fontFixedDots;
-    fs << "sceneID" << (SLint)SLApplication::sceneID;
+    if (SLApplication::sceneID == SID_VolumeRayCastLighted ||
+        SLApplication::sceneID == SID_VolumeRayCast)
+        fs << "sceneID" << (SLint)SID_Minimal;
+    else
+        fs << "sceneID" << (SLint)SLApplication::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "ScrollbarSize" << (SLfloat)style.ScrollbarSize;
@@ -3162,7 +3230,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->selectedNode());
+        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::dataPath + "shaders");
         s->root3D()->addChild(tN);
     }
 

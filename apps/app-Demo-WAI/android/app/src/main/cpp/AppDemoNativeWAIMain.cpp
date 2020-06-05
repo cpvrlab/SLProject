@@ -93,13 +93,13 @@ private:
     std::string getInternalDir();
     std::string getExternalDir();
     void        extractAPKFolder(std::string internalPath, std::string assetDirPath);
+    void        extractRecursive(AAssetManager* mgr, const std::string& internalPath, const std::string& assetFolder);
 
     android_app* _app;
     //instantiated in fist call to onInit()
     ErlebARApp _earApp;
     bool       _earAppIsInitialized = false;
 
-    AppDirectories _dirs;
     int32_t        _dpi;
 
     EGLConfig  _config;
@@ -159,24 +159,12 @@ void Engine::onInit()
 
         initDisplay();
 
-        std::string path = getInternalDir();
-        extractAPKFolder(path, "images");
-        extractAPKFolder(path, "images/fonts");
-        extractAPKFolder(path, "images/textures");
-        extractAPKFolder(path, "videos");
-        extractAPKFolder(path, "models");
-        extractAPKFolder(path, "shaders");
-        extractAPKFolder(path, "calibrations");
-        extractAPKFolder(path, "config");
-        extractAPKFolder(path, "voc");
-
+        std::string internalPath = getInternalDir();
+        //extract folder data in apk to internalPath + "/data"
+        extractAPKFolder(internalPath, "data");
         std::string externalPath = getExternalDir();
-
-        _dirs.slDataRoot    = path;
-        _dirs.waiDataRoot   = path + "/";
-        _dirs.writableDir   = externalPath + "/";
-        _dirs.vocabularyDir = path + "/voc/";
-        _dirs.logFileDir    = externalPath + "/log/";
+        //extract folder erleb-AR in apk to externalPath + "/erleb-AR"
+        extractAPKFolder(externalPath, "erleb-AR");
 
         AConfiguration* appConfig = AConfiguration_new();
         AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
@@ -185,8 +173,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        //todo: _earApp.init
-        _earApp.init(_width, _height, _dpi, _dirs, _camera);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
         _earAppIsInitialized = true;
     }
     else
@@ -198,7 +185,10 @@ void Engine::onInit()
             _earApp.destroy();
             terminateDisplay();
             initDisplay();
-            _earApp.init(_width, _height, _dpi, _dirs, _camera);
+
+            std::string internalPath = getInternalDir();
+            std::string externalPath = getExternalDir();
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
         }
         else
         {
@@ -207,6 +197,128 @@ void Engine::onInit()
     }
 
     _hasFocus = true;
+}
+
+void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath)
+{
+    JavaVM* jvm            = _app->activity->vm;
+    JNIEnv* env            = nullptr;
+    bool    threadAttached = false;
+
+    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
+    {
+        case JNI_OK:
+        {
+        }
+        break;
+        case JNI_EDETACHED:
+        {
+            jint result = jvm->AttachCurrentThread(&env, nullptr);
+            if (result == JNI_ERR)
+            {
+                //TODO(dgj1): error handling
+                Utils::log("WAI", "Could not attach thread to jvm\n");
+                return;
+            }
+            threadAttached = true;
+        }
+        break;
+        case JNI_EVERSION:
+        {
+            //TODO(dgj1): error handling
+            Utils::log("WAInative", "unsupported java version\n");
+            return;
+        }
+    }
+
+    AAssetManager* mgr = _app->activity->assetManager;
+    extractRecursive(mgr, internalPath, assetDirPath);
+
+    if (threadAttached)
+    {
+        jvm->DetachCurrentThread();
+    }
+}
+
+//With the ndk asset manager there is no way to estimate the directories contained in a directory.
+//Thats why we access java here and retrieve all the directory content with the java asset manager
+//(see: https://github.com/android/ndk-samples/issues/603)
+static std::vector<std::string> listAssets(android_app* app, const char* assetPath)
+{
+    std::vector<std::string> result;
+
+    JNIEnv* env = nullptr;
+    app->activity->vm->AttachCurrentThread(&env, nullptr);
+
+    auto contextObject      = app->activity->clazz;
+    auto getAssetsMethod    = env->GetMethodID(env->GetObjectClass(contextObject), "getAssets", "()Landroid/content/res/AssetManager;");
+    auto assetManagerObject = env->CallObjectMethod(contextObject, getAssetsMethod);
+    auto listMethod         = env->GetMethodID(env->GetObjectClass(assetManagerObject), "list", "(Ljava/lang/String;)[Ljava/lang/String;");
+
+    jstring path_object  = env->NewStringUTF(assetPath);
+    auto    files_object = (jobjectArray)env->CallObjectMethod(assetManagerObject, listMethod, path_object);
+    env->DeleteLocalRef(path_object);
+    auto length = env->GetArrayLength(files_object);
+
+    for (int i = 0; i < length; i++)
+    {
+        jstring     jstr     = (jstring)env->GetObjectArrayElement(files_object, i);
+        const char* filename = env->GetStringUTFChars(jstr, nullptr);
+        if (filename != nullptr)
+        {
+            result.push_back(filename);
+            env->ReleaseStringUTFChars(jstr, filename);
+        }
+        env->DeleteLocalRef(jstr);
+    }
+
+    app->activity->vm->DetachCurrentThread();
+    return result;
+}
+
+void Engine::extractRecursive(AAssetManager* mgr, const std::string& internalPath, const std::string& assetDirPath)
+{
+    //create new output directory
+    std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath);
+    if (Utils::dirExists(outputPath))
+        Utils::removeDir(outputPath);
+    Utils::makeDir(outputPath);
+
+    //check if it contains directory
+    //ATTENTION: we assume that all our files contain a "." and directories do not!
+    std::vector<std::string> assetList = listAssets(_app, assetDirPath.c_str());
+    for (const std::string& s : assetList)
+    {
+        if (s.find('.') == std::string::npos)
+        {
+            //it is a directory, extract it recursively
+            extractRecursive(mgr, internalPath, assetDirPath + "/" + s);
+        }
+    }
+
+    //copy all the normal files into the directory
+    AAssetDir*  assetDir = AAssetManager_openDir(mgr, assetDirPath.c_str());
+    const char* filename = (const char*)NULL;
+
+    while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL)
+    {
+        std::string inputFilename = assetDirPath + "/" + std::string(filename);
+        Utils::log("WAI", "inputFilename: %s", inputFilename.c_str());
+        AAsset*     asset   = AAssetManager_open(mgr, inputFilename.c_str(), AASSET_MODE_STREAMING);
+        int         nb_read = 0;
+        char        buf[BUFSIZ];
+        std::string outputFilename = outputPath + std::string(filename);
+        Utils::log("WAI", "outputFilename: %s", outputFilename.c_str());
+        FILE* out = fopen(outputFilename.c_str(), "w");
+        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
+        {
+            fwrite(buf, nb_read, 1, out);
+        }
+        fclose(out);
+        AAsset_close(asset);
+    }
+
+    AAssetDir_close(assetDir);
 }
 
 void Engine::onTerminate()
@@ -366,7 +478,7 @@ void Engine::startCamera()
         if (!_camera)
         {
             std::unique_ptr<SENSNdkCamera> ndkCamera = std::make_unique<SENSNdkCamera>();
-            _camera = new SENSCameraAsync(std::move(ndkCamera));
+            _camera                                  = new SENSCameraAsync(std::move(ndkCamera));
         }
     }
     catch (std::exception& e)
@@ -605,77 +717,6 @@ std::string Engine::getExternalDir()
     }
 
     return path;
-}
-
-void Engine::extractAPKFolder(std::string internalPath, std::string assetDirPath)
-{
-    JavaVM* jvm            = _app->activity->vm;
-    JNIEnv* env            = nullptr;
-    bool    threadAttached = false;
-
-    switch (jvm->GetEnv((void**)&env, JNI_VERSION_1_6))
-    {
-        case JNI_OK:
-        {
-        }
-        break;
-        case JNI_EDETACHED:
-        {
-            jint result = jvm->AttachCurrentThread(&env, nullptr);
-            if (result == JNI_ERR)
-            {
-                //TODO(dgj1): error handling
-                Utils::log("WAI", "Could not attach thread to jvm\n");
-                return;
-            }
-            threadAttached = true;
-        }
-        break;
-        case JNI_EVERSION:
-        {
-            //TODO(dgj1): error handling
-            Utils::log("WAInative", "unsupported java version\n");
-            return;
-        }
-    }
-
-    std::string outputPath = Utils::unifySlashes(internalPath + "/" + assetDirPath + "/");
-    /*
-    if (Utils::dirExists(outputPath))
-    {
-        //stop here, we assume everything is installed (uninstall the app if you added assets)
-        return;
-    }
-     */
-
-    Utils::makeDir(outputPath);
-
-    AAssetManager* mgr      = _app->activity->assetManager;
-    AAssetDir*     assetDir = AAssetManager_openDir(mgr, assetDirPath.c_str());
-    const char*    filename = (const char*)NULL;
-    while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL)
-    {
-        std::string inputFilename = assetDirPath + "/" + std::string(filename);
-        //Utils::log("WAI", "inputFilename: %s", inputFilename.c_str());
-        AAsset*     asset         = AAssetManager_open(mgr, inputFilename.c_str(), AASSET_MODE_STREAMING);
-        int         nb_read       = 0;
-        char        buf[BUFSIZ];
-        std::string outputFilename = outputPath + std::string(filename);
-        //Utils::log("WAI", "outputFilename: %s", outputFilename.c_str());
-        FILE*       out            = fopen(outputFilename.c_str(), "w");
-        while ((nb_read = AAsset_read(asset, buf, BUFSIZ)) > 0)
-        {
-            fwrite(buf, nb_read, 1, out);
-        }
-        fclose(out);
-        AAsset_close(asset);
-    }
-    AAssetDir_close(assetDir);
-
-    if (threadAttached)
-    {
-        jvm->DetachCurrentThread();
-    }
 }
 
 uint64_t Engine::millisecondsSinceEpoch()

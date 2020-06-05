@@ -85,7 +85,7 @@ public:
     ortLight optixLight(bool doDistributed)
     {
         ortSamples loc_samples{};
-        float   loc_radius;
+        float      loc_radius;
         if (doDistributed)
         {
             loc_samples.samplesX = _samples.samplesX();
@@ -94,25 +94,22 @@ public:
         }
         else
         {
-            loc_samples = {
-              1,
-              1};
-            loc_radius = 0.0f;
+            loc_samples = {1, 1};
+            loc_radius  = 0.0f;
         }
-        return {
-          make_float4(diffuse()),
-          make_float4(ambient()),
-          make_float4(specular()),
-          make_float3({positionWS().x, positionWS().y, positionWS().z}),
-          spotCutOffDEG(),
-          spotExponent(),
-          spotCosCut(),
-          make_float3(spotDirWS()),
-          kc(),
-          kl(),
-          kq(),
-          loc_samples,
-          loc_radius};
+        return {make_float4(diffuse()),
+                make_float4(ambient()),
+                make_float4(specular()),
+                make_float3({positionWS().x, positionWS().y, positionWS().z}),
+                spotCutOffDEG(),
+                spotExponent(),
+                spotCosCut(),
+                make_float3(spotDirWS()),
+                kc(),
+                kl(),
+                kq(),
+                loc_samples,
+                loc_radius};
     }
 #endif
 

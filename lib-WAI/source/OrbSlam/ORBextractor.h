@@ -26,22 +26,10 @@
 #include <opencv2/opencv.hpp>
 #include <WAIHelper.h>
 #include <KPextractor.h>
+#include <ExtractorNode.h>
 
 namespace ORB_SLAM2
 {
-
-class ExtractorNode
-{
-    public:
-    ExtractorNode() : bNoMore(false) {}
-
-    void DivideNode(ExtractorNode& n1, ExtractorNode& n2, ExtractorNode& n3, ExtractorNode& n4);
-
-    std::vector<cv::KeyPoint>          vKeys;
-    cv::Point2i                        UL, UR, BL, BR;
-    std::list<ExtractorNode>::iterator lit;
-    bool                               bNoMore;
-};
 
 class WAI_API ORBextractor : public KPextractor
 {

@@ -17,10 +17,7 @@ public:
                    const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
                    SENSCamera*         sensCamera,
-                   int                 screenWidth,
-                   int                 screenHeight,
-                   int                 dotsPerInch,
-                   std::string         imguiIniPath);
+                   const DeviceData&   deviceData);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }
