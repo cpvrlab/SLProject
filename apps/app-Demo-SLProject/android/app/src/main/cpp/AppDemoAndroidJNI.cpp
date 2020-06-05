@@ -109,9 +109,9 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env
     string device_path_msg = "Device path:" + devicePath;
     SL_LOG(device_path_msg.c_str(), 0);
 
-    SLApplication::calibFilePath = devicePath + "/data/config/"; //thats where calibrations are stored an loaded from
+    SLApplication::calibFilePath = devicePath + "/data/config/";                //that's where calibrations are stored an loaded from
     SLApplication::calibIniPath  = devicePath + "/data/calibrations/";
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),        // deviceInfo string
                                             SLApplication::calibFilePath);      // for calibrations made
 
     ////////////////////////////////////////////////////
