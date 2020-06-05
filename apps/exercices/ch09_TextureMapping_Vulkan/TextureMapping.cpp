@@ -51,10 +51,11 @@ GLFWwindow* window;
 #if oldProject
 vkUtils renderer;
 #endif
-const vector<Vertex> vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-                                 {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-                                 {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-                                 {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
+// const vector<Vertex> vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+//                                  {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+//                                  {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+//                                  {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
+//
 // Camera
 SLMat4f _viewMatrix;
 float   _camZ = 6.0f;
@@ -65,6 +66,82 @@ int  _mouseX, _mouseY;
 int  _deltaX, _deltaY;
 int  _rotX, _rotY;
 bool _mouseLeftDown;
+
+//-----------------------------------------------------------------------------
+void buildSphere(float radius, GLuint stacks, GLuint slices, std::vector<Vertex>& vertices, std::vector<uint16_t>& indices)
+{
+    assert(stacks > 3 && slices > 3);
+
+    // create vertex array
+    unsigned int numV = (stacks + 1) * (slices + 1);
+    // std::vector<Vertex> vertices(numV);
+    vertices.resize(numV);
+
+    float  theta, dtheta; // angles around x-axis
+    float  phi, dphi;     // angles around z-axis
+    GLuint i, j;          // loop counters
+    GLuint iv = 0;
+
+    // init start values
+    theta  = 0.0f;
+    dtheta = Utils::PI / stacks;
+    dphi   = 2.0f * Utils::PI / slices;
+
+    // Define vertex position & normals by looping through all stacks
+    for (i = 0; i <= stacks; ++i)
+    {
+        float sin_theta = sin(theta);
+        float cos_theta = cos(theta);
+        phi             = 0.0f;
+
+        // Loop through all slices
+        for (j = 0; j <= slices; ++j)
+        {
+            if (j == slices) phi = 0.0f;
+
+            // define first the normal with length 1
+            vertices[iv].norm.x = sin_theta * cos(phi);
+            vertices[iv].norm.y = sin_theta * sin(phi);
+            vertices[iv].norm.z = cos_theta;
+
+            // set the vertex position w. the scaled normal
+            vertices[iv].pos.x = radius * vertices[iv].norm.x;
+            vertices[iv].pos.y = radius * vertices[iv].norm.y;
+            vertices[iv].pos.z = radius * vertices[iv].norm.z;
+
+            // set the texture coords.
+            vertices[iv].texCoord.x = 0; // ???
+            vertices[iv].texCoord.y = 0; // ???
+
+            phi += dphi;
+            iv++;
+        }
+        theta += dtheta;
+    }
+
+    // create Index array x
+    unsigned int numI = (GLuint)(slices * stacks * 2 * 3);
+    indices.resize(numI);
+    GLuint ii = 0, iV1, iV2;
+
+    for (i = 0; i < stacks; ++i)
+    {
+        // index of 1st & 2nd vertex of stack
+        iV1 = i * (slices + 1);
+        iV2 = iV1 + slices + 1;
+
+        for (j = 0; j < slices; ++j)
+        { // 1st triangle ccw
+            indices[ii++] = iV1 + j;
+            indices[ii++] = iV2 + j;
+            indices[ii++] = iV2 + j + 1;
+            // 2nd triangle ccw
+            indices[ii++] = iV1 + j;
+            indices[ii++] = iV2 + j + 1;
+            indices[ii++] = iV1 + j + 1;
+        }
+    }
+}
 
 //-----------------------------------------------------------------------------
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
@@ -196,14 +273,17 @@ void initVulkan()
 //-----------------------------------------------------------------------------
 #endif
 
+#include <SLQuat4.h>
 //-----------------------------------------------------------------------------
 void updateCamera()
 {
-    _viewMatrix = SLMat4f();
-    _viewMatrix.rotate(_rotY - _deltaY, 0.0f, 1.0f, 0.0f);
+    _viewMatrix.identity();
     _viewMatrix.rotate(_rotX - _deltaX, 1.0f, 0.0f, 0.0f);
-    SLVec3f a = (_viewMatrix.axisZ()) * _camZ;
-    _viewMatrix.lookAt(a, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 1.0f, 0.0f));
+    _viewMatrix.rotate(_rotY - _deltaY, 0.0f, 1.0f, 0.0f);
+    SLVec3f a        = (_viewMatrix.axisZ()) * _camZ;
+    SLVec3f modelPos = SLVec3f(0.0f, 0.0f, 0.0f);
+    SLVec3f up       = SLVec3f(0.0f, 1.0f, 0.0f);
+    _viewMatrix.lookAt(a, modelPos, up);
 }
 #if oldProject
 //-----------------------------------------------------------------------------
@@ -239,13 +319,16 @@ int main()
 
 #else
 
-const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+// const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 //-----------------------------------------------------------------------------
 int main()
 {
     initWindow();
     // Needed data
+    std::vector<Vertex>   vertices;
+    std::vector<uint16_t> indices;
+    buildSphere(1.0f, 32, 32, vertices, indices);
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
     // Setting up vulkan

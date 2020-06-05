@@ -7,7 +7,7 @@
 struct Vertex
 {
     SLVec3f pos;
-    SLVec3f color;
+    SLVec3f norm;
     SLVec2f texCoord;
 
     static VkVertexInputBindingDescription getBindingDescription()
@@ -32,7 +32,7 @@ struct Vertex
         attributeDescriptions[1].binding  = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[1].offset   = offsetof(Vertex, color);
+        attributeDescriptions[1].offset   = offsetof(Vertex, norm);
 
         attributeDescriptions[2].binding  = 0;
         attributeDescriptions[2].location = 2;

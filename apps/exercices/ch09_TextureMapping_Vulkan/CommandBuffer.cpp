@@ -43,6 +43,7 @@ void CommandBuffer::end()
     vkFreeCommandBuffers(device.handle, device.commandPool, 1, &handle);
 }
 
+// TODO: Maybe remove const vector<Vertex>& vertices because it is not needed...
 void CommandBuffer::setVertices(const vector<Vertex>& vertices, Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, Buffer& vertexBuffer, Buffer& indexBuffer, Pipeline& pipeline, DescriptorSet& descriptorSet, int indicesSize)
 {
     handles.resize(framebuffer.handle.size());
