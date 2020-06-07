@@ -85,7 +85,11 @@ float shadowTest(in int i) // Light number
             lightSpace = u_lightSpace[i * 6];
 
         vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
+
+        // Normalize lightSpacePosition
         vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
+        
+        // Convert to texture coordinates
         projCoords = projCoords * 0.5 + 0.5;
 
         float currentDepth = projCoords.z;
@@ -146,7 +150,11 @@ void DirectLight(in    int  i,   // Light number
 
     // Accumulate directional light intesities w/o attenuation
     Ia += u_lightAmbient[i];
+
+    // Test if the current fragment is in shadow
     float shadow = u_receivesShadows ? shadowTest(i) : 0.0;
+    
+    // The higher the value of the variable shadow, the less light reaches the fragment
     Id += u_lightDiffuse[i] * diffFactor * (1.0 - shadow);
     Is += u_lightSpecular[i] * specFactor * (1.0 - shadow);
 }
@@ -194,7 +202,11 @@ void PointLight (in    int  i,      // Light number
 
     // Accumulate light intesities
     Ia += att * u_lightAmbient[i];
+
+    // Test if the current fragment is in shadow
     float shadow = u_receivesShadows ? shadowTest(i) : 0.0;
+
+    // The higher the value of the variable shadow, the less light reaches the fragment
     Id += att * u_lightDiffuse[i] * diffFactor * (1.0 - shadow);
     Is += att * u_lightSpecular[i] * specFactor * (1.0 - shadow);
 }
