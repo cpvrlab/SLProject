@@ -17,6 +17,7 @@ using namespace std::chrono;
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <GlobalTimer.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()
@@ -54,6 +55,8 @@ illumination calculation.
 */
 SLbool SLRaytracer::renderClassic(SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     _sv         = sv;
     _state      = rtBusy; // From here we state the RT as busy
     _progressPC = 0;      // % rendered
@@ -121,6 +124,8 @@ This is the main rendering method for parallel and distributed ray tracing.
 */
 SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     _sv         = sv;
     _state      = rtBusy; // From here we state the RT as busy
     _progressPC = 0;      // % rendered
@@ -197,6 +202,8 @@ Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlices(const bool isMainThread)
 {
+    PROFILE_FUNCTION();
+
     // Time points
     double t1 = 0;
 
@@ -264,6 +271,8 @@ Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlicesMS(const bool isMainThread)
 {
+    PROFILE_FUNCTION();
+
     // Time points
     double t1 = 0;
 

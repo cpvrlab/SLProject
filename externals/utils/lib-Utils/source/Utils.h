@@ -111,7 +111,7 @@ vector<string> getDirNamesInDir(const string& dirName);
 //! Returns a vector of sorted names (files and directories) with path in dir
 vector<string> getAllNamesInDir(const string& dirName);
 
-//! Returns a vector of storted filesnames in dirName
+//! Returns a vector of sorted filesnames in dirName
 vector<string> getFileNamesInDir(const string& dirName);
 
 //! Returns true if a directory exists.
@@ -141,7 +141,7 @@ string getCurrentWorkingDir();
 //! Deletes a file on the filesystem
 bool deleteFile(string& pathfilename);
 
-//! Dumps all folders and files recursovely
+//! Dumps all folders and files recursively
 void dumpFileSystemRec(const char*   logtag,
                        const string& folderpath,
                        int           depth = 0);

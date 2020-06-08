@@ -9,14 +9,14 @@
 
 enum ExtractorType
 {
-    ExtractorType_SURF_BRIEF_500  = 0,
-    ExtractorType_SURF_BRIEF_800  = 1,
-    ExtractorType_SURF_BRIEF_1000 = 2,
-    ExtractorType_SURF_BRIEF_1200 = 3,
-    ExtractorType_FAST_ORBS_1000  = 4,
-    ExtractorType_FAST_ORBS_2000  = 5,
-    ExtractorType_FAST_ORBS_4000  = 6,
-    ExtractorType_FAST_ORBS_6000  = 7,
+    ExtractorType_FAST_ORBS_1000  = 0,
+    ExtractorType_FAST_ORBS_2000  = 1,
+    ExtractorType_FAST_ORBS_4000  = 2,
+    ExtractorType_FAST_ORBS_6000  = 3,
+    ExtractorType_FAST_BRIEF_1000  = 4,
+    ExtractorType_FAST_BRIEF_2000  = 5,
+    ExtractorType_FAST_BRIEF_4000  = 6,
+    ExtractorType_FAST_BRIEF_6000  = 7,
     ExtractorType_GLSL_1          = 8,
     ExtractorType_GLSL            = 9,
     ExtractorType_Last            = 10
@@ -36,7 +36,7 @@ public:
 
 private:
     std::unique_ptr<ORB_SLAM2::KPextractor> orbExtractor(int nf);
-    std::unique_ptr<ORB_SLAM2::KPextractor> surfExtractor(int th);
+    std::unique_ptr<ORB_SLAM2::KPextractor> briefExtractor(int nf);
     std::unique_ptr<ORB_SLAM2::KPextractor> glslExtractor(
       const cv::Size& videoFrameSize,
       int             nbKeypointsBigSigma,

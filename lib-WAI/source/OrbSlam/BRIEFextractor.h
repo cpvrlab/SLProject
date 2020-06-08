@@ -18,20 +18,19 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ORBEXTRACTOR_H
-#define ORBEXTRACTOR_H
+#ifndef BRIEFEXTRACTOR_H
+#define BRIEFEXTRACTOR_H
 
 #include <vector>
 #include <list>
 #include <opencv2/opencv.hpp>
 #include <WAIHelper.h>
 #include <KPextractor.h>
-#include <ExtractorNode.h>
 
 namespace ORB_SLAM2
 {
 
-class WAI_API ORBextractor : public KPextractor
+class WAI_API BRIEFextractor : public KPextractor
 {
     public:
     enum
@@ -40,9 +39,9 @@ class WAI_API ORBextractor : public KPextractor
         FAST_SCORE   = 1
     };
 
-    ORBextractor(int nfeatures, float scaleFactor, int nlevels, int iniThFAST, int minThFAST);
+    BRIEFextractor(int nfeatures, float scaleFactor, int nlevels, int iniThFAST, int minThFAST);
 
-    ~ORBextractor()
+    ~BRIEFextractor()
     {
     }
 

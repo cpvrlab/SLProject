@@ -25,6 +25,7 @@ for a good top down information.
 #include <Utils.h>
 #include <FtpUtils.h>
 #include <SLApplication.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;
@@ -187,6 +188,8 @@ aspect ratio.
 */
 bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 {
+    PROFILE_FUNCTION();
+
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
     try
@@ -328,6 +331,8 @@ We therefore create a copy that is grayscale converted.
 */
 void CVCapture::adjustForSL(float viewportWdivH)
 {
+    PROFILE_FUNCTION();
+
     format = CVImage::cv2glPixelFormat(lastFrame.type());
 
     //////////////////////////////////////

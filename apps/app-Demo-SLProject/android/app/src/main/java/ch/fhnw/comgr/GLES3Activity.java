@@ -27,6 +27,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import androidx.core.app.ActivityCompat;
+
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -34,11 +36,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
     GLES3View                   myView;             // OpenGL view
@@ -170,10 +169,11 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     @Override
     // The process of this activity is getting killed (e.g. with the back button)
     protected void onDestroy() {
-        Log.i(TAG, "GLES3Activity.onDestroy");
+        Log.i(TAG, "GLES3Activity.onDestroy begin");
         myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
         super.onDestroy();
         finish();
+        Log.i(TAG, "GLES3Activity.onDestroy end");
     }
 
     @Override

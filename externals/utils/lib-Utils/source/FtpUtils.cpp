@@ -93,7 +93,7 @@ bool uploadFileLatestVersion(const string& fileDir,
     return success;
 }
 //-----------------------------------------------------------------------------
-//! Downlad the file from the ftp server which has the latest version and store it as fileName locally
+//! Download the file from the ftp server which has the latest version and store it as fileName locally
 bool downloadFileLatestVersion(const string& fileDir,
                                const string& fileName,
                                const string& ftpHost,

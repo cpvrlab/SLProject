@@ -243,7 +243,7 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
     }
 }
 //-----------------------------------------------------------------------------
-//! onMouseDown event hanlder during editing interaction
+//! onMouseDown event handler during editing interaction
 SLbool SLTransformNode::onMouseDown(SLMouseButton button,
                                     SLint         x,
                                     SLint         y,
@@ -260,7 +260,7 @@ SLbool SLTransformNode::onMouseDown(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-//! onMouseUp event hanlder during editing interaction
+//! onMouseUp event handler during editing interaction
 SLbool SLTransformNode::onMouseUp(SLMouseButton button,
                                   SLint         x,
                                   SLint         y,
@@ -284,7 +284,7 @@ SLbool SLTransformNode::onMouseUp(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-//! onMouseMove event hanlder during editing interaction
+//! onMouseMove event handler during editing interaction
 SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                     SLint               x,
                                     SLint               y,

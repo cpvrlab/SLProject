@@ -16,6 +16,7 @@
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
 #include <Utils.h>
+#include <Instrumentor.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -461,6 +462,8 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
                                    SLbool      isContinuous,
                                    SLbool      isTopLeft)
 {
+    PROFILE_FUNCTION();
+
     // Add image for the first time
     if (_images.empty())
         _images.push_back(new CVImage(camWidth,
@@ -501,6 +504,8 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
                                    SLbool      isContinuous,
                                    SLbool      isTopLeft)
 {
+    PROFILE_FUNCTION();
+
     // Add image for the first time
     if (_images.empty())
         _images.push_back(new CVImage(camWidth,
@@ -542,6 +547,8 @@ method which is called by object that uses the texture.
 */
 void SLGLTexture::build(SLint texID)
 {
+    PROFILE_FUNCTION();
+
     assert(texID >= 0 && texID < 32);
 
     if (_images.empty())
@@ -853,6 +860,8 @@ Fully updates the OpenGL internal texture data by the image data
 */
 void SLGLTexture::fullUpdate()
 {
+    PROFILE_FUNCTION();
+
     if (_texID &&
         !_images.empty() &&
         _images[0]->data() &&

@@ -42,6 +42,7 @@
 #include <SLTransferFunction.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
+#include <Instrumentor.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -84,6 +85,8 @@ SLNode* BuildFigureGroup(SLProjectScene* s,
 */
 void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
+    PROFILE_FUNCTION();
+
     // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
@@ -331,7 +334,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             SLApplication::texturePath + "bricks1_0256_C.jpg");
         SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
-        SLGLProgram* sp1 = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/RefractReflect.vert", SLApplication::dataPath + "shaders/RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
@@ -671,7 +674,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVstring tex3DFiles;
         for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back(SLApplication::texturePath + "Wave_radial10_256C.jpg");
         SLGLTexture* tex3D = new SLGLTexture(s, tex3DFiles);
-        SLGLProgram* spr3D = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/TextureOnly3D.vert", SLApplication::dataPath + "shaders/TextureOnly3D.frag");
+        SLGLProgram* spr3D = new SLGLGenericProgram(s, SLApplication::shaderPath + "TextureOnly3D.vert", SLApplication::shaderPath + "TextureOnly3D.frag");
         SLMaterial*  mat3D = new SLMaterial(s, "mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
 
         // Create 3D textured pyramid mesh and node
@@ -864,7 +867,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/BumpNormal.vert", SLApplication::dataPath + "shaders/BumpNormalParallax.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "BumpNormal.vert", SLApplication::shaderPath + "BumpNormalParallax.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.01f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", 0.01f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -919,14 +922,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
 
         SLMaterial* pcMat1 = new SLMaterial(s, "Red", SLCol4f::RED);
-        pcMat1->program(new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/ColorUniformPoint.vert", SLApplication::dataPath + "shaders/Color.frag"));
+        pcMat1->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "ColorUniformPoint.vert", SLApplication::shaderPath + "Color.frag"));
         pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
         SLRnd3fNormal rndN(SLVec3f(0, 0, 0), SLVec3f(5, 2, 1));
         SLNode*       pc1 = new SLNode(new SLPoints(s, 1000, rndN, "PC1", pcMat1));
         pc1->translate(-5, 0, 0);
 
         SLMaterial* pcMat2 = new SLMaterial(s, "Green", SLCol4f::GREEN);
-        pcMat2->program(new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/ColorUniform.vert", SLApplication::dataPath + "shaders/Color.frag"));
+        pcMat2->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "ColorUniform.vert", SLApplication::shaderPath + "shaders/Color.frag"));
         SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
         SLNode*        pc2 = new SLNode(new SLPoints(s, 1000, rndU, "PC2", pcMat2));
         pc2->translate(5, 0, 0);
@@ -1132,7 +1135,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create generic shader program with 4 custom uniforms
-        SLGLProgram*   sp  = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/Wave.vert", SLApplication::dataPath + "shaders/Wave.frag");
+        SLGLProgram*   sp  = new SLGLGenericProgram(s, SLApplication::shaderPath + "Wave.vert", SLApplication::shaderPath + "Wave.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         s->eventHandlers().push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1189,7 +1192,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* tex2 = new SLGLTexture(s, SLApplication::texturePath + "tile1_0256_C.jpg");
 
         // Create generic shader program with 4 custom uniforms
-        SLGLProgram*   sp  = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/WaveRefractReflect.vert", SLApplication::dataPath + "shaders/RefractReflect.frag");
+        SLGLProgram*   sp  = new SLGLGenericProgram(s, SLApplication::shaderPath + "WaveRefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         s->eventHandlers().push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1299,7 +1302,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/BumpNormal.vert", SLApplication::dataPath + "shaders/BumpNormalParallax.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "BumpNormal.vert", SLApplication::shaderPath + "BumpNormalParallax.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1361,14 +1364,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
-        refl->program(new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/Reflect.vert", SLApplication::dataPath + "shaders/Reflect.frag"));
+        refl->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag"));
 
         // Material for glass
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissiv(SLCol4f::WHITE);
         refr->textures().push_back(skyboxTex);
-        refr->program(new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/RefractReflect.vert", SLApplication::dataPath + "shaders/RefractReflect.frag"));
+        refr->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag"));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1424,7 +1427,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use (SHIFT) & key C to change cloud height");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/BumpNormal.vert", SLApplication::dataPath + "shaders/BumpNormalEarth.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "BumpNormal.vert", SLApplication::shaderPath + "BumpNormalEarth.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1623,7 +1626,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/VolumeRenderingRayCast.vert", SLApplication::dataPath + "shaders/VolumeRenderingRayCast.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
@@ -1697,7 +1700,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/VolumeRenderingRayCast.vert", SLApplication::dataPath + "shaders/VolumeRenderingRayCastLighted.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)gTexMRI3D->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)gTexMRI3D->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)gTexMRI3D->images().size());
@@ -2903,6 +2906,86 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+    else if (SLApplication::sceneID == SID_VideoAventicumTheatre) //...................................
+    {
+        s->name("Aventicum Cigonier AR");
+        s->info("Augmented Reality for Aventicum Cigonier Temple");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000.0f);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
+        light->powers(1.0f, 1.0f, 1.0f);
+        light->attenuation(1, 0, 0);
+        light->translation(0, 10, 0);
+        light->lookAt(10, 0, 10);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(light);
+
+        SLAssimpImporter importer;
+        SLNode*          cigognier = importer.load(s->animManager(),
+                                          s,
+                                          SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf",
+                                          SLApplication::texturePath,
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->scale(10);
+        axis->rotate(-90, 1, 0, 0);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(light);
+        scene->addChild(axis);
+        scene->addChild(cigognier);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
+        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
 #ifdef SL_BUILD_WAI
     else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
     {
@@ -2978,8 +3061,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
-        SLGLProgram* sp1 = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/Reflect.vert", SLApplication::dataPath + "shaders/Reflect.frag");
-        SLGLProgram* sp2 = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/RefractReflect.vert", SLApplication::dataPath + "shaders/RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLGenericProgram(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag");
+        SLGLProgram* sp2 = new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
 
         // Create cube mapping texture
         SLGLTexture* tex1 = new SLGLTexture(s,
@@ -3128,7 +3211,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, 30, matGla, matRed));
+        scene->addChild(SphereGroup(s, 4, 0, 0, 0, 1, 30, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -3424,6 +3507,8 @@ SLNode* SphereGroup(SLProjectScene* s,
                     SLMaterial*     matGlass,   // material for center sphere
                     SLMaterial*     matRed)         // material for orbiting spheres
 {
+    PROFILE_FUNCTION();
+
     SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
     if (depth == 0)
     {
@@ -3437,7 +3522,7 @@ SLNode* SphereGroup(SLProjectScene* s,
         depth--;
         SLNode* sGroup = new SLNode("SphereGroup");
         sGroup->translate(x, y, z, TS_object);
-        SLuint newRes = (SLuint)std::max((SLint)resolution - 8, 8);
+        SLuint newRes = (SLuint)std::max((SLint)resolution - 4, 8);
         sGroup->addChild(new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, name, matGlass)));
         sGroup->addChild(SphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
         sGroup->addChild(SphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));

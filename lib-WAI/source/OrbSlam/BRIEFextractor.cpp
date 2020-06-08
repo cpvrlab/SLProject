@@ -59,8 +59,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 #include <AverageTiming.h>
-#include <ORBextractor.h>
 #include <BRIEFPattern.h>
+#include <BRIEFextractor.h>
 #include <ExtractorNode.h>
 
 #ifdef _WINDOWS
@@ -72,9 +72,6 @@
 using namespace cv;
 using namespace std;
 
-#define BRIEF 1
-#define TILDE 1
-
 namespace ORB_SLAM2
 {
 
@@ -82,50 +79,16 @@ const int PATCH_SIZE      = 31;
 const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD  = 19;
 
-static float IC_Angle(const Mat& image, Point2f pt, const vector<int>& u_max)
-{
-    int m_01 = 0, m_10 = 0;
-
-    const uchar* center = &image.at<uchar>(cvRound(pt.y), cvRound(pt.x));
-
-    // Treat the center line differently, v=0
-    for (int u = -HALF_PATCH_SIZE; u <= HALF_PATCH_SIZE; ++u)
-        m_10 += u * center[u];
-
-    // Go line by line in the circuI853lar patch
-    int step = (int)image.step1();
-    for (int v = 1; v <= HALF_PATCH_SIZE; ++v)
-    {
-        // Proceed over the two lines
-        int v_sum = 0;
-        int d     = u_max[v];
-        for (int u = -d; u <= d; ++u)
-        {
-            int val_plus = center[u + v * step], val_minus = center[u - v * step];
-            v_sum += (val_plus - val_minus);
-            m_10 += u * (val_plus + val_minus);
-        }
-        m_01 += v * v_sum;
-    }
-
-    return fastAtan2((float)m_01, (float)m_10);
-}
-
-const float factorPI = (float)(CV_PI / 180.f);
-static void computeOrbDescriptor(const KeyPoint& kpt,
+static void computeBriefDescriptor(const KeyPoint& kpt,
                                  const Mat&      img,
                                  const Point*    pattern,
                                  uchar*          desc)
 {
-    float angle = kpt.angle * factorPI;
-    float a = cos(angle), b = sin(angle);
-
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
 
 #define GET_VALUE(idx) \
-    center[cvRound(pattern[idx].x * b + pattern[idx].y * a) * step + \
-           cvRound(pattern[idx].x * a - pattern[idx].y * b)]
+    center[cvRound(pattern[idx].y) * step + cvRound(pattern[idx].x)]
 
     for (int i = 0; i < 32; ++i, pattern += 16)
     {
@@ -161,14 +124,14 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
 #undef GET_VALUE
 }
 
-ORBextractor::ORBextractor(int   _nfeatures,
-                           float _scaleFactor,
-                           int   _nlevels,
-                           int   _iniThFAST,
-                           int   _minThFAST)
+BRIEFextractor::BRIEFextractor(int   _nfeatures,
+                               float _scaleFactor,
+                               int   _nlevels,
+                               int   _iniThFAST,
+                               int   _minThFAST)
   : iniThFAST(_iniThFAST),
     minThFAST(_minThFAST),
-    KPextractor("FAST_ORBS_" + std::to_string(_nfeatures), false)
+    KPextractor("FAST_BRIEF_" + std::to_string(_nfeatures), false)
 {
     nfeatures   = _nfeatures;
     scaleFactor = _scaleFactor;
@@ -230,18 +193,7 @@ ORBextractor::ORBextractor(int   _nfeatures,
     }
 }
 
-static void computeOrientation(const Mat& image, vector<KeyPoint>& keypoints, const vector<int>& umax)
-{
-    for (vector<KeyPoint>::iterator keypoint    = keypoints.begin(),
-                                    keypointEnd = keypoints.end();
-         keypoint != keypointEnd;
-         ++keypoint)
-    {
-        keypoint->angle = IC_Angle(image, keypoint->pt, umax);
-    }
-}
-
-vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>& vToDistributeKeys, const int& minX, const int& maxX, const int& minY, const int& maxY, const int& N, const int& level)
+vector<cv::KeyPoint> BRIEFextractor::DistributeOctTree(const vector<cv::KeyPoint>& vToDistributeKeys, const int& minX, const int& maxX, const int& minY, const int& maxY, const int& N, const int& level)
 {
     // Compute how many initial nodes
     const int nIni = (int)round(static_cast<float>(maxX - minX) / (maxY - minY));
@@ -472,7 +424,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
      * 4. Compute orientation of keypoints
      * @param allKeypoints
      */
-void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoints)
+void BRIEFextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoints)
 {
     allKeypoints.resize(nlevels);
 
@@ -564,13 +516,9 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint>>& allKeypoint
             keypoints[i].size   = (float)scaledPatchSize;
         }
     }
-
-    // compute orientations
-    for (int level = 0; level < nlevels; ++level)
-        computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 }
 
-void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint>>& allKeypoints)
+void BRIEFextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint>>& allKeypoints)
 {
     allKeypoints.resize(nlevels);
 
@@ -736,25 +684,21 @@ void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint>>& allKe
             keypoints.resize(nDesiredFeatures);
         }
     }
-
-    // and compute orientations
-    for (int level = 0; level < nlevels; ++level)
-        computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 }
 
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern)
 {
     for (size_t i = 0; i < keypoints.size(); i++)
-        computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
+        computeBriefDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
 }
 
-void ORBextractor::computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)
+void BRIEFextractor::computeKeyPointDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors)
 {
     descriptors.create((int)keypoints.size(), 32, CV_8U);
     computeDescriptors(image, keypoints, descriptors, pattern);
 }
 
-void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
+void BRIEFextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, OutputArray _descriptors)
 {
     if (_image.empty())
         return;
@@ -829,7 +773,7 @@ void ORBextractor::operator()(InputArray _image, vector<KeyPoint>& _keypoints, O
     AVERAGE_TIMING_STOP("BlurAndComputeDescr");
 }
 
-void ORBextractor::ComputePyramid(cv::Mat image)
+void BRIEFextractor::ComputePyramid(cv::Mat image)
 {
     for (int level = 0; level < nlevels; ++level)
     {
