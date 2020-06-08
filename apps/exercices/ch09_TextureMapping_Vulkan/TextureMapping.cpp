@@ -51,11 +51,13 @@ GLFWwindow* window;
 #if oldProject
 vkUtils renderer;
 #endif
+// Plane
 // const vector<Vertex> vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
 //                                  {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
 //                                  {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
 //                                  {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
-//
+// const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+
 // Camera
 SLMat4f _viewMatrix;
 float   _camZ = 6.0f;
@@ -146,16 +148,19 @@ void buildSphere(float radius, GLuint stacks, GLuint slices, std::vector<Vertex>
 //-----------------------------------------------------------------------------
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
+    SLint x = _mouseX;
+    SLint y = _mouseY;
+
     _mouseLeftDown = (action == GLFW_PRESS);
     if (_mouseLeftDown)
     {
-        _startX = _mouseX;
-        _startY = _mouseY;
+        _startX = x;
+        _startY = y;
     }
     else
     {
-        _rotX -= _deltaX;
-        _rotY -= _deltaY;
+        _rotX += _deltaX;
+        _rotY += _deltaY;
         _deltaX = 0;
         _deltaY = 0;
     }
@@ -168,8 +173,8 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = _mouseX - _startX;
-        _deltaX = _mouseY - _startY;
+        _deltaY = (int)x - _startX;
+        _deltaX = (int)y - _startY;
     }
 }
 //-----------------------------------------------------------------------------
@@ -278,12 +283,9 @@ void initVulkan()
 void updateCamera()
 {
     _viewMatrix.identity();
-    _viewMatrix.rotate(_rotX - _deltaX, 1.0f, 0.0f, 0.0f);
-    _viewMatrix.rotate(_rotY - _deltaY, 0.0f, 1.0f, 0.0f);
-    SLVec3f a        = (_viewMatrix.axisZ()) * _camZ;
-    SLVec3f modelPos = SLVec3f(0.0f, 0.0f, 0.0f);
-    SLVec3f up       = SLVec3f(0.0f, 1.0f, 0.0f);
-    _viewMatrix.lookAt(a, modelPos, up);
+    _viewMatrix.translate(0.0f, 0.0f, -_camZ);
+    _viewMatrix.rotate(_rotX + _deltaX, 1.0f, 0.0f, 0.0f);
+    _viewMatrix.rotate(_rotY + _deltaY, 0.0f, 1.0f, 0.0f);
 }
 #if oldProject
 //-----------------------------------------------------------------------------
@@ -318,8 +320,6 @@ int main()
 //-----------------------------------------------------------------------------
 
 #else
-
-// const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 //-----------------------------------------------------------------------------
 int main()
