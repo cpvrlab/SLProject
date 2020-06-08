@@ -14,6 +14,7 @@
 #include <Utils.h>
 #include <SLKeyframeCamera.h>
 #include <GlobalTimer.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
@@ -142,6 +143,8 @@ void SLScene::unInit()
 bool SLScene::onUpdate(bool renderTypeIsRT,
                        bool voxelsAreShown)
 {
+    PROFILE_FUNCTION();
+
     /////////////////////////////
     // 1) Calculate frame time //
     /////////////////////////////

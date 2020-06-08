@@ -66,10 +66,11 @@ atomic<int>                 SLApplication::_jobProgressNum(0);
 atomic<int>                 SLApplication::_jobProgressMax(0);
 mutex                       SLApplication::_jobMutex;
 
-const string SLApplication::CALIB_FTP_HOST = "pallas.bfh.ch:21";
-const string SLApplication::CALIB_FTP_USER = "upload";
-const string SLApplication::CALIB_FTP_PWD  = "FaAdbD3F2a";
-const string SLApplication::CALIB_FTP_DIR  = "calibrations";
+const string SLApplication::CALIB_FTP_HOST  = "pallas.bfh.ch:21";
+const string SLApplication::CALIB_FTP_USER  = "upload";
+const string SLApplication::CALIB_FTP_PWD   = "FaAdbD3F2a";
+const string SLApplication::CALIB_FTP_DIR   = "calibrations";
+const string SLApplication::PROFILE_FTP_DIR = "profiles";
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function

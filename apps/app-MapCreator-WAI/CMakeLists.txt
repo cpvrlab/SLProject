@@ -14,7 +14,6 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/BRIEFPattern.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h

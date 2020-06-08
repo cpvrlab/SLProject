@@ -71,11 +71,11 @@ public:
     static SLstring configPath;    //!< Default path for calibration files
     static SLstring externalPath;  //!< Default path for external file storage
     static SLstring dataPath;      //!< Path to data directory (it is set platform dependent)
-    static SLstring shaderPath;
-    static SLstring modelPath;
-    static SLstring texturePath;
-    static SLstring fontPath;
-    static SLstring videoPath;
+    static SLstring shaderPath;    //!< Path to GLSL shader programs
+    static SLstring modelPath;     //!< Path to 3D models
+    static SLstring texturePath;   //!< Path to texture images
+    static SLstring fontPath;      //!< Path to font images
+    static SLstring videoPath;     //!< Path to video files
 
     static SLSceneID sceneID; //!< ID of last loaded scene
 
@@ -89,10 +89,11 @@ public:
     static SLstring                     calibIniPath;  //!< That's where data/calibrations folder is located
     static SLstring                     calibFilePath; //!< That's where calibrations are stored and loaded from
 
-    static const string CALIB_FTP_HOST; //!< ftp host for calibration up and download
-    static const string CALIB_FTP_USER; //!< ftp login user for calibration up and download
-    static const string CALIB_FTP_PWD;  //!< ftp login pwd for calibration up and download
-    static const string CALIB_FTP_DIR;  //!< ftp directory for calibration up and download
+    static const string CALIB_FTP_HOST;  //!< ftp host for calibration up and download
+    static const string CALIB_FTP_USER;  //!< ftp login user for calibration up and download
+    static const string CALIB_FTP_PWD;   //!< ftp login pwd for calibration up and download
+    static const string CALIB_FTP_DIR;   //!< ftp directory for calibration up and download
+    static const string PROFILE_FTP_DIR; //!< ftp directory for profiles upload
 
 private:
     static string      _jobProgressMsg; //!< Text message to show during progress
