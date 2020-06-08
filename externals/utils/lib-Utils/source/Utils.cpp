@@ -486,6 +486,23 @@ string getFileName(const string& pathFilename)
 
     return pathFilename.substr(i + 1, pathFilename.length() - i);
 }
+
+string getDirName(const string& pathFilename)
+{
+    size_t i1 = pathFilename.rfind('\\', pathFilename.length());
+    size_t i2 = pathFilename.rfind('/', pathFilename.length());
+    int    i  = -1;
+
+    if (i1 != string::npos && i2 != string::npos)
+        i = (int)std::max(i1, i2);
+    else if (i1 != string::npos)
+        i = (int)i1;
+    else if (i2 != string::npos)
+        i = (int)i2;
+
+    return pathFilename.substr(0, i+1);
+}
+
 //-----------------------------------------------------------------------------
 //! Returns the filename without extension
 string getFileNameWOExt(const string& pathFilename)
@@ -722,6 +739,27 @@ void removeDir(const string& path)
 #endif
 }
 //-----------------------------------------------------------------------------
+//! Removes a file with given path
+void removeFile(const string& path)
+{
+    if (fileExists(path))
+    {
+#if defined(USE_STD_FILESYSTEM)
+        fs::remove(path);
+#else
+#    if defined(_WIN32)
+        DeleteFileA(path.c_str());
+#    else
+        unlink(path.c_str());
+#    endif
+
+#endif
+    }
+    else
+        log("Could not remove file : %s\nErrno: %s\n", path.c_str(), "file does not exist");
+    
+}
+//-----------------------------------------------------------------------------
 //! Returns true if a file exists.
 bool fileExists(const string& pathfilename)
 {
@@ -752,6 +790,18 @@ unsigned int getFileSize(const string& pathfilename)
     return (unsigned int)st.st_size;
 #endif
 }
+
+unsigned int getFileSize(std::ifstream &fs)
+{
+    fs.seekg (0, std::ios::beg);
+    std::streampos begin = fs.tellg();
+    fs.seekg (0, std::ios::end);
+    std::streampos end = fs.tellg();
+    fs.seekg (0, std::ios::beg);
+    return (unsigned int)(end-begin);
+}
+
+
 //-----------------------------------------------------------------------------
 //! Returns the writable configuration directory with trailing forward slash
 string getAppsWritableDir()
@@ -822,7 +872,68 @@ bool deleteFile(string& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
+//! process all files and folders recursively naturally sorted
+void loopFileSystemRec(const string& path,
+                       std::function<void(std::string path, std::string baseName, int depth)> processFile,
+                       std::function<void(std::string path, std::string baseName, int depth)> processDir,
+                       const int depth)
+{
+    // be sure that the folder slashes are correct
+    string folder = unifySlashes(path);
+
+    if (dirExists(folder))
+    {
+        vector<string> unsortedNames = getAllNamesInDir(folder);
+
+        processDir(getDirName(trimString(folder, "/")), getFileName(trimString(folder, "/")), depth);
+        sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
+
+        for (const auto& fileOrFolder : unsortedNames)
+        {
+            if (dirExists(fileOrFolder))
+                loopFileSystemRec(fileOrFolder, processFile, processDir, depth+1);
+            else
+                processFile(folder, getFileName(fileOrFolder), depth);
+        }
+    }
+    else
+    {
+        processFile(getDirName(trimString(path, "/")), getFileName(trimString(path, "/")), depth);
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 //! Dumps all files and folders on stdout recursively naturally sorted
+void dumpFileSystemRec(const char*   logtag, const string& folderPath)
+{
+    const char* tab = "    ";
+
+    loopFileSystemRec(
+      folderPath,
+      [logtag, tab](string path, string baseName, int depth) -> void {
+          string indent;
+          for (int d = 0; d < depth; ++d)
+              indent += tab;
+          string indentFolderName = indent + baseName;
+          Utils::log(logtag, "%s", indentFolderName.c_str());
+      },
+      [logtag, tab](string path, string baseName, int depth) -> void {
+          string indent;
+          for (int d = 0; d < depth; ++d)
+              indent += tab;
+          string indentFolderName = indent + "[" + baseName + "]";
+          Utils::log(logtag, "%s", indentFolderName.c_str());
+      });
+}
+
+
+
+
+
+/*
 void dumpFileSystemRec(const char*   logtag,
                        const string& folderPath,
                        const int     depth)
@@ -860,6 +971,11 @@ void dumpFileSystemRec(const char*   logtag,
         }
     }
 }
+*/
+
+
+
+
 //-----------------------------------------------------------------------------
 //! findFile return the full path with filename
 /* Unfortunatelly the relative folder structure on different OS are not identical.

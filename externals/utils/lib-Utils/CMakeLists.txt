@@ -30,7 +30,10 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
+        ${UTILS_ROOT}/thirdparty/zlib/zconf.h.included
+        ${UTILS_ROOT}/thirdparty/zlib/zlib.h
     )
 set(sources
         ${sources}
@@ -39,7 +42,27 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
+        ${UTILS_ROOT}/thirdparty/zlib/adler32.c
+        ${UTILS_ROOT}/thirdparty/zlib/compress.c
+        ${UTILS_ROOT}/thirdparty/zlib/crc32.c
+        ${UTILS_ROOT}/thirdparty/zlib/deflate.c
+        ${UTILS_ROOT}/thirdparty/zlib/gzclose.c
+        ${UTILS_ROOT}/thirdparty/zlib/gzlib.c
+        ${UTILS_ROOT}/thirdparty/zlib/gzread.c
+        ${UTILS_ROOT}/thirdparty/zlib/gzwrite.c
+        ${UTILS_ROOT}/thirdparty/zlib/inflate.c
+        ${UTILS_ROOT}/thirdparty/zlib/infback.c
+        ${UTILS_ROOT}/thirdparty/zlib/inflate.c
+        ${UTILS_ROOT}/thirdparty/zlib/inftrees.c
+        ${UTILS_ROOT}/thirdparty/zlib/inffast.c
+        ${UTILS_ROOT}/thirdparty/zlib/trees.c
+        ${UTILS_ROOT}/thirdparty/zlib/uncompr.c
+        ${UTILS_ROOT}/thirdparty/zlib/zutil.c
+        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/ioapi.c
+        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
+        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/zip.c
     )
 	
 #==============================================================================
@@ -78,6 +101,8 @@ target_include_directories(${target}
     ${platform_specific_include_dirs}
     ${UTILS_ROOT}/thirdparty/asio/include
     ${UTILS_ROOT}/thirdparty/ftplibpp
+    ${UTILS_ROOT}/thirdparty/zlib
+    ${UTILS_ROOT}/thirdparty/zlib/contrib
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
