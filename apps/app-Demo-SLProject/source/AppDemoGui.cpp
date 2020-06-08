@@ -3122,7 +3122,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::dataPath + "shaders");
+        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::shaderPath);
         s->root3D()->addChild(tN);
     }
 
