@@ -30,6 +30,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
         ${UTILS_ROOT}/thirdparty/zlib/zconf.h.included
@@ -97,6 +98,7 @@ target_include_directories(${target}
     PRIVATE
 
     PUBLIC
+<<<<<<< HEAD
     ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${platform_specific_include_dirs}
     ${UTILS_ROOT}/thirdparty/asio/include
@@ -104,6 +106,13 @@ target_include_directories(${target}
     ${UTILS_ROOT}/thirdparty/zlib
     ${UTILS_ROOT}/thirdparty/zlib/contrib
     ${DEFAULT_INCLUDE_DIRECTORIES}
+=======
+        ${CMAKE_CURRENT_SOURCE_DIR}/source
+        ${platform_specific_include_dirs}
+        ${UTILS_ROOT}/thirdparty/asio/include
+        ${UTILS_ROOT}/thirdparty/ftplibpp
+        ${DEFAULT_INCLUDE_DIRECTORIES}
+>>>>>>> fcf62d327286690708f4b21c326aa95e7ba093a0
 
     INTERFACE
     )

@@ -36,6 +36,7 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
+#include <Instrumentor.h>
 
 #ifdef SL_BUILD_WAI
 #    include <Eigen/Dense>
@@ -221,6 +222,8 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
  */
 void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     ///////////////////////////////////
     // Show modeless fullscreen dialogs
     ///////////////////////////////////
@@ -1144,6 +1147,8 @@ CVCalibration guessCalibration(bool         mirroredH,
 //! Builds the entire menu bar once per frame
 void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     SLSceneID    sid           = SLApplication::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
     CVCapture*   capture       = CVCapture::instance();
@@ -1342,13 +1347,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
                         if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
                             s->onLoad(s, sv, SID_VideoAventicumCigognier);
-                    /*
+
                     SLstring modelAV21 = SLApplication::modelPath + "Aventicum-Theater1.gltf"; // Android
                     SLstring modelAV22 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
                     if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
                         if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
                             s->onLoad(s, sv, SID_VideoAventicumTheatre);
-                    */
 
                     ImGui::EndMenu();
                 }
@@ -2390,6 +2394,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 //! Builds the scenegraph dialog once per frame
 void AppDemoGui::buildSceneGraph(SLScene* s)
 {
+    PROFILE_FUNCTION();
+
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Scenegraph", &showSceneGraph);
 
@@ -2403,6 +2409,8 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
 //! Builds the node information once per frame
 void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
+    PROFILE_FUNCTION();
+
     SLbool isSelectedNode = s->selectedNode() == node;
     SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
 
@@ -2449,6 +2457,8 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 //! Builds the properties dialog once per frame
 void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
     SLNode* node = s->selectedNode();
     SLMesh* mesh = s->selectedMesh();
 
@@ -3112,7 +3122,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::dataPath + "shaders");
+        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::shaderPath);
         s->root3D()->addChild(tN);
     }
 

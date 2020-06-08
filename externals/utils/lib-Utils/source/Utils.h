@@ -115,7 +115,7 @@ vector<string> getDirNamesInDir(const string& dirName);
 //! Returns a vector of sorted names (files and directories) with path in dir
 vector<string> getAllNamesInDir(const string& dirName);
 
-//! Returns a vector of storted filesnames in dirName
+//! Returns a vector of sorted filesnames in dirName
 vector<string> getFileNamesInDir(const string& dirName);
 
 //! Returns true if a directory exists.
@@ -156,7 +156,7 @@ void loopFileSystemRec(const string& path,
                        const int depth = 0);
 
 //! Dumps all folders and files recursovely
-void dumpFileSystemRec(const char*   logtag, const string& folderpath);
+void dumpFileSystemRec(const char* logtag, const string& folderpath);
 
 //! Tries to find a filename on various paths to check
 string findFile(const string&         filename,

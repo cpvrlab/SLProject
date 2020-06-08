@@ -96,6 +96,7 @@ void new_basic_types_and_type_traits();
 void new_functional();
 void new_threading();
 void new_random_generators();
+void new_smart_pointers();
 void new_const_expression();
 void new_userdefined_literals();
 void new_if_switch_statement();
@@ -115,6 +116,7 @@ int main()
     new_functional();
     new_threading();
     new_random_generators();
+    new_smart_pointers();
     new_const_expression();
     new_userdefined_literals();
     new_if_switch_statement();
@@ -587,7 +589,7 @@ void new_threading()
     // counter should be zero:
 
     t1 = high_resolution_clock::now();
-    for (int t = 0; t < 10; t++)
+    for (int j = 0; j < 10; j++)
     {
         vector<thread> threads;
         for(int i = 0; i < NUM_THREADS; ++i)
@@ -606,7 +608,7 @@ void new_threading()
     // with a mutex:
 
     t1 = high_resolution_clock::now();
-    for (int t = 0; t < 10; t++)
+    for (int j = 0; j < 10; j++)
     {
         vector<thread> threads;
         for(int i = 0; i < NUM_THREADS; ++i)
@@ -626,7 +628,7 @@ void new_threading()
     // mutex. This should be a lot faster:
 
     t1 = high_resolution_clock::now();
-    for (int t = 0; t < 10; t++)
+    for (int j = 0; j < 10; j++)
     {
         vector<thread> threads;
         for(int i = 0; i < NUM_THREADS; ++i)
@@ -695,6 +697,9 @@ void new_smart_pointers()
 
         upA1->f1();
         upA2->f1();
+
+        // A unique pointer is unique. It can not be assigned to another unique pointer
+        //unique_ptr<A> upA3 = upA1; // compile error
 
     } cout << "No, memory leak." << endl;
 
@@ -838,6 +843,9 @@ void new_userdefined_literals()
     // See the definition of class Length in CPP1.h
     // See https://www.codeproject.com/Articles/447922/Application-of-Cplusplus11-User-Defined-Literals-t
     // for a more sophisticated unit system
+    // We have an f as literal for floats
+    //           \/
+    float f = 1.0f;
 
     //Length len0 = 1.0;    // Compile Error
     Length len1 = 1.0_m;            cout << len1.lenghtInMeters() << " m" << endl;
