@@ -17,6 +17,7 @@
 #include <memory>
 #include <FileLog.h>
 #include <CustomLog.h>
+#include <functional>
 
 using namespace std;
 
@@ -102,6 +103,9 @@ string getFileName(const string& pathFilename);
 //! Returns the filename without extension
 string getFileNameWOExt(const string& pathFilename);
 
+//! Strip last component from file name
+string getDirName(const string& pathFilename);
+
 //! Returns the file extension without dot in lower case
 string getFileExt(const string& filename);
 
@@ -119,6 +123,7 @@ bool dirExists(const string& path);
 
 //! Returns the file size in bytes
 unsigned int getFileSize(const string& filename);
+unsigned int getFileSize(std::ifstream &fs);
 
 //! Creates a directory with given path
 bool makeDir(const string& path);
@@ -128,6 +133,9 @@ bool makeDirRecurse(string path);
 
 //! RemoveDir deletes a directory with given path
 void removeDir(const string& path);
+
+//! RemoveFile deletes a file with given path
+void removeFile(const string& path);
 
 //! Returns true if a file exists.
 bool fileExists(const string& pathfilename);
@@ -141,10 +149,14 @@ string getCurrentWorkingDir();
 //! Deletes a file on the filesystem
 bool deleteFile(string& pathfilename);
 
-//! Dumps all folders and files recursively
-void dumpFileSystemRec(const char*   logtag,
-                       const string& folderpath,
-                       int           depth = 0);
+//! process all files and folders recursively naturally sorted
+void loopFileSystemRec(const string& path,
+                       std::function<void(std::string path, std::string baseName, int depth)> processFile,
+                       std::function<void(std::string path, std::string baseName, int depth)> processDir,
+                       const int depth = 0);
+
+//! Dumps all folders and files recursovely
+void dumpFileSystemRec(const char* logtag, const string& folderpath);
 
 //! Tries to find a filename on various paths to check
 string findFile(const string&         filename,
