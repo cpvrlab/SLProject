@@ -27,7 +27,7 @@ public:
 
     ~SLGLDepthBuffer();
 
-    SLfloat depth(SLint x, SLint y);
+    SLfloat depth(SLuint x, SLuint y);
     SLint   texID() { return _texID; }
     SLint   target() { return _target; }
     void    activateAsTexture(SLuint loc);

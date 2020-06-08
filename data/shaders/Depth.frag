@@ -13,7 +13,7 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-void main()
+void main(void)
 {
     gl_FragDepth = gl_FragCoord.z;
 }

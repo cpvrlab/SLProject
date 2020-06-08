@@ -20,10 +20,13 @@
 #include <SLMaterial.h>
 #include <SLNode.h>
 #include <SLShadowMap.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection projection, SLLight* light)
 {
+    PROFILE_FUNCTION();
+
     _light       = light;
     _projection  = projection;
     _useCubemap  = false;
@@ -220,6 +223,8 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4
 */
 void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 {
+    PROFILE_FUNCTION();
+
     SLGLState* stateGL = SLGLState::instance();
 
     // Create Material

@@ -12,6 +12,7 @@
 
 #include <SLGLState.h>
 #include <SLGLDepthBuffer.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
@@ -21,6 +22,8 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
                                  SLfloat borderColor[],
                                  SLenum  target) : _dimensions(dimensions), _target(target)
 {
+    PROFILE_FUNCTION();
+
     assert(target == GL_TEXTURE_2D || target == GL_TEXTURE_CUBE_MAP);
     SLGLState* stateGL = SLGLState::instance();
 
@@ -117,7 +120,7 @@ void SLGLDepthBuffer::activateAsTexture(SLuint loc)
 #endif
 }
 //-----------------------------------------------------------------------------
-SLfloat SLGLDepthBuffer::depth(SLint x, SLint y)
+SLfloat SLGLDepthBuffer::depth(SLuint x, SLuint y)
 {
     SLfloat depth;
     glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);

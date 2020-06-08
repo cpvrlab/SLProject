@@ -82,7 +82,7 @@ private:
     SLfloat             _clipNear;    //!< Near clipping plane
     SLfloat             _clipFar;     //!< Far clipping plane
     SLVec2f             _size;        //!< Height and width of the frustum (only for SLLightDirect)
-    SLVec2f             _halfSize;    //!< _size divided by 2
+    SLVec2f             _halfSize;    //!< _size divided by two
     SLVec2i             _textureSize; //!< Size of the shadow map texture
 };
 //-----------------------------------------------------------------------------

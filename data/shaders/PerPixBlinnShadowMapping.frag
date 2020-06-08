@@ -54,7 +54,7 @@ uniform int         u_stereoEye;              //!< -1=left, 0=center, 1=right
 uniform mat3        u_stereoColorFilter;      //!< color filter matrix
 
 uniform sampler2D   u_shadowMap[8];           //!< shadow maps of the lights
-uniform samplerCube u_shadowMapCube[8];       //!< cube maps for point shadows
+uniform samplerCube u_shadowMapCube[8];       //!< cube maps for point lights
 
 //-----------------------------------------------------------------------------
 int vectorToFace(vec3 vec) // Vector to process
