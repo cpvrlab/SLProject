@@ -40,10 +40,12 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
             return briefExtractor(4000);
         case ExtractorType_FAST_BRIEF_6000:
             return briefExtractor(6000);
+#ifndef TARGET_OS_IOS
         case ExtractorType_GLSL_1:
             return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.3f);
         case ExtractorType_GLSL:
             return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.4f);
+#endif
         default:
             return orbExtractor(1000);
     }

@@ -1,17 +1,17 @@
 //
-//  AppDelegate.m
+//  ErlebARAppDelegate.m
 //  comgr
 //
 //  Created by Marcus Hudritsch on 30.11.11.
 //  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "AppDelegate.h"
-#import "ViewController.h"
+#import "ErlebARAppDelegate.h"
+#import "ErlebARViewController.h"
 
 //#include <SLInterface.h>
 
-@implementation AppDelegate
+@implementation ErlebARAppDelegate
 
 @synthesize window = _window;
 @synthesize viewController = _viewController;
@@ -26,11 +26,11 @@
     // Override point for customization after application launch.
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
     {
-        self.viewController = [[ViewController alloc] initWithNibName:@"ViewController_iPhone" bundle:nil];
+        self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPhone" bundle:nil];
     }
     else
     {
-        self.viewController = [[ViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
+        self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
     }
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];

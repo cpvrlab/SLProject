@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  ErlebARViewController.h
 //  comgr
 //
 //  Created by Marcus Hudritsch on 30.11.11.
@@ -11,6 +11,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreLocation/CoreLocation.h>
 
-@interface ViewController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate, CLLocationManagerDelegate>
+@interface ErlebARViewController : GLKViewController
 
 @end

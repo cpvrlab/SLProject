@@ -20,7 +20,8 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //keep a local copy of all available
-    _camCharacs = _camera->getAllCameraCharacteristics();
+    if(_camera)
+        _camCharacs = _camera->getAllCameraCharacteristics();
 
     //prepare sizes for visualization
     for (const SENSCameraCharacteristics& c : _camCharacs)

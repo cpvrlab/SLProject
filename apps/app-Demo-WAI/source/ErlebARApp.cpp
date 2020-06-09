@@ -172,7 +172,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                    *_imGuiEngine,
                                    dd,
                                    "0.12");
-
+/*
     _testView = new TestView(*this,
                              _inputManager,
                              *_imGuiEngine,
@@ -188,13 +188,13 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _startUpView = new StartUpView(_inputManager,
                                    dd);
-
+*/
     _aboutView = new AboutView(*this,
                                _inputManager,
                                *_imGuiEngine,
                                *_resources,
                                dd);
-
+/*
     _settingsView = new SettingsView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
@@ -232,7 +232,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                          *_resources,
                                          _camera,
                                          dd);
-
+*/
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
 

@@ -43,16 +43,22 @@ set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
 set(headers
 	${erlebar_headers}
-	${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
-	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.h
     )
 
 set(sources
 	${erlebar_sources}
-    ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.mm
+    ${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
-	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm
+	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.mm
 	)
+ 
+# Group source files
+set(headers_sources ${sources} ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})
+#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 #copy defined resources to build directory and add get folder reference using file(GLOB) (this is a secret trick that nobody knows)
 include(CopyResourcesErlebAR)

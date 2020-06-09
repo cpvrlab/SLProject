@@ -37,6 +37,7 @@ public:
 private:
     std::unique_ptr<ORB_SLAM2::KPextractor> orbExtractor(int nf);
     std::unique_ptr<ORB_SLAM2::KPextractor> briefExtractor(int nf);
+#ifndef TARGET_OS_IOS
     std::unique_ptr<ORB_SLAM2::KPextractor> glslExtractor(
       const cv::Size& videoFrameSize,
       int             nbKeypointsBigSigma,
@@ -45,6 +46,7 @@ private:
       float           lowThrs,
       float           bigSigma,
       float           smallSigma);
+#endif
 
     std::vector<std::string> _extractorIdToNames;
 };
