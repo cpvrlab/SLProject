@@ -1552,17 +1552,16 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     // clang-format off
     // We have to coordinate these shortcuts in SLDemoGui::buildMenuBar
-    if (key=='M') {doMultiSampling(!doMultiSampling()); return true;}
+    if (key=='L') {doMultiSampling(!doMultiSampling()); return true;}
     if (key=='I') {doWaitOnIdle(!doWaitOnIdle()); return true;}
     if (key=='F') {doFrustumCulling(!doFrustumCulling()); return true;}
     if (key=='T') {doDepthTest(!doDepthTest()); return true;}
     if (key=='O') {_s->stopAnimations(!_s->stopAnimations()); return true;}
 
-    if (key=='G') {renderType(RT_gl); return true;}
     if (key=='R') {startRaytracing(5);}
-    if (key=='C') {startConetracing();}
+    if (key=='P') {startPathtracing(5, 10);}
 
-    if (key=='P') {drawBits()->toggle(SL_DB_WIREMESH); return true;}
+    if (key=='M') {drawBits()->toggle(SL_DB_MESHWIRED); return true;}
     if (key=='N') {drawBits()->toggle(SL_DB_NORMALS); return true;}
     if (key=='B') {drawBits()->toggle(SL_DB_BBOX); return true;}
     if (key=='V') {drawBits()->toggle(SL_DB_VOXELS); return true;}
@@ -1572,7 +1571,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key=='5')
     {   if (_camera->projection() == P_monoPerspective)
-             _camera->projection(P_monoOrthographic);
+            _camera->projection(P_monoOrthographic);
         else _camera->projection(P_monoPerspective);
         if (_renderType == RT_rt && !_raytracer.doContinuous() &&
             _raytracer.state() == rtFinished)
@@ -1581,17 +1580,13 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key==K_tab) {switchToNextCameraInScene(); return true;}
 
-    if (key==K_esc && mod==K_ctrl)
-    {   if(_renderType == RT_rt)
-        {  _stopRT = true;
-            return false;
-        }
-        else if(_renderType == RT_pt)
-        {  _stopPT = true;
-            return false;
-        }
-        else return true; // end the program
+    if (key==K_esc)
+    {   if (_s->selectedNode()) _s->selectNode(nullptr);
+        if(_renderType == RT_rt) _stopRT = true;
+        if(_renderType == RT_pt) _stopPT = true;
+        return true;
     }
+
     // clang-format on
 
     SLbool result = false;
@@ -1667,7 +1662,7 @@ Returns the window title with name & FPS
 */
 SLstring SLSceneView::windowTitle()
 {
-    SLchar title[255];
+    SLchar   title[255];
     SLstring profiling = "";
 
 #if PROFILING

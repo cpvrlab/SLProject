@@ -44,9 +44,9 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                     if (ImGui::Checkbox("Hide", &db))
                         node->drawBits()->set(SL_DB_HIDDEN, db);
 
-                    db = node->drawBit(SL_DB_WIREMESH);
+                    db = node->drawBit(SL_DB_MESHWIRED);
                     if (ImGui::Checkbox("Show wireframe", &db))
-                        node->drawBits()->set(SL_DB_WIREMESH, db);
+                        node->drawBits()->set(SL_DB_MESHWIRED, db);
 
                     db = node->drawBit(SL_DB_NORMALS);
                     if (ImGui::Checkbox("Show normals", &db))

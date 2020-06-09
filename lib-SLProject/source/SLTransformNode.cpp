@@ -592,7 +592,7 @@ bool SLTransformNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
     cross.cross(ray1Dir, ray2Dir);
     float den = cross.lengthSqr();
 
-    printf("den: %f, sqrt(den): %f\n", den, cross.length());
+    //printf("den: %f, sqrt(den): %f\n", den, cross.length());
 
     if (den > FLT_EPSILON)
     {
