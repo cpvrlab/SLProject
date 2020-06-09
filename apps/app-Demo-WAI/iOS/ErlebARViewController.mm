@@ -76,7 +76,7 @@ float GetSeconds()
     int                 m_lastVideoSizeIndex;   //! 0=1920x1080, 1=1280x720 else 640x480
     bool                m_locationIsRunning;    //! GPS is running
     
-    ErlebARApp* m_erlebARApp;
+    ErlebARApp m_erlebARApp;
 }
 @property (strong, nonatomic) EAGLContext       *context;
 //@property (strong, nonatomic) CMMotionManager   *motionManager;
@@ -142,8 +142,8 @@ float GetSeconds()
     Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
     
-    m_erlebARApp = new ErlebARApp();
-    m_erlebARApp->init(self.view.bounds.size.height * screenScale,
+    //m_erlebARApp = new ErlebARApp();
+    m_erlebARApp.init(self.view.bounds.size.height * screenScale,
                        self.view.bounds.size.width * screenScale,
                        dpi,
                        exePath + "data/",
@@ -230,7 +230,7 @@ float GetSeconds()
     //bool viewsNeedsRepaint  = slPaintAllViews();
     /////////////////////////////////////////////
     
-    m_erlebARApp->update();
+    m_erlebARApp.update();
     //m_lastVideoImageIsConsumed = true;
     
     /*
@@ -256,9 +256,9 @@ float GetSeconds()
     if (m_touchDowns > 0)
     {
         if (m_touchDowns == 1)
-            ;//slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            m_erlebARApp.mouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
         if (m_touchDowns == 2)
-            ;//slTouch2Up(svIndex, 0, 0, 0, 0);
+            m_erlebARApp.touch2Up(svIndex, 0, 0, 0, 0);
       
         // Reset touch counter if last touch event is older than a second.
         // This resolves the problem off loosing track in touch counting e.g.
@@ -273,9 +273,9 @@ float GetSeconds()
     if (m_touchDowns == 1 && [touches count] == 1)
     {
         if (touchDownNowSec - m_lastTouchDownSec < 0.3f)
-            ;//slDoubleClick(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            m_erlebARApp.doubleClick(svIndex, MB_left, pos1.x, pos1.y, K_none);
         else
-            ;//slMouseDown(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            m_erlebARApp.mouseDown(svIndex, MB_left, pos1.x, pos1.y, K_none);
     }
     else if (m_touchDowns == 2)
     {
@@ -285,10 +285,10 @@ float GetSeconds()
             CGPoint pos2 = [touch2 locationInView:touch2.view];
             pos2.x *= screenScale;
             pos2.y *= screenScale;
-            //slTouch2Down(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+            m_erlebARApp.touch2Down(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
         }
         else if ([touches count] == 1) // delayed 2nd finger touch
-            ;//slTouch2Down(svIndex, 0, 0, 0, 0);
+            m_erlebARApp.touch2Down(svIndex, 0, 0, 0, 0);
     }
    
     m_lastTouchTimeSec = m_lastTouchDownSec = touchDownNowSec;
@@ -305,7 +305,7 @@ float GetSeconds()
    
     if (m_touchDowns == 1 && [touches count] == 1)
     {
-        //slMouseMove(svIndex, pos1.x, pos1.y);
+        m_erlebARApp.mouseMove(svIndex, pos1.x, pos1.y);
     }
     else if (m_touchDowns == 2 && [touches count] == 2)
     {
@@ -313,7 +313,7 @@ float GetSeconds()
         CGPoint pos2 = [touch2 locationInView:touch2.view];
         pos2.x *= screenScale;
         pos2.y *= screenScale;
-        //slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        m_erlebARApp.touch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
    
     m_lastTouchTimeSec = m_lastFrameTimeSec;
@@ -330,7 +330,7 @@ float GetSeconds()
    
     if (m_touchDowns == 1 || [touches count] == 1)
     {
-        //slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+        m_erlebARApp.mouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
     }
     else if (m_touchDowns == 2 && [touches count] >= 2)
     {
@@ -338,7 +338,7 @@ float GetSeconds()
         CGPoint pos2 = [touch2 locationInView:touch2.view];
         pos2.x *= screenScale;
         pos2.y *= screenScale;
-        //slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        m_erlebARApp.touch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
 
     m_touchDowns = 0;
@@ -357,13 +357,13 @@ float GetSeconds()
    
     if (m_touchDowns == 1 || [touches count] == 1)
     {
-        //slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+        m_erlebARApp.mouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
     }
     else if (m_touchDowns == 2 && [touches count] >= 2)
     {
         UITouch* touch2 = [myTouches objectAtIndex:1];
         CGPoint pos2 = [touch2 locationInView:touch2.view];
-        //slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+        m_erlebARApp.touch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
     m_touchDowns -= (int)[touches count];
     if (m_touchDowns < 0)

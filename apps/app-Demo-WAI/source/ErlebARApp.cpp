@@ -194,7 +194,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                *_imGuiEngine,
                                *_resources,
                                dd);
-/*
+
     _settingsView = new SettingsView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
@@ -206,7 +206,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                      *_imGuiEngine,
                                      *_resources,
                                      dd);
-
+/*
     _locationMapView = new LocationMapView(*this,
                                            _inputManager,
                                            *_imGuiEngine,
