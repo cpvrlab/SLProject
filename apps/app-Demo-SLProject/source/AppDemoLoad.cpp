@@ -2230,7 +2230,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLNode* boxNode = new SLNode(box, "Box Node");
             boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
             SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
-            axisNode->setDrawBitsRec(SL_DB_WIREMESH, false);
+            axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
             axisNode->scale(e3);
             boxNode->addChild(axisNode);
             scene->addChild(boxNode);
@@ -2306,7 +2306,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLBox*  box1      = new SLBox(s, -he, -he, 0.0f, he, he, 2 * he, "Box 1", yellow);
         SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
         SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
-        axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode1->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axisNode1->scale(edgeLen);
         boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
@@ -2365,7 +2365,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Coordinate axis node
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(100);
         axis->rotate(-90, 1, 0, 0);
 
@@ -2440,7 +2440,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add axis arrows at world center
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(0.03f);
 
         // Scene structure
@@ -2493,7 +2493,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(2);
         axis->rotate(-90, 1, 0, 0);
 
@@ -2612,7 +2612,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
@@ -2696,7 +2696,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
@@ -2788,7 +2788,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
@@ -2868,7 +2868,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
@@ -2948,7 +2948,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
 
@@ -3026,7 +3026,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLBox*  box1      = new SLBox(s, -he, -he, -he, he, he, he, "Box 1", yellow);
         SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
         SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
-        axisNode1->setDrawBitsRec(SL_DB_WIREMESH, false);
+        axisNode1->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axisNode1->scale(edgeLen);
         axisNode1->translate(-he, -he, -he, TS_parent);
         boxNode1->addChild(axisNode1);

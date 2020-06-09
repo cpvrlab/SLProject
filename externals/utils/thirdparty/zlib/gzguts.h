@@ -3,6 +3,15 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+//BEGIN: this include is added by cpvr to fix compile error on ios
+#ifdef __APPLE__
+#    include <TargetConditionals.h> //defines TARGET_OS_IOS
+#    if defined(TARGET_OS_IOS)
+#        include <unistd.h>
+#    endif
+#endif
+//END: this include is added by cpvr
+
 #ifdef _LARGEFILE64_SOURCE
 #  ifndef _LARGEFILE_SOURCE
 #    define _LARGEFILE_SOURCE 1

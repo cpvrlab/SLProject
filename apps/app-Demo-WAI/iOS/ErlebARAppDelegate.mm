@@ -1,36 +1,36 @@
 //
-//  AppDelegate.m
+//  ErlebARAppDelegate.m
 //  comgr
 //
 //  Created by Marcus Hudritsch on 30.11.11.
 //  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "AppDelegate.h"
-#import "ViewController.h"
+#import "ErlebARAppDelegate.h"
+#import "ErlebARViewController.h"
 
-#include <SLInterface.h>
+//#include <SLInterface.h>
 
-@implementation AppDelegate
+@implementation ErlebARAppDelegate
 
 @synthesize window = _window;
 @synthesize viewController = _viewController;
 
 - (void)dealloc
 {
-   [_window release];
-   [_viewController release];
-    [super dealloc];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        self.viewController = [[[ViewController alloc] initWithNibName:@"ViewController_iPhone" bundle:nil] autorelease];
-    } else {
-        self.viewController = [[[ViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil] autorelease];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+    {
+        self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPhone" bundle:nil];
+    }
+    else
+    {
+        self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
     }
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
@@ -61,7 +61,7 @@
     */
     
     printf("applicationDidEnterBackground\n");
-    slTerminate();
+    //slTerminate();
     exit(0);
     
 }

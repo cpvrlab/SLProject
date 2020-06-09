@@ -1,6 +1,8 @@
 #ifndef CPLVRLAB_ZIP_UTILS_H
 #define CPLVRLAB_ZIP_UTILS_H
 
+#include <string>
+
 namespace ZipUtils
 {
 bool zip(std::string path, std::string zipname = "");

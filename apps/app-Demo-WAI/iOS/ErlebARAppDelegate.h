@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class ViewController;
+@class ErlebARViewController;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface ErlebARAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) ViewController *viewController;
+@property (strong, nonatomic) ErlebARViewController *viewController;
 
 @end

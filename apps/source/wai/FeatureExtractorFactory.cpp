@@ -40,10 +40,12 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
             return briefExtractor(4000);
         case ExtractorType_FAST_BRIEF_6000:
             return briefExtractor(6000);
+#ifndef TARGET_OS_IOS
         case ExtractorType_GLSL_1:
             return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.3f);
         case ExtractorType_GLSL:
             return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.4f);
+#endif
         default:
             return orbExtractor(1000);
     }
@@ -83,6 +85,7 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::briefExtractor(int nf)
     return std::make_unique<ORB_SLAM2::BRIEFextractor>(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 }
 
+#ifndef TARGET_OS_IOS
 std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Size&
                                                                       videoFrameSize,
                                                                     int   nbKeypointsBigSigma,
@@ -102,3 +105,4 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Si
                                            bigSigma,
                                            smallSigma);
 }
+#endif

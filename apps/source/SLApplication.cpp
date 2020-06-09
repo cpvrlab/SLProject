@@ -36,9 +36,9 @@ SLstring SLApplication::configuration = "Debug";
 #else
 SLstring SLApplication::configuration = "Release";
 #endif
-SLstring            SLApplication::gitBranch = SL_GIT_BRANCH;
-SLstring            SLApplication::gitCommit = SL_GIT_COMMIT;
-SLstring            SLApplication::gitDate   = SL_GIT_DATE;
+SLstring            SLApplication::gitBranch;// = SL_GIT_BRANCH;
+SLstring            SLApplication::gitCommit;// = SL_GIT_COMMIT;
+SLstring            SLApplication::gitDate;//   = SL_GIT_DATE;
 map<string, string> SLApplication::deviceParameter;
 
 CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;
@@ -47,9 +47,9 @@ SLstring                     SLApplication::calibIniPath;
 SLstring                     SLApplication::calibFilePath;
 
 //! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring SLApplication::exePath      = SLstring(SL_PROJECT_ROOT) + "/";
-SLstring SLApplication::configPath   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
-SLstring SLApplication::externalPath = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring SLApplication::exePath;//      = SLstring(SL_PROJECT_ROOT) + "/";
+SLstring SLApplication::configPath;//   = SLstring(SL_PROJECT_ROOT) + "/data/config/";
+SLstring SLApplication::externalPath;// = SLstring(SL_PROJECT_ROOT) + "/data/config/";
 SLstring SLApplication::dataPath;
 SLstring SLApplication::shaderPath;
 SLstring SLApplication::modelPath;

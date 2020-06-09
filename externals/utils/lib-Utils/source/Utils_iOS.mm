@@ -11,6 +11,7 @@
 #include <Utils.h>
 #include <sys/stat.h> //dirent
 
+#import <Foundation/Foundation.h>
 //-----------------------------------------------------------------------------
 /*! Utils_iOS::fileExists returns true if the file exists. This code works
 only Apple OSX and iOS. If no file matches, it checks all files of the same

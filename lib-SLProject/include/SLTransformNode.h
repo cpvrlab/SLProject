@@ -91,12 +91,10 @@ private:
     SLNode* _selectedGizmo = nullptr;
 
     // Translation stuff
-    SLNode* _transAxisX = nullptr;
-    SLNode* _transAxisY = nullptr;
-    SLNode* _transAxisZ = nullptr;
-    SLNode* _transLineX = nullptr;
-    SLNode* _transLineY = nullptr;
-    SLNode* _transLineZ = nullptr;
+    SLNode* _transGizmos = nullptr;
+    SLNode* _transLineX  = nullptr;
+    SLNode* _transLineY  = nullptr;
+    SLNode* _transLineZ  = nullptr;
 
     // Scale stuff
     SLNode* _scaleGizmos = nullptr;
@@ -104,19 +102,22 @@ private:
     SLNode* _scaleCirc   = nullptr;
 
     // Rotation stuff
-    SLNode* _rotCircX = nullptr;
-    SLNode* _rotDiskX = nullptr;
-    SLNode* _rotCircY = nullptr;
-    SLNode* _rotDiskY = nullptr;
-    SLNode* _rotCircZ = nullptr;
-    SLNode* _rotDiskZ = nullptr;
+    SLNode* _rotGizmos = nullptr;
+    SLNode* _rotCircX  = nullptr;
+    SLNode* _rotDiskX  = nullptr;
+    SLNode* _rotCircY  = nullptr;
+    SLNode* _rotDiskY  = nullptr;
+    SLNode* _rotCircZ  = nullptr;
+    SLNode* _rotDiskZ  = nullptr;
 
     bool getClosestPointsBetweenRays(const SLVec3f& ray1O,
                                      const SLVec3f& ray1Dir,
                                      const SLVec3f& ray2O,
                                      const SLVec3f& ray2Dir,
                                      SLVec3f&       ray1P,
-                                     SLVec3f&       ray2P);
+                                     float&         t1,
+                                     SLVec3f&       ray2P,
+                                     float&         t2);
     bool getClosestPointOnAxis(const SLVec3f& pickRayO,
                                const SLVec3f& pickRayDir,
                                const SLVec3f& axisRayO,

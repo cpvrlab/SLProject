@@ -1,3 +1,4 @@
+#include "ZipUtils.h"
 #include <cstring>
 #include <string>
 #include <vector>
@@ -151,7 +152,7 @@ bool unzip(std::string zipfile,
     return ret;
 }
 
-bool zip(std::string path, std::string zipname = "")
+bool zip(std::string path, std::string zipname)
 {
     if (zipname.empty())
         zipname = Utils::trimString(path, "/") + ".zip";
@@ -185,7 +186,7 @@ bool zip(std::string path, std::string zipname = "")
     return true;
 }
 
-bool unzip(std::string path, std::string dest = "")
+bool unzip(std::string path, std::string dest)
 {
     std::ofstream fs;
 
