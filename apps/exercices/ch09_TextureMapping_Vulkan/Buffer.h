@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Device.h"
-#include "CommandBuffer.h"
+#include <Device.h>
+#include <CommandBuffer.h>
 
 struct Vertex;
 

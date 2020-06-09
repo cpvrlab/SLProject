@@ -1,3 +1,4 @@
+
 #define oldProject 0
 
 #define GLFW_INCLUDE_VULKAN
@@ -284,8 +285,8 @@ void updateCamera()
 {
     _viewMatrix.identity();
     _viewMatrix.translate(0.0f, 0.0f, -_camZ);
-    _viewMatrix.rotate(_rotX + _deltaX, 1.0f, 0.0f, 0.0f);
-    _viewMatrix.rotate(_rotY + _deltaY, 0.0f, 1.0f, 0.0f);
+    _viewMatrix.rotate((float)(_rotX + _deltaX), 1.0f, 0.0f, 0.0f);
+    _viewMatrix.rotate((float)(_rotY + _deltaY), 0.0f, 1.0f, 0.0f);
 }
 #if oldProject
 //-----------------------------------------------------------------------------
@@ -362,7 +363,7 @@ int main()
     vertexBuffer.createVertexBuffer(vertices);
     // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
-    commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, indices.size());
+    commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)indices.size());
     device.createSyncObjects(swapchain);
 
     // Render

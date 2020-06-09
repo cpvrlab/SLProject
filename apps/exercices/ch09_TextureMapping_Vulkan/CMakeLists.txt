@@ -20,10 +20,16 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/Device.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Fence.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/GPUProgram.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/GPUShader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ImageView.h
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Instance.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Material.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Node.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Object.h
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.h
         ${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.h
@@ -33,7 +39,9 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.h
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.h
         )
@@ -56,6 +64,9 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/ImageView.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Instance.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Material.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Node.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.cpp
@@ -91,6 +102,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
         PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${SL_PROJECT_ROOT}/lib-SLProject/include
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
         ${SL_PROJECT_ROOT}/lib-SLProject/include/math
