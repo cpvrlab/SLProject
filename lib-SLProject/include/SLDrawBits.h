@@ -20,7 +20,7 @@ view or per single node object. Not all are used from the beginning
 */
 #define SL_DB_HIDDEN 1      //!< Flags an object as hidden
 #define SL_DB_SELECTED 2    //!< Flags an object as selected
-#define SL_DB_WIREMESH 4    //!< Draw polygons as wired mesh
+#define SL_DB_MESHWIRED 4    //!< Draw polygons as wired mesh
 #define SL_DB_NORMALS 8     //!< Draw the vertex normals
 #define SL_DB_BBOX 16       //!< Draw the bounding boxes of a node
 #define SL_DB_AXIS 32       //!< Draw the coordinate axis of a node

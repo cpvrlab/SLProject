@@ -431,13 +431,8 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowSize(myWindow, scrWidth, scrHeight);
             glfwSetWindowPos(myWindow, 10, 30);
         }
-        else
-        {
-            slKeyPress(svIndex, key, modifiers);
-            onClose(myWindow);
-            glfwSetWindowShouldClose(myWindow, GL_TRUE);
-        }
     }
+
     // Toggle fullscreen mode
     else if (key == K_F9 && action == GLFW_PRESS)
     {
