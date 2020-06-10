@@ -13,5 +13,8 @@ set(UTILS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 include(${SL_PROJECT_ROOT}/cmake/CompileOptions.cmake)
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
+if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+	add_subdirectory(thirdparty/zlib)
+endif()
 add_subdirectory(lib-Utils)
 add_subdirectory(utils_tests)
