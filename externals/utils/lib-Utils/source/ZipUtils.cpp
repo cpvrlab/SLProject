@@ -7,7 +7,6 @@
 #include <minizip/zip.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <libgen.h>
 #include <functional>
 #include <Utils.h>
 
