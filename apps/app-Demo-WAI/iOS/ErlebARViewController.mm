@@ -9,13 +9,13 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-//includes
+//imports
 #import "ErlebARViewController.h"
-#import <CoreMotion/CoreMotion.h>
+//#import <CoreMotion/CoreMotion.h>
 #import <sys/utsname.h>
 #import <mach-o/arch.h>
-
-//imports
+#import <iOS/SENSiOSCamera.h>
+//includes
 #include <mach/mach_time.h>
 #include <Utils.h>
 #include "Utils_iOS.h"
@@ -33,6 +33,8 @@
     float _screenScale;
     // ErlebAR app instance
     ErlebARApp _erlebARApp;
+    //std::unique_ptr<SENSiOSCamera> _camera;
+    SENSiOSCamera* _camera;
 }
 - (float)getSeconds;
 
@@ -43,6 +45,11 @@
 //-----------------------------------------------------------------------------
 @implementation ErlebARViewController
 
+//-----------------------------------------------------------------------------
+- (void)dealloc
+{
+    delete _camera;
+}
 //-----------------------------------------------------------------------------
 - (void)viewDidLoad
 {
@@ -94,12 +101,13 @@
     std::string exePath = Utils_iOS::getCurrentWorkingDir();
     std::string configPath = Utils_iOS::getAppsWritableDir();
     
+    _camera = new SENSiOSCamera();
     _erlebARApp.init(self.view.bounds.size.height * _screenScale,
                        self.view.bounds.size.width * _screenScale,
                        dpi,
                        exePath + "data/",
                        configPath,
-                       nullptr);
+                       _camera);
 }
 //-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning

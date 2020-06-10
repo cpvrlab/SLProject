@@ -121,6 +121,12 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             ImGui::TextWrapped(_exceptionText.c_str());
             ImGui::PopStyleColor();
         }
+        else if(_camCharacs.size() == 0)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            ImGui::TextWrapped("Camera has no characteristics!");
+            ImGui::PopStyleColor();
+        }
         else
         {
             if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCharac->cameraId.c_str()))

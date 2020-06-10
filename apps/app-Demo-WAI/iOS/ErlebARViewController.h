@@ -9,10 +9,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
-#import <AVFoundation/AVFoundation.h>
-#import <CoreLocation/CoreLocation.h>
+//#import <AVFoundation/AVFoundation.h>
+//#import <CoreLocation/CoreLocation.h>
 
 @interface ErlebARViewController : GLKViewController
 
