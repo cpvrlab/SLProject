@@ -33,8 +33,6 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
-        ${UTILS_ROOT}/thirdparty/zlib/zconf.h.included
-        ${UTILS_ROOT}/thirdparty/zlib/zlib.h
     )
 set(sources
         ${sources}
@@ -45,22 +43,6 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
-        ${UTILS_ROOT}/thirdparty/zlib/adler32.c
-        ${UTILS_ROOT}/thirdparty/zlib/compress.c
-        ${UTILS_ROOT}/thirdparty/zlib/crc32.c
-        ${UTILS_ROOT}/thirdparty/zlib/deflate.c
-        ${UTILS_ROOT}/thirdparty/zlib/gzclose.c
-        ${UTILS_ROOT}/thirdparty/zlib/gzlib.c
-        ${UTILS_ROOT}/thirdparty/zlib/gzread.c
-        ${UTILS_ROOT}/thirdparty/zlib/gzwrite.c
-        ${UTILS_ROOT}/thirdparty/zlib/inflate.c
-        ${UTILS_ROOT}/thirdparty/zlib/infback.c
-        ${UTILS_ROOT}/thirdparty/zlib/inflate.c
-        ${UTILS_ROOT}/thirdparty/zlib/inftrees.c
-        ${UTILS_ROOT}/thirdparty/zlib/inffast.c
-        ${UTILS_ROOT}/thirdparty/zlib/trees.c
-        ${UTILS_ROOT}/thirdparty/zlib/uncompr.c
-        ${UTILS_ROOT}/thirdparty/zlib/zutil.c
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/ioapi.c
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/zip.c
@@ -147,6 +129,7 @@ target_link_libraries(${target}
     PUBLIC
     ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
+    zlib
 
     INTERFACE
     )
