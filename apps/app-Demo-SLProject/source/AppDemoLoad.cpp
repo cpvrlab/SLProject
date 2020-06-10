@@ -1674,7 +1674,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
           new SLLightDirect(s, s),
           new SLLightRect(s, s),
           new SLLightSpot(s, s, 0.3f, 25.0f),
-          new SLLightSpot(s, s, 0.3f, 180.0f)};
+          new SLLightSpot(s, s, 0.02f, 180.0f)};
 
         for (SLint i = 0; i < lights.size(); ++i)
         {
@@ -1815,7 +1815,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         for (SLint i = 0; i < 3; ++i)
         {
-            SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
+            SLLightSpot* light = new SLLightSpot(s, s, 0.02f);
             light->powers(0.2f, 1.5f, 1.0f, SLCol4f(i == 0, i == 1, i == 2));
             light->attenuation(0, 0, 1);
             light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
