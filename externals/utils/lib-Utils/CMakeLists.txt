@@ -97,8 +97,7 @@ target_include_directories(${target}
     ${UTILS_ROOT}/thirdparty/ftplibpp
     ${UTILS_ROOT}/thirdparty/zlib
     ${UTILS_ROOT}/thirdparty/zlib/contrib
-    ${DEFAULT_INCLUDE_DIRECTORIES}
-
+    ${CMAKE_CURRENT_BINARY_DIR}/../thirdparty/zlib
     INTERFACE
     )
 
