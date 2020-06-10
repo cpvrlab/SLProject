@@ -401,7 +401,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
 
                             if (_selectedGizmo)
                             {
-                                printf("Selected gizmo %s with dist %f\n", _selectedGizmo->name().c_str(), dist);
+                                //printf("Selected gizmo %s with dist %f\n", _selectedGizmo->name().c_str(), dist);
                                 _selectedGizmo->drawBits()->set(SL_DB_HIDDEN, false);
                                 _hitCoordinate = axisPoint;
                             }
