@@ -96,7 +96,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     if (location == "avenches")
     {
         std::string modelPath;
-        if (area == "entrance" || area == "arena")
+        if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
             modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
             loadMesh(modelPath);
