@@ -336,10 +336,12 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                             _transLineY->drawBits()->set(SL_DB_HIDDEN, true);
                             _transLineZ->drawBits()->set(SL_DB_HIDDEN, true);
 
+                            float nodeToCameraDist = (pickRay.origin - _transLineX->translationWS()).length();
+
                             float   dist = FLT_MAX;
                             SLVec3f axisPointCand;
                             float   t1, t2;
-                            float   minDistToOrigin = 10.0f;
+                            float   minDistToOrigin = min(nodeToCameraDist * 0.1f, 1.0f);
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
                                                             _transLineX->translationWS(),
