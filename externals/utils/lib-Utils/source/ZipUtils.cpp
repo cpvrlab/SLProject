@@ -7,7 +7,7 @@
 #include <minizip/zip.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <libgen.h>
+//#include <libgen.h>
 #include <functional>
 #include <Utils.h>
 
@@ -65,7 +65,7 @@ static bool zip_add_file(zipFile zfile, std::ifstream &fs, std::string filename)
     size_t n;
     while ((n = fs.readsome(buf, sizeof(buf))) > 0) 
     {
-        ret = zipWriteInFileInZip(zfile, buf, n);
+        ret = zipWriteInFileInZip(zfile, buf, (unsigned int)n);
         if (ret != ZIP_OK) 
         {
             zipCloseFileInZip(zfile);

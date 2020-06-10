@@ -121,7 +121,7 @@ bool TestRunnerView::update()
                                 _maxTrackingFrameCount = _trackingFrameCount;
                             }
                             _trackingFrameCount = 0;
-                            _isTracking == false;
+                            _isTracking = false;
                         }
                     }
                     else
@@ -405,7 +405,7 @@ bool TestRunnerView::update()
                         _localMap.mapPoints.clear();
                         _localMap.refKF = nullptr;
 
-                        _localMapping = new ORB_SLAM2::LocalMapping(_map, 1, &_voc, 0.95);
+                        _localMapping = new ORB_SLAM2::LocalMapping(_map, 1, &_voc, 0.95f);
                         _loopClosing  = new ORB_SLAM2::LoopClosing(_map, &_voc, false, false);
 
                         _localMapping->SetLoopCloser(_loopClosing);

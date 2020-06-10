@@ -541,7 +541,7 @@ void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
     _context->IO.MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
     ImGuiIO& io           = _context->IO;
     if (io.MouseDown[0] && _panScroll.enabled())
-        _panScroll.moveTo(yPos);
+        _panScroll.moveTo((float)yPos);
     //SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
