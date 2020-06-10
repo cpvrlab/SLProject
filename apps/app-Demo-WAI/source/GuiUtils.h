@@ -11,6 +11,8 @@
 
 namespace ErlebAR
 {
+
+void renderPanningBackgroundTexture(float x, float y, float w, float h, float screenW, float screenH, GLuint texId);
 void renderBackgroundTexture(float screenW, float screenH, GLuint texId);
 void renderHeaderBar(std::string               id,
                      float                     width,
@@ -28,6 +30,7 @@ void renderHeaderBar(std::string               id,
                      std::function<void(void)> cb);
 
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH, int& textureW, int& textureH);
+GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& textureW, int& textureH);
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH);
 
 void deleteTexture(GLuint& id);

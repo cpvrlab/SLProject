@@ -2,6 +2,7 @@
 #define CPLVRLAB_ZIP_UTILS_H
 
 #include <string>
+#include <functional>
 
 namespace ZipUtils
 {

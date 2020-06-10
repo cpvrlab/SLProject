@@ -48,7 +48,7 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/source/SLApplication.h
 	${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
-	${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
     )
 
