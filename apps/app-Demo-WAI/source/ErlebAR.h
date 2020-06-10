@@ -50,7 +50,11 @@ enum class AreaId
     AUGST_TEMPLE_HILL_MARKER,
     AUGST_TEMPLE_HILL_THEATER_BOTTOM,
     //AVENCHES
-    AVENCHES_ARENA,
+    AVENCHES_AMPHITHEATER,
+    AVENCHES_AMPHITHEATER_ENTRANCE,
+    AVENCHES_THEATER,
+    AVENCHES_CYGOGNIER,
+    AVENCHES_TEMPLE,
     //CHRISTOFFEL
     CHRISTOFFEL_SBB,
     //BIEL
@@ -88,6 +92,8 @@ public:
     const char* name;
     //name of area map image in erlebAR directory
     std::string            areaMapImageFileName;
+    //map image display pixel width
+    int dspPixWidth;
     std::map<AreaId, Area> areas;
     //location center wgs84 (for gps user positionioning in map)
 };

@@ -20,7 +20,8 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //keep a local copy of all available
-    _camCharacs = _camera->getAllCameraCharacteristics();
+    if(_camera)
+        _camCharacs = _camera->getAllCameraCharacteristics();
 
     //prepare sizes for visualization
     for (const SENSCameraCharacteristics& c : _camCharacs)
@@ -118,6 +119,12 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
             ImGui::TextWrapped(_exceptionText.c_str());
+            ImGui::PopStyleColor();
+        }
+        else if(_camCharacs.size() == 0)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            ImGui::TextWrapped("Camera has no characteristics!");
             ImGui::PopStyleColor();
         }
         else

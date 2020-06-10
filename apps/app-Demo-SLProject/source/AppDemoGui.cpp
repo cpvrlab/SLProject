@@ -1405,14 +1405,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         auto calculateGradients = []() {
                             SLApplication::jobProgressMsg("Calculate MRI Volume Gradients");
                             SLApplication::jobProgressMax(100);
-                            gTexMRI3D->calc3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+                            gTexMRI3D->calc3DGradients(1, [](int progress) { SLApplication::jobProgressNum(progress); });
                             SLApplication::jobIsRunning = false;
                         };
 
                         auto smoothGradients = []() {
                             SLApplication::jobProgressMsg("Smooth MRI Volume Gradients");
                             SLApplication::jobProgressMax(100);
-                            gTexMRI3D->smooth3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+                            gTexMRI3D->smooth3DGradients(1, [](int progress) { SLApplication::jobProgressNum(progress); });
                             SLApplication::jobIsRunning = false;
                         };
 
@@ -1462,7 +1462,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Empty Scene", nullptr, sid == SID_Empty))
                 s->onLoad(s, sv, SID_Empty);
 
-            if (ImGui::MenuItem("Multithreaded Job demo"))
+            if (ImGui::MenuItem("Multi-threaded Jobs"))
             {
                 auto job1 = []() {
                     uint maxIter = 100000;
@@ -1502,7 +1502,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #ifndef SL_OS_ANDROID
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Quit & Save", "ESC"))
+            if (ImGui::MenuItem("Quit & Save"))
                 slShouldClose(true);
 #endif
 
@@ -1726,7 +1726,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         {
             if (s->selectedNode())
             {
-                if (ImGui::MenuItem("Deselect Node"))
+                if (ImGui::MenuItem("Deselect Node", "ESC"))
                     s->selectNode(nullptr);
 
                 ImGui::Separator();
@@ -1759,8 +1759,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     SLNode* selN = s->selectedNode();
 
-                    if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_WIREMESH)))
-                        selN->drawBits()->toggle(SL_DB_WIREMESH);
+                    if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
+                        selN->drawBits()->toggle(SL_DB_MESHWIRED);
 
                     if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
                         selN->drawBits()->toggle(SL_DB_NORMALS);
@@ -1797,13 +1797,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Renderer"))
         {
-            if (ImGui::MenuItem("OpenGL", "G", rType == RT_gl))
+            if (ImGui::MenuItem("OpenGL", "ESC", rType == RT_gl))
                 sv->renderType(RT_gl);
 
             if (ImGui::MenuItem("Ray Tracing", "R", rType == RT_rt))
                 sv->startRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing", nullptr, rType == RT_pt))
+            if (ImGui::MenuItem("Path Tracing", "P", rType == RT_pt))
                 sv->startPathtracing(5, 10);
 
 #ifdef SL_HAS_OPTIX
@@ -1833,8 +1833,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("GL"))
             {
-                if (ImGui::MenuItem("Wired Mesh", "P", sv->drawBits()->get(SL_DB_WIREMESH)))
-                    sv->drawBits()->toggle(SL_DB_WIREMESH);
+                if (ImGui::MenuItem("Mesh Wired", "M", sv->drawBits()->get(SL_DB_MESHWIRED)))
+                    sv->drawBits()->toggle(SL_DB_MESHWIRED);
 
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->drawBits()->toggle(SL_DB_NORMALS);
@@ -1859,7 +1859,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("All on"))
                 {
-                    sv->drawBits()->on(SL_DB_WIREMESH);
+                    sv->drawBits()->on(SL_DB_MESHWIRED);
                     sv->drawBits()->on(SL_DB_NORMALS);
                     sv->drawBits()->on(SL_DB_VOXELS);
                     sv->drawBits()->on(SL_DB_AXIS);
@@ -2514,9 +2514,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         if (ImGui::Checkbox("Hide", &db))
                             node->drawBits()->set(SL_DB_HIDDEN, db);
 
-                        db = node->drawBit(SL_DB_WIREMESH);
+                        db = node->drawBit(SL_DB_MESHWIRED);
                         if (ImGui::Checkbox("Show wireframe", &db))
-                            node->drawBits()->set(SL_DB_WIREMESH, db);
+                            node->drawBits()->set(SL_DB_MESHWIRED, db);
 
                         db = node->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
@@ -2980,11 +2980,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             {
                                 SLfloat lineH = ImGui::GetTextLineHeight();
 
-                                if (ImGui::TreeNode(s->name().c_str()))
+                                if (ImGui::TreeNode(shd->name().c_str()))
                                 {
                                     SLchar text[1024 * 16];
                                     strcpy(text, shd->code().c_str());
-                                    ImGui::InputTextMultiline(s->name().c_str(),
+                                    ImGui::InputTextMultiline(shd->name().c_str(),
                                                               text,
                                                               IM_ARRAYSIZE(text),
                                                               ImVec2(-1.0f, lineH * 16));
@@ -3230,7 +3230,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::dataPath + "shaders");
+        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::shaderPath);
         s->root3D()->addChild(tN);
     }
 

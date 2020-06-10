@@ -23,9 +23,9 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, const Scalar& delaunay_colo
 
     for (auto t : triangleList)
     {
-        pt[0]   = Point(cvRound(t[0]), cvRound(t[1]));
-        pt[1]   = Point(cvRound(t[2]), cvRound(t[3]));
-        pt[2]   = Point(cvRound(t[4]), cvRound(t[5]));
+        pt[0] = Point(cvRound(t[0]), cvRound(t[1]));
+        pt[1] = Point(cvRound(t[2]), cvRound(t[3]));
+        pt[2] = Point(cvRound(t[4]), cvRound(t[5]));
 
         // Draw rectangles completely inside the image.
         if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
@@ -46,14 +46,19 @@ static void createDelaunay(Mat&                  img,
     // Insert points into subdiv
     for (const Point2f& p : points)
     {
-        subdiv.insert(p);
 
-        if (drawAnimated)
+        Rect rect(0, 0, img.cols, img.rows);
+        if (rect.contains(p))
         {
-            Mat img_copy = img.clone();
-            drawDelaunay(img_copy, subdiv, Scalar(255, 255, 255));
-            imshow("Delaunay Triangulation", img_copy);
-            waitKey(100);
+            subdiv.insert(p);
+
+            if (drawAnimated)
+            {
+                Mat img_copy = img.clone();
+                drawDelaunay(img_copy, subdiv, Scalar(255, 255, 255));
+                imshow("Delaunay Triangulation", img_copy);
+                waitKey(100);
+            }
         }
     }
 
@@ -244,6 +249,7 @@ int main()
         if (waitKey(10) != -1)
             return 0;
     }
+
     return 0;
 }
 //-----------------------------------------------------------------------------

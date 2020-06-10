@@ -28,7 +28,7 @@ class SLProjectScene;
 class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
-/*!      
+/*!
  The SLApplication holds static instances of top-level items such as the scene
  pointer, the camera calibration objects and the device rotation and location
  information. The static function createAppAndScene is called by the C-interface
@@ -71,11 +71,11 @@ public:
     static SLstring configPath;    //!< Default path for calibration files
     static SLstring externalPath;  //!< Default path for external file storage
     static SLstring dataPath;      //!< Path to data directory (it is set platform dependent)
-    static SLstring shaderPath;
-    static SLstring modelPath;
-    static SLstring texturePath;
-    static SLstring fontPath;
-    static SLstring videoPath;
+    static SLstring shaderPath;    //!< Path to GLSL shader programs
+    static SLstring modelPath;     //!< Path to 3D models
+    static SLstring texturePath;   //!< Path to texture images
+    static SLstring fontPath;      //!< Path to font images
+    static SLstring videoPath;     //!< Path to video files
 
     static SLSceneID sceneID; //!< ID of last loaded scene
 

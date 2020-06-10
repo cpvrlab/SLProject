@@ -31,6 +31,10 @@ public:
 
     void initLocation(ErlebAR::LocationId locId);
 
+    void onMouseDown(SLMouseButton button, SLint x, SLint y) override;
+    void onMouseUp(SLMouseButton button, SLint x, SLint y) override;
+    void onMouseMove(SLint xPos, SLint yPos) override;
+
 private:
     void resize(int scrW, int scrH);
 
@@ -55,6 +59,15 @@ private:
     int               _locImgCropH = 0;
     int               _locTextureW = 0;
     int               _locTextureH = 0;
+    float             _x           = 0;
+    float             _y           = 0;
+    int               _lastPosX    = 0;
+    int               _lastPosY    = 0;
+    bool              _move;
+    float             _fracW;
+    float             _fracH;
+    float             _dspPixWidth;
+    float             _dspPixHeight;
 };
 
 #endif //LOCATON_MAP_GUI_H

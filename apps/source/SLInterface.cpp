@@ -138,7 +138,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, SLApplication::inputManager);
-    sv->initConeTracer(SLApplication::dataPath + "shaders/");
+    sv->initConeTracer(SLApplication::shaderPath);
 
     //maintain multiple scene views in SLApplication
     SLApplication::sceneViews.push_back(sv);

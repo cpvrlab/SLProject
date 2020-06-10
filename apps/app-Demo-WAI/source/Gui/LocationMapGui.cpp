@@ -50,11 +50,53 @@ void LocationMapGui::resize(int scrW, int scrH)
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
+void LocationMapGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
+{
+    ImGuiWrapper::onMouseDown(button, x, y);
+    _move = true;
+    _lastPosY = y;
+    _lastPosX = x;
+}
+
+void LocationMapGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
+{
+    ImGuiWrapper::onMouseUp(button, x, y);
+    _move = false;
+    _lastPosY = y;
+    _lastPosX = x;
+}
+
+void LocationMapGui::onMouseMove(SLint xPos, SLint yPos)
+{
+    if (_move)
+    {
+        //[0, 1] on the texture
+        float dx = (float)(xPos - _lastPosX) * _fracW / _screenW;
+        float dy = (float)(yPos - _lastPosY) * _fracH / _screenH;
+        _x -= dx;
+        _y -= dy;
+
+        if (_x + _fracW > 1.0)
+            _x = 1.0 - _fracW;
+        if (_x < 0.0)
+            _x = 0.0;
+        if (_y + _fracH > 1.0)
+            _y = 1.0 - _fracH;
+        if (_y < 0.0)
+            _y = 0.0;
+    }
+
+    _lastPosY = yPos;
+    _lastPosX = xPos;
+}
+
 void LocationMapGui::build(SLScene* s, SLSceneView* sv)
 {
     //background texture
     if (_locMapTexId != 0)
-        ErlebAR::renderBackgroundTexture(_screenW, _screenH, _locMapTexId);
+    {
+        ErlebAR::renderPanningBackgroundTexture(_x, _y, _fracW, _fracH, _screenW, _screenH, _locMapTexId);
+    }
 
     //header bar
     float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
@@ -110,8 +152,15 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         for (const auto& it : _loc.areas)
         {
             const Area& area = it.second;
-            ImGui::SetCursorPosX((float)(area.xPosPix - _locImgCropW) / (float)_locTextureW * _screenW);
-            ImGui::SetCursorPosY((float)(area.yPosPix - _locImgCropH) / (float)_locTextureH * _screenH - _headerBarH);
+
+            //[0, 1] on the texture
+            float x = (float)area.xPosPix / (float)_locTextureW - _x;
+            float y = (float)area.yPosPix / (float)_locTextureH - _y;
+
+            //[0, texSize] to screen coordinate
+            ImGui::SetCursorPosX(x * (float)_locTextureW * (float)_screenW / (float)(_dspPixWidth));
+            ImGui::SetCursorPosY(y * (float)_locTextureH * (float)_screenH / (float)(_dspPixHeight)-_headerBarH);
+
             //ImGui::PushID(i);
             if (ErlebAR::PoseShapeButton(area.name,
                                          ImVec2(buttonSize, buttonSize),
@@ -147,16 +196,36 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
     if (locIt != locations.end())
     {
         _loc = locIt->second;
+
         //reload texture
         ErlebAR::deleteTexture(_locMapTexId);
         _locMapTexId = ErlebAR::loadTexture(_erlebARDir + _loc.areaMapImageFileName,
                                             false,
                                             true,
                                             _screenW / _screenH,
-                                            _locImgCropW,
-                                            _locImgCropH,
                                             _locTextureW,
                                             _locTextureH);
+
+        _dspPixWidth  = _loc.dspPixWidth;
+        _dspPixHeight = (float)(_loc.dspPixWidth * _screenH) / (float)(_screenW);
+
+        _fracW = _dspPixWidth / (float)_locTextureW; //Should never be bigger than 1
+        _fracH = _dspPixHeight / (float)_locTextureH;
+
+        if (_fracW > 1.0)
+        {
+            _fracW        = 1.0;
+            _fracH        = _screenH / _screenW;
+            _dspPixWidth  = _locTextureW;
+            _dspPixHeight = (float)(_dspPixWidth * _screenH) / (float)(_screenW);
+        }
+        if (_fracH > 1.0)
+        {
+            _fracH        = 1.0;
+            _fracW        = _screenW / _screenH;
+            _dspPixHeight = _locTextureH;
+            _dspPixWidth  = (float)(_dspPixHeight * _screenW) / (float)(_screenH);
+        }
     }
     else
         Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);

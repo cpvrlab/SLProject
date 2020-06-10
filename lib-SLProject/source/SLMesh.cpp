@@ -337,7 +337,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
     SLGLPrimitiveType primitiveType = _primitive;
 
     // Set polygon mode
-    if ((sv->drawBit(SL_DB_WIREMESH) || node->drawBit(SL_DB_WIREMESH)) &&
+    if ((sv->drawBit(SL_DB_MESHWIRED) || node->drawBit(SL_DB_MESHWIRED)) &&
         typeid(*node) != typeid(SLSkybox))
     {
 #ifdef SL_GLES

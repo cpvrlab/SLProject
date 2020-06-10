@@ -172,7 +172,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                    *_imGuiEngine,
                                    dd,
                                    "0.12");
-
+    
     _testView = new TestView(*this,
                              _inputManager,
                              *_imGuiEngine,

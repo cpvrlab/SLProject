@@ -1,4 +1,4 @@
-# 
+#
 # CMake configuration for lib-Utils
 #
 
@@ -31,6 +31,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
     )
 set(sources
@@ -40,9 +41,24 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
+        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/ioapi.c
+        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
+        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/zip.c
     )
-	
+
+if("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+    set(headers
+        ${headers}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils_iOS.h
+        )
+    set(sources
+        ${sources}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils_iOS.mm
+        )
+endif()
+
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
     set(platform_specific_include_dirs
@@ -75,18 +91,19 @@ target_include_directories(${target}
     PRIVATE
 
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/source
-        ${platform_specific_include_dirs}
-        ${UTILS_ROOT}/thirdparty/asio/include
-        ${UTILS_ROOT}/thirdparty/ftplibpp
-        ${DEFAULT_INCLUDE_DIRECTORIES}
-
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
+    ${platform_specific_include_dirs}
+    ${UTILS_ROOT}/thirdparty/asio/include
+    ${UTILS_ROOT}/thirdparty/ftplibpp
+    ${UTILS_ROOT}/thirdparty/zlib
+    ${UTILS_ROOT}/thirdparty/zlib/contrib
+    ${CMAKE_CURRENT_BINARY_DIR}/../thirdparty/zlib
     INTERFACE
     )
 
 target_compile_definitions(${target}
   PRIVATE
-  
+
     PUBLIC
     ${compile_definitions}
     ${DEFAULT_COMPILE_DEFINITIONS}
@@ -111,6 +128,7 @@ target_link_libraries(${target}
     PUBLIC
     ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
+    zlib
 
     INTERFACE
     )

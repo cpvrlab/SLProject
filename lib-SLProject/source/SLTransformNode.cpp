@@ -45,14 +45,14 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _matY  = new SLMaterial(nullptr, "Yellow Opaque", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
     _matYT = new SLMaterial(nullptr, "Yellow Transp", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.5f, 0.0f, _prog);
 
-    _axisR      = new SLCoordAxisArrow(nullptr, _matRT);
-    _axisG      = new SLCoordAxisArrow(nullptr, _matGT);
-    _axisB      = new SLCoordAxisArrow(nullptr, _matBT);
-    _transAxisX = new SLNode(_axisR, "x-axis node");
-    _transAxisY = new SLNode(_axisG, "y-axis node");
-    _transAxisZ = new SLNode(_axisB, "z-axis node");
-    _transAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
-    _transAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+    _axisR             = new SLCoordAxisArrow(nullptr, _matRT);
+    _axisG             = new SLCoordAxisArrow(nullptr, _matGT);
+    _axisB             = new SLCoordAxisArrow(nullptr, _matBT);
+    SLNode* transAxisX = new SLNode(_axisR, "x-axis node");
+    SLNode* transAxisY = new SLNode(_axisG, "y-axis node");
+    SLNode* transAxisZ = new SLNode(_axisB, "z-axis node");
+    transAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
+    transAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
 
     SLVec3f  startPoint = SLVec3f(0.0f, 0.0f, -1.0f);
     SLVec3f  endPoint   = SLVec3f(0.0f, 0.0f, 1.0f);
@@ -78,10 +78,6 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _scaleCirc = new SLNode(_circY, "Scale Circle");
     _diskY     = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", _matYT);
     _scaleDisk = new SLNode(_diskY, "Scale Disk");
-
-    _scaleGizmos = new SLNode("Scale Gizmos");
-    _scaleGizmos->addChild(_scaleCirc);
-    _scaleGizmos->addChild(_scaleDisk);
 
     _circR    = new SLCircle(nullptr, "Rotation Circle Mesh X", _matR);
     _rotCircX = new SLNode(_circR, "Rotation Circle X");
@@ -113,19 +109,26 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     rotationGizmosX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
     rotationGizmosY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
 
-    SLNode* rotationGizmos = new SLNode("Rotation Gizmos");
-    rotationGizmos->addChild(rotationGizmosX);
-    rotationGizmos->addChild(rotationGizmosY);
-    rotationGizmos->addChild(rotationGizmosZ);
+    _transGizmos = new SLNode("Translation Gizmos");
+    _transGizmos->addChild(transAxisX);
+    _transGizmos->addChild(_transLineX);
+    _transGizmos->addChild(transAxisY);
+    _transGizmos->addChild(_transLineY);
+    _transGizmos->addChild(transAxisZ);
+    _transGizmos->addChild(_transLineZ);
 
-    this->addChild(_transAxisX);
-    this->addChild(_transLineX);
-    this->addChild(_transAxisY);
-    this->addChild(_transLineY);
-    this->addChild(_transAxisZ);
-    this->addChild(_transLineZ);
+    _scaleGizmos = new SLNode("Scale Gizmos");
+    _scaleGizmos->addChild(_scaleCirc);
+    _scaleGizmos->addChild(_scaleDisk);
+
+    _rotGizmos = new SLNode("Rotation Gizmos");
+    _rotGizmos->addChild(rotationGizmosX);
+    _rotGizmos->addChild(rotationGizmosY);
+    _rotGizmos->addChild(rotationGizmosZ);
+
+    this->addChild(_transGizmos);
     this->addChild(_scaleGizmos);
-    this->addChild(rotationGizmos);
+    this->addChild(_rotGizmos);
 
     this->updateAABBRec();
 
@@ -203,9 +206,7 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
             switch (_editMode)
             {
                 case NodeEditMode_Translate: {
-                    _transAxisX->drawBits()->set(SL_DB_HIDDEN, false);
-                    _transAxisY->drawBits()->set(SL_DB_HIDDEN, false);
-                    _transAxisZ->drawBits()->set(SL_DB_HIDDEN, false);
+                    setDrawBitRecursive(SL_DB_HIDDEN, _transGizmos, false);
                 }
                 break;
 
@@ -216,14 +217,12 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
                         lookAt(_scaleGizmos, _sv->camera());
                     }
 
-                    _scaleCirc->drawBits()->set(SL_DB_HIDDEN, false);
+                    setDrawBitRecursive(SL_DB_HIDDEN, _scaleGizmos, false);
                 }
                 break;
 
                 case NodeEditMode_Rotate: {
-                    _rotCircX->drawBits()->set(SL_DB_HIDDEN, false);
-                    _rotCircY->drawBits()->set(SL_DB_HIDDEN, false);
-                    _rotCircZ->drawBits()->set(SL_DB_HIDDEN, false);
+                    setDrawBitRecursive(SL_DB_HIDDEN, _rotGizmos, false);
                 }
                 break;
 
@@ -243,7 +242,7 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
     }
 }
 //-----------------------------------------------------------------------------
-//! onMouseDown event hanlder during editing interaction
+//! onMouseDown event handler during editing interaction
 SLbool SLTransformNode::onMouseDown(SLMouseButton button,
                                     SLint         x,
                                     SLint         y,
@@ -260,7 +259,7 @@ SLbool SLTransformNode::onMouseDown(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-//! onMouseUp event hanlder during editing interaction
+//! onMouseUp event handler during editing interaction
 SLbool SLTransformNode::onMouseUp(SLMouseButton button,
                                   SLint         x,
                                   SLint         y,
@@ -284,7 +283,7 @@ SLbool SLTransformNode::onMouseUp(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-//! onMouseMove event hanlder during editing interaction
+//! onMouseMove event handler during editing interaction
 SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                     SLint               x,
                                     SLint               y,
@@ -308,12 +307,15 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                         SLVec3f axisPoint;
                         if (_mouseIsDown)
                         {
+                            float t1, t2;
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
                                                             _selectedGizmo->translationWS(),
                                                             _selectedGizmo->forwardWS(),
                                                             pickRayPoint,
-                                                            axisPoint))
+                                                            t1,
+                                                            axisPoint,
+                                                            t2))
                             {
                                 SLVec3f translationDiff = axisPoint - _hitCoordinate;
 
@@ -336,16 +338,20 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
 
                             float   dist = FLT_MAX;
                             SLVec3f axisPointCand;
+                            float   t1, t2;
+                            float   minDistToOrigin = 10.0f;
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
                                                             _transLineX->translationWS(),
                                                             _transLineX->forwardWS(),
                                                             pickRayPoint,
-                                                            axisPointCand))
+                                                            t1,
+                                                            axisPointCand,
+                                                            t2))
                             {
                                 float distCand = (axisPointCand - pickRayPoint).length();
 
-                                if (distCand < dist && distCand < (_gizmoScale * 0.1f))
+                                if (distCand < dist && distCand < (_gizmoScale * 0.1f) && t1 > minDistToOrigin)
                                 {
                                     dist           = distCand;
                                     _selectedGizmo = _transLineX;
@@ -358,11 +364,13 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                                             _transLineY->translationWS(),
                                                             _transLineY->forwardWS(),
                                                             pickRayPoint,
-                                                            axisPointCand))
+                                                            t1,
+                                                            axisPointCand,
+                                                            t2))
                             {
                                 float distCand = (axisPointCand - pickRayPoint).length();
 
-                                if (distCand < dist && distCand < (_gizmoScale * 0.1f))
+                                if (distCand < dist && distCand < (_gizmoScale * 0.1f) && t1 > minDistToOrigin)
                                 {
                                     dist           = distCand;
                                     _selectedGizmo = _transLineY;
@@ -375,11 +383,13 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                                             _transLineZ->translationWS(),
                                                             _transLineZ->forwardWS(),
                                                             pickRayPoint,
-                                                            axisPointCand))
+                                                            t1,
+                                                            axisPointCand,
+                                                            t2))
                             {
                                 float distCand = (axisPointCand - pickRayPoint).length();
 
-                                if (distCand < dist && distCand < (_gizmoScale * 0.1f))
+                                if (distCand < dist && distCand < (_gizmoScale * 0.1f) && t1 > minDistToOrigin)
                                 {
                                     dist           = distCand;
                                     _selectedGizmo = _transLineZ;
@@ -389,6 +399,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
 
                             if (_selectedGizmo)
                             {
+                                printf("Selected gizmo %s with dist %f\n", _selectedGizmo->name().c_str(), dist);
                                 _selectedGizmo->drawBits()->set(SL_DB_HIDDEN, false);
                                 _hitCoordinate = axisPoint;
                             }
@@ -570,7 +581,9 @@ bool SLTransformNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
                                                   const SLVec3f& ray2O,
                                                   const SLVec3f& ray2Dir,
                                                   SLVec3f&       ray1P,
-                                                  SLVec3f&       ray2P)
+                                                  float&         t1,
+                                                  SLVec3f&       ray2P,
+                                                  float&         t2)
 {
     bool result = false;
 
@@ -578,6 +591,8 @@ bool SLTransformNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
     SLVec3f cross;
     cross.cross(ray1Dir, ray2Dir);
     float den = cross.lengthSqr();
+
+    //printf("den: %f, sqrt(den): %f\n", den, cross.length());
 
     if (den > FLT_EPSILON)
     {
@@ -588,14 +603,14 @@ bool SLTransformNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
                                diffO.y, ray2Dir.y, cross.y,
                                diffO.z, ray2Dir.z, cross.z);
         float   det1 = m1.det();
-        float   t1   = det1 / den;
+        t1   = det1 / den;
         ray1P        = ray1O + (ray1Dir * t1);
 
         SLMat3f m2   = SLMat3f(diffO.x, ray1Dir.x, cross.x,
                                diffO.y, ray1Dir.y, cross.y,
                                diffO.z, ray1Dir.z, cross.z);
         float   det2 = m2.det();
-        float   t2   = det2 / den;
+        t2   = det2 / den;
         ray2P        = ray2O + (ray2Dir * t2);
         // clang-format on
 
