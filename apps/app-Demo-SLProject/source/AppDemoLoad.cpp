@@ -1662,8 +1662,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 10, 15);
-        cam1->lookAt(0, 1, 0);
+        cam1->translation(0, 2, 15);
+        cam1->lookAt(0, 2, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
