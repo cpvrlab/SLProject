@@ -120,10 +120,10 @@ void SLGLDepthBuffer::activateAsTexture(SLuint loc)
 #endif
 }
 //-----------------------------------------------------------------------------
-SLfloat SLGLDepthBuffer::depth(SLuint x, SLuint y)
+SLfloat* SLGLDepthBuffer::readPixels()
 {
-    SLfloat depth;
-    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    SLfloat *depth = new SLfloat[sizeof(SLfloat) * _dimensions.y * _dimensions.x];
+    glReadPixels(0, 0, _dimensions.x, _dimensions.y, GL_DEPTH_COMPONENT, GL_FLOAT, depth);
 
 #ifdef _GLDEBUG
     GET_GL_ERROR;

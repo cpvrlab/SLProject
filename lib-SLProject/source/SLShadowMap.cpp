@@ -108,6 +108,8 @@ void SLShadowMap::drawRays()
     SLfloat pixelWidth  = (SLfloat)_textureSize.x / w;
     SLfloat pixelHeight = (SLfloat)_textureSize.y / h;
 
+    SLfloat* depths = _depthBuffer->readPixels();
+
     for (SLint x = 0; x < w; ++x)
     {
         for (SLint y = 0; y < h; ++y)
@@ -118,7 +120,7 @@ void SLShadowMap::drawRays()
             SLfloat viewSpaceX = Utils::lerp((x + 0.5f) / w, -1.0f, 1.0f);
             SLfloat viewSpaceY = Utils::lerp((y + 0.5f) / h, -1.0f, 1.0f);
 
-            SLfloat depth = _depthBuffer->depth(pixelX, pixelY) * 2 - 1;
+            SLfloat depth = depths[pixelY * _depthBuffer->dimensions().x + pixelX] * 2 - 1;
 
             if (depth == 1.0f) continue;
 
@@ -126,6 +128,8 @@ void SLShadowMap::drawRays()
             P.push_back(SLVec3f(viewSpaceX, viewSpaceY, depth));
         }
     }
+
+    delete depths;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

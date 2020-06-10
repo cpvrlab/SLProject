@@ -27,13 +27,13 @@ public:
 
     ~SLGLDepthBuffer();
 
-    SLfloat depth(SLuint x, SLuint y);
-    SLint   texID() { return _texID; }
-    SLint   target() { return _target; }
-    void    activateAsTexture(SLuint loc);
-    void    bind();
-    void    bindFace(SLenum face);
-    SLVec2i dimensions() { return _dimensions; }
+    SLint    texID() { return _texID; }
+    SLint    target() { return _target; }
+    void     activateAsTexture(SLuint loc);
+    void     bind();
+    void     bindFace(SLenum face);
+    SLfloat* SLGLDepthBuffer::readPixels();
+    SLVec2i  dimensions() { return _dimensions; }
 
 private:
     SLVec2i _dimensions; //<! Size of the texture
