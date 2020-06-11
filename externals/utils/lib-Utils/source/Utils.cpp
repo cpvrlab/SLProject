@@ -107,12 +107,28 @@ string toUpperString(string s)
 }
 
 //-----------------------------------------------------------------------------
-//! trims a string at the end
+//! trims a string at both ends
 string trimString(const string& s, const string& drop)
 {
     string r = s;
     r        = r.erase(r.find_last_not_of(drop) + 1);
     return r.erase(0, r.find_first_not_of(drop));
+}
+//-----------------------------------------------------------------------------
+//! trims a string at the right end
+string trimRightString(const string& s, const string& drop)
+{
+    string r = s;
+    r        = r.erase(r.find_last_not_of(drop) + 1);
+    return r;
+}
+//-----------------------------------------------------------------------------
+//! trims a string at the left end
+string trimLeftString(const string& s, const string& drop)
+{
+    string r = s;
+    r        = r.erase(r.find_first_not_of(drop) + 1);
+    return r;
 }
 //-----------------------------------------------------------------------------
 //! Splits an input string at a delimeter character into a string vector
@@ -500,7 +516,7 @@ string getDirName(const string& pathFilename)
     else if (i2 != string::npos)
         i = (int)i2;
 
-    return pathFilename.substr(0, i+1);
+    return pathFilename.substr(0, i + 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -757,7 +773,6 @@ void removeFile(const string& path)
     }
     else
         log("Could not remove file : %s\nErrno: %s\n", path.c_str(), "file does not exist");
-    
 }
 //-----------------------------------------------------------------------------
 //! Returns true if a file exists.
@@ -791,16 +806,15 @@ unsigned int getFileSize(const string& pathfilename)
 #endif
 }
 
-unsigned int getFileSize(std::ifstream &fs)
+unsigned int getFileSize(std::ifstream& fs)
 {
-    fs.seekg (0, std::ios::beg);
+    fs.seekg(0, std::ios::beg);
     std::streampos begin = fs.tellg();
-    fs.seekg (0, std::ios::end);
+    fs.seekg(0, std::ios::end);
     std::streampos end = fs.tellg();
-    fs.seekg (0, std::ios::beg);
-    return (unsigned int)(end-begin);
+    fs.seekg(0, std::ios::beg);
+    return (unsigned int)(end - begin);
 }
-
 
 //-----------------------------------------------------------------------------
 //! Returns the writable configuration directory with trailing forward slash
@@ -873,10 +887,10 @@ bool deleteFile(string& pathfilename)
 }
 //-----------------------------------------------------------------------------
 //! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string& path,
+void loopFileSystemRec(const string&                                                          path,
                        std::function<void(std::string path, std::string baseName, int depth)> processFile,
                        std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int depth)
+                       const int                                                              depth)
 {
     // be sure that the folder slashes are correct
     string folder = unifySlashes(path);
@@ -885,29 +899,30 @@ void loopFileSystemRec(const string& path,
     {
         vector<string> unsortedNames = getAllNamesInDir(folder);
 
-        processDir(getDirName(trimString(folder, "/")), getFileName(trimString(folder, "/")), depth);
+        processDir(getDirName(trimRightString(folder, "/")),
+                   getFileName(trimRightString(folder, "/")),
+                   depth);
         sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
 
         for (const auto& fileOrFolder : unsortedNames)
         {
             if (dirExists(fileOrFolder))
-                loopFileSystemRec(fileOrFolder, processFile, processDir, depth+1);
+                loopFileSystemRec(fileOrFolder, processFile, processDir, depth + 1);
             else
                 processFile(folder, getFileName(fileOrFolder), depth);
         }
     }
     else
     {
-        processFile(getDirName(trimString(path, "/")), getFileName(trimString(path, "/")), depth);
+        processFile(getDirName(trimRightString(path, "/")),
+                    getFileName(trimRightString(path, "/")),
+                    depth);
     }
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 //! Dumps all files and folders on stdout recursively naturally sorted
-void dumpFileSystemRec(const char*   logtag, const string& folderPath)
+void dumpFileSystemRec(const char* logtag, const string& folderPath)
 {
     const char* tab = "    ";
 
@@ -928,10 +943,6 @@ void dumpFileSystemRec(const char*   logtag, const string& folderPath)
           Utils::log(logtag, "%s", indentFolderName.c_str());
       });
 }
-
-
-
-
 
 /*
 void dumpFileSystemRec(const char*   logtag,
@@ -972,9 +983,6 @@ void dumpFileSystemRec(const char*   logtag,
     }
 }
 */
-
-
-
 
 //-----------------------------------------------------------------------------
 //! findFile return the full path with filename
