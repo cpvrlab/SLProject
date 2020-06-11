@@ -240,8 +240,11 @@ inline float random(float min, float max)
 //! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
 int gcd(int a, int b);
 //-----------------------------------------------------------------------------
-//! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
-int lcm(int a, int b);
+//! Returns the closest power of 2 to a passed number.
+unsigned closestPowerOf2(unsigned num);
+//-----------------------------------------------------------------------------
+//! Returns the next power of 2 to a passed number.
+unsigned nextPowerOf2(unsigned num);
 //-----------------------------------------------------------------------------
 // clang-format on
 

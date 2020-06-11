@@ -1576,7 +1576,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='I') {doWaitOnIdle(!doWaitOnIdle()); return true;}
     if (key=='F') {doFrustumCulling(!doFrustumCulling()); return true;}
     if (key=='T') {doDepthTest(!doDepthTest()); return true;}
-    if (key=='O') {_s->stopAnimations(!_s->stopAnimations()); return true;}
+    if (key==K_space) {_s->stopAnimations(!_s->stopAnimations()); return true;}
 
     if (key=='R') {startRaytracing(5);}
     if (key=='P') {startPathtracing(5, 10);}

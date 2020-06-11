@@ -574,8 +574,8 @@ void SLGLTexture::build(SLint texID)
     // check if texture has to be resized
     if (_resizeToPow2)
     {
-        SLuint w2 = closestPowerOf2(_images[0]->width());
-        SLuint h2 = closestPowerOf2(_images[0]->height());
+        SLuint w2 = Utils::closestPowerOf2(_images[0]->width());
+        SLuint h2 = Utils::closestPowerOf2(_images[0]->height());
         if (w2 == 0) SL_EXIT_MSG("Image can not be rescaled: width=0");
         if (h2 == 0) SL_EXIT_MSG("Image can not be rescaled: height=0");
         if (w2 != _images[0]->width() || h2 != _images[0]->height())
@@ -1080,33 +1080,6 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     //SL_WARN_MSG(msg.c_str());
 
     return TT_color;
-}
-//-----------------------------------------------------------------------------
-//! Returns the closest power of 2 to a passed number.
-SLuint SLGLTexture::closestPowerOf2(SLuint num)
-{
-    SLuint nextPow2 = 1;
-    if (num <= 0) return 1;
-
-    while (nextPow2 <= num)
-        nextPow2 <<= 1;
-    SLuint prevPow2 = nextPow2 >> 1;
-
-    if (num - prevPow2 < nextPow2 - num)
-        return prevPow2;
-    else
-        return nextPow2;
-}
-//-----------------------------------------------------------------------------
-//! Returns the next power of 2 to a passed number.
-SLuint SLGLTexture::nextPowerOf2(SLuint num)
-{
-    SLuint nextPow2 = 1;
-    if (num <= 0) return 1;
-
-    while (nextPow2 <= num)
-        nextPow2 <<= 1;
-    return nextPow2;
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::build2DMipmaps(SLint target, SLuint index)

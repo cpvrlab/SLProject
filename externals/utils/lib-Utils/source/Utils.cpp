@@ -500,7 +500,7 @@ string getDirName(const string& pathFilename)
     else if (i2 != string::npos)
         i = (int)i2;
 
-    return pathFilename.substr(0, i+1);
+    return pathFilename.substr(0, i + 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -757,7 +757,6 @@ void removeFile(const string& path)
     }
     else
         log("Could not remove file : %s\nErrno: %s\n", path.c_str(), "file does not exist");
-    
 }
 //-----------------------------------------------------------------------------
 //! Returns true if a file exists.
@@ -791,16 +790,15 @@ unsigned int getFileSize(const string& pathfilename)
 #endif
 }
 
-unsigned int getFileSize(std::ifstream &fs)
+unsigned int getFileSize(std::ifstream& fs)
 {
-    fs.seekg (0, std::ios::beg);
+    fs.seekg(0, std::ios::beg);
     std::streampos begin = fs.tellg();
-    fs.seekg (0, std::ios::end);
+    fs.seekg(0, std::ios::end);
     std::streampos end = fs.tellg();
-    fs.seekg (0, std::ios::beg);
-    return (unsigned int)(end-begin);
+    fs.seekg(0, std::ios::beg);
+    return (unsigned int)(end - begin);
 }
-
 
 //-----------------------------------------------------------------------------
 //! Returns the writable configuration directory with trailing forward slash
@@ -873,10 +871,10 @@ bool deleteFile(string& pathfilename)
 }
 //-----------------------------------------------------------------------------
 //! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string& path,
+void loopFileSystemRec(const string&                                                          path,
                        std::function<void(std::string path, std::string baseName, int depth)> processFile,
                        std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int depth)
+                       const int                                                              depth)
 {
     // be sure that the folder slashes are correct
     string folder = unifySlashes(path);
@@ -891,7 +889,7 @@ void loopFileSystemRec(const string& path,
         for (const auto& fileOrFolder : unsortedNames)
         {
             if (dirExists(fileOrFolder))
-                loopFileSystemRec(fileOrFolder, processFile, processDir, depth+1);
+                loopFileSystemRec(fileOrFolder, processFile, processDir, depth + 1);
             else
                 processFile(folder, getFileName(fileOrFolder), depth);
         }
@@ -902,12 +900,9 @@ void loopFileSystemRec(const string& path,
     }
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 //! Dumps all files and folders on stdout recursively naturally sorted
-void dumpFileSystemRec(const char*   logtag, const string& folderPath)
+void dumpFileSystemRec(const char* logtag, const string& folderPath)
 {
     const char* tab = "    ";
 
@@ -928,10 +923,6 @@ void dumpFileSystemRec(const char*   logtag, const string& folderPath)
           Utils::log(logtag, "%s", indentFolderName.c_str());
       });
 }
-
-
-
-
 
 /*
 void dumpFileSystemRec(const char*   logtag,
@@ -972,9 +963,6 @@ void dumpFileSystemRec(const char*   logtag,
     }
 }
 */
-
-
-
 
 //-----------------------------------------------------------------------------
 //! findFile return the full path with filename
@@ -1287,6 +1275,34 @@ int lcm(int a, int b)
 {
     return (a * b) / Utils::gcd(a, b);
 }
+//-----------------------------------------------------------------------------
+//! Returns the closest power of 2 to a passed number.
+unsigned closestPowerOf2(unsigned num)
+{
+    unsigned nextPow2 = 1;
+    if (num <= 0) return 1;
+
+    while (nextPow2 <= num)
+        nextPow2 <<= 1;
+    unsigned prevPow2 = nextPow2 >> 1;
+
+    if (num - prevPow2 < nextPow2 - num)
+        return prevPow2;
+    else
+        return nextPow2;
+}
+//-----------------------------------------------------------------------------
+//! Returns the next power of 2 to a passed number.
+unsigned nextPowerOf2(unsigned num)
+{
+    unsigned nextPow2 = 1;
+    if (num == 0) return 1;
+
+    while (nextPow2 <= num)
+        nextPow2 <<= 1;
+    return nextPow2;
+}
+//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 //ComputerInfos

@@ -1523,7 +1523,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Do Depth Test", "T", sv->doDepthTest()))
                 sv->doDepthTest(!sv->doDepthTest());
 
-            if (ImGui::MenuItem("Animation off", "O", s->stopAnimations()))
+            if (ImGui::MenuItem("Animation off", "Space", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
             ImGui::Separator();
@@ -2299,6 +2299,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Animation", hasAnimations))
         {
+
+            if (ImGui::MenuItem("Stop all", "Space", s->stopAnimations()))
+                s->stopAnimations(!s->stopAnimations());
+
+            ImGui::Separator;
+
             SLVstring animations = s->animManager().allAnimNames();
             if (curAnimIx == -1) curAnimIx = 0;
             SLAnimPlayback* anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
@@ -2593,9 +2599,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 50.0f))
                                         shadowMap->clipFar(clipFar);
 
-                                    SLVec2i textureSize = shadowMap->textureSize();
-                                    if (ImGui::InputInt2("Texture resolution", (int*)&textureSize))
-                                        shadowMap->textureSize(textureSize);
+                                    SLVec2i texSize = shadowMap->textureSize();
+                                    if (ImGui::SliderInt2("Texture resolution", (int*)&texSize, 32, 4096))
+                                        shadowMap->textureSize(SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
+                                                                       (int)Utils::closestPowerOf2((unsigned)texSize.y)));
 
                                     if (typeid(*node) == typeid(SLLightDirect))
                                     {

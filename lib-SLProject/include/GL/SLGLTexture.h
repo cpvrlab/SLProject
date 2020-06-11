@@ -179,8 +179,6 @@ public:
 
     // Misc
     static SLTextureType detectType(const SLstring& filename);
-    static SLuint        closestPowerOf2(SLuint num);
-    static SLuint        nextPowerOf2(SLuint num);
     void                 build2DMipmaps(SLint target, SLuint index);
     SLbool               copyVideoImage(SLint       camWidth,
                                         SLint       camHeight,

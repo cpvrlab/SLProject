@@ -172,8 +172,8 @@ void SLTexFont::create(SLstring fontFilename)
 
     // 2) build the texture
     charsHeight      = h;
-    SLuint texWidth  = nextPowerOf2((SLuint)lmax);
-    SLuint texHeight = nextPowerOf2(14 * (SLuint)(h + MARGIN_Y));
+    SLuint texWidth  = Utils::nextPowerOf2((SLuint)lmax);
+    SLuint texHeight = Utils::nextPowerOf2(14 * (SLuint)(h + MARGIN_Y));
 
     //Fill up with 0
     SLuchar* bits = new SLuchar[texWidth * texHeight];
