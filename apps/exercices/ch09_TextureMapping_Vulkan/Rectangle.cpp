@@ -10,14 +10,11 @@ class Sphere : public Mesh
 {
 
 public:
-    Sphere(string name) : Mesh(name) { build(); }
+    Sphere(string name) : Mesh(name) { ; }
 
 protected:
     float _radius; //!< radius of sphere
-    int   _stacks; //!< NO. of stacks
+    int   _stack;  //!< NO. of stacks
     int   _slices; //!< NO. of slices
-
-private:
-    void build();
 };
 //-----------------------------------------------------------------------------

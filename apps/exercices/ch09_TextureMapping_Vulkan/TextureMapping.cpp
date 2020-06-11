@@ -1,4 +1,3 @@
-
 #define oldProject 0
 
 #define GLFW_INCLUDE_VULKAN
@@ -12,28 +11,21 @@
 #include <glUtils.h>
 #include <Utils.h>
 
-#if !oldProject
-#else
-#    include "vkUtils.h"
-#    include "Vertex.cpp"
-#endif
-
-#if !oldProject
-#    include "Instance.h"
-#    include "Device.h"
-#    include "Swapchain.h"
-#    include "RenderPass.h"
-#    include "DescriptorSetLayout.h"
-#    include "ShaderModule.h"
-#    include "Pipeline.h"
-#    include "Framebuffer.h"
-#    include "TextureImage.h"
-#    include "Sampler.h"
-#    include "IndexBuffer.h"
-#    include "UniformBuffer.h"
-#    include "DescriptorPool.h"
-#    include "DescriptorSet.h"
-#    include "VertexBuffer.h"
+#include "Instance.h"
+#include "Device.h"
+#include "Swapchain.h"
+#include "RenderPass.h"
+#include "DescriptorSetLayout.h"
+#include "ShaderModule.h"
+#include "Pipeline.h"
+#include "Framebuffer.h"
+#include "TextureImage.h"
+#include "Sampler.h"
+#include "IndexBuffer.h"
+#include "UniformBuffer.h"
+#include "DescriptorPool.h"
+#include "DescriptorSet.h"
+#include "VertexBuffer.h"
 
 //-----------------------------------------------------------------------------
 //////////////////////
@@ -41,7 +33,6 @@
 //////////////////////
 
 struct Vertex;
-#endif
 
 const int WINDOW_WIDTH   = 800;
 const int WINDOW_HEIGHT  = 600;
@@ -113,8 +104,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices, std::vector<Vertex>
             vertices[iv].pos.z = radius * vertices[iv].norm.z;
 
             // set the texture coords.
-            vertices[iv].texCoord.x = 0; // ???
-            vertices[iv].texCoord.y = 0; // ???
+            vertices[iv].texCoord.x = asin(vertices[iv].norm.x) / Utils::PI + 0.5f;
+            vertices[iv].texCoord.y = -asin(vertices[iv].norm.y) / Utils::PI + 0.5f;
 
             phi += dphi;
             iv++;
@@ -214,13 +205,6 @@ void printFPS()
     lastTimeSec = timeNowSec;
 }
 //-----------------------------------------------------------------------------
-#if oldProject
-void onWindowResize(GLFWwindow* window, int width, int height)
-{
-    renderer.recreateSwapchain(window, vertices);
-}
-#endif
-//-----------------------------------------------------------------------------
 void initWindow()
 {
     glfwInit();
@@ -236,50 +220,7 @@ void initWindow()
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
-#if oldProject
-    glfwSetWindowUserPointer(window, &renderer);
-    glfwSetFramebufferSizeCallback(window, renderer.framebufferResizeCallback);
-    glfwSetWindowSizeCallback(window, onWindowResize);
-#endif
 }
-#if oldProject
-//-----------------------------------------------------------------------------
-void initVulkan()
-{
-    CVImage texture;
-    texture.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png",
-                 false,
-                 false);
-
-    renderer.setCameraMatrix(&_viewMatrix);
-
-    renderer.createInstance();
-    renderer.setupDebugMessenger();
-    renderer.createSurface(window);
-    renderer.pickPhysicalDevice();
-    renderer.createLogicalDevice();
-    renderer.createSwapchain(window);
-    renderer.createImageViews();
-    renderer.createRenderPass();
-    renderer.createDescriptorSetLayout();
-    renderer.createShaderStages(vertShaderPath, fragShaderPath);
-    renderer.createGraphicsPipeline();
-    renderer.createFramebuffers();
-    renderer.createCommandPool();
-    renderer.createTextureImage(texture.data(), texture.width(), texture.height());
-    renderer.createTextureSampler();
-    // VkBuffer vertexBuffer = renderer.createVertexBuffer(vertices);
-    renderer.createIndexBuffer();
-    renderer.createUniformBuffers();
-    renderer.createDescriptorPool();
-    renderer.createDescriptorSets();
-    renderer.createCommandBuffers(vertices);
-    renderer.createSyncObjects();
-}
-//-----------------------------------------------------------------------------
-#endif
-
-#include <SLQuat4.h>
 //-----------------------------------------------------------------------------
 void updateCamera()
 {
@@ -288,40 +229,6 @@ void updateCamera()
     _viewMatrix.rotate((float)(_rotX + _deltaX), 1.0f, 0.0f, 0.0f);
     _viewMatrix.rotate((float)(_rotY + _deltaY), 0.0f, 1.0f, 0.0f);
 }
-#if oldProject
-//-----------------------------------------------------------------------------
-void mainLoop()
-{
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-        updateCamera();
-        renderer.drawFrame();
-        printFPS();
-    }
-}
-//-----------------------------------------------------------------------------
-void cleanup()
-{
-    renderer.cleanup();
-    glfwDestroyWindow(window);
-    glfwTerminate();
-}
-//-----------------------------------------------------------------------------
-
-int main()
-{
-    initWindow();
-    initVulkan();
-    mainLoop();
-    cleanup();
-
-    return EXIT_SUCCESS;
-}
-//-----------------------------------------------------------------------------
-
-#else
-
 //-----------------------------------------------------------------------------
 int main()
 {
@@ -330,6 +237,7 @@ int main()
     std::vector<Vertex>   vertices;
     std::vector<uint16_t> indices;
     buildSphere(1.0f, 32, 32, vertices, indices);
+
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
     // Setting up vulkan
@@ -363,7 +271,7 @@ int main()
     vertexBuffer.createVertexBuffer(vertices);
     // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
-    commandBuffer.setVertices(vertices, swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)indices.size());
+    commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)indices.size());
     device.createSyncObjects(swapchain);
 
     // Render
@@ -396,5 +304,4 @@ int main()
 
     return EXIT_SUCCESS;
 }
-#endif
 //-----------------------------------------------------------------------------

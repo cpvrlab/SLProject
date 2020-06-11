@@ -1,22 +1,33 @@
-#pragma once
+#ifndef GPUSHADER_H
+#define GPUSHADER_H
 
 #include <string>
 #include <vector>
-
+#include <iostream>
+#include <fstream>
 #include <Object.h>
+#include <vkEnums.h>
 
 using namespace std;
 
 class GPUShader : public Object
 {
-
 public:
-    GPUShader(string GPUShader) : Object(GPUShader) { ; }
+    GPUShader(string GPUShaderName, string filename, vkShaderType type);
+
+    // Getters
+    vkShaderType type() { return _type; }
+    string       code() { return _code; }
 
 protected:
-    string _code;       //!< string of the shader source code
-    string _filename;   //!< path and filename of the shader source code
+    string       _code;     //!< string of the shader source code
+    string       _filename; //!< path and filename of the shader source code
+    vkShaderType _type;     //!< type of the shader
+
+private:
+    void readFile();
 };
 //-----------------------------------------------------------------------------
-typedef vector<GPUShader> VGPUShader;
+typedef vector<GPUShader*> VGPUShader;
 //-----------------------------------------------------------------------------
+#endif

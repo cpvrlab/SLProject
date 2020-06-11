@@ -1,8 +1,8 @@
-#pragma once
+#ifndef GPUPROGRAM_H
+#define GPUPROGRAM_H
 
 #include <string>
 #include <vector>
-
 #include <Object.h>
 #include <GPUShader.h>
 
@@ -14,10 +14,14 @@ class GPUProgram : public Object
 
 public:
     GPUProgram(string name) : Object(name) { ; }
+    ~GPUProgram();
+
+    void addShader(GPUShader* shader);
 
 protected:
-    VGPUShader _shaders;    //!< vector of gpu shaders
+    VGPUShader _shaders; //!< vector of gpu shaders
 };
 //-----------------------------------------------------------------------------
 typedef vector<GPUProgram> VGPUProgram;
 //-----------------------------------------------------------------------------
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include <string>
 #include <vector>
@@ -13,7 +14,9 @@ class Texture : public Object
 {
 
 public:
-    Texture(string name) : Object(name) { ; }
+    Texture(string name, string filename);
+
+    void load();
 
 protected:
     string   _filename; //!< path and filename of the texture image file
@@ -22,3 +25,4 @@ protected:
 //-----------------------------------------------------------------------------
 typedef vector<Texture> VTexture;
 //-----------------------------------------------------------------------------
+#endif

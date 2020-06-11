@@ -34,16 +34,18 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.h
         ${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Queue.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Rectangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.h
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/vkEnums.h
         )
 
 file(GLOB sources
@@ -60,6 +62,8 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/Device.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Fence.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GPUProgram.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GPUShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ImageView.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.cpp
@@ -68,6 +72,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Node.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Rectangle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Queue.cpp
@@ -75,7 +80,9 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.cpp
