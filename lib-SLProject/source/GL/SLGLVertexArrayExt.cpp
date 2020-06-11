@@ -89,9 +89,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
             glPointSize(1.0f);
 #endif
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
@@ -136,8 +134,6 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
             glPointSize(1.0f);
 #endif
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------

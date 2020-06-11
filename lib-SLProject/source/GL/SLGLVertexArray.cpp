@@ -131,10 +131,7 @@ void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
         _VBOf.updateAttrib(type, elementSize, dataPointer);
 
     glBindVertexArray(0);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Generates the OpenGL objects for the vertex array (if available) and the 
@@ -206,10 +203,7 @@ void SLGLVertexArray::generate(SLuint          numVertices,
     }
 
     glBindVertexArray(0);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex attributes as a specified primitive type by elements with 
@@ -233,21 +227,18 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
 
     SLuint indexTypeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
 
-    ///////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
     glDrawElements(primitiveType,
                    (SLsizei)numIndexes,
                    _indexDataType,
                    (void*)(size_t)(indexOffset * (SLuint)indexTypeSize));
-    ///////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     GET_GL_ERROR;
     totalDrawCalls++;
 
     glBindVertexArray(0);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex attributes as a specified primitive type as the vertices
@@ -272,8 +263,6 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
 
     glBindVertexArray(0);
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------

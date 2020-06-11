@@ -42,7 +42,11 @@ class SLMaterial;
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
+#if defined(DEBUG) || defined(_DEBUG)
 #define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
+#else
+#define GET_GL_ERROR
+#endif
 //-----------------------------------------------------------------------------
 //! Singleton class holding all OpenGL states
 /*!
@@ -242,6 +246,8 @@ private:
     GLboolean _colorMaskG;    //!< current color mask for G
     GLboolean _colorMaskB;    //!< current color mask for B
     GLboolean _colorMaskA;    //!< current color mask for A
+
+    SLVstring errors; //!< vector for errors collected in getGLError
 
     SLMaterial* _currentMaterial;
 };

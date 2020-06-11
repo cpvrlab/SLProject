@@ -287,9 +287,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
         drawNodesIntoDepthBuffer(root, sv, _v[i]);
     }
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

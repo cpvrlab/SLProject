@@ -32,7 +32,7 @@ public:
     void     activateAsTexture(SLuint loc);
     void     bind();
     void     bindFace(SLenum face);
-    SLfloat* SLGLDepthBuffer::readPixels();
+    SLfloat* readPixels();
     SLVec2i  dimensions() { return _dimensions; }
 
 private:

@@ -93,11 +93,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
     glReadBuffer(GL_NONE);
 
     glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
-
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cerr << "FBO failed to initialize correctly." << std::endl;
 }
@@ -114,31 +110,21 @@ void SLGLDepthBuffer::activateAsTexture(SLuint loc)
     stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
     stateGL->bindTexture(_target, _texID);
     glUniform1i(loc, _texID);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 SLfloat* SLGLDepthBuffer::readPixels()
 {
     SLfloat *depth = new SLfloat[sizeof(SLfloat) * _dimensions.y * _dimensions.x];
     glReadPixels(0, 0, _dimensions.x, _dimensions.y, GL_DEPTH_COMPONENT, GL_FLOAT, depth);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
-
     return depth;
 }
 //-----------------------------------------------------------------------------
 void SLGLDepthBuffer::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 void SLGLDepthBuffer::bindFace(SLenum face)
@@ -148,9 +134,6 @@ void SLGLDepthBuffer::bindFace(SLenum face)
            face <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, face, _texID, 0);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------

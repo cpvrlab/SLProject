@@ -1602,11 +1602,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Shadow Mapping Basic Scene");
         s->info("Shadow Mapping is a technique to render shadows.");
 
-        SLGLProgram* program = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.vert", SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.frag");
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
         SLMaterial*  m1      = new SLMaterial(s, "m1");
-
         m1->program(program);
         m1->shininess(500);
+        //SLMaterial*  m1      = new SLMaterial(s, "GRAY", SLCol4f::GRAY, SLCol4f(1, 1, 1), 100, 0, 0);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1652,9 +1654,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
 
-        SLGLProgram* program = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.vert", SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.frag");
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
         SLMaterial*  m1      = new SLMaterial(s, "m1");
-
         m1->program(program);
         m1->shininess(500);
 
@@ -1739,9 +1742,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Shadow Mapping for Spot lights");
         s->info("Spot lights use a perspective projection for their light space.");
 
-        SLGLProgram* program = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.vert", SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.frag");
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
         SLMaterial*  m1      = new SLMaterial(s, "m1");
-
         m1->program(program);
         m1->shininess(500);
 
@@ -1791,7 +1795,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Shadow Mapping for point lights");
         s->info("Point lights use cubemaps to store shadow maps.");
 
-        SLGLProgram* program = new SLGLGenericProgram(s, SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.vert", SLApplication::dataPath + "shaders/PerPixBlinnShadowMapping.frag");
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
         SLMaterial*  m1      = new SLMaterial(s, "m1");
 
         m1->program(program);

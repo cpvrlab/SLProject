@@ -377,18 +377,14 @@ void SLGLProgram::addUniform1i(SLGLUniform1i* u)
 SLint SLGLProgram::getUniformLocation(const SLchar* name) const
 {
     SLint loc = glGetUniformLocation(_progID, name);
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
     return loc;
 }
 //-----------------------------------------------------------------------------
 SLint SLGLProgram::getAttribLocation(const SLchar* name) const
 {
     SLint loc = glGetAttribLocation(_progID, name);
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
     return loc;
 }
 //-----------------------------------------------------------------------------

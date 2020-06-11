@@ -195,15 +195,13 @@ SLbool SLGLShader::createAndCompile()
 
         _code = srcVersion + _code;
 
-        //// write out the parsed shader code as text files
-        //#ifdef _GLDEBUG
+        // write out the parsed shader code as text files
         //ofstream fs(name()+".Debug");
         //if(fs)
         //{
         //    fs << _code;
         //    fs.close();
         //}
-        //#endif
 
         const char* src = _code.c_str();
         glShaderSource(_shaderID, 1, &src, nullptr);
