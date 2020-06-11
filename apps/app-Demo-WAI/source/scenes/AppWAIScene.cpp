@@ -46,8 +46,8 @@ void AppWAIScene::loadMesh(std::string path)
 
     // Create directional light for the sun light
     SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-    light->ambientColor(SLCol4f(0.3, 0.3, 0.3));
-    light->diffuseColor(SLCol4f(1.0, 0.7, 1.0));
+    light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
+    light->diffuseColor(SLCol4f(1.0f, 0.7f, 1.0f));
     light->specularColor(SLCol4f(1, 1, 1));
     light->attenuation(1, 0, 0);
     light->translation(0, 10, 0);

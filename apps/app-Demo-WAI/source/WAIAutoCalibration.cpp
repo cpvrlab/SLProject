@@ -3,25 +3,25 @@
 using namespace cv;
 #define NB_SAMPLES 10
 
-#define CALIB_FLAGS cv::CALIB_USE_INTRINSIC_GUESS     | \
-                        cv::CALIB_ZERO_TANGENT_DIST   | \
-                        cv::CALIB_FIX_ASPECT_RATIO    | \
-                        cv::CALIB_FIX_PRINCIPAL_POINT | \
-                        cv::CALIB_FIX_S1_S2_S3_S4     | \
-                        cv::CALIB_FIX_K1 | CALIB_FIX_K2 | CALIB_FIX_K3 | CALIB_FIX_K4 | CALIB_FIX_K5 | CALIB_FIX_K6
+#define CALIB_FLAGS cv::CALIB_USE_INTRINSIC_GUESS | \
+                      cv::CALIB_ZERO_TANGENT_DIST | \
+                      cv::CALIB_FIX_ASPECT_RATIO | \
+                      cv::CALIB_FIX_PRINCIPAL_POINT | \
+                      cv::CALIB_FIX_S1_S2_S3_S4 | \
+                      cv::CALIB_FIX_K1 | CALIB_FIX_K2 | CALIB_FIX_K3 | CALIB_FIX_K4 | CALIB_FIX_K5 | CALIB_FIX_K6
 
 AutoCalibration::AutoCalibration(cv::Size frameSize, float mapDimension)
 {
-    _mapDimension = mapDimension;
-    _frameSize = frameSize;
-    _isFinished = false;
+    _mapDimension   = mapDimension;
+    _frameSize      = frameSize;
+    _isFinished     = false;
     _hasCalibration = false;
-    _isRunning = false;
+    _isRunning      = false;
 }
 
 void AutoCalibration::calibrateFrames(AutoCalibration* ac)
 {
-    CVCalibration calibration = {CVCameraType::FRONTFACING, ""};
+    CVCalibration                calibration = {CVCameraType::FRONTFACING, ""};
     std::unique_lock<std::mutex> lock(ac->_calibrationMutex);
 
     std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> matchings;
@@ -35,7 +35,7 @@ void AutoCalibration::calibrateFrames(AutoCalibration* ac)
     if (ret)
     {
         ac->_hasCalibration = true;
-        ac->_calibration = calibration;
+        ac->_calibration    = calibration;
         Utils::log("Info", "Auto calibration succeed\n");
     }
     else
@@ -50,7 +50,7 @@ bool AutoCalibration::fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<
     std::unique_lock<std::mutex> lock(_calibrationMutex);
     if (_hasCalibration || _isFinished || matching.first.size() < 10)
         return false;
-    
+
     lock.unlock();
 
     cv::Mat t   = tcw.col(3).rowRange(0, 3);
@@ -63,7 +63,7 @@ bool AutoCalibration::fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<
         cv::Mat vs = _framesDir[i];
         cv::Mat ts = _framesPos[i];
 
-        if (vs.dot(v) > 0.995 && cv::norm(ts-t) < (_mapDimension * 0.0025))
+        if (vs.dot(v) > 0.995 && cv::norm(ts - t) < (_mapDimension * 0.0025))
         {
             addFrame = false;
         }
@@ -80,7 +80,7 @@ bool AutoCalibration::fillFrame(std::pair<std::vector<cv::Point2f>, std::vector<
         if (!_isRunning && !_isFinished && !_hasCalibration && _calibrationMatchings.size() >= NB_SAMPLES)
         {
             Utils::log("Info", "AAAAA Start auto calibration thread\n");
-            _isRunning = true;
+            _isRunning         = true;
             _calibrationThread = std::thread(calibrateFrames, this);
             _calibrationThread.detach();
             return true;
@@ -115,30 +115,30 @@ void AutoCalibration::reset()
     _framesDir.clear();
 }
 
-float AutoCalibration::calibrate_opencv(cv::Mat& intrinsic, 
-                                        cv::Mat& distortion,
-                                        cv::Size& size,
-                                        std::vector<cv::Mat>& rvecs,
-                                        std::vector<cv::Mat>& tvecs,
+float AutoCalibration::calibrate_opencv(cv::Mat&                               intrinsic,
+                                        cv::Mat&                               distortion,
+                                        cv::Size&                              size,
+                                        std::vector<cv::Mat>&                  rvecs,
+                                        std::vector<cv::Mat>&                  tvecs,
                                         std::vector<std::vector<cv::Point2f>>& keypoints,
                                         std::vector<std::vector<cv::Point3f>>& worldpoints)
 {
 
     distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
-    cv::calibrateCamera(worldpoints, 
-                        keypoints, 
-                        size, 
-                        intrinsic, 
-                        distortion, 
-                        rvecs, 
+    cv::calibrateCamera(worldpoints,
+                        keypoints,
+                        size,
+                        intrinsic,
+                        distortion,
+                        rvecs,
                         tvecs,
                         CALIB_FLAGS);
 
     distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
 
-    std::vector <cv::Point2f> projected;
-    float error = 0;
-    int n = 0;
+    std::vector<cv::Point2f> projected;
+    float                    error = 0;
+    int                      n     = 0;
     for (int i = 0; i < worldpoints.size(); i++)
     {
         cv::projectPoints(worldpoints[i], rvecs[i], tvecs[i], intrinsic, distortion, projected);
@@ -215,7 +215,7 @@ void AutoCalibration::pick_points(std::vector<bool>&        selections,
     }
 }
 
-void AutoCalibration::computeMatrix(cv::Size size, cv::Mat& mat, cv::Mat &distortion, float fov)
+void AutoCalibration::computeMatrix(cv::Size size, cv::Mat& mat, cv::Mat& distortion, float fov)
 {
     float cx   = (float)size.width * 0.5f;
     float cy   = (float)size.height * 0.5f;
@@ -234,21 +234,21 @@ bool AutoCalibration::calibrateBruteForce(cv::Mat&                              
                                           float&                                 error)
 {
     bool ret = false;
-    error = 999999999.0;
+    error    = 999999999.0f;
 
     for (int i = 0; i < 6; i++)
     {
-        float fov = 57 + 3 * i;
+        float                fov = (float)(57 + 3 * i);
         std::vector<cv::Mat> rotvecs, trvecs;
-        cv::Mat matrix;
-        cv::Mat distortion;
+        cv::Mat              matrix;
+        cv::Mat              distortion;
         computeMatrix(size, matrix, distortion, fov);
 
         float err = calibrate_opencv(matrix, distortion, size, rotvecs, trvecs, vvP2D, vvP3Dw);
 
-        float fx = matrix.at<double>(0, 0);
-        float cx = matrix.at<double>(0, 2);
-        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+        float fx   = (float)matrix.at<double>(0, 0);
+        float cx   = (float)matrix.at<double>(0, 2);
+        float hfov = 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 
         if (err < error && hfov > 50 && hfov < 90)
         {
@@ -262,20 +262,20 @@ bool AutoCalibration::calibrateBruteForce(cv::Mat&                              
     return ret;
 }
 
-bool AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
+bool AutoCalibration::calibrateBruteForce(cv::Mat&                  intrinsic,
                                           std::vector<cv::Point2f>& vP2D,
                                           std::vector<cv::Point3f>& vP3Dw,
-                                          cv::Mat& rvec,
-                                          cv::Mat& tvec,
-                                          cv::Size size,
-                                          float &error)
+                                          cv::Mat&                  rvec,
+                                          cv::Mat&                  tvec,
+                                          cv::Size                  size,
+                                          float&                    error)
 {
     bool ret = false;
-    error = 999999999.0;
+    error    = 999999999.0f;
 
     for (int i = 0; i < 6; i++)
     {
-        float fov = 57 + 3 * i;
+        float                fov = (float)(57 + 3 * i);
         std::vector<cv::Mat> rotvecs, trvecs;
         rotvecs.resize(1);
         trvecs.resize(1);
@@ -290,9 +290,9 @@ bool AutoCalibration::calibrateBruteForce(cv::Mat &intrinsic,
         computeMatrix(size, matrix, distortion, fov);
         float err = calibrate_opencv(matrix, distortion, size, rotvecs, trvecs, vvP2D, vvP3Dw);
 
-        float fx = matrix.at<double>(0, 0);
-        float cx = matrix.at<double>(0, 2);
-        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+        float fx   = (float)matrix.at<double>(0, 0);
+        float cx   = (float)matrix.at<double>(0, 2);
+        float hfov = 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 
         if (err < error && hfov > 50 && hfov < 90)
         {
@@ -335,7 +335,7 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
 
     //Model parameters to optimize
     cv::Mat matrix;
-    float total_error = 999999999.0;
+    float   total_error = 999999999.0f;
 
     float error;
 
@@ -378,9 +378,9 @@ float AutoCalibration::ransac_frame_points(cv::Size&                 size,
         if (!calibrateBruteForce(matrix, skp, swp, rvec, tvec, size, error))
             continue;
 
-        float fx  = matrix.at<double>(0, 0);
-        float cx  = matrix.at<double>(0, 2);
-        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+        float fx   = (float)matrix.at<double>(0, 0);
+        float cx   = (float)matrix.at<double>(0, 2);
+        float hfov = 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 
         // If there is more than d elements that fit the current model and
         //  the total error with this model is the lowest we have so far => keeps this model
@@ -402,15 +402,15 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
                                                int                                    iniModelSize,
                                                std::vector<std::vector<cv::Point2f>>& keypoints,
                                                std::vector<std::vector<cv::Point3f>>& worldpoints,
-                                               int nbVectors)
+                                               int                                    nbVectors)
 {
-    int  N            = nbVectors;
+    int N = nbVectors;
 
-    std::vector<std::vector<cv::Point2f>> skp;  //maybe model
+    std::vector<std::vector<cv::Point2f>> skp; //maybe model
     std::vector<std::vector<cv::Point3f>> swp;
     std::vector<std::vector<cv::Point2f>> nskp; //maybe inlier
     std::vector<std::vector<cv::Point3f>> nswp;
-    std::vector<bool> selections;
+    std::vector<bool>                     selections;
     selections.resize(N);
 
     //Model parameters to optimize
@@ -418,7 +418,6 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
     std::vector<cv::Mat> rvecs, tvecs;
     float                total_error = 999999999.0f;
     float                error       = 0;
-
 
     for (int k = 0; k < nbIter; k++)
     {
@@ -439,8 +438,8 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
         for (int i = 0; i < nswp.size(); i++)
         {
             std::vector<cv::Point2f> projected;
-            cv::Mat rvec, tvec;
-            cv::Mat distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
+            cv::Mat                  rvec, tvec;
+            cv::Mat                  distortion = (cv::Mat_<float>(5, 1) << 0, 0, 0, 0, 0);
             cv::solvePnP(nswp[i], nskp[i], matrix, distortion, rvec, tvec);
             cv::projectPoints(nswp[i], rvec, tvec, matrix, distortion, projected);
 
@@ -460,17 +459,17 @@ float AutoCalibration::calibrate_frames_ransac(cv::Size&                        
         //Compute error on complete model
         calibrateBruteForce(matrix, skp, swp, rvecs, tvecs, size, error);
 
-        float fx  = matrix.at<double>(0, 0);
-        float cx  = matrix.at<double>(0, 2);
-        float hfov = 2.0 * atan2(cx, fx) * 180.0 / M_PI;
+        float fx   = (float)matrix.at<double>(0, 0);
+        float cx   = (float)matrix.at<double>(0, 2);
+        float hfov = 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 
         // If the total error with this model is the lowest we have so far => keeps this model
         if (error < total_error && hfov > 50 && hfov < 90)
         {
             if (hfov > 50 && hfov < 90)
             {
-                total_error  = error;
-                intrinsic    = matrix.clone();
+                total_error = error;
+                intrinsic   = matrix.clone();
             }
         }
     }
@@ -491,8 +490,8 @@ float AutoCalibration::calcCameraHorizontalFOV(cv::Mat& cameraMat)
     return 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 }
 
-bool AutoCalibration::calibrate(CVCalibration&                                                             calibration,
-                                cv::Size                                                                   size,
+bool AutoCalibration::calibrate(CVCalibration&                                                              calibration,
+                                cv::Size                                                                    size,
                                 std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>& matchings)
 {
     std::vector<std::vector<cv::Point2f>> preselectedKeyPoints;
@@ -510,7 +509,7 @@ bool AutoCalibration::calibrate(CVCalibration&                                  
         float error = ransac_frame_points(size,
                                           10,
                                           4.0, //threshold
-                                          p2f.size() * 0.4,
+                                          (int)(p2f.size() * 0.4f),
                                           p2f,
                                           p3f,
                                           preselectedKeyPoints[nbFill],
@@ -535,14 +534,13 @@ bool AutoCalibration::calibrate(CVCalibration&                                  
                                           preselectedWorldPoints,
                                           nbFill);
 
-
     calibration = CVCalibration(intrinsic,
                                 distortion,
                                 size,
                                 cv::Size(0, 0),
                                 0.0f,
                                 error,
-                                matchings.size(),
+                                (int)matchings.size(),
                                 Utils::getDateTime2String(),
                                 -1,
                                 false,
