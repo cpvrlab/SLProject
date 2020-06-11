@@ -13,4 +13,10 @@
 
 @interface ErlebARViewController : GLKViewController
 
+- (void)appWillResignActive;
+- (void)appDidEnterBackground;
+- (void)appWillEnterForeground;
+- (void)appDidBecomeActive;
+- (void)appWillTerminate;
+
 @end

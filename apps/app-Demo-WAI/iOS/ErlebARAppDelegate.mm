@@ -16,13 +16,6 @@
 
 @implementation ErlebARAppDelegate
 
-//@synthesize window = _window;
-//@synthesize viewController = _viewController;
-
-- (void)dealloc
-{
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
@@ -35,6 +28,7 @@
     {
         self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
     }
+    self.viewController.view.hidden = NO;
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     return YES;
@@ -51,6 +45,7 @@
     OpenGL ES frame rates. Games should use this method to pause the game.
     */
     printf("applicationWillResignActive\n");
+    [[self viewController] appWillResignActive];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -62,9 +57,8 @@
     If your application supports background execution, this method is called instead 
     of applicationWillTerminate: when the user quits.
     */
-    
     printf("applicationDidEnterBackground\n");
-    //slTerminate();
+    [[self viewController] appDidEnterBackground];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -73,10 +67,8 @@
     Called as part of the transition from the background to the inactive state; 
     here you can undo many of the changes made on entering the background.
     */
-    
     printf("applicationWillEnterForeground\n");
-    
-    
+    [[self viewController] appWillEnterForeground];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -86,8 +78,8 @@
     was inactive. If the application was previously in the background, 
     optionally refresh the user interface.
     */
-    
     printf("applicationDidBecomeActive\n");
+    [[self viewController] appDidBecomeActive];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -97,9 +89,8 @@
     Save data if appropriate.
     See also applicationDidEnterBackground:.
     */
-    
     printf("applicationWillTerminate\n");
-    
+    [[self viewController] appWillTerminate];
 }
 
 @end

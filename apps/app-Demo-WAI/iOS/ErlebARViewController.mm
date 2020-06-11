@@ -46,13 +46,10 @@
 @implementation ErlebARViewController
 
 //-----------------------------------------------------------------------------
-- (void)dealloc
-{
-    delete _camera;
-}
-//-----------------------------------------------------------------------------
+//(called only on app fresh startup after termination)
 - (void)viewDidLoad
 {
+    printf("viewDidLoad\n");
     [super viewDidLoad];
    
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
@@ -110,6 +107,34 @@
                        _camera);
 }
 //-----------------------------------------------------------------------------
+- (void)appWillResignActive
+{
+    _erlebARApp.hold();
+    _erlebARApp.update();
+}
+//-----------------------------------------------------------------------------
+- (void)appDidEnterBackground
+{
+}
+//-----------------------------------------------------------------------------
+//(not called on startup but only if app was in background)
+- (void)appWillEnterForeground
+{
+    [EAGLContext setCurrentContext:self.context];
+    _erlebARApp.resume();
+}
+//-----------------------------------------------------------------------------
+- (void)appDidBecomeActive
+{
+}
+//-----------------------------------------------------------------------------
+- (void)appWillTerminate
+{
+    _erlebARApp.destroy();
+    _erlebARApp.update();
+    delete _camera;
+}
+//-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
 {
     printf("didReceiveMemoryWarning\n");
@@ -117,7 +142,9 @@
     [super didReceiveMemoryWarning];
    
     _erlebARApp.destroy();
-   
+    _erlebARApp.update();
+    delete _camera;
+    
     if ([EAGLContext currentContext] == self.context)
     {
         [EAGLContext setCurrentContext:nil];
@@ -127,6 +154,7 @@
 //-----------------------------------------------------------------------------
 - (void)update
 {
+    //printf("update\n");
     /*
     slResize(svIndex, self.view.bounds.size.width  * _screenScale,
                       self.view.bounds.size.height * _screenScale);
@@ -135,6 +163,7 @@
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
+    //printf("drawInRect\n");
     _erlebARApp.update();
 }
 //-----------------------------------------------------------------------------
