@@ -268,7 +268,8 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
 {
     assert(mat != nullptr && "SLGLProgram::beginUse: No material passed.");
 
-    if (_progID == 0 && !_shaders.empty()) init();
+    if (_progID == 0 && !_shaders.empty())
+        init();
 
     if (_isLinked)
     {

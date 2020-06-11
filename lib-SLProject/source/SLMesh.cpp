@@ -423,7 +423,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
         vao->drawElementsAs(primitiveType);
 
     // The remaining visualizations are not needed for depth passes
-    if (depthPass) return;
+    if (depthPass)
+        return;
 
     //////////////////////////////////////
     // 5) Draw optional normals & tangents

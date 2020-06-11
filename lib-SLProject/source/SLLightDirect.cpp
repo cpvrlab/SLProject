@@ -229,8 +229,8 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
 */
 void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap(
-                                 P_monoOrthographic, this);
+    if (_shadowMap == nullptr)
+        _shadowMap = new SLShadowMap(P_monoOrthographic, this);
     _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------

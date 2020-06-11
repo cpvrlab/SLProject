@@ -87,11 +87,11 @@ public:
         pos.w = 0.0f;
         return pos;
     }
-    SLVec3f      spotDirWS() override { return forwardOS(); }
+    SLVec3f spotDirWS() override { return forwardOS(); }
 
 private:
-    SLfloat      _arrowRadius; //!< The sphere lights radius
-    SLfloat      _arrowLength; //!< Length of direction line
+    SLfloat _arrowRadius; //!< The sphere lights radius
+    SLfloat _arrowLength; //!< Length of direction line
 };
 //-----------------------------------------------------------------------------
 #endif

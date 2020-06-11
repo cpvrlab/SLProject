@@ -306,8 +306,8 @@ SLfloat SLLightRect::shadowTestMC(SLRay*         ray,       // ray of hit point
 */
 void SLLightRect::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap(
-                                 P_monoPerspective, this);
+    if (_shadowMap == nullptr)
+        _shadowMap = new SLShadowMap(P_monoPerspective, this);
     _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------

@@ -32,11 +32,15 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
 
     // Init framebuffer.
     glGenFramebuffers(1, &_fboID);
+    GET_GL_ERROR;
+
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
+    GET_GL_ERROR;
 
     glGenTextures(1, &_texID);
     stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
     stateGL->bindTexture(target, _texID);
+    GET_GL_ERROR;
 
     // Texture parameters.
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -44,8 +48,12 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
     glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
 
+#ifndef SL_GLES
     if (borderColor != nullptr)
         glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, borderColor);
+#endif
+
+    GET_GL_ERROR;
 
     if (target == GL_TEXTURE_2D)
     {
@@ -58,6 +66,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
                      GL_DEPTH_COMPONENT,
                      GL_FLOAT,
                      nullptr);
+        GET_GL_ERROR;
 
         // Attach texture to framebuffer.
         glFramebufferTexture2D(GL_FRAMEBUFFER,
@@ -65,6 +74,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
                                GL_TEXTURE_2D,
                                _texID,
                                0);
+        GET_GL_ERROR;
     }
     else // target is GL_TEXTURE_CUBE_MAP
     {
@@ -79,6 +89,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
                          GL_DEPTH_COMPONENT,
                          GL_FLOAT,
                          nullptr);
+            GET_GL_ERROR;
 
             // Attach texture to framebuffer.
             glFramebufferTexture2D(GL_FRAMEBUFFER,
@@ -86,22 +97,32 @@ SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
                                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                                    _texID,
                                    0);
+            GET_GL_ERROR;
         }
     }
 
+#ifndef SL_GLES
     glDrawBuffer(GL_NONE);
+    GET_GL_ERROR;
+#endif
+
     glReadBuffer(GL_NONE);
+    GET_GL_ERROR;
 
     glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer);
     GET_GL_ERROR;
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cerr << "FBO failed to initialize correctly." << std::endl;
+        SL_LOG("FBO failed to initialize correctly.");
 }
 //-----------------------------------------------------------------------------
 SLGLDepthBuffer::~SLGLDepthBuffer()
 {
     glDeleteTextures(1, &_texID);
+    GET_GL_ERROR;
+
     glDeleteFramebuffers(1, &_fboID);
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 void SLGLDepthBuffer::activateAsTexture(SLuint loc)
@@ -124,6 +145,12 @@ SLfloat* SLGLDepthBuffer::readPixels()
 void SLGLDepthBuffer::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
+    GET_GL_ERROR;
+}
+//-----------------------------------------------------------------------------
+void SLGLDepthBuffer::unbind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------

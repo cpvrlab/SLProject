@@ -210,7 +210,9 @@ void SLShadowMap::updateMVP()
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
 cast shadows
 */
-void SLShadowMap::drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f v)
+void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
+                                           SLSceneView* sv,
+                                           SLMat4f      v)
 {
     SLGLState* stateGL       = SLGLState::instance();
     stateGL->modelViewMatrix = v * node->updateAndGetWM();
@@ -247,23 +249,28 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 
     updateMVP();
 
-    if (this->_useCubemap) this->_textureSize.y = this->_textureSize.x;
+    if (this->_useCubemap)
+        this->_textureSize.y = this->_textureSize.x;
+
+#ifdef SL_GLES
+    SLint wrapMode = GL_CLAMP_TO_EDGE;
+#else
+    SLint wrapMode = GL_CLAMP_TO_BORDER;
+#endif
 
     if (_depthBuffer == nullptr ||
         _depthBuffer->dimensions() != _textureSize ||
         (_depthBuffer->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap)
     {
         delete _depthBuffer;
-
-        _depthBuffer = new SLGLDepthBuffer(
-          _textureSize,
-          GL_NEAREST,
-          GL_NEAREST,
-          GL_CLAMP_TO_BORDER,
-          borderColor,
-          this->_useCubemap
-            ? GL_TEXTURE_CUBE_MAP
-            : GL_TEXTURE_2D);
+        _depthBuffer = new SLGLDepthBuffer(_textureSize,
+                                           GL_NEAREST,
+                                           GL_NEAREST,
+                                           wrapMode,
+                                           borderColor,
+                                           this->_useCubemap
+                                             ? GL_TEXTURE_CUBE_MAP
+                                             : GL_TEXTURE_2D);
     }
     _depthBuffer->bind();
 
@@ -287,8 +294,6 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
         drawNodesIntoDepthBuffer(root, sv, _v[i]);
     }
 
-    GET_GL_ERROR;
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    _depthBuffer->unbind();
 }
 //-----------------------------------------------------------------------------
