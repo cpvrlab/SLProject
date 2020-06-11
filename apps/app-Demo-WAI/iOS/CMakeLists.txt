@@ -19,7 +19,7 @@ set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvr.erlebar") # <== Set to your app's bund
 set(PROVISIONING_PROFILE "ErlebAR - Development")
 set(CODE_SIGN_IDENTITY "Apple Development: Michael Göttlicher (KMX9985DR7)")  # <== Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
 
-set(DEPLOYMENT_TARGET 8.0)                                  # <== Set your deployment target version of iOS
+set(DEPLOYMENT_TARGET 9.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
 #include(BundleUtilities)
@@ -69,9 +69,10 @@ copy_resources_erlebar("${DATA_DIR}")
 file(GLOB DATA "${DATA_DIR}")
 
 # define additional Xcode app resources
-set(XIB_FILES
+set(CONFIG_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPad.xib
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
+	${CMAKE_CURRENT_SOURCE_DIR}/LaunchScreen.storyboard
 	)
 
 set(ASSET_CATALOG
@@ -79,13 +80,13 @@ set(ASSET_CATALOG
 	)
 
 # Group data resource files in Xcode Resource directory
-source_group(Resources FILES ${XIB_FILES})
+source_group(Resources FILES ${CONFIG_FILES})
 source_group(Resources FILES ${ASSET_CATALOG})
 source_group(Resources FILES ${DATA})
 
 set(RESOURCES
 	${ASSET_CATALOG}
-	${XIB_FILES}
+	${CONFIG_FILES}
 	${DATA}
 	)
 
@@ -119,7 +120,8 @@ set_target_properties(
         XCODE_ATTRIBUTE_ENABLE_TESTABILITY NO
         XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon" #defines icon name in asset catalog (images.xcassets)
-		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
+		# apple requires storyboard launchscreens now so the following will not come into store:
+		#XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
 	
 target_include_directories(

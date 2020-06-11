@@ -65,8 +65,6 @@
     
     printf("applicationDidEnterBackground\n");
     //slTerminate();
-    exit(0);
-    
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
