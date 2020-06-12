@@ -4,6 +4,6 @@
 @interface SENSiOSCameraDelegate : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 //- ( id ) init;
-- ( BOOL ) startCamera;
+- (BOOL)startCamera;
 
 @end

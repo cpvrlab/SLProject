@@ -841,7 +841,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     if (button == MB_left) //==================================================
     {
         // Set selection rectangle
-        /* The selection rectangle is defined in SLScene::selectRect and gets set and
+        /* The selection rectangle gets set and
          drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
          not empty the SLScene::selectedNode is null. All vertices that are withing the
          selectRect are listed in SLMesh::IS32. All nodes that have selected vertices
