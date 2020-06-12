@@ -22,11 +22,11 @@
     // Override point for customization after application launch.
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
     {
-        self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPhone" bundle:nil];
+        self.viewController = [[ErlebARViewController alloc] init:@"ViewController_iPhone"];
     }
     else
     {
-        self.viewController = [[ErlebARViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
+        self.viewController = [[ErlebARViewController alloc] init:@"ViewController_iPad"];
     }
     self.viewController.view.hidden = NO;
     self.window.rootViewController = self.viewController;

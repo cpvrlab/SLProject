@@ -46,6 +46,7 @@ set(headers
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.h
     ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.h
     )
 
 set(sources
@@ -54,6 +55,7 @@ set(sources
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.mm
     ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.mm
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.m
 	)
  
 # Group source files

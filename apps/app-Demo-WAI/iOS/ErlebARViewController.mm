@@ -24,6 +24,7 @@
 //-----------------------------------------------------------------------------
 @interface ErlebARViewController ()
 {
+@private
     float  _lastFrameTimeSec;  // Timestamp for passing highres time
     float  _lastTouchTimeSec;  // Frame time of the last touch event
     float  _lastTouchDownSec;  // Time of last touch down
@@ -45,6 +46,24 @@
 //-----------------------------------------------------------------------------
 @implementation ErlebARViewController
 
+//-----------------------------------------------------------------------------
+- (id)init:(NSString *)nibNameOrNil
+{
+    self = [self initWithNibName:nibNameOrNil bundle:nil];
+    
+    if(self)
+    {
+        _lastFrameTimeSec = 0.f; //todo: this variable remains 0, its never assigned a new value...
+        _lastTouchTimeSec = 0.f;
+        _lastTouchDownSec = 0.f;
+        _touchDowns = 0;
+        
+        _screenScale = 1.0f;
+        _camera = nullptr;
+    }
+    
+    return self;
+}
 //-----------------------------------------------------------------------------
 //(called only on app fresh startup after termination)
 - (void)viewDidLoad
@@ -97,6 +116,8 @@
     
     std::string exePath = Utils_iOS::getCurrentWorkingDir();
     std::string configPath = Utils_iOS::getAppsWritableDir();
+    
+    Utils::initFileLog(configPath + "log/", true);
     
     _camera = new SENSiOSCamera();
     _erlebARApp.init(self.view.bounds.size.height * _screenScale,
@@ -163,7 +184,7 @@
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    //printf("drawInRect\n");
+    //printf("drawInRect: fps: %f\n", (float)self.framesPerSecond);
     _erlebARApp.update();
 }
 //-----------------------------------------------------------------------------
