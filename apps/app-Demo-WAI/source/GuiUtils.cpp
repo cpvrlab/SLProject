@@ -288,8 +288,8 @@ std::vector<ImVec2> constructTrianglePts(const float angleDeg, const ImVec2& cen
 {
     std::vector<ImVec2> triangle(3);
     triangle[0] = ImVec2(center);                                    //root (point center)
-    triangle[1] = ImVec2(center.x + length, center.y + 0.5 * width); //bottom right
-    triangle[2] = ImVec2(center.x + length, center.y - 0.5 * width); //top right
+    triangle[1] = ImVec2(center.x + length, center.y + 0.5f * width); //bottom right
+    triangle[2] = ImVec2(center.x + length, center.y - 0.5f * width); //top right
     return rotatePts(triangle, angleDeg, triangle[0]);
 }
 

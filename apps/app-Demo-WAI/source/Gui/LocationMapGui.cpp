@@ -77,11 +77,11 @@ void LocationMapGui::onMouseMove(SLint xPos, SLint yPos)
         _y -= dy;
 
         if (_x + _fracW > 1.0)
-            _x = 1.0 - _fracW;
+            _x = 1.0f - _fracW;
         if (_x < 0.0)
             _x = 0.0;
         if (_y + _fracH > 1.0)
-            _y = 1.0 - _fracH;
+            _y = 1.0f - _fracH;
         if (_y < 0.0)
             _y = 0.0;
     }
@@ -206,7 +206,7 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
                                             _locTextureW,
                                             _locTextureH);
 
-        _dspPixWidth  = _loc.dspPixWidth;
+        _dspPixWidth  = (float)_loc.dspPixWidth;
         _dspPixHeight = (float)(_loc.dspPixWidth * _screenH) / (float)(_screenW);
 
         _fracW = _dspPixWidth / (float)_locTextureW; //Should never be bigger than 1
@@ -216,14 +216,14 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
         {
             _fracW        = 1.0;
             _fracH        = _screenH / _screenW;
-            _dspPixWidth  = _locTextureW;
+            _dspPixWidth  = (float)_locTextureW;
             _dspPixHeight = (float)(_dspPixWidth * _screenH) / (float)(_screenW);
         }
         if (_fracH > 1.0)
         {
             _fracH        = 1.0;
             _fracW        = _screenW / _screenH;
-            _dspPixHeight = _locTextureH;
+            _dspPixHeight = (float)_locTextureH;
             _dspPixWidth  = (float)(_dspPixHeight * _screenW) / (float)(_screenH);
         }
     }

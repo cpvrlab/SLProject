@@ -21,6 +21,7 @@
 #include <SLGLImGui.h>
 #include <Instrumentor.h>
 #include <FtpUtils.h>
+#include <ZipUtils.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -218,6 +219,8 @@ void slTerminate()
 
     if (Utils::fileExists(filePathName))
     {
+        //ZipUtils::zip("/Users/hudrima1/Library/Application Support/SLProject/DEVELOPMENT-map_20200529-154142_avenches_aamphitheater_FAST_ORBS_2000.json");
+
         SLstring errorMsg;
         SLstring path = Utils::getPath(filePathName);
         SLstring file = Utils::getFileName(filePathName);
