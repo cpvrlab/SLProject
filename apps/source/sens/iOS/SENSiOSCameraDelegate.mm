@@ -22,10 +22,10 @@
  
 @implementation SENSiOSCameraDelegate
  
-- ( id ) init
+- (id)init
 {
     // 1. Initialize the parent class(es) up the hierarchy and create self:
-    self = [ super init ];
+    self = [super init];
  
     // 2. Initialize members:
     m_captureSession    = NULL;
@@ -43,17 +43,18 @@
  
     // 1. Get a list of available devices:
     // specifying AVMediaTypeVideo will ensure we only get a list of cameras, no microphones
-    NSArray * devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
  
     // 2. Iterate through the device array and if a device is a camera, check if it's the one we want:
-    for ( AVCaptureDevice * device in devices )
+    for (AVCaptureDevice* device in devices)
     {
-        if ( useFrontCamera && AVCaptureDevicePositionFront == [ device position ] )
+        NSString* uniqueId = [device uniqueID];
+        if (useFrontCamera && AVCaptureDevicePositionFront == [device position])
         {
             // We asked for the front camera and got the front camera, now keep a pointer to it:
             m_camera = device;
         }
-        else if ( !useFrontCamera && AVCaptureDevicePositionBack == [ device position ] )
+        else if (!useFrontCamera && AVCaptureDevicePositionBack == [device position])
         {
             // We asked for the back camera and here it is:
             m_camera = device;
@@ -61,23 +62,23 @@
     }
  
     // 3. Set a frame rate for the camera:
-    if ( NULL != m_camera )
+    if (NULL != m_camera)
     {
-        // We firt need to lock the camera, so noone else can mess with its configuration:
-        if ( [ m_camera lockForConfiguration: NULL ] )
+        // We first need to lock the camera, so no one else can mess with its configuration:
+        if ([m_camera lockForConfiguration:NULL])
         {
             // Set a minimum frame rate of 10 frames per second
-            [ m_camera setActiveVideoMinFrameDuration: CMTimeMake( 1, 10 ) ];
+            [m_camera setActiveVideoMinFrameDuration:CMTimeMake(1, 10)];
  
             // and a maximum of 30 frames per second
-            [ m_camera setActiveVideoMaxFrameDuration: CMTimeMake( 1, 30 ) ];
+            [m_camera setActiveVideoMaxFrameDuration:CMTimeMake(1, 30)];
  
-            [ m_camera unlockForConfiguration ];
+            [m_camera unlockForConfiguration];
         }
     }
  
     // 4. If we've found the camera we want, return true
-    return ( NULL != m_camera );
+    return (NULL != m_camera);
 }
 
 - (BOOL)attachCameraToCaptureSession
@@ -119,7 +120,7 @@
 - (void)setupVideoOutput
 {
     // 1. Create the video data output
-    m_videoOutput = [ [ AVCaptureVideoDataOutput alloc ] init ];
+    m_videoOutput = [[AVCaptureVideoDataOutput alloc] init];
  
     // 2. Create a queue for capturing video frames
     dispatch_queue_t captureQueue = dispatch_queue_create("captureQueue", DISPATCH_QUEUE_SERIAL);
@@ -152,7 +153,26 @@
 
 - (void)copyVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
-    // TODO: To be implemented in the next part of this tutorial
+    CVReturn err;
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    
+    CVPixelBufferLockBaseAddress(pixelBuffer,0);
+    
+    int imgWidth  = (int) CVPixelBufferGetWidth(pixelBuffer);
+    int imgHeight = (int) CVPixelBufferGetHeight(pixelBuffer);
+    unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
+        
+    if(!data)
+    {
+        NSLog(@"No pixel buffer data");
+        return;
+    }
+    
+    cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
+    cv::Mat rgbImg;
+    cvtColor(rgba, rgbImg, cv::COLOR_RGBA2RGB, 3);
+    
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 }
 
 - (void)videoCameraStarted:(NSNotification*)note
