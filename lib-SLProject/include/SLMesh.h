@@ -150,7 +150,7 @@ public:
     virtual void calcMinMax();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO(SLGLProgram* sp, SLGLVertexArray* vao = nullptr);
+    void         generateVAO();
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
 
 #ifdef SL_HAS_OPTIX
@@ -207,7 +207,6 @@ protected:
     SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
-    SLGLVertexArrayExt _vaoD;      //!< OpenGL VAO for depth material
 
 #ifdef SL_HAS_OPTIX
     SLCudaBuffer<SLVec3f>  _vertexBuffer;

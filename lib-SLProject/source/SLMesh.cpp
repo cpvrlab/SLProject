@@ -93,7 +93,6 @@ void SLMesh::deleteData()
     _vao.deleteGL();
     _vaoN.deleteGL();
     _vaoT.deleteGL();
-    _vaoD.deleteGL();
 
 #ifdef SL_HAS_OPTIX
     _vertexBuffer.free();
@@ -192,7 +191,6 @@ void SLMesh::deleteSelected(SLNode* node)
 
     // delete vertex array object so it gets regenerated
     _vao.deleteGL();
-    _vaoD.deleteGL();
 
     // delete the selection indexes
     IS32.clear();
@@ -297,12 +295,12 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 <p> The method performs the following steps:</p>
 <p>
 1) Apply the drawing bits<br>
-2) Apply the uniform variables to the shader<br>
-2a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
-2b) Pass the modelview and modelview-projection matrix to the shader.<br>
-2c) If needed build and pass the inverse modelview and the normal matrix.<br>
-2d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
-3) Generate Vertex Array Object once<br>
+2) Generate Vertex Array Object once<br>
+3) Apply the uniform variables to the shader<br>
+3a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
+3b) Pass the modelview and modelview-projection matrix to the shader.<br>
+3c) If needed build and pass the inverse modelview and the normal matrix.<br>
+3d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
 4) Finally do the draw call<br>
 5) Draw optional normals & tangents<br>
 6) Draw optional acceleration structure<br>
@@ -360,21 +358,31 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
         stateGL->polygonOffset(true, 1.0f, 1.0f);
 
+    ///////////////////////////////////////
+    // 2) Generate Vertex Array Object once
+    ///////////////////////////////////////
+
+    if (!_vao.vaoID())
+    {
+        mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
+        generateVAO();
+    }
+
     /////////////////////////////
-    // 2) Apply Uniform Variables
+    // 3) Apply Uniform Variables
     /////////////////////////////
 
-    // 2.a) Apply mesh material if exists & differs from current
+    // 3.a) Apply mesh material if exists & differs from current
     SLMaterial* material = overrideMat != nullptr ? overrideMat : mat();
     material->activate(*node->drawBits(), sv->s().globalAmbiLight());
 
-    // 2.b) Pass the matrices to the shader program
+    // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = material->program();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
-    // 2.c) Build & pass inverse, normal & texture matrix only if needed
+    // 3.c) Build & pass inverse, normal & texture matrix only if needed
     SLint locIM = sp->getUniformLocation("u_invMvMatrix");
     SLint locNM = sp->getUniformLocation("u_nMatrix");
     SLint locTM = sp->getUniformLocation("u_tMatrix");
@@ -404,23 +412,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
         sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&stateGL->textureMatrix);
     }
 
-    ///////////////////////////////////////
-    // 3) Generate Vertex Array Object once
-    ///////////////////////////////////////
-
-    SLGLVertexArray* vao = depthPass ? &_vaoD : &_vao;
-
-    if (!vao->vaoID())
-        generateVAO(sp, vao);
-
     ///////////////////////////////
     // 4): Finally do the draw call
     ///////////////////////////////
 
     if (_primitive == PT_points)
-        vao->drawArrayAs(PT_points);
+        _vao.drawArrayAs(PT_points);
     else
-        vao->drawElementsAs(primitiveType);
+        _vao.drawElementsAs(primitiveType);
 
     // The remaining visualizations are not needed for depth passes
     if (depthPass)
@@ -567,19 +566,19 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
-void SLMesh::generateVAO(SLGLProgram* sp, SLGLVertexArray* vao)
+void SLMesh::generateVAO()
 {
-    if (vao == nullptr) vao = &_vao;
+    SLGLProgram* sp = mat()->program();
 
-    vao->setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-    if (!N.empty()) vao->setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-    if (!Tc.empty()) vao->setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-    if (!C.empty()) vao->setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-    if (!T.empty()) vao->setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
-    if (!I16.empty()) vao->setIndices(&I16);
-    if (!I32.empty()) vao->setIndices(&I32);
+    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
+    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
+    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
+    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    if (!I16.empty()) _vao.setIndices(&I16);
+    if (!I32.empty()) _vao.setIndices(&I32);
 
-    vao->generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
+    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1287,10 +1286,6 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     {
         _vao.updateAttrib(AT_position, _finalP);
         if (!N.empty()) _vao.updateAttrib(AT_normal, _finalN);
-    }
-    if (_vaoD.vaoID())
-    {
-        _vaoD.updateAttrib(AT_position, _finalP);
     }
 }
 //-----------------------------------------------------------------------------
