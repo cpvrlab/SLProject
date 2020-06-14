@@ -97,13 +97,16 @@ void SLShadowMap::drawRays()
 {
     if (_useCubemap) return; // Not implemented for cubemap
 
+    SLint w = _rayCount.x;
+    SLint h = _rayCount.y;
+
+    if (w == 0 || h == 0)
+        return;
+
     SLGLState* stateGL = SLGLState::instance();
     SLVVec3f   P;
 
     _depthBuffer->bind();
-
-    SLint w = _rayCount.x;
-    SLint h = _rayCount.y;
 
     SLfloat pixelWidth  = (SLfloat)_textureSize.x / w;
     SLfloat pixelHeight = (SLfloat)_textureSize.y / h;
@@ -131,7 +134,7 @@ void SLShadowMap::drawRays()
 
     delete depths;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    _depthBuffer->unbind();
 
     if (P.size() == 0) return;
 
