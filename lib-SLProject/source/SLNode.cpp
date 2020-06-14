@@ -1240,6 +1240,8 @@ bool SLNode::updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes)
 //-----------------------------------------------------------------------------
 void SLNode::updateMeshAccelStructs()
 {
+    PROFILE_FUNCTION();
+
     for (auto* mesh : _meshes)
     {
         // updateRec any out of date acceleration structure for RT or if they're being rendered.
