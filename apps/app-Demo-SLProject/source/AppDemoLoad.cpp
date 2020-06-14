@@ -929,7 +929,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         pc1->translate(-5, 0, 0);
 
         SLMaterial* pcMat2 = new SLMaterial(s, "Green", SLCol4f::GREEN);
-        pcMat2->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "ColorUniform.vert", SLApplication::shaderPath + "shaders/Color.frag"));
+        pcMat2->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "ColorUniform.vert", SLApplication::shaderPath + "Color.frag"));
         SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
         SLNode*        pc2 = new SLNode(new SLPoints(s, 1000, rndU, "PC2", pcMat2));
         pc2->translate(5, 0, 0);

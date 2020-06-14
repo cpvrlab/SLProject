@@ -128,7 +128,7 @@ void Resources::load(std::string resourceFileName)
     }
     else
     {
-        Utils::warnMsg("ErlebAR::Resources", "Could not save resources!", __LINE__, __FILE__);
+        Utils::warnMsg("ErlebAR::Resources", "Could not load resources!", __LINE__, __FILE__);
     }
 }
 

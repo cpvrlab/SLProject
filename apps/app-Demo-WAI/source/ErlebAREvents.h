@@ -96,6 +96,8 @@ public:
     DestroyEvent(std::string senderInfo)
       : sm::Event("DestroyEvent", senderInfo)
     {
+        enableTransition((unsigned int)StateId::WELCOME,
+                         (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::INIT,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::SELECTION,

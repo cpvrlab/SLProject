@@ -57,22 +57,13 @@ static bool zip_add_dir(zipFile zfile, std::string dirname)
     zipCloseFileInZip(zfile);
     return true;
 }
-//-----------------------------------------------------------------------------
-static bool zip_add_file(zipFile zfile, std::ifstream& fs, std::string filename)
+static bool zip_add_file(zipFile zfile, std::ifstream& fs, std::string filename, std::string zipPath = "")
 {
     size_t size = (size_t)Utils::getFileSize(fs);
 
-    int ret = zipOpenNewFileInZip64(zfile,
-                                    filename.c_str(),
-                                    NULL,
-                                    NULL,
-                                    0,
-                                    NULL,
-                                    0,
-                                    NULL,
-                                    Z_DEFLATED,
-                                    Z_DEFAULT_COMPRESSION,
-                                    (size > 0xffffffff) ? 1 : 0);
+    zipPath = Utils::unifySlashes(zipPath);
+    int ret = zipOpenNewFileInZip64(zfile, (zipPath + filename).c_str(), NULL, NULL, 0, NULL, 0, NULL,
+            Z_DEFLATED, Z_DEFAULT_COMPRESSION, (size > 0xffffffff)?1:0);
 
     if (ret != ZIP_OK)
     {
@@ -94,16 +85,15 @@ static bool zip_add_file(zipFile zfile, std::ifstream& fs, std::string filename)
     zipCloseFileInZip(zfile);
     return true;
 }
-//-----------------------------------------------------------------------------
-static bool zip_add_file(zipFile zfile, std::string filename)
+static bool zip_add_file(zipFile zfile, std::string filepath, std::string zipPath = "")
 {
-    std::ifstream fs(filename, std::ios::binary);
+    std::ifstream fs(filepath, std::ios::binary);
     if (fs.fail())
     {
         return false;
     }
 
-    return zip_add_file(zfile, fs, filename);
+    return zip_add_file(zfile, fs, Utils::getFileName(filepath), zipPath);
 }
 //-----------------------------------------------------------------------------
 bool unzip(std::string                                                                               zipfile,
@@ -181,8 +171,10 @@ bool unzip(std::string                                                          
 //-----------------------------------------------------------------------------
 bool zip(std::string path, std::string zipname)
 {
+    path = Utils::trimRightString(path, "/");
+
     if (zipname.empty())
-        zipname = Utils::trimRightString(path, "/") + ".zip";
+        zipname = path + ".zip";
 
     zipFile zfile = zipOpen64(zipname.c_str(), 0);
 
@@ -191,16 +183,17 @@ bool zip(std::string path, std::string zipname)
         zipClose(zfile, nullptr);
         return false;
     }
-
+    
     bool ret = true;
+    string zipRootPath = Utils::getDirName(path);
 
     Utils::loopFileSystemRec(
       path,
-      [zfile, &ret](string path, string baseName, int depth) -> void {
-          ret = ret && zip_add_file(zfile, path + baseName);
+      [zfile, &ret, zipRootPath](string path, string baseName, int depth) -> void {
+          ret = ret && zip_add_file(zfile, path + baseName, path.erase(0, zipRootPath.size()));
       },
-      [zfile, &ret](string path, string baseName, int depth) -> void {
-          ret = ret && zip_add_dir(zfile, path + baseName);
+      [zfile, &ret, zipRootPath](string path, string baseName, int depth) -> void {
+          ret = ret && zip_add_dir(zfile, path.erase(0, zipRootPath.size()) + baseName);
       },
       0);
 

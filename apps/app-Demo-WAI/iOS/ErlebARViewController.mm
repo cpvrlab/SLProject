@@ -24,6 +24,7 @@
 //-----------------------------------------------------------------------------
 @interface ErlebARViewController ()
 {
+@private
     float  _lastFrameTimeSec;  // Timestamp for passing highres time
     float  _lastTouchTimeSec;  // Frame time of the last touch event
     float  _lastTouchDownSec;  // Time of last touch down
@@ -46,13 +47,28 @@
 @implementation ErlebARViewController
 
 //-----------------------------------------------------------------------------
-- (void)dealloc
+- (id)init:(NSString *)nibNameOrNil
 {
-    delete _camera;
+    self = [self initWithNibName:nibNameOrNil bundle:nil];
+    
+    if(self)
+    {
+        _lastFrameTimeSec = 0.f; //todo: this variable remains 0, its never assigned a new value...
+        _lastTouchTimeSec = 0.f;
+        _lastTouchDownSec = 0.f;
+        _touchDowns = 0;
+        
+        _screenScale = 1.0f;
+        _camera = nullptr;
+    }
+    
+    return self;
 }
 //-----------------------------------------------------------------------------
+//(called only on app fresh startup after termination)
 - (void)viewDidLoad
 {
+    printf("viewDidLoad\n");
     [super viewDidLoad];
    
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
@@ -101,6 +117,8 @@
     std::string exePath = Utils_iOS::getCurrentWorkingDir();
     std::string configPath = Utils_iOS::getAppsWritableDir();
     
+    Utils::initFileLog(configPath + "log/", true);
+    
     _camera = new SENSiOSCamera();
     _erlebARApp.init(self.view.bounds.size.height * _screenScale,
                        self.view.bounds.size.width * _screenScale,
@@ -110,6 +128,34 @@
                        _camera);
 }
 //-----------------------------------------------------------------------------
+- (void)appWillResignActive
+{
+    _erlebARApp.hold();
+    _erlebARApp.update();
+}
+//-----------------------------------------------------------------------------
+- (void)appDidEnterBackground
+{
+}
+//-----------------------------------------------------------------------------
+//(not called on startup but only if app was in background)
+- (void)appWillEnterForeground
+{
+    [EAGLContext setCurrentContext:self.context];
+    _erlebARApp.resume();
+}
+//-----------------------------------------------------------------------------
+- (void)appDidBecomeActive
+{
+}
+//-----------------------------------------------------------------------------
+- (void)appWillTerminate
+{
+    _erlebARApp.destroy();
+    _erlebARApp.update();
+    delete _camera;
+}
+//-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
 {
     printf("didReceiveMemoryWarning\n");
@@ -117,7 +163,9 @@
     [super didReceiveMemoryWarning];
    
     _erlebARApp.destroy();
-   
+    _erlebARApp.update();
+    delete _camera;
+    
     if ([EAGLContext currentContext] == self.context)
     {
         [EAGLContext setCurrentContext:nil];
@@ -127,6 +175,7 @@
 //-----------------------------------------------------------------------------
 - (void)update
 {
+    //printf("update\n");
     /*
     slResize(svIndex, self.view.bounds.size.width  * _screenScale,
                       self.view.bounds.size.height * _screenScale);
@@ -135,6 +184,7 @@
 //-----------------------------------------------------------------------------
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
+    //printf("drawInRect: fps: %f\n", (float)self.framesPerSecond);
     _erlebARApp.update();
 }
 //-----------------------------------------------------------------------------

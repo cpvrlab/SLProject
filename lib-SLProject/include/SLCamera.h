@@ -155,7 +155,10 @@ public:
     SLfloat       brakeAccel() const { return _brakeAccel; }
     SLfloat       drag() const { return _drag; }
     SLstring      toString() const;
-    SLRectf&      selectedRect() { return _selectedRect; }
+    SLRectf&      selectedRect()
+    {
+        return _selectedRect;
+    }
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
