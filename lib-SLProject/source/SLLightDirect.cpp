@@ -262,6 +262,7 @@ void SLLightDirect::setState()
         stateGL->lightDoAtt[_id]          = isAttenuated();
         stateGL->lightCreatesShadows[_id] = _createsShadows;
         stateGL->lightDoesPCF[_id]        = _doesPCF;
+        stateGL->lightPCFLevel[_id]       = _pcfLevel;
         stateGL->lightUsesCubemap[_id]    = false;
 
         if (_shadowMap != nullptr)

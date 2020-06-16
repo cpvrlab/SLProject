@@ -96,6 +96,7 @@ public:
     void createsShadows(SLbool createsShadows);
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
     void doesPCF(SLbool doesPCF) { _doesPCF = doesPCF; }
+    void pcfLevel(SLuint pcfLevel) { _pcfLevel = pcfLevel; }
 
     // Getters
     SLint        id() const { return _id; }
@@ -120,6 +121,7 @@ public:
     SLbool       createsShadows() { return _createsShadows; }
     SLShadowMap* shadowMap() { return _shadowMap; }
     SLbool       doesPCF() { return _doesPCF; }
+    SLuint       pcfLevel() { return _pcfLevel; }
 
 #ifdef SL_HAS_OPTIX
     virtual ortLight optixLight(bool)
@@ -176,6 +178,7 @@ protected:
     SLbool       _createsShadows;   //!< flag if light creates shadows or not
     SLShadowMap* _shadowMap;        //!< Used for shadow mapping
     SLbool       _doesPCF;          //!< flag if percentage-closer filtering is enabled
+    SLuint       _pcfLevel;         //!< Radius to sample pixels in (1 = 3 * 3; 2 = 5 * 5; ...)
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

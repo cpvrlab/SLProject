@@ -28,6 +28,7 @@ SLLight::SLLight(SLfloat ambiPower,
     _createsShadows   = false;
     _shadowMap        = nullptr;
     _doesPCF          = false;
+    _pcfLevel         = 1;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);

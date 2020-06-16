@@ -2616,6 +2616,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         SLbool doesPCF = light->doesPCF();
                                         if (ImGui::Checkbox("Percentage-closer filtering enabled", &doesPCF))
                                             light->doesPCF(doesPCF);
+
+                                        SLuint pcfLevel = light->pcfLevel();
+                                        if (ImGui::SliderInt("PCF-Level", &((SLint)pcfLevel), 1, 3))
+                                            light->pcfLevel(pcfLevel);
                                     }
 
                                     SLVec2i rayCount = shadowMap->rayCount();

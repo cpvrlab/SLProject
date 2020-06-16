@@ -36,6 +36,7 @@ uniform bool        u_lightDoAtt[8];          //!< flag if att. must be calc.
 uniform mat4        u_lightSpace[8 * 6];      //!< projection matrices for lights
 uniform bool        u_lightCreatesShadows[8]; //!< flag if light creates shadows
 uniform bool        u_lightDoesPCF[8];        //!< flag if percentage-closer filtering is enabled
+uniform int         u_lightPCFLevel[8];       //!< radius of area to sample for PCF
 uniform bool        u_lightUsesCubemap[8];    //!< flag if light has a cube shadow map
 uniform bool        u_receivesShadows;        //!< flag if material receives shadows
 uniform float       u_shadowBias;             //!< Bias to use to prevent shadow acne
@@ -102,15 +103,17 @@ float shadowTest(in int i) // Light number
         if (!u_lightUsesCubemap[i] && u_lightDoesPCF[i]) {
             vec2 texelSize = 1.0 / textureSize(u_shadowMap[i], 0);
 
-            for (int x = -1; x <= 1; ++x)
+            int level = u_lightPCFLevel[i];
+
+            for (int x = -level; x <= level; ++x)
             {
-                for (int y = -1; y <= 1; ++y)
+                for (int y = -level; y <= level; ++y)
                 {
                     closestDepth = texture(u_shadowMap[i], projCoords.xy + vec2(x, y) * texelSize).r;
                     shadow += currentDepth - u_shadowBias > closestDepth ? 1.0 : 0.0;
                 }
             }
-            shadow /= 9.0;
+            shadow /= (1 + 2 * level) * (1 + 2 * level);
 
         } else {
             if (u_lightUsesCubemap[i])

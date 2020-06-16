@@ -303,6 +303,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
             uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
             uniform1iv("u_lightDoesPCF", nL, (SLint*)stateGL->lightDoesPCF);
+            uniform1iv("u_lightPCFLevel", nL, (SLint*)stateGL->lightPCFLevel);
             uniform1iv("u_lightUsesCubemap", nL, (SLint*)stateGL->lightUsesCubemap);
 
             for (int i = 0; i < SL_MAX_LIGHTS; ++i)

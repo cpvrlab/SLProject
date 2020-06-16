@@ -100,6 +100,7 @@ public:
     SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< flag if att. must be calculated
     SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< flag if light creates shadows
     SLint            lightDoesPCF[SL_MAX_LIGHTS];        //!< flag if percentage-closer filtering is enabled
+    SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
     SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
     SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
     SLGLDepthBuffer* shadowMaps[SL_MAX_LIGHTS];          //!< DepthBuffers for Shadow mapping
