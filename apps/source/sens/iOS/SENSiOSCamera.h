@@ -14,5 +14,10 @@ public:
     SENSFramePtr                           getLatestFrame() override;
 
 private:
+    void processNewFrame(unsigned char* data, int imgWidth, int imgHeight);
+    
     SENSiOSCameraDelegate* _cameraDelegate;
+    
+    std::mutex _processedFrameMutex;
+    SENSFramePtr _processedFrame;
 };

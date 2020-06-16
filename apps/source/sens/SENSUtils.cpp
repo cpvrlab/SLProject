@@ -172,4 +172,18 @@ void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV)
         img = mirrored;
     }
 }
+
+float calcFOVDegFromFocalLengthPix(const float focalLengthPix, const int imgLength)
+{
+    float fovRad = 2.f * atanf(0.5f * imgLength / focalLengthPix);
+    float fovDeg = fovRad * SENS_RAD2DEG;
+    return fovDeg;
+}
+float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength)
+{
+    float fovRad = fovDeg * SENS_DEG2RAD;
+    float focalLengthPix = 0.5f * imgLength / tanf(0.5f * fovRad);
+    return focalLengthPix;
+}
+
 };

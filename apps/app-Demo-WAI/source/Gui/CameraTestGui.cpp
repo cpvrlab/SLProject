@@ -26,12 +26,12 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
     //prepare sizes for visualization
     for (const SENSCameraCharacteristics& c : _camCharacs)
     {
-        auto                     sizes = c.streamConfig.getStreamSizes();
+        auto                     sizes = c.streamConfig.getStreamConfigs();
         std::vector<std::string> sizeStrings;
         for (auto itSize : sizes)
         {
             std::stringstream ss;
-            ss << itSize.width << ", " << itSize.height;
+            ss << itSize.widthPix << ", " << itSize.heightPix;
             sizeStrings.push_back(ss.str());
         }
         _sizesStrings[c.cameraId] = sizeStrings;
@@ -183,16 +183,17 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
-                if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfig.getStreamSizes().size())
+                if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfig.getStreamConfigs().size())
                 {
-                    const cv::Size& selectedFrameSize  = _currCharac->streamConfig.getStreamSizes()[_currSizeIndex];
+                    const SENSCameraStreamConfigs::Config& config = _currCharac->streamConfig.getStreamConfigs()[_currSizeIndex];
+                    
                     _cameraConfig.deviceId             = _currCharac->cameraId;
-                    _cameraConfig.targetWidth          = selectedFrameSize.width;
-                    _cameraConfig.targetHeight         = selectedFrameSize.height;
+                    _cameraConfig.targetWidth          = config.widthPix;
+                    _cameraConfig.targetHeight         = config.heightPix;
                     _cameraConfig.convertToGray        = true;
                     _cameraConfig.adjustAsynchronously = true;
                     _cameraConfig.focusMode            = SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
-                    Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
+                    Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
 
                     ////make sure the camera is stopped if there is one
                     //if (_camera)

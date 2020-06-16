@@ -81,14 +81,21 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     const SENSCameraCharacteristics& chars = _camera->characteristics();
     if (chars.provided)
     {
-        _calibration = std::make_unique<SENSCalibration>(chars.physicalSensorSizeMM.width,
-                                                         chars.physicalSensorSizeMM.height,
-                                                         chars.focalLenghtsMM.front(),
-                                                         _cameraFrameTargetSize,
-                                                         false,
-                                                         false,
-                                                         SENSCameraType::BACKFACING,
-                                                         Utils::ComputerInfos().get());
+        if(chars.focalLenghtsMM.size())
+        {
+            _calibration = std::make_unique<SENSCalibration>(chars.physicalSensorSizeMM.width,
+                                                             chars.physicalSensorSizeMM.height,
+                                                             chars.focalLenghtsMM.front(),
+                                                             _cameraFrameTargetSize,
+                                                             false,
+                                                             false,
+                                                             SENSCameraType::BACKFACING,
+                                                             Utils::ComputerInfos().get());
+        }
+        else
+        {
+
+        }
     }
     else
     {

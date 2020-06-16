@@ -8,6 +8,7 @@
 #include <atomic>
 #include <map>
 
+//! Definition of camera facing
 enum class SENSCameraFacing
 {
     FRONT = 0,
@@ -16,6 +17,7 @@ enum class SENSCameraFacing
     UNKNOWN
 };
 
+//! mapping of SENSCameraFacing to a readable string
 static std::string getPrintableFacing(SENSCameraFacing facing)
 {
     switch (facing)
@@ -27,37 +29,51 @@ static std::string getPrintableFacing(SENSCameraFacing facing)
     }
 }
 
+//!Available stream configurations
 class SENSCameraStreamConfigs
 {
 public:
-    void add(cv::Size size)
+    struct Config
     {
-        _streamSizes.push_back(size);
+        int widthPix = 0;
+        int heightPix = 0;
+        //focal length in pixel (-1 means unknown)
+        float focalLengthPix = -1.f;
+    };
+       
+    void add(int widthPix, int heightPix, float focalLengthPix)
+    {
+        Config config;
+        config.widthPix = widthPix;
+        config.heightPix = heightPix;
+        config.focalLengthPix = focalLengthPix;
+        _streamConfigs.push_back(config);
     }
 
-    const std::vector<cv::Size>& getStreamSizes() const
+    const std::vector<Config>& getStreamConfigs() const
     {
-        return _streamSizes;
+        return _streamConfigs;
     }
 
     void clear()
     {
-        _streamSizes.clear();
+        _streamConfigs.clear();
     }
 
     bool contains(cv::Size toFind)
     {
         return std::find_if(
-                 _streamSizes.begin(),
-                 _streamSizes.end(),
-                 [&](const cv::Size& cmp) -> bool { return cmp == toFind; }) != _streamSizes.end();
+                 _streamConfigs.begin(),
+                 _streamConfigs.end(),
+                 [&](const Config& cmp) -> bool {return cmp.widthPix == toFind.width && cmp.heightPix == toFind.height; }
+                            ) != _streamConfigs.end();
     }
 
     //searches for best matching size and returns it
-    cv::Size findBestMatchingSize(cv::Size requiredSize);
-
+    SENSCameraStreamConfigs::Config findBestMatchingConfig(cv::Size requiredSize) const;
+    
 private:
-    std::vector<cv::Size> _streamSizes;
+    std::vector<Config> _streamConfigs;
 };
 
 struct SENSCameraCharacteristics
@@ -139,6 +155,10 @@ protected:
     std::vector<SENSCameraCharacteristics> _allCharacteristics;
 
     std::atomic<bool> _permissionGranted{false};
+    
+    //current stream config
+    cv::Size _currStreamSize;
+    float    _currFocalLengthPix = 0.f;
 };
 
 #include <thread>

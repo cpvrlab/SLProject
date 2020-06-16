@@ -532,21 +532,12 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
     cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2RGB_NV21, 3);
 
     cv::Size inputSize = rgbImg.size();
-    //////////////////////////////////////////////////////////////////
-    // Crop Video image to required aspect ratio //
-    //////////////////////////////////////////////////////////////////
 
-    // Cropping is done almost always.
-    // So this is Android image copy loop #2
+    // Crop Video image to required aspect ratio
     int cropW = 0, cropH = 0;
     SENS::cropImage(rgbImg, _targetWdivH, cropW, cropH);
 
-    //////////////////
-    // Mirroring //
-    //////////////////
-
-    // Mirroring is done for most selfie cameras.
-    // So this is Android image copy loop #3
+    // Mirroring (is done for most selfie cameras)
     SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
 
     /////////////////////////
@@ -555,7 +546,6 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 
     // Creating a grayscale version from an YUV input source is stupid.
     // We just could take the Y channel.
-    // Android image copy loop #4
     cv::Mat grayImg;
     if (_config.convertToGray)
     {
