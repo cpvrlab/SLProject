@@ -146,7 +146,6 @@ float shadowTest(in int i) // Light number
                 }
             }
             shadow /= pow(1.0 + 2.0 * float(level), 2.0);
-
         }
         else
         {

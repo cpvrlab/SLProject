@@ -319,6 +319,35 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
                     if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
                         stateGL->shadowMaps[i]->activateAsTexture(loc);
                 }
+
+                #ifdef SL_OS_MACOS
+                // On at least some versions of MacOS the shader for shadow mapping
+                // does not work unless all the cubemaps are set. The following code
+                // passes eight cubemaps with size 1x1 to the shader, so it does not
+                // crash. Feel free fix this issue in a cleaner way.
+
+                if (!stateGL->lightUsesCubemap[i])
+                {
+                    SLint    loc;
+                    SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
+
+                    if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
+                    {
+                        static SLGLDepthBuffer dummyBuffers[] = {
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                        };
+
+                        dummyBuffers[i].activateAsTexture(loc);
+                    }
+                }
+                #endif
             }
 
             mat->passToUniforms(this);
