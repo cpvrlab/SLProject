@@ -311,9 +311,9 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
                 if (stateGL->lightIsOn[i] && stateGL->lightCreatesShadows[i])
                 {
                     SLstring uniformName = (stateGL->lightUsesCubemap[i]
-                                              ? "u_shadowMapCube["
-                                              : "u_shadowMap[") +
-                                           std::to_string(i) + "]";
+                                              ? "u_shadowMapCube_"
+                                              : "u_shadowMap_") +
+                                           std::to_string(i);
 
                     SLint loc;
                     if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
