@@ -152,7 +152,6 @@ float shadowTest(in int i) // Light number
         {
             if (u_lightUsesCubemap[i])
             {
-                /*
                 if (i == 0) closestDepth = texture(u_shadowMapCube_0, lightToFragment).r;
                 if (i == 1) closestDepth = texture(u_shadowMapCube_1, lightToFragment).r;
                 if (i == 2) closestDepth = texture(u_shadowMapCube_2, lightToFragment).r;
@@ -161,7 +160,6 @@ float shadowTest(in int i) // Light number
                 if (i == 5) closestDepth = texture(u_shadowMapCube_5, lightToFragment).r;
                 if (i == 6) closestDepth = texture(u_shadowMapCube_6, lightToFragment).r;
                 if (i == 7) closestDepth = texture(u_shadowMapCube_7, lightToFragment).r;
-                */
             }
             else
             {
