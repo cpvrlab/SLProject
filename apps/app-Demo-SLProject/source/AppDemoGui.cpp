@@ -2618,7 +2618,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                             light->doesPCF(doesPCF);
 
                                         SLuint pcfLevel = light->pcfLevel();
-                                        if (ImGui::SliderInt("PCF-Level", &((SLint)pcfLevel), 1, 3))
+                                        if (ImGui::SliderInt("PCF-Level", (SLint *)&pcfLevel, 1, 3))
                                             light->pcfLevel(pcfLevel);
                                     }
 
