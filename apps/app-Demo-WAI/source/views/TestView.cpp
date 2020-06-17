@@ -6,6 +6,7 @@
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
 #include <WAIAutoCalibration.h>
+#include <sens/SENSUtils.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
@@ -173,21 +174,15 @@ void TestView::handleEvents()
                 else if (autoCalEvent->useGuessCalibration)
                 {
                     SENSCameraCharacteristics cc = _camera->characteristics();
-                    if (cc.focalLenghtsMM.size() > 0)
-                    {
-                        _calibration = CVCalibration(cc.physicalSensorSizeMM.width,
-                                                     cc.physicalSensorSizeMM.height,
-                                                     cc.focalLenghtsMM[0],
-                                                     _videoFrameSize,
-                                                     false,
-                                                     false,
-                                                     CVCameraType::BACKFACING,
-                                                     Utils::ComputerInfos::get());
-                    }
-                    else
-                    {
-                        _calibration = CVCalibration(_videoFrameSize, 65, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
-                    }
+                    
+                    //default horizontal field of view
+                    float horizFOVDev = 65.f;
+                    //try to find a better field of view via camera api
+                    const SENSCameraStreamConfigs::Config& streamConfig = _camera->currSteamConfig();
+                    if (streamConfig.focalLengthPix > 0)
+                        horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, _camera->config().targetWidth);
+
+                    _calibration = CVCalibration(_videoFrameSize, 65, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
 
                     _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());

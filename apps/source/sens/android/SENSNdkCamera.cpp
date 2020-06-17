@@ -175,11 +175,11 @@ void SENSNdkCamera::openCamera()
         LOG_NDKCAM_DEBUG("openCamera: Camera device is already open");
     }
 
-    cv::Size captureSize = _characteristics.streamConfig.findBestMatchingSize({_config.targetWidth, _config.targetHeight});
+    const auto& streamConfig = _characteristics.streamConfig.findBestMatchingConfig({_config.targetWidth, _config.targetHeight});
 
-    LOG_NDKCAM_INFO("openCamera: CaptureSize (%d, %d)", captureSize.width, captureSize.height);
+    LOG_NDKCAM_INFO("openCamera: CaptureSize (%d, %d)", streamConfig.widthPix, streamConfig.heightPix);
 
-    if (_imageReader && _captureSize != captureSize)
+    if (_imageReader && _captureSize != cv::Size(streamConfig.widthPix, streamConfig.heightPix))
     {
         LOG_NDKCAM_INFO("openCamera: ImageReader valid and captureSize does not fit");
         //stop repeating request and wait for stopped state
@@ -263,10 +263,10 @@ void SENSNdkCamera::openCamera()
         {
             LOG_NDKCAM_INFO("openCamera: Creating image reader...");
 
-            _captureSize = captureSize;
+            _captureSize = cv::Size(streamConfig.widthPix, streamConfig.heightPix);
 
             //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-            if (AImageReader_new(captureSize.width, captureSize.height, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
+            if (AImageReader_new(streamConfig.widthPix, streamConfig.heightPix, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
                 throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
             //make the adjustments in an asynchronous thread
@@ -838,102 +838,131 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
     _captureSessionStateCV.notify_one();
 }
 
-std::vector<SENSCameraCharacteristics> SENSNdkCamera::getAllCameraCharacteristics()
+const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharacteristics()
 {
-    std::vector<SENSCameraCharacteristics> allCharacteristics;
-    ACameraManager*                        cameraManager = ACameraManager_create();
-    if (!cameraManager)
-        throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
-
-    ACameraIdList* cameraIds = nullptr;
-    if (ACameraManager_getCameraIdList(cameraManager, &cameraIds) != ACAMERA_OK)
-        throw SENSException(SENSType::CAM, "Could not retrieve camera list!", __LINE__, __FILE__);
-
-    for (int i = 0; i < cameraIds->numCameras; ++i)
+    if(_allCharacteristics.size() == 0)
     {
-        SENSCameraCharacteristics characteristics;
-        characteristics.cameraId = cameraIds->cameraIds[i];
-        characteristics.provided = true;
+        ACameraManager*                        cameraManager = ACameraManager_create();
+        if (!cameraManager)
+            throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
-        ACameraMetadata* camCharacteristics;
-        ACameraManager_getCameraCharacteristics(cameraManager, characteristics.cameraId.c_str(), &camCharacteristics);
+        ACameraIdList* cameraIds = nullptr;
+        if (ACameraManager_getCameraIdList(cameraManager, &cameraIds) != ACAMERA_OK)
+            throw SENSException(SENSType::CAM, "Could not retrieve camera list!", __LINE__, __FILE__);
 
-        int32_t         numEntries = 0; //will be filled by getAllTags with number of entries
-        const uint32_t* tags       = nullptr;
-        ACameraMetadata_getAllTags(camCharacteristics, &numEntries, &tags);
-        for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
+        for (int i = 0; i < cameraIds->numCameras; ++i)
         {
-            ACameraMetadata_const_entry lensInfo = {0};
-            //first check that ACAMERA_LENS_FACING is contained at all
-            if (tags[tagIdx] == ACAMERA_LENS_FACING)
+            SENSCameraCharacteristics characteristics;
+            characteristics.cameraId = cameraIds->cameraIds[i];
+            //characteristics.provided = true;
+
+            ACameraMetadata* camCharacteristics;
+            ACameraManager_getCameraCharacteristics(cameraManager, characteristics.cameraId.c_str(), &camCharacteristics);
+
+            int32_t         numEntries = 0; //will be filled by getAllTags with number of entries
+            const uint32_t* tags       = nullptr;
+            ACameraMetadata_getAllTags(camCharacteristics, &numEntries, &tags);
+
+            std::vector<float> focalLengthsMM;
+            cv::Size2f physicalSensorSizeMM;
+
+            //make a first loop to estimate physical sensor parameters
+            for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
             {
-                ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo);
-                acamera_metadata_enum_android_lens_facing_t androidFacing = static_cast<acamera_metadata_enum_android_lens_facing_t>(lensInfo.data.u8[0]);
-                if (androidFacing == ACAMERA_LENS_FACING_BACK)
-                    characteristics.facing = SENSCameraFacing::BACK;
-                else if (androidFacing == ACAMERA_LENS_FACING_FRONT)
-                    characteristics.facing = SENSCameraFacing::FRONT;
-                else //if (androidFacing == ACAMERA_LENS_FACING_EXTERNAL)
-                    characteristics.facing = SENSCameraFacing::EXTERNAL;
-            }
-            else if (tags[tagIdx] == ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-            {
-                if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+                ACameraMetadata_const_entry lensInfo = {0};
+                //first check that ACAMERA_LENS_FACING is contained at all
+                if (tags[tagIdx] == ACAMERA_LENS_FACING)
                 {
-                    for (int i = 0; i < lensInfo.count; ++i)
+                    ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo);
+                    acamera_metadata_enum_android_lens_facing_t androidFacing = static_cast<acamera_metadata_enum_android_lens_facing_t>(lensInfo.data.u8[0]);
+                    if (androidFacing == ACAMERA_LENS_FACING_BACK)
+                        characteristics.facing = SENSCameraFacing::BACK;
+                    else if (androidFacing == ACAMERA_LENS_FACING_FRONT)
+                        characteristics.facing = SENSCameraFacing::FRONT;
+                    else //if (androidFacing == ACAMERA_LENS_FACING_EXTERNAL)
+                        characteristics.facing = SENSCameraFacing::EXTERNAL;
+                }
+                else if (tags[tagIdx] == ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                {
+                    if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) ==
+                        ACAMERA_OK)
                     {
-                        characteristics.focalLenghtsMM.push_back(lensInfo.data.f[i]);
+                        for (int i = 0; i < lensInfo.count; ++i)
+                        {
+                            //characteristics.focalLenghtsMM.push_back(lensInfo.data.f[i]);
+                            focalLengthsMM.push_back(lensInfo.data.f[i]);
+                        }
+                    }
+                }
+                else if (tags[tagIdx] == ACAMERA_SENSOR_INFO_PHYSICAL_SIZE)
+                {
+                    if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
+                    {
+                        //characteristics.physicalSensorSizeMM.width = lensInfo.data.f[0];
+                        //characteristics.physicalSensorSizeMM.height = lensInfo.data.f[1];
+
+                        physicalSensorSizeMM.width = lensInfo.data.f[0];
+                        physicalSensorSizeMM.height = lensInfo.data.f[1];
                     }
                 }
             }
-            else if (tags[tagIdx] == ACAMERA_SENSOR_INFO_PHYSICAL_SIZE)
-            {
-                if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
-                {
-                    characteristics.physicalSensorSizeMM.width  = lensInfo.data.f[0];
-                    characteristics.physicalSensorSizeMM.height = lensInfo.data.f[1];
-                }
-            }
-            else if (tags[tagIdx] == ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS)
-            {
-                if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
-                {
-                    if (lensInfo.count & 0x3)
-                        throw SENSException(SENSType::CAM,
-                                            "STREAM_CONFIGURATION (%d) should multiple of 4",
-                                            __LINE__,
-                                            __FILE__);
 
-                    if (lensInfo.type != ACAMERA_TYPE_INT32)
-                        throw SENSException(SENSType::CAM,
-                                            "STREAM_CONFIGURATION TYPE(%d) is not ACAMERA_TYPE_INT32(1)",
-                                            __LINE__,
-                                            __FILE__);
+            //todo: if we have more than one focal length, what do we do?
+            //if we have more than one focal length, we select the first one..
 
-                    int width = 0, height = 0;
-                    for (uint32_t i = 0; i < lensInfo.count; i += 4)
+            //in the second loop we use the physical sensor parameters to specify a focal length in pixel for every stream config
+            for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
+            {
+                if (tags[tagIdx] == ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS)
+                {
+                    ACameraMetadata_const_entry lensInfo = {0};
+                    if (ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo) == ACAMERA_OK)
                     {
-                        //example for content interpretation:
-                        //std::string format direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
-                        //std::string format = GetFormatStr(lensInfo.data.i32[i]);
+                        if (lensInfo.count & 0x3)
+                            throw SENSException(SENSType::CAM,
+                                                "STREAM_CONFIGURATION (%d) should multiple of 4",
+                                                __LINE__,
+                                                __FILE__);
 
-                        //OUTPUT format and AIMAGE_FORMAT_YUV_420_888 image format
-                        if (!lensInfo.data.i32[i + 3] && lensInfo.data.i32[i] == AIMAGE_FORMAT_YUV_420_888)
+                        if (lensInfo.type != ACAMERA_TYPE_INT32)
+                            throw SENSException(SENSType::CAM,
+                                                "STREAM_CONFIGURATION TYPE(%d) is not ACAMERA_TYPE_INT32(1)",
+                                                __LINE__,
+                                                __FILE__);
+
+                        int width = 0, height = 0;
+                        for (uint32_t i = 0; i < lensInfo.count; i += 4)
                         {
-                            width  = lensInfo.data.i32[i + 1];
-                            height = lensInfo.data.i32[i + 2];
-                            characteristics.streamConfig.add({width, height});
+                            //example for content interpretation:
+                            //std::string format direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
+                            //std::string format = GetFormatStr(lensInfo.data.i32[i]);
+
+                            //OUTPUT format and AIMAGE_FORMAT_YUV_420_888 image format
+                            if (!lensInfo.data.i32[i + 3] && lensInfo.data.i32[i] == AIMAGE_FORMAT_YUV_420_888)
+                            {
+                                width  = lensInfo.data.i32[i + 1];
+                                height = lensInfo.data.i32[i + 2];
+
+                                float focalLengthPix = -1.f;
+                                if(focalLengthsMM.size() && physicalSensorSizeMM.width > 0 && physicalSensorSizeMM.height > 0)
+                                {
+                                    //calculate a focal length in pixel that fits to this stream configuration size
+                                    focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
+                                }
+
+                                characteristics.streamConfig.add(width, height, focalLengthPix);
+                            }
                         }
                     }
                 }
             }
+            ACameraMetadata_free(camCharacteristics);
+            _allCharacteristics.push_back(characteristics);
         }
-        ACameraMetadata_free(camCharacteristics);
-        allCharacteristics.push_back(characteristics);
+
+        ACameraManager_deleteCameraIdList(cameraIds);
+        ACameraManager_delete(cameraManager);
     }
 
-    ACameraManager_deleteCameraIdList(cameraIds);
-    ACameraManager_delete(cameraManager);
-
-    return allCharacteristics;
+    return _allCharacteristics;
 }

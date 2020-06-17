@@ -166,6 +166,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             }
 
             //visualize current camera characteristics
+            /*
             if (_currCharac->provided)
             {
                 ImGui::Text(getPrintableFacing(_currCharac->facing).c_str());
@@ -180,6 +181,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 ImGui::Text("Camera characteristics not provided by this device!");
             }
+            */
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {

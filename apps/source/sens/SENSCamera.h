@@ -8,6 +8,9 @@
 #include <atomic>
 #include <map>
 
+//---------------------------------------------------------------------------
+//Common defininitions:
+
 //! Definition of camera facing
 enum class SENSCameraFacing
 {
@@ -29,6 +32,27 @@ static std::string getPrintableFacing(SENSCameraFacing facing)
     }
 }
 
+//! Definition of autofocus mode
+enum class SENSCameraFocusMode
+{
+    CONTINIOUS_AUTO_FOCUS = 0,
+    FIXED_INFINITY_FOCUS
+};
+
+//! mapping of SENSCameraFocusMode to a readable string
+static std::string getPrintableFocusMode(SENSCameraFocusMode focusMode)
+{
+    switch (focusMode)
+    {
+        case SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS: return "CONTINIOUS_AUTO_FOCUS";
+        case SENSCameraFocusMode::FIXED_INFINITY_FOCUS: return "FIXED_INFINITY_FOCUS";
+        default: return "UNKNOWN";
+    }
+}
+
+//---------------------------------------------------------------------------
+//Stream configuration (this is what the camera device is capable to do)
+
 //!Available stream configurations
 class SENSCameraStreamConfigs
 {
@@ -39,6 +63,7 @@ public:
         int heightPix = 0;
         //focal length in pixel (-1 means unknown)
         float focalLengthPix = -1.f;
+        //todo: min max frame rate
     };
        
     void add(int widthPix, int heightPix, float focalLengthPix)
@@ -81,22 +106,20 @@ struct SENSCameraCharacteristics
     std::string             cameraId;
     SENSCameraStreamConfigs streamConfig;
     //flags if following properties are valid (they are not available for every device)
-    bool               provided = false;
-    std::vector<float> focalLenghtsMM;
-    cv::Size2f         physicalSensorSizeMM;
+    //bool               provided = false;
+    //std::vector<float> focalLenghtsMM;
+    //cv::Size2f         physicalSensorSizeMM;
     SENSCameraFacing   facing = SENSCameraFacing::UNKNOWN;
 };
 
-enum class SENSCameraFocusMode
-{
-    CONTINIOUS_AUTO_FOCUS = 0,
-    FIXED_INFINITY_FOCUS
-};
+//---------------------------------------------------------------------------
+//SENSCameraConfig (this is what the user would like to have)
 
 //define a config to start a capture session on a camera device
 struct SENSCameraConfig
 {
-    std::string         deviceId  = "0";
+    std::string deviceId = "0";
+    //! autofocus mode
     SENSCameraFocusMode focusMode = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS;
     //! largest target image width (only RGB)
     int targetWidth = 0;
@@ -118,6 +141,7 @@ struct SENSCameraConfig
     bool adjustAsynchronously = false;
 };
 
+//! Pure abstract camera class
 class SENSCamera
 {
 public:
@@ -125,23 +149,34 @@ public:
     virtual void                                   start(SENSCameraConfig config)               = 0;
     virtual void                                   start(std::string id, int width, int height) = 0;
     virtual void                                   stop()                                       = 0;
-    virtual std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics()                = 0;
     virtual SENSFramePtr                           getLatestFrame()                             = 0;
+    
+    virtual const std::vector<SENSCameraCharacteristics>& getAllCameraCharacteristics()         = 0;
 
+
+    //! defines what the currently selected camera is cabable to do (including all available camera devices)
     virtual const SENSCameraCharacteristics& characteristics() const = 0;
-    virtual const SENSCameraConfig&          config() const          = 0;
-    virtual bool                             started() const         = 0;
+    //! defines how the camera was configured during start
+    virtual const SENSCameraConfig& config() const = 0;
+    //!  currently selected stream configuration
+    virtual const SENSCameraStreamConfigs::Config& currSteamConfig() const = 0;
+    
+    virtual bool started() const         = 0;
 
     virtual bool permissionGranted() const = 0;
     virtual void setPermissionGranted()    = 0;
 };
 
+//! Implementation of common functionality and members
 class SENSCameraBase : public SENSCamera
 {
 public:
     const SENSCameraCharacteristics& characteristics() const override { return _characteristics; }
     const SENSCameraConfig&          config() const override { return _config; };
-    bool                             started() const override { return _started; }
+    
+    const SENSCameraStreamConfigs::Config& currSteamConfig() const override { return _currStreamConfig; }
+    
+    bool started() const override { return _started; }
 
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
@@ -152,13 +187,12 @@ protected:
     std::atomic<bool> _started{false};
 
     SENSCameraCharacteristics              _characteristics;
+    //! stores all camera characteristics of all devices that are available.
     std::vector<SENSCameraCharacteristics> _allCharacteristics;
-
-    std::atomic<bool> _permissionGranted{false};
+    //! current stream configuration
+    SENSCameraStreamConfigs::Config _currStreamConfig;
     
-    //current stream config
-    cv::Size _currStreamSize;
-    float    _currFocalLengthPix = 0.f;
+    std::atomic<bool> _permissionGranted{false};
 };
 
 #include <thread>
@@ -195,7 +229,7 @@ public:
     {
         _camera->stop();
     }
-    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override
+    const std::vector<SENSCameraCharacteristics>& getAllCameraCharacteristics() override
     {
         if (_camera)
             return _camera->getAllCameraCharacteristics();
@@ -226,6 +260,11 @@ public:
     const SENSCameraConfig& config() const override
     {
         return _camera->config();
+    }
+    
+    const SENSCameraStreamConfigs::Config& currSteamConfig() const override
+    {
+        return _camera->currSteamConfig();
     }
 
     bool started() const override

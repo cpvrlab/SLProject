@@ -52,6 +52,8 @@ void SENSiOSCamera::start(SENSCameraConfig config)
             _started = true;
         else
             throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
+        
+        _currStreamConfig = bestConfig;
     }
     else
         Utils::log("SENSiOSCamera", "Camera already started but start called!");
@@ -73,9 +75,12 @@ void SENSiOSCamera::stop()
         Utils::log("SENSiOSCamera", "Camera not started but stop called!");
 }
 
-std::vector<SENSCameraCharacteristics> SENSiOSCamera::getAllCameraCharacteristics()
+const std::vector<SENSCameraCharacteristics>& SENSiOSCamera::getAllCameraCharacteristics()
 {
-    return [_cameraDelegate getAllCameraCharacteristics];
+    if(_allCharacteristics.size() == 0)
+        _allCharacteristics = [_cameraDelegate getAllCameraCharacteristics];
+    
+    return _allCharacteristics;
 }
 
 SENSFramePtr SENSiOSCamera::getLatestFrame()

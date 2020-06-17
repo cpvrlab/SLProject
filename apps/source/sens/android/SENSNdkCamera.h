@@ -29,7 +29,8 @@ public:
     void         start(std::string id, int width, int height) override;
     void         stop() override;
     SENSFramePtr getLatestFrame() override;
-    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override;
+
+    const std::vector<SENSCameraCharacteristics>& getAllCameraCharacteristics() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);

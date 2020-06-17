@@ -40,6 +40,8 @@ AreaTrackingView::~AreaTrackingView()
 {
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     _waiSlam.release();
+    if(_voc)
+        delete _voc;
     //_orbVocabulary.release();
 }
 
@@ -79,29 +81,16 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //calibration
     const SENSCameraCharacteristics& chars = _camera->characteristics();
-    if (chars.provided)
+    const SENSCameraStreamConfigs::Config& streamConfig = _camera->currSteamConfig();
+    if (streamConfig.focalLengthPix > 0)
     {
-        if(chars.focalLenghtsMM.size())
-        {
-            _calibration = std::make_unique<SENSCalibration>(chars.physicalSensorSizeMM.width,
-                                                             chars.physicalSensorSizeMM.height,
-                                                             chars.focalLenghtsMM.front(),
-                                                             _cameraFrameTargetSize,
-                                                             false,
-                                                             false,
-                                                             SENSCameraType::BACKFACING,
-                                                             Utils::ComputerInfos().get());
-        }
-        else
-        {
-
-        }
+        float horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, _cameraFrameTargetSize.width);
+        _calibration = std::make_unique<SENSCalibration>(_cameraFrameTargetSize, horizFOVDev, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
     }
     else
     {
         //params from webcam calibration file
-        cv::Size calibImgSize(1600, 896);
-        _calibration = std::make_unique<SENSCalibration>(_cameraFrameTargetSize, 69.59405517578125f, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
+        _calibration = std::make_unique<SENSCalibration>(_cameraFrameTargetSize, 65.f, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
         //todo:
         //the calculated fov vertical does not fit to the one of the calibration file->normal ?
     }
@@ -132,7 +121,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //double  cy = (float)m.at<double>(1, 2);
     //m          = (cv::Mat_<double>(3, 3) << fx, 0, cx + 106.f, 0, fy, cy, 0, 0, 1);
     _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg(), _calibration->cameraMatUndistorted());
-
+                                                                                                                                                                                                  
     //initialize extractors
     _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize);
     _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize);
@@ -206,13 +195,27 @@ void AreaTrackingView::startCamera()
     {
         if (_camera->started())
             _camera->stop();
-
-        //start camera
+        
         SENSCameraConfig config;
         config.targetWidth   = _cameraFrameTargetSize.width;
         config.targetHeight  = _cameraFrameTargetSize.height;
         config.convertToGray = true;
-
+        
+        //select the best matching configuration
+        const std::vector<SENSCameraCharacteristics>& camCharcsVec = _camera->getAllCameraCharacteristics();
+        for(int i=0; i < camCharcsVec.size(); ++i)
+        {
+            const SENSCameraCharacteristics& camCharacs = camCharcsVec[i];
+            if(camCharacs.facing == SENSCameraFacing::BACK)
+            {
+                config.deviceId = camCharacs.cameraId;
+                //SENSCameraStreamConfigs::Config streamConfig =
+                //    camCharacs.streamConfig.findBestMatchingConfig({config.targetWidth, config.targetHeight});
+                break;
+            }
+        }
+        
+        //start camera
         _camera->start(config);
     }
 }

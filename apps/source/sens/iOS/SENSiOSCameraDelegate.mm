@@ -9,6 +9,7 @@
 #include <sens/SENSCamera.h>
 #include <sens/SENSUtils.h>
 
+
 @interface SENSiOSCameraDelegate()
 {
 @private
@@ -77,7 +78,7 @@
     // Do we care about missing frames?
     [m_videoOutput setAlwaysDiscardsLateVideoFrames:YES];
  
-    // We want the frames in some RGB format, which is what ActionScript can deal with
+    // We want the frames in some RGB format
     NSNumber* framePixelFormat  = [NSNumber numberWithInt:kCVPixelFormatType_32BGRA];
     m_videoOutput.videoSettings = [NSDictionary dictionaryWithObject:framePixelFormat
                                                               forKey:(id)kCVPixelBufferPixelFormatTypeKey];
@@ -226,7 +227,6 @@
     for (AVCaptureDevice* device in devices)
     {
         SENSCameraCharacteristics characs;
-        characs.provided = true;
         //device id
         characs.cameraId = [[device uniqueID] UTF8String];
         //facing
@@ -255,6 +255,7 @@
                 NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth:w andHeight:h];
                 if ([m_captureSession canSetSessionPreset:cameraResolutionPreset])
                 {
+                    //float minFrameRate = [format
                     if(!characs.streamConfig.contains({w, h}))
                     {
                         //calculate focal length in pixel from horizontal field of view
