@@ -98,7 +98,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")

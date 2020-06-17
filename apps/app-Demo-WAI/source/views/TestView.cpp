@@ -112,7 +112,6 @@ bool TestView::update()
                 _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 _fillAutoCalibration = false;
             }
-
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
     }
@@ -198,7 +197,9 @@ void TestView::handleEvents()
                     _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 }
+                delete autoCalEvent;
             }
+            break;
 
             case WAIEventType_VideoControl: {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
@@ -284,6 +285,35 @@ void TestView::handleEvents()
                     _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
 
+                delete enterEditModeEvent;
+            }
+            break;
+
+            case WAIEventType_EnterEditMapPointMode: {
+                WAIEventEnterEditMapPointMode* enterEditModeEvent = (WAIEventEnterEditMapPointMode*)event;
+                if (enterEditModeEvent->start && !_mapEdition)
+                {
+                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _dataDir + "shaders/");
+                    _scene.root3D()->addChild(_mapEdition);
+                    std::cout << "enter map edition" << std::endl;
+                }
+                else if (enterEditModeEvent->save && _mapEdition)
+                {
+                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
+                }
+                else if (enterEditModeEvent->quit && _mapEdition)
+                {
+                    if (_scene.root3D()->deleteChild(_mapEdition))
+                    {
+                        auto it = find(_scene.eventHandlers().begin(),
+                                       _scene.eventHandlers().end(),
+                                       _mapEdition);
+                        if (it != _scene.eventHandlers().end())
+                            _scene.eventHandlers().erase(it);
+
+                        _mapEdition = nullptr;
+                    }
+                }
                 delete enterEditModeEvent;
             }
             break;
@@ -715,7 +745,6 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
     _scene.updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();
 
-    //update map point visualization
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());
