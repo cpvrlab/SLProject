@@ -15,10 +15,10 @@
 precision mediump float;
 #endif
 
-varying vec3        v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
-varying vec3        v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
-varying vec3        v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
-varying vec2        v_texCoord;               //!< interpol. texture coordinate
+in vec3        v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
+in vec3        v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
+in vec3        v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
+in vec2        v_texCoord;               //!< interpol. texture coordinate
 
 uniform int         u_numLightsUsed;          //!< NO. of lights used light arrays
 uniform bool        u_lightIsOn[8];           //!< flag if light is on
@@ -78,13 +78,13 @@ int vectorToFace(vec3 vec) // Vector to process
     vec3 absVec = abs(vec);
 
     if (absVec.x > absVec.y && absVec.x > absVec.z)
-        return vec.x > 0 ? 0 : 1;
+        return vec.x > 0.0 ? 0 : 1;
 
     else if (absVec.y > absVec.x && absVec.y > absVec.z)
-        return vec.y > 0 ? 2 : 3;
+        return vec.y > 0.0 ? 2 : 3;
 
     else
-        return vec.z > 0 ? 4 : 5;
+        return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
 float shadowTest(in int i) // Light number
@@ -118,14 +118,14 @@ float shadowTest(in int i) // Light number
         if (!u_lightUsesCubemap[i] && u_lightDoesPCF[i]) {
             vec2 texelSize;
 
-            if (i == 0) texelSize = 1.0 / textureSize(u_shadowMap_0, 0);
-            if (i == 1) texelSize = 1.0 / textureSize(u_shadowMap_1, 0);
-            if (i == 2) texelSize = 1.0 / textureSize(u_shadowMap_2, 0);
-            if (i == 3) texelSize = 1.0 / textureSize(u_shadowMap_3, 0);
-            if (i == 4) texelSize = 1.0 / textureSize(u_shadowMap_4, 0);
-            if (i == 5) texelSize = 1.0 / textureSize(u_shadowMap_5, 0);
-            if (i == 6) texelSize = 1.0 / textureSize(u_shadowMap_6, 0);
-            if (i == 7) texelSize = 1.0 / textureSize(u_shadowMap_7, 0);
+            if (i == 0) texelSize = 1.0 / vec2(textureSize(u_shadowMap_0, 0));
+            if (i == 1) texelSize = 1.0 / vec2(textureSize(u_shadowMap_1, 0));
+            if (i == 2) texelSize = 1.0 / vec2(textureSize(u_shadowMap_2, 0));
+            if (i == 3) texelSize = 1.0 / vec2(textureSize(u_shadowMap_3, 0));
+            if (i == 4) texelSize = 1.0 / vec2(textureSize(u_shadowMap_4, 0));
+            if (i == 5) texelSize = 1.0 / vec2(textureSize(u_shadowMap_5, 0));
+            if (i == 6) texelSize = 1.0 / vec2(textureSize(u_shadowMap_6, 0));
+            if (i == 7) texelSize = 1.0 / vec2(textureSize(u_shadowMap_7, 0));
 
             int level = u_lightPCFLevel[i];
 
@@ -145,7 +145,7 @@ float shadowTest(in int i) // Light number
                     shadow += currentDepth - u_shadowBias > closestDepth ? 1.0 : 0.0;
                 }
             }
-            shadow /= pow(1 + 2 * level, 2);
+            shadow /= pow(1.0 + 2.0 * float(level), 2.0);
 
         }
         else
