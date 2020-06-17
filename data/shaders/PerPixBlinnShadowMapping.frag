@@ -15,10 +15,10 @@
 precision mediump float;
 #endif
 
-in vec3        v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
-in vec3        v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
-in vec3        v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
-in vec2        v_texCoord;               //!< interpol. texture coordinate
+varying vec3        v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
+varying vec3        v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
+varying vec3        v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
+varying vec2        v_texCoord;               //!< interpol. texture coordinate
 
 uniform int         u_numLightsUsed;          //!< NO. of lights used light arrays
 uniform bool        u_lightIsOn[8];           //!< flag if light is on
