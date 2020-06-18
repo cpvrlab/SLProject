@@ -107,12 +107,28 @@ string toUpperString(string s)
 }
 
 //-----------------------------------------------------------------------------
-//! trims a string at the end
+//! trims a string at both ends
 string trimString(const string& s, const string& drop)
 {
     string r = s;
     r        = r.erase(r.find_last_not_of(drop) + 1);
     return r.erase(0, r.find_first_not_of(drop));
+}
+//-----------------------------------------------------------------------------
+//! trims a string at the right end
+string trimRightString(const string& s, const string& drop)
+{
+    string r = s;
+    r        = r.erase(r.find_last_not_of(drop) + 1);
+    return r;
+}
+//-----------------------------------------------------------------------------
+//! trims a string at the left end
+string trimLeftString(const string& s, const string& drop)
+{
+    string r = s;
+    r        = r.erase(r.find_first_not_of(drop) + 1);
+    return r;
 }
 //-----------------------------------------------------------------------------
 //! Splits an input string at a delimeter character into a string vector
@@ -883,7 +899,9 @@ void loopFileSystemRec(const string&                                            
     {
         vector<string> unsortedNames = getAllNamesInDir(folder);
 
-        processDir(getDirName(trimString(folder, "/")), getFileName(trimString(folder, "/")), depth);
+        processDir(getDirName(trimRightString(folder, "/")),
+                   getFileName(trimRightString(folder, "/")),
+                   depth);
         sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
 
         for (const auto& fileOrFolder : unsortedNames)
@@ -896,7 +914,9 @@ void loopFileSystemRec(const string&                                            
     }
     else
     {
-        processFile(getDirName(trimString(path, "/")), getFileName(trimString(path, "/")), depth);
+        processFile(getDirName(trimRightString(path, "/")),
+                    getFileName(trimRightString(path, "/")),
+                    depth);
     }
 }
 

@@ -94,7 +94,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         //If we are on android 5.1 or lower the permission was granted during installation.
         //On Android 6 or higher it requests a dangerous permission during runtime.
         //On Android 7 there could be problems that permissions where not granted
-        //(Huawei Honor 8 must enable soecial log setting by dialing *#*#2846579#*#*)
+        //(Huawei Honor 8 must enable social log setting by dialing *#*#2846579#*#*)
 
         // Check permissions all at once (from Android M onwards)
         Log.i(TAG, "Request permissions ...");
@@ -123,6 +123,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     Manifest.permission.INTERNET
             }, PERMISSIONS_MULTIPLE_REQUEST);
         }
+
+
     }
 
     // After on onCreate
@@ -170,7 +172,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
     // The process of this activity is getting killed (e.g. with the back button)
     protected void onDestroy() {
         Log.i(TAG, "GLES3Activity.onDestroy begin");
-        myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
+        //myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onClose();}});
+        GLES3Lib.onClose();
         super.onDestroy();
         finish();
         Log.i(TAG, "GLES3Activity.onDestroy end");
@@ -275,7 +278,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                     grantResults[3] == PackageManager.PERMISSION_GRANTED ) {
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE granted.");
                 _permissionWriteStorageGranted = true;
-                setupExternalDirectories();
             } else {
                 Log.i(TAG, "onRequestPermissionsResult: Permission WRITE_EXTERNAL_STORAGE refused.");
                 _permissionWriteStorageGranted = false;
@@ -305,15 +307,6 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
     }
 
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
     /* Get available external directories and inform slproject about them */
     public void setupExternalDirectories() {
 
@@ -323,10 +316,27 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         String slProjectDirName = "SLProject";
 
         //check if public external directory is available
-        if (isExternalStorageWritable()) {
-            File[] Dirs = this.getExternalFilesDirs(null);
-            if(Dirs.length != 0) {
-                File path = new File(Dirs[0], slProjectDirName);
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+
+            /*
+            String extStorageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+            File extStorageSLDir = new File(extStorageDir, slProjectDirName);
+
+            if(!extStorageSLDir.exists()) {
+                if (!extStorageSLDir.mkdirs()) {
+                    Log.e(TAG, "External public directory not created!");
+                }
+            }
+
+            if(extStorageSLDir.exists()) {
+                externalPublicDirCreated = true;
+                slProjectDataPath = extStorageSLDir.getAbsolutePath();
+            }
+            */
+
+            File[] extFileDirs = this.getExternalFilesDirs(null);
+            if(extFileDirs.length != 0) {
+                File path = new File(extFileDirs[0], slProjectDirName);
                 if(!path.exists()) {
                     if (!path.mkdirs()) {
                         Log.e(TAG, "External public directory not created!");

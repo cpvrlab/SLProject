@@ -50,8 +50,14 @@ string toLowerString(string s);
 //! Returns a string in upper case
 string toUpperString(string s);
 
-//! Trims a string at the end
+//! Trims a string at both end
 string trimString(const string& s, const string& drop = " ");
+
+//! trims a string at the right end
+string trimRightString(const string& s, const string& drop);
+
+//! trims a string at the left end
+string trimLeftString(const string& s, const string& drop);
 
 //! Splits an input string at a delimeter character into a string vector
 void splitString(const string& s, char delimiter, vector<string>& splits);

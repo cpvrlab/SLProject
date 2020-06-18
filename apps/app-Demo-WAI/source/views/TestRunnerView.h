@@ -42,7 +42,7 @@ public:
 
     // getters
     int                      testIndex() { return (_currentTestIndex + 1); }
-    int                      testCount() { return _testInstances.size(); }
+    int                      testCount() { return (int)_testInstances.size(); }
     std::string              location() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].location : ""; }
     std::string              area() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].area : ""; }
     std::string              video() { return (_currentTestIndex < _testInstances.size()) ? _testInstances[_currentTestIndex].video : ""; }

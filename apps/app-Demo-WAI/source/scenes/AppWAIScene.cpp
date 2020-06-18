@@ -46,8 +46,8 @@ void AppWAIScene::loadMesh(std::string path)
 
     // Create directional light for the sun light
     SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-    light->ambientColor(SLCol4f(0.3, 0.3, 0.3));
-    light->diffuseColor(SLCol4f(1.0, 0.7, 1.0));
+    light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
+    light->diffuseColor(SLCol4f(1.0f, 0.7f, 1.0f));
     light->specularColor(SLCol4f(1, 1, 1));
     light->attenuation(1, 0, 0);
     light->translation(0, 10, 0);
@@ -96,9 +96,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     if (location == "avenches")
     {
         std::string modelPath;
-        if (area == "entrance" || area == "arena")
+        if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
@@ -112,7 +112,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             loadMesh(modelPath);
         }
     }
-    else if (location == "augst")
+    else if (location == "augst" || location == "Augst")
     {
         if (area == "templeHill-marker")
         {

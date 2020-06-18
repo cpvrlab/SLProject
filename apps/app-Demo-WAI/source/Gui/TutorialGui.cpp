@@ -25,7 +25,7 @@ TutorialGui::TutorialGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //load background texture
-    int cropW, cropH;
+    //int cropW, cropH;
     _textureBackgroundId1 = loadTexture(texturePath + "earth2048_C.jpg", false, true, (float)screenWidthPix / (float)screenHeightPix);
     _textureBackgroundId2 = loadTexture(texturePath + "earthCloud1024_C.jpg", false, true, (float)screenWidthPix / (float)screenHeightPix);
     _currentBackgroundId  = _textureBackgroundId1;

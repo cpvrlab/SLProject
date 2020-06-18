@@ -1,4 +1,5 @@
 #include <SENSCamera.h>
+#import "SENSiOSCameraDelegate.h"
 
 class SENSiOSCamera : public SENSCameraBase
 {
@@ -13,5 +14,5 @@ public:
     SENSFramePtr                           getLatestFrame() override;
 
 private:
-    
+    SENSiOSCameraDelegate* _cameraDelegate;
 };

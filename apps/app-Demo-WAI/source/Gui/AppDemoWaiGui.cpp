@@ -48,6 +48,7 @@
 #include <AppDemoGuiAutoCalibration.h>
 
 #include <AppDemoGuiInfosMapNodeTransform.h>
+#include <AppDemoGuiMapPointEditor.h>
 
 using namespace ErlebAR;
 
@@ -103,6 +104,11 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
                                                                     &eventQueue,
                                                                     _resources.fonts().standard));
 
+    addInfoDialog(std::make_shared<AppDemoGuiMapPointEditor>("map edit",
+                                                                    &uiPrefs->showMapPointEditor,
+                                                                    &eventQueue,
+                                                                    _resources.fonts().standard));
+
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().standard);
     addInfoDialog(_errorDial);
     addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking",
@@ -113,9 +119,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _resources.fonts().standard, getCameraCB));
     addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _resources.fonts().standard, getVideoFileStreamCB));
     addInfoDialog(std::make_shared<AppDemoGuiAutoCalibration>("auto calibration", &uiPrefs->showAutoCalibration, &eventQueue, getCameraCB, getCalibrationCB, resources.fonts().standard));
-
     addInfoDialog(std::make_shared<AppDemoGuiStatsVideo>("video", &uiPrefs->showStatsVideo, _resources.fonts().tiny, getCameraCB, getCalibrationCB));
-
     addInfoDialog(std::make_shared<AppDemoGuiInfosScene>("scene", &uiPrefs->showInfosScene, _resources.fonts().tiny));
     addInfoDialog(std::make_shared<AppDemoGuiInfosSensors>("sensors", &uiPrefs->showInfosSensors, _resources.fonts().tiny));
     addInfoDialog(std::make_shared<AppDemoGuiProperties>("properties", &uiPrefs->showProperties, _resources.fonts().tiny));
@@ -197,6 +201,7 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
         if (ImGui::BeginMenu("Map"))
         {
             ImGui::MenuItem("Infos Map Node Transform", nullptr, &uiPrefs->showInfosMapNodeTransform);
+            ImGui::MenuItem("Map point editor", nullptr, &uiPrefs->showMapPointEditor);
             ImGui::EndMenu();
         }
 

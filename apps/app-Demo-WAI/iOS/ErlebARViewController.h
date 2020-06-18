@@ -13,4 +13,12 @@
 
 @interface ErlebARViewController : GLKViewController
 
+- (id)init:(NSString *)nibNameOrNil;
+
+- (void)appWillResignActive;
+- (void)appDidEnterBackground;
+- (void)appWillEnterForeground;
+- (void)appDidBecomeActive;
+- (void)appWillTerminate;
+
 @end

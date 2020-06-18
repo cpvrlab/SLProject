@@ -102,7 +102,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, _resources.style().whiteColor);
         ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
         ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
-        if (ImGui::VSliderFloat("##AreaTrackingGui_verticalSlider", ImVec2(buttonSize, _contentH * 0.7), &_sliderValue, 0.0f, 1.0f, ""))
+        if (ImGui::VSliderFloat("##AreaTrackingGui_verticalSlider", ImVec2(buttonSize, _contentH * 0.7f), &_sliderValue, 0.0f, 1.0f, ""))
         {
             if (_transparencyChangedCB)
                 _transparencyChangedCB(_sliderValue);

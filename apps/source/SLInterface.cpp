@@ -21,6 +21,7 @@
 #include <SLGLImGui.h>
 #include <Instrumentor.h>
 #include <FtpUtils.h>
+#include <ZipUtils.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
 /*! \file SLInterface.cpp
@@ -69,11 +70,14 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 
     // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
 #if PROFILING
-    SLstring computerInfo = Utils::ComputerInfos::get();
-    SLstring profileFile  = configPath + "Profile_" + computerInfo + ".json";
-    Instrumentor::get().beginSession("Profile_" + computerInfo,
-                                     true,
-                                     profileFile.c_str());
+    if (Utils::dirExists(SLApplication::externalPath))
+    {
+        SLstring computerInfo = Utils::ComputerInfos::get();
+        SLstring profileFile  = SLApplication::externalPath + "Profile_" + computerInfo + ".json";
+        Instrumentor::get().beginSession("Profile_" + computerInfo,
+                                         true,
+                                         profileFile.c_str());
+    }
 #endif
 
     // Default paths for all loaded resources
@@ -207,6 +211,8 @@ the GUI app terminates.
 */
 void slTerminate()
 {
+    SL_LOG("Begin of Terminate");
+
     // Deletes all remaining sceneviews the current scene instance
     SLApplication::deleteAppAndScene();
 
@@ -214,10 +220,16 @@ void slTerminate()
 #if PROFILING
     SLstring filePathName = Instrumentor::get().filePath();
 
+    SL_LOG("Before Instrumentor::get().endSession()");
     Instrumentor::get().endSession();
+    SL_LOG("After Instrumentor::get().endSession()");
 
     if (Utils::fileExists(filePathName))
     {
+        SL_LOG("Profile written : %s", filePathName.c_str());
+        /*
+        //ZipUtils::zip("/Users/hudrima1/Library/Application Support/SLProject/DEVELOPMENT-map_20200529-154142_avenches_aamphitheater_FAST_ORBS_2000.json");
+
         SLstring errorMsg;
         SLstring path = Utils::getPath(filePathName);
         SLstring file = Utils::getFileName(filePathName);
@@ -235,8 +247,10 @@ void slTerminate()
             SL_LOG("Uploaded Profile: %s", filePathName.c_str());
         } else
             SL_LOG(errorMsg.c_str());
+        */
+
     } else
-        SL_LOG("No Profile File to upload: %s", filePathName.c_str());
+        SL_LOG("No Profile written: %s", filePathName.c_str());
 #else
     SL_LOG("No Profiling");
 #endif
@@ -519,7 +533,7 @@ void slSetupExternalDir(const SLstring& externalPath)
     if (Utils::dirExists(externalPath))
     {
         SL_LOG("Ext. directory   : %s", externalPath.c_str());
-        SLApplication::externalPath = externalPath;
+        SLApplication::externalPath = Utils::trimRightString(externalPath, "/") + "/";
     }
     else
     {
