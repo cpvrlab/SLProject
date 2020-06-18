@@ -95,7 +95,9 @@ void SLShadowMap::drawFrustum()
 */
 void SLShadowMap::drawRays()
 {
-    if (_useCubemap) return; // Not implemented for cubemap
+#ifndef SL_GLES // Reading the depth-buffer with GLES is non-trivial
+
+    if (_useCubemap) return; // Not implemented for cubemaps
 
     SLint w = _rayCount.x;
     SLint h = _rayCount.y;
@@ -148,6 +150,8 @@ void SLShadowMap::drawRays()
                            1.0f,
                            0,
                            (SLuint)P.size());
+
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -163,7 +167,7 @@ void SLShadowMap::updateMVP()
     {
         fov = _light->spotCutOffDEG() * 2;
 
-        // Automatically use cube-map when perspective projection makes no sense
+        // Automatically use cubemap when perspective projection makes no sense
         if (fov >= 180.0f)
             _useCubemap = true;
 

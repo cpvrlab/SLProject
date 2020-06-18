@@ -2618,13 +2618,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                             light->doesPCF(doesPCF);
 
                                         SLuint pcfLevel = light->pcfLevel();
-                                        if (ImGui::SliderInt("PCF-Level", (SLint *)&pcfLevel, 1, 3))
+                                        if (ImGui::SliderInt("PCF-Level", (SLint*)&pcfLevel, 1, 3))
                                             light->pcfLevel(pcfLevel);
                                     }
 
+#ifndef SL_GLES
                                     SLVec2i rayCount = shadowMap->rayCount();
                                     if (ImGui::InputInt2("Visualization rays", (int*)&rayCount))
                                         shadowMap->rayCount(rayCount);
+#endif
 
                                     if (ImGui::TreeNode(shadowMap->useCubemap()
                                                           ? "Light space matrices"

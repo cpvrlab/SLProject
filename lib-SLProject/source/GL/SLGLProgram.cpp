@@ -320,11 +320,11 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
                         stateGL->shadowMaps[i]->activateAsTexture(loc);
                 }
 
-                #ifdef SL_OS_MACOS
-                // On at least some versions of MacOS the shader for shadow mapping
-                // does not work unless all the cubemaps are set. The following code
-                // passes eight cubemaps with size 1x1 to the shader, so it does not
-                // crash. Feel free fix this issue in a cleaner way.
+#if defined(SL_OS_MACOS) || defined(SL_OS_ANDROID)
+                // On MacOS and Android the shader for shadow mapping does not work unless
+                // all the cubemaps are set. The following code passes eight textures with
+                // size 1x1 to the shader, so it does not crash. Feel free fix this issue
+                // in a cleaner way.
 
                 if (!stateGL->lightUsesCubemap[i])
                 {
@@ -347,7 +347,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
                         dummyBuffers[i].activateAsTexture(loc);
                     }
                 }
-                #endif
+#endif
             }
 
             mat->passToUniforms(this);
