@@ -109,7 +109,6 @@ protected:
     SLMesh*  _selectedMesh; //!< Pointer to the selected mesh
 
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
-    SLbool  _rootInitialized; //!< Flag if scene is initialized
 
     SLfloat _frameTimeMS;      //!< Last frame time in ms
     SLfloat _lastUpdateTimeMS; //!< Last time after update in ms

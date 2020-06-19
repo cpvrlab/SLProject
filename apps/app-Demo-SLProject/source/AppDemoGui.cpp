@@ -1276,7 +1276,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
-                    if (ImGui::MenuItem("Voxel Cone Tracing Shader", nullptr, sid == SID_ShaderVoxelConeDemo))
+                    if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
 
                     ImGui::EndMenu();

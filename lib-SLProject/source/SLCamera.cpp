@@ -962,7 +962,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
         }
     }
-    else if (button == MB_middle) //================================================
+    else if (button == MB_middle) //===========================================
     {
         if (_camAnim == CA_turntableYUp ||
             _camAnim == CA_turntableZUp ||
@@ -987,7 +987,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
         }
-    } //=======================================================================
+    } //===================================================================
     return true;
 }
 //-----------------------------------------------------------------------------

@@ -485,27 +485,20 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     SLScene* s = &sv->s();
 
+    // Single node and mesh selected
     if (s->selectedNode() == node &&
         s->selectedMesh() == this)
     {
-        stateGL->polygonOffset(true, 1.0f, 1.0f);
-        stateGL->depthMask(false);
-        stateGL->depthTest(false);
-        _vaoS.generateVertexPos(_finalP);
-        _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
-        stateGL->polygonLine(false);
-        stateGL->polygonOffset(false);
-        stateGL->depthMask(true);
-        stateGL->depthTest(true);
+        drawSelectedMeshPoints();
     }
-    else if (!sv->camera()->selectedRect().isEmpty())
+    else if (!sv->camera()->selectedRect().isEmpty()) // rect selection is going on
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
          drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
          not empty the SLScene::selectedNode is null. All vertices that are within the
          selectRect are listed in SLMesh::IS32. The selection evaluation is done during
          drawing in SLMesh::draw and is only valid for the current frame.
-         All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+         All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
 
         // Build full viewport-modelview-projection transform
         SLMat4f mvp = *stateGL->mvpMatrix();
@@ -515,7 +508,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         SLMat4f v_mvp = v * mvp;
         IS32.clear();
 
-        // Transform all verices and add the ones in the ROI to IS32
+        // Transform all vertices and add the ones in the ROI to IS32
         for (SLulong i = 0; i < P.size(); ++i)
         {
             SLVec3f p = v_mvp * P[i];
@@ -525,17 +518,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (!IS32.empty())
         {
-            stateGL->polygonOffset(true, 1.0f, 1.0f);
-            stateGL->depthMask(false);
-            stateGL->depthTest(false);
-            _vaoS.clearAttribs();
-            _vaoS.setIndices(&IS32);
-            _vaoS.generateVertexPos(_finalP);
-            _vaoS.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
-            stateGL->polygonLine(false);
-            stateGL->polygonOffset(false);
-            stateGL->depthMask(true);
-            stateGL->depthTest(true);
+            drawSelectedMeshPoints();
             node->drawBits()->on(SL_DB_SELECTED);
         }
         else
@@ -554,6 +537,32 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
 
     if (blended) stateGL->blend(true);
+}
+//-----------------------------------------------------------------------------
+void SLMesh::drawSelectedMeshPoints()
+{
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->polygonOffset(true, 1.0f, 1.0f);
+    stateGL->depthMask(false);
+    stateGL->depthTest(false);
+
+    if (IS32.empty())
+    {   // Draw all
+        _vaoS.generateVertexPos(_finalP);
+        _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
+    }
+    else
+    {   // Draw only selected
+        _vaoS.clearAttribs();
+        _vaoS.setIndices(&IS32);
+        _vaoS.generateVertexPos(_finalP);
+        _vaoS.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
+    }
+
+    stateGL->polygonLine(false);
+    stateGL->polygonOffset(false);
+    stateGL->depthMask(true);
+    stateGL->depthTest(true);
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program

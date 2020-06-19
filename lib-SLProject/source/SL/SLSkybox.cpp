@@ -48,13 +48,23 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
                                            cubeMapZNeg);
     SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
-    SLGLProgram* sp = new SLGLGenericProgram(assetMgr, shaderFilePath + "SkyBox.vert", shaderFilePath + "SkyBox.frag");
+    SLGLProgram* sp = new SLGLGenericProgram(assetMgr,
+                                             shaderFilePath + "SkyBox.vert",
+                                             shaderFilePath + "SkyBox.frag");
     matCubeMap->program(sp);
 
     // Create a box with max. point at min. parameter and vice versa.
     // Like this the boxes normals will point to the inside.
-    assert(assetMgr && "SLSkybox: asset manager is currently mandandory for skyboxes! Alternatively the livetime of the box has to be managed in the skybox!");
-    this->addMesh(new SLBox(assetMgr, 10, 10, 10, -10, -10, -10, "box", matCubeMap));
+    assert(assetMgr && "SLSkybox: asset manager is currently mandatory for sky-boxes! Alternatively the live-time of the box has to be managed in the sky-box!");
+    this->addMesh(new SLBox(assetMgr,
+                            10,
+                            10,
+                            10,
+                            -10,
+                            -10,
+                            -10,
+                            "box",
+                            matCubeMap));
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.
