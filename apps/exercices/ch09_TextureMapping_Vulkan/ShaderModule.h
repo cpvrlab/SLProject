@@ -10,11 +10,14 @@ public:
     ShaderModule(Device& device, const string& shaderPath);
     void destroy();
 
-    Device&        device;
-    VkShaderModule handle;
+    // Getter
+    VkShaderModule handle() const { return _handle; }
 
 private:
     void         createShaderModule(const vector<char>& code);
     vector<char> readFile(const string& filename);
+
+    Device&        _device;
+    VkShaderModule _handle;
 };
 //-----------------------------------------------------------------------------

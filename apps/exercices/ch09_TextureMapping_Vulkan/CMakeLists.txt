@@ -13,18 +13,13 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/CommandPool.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSet.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSetLayout.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Device.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Fence.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/GPUProgram.h
         ${CMAKE_CURRENT_SOURCE_DIR}/GPUShader.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Image.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/ImageView.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Instance.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Material.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.h
@@ -32,12 +27,9 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/Object.h
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Queue.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Rectangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.h
@@ -55,18 +47,13 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/CommandPool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSet.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSetLayout.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Device.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Fence.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/GPUProgram.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/GPUShader.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/ImageView.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/IndexBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Instance.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Material.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp
@@ -74,11 +61,8 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Rectangle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/PipelineLayout.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Queue.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Semaphore.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.cpp

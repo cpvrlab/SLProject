@@ -2,7 +2,7 @@
 #include <array>
 
 //-----------------------------------------------------------------------------
-DescriptorSetLayout::DescriptorSetLayout(Device& device) : device{device}
+DescriptorSetLayout::DescriptorSetLayout(Device& device) : _device{device}
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding            = 0;
@@ -24,16 +24,16 @@ DescriptorSetLayout::DescriptorSetLayout(Device& device) : device{device}
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings    = bindings.data();
 
-    VkResult result = vkCreateDescriptorSetLayout(device.handle,
+    VkResult result = vkCreateDescriptorSetLayout(device.handle(),
                                                   &layoutInfo,
                                                   nullptr,
-                                                  &handle);
+                                                  &_handle);
     ASSERT_VULKAN(result, "Failed to crete descriptor set layout");
 }
 //-----------------------------------------------------------------------------
 void DescriptorSetLayout::destroy()
 {
     if (handle != VK_NULL_HANDLE)
-        vkDestroyDescriptorSetLayout(device.handle, handle, nullptr);
+        vkDestroyDescriptorSetLayout(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

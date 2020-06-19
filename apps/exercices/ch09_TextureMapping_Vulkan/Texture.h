@@ -18,6 +18,11 @@ public:
 
     void load();
 
+    // Getter
+    uint   imageHeight(int index) { return _images[index]->height(); };
+    uint   imageWidth(int index) { return _images[index]->width(); };
+    uchar* imageData(int index) { return _images[index]->data(); };
+
 protected:
     string   _filename; //!< path and filename of the texture image file
     CVVImage _images;   //!< vector of opencv images

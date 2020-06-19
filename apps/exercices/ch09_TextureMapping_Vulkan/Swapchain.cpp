@@ -4,30 +4,30 @@
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
-Swapchain::Swapchain(Device&     device,
-                     GLFWwindow* window) : device{device}
+Swapchain::Swapchain(Device&     _device,
+                     GLFWwindow* window) : _device{_device}
 {
-    swapchainSupport = querySwapchainSupport(device);
-    surfaceFormat    = chooseSwapSurfaceFormat(swapchainSupport.formats);
-    presentMode      = chooseSwapPresentMode(swapchainSupport.presentModes);
-    extent           = chooseSwapExtent(swapchainSupport.capabilities, window);
+    _swapchainSupport = querySwapchainSupport(_device);
+    _surfaceFormat    = chooseSwapSurfaceFormat(_swapchainSupport.formats);
+    _presentMode      = chooseSwapPresentMode(_swapchainSupport.presentModes);
+    _extent           = chooseSwapExtent(_swapchainSupport.capabilities, window);
 
-    uint32_t imageCount = swapchainSupport.capabilities.minImageCount + 1;
-    if ((swapchainSupport.capabilities.maxImageCount > 0) &&
-        (imageCount > swapchainSupport.capabilities.maxImageCount))
-        imageCount = swapchainSupport.capabilities.maxImageCount;
+    uint32_t imageCount = _swapchainSupport.capabilities.minImageCount + 1;
+    if ((_swapchainSupport.capabilities.maxImageCount > 0) &&
+        (imageCount > _swapchainSupport.capabilities.maxImageCount))
+        imageCount = _swapchainSupport.capabilities.maxImageCount;
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface          = device.surface;
+    createInfo.surface          = _device.surface();
     createInfo.minImageCount    = imageCount;
-    createInfo.imageFormat      = surfaceFormat.format;
-    createInfo.imageColorSpace  = surfaceFormat.colorSpace;
-    createInfo.imageExtent      = extent;
+    createInfo.imageFormat      = _surfaceFormat.format;
+    createInfo.imageColorSpace  = _surfaceFormat.colorSpace;
+    createInfo.imageExtent      = _extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices              = device.findQueueFamilies(device.physicalDevice);
+    QueueFamilyIndices indices              = _device.findQueueFamilies(_device.physicalDevice());
     uint32_t           queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
 
     if (indices.graphicsFamily != indices.presentFamily)
@@ -41,29 +41,29 @@ Swapchain::Swapchain(Device&     device,
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     }
 
-    createInfo.preTransform   = swapchainSupport.capabilities.currentTransform;
+    createInfo.preTransform   = _swapchainSupport.capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode    = presentMode;
+    createInfo.presentMode    = _presentMode;
     createInfo.clipped        = VK_TRUE;
 
-    VkResult result = vkCreateSwapchainKHR(device.handle, &createInfo, nullptr, &handle);
+    VkResult result = vkCreateSwapchainKHR(_device.handle(), &createInfo, nullptr, &_handle);
     ASSERT_VULKAN(result, "Failed to create swapchain");
 
-    vkGetSwapchainImagesKHR(device.handle, handle, &imageCount, nullptr);
-    images.resize(imageCount);
-    vkGetSwapchainImagesKHR(device.handle, handle, &imageCount, images.data());
+    vkGetSwapchainImagesKHR(_device.handle(), _handle, &imageCount, nullptr);
+    _images.resize(imageCount);
+    vkGetSwapchainImagesKHR(_device.handle(), _handle, &imageCount, _images.data());
 
     createImageViews();
 }
 //-----------------------------------------------------------------------------
 void Swapchain::destroy()
 {
-    for (size_t i = 0; i < imageViews.size(); i++)
-        if (imageViews[i] != VK_NULL_HANDLE)
-            vkDestroyImageView(device.handle, imageViews[i], nullptr);
+    for (size_t i = 0; i < _imageViews.size(); i++)
+        if (_imageViews[i] != VK_NULL_HANDLE)
+            vkDestroyImageView(_device.handle(), _imageViews[i], nullptr);
 
     if (handle != VK_NULL_HANDLE)
-        vkDestroySwapchainKHR(device.handle, handle, nullptr);
+        vkDestroySwapchainKHR(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------
 VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats)
@@ -79,7 +79,7 @@ VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const vector<VkSurfaceForm
 VkPresentModeKHR Swapchain::chooseSwapPresentMode(const vector<VkPresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
-        // VK_PRESENT_MODE_MAILBOX_KHR: The created images are redrawn when the queue is full
+        // VK_PRESENT_MODE_MAILBOX_KHR: The created _images are redrawn when the queue is full
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
             return availablePresentMode;
     // VK_PRESENT_MODE_FIFO_KHR: First in first out. If the queue is full, the program waits
@@ -109,40 +109,40 @@ VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     }
 }
 //-----------------------------------------------------------------------------
-SwapchainSupportDetails Swapchain::querySwapchainSupport(Device& device)
+SwapchainSupportDetails Swapchain::querySwapchainSupport(Device& _device)
 {
     SwapchainSupportDetails details;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.physicalDevice,
-                                              device.surface,
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_device.physicalDevice(),
+                                              _device.surface(),
                                               &details.capabilities);
 
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device.physicalDevice,
-                                         device.surface,
+    vkGetPhysicalDeviceSurfaceFormatsKHR(_device.physicalDevice(),
+                                         _device.surface(),
                                          &formatCount,
                                          nullptr);
 
     if (formatCount != 0)
     {
         details.formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device.physicalDevice,
-                                             device.surface,
+        vkGetPhysicalDeviceSurfaceFormatsKHR(_device.physicalDevice(),
+                                             _device.surface(),
                                              &formatCount,
                                              details.formats.data());
     }
 
     uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device.physicalDevice,
-                                              device.surface,
+    vkGetPhysicalDeviceSurfacePresentModesKHR(_device.physicalDevice(),
+                                              _device.surface(),
                                               &presentModeCount,
                                               nullptr);
 
     if (presentModeCount != 0)
     {
         details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device.physicalDevice,
-                                                  device.surface,
+        vkGetPhysicalDeviceSurfacePresentModesKHR(_device.physicalDevice(),
+                                                  _device.surface(),
                                                   &presentModeCount,
                                                   details.presentModes.data());
     }
@@ -152,10 +152,10 @@ SwapchainSupportDetails Swapchain::querySwapchainSupport(Device& device)
 //-----------------------------------------------------------------------------
 void Swapchain::createImageViews()
 {
-    imageViews.resize(images.size());
+    _imageViews.resize(_images.size());
 
-    for (size_t i = 0; i < images.size(); i++)
-        imageViews[i] = createImageView(images[i], surfaceFormat.format);
+    for (size_t i = 0; i < _images.size(); i++)
+        _imageViews[i] = createImageView(_images[i], _surfaceFormat.format);
 }
 //-----------------------------------------------------------------------------
 VkImageView Swapchain::createImageView(VkImage image, VkFormat format)
@@ -173,7 +173,7 @@ VkImageView Swapchain::createImageView(VkImage image, VkFormat format)
 
     VkImageView imageView;
 
-    VkResult result = vkCreateImageView(device.handle, &viewInfo, nullptr, &imageView);
+    VkResult result = vkCreateImageView(_device.handle(), &viewInfo, nullptr, &imageView);
     ASSERT_VULKAN(result, "Failed to create texture image view!");
 
     return imageView;

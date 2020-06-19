@@ -17,15 +17,15 @@ public:
                  unsigned int texHeight);
     void destroy();
 
+    // Getter
+    VkImage     image() const { return _image; }
+    VkImageView imageView() const { return _imageView; }
+
+    // Setter
+    void setSampler(Sampler& sampler) { _sampler = &sampler; }
+
 private:
-    void        createImage(uint32_t              width,
-                            uint32_t              height,
-                            VkFormat              format,
-                            VkImageTiling         tiling,
-                            VkImageUsageFlags     usage,
-                            VkMemoryPropertyFlags properties,
-                            VkImage&              image,
-                            Buffer*               buffer);
+    void        createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, Buffer* buffer);
     void        transitionImageLayout(VkImage&      image,
                                       VkFormat      format,
                                       VkImageLayout oldLayout,
@@ -37,10 +37,10 @@ private:
     VkImageView createImageView(VkImage& image, VkFormat format);
 
 public:
-    Device&        device;
-    VkImage        image;
-    VkDeviceMemory imageMemory;
-    VkImageView    textureImageView;
-    // Buffer*     buffer;
+    Device&        _device;
+    VkImage        _image;
+    VkDeviceMemory _imageMemory;
+    VkImageView    _imageView;
+    Sampler*       _sampler;
 };
 //-----------------------------------------------------------------------------

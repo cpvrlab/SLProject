@@ -10,8 +10,11 @@ public:
     RenderPass(Device& device, Swapchain& swapchain);
     void destroy();
 
-public:
-    Device&      device;
-    VkRenderPass handle{VK_NULL_HANDLE};
+    // Getter
+    VkRenderPass handle() const { return _handle; }
+
+private:
+    Device&      _device;
+    VkRenderPass _handle{VK_NULL_HANDLE};
 };
 //-----------------------------------------------------------------------------

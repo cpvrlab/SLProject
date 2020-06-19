@@ -9,8 +9,11 @@ public:
     DescriptorSetLayout(Device& device);
     void destroy();
 
-public:
-    Device&               device;
-    VkDescriptorSetLayout handle{VK_NULL_HANDLE};
+    // Getter
+    VkDescriptorSetLayout handle() { return _handle; }
+
+private:
+    Device&               _device;
+    VkDescriptorSetLayout _handle{VK_NULL_HANDLE};
 };
 //-----------------------------------------------------------------------------

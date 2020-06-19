@@ -25,14 +25,12 @@ public:
               GLFWwindow* window);
     void destroy();
 
-    Device&                  device;
-    VkSwapchainKHR           handle{VK_NULL_HANDLE};
-    VkExtent2D               extent;
-    vector<VkImage>     images;
-    VkSurfaceFormatKHR       surfaceFormat;
-    VkPresentModeKHR         presentMode;
-    SwapchainSupportDetails  swapchainSupport;
-    vector<VkImageView> imageViews;
+    // Getter
+    VkSwapchainKHR      handle() const { return _handle; }
+    VkExtent2D          extent() const { return _extent; }
+    vector<VkImage>     images() const { return _images; }
+    vector<VkImageView> imageViews() const { return _imageViews; }
+    VkSurfaceFormatKHR  surfaceFormat() const { return _surfaceFormat; }
 
 private:
     VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats);
@@ -42,5 +40,14 @@ private:
     SwapchainSupportDetails querySwapchainSupport(Device& device);
     void                    createImageViews();
     VkImageView             createImageView(VkImage image, VkFormat format);
+
+    Device&                 _device;
+    VkSwapchainKHR          _handle{VK_NULL_HANDLE};
+    VkExtent2D              _extent;
+    vector<VkImage>         _images;
+    VkSurfaceFormatKHR      _surfaceFormat;
+    VkPresentModeKHR        _presentMode;
+    SwapchainSupportDetails _swapchainSupport;
+    vector<VkImageView>     _imageViews;
 };
 //-----------------------------------------------------------------------------

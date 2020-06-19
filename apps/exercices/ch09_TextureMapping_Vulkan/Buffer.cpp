@@ -3,17 +3,17 @@
 //-----------------------------------------------------------------------------
 void Buffer::destroy()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
     {
-        vkDestroyBuffer(device.handle, handle, nullptr);
-        vkFreeMemory(device.handle, memory, nullptr);
+        vkDestroyBuffer(_device.handle(), _handle, nullptr);
+        vkFreeMemory(_device.handle(), _memory, nullptr);
     }
 }
 //-----------------------------------------------------------------------------
 void Buffer::free()
 {
-    vkDestroyBuffer(device.handle, handle, nullptr);
-    vkFreeMemory(device.handle, memory, nullptr);
+    vkDestroyBuffer(_device.handle(), _handle, nullptr);
+    vkFreeMemory(_device.handle(), _memory, nullptr);
 }
 //-----------------------------------------------------------------------------
 void Buffer::createBuffer(VkDeviceSize          size,
@@ -26,29 +26,29 @@ void Buffer::createBuffer(VkDeviceSize          size,
     bufferInfo.usage       = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VkResult result = vkCreateBuffer(device.handle, &bufferInfo, nullptr, &handle);
+    VkResult result = vkCreateBuffer(_device.handle(), &bufferInfo, nullptr, &_handle);
     ASSERT_VULKAN(result, "Failed to create buffer");
 
     VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device.handle, handle, &memRequirements);
+    vkGetBufferMemoryRequirements(_device.handle(), _handle, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize  = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-    result = vkAllocateMemory(device.handle, &allocInfo, nullptr, &memory);
-    ASSERT_VULKAN(result, "Failed to allocate buffer memory");
+    result = vkAllocateMemory(_device.handle(), &allocInfo, nullptr, &_memory);
+    ASSERT_VULKAN(result, "Failed to allocate buffer _memory");
 
-    result = vkBindBufferMemory(device.handle, handle, memory, 0);
-    ASSERT_VULKAN(result, "Failed to bind Buffer memory!");
+    result = vkBindBufferMemory(_device.handle(), _handle, _memory, 0);
+    ASSERT_VULKAN(result, "Failed to bind Buffer _memory!");
 }
 //-----------------------------------------------------------------------------
 uint32_t Buffer::findMemoryType(uint32_t              typeFilter,
                                 VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(device.physicalDevice, &memProperties);
+    vkGetPhysicalDeviceMemoryProperties(_device.physicalDevice(), &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
         if ((typeFilter & (1 << i)) &&
@@ -56,39 +56,39 @@ uint32_t Buffer::findMemoryType(uint32_t              typeFilter,
             return i;
 
     // TODO:
-    cerr << "failed to find suitable memory type!" << endl;
+    cerr << "failed to find suitable _memory type!" << endl;
 
     return UINT32_MAX;
 }
 //-----------------------------------------------------------------------------
 void Buffer::copy(Buffer src, VkDeviceSize size)
 {
-    CommandBuffer commandBuffer = CommandBuffer(device);
+    CommandBuffer commandBuffer = CommandBuffer(_device);
     commandBuffer.begin();
     VkBufferCopy copyRegion{};
     copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer.handle, src.handle, handle, 1, &copyRegion);
+    vkCmdCopyBuffer(commandBuffer.handle(), src.handle(), _handle, 1, &copyRegion);
 
     commandBuffer.end();
 
     // TODO: Find a better solution
-    // handle = src.handle;
-    // memory = src.memory;
+    // _handle = src._handle;
+    // _memory = src._memory;
 }
 //-----------------------------------------------------------------------------
 void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-    Buffer stagingBuffer = Buffer(device);
+    Buffer stagingBuffer = Buffer(_device);
     stagingBuffer.createBuffer(bufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
-    vkMapMemory(device.handle, stagingBuffer.memory, 0, bufferSize, 0, &data);
+    vkMapMemory(_device.handle(), stagingBuffer._memory, 0, bufferSize, 0, &data);
     memcpy(data, vertices.data(), (size_t)bufferSize);
-    vkUnmapMemory(device.handle, stagingBuffer.memory);
+    vkUnmapMemory(_device.handle(), stagingBuffer._memory);
 
     createBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
@@ -103,16 +103,16 @@ void Buffer::createIndexBuffer(const vector<uint16_t> indices)
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-    Buffer stagingBuffer = Buffer(device);
+    Buffer stagingBuffer = Buffer(_device);
     stagingBuffer.createBuffer(bufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                  VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     void* data;
-    vkMapMemory(device.handle, stagingBuffer.memory, 0, bufferSize, 0, &data);
+    vkMapMemory(_device.handle(), stagingBuffer._memory, 0, bufferSize, 0, &data);
     memcpy(data, indices.data(), (size_t)bufferSize);
-    vkUnmapMemory(device.handle, stagingBuffer.memory);
+    vkUnmapMemory(_device.handle(), stagingBuffer._memory);
 
     createBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,

@@ -16,13 +16,15 @@ public:
                 const Swapchain&  swapchain);
     void destroy();
 
+    // Getter
+    vector<VkFramebuffer> handle() const { return _handle; }
+
 private:
     void createFramebuffer(const VkRenderPass        renderPass,
                            const VkExtent2D          swapchainExtent,
                            const vector<VkImageView> swapchainImageViews);
 
-public:
-    Device&               device;
-    vector<VkFramebuffer> handle{VK_NULL_HANDLE};
+    Device&               _device;
+    vector<VkFramebuffer> _handle{VK_NULL_HANDLE};
 };
 //-----------------------------------------------------------------------------

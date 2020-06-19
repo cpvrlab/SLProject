@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Device.h"
-
 #include <array>
 #include <vector>
 
@@ -14,8 +13,11 @@ public:
     DescriptorPool(Device& device, Swapchain& swapchain);
     void destroy();
 
-public:
-    Device&          device;
-    VkDescriptorPool handle{VK_NULL_HANDLE};
+    // Getter
+    VkDescriptorPool handle() const { return _handle; }
+
+private:
+    Device&          _device;
+    VkDescriptorPool _handle{VK_NULL_HANDLE};
 };
 //-----------------------------------------------------------------------------

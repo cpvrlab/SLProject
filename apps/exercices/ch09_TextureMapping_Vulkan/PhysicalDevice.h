@@ -10,11 +10,14 @@ public:
                    VkPhysicalDevice physicalDevice);
     void destroy();
 
-public:
-    const Instance*                  instance;
-    VkPhysicalDevice                 handle{VK_NULL_HANDLE};
-    VkPhysicalDeviceFeatures         features{};
-    VkPhysicalDeviceProperties       properties;
-    VkPhysicalDeviceMemoryProperties memoryProperties;
+    // Getter
+    VkPhysicalDevice handle() const { return _handle; }
+
+private:
+    const Instance*                  _instance;
+    VkPhysicalDevice                 _handle{VK_NULL_HANDLE};
+    VkPhysicalDeviceFeatures         _features{};
+    VkPhysicalDeviceProperties       _properties;
+    VkPhysicalDeviceMemoryProperties _memoryProperties;
 };
 //-----------------------------------------------------------------------------

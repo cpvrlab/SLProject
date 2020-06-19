@@ -1,32 +1,32 @@
 #include "Pipeline.h"
 
-Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : device{device}
+Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : _device{device}
 {
-    createGraphicsPipeline(swapchain.extent, descriptorSetLayout.handle, renderPass.handle, vertShaderModule.handle, fragShaderModule.handle);
+    createGraphicsPipeline(swapchain.extent(), descriptorSetLayout.handle(), renderPass.handle(), vertShaderModule.handle(), fragShaderModule.handle());
 }
 
 void Pipeline::destroy()
 {
     if (graphicsPipeline != VK_NULL_HANDLE)
-        vkDestroyPipeline(device.handle, graphicsPipeline, nullptr);
+        vkDestroyPipeline(_device.handle(), _graphicsPipeline, nullptr);
 
     if (pipelineLayout != VK_NULL_HANDLE)
-        vkDestroyPipelineLayout(device.handle, pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(_device.handle(), _pipelineLayout, nullptr);
 }
 
 void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
 {
-    vkWaitForFences(device.handle,
+    vkWaitForFences(_device.handle(),
                     1,
-                    &device.inFlightFences[currentFrame],
+                    &_device.inFlightFences()[_currentFrame],
                     VK_TRUE,
                     UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device.handle,
-                                            swapchain.handle,
+    VkResult result = vkAcquireNextImageKHR(_device.handle(),
+                                            swapchain.handle(),
                                             UINT64_MAX,
-                                            device.imageAvailableSemaphores[currentFrame],
+                                            _device.imageAvailableSemaphores()[_currentFrame],
                                             VK_NULL_HANDLE,
                                             &imageIndex);
     if (result != VK_SUCCESS)
@@ -34,29 +34,29 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
 
     uniformBuffer.update(imageIndex);
 
-    if (device.imagesInFlight[imageIndex] != VK_NULL_HANDLE)
-        vkWaitForFences(device.handle, 1, &device.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-    device.imagesInFlight[imageIndex] = device.inFlightFences[currentFrame];
+    if (_device.imagesInFlight()[imageIndex] != VK_NULL_HANDLE)
+        vkWaitForFences(_device.handle(), 1, &_device.imagesInFlight()[imageIndex], VK_TRUE, UINT64_MAX);
+    _device.imagesInFlight()[imageIndex] = _device.inFlightFences()[_currentFrame];
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore          waitSemaphores[] = {device.imageAvailableSemaphores[currentFrame]};
+    VkSemaphore          waitSemaphores[] = {_device.imageAvailableSemaphores()[_currentFrame]};
     VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount         = 1;
     submitInfo.pWaitSemaphores            = waitSemaphores;
     submitInfo.pWaitDstStageMask          = waitStages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &commandBuffer.handles[imageIndex];
+    submitInfo.pCommandBuffers    = &commandBuffer.handles()[imageIndex];
 
-    VkSemaphore signalSemaphores[]  = {device.renderFinishedSemaphores[currentFrame]};
+    VkSemaphore signalSemaphores[]  = {_device.renderFinishedSemaphores()[_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signalSemaphores;
 
-    vkResetFences(device.handle, 1, &device.inFlightFences[currentFrame]);
+    vkResetFences(_device.handle(), 1, &_device.inFlightFences()[_currentFrame]);
 
-    result = vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, device.inFlightFences[currentFrame]);
+    result = vkQueueSubmit(_device.graphicsQueue(), 1, &submitInfo, _device.inFlightFences()[_currentFrame]);
     ASSERT_VULKAN(result, "Failed to submit draw command buffer");
 
     VkPresentInfoKHR presentInfo{};
@@ -65,17 +65,17 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores    = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = {swapchain.handle};
+    VkSwapchainKHR swapChains[] = {swapchain.handle()};
     presentInfo.swapchainCount  = 1;
     presentInfo.pSwapchains     = swapChains;
 
     presentInfo.pImageIndices = &imageIndex;
 
-    result = vkQueuePresentKHR(device.presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(_device.presentQueue(), &presentInfo);
     if (result != VK_SUCCESS)
         cerr << "Failed to present swapchain image" << endl;
 
-    currentFrame = (currentFrame + 1) % 2;
+    _currentFrame = (_currentFrame + 1) % 2;
 }
 
 void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout, VkRenderPass renderPass, VkShaderModule vertShader, VkShaderModule fragShader)
@@ -151,7 +151,7 @@ void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSe
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts    = &descriptorSetLayout;
 
-    VkResult result = vkCreatePipelineLayout(device.handle, &pipelineLayoutInfo, nullptr, &pipelineLayout);
+    VkResult result = vkCreatePipelineLayout(_device.handle(), &pipelineLayoutInfo, nullptr, &_pipelineLayout);
     ASSERT_VULKAN(result, "Failed to create pipeline layout");
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -179,11 +179,11 @@ void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSe
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState   = &multisampling;
     pipelineInfo.pColorBlendState    = &colorBlending;
-    pipelineInfo.layout              = pipelineLayout;
+    pipelineInfo.layout              = _pipelineLayout;
     pipelineInfo.renderPass          = renderPass;
     pipelineInfo.subpass             = 0;
     pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
 
-    result = vkCreateGraphicsPipelines(device.handle, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
+    result = vkCreateGraphicsPipelines(_device.handle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline);
     ASSERT_VULKAN(result, "Failed to create graphics pipeline");
 }

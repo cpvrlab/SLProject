@@ -3,25 +3,25 @@
 //-----------------------------------------------------------------------------
 Framebuffer::Framebuffer(Device&           device,
                          const RenderPass& renderPass,
-                         const Swapchain&  swapchain) : device{device}
+                         const Swapchain&  swapchain) : _device{device}
 {
-    createFramebuffer(renderPass.handle,
-                      swapchain.extent,
-                      swapchain.imageViews);
+    createFramebuffer(renderPass.handle(),
+                      swapchain.extent(),
+                      swapchain.imageViews());
 }
 //-----------------------------------------------------------------------------
 void Framebuffer::destroy()
 {
-    for (size_t i = 0; i < handle.size(); i++)
-        if (handle[i] != VK_NULL_HANDLE)
-            vkDestroyFramebuffer(device.handle, handle[i], nullptr);
+    for (size_t i = 0; i < _handle.size(); i++)
+        if (_handle[i] != VK_NULL_HANDLE)
+            vkDestroyFramebuffer(_device.handle(), _handle[i], nullptr);
 }
 //-----------------------------------------------------------------------------
 void Framebuffer::createFramebuffer(const VkRenderPass        renderPass,
                                     const VkExtent2D          swapchainExtent,
                                     const vector<VkImageView> swapchainImageViews)
 {
-    handle.resize(swapchainImageViews.size());
+    _handle.resize(swapchainImageViews.size());
 
     for (size_t i = 0; i < swapchainImageViews.size(); i++)
     {
@@ -36,7 +36,7 @@ void Framebuffer::createFramebuffer(const VkRenderPass        renderPass,
         framebufferInfo.height          = swapchainExtent.height;
         framebufferInfo.layers          = 1;
 
-        VkResult result = vkCreateFramebuffer(device.handle, &framebufferInfo, nullptr, &handle[i]);
+        VkResult result = vkCreateFramebuffer(_device.handle(), &framebufferInfo, nullptr, &_handle[i]);
         ASSERT_VULKAN(result, "Failed to create framebuffer");
     }
 }

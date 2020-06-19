@@ -1,49 +1,51 @@
 #include "UniformBuffer.h"
 
 //-----------------------------------------------------------------------------
-UniformBuffer::UniformBuffer(Device&    device,
-                             Swapchain& swapchain,
-                             SLMat4f&   camera) : device{device},
-                                                swapchain{swapchain},
-                                                camera{camera}
+UniformBuffer::UniformBuffer(Device&    _device,
+                             Swapchain& _swapchain,
+                             SLMat4f&   _camera,
+                             SLMat4f&   _modelPos) : _device{_device},
+                                                   _swapchain{_swapchain},
+                                                   _camera{_camera},
+                                                   _modelPos{_modelPos}
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    buffers.resize(swapchain.images.size());
+    _buffers.resize(_swapchain.images().size());
 
-    for (size_t i = 0; i < swapchain.images.size(); i++)
+    for (size_t i = 0; i < _swapchain.images().size(); i++)
     {
-        buffers[i] = new Buffer(device);
-        buffers[i]->createBuffer(bufferSize,
-                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        _buffers[i] = new Buffer(_device);
+        _buffers[i]->createBuffer(bufferSize,
+                                  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     }
 }
 //-----------------------------------------------------------------------------
 void UniformBuffer::destroy()
 {
-    for (size_t i = 0; i < buffers.size(); i++)
-        if (buffers[i] != nullptr)
+    for (size_t i = 0; i < _buffers.size(); i++)
+        if (_buffers[i] != nullptr)
         {
-            buffers[i]->destroy();
-            delete (buffers[i]);
+            _buffers[i]->destroy();
+            delete (_buffers[i]);
         }
 }
 //-----------------------------------------------------------------------------
 void UniformBuffer::update(uint32_t currentImage)
 {
     UniformBufferObject ubo{};
-    ubo.model = SLMat4f(0.0f, 0.0f, 0.0f);
-    ubo.view  = camera;
+    ubo.model = _modelPos;
+    ubo.view  = _camera;
     ubo.proj.perspective(40,
-                         (float)swapchain.extent.width / (float)swapchain.extent.height,
+                         (float)_swapchain.extent().width / (float)_swapchain.extent().height,
                          0.1f,
                          20.0f);
 
     void* data;
-    vkMapMemory(device.handle, buffers[currentImage]->memory, 0, sizeof(ubo), 0, &data);
+    vkMapMemory(_device.handle(), _buffers[currentImage]->memory(), 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(device.handle, buffers[currentImage]->memory);
+    vkUnmapMemory(_device.handle(), _buffers[currentImage]->memory());
 }
 //-----------------------------------------------------------------------------

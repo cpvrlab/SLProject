@@ -18,7 +18,7 @@ class Pipeline;
 class CommandBuffer
 {
 public:
-    CommandBuffer(Device& device) : device{device} {};
+    CommandBuffer(Device& device) : _device{device} {};
     void destroy();
 
     VkResult begin();
@@ -32,9 +32,14 @@ public:
                          DescriptorSet& descriptorSet,
                          int            indicesSize);
 
-public:
-    Device&                 device;
-    VkCommandBuffer         handle{VK_NULL_HANDLE};
-    vector<VkCommandBuffer> handles;
+    // Getter
+    Device&                 device() const { return _device; }
+    VkCommandBuffer         handle() const { return _handle; }
+    vector<VkCommandBuffer> handles() const { return _handles; }
+
+private:
+    Device&                 _device;
+    VkCommandBuffer         _handle{VK_NULL_HANDLE};
+    vector<VkCommandBuffer> _handles;
 };
 //-----------------------------------------------------------------------------

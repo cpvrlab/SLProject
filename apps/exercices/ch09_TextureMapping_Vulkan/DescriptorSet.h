@@ -23,8 +23,11 @@ public:
                   Sampler&,
                   TextureImage&);
 
-public:
-    Device&                 device;
-    vector<VkDescriptorSet> handles;
+    // Getter
+    vector<VkDescriptorSet> handles() const { return _handles; }
+
+private:
+    Device&                 _device;
+    vector<VkDescriptorSet> _handles;
 };
 //-----------------------------------------------------------------------------

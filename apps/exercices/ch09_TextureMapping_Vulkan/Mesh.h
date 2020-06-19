@@ -13,7 +13,6 @@ using namespace std;
 //-----------------------------------------------------------------------------
 class Mesh : public Object
 {
-
 public:
     Mesh(string name) : Object(name) { ; }
 
@@ -22,10 +21,10 @@ public:
     SLVVec2f  Tc;  //!< Vector of vertex tex. coords. (opt.)
     SLVCol4f  C;   //!< Vector of vertex colors (opt.)
     SLVuint   I32; //!< Vector of vertex indices 32 bit
-    Material* mat; //!< Pointer to the inside material
+    Material* mat; //!< Pointer to the outside material
 
     //VertexArray vao;    //!< OpenGL Vertex Array Object for drawing
 };
 //-----------------------------------------------------------------------------
-typedef vector<Mesh> VMesh;
+typedef vector<Mesh*> VMesh;
 //-----------------------------------------------------------------------------

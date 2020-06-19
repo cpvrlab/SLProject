@@ -16,6 +16,8 @@ class Node : public Object
 public:
     Node(string name) : Object(name) { ; }
 
+    void AddMesh(Mesh* mesh);
+
 protected:
     Node*   _parent;   //!< pointer to the parent node
     VNode   _children; //!< vector of children nodes

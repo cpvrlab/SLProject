@@ -26,6 +26,8 @@
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 #include "VertexBuffer.h"
+#include <Node.h>
+#include <Sphere.h>
 
 //-----------------------------------------------------------------------------
 //////////////////////
@@ -234,9 +236,12 @@ int main()
 {
     initWindow();
     // Needed data
-    std::vector<Vertex>   vertices;
-    std::vector<uint16_t> indices;
-    buildSphere(1.0f, 32, 32, vertices, indices);
+    Texture  texture  = Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/ data / images / textures / tree1_1024_C.png ");
+    Material material = Material("Texture");
+    material.addTexture(texture);
+    Sphere sphere = Sphere("Simple_Sphere", 0.5f, 32, 32);
+    Node   node   = Node("Sphere");
+    node.AddMesh(&sphere);
 
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
@@ -264,7 +269,7 @@ int main()
     // Mesh setup
     Buffer indexBuffer = Buffer(device);
     indexBuffer.createIndexBuffer(indices);
-    UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix);
+    UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix, SLMat4f(0.0f, 0.0f, 0.0f));
     DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
     DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureSampler, textureImage);
     Buffer         vertexBuffer   = Buffer(device);

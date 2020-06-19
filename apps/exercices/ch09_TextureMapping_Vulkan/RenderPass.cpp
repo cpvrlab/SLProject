@@ -2,10 +2,10 @@
 
 //-----------------------------------------------------------------------------
 RenderPass::RenderPass(Device&    device,
-                       Swapchain& swapchain) : device{device}
+                       Swapchain& swapchain) : _device{device}
 {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format         = swapchain.surfaceFormat.format;
+    colorAttachment.format         = swapchain.surfaceFormat().format;
     colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
@@ -40,13 +40,13 @@ RenderPass::RenderPass(Device&    device,
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies   = &dependency;
 
-    VkResult result = vkCreateRenderPass(device.handle, &renderPassInfo, nullptr, &handle);
+    VkResult result = vkCreateRenderPass(_device.handle(), &renderPassInfo, nullptr, &_handle);
     ASSERT_VULKAN(result, "Failed to crete render pass");
 }
 //-----------------------------------------------------------------------------
 void RenderPass::destroy()
 {
     if (handle != VK_NULL_HANDLE)
-        vkDestroyRenderPass(device.handle, handle, nullptr);
+        vkDestroyRenderPass(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

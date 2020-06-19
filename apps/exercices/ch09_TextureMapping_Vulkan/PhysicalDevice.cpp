@@ -2,11 +2,11 @@
 
 //-----------------------------------------------------------------------------
 PhysicalDevice::PhysicalDevice(const Instance*  instance,
-                               VkPhysicalDevice physicalDevice) : instance{instance},
-                                                                  handle{physicalDevice}
+                               VkPhysicalDevice physicalDevice) : _instance{instance},
+                                                                  _handle{physicalDevice}
 {
-    vkGetPhysicalDeviceFeatures(physicalDevice, &features);
-    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+    vkGetPhysicalDeviceFeatures(physicalDevice, &_features);
+    vkGetPhysicalDeviceProperties(physicalDevice, &_properties);
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &_memoryProperties);
 }
 //-----------------------------------------------------------------------------

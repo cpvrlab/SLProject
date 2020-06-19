@@ -3,11 +3,11 @@
 
 //-----------------------------------------------------------------------------
 Device::Device(Instance&                 instance,
-               const VkPhysicalDevice&   physicalDevice,
+               VkPhysicalDevice&         physicalDevice,
                VkSurfaceKHR              surface,
-               const vector<const char*> extensions) : instance{instance},
-                                                       physicalDevice{physicalDevice},
-                                                       surface{surface}
+               const vector<const char*> extensions) : _instance{instance},
+                                                       _physicalDevice{physicalDevice},
+                                                       _surface{surface}
 {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -41,11 +41,11 @@ Device::Device(Instance&                 instance,
 #else
     createInfo.enabledLayerCount = 0;
 #endif
-    VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &handle);
+    VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &_handle);
     ASSERT_VULKAN(result, "Failed to create logical device");
 
-    vkGetDeviceQueue(handle, indices.graphicsFamily, 0, &graphicsQueue);
-    vkGetDeviceQueue(handle, indices.presentFamily, 0, &presentQueue);
+    vkGetDeviceQueue(_handle, indices.graphicsFamily, 0, &_graphicsQueue);
+    vkGetDeviceQueue(_handle, indices.presentFamily, 0, &_presentQueue);
 
     createCommandPool();
 }
@@ -54,19 +54,19 @@ void Device::destroy()
 {
     for (size_t i = 0; i < 2; i++)
     {
-        if (renderFinishedSemaphores[i] != VK_NULL_HANDLE)
-            vkDestroySemaphore(handle, renderFinishedSemaphores[i], nullptr);
-        if (imageAvailableSemaphores[i] != VK_NULL_HANDLE)
-            vkDestroySemaphore(handle, imageAvailableSemaphores[i], nullptr);
-        if (inFlightFences[i] != VK_NULL_HANDLE)
-            vkDestroyFence(handle, inFlightFences[i], nullptr);
+        if (_renderFinishedSemaphores[i] != VK_NULL_HANDLE)
+            vkDestroySemaphore(_handle, _renderFinishedSemaphores[i], nullptr);
+        if (_imageAvailableSemaphores[i] != VK_NULL_HANDLE)
+            vkDestroySemaphore(_handle, _imageAvailableSemaphores[i], nullptr);
+        if (_inFlightFences[i] != VK_NULL_HANDLE)
+            vkDestroyFence(_handle, _inFlightFences[i], nullptr);
         // if (imagesInFlight[i] != VK_NULL_HANDLE)
-        //     vkDestroyFence(handle, imagesInFlight[i], nullptr);
+        //     vkDestroyFence(_handle, imagesInFlight[i], nullptr);
     }
 
-    vkDestroyCommandPool(handle, commandPool, nullptr);
-    vkDestroyDevice(handle, nullptr);
-    vkDestroySurfaceKHR(instance.handle, surface, nullptr);
+    vkDestroyCommandPool(_handle, _commandPool, nullptr);
+    vkDestroyDevice(_handle, nullptr);
+    vkDestroySurfaceKHR(_instance.handle, _surface, nullptr);
 }
 //-----------------------------------------------------------------------------
 QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
@@ -88,7 +88,7 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
             indices.graphicsFamily = i;
 
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, &presentSupport);
 
         if (presentSupport)
             indices.presentFamily = i;
@@ -101,22 +101,22 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
 //-----------------------------------------------------------------------------
 void Device::createCommandPool()
 {
-    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
 
-    VkResult result = vkCreateCommandPool(handle, &poolInfo, nullptr, &commandPool);
+    VkResult result = vkCreateCommandPool(_handle, &poolInfo, nullptr, &_commandPool);
     ASSERT_VULKAN(result, "Failed to create command pool");
 }
 //-----------------------------------------------------------------------------
 void Device::createSyncObjects(Swapchain& swapchain)
 {
-    imageAvailableSemaphores.resize(2);
-    renderFinishedSemaphores.resize(2);
-    inFlightFences.resize(2);
-    imagesInFlight.resize(swapchain.images.size(), VK_NULL_HANDLE);
+    _imageAvailableSemaphores.resize(2);
+    _renderFinishedSemaphores.resize(2);
+    _inFlightFences.resize(2);
+    _imagesInFlight.resize(swapchain.images().size(), VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -126,23 +126,23 @@ void Device::createSyncObjects(Swapchain& swapchain)
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < 2; i++)
-        if (vkCreateSemaphore(handle,
+        if (vkCreateSemaphore(_handle,
                               &semaphoreInfo,
                               nullptr,
-                              &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(handle,
+                              &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(_handle,
                               &semaphoreInfo,
                               nullptr,
-                              &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(handle,
+                              &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(_handle,
                           &fenceInfo,
                           nullptr,
-                          &inFlightFences[i]) != VK_SUCCESS)
+                          &_inFlightFences[i]) != VK_SUCCESS)
             cerr << "failed to create synchronization objects for a frame!" << endl;
 }
 //-----------------------------------------------------------------------------
 void Device::waitIdle()
 {
-    vkDeviceWaitIdle(handle);
+    vkDeviceWaitIdle(_handle);
 }
 //-----------------------------------------------------------------------------

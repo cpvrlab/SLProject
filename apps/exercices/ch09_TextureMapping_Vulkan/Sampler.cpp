@@ -1,7 +1,7 @@
 #include "Sampler.h"
 
 //-----------------------------------------------------------------------------
-Sampler::Sampler(Device& device) : device{device}
+Sampler::Sampler(Device& device) : _device{device}
 {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -18,13 +18,13 @@ Sampler::Sampler(Device& device) : device{device}
     samplerInfo.compareOp               = VK_COMPARE_OP_ALWAYS;
     samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-    VkResult result = vkCreateSampler(device.handle, &samplerInfo, nullptr, &handle);
+    VkResult result = vkCreateSampler(_device.handle(), &samplerInfo, nullptr, &_handle);
     ASSERT_VULKAN(result, "Failed to create texture sampler");
 }
 //-----------------------------------------------------------------------------
 void Sampler::destroy()
 {
     if (handle != VK_NULL_HANDLE)
-        vkDestroySampler(device.handle, handle, nullptr);
+        vkDestroySampler(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

@@ -28,6 +28,10 @@ public:
               UniformBuffer& uniformBuffer,
               CommandBuffer& commandBuffer);
 
+    // Getter
+    VkPipeline       graphicsPipeline() const { return _graphicsPipeline; }
+    VkPipelineLayout pipelineLayout() const { return _pipelineLayout; }
+
 private:
     void createGraphicsPipeline(VkExtent2D            swapchainExtent,
                                 VkDescriptorSetLayout descriptorSetLayout,
@@ -35,10 +39,9 @@ private:
                                 VkShaderModule        vertShader,
                                 VkShaderModule        fragShader);
 
-public:
-    Device&          device;
-    VkPipelineLayout pipelineLayout;
-    VkPipeline       graphicsPipeline;
-    int              currentFrame = 0;
+    Device&          _device;
+    VkPipeline       _graphicsPipeline;
+    VkPipelineLayout _pipelineLayout;
+    int              _currentFrame = 0;
 };
 //-----------------------------------------------------------------------------

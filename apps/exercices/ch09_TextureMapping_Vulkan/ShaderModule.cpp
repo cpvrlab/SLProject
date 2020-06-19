@@ -1,8 +1,8 @@
 #include "ShaderModule.h"
 
 //-----------------------------------------------------------------------------
-ShaderModule::ShaderModule(Device&       device,
-                           const string& shaderPath) : device{device}
+ShaderModule::ShaderModule(Device&       _device,
+                           const string& shaderPath) : _device{_device}
 {
     vector<char> code = readFile(shaderPath);
     createShaderModule(code);
@@ -11,7 +11,7 @@ ShaderModule::ShaderModule(Device&       device,
 void ShaderModule::destroy()
 {
     if (handle != VK_NULL_HANDLE)
-        vkDestroyShaderModule(device.handle, handle, nullptr);
+        vkDestroyShaderModule(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------
 void ShaderModule::createShaderModule(const vector<char>& code)
@@ -21,10 +21,10 @@ void ShaderModule::createShaderModule(const vector<char>& code)
     createInfo.codeSize = code.size();
     createInfo.pCode    = reinterpret_cast<const uint32_t*>(code.data());
 
-    VkResult result = vkCreateShaderModule(device.handle,
+    VkResult result = vkCreateShaderModule(_device.handle(),
                                            &createInfo,
                                            nullptr,
-                                           &handle);
+                                           &_handle);
     ASSERT_VULKAN(result, "Failed to create shader module");
 }
 //-----------------------------------------------------------------------------
