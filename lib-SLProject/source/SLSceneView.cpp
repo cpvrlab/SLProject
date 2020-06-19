@@ -845,22 +845,15 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
                 !node->drawBit(SL_DB_SELECTED))
             {
                 if (node->numMeshes() > 0)
-                    node->aabb()->drawWS(SLCol3f(1, 0, 0));
+                    node->aabb()->drawWS(SLCol3f::RED);
                 else
-                    node->aabb()->drawWS(SLCol3f(1, 0, 1));
+                    node->aabb()->drawWS(SLCol3f::MAGENTA);
             }
 
             // Draw AABB for selected shapes
             if (node->drawBit(SL_DB_SELECTED))
             {
-                if (node == _s->selectedNode() || !_camera->selectedRect().isEmpty())
-                    node->aabb()->drawWS(SLCol3f(1, 1, 0));
-                else
-                {
-                    // delete selection bits from previous rectangle selection
-                    if (node != _s->selectedNode() && _camera->selectedRect().isEmpty())
-                        node->drawBits()->off(SL_DB_SELECTED);
-                }
+                node->aabb()->drawWS(SLCol3f::YELLOW);
             }
         }
     }
@@ -1153,6 +1146,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         if (_gui->doNotDispatchMouse())
             return true;
     }
+
     //if (ImGui::GetIO().WantCaptureMouse)
     //    return true;
 
@@ -1407,10 +1401,22 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 
         if (pickRay.length < FLT_MAX)
         {
-            _camera->selectedRect().setZero();
-            _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
-            if (onSelectedNodeMesh)
-                onSelectedNodeMesh(_s->selectedNode(), _s->selectedMesh());
+
+            if (mod & K_shift)
+            {
+                _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+                if (onSelectedNodeMesh)
+                    onSelectedNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            }
+            else
+            {
+                if (_s->singleNodeSelected() != pickRay.hitNode)
+                    _s->deselectAllNodes();
+
+                _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+                if (onSelectedNodeMesh)
+                    onSelectedNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            }
             result = true;
         }
     }
@@ -1582,10 +1588,11 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key==K_esc)
     {
-        if (_s->selectedNode() || !_camera->selectedRect().isEmpty())
+        if (!_s->selectedNodes().empty() || !_camera->selectedRect().isEmpty())
         {
-            _s->selectNode(nullptr);
+            _s->deselectAllNodes();
             _camera->selectedRect().setZero();
+            return true;
         }
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;

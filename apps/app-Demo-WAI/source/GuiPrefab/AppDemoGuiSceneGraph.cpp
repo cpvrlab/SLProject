@@ -25,7 +25,7 @@ void AppDemoGuiSceneGraph::buildInfos(SLScene* s, SLSceneView* sv)
 
 void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)
 {
-    SLbool isSelectedNode = s->selectedNode() == node;
+    SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().size() == 0 && node->meshes().size() == 0;
 
     ImGuiTreeNodeFlags nodeFlags = 0;
@@ -49,7 +49,7 @@ void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
-            if (s->selectedMesh() == mesh)
+            if (s->singleMeshSelected() == mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
 
             ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());

@@ -1003,6 +1003,14 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
     //SL_LOG("onMouseUp\n");
     if (button == MB_left)
     {
+        // End rectangle select
+        if (mod & K_ctrl)
+        {
+            _selectedRect.setZero();
+            return true;
+        }
+
+
         if (_camAnim == CA_turntableYUp)
             return true;
         else if (_camAnim == CA_walkingYUp)

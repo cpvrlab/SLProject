@@ -778,9 +778,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Transform Selected Node", &showTransform, window_flags);
 
-            if (s->selectedNode())
+            if (s->singleNodeSelected())
             {
-                SLNode*                 selNode = s->selectedNode();
+                SLNode*                 selNode = s->singleNodeSelected();
                 static SLTransformSpace tSpace  = TS_object;
                 SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
                 SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
@@ -1158,7 +1158,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
     if (!hasAnimations) curAnimIx = -1;
 
     // Remove transform node if no or the wrong one is selected
-    if (transformNode && s->selectedNode() != transformNode->targetNode())
+    if (transformNode && s->singleNodeSelected() != transformNode->targetNode())
         removeTransformNode(s);
 
     if (ImGui::BeginMainMenuBar())
@@ -1704,12 +1704,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Edit", s->selectedNode() != nullptr || !sv->camera()->selectedRect().isZero()))
+        if (ImGui::BeginMenu("Edit", s->singleNodeSelected() != nullptr || !sv->camera()->selectedRect().isZero()))
         {
-            if (s->selectedNode())
+            if (s->singleNodeSelected())
             {
                 if (ImGui::MenuItem("Deselect Node", "ESC"))
-                    s->selectNode(nullptr);
+                    s->deselectAllNodes();
 
                 ImGui::Separator();
 
@@ -1739,7 +1739,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Node Flags"))
                 {
-                    SLNode* selN = s->selectedNode();
+                    SLNode* selN = s->singleNodeSelected();
 
                     if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
                         selN->drawBits()->toggle(SL_DB_MESHWIRED);
@@ -2411,7 +2411,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     PROFILE_FUNCTION();
 
-    SLbool isSelectedNode = s->selectedNode() == node;
+    SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
 
     ImGuiTreeNodeFlags nodeFlags = 0;
@@ -2435,7 +2435,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
-            if (s->selectedMesh() == mesh)
+            if (s->singleMeshSelected() == mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
 
             ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
@@ -2459,8 +2459,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    SLNode* node = s->selectedNode();
-    SLMesh* mesh = s->selectedMesh();
+    SLNode* node = s->singleNodeSelected();
+    SLMesh* mesh = s->singleMeshSelected();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
@@ -3122,7 +3122,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::shaderPath);
+        tN = new SLTransformNode(sv, s->singleNodeSelected(), SLApplication::shaderPath);
         s->root3D()->addChild(tN);
     }
 

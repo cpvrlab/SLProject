@@ -45,6 +45,7 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     _isVolume             = true;    // is used for RT to decide inside/outside
     _accelStruct          = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
+    _isSelected           = false;
 
     // Add this mesh to the global resource vector for deallocation
     if (assetMgr)
@@ -190,7 +191,10 @@ void SLMesh::deleteSelected(SLNode* node)
         calcTangents();
 
     // delete vertex array object so it gets regenerated
-    _vao.deleteGL();
+    _vao.clearAttribs();
+    _vaoS.deleteGL();
+    _vaoN.deleteGL();
+    _vaoT.deleteGL();
 
     // delete the selection indexes
     IS32.clear();
@@ -283,6 +287,8 @@ void SLMesh::init(SLNode* node)
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())
         calcTangents();
+
+    _isSelected = false;
 }
 //-----------------------------------------------------------------------------
 /*! 
@@ -486,19 +492,21 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     SLScene* s = &sv->s();
 
     // Single node and mesh selected
-    if (s->selectedNode() == node &&
-        s->selectedMesh() == this)
+    if (sv->camera()->selectedRect().isEmpty())
     {
-        drawSelectedMeshPoints();
+        if (node->drawBits()->get(SL_DB_SELECTED) && _isSelected)
+        {
+            drawSelectedVertices();
+        }
     }
-    else if (!sv->camera()->selectedRect().isEmpty()) // rect selection is going on
+    else // rect selection is going on
     {
         /* The selection rectangle is defined in SLScene::selectRect and gets set and
-         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-         not empty the SLScene::selectedNode is null. All vertices that are within the
-         selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-         drawing in SLMesh::draw and is only valid for the current frame.
-         All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
+        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+        not empty the SLScene::selectedNode is null. All vertices that are within the
+        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+        drawing in SLMesh::draw and is only valid for the current frame.
+        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
 
         // Build full viewport-modelview-projection transform
         SLMat4f mvp = *stateGL->mvpMatrix();
@@ -518,28 +526,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
         if (!IS32.empty())
         {
-            drawSelectedMeshPoints();
+            drawSelectedVertices();
             node->drawBits()->on(SL_DB_SELECTED);
         }
         else
-            node->drawBits()->off(SL_DB_SELECTED);
-    }
-    else
-    {
-        if (_vaoS.vaoID())
-        {
-            _vaoS.clearAttribs();
-            IS32.clear();
-        }
-
-        if (s->selectedNode() == nullptr && sv->camera()->selectedRect().isEmpty())
             node->drawBits()->off(SL_DB_SELECTED);
     }
 
     if (blended) stateGL->blend(true);
 }
 //-----------------------------------------------------------------------------
-void SLMesh::drawSelectedMeshPoints()
+void SLMesh::drawSelectedVertices()
 {
     SLGLState* stateGL = SLGLState::instance();
     stateGL->polygonOffset(true, 1.0f, 1.0f);
@@ -547,12 +544,12 @@ void SLMesh::drawSelectedMeshPoints()
     stateGL->depthTest(false);
 
     if (IS32.empty())
-    {   // Draw all
+    { // Draw all
         _vaoS.generateVertexPos(_finalP);
         _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
     }
     else
-    {   // Draw only selected
+    { // Draw only selected
         _vaoS.clearAttribs();
         _vaoS.setIndices(&IS32);
         _vaoS.generateVertexPos(_finalP);
@@ -563,6 +560,12 @@ void SLMesh::drawSelectedMeshPoints()
     stateGL->polygonOffset(false);
     stateGL->depthMask(true);
     stateGL->depthTest(true);
+}
+//-----------------------------------------------------------------------------
+void SLMesh::deselectPartialSelection()
+{
+    _vaoS.clearAttribs();
+    IS32.clear();
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
