@@ -1,7 +1,8 @@
 #include "SENSCamera.h"
+#include <opencv2/imgproc.hpp>
 
 //searches for best machting size and returns it
-SENSCameraStreamConfigs::Config SENSCameraStreamConfigs::findBestMatchingConfig(cv::Size requiredSize) const
+const SENSCameraStreamConfigs::Config& SENSCameraStreamConfigs::findBestMatchingConfig(cv::Size requiredSize) const
 {
     if (_streamConfigs.size() == 0)
         throw SENSException(SENSType::CAM, "No stream configuration available!", __LINE__, __FILE__);
@@ -40,4 +41,43 @@ SENSCameraStreamConfigs::Config SENSCameraStreamConfigs::findBestMatchingConfig(
     std::sort(matchingSizes.begin(), matchingSizes.end());
 
     return _streamConfigs[matchingSizes.front().second];
+}
+
+SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg)
+{
+    cv::Size inputSize = rgbImg.size();
+
+    // Crop Video image to required aspect ratio
+    int cropW = 0, cropH = 0;
+    SENS::cropImage(rgbImg,(float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
+
+    // Mirroring
+    //(copy here because we use no mutex to save config)
+    bool mirrorH = _config.mirrorH;
+    bool mirrorV = _config.mirrorV;
+    SENS::mirrorImage(rgbImg, mirrorH, mirrorV);
+
+    cv::Mat manipImg;
+    if(_config.provideScaledImage)
+    {
+        manipImg = rgbImg;
+        int cropW = 0, cropH = 0;
+        SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
+        float scale = (float)manipImg.size().width / (float)_config.manipWidth;
+        cv::resize(manipImg, manipImg, cv::Size(), scale, scale);
+    }
+    else if (_config.convertManipToGray)
+    {
+        manipImg = rgbImg;
+    }
+    
+    // Create grayscale
+    cv::Mat grayImg;
+    if (_config.convertManipToGray)
+    {
+        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
+    }
+
+    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, mirrorH, mirrorV);
+    return sensFrame;
 }

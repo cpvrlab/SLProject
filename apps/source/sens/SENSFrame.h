@@ -7,7 +7,7 @@
 struct SENSFrame
 {
     SENSFrame(cv::Mat imgRGB,
-              cv::Mat imgGray,
+              cv::Mat imgManip,
               int     captureWidth,
               int     captureHeight,
               int     cropW,
@@ -15,7 +15,7 @@ struct SENSFrame
               bool    mirroredH,
               bool    mirroredV)
       : imgRGB(imgRGB),
-        imgGray(imgGray),
+        imgManip(imgManip),
         captureWidth(captureWidth),
         captureHeight(captureHeight),
         cropW(cropW),
@@ -25,8 +25,10 @@ struct SENSFrame
     {
     }
 
+    //! cropped input image
     cv::Mat imgRGB;
-    cv::Mat imgGray;
+    //! scaled and maybe gray manipulated image
+    cv::Mat imgManip;
 
     const int  captureWidth;
     const int  captureHeight;

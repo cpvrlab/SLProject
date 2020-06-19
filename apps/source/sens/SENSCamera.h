@@ -7,7 +7,8 @@
 #include <SENSCalibration.h>
 #include <atomic>
 #include <map>
-
+#include <thread>
+#include <SENSUtils.h>
 //---------------------------------------------------------------------------
 //Common defininitions:
 
@@ -95,11 +96,71 @@ public:
     }
 
     //searches for best matching size and returns it
-    SENSCameraStreamConfigs::Config findBestMatchingConfig(cv::Size requiredSize) const;
+    const SENSCameraStreamConfigs::Config& findBestMatchingConfig(cv::Size requiredSize) const;
     
 private:
     std::vector<Config> _streamConfigs;
 };
+
+/*
+struct SENSCameraStreamConfig
+{
+    SENSCameraStreamConfig(int width, int height, float horizFovDeg)
+    {
+    }
+    const int width;
+    const int height;
+    const float horizFovDeg;
+    const float focalLengthPix;
+    //const float minFrameDuraton;
+    //const float maxFrameDuration;
+};
+
+struct SENSCameraProperties
+{
+    std::string deviceId;
+    bool supportsAutofocus;
+    bool supportsVideoStabilization;
+    SENSCameraFacing facing;
+};
+
+//Class that defines all properties of available cameras on a device and
+//functions to find the required configuration
+class SENSCaptureProperties
+{
+public:
+    bool containsPropertiesForId(const std::string& deviceId)
+    {
+        return _camProperties.find(deviceId) != _camProperties.end();
+    }
+    SENSCameraProperties getPropertiesForId(const std::string& deviceId)
+    {
+        return _camProperties[deviceId];
+    }
+    
+    bool contains(const std::string& deviceId, int width, int height)
+    {
+        auto it = _streamConfigs.find(deviceId);
+        if(it != _streamConfigs.end())
+        {
+            const std::vector<SENSCameraStreamConfig>& scs = it->second;
+            return std::find_if(
+                     scs.begin(),
+                     scs.end(),
+                     [&](const SENSCameraStreamConfig& cmp) -> bool {return cmp.width == width && cmp.height == height; }
+                                ) != scs.end();
+        }
+        else
+            return false;
+    }
+    
+private:
+    //cameras available stream configurations mapped by
+    std::map<std::string, std::vector<SENSCameraStreamConfig>> _streamConfigs;
+    //camera properties mapped by camera device id
+    std::map<std::string, SENSCameraProperties> _camProperties;
+};
+ */
 
 struct SENSCameraCharacteristics
 {
@@ -112,23 +173,46 @@ struct SENSCameraCharacteristics
     SENSCameraFacing   facing = SENSCameraFacing::UNKNOWN;
 };
 
+class SENSCaptureProperties : public std::vector<SENSCameraCharacteristics>
+{
+public:
+    /*
+    struct Device
+    {
+        
+    };
+    struct StreamConfig
+    {
+        
+    };
+     */
+    
+private:
+};
+ 
+
 //---------------------------------------------------------------------------
 //SENSCameraConfig (this is what the user would like to have)
 
 //define a config to start a capture session on a camera device
 struct SENSCameraConfig
 {
-    std::string deviceId = "0";
+    std::string deviceId;
+    //! currently selected stream config index (use it to look up original capture size)
+    int streamConfigIndex = 0;
     //! autofocus mode
     SENSCameraFocusMode focusMode = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS;
     //! largest target image width (only RGB)
     int targetWidth = 0;
     //! largest target image width (only RGB)
     int targetHeight = 0;
+    //! current horizontal field of view (-1 if unknown)
+    float horizFovDeg = -1.f;
+    
     //! width of smaller image version (e.g. for tracking)
-    int smallWidth = 0;
+    int manipWidth = 0;
     //! height of smaller image version (e.g. for tracking)
-    int smallHeight = 0;
+    int manipHeight = 0;
     //! mirror image horizontally after capturing
     bool mirrorH = false;
     //! mirror image vertically after capturing
@@ -136,9 +220,13 @@ struct SENSCameraConfig
     //! provide scaled (smaller) version with size (smallWidth, smallHeight)
     bool provideScaledImage = false;
     //! provide gray version of small image
-    bool convertToGray = false;
+    bool convertManipToGray = false;
+    
     //! adjust image in asynchronous thread
     bool adjustAsynchronously = false;
+    
+    //! enable video stabilization if available
+    //bool enableVideoStabilization = false;
 };
 
 //! Pure abstract camera class
@@ -146,20 +234,32 @@ class SENSCamera
 {
 public:
     virtual ~SENSCamera() {}
-    virtual void                                   start(SENSCameraConfig config)               = 0;
-    virtual void                                   start(std::string id, int width, int height) = 0;
-    virtual void                                   stop()                                       = 0;
-    virtual SENSFramePtr                           getLatestFrame()                             = 0;
     
-    virtual const std::vector<SENSCameraCharacteristics>& getAllCameraCharacteristics()         = 0;
-
+    //! enable mirror manipulation of input image (vertically, horizontally) (you should call this function before start)
+    virtual void mirrorImage(bool mirrorV, bool mirrorH) = 0;
+    //! provide scaled image with given size (will result in a resized gray image) (you should call this function before start)
+    virtual void provideScaledImage(int width, int height) = 0;
+    //! provide gray image (maybe scaled, if provideScaledImage was called before) (you should call this function before start)
+    virtual void provideGrayImage(bool convertToGray) = 0;
+    
+    //virtual void            start(SENSCameraConfig config)               = 0;
+    //! Start camera with a known device id. The camera will select the closest available frame size and crop it to width and height
+    virtual void start(std::string id, int width, int height, SENSCameraFocusMode focusMode=SENSCameraFocusMode::FIXED_INFINITY_FOCUS) = 0;
+    //virtual void start(std::string id, SENSCameraStreamConfigs streamConfig, int width, int height, SENSCameraFocusMode focusMode=SENSCameraFocusMode::FIXED_INFINITY_FOCUS) = 0;
+    //! Stop a started camera device
+    virtual void stop()                                       = 0;
+    //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
+    virtual SENSFramePtr getLatestFrame()                             = 0;
+    //! Get SENSCaptureProperties which contains necessary information about all available camera devices and their capabilities
+    virtual const SENSCaptureProperties& getCaptureProperties() = 0;
 
     //! defines what the currently selected camera is cabable to do (including all available camera devices)
-    virtual const SENSCameraCharacteristics& characteristics() const = 0;
+    //virtual const SENSCameraCharacteristics& characteristics() const = 0;
     //! defines how the camera was configured during start
     virtual const SENSCameraConfig& config() const = 0;
     //!  currently selected stream configuration
-    virtual const SENSCameraStreamConfigs::Config& currSteamConfig() const = 0;
+    //virtual const SENSCameraStreamConfig& currSteamConfig() const = 0;
+    //virtual const SENSCameraProperties& currCameraProperties() const = 0;
     
     virtual bool started() const         = 0;
 
@@ -171,31 +271,64 @@ public:
 class SENSCameraBase : public SENSCamera
 {
 public:
-    const SENSCameraCharacteristics& characteristics() const override { return _characteristics; }
-    const SENSCameraConfig&          config() const override { return _config; };
-    
-    const SENSCameraStreamConfigs::Config& currSteamConfig() const override { return _currStreamConfig; }
+    //const SENSCameraCharacteristics& characteristics() const override { return _characteristics; }
+    const SENSCameraConfig& config() const override { return _config; };
+    //const SENSCameraStreamConfig& currSteamConfig() const override { return _currStreamConfig; }
+    //const SENSCameraProperties& currCameraProperties() const override { return _currCamProps; }
     
     bool started() const override { return _started; }
 
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
+  
 
+    //! enable mirror manipulation of input image (vertically, horizontally)
+    void mirrorImage(bool mirrorV, bool mirrorH) override
+    {
+        _config.mirrorV = mirrorV;
+        _config.mirrorH = mirrorH;
+    }
+    //! provide scaled image with given size (will result in a resized gray image)
+    void provideScaledImage(int width, int height) override
+    {
+        _config.manipWidth = width;
+        _config.manipHeight = height;
+        _config.provideScaledImage = true;
+    }
+    //! provide gray image (maybe scaled, if provideScaledImage was called before)
+    void provideGrayImage(bool convertToGray) override
+    {
+        _config.convertManipToGray = convertToGray;
+    }
 protected:
-    float             _targetWdivH = -1.0f;
-    SENSCameraConfig  _config;
+    SENSCaptureProperties _caputureProperties;
+    
+    SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg);
+    //! current camera device id (look up in _captureProperties)
+    //std::string         _currDeviceId;
+    //! current index in stream configuration vector respecting camera device id (look up in _captureProperties)
+    //int                 _currStreamConfigIndex = -1;
+    //! currently adjusted focus mode
+    //SENSCameraFocusMode _currFocusMode;
+    
+    //float             _targetWdivH = -1.0f;
+    
+    //! flags if camera was started
     std::atomic<bool> _started{false};
 
-    SENSCameraCharacteristics              _characteristics;
+    SENSCameraConfig _config;
+    //SENSCameraProperties _currCamProps;
+    //SENSCameraStreamConfig _currStreamConfig;
+    
+    //SENSCameraCharacteristics              _characteristics;
     //! stores all camera characteristics of all devices that are available.
-    std::vector<SENSCameraCharacteristics> _allCharacteristics;
+    //std::vector<SENSCameraCharacteristics> _allCharacteristics;
     //! current stream configuration
-    SENSCameraStreamConfigs::Config _currStreamConfig;
+    //SENSCameraStreamConfigs::Config _currStreamConfig;
     
     std::atomic<bool> _permissionGranted{false};
 };
 
-#include <thread>
 /*!
 The SENSCameraBase implementations may only be called from a single thread. Start and Stop will block and on the
 other hand if called from different threads, calling e.g. stop while starting will lead to 
@@ -207,6 +340,7 @@ the additonally complex statemachine.
 The SENSCameraAsync wraps a unique pointer of SENSCameraBase. In this way we may use the same implementation
 for all SENSCameraBase types.
 */
+/*
 class SENSCameraAsync : public SENSCamera
 {
 public:
@@ -229,13 +363,7 @@ public:
     {
         _camera->stop();
     }
-    const std::vector<SENSCameraCharacteristics>& getAllCameraCharacteristics() override
-    {
-        if (_camera)
-            return _camera->getAllCameraCharacteristics();
-        else
-            return std::vector<SENSCameraCharacteristics>();
-    }
+
 
     SENSFramePtr getLatestFrame() override
     {
@@ -252,20 +380,22 @@ public:
         return frame;
     }
 
-    const SENSCameraCharacteristics& characteristics() const override
-    {
-        return _camera->characteristics();
-    }
-
     const SENSCameraConfig& config() const override
     {
         return _camera->config();
     }
     
-    const SENSCameraStreamConfigs::Config& currSteamConfig() const override
+    const SENSCameraStreamConfig& currSteamConfig() const override
     {
         return _camera->currSteamConfig();
     }
+    
+    const SENSCameraProperties& currCameraProperties() const override
+    {
+        return _camera->currCameraProperties();
+        
+    }
+    
 
     bool started() const override
     {
@@ -288,5 +418,6 @@ private:
     //processing thread
     std::thread _thread;
 };
+ */
 
 #endif //SENS_CAMERA_H

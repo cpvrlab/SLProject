@@ -217,9 +217,9 @@
     return true;
 }
 
-- (std::vector<SENSCameraCharacteristics>)getAllCameraCharacteristics
+- (SENSCaptureProperties)retrieveCaptureProperties
 {
-    std::vector<SENSCameraCharacteristics> characsVec;
+    SENSCaptureProperties characsVec;
     
     // specifying AVMediaTypeVideo will ensure we only get a list of cameras, no microphones
     NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];

@@ -82,7 +82,7 @@ bool TestRunnerView::update()
 
             HighResTimer timer = HighResTimer();
 
-            WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgGray,
+            WAIFrame currentFrame = WAIFrame(sensFrame.get()->imgManip,
                                              0.0f,
                                              _extractor.get(),
                                              intrinsic,

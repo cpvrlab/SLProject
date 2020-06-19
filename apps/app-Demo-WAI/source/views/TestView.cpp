@@ -91,7 +91,7 @@ bool TestView::update()
 
         if (_mode)
         {
-            _mode->update(frame->imgGray);
+            _mode->update(frame->imgManip);
 
             if (_mode->isTracking())
             {
@@ -173,16 +173,18 @@ void TestView::handleEvents()
                 }
                 else if (autoCalEvent->useGuessCalibration)
                 {
-                    SENSCameraCharacteristics cc = _camera->characteristics();
-                    
                     //default horizontal field of view
-                    float horizFOVDev = 65.f;
+                    //float horizFOVDev = _camera->currHorizFov();
+                    float horizFOVDev = -1;
+                    assert("fix me" && false);
+                    if(horizFOVDev < 0)
+                        horizFOVDev = 65.f;
                     //try to find a better field of view via camera api
-                    const SENSCameraStreamConfigs::Config& streamConfig = _camera->currSteamConfig();
-                    if (streamConfig.focalLengthPix > 0)
-                        horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, _camera->config().targetWidth);
+                    //const SENSCameraStreamConfigs::Config& streamConfig = _camera->currHorizFov();
+                    //if (streamConfig.focalLengthPix > 0)
+                    //    horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, _camera->config().targetWidth);
 
-                    _calibration = CVCalibration(_videoFrameSize, 65, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
+                    _calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
 
                     _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
@@ -676,7 +678,7 @@ void TestView::updateVideoTracking()
             if (_videoWriter && _videoWriter->isOpened())
                 _videoWriter->write(frame->imgRGB);
             if (_mode)
-                _mode->update(frame->imgGray);
+                _mode->update(frame->imgManip);
         }
 
         _videoCursorMoveIndex++;
@@ -690,7 +692,7 @@ void TestView::updateVideoTracking()
             if (_videoWriter && _videoWriter->isOpened())
                 _videoWriter->write(frame->imgRGB);
             if (_mode)
-                _mode->update(frame->imgGray);
+                _mode->update(frame->imgManip);
         }
 
         _videoCursorMoveIndex--;

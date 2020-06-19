@@ -21,7 +21,7 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
 
     //keep a local copy of all available
     if(_camera)
-        _camCharacs = _camera->getAllCameraCharacteristics();
+        _camCharacs = _camera->getCaptureProperties();
 
     //prepare sizes for visualization
     for (const SENSCameraCharacteristics& c : _camCharacs)
@@ -189,12 +189,14 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 {
                     const SENSCameraStreamConfigs::Config& config = _currCharac->streamConfig.getStreamConfigs()[_currSizeIndex];
                     
+                    /*
                     _cameraConfig.deviceId             = _currCharac->cameraId;
                     _cameraConfig.targetWidth          = config.widthPix;
                     _cameraConfig.targetHeight         = config.heightPix;
                     _cameraConfig.convertToGray        = true;
                     _cameraConfig.adjustAsynchronously = true;
                     _cameraConfig.focusMode            = SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
+                     */
                     Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
 
                     ////make sure the camera is stopped if there is one
@@ -204,7 +206,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                     try
                     {
                         if (_camera)
-                            _camera->start(_cameraConfig);
+                            _camera->start(_currCharac->cameraId, config.widthPix, config.heightPix);
                     }
                     catch (SENSException& e)
                     {
@@ -234,8 +236,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (_camera && _camera->started())
             {
-                cv::Size s(_camera->config().targetWidth, _camera->config().targetHeight);
-                ImGui::Text("Current frame size: w: %d, h: %d", s.width, s.height);
+                ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().targetWidth, _camera->config().targetHeight);
             }
             else
             {

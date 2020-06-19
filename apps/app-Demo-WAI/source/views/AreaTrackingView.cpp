@@ -53,7 +53,7 @@ bool AreaTrackingView::update()
 
     if (frame && _waiSlam)
     {
-        _waiSlam->update(frame->imgGray);
+        _waiSlam->update(frame->imgManip);
 
         if (_waiSlam->isTracking())
             _scene.updateCameraPose(_waiSlam->getPose());
@@ -80,6 +80,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 
     //calibration
+    /*
     const SENSCameraCharacteristics& chars = _camera->characteristics();
     const SENSCameraStreamConfigs::Config& streamConfig = _camera->currSteamConfig();
     if (streamConfig.focalLengthPix > 0)
@@ -94,6 +95,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //todo:
         //the calculated fov vertical does not fit to the one of the calibration file->normal ?
     }
+     */
 
     //cv::Size calibImgSize(3968, 2976);
     //_calibration = std::make_unique<SENSCalibration>(calibImgSize, 60.42 /*63.144f*/, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
@@ -196,11 +198,13 @@ void AreaTrackingView::startCamera()
         if (_camera->started())
             _camera->stop();
         
+        /*
         SENSCameraConfig config;
         config.targetWidth   = _cameraFrameTargetSize.width;
         config.targetHeight  = _cameraFrameTargetSize.height;
         config.convertToGray = true;
-        
+        */
+        /*
         //select the best matching configuration
         const std::vector<SENSCameraCharacteristics>& camCharcsVec = _camera->getAllCameraCharacteristics();
         for(int i=0; i < camCharcsVec.size(); ++i)
@@ -214,9 +218,11 @@ void AreaTrackingView::startCamera()
                 break;
             }
         }
+         */
         
         //start camera
-        _camera->start(config);
+        assert("fix me" && false);
+        //_camera->start(config);
     }
 }
 
