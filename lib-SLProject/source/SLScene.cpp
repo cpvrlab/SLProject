@@ -241,7 +241,7 @@ void SLScene::selectNode(SLNode* nodeToSelect)
 }
 */
 //-----------------------------------------------------------------------------
-//! Sets the _selectedNode and _selectedMesh and flags it as selected
+//! Adds or removes the passed node and mesh to _selectedNodes and _selectedMeshes
 /*! If one node is selected a rectangle selection is reset to zero.
 The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
 */

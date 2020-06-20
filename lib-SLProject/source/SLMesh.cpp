@@ -491,7 +491,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     SLScene* s = &sv->s();
 
-    // Single node and mesh selected
+    // Single node and mesh is selected
     if (sv->camera()->selectedRect().isEmpty())
     {
         if (node->drawBits()->get(SL_DB_SELECTED) && _isSelected)
@@ -536,6 +536,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (blended) stateGL->blend(true);
 }
 //-----------------------------------------------------------------------------
+/*! If the entire mesh is selected all points will be drawn with an the vertex
+ array only without indices. If a subset is selected we use the extra index
+ array IS32.
+ */
 void SLMesh::drawSelectedVertices()
 {
     SLGLState* stateGL = SLGLState::instance();
