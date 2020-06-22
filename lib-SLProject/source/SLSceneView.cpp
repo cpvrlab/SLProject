@@ -1411,7 +1411,7 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
             else
             {
                 if (_s->singleNodeSelected() != pickRay.hitNode)
-                    _s->deselectAllNodes();
+                    _s->deselectAllNodesAndMeshes();
 
                 _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
                 if (onSelectedNodeMesh)
@@ -1590,7 +1590,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     {
         if (!_s->selectedNodes().empty() || !_camera->selectedRect().isEmpty())
         {
-            _s->deselectAllNodes();
+            _s->deselectAllNodesAndMeshes();
             _camera->selectedRect().setZero();
             return true;
         }

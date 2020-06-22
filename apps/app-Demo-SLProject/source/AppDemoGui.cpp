@@ -1709,7 +1709,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (s->singleNodeSelected())
             {
                 if (ImGui::MenuItem("Deselect Node", "ESC"))
-                    s->deselectAllNodes();
+                    s->deselectAllNodesAndMeshes();
 
                 ImGui::Separator();
 
@@ -2435,7 +2435,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
-            if (s->singleMeshSelected() == mesh)
+            if (s->singleMeshFullSelected() == mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
 
             ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
@@ -2459,8 +2459,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    SLNode* node = s->singleNodeSelected();
-    SLMesh* mesh = s->singleMeshSelected();
+    SLNode* singleNode = s->singleNodeSelected();
+    SLMesh* singleFullMesh = s->singleMeshFullSelected();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
@@ -2475,61 +2475,61 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     }
     else
     {
-        if (node && sv->camera()->selectedRect().isEmpty())
+        if (singleNode && singleFullMesh)
         {
 
             ImGui::Begin("Properties of Selection", &showProperties);
 
             if (ImGui::TreeNode("Single Node Properties"))
             {
-                if (node)
+                if (singleNode)
                 {
-                    SLuint c = (SLuint)node->children().size();
-                    SLuint m = (SLuint)node->meshes().size();
+                    SLuint c = (SLuint)singleNode->children().size();
+                    SLuint m = (SLuint)singleNode->meshes().size();
 
-                    ImGui::Text("Node Name       : %s", node->name().c_str());
+                    ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                     ImGui::Text("No. of children : %u", c);
                     ImGui::Text("No. of meshes   : %u", m);
                     if (ImGui::TreeNode("Drawing Flags"))
                     {
-                        SLbool db = node->drawBit(SL_DB_HIDDEN);
+                        SLbool db = singleNode->drawBit(SL_DB_HIDDEN);
                         if (ImGui::Checkbox("Hide", &db))
-                            node->drawBits()->set(SL_DB_HIDDEN, db);
+                            singleNode->drawBits()->set(SL_DB_HIDDEN, db);
 
-                        db = node->drawBit(SL_DB_MESHWIRED);
+                        db = singleNode->drawBit(SL_DB_MESHWIRED);
                         if (ImGui::Checkbox("Show wireframe", &db))
-                            node->drawBits()->set(SL_DB_MESHWIRED, db);
+                            singleNode->drawBits()->set(SL_DB_MESHWIRED, db);
 
-                        db = node->drawBit(SL_DB_NORMALS);
+                        db = singleNode->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
-                            node->drawBits()->set(SL_DB_NORMALS, db);
+                            singleNode->drawBits()->set(SL_DB_NORMALS, db);
 
-                        db = node->drawBit(SL_DB_VOXELS);
+                        db = singleNode->drawBit(SL_DB_VOXELS);
                         if (ImGui::Checkbox("Show voxels", &db))
-                            node->drawBits()->set(SL_DB_VOXELS, db);
+                            singleNode->drawBits()->set(SL_DB_VOXELS, db);
 
-                        db = node->drawBit(SL_DB_BBOX);
+                        db = singleNode->drawBit(SL_DB_BBOX);
                         if (ImGui::Checkbox("Show bounding boxes", &db))
-                            node->drawBits()->set(SL_DB_BBOX, db);
+                            singleNode->drawBits()->set(SL_DB_BBOX, db);
 
-                        db = node->drawBit(SL_DB_AXIS);
+                        db = singleNode->drawBit(SL_DB_AXIS);
                         if (ImGui::Checkbox("Show axis", &db))
-                            node->drawBits()->set(SL_DB_AXIS, db);
+                            singleNode->drawBits()->set(SL_DB_AXIS, db);
 
-                        db = node->drawBit(SL_DB_CULLOFF);
+                        db = singleNode->drawBit(SL_DB_CULLOFF);
                         if (ImGui::Checkbox("Show back faces", &db))
-                            node->drawBits()->set(SL_DB_CULLOFF, db);
+                            singleNode->drawBits()->set(SL_DB_CULLOFF, db);
 
-                        db = node->drawBit(SL_DB_TEXOFF);
+                        db = singleNode->drawBit(SL_DB_TEXOFF);
                         if (ImGui::Checkbox("No textures", &db))
-                            node->drawBits()->set(SL_DB_TEXOFF, db);
+                            singleNode->drawBits()->set(SL_DB_TEXOFF, db);
 
                         ImGui::TreePop();
                     }
 
                     if (ImGui::TreeNode("Local Transform"))
                     {
-                        SLMat4f om(node->om());
+                        SLMat4f om(singleNode->om());
                         SLVec3f trn, rot, scl;
                         om.decompose(trn, rot, scl);
                         rot *= Utils::RAD2DEG;
@@ -2541,9 +2541,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
 
                     // Show special camera properties
-                    if (typeid(*node) == typeid(SLCamera))
+                    if (typeid(*singleNode) == typeid(SLCamera))
                     {
-                        SLCamera* cam = (SLCamera*)node;
+                        SLCamera* cam = (SLCamera*)singleNode;
 
                         if (ImGui::TreeNode("Camera"))
                         {
@@ -2593,25 +2593,25 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
 
                     // Show special light properties
-                    if (typeid(*node) == typeid(SLLightSpot) ||
-                        typeid(*node) == typeid(SLLightRect) ||
-                        typeid(*node) == typeid(SLLightDirect))
+                    if (typeid(*singleNode) == typeid(SLLightSpot) ||
+                        typeid(*singleNode) == typeid(SLLightRect) ||
+                        typeid(*singleNode) == typeid(SLLightDirect))
                     {
                         SLLight* light = nullptr;
                         SLstring typeName;
-                        if (typeid(*node) == typeid(SLLightSpot))
+                        if (typeid(*singleNode) == typeid(SLLightSpot))
                         {
-                            light    = (SLLight*)(SLLightSpot*)node;
+                            light    = (SLLight*)(SLLightSpot*)singleNode;
                             typeName = "Light (spot):";
                         }
-                        if (typeid(*node) == typeid(SLLightRect))
+                        if (typeid(*singleNode) == typeid(SLLightRect))
                         {
-                            light    = (SLLight*)(SLLightRect*)node;
+                            light    = (SLLight*)(SLLightRect*)singleNode;
                             typeName = "Light (rectangular):";
                         }
-                        if (typeid(*node) == typeid(SLLightDirect))
+                        if (typeid(*singleNode) == typeid(SLLightDirect))
                         {
-                            light    = (SLLight*)(SLLightDirect*)node;
+                            light    = (SLLight*)(SLLightDirect*)singleNode;
                             typeName = "Light (directional):";
                         }
 
@@ -2676,12 +2676,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             ImGui::Separator();
             if (ImGui::TreeNode("Single Mesh Properties"))
             {
-                if (mesh)
+                if (singleFullMesh)
                 {
-                    SLuint      v = (SLuint)mesh->P.size();
-                    SLuint      t = (SLuint)(!mesh->I16.empty() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
-                    SLMaterial* m = mesh->mat();
-                    ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
+                    SLuint      v = (SLuint)singleFullMesh->P.size();
+                    SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
+                    SLMaterial* m = singleFullMesh->mat();
+                    ImGui::Text("Mesh Name       : %s", singleFullMesh->name().c_str());
                     ImGui::Text("No. of Vertices : %u", v);
                     ImGui::Text("No. of Triangles: %u", t);
 
@@ -2892,7 +2892,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 }
                 else
                 {
-                    ImGui::Text("No single mesh selected.");
+                    ImGui::Text("No single singleMesh selected.");
                 }
 
                 ImGui::TreePop();
@@ -2901,14 +2901,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             ImGui::PopStyleColor();
             ImGui::End();
         }
-        else if (!node && !sv->camera()->selectedRect().isEmpty())
+        else if (!singleFullMesh && !s->selectedMeshes().empty())
         {
             /* The selection rectangle is defined in SLScene::selectRect and gets set and
-        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-        not empty the SLScene::selectedNode is null. All vertices that are within the
-        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-        drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+            drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
+            not empty the SLScene::selectedNode is null. All vertices that are within the
+            selectRect are listed in SLMesh::IS32. The selection evaluation is done during
+            drawing in SLMesh::draw and is only valid for the current frame.
+            All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
 
             vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
 
@@ -2944,10 +2944,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             // Nothing is selected
             ImGui::Begin("Properties of Selection", &showProperties);
             ImGui::Text("There is nothing selected.");
-            ImGui::Text("Please select a single node");
-            ImGui::Text("by double-clicking or");
+            ImGui::Text("");
+            ImGui::Text("Select a single node by");
+            ImGui::Text("double-clicking it or");
             ImGui::Text("select multiple nodes by");
-            ImGui::Text("CTRL-LMB rectangle selection.");
+            ImGui::Text("SHIFT-double-clicking them.");
+            ImGui::Text("");
+            ImGui::Text("Select partial meshes by");
+            ImGui::Text("CTRL-LMB rectangle drawing.");
             ImGui::End();
         }
     }

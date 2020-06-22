@@ -489,6 +489,11 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     // 7: Draw selected mesh with points
     ////////////////////////////////////
+
+    /* The selection rectangle is defined in SLScene::selectRect and gets set and
+    drawn in SLCamera::onMouseDown, SLCamera::onMouseMove and SLCamere::onMouseUp.
+    */
+
     SLScene* s = &sv->s();
 
     // Single node and mesh is selected
@@ -501,36 +506,43 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else // rect selection is going on
     {
-        /* The selection rectangle is defined in SLScene::selectRect and gets set and
-        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-        not empty the SLScene::selectedNode is null. All vertices that are within the
-        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-        drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
-
         // Build full viewport-modelview-projection transform
         SLMat4f mvp = *stateGL->mvpMatrix();
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
         v.viewport((SLfloat)vp.x, (SLfloat)vp.y, (SLfloat)vp.width, (SLfloat)vp.height);
         SLMat4f v_mvp = v * mvp;
-        IS32.clear();
+        SLVuint tempIS32;
 
         // Transform all vertices and add the ones in the ROI to IS32
         for (SLulong i = 0; i < P.size(); ++i)
         {
             SLVec3f p = v_mvp * P[i];
             if (sv->camera()->selectedRect().contains(SLVec2f(p.x, p.y)))
-                IS32.push_back((SLuint)i);
+                tempIS32.push_back((SLuint)i);
         }
 
-        if (!IS32.empty())
+        // Flag node and mesh for the first time a mesh gets rectangle selected.
+        if (!tempIS32.empty() && !node->drawBits()->get(SL_DB_SELECTED) && !_isSelected)
         {
-            drawSelectedVertices();
             node->drawBits()->on(SL_DB_SELECTED);
+            s->selectedNodes().push_back(node);
+            _isSelected = true;
+            s->selectedMeshes().push_back(this);
+            drawSelectedVertices();
         }
-        else
-            node->drawBits()->off(SL_DB_SELECTED);
+
+        // Do not rect-select if the mesh is not selected because it got selected within another node.
+        if (node->drawBits()->get(SL_DB_SELECTED) && _isSelected)
+        {
+            if (!tempIS32.empty())
+            {
+                IS32 = tempIS32;
+            }
+
+            if (!IS32.empty())
+                drawSelectedVertices();
+        }
     }
 
     if (blended) stateGL->blend(true);

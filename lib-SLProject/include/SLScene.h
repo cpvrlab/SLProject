@@ -77,7 +77,9 @@ public:
     AvgFloat& updateAABBTimesMS() { return _updateAABBTimesMS; }
 
     SLNode*   singleNodeSelected() { return _selectedNodes.size() == 1 ? _selectedNodes[0] : nullptr; }
-    SLMesh*   singleMeshSelected() { return (_selectedNodes.size() == 1 && _selectedMeshes.size() == 1)
+    SLMesh*   singleMeshFullSelected() { return (_selectedNodes.size() == 1 &&
+                                           _selectedMeshes.size() == 1 &&
+                                           _selectedMeshes[0]->IS32.empty())
                                             ? _selectedMeshes[0]
                                             : nullptr; }
     SLVNode&  selectedNodes() { return _selectedNodes; }
@@ -93,9 +95,8 @@ public:
                           bool voxelsAreShown);
     void         init();
     virtual void unInit();
-    //void selectNode(SLNode* nodeToSelect);
-    void selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
-    void deselectAllNodes();
+    void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
+    void         deselectAllNodesAndMeshes();
 
     SLGLOculus* oculus() { return _oculus.get(); }
 
