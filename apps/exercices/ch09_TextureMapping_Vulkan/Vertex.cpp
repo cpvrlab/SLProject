@@ -1,14 +1,15 @@
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
-#include "math/SLVec3.h"
+#include <math\SLVec4.h>
 #include <array>
 
 //-----------------------------------------------------------------------------
 struct Vertex
 {
-    SLVec3f pos;
-    SLVec3f norm;
-    SLVec2f texCoord;
+    SLVec3f  pos;
+    SLVec3f  norm;
+    SLVCol4f texCoord;
+    SLVCol4f color;
 
     static VkVertexInputBindingDescription getBindingDescription()
     {
@@ -20,9 +21,9 @@ struct Vertex
         return bindingDescription;
     }
 
-    static array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
+    static array<VkVertexInputAttributeDescription, 4> getAttributeDescriptions()
     {
-        array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
+        array<VkVertexInputAttributeDescription, 4> attributeDescriptions = {};
 
         attributeDescriptions[0].binding  = 0;
         attributeDescriptions[0].location = 0;
@@ -38,6 +39,11 @@ struct Vertex
         attributeDescriptions[2].location = 2;
         attributeDescriptions[2].format   = VK_FORMAT_R32G32_SFLOAT;
         attributeDescriptions[2].offset   = offsetof(Vertex, texCoord);
+
+        attributeDescriptions[3].binding  = 0;
+        attributeDescriptions[3].location = 3;
+        attributeDescriptions[3].format   = VK_FORMAT_R32G32B32A32_SFLOAT;
+        attributeDescriptions[3].offset   = offsetof(Vertex, color);
 
         return attributeDescriptions;
     }

@@ -17,7 +17,7 @@ public:
     void update(uint32_t currentImage);
 
     // Getter
-    vector<Buffer*> buffers() const { return _buffers: }
+    vector<Buffer*> buffers() const { return _buffers; }
 
 private:
     Device&         _device;

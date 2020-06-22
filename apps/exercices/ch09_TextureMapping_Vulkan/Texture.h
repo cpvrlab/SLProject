@@ -14,20 +14,20 @@ class Texture : public Object
 {
 
 public:
-    Texture(string name, string filename);
-
+    Texture(string name, const string filename);
+    Texture(const Texture&) = default;
     void load();
 
     // Getter
-    uint   imageHeight(int index) { return _images[index]->height(); };
-    uint   imageWidth(int index) { return _images[index]->width(); };
-    uchar* imageData(int index) { return _images[index]->data(); };
+    uint   imageHeight() { return _image.height(); };
+    uint   imageWidth() { return _image.width(); };
+    uchar* imageData() { return _image.data(); };
 
 protected:
-    string   _filename; //!< path and filename of the texture image file
-    CVVImage _images;   //!< vector of opencv images
+    string  _filename; //!< path and filename of the texture image file
+    CVImage _image;    //!< opencv image
 };
 //-----------------------------------------------------------------------------
-typedef vector<Texture> VTexture;
+typedef vector<Texture*> VTexture;
 //-----------------------------------------------------------------------------
 #endif

@@ -2,7 +2,7 @@
 
 void CommandBuffer::destroy()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
         vkFreeCommandBuffers(_device.handle(), _device.commandPool(), 1, &_handle);
 
     for (size_t i = 0; i < _handles.size(); i++)

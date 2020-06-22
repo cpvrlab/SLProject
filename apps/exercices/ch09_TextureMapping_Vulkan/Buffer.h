@@ -2,6 +2,7 @@
 
 #include <Device.h>
 #include <CommandBuffer.h>
+#include <SLVec4.h>
 
 struct Vertex;
 
@@ -11,12 +12,16 @@ class Buffer
 public:
     Buffer(Device& device) : _device{device} {};
     void     destroy();
-    void     free();
     uint32_t findMemoryType(uint32_t              typeFilter,
                             VkMemoryPropertyFlags properties);
     void     copy(Buffer src, VkDeviceSize size);
     void     createVertexBuffer(const vector<Vertex>& vertices);
-    void     createIndexBuffer(const vector<uint16_t> indices);
+    void     createVertexBuffer(const SLVVec3f pos,
+                                const SLVVec3f norm,
+                                const SLVVec2f texCoord,
+                                const SLVCol4f color,
+                                const size_t   size);
+    void     createIndexBuffer(const SLVuint indices);
     void     createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
 
     // Getter

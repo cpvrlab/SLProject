@@ -15,9 +15,9 @@ public:
     void build();
 
     // Setter
-    void setRadius(float radius) { _radius = radius; }
-    void setStacks(float stacks) { _stacks = stacks; }
-    void setSlices(float slices) { _slices = slices; }
+    // void setRadius(float radius) { _radius = radius; }
+    // void setStacks(float stacks) { _stacks = stacks; }
+    // void setSlices(float slices) { _slices = slices; }
 
     // Getters
     float radius() { return _radius; }

@@ -10,12 +10,6 @@ void Buffer::destroy()
     }
 }
 //-----------------------------------------------------------------------------
-void Buffer::free()
-{
-    vkDestroyBuffer(_device.handle(), _handle, nullptr);
-    vkFreeMemory(_device.handle(), _memory, nullptr);
-}
-//-----------------------------------------------------------------------------
 void Buffer::createBuffer(VkDeviceSize          size,
                           VkBufferUsageFlags    usage,
                           VkMemoryPropertyFlags properties)
@@ -70,10 +64,6 @@ void Buffer::copy(Buffer src, VkDeviceSize size)
     vkCmdCopyBuffer(commandBuffer.handle(), src.handle(), _handle, 1, &copyRegion);
 
     commandBuffer.end();
-
-    // TODO: Find a better solution
-    // _handle = src._handle;
-    // _memory = src._memory;
 }
 //-----------------------------------------------------------------------------
 void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
@@ -96,10 +86,59 @@ void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 
     copy(stagingBuffer, bufferSize);
 
-    stagingBuffer.free();
+    stagingBuffer.destroy();
 }
 //-----------------------------------------------------------------------------
-void Buffer::createIndexBuffer(const vector<uint16_t> indices)
+void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const SLVVec2f texCoord, const SLVCol4f color, const size_t size)
+{
+    size_t       singleBufferSize = sizeof(SLVec3f) + sizeof(SLVec3f) + sizeof(SLVec2f) + sizeof(SLVCol4f);
+    VkDeviceSize totalBufferSize  = singleBufferSize * size;
+
+    Buffer stagingBuffer = Buffer(_device);
+    stagingBuffer.createBuffer(totalBufferSize,
+                               VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    void* data;
+    vkMapMemory(_device.handle(), stagingBuffer._memory, 0, totalBufferSize, 0, &data);
+#if 0
+    for (size_t i = 0; i < size; i++)
+    {
+        size_t copiedSize = i * singleBufferSize;
+        memcpy((data + copiedSize), &pos[i], sizeof(SLVec3f));
+        copiedSize += sizeof(SLVec3f);
+        memcpy((data + copiedSize), &norm[i], sizeof(SLVec3f));
+        copiedSize += sizeof(SLVec3f);
+        memcpy((data + copiedSize), &texCoord[i], sizeof(SLVec2f));
+        copiedSize += sizeof(SLVec3f);
+        memcpy((data + copiedSize), &color[i], sizeof(SLCol4f));
+    }
+#else
+    char* temp = (char*)malloc(totalBufferSize);
+    for (size_t i = 0; i < size; i++)
+    {
+        memcpy((temp), &pos[i], sizeof(SLVec3f));
+        memcpy((temp += sizeof(SLVec3f)), &norm[i], sizeof(SLVec3f));
+        memcpy((temp += sizeof(SLVec3f)), &texCoord[i], sizeof(SLVec2f));
+        memcpy((temp += sizeof(SLVec2f)), &color[i], sizeof(SLVCol4f));
+        temp += sizeof(SLVCol4f);
+    }
+    temp -= totalBufferSize;
+    memcpy(data, temp, totalBufferSize);
+    free(temp);
+#endif
+    vkUnmapMemory(_device.handle(), stagingBuffer._memory);
+
+    createBuffer(totalBufferSize,
+                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    copy(stagingBuffer, totalBufferSize);
+
+    stagingBuffer.destroy();
+}
+//-----------------------------------------------------------------------------
+void Buffer::createIndexBuffer(const SLVuint indices)
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
@@ -120,6 +159,6 @@ void Buffer::createIndexBuffer(const vector<uint16_t> indices)
 
     copy(stagingBuffer, bufferSize);
 
-    stagingBuffer.free();
+    stagingBuffer.destroy();
 }
 //-----------------------------------------------------------------------------

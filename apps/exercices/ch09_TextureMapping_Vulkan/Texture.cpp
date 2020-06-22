@@ -1,13 +1,11 @@
 #include "Texture.h"
 
-Texture::Texture(string name, string filename) : Object(name), _filename(filename)
+Texture::Texture(string name, const string filename) : Object(name), _filename(filename)
 {
-    load();
+    _image.load(filename);
 }
 
 void Texture::load()
 {
-    CVImage image;
-    image.load(_filename);
-    _images.push_back(&image);
+    // _image.load(_filename);
 }

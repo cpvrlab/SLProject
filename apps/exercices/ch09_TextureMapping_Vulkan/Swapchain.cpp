@@ -62,7 +62,7 @@ void Swapchain::destroy()
         if (_imageViews[i] != VK_NULL_HANDLE)
             vkDestroyImageView(_device.handle(), _imageViews[i], nullptr);
 
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
         vkDestroySwapchainKHR(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

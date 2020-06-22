@@ -35,7 +35,7 @@ public:
     VTexture    textures() { return _textures; }
     GPUProgram* program() { return _program; }
 
-    void addTexture(Texture& texture);
+    void addTexture(Texture* texture);
 
 protected:
     SLCol4f     _ambient;   //!< ambient color (RGB reflection coefficients)

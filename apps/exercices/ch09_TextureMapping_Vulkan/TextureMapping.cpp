@@ -64,82 +64,6 @@ int  _rotX, _rotY;
 bool _mouseLeftDown;
 
 //-----------------------------------------------------------------------------
-void buildSphere(float radius, GLuint stacks, GLuint slices, std::vector<Vertex>& vertices, std::vector<uint16_t>& indices)
-{
-    assert(stacks > 3 && slices > 3);
-
-    // create vertex array
-    unsigned int numV = (stacks + 1) * (slices + 1);
-    // std::vector<Vertex> vertices(numV);
-    vertices.resize(numV);
-
-    float  theta, dtheta; // angles around x-axis
-    float  phi, dphi;     // angles around z-axis
-    GLuint i, j;          // loop counters
-    GLuint iv = 0;
-
-    // init start values
-    theta  = 0.0f;
-    dtheta = Utils::PI / stacks;
-    dphi   = 2.0f * Utils::PI / slices;
-
-    // Define vertex position & normals by looping through all stacks
-    for (i = 0; i <= stacks; ++i)
-    {
-        float sin_theta = sin(theta);
-        float cos_theta = cos(theta);
-        phi             = 0.0f;
-
-        // Loop through all slices
-        for (j = 0; j <= slices; ++j)
-        {
-            if (j == slices) phi = 0.0f;
-
-            // define first the normal with length 1
-            vertices[iv].norm.x = sin_theta * cos(phi);
-            vertices[iv].norm.y = sin_theta * sin(phi);
-            vertices[iv].norm.z = cos_theta;
-
-            // set the vertex position w. the scaled normal
-            vertices[iv].pos.x = radius * vertices[iv].norm.x;
-            vertices[iv].pos.y = radius * vertices[iv].norm.y;
-            vertices[iv].pos.z = radius * vertices[iv].norm.z;
-
-            // set the texture coords.
-            vertices[iv].texCoord.x = asin(vertices[iv].norm.x) / Utils::PI + 0.5f;
-            vertices[iv].texCoord.y = -asin(vertices[iv].norm.y) / Utils::PI + 0.5f;
-
-            phi += dphi;
-            iv++;
-        }
-        theta += dtheta;
-    }
-
-    // create Index array x
-    unsigned int numI = (GLuint)(slices * stacks * 2 * 3);
-    indices.resize(numI);
-    GLuint ii = 0, iV1, iV2;
-
-    for (i = 0; i < stacks; ++i)
-    {
-        // index of 1st & 2nd vertex of stack
-        iV1 = i * (slices + 1);
-        iV2 = iV1 + slices + 1;
-
-        for (j = 0; j < slices; ++j)
-        { // 1st triangle ccw
-            indices[ii++] = iV1 + j;
-            indices[ii++] = iV2 + j;
-            indices[ii++] = iV2 + j + 1;
-            // 2nd triangle ccw
-            indices[ii++] = iV1 + j;
-            indices[ii++] = iV2 + j + 1;
-            indices[ii++] = iV1 + j + 1;
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
 void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
     SLint x = _mouseX;
@@ -236,9 +160,9 @@ int main()
 {
     initWindow();
     // Needed data
-    Texture  texture  = Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/ data / images / textures / tree1_1024_C.png ");
+    Texture  texture  = Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
     Material material = Material("Texture");
-    material.addTexture(texture);
+    material.addTexture(&texture);
     Sphere sphere = Sphere("Simple_Sphere", 0.5f, 32, 32);
     Node   node   = Node("Sphere");
     node.AddMesh(&sphere);
@@ -261,22 +185,20 @@ int main()
     Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
 
     // Texture setup
-    CVImage texture;
-    texture.load(SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png", false, false);
-    TextureImage textureImage   = TextureImage(device, texture.data(), texture.width(), texture.height());
-    Sampler      textureSampler = Sampler(device);
+    TextureImage textureImage = TextureImage(device, texture.imageData(), texture.imageWidth(), texture.imageHeight());
 
     // Mesh setup
     Buffer indexBuffer = Buffer(device);
-    indexBuffer.createIndexBuffer(indices);
+    indexBuffer.createIndexBuffer(sphere.I32);
     UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix, SLMat4f(0.0f, 0.0f, 0.0f));
     DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
-    DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureSampler, textureImage);
+    Sampler&       s              = textureImage.sampler();
+    DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureImage.sampler(), textureImage);
     Buffer         vertexBuffer   = Buffer(device);
-    vertexBuffer.createVertexBuffer(vertices);
+    vertexBuffer.createVertexBuffer(sphere.P, sphere.N, sphere.Tc, sphere.C, sphere.P.size() / 3);
     // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
-    commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)indices.size());
+    commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)sphere.I32.size());
     device.createSyncObjects(swapchain);
 
     // Render
@@ -299,7 +221,7 @@ int main()
     descriptorPool.destroy();
     descriptorSetLayout.destroy();
     textureImage.destroy();
-    textureSampler.destroy();
+    // textureSampler.destroy();
     indexBuffer.destroy();
     vertexBuffer.destroy();
     vertShaderModule.destroy();

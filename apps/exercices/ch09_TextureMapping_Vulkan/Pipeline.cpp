@@ -7,10 +7,10 @@ Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& de
 
 void Pipeline::destroy()
 {
-    if (graphicsPipeline != VK_NULL_HANDLE)
+    if (_graphicsPipeline != VK_NULL_HANDLE)
         vkDestroyPipeline(_device.handle(), _graphicsPipeline, nullptr);
 
-    if (pipelineLayout != VK_NULL_HANDLE)
+    if (_pipelineLayout != VK_NULL_HANDLE)
         vkDestroyPipelineLayout(_device.handle(), _pipelineLayout, nullptr);
 }
 
@@ -38,15 +38,13 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
         vkWaitForFences(_device.handle(), 1, &_device.imagesInFlight()[imageIndex], VK_TRUE, UINT64_MAX);
     _device.imagesInFlight()[imageIndex] = _device.inFlightFences()[_currentFrame];
 
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
     VkSemaphore          waitSemaphores[] = {_device.imageAvailableSemaphores()[_currentFrame]};
     VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount         = 1;
-    submitInfo.pWaitSemaphores            = waitSemaphores;
-    submitInfo.pWaitDstStageMask          = waitStages;
-
+    VkSubmitInfo         submitInfo{};
+    submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores    = waitSemaphores;
+    submitInfo.pWaitDstStageMask  = waitStages;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &commandBuffer.handles()[imageIndex];
 
@@ -65,9 +63,9 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores    = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = {swapchain.handle()};
+    VkSwapchainKHR swapchains[] = {swapchain.handle()};
     presentInfo.swapchainCount  = 1;
-    presentInfo.pSwapchains     = swapChains;
+    presentInfo.pSwapchains     = swapchains;
 
     presentInfo.pImageIndices = &imageIndex;
 
@@ -80,9 +78,9 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
 
 void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout, VkRenderPass renderPass, VkShaderModule vertShader, VkShaderModule fragShader)
 {
-    auto                                 attributeDescriptions = Vertex::getAttributeDescriptions();
-    VkVertexInputBindingDescription      bindingDescription    = Vertex::getBindingDescription();
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+    array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Vertex::getAttributeDescriptions();
+    VkVertexInputBindingDescription             bindingDescription    = Vertex::getBindingDescription();
+    VkPipelineVertexInputStateCreateInfo        vertexInputInfo{};
     vertexInputInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount   = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

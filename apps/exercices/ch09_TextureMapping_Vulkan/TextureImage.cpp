@@ -43,10 +43,11 @@ TextureImage::TextureImage(Device&      _device,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    buffer.free();
+    buffer.destroy();
 
     _imageView = createImageView(_image, VK_FORMAT_R8G8B8A8_SRGB);
-    _sampler   = &Sampler(_device);
+    // _sampler   = (Sampler*)malloc(sizeof(Sampler));
+    _sampler = new Sampler(_device);
 }
 //-----------------------------------------------------------------------------
 void TextureImage::destroy()
@@ -54,17 +55,14 @@ void TextureImage::destroy()
     if (_imageView != VK_NULL_HANDLE)
         vkDestroyImageView(_device.handle(), _imageView, nullptr);
 
-    // if (buffer != nullptr)
-    // {
-    //     buffer->destroy();
-    //     delete (buffer);
-    // }
-
     if (_image != VK_NULL_HANDLE)
     {
         vkDestroyImage(_device.handle(), _image, nullptr);
         vkFreeMemory(_device.handle(), _imageMemory, nullptr);
     }
+
+    _sampler->destroy();
+    free(_sampler);
 }
 //-----------------------------------------------------------------------------
 void TextureImage::createImage(uint32_t              width,

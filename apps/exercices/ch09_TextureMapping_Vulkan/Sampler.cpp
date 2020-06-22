@@ -24,7 +24,7 @@ Sampler::Sampler(Device& device) : _device{device}
 //-----------------------------------------------------------------------------
 void Sampler::destroy()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
         vkDestroySampler(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

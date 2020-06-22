@@ -46,7 +46,7 @@ RenderPass::RenderPass(Device&    device,
 //-----------------------------------------------------------------------------
 void RenderPass::destroy()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
         vkDestroyRenderPass(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

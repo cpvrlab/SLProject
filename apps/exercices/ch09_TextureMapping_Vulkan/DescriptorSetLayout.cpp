@@ -33,7 +33,7 @@ DescriptorSetLayout::DescriptorSetLayout(Device& device) : _device{device}
 //-----------------------------------------------------------------------------
 void DescriptorSetLayout::destroy()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
         vkDestroyDescriptorSetLayout(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

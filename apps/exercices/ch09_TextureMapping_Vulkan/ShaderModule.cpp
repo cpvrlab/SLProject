@@ -10,7 +10,7 @@ ShaderModule::ShaderModule(Device&       _device,
 //-----------------------------------------------------------------------------
 void ShaderModule::destroy()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (_handle != VK_NULL_HANDLE)
         vkDestroyShaderModule(_device.handle(), _handle, nullptr);
 }
 //-----------------------------------------------------------------------------

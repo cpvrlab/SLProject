@@ -20,6 +20,7 @@ public:
     // Getter
     VkImage     image() const { return _image; }
     VkImageView imageView() const { return _imageView; }
+    Sampler&    sampler() const { return *_sampler; }
 
     // Setter
     void setSampler(Sampler& sampler) { _sampler = &sampler; }
