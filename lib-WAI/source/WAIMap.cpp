@@ -189,6 +189,51 @@ void WAIMap::clear()
     WAIFrame::nNextId    = 0;
 }
 //-----------------------------------------------------------------------------
+
+void WAIMap::transform(cv::Mat transform)
+{
+    cv::Mat t;
+    cv::transpose(transform, t);
+    cv::Mat s2 = t * transform;
+    float s = sqrt(s2.at<float>(0,0));
+
+    t = transform.clone();
+    t.rowRange(0,3).col(0) *= 1.0/s;
+    t.rowRange(0,3).col(1) *= 1.0/s;
+    t.rowRange(0,3).col(2) *= 1.0/s;
+
+    std::cout << transform << std::endl;
+    std::cout << s << std::endl;
+    std::cout << t << std::endl << std::endl;
+
+    for (auto& kf : mspKeyFrames)
+    {
+        cv::Mat m = kf->GetPose();
+        m.col(3) *= s;
+
+        kf->SetPose(m*t);
+    }
+
+    int i = 0;
+    //transform keypoints
+    for (auto& pt : mspMapPoints)
+    {
+        cv::Mat p = (cv::Mat_<float>(4, 1) << 0, 0, 0, 1.0f);
+        cv::Mat wp = pt->GetWorldPos();
+        wp.copyTo(p.rowRange(0, 3));
+        p = transform * p;
+        p.rowRange(0,3).copyTo(wp);
+        pt->SetWorldPos(wp);
+    }
+
+    for (auto& mp : mspMapPoints)
+    {
+        //mean viewing direction and depth
+        mp->UpdateNormalAndDepth();
+        mp->ComputeDistinctiveDescriptors();
+    }
+}
+
 void WAIMap::rotate(float degVal, int type)
 {
     //transform to degree

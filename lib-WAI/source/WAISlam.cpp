@@ -1,5 +1,4 @@
 #include <WAISlam.h>
-#include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 #include <Utils.h>
 
@@ -231,7 +230,7 @@ void WAISlam::resume()
 {
     std::unique_lock<std::mutex> lock(_stateMutex);
     _isStop = false;
-    _localMapping->Release();
+    _localMapping->RequestContinue();
     _state = WAI::TrackingState_TrackingLost;
 }
 
@@ -469,6 +468,25 @@ bool WAISlam::isTracking()
 bool WAISlam::retainImage()
 {
     return false;
+}
+
+void WAISlam::transformCoords(cv::Mat transform)
+{
+    _localMapping->RequestStop();
+
+    _localMap.keyFrames.clear();
+    _localMap.mapPoints.clear();
+    _localMap.refKF = nullptr;
+
+    //_lastKeyFrameFrameId = 0;
+    //_lastRelocFrameId    = 0;
+
+    WAIMap*  map = _globalMap.get();
+
+    map->transform(transform);
+
+    _initialized = true;
+    _localMapping->RequestContinue();
 }
 
 void WAISlam::setMap(std::unique_ptr<WAIMap> globalMap)
