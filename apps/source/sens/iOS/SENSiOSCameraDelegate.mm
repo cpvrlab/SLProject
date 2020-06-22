@@ -226,17 +226,18 @@
 
     for (AVCaptureDevice* device in devices)
     {
-        SENSCameraCharacteristics characs;
         //device id
-        characs.cameraId = [[device uniqueID] UTF8String];
+        std::string deviceId = [[device uniqueID] UTF8String];
+        SENSCameraFacing facing;
         //facing
         if (AVCaptureDevicePositionFront == [device position])
-            characs.facing = SENSCameraFacing::FRONT;
+            facing = SENSCameraFacing::FRONT;
         else if (AVCaptureDevicePositionBack == [device position])
-            characs.facing = SENSCameraFacing::BACK;
+            facing = SENSCameraFacing::BACK;
         else
-            characs.facing = SENSCameraFacing::UNKNOWN;
+            facing = SENSCameraFacing::UNKNOWN;
         
+        SENSCameraCharacteristics characs(deviceId, facing);
         //Make sure we have a capture session to retrieve AVCaptureSessionPresent
         if (nil == m_captureSession)
         {
@@ -256,13 +257,13 @@
                 if ([m_captureSession canSetSessionPreset:cameraResolutionPreset])
                 {
                     //float minFrameRate = [format
-                    if(!characs.streamConfig.contains({w, h}))
+                    if(!characs.contains({w, h}))
                     {
                         //calculate focal length in pixel from horizontal field of view
                         float horizFovDeg = [format videoFieldOfView];
                         float focalLengthPix = SENS::calcFocalLengthPixFromFOVDeg(horizFovDeg, w);
                         
-                        characs.streamConfig.add(w, h, focalLengthPix);
+                        characs.add(w, h, focalLengthPix);
                     }
                 }
             }
