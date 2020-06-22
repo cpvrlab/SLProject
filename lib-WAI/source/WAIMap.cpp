@@ -195,23 +195,29 @@ void WAIMap::transform(cv::Mat transform)
     cv::Mat t;
     cv::transpose(transform, t);
     cv::Mat s2 = t * transform;
-    float s = sqrt(s2.at<float>(0,0));
+    float sx, sy, sz;
+    sx = sqrt(s2.at<float>(0,0));
+    sy = sqrt(s2.at<float>(1,1));
+    sz = sqrt(s2.at<float>(2,2));
 
     t = transform.clone();
-    t.rowRange(0,3).col(0) *= 1.0/s;
-    t.rowRange(0,3).col(1) *= 1.0/s;
-    t.rowRange(0,3).col(2) *= 1.0/s;
+    t.rowRange(0,3).col(0) *= 1.0f/sx;
+    t.rowRange(0,3).col(1) *= 1.0f/sy;
+    t.rowRange(0,3).col(2) *= 1.0f/sz;
 
-    std::cout << transform << std::endl;
-    std::cout << s << std::endl;
-    std::cout << t << std::endl << std::endl;
-
+    Mat Twc;
+    Mat Tcw;
     for (auto& kf : mspKeyFrames)
     {
-        cv::Mat m = kf->GetPose();
-        m.col(3) *= s;
-
-        kf->SetPose(m*t);
+        //get and rotate
+        Tcw = kf->GetPose();
+        Tcw.at<float>(0, 3) *= sx;
+        Tcw.at<float>(1, 3) *= sy;
+        Tcw.at<float>(2, 3) *= sz;
+        Twc = Tcw.inv();
+        Twc = t * Twc;
+        //set back
+        kf->SetPose(Twc.inv());
     }
 
     int i = 0;

@@ -478,9 +478,6 @@ void WAISlam::transformCoords(cv::Mat transform)
     _localMap.mapPoints.clear();
     _localMap.refKF = nullptr;
 
-    //_lastKeyFrameFrameId = 0;
-    //_lastRelocFrameId    = 0;
-
     WAIMap*  map = _globalMap.get();
 
     map->transform(transform);
