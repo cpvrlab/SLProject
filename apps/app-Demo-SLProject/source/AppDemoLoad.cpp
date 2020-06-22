@@ -173,6 +173,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         floorRect->translate(0, 0, -5.5f);
         ceilingRect->rotate(90, 1, 0, 0);
         ceilingRect->translate(0, 0, -5.5f);
+        ceilingRect->drawBits()->on(SL_DB_NOTSELECTABLE);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 22);

@@ -2426,7 +2426,10 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     bool nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
 
     if (ImGui::IsItemClicked())
+    {
+        s->deselectAllNodesAndMeshes();
         s->selectNodeMesh(node, nullptr);
+    }
 
     if (nodeIsOpen)
     {
@@ -2441,7 +2444,10 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
+            {
+                s->deselectAllNodesAndMeshes();
                 s->selectNodeMesh(node, mesh);
+            }
 
             ImGui::TreePop();
             ImGui::PopStyleColor();
@@ -2459,8 +2465,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    SLNode* singleNode = s->singleNodeSelected();
-    SLMesh* singleFullMesh = s->singleMeshFullSelected();
+    SLNode* singleNode       = s->singleNodeSelected();
+    SLMesh* singleFullMesh   = s->singleMeshFullSelected();
+    bool    partialSelection = !s->selectedMeshes().empty() && !s->selectedMeshes()[0]->IS32.empty();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
@@ -2475,9 +2482,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     }
     else
     {
-        if (singleNode && singleFullMesh)
+        // Only single node and no partial mesh selection
+        if (singleNode && !partialSelection)
         {
-
             ImGui::Begin("Properties of Selection", &showProperties);
 
             if (ImGui::TreeNode("Single Node Properties"))
@@ -2495,6 +2502,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         SLbool db = singleNode->drawBit(SL_DB_HIDDEN);
                         if (ImGui::Checkbox("Hide", &db))
                             singleNode->drawBits()->set(SL_DB_HIDDEN, db);
+
+                        db = singleNode->drawBit(SL_DB_NOTSELECTABLE);
+                        if (ImGui::Checkbox("Not selectable", &db))
+                            singleNode->drawBits()->set(SL_DB_NOTSELECTABLE, db);
 
                         db = singleNode->drawBit(SL_DB_MESHWIRED);
                         if (ImGui::Checkbox("Show wireframe", &db))
@@ -2674,9 +2685,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Separator();
-            if (ImGui::TreeNode("Single Mesh Properties"))
+
+            if (singleFullMesh)
             {
-                if (singleFullMesh)
+                // See also SLScene::selectNodeMesh
+                if (ImGui::TreeNode("Single Mesh Properties"))
                 {
                     SLuint      v = (SLuint)singleFullMesh->P.size();
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
@@ -2889,13 +2902,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         ImGui::TreePop();
                     }
-                }
-                else
-                {
-                    ImGui::Text("No single singleMesh selected.");
-                }
 
-                ImGui::TreePop();
+                    ImGui::TreePop();
+                }
+            }
+            else
+            {
+                ImGui::Text("No single single mesh selected.");
             }
 
             ImGui::PopStyleColor();
@@ -2903,18 +2916,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         }
         else if (!singleFullMesh && !s->selectedMeshes().empty())
         {
-            /* The selection rectangle is defined in SLScene::selectRect and gets set and
-            drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-            not empty the SLScene::selectedNode is null. All vertices that are within the
-            selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-            drawing in SLMesh::draw and is only valid for the current frame.
-            All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
-
-            vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
-
+            // See also SLMesh::handleRectangleSelection
             ImGui::Begin("Properties of Selection", &showProperties);
 
-            for (auto* selectedNode : selectedNodes)
+            for (auto* selectedNode : s->selectedNodes())
             {
                 if (!selectedNode->meshes().empty())
                 {
@@ -2952,6 +2957,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             ImGui::Text("");
             ImGui::Text("Select partial meshes by");
             ImGui::Text("CTRL-LMB rectangle drawing.");
+            ImGui::Text("");
+            ImGui::Text("Press ESC to deselect all.");
+            ImGui::Text("");
+            ImGui::Text("Be aware that a node may be");
+            ImGui::Text("flagged as not selectable.");
             ImGui::End();
         }
     }

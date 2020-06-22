@@ -358,7 +358,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     stateGL->cullFace(!noFaceCulling);
 
     // check if texture exists
-    //SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
+    //bool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
@@ -490,19 +490,38 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 7: Draw selected mesh with points
     ////////////////////////////////////
 
-    /* The selection rectangle is defined in SLScene::selectRect and gets set and
-    drawn in SLCamera::onMouseDown, SLCamera::onMouseMove and SLCamere::onMouseUp.
-    */
+    if (!node->drawBit(SL_DB_NOTSELECTABLE))
+        handleRectangleSelection(sv, stateGL, node);
 
+    if (blended)
+        stateGL->blend(true);
+}
+//-----------------------------------------------------------------------------
+//! Handles the rectangle section of mesh vertices (partial selection)
+/*
+ There are two different selection modes: Full or partial mesh selection.
+ <br>
+ The full selection is done by double-clicking a mesh. For more information
+ see SLScene::selectNodeMesh.
+ <br>
+ Partial meshes can be selected by drawing a rectangle with CTRL-LMB. The
+ selection rectangle is defined in the SLCamera::selectRect and gets set
+ in SLCamera::onMouseDown, SLCamera::onMouseMove and SLCamera::onMouseUp.
+ The partial selection in SLMesh::handleRectangleSelection. The selected
+ vertices are stored in SLMesh::IS32. A mesh that is used in multiple nodes
+ can only be partially selected from one node.
+*/
+void SLMesh::handleRectangleSelection(SLSceneView* sv,
+                                      SLGLState*   stateGL,
+                                      SLNode*      node)
+{
     SLScene* s = &sv->s();
 
     // Single node and mesh is selected
     if (sv->camera()->selectedRect().isEmpty())
     {
-        if (node->drawBits()->get(SL_DB_SELECTED) && _isSelected)
-        {
+        if (node->isSelected() && _isSelected)
             drawSelectedVertices();
-        }
     }
     else // rect selection is going on
     {
@@ -510,7 +529,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         SLMat4f mvp = *stateGL->mvpMatrix();
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
-        v.viewport((SLfloat)vp.x, (SLfloat)vp.y, (SLfloat)vp.width, (SLfloat)vp.height);
+        v.viewport((SLfloat)vp.x,
+                   (SLfloat)vp.y,
+                   (SLfloat)vp.width,
+                   (SLfloat)vp.height);
         SLMat4f v_mvp = v * mvp;
         SLVuint tempIS32;
 
@@ -523,29 +545,32 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         }
 
         // Flag node and mesh for the first time a mesh gets rectangle selected.
-        if (!tempIS32.empty() && !node->drawBits()->get(SL_DB_SELECTED) && !_isSelected)
+        if (!tempIS32.empty() && !node->isSelected() && !_isSelected)
         {
-            node->drawBits()->on(SL_DB_SELECTED);
+            node->isSelected(true);
             s->selectedNodes().push_back(node);
             _isSelected = true;
             s->selectedMeshes().push_back(this);
             drawSelectedVertices();
         }
 
-        // Do not rect-select if the mesh is not selected because it got selected within another node.
-        if (node->drawBits()->get(SL_DB_SELECTED) && _isSelected)
+        // Do not rect-select if the mesh is not selected because it got
+        // selected within another node.
+        if (node->isSelected() && _isSelected)
         {
             if (!tempIS32.empty())
-            {
                 IS32 = tempIS32;
-            }
 
             if (!IS32.empty())
                 drawSelectedVertices();
         }
     }
-
-    if (blended) stateGL->blend(true);
+}
+//-----------------------------------------------------------------------------
+void SLMesh::deselectPartialSelection()
+{
+    _vaoS.clearAttribs();
+    IS32.clear();
 }
 //-----------------------------------------------------------------------------
 /*! If the entire mesh is selected all points will be drawn with an the vertex
@@ -576,12 +601,6 @@ void SLMesh::drawSelectedVertices()
     stateGL->polygonOffset(false);
     stateGL->depthMask(true);
     stateGL->depthTest(true);
-}
-//-----------------------------------------------------------------------------
-void SLMesh::deselectPartialSelection()
-{
-    _vaoS.clearAttribs();
-    IS32.clear();
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program

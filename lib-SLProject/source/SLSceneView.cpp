@@ -842,7 +842,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
         {
             // Draw first AABB of the shapes but not the camera
             if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
-                !node->drawBit(SL_DB_SELECTED))
+                !node->isSelected())
             {
                 if (node->numMeshes() > 0)
                     node->aabb()->drawWS(SLCol3f::RED);
@@ -851,7 +851,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             }
 
             // Draw AABB for selected shapes
-            if (node->drawBit(SL_DB_SELECTED))
+            if (node->isSelected())
             {
                 node->aabb()->drawWS(SLCol3f::YELLOW);
             }
@@ -876,7 +876,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
         {
             if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS) ||
                 drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON) ||
-                node->drawBit(SL_DB_SELECTED))
+                node->isSelected())
             {
                 // Set the view transform
                 SLGLState* stateGL = SLGLState::instance();
@@ -888,7 +888,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 // Draw axis
                 if (drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_AXIS) ||
-                    node->drawBit(SL_DB_SELECTED))
+                    node->isSelected())
                 {
                     node->aabb()->drawAxisWS();
                 }
@@ -985,14 +985,7 @@ void SLSceneView::draw2DGL()
             // 3. Draw all 2D nodes opaque
             draw2DGLNodes();
 
-            // Draw selection rectangle
-            /* The selection rectangle is defined in SLScene::selectRect and gets set and
-        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-        not empty the SLScene::selectedNode is null. All vertices that are within the
-        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-        drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
-
+            // Draw selection rectangle. See also SLMesh::handleRectangleSelection
             if (!_camera->selectedRect().isEmpty())
             {
                 stateGL->pushModelViewMatrix();

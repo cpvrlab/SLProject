@@ -212,31 +212,64 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------
-//! Adds or removes the passed node and mesh to _selectedNodes and _selectedMeshes
-/*! If one node is selected a rectangle selection is reset to zero.
-The drawing of the selection is done in SLMesh::draw and SLAABBox::drawWS.
+//! Handles the full mesh selection from double-clicks.
+/*!
+ There are two different selection modes: Full or partial mesh selection.
+ <br>
+ The full selection is done by double-clicking a mesh. Multiple meshes can be
+ selected with SHIFT-double-clicking. The full selection is handled in
+ SLScene::selectNodeMesh. The selected nodes are stored in SLScene::_selectedNodes
+ and the fully or partially selected meshes are stored in SLScene::_selectedMeshes.
+ The SLNode::isSelected and SLMesh::isSelected show if a node or mesh is
+ selected. A node can be selected with or without a mesh. If a mesh is
+ selected, its node is always also selected. To avoid a node from selection
+ you can set its drawing bit SL_DB_NOTSELECTABLE. You should transform a
+ node or mesh and show the properties of a node or mesh if only a single
+ node and single full mesh is selected. To get them call
+ SLScene::singleNodeSelected() or SLScene::singleMeshFullSelected().
+ <br>
+ For partial mesh selection see SLMesh::handleRectangleSelection.
 */
 void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
 {
-    // Case 0: Both are nullptr, so unselect all
+    // Case 1: Both are nullptr, so unselect all
     if (!nodeToSelect && !meshToSelect)
     {
         deselectAllNodesAndMeshes();
         return;
     }
 
-    // Case 1: one of each is nullptr: this is not allowed
-    if ((!nodeToSelect && meshToSelect) || (nodeToSelect && !meshToSelect))
+    if (nodeToSelect->drawBit(SL_DB_NOTSELECTABLE))
+    {
+        SL_LOG("Node is not selectable: %s", nodeToSelect->name().c_str());
+        return;
+    }
+
+    // Case 2: mesh without node selected: This is not allowed
+    if (!nodeToSelect && meshToSelect)
         SL_EXIT_MSG("SLScene::selectNodeMesh: No node or mesh to select.");
 
-    // Search in _selected vectors
+    // Search in _selectedNodes vector
     auto foundNode = find(_selectedNodes.begin(), _selectedNodes.end(), nodeToSelect);
+
+    // Case 3: Node without mesh selected
+    if (nodeToSelect && !meshToSelect)
+    {
+        if (foundNode == _selectedNodes.end())
+        {
+            nodeToSelect->isSelected(true);
+            _selectedNodes.push_back(nodeToSelect);
+        }
+        return;
+    }
+
+    // Search in _selectedMeshes vector
     auto foundMesh = find(_selectedMeshes.begin(), _selectedMeshes.end(), meshToSelect);
 
-    // Case 2: nodeToSelect and meshToSelect are not yet selected: so we select them
+    // Case 4: nodeToSelect and meshToSelect are not yet selected: so we select them
     if (foundNode == _selectedNodes.end() && foundMesh == _selectedMeshes.end())
     {
-        nodeToSelect->drawBits()->on(SL_DB_SELECTED);
+        nodeToSelect->isSelected(true);
         _selectedNodes.push_back(nodeToSelect);
         meshToSelect->isSelected(true);
         meshToSelect->deselectPartialSelection();
@@ -244,20 +277,20 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
         return;
     }
 
-    // Case 3: nodeToSelect is already selected but not the mesh: So select only the mesh
+    // Case 5: nodeToSelect is already selected but not the mesh: So select only the mesh
     if (*foundNode == nodeToSelect && foundMesh == _selectedMeshes.end())
     {
-        nodeToSelect->drawBits()->on(SL_DB_SELECTED);
+        nodeToSelect->isSelected(true);
         meshToSelect->isSelected(true);
         meshToSelect->deselectPartialSelection();
         _selectedMeshes.push_back(meshToSelect);
         return;
     }
 
-    // Case 4: nodeToSelect is not selected but the mesh is selected (from another node)
+    // Case 6: nodeToSelect is not selected but the mesh is selected (from another node)
     if (foundNode == _selectedNodes.end() && *foundMesh == meshToSelect)
     {
-        nodeToSelect->drawBits()->on(SL_DB_SELECTED);
+        nodeToSelect->isSelected(true);
         _selectedNodes.push_back(nodeToSelect);
         meshToSelect->isSelected(true);
         meshToSelect->deselectPartialSelection();
@@ -265,7 +298,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
         return;
     }
 
-    // Case 5: Both are already selected so we unselect them.
+    // Case 7: Both are already selected so we unselect them.
     if (nodeToSelect && *foundNode == nodeToSelect && *foundMesh == meshToSelect)
     {
         // Check if other mesh from same node is selected
@@ -285,7 +318,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     endLoop:
         if (!otherMeshIsSelected)
         {
-            nodeToSelect->drawBits()->off(SL_DB_SELECTED);
+            nodeToSelect->isSelected(false);
             _selectedNodes.erase(foundNode);
         }
         meshToSelect->deselectPartialSelection();
@@ -297,13 +330,11 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     SL_EXIT_MSG("SLScene::selectNodeMesh: We should not get here.");
 }
 //-----------------------------------------------------------------------------
-/*! Deselects all nodes and its meshes. Make sure to also reset the cameras
- selectRect.
- */
+//! Deselects all nodes and its meshes.
 void SLScene::deselectAllNodesAndMeshes()
 {
     for (auto sn : _selectedNodes)
-        sn->drawBits()->off(SL_DB_SELECTED);
+        sn->isSelected(false);
     _selectedNodes.clear();
 
     for (auto sm : _selectedMeshes)

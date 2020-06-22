@@ -76,7 +76,10 @@ public:
     AvgFloat& updateAnimTimesMS() { return _updateAnimTimesMS; }
     AvgFloat& updateAABBTimesMS() { return _updateAABBTimesMS; }
 
+    //! Returns the node if only one is selected. See also SLMesh::selectNodeMesh
     SLNode*   singleNodeSelected() { return _selectedNodes.size() == 1 ? _selectedNodes[0] : nullptr; }
+
+    //! Returns the node if only one is selected. See also SLMesh::selectNodeMesh
     SLMesh*   singleMeshFullSelected() { return (_selectedNodes.size() == 1 &&
                                            _selectedMeshes.size() == 1 &&
                                            _selectedMeshes[0]->IS32.empty())
@@ -84,6 +87,7 @@ public:
                                             : nullptr; }
     SLVNode&  selectedNodes() { return _selectedNodes; }
     SLVMesh&  selectedMeshes() { return _selectedMeshes; }
+
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
     SLCamera* nextCameraInScene(SLCamera* activeSVCam);
@@ -108,8 +112,8 @@ protected:
     SLNode*  _root3D;         //!< Root node for 3D scene
     SLNode*  _root2D;         //!< Root node for 2D scene displayed in ortho projection
     SLstring _info;           //!< scene info string
-    SLVNode  _selectedNodes;  //!< Vector of selected nodes
-    SLVMesh  _selectedMeshes; //!< Vector of selected meshes
+    SLVNode  _selectedNodes;  //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
+    SLVMesh  _selectedMeshes; //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
 
     SLCol4f _globalAmbiLight; //!< global ambient light intensity
 

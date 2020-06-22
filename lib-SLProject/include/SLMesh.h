@@ -200,6 +200,9 @@ public:
 
 private:
     void calcTangents();
+    void handleRectangleSelection(SLSceneView* sv,
+                                  SLGLState*   stateGL,
+                                  SLNode*      node);
     void drawSelectedVertices();
 
 protected:

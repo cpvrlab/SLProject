@@ -127,38 +127,32 @@ public:
     }
 
     // Getters
-    const SLMat4f& updateAndGetVM() const
-    {
-        return updateAndGetWMI();
-    }
-    SLProjection  projection() const { return _projection; }
-    SLstring      projectionStr() const { return projectionToStr(_projection); }
-    SLfloat       unitScaling() { return _unitScaling; }
-    SLfloat       fov() const { return _fov; }
-    SLfloat       aspect() const { return _viewportRatio; }
-    SLfloat       clipNear() const { return _clipNear; }
-    SLfloat       clipFar() const { return _clipFar; }
-    SLCamAnim     camAnim() const { return _camAnim; }
-    SLstring      animationStr() const;
-    SLfloat       lensDiameter() const { return _lensDiameter; }
-    SLSamples2D*  lensSamples() { return &_lensSamples; }
-    SLfloat       eyeSeparation() const { return _eyeSeparation; }
-    SLfloat       focalDist() const { return _focalDist; }
-    SLfloat       focalDistScrW() const;
-    SLfloat       focalDistScrH() const;
-    SLVec3f       focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
-    SLVec3f       focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
-    SLfloat       trackballSize() const { return _trackballSize; }
-    SLBackground& background() { return _background; }
-    SLfloat       maxSpeed() const { return _maxSpeed; }
-    SLfloat       moveAccel() const { return _moveAccel; }
-    SLfloat       brakeAccel() const { return _brakeAccel; }
-    SLfloat       drag() const { return _drag; }
-    SLstring      toString() const;
-    SLRectf&      selectedRect()
-    {
-        return _selectedRect;
-    }
+    const SLMat4f& updateAndGetVM() const { return updateAndGetWMI(); }
+    SLProjection   projection() const { return _projection; }
+    SLstring       projectionStr() const { return projectionToStr(_projection); }
+    SLfloat        unitScaling() { return _unitScaling; }
+    SLfloat        fov() const { return _fov; }
+    SLfloat        aspect() const { return _viewportRatio; }
+    SLfloat        clipNear() const { return _clipNear; }
+    SLfloat        clipFar() const { return _clipFar; }
+    SLCamAnim      camAnim() const { return _camAnim; }
+    SLstring       animationStr() const;
+    SLfloat        lensDiameter() const { return _lensDiameter; }
+    SLSamples2D*   lensSamples() { return &_lensSamples; }
+    SLfloat        eyeSeparation() const { return _eyeSeparation; }
+    SLfloat        focalDist() const { return _focalDist; }
+    SLfloat        focalDistScrW() const;
+    SLfloat        focalDistScrH() const;
+    SLVec3f        focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
+    SLVec3f        focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
+    SLfloat        trackballSize() const { return _trackballSize; }
+    SLBackground&  background() { return _background; }
+    SLfloat        maxSpeed() const { return _maxSpeed; }
+    SLfloat        moveAccel() const { return _moveAccel; }
+    SLfloat        brakeAccel() const { return _brakeAccel; }
+    SLfloat        drag() const { return _drag; }
+    SLstring       toString() const;
+    SLRectf&       selectedRect() { return _selectedRect; }
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -224,7 +218,7 @@ protected:
     SLDeviceRotation* _devRot = nullptr;
     SLDeviceLocation* _devLoc = nullptr;
 
-    SLRectf _selectedRect; //!< Mouse selection rectangle
+    SLRectf _selectedRect; //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
 };
 //-----------------------------------------------------------------------------
 #endif

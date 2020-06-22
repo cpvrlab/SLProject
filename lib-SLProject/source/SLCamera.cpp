@@ -819,10 +819,9 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
 
-    // Start selection rectangle
+    // Start selection rectangle. See also SLMesh::handleRectangleSelection
     if (mod & K_ctrl)
     {
-        //s->selectNodeMesh(nullptr, nullptr);
         _selectedRect.tl(_oldTouchPos1);
     }
 
@@ -840,13 +839,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 {
     if (button == MB_left) //==================================================
     {
-        // Set selection rectangle
-        /* The selection rectangle gets set and
-         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-         not empty the SLScene::selectedNode is null. All vertices that are withing the
-         selectRect are listed in SLMesh::IS32. All nodes that have selected vertices
-         have their drawbit SL_DB_SELECTED set.
-         */
+        // Set selection rectangle. See also SLMesh::handleRectangleSelection
         if (mod & K_ctrl)
         {
             _selectedRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
@@ -1003,7 +996,7 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
     //SL_LOG("onMouseUp\n");
     if (button == MB_left)
     {
-        // End rectangle select
+        // End rectangle select. See also SLMesh::handleRectangleSelection
         if (mod & K_ctrl)
         {
             _selectedRect.setZero();
