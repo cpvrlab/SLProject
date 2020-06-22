@@ -70,8 +70,9 @@ void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCamer
     {
         _config.deviceId = deviceId;
         _config.targetWidth = width;
-        _config.targetHeight = 360;
+        _config.targetHeight = height;
         _config.focusMode = focusMode;
+        
         
         //retrieve all camera characteristics
         if (_caputureProperties.size() == 0)
@@ -79,6 +80,11 @@ void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCamer
 
         if(_caputureProperties.size() == 0)
             throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
+        
+        
+        auto best = _caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, _config.targetWidth, _config.targetHeight);
+        
+        
         
         //check that device id exists
         auto itChars = std::find_if(_caputureProperties.begin(), _caputureProperties.end(),

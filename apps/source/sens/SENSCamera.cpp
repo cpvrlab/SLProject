@@ -1,5 +1,6 @@
 #include "SENSCamera.h"
 #include <opencv2/imgproc.hpp>
+#include <sens/SENSUtils.h>
 
 bool isEqualToOne(float value)
 {
@@ -88,4 +89,111 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg)
 
     SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, mirrorH, mirrorV);
     return sensFrame;
+}
+
+std::pair<const SENSCameraCharacteristics* const, int> SENSCaptureProperties::findBestMatchingConfig(SENSCameraFacing facing, float horizFov, int width, int height) const
+{
+    struct SortElem
+    {
+        //corresponding camera characteristics
+        const SENSCameraCharacteristics* camChars;
+        //corresponding index in stream configurations
+        int streamConfigIdx;
+        //cropped width (using stream configuration referenced by streamConfigIdx)
+        int widthCropped;
+        //cropped height (using stream configuration referenced by streamConfigIdx)
+        int heightCropped;
+        //horizontal field of view using cropped width
+        float horizFov;
+        //scale factor between stream config and target resolutions
+        float scale;
+        
+        //difference to target field of view
+        float fovScore;
+        //summed crop (used as later as score to make decision)
+        int cropScore;
+        //score that respecs necessary scale complexity
+        int scaleScore;
+    };
+    std::vector<SortElem> sortElems;
+    
+    //make cropped versions of all stream configurations
+    for(auto itChars = begin(); itChars != end(); ++itChars)
+    {
+        if( facing != itChars->facing())
+            continue;
+        
+        const auto& streams = itChars->streamConfigs();
+        for(auto itStream = streams.begin(); itStream != streams.end(); ++itStream)
+        {
+            const SENSCameraCharacteristics::StreamConfig& config = *itStream;
+            float targetWidthDivHeight = (float)width / (float)height;
+            /*
+            if ((targetWidthDivHeight) > ((float)config.widthPix / (float)config.heightPix))
+            {
+                sortElem.scale  = (float)width / (float)config.widthPix;
+                float heightScaled = config.heightPix * sortElem.scale;
+                sortElem.cropScore += heightScaled - height;
+                sortElem.cropScore += (float)config.widthPix * sortElem.scale - (float)width;
+            }
+            else
+            {
+                sortElem.scale = (float)height / (float)config.heightPix;
+                float widthScaled = config.widthPix * sortElem.scale;
+                sortElem.cropScore += widthScaled - width;
+                sortElem.cropScore += (float)config.heightPix * sortElem.scale - (float)height;
+            }
+             */
+            
+            SortElem sortElem;
+            int cropW, cropH;
+            SENS::calcCrop({config.widthPix, config.heightPix}, targetWidthDivHeight, cropW, cropH, sortElem.widthCropped, sortElem.heightCropped);
+            sortElem.scale = (float)width / (float)sortElem.widthCropped;
+            
+            if(sortElem.scale <= 1.f)
+            {
+                sortElem.camChars = &*itChars;
+                sortElem.streamConfigIdx = (int)(&*itStream - &*streams.begin());
+                //we have to use the cropped and unscaled width of the stream config because of the resolution of the focalLengthPix
+                sortElem.horizFov = SENS::calcFOVDegFromFocalLengthPix(config.focalLengthPix, sortElem.widthCropped);
+                
+                sortElem.fovScore = std::abs(sortElem.horizFov - horizFov);
+                sortElem.cropScore = cropW + cropH;
+                //if we have to scale add a score for it
+                if(!isEqualToOne(sortElem.scale))
+                    sortElem.scaleScore = width * height;
+                else
+                    sortElem.scaleScore = 0.f;
+                    
+                sortElems.push_back(sortElem);
+            }
+        }
+    }
+    
+    //sort
+    std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool{ return lhs.fovScore < rhs.fovScore; });
+    
+    int i = 0;
+    for(auto it : sortElems)
+    {
+        std::stringstream ss;
+        ss << "Sort Elem " << i;
+        ss << " fov: " << it.horizFov;
+        ss << " fov score: " << it.fovScore;
+        ss << " widthCropped: " << it.widthCropped;
+        ss << " heightCropped: " << it.heightCropped;
+        ss << " scale: " << it.scale;
+        std::cout << ss.str() << std::endl;
+        i++;
+    }
+    
+    if(sortElems.size())
+    {
+        const SortElem& bestSortElem = sortElems.front();
+        return std::make_pair(bestSortElem.camChars, bestSortElem.streamConfigIdx);
+    }
+    else
+    {
+        return std::make_pair(nullptr, -1);
+    }
 }

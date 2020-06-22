@@ -181,8 +181,11 @@
         return false;
  
     // The preset is OK, now set up the capture session to use it
+    //cameraResolutionPreset = @"AVCaptureSessionPreset2048x1536";
     [m_captureSession setSessionPreset:cameraResolutionPreset];
- 
+
+    //[m_captureSession setSessionPreset:AVCaptureSessionPresetPhoto];
+    
     // Plug camera and capture sesiossion together
     [self attachCameraToCaptureSession];
  
@@ -243,8 +246,16 @@
         {
             m_captureSession = [[AVCaptureSession alloc] init];
         }
-        
+                
         NSArray<AVCaptureDeviceFormat*>* deviceFormats = [device formats];
+        for (AVCaptureDeviceFormat* format in deviceFormats)
+        {
+            CMVideoDimensions resolution = format.highResolutionStillImageDimensions;
+            int w = resolution.width;
+            int h = resolution.height;
+            printf("high dims: w %d h %d\n", w, h);
+        }
+        
         for(AVCaptureDeviceFormat* format in deviceFormats)
         {
             CMFormatDescriptionRef formatDesc = [format formatDescription];
@@ -253,6 +264,7 @@
                 CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions(formatDesc);
                 int w = dims.width;
                 int h = dims.height;
+                printf("dims: w %d h %d\n", w, h);
                 NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth:w andHeight:h];
                 if ([m_captureSession canSetSessionPreset:cameraResolutionPreset])
                 {

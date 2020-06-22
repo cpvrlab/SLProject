@@ -50,119 +50,7 @@ static std::string getPrintableFocusMode(SENSCameraFocusMode focusMode)
         default: return "UNKNOWN";
     }
 }
-
 //---------------------------------------------------------------------------
-//Stream configuration (this is what the camera device is capable to do)
-
-//!Available stream configurations
-/*
-class SENSCameraStreamConfigs
-{
-public:
-    struct Config
-    {
-        int widthPix = 0;
-        int heightPix = 0;
-        //focal length in pixel (-1 means unknown)
-        float focalLengthPix = -1.f;
-        //todo: min max frame rate
-    };
-       
-    void add(int widthPix, int heightPix, float focalLengthPix)
-    {
-        Config config;
-        config.widthPix = widthPix;
-        config.heightPix = heightPix;
-        config.focalLengthPix = focalLengthPix;
-        _streamConfigs.push_back(config);
-    }
-
-    const std::vector<Config>& getStreamConfigs() const
-    {
-        return _streamConfigs;
-    }
-
-    void clear()
-    {
-        _streamConfigs.clear();
-    }
-
-    bool contains(cv::Size toFind)
-    {
-        return std::find_if(
-                 _streamConfigs.begin(),
-                 _streamConfigs.end(),
-                 [&](const Config& cmp) -> bool {return cmp.widthPix == toFind.width && cmp.heightPix == toFind.height; }
-                            ) != _streamConfigs.end();
-    }
-
-    //searches for best matching size and returns it
-    const SENSCameraStreamConfigs::Config& findBestMatchingConfig(cv::Size requiredSize) const;
-    
-private:
-    std::vector<Config> _streamConfigs;
-};
- */
-
-/*
-struct SENSCameraStreamConfig
-{
-    SENSCameraStreamConfig(int width, int height, float horizFovDeg)
-    {
-    }
-    const int width;
-    const int height;
-    const float horizFovDeg;
-    const float focalLengthPix;
-    //const float minFrameDuraton;
-    //const float maxFrameDuration;
-};
-
-struct SENSCameraProperties
-{
-    std::string deviceId;
-    bool supportsAutofocus;
-    bool supportsVideoStabilization;
-    SENSCameraFacing facing;
-};
-
-//Class that defines all properties of available cameras on a device and
-//functions to find the required configuration
-class SENSCaptureProperties
-{
-public:
-    bool containsPropertiesForId(const std::string& deviceId)
-    {
-        return _camProperties.find(deviceId) != _camProperties.end();
-    }
-    SENSCameraProperties getPropertiesForId(const std::string& deviceId)
-    {
-        return _camProperties[deviceId];
-    }
-    
-    bool contains(const std::string& deviceId, int width, int height)
-    {
-        auto it = _streamConfigs.find(deviceId);
-        if(it != _streamConfigs.end())
-        {
-            const std::vector<SENSCameraStreamConfig>& scs = it->second;
-            return std::find_if(
-                     scs.begin(),
-                     scs.end(),
-                     [&](const SENSCameraStreamConfig& cmp) -> bool {return cmp.width == width && cmp.height == height; }
-                                ) != scs.end();
-        }
-        else
-            return false;
-    }
-    
-private:
-    //cameras available stream configurations mapped by
-    std::map<std::string, std::vector<SENSCameraStreamConfig>> _streamConfigs;
-    //camera properties mapped by camera device id
-    std::map<std::string, SENSCameraProperties> _camProperties;
-};
- */
 
 class SENSCameraCharacteristics
 {
@@ -207,7 +95,6 @@ public:
   
 private:
     std::string _deviceId;
-    //SENSCameraStreamConfigs streamConfig;
     SENSCameraFacing _facing = SENSCameraFacing::UNKNOWN;
     std::vector<StreamConfig> _streamConfigs;
 };
@@ -215,32 +102,8 @@ private:
 class SENSCaptureProperties : public std::vector<SENSCameraCharacteristics>
 {
 public:
-    /*
-    struct StreamConfig
-    {
-        std::string deviceId;
-        int width;
-        int height;
-        float horizFov;
-    };
-    
-    struct Device
-    {
-        std::string cameraId;
-        SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
-        std::vector<StreamConfig> _streamConfigs;
-    };
-
-    StreamConfig findBestStreamConfigFor(float horizFov, int width, int height)
-    {
-        return StreamConfig();
-    }
-    
-private:
-    std::map<std::string, std::vector<StreamConfig>> _streamConfigs;
-    //camera device properties mapped by camera device id
-    std::map<std::string, Device> _camProperties;
-     */
+    //returned pointer is null if nothing was found
+    std::pair<const SENSCameraCharacteristics* const, int> findBestMatchingConfig(SENSCameraFacing facing, float horizFov, int width, int height) const;
 };
  
 
