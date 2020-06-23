@@ -272,7 +272,7 @@ public:
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
-    //void         tracker(CVTracked* t);
+    void         isSelected(bool isSelected) { _isSelected = isSelected; }
 
     // Getters (see also member)
     SLNode*           parent() { return _parent; }
@@ -293,6 +293,7 @@ public:
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
+    bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -330,6 +331,7 @@ protected:
     mutable SLMat3f _wmN;            //!< normal world matrix
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
+    bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node

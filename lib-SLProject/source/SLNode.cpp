@@ -42,7 +42,7 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _animation      = nullptr;
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
-    //_tracker = nullptr;
+    _isSelected     = false;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -60,7 +60,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _animation      = nullptr;
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
-    //_tracker = nullptr;
+    _isSelected     = false;
 
     addMesh(mesh);
 }
@@ -433,7 +433,7 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
 {
     for (auto* child : _children)
     {
-        if (child->drawBits()->get(SL_DB_SELECTED))
+        if (child->drawBits()->get(drawbit))
             list.push_back(child);
         if (findRecursive)
             child->findChildrenHelper(drawbit, list, findRecursive);
@@ -538,9 +538,10 @@ void SLNode::drawRec(SLSceneView* sv)
     stateGL->popModelViewMatrix();
 
     // Draw axis aligned bounding box
-    SLbool showBBOX   = sv->drawBit(SL_DB_BBOX) || drawBit(SL_DB_BBOX);
-    SLbool showAXIS   = sv->drawBit(SL_DB_AXIS) || drawBit(SL_DB_AXIS);
-    SLbool showSELECT = drawBit(SL_DB_SELECTED);
+    bool showBBOX   = sv->drawBit(SL_DB_BBOX) || drawBit(SL_DB_BBOX);
+    bool showAXIS   = sv->drawBit(SL_DB_AXIS) || drawBit(SL_DB_AXIS);
+    bool showSELECT = _isSelected;
+
     if (showBBOX || showAXIS || showSELECT)
     {
         stateGL->pushModelViewMatrix();

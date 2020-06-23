@@ -148,6 +148,7 @@ public:
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO(SLGLProgram* sp);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
+    void         deselectPartialSelection();
 
 #ifdef SL_HAS_OPTIX
     void                allocAndUploadData();
@@ -166,12 +167,14 @@ public:
     const SLSkeleton* skeleton() const { return _skeleton; }
     SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
     SLGLVertexArray&  vao() { return _vao; }
+    SLbool            isSelected() { return _isSelected; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
     void matOut(SLMaterial* m) { _matOut = m; }
     void primitive(SLGLPrimitiveType pt) { _primitive = pt; }
     void skeleton(SLSkeleton* skel) { _skeleton = skel; }
+    void isSelected(bool isSelected) { _isSelected = isSelected; }
 
     // getter for position and normal data for rendering
     SLVec3f finalP(SLuint i) { return _finalP->operator[](i); }
@@ -197,16 +200,20 @@ public:
 
 private:
     void calcTangents();
-    void drawSelectedMeshPoints();
+    void handleRectangleSelection(SLSceneView* sv,
+                                  SLGLState*   stateGL,
+                                  SLNode*      node);
+    void drawSelectedVertices();
 
 protected:
-    SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
-    SLMaterial*        _mat;       //!< Pointer to the inside material
-    SLMaterial*        _matOut;    //!< Pointer to the outside material
-    SLGLVertexArray    _vao;       //!< OpenGL Vertex Array Object for drawing
-    SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
-    SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
-    SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
+    SLGLPrimitiveType  _primitive;  //!< Primitive type (default triangles)
+    SLMaterial*        _mat;        //!< Pointer to the inside material
+    SLMaterial*        _matOut;     //!< Pointer to the outside material
+    SLGLVertexArray    _vao;        //!< OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN;       //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT;       //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS;       //!< OpenGL VAO for optional selection drawing
+    SLbool             _isSelected; //!< flag if mesh is partially of fully selected
 
 #ifdef SL_HAS_OPTIX
     SLCudaBuffer<SLVec3f>  _vertexBuffer;

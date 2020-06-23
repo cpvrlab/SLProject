@@ -842,25 +842,18 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
         {
             // Draw first AABB of the shapes but not the camera
             if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
-                !node->drawBit(SL_DB_SELECTED))
+                !node->isSelected())
             {
                 if (node->numMeshes() > 0)
-                    node->aabb()->drawWS(SLCol3f(1, 0, 0));
+                    node->aabb()->drawWS(SLCol3f::RED);
                 else
-                    node->aabb()->drawWS(SLCol3f(1, 0, 1));
+                    node->aabb()->drawWS(SLCol3f::MAGENTA);
             }
 
             // Draw AABB for selected shapes
-            if (node->drawBit(SL_DB_SELECTED))
+            if (node->isSelected())
             {
-                if (node == _s->selectedNode() || !_camera->selectedRect().isEmpty())
-                    node->aabb()->drawWS(SLCol3f(1, 1, 0));
-                else
-                {
-                    // delete selection bits from previous rectangle selection
-                    if (node != _s->selectedNode() && _camera->selectedRect().isEmpty())
-                        node->drawBits()->off(SL_DB_SELECTED);
-                }
+                node->aabb()->drawWS(SLCol3f::YELLOW);
             }
         }
     }
@@ -883,7 +876,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
         {
             if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS) ||
                 drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON) ||
-                node->drawBit(SL_DB_SELECTED))
+                node->isSelected())
             {
                 // Set the view transform
                 SLGLState* stateGL = SLGLState::instance();
@@ -895,7 +888,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 // Draw axis
                 if (drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_AXIS) ||
-                    node->drawBit(SL_DB_SELECTED))
+                    node->isSelected())
                 {
                     node->aabb()->drawAxisWS();
                 }
@@ -992,29 +985,29 @@ void SLSceneView::draw2DGL()
             // 3. Draw all 2D nodes opaque
             draw2DGLNodes();
 
-            // Draw selection rectangle
-            /* The selection rectangle is defined in SLScene::selectRect and gets set and
-        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-        not empty the SLScene::selectedNode is null. All vertices that are within the
-        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-        drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
-
-            if (!_camera->selectedRect().isEmpty())
+            // Draw selection rectangle. See also SLMesh::handleRectangleSelection
+            if (!_camera->selectRect().isEmpty())
             {
                 stateGL->pushModelViewMatrix();
                 stateGL->modelViewMatrix.identity();
                 stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
                 stateGL->depthMask(false); // Freeze depth buffer for blending
                 stateGL->depthTest(false); // Disable depth testing
-                //stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
-                stateGL->blend(true); // Enable blending
-                //stateGL->polygonLine(false);       // Only filled polygons
+                _camera->selectRect().drawGL(SLCol4f::WHITE);
+                stateGL->depthMask(true); // enable depth buffer writing
+                stateGL->depthTest(true); // enable depth testing
+                stateGL->popModelViewMatrix();
+            }
 
-                _camera->selectedRect().drawGL(SLCol4f::WHITE);
-
-                stateGL->blend(false); // turn off blending
-                //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
+            // Draw deselection rectangle. See also SLMesh::handleRectangleSelection
+            if (!_camera->deselectRect().isEmpty())
+            {
+                stateGL->pushModelViewMatrix();
+                stateGL->modelViewMatrix.identity();
+                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Disable depth testing
+                _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
                 stateGL->depthMask(true); // enable depth buffer writing
                 stateGL->depthTest(true); // enable depth testing
                 stateGL->popModelViewMatrix();
@@ -1153,6 +1146,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         if (_gui->doNotDispatchMouse())
             return true;
     }
+
     //if (ImGui::GetIO().WantCaptureMouse)
     //    return true;
 
@@ -1407,10 +1401,22 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 
         if (pickRay.length < FLT_MAX)
         {
-            _camera->selectedRect().setZero();
-            _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
-            if (onSelectedNodeMesh)
-                onSelectedNodeMesh(_s->selectedNode(), _s->selectedMesh());
+
+            if (mod & K_shift)
+            {
+                _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+                if (onSelectedNodeMesh)
+                    onSelectedNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            }
+            else
+            {
+                if (_s->singleNodeSelected() != pickRay.hitNode)
+                    _s->deselectAllNodesAndMeshes();
+
+                _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+                if (onSelectedNodeMesh)
+                    onSelectedNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            }
             result = true;
         }
     }
@@ -1582,10 +1588,14 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key==K_esc)
     {
-        if (_s->selectedNode() || !_camera->selectedRect().isEmpty())
+        if (!_s->selectedNodes().empty() ||
+            !_camera->selectRect().isEmpty() ||
+            !_camera->deselectRect().isEmpty())
         {
-            _s->selectNode(nullptr);
-            _camera->selectedRect().setZero();
+            _s->deselectAllNodesAndMeshes();
+            _camera->selectRect().setZero();
+            _camera->deselectRect().setZero();
+            return true;
         }
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;
