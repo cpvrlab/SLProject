@@ -2980,6 +2980,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 
     if (!Utils::fileExists(fullPathAndFilename))
     {
+        SL_LOG("No config file %s: ", fullPathAndFilename.c_str());
+
         // Scale for proportional and fixed size fonts
         SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
