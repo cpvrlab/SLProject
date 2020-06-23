@@ -333,6 +333,7 @@ protected:
     mutable SLMat3f _wmN;            //!< normal world matrix
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
+    bool            _castsShadows;   //!< flag if meshes of node should cast shadows
     bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box

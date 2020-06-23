@@ -160,7 +160,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject\n\
 SLstring AppDemoGui::infoCredits =
   "Contributors since 2005 in alphabetic order: \
 Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, \
-Michael Goettlicher, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
+Michael Goettlicher, Michael Schertenleib, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
 Credits for external libraries:\n\
 - assimp: assimp.sourceforge.net\n\
 - imgui: github.com/ocornut/imgui\n\
@@ -1283,19 +1283,20 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderEarth);
                     if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
-                    if (ImGui::BeginMenu("Shadow Mapping"))
-                    {
-                        if (ImGui::MenuItem("Basic Scene", nullptr, sid == SID_ShadowMappingBasicScene))
-                            s->onLoad(s, sv, SID_ShadowMappingBasicScene);
-                        if (ImGui::MenuItem("Light Types", nullptr, sid == SID_ShadowMappingLightTypes))
-                            s->onLoad(s, sv, SID_ShadowMappingLightTypes);
-                        if (ImGui::MenuItem("Multiple Spot Lights", nullptr, sid == SID_ShadowMappingSpotLights))
-                            s->onLoad(s, sv, SID_ShadowMappingSpotLights);
-                        if (ImGui::MenuItem("Multiple Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
-                            s->onLoad(s, sv, SID_ShadowMappingPointLights);
 
-                        ImGui::EndMenu();
-                    }
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Shadow Mapping"))
+                {
+                    if (ImGui::MenuItem("Basic Scene", nullptr, sid == SID_ShadowMappingBasicScene))
+                        s->onLoad(s, sv, SID_ShadowMappingBasicScene);
+                    if (ImGui::MenuItem("Light Types", nullptr, sid == SID_ShadowMappingLightTypes))
+                        s->onLoad(s, sv, SID_ShadowMappingLightTypes);
+                    if (ImGui::MenuItem("Multiple Spot Lights", nullptr, sid == SID_ShadowMappingSpotLights))
+                        s->onLoad(s, sv, SID_ShadowMappingSpotLights);
+                    if (ImGui::MenuItem("Multiple Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
+                        s->onLoad(s, sv, SID_ShadowMappingPointLights);
 
                     ImGui::EndMenu();
                 }
@@ -2581,11 +2582,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     // Properties related to shadow mapping
                     if (ImGui::TreeNode("Shadow Mapping"))
                     {
-                        SLbool castsShadows = node->castsShadows();
+                        SLbool castsShadows = singleNode->castsShadows();
                         if (ImGui::Checkbox("Casts shadows", &castsShadows))
-                            node->castsShadows(castsShadows);
+                            singleNode->castsShadows(castsShadows);
 
-                        if (SLLight* light = dynamic_cast<SLLight*>(node))
+                        if (SLLight* light = dynamic_cast<SLLight*>(singleNode))
                         {
                             SLbool createsShadows = light->createsShadows();
                             if (ImGui::Checkbox("Creates shadows", &createsShadows))
@@ -2618,7 +2619,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         shadowMap->textureSize(SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
                                                                        (int)Utils::closestPowerOf2((unsigned)texSize.y)));
 
-                                    if (typeid(*node) == typeid(SLLightDirect))
+                                    if (typeid(*singleNode) == typeid(SLLightDirect))
                                     {
                                         SLVec2f size = shadowMap->size();
                                         if (ImGui::InputFloat2("Size", (float*)&size))
@@ -2687,10 +2688,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                          "Stereo Line By Line",
                                                          "Stereo Column By Column",
                                                          "Stereo Pixel By Pixel",
-                                                         "Stereo Color Red Cyan",
-                                                         "Stereo Color Red Green",
-                                                         "Stereo Color Red Blue",
-                                                         "Stereo Color Yelle Blue"};
+                                                         "Stereo Color Red-Cyan",
+                                                         "Stereo Color Red-Green",
+                                                         "Stereo Color Red-Blue",
+                                                         "Stereo Color Yellow-Blue"};
 
                             int proj = cam->projection();
                             if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
