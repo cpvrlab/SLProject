@@ -87,14 +87,25 @@ struct WAIEventAdjustTransparency : WAIEvent
 
 struct WAIEventEnterEditMode : WAIEvent
 {
-    WAIEventEnterEditMode() { type = WAIEventType_EnterEditMode; }
+    WAIEventEnterEditMode()
+    {
+        type      = WAIEventType_EnterEditMode;
+        saveToMap = false;
+    }
 
     SLNodeEditMode editMode;
+    bool saveToMap;
 };
 
 struct WAIEventEnterEditMapPointMode : WAIEvent
 {
-    WAIEventEnterEditMapPointMode() { type = WAIEventType_EnterEditMapPointMode; }
+    WAIEventEnterEditMapPointMode()
+    {
+        type  = WAIEventType_EnterEditMapPointMode;
+        start = false;
+        save  = false;
+        quit  = false;
+    }
     bool start;
     bool save;
     bool quit;
