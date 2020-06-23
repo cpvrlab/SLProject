@@ -986,21 +986,28 @@ void SLSceneView::draw2DGL()
             draw2DGLNodes();
 
             // Draw selection rectangle. See also SLMesh::handleRectangleSelection
-            if (!_camera->selectedRect().isEmpty())
+            if (!_camera->selectRect().isEmpty())
             {
                 stateGL->pushModelViewMatrix();
                 stateGL->modelViewMatrix.identity();
                 stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
                 stateGL->depthMask(false); // Freeze depth buffer for blending
                 stateGL->depthTest(false); // Disable depth testing
-                //stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
-                stateGL->blend(true); // Enable blending
-                //stateGL->polygonLine(false);       // Only filled polygons
+                _camera->selectRect().drawGL(SLCol4f::WHITE);
+                stateGL->depthMask(true); // enable depth buffer writing
+                stateGL->depthTest(true); // enable depth testing
+                stateGL->popModelViewMatrix();
+            }
 
-                _camera->selectedRect().drawGL(SLCol4f::WHITE);
-
-                stateGL->blend(false); // turn off blending
-                //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
+            // Draw deselection rectangle. See also SLMesh::handleRectangleSelection
+            if (!_camera->deselectRect().isEmpty())
+            {
+                stateGL->pushModelViewMatrix();
+                stateGL->modelViewMatrix.identity();
+                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Disable depth testing
+                _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
                 stateGL->depthMask(true); // enable depth buffer writing
                 stateGL->depthTest(true); // enable depth testing
                 stateGL->popModelViewMatrix();
@@ -1581,10 +1588,13 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key==K_esc)
     {
-        if (!_s->selectedNodes().empty() || !_camera->selectedRect().isEmpty())
+        if (!_s->selectedNodes().empty() ||
+            !_camera->selectRect().isEmpty() ||
+            !_camera->deselectRect().isEmpty())
         {
             _s->deselectAllNodesAndMeshes();
-            _camera->selectedRect().setZero();
+            _camera->selectRect().setZero();
+            _camera->deselectRect().setZero();
             return true;
         }
         if(_renderType == RT_rt) _stopRT = true;

@@ -152,7 +152,8 @@ public:
     SLfloat        brakeAccel() const { return _brakeAccel; }
     SLfloat        drag() const { return _drag; }
     SLstring       toString() const;
-    SLRectf&       selectedRect() { return _selectedRect; }
+    SLRectf&       selectRect() { return _selectRect; }
+    SLRectf&       deselectRect() { return _deselectRect; }
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -218,7 +219,8 @@ protected:
     SLDeviceRotation* _devRot = nullptr;
     SLDeviceLocation* _devLoc = nullptr;
 
-    SLRectf _selectedRect; //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
+    SLRectf _selectRect;   //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
+    SLRectf _deselectRect; //!< Mouse deselection rectangle. See SLMesh::handleRectangleSelection
 };
 //-----------------------------------------------------------------------------
 #endif

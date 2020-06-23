@@ -1704,7 +1704,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Edit", s->singleNodeSelected() != nullptr || !sv->camera()->selectedRect().isZero()))
+        if (ImGui::BeginMenu("Edit", s->singleNodeSelected() != nullptr || !sv->camera()->selectRect().isZero()))
         {
             if (s->singleNodeSelected())
             {
@@ -1771,7 +1771,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             else
             {
                 if (ImGui::MenuItem("Clear selection"))
-                    sv->camera()->selectedRect().setZero();
+                {
+                    sv->camera()->selectRect().setZero();
+                    sv->camera()->deselectRect().setZero();
+                }
             }
 
             ImGui::EndMenu();
