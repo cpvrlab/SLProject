@@ -131,7 +131,7 @@ SENSFramePtr SENSiOSCamera::getLatestFrame()
 
 void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight)
 {
-    Utils::log("SENSiOSCamera", "processNewFrame");
+    //Utils::log("SENSiOSCamera", "processNewFrame");
     
     cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
     cv::Mat rgbImg;

@@ -32,6 +32,7 @@
 
     // Global screen scale (2.0 for retina, 1.0 else)
     float _screenScale;
+    float _dpi;
     // ErlebAR app instance
     ErlebARApp _erlebARApp;
     //std::unique_ptr<SENSiOSCamera> _camera;
@@ -59,6 +60,7 @@
         _touchDowns = 0;
         
         _screenScale = 1.0f;
+        _dpi = 0.f;
         _camera = nullptr;
     }
     
@@ -87,22 +89,23 @@
     if([UIDevice currentDevice].multitaskingSupported)
        view.drawableMultisample = GLKViewDrawableMultisample4X;
    
+    //self.modalPresentationStyle = UIModalPresentationFullScreen;
     self.preferredFramesPerSecond = 60;
     self.view.multipleTouchEnabled = true;
     _touchDowns = 0;
    
     //[self setupGL];
     [EAGLContext setCurrentContext:self.context];
-    
+
     // determine device pixel ratio and dots per inch
     _screenScale = [UIScreen mainScreen].scale;
-    float dpi;
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-         dpi = 132 * _screenScale;
+        _dpi = 132 * _screenScale;
     else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
-         dpi = 163 * _screenScale;
-    else dpi = 160 * _screenScale;
-      
+        _dpi = 163 * _screenScale;
+    else
+        _dpi = 160 * _screenScale;
+    
     // Some computer informations
     struct utsname systemInfo; uname(&systemInfo);
     NSString* model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
@@ -114,18 +117,25 @@
     Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
     
+    Utils::initFileLog(Utils_iOS::getAppsWritableDir() + "log/", true);
+    _camera = new SENSiOSCamera();
+}
+//-----------------------------------------------------------------------------
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    
     std::string exePath = Utils_iOS::getCurrentWorkingDir();
     std::string configPath = Utils_iOS::getAppsWritableDir();
     
-    Utils::initFileLog(configPath + "log/", true);
-    
-    _camera = new SENSiOSCamera();
-    _erlebARApp.init(self.view.bounds.size.height * _screenScale,
-                       self.view.bounds.size.width * _screenScale,
-                       dpi,
+    _erlebARApp.init(self.view.bounds.size.width * _screenScale,
+                       self.view.bounds.size.height * _screenScale,
+                       _dpi,
                        exePath + "data/",
                        configPath,
                        _camera);
+    
+    printf("viewWillLayoutSubviews: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }
 //-----------------------------------------------------------------------------
 - (void)appWillResignActive
