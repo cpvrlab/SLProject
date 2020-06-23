@@ -30,6 +30,7 @@ public:
         cameraNode->projection(P_monoPerspective);
     }
 
+    void resetMapNode();
     void updateCameraPose(const cv::Mat& pose);
     void updateVideoImage(const cv::Mat& image);
 

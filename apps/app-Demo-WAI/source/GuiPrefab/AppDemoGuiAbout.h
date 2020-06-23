@@ -1,7 +1,6 @@
 #ifndef APP_DEMO_GUI_ABOUT_H
 #define APP_DEMO_GUI_ABOUT_H
 
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <SL.h>
 #include <SLGLTexture.h>

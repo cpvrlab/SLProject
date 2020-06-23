@@ -177,6 +177,15 @@ void AppDemoGuiInfosMapNodeTransform::buildInfos(SLScene* s, SLSceneView* sv)
         _eventQueue->push(event);
     }
 
+    if (ImGui::Button("Save to map", ImVec2(bW, 0.0f)))
+    {
+        WAIEventEnterEditMode* event = new WAIEventEnterEditMode();
+        event->editMode              = NodeEditMode_None;
+        event->saveToMap             = true;
+
+        _eventQueue->push(event);
+    }
+
     ImGui::End();
     ImGui::PopFont();
 }

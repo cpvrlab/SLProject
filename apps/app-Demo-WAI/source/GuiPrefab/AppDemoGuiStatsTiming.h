@@ -1,7 +1,6 @@
 #ifndef SL_IMGUI_STATS_TIMING_H
 #define SL_IMGUI_STATS_TIMING_H
 
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <SL.h>
 #include <SLSceneView.h>

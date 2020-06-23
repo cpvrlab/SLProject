@@ -1,7 +1,6 @@
 #ifndef SL_IMGUI_UI_PREFS_H
 #define SL_IMGUI_UI_PREFS_H
 
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <WAICalibration.h>
 #include <SL.h>

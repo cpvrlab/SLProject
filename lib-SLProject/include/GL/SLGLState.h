@@ -154,6 +154,7 @@ public:
     void depthMask(SLbool state);
     void cullFace(SLbool state);
     void blend(SLbool state);
+    void blendFunc(SLenum blendFuncSFactor, SLenum blendFuncDFactor);
     void multiSample(SLbool state);
     void polygonLine(SLbool state);
     void polygonOffset(SLbool state, SLfloat factor = 1.0f, SLfloat units = 1.0f);
@@ -225,6 +226,8 @@ private:
 
     // read/write states
     SLbool  _blend;                //!< blending default false;
+    SLenum  _blendFuncSfactor;     //!< blend function source factor enum
+    SLenum  _blendFuncDfactor;     //!< blend function destination factor enum
     SLbool  _depthTest;            //!< GL_DEPTH_TEST state
     SLbool  _depthMask;            //!< glDepthMask state
     SLbool  _cullFace;             //!< Face culling state

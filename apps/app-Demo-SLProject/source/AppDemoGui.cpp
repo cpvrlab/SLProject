@@ -783,9 +783,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Transform Selected Node", &showTransform, window_flags);
 
-            if (s->selectedNode())
+            if (s->singleNodeSelected())
             {
-                SLNode*                 selNode = s->selectedNode();
+                SLNode*                 selNode = s->singleNodeSelected();
                 static SLTransformSpace tSpace  = TS_object;
                 SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
                 SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
@@ -1163,7 +1163,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
     if (!hasAnimations) curAnimIx = -1;
 
     // Remove transform node if no or the wrong one is selected
-    if (transformNode && s->selectedNode() != transformNode->targetNode())
+    if (transformNode && s->singleNodeSelected() != transformNode->targetNode())
         removeTransformNode(s);
 
     if (ImGui::BeginMainMenuBar())
@@ -1281,7 +1281,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
-                    if (ImGui::MenuItem("Voxel Cone Tracing Shader", nullptr, sid == SID_ShaderVoxelConeDemo))
+                    if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
                     if (ImGui::BeginMenu("Shadow Mapping"))
                     {
@@ -1722,12 +1722,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Edit", s->selectedNode() != nullptr || !sv->camera()->selectedRect().isZero()))
+        if (ImGui::BeginMenu("Edit", s->singleNodeSelected() != nullptr || !sv->camera()->selectRect().isZero()))
         {
-            if (s->selectedNode())
+            if (s->singleNodeSelected())
             {
                 if (ImGui::MenuItem("Deselect Node", "ESC"))
-                    s->selectNode(nullptr);
+                    s->deselectAllNodesAndMeshes();
 
                 ImGui::Separator();
 
@@ -1757,7 +1757,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Node Flags"))
                 {
-                    SLNode* selN = s->selectedNode();
+                    SLNode* selN = s->singleNodeSelected();
 
                     if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
                         selN->drawBits()->toggle(SL_DB_MESHWIRED);
@@ -1789,7 +1789,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             else
             {
                 if (ImGui::MenuItem("Clear selection"))
-                    sv->camera()->selectedRect().setZero();
+                {
+                    sv->camera()->selectRect().setZero();
+                    sv->camera()->deselectRect().setZero();
+                }
             }
 
             ImGui::EndMenu();
@@ -2435,7 +2438,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     PROFILE_FUNCTION();
 
-    SLbool isSelectedNode = s->selectedNode() == node;
+    SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
 
     ImGuiTreeNodeFlags nodeFlags = 0;
@@ -2450,7 +2453,10 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     bool nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
 
     if (ImGui::IsItemClicked())
+    {
+        s->deselectAllNodesAndMeshes();
         s->selectNodeMesh(node, nullptr);
+    }
 
     if (nodeIsOpen)
     {
@@ -2459,13 +2465,16 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
-            if (s->selectedMesh() == mesh)
+            if (s->singleMeshFullSelected() == mesh)
                 meshFlags |= ImGuiTreeNodeFlags_Selected;
 
             ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
             if (ImGui::IsItemClicked())
+            {
+                s->deselectAllNodesAndMeshes();
                 s->selectNodeMesh(node, mesh);
+            }
 
             ImGui::TreePop();
             ImGui::PopStyleColor();
@@ -2483,8 +2492,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    SLNode* node = s->selectedNode();
-    SLMesh* mesh = s->selectedMesh();
+    SLNode* singleNode       = s->singleNodeSelected();
+    SLMesh* singleFullMesh   = s->singleMeshFullSelected();
+    bool    partialSelection = !s->selectedMeshes().empty() && !s->selectedMeshes()[0]->IS32.empty();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
@@ -2499,61 +2509,65 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     }
     else
     {
-        if (node && sv->camera()->selectedRect().isEmpty())
+        // Only single node and no partial mesh selection
+        if (singleNode && !partialSelection)
         {
-
             ImGui::Begin("Properties of Selection", &showProperties);
 
             if (ImGui::TreeNode("Single Node Properties"))
             {
-                if (node)
+                if (singleNode)
                 {
-                    SLuint c = (SLuint)node->children().size();
-                    SLuint m = (SLuint)node->meshes().size();
+                    SLuint c = (SLuint)singleNode->children().size();
+                    SLuint m = (SLuint)singleNode->meshes().size();
 
-                    ImGui::Text("Node Name       : %s", node->name().c_str());
+                    ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                     ImGui::Text("No. of children : %u", c);
                     ImGui::Text("No. of meshes   : %u", m);
                     if (ImGui::TreeNode("Drawing Flags"))
                     {
-                        SLbool db = node->drawBit(SL_DB_HIDDEN);
+                        SLbool db = singleNode->drawBit(SL_DB_HIDDEN);
                         if (ImGui::Checkbox("Hide", &db))
-                            node->drawBits()->set(SL_DB_HIDDEN, db);
+                            singleNode->drawBits()->set(SL_DB_HIDDEN, db);
 
-                        db = node->drawBit(SL_DB_MESHWIRED);
+                        db = singleNode->drawBit(SL_DB_NOTSELECTABLE);
+                        if (ImGui::Checkbox("Not selectable", &db))
+                            singleNode->drawBits()->set(SL_DB_NOTSELECTABLE, db);
+
+                        db = singleNode->drawBit(SL_DB_MESHWIRED);
                         if (ImGui::Checkbox("Show wireframe", &db))
-                            node->drawBits()->set(SL_DB_MESHWIRED, db);
+                            singleNode->drawBits()->set(SL_DB_MESHWIRED, db);
 
-                        db = node->drawBit(SL_DB_NORMALS);
+                        db = singleNode->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
-                            node->drawBits()->set(SL_DB_NORMALS, db);
+                            singleNode->drawBits()->set(SL_DB_NORMALS, db);
 
-                        db = node->drawBit(SL_DB_VOXELS);
+                        db = singleNode->drawBit(SL_DB_VOXELS);
                         if (ImGui::Checkbox("Show voxels", &db))
-                            node->drawBits()->set(SL_DB_VOXELS, db);
+                            singleNode->drawBits()->set(SL_DB_VOXELS, db);
 
-                        db = node->drawBit(SL_DB_BBOX);
+                        db = singleNode->drawBit(SL_DB_BBOX);
                         if (ImGui::Checkbox("Show bounding boxes", &db))
-                            node->drawBits()->set(SL_DB_BBOX, db);
+                            singleNode->drawBits()->set(SL_DB_BBOX, db);
 
-                        db = node->drawBit(SL_DB_AXIS);
+                        db = singleNode->drawBit(SL_DB_AXIS);
                         if (ImGui::Checkbox("Show axis", &db))
-                            node->drawBits()->set(SL_DB_AXIS, db);
+                            singleNode->drawBits()->set(SL_DB_AXIS, db);
 
-                        db = node->drawBit(SL_DB_CULLOFF);
+                        db = singleNode->drawBit(SL_DB_CULLOFF);
                         if (ImGui::Checkbox("Show back faces", &db))
-                            node->drawBits()->set(SL_DB_CULLOFF, db);
+                            singleNode->drawBits()->set(SL_DB_CULLOFF, db);
 
-                        db = node->drawBit(SL_DB_TEXOFF);
+                        db = singleNode->drawBit(SL_DB_TEXOFF);
                         if (ImGui::Checkbox("No textures", &db))
-                            node->drawBits()->set(SL_DB_TEXOFF, db);
+                            singleNode->drawBits()->set(SL_DB_TEXOFF, db);
 
                         ImGui::TreePop();
                     }
 
                     if (ImGui::TreeNode("Local Transform"))
                     {
-                        SLMat4f om(node->om());
+                        SLMat4f om(singleNode->om());
                         SLVec3f trn, rot, scl;
                         om.decompose(trn, rot, scl);
                         rot *= Utils::RAD2DEG;
@@ -2654,9 +2668,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
 
                     // Show special camera properties
-                    if (typeid(*node) == typeid(SLCamera))
+                    if (typeid(*singleNode) == typeid(SLCamera))
                     {
-                        SLCamera* cam = (SLCamera*)node;
+                        SLCamera* cam = (SLCamera*)singleNode;
 
                         if (ImGui::TreeNode("Camera"))
                         {
@@ -2706,25 +2720,25 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
 
                     // Show special light properties
-                    if (typeid(*node) == typeid(SLLightSpot) ||
-                        typeid(*node) == typeid(SLLightRect) ||
-                        typeid(*node) == typeid(SLLightDirect))
+                    if (typeid(*singleNode) == typeid(SLLightSpot) ||
+                        typeid(*singleNode) == typeid(SLLightRect) ||
+                        typeid(*singleNode) == typeid(SLLightDirect))
                     {
                         SLLight* light = nullptr;
                         SLstring typeName;
-                        if (typeid(*node) == typeid(SLLightSpot))
+                        if (typeid(*singleNode) == typeid(SLLightSpot))
                         {
-                            light    = (SLLight*)(SLLightSpot*)node;
+                            light    = (SLLight*)(SLLightSpot*)singleNode;
                             typeName = "Light (spot):";
                         }
-                        if (typeid(*node) == typeid(SLLightRect))
+                        if (typeid(*singleNode) == typeid(SLLightRect))
                         {
-                            light    = (SLLight*)(SLLightRect*)node;
+                            light    = (SLLight*)(SLLightRect*)singleNode;
                             typeName = "Light (rectangular):";
                         }
-                        if (typeid(*node) == typeid(SLLightDirect))
+                        if (typeid(*singleNode) == typeid(SLLightDirect))
                         {
-                            light    = (SLLight*)(SLLightDirect*)node;
+                            light    = (SLLight*)(SLLightDirect*)singleNode;
                             typeName = "Light (directional):";
                         }
 
@@ -2787,14 +2801,16 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Separator();
-            if (ImGui::TreeNode("Single Mesh Properties"))
+
+            if (singleFullMesh)
             {
-                if (mesh)
+                // See also SLScene::selectNodeMesh
+                if (ImGui::TreeNode("Single Mesh Properties"))
                 {
-                    SLuint      v = (SLuint)mesh->P.size();
-                    SLuint      t = (SLuint)(!mesh->I16.empty() ? mesh->I16.size() / 3 : mesh->I32.size() / 3);
-                    SLMaterial* m = mesh->mat();
-                    ImGui::Text("Mesh Name       : %s", mesh->name().c_str());
+                    SLuint      v = (SLuint)singleFullMesh->P.size();
+                    SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
+                    SLMaterial* m = singleFullMesh->mat();
+                    ImGui::Text("Mesh Name       : %s", singleFullMesh->name().c_str());
                     ImGui::Text("No. of Vertices : %u", v);
                     ImGui::Text("No. of Triangles: %u", t);
 
@@ -3010,32 +3026,24 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         ImGui::TreePop();
                     }
-                }
-                else
-                {
-                    ImGui::Text("No single mesh selected.");
-                }
 
-                ImGui::TreePop();
+                    ImGui::TreePop();
+                }
+            }
+            else
+            {
+                ImGui::Text("No single single mesh selected.");
             }
 
             ImGui::PopStyleColor();
             ImGui::End();
         }
-        else if (!node && !sv->camera()->selectedRect().isEmpty())
+        else if (!singleFullMesh && !s->selectedMeshes().empty())
         {
-            /* The selection rectangle is defined in SLScene::selectRect and gets set and
-        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-        not empty the SLScene::selectedNode is null. All vertices that are within the
-        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-        drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
-
-            vector<SLNode*> selectedNodes = s->root3D()->findChildren(SL_DB_SELECTED);
-
+            // See also SLMesh::handleRectangleSelection
             ImGui::Begin("Properties of Selection", &showProperties);
 
-            for (auto* selectedNode : selectedNodes)
+            for (auto* selectedNode : s->selectedNodes())
             {
                 if (!selectedNode->meshes().empty())
                 {
@@ -3065,10 +3073,19 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             // Nothing is selected
             ImGui::Begin("Properties of Selection", &showProperties);
             ImGui::Text("There is nothing selected.");
-            ImGui::Text("Please select a single node");
-            ImGui::Text("by double-clicking or");
+            ImGui::Text("");
+            ImGui::Text("Select a single node by");
+            ImGui::Text("double-clicking it or");
             ImGui::Text("select multiple nodes by");
-            ImGui::Text("CTRL-LMB rectangle selection.");
+            ImGui::Text("SHIFT-double-clicking them.");
+            ImGui::Text("");
+            ImGui::Text("Select partial meshes by");
+            ImGui::Text("CTRL-LMB rectangle drawing.");
+            ImGui::Text("");
+            ImGui::Text("Press ESC to deselect all.");
+            ImGui::Text("");
+            ImGui::Text("Be aware that a node may be");
+            ImGui::Text("flagged as not selectable.");
             ImGui::End();
         }
     }
@@ -3084,6 +3101,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 
     if (!Utils::fileExists(fullPathAndFilename))
     {
+        SL_LOG("No config file %s: ", fullPathAndFilename.c_str());
+
         // Scale for proportional and fixed size fonts
         SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
         SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
@@ -3243,7 +3262,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->selectedNode(), SLApplication::shaderPath);
+        tN = new SLTransformNode(sv, s->singleNodeSelected(), SLApplication::shaderPath);
         s->root3D()->addChild(tN);
     }
 

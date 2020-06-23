@@ -273,7 +273,7 @@ public:
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
-    //void         tracker(CVTracked* t);
+    void         isSelected(bool isSelected) { _isSelected = isSelected; }
 
     // Getters (see also member)
     SLNode*           parent() { return _parent; }
@@ -295,6 +295,7 @@ public:
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
+    bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -321,21 +322,21 @@ private:
                             SLbool           findRecursive);
 
 protected:
-    SLNode*         _parent;          //!< pointer to the parent node
-    SLVNode         _children;        //!< vector of children nodes
-    SLVMesh         _meshes;          //!< vector of meshes of the node
-    SLint           _depth;           //!< depth of the node in a scene tree
-    SLMat4f         _om;              //!< object matrix for local transforms
-    SLMat4f         _initialOM;       //!< the initial om state
-    mutable SLMat4f _wm;              //!< world matrix for world transform
-    mutable SLMat4f _wmI;             //!< inverse world matrix
-    mutable SLMat3f _wmN;             //!< normal world matrix
-    mutable SLbool  _isWMUpToDate;    //!< is the WM of this node still valid
-    mutable SLbool  _isAABBUpToDate;  //!< is the saved aabb still valid
-    SLDrawBits      _drawBits;        //!< node level drawing flags
-    SLAABBox        _aabb;            //!< axis aligned bounding box
-    SLAnimation*    _animation;       //!< animation of the node
-    SLbool          _castsShadows;    //!< nodes cast shadows when this is true
+    SLNode*         _parent;         //!< pointer to the parent node
+    SLVNode         _children;       //!< vector of children nodes
+    SLVMesh         _meshes;         //!< vector of meshes of the node
+    SLint           _depth;          //!< depth of the node in a scene tree
+    SLMat4f         _om;             //!< object matrix for local transforms
+    SLMat4f         _initialOM;      //!< the initial om state
+    mutable SLMat4f _wm;             //!< world matrix for world transform
+    mutable SLMat4f _wmI;            //!< inverse world matrix
+    mutable SLMat3f _wmN;            //!< normal world matrix
+    mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
+    mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
+    bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
+    SLDrawBits      _drawBits;       //!< node level drawing flags
+    SLAABBox        _aabb;           //!< axis aligned bounding box
+    SLAnimation*    _animation;      //!< animation of the node
 };
 
 ////////////////////////

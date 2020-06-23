@@ -52,6 +52,7 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
 
     //create imgui context
     ImGui::CreateContext();
+
     //set default style to get a good initial configuration
     ImGui::StyleColorsDark();
     ImGuiIO& io = ImGui::GetIO();

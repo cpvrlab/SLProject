@@ -3,8 +3,8 @@
 
 #include <SLSceneView.h>
 #include <WAIHelper.h>
+#include <WAISlam.h>
 #include <fbow.h>
-#include <WAIModeOrbSlam2.h>
 #include <Utils.h>
 
 class WAI_API WAIMapStorage

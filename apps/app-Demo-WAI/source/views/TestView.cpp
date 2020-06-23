@@ -116,6 +116,8 @@ bool TestView::update()
         }
     }
 
+    updateTrackingVisualization(_mode && _mode->isTracking());
+
     return onPaint();
 }
 
@@ -267,6 +269,15 @@ void TestView::handleEvents()
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
+                if (enterEditModeEvent->saveToMap)
+                {
+                    SLNode * mapNode = _scene.root3D()->findChild<SLNode>("map");
+                    const float *m = mapNode->om().m();
+                    cv::Mat mat = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
+                    _mode->transformCoords(mat);
+                    _scene.resetMapNode();
+                }
+
                 if (enterEditModeEvent->editMode == NodeEditMode_None)
                 {
                     if (_scene.root3D()->deleteChild(_transformationNode))
@@ -284,7 +295,6 @@ void TestView::handleEvents()
                 {
                     _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
-
                 delete enterEditModeEvent;
             }
             break;
@@ -732,19 +742,8 @@ void TestView::updateVideoTracking()
     }
 }
 
-void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
-    //undistort image and copy image to video texture
-    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
-
-    if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
-    else
-        _imgBuffer.inputSlot() = imgRGB;
-
-    _scene.updateVideoImage(_imgBuffer.outputSlot());
-    _imgBuffer.incrementSlot();
-
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());
@@ -781,6 +780,22 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
                         _gui.uiPrefs->showCovisibilityGraph,
                         _gui.uiPrefs->showSpanningTree,
                         _gui.uiPrefs->showLoopEdges);
+}
+
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+{
+    //undistort image and copy image to video texture
+    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
+
+    if (_calibration.state() == CS_calibrated && _showUndistorted)
+        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
+    else
+        _imgBuffer.inputSlot() = imgRGB;
+
+    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    _imgBuffer.incrementSlot();
+
+    updateTrackingVisualization(iKnowWhereIAm);
 }
 
 void TestView::setupDefaultErlebARDirTo(std::string dir)

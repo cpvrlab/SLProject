@@ -117,6 +117,8 @@ void SLGLState::initAll()
 
     //initialize states a unset
     _blend                = false;
+    _blendFuncSfactor     = GL_SRC_ALPHA;
+    _blendFuncDfactor     = GL_ONE_MINUS_SRC_ALPHA;
     _cullFace             = false;
     _depthTest            = false;
     _depthMask            = false;
@@ -180,7 +182,7 @@ void SLGLState::onInitialize(const SLCol4f& clearColor)
     glEnable(GL_DEPTH_TEST);
 
     // set blend function for classic transparency
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(_blendFuncSfactor, _blendFuncDfactor);
 
     // set background color
     glClearColor(clearColor.r,
@@ -339,7 +341,20 @@ void SLGLState::blend(SLbool stateNew)
         else
             glDisable(GL_BLEND);
         _blend = stateNew;
-
+        GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
+//! Sets new blend function source and destination factors
+void SLGLState::blendFunc(SLenum newBlendFuncSFactor,
+                          SLenum newBlendFuncDFactor)
+{
+    if (_blendFuncSfactor != newBlendFuncSFactor ||
+        _blendFuncDfactor != newBlendFuncDFactor)
+    {
+        glBlendFunc(newBlendFuncSFactor, newBlendFuncDFactor);
+        _blendFuncSfactor = newBlendFuncSFactor;
+        _blendFuncDfactor = newBlendFuncDFactor;
         GET_GL_ERROR;
     }
 }
