@@ -523,9 +523,9 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
         if (node->isSelected() && _isSelected)
             drawSelectedVertices();
     }
-    else // rect selection is going on
+    else // rect selection or deselection is going on
     {
-        // Build full viewport-modelview-projection transform
+        // Build full viewport-modelview-projection transform matrix
         SLMat4f mvp = *stateGL->mvpMatrix();
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
@@ -535,11 +535,10 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
                    (SLfloat)vp.height);
         SLMat4f     v_mvp = v * mvp;
         set<SLuint> tempIselected;   // Temp. vector for selected vertex indices
-        set<SLuint> tempIdeselected; // Temp. vector for deselected vertex indices
 
-        if (!cam->selectRect().isEmpty()) // Do rectangle selection
+        if (!cam->selectRect().isEmpty()) // Do rectangle Selection
         {
-            // Select by transform all vertices and add the ones in the rect to tempIS32
+            // Select by transform all vertices and add the ones in the rect to tempInRect
             set<SLuint> tempInRect;
             for (SLulong i = 0; i < P.size(); ++i)
             {
@@ -556,9 +555,10 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
                            tempInRect.end(),
                            inserter(tempIselected, tempIselected.begin()));
         }
-        else if (!cam->deselectRect().isEmpty()) // Do rectangle deselection
+        else if (!cam->deselectRect().isEmpty()) // Do rectangle Deselection
         {
-            // Deselect by transform all vertices and add the ones in the ROI to tempIDS32
+            // Deselect by transform all vertices and add the ones in the rect to tempIdeselected
+            set<SLuint> tempIdeselected; // Temp. vector for deselected vertex indices
             for (SLulong i = 0; i < P.size(); ++i)
             {
                 SLVec3f p = v_mvp * P[i];
@@ -599,6 +599,9 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
     }
 }
 //-----------------------------------------------------------------------------
+/*! Clears the partial selection but not the flag SLMesh::_isSelected
+ See also SLMesh::handleRectangleSelection.
+ */
 void SLMesh::deselectPartialSelection()
 {
     _vaoS.clearAttribs();
@@ -607,7 +610,7 @@ void SLMesh::deselectPartialSelection()
 //-----------------------------------------------------------------------------
 /*! If the entire mesh is selected all points will be drawn with an the vertex
  array only without indices. If a subset is selected we use the extra index
- array IS32.
+ array IS32. See also SLMesh::handleRectangleSelection.
  */
 void SLMesh::drawSelectedVertices()
 {
@@ -617,12 +620,14 @@ void SLMesh::drawSelectedVertices()
     stateGL->depthTest(false);
 
     if (IS32.empty())
-    { // Draw all
+    {
+        // Draw all
         _vaoS.generateVertexPos(_finalP);
         _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
     }
     else
-    { // Draw only selected
+    {
+        // Draw only selected
         _vaoS.clearAttribs();
         _vaoS.setIndices(&IS32);
         _vaoS.generateVertexPos(_finalP);

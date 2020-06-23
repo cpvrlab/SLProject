@@ -148,8 +148,8 @@ SLbool MapEdition::onMouseUp(SLMouseButton button,
         p.x = (p.x + 1.0) * 0.5 * _sv->viewportW();
         p.y = (-p.y + 1.0) * 0.5 * _sv->viewportH();
 
-        
-        if (_sv->camera()->selectedRect().contains(p))
+        // Look also at SLMesh::handleRectangleSelection
+        if (_sv->camera()->selectRect().contains(p))
         {
             _selected.push_back(mp[i]);
         }
