@@ -820,7 +820,7 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
 
     // Start selection rectangle
-    if (mod == K_ctrl)
+    if (mod & K_ctrl)
     {
         //s->selectNodeMesh(nullptr, nullptr);
         _selectedRect.tl(_oldTouchPos1);
@@ -847,7 +847,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
          selectRect are listed in SLMesh::IS32. All nodes that have selected vertices
          have their drawbit SL_DB_SELECTED set.
          */
-        if (mod == K_ctrl)
+        if (mod & K_ctrl)
         {
             _selectedRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
         }
@@ -962,7 +962,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
         }
     }
-    else if (button == MB_middle) //================================================
+    else if (button == MB_middle) //===========================================
     {
         if (_camAnim == CA_turntableYUp ||
             _camAnim == CA_turntableZUp ||
@@ -987,7 +987,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
         }
-    } //=======================================================================
+    } //===================================================================
     return true;
 }
 //-----------------------------------------------------------------------------

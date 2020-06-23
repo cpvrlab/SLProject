@@ -162,6 +162,8 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Do anti-aliasing w. contrast compare in a 2nd. pass
     if (_aaSamples > 1)
     {
+        PROFILE_SCOPE("AnitAliasing");
+
         getAAPixels();           // Fills in the AA pixels by contrast
         vector<thread> threads2; // vector for additional threads
         _nextLine = 0;           // reset _nextLine=0 be for multithreading starts
@@ -644,6 +646,8 @@ Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::sampleAAPixels(const bool isMainThread)
 {
+    PROFILE_FUNCTION();
+
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2 = 0;
 
@@ -884,6 +888,8 @@ Draw the RT-Image as a textured quad in 2D-Orthographic projection
 */
 void SLRaytracer::renderImage(bool updateTextureGL)
 {
+    PROFILE_FUNCTION();
+
     SLRecti vpRect = _sv->viewportRect();
     SLfloat w      = (SLfloat)vpRect.width;
     SLfloat h      = (SLfloat)vpRect.height;

@@ -113,10 +113,11 @@ bool TestView::update()
                 _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 _fillAutoCalibration = false;
             }
-
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
     }
+
+    updateTrackingVisualization(_mode && _mode->isTracking());
 
     return onPaint();
 }
@@ -195,7 +196,9 @@ void TestView::handleEvents()
                     _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 }
+                delete autoCalEvent;
             }
+            break;
 
             case WAIEventType_VideoControl: {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
@@ -263,6 +266,15 @@ void TestView::handleEvents()
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
+                if (enterEditModeEvent->saveToMap)
+                {
+                    SLNode * mapNode = _scene.root3D()->findChild<SLNode>("map");
+                    const float *m = mapNode->om().m();
+                    cv::Mat mat = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
+                    _mode->transformCoords(mat);
+                    _scene.resetMapNode();
+                }
+
                 if (enterEditModeEvent->editMode == NodeEditMode_None)
                 {
                     if (_scene.root3D()->deleteChild(_transformationNode))
@@ -280,7 +292,35 @@ void TestView::handleEvents()
                 {
                     _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
+                delete enterEditModeEvent;
+            }
+            break;
 
+            case WAIEventType_EnterEditMapPointMode: {
+                WAIEventEnterEditMapPointMode* enterEditModeEvent = (WAIEventEnterEditMapPointMode*)event;
+                if (enterEditModeEvent->start && !_mapEdition)
+                {
+                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _dataDir + "shaders/");
+                    _scene.root3D()->addChild(_mapEdition);
+                    std::cout << "enter map edition" << std::endl;
+                }
+                else if (enterEditModeEvent->save && _mapEdition)
+                {
+                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
+                }
+                else if (enterEditModeEvent->quit && _mapEdition)
+                {
+                    if (_scene.root3D()->deleteChild(_mapEdition))
+                    {
+                        auto it = find(_scene.eventHandlers().begin(),
+                                       _scene.eventHandlers().end(),
+                                       _mapEdition);
+                        if (it != _scene.eventHandlers().end())
+                            _scene.eventHandlers().erase(it);
+
+                        _mapEdition = nullptr;
+                    }
+                }
                 delete enterEditModeEvent;
             }
             break;
@@ -699,20 +739,8 @@ void TestView::updateVideoTracking()
     }
 }
 
-void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
-    //undistort image and copy image to video texture
-    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
-
-    if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
-    else
-        _imgBuffer.inputSlot() = imgRGB;
-
-    _scene.updateVideoImage(_imgBuffer.outputSlot());
-    _imgBuffer.incrementSlot();
-
-    //update map point visualization
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());
@@ -749,6 +777,22 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
                         _gui.uiPrefs->showCovisibilityGraph,
                         _gui.uiPrefs->showSpanningTree,
                         _gui.uiPrefs->showLoopEdges);
+}
+
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+{
+    //undistort image and copy image to video texture
+    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
+
+    if (_calibration.state() == CS_calibrated && _showUndistorted)
+        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
+    else
+        _imgBuffer.inputSlot() = imgRGB;
+
+    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    _imgBuffer.incrementSlot();
+
+    updateTrackingVisualization(iKnowWhereIAm);
 }
 
 void TestView::setupDefaultErlebARDirTo(std::string dir)

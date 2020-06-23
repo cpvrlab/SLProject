@@ -1581,7 +1581,12 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key==K_tab) {switchToNextCameraInScene(); return true;}
 
     if (key==K_esc)
-    {   if (_s->selectedNode()) _s->selectNode(nullptr);
+    {
+        if (_s->selectedNode() || !_camera->selectedRect().isEmpty())
+        {
+            _s->selectNode(nullptr);
+            _camera->selectedRect().setZero();
+        }
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;
         return true;

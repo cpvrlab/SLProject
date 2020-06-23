@@ -141,10 +141,9 @@ public:
     void         deleteData();
     void         deleteSelected(SLNode* node);
     void         deleteUnused();
-    virtual void calcNormals();
-    void         calcTangents();
     void         calcTex3DMatrix(SLNode* node);
     virtual void calcMinMax();
+    virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO(SLGLProgram* sp);
@@ -195,6 +194,10 @@ public:
 
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
+
+private:
+    void calcTangents();
+    void drawSelectedMeshPoints();
 
 protected:
     SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)

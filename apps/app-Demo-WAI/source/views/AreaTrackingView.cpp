@@ -66,7 +66,8 @@ bool AreaTrackingView::update()
 
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
-    ErlebAR::Area& area = _locations[locId].areas[areaId];
+    ErlebAR::Location& location = _locations[locId];
+    ErlebAR::Area&     area     = location.areas[areaId];
     _gui.initArea(area);
     //start camera
     startCamera();
@@ -74,7 +75,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //load model into scene graph
     //todo: move standard nodes to a different function than model loading
     //doWaitOnIdle(false);
-    _scene.rebuild("", "");
+    _scene.rebuild(location.name, area.name);
     this->camera(_scene.cameraNode);
     //onInitialize();
     //setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);

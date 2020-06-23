@@ -30,9 +30,9 @@ const char* mapAreaIdToName(AreaId id)
             return "Undefined area";
         //augst
         case AreaId::AUGST_TEMPLE_HILL_MARKER:
-            return "Temple-Hill";
+            return "templeHill-marker";
         case AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM:
-            return "Temple-Hill-Bottom";
+            return "templeHillTheater";
         //avenches
         case AreaId::AVENCHES_AMPHITHEATER:
             return "Amphitheater";
@@ -149,7 +149,6 @@ const Location defineLocationAvenches()
         area.slamMapFileName = "locations/avenches/theater-marker/maps/DEVELOPMENT-map_20200602-202250_avenches_theater-marker_FAST_ORBS_1000.json";
         loc.areas[area.id]   = area;
     }
-
 
     return loc;
 }

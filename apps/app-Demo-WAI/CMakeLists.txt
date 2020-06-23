@@ -38,6 +38,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapPointEditor.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.h
@@ -62,6 +63,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIEvent.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/MapPointEdition.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
@@ -113,6 +115,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosMapNodeTransform.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapPointEditor.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosSensors.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosTracking.cpp
@@ -134,6 +137,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/MapPointEdition.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp

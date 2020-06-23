@@ -1352,13 +1352,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLSkybox*    skybox    = new SLSkybox(s,
+                                        SLApplication::shaderPath,
                                         SLApplication::texturePath + "Desert+X1024_C.jpg",
                                         SLApplication::texturePath + "Desert-X1024_C.jpg",
                                         SLApplication::texturePath + "Desert+Y1024_C.jpg",
                                         SLApplication::texturePath + "Desert-Y1024_C.jpg",
                                         SLApplication::texturePath + "Desert+Z1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-Z1024_C.jpg",
-                                        SLApplication::shaderPath);
+                                        SLApplication::texturePath + "Desert-Z1024_C.jpg");
         SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
 
         // Material for mirror

@@ -98,7 +98,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
@@ -112,7 +112,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             loadMesh(modelPath);
         }
     }
-    else if (location == "augst")
+    else if (location == "augst" || location == "Augst")
     {
         if (area == "templeHill-marker")
         {
@@ -327,6 +327,13 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
     }
 }
 
+
+void AppWAIScene::resetMapNode()
+{
+    mapNode->translation(0, 0, 0);
+    mapNode->lookAt(0, 0, -1);
+}
+
 void AppWAIScene::updateCameraPose(const cv::Mat& pose)
 {
     // update camera node position
@@ -340,6 +347,7 @@ void AppWAIScene::updateCameraPose(const cv::Mat& pose)
 
     Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
     twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+
 
     SLMat4f om;
     om.setMatrix(PoseInv.at<float>(0, 0),

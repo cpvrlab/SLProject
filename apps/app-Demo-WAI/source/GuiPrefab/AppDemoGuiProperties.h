@@ -2,7 +2,6 @@
 #define SL_IMGUI_PROPERTIES_H
 
 #include <SLScene.h>
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <WAICalibration.h>
 

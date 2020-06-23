@@ -65,6 +65,8 @@ intermediate/
 cmake-build*/
 *Snapchat3D/
 
+Profile_*
+
 Makefile
 .qmake*
 GenerateHTMLDoc.log
