@@ -103,13 +103,12 @@ void SLMesh::deleteData()
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Deletes the rectangle selected vertices and the dependend triangles.
+//! Deletes the rectangle selected vertices and the dependent triangles.
 /*! The selection rectangle is defined in SLScene::selectRect and gets set and
- drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
- not empty the SLScene::selectedNode is null. All vertices that are within the
- selectRect are listed in SLMesh::IS32. The selection evaluation is done during
- drawing in SLMesh::draw and is only valid for the current frame.
- All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+ drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. All vertices that
+ are within the selectRect are listed in SLMesh::IS32. The selection evaluation
+ is done during drawing in SLMesh::handleRectangleSelection and is only valid
+ for the current frame. See also SLMesh::handleRectangleSelection.*/
 void SLMesh::deleteSelected(SLNode* node)
 {
     // Loop over all rectangle selected indexes in IS32
@@ -534,44 +533,47 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
                    (SLfloat)vp.y,
                    (SLfloat)vp.width,
                    (SLfloat)vp.height);
-        SLMat4f v_mvp = v * mvp;
-        SLVuint tempIselected;   // Temp. vector for selected vertex indices
-        SLVuint tempIdeselected; // Temp. vector for deselected vertex indices
+        SLMat4f     v_mvp = v * mvp;
+        set<SLuint> tempIselected;   // Temp. vector for selected vertex indices
+        set<SLuint> tempIdeselected; // Temp. vector for deselected vertex indices
 
-        if (!cam->selectRect().isEmpty())
-        { // Select by transform all vertices and add the ones in the rect to tempIS32
+        if (!cam->selectRect().isEmpty()) // Do rectangle selection
+        {
+            // Select by transform all vertices and add the ones in the rect to tempIS32
+            set<SLuint> tempInRect;
             for (SLulong i = 0; i < P.size(); ++i)
             {
                 SLVec3f p = v_mvp * P[i];
                 if (cam->selectRect().contains(SLVec2f(p.x, p.y)))
-                    tempIselected.push_back((SLuint)i);
+                    tempInRect.insert((SLuint)i);
             }
+
+            // Merge the rectangle selected by doing a set union operation
+            set<SLuint> IS32set(IS32.begin(), IS32.end());
+            std::set_union(IS32set.begin(),
+                           IS32set.end(),
+                           tempInRect.begin(),
+                           tempInRect.end(),
+                           inserter(tempIselected, tempIselected.begin()));
         }
-        else if (!cam->deselectRect().isEmpty())
-        { // Deselect by transform all vertices and add the ones in the ROI to tempIDS32
+        else if (!cam->deselectRect().isEmpty()) // Do rectangle deselection
+        {
+            // Deselect by transform all vertices and add the ones in the ROI to tempIDS32
             for (SLulong i = 0; i < P.size(); ++i)
             {
                 SLVec3f p = v_mvp * P[i];
                 if (cam->deselectRect().contains(SLVec2f(p.x, p.y)))
-                    tempIdeselected.push_back((SLuint)i);
+                    tempIdeselected.insert((SLuint)i);
             }
 
-            // Remove the deselected ones and add all remaining into tempIdeselect
+            // Remove the deselected ones by doing a set difference operation
             tempIselected.clear();
-            for (SLuint is : IS32)
-            {
-                bool remainSelected = true;
-                for (SLuint ids : tempIdeselected)
-                {
-                    if (is == ids)
-                    {
-                        remainSelected = false;
-                        break;
-                    }
-                }
-                if (remainSelected)
-                    tempIselected.push_back(is);
-            }
+            set<SLuint> IS32set(IS32.begin(), IS32.end());
+            std::set_difference(IS32set.begin(),
+                                IS32set.end(),
+                                tempIdeselected.begin(),
+                                tempIdeselected.end(),
+                                inserter(tempIselected, tempIselected.begin()));
         }
 
         // Flag node and mesh for the first time a mesh gets rectangle selected.
@@ -589,7 +591,7 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
         if (node->isSelected() && _isSelected)
         {
             if (!tempIselected.empty())
-                IS32 = tempIselected;
+                IS32.assign(tempIselected.begin(), tempIselected.end());
 
             if (!IS32.empty())
                 drawSelectedVertices();
