@@ -36,9 +36,9 @@ SLstring SLApplication::configuration = "Debug";
 #else
 SLstring SLApplication::configuration = "Release";
 #endif
-SLstring            SLApplication::gitBranch;// = SL_GIT_BRANCH;
-SLstring            SLApplication::gitCommit;// = SL_GIT_COMMIT;
-SLstring            SLApplication::gitDate;//   = SL_GIT_DATE;
+SLstring            SLApplication::gitBranch = SL_GIT_BRANCH;
+SLstring            SLApplication::gitCommit = SL_GIT_COMMIT;
+SLstring            SLApplication::gitDate   = SL_GIT_DATE;
 map<string, string> SLApplication::deviceParameter;
 
 CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;
