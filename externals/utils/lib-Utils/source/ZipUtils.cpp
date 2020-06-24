@@ -183,7 +183,7 @@ bool zip(std::string path, std::string zipname)
         zipClose(zfile, nullptr);
         return false;
     }
-    
+
     bool ret = true;
     string zipRootPath = Utils::getDirName(path);
 

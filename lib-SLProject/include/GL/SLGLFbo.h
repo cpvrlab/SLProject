@@ -8,6 +8,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifndef SLGLFBO_H
+#define SLGLFBO_H
+
 #include <SL.h>
 
 //-----------------------------------------------------------------------------
@@ -26,7 +29,7 @@ public:
 
     void activateAsTexture(int             progId,
                            const SLstring& samplerName,
-                           int             textureUnit = GL_TEXTURE0);
+                           int             textureUnit = 0);
 
     SLuint width;
     SLuint height;
@@ -36,3 +39,4 @@ public:
     SLuint rboID;
 };
 //-----------------------------------------------------------------------------
+#endif //SLGLFBO_H

@@ -1,7 +1,6 @@
 #ifndef SL_IMGUI_INFOS_SENSORS_H
 #define SL_IMGUI_INFOS_SENSORS_H
 
-#include <WAIModeOrbSlam2.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <WAICalibration.h>
 

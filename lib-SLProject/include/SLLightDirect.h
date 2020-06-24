@@ -15,15 +15,15 @@
 #include <SLNode.h>
 #include <SLSamples2D.h>
 
-class SLSceneView;
 class SLRay;
 class SLScene;
+class SLSceneView;
 
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
-/*!      
-SLLightDirect is a node and a light that can have a sphere mesh with a line for 
-its direction representation. 
+/*!
+SLLightDirect is a node and a light that can have a sphere mesh with a line for
+its direction representation.
 For directional lights the position vector is in infinite distance
 We use its homogeneos component w as zero as the directional light flag.
 The spot direction is used in the shaders for the light direction.
@@ -58,7 +58,7 @@ public:
                   SLfloat         diffPower   = 10.0f,
                   SLfloat         specPower   = 10.0f,
                   SLbool          hasMesh     = true);
-    ~SLLightDirect() override { ; }
+    ~SLLightDirect() override;
 
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
@@ -73,6 +73,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Getters
     SLfloat radius() { return _arrowRadius; }
@@ -86,7 +87,6 @@ public:
         pos.w = 0.0f;
         return pos;
     }
-
     SLVec3f spotDirWS() override { return forwardOS(); }
 
 private:

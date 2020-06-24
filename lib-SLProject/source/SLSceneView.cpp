@@ -27,16 +27,17 @@
 const SLint SLSceneView::LONGTOUCH_MS = 500;
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
-/*! The default constructor adds the this pointer to the sceneView vector in 
-SLScene. If an in between element in the vector is zero (from previous sceneviews) 
+/*! The default constructor adds the this pointer to the sceneView vector in
+SLScene. If an in between element in the vector is zero (from previous sceneviews)
 it will be replaced. The sceneviews _index is the index in the sceneview vector.
-It never changes throughout the life of a sceneview. 
+It never changes throughout the life of a sceneview.
 */
 SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
   : SLObject(),
     _s(s),
     _dpi(dpi),
     _inputManager(inputManager),
+    _shadowMapTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
     _draw2DTimesMS(60, 0.0f)
@@ -125,8 +126,8 @@ void SLSceneView::unInit()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onInitialize is called by the window system before the first 
-rendering. It applies all scene rendering attributes with the according 
+SLSceneView::onInitialize is called by the window system before the first
+rendering. It applies all scene rendering attributes with the according
 OpenGL function.
 */
 void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
@@ -348,8 +349,8 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onInitialize is called by the window system before the first 
-rendering. It applies all scene rendering attributes with the according 
+SLSceneView::onInitialize is called by the window system before the first
+rendering. It applies all scene rendering attributes with the according
 OpenGL function.
 */
 void SLSceneView::onInitialize()
@@ -413,9 +414,10 @@ void SLSceneView::onInitialize()
     }
 
     // Reset timing variables
-    _cullTimeMS   = 0.0f;
-    _draw3DTimeMS = 0.0f;
-    _draw2DTimeMS = 0.0f;
+    _shadowMapTimeMS = 0.0f;
+    _cullTimeMS      = 0.0f;
+    _draw3DTimeMS    = 0.0f;
+    _draw2DTimeMS    = 0.0f;
     _cullTimesMS.init(60, 0.0f);
     _draw3DTimesMS.init(60, 0.0f);
     _draw2DTimesMS.init(60, 0.0f);
@@ -440,7 +442,7 @@ void SLSceneView::onInitialize()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onResize is called by the window system before the first 
+SLSceneView::onResize is called by the window system before the first
 rendering and whenever the window changes its size.
 */
 void SLSceneView::onResize(SLint width, SLint height)
@@ -478,7 +480,7 @@ void SLSceneView::onResize(SLint width, SLint height)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onPaint is called by window system whenever the window and therefore 
+SLSceneView::onPaint is called by window system whenever the window and therefore
 the scene needs to be painted. Depending on the renderer it calls first
 SLSceneView::draw3DGL, SLSceneView::draw3DRT or SLSceneView::draw3DPT and
 then SLSceneView::draw2DGL for all UI in 2D. The method returns true if either
@@ -488,6 +490,7 @@ SLbool SLSceneView::onPaint()
 {
     PROFILE_FUNCTION();
 
+    _shadowMapTimesMS.set(_shadowMapTimeMS);
     _cullTimesMS.set(_cullTimeMS);
     _draw3DTimesMS.set(_draw3DTimeMS);
     _draw2DTimesMS.set(_draw2DTimeMS);
@@ -565,7 +568,7 @@ SLbool SLSceneView::onPaint()
 }
 //-----------------------------------------------------------------------------
 //! Draws the 3D scene with OpenGL
-/*! This is the main routine for updating and drawing the 3D scene for one frame. 
+/*! This is the main routine for updating and drawing the 3D scene for one frame.
 The following steps are processed:
 <ol>
 <li>
@@ -576,18 +579,18 @@ The camera animation is the only animation that is view dependent.
 <li>
 <b>Clear Buffers</b>:
 The color and depth buffer are cleared in this step. If the projection is
-the Oculus stereo projection also the framebuffer target is bound. 
+the Oculus stereo projection also the framebuffer target is bound.
 </li>
 <li>
 <b>Set Projection and View</b>:
-Depending on the projection we set the camera projection and the view 
+Depending on the projection we set the camera projection and the view
 for the center or left eye.
 </li>
 <li>
 <b>Frustum Culling</b>:
-The frustum culling traversal fills the vectors SLSceneView::_visibleNodes 
-and SLSceneView::_blendNodes with the visible transparent nodes. 
-Nodes that are not visible with the current camera are not drawn. 
+The frustum culling traversal fills the vectors SLSceneView::_visibleNodes
+and SLSceneView::_blendNodes with the visible transparent nodes.
+Nodes that are not visible with the current camera are not drawn.
 </li>
 <li>
 <b>Draw Skybox</b>:
@@ -596,12 +599,12 @@ The skybox is allways around the active camera.
 </li>
 <li>
 <b>Draw Opaque and Blended Nodes</b>:
-By calling the SLSceneView::draw3D all nodes in the vectors 
+By calling the SLSceneView::draw3D all nodes in the vectors
 SLSceneView::_visibleNodes and SLSceneView::_blendNodes will be drawn.
-_blendNodes is a vector with all nodes that contain 1-n meshes with 
-alpha material. _visibleNodes is a vector with all visible nodes. 
-Even if a node contains alpha meshes it still can contain meshes with 
-opaque material. If a stereo projection is set, the scene gets drawn 
+_blendNodes is a vector with all nodes that contain 1-n meshes with
+alpha material. _visibleNodes is a vector with all visible nodes.
+Even if a node contains alpha meshes it still can contain meshes with
+opaque material. If a stereo projection is set, the scene gets drawn
 a second time for the right eye.
 </li>
 <li>
@@ -619,11 +622,28 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     preDraw();
 
+    ///////////////////////////
+    // 0. Render shadow maps //
+    ///////////////////////////
+
+    SLfloat startMS = GlobalTimer::timeMS();
+
+    // Render shadow map for each light which creates shadows
+    for (SLLight* light : _s->lights())
+    {
+        if (light->createsShadows())
+        {
+            light->renderShadowMap(this, _s->root3D());
+        }
+    }
+
+    _shadowMapTimeMS = GlobalTimer::timeMS() - startMS;
+
     /////////////////////////
     // 1. Do camera Update //
     /////////////////////////
 
-    SLfloat startMS = GlobalTimer::timeMS();
+    startMS = GlobalTimer::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
@@ -738,7 +758,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 /*!
 SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
 the blended nodes have to be drawn from back to front.
-During the cull traversal all nodes with alpha materials are flagged and 
+During the cull traversal all nodes with alpha materials are flagged and
 added the to the vector _alphaNodes. The _visibleNodes vector contains all
 nodes because a node with alpha meshes still can have nodes with opaque
 material. To avoid double drawing the SLNode::drawMeshes draws in the blended
@@ -820,7 +840,7 @@ without blending.
 Colors:
 Red   : AABB of nodes with meshes
 Pink  : AABB of nodes without meshes (only child nodes)
-Yellow: AABB of selected node 
+Yellow: AABB of selected node
 */
 void SLSceneView::draw3DGLLines(SLVNode& nodes)
 {
@@ -842,25 +862,18 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
         {
             // Draw first AABB of the shapes but not the camera
             if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
-                !node->drawBit(SL_DB_SELECTED))
+                !node->isSelected())
             {
                 if (node->numMeshes() > 0)
-                    node->aabb()->drawWS(SLCol3f(1, 0, 0));
+                    node->aabb()->drawWS(SLCol3f::RED);
                 else
-                    node->aabb()->drawWS(SLCol3f(1, 0, 1));
+                    node->aabb()->drawWS(SLCol3f::MAGENTA);
             }
 
             // Draw AABB for selected shapes
-            if (node->drawBit(SL_DB_SELECTED))
+            if (node->isSelected())
             {
-                if (node == _s->selectedNode() || !_camera->selectedRect().isEmpty())
-                    node->aabb()->drawWS(SLCol3f(1, 1, 0));
-                else
-                {
-                    // delete selection bits from previous rectangle selection
-                    if (node != _s->selectedNode() && _camera->selectedRect().isEmpty())
-                        node->drawBits()->off(SL_DB_SELECTED);
-                }
+                node->aabb()->drawWS(SLCol3f::YELLOW);
             }
         }
     }
@@ -883,7 +896,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
         {
             if (drawBit(SL_DB_AXIS) || node->drawBit(SL_DB_AXIS) ||
                 drawBit(SL_DB_SKELETON) || node->drawBit(SL_DB_SKELETON) ||
-                node->drawBit(SL_DB_SELECTED))
+                node->isSelected())
             {
                 // Set the view transform
                 SLGLState* stateGL = SLGLState::instance();
@@ -895,7 +908,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 // Draw axis
                 if (drawBit(SL_DB_AXIS) ||
                     node->drawBit(SL_DB_AXIS) ||
-                    node->drawBit(SL_DB_SELECTED))
+                    node->isSelected())
                 {
                     node->aabb()->drawAxisWS();
                 }
@@ -992,29 +1005,29 @@ void SLSceneView::draw2DGL()
             // 3. Draw all 2D nodes opaque
             draw2DGLNodes();
 
-            // Draw selection rectangle
-            /* The selection rectangle is defined in SLScene::selectRect and gets set and
-        drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-        not empty the SLScene::selectedNode is null. All vertices that are within the
-        selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-        drawing in SLMesh::draw and is only valid for the current frame.
-        All nodes that have selected vertices have their drawbit SL_DB_SELECTED set. */
-
-            if (!_camera->selectedRect().isEmpty())
+            // Draw selection rectangle. See also SLMesh::handleRectangleSelection
+            if (!_camera->selectRect().isEmpty())
             {
                 stateGL->pushModelViewMatrix();
                 stateGL->modelViewMatrix.identity();
                 stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
                 stateGL->depthMask(false); // Freeze depth buffer for blending
                 stateGL->depthTest(false); // Disable depth testing
-                //stateGL->blendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR); // inverts background
-                stateGL->blend(true); // Enable blending
-                //stateGL->polygonLine(false);       // Only filled polygons
+                _camera->selectRect().drawGL(SLCol4f::WHITE);
+                stateGL->depthMask(true); // enable depth buffer writing
+                stateGL->depthTest(true); // enable depth testing
+                stateGL->popModelViewMatrix();
+            }
 
-                _camera->selectedRect().drawGL(SLCol4f::WHITE);
-
-                stateGL->blend(false); // turn off blending
-                //stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // std. transparency
+            // Draw deselection rectangle. See also SLMesh::handleRectangleSelection
+            if (!_camera->deselectRect().isEmpty())
+            {
+                stateGL->pushModelViewMatrix();
+                stateGL->modelViewMatrix.identity();
+                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Disable depth testing
+                _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
                 stateGL->depthMask(true); // enable depth buffer writing
                 stateGL->depthTest(true); // enable depth testing
                 stateGL->popModelViewMatrix();
@@ -1123,7 +1136,7 @@ void SLSceneView::draw2DGLNodes()
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onMouseDown gets called whenever a mouse button gets pressed and
 dispatches the event to the currently attached event handler object.
 */
@@ -1153,6 +1166,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         if (_gui->doNotDispatchMouse())
             return true;
     }
+
     //if (ImGui::GetIO().WantCaptureMouse)
     //    return true;
 
@@ -1184,7 +1198,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onMouseUp gets called whenever a mouse button gets released.
 */
 SLbool SLSceneView::onMouseUp(SLMouseButton button,
@@ -1250,7 +1264,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onMouseMove gets called whenever the mouse is moved.
 */
 SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
@@ -1322,7 +1336,7 @@ SLbool SLSceneView::onMouseMove(SLint scrX, SLint scrY)
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
 The parameter wheelPos is an increasing or decreeing counter number.
 */
@@ -1334,7 +1348,7 @@ SLbool SLSceneView::onMouseWheelPos(SLint wheelPos, SLKey mod)
     return onMouseWheel(delta, mod);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onMouseWheel gets called whenever the mouse wheel is turned.
 The parameter delta is positive/negative depending on the wheel direction
 */
@@ -1372,8 +1386,8 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLSceneView::onDoubleClick gets called when a mouse double click or finger 
+/*!
+SLSceneView::onDoubleClick gets called when a mouse double click or finger
 double tab occurs.
 */
 SLbool SLSceneView::onDoubleClick(SLMouseButton button,
@@ -1407,10 +1421,22 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 
         if (pickRay.length < FLT_MAX)
         {
-            _camera->selectedRect().setZero();
-            _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
-            if (onSelectedNodeMesh)
-                onSelectedNodeMesh(_s->selectedNode(), _s->selectedMesh());
+
+            if (mod & K_shift)
+            {
+                _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+                if (onSelectedNodeMesh)
+                    onSelectedNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            }
+            else
+            {
+                if (_s->singleNodeSelected() != pickRay.hitNode)
+                    _s->deselectAllNodesAndMeshes();
+
+                _s->selectNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+                if (onSelectedNodeMesh)
+                    onSelectedNodeMesh(pickRay.hitNode, pickRay.hitMesh);
+            }
             result = true;
         }
     }
@@ -1441,7 +1467,7 @@ SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
     return true;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
 */
@@ -1471,7 +1497,7 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onTouch2Move gets called whenever two fingers touch a handheld
 screen.
 */
@@ -1502,7 +1528,7 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onTouch2Up gets called whenever two fingers touch a handheld
 screen.
 */
@@ -1530,10 +1556,10 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLSceneView::onKeyPress gets get called whenever a key is pressed. Before 
+/*!
+SLSceneView::onKeyPress gets get called whenever a key is pressed. Before
 passing the command to the eventhandlers the main key commands are handled by
-forwarding them to onCommand. 
+forwarding them to onCommand.
 */
 SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 {
@@ -1556,7 +1582,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='I') {doWaitOnIdle(!doWaitOnIdle()); return true;}
     if (key=='F') {doFrustumCulling(!doFrustumCulling()); return true;}
     if (key=='T') {doDepthTest(!doDepthTest()); return true;}
-    if (key=='O') {_s->stopAnimations(!_s->stopAnimations()); return true;}
+    if (key==K_space) {_s->stopAnimations(!_s->stopAnimations()); return true;}
 
     if (key=='R') {startRaytracing(5);}
     if (key=='P') {startPathtracing(5, 10);}
@@ -1581,7 +1607,16 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key==K_tab) {switchToNextCameraInScene(); return true;}
 
     if (key==K_esc)
-    {   if (_s->selectedNode()) _s->selectNode(nullptr);
+    {
+        if (!_s->selectedNodes().empty() ||
+            !_camera->selectRect().isEmpty() ||
+            !_camera->deselectRect().isEmpty())
+        {
+            _s->deselectAllNodesAndMeshes();
+            _camera->selectRect().setZero();
+            _camera->deselectRect().setZero();
+            return true;
+        }
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;
         return true;
@@ -1605,7 +1640,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLSceneView::onKeyRelease get called whenever a key is released.
 */
 SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
@@ -1727,7 +1762,7 @@ void SLSceneView::startRaytracing(SLint maxDepth)
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::updateAndRT3D starts the raytracing or refreshes the current RT
-image during rendering. The function returns true if an animation was done 
+image during rendering. The function returns true if an animation was done
 prior to the rendering start.
 */
 SLbool SLSceneView::draw3DRT()
@@ -1780,7 +1815,7 @@ void SLSceneView::startPathtracing(SLint maxDepth, SLint samples)
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::updateAndRT3D starts the raytracing or refreshes the current RT
-image during rendering. The function returns true if an animation was done 
+image during rendering. The function returns true if an animation was done
 prior to the rendering start.
 */
 SLbool SLSceneView::draw3DPT()

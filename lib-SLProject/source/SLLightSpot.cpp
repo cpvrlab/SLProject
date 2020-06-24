@@ -14,6 +14,7 @@
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLShadowMap.h>
 #include <SLSphere.h>
 #include <SLSpheric.h>
 
@@ -76,6 +77,7 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
 {
     _radius = radius;
     _samples.samples(1, 1, false);
+    _castsShadows = false;
     spotCutOffDEG(spotAngleDEG);
 
     translate(posx, posy, posz, TS_object);
@@ -111,8 +113,13 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
     init(s);
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLLightSpot::init sets the light id, the light states & creates an 
+SLLightSpot::~SLLightSpot()
+{
+    delete _shadowMap;
+}
+//-----------------------------------------------------------------------------
+/*!
+SLLightSpot::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
@@ -136,7 +143,7 @@ void SLLightSpot::init(SLScene* s)
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
         if (_meshes[0]->mat())
-            _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
+            _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -163,7 +170,7 @@ void SLLightSpot::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes 
+SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.
 */
 void SLLightSpot::drawMeshes(SLSceneView* sv)
@@ -178,16 +185,23 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
-                _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
+                _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
 
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
+
+        // Draw the volume affected by the shadow map
+        if (_createsShadows && _isOn && sv->s().singleNodeSelected() == this)
+        {
+            _shadowMap->drawFrustum();
+            _shadowMap->drawRays();
+        }
     }
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and 
-1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio 
+SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
+1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
 SLfloat SLLightSpot::shadowTest(SLRay*         ray,       // ray of hit point
@@ -371,26 +385,47 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray,       // ray of hit point
     }
 }
 //-----------------------------------------------------------------------------
+/*! SLLightSpot::renderShadowMap renders the shadow map of the light
+*/
+void SLLightSpot::renderShadowMap(SLSceneView* sv, SLNode* root)
+{
+    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap(
+                                 P_monoPerspective, this);
+    _shadowMap->render(sv, root);
+}
+//-----------------------------------------------------------------------------
 /*! SLLightSpot::setState sets the global rendering state
 */
 void SLLightSpot::setState()
 {
     if (_id != -1)
     {
-        SLGLState* stateGL            = SLGLState::instance();
-        stateGL->lightIsOn[_id]       = _isOn;
-        stateGL->lightPosWS[_id]      = positionWS();
-        stateGL->lightSpotDirWS[_id]  = spotDirWS();
-        stateGL->lightAmbient[_id]    = ambient();
-        stateGL->lightDiffuse[_id]    = diffuse();
-        stateGL->lightSpecular[_id]   = specular();
-        stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;
-        stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;
-        stateGL->lightSpotExp[_id]    = _spotExponent;
-        stateGL->lightAtt[_id].x      = _kc;
-        stateGL->lightAtt[_id].y      = _kl;
-        stateGL->lightAtt[_id].z      = _kq;
-        stateGL->lightDoAtt[_id]      = isAttenuated();
+        SLGLState* stateGL                = SLGLState::instance();
+        stateGL->lightIsOn[_id]           = _isOn;
+        stateGL->lightPosWS[_id]          = positionWS();
+        stateGL->lightSpotDirWS[_id]      = spotDirWS();
+        stateGL->lightAmbient[_id]        = ambient();
+        stateGL->lightDiffuse[_id]        = diffuse();
+        stateGL->lightSpecular[_id]       = specular();
+        stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
+        stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
+        stateGL->lightSpotExp[_id]        = _spotExponent;
+        stateGL->lightAtt[_id].x          = _kc;
+        stateGL->lightAtt[_id].y          = _kl;
+        stateGL->lightAtt[_id].z          = _kq;
+        stateGL->lightDoAtt[_id]          = isAttenuated();
+        stateGL->lightCreatesShadows[_id] = _createsShadows;
+        stateGL->lightDoesPCF[_id]        = _doesPCF;
+        stateGL->lightPCFLevel[_id]       = _pcfLevel;
+
+        if (_shadowMap != nullptr)
+        {
+            stateGL->lightUsesCubemap[_id] = _shadowMap->useCubemap();
+
+            SLMat4f* mvp = _shadowMap->mvp();
+            for (SLint i = 0; i < 6; ++i) stateGL->lightSpace[_id * 6 + i] = mvp[i];
+            stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
+        }
     }
 }
 //-----------------------------------------------------------------------------

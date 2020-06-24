@@ -77,6 +77,8 @@ void readArgs(int argc, char* argv[], Config& config)
                 config.extractorType = ExtractorType_FAST_BRIEF_2000;
             else if (!strcmp(argv[i], "FAST_BRIEF_4000"))
                 config.extractorType = ExtractorType_FAST_BRIEF_4000;
+            else if (!strcmp(argv[i], "FAST_BRIEF_6000"))
+                config.extractorType = ExtractorType_FAST_BRIEF_6000;
             else if (!strcmp(argv[i], "FAST_ORBS_1000"))
                 config.extractorType = ExtractorType_FAST_ORBS_1000;
             else if (!strcmp(argv[i], "FAST_ORBS_2000"))
@@ -89,6 +91,11 @@ void readArgs(int argc, char* argv[], Config& config)
                 config.extractorType = ExtractorType_GLSL_1;
             else if (!strcmp(argv[i], "GLSL"))
                 config.extractorType = ExtractorType_GLSL;
+            else
+            {
+                std::cerr << "unkown feature type" << std::endl;
+                exit(1);
+            }
         }
         else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help"))
         {

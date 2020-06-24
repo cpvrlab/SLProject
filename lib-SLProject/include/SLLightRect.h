@@ -21,11 +21,11 @@ class SLScene;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
-/*!      
-SLLightRect is a node that renders in OpenGL a light rectangle 
+/*!
+SLLightRect is a node that renders in OpenGL a light rectangle
 object and applies the OpenGL light settings through the SLLight class.
-The light rectangle is defined with its width and height and lies initially 
-centered in the x-y-plane. The light shines as a spotlight with 90 degrees 
+The light rectangle is defined with its width and height and lies initially
+centered in the x-y-plane. The light shines as a spotlight with 90 degrees
 cutoff angle towards the negative z-axis.
 If a light node is added to the scene it stays fix in the scene.\n
 If a light node is added to the camera it moves with the camera.\n
@@ -47,7 +47,7 @@ public:
                 SLfloat         width   = 1,
                 SLfloat         height  = 1,
                 SLbool          hasMesh = true);
-    ~SLLightRect() override { ; }
+    ~SLLightRect() override;
 
     void init(SLScene* s);
     void drawRec(SLSceneView* sv) override;
@@ -64,6 +64,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Setters
     void width(const SLfloat w)
@@ -92,11 +93,11 @@ public:
     }
 
 private:
-    SLfloat _width;      //!< Width of square light in x direction
-    SLfloat _height;     //!< Lenght of square light in y direction
-    SLfloat _halfWidth;  //!< Half width of square light in x dir
-    SLfloat _halfHeight; //!< Half height of square light in y dir
-    SLVec2i _samples;    //!< Uneven NO. of samples in x and y dir
+    SLfloat      _width;      //!< Width of square light in x direction
+    SLfloat      _height;     //!< Lenght of square light in y direction
+    SLfloat      _halfWidth;  //!< Half width of square light in x dir
+    SLfloat      _halfHeight; //!< Half height of square light in y dir
+    SLVec2i      _samples;    //!< Uneven NO. of samples in x and y dir
 };
 //-----------------------------------------------------------------------------
 #endif

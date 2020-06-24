@@ -134,7 +134,8 @@ modification have to be done.
 SLbool SLGLShader::createAndCompile()
 {
     // delete if object already exits
-    if (_shaderID) glDeleteShader(_shaderID);
+    if (_shaderID)
+        glDeleteShader(_shaderID);
 
     if (!_code.empty())
     {
@@ -149,6 +150,7 @@ SLbool SLGLShader::createAndCompile()
             default:
                 SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
         }
+        GET_GL_ERROR;
 
         // Build version string as the first statement
         SLGLState* state      = SLGLState::instance();
@@ -195,23 +197,25 @@ SLbool SLGLShader::createAndCompile()
 
         _code = srcVersion + _code;
 
-        //// write out the parsed shader code as text files
-        //#ifdef _GLDEBUG
+        // write out the parsed shader code as text files
         //ofstream fs(name()+".Debug");
         //if(fs)
         //{
         //    fs << _code;
         //    fs.close();
         //}
-        //#endif
 
         const char* src = _code.c_str();
         glShaderSource(_shaderID, 1, &src, nullptr);
+        GET_GL_ERROR;
+
         glCompileShader(_shaderID);
+        GET_GL_ERROR;
 
         // Check compiler log
         SLint compileSuccess = 0;
         glGetShaderiv(_shaderID, GL_COMPILE_STATUS, &compileSuccess);
+        GET_GL_ERROR;
         if (compileSuccess == GL_FALSE)
         {
             GLchar log[256];

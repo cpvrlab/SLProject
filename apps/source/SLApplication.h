@@ -28,7 +28,7 @@ class SLProjectScene;
 class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
-/*!      
+/*!
  The SLApplication holds static instances of top-level items such as the scene
  pointer, the camera calibration objects and the device rotation and location
  information. The static function createAppAndScene is called by the C-interface

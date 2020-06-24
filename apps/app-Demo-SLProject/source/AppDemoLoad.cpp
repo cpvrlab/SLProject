@@ -173,6 +173,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         floorRect->translate(0, 0, -5.5f);
         ceilingRect->rotate(90, 1, 0, 0);
         ceilingRect->translate(0, 0, -5.5f);
+        ceilingRect->drawBits()->on(SL_DB_NOTSELECTABLE);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 22);
@@ -977,7 +978,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Define 5 light sources
-        // A rectangluar wight light on top
+        // A rectanglar wight light on top
         SLLightRect* light0 = new SLLightRect(s, s, 2.0f, 1.0f);
         light0->ambiDiffPowers(0, 1);
         light0->translation(0, 3, 0);
@@ -1026,12 +1027,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light3);
 
         // A yellow directional light from the back-bottom
+        // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light4 = new SLLightDirect(s, s);
         light4->ambientColor(SLCol4f(0, 0, 0));
         light4->diffuseColor(SLCol4f(1, 1, 0));
         light4->specularColor(SLCol4f(1, 1, 0));
         light4->translation(-1.5f, -1.5f, -1.5f);
         light4->lookAt(0, 0, 0);
+        light4->attenuation(1, 0, 0);
         scene->addChild(light4);
 
         // Add some meshes to be lighted
@@ -1352,13 +1355,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLSkybox*    skybox    = new SLSkybox(s,
+                                        SLApplication::shaderPath,
                                         SLApplication::texturePath + "Desert+X1024_C.jpg",
                                         SLApplication::texturePath + "Desert-X1024_C.jpg",
                                         SLApplication::texturePath + "Desert+Y1024_C.jpg",
                                         SLApplication::texturePath + "Desert-Y1024_C.jpg",
                                         SLApplication::texturePath + "Desert+Z1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-Z1024_C.jpg",
-                                        SLApplication::shaderPath);
+                                        SLApplication::texturePath + "Desert-Z1024_C.jpg");
         SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
 
         // Material for mirror
@@ -1593,6 +1596,306 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light0->powers(0.3f, 2.0f, 1.0f);
         light0->attenuation(0, 0, 1);
         scene->addChild(light0);
+
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_ShadowMappingBasicScene) //......................................
+    {
+        s->name("Shadow Mapping Basic Scene");
+        s->info("Shadow Mapping is a technique to render shadows.");
+
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
+        SLMaterial*  m1      = new SLMaterial(s, "m1");
+        m1->program(program);
+        m1->shininess(500);
+        //SLMaterial*  m1      = new SLMaterial(s, "GRAY", SLCol4f::GRAY, SLCol4f(1, 1, 1), 100, 0, 0);
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 7, 12);
+        cam1->lookAt(0, 1, 0);
+        cam1->focalDist(8);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create light source
+        // Do constant attenuation for directional lights since it is infinitely far away
+        SLLightDirect* light = new SLLightDirect(s, s);
+        light->powers(0.0f, 1.0f, 1.0f);
+        light->translation(0, 5, 0);
+        light->lookAt(0, 0, 0);
+        light->attenuation(1, 0, 0);
+        light->createsShadows(true);
+        light->castsShadows(false);
+        scene->addChild(light);
+
+        // Add a sphere which casts shadows
+        SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", m1));
+        sphereNode->translate(0, 2.0, 0);
+        sphereNode->castsShadows(true);
+        scene->addChild(sphereNode);
+
+        SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
+        anim->createEllipticNodeTrack(sphereNode, 0.5f, A_x, 0.5f, A_z);
+
+        // Add a box which receives shadows
+        SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
+        scene->addChild(boxNode);
+
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_ShadowMappingLightTypes) //......................................
+    {
+        s->name("Shadow Mapping light types");
+        s->info("Shadow Mapping is implemented for these light types.");
+
+        SLAssimpImporter importer;
+
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
+        SLMaterial*  m1      = new SLMaterial(s, "m1");
+        m1->program(program);
+        m1->shininess(500);
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 15);
+        cam1->lookAt(0, 2, 0);
+        cam1->focalDist(8);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create light sources
+        std::vector<SLLight*> lights = {
+          new SLLightDirect(s, s),
+          new SLLightRect(s, s),
+          new SLLightSpot(s, s, 0.3f, 25.0f),
+          new SLLightSpot(s, s, 0.1f, 180.0f)};
+
+        for (SLint i = 0; i < lights.size(); ++i)
+        {
+            SLLight* light = lights[i];
+            SLNode*  node  = dynamic_cast<SLNode*>(light);
+            SLfloat  x     = (i - (lights.size() - 1.0f) / 2.0f) * 5;
+
+            if (i == 0) // Make direct light less bright
+            {
+                light->powers(0.0f, 0.4f, 0.4f);
+                light->attenuation(1, 0, 0);
+            }
+            else
+            {
+                light->powers(0.0f, 2.0f, 2.0f);
+                light->attenuation(0, 0, 1);
+            }
+
+            node->translation(x, 5, 0);
+            node->lookAt(x, 0, 0);
+            light->createsShadows(true);
+            scene->addChild(node);
+        }
+
+        // Add teapots which cast shadows
+        SLAnimation* teapotAnim  = s->animManager().createNodeAnimation("teapot_anim", 8.0f, true, EC_linear, AL_loop);
+        SLNode*      teapotModel = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Teapot/Teapot.fbx", SLApplication::texturePath, true, m1);
+
+        for (SLLight* light : lights)
+        {
+            SLNode* teapot = teapotModel->copyRec();
+
+            teapot->translate(light->positionWS().x, 2, 0);
+            teapot->children()[0]->castsShadows(true);
+            scene->addChild(teapot);
+
+            // Create animation
+            SLNodeAnimTrack* track = teapotAnim->createNodeAnimationTrack();
+            track->animatedNode(teapot);
+
+            SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
+            frame0->translation(teapot->translationWS());
+            frame0->rotation(SLQuat4f(0, 0, 0));
+
+            SLTransformKeyframe* frame1 = track->createNodeKeyframe(4.0f);
+            frame1->translation(teapot->translationWS());
+            frame1->rotation(SLQuat4f(0, 1 * PI, 0));
+
+            SLTransformKeyframe* frame2 = track->createNodeKeyframe(8.0f);
+            frame2->translation(teapot->translationWS());
+            frame2->rotation(SLQuat4f(0, 2 * PI, 0));
+        }
+
+        delete teapotModel;
+
+        // Add a box which receives shadows
+        SLfloat minx    = lights.front()->positionWS().x - 3;
+        SLfloat maxx    = lights.back()->positionWS().x + 3;
+        SLNode* boxNode = new SLNode(new SLBox(s, minx, -1, -5, maxx, 0, 5, "Box", m1));
+        scene->addChild(boxNode);
+
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_ShadowMappingSpotLights) //......................................
+    {
+        s->name("Shadow Mapping for Spot lights");
+        s->info("Spot lights use a perspective projection for their light space.");
+
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
+        SLMaterial*  m1      = new SLMaterial(s, "m1");
+        m1->program(program);
+        m1->shininess(500);
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 5, 13);
+        cam1->lookAt(0, 1, 0);
+        cam1->focalDist(8);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create light sources
+        for (int i = 0; i < SL_MAX_LIGHTS; ++i)
+        {
+            SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
+            SLCol4f      color;
+            color.hsva2rgba(SLVec3f(Utils::TWOPI * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
+            light->powers(0.0f, 5.0f, 5.0f, color);
+            light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
+            light->lookAt(0, 0, 0);
+            light->attenuation(0, 0, 1);
+            light->createsShadows(true);
+            scene->addChild(light);
+        }
+
+        // Add a sphere which casts shadows
+        SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", m1));
+        sphereNode->translate(0, 2.0, 0);
+        sphereNode->castsShadows(true);
+        scene->addChild(sphereNode);
+
+        SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
+        anim->createEllipticNodeTrack(sphereNode, 1.0f, A_x, 1.0f, A_z);
+
+        // Add a box which receives shadows
+        SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
+        scene->addChild(boxNode);
+
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_ShadowMappingPointLights) //......................................
+    {
+        s->name("Shadow Mapping for point lights");
+        s->info("Point lights use cubemaps to store shadow maps.");
+
+        SLGLProgram* program = new SLGLGenericProgram(s,
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                      SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
+        SLMaterial*  m1      = new SLMaterial(s, "m1");
+
+        m1->program(program);
+        m1->shininess(500);
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        // Create camera
+        SLCamera* cam1 = new SLCamera;
+        cam1->translation(0.0f, 0.40f, 6.35f);
+        cam1->lookAt(0.0f, -0.05f, 0.0f);
+        cam1->fov(27);
+        cam1->focalDist(cam1->translationOS().length());
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        // Create lights
+        SLAnimation* anim = s->animManager().createNodeAnimation("light_anim", 4.0f);
+
+        for (SLint i = 0; i < 3; ++i)
+        {
+            SLLightSpot* light = new SLLightSpot(s, s, 0.02f);
+            light->powers(0.2f, 1.5f, 1.0f, SLCol4f(i == 0, i == 1, i == 2));
+            light->attenuation(0, 0, 1);
+            light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
+            light->createsShadows(true);
+            scene->addChild(light);
+
+            anim->createEllipticNodeTrack(light, 0.2f, A_x, 0.2f, A_z);
+        }
+
+        // Create wall polygons
+        SLfloat pL = -1.48f, pR = 1.48f; // left/right
+        SLfloat pB = -1.25f, pT = 1.19f; // bottom/top
+        SLfloat pN = 1.79f, pF = -1.55f; // near/far
+
+        // Bottom plane
+        SLNode* b = new SLNode(new SLRectangle(s, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", m1));
+        b->rotate(90, -1, 0, 0);
+        b->translate(0, 0, pB, TS_object);
+        scene->addChild(b);
+
+        // Top plane
+        SLNode* t = new SLNode(new SLRectangle(s, SLVec2f(pL, pF), SLVec2f(pR, pN), 6, 6, "top", m1));
+        t->rotate(90, 1, 0, 0);
+        t->translate(0, 0, -pT, TS_object);
+        scene->addChild(t);
+
+        // Far plane
+        SLNode* f = new SLNode(new SLRectangle(s, SLVec2f(pL, pB), SLVec2f(pR, pT), 6, 6, "far", m1));
+        f->translate(0, 0, pF, TS_object);
+        scene->addChild(f);
+
+        // near plane
+        SLNode* n = new SLNode(new SLRectangle(s, SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", m1));
+        n->translate(0, 0, pN, TS_object);
+        scene->addChild(n);
+
+        // left plane
+        SLNode* l = new SLNode(new SLRectangle(s, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", m1));
+        l->rotate(90, 0, 1, 0);
+        l->translate(0, 0, pL, TS_object);
+        scene->addChild(l);
+
+        // Right plane
+        SLNode* r = new SLNode(new SLRectangle(s, SLVec2f(pF, pB), SLVec2f(pN, pT), 6, 6, "right", m1));
+        r->rotate(90, 0, -1, 0);
+        r->translate(0, 0, -pR, TS_object);
+        scene->addChild(r);
+
+        // Create cubes which cast shadows
+        for (SLint i = 0; i < 64; ++i)
+        {
+            SLBox*  box     = new SLBox(s);
+            SLNode* boxNode = new SLNode(box);
+
+            box->mat(m1);
+
+            boxNode->scale(Utils::random(0.01f, 0.1f));
+            boxNode->translate(Utils::random(pL + 0.3f, pR - 0.3f),
+                               Utils::random(pB + 0.3f, pT - 0.3f),
+                               Utils::random(pF + 0.3f, pN - 0.3f),
+                               TS_world);
+            boxNode->castsShadows(true);
+
+            scene->addChild(boxNode);
+        }
 
         sv->camera(cam1);
         s->root3D(scene);
@@ -3211,7 +3514,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 4, 0, 0, 0, 1, 30, matGla, matRed));
+        scene->addChild(SphereGroup(s, 3, 0, 0, 0, 1, 30, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -3224,45 +3527,40 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
 
         // define materials
-        SLCol4f     spec(0.8f, 0.8f, 0.8f);
-        SLMaterial* matBlk = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
-        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
-        SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
+        SLCol4f      spec(0.8f, 0.8f, 0.8f);
+        SLGLProgram* shadowPrg = new SLGLGenericProgram(s,
+                                                        SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                        SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
+        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f,shadowPrg);
+        SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, shadowPrg);
+        SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f, shadowPrg);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->translation(0, 0.1f, 6);
+        cam1->translation(0, 0.1f, 4);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        SLuint  res  = 30;
-        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-3, -3), SLVec2f(5, 4), res, res, "Rect", matYel));
+        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5),1, 1, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
-        rect->translate(0, -1, -0.5f, TS_object);
+        rect->translate(0, 0, -0.5f);
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, 3, 3, 3, 0.3f);
-#ifndef APP_USES_GLES
-        SLuint numSamples = 10;
-#else
-        SLuint numSamples = 8;
-#endif
-        light1->samples(numSamples, numSamples);
+        SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 2, 0.3f);
+        light1->samples(8, 8);
         light1->attenuation(0, 0, 1);
-        //light1->lightAt(2,2,2, 0,0,0);
-        //light1->spotCutoff(15);
-        light1->translation(2, 2, 2);
-        light1->lookAt(0, 0, 0);
+        light1->createsShadows(true);
 
-        SLLightSpot* light2 = new SLLightSpot(s, s, 0, 1.5, -1.5, 0.3f);
+        SLLightSpot* light2 = new SLLightSpot(s, s, 2, 2, -2, 0.3f);
         light2->samples(8, 8);
         light2->attenuation(0, 0, 1);
+        light2->createsShadows(true);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, res, matBlk, matRed));
+        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, 32, matBlk, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 

@@ -1,8 +1,8 @@
-# 
+#
 # CMake configuration for Demo-SL (app-Demo-SLProject) application for ios
 #
 
-#find system frameworks (libraries)	
+#find system frameworks (libraries)
 find_library(AVFOUNDATION AVFoundation required)
 find_library(COREGRAPHICS CoreGraphics required)
 find_library(COREVIDEO CoreVideo required)
@@ -106,7 +106,7 @@ set_target_properties(
         PROPERTIES
         ${DEFAULT_PROJECT_OPTIONS}
         FOLDER "apps"
-		
+
         XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
         XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Prefix.pch" #this is a precompiled header!
         RESOURCE "${RESOURCES}"
@@ -125,7 +125,7 @@ set_target_properties(
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon" #defines icon name in asset catalog (images.xcassets)
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
-	
+
 target_include_directories(
         ${target}
         PRIVATE
@@ -163,7 +163,7 @@ target_link_libraries(
 		${OPENGLES}
 		${GLKIT}
 		${CORELOCATION}
-		
+
         INTERFACE
     )
 
@@ -188,5 +188,5 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
-	
-	
+
+

@@ -11,9 +11,11 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLGLState.h>
+#include <SLAssetManager.h>
+#include <SLGLDepthBuffer.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
+#include <SLGLState.h>
 #include <SLScene.h>
 #include <SLAssetManager.h>
 #include <SLGLProgramManager.h>
@@ -103,7 +105,7 @@ void SLGLProgram::addShader(SLGLShader* shader)
     _shaders.push_back(shader);
 }
 //-----------------------------------------------------------------------------
-/*! SLGLProgram::initRaw() does not replace any code from the shader and 
+/*! SLGLProgram::initRaw() does not replace any code from the shader and
 assumes valid syntax for the shader used. Used in SLGLConetracer
 */
 void SLGLProgram::initRaw()
@@ -259,14 +261,15 @@ void SLGLProgram::useProgram()
 }
 //-----------------------------------------------------------------------------
 /*! SLGLProgram::beginUse starts using the shaderprogram and transfers the
-the standard light and material parameter as uniform variables. It also passes 
+the standard light and material parameter as uniform variables. It also passes
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
 void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
 {
     assert(mat != nullptr && "SLGLProgram::beginUse: No material passed.");
 
-    if (_progID == 0 && !_shaders.empty()) init();
+    if (_progID == 0 && !_shaders.empty())
+        init();
 
     if (_isLinked)
     {
@@ -286,7 +289,9 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             stateGL->calcLightPosVS(stateGL->numLightsUsed);
             stateGL->calcLightDirVS(stateGL->numLightsUsed);
             uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
+            uniform4fv("u_lightPosWS", nL, (SLfloat*)stateGL->lightPosWS);
             uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
+            uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)stateGL->lightSpace);
             uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
             uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
             uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
@@ -296,6 +301,54 @@ void SLGLProgram::beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight)
             uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
             uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
             uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
+            uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
+            uniform1iv("u_lightDoesPCF", nL, (SLint*)stateGL->lightDoesPCF);
+            uniform1iv("u_lightPCFLevel", nL, (SLint*)stateGL->lightPCFLevel);
+            uniform1iv("u_lightUsesCubemap", nL, (SLint*)stateGL->lightUsesCubemap);
+
+            for (int i = 0; i < SL_MAX_LIGHTS; ++i)
+            {
+                if (stateGL->lightIsOn[i] && stateGL->lightCreatesShadows[i])
+                {
+                    SLstring uniformName = (stateGL->lightUsesCubemap[i]
+                                              ? "u_shadowMapCube_"
+                                              : "u_shadowMap_") +
+                                           std::to_string(i);
+
+                    SLint loc;
+                    if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
+                        stateGL->shadowMaps[i]->activateAsTexture(loc);
+                }
+
+#if defined(SL_OS_MACOS) || defined(SL_OS_ANDROID)
+                // On MacOS and Android the shader for shadow mapping does not work unless
+                // all the cubemaps are set. The following code passes eight textures with
+                // size 1x1 to the shader, so it does not crash. Feel free fix this issue
+                // in a cleaner way.
+
+                if (!stateGL->lightUsesCubemap[i])
+                {
+                    SLint    loc;
+                    SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
+
+                    if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
+                    {
+                        static SLGLDepthBuffer dummyBuffers[] = {
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                          SLGLDepthBuffer(SLVec2i(1, 1)),
+                        };
+
+                        dummyBuffers[i].activateAsTexture(loc);
+                    }
+                }
+#endif
+            }
 
             mat->passToUniforms(this);
         }
@@ -355,18 +408,14 @@ void SLGLProgram::addUniform1i(SLGLUniform1i* u)
 SLint SLGLProgram::getUniformLocation(const SLchar* name) const
 {
     SLint loc = glGetUniformLocation(_progID, name);
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
     return loc;
 }
 //-----------------------------------------------------------------------------
 SLint SLGLProgram::getAttribLocation(const SLchar* name) const
 {
     SLint loc = glGetAttribLocation(_progID, name);
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
     return loc;
 }
 //-----------------------------------------------------------------------------

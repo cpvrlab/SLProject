@@ -122,7 +122,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onInit(JNIEnv* env
                         devicePath + "/data/images/textures/",
                         devicePath + "/data/images/fonts/",
                         devicePath + "/data/videos/",
-                        devicePath + "/data/config/",
+                        devicePath + "/",
                         "AppDemoAndroid",
                         (void*)appDemoLoadScene);
 

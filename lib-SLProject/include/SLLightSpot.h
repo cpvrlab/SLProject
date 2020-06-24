@@ -21,8 +21,8 @@ class SLScene;
 
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
-/*!      
-SLLightSpot is a node and a light that can have a spot mesh for its 
+/*!
+SLLightSpot is a node and a light that can have a spot mesh for its
 representation.
 If a light node is added to the scene it stays fix in the scene.\n
 If a light node is added to the camera it moves with the camera.\n
@@ -55,6 +55,7 @@ public:
                 SLfloat         diffPower    = 10.0f,
                 SLfloat         specPower    = 10.0f,
                 SLbool          hasMesh      = true);
+    ~SLLightSpot() override;
 
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
@@ -69,15 +70,16 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Setters
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
 
     // Getters
-    SLfloat radius() { return _radius; }
-    SLuint  samples() { return _samples.samples(); }
-    SLVec4f positionWS() const override { return translationWS(); }
-    SLVec3f spotDirWS() override { return forwardWS(); }
+    SLfloat      radius() { return _radius; }
+    SLuint       samples() { return _samples.samples(); }
+    SLVec4f      positionWS() const override { return translationWS(); }
+    SLVec3f      spotDirWS() override { return forwardWS(); }
 
 #ifdef SL_HAS_OPTIX
     ortLight optixLight(bool doDistributed)
@@ -112,8 +114,8 @@ public:
 #endif
 
 private:
-    SLfloat     _radius;  //!< The sphere lights radius
-    SLSamples2D _samples; //!< 2D samplepoints for soft shadows
+    SLfloat      _radius;    //!< The sphere lights radius
+    SLSamples2D  _samples;   //!< 2D samplepoints for soft shadows
 };
 //-----------------------------------------------------------------------------
 #endif

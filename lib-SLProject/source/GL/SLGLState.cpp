@@ -20,8 +20,6 @@
 //-----------------------------------------------------------------------------
 SLGLState* SLGLState::_instance = nullptr;
 //-----------------------------------------------------------------------------
-SLVstring errors; // global vector for errors used in getGLError
-//-----------------------------------------------------------------------------
 /*! Public static destruction.
  */
 void SLGLState::deleteInstance()
@@ -63,6 +61,13 @@ void SLGLState::initAll()
         lightSpotExp[i]    = 1.0f;
         lightAtt[i].set(1.0f, 0.0f, 0.0f);
         lightDoAtt[i] = 0;
+        for (SLint ii = 0; ii < 6; ++ii)
+            lightSpace[i * 6 + ii] = SLMat4f();
+        lightCreatesShadows[i] = 0;
+        lightDoesPCF[i]        = 0;
+        lightPCFLevel[i]       = 1;
+        lightUsesCubemap[i]    = 0;
+        shadowMaps[i]          = nullptr;
     }
 
     /*
@@ -112,6 +117,8 @@ void SLGLState::initAll()
 
     //initialize states a unset
     _blend                = false;
+    _blendFuncSfactor     = GL_SRC_ALPHA;
+    _blendFuncDfactor     = GL_ONE_MINUS_SRC_ALPHA;
     _cullFace             = false;
     _depthTest            = false;
     _depthMask            = false;
@@ -149,9 +156,7 @@ void SLGLState::initAll()
     glEnable(GL_PROGRAM_POINT_SIZE);
 #endif
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 
     _currentMaterial = nullptr;
 }
@@ -177,17 +182,14 @@ void SLGLState::onInitialize(const SLCol4f& clearColor)
     glEnable(GL_DEPTH_TEST);
 
     // set blend function for classic transparency
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(_blendFuncSfactor, _blendFuncDfactor);
 
     // set background color
     glClearColor(clearColor.r,
                  clearColor.g,
                  clearColor.b,
                  clearColor.a);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Builds the 4x4 inverse matrix from the modelview matrix.
@@ -273,9 +275,7 @@ void SLGLState::clearColor(const SLCol4f& newColor)
         glClearColor(newColor.r, newColor.g, newColor.b, newColor.a);
         _clearColor = newColor;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -293,9 +293,7 @@ void SLGLState::depthTest(SLbool stateNew)
             glDisable(GL_DEPTH_TEST);
         _depthTest = stateNew;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -310,9 +308,7 @@ void SLGLState::depthMask(SLbool stateNew)
         glDepthMask(stateNew ? GL_TRUE : GL_FALSE);
         _depthMask = stateNew;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -329,9 +325,7 @@ void SLGLState::cullFace(SLbool stateNew)
             glDisable(GL_CULL_FACE);
         _cullFace = stateNew;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -347,10 +341,21 @@ void SLGLState::blend(SLbool stateNew)
         else
             glDisable(GL_BLEND);
         _blend = stateNew;
-
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
+    }
+}
+//-----------------------------------------------------------------------------
+//! Sets new blend function source and destination factors
+void SLGLState::blendFunc(SLenum newBlendFuncSFactor,
+                          SLenum newBlendFuncDFactor)
+{
+    if (_blendFuncSfactor != newBlendFuncSFactor ||
+        _blendFuncDfactor != newBlendFuncDFactor)
+    {
+        glBlendFunc(newBlendFuncSFactor, newBlendFuncDFactor);
+        _blendFuncSfactor = newBlendFuncSFactor;
+        _blendFuncDfactor = newBlendFuncDFactor;
+        GET_GL_ERROR;
     }
 }
 //-----------------------------------------------------------------------------
@@ -374,9 +379,7 @@ void SLGLState::multiSample(SLbool stateNew)
 #    endif
         }
 
-#    ifdef _GLDEBUG
         GET_GL_ERROR;
-#    endif
     }
 #endif
 }
@@ -398,9 +401,7 @@ void SLGLState::polygonLine(SLbool stateNew)
         _polygonLine = stateNew;
 #    endif
 
-#    ifdef _GLDEBUG
         GET_GL_ERROR;
-#    endif
     }
 #endif
 }
@@ -429,9 +430,7 @@ void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
             glDisable(GL_POLYGON_OFFSET_FILL);
         _polygonOffsetEnabled = stateNew;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -445,9 +444,7 @@ void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
         glViewport(x, y, width, height);
         _viewport.set(x, y, width, height);
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -463,9 +460,7 @@ void SLGLState::colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a)
         _colorMaskB = b;
         _colorMaskA = a;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -478,9 +473,7 @@ void SLGLState::useProgram(SLuint progID)
         glUseProgram(progID);
         _programID = progID;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -502,9 +495,7 @@ void SLGLState::bindTexture(SLenum target, SLuint textureID)
         _textureTarget = target;
         _textureID     = textureID;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -524,9 +515,7 @@ void SLGLState::activeTexture(SLenum textureUnit)
         glActiveTexture(textureUnit);
         _textureUnit = textureUnit;
 
-#ifdef _GLDEBUG
         GET_GL_ERROR;
-#endif
     }
 }
 //-----------------------------------------------------------------------------
@@ -550,16 +539,13 @@ void SLGLState::unbindAnythingAndFlush()
     //glFlush();
     //glFinish();
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 void SLGLState::getGLError(const char* file,
                            int         line,
                            bool        quit)
 {
-#if defined(DEBUG) || defined(_DEBUG)
     GLenum err;
     if ((err = glGetError()) != GL_NO_ERROR)
     {
@@ -585,8 +571,6 @@ void SLGLState::getGLError(const char* file,
                 errStr = "Unknown error";
         }
 
-        //fprintf(stderr, "OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
-
         // Build error string as a concatenation of file, line & error
         char sLine[32];
         sprintf(sLine, "%d", line);
@@ -598,31 +582,20 @@ void SLGLState::getGLError(const char* file,
         newErr += errStr;
 
         // Check if error exists already
-        bool errExists = std::find(errors.begin(), errors.end(), newErr) != errors.end();
-
+        SLGLState* state     = SLGLState::instance();
+        bool       errExists = std::find(state->errors.begin(),
+                                   state->errors.end(),
+                                   newErr) != state->errors.end();
         // Only print
         if (!errExists)
         {
-            errors.push_back(newErr);
-
-#    ifdef SL_OS_ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "SLProject", "OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
-#    else
-            fprintf(stderr,
-                    "OpenGL Error in %s, line %d: %s\n",
-                    file,
-                    line,
-                    errStr.c_str());
-#    endif
-            //todo: why not use: SL_LOG("OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
+            state->errors.push_back(newErr);
+            SL_LOG("OpenGL Error in %s, line %d: %s\n", file, line, errStr.c_str());
         }
 
         if (quit)
-        {
             exit(1);
-        }
     }
-#endif
 }
 //-----------------------------------------------------------------------------
 /// Returns the OpenGL version number as a string

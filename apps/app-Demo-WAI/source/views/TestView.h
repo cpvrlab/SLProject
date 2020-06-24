@@ -13,6 +13,7 @@
 #include <queue>
 #include <ImageBuffer.h>
 #include <WAIAutoCalibration.h>
+#include <MapPointEdition.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -50,6 +51,7 @@ protected:
     void downloadCalibrationFilesTo(std::string dir);
 
     void updateVideoTracking();
+    void updateTrackingVisualization(const bool iKnowWhereIAm);
     void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
     void setupDefaultErlebARDirTo(std::string dir);
 
@@ -92,6 +94,7 @@ protected:
     AutoCalibration* _autoCal = nullptr;
 
     SLTransformNode* _transformationNode = nullptr;
+    MapEdition* _mapEdition = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;

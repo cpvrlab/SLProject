@@ -81,7 +81,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             ///////////////////////////////////
 
             color.gammaCorrect(_oneOverGamma);
-            
+
             _images[0]->setPixeliRGB((SLint)x,
                                      (SLint)y,
                                      CVVec4f(color.r,
@@ -335,7 +335,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 color /= (SLfloat)_cam->lensSamples()->samples();
 
                 color.gammaCorrect(_oneOverGamma);
-                
+
                 //_mutex.lock();
                 _images[0]->setPixeliRGB((SLint)x, y, CVVec4f(color.r, color.g, color.b, color.a));
                 //_mutex.unlock();
@@ -499,15 +499,15 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             // Distinguish between point and directional lights
             SLVec4f lightPos = light->positionWS();
 
-            // Check if directional light on last component w (0 = light is in infintiy)
+            // Check if directional light on last component w (0 = light is in infinity)
             if (lightPos.w == 0.0f)
-            { 
+            {
                 // directional light
-                L         = lightPos.vec3().normalized();
+                L         = -light->spotDirWS().normalized();
                 lightDist = FLT_MAX; // = infinity
             }
             else
-            { 
+            {
                 // Point light
                 L.sub(lightPos.vec3(), ray->hitPoint);
                 lightDist = L.length();
@@ -531,9 +531,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 
                 // check if point is in spot cone
                 if (LdS > light->spotCosCut())
-                {
                     spotEffect = pow(LdS, (SLfloat)light->spotExponent());
-                }
                 else
                 {
                     lighted    = 0.0f;
@@ -548,9 +546,9 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             {
                 H.sub(L, ray->dir); // half vector between light & eye
                 H.normalize();
-                df  = std::max(LdotN, 0.0f); // diffuse factor
+                df    = std::max(LdotN, 0.0f); // diffuse factor
                 NdotH = std::max(N.dot(H), 0.0f);
-                sf  = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
+                sf    = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
 
                 amdi += lighted * df * light->diffuse() & mat->diffuse();
                 spec = lighted * sf * light->specular() & mat->specular();

@@ -17,9 +17,9 @@ void AppDemoGuiTransform::buildInfos(SLScene* s, SLSceneView* sv)
     ImGui::PushFont(_font);
     ImGui::Begin("Transform Selected Node", _activator, window_flags);
 
-    if (s->selectedNode())
+    if (s->singleNodeSelected())
     {
-        SLNode*                 node   = s->selectedNode();
+        SLNode*                 node   = s->singleNodeSelected();
         static SLTransformSpace tSpace = TS_object;
         SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
         SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations

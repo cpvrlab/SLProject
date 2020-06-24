@@ -269,10 +269,11 @@ public:
         needUpdate();
     }
     void         animation(SLAnimation* a) { _animation = a; }
+    void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
     virtual void needUpdate();
     void         needWMUpdate();
     void         needAABBUpdate();
-    //void         tracker(CVTracked* t);
+    void         isSelected(bool isSelected) { _isSelected = isSelected; }
 
     // Getters (see also member)
     SLNode*           parent() { return _parent; }
@@ -286,6 +287,7 @@ public:
     SLbool            drawBit(SLuint bit) { return _drawBits.get(bit); }
     SLAABBox*         aabb() { return &_aabb; }
     SLAnimation*      animation() { return _animation; }
+    SLbool            castsShadows() { return _castsShadows; }
     SLVMesh&          meshes() { return _meshes; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
@@ -293,6 +295,7 @@ public:
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
+    bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -330,6 +333,8 @@ protected:
     mutable SLMat3f _wmN;            //!< normal world matrix
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
+    bool            _castsShadows;   //!< flag if meshes of node should cast shadows
+    bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node

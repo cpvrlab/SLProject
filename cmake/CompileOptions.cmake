@@ -1,6 +1,6 @@
-# 
+#
 # Platform and architecture setup
-# 
+#
 # Get upper case system name
 string(TOUPPER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME_UPPER)
 message(STATUS "SYSTEM_NAME_UPPER: ${SYSTEM_NAME_UPPER} (CompileOptions.cmake)")
@@ -63,17 +63,17 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         /W3           # -> warning level 3
         /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
         /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
-        /wd4804       # -> disable warning: unsichere Verwendung des Typs "bool" in einer Operation	C:\Users\hsm4\Documents\GitHub\SLProject	C:\Users\hsm4\Documents\GitHub\SLProject\lib-SLProject\include\SLMaterial.h	88	
+        /wd4804       # -> disable warning: unsichere Verwendung des Typs "bool" in einer Operation	C:\Users\hsm4\Documents\GitHub\SLProject	C:\Users\hsm4\Documents\GitHub\SLProject\lib-SLProject\include\SLMaterial.h	88
 
         /bigobj
-    
-        $<$<CONFIG:Release>: 
+
+        $<$<CONFIG:Release>:
         /Gw           # -> whole program global optimization
-        /GS-          # -> buffer security check: no 
+        /GS-          # -> buffer security check: no
         /GL           # -> whole program optimization: enable link-time code generation (disables Zi)
         /GF           # -> enable string pooling
         >
-    
+
         # No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
     )
 endif ()
@@ -139,11 +139,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
 			${DEFAULT_PROJECT_OPTIONS}
 			XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
 		)
-	
+
 	    set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 			-fobjc-arc #enable automatic reference counting
 		)
-		
+
 		set(DEFAULT_COMPILE_DEFINITIONS
 			TARGET_OS_IOS #disable GLSLExtractor
 		)
@@ -171,9 +171,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     )
 endif ()
 
-# 
+#
 # Linker options
-# 
+#
 
 set(DEFAULT_LINKER_OPTIONS)
 
