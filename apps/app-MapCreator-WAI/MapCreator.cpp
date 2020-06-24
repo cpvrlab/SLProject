@@ -360,8 +360,6 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             default: {
                 kpIniExtractorPtr = kpExtractor.get();
             }
-            default:
-               kpIniExtractorPtr = kpExtractor.get();
         };
 #endif
 
