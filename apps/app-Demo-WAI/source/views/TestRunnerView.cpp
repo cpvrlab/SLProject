@@ -181,6 +181,7 @@ bool TestRunnerView::update()
                           currentTest.video + ";" +
                           currentTest.map + ";" +
                           currentTest.extractorType + ";" +
+                          currentTest.nLevels + ";" +
                           std::to_string(avgTime) + ";" +
                           std::to_string(_currentFrameIndex) + ";" +
                           std::to_string(_relocalizationFrameCount) + ";" +
@@ -200,6 +201,7 @@ bool TestRunnerView::update()
                           currentTest.video + ";" +
                           currentTest.map + ";" +
                           currentTest.extractorType + ";" +
+                          currentTest.nLevels + ";" +
                           std::to_string(avgTime) + ";" +
                           std::to_string(_currentFrameIndex) + ";" +
                           std::to_string(_maxTrackingFrameCount) + ";" +
