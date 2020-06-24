@@ -26,7 +26,7 @@ void SENSiOSCamera::start(SENSCameraConfig config)
         {
             _caputureProperties = [_cameraDelegate retrieveCaptureProperties];
         }
-        /*
+
         //find and set current camera characteristic depending on camera device id
         if (_characteristics.cameraId != config.deviceId)
         {
@@ -136,26 +136,6 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
     cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
     cv::Mat rgbImg;
     cvtColor(rgba, rgbImg, cv::COLOR_RGBA2RGB, 3);
-    
-    /*
-    cv::Size inputSize = rgbImg.size();
-
-    // Crop Video image to required aspect ratio
-    int cropW = 0, cropH = 0;
-    SENS::cropImage(rgbImg,(float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
-
-    // Mirroring
-    SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
-
-    // Create grayscale
-    cv::Mat grayImg;
-    if (_config.convertToGray)
-    {
-        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
-    }
-     */
-
-    //SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _config.mirrorH, _config.mirrorV);
     
     SENSFramePtr sensFrame = postProcessNewFrame(rgbImg);
     {

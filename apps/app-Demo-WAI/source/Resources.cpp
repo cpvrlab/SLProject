@@ -50,7 +50,7 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH)
         int   nButVert  = 6;
         int   buttonH   = (int)((0.6f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert);
         float selectBtn = buttonH * style.buttonTextH;
-        selectBtns      = _atlas->AddFontFromFileTTF(ttf.c_str(), std::floor(100.f));
+        selectBtns      = _atlas->AddFontFromFileTTF(ttf.c_str(), selectBtn);
     }
     else
     {

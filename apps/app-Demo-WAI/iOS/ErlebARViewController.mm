@@ -121,23 +121,6 @@
     _camera = new SENSiOSCamera();
 }
 //-----------------------------------------------------------------------------
-- (void)viewWillLayoutSubviews
-{
-    [super viewWillLayoutSubviews];
-    
-    std::string exePath = Utils_iOS::getCurrentWorkingDir();
-    std::string configPath = Utils_iOS::getAppsWritableDir();
-    
-    _erlebARApp.init(self.view.bounds.size.width * _screenScale,
-                       self.view.bounds.size.height * _screenScale,
-                       _dpi,
-                       exePath + "data/",
-                       configPath,
-                       _camera);
-    
-    printf("viewWillLayoutSubviews: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
-}
-//-----------------------------------------------------------------------------
 - (void)appWillResignActive
 {
     _erlebARApp.hold();
@@ -157,6 +140,17 @@
 //-----------------------------------------------------------------------------
 - (void)appDidBecomeActive
 {
+    std::string exePath = Utils_iOS::getCurrentWorkingDir();
+    std::string configPath = Utils_iOS::getAppsWritableDir();
+    
+    _erlebARApp.init(self.view.bounds.size.width * _screenScale,
+                       self.view.bounds.size.height * _screenScale,
+                       _dpi,
+                       exePath + "data/",
+                       configPath,
+                       _camera);
+    
+    printf("appDidBecomeActive: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }
 //-----------------------------------------------------------------------------
 - (void)appWillTerminate
