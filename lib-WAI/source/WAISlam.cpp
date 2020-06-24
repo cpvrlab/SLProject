@@ -162,7 +162,7 @@ void WAISlam::reset()
 void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 {
     _cameraIntrinsic = intrinsic;
-    _distortion = distortion;
+    _distortion      = distortion;
 }
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
