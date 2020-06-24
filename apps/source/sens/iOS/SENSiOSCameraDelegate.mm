@@ -155,7 +155,7 @@
 - (BOOL)startCamera:(NSString*)deviceId withWidth:(int)width andHeight:(int)height
 {
    
-#if FALSE
+#if TRUE
       // Make sure we initialize our camera pointer:
       m_camera = nil;
     
@@ -256,7 +256,7 @@
         [m_camera unlockForConfiguration];
     }
  
-#elseif TRUE
+#elif FALSE
       // Make sure we initialize our camera pointer:
       m_camera = nil;
     
@@ -483,8 +483,8 @@
                 int w = dims.width;
                 int h = dims.height;
                 //printf("dims: w %d h %d\n", w, h);
-                NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth:w andHeight:h];
-                if ([m_captureSession canSetSessionPreset:cameraResolutionPreset])
+                //NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth:w andHeight:h];
+                //if ([m_captureSession canSetSessionPreset:cameraResolutionPreset])
                 {
                     //float minFrameRate = [format
                     if(!characs.contains({w, h}))

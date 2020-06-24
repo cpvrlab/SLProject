@@ -131,13 +131,13 @@ SENSFramePtr SENSiOSCamera::getLatestFrame()
 
 void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight)
 {
-    //Utils::log("SENSiOSCamera", "processNewFrame");
-    
+    //Utils::log("SENSiOSCamera", "processNewFrame: w %d w %d", imgWidth, imgHeight);
     cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
     cv::Mat rgbImg;
     cvtColor(rgba, rgbImg, cv::COLOR_RGBA2RGB, 3);
-    
     SENSFramePtr sensFrame = postProcessNewFrame(rgbImg);
+    
+    //Utils::log("SENSiOSCamera", "next : w %d w %d", sensFrame->imgRGB.size().width, sensFrame->imgRGB.size().height);
     {
         std::lock_guard<std::mutex> lock(_processedFrameMutex);
         _processedFrame = std::move(sensFrame);

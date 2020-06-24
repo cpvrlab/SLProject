@@ -239,8 +239,7 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, cv:
 
     //add bars to image instead of viewport adjustment (we update the mat in the buffer)
     //todo: the matrices in the buffer have different sizes.. problem? no! no!
-    int addW, addH;
-    SENS::extendWithBars(_imgBuffer.outputSlot(), this->viewportWdivH(), cv::BORDER_REPLICATE, addW, addH);
+    SENS::extendWithBars(_imgBuffer.outputSlot(), this->viewportWdivH());
 
     _scene.updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();

@@ -36,6 +36,8 @@ struct SENSFrame
     const int  cropH;
     const bool mirroredH;
     const bool mirroredV;
+    //hack
+    bool extended = false;
 };
 typedef std::shared_ptr<SENSFrame> SENSFramePtr;
 

@@ -3,13 +3,17 @@
 
 namespace SENS
 {
-
+//https://www.khronos.org/opengl/wiki/Common_Mistakes section Texture upload and pixel reads:
+//If pixel format is rgb or bgr (only 3 layers), we have to make sure that the (width * 3 bytes) is devidable by 4
+//For rgba images the problem cannot arise. By the way, the GPU will most likely convert the rgb to rbga anyway.
 bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int& width, int&height)
 {
     cropH = 0; // crop height in pixels of the source image
     cropW = 0; // crop width in pixels of the source image
     width  = inputSize.width; // width in pixels of the destination image
     height = inputSize.height; // height in pixels of the destination image
+    
+
     
     float inWdivH = (float)inputSize.width / (float)inputSize.height;
     // viewportWdivH is negative the viewport aspect will be the same
@@ -68,56 +72,44 @@ void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH)
 }
 
 //opposite to crop image: extend
-void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW, int& addH)
+void extendWithBars(cv::Mat& img, float targetWdivH)
 {
     //HighResTimer t;
     float inWdivH  = (float)img.cols / (float)img.rows;
     float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
 
-    addH = 0;
-    addW = 0;
+    int addT = 0, addB = 0, addL = 0, addR = 0;
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
         int width  = 0; // width in pixels of the destination image
         int height = 0; // height in pixels of the destination image
-        int wModulo4;
-        int hModulo4;
 
         if (inWdivH > outWdivH) // add bar bottom and top (old: crop input image left & right)
         {
             width  = img.cols;
             height = (int)((float)img.cols / outWdivH);
-            addH   = (int)((float)(height - img.rows) * 0.5f);
-
-            // Height must be devidable by 4
-            hModulo4 = height % 4;
-            if (hModulo4 == 1) height--;
-            if (hModulo4 == 2)
-            {
-                addH++;
-                height -= 2;
-            }
-            if (hModulo4 == 3) height++;
+            addT = (int)((float)(height - img.rows) * 0.5f);
+            addB = height - addT - img.rows;
         }
         else // add bar left and right (old: crop input image at top & bottom)
         {
             width  = (int)((float)img.rows * outWdivH);
             height = img.rows;
-            addW   = (int)((float)(width - img.cols) * 0.5f);
 
-            // Width must be devidable by 4
-            wModulo4 = width % 4;
-            if (wModulo4 == 1)
-                width--;
-            if (wModulo4 == 2)
+            // Width in bytes must be devidable by 4:
+            //(e.g. for RGBA images this is already true. For RGB images we have to check if (width * 3bytes) is dividable by 4)
+            if(img.channels() != 4)
             {
-                addW++;
-                width -= 2;
+                //we make this problem more easy: if width is dividable by 4 then n*width is also dividable by four
+                int wModulo4 = width % 4;
+                //we alway fill up, becaus we have to add pixels anyway
+                width += (4 - wModulo4);
             }
-            if (wModulo4 == 3)
-                width++;
+            addL  = (int)((float)(width - img.cols) * 0.5f);
+            addR  = width - addL - img.cols;
         }
 
+        /*
         if (cvBorderType == cv::BORDER_REPLICATE)
         {
             //Camera image on mobile devices have wrongly colored pixels on the right. We want to correct this
@@ -139,7 +131,7 @@ void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW
             }
             else if (addW > 0)
             {
-
+                //not working on ios with new ipad for 640x480
                 cv::Size iS = img.size();
                 //left
                 cv::Rect barRoiL(0, 0, addLeft, iS.height);
@@ -153,9 +145,14 @@ void extendWithBars(cv::Mat& img, float targetWdivH, int cvBorderType, int& addW
         }
         else
         {
-            cv::Scalar value(0, 0, 0);
-            copyMakeBorder(img, img, addH, addH, addW, addW, cvBorderType, value);
+
         }
+        */
+        
+        cv::Scalar value(0, 0, 0);
+        copyMakeBorder(img, img, addT, addB, addL, addR, cv::BORDER_CONSTANT, value);
+        
+        assert((img.size().width * img.channels()) % 4 == 0);
     }
     //Utils::log("extendWithBars", "elapsed time total %f ms", t.elapsedTimeInMilliSec());
 }
