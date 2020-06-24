@@ -13,10 +13,10 @@
 @interface SENSiOSCameraDelegate()
 {
 @private
-    AVCaptureSession*         m_captureSession; // Lets us set up and control the camera
-    AVCaptureDevice*          m_camera; // A pointer to the front or to the back camera
-    AVCaptureDeviceInput*     m_cameraInput; // This is the data input for the camera that allows us to capture frames
-    AVCaptureVideoDataOutput* m_videoOutput; // For the video frame data from the camera
+    AVCaptureSession*         _captureSession; // Lets us set up and control the camera
+    AVCaptureDevice*          _camera; // A pointer to the front or to the back camera
+    AVCaptureDeviceInput*     _cameraInput; // This is the data input for the camera that allows us to capture frames
+    AVCaptureVideoDataOutput* _videoOutput; // For the video frame data from the camera
 }
 
 @end
@@ -27,123 +27,63 @@
  
 - (id)init
 {
-    // 1. Initialize the parent class(es) up the hierarchy and create self:
+    //Initialize the parent class(es) up the hierarchy and create self:
     self = [super init];
  
     //Initialize members (not necessary with ARC)
-    m_captureSession    = nil;
-    m_camera            = nil;
-    m_cameraInput       = nil;
-    m_videoOutput       = nil;
+    _captureSession    = nil;
+    _camera            = nil;
+    _cameraInput       = nil;
+    _videoOutput       = nil;
 
     return self;
-}
-
-- (BOOL)attachCameraToCaptureSession
-{
-    // Assume we've found the camera and set up the session first:
-    assert(nil != m_camera);
-    assert(nil != m_captureSession);
- 
-    // Initialize the camera input
-    m_cameraInput = nil;
- 
-    // Request a camera input from the camera
-    NSError* error = nil;
-    m_cameraInput = [AVCaptureDeviceInput deviceInputWithDevice:m_camera
-                                                          error:&error ];
- 
-    // Check if we've got any errors
-    if (nil != error)
-        return false;
- 
-    // We've got the input from the camera, now attach it to the capture session:
-    if ([m_captureSession canAddInput:m_cameraInput])
-        [m_captureSession addInput:m_cameraInput];
-    else
-        return false;
- 
-    return true;
-}
-
-- (void)setupVideoOutput
-{
-    // Create the video data output
-    m_videoOutput = [[AVCaptureVideoDataOutput alloc] init];
- 
-    // Create a queue for capturing video frames
-    dispatch_queue_t captureQueue = dispatch_queue_create("captureQueue", DISPATCH_QUEUE_SERIAL);
- 
-    // Use the AVCaptureVideoDataOutputSampleBufferDelegate capabilities of CameraDelegate
-    [m_videoOutput setSampleBufferDelegate:self queue:captureQueue];
- 
-    // Set up the video output:
-    // Do we care about missing frames?
-    [m_videoOutput setAlwaysDiscardsLateVideoFrames:YES];
- 
-    // We want the frames in some RGB format
-    NSNumber* framePixelFormat  = [NSNumber numberWithInt:kCVPixelFormatType_32BGRA];
-    m_videoOutput.videoSettings = [NSDictionary dictionaryWithObject:framePixelFormat
-                                                              forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-    
-    // Add the video data output to the capture session
-    [m_captureSession addOutput:m_videoOutput];
 }
 
 - (void)captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection
 {
     // Check if this is the output we are expecting:
-    if (captureOutput == m_videoOutput)
+    if (captureOutput == _videoOutput)
     {
         // If it's a video frame, copy and process it
-        [self processFrame:sampleBuffer];
-    }
-}
-
-- (void)processFrame:(CMSampleBufferRef)sampleBuffer
-{
-    CVReturn err;
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    
-    CVPixelBufferLockBaseAddress(pixelBuffer,0);
-    
-    int imgWidth  = (int) CVPixelBufferGetWidth(pixelBuffer);
-    int imgHeight = (int) CVPixelBufferGetHeight(pixelBuffer);
-    unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
+        CVReturn err;
+        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
         
-    if(!data)
-    {
-        NSLog(@"No pixel buffer data");
-        return;
-    }
-    
-    if(_callback)
-    {
-        _callback(data, imgWidth, imgHeight);
-    }
+        CVPixelBufferLockBaseAddress(pixelBuffer,0);
+        
+        int imgWidth  = (int) CVPixelBufferGetWidth(pixelBuffer);
+        int imgHeight = (int) CVPixelBufferGetHeight(pixelBuffer);
+        unsigned char* data = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);
+            
+        if(!data)
+        {
+            NSLog(@"No pixel buffer data");
+            return;
+        }
+        
+        if(_callback)
+        {
+            _callback(data, imgWidth, imgHeight);
+        }
 
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    }
 }
 
 - (void)videoCameraStarted:(NSNotification*)note
 {
+    //Note: not used at the moment
     // This callback has done its job, now disconnect it
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:AVCaptureSessionDidStartRunningNotification
-                                                  object:m_captureSession];
-}
-
-+ (NSString*)getCaptureSessionPresentWithWidth:(int)width andHeight:(int)height
-{
-    return [NSString stringWithFormat:@"AVCaptureSessionPreset%dx%d",width, height];
+                                                  object:_captureSession];
 }
 
 - (void)printActiveFormat
 {
-    if(m_camera == nil)
+    if(_camera == nil)
         return;
     
-    AVCaptureDeviceFormat* currFormat = [m_camera activeFormat];
+    AVCaptureDeviceFormat* currFormat = [_camera activeFormat];
     CMFormatDescriptionRef formatDesc = [currFormat formatDescription];
     if(formatDesc)
     {
@@ -154,34 +94,32 @@
 
 - (BOOL)startCamera:(NSString*)deviceId withWidth:(int)width andHeight:(int)height
 {
-   
-#if TRUE
-      // Make sure we initialize our camera pointer:
-      m_camera = nil;
-    
-      // specifying AVMediaTypeVideo will ensure we only get a list of cameras, no microphones
-      NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    // Make sure we initialize our camera pointer:
+    _camera = nil;
 
-      for (AVCaptureDevice* device in devices)
-      {
-          if([device uniqueID] == deviceId)
-          {
-              m_camera = device;
-              break;
-          }
-      }
-          
-      if(m_camera == nil)
-          return NO;
-    
+    // specifying AVMediaTypeVideo will ensure we only get a list of cameras, no microphones
+    NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+
+    for (AVCaptureDevice* device in devices)
+    {
+        if([device uniqueID] == deviceId)
+        {
+            _camera = device;
+            break;
+        }
+    }
+      
+    if(_camera == nil)
+        return NO;
+
     //We set the format directly on the device to get all available configurations (not all are available on AVCaptureSession)
     //see: https://developer.apple.com/documentation/avfoundation/avcapturedevice?language=objc
     //see: https://stackoverflow.com/questions/36689578/avfoundation-capturing-video-with-custom-resolution/40097057
     //find best corresponding format
     AVCaptureDeviceFormat* bestFormat = nil;
     AVFrameRateRange* bestRange = nil;
-    int first = 0;
-    for(AVCaptureDeviceFormat* format in [m_camera formats])
+    
+    for(AVCaptureDeviceFormat* format in [_camera formats])
     {
         CMFormatDescriptionRef formatDesc = [format formatDescription];
         if(formatDesc)
@@ -203,220 +141,98 @@
     
     // Set a frame rate for the camera:
     // We first need to lock the camera, so no one else can mess with its configuration:
-    if ([m_camera lockForConfiguration:nil])
+    if ([_camera lockForConfiguration:nil])
     {
         // Set the device's active format.
-        [m_camera setActiveFormat:bestFormat];
-        [self printActiveFormat];
+        [_camera setActiveFormat:bestFormat];
+        //[self printActiveFormat];
 
         // Set the device's min/max frame duration.
         CMTime duration = [bestRange minFrameDuration];
-        [m_camera setActiveVideoMinFrameDuration:duration];
-        [m_camera setActiveVideoMaxFrameDuration:duration];
+        [_camera setActiveVideoMinFrameDuration:duration];
+        [_camera setActiveVideoMaxFrameDuration:duration];
         
         //Make sure we have a capture session
-        if (nil == m_captureSession)
+        if (nil == _captureSession)
         {
-            m_captureSession = [[AVCaptureSession alloc] init];
+            _captureSession = [[AVCaptureSession alloc] init];
         }
         
-        [m_captureSession setAutomaticallyConfiguresCaptureDeviceForWideColor:NO];
-        if ([m_captureSession canSetSessionPreset:AVCaptureSessionPresetInputPriority])
-            [m_captureSession setSessionPreset:AVCaptureSessionPresetInputPriority];
-
-        [self printActiveFormat];
-        // Definition of AVCaptureSessionPreset string (e.g. AVCaptureSessionPreset3840x2160)
-        //NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth: width andHeight:height];
-        // Check if the preset is supported on the device by asking the capture session:
-        //if ( ![m_captureSession canSetSessionPreset:cameraResolutionPreset])
-        //    return false;
-     
-        // The preset is OK, now set up the capture session to use it
-        //cameraResolutionPreset = @"AVCaptureSessionPreset640x480";
-        //[m_captureSession setSessionPreset:cameraResolutionPreset];
-
-        //[m_captureSession setSessionPreset:AVCaptureSessionPresetPhoto];
+        //disable that video device active format is overwritten
+        [_captureSession setAutomaticallyConfiguresCaptureDeviceForWideColor:NO];
+        //again: setting session present to AVCaptureSessionPresetInputPriority enabled that the previously set format on the video device is not overwritten
+        if ([_captureSession canSetSessionPreset:AVCaptureSessionPresetInputPriority])
+            [_captureSession setSessionPreset:AVCaptureSessionPresetInputPriority];
         
-        // Plug camera and capture sesiossion together
-        [self attachCameraToCaptureSession];
-     
-        // Add the video output
-        [self setupVideoOutput];
+        // Plug camera and capture sesiossion together:
+        {
+            // Request a camera input from the camera
+            NSError* error = nil;
+            _cameraInput = [AVCaptureDeviceInput deviceInputWithDevice:_camera
+                                                                 error:&error ];
+            // Check if we've got any errors
+            if (nil != error)
+                return NO;
+
+            // We've got the input from the camera, now attach it to the capture session:
+            if ([_captureSession canAddInput:_cameraInput])
+                [_captureSession addInput:_cameraInput];
+            else
+                return NO;
+        }
+        
+        // Add the video output:
+        {
+            // Create the video data output
+            _videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+
+            // Create a queue for capturing video frames
+            dispatch_queue_t captureQueue = dispatch_queue_create("captureQueue", DISPATCH_QUEUE_SERIAL);
+
+            // Use the AVCaptureVideoDataOutputSampleBufferDelegate capabilities of CameraDelegate
+            [_videoOutput setSampleBufferDelegate:self queue:captureQueue];
+
+            // Set up the video output:
+            // Do we care about missing frames?
+            [_videoOutput setAlwaysDiscardsLateVideoFrames:YES];
+
+            // We want the frames in some RGB format
+            NSNumber* framePixelFormat  = [NSNumber numberWithInt:kCVPixelFormatType_32BGRA];
+            _videoOutput.videoSettings = [NSDictionary dictionaryWithObject:framePixelFormat
+                                                                     forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+
+            // Add the video data output to the capture session
+            [_captureSession addOutput:_videoOutput];
+        }
      
         // Set up a callback, so we are notified when the camera actually starts
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(videoCameraStarted:)
                                                      name:AVCaptureSessionDidStartRunningNotification
-                                                   object:m_captureSession ];
+                                                   object:_captureSession ];
      
         // Start the captureing
-        [m_captureSession startRunning];
-        [self printActiveFormat];
+        [_captureSession startRunning];
+        //[self printActiveFormat];
         
-        [m_camera unlockForConfiguration];
+        [_camera unlockForConfiguration];
     }
- 
-#elif FALSE
-      // Make sure we initialize our camera pointer:
-      m_camera = nil;
-    
-      // specifying AVMediaTypeVideo will ensure we only get a list of cameras, no microphones
-      NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-
-      for (AVCaptureDevice* device in devices)
-      {
-          if([device uniqueID] == deviceId)
-          {
-              m_camera = device;
-              break;
-          }
-      }
-          
-      if(m_camera == nil)
-          return NO;
-    
-    // Set a frame rate for the camera:
-    // We first need to lock the camera, so no one else can mess with its configuration:
-    if ([m_camera lockForConfiguration:nil])
-    {
-        // Set the device's active format.
-       // Set a minimum frame rate of 10 frames per second
-       [m_camera setActiveVideoMinFrameDuration:CMTimeMake(1, 10)];
-
-       // and a maximum of 30 frames per second
-       [m_camera setActiveVideoMaxFrameDuration:CMTimeMake(1, 30)];
-
-
-        //Make sure we have a capture session
-        if (nil == m_captureSession)
-        {
-            m_captureSession = [[AVCaptureSession alloc] init];
-        }
-    
-        [m_camera unlockForConfiguration];
-    }
-    
-        
-    //Make sure we have a capture session
-    if (nil == m_captureSession)
-    {
-       m_captureSession = [[AVCaptureSession alloc] init];
-    }
-
-    // Definition of AVCaptureSessionPreset string (e.g. AVCaptureSessionPreset3840x2160)
-    NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth: width andHeight:height];
-    // Check if the preset is supported on the device by asking the capture session:
-    if ( ![m_captureSession canSetSessionPreset:cameraResolutionPreset])
-       return false;
-
-    // The preset is OK, now set up the capture session to use it
-    [m_captureSession setSessionPreset:cameraResolutionPreset];
-
-    // Plug camera and capture sesiossion together
-    {
-       // Initialize the camera input
-       m_cameraInput = nil;
-    
-       // Request a camera input from the camera
-       NSError* error = nil;
-       m_cameraInput = [AVCaptureDeviceInput deviceInputWithDevice:m_camera
-                                                             error:&error ];
-    
-       // Check if we've got any errors
-       if (nil != error)
-           return false;
-    
-       // We've got the input from the camera, now attach it to the capture session:
-       if ([m_captureSession canAddInput:m_cameraInput])
-           [m_captureSession addInput:m_cameraInput];
-       else
-           return false;
-    }
-
-    // Add the video output
-    [self setupVideoOutput];
-
-    // Set up a callback, so we are notified when the camera actually starts
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                            selector:@selector(videoCameraStarted:)
-                                                name:AVCaptureSessionDidStartRunningNotification
-                                              object:m_captureSession ];
-
-    // Start the captureing
-    [m_captureSession startRunning];
-    
-#else
-    
-     //-- Setup Capture Session.
-     m_captureSession = [[AVCaptureSession alloc] init];
-     [m_captureSession beginConfiguration];
-     
-     //-- Set preset session size.
-     [m_captureSession setSessionPreset:AVCaptureSessionPreset640x480];
-     
-     //-- Creata a video device and input from that Device.  Add the input to the capture session.
-     //AVCaptureDevice* videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-     AVCaptureDevice* videoDevice = nil;
-
-     videoDevice = [AVCaptureDevice defaultDeviceWithDeviceType:AVCaptureDeviceTypeBuiltInWideAngleCamera
-                                    mediaType:AVMediaTypeVideo
-                                    position:AVCaptureDevicePositionBack];
-     if(videoDevice == nil)
-         assert(0);
-     
-     /*
-     for (AVCaptureDeviceFormat *format in [videoDevice formats] ) {
-         CMFormatDescriptionRef description = format.formatDescription;
-         CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions(description);
-         SL_LOG("%s: %d x %d\n", format.description.UTF8String, dimensions.width, dimensions.height);
-     }
-     */
-     
-     //-- Add the device to the session.
-     NSError *error;
-     AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
-     if(error)
-         assert(0);
-     
-     [m_captureSession addInput:input];
-     
-     //-- Create the output for the capture session.
-     m_videoOutput = [[AVCaptureVideoDataOutput alloc] init];
-     [m_videoOutput setAlwaysDiscardsLateVideoFrames:YES]; // Probably want to set this to NO when recording
-
-     //-- Set to BGRA.
-     // Corevideo only supports:
-     // kCVPixelFormatType_32BGRA
-     // kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-     // kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
-     [m_videoOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA]
-         forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-     
-     // Set dispatch to be on the main thread so OpenGL can do things with the data
-     [m_videoOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
-     
-     [m_captureSession addOutput:m_videoOutput];
-     [m_captureSession commitConfiguration];
-    
-    [m_captureSession startRunning];
-#endif
-    //NSInteger activeColSpace = [m_camera activeColorSpace];
 
     // Note: Returning true from this function only means that setting up went OK.
     // It doesn't mean that the camera has started yet.
     // We get notified about the camera having started in the videoCameraStarted() callback.
-    return true;
+    return YES;
 }
 
 - (BOOL)stopCamera
 {
-    if (nil != m_captureSession)
+    if (nil != _captureSession)
     {
-        [m_captureSession stopRunning];
-        m_captureSession = nil;
-        m_camera = nil;
-        m_cameraInput = nil;
-        m_videoOutput = nil;
+        [_captureSession stopRunning];
+        _captureSession = nil;
+        _camera = nil;
+        _cameraInput = nil;
+        _videoOutput = nil;
     }
     return true;
 }
@@ -442,38 +258,8 @@
             facing = SENSCameraFacing::UNKNOWN;
         
         SENSCameraCharacteristics characs(deviceId, facing);
-        //Make sure we have a capture session to retrieve AVCaptureSessionPresent
-        if (nil == m_captureSession)
-        {
-            m_captureSession = [[AVCaptureSession alloc] init];
-        }
                 
         NSArray<AVCaptureDeviceFormat*>* deviceFormats = [device formats];
-        /*
-        for (AVCaptureDeviceFormat* format in deviceFormats)
-        {
-            CMVideoDimensions resolution = format.highResolutionStillImageDimensions;
-            int w = resolution.width;
-            int h = resolution.height;
-            printf("high dims: w %d h %d\n", w, h);
-        }
-         */
-        /*
-        AVCaptureDeviceFormat* bestFormat = nil;
-        AVFrameRateRange* bestRange = nil;
-        for(AVCaptureDeviceFormat* format in deviceFormats)
-        {
-            for( AVFrameRateRange* range in [format videoSupportedFrameRateRanges])
-            {
-                if(bestRange == nil || bestRange.maxFrameRate > range.maxFrameRate)
-                {
-                    bestFormat = format;
-                    bestRange = range;
-                }
-            }
-        }
-         */
-        
         for(AVCaptureDeviceFormat* format in deviceFormats)
         {
             CMFormatDescriptionRef formatDesc = [format formatDescription];
@@ -483,18 +269,13 @@
                 int w = dims.width;
                 int h = dims.height;
                 //printf("dims: w %d h %d\n", w, h);
-                //NSString* cameraResolutionPreset = [SENSiOSCameraDelegate getCaptureSessionPresentWithWidth:w andHeight:h];
-                //if ([m_captureSession canSetSessionPreset:cameraResolutionPreset])
+                if(!characs.contains({w, h}))
                 {
-                    //float minFrameRate = [format
-                    if(!characs.contains({w, h}))
-                    {
-                        //calculate focal length in pixel from horizontal field of view
-                        float horizFovDeg = [format videoFieldOfView];
-                        float focalLengthPix = SENS::calcFocalLengthPixFromFOVDeg(horizFovDeg, w);
-                        
-                        characs.add(w, h, focalLengthPix);
-                    }
+                    //calculate focal length in pixel from horizontal field of view
+                    float horizFovDeg = [format videoFieldOfView];
+                    float focalLengthPix = SENS::calcFocalLengthPixFromFOVDeg(horizFovDeg, w);
+                    
+                    characs.add(w, h, focalLengthPix);
                 }
             }
         }
