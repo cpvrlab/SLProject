@@ -23,7 +23,8 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _ftpPwd("FaAdbD3F2a"),
     _ftpDir("erleb-AR/"),
     _videoWasDownloaded(false),
-    _summedTime(0.0f)
+    _summedTime(0.0f),
+    _serial(false)
 {
     init("TestRunnerView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
 
@@ -112,7 +113,15 @@ bool TestRunnerView::update()
                         {
                             _trackingFrameCount++;
                             WAISlamTools::motionModel(currentFrame, _lastFrame, _velocity, _extrinsic);
-                            WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+
+                            if (_serial)
+                            {
+                                WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                            }
+                            else
+                            {
+                                WAISlamTools::mapping(_map, _localMap, _localMapping, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                            }
                         }
                         else
                         {
@@ -121,7 +130,7 @@ bool TestRunnerView::update()
                                 _maxTrackingFrameCount = _trackingFrameCount;
                             }
                             _trackingFrameCount = 0;
-                            _isTracking = false;
+                            _isTracking         = false;
                         }
                     }
                     else
@@ -133,7 +142,15 @@ bool TestRunnerView::update()
                             _relocalizeOnce = true;
 
                             WAISlamTools::motionModel(currentFrame, _lastFrame, _velocity, _extrinsic);
-                            WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+
+                            if (_serial)
+                            {
+                                WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                            }
+                            else
+                            {
+                                WAISlamTools::mapping(_map, _localMap, _localMapping, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                            }
                         }
                     }
 
@@ -187,6 +204,17 @@ bool TestRunnerView::update()
                           std::to_string(_currentFrameIndex) + ";" +
                           std::to_string(_maxTrackingFrameCount) + ";" +
                           Utils::toString((float)_maxTrackingFrameCount / (float)_currentFrameIndex, 2) + "\n";
+
+                        _maxTrackingFrameCount = 0;
+
+                        if (!_serial)
+                        {
+                            _localMapping->RequestFinish();
+                            _loopClosing->RequestFinish();
+
+                            _mappingThread->join();
+                            _loopClosingThread->join();
+                        }
                     }
                     break;
                 }
@@ -392,11 +420,9 @@ bool TestRunnerView::update()
 
                     if (_testMode == TestMode_Tracking)
                     {
-                        _lastKeyFrameFrameId   = 0;
-                        _lastRelocFrameId      = 0;
-                        _inliers               = 0;
-                        _trackingFrameCount    = 0;
-                        _maxTrackingFrameCount = 0;
+                        _lastKeyFrameFrameId = 0;
+                        _lastRelocFrameId    = 0;
+                        _inliers             = 0;
 
                         _isTracking     = false;
                         _relocalizeOnce = false;
@@ -410,6 +436,12 @@ bool TestRunnerView::update()
 
                         _localMapping->SetLoopCloser(_loopClosing);
                         _loopClosing->SetLocalMapper(_localMapping);
+
+                        if (!_serial)
+                        {
+                            _mappingThread     = new std::thread(&LocalMapping::Run, _localMapping);
+                            _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
+                        }
                     }
 
                     if (_vStream)
@@ -419,7 +451,7 @@ bool TestRunnerView::update()
 
                     SENSFramePtr sensFrame = _vStream->grabNextFrame();
 
-                    _extractor = _featureExtractorFactory.make(testInstance.extractorType, {sensFrame->captureWidth, sensFrame->captureHeight});
+                    _extractor = _featureExtractorFactory.make(testInstance.extractorType, {sensFrame->captureWidth, sensFrame->captureHeight}, testInstance.nLevels);
                     if (!_extractor)
                     {
                         Utils::log("WAI", "TestRunner::loadSites: Could not create feature extractor with type: %s", testInstance.extractorType.c_str());
@@ -440,6 +472,8 @@ bool TestRunnerView::update()
 
                     _currentFrameIndex        = 0;
                     _relocalizationFrameCount = 0;
+                    _trackingFrameCount       = 0;
+                    _maxTrackingFrameCount    = 0;
                     _lastFrame                = WAIFrame();
                     _summedTime               = 0.0f;
 
@@ -512,6 +546,7 @@ bool TestRunnerView::loadSites(const std::string&         erlebARDir,
                     }
 
                     testInstance.extractorType = slamMapInfos.extractorType;
+                    testInstance.nLevels       = slamMapInfos.nLevels;
 
                     testInstances.push_back(testInstance);
                 }

@@ -19,6 +19,7 @@ struct SlamMapInfos
     std::string location;
     std::string area;
     std::string extractorType;
+    int         nLevels;
 };
 
 static bool extractSlamVideoInfosFromFileName(std::string     fileName,
@@ -46,6 +47,7 @@ static bool extractSlamVideoInfosFromFileName(std::string     fileName,
 static std::string constructSlamMapIdentifierString(std::string location,
                                                     std::string area,
                                                     std::string extractorType,
+                                                    int         nLevels,
                                                     std::string dateTime = "")
 {
     if (dateTime.empty())
@@ -53,7 +55,7 @@ static std::string constructSlamMapIdentifierString(std::string location,
         dateTime = Utils::getDateTime2String();
     }
 
-    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + area + "_" + extractorType;
+    std::string result = "DEVELOPMENT-map_" + dateTime + "_" + location + "_" + area + "_" + extractorType + "_" + std::to_string(nLevels);
 
     return result;
 }
@@ -79,9 +81,14 @@ static bool extractSlamMapInfosFromFileName(std::string   fileName,
         result = true;
     }
 
-    if (stringParts.size() == 5)
+    if (stringParts.size() >= 5)
     {
         slamMapInfos->extractorType = stringParts[4];
+    }
+
+    if (stringParts.size() >= 6)
+    {
+        slamMapInfos->nLevels = std::stoi(stringParts[5]);
     }
 
     return result;
@@ -127,9 +134,10 @@ static std::string constructSlamVideoDir(std::string locationsRootDir, std::stri
 static std::string constructSlamMapFileName(std::string location,
                                             std::string area,
                                             std::string extractorType,
+                                            int         nLevels,
                                             std::string dateTime = "")
 {
-    std::string result = constructSlamMapIdentifierString(location, area, extractorType, dateTime) + ".json";
+    std::string result = constructSlamMapIdentifierString(location, area, extractorType, nLevels, dateTime) + ".json";
 
     return result;
 }

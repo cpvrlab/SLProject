@@ -13,6 +13,7 @@ struct Config
     std::string   vocFile;
     std::string   mapOutputDir;
     ExtractorType extractorType;
+    int           nLevels;
 };
 
 void printHelp()
@@ -28,6 +29,7 @@ void printHelp()
     ss << "  -configFile     Path and name to MapCreatorConfig.json" << std::endl;
     ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
     ss << "  -mapOutputDir   Directory where to output generated maps" << std::endl;
+    ss << "  -levels         Number of pyramid levels" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
@@ -61,6 +63,10 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-mapOutputDir"))
         {
             config.mapOutputDir = argv[++i]; //Not used
+        }
+        if (!strcmp(argv[i], "-level"))
+        {
+            config.nLevels = std::stoi(argv[++i]);
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -162,7 +168,7 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType);
+        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType, config.nLevels);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

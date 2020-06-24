@@ -80,9 +80,9 @@ const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD  = 19;
 
 static void computeBriefDescriptor(const KeyPoint& kpt,
-                                 const Mat&      img,
-                                 const Point*    pattern,
-                                 uchar*          desc)
+                                   const Mat&      img,
+                                   const Point*    pattern,
+                                   uchar*          desc)
 {
     const uchar* center = &img.at<uchar>(cvRound(kpt.pt.y), cvRound(kpt.pt.x));
     const int    step   = (int)img.step;
@@ -131,7 +131,7 @@ BRIEFextractor::BRIEFextractor(int   _nfeatures,
                                int   _minThFAST)
   : iniThFAST(_iniThFAST),
     minThFAST(_minThFAST),
-    KPextractor("FAST_BRIEF_" + std::to_string(_nfeatures), false)
+    KPextractor("FAST-BRIEF-" + std::to_string(_nfeatures), false)
 {
     nfeatures   = _nfeatures;
     scaleFactor = _scaleFactor;

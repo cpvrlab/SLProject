@@ -327,7 +327,7 @@ void TestView::saveMap(std::string location,
     if (!Utils::dirExists(mapDir))
         Utils::makeDir(mapDir);
 
-    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName());
+    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName(), _mode->getKPextractor()->GetLevels());
     std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
     if (_mode->retainImage())
@@ -574,8 +574,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
         slamParams.params.cullRedundantPerc = 0.99f;
     }
 
-    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
-    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
+    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize, slamParams.nLevels);
+    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize, slamParams.nLevels);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     try

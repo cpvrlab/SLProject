@@ -405,6 +405,35 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
+        if (ImGui::BeginCombo("Levels", std::to_string(_p.nLevels).c_str()))
+        {
+            if (ImGui::Selectable("1", _p.nLevels == 1))
+            {
+                if (_p.nLevels == 1)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+                _p.nLevels = 1;
+            }
+            if (ImGui::Selectable("2", _p.nLevels == 2))
+            {
+                if (_p.nLevels == 2)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+                _p.nLevels = 2;
+            }
+            if (ImGui::Selectable("8", _p.nLevels == 8))
+            {
+                if (_p.nLevels == 8)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+                _p.nLevels = 8;
+            }
+            ImGui::EndCombo();
+        }
+
         ImGui::Checkbox("store/load keyframes image", &_p.params.retainImg);
         ImGui::Checkbox("track optical flow", &_p.params.trackOptFlow);
         ImGui::Checkbox("tracking only", &_p.params.onlyTracking);
@@ -441,6 +470,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 event->params.extractorIds.trackingExtractorId       = _p.extractorIds.trackingExtractorId;
                 event->params.extractorIds.initializationExtractorId = _p.extractorIds.initializationExtractorId;
                 event->params.extractorIds.markerExtractorId         = _p.extractorIds.markerExtractorId;
+
+                event->params.nLevels = _p.nLevels;
 
                 //event->params = _p;
                 _eventQueue->push(event);
