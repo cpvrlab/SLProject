@@ -208,7 +208,7 @@ public:
 
     // Variables used by loop closing
     cv::Mat           mTcwGBA;
-    cv::Mat           mTcwBefGBA;
+    cv::Mat           mTcwRefGBA;
 
     // Calibration parameters
     const float fx, fy, cx, cy, invfx, invfy; /*, mbf, mb, mThDepth;*/

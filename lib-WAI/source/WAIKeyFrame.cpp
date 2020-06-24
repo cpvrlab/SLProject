@@ -892,7 +892,7 @@ size_t WAIKeyFrame::getSizeOf()
     //size_t test2 = getSizeOfCvMat(mDescriptors);
     //add space for cv mats:
     size += getSizeOfCvMat(mTcwGBA);
-    size += getSizeOfCvMat(mTcwBefGBA);
+    size += getSizeOfCvMat(mTcwRefGBA);
     size += getSizeOfCvMat(mDescriptors);
     size += getSizeOfCvMat(mTcp);
     size += getSizeOfCvMat(imgGray);

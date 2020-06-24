@@ -460,7 +460,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                 }
                 else
                 {
-                    cout << "keyframe with id " << i << " not found!" << endl;
+                    //cout << "keyframe with id " << i << " not found!" << endl;
                 }
             }
             mapPoints.push_back(newPt);
@@ -529,7 +529,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
             WAIKeyFrame* newGraphKf = std::get<0>(topElem);
             unconKfs.erase(newGraphKf);
             newGraphKf->ChangeParent(std::get<1>(topElem));
-            std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+            //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
             //update parent
             graph.insert(newGraphKf);
         }
