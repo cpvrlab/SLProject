@@ -1297,6 +1297,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShadowMappingSpotLights);
                     if (ImGui::MenuItem("Multiple Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
                         s->onLoad(s, sv, SID_ShadowMappingPointLights);
+                    if (ImGui::MenuItem("Point Lights on RT-Spheres", nullptr, sid == SID_RTSoftShadows))
+                        s->onLoad(s, sv, SID_RTSoftShadows);
 
                     ImGui::EndMenu();
                 }

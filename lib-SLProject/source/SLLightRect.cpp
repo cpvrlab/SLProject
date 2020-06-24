@@ -28,7 +28,7 @@ SLLightRect::SLLightRect(SLAssetManager* assetMgr,
 {
     width(w);
     height(h);
-
+    _castsShadows = false;
     _samples.set(1, 1);
 
     // make sample number even

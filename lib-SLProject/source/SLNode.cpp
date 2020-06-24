@@ -40,6 +40,7 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
+    _castsShadows   = true;
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
@@ -58,6 +59,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
+    _castsShadows   = true;
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
@@ -660,7 +662,7 @@ SLNode* SLNode::copyRec()
     copy->_isAABBUpToDate = _isWMUpToDate;
     copy->_drawBits       = _drawBits;
     copy->_aabb           = _aabb;
-    copy->_castsShadows    = _castsShadows;
+    copy->_castsShadows   = _castsShadows;
 
     if (_animation)
         copy->_animation = new SLAnimation(*_animation);

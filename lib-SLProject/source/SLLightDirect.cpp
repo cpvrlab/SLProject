@@ -26,8 +26,9 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLbool          hasMesh)
   : SLNode("LightDirect Node")
 {
-    _arrowRadius = arrowLength * 0.1f;
-    _arrowLength = arrowLength;
+    _arrowRadius  = arrowLength * 0.1f;
+    _arrowLength  = arrowLength;
+    _castsShadows = false;
 
     if (hasMesh)
     {

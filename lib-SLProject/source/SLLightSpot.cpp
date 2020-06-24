@@ -77,6 +77,7 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
 {
     _radius = radius;
     _samples.samples(1, 1, false);
+    _castsShadows = false;
     spotCutOffDEG(spotAngleDEG);
 
     translate(posx, posy, posz, TS_object);

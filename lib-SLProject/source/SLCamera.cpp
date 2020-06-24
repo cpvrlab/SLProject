@@ -45,6 +45,7 @@ SLCamera::SLCamera(const SLstring& name)
     _fov           = 45.0;
     _projection    = P_monoPerspective;
     _camAnim       = CA_turntableYUp;
+    _castsShadows  = false;
 
     // depth of field parameters
     _lensDiameter = 0.3f;

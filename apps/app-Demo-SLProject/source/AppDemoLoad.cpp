@@ -978,7 +978,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Define 5 light sources
-        // A rectangluar wight light on top
+        // A rectanglar wight light on top
         SLLightRect* light0 = new SLLightRect(s, s, 2.0f, 1.0f);
         light0->ambiDiffPowers(0, 1);
         light0->translation(0, 3, 0);
@@ -1027,12 +1027,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light3);
 
         // A yellow directional light from the back-bottom
+        // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light4 = new SLLightDirect(s, s);
         light4->ambientColor(SLCol4f(0, 0, 0));
         light4->diffuseColor(SLCol4f(1, 1, 0));
         light4->specularColor(SLCol4f(1, 1, 0));
         light4->translation(-1.5f, -1.5f, -1.5f);
         light4->lookAt(0, 0, 0);
+        light4->attenuation(1, 0, 0);
         scene->addChild(light4);
 
         // Add some meshes to be lighted
@@ -1623,11 +1625,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create light source
+        // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light = new SLLightDirect(s, s);
         light->powers(0.0f, 1.0f, 1.0f);
         light->translation(0, 5, 0);
         light->lookAt(0, 0, 0);
-        light->attenuation(0, 0, 1);
+        light->attenuation(1, 0, 0);
         light->createsShadows(true);
         light->castsShadows(false);
         scene->addChild(light);
@@ -1678,7 +1681,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
           new SLLightDirect(s, s),
           new SLLightRect(s, s),
           new SLLightSpot(s, s, 0.3f, 25.0f),
-          new SLLightSpot(s, s, 0.02f, 180.0f)};
+          new SLLightSpot(s, s, 0.1f, 180.0f)};
 
         for (SLint i = 0; i < lights.size(); ++i)
         {
@@ -1687,13 +1690,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLfloat  x     = (i - (lights.size() - 1.0f) / 2.0f) * 5;
 
             if (i == 0) // Make direct light less bright
+            {
                 light->powers(0.0f, 0.4f, 0.4f);
+                light->attenuation(1, 0, 0);
+            }
             else
+            {
                 light->powers(0.0f, 2.0f, 2.0f);
+                light->attenuation(0, 0, 1);
+            }
 
             node->translation(x, 5, 0);
             node->lookAt(x, 0, 0);
-            light->attenuation(0, 0, 1);
             light->createsShadows(true);
             scene->addChild(node);
         }
@@ -3506,7 +3514,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 4, 0, 0, 0, 1, 30, matGla, matRed));
+        scene->addChild(SphereGroup(s, 3, 0, 0, 0, 1, 30, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -3519,45 +3527,41 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
 
         // define materials
-        SLCol4f     spec(0.8f, 0.8f, 0.8f);
-        SLMaterial* matBlk = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
-        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
-        SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
+        SLCol4f      spec(0.8f, 0.8f, 0.8f);
+        SLGLProgram* shadowPrg = new SLGLGenericProgram(s,
+                                                        SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
+                                                        SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
+        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f,shadowPrg);
+        SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, shadowPrg);
+        SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f, shadowPrg);
 
         SLCamera* cam1 = new SLCamera;
-        cam1->translation(0, 0.1f, 6);
+        cam1->translation(0, 0.1f, 4);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        SLuint  res  = 30;
-        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-3, -3), SLVec2f(5, 4), res, res, "Rect", matYel));
+        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5),1, 1, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
-        rect->translate(0, -1, -0.5f, TS_object);
+        rect->translate(0, 0, -0.5f);
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, 3, 3, 3, 0.3f);
-#ifndef APP_USES_GLES
-        SLuint numSamples = 10;
-#else
         SLuint numSamples = 8;
-#endif
+        SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 2, 0.3f);
         light1->samples(numSamples, numSamples);
         light1->attenuation(0, 0, 1);
-        //light1->lightAt(2,2,2, 0,0,0);
-        //light1->spotCutoff(15);
-        light1->translation(2, 2, 2);
-        light1->lookAt(0, 0, 0);
+        light1->createsShadows(true);
 
-        SLLightSpot* light2 = new SLLightSpot(s, s, 0, 1.5, -1.5, 0.3f);
-        light2->samples(8, 8);
+        SLLightSpot* light2 = new SLLightSpot(s, s, 2, 2, -2, 0.3f);
+        light2->samples(numSamples, numSamples);
         light2->attenuation(0, 0, 1);
+        light2->createsShadows(true);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, res, matBlk, matRed));
+        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, 32, matBlk, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 

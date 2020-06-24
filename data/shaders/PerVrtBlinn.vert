@@ -49,15 +49,16 @@ void DirectLight(in    int  i,   // Light number
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
-
-    // Half vector H between L and E
-    vec3 H = normalize(L+E);
    
     // Calculate diffuse & specular factors
     float diffFactor = max(dot(N,L), 0.0);
     float specFactor = 0.0;
-    if (diffFactor!=0.0) 
+    
+    if (diffFactor!=0.0)
+    {
+        vec3 H = normalize(L+E); // Half vector H between L and E
         specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+    }
    
     // accumulate directional light intesities w/o attenuation
     Ia += u_lightAmbient[i];
