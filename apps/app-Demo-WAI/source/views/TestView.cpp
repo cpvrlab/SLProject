@@ -744,6 +744,8 @@ void TestView::updateVideoTracking()
 
 void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
+    if (!_mode)
+        return;
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());
