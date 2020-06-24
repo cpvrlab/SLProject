@@ -90,7 +90,6 @@ static bool extractSlamMapInfosFromFileName(std::string   fileName,
     {
         slamMapInfos->nLevels = std::stoi(stringParts[5]);
     }
-
     return result;
 }
 

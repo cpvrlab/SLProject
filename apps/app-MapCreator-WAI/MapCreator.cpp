@@ -351,10 +351,17 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                 kpIniExtractorPtr = kpIniExtractor.get();
             }
             break;
+            case ExtractorType_FAST_BRIEF_1000: {
+                kpIniExtractor    = factory.make(ExtractorType_FAST_BRIEF_2000, {frameSize.width, frameSize.height}, nLevels);
+                kpIniExtractorPtr = kpIniExtractor.get();
+            }
+            break;
 
             default: {
                 kpIniExtractorPtr = kpExtractor.get();
             }
+            default:
+               kpIniExtractorPtr = kpExtractor.get();
         };
 #endif
 
