@@ -1293,11 +1293,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShadowMappingBasicScene);
                     if (ImGui::MenuItem("Light Types", nullptr, sid == SID_ShadowMappingLightTypes))
                         s->onLoad(s, sv, SID_ShadowMappingLightTypes);
-                    if (ImGui::MenuItem("Multiple Spot Lights", nullptr, sid == SID_ShadowMappingSpotLights))
+                    if (ImGui::MenuItem("8 Spot Lights", nullptr, sid == SID_ShadowMappingSpotLights))
                         s->onLoad(s, sv, SID_ShadowMappingSpotLights);
-                    if (ImGui::MenuItem("Multiple Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
+                    if (ImGui::MenuItem("3 Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
                         s->onLoad(s, sv, SID_ShadowMappingPointLights);
-                    if (ImGui::MenuItem("Point Lights on RT-Spheres", nullptr, sid == SID_RTSoftShadows))
+                    if (ImGui::MenuItem("RT Soft Shadows", nullptr, sid == SID_RTSoftShadows))
                         s->onLoad(s, sv, SID_RTSoftShadows);
 
                     ImGui::EndMenu();
