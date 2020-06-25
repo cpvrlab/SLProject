@@ -10,13 +10,13 @@
 namespace SENS
 {
 //returns true if crop was calculated
-bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int& width, int&height);
+bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int& width, int& height);
 void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH);
 void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV);
 void extendWithBars(cv::Mat& img, float targetWdivH);
 
 //calculate field of view in degree from focal length in pixel. (If you want to know the horizontal field of view you have to pass the image width as imgLength, for vertical field of view pass the image height
-float calcFOVDegFromFocalLengthPix(const float focalLengthPix, const int imgLength );
+float calcFOVDegFromFocalLengthPix(const float focalLengthPix, const int imgLength);
 //calculate focal length in pix from field of view in degree. (If you pass the horizontal field of view you have to pass the image width as imgLength. If you pass the vertical field of view you have to pass the image height as imgLength.
 float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength);
 };

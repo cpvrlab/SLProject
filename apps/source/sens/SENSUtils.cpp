@@ -6,15 +6,13 @@ namespace SENS
 //https://www.khronos.org/opengl/wiki/Common_Mistakes section Texture upload and pixel reads:
 //If pixel format is rgb or bgr (only 3 layers), we have to make sure that the (width * 3 bytes) is devidable by 4
 //For rgba images the problem cannot arise. By the way, the GPU will most likely convert the rgb to rbga anyway.
-bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int& width, int&height)
+bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int& width, int& height)
 {
-    cropH = 0; // crop height in pixels of the source image
-    cropW = 0; // crop width in pixels of the source image
-    width  = inputSize.width; // width in pixels of the destination image
+    cropH  = 0;                // crop height in pixels of the source image
+    cropW  = 0;                // crop width in pixels of the source image
+    width  = inputSize.width;  // width in pixels of the destination image
     height = inputSize.height; // height in pixels of the destination image
-    
 
-    
     float inWdivH = (float)inputSize.width / (float)inputSize.height;
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = targetWdivH < 0.0f ? inWdivH : targetWdivH;
@@ -64,7 +62,7 @@ bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int
 void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH)
 {
     int width, height;
-    if(calcCrop(img.size(), targetWdivH, cropW, cropH, width, height))
+    if (calcCrop(img.size(), targetWdivH, cropW, cropH, width, height))
     {
         img(cv::Rect(cropW, cropH, width, height)).copyTo(img);
         //imwrite("AfterCropping.bmp", lastFrame);
@@ -88,8 +86,8 @@ void extendWithBars(cv::Mat& img, float targetWdivH)
         {
             width  = img.cols;
             height = (int)((float)img.cols / outWdivH);
-            addT = (int)((float)(height - img.rows) * 0.5f);
-            addB = height - addT - img.rows;
+            addT   = (int)((float)(height - img.rows) * 0.5f);
+            addB   = height - addT - img.rows;
         }
         else // add bar left and right (old: crop input image at top & bottom)
         {
@@ -98,15 +96,15 @@ void extendWithBars(cv::Mat& img, float targetWdivH)
 
             // Width in bytes must be devidable by 4:
             //(e.g. for RGBA images this is already true. For RGB images we have to check if (width * 3bytes) is dividable by 4)
-            if(img.channels() != 4)
+            if (img.channels() != 4)
             {
                 //we make this problem more easy: if width is dividable by 4 then n*width is also dividable by four
                 int wModulo4 = width % 4;
                 //we alway fill up, becaus we have to add pixels anyway
                 width += (4 - wModulo4);
             }
-            addL  = (int)((float)(width - img.cols) * 0.5f);
-            addR  = width - addL - img.cols;
+            addL = (int)((float)(width - img.cols) * 0.5f);
+            addR = width - addL - img.cols;
         }
 
         /*
@@ -148,10 +146,10 @@ void extendWithBars(cv::Mat& img, float targetWdivH)
 
         }
         */
-        
+
         cv::Scalar value(0, 0, 0);
         copyMakeBorder(img, img, addT, addB, addL, addR, cv::BORDER_CONSTANT, value);
-        
+
         assert((img.size().width * img.channels()) % 4 == 0);
     }
     //Utils::log("extendWithBars", "elapsed time total %f ms", t.elapsedTimeInMilliSec());
@@ -187,7 +185,7 @@ float calcFOVDegFromFocalLengthPix(const float focalLengthPix, const int imgLeng
 }
 float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength)
 {
-    float fovRad = fovDeg * SENS_DEG2RAD;
+    float fovRad         = fovDeg * SENS_DEG2RAD;
     float focalLengthPix = 0.5f * imgLength / tanf(0.5f * fovRad);
     return focalLengthPix;
 }

@@ -22,13 +22,12 @@
 #include <ErlebARApp.h>
 
 //-----------------------------------------------------------------------------
-@interface ErlebARViewController ()
-{
+@interface ErlebARViewController () {
 @private
-    float  _lastFrameTimeSec;  // Timestamp for passing highres time
-    float  _lastTouchTimeSec;  // Frame time of the last touch event
-    float  _lastTouchDownSec;  // Time of last touch down
-    int    _touchDowns;        // No. of finger touchdowns
+    float _lastFrameTimeSec; // Timestamp for passing highres time
+    float _lastTouchTimeSec; // Frame time of the last touch event
+    float _lastTouchDownSec; // Time of last touch down
+    int   _touchDowns;       // No. of finger touchdowns
 
     // Global screen scale (2.0 for retina, 1.0 else)
     float _screenScale;
@@ -40,7 +39,7 @@
 }
 - (float)getSeconds;
 
-@property (strong, nonatomic) EAGLContext       *context;
+@property (strong, nonatomic) EAGLContext* context;
 
 @end
 
@@ -48,22 +47,22 @@
 @implementation ErlebARViewController
 
 //-----------------------------------------------------------------------------
-- (id)init:(NSString *)nibNameOrNil
+- (id)init:(NSString*)nibNameOrNil
 {
     self = [self initWithNibName:nibNameOrNil bundle:nil];
-    
-    if(self)
+
+    if (self)
     {
         _lastFrameTimeSec = 0.f; //todo: this variable remains 0, its never assigned a new value...
         _lastTouchTimeSec = 0.f;
         _lastTouchDownSec = 0.f;
-        _touchDowns = 0;
-        
+        _touchDowns       = 0;
+
         _screenScale = 1.0f;
-        _dpi = 0.f;
-        _camera = nullptr;
+        _dpi         = 0.f;
+        _camera      = nullptr;
     }
-    
+
     return self;
 }
 //-----------------------------------------------------------------------------
@@ -72,7 +71,7 @@
 {
     printf("viewDidLoad\n");
     [super viewDidLoad];
-   
+
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     if (!self.context)
     {
@@ -81,19 +80,19 @@
         if (!self.context)
             NSLog(@"Failed to create ES2 context");
     }
-    
-    GLKView* view = (GLKView *)self.view;
-    view.context = self.context;
+
+    GLKView* view            = (GLKView*)self.view;
+    view.context             = self.context;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-   
-    if([UIDevice currentDevice].multitaskingSupported)
-       view.drawableMultisample = GLKViewDrawableMultisample4X;
-   
+
+    if ([UIDevice currentDevice].multitaskingSupported)
+        view.drawableMultisample = GLKViewDrawableMultisample4X;
+
     //self.modalPresentationStyle = UIModalPresentationFullScreen;
-    self.preferredFramesPerSecond = 60;
+    self.preferredFramesPerSecond  = 60;
     self.view.multipleTouchEnabled = true;
-    _touchDowns = 0;
-   
+    _touchDowns                    = 0;
+
     //[self setupGL];
     [EAGLContext setCurrentContext:self.context];
 
@@ -105,18 +104,19 @@
         _dpi = 163 * _screenScale;
     else
         _dpi = 160 * _screenScale;
-    
+
     // Some computer informations
-    struct utsname systemInfo; uname(&systemInfo);
-    NSString* model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-    NSString* osver = [[UIDevice currentDevice] systemVersion];
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    NSString*         model    = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+    NSString*         osver    = [[UIDevice currentDevice] systemVersion];
     const NXArchInfo* archInfo = NXGetLocalArchInfo();
-    NSString* arch = [NSString stringWithUTF8String:archInfo->description];
-    
+    NSString*         arch     = [NSString stringWithUTF8String:archInfo->description];
+
     Utils::ComputerInfos::model = std::string([model UTF8String]);
     Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
-    
+
     Utils::initFileLog(Utils_iOS::getAppsWritableDir() + "log/", true);
     _camera = new SENSiOSCamera();
 }
@@ -140,16 +140,16 @@
 //-----------------------------------------------------------------------------
 - (void)appDidBecomeActive
 {
-    std::string exePath = Utils_iOS::getCurrentWorkingDir();
+    std::string exePath    = Utils_iOS::getCurrentWorkingDir();
     std::string configPath = Utils_iOS::getAppsWritableDir();
-    
+
     _erlebARApp.init(self.view.bounds.size.width * _screenScale,
-                       self.view.bounds.size.height * _screenScale,
-                       _dpi,
-                       exePath + "data/",
-                       configPath,
-                       _camera);
-    
+                     self.view.bounds.size.height * _screenScale,
+                     _dpi,
+                     exePath + "data/",
+                     configPath,
+                     _camera);
+
     printf("appDidBecomeActive: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }
 //-----------------------------------------------------------------------------
@@ -163,13 +163,13 @@
 - (void)didReceiveMemoryWarning
 {
     printf("didReceiveMemoryWarning\n");
-    
+
     [super didReceiveMemoryWarning];
-   
+
     _erlebARApp.destroy();
     _erlebARApp.update();
     delete _camera;
-    
+
     if ([EAGLContext currentContext] == self.context)
     {
         [EAGLContext setCurrentContext:nil];
@@ -186,22 +186,22 @@
      */
 }
 //-----------------------------------------------------------------------------
-- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
+- (void)glkView:(GLKView*)view drawInRect:(CGRect)rect
 {
     //printf("drawInRect: fps: %f\n", (float)self.framesPerSecond);
     _erlebARApp.update();
 }
 //-----------------------------------------------------------------------------
 // touchesBegan receives the finger thouch down events
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *) event
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
 {
     NSArray* myTouches = [touches allObjects];
-    UITouch* touch1 = [myTouches objectAtIndex:0];
-    CGPoint pos1 = [touch1 locationInView:touch1.view];
+    UITouch* touch1    = [myTouches objectAtIndex:0];
+    CGPoint  pos1      = [touch1 locationInView:touch1.view];
     pos1.x *= _screenScale;
     pos1.y *= _screenScale;
     float touchDownNowSec = [self getSeconds];
-   
+
     // end touch actions on sequential finger touch downs
     if (_touchDowns > 0)
     {
@@ -209,17 +209,17 @@
             _erlebARApp.mouseUp(0, MB_left, pos1.x, pos1.y, K_none);
         if (_touchDowns == 2)
             _erlebARApp.touch2Up(0, 0, 0, 0, 0);
-      
+
         // Reset touch counter if last touch event is older than a second.
         // This resolves the problem off loosing track in touch counting e.g.
         // when somebody touches with the flat hand.
         if (_lastTouchTimeSec < (_lastFrameTimeSec - 2.0f))
             _touchDowns = 0;
     }
-   
+
     _touchDowns += [touches count];
     //printf("Begin tD: %d, touches count: %u\n", _touchDowns, (SLuint)[touches count]);
-   
+
     if (_touchDowns == 1 && [touches count] == 1)
     {
         if (touchDownNowSec - _lastTouchDownSec < 0.3f)
@@ -232,7 +232,7 @@
         if ([touches count] == 2)
         {
             UITouch* touch2 = [myTouches objectAtIndex:1];
-            CGPoint pos2 = [touch2 locationInView:touch2.view];
+            CGPoint  pos2   = [touch2 locationInView:touch2.view];
             pos2.x *= _screenScale;
             pos2.y *= _screenScale;
             _erlebARApp.touch2Down(0, pos1.x, pos1.y, pos2.x, pos2.y);
@@ -240,19 +240,19 @@
         else if ([touches count] == 1) // delayed 2nd finger touch
             _erlebARApp.touch2Down(0, 0, 0, 0, 0);
     }
-   
+
     _lastTouchTimeSec = _lastTouchDownSec = touchDownNowSec;
 }
 //-----------------------------------------------------------------------------
 // touchesMoved receives the finger move events
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
 {
     NSArray* myTouches = [touches allObjects];
-    UITouch* touch1 = [myTouches objectAtIndex:0];
-    CGPoint pos1 = [touch1 locationInView:touch1.view];
+    UITouch* touch1    = [myTouches objectAtIndex:0];
+    CGPoint  pos1      = [touch1 locationInView:touch1.view];
     pos1.x *= _screenScale;
     pos1.y *= _screenScale;
-   
+
     if (_touchDowns == 1 && [touches count] == 1)
     {
         _erlebARApp.mouseMove(0, pos1.x, pos1.y);
@@ -260,24 +260,24 @@
     else if (_touchDowns == 2 && [touches count] == 2)
     {
         UITouch* touch2 = [myTouches objectAtIndex:1];
-        CGPoint pos2 = [touch2 locationInView:touch2.view];
+        CGPoint  pos2   = [touch2 locationInView:touch2.view];
         pos2.x *= _screenScale;
         pos2.y *= _screenScale;
         _erlebARApp.touch2Move(0, pos1.x, pos1.y, pos2.x, pos2.y);
     }
-   
+
     _lastTouchTimeSec = _lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
 // touchesEnded receives the finger thouch release events
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
 {
     NSArray* myTouches = [touches allObjects];
-    UITouch* touch1 = [myTouches objectAtIndex:0];
-    CGPoint pos1 = [touch1 locationInView:touch1.view];
+    UITouch* touch1    = [myTouches objectAtIndex:0];
+    CGPoint  pos1      = [touch1 locationInView:touch1.view];
     pos1.x *= _screenScale;
     pos1.y *= _screenScale;
-   
+
     if (_touchDowns == 1 || [touches count] == 1)
     {
         _erlebARApp.mouseUp(0, MB_left, pos1.x, pos1.y, K_none);
@@ -285,26 +285,26 @@
     else if (_touchDowns == 2 && [touches count] >= 2)
     {
         UITouch* touch2 = [myTouches objectAtIndex:1];
-        CGPoint pos2 = [touch2 locationInView:touch2.view];
+        CGPoint  pos2   = [touch2 locationInView:touch2.view];
         pos2.x *= _screenScale;
         pos2.y *= _screenScale;
         _erlebARApp.touch2Up(0, pos1.x, pos1.y, pos2.x, pos2.y);
     }
 
     _touchDowns = 0;
-   
+
     //printf("End   tD: %d, touches count: %d\n", _touchDowns, [touches count]);
-   
+
     _lastTouchTimeSec = _lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
 // touchesCancle receives the cancle event on an iPhone call
-- (void)touchesCancle:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesCancle:(NSSet*)touches withEvent:(UIEvent*)event
 {
     NSArray* myTouches = [touches allObjects];
-    UITouch* touch1 = [myTouches objectAtIndex:0];
-    CGPoint pos1 = [touch1 locationInView:touch1.view];
-   
+    UITouch* touch1    = [myTouches objectAtIndex:0];
+    CGPoint  pos1      = [touch1 locationInView:touch1.view];
+
     if (_touchDowns == 1 || [touches count] == 1)
     {
         _erlebARApp.mouseUp(0, MB_left, pos1.x, pos1.y, K_none);
@@ -312,15 +312,15 @@
     else if (_touchDowns == 2 && [touches count] >= 2)
     {
         UITouch* touch2 = [myTouches objectAtIndex:1];
-        CGPoint pos2 = [touch2 locationInView:touch2.view];
+        CGPoint  pos2   = [touch2 locationInView:touch2.view];
         _erlebARApp.touch2Up(0, pos1.x, pos1.y, pos2.x, pos2.y);
     }
     _touchDowns -= (int)[touches count];
     if (_touchDowns < 0)
         _touchDowns = 0;
-   
+
     //printf("End   tD: %d, touches count: %d\n", _touchDowns, [touches count]);
-   
+
     _lastTouchTimeSec = _lastFrameTimeSec;
 }
 //-----------------------------------------------------------------------------
