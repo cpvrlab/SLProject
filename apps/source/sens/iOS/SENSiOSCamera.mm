@@ -73,7 +73,6 @@ void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCamer
         _config.targetHeight = height;
         _config.focusMode = focusMode;
         
-        
         //retrieve all camera characteristics
         if (_caputureProperties.size() == 0)
             _caputureProperties = [_cameraDelegate retrieveCaptureProperties];
@@ -92,8 +91,9 @@ void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCamer
         if(itChars == _caputureProperties.end())
             throw SENSException(SENSType::CAM, "Could not find device id!", __LINE__, __FILE__);
         
-        const SENSCameraCharacteristics::StreamConfig& bestConfig = itChars->findBestMatchingConfig({_config.targetWidth, _config.targetHeight});
-
+        _config.streamConfigIndex = itChars->findBestMatchingConfig({_config.targetWidth, _config.targetHeight});
+        const SENSCameraCharacteristics::StreamConfig& bestConfig = itChars->streamConfigs().at(_config.streamConfigIndex);
+        
         NSString* devId = [NSString stringWithUTF8String:_config.deviceId.c_str()];
         if([_cameraDelegate startCamera:devId withWidth:bestConfig.widthPix andHeight:bestConfig.heightPix])
             _started = true;

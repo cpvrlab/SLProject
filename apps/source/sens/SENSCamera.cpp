@@ -8,7 +8,7 @@ bool isEqualToOne(float value)
 }
 
 //searches for best machting size and returns it
-const SENSCameraCharacteristics::StreamConfig& SENSCameraCharacteristics::findBestMatchingConfig(cv::Size requiredSize) const
+int SENSCameraCharacteristics::findBestMatchingConfig(cv::Size requiredSize) const
 {
     if (_streamConfigs.size() == 0)
         throw SENSException(SENSType::CAM, "No stream configuration available!", __LINE__, __FILE__);
@@ -49,7 +49,7 @@ const SENSCameraCharacteristics::StreamConfig& SENSCameraCharacteristics::findBe
     //sort by crop
     std::sort(matchingSizes.begin(), matchingSizes.end());
 
-    return _streamConfigs[matchingSizes.front().second];
+    return matchingSizes.front().second;
 }
 
 SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg)

@@ -69,7 +69,7 @@ public:
        _facing(facing)
     {}
     
-    const StreamConfig& findBestMatchingConfig(cv::Size requiredSize) const;
+    int findBestMatchingConfig(cv::Size requiredSize) const;
     const std::vector<StreamConfig>& streamConfigs() const { return _streamConfigs; }
     const std::string& deviceId() const { return _deviceId; }
     const SENSCameraFacing& facing() const { return _facing; }
@@ -98,14 +98,6 @@ private:
     SENSCameraFacing _facing = SENSCameraFacing::UNKNOWN;
     std::vector<StreamConfig> _streamConfigs;
 };
-
-class SENSCaptureProperties : public std::vector<SENSCameraCharacteristics>
-{
-public:
-    //returned pointer is null if nothing was found
-    std::pair<const SENSCameraCharacteristics* const, int> findBestMatchingConfig(SENSCameraFacing facing, float horizFov, int width, int height) const;
-};
- 
 
 //---------------------------------------------------------------------------
 //SENSCameraConfig (this is what the user would like to have)
@@ -136,7 +128,7 @@ struct SENSCameraConfig
     //! provide scaled (smaller) version with size (smallWidth, smallHeight)
     bool provideScaledImage = false;
     //! provide gray version of small image
-    bool convertManipToGray = false;
+    bool convertManipToGray = true;
     
     //! adjust image in asynchronous thread
     bool adjustAsynchronously = false;
@@ -144,6 +136,37 @@ struct SENSCameraConfig
     //! enable video stabilization if available
     //bool enableVideoStabilization = false;
 };
+
+class SENSCaptureProperties : public std::vector<SENSCameraCharacteristics>
+{
+public:
+    float getHorizFovForConfig(const SENSCameraConfig& camConfig, int targetImgWidth) const
+    {
+        float horizFovDeg = -1.f;
+        for(auto it = begin(); it != end(); ++it)
+        {
+            if(it->deviceId() == camConfig.deviceId)
+            {
+                std::vector<SENSCameraCharacteristics::StreamConfig> streamConfigs = it->streamConfigs();
+                if(camConfig.streamConfigIndex < streamConfigs.size())
+                {
+                    float focalLengthPix = streamConfigs.at(camConfig.streamConfigIndex).focalLengthPix;
+                    if(focalLengthPix > 0.f)
+                    {
+                        horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(focalLengthPix, targetImgWidth);
+                    }
+                }
+                break;
+            }
+        }
+        
+        return horizFovDeg;
+    }
+    
+    //returned pointer is null if nothing was found
+    std::pair<const SENSCameraCharacteristics* const, int> findBestMatchingConfig(SENSCameraFacing facing, float horizFov, int width, int height) const;
+};
+ 
 
 //! Pure abstract camera class
 class SENSCamera
