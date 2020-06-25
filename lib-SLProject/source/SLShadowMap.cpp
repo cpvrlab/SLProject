@@ -155,8 +155,7 @@ void SLShadowMap::drawRays()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLShadowMap::updateMVP creates a lightSpace matrix for a directional
-light.
+SLShadowMap::updateMVP creates a lightSpace matrix for a directional light.
 */
 void SLShadowMap::updateMVP()
 {

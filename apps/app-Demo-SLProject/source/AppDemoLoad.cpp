@@ -1646,6 +1646,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add a box which receives shadows
         SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
+        boxNode->castsShadows(false);
         scene->addChild(boxNode);
 
         sv->camera(cam1);
@@ -1741,6 +1742,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat minx    = lights.front()->positionWS().x - 3;
         SLfloat maxx    = lights.back()->positionWS().x + 3;
         SLNode* boxNode = new SLNode(new SLBox(s, minx, -1, -5, maxx, 0, 5, "Box", m1));
+        boxNode->castsShadows(false);
         scene->addChild(boxNode);
 
         sv->camera(cam1);
@@ -1794,6 +1796,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add a box which receives shadows
         SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", m1));
+        boxNode->castsShadows(false);
         scene->addChild(boxNode);
 
         sv->camera(cam1);
@@ -3546,6 +3549,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5),1, 1, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f);
+        rect->castsShadows(false);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 2, 0.3f);
         light1->samples(8, 8);
