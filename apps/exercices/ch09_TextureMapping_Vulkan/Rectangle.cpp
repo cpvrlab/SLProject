@@ -1,20 +1,31 @@
-#pragma once
+#include "Rectangle.h"
 
-#include <string>
-
-#include <Mesh.h>
-
-using namespace std;
-//-----------------------------------------------------------------------------
-class Sphere : public Mesh
+void Rectangle::build()
 {
+    P.resize(4);
+    P[0] = {-1.0f, -1.0f, 0.0f};
+    P[1] = {1.0f, -1.0f, 0.0f};
+    P[2] = {1.0f, 1.0f, 0.0f};
+    P[3] = {-1.0f, 1.0f, 0.0f};
 
-public:
-    Sphere(string name) : Mesh(name) { ; }
+    N.resize(4);
+    N[0] = {1.0f, 0.0f, 0.0f};
+    N[1] = {0.0f, 1.0f, 0.0f};
+    N[2] = {0.0f, 0.0f, 1.0f};
+    N[3] = {1.0f, 1.0f, 1.0f};
 
-protected:
-    float _radius; //!< radius of sphere
-    int   _stack;  //!< NO. of stacks
-    int   _slices; //!< NO. of slices
-};
-//-----------------------------------------------------------------------------
+    Tc.resize(4);
+    Tc[0] = {1.0f, 0.0f};
+    Tc[1] = {0.0f, 0.0f};
+    Tc[2] = {0.0f, 1.0f};
+    Tc[3] = {1.0f, 1.0f};
+
+    C.resize(4);
+    C[0] = {0.0f, 0.0f, 0.0f, 1.0f};
+    C[1] = {0.0f, 0.0f, 0.0f, 1.0f};
+    C[2] = {0.0f, 0.0f, 0.0f, 1.0f};
+    C[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+    I32.resize(6);
+    I32 = {0, 1, 2, 2, 3, 0};
+}

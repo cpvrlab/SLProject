@@ -46,7 +46,8 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
     submitInfo.pWaitSemaphores    = waitSemaphores;
     submitInfo.pWaitDstStageMask  = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &commandBuffer.handles()[imageIndex];
+    VkCommandBuffer c             = commandBuffer.handles()[imageIndex];
+    submitInfo.pCommandBuffers    = &c;
 
     VkSemaphore signalSemaphores[]  = {_device.renderFinishedSemaphores()[_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
@@ -78,9 +79,9 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
 
 void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout, VkRenderPass renderPass, VkShaderModule vertShader, VkShaderModule fragShader)
 {
-    array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Vertex::getAttributeDescriptions();
-    VkVertexInputBindingDescription             bindingDescription    = Vertex::getBindingDescription();
-    VkPipelineVertexInputStateCreateInfo        vertexInputInfo{};
+    auto                                 attributeDescriptions = Vertex::getAttributeDescriptions();
+    VkVertexInputBindingDescription      bindingDescription    = Vertex::getBindingDescription();
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount   = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

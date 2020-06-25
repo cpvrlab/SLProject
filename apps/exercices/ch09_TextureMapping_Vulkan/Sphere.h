@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-
 #include <Mesh.h>
 
 using namespace std;

@@ -49,7 +49,6 @@ uint32_t Buffer::findMemoryType(uint32_t              typeFilter,
             (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
             return i;
 
-    // TODO:
     cerr << "failed to find suitable _memory type!" << endl;
 
     return UINT32_MAX;
@@ -91,8 +90,7 @@ void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 //-----------------------------------------------------------------------------
 void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const SLVVec2f texCoord, const SLVCol4f color, const size_t size)
 {
-    size_t       singleBufferSize = sizeof(SLVec3f) + sizeof(SLVec3f) + sizeof(SLVec2f) + sizeof(SLVCol4f);
-    VkDeviceSize totalBufferSize  = singleBufferSize * size;
+    VkDeviceSize totalBufferSize = (sizeof(SLVec3f) * 2 + sizeof(SLVec2f) + sizeof(SLCol4f)) * size;
 
     Buffer stagingBuffer = Buffer(_device);
     stagingBuffer.createBuffer(totalBufferSize,
@@ -101,32 +99,20 @@ void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const S
 
     void* data;
     vkMapMemory(_device.handle(), stagingBuffer._memory, 0, totalBufferSize, 0, &data);
-#if 0
-    for (size_t i = 0; i < size; i++)
-    {
-        size_t copiedSize = i * singleBufferSize;
-        memcpy((data + copiedSize), &pos[i], sizeof(SLVec3f));
-        copiedSize += sizeof(SLVec3f);
-        memcpy((data + copiedSize), &norm[i], sizeof(SLVec3f));
-        copiedSize += sizeof(SLVec3f);
-        memcpy((data + copiedSize), &texCoord[i], sizeof(SLVec2f));
-        copiedSize += sizeof(SLVec3f);
-        memcpy((data + copiedSize), &color[i], sizeof(SLCol4f));
-    }
-#else
+
     char* temp = (char*)malloc(totalBufferSize);
     for (size_t i = 0; i < size; i++)
     {
         memcpy((temp), &pos[i], sizeof(SLVec3f));
         memcpy((temp += sizeof(SLVec3f)), &norm[i], sizeof(SLVec3f));
         memcpy((temp += sizeof(SLVec3f)), &texCoord[i], sizeof(SLVec2f));
-        memcpy((temp += sizeof(SLVec2f)), &color[i], sizeof(SLVCol4f));
-        temp += sizeof(SLVCol4f);
+        memcpy((temp += sizeof(SLVec2f)), &color[i], sizeof(SLCol4f));
+        temp += sizeof(SLCol4f);
     }
     temp -= totalBufferSize;
     memcpy(data, temp, totalBufferSize);
     free(temp);
-#endif
+
     vkUnmapMemory(_device.handle(), stagingBuffer._memory);
 
     createBuffer(totalBufferSize,

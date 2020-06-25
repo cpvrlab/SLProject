@@ -43,7 +43,6 @@ void CommandBuffer::end()
     vkFreeCommandBuffers(_device.handle(), _device.commandPool(), 1, &_handle);
 }
 
-// TODO: Maybe remove const vector<Vertex>& vertices because it is not needed...
 void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, Buffer& vertexBuffer, Buffer& indexBuffer, Pipeline& pipeline, DescriptorSet& descriptorSet, int indicesSize)
 {
     _handles.resize(framebuffer.handle().size());
@@ -82,7 +81,7 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
         vkCmdBindPipeline(_handles[i],
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
                           pipeline.graphicsPipeline());
-        // VkBuffer     vertexBuffer    = vertexBuffer.handle;
+        // TODO: Fill array of vertexBuffers + indexBuffers
         VkBuffer     vertexBuffers[] = {vertexBuffer.handle()};
         VkDeviceSize offsets[]       = {0};
         vkCmdBindVertexBuffers(_handles[i],
@@ -93,7 +92,7 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
         vkCmdBindIndexBuffer(_handles[i],
                              indexBuffer.handle(),
                              0,
-                             VK_INDEX_TYPE_UINT16);
+                             VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(_handles[i],
                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 pipeline.pipelineLayout(),

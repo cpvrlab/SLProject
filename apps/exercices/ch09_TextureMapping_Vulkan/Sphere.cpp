@@ -52,8 +52,8 @@ void Sphere::build()
             Tc[iv].y = asin(N[iv].y) / Utils::PI + 0.5f;
 
             C[iv].x = 255;
-            C[iv].y = 255;
-            C[iv].z = 255;
+            C[iv].y = 0;
+            C[iv].z = 0;
             C[iv].a = 255;
 
             phi += dphi;

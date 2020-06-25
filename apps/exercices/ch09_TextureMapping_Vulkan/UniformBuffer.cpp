@@ -41,7 +41,7 @@ void UniformBuffer::update(uint32_t currentImage)
     ubo.proj.perspective(40,
                          (float)_swapchain.extent().width / (float)_swapchain.extent().height,
                          0.1f,
-                         20.0f);
+                         100.0f);
 
     void* data;
     vkMapMemory(_device.handle(), _buffers[currentImage]->memory(), 0, sizeof(ubo), 0, &data);

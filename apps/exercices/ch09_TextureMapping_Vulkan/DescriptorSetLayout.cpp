@@ -28,7 +28,7 @@ DescriptorSetLayout::DescriptorSetLayout(Device& device) : _device{device}
                                                   &layoutInfo,
                                                   nullptr,
                                                   &_handle);
-    ASSERT_VULKAN(result, "Failed to crete descriptor set layout");
+    ASSERT_VULKAN(result, "Failed to create descriptor set layout");
 }
 //-----------------------------------------------------------------------------
 void DescriptorSetLayout::destroy()

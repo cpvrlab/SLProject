@@ -16,6 +16,8 @@ class Mesh : public Object
 public:
     Mesh(string name) : Object(name) { ; }
 
+    void setColor(SLCol4f color);
+
     SLVVec3f  P;   //!< Vector for vertex positions
     SLVVec3f  N;   //!< Vector for vertex normals (opt.)
     SLVVec2f  Tc;  //!< Vector of vertex tex. coords. (opt.)

@@ -6,10 +6,10 @@
 //-----------------------------------------------------------------------------
 struct Vertex
 {
-    SLVec3f  pos;
-    SLVec3f  norm;
-    SLVCol4f texCoord;
-    SLVCol4f color;
+    SLVec3f pos;
+    SLVec3f norm;
+    SLVec2f texCoord;
+    SLCol4f color;
 
     static VkVertexInputBindingDescription getBindingDescription()
     {

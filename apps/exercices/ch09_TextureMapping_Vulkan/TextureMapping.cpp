@@ -1,7 +1,4 @@
-#define oldProject 0
-
 #define GLFW_INCLUDE_VULKAN
-// #include <GL/glew.h> // OpenGL headers
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
@@ -28,6 +25,7 @@
 #include "VertexBuffer.h"
 #include <Node.h>
 #include <Sphere.h>
+#include <Rectangle.h>
 
 //-----------------------------------------------------------------------------
 //////////////////////
@@ -42,15 +40,12 @@ string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader
 string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv";
 
 GLFWwindow* window;
-#if oldProject
-vkUtils renderer;
-#endif
 // Plane
-// const vector<Vertex> vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-//                                  {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-//                                  {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-//                                  {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
-// const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+const vector<Vertex>   vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.f, 0.f, 0.f, 1.f}},
+                                 {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {1.f, 0.f, 0.f, 1.f}},
+                                 {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {1.f, 0.f, 0.f, 1.f}},
+                                 {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}, {1.f, 0.f, 0.f, 1.f}}};
+const vector<uint16_t> indices  = {0, 1, 2, 2, 3, 0};
 
 // Camera
 SLMat4f _viewMatrix;
@@ -159,12 +154,15 @@ void updateCamera()
 int main()
 {
     initWindow();
-    // Needed data
+    // Create a sphere
     Texture  texture  = Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
     Material material = Material("Texture");
     material.addTexture(&texture);
-    Sphere sphere = Sphere("Simple_Sphere", 0.5f, 32, 32);
-    Node   node   = Node("Sphere");
+    // Mesh sphere = Rectangle::Rectangle("Rect");
+    Mesh sphere = Sphere("Simple_Sphere", 1.0f, 32, 32);
+    sphere.setColor(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
+    sphere.mat = &material;
+    Node node  = Node("Sphere");
     node.AddMesh(&sphere);
 
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
@@ -192,10 +190,25 @@ int main()
     indexBuffer.createIndexBuffer(sphere.I32);
     UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix, SLMat4f(0.0f, 0.0f, 0.0f));
     DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
-    Sampler&       s              = textureImage.sampler();
     DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureImage.sampler(), textureImage);
     Buffer         vertexBuffer   = Buffer(device);
-    vertexBuffer.createVertexBuffer(sphere.P, sphere.N, sphere.Tc, sphere.C, sphere.P.size() / 3);
+
+#if 0
+    vector<Vertex> sph;
+    sph.resize(sphere.P.size());
+    for (size_t i = 0; i < sphere.P.size(); i++)
+    {
+        Vertex v;
+        v.pos      = sphere.P[i];
+        v.norm     = sphere.N[i];
+        v.texCoord = sphere.Tc[i];
+        v.color    = sphere.C[i];
+        sph[i]     = v;
+    }
+    vertexBuffer.createVertexBuffer(sph);
+#else
+    vertexBuffer.createVertexBuffer(sphere.P, sphere.N, sphere.Tc, sphere.C, sphere.P.size());
+#endif
     // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
     commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)sphere.I32.size());
@@ -221,7 +234,6 @@ int main()
     descriptorPool.destroy();
     descriptorSetLayout.destroy();
     textureImage.destroy();
-    // textureSampler.destroy();
     indexBuffer.destroy();
     vertexBuffer.destroy();
     vertShaderModule.destroy();
