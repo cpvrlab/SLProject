@@ -9,18 +9,18 @@
 
 #include <stdafx.h>           // precompiled headers
 
-#include "SLPhotonMap.h"
-#include "SLPhotonMapper.h"
-#include "SLCamera.h"
-#include "SLSceneView.h"
-#include "SLLightSphere.h"
-#include "SLLightRect.h"
-#include "SLLight.h"
-#include "SLGroup.h"
-#include "SLMesh.h"
-#include "SLGLTexture.h"
-#include "SLSamples2D.h"
-#include "SLGLShaderProg.h"
+#include <SLPhotonMap.h"
+#include <SLPhotonMapper.h"
+#include <SLCamera.h"
+#include <SLSceneView.h"
+#include <SLLightSphere.h"
+#include <SLLightRect.h"
+#include <SLLight.h"
+#include <SLGroup.h"
+#include <SLMesh.h"
+#include <SLGLTexture.h"
+#include <SLSamples2D.h"
+#include <SLGLShaderProg.h"
 
 //-----------------------------------------------------------------------------
 SLPhotonMapper::SLPhotonMapper()

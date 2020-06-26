@@ -55,7 +55,6 @@ public:
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
     void root2D(SLNode* root2D) { _root2D = root2D; }
-    void globalAmbiLight(const SLCol4f& gloAmbi) { _globalAmbiLight = gloAmbi; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
     void info(SLstring i) { _info = std::move(i); }
 
@@ -68,7 +67,6 @@ public:
     SLfloat          elapsedTimeSec() const { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
 
-    SLCol4f   globalAmbiLight() const { return _globalAmbiLight; }
     SLVLight& lights() { return _lights; }
     SLfloat   fps() const { return _fps; }
     AvgFloat& frameTimesMS() { return _frameTimesMS; }
@@ -114,8 +112,6 @@ protected:
     SLstring _info;           //!< scene info string
     SLVNode  _selectedNodes;  //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
     SLVMesh  _selectedMeshes; //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
-
-    SLCol4f _globalAmbiLight; //!< global ambient light intensity
 
     SLfloat _frameTimeMS;      //!< Last frame time in ms
     SLfloat _lastUpdateTimeMS; //!< Last time after update in ms

@@ -9,19 +9,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute   vec4  a_position;               //!< Vertex position attribute
-attribute   vec3  a_normal;                 //!< Vertex normal attribute
-attribute   vec2  a_texCoord;               //!< Vertex texture coordiante attribute
+attribute   vec4  a_position;               // Vertex position attribute
+attribute   vec3  a_normal;                 // Vertex normal attribute
+attribute   vec2  a_texCoord;               // Vertex texture coordiante attribute
 
-uniform     mat4  u_mMatrix;                //!< model matrix
-uniform     mat4  u_mvMatrix;               //!< modelview matrix
-uniform     mat3  u_nMatrix;                //!< normal matrix=transpose(inverse(mv))
-uniform     mat4  u_mvpMatrix;              //!< = projection * modelView
+uniform     mat4  u_mMatrix;                // model matrix
+uniform     mat4  u_mvMatrix;               // modelview matrix
+uniform     mat3  u_nMatrix;                // normal matrix=transpose(inverse(mv))
+uniform     mat4  u_mvpMatrix;              // = projection * modelView
 
-varying     vec3  v_P_VS;                   //!< Point of illumination in view space (VS)
-varying     vec3  v_P_WS;                   //!< Point of illumination in world space (WS)
-varying     vec3  v_N_VS;                   //!< Normal at P_VS in view space
-varying     vec2  v_texCoord;               //!< Texture coordiante varying
+varying     vec3  v_P_VS;                   // Point of illumination in view space (VS)
+varying     vec3  v_P_WS;                   // Point of illumination in world space (WS)
+varying     vec3  v_N_VS;                   // Normal at P_VS in view space
+varying     vec2  v_texCoord;               // Texture coordiante varying
 
 //-----------------------------------------------------------------------------
 void main(void)

@@ -15,8 +15,6 @@
 #include <SLGLState.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLLight.h>
-#include <SLLightDirect.h>
-#include <SLLightSpot.h>
 #include <SLMaterial.h>
 #include <SLNode.h>
 #include <SLShadowMap.h>

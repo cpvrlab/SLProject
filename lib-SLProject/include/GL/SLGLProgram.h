@@ -18,6 +18,7 @@
 #include <SLVec4.h>
 #include <SLGLUniform.h>
 #include <SLObject.h>
+#include <SLLight.h>
 
 class SLGLShader;
 class SLScene;
@@ -65,10 +66,11 @@ public:
     void init(); //!< create, attach & link shaders
     void initRaw();
 
-    virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) = 0; //!< starter for derived classes
+    virtual void beginShader(SLMaterial* mat) = 0; //!< starter for derived classes
     virtual void endShader()                                                     = 0;
 
-    void beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight); //!< begin using shader
+    void beginUse(SLMaterial* mat);
+    void passLightsToUniforms(SLVLight* lights);
     void endUse();
     void useProgram();
 

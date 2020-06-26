@@ -15,62 +15,62 @@
 precision mediump float;
 #endif
 
-varying vec3        v_P_VS;                   //!< Interpol. point of illum. in view space (VS)
-varying vec3        v_P_WS;                   //!< Interpol. point of illum. in world space (WS)
-varying vec3        v_N_VS;                   //!< Interpol. normal at v_P_VS in view space
-varying vec2        v_texCoord;               //!< interpol. texture coordinate
+varying vec3        v_P_VS;                   // Interpol. point of illum. in view space (VS)
+varying vec3        v_P_WS;                   // Interpol. point of illum. in world space (WS)
+varying vec3        v_N_VS;                   // Interpol. normal at v_P_VS in view space
+varying vec2        v_texCoord;               // interpol. texture coordinate
 
-uniform int         u_numLightsUsed;          //!< NO. of lights used light arrays
-uniform bool        u_lightIsOn[8];           //!< flag if light is on
-uniform vec4        u_lightPosWS[8];          //!< position of light in world space
-uniform vec4        u_lightPosVS[8];          //!< position of light in view space
-uniform vec4        u_lightAmbient[8];        //!< ambient light intensity (Ia)
-uniform vec4        u_lightDiffuse[8];        //!< diffuse light intensity (Id)
-uniform vec4        u_lightSpecular[8];       //!< specular light intensity (Is)
-uniform vec3        u_lightSpotDirVS[8];      //!< spot direction in view space
-uniform float       u_lightSpotCutoff[8];     //!< spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCosCut[8];     //!< cosine of spot cutoff angle
-uniform float       u_lightSpotExp[8];        //!< spot exponent
-uniform vec3        u_lightAtt[8];            //!< attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[8];          //!< flag if att. must be calc.
-uniform mat4        u_lightSpace[8 * 6];      //!< projection matrices for lights
-uniform bool        u_lightCreatesShadows[8]; //!< flag if light creates shadows
-uniform bool        u_lightDoesPCF[8];        //!< flag if percentage-closer filtering is enabled
-uniform int         u_lightPCFLevel[8];       //!< radius of area to sample for PCF
-uniform bool        u_lightUsesCubemap[8];    //!< flag if light has a cube shadow map
-uniform bool        u_receivesShadows;        //!< flag if material receives shadows
-uniform float       u_shadowBias;             //!< Bias to use to prevent shadow acne
-uniform vec4        u_globalAmbient;          //!< Global ambient scene color
+uniform int         u_numLightsUsed;          // NO. of lights used light arrays
+uniform bool        u_lightIsOn[8];           // flag if light is on
+uniform vec4        u_lightPosWS[8];          // position of light in world space
+uniform vec4        u_lightPosVS[8];          // position of light in view space
+uniform vec4        u_lightAmbient[8];        // ambient light intensity (Ia)
+uniform vec4        u_lightDiffuse[8];        // diffuse light intensity (Id)
+uniform vec4        u_lightSpecular[8];       // specular light intensity (Is)
+uniform vec3        u_lightSpotDirVS[8];      // spot direction in view space
+uniform float       u_lightSpotCutoff[8];     // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCosCut[8];     // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[8];        // spot exponent
+uniform vec3        u_lightAtt[8];            // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[8];          // flag if att. must be calc.
+uniform mat4        u_lightSpace[8 * 6];      // projection matrices for lights
+uniform bool        u_lightCreatesShadows[8]; // flag if light creates shadows
+uniform bool        u_lightDoesPCF[8];        // flag if percentage-closer filtering is enabled
+uniform int         u_lightPCFLevel[8];       // radius of area to sample for PCF
+uniform bool        u_lightUsesCubemap[8];    // flag if light has a cube shadow map
+uniform bool        u_receivesShadows;        // flag if material receives shadows
+uniform float       u_shadowBias;             // Bias to use to prevent shadow acne
+uniform vec4        u_globalAmbient;          // Global ambient scene color
 
-uniform vec4        u_matAmbient;             //!< ambient color reflection coefficient (ka)
-uniform vec4        u_matDiffuse;             //!< diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpecular;            //!< specular color reflection coefficient (ks)
-uniform vec4        u_matEmissive;            //!< emissive color for selfshining materials
-uniform float       u_matShininess;           //!< shininess exponent
+uniform vec4        u_matAmbient;             // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiffuse;             // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpecular;            // specular color reflection coefficient (ks)
+uniform vec4        u_matEmissive;            // emissive color for selfshining materials
+uniform float       u_matShininess;           // shininess exponent
 
-uniform float       u_oneOverGamma;           //!< 1.0f / Gamma correction value
+uniform float       u_oneOverGamma;           // 1.0f / Gamma correction value
 
-uniform int         u_projection;             //!< type of stereo
-uniform int         u_stereoEye;              //!< -1=left, 0=center, 1=right
-uniform mat3        u_stereoColorFilter;      //!< color filter matrix
+uniform int         u_projection;             // type of stereo
+uniform int         u_stereoEye;              // -1=left, 0=center, 1=right
+uniform mat3        u_stereoColorFilter;      // color filter matrix
 
-uniform sampler2D   u_shadowMap_0;            //!< shadow map for light 0
-uniform sampler2D   u_shadowMap_1;            //!< shadow map for light 1
-uniform sampler2D   u_shadowMap_2;            //!< shadow map for light 2
-uniform sampler2D   u_shadowMap_3;            //!< shadow map for light 3
-uniform sampler2D   u_shadowMap_4;            //!< shadow map for light 4
-uniform sampler2D   u_shadowMap_5;            //!< shadow map for light 5
-uniform sampler2D   u_shadowMap_6;            //!< shadow map for light 6
-uniform sampler2D   u_shadowMap_7;            //!< shadow map for light 7
+uniform sampler2D   u_shadowMap_0;            // shadow map for light 0
+uniform sampler2D   u_shadowMap_1;            // shadow map for light 1
+uniform sampler2D   u_shadowMap_2;            // shadow map for light 2
+uniform sampler2D   u_shadowMap_3;            // shadow map for light 3
+uniform sampler2D   u_shadowMap_4;            // shadow map for light 4
+uniform sampler2D   u_shadowMap_5;            // shadow map for light 5
+uniform sampler2D   u_shadowMap_6;            // shadow map for light 6
+uniform sampler2D   u_shadowMap_7;            // shadow map for light 7
 
-uniform samplerCube u_shadowMapCube_0;        //!< cubemap for light 0
-uniform samplerCube u_shadowMapCube_1;        //!< cubemap for light 1
-uniform samplerCube u_shadowMapCube_2;        //!< cubemap for light 2
-uniform samplerCube u_shadowMapCube_3;        //!< cubemap for light 3
-uniform samplerCube u_shadowMapCube_4;        //!< cubemap for light 4
-uniform samplerCube u_shadowMapCube_5;        //!< cubemap for light 5
-uniform samplerCube u_shadowMapCube_6;        //!< cubemap for light 6
-uniform samplerCube u_shadowMapCube_7;        //!< cubemap for light 7
+uniform samplerCube u_shadowMapCube_0;        // cubemap for light 0
+uniform samplerCube u_shadowMapCube_1;        // cubemap for light 1
+uniform samplerCube u_shadowMapCube_2;        // cubemap for light 2
+uniform samplerCube u_shadowMapCube_3;        // cubemap for light 3
+uniform samplerCube u_shadowMapCube_4;        // cubemap for light 4
+uniform samplerCube u_shadowMapCube_5;        // cubemap for light 5
+uniform samplerCube u_shadowMapCube_6;        // cubemap for light 6
+uniform samplerCube u_shadowMapCube_7;        // cubemap for light 7
 
 //-----------------------------------------------------------------------------
 int vectorToFace(vec3 vec) // Vector to process

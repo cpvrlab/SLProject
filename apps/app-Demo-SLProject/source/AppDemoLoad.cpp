@@ -3423,7 +3423,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightRect->attenuation(0, 0, 1);
         lightRect->samplesXY(11, 7);
 
-        s->globalAmbiLight().set(lightEmisRGB * 0.05f);
+        SLLight::globalAmbient.set(lightEmisRGB * 0.05f);
 
         // create camera
         SLCamera* cam1 = new SLCamera();

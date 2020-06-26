@@ -14,21 +14,21 @@
 precision highp float;
 #endif
 
-varying vec3   v_P_VS;              //!< Interpol. point of illum. in view space (VS)
-varying vec3   v_N_VS;              //!< Interpol. normal at v_P_VS in view space
+varying vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
+varying vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
 
-uniform int    u_numLightsUsed;     //!< NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];      //!< flag if light is on
-uniform vec4   u_lightPosVS[8];     //!< position of light in view space
-uniform vec4   u_lightDiffuse[8];   //!< diffuse light intensity (Id)
+uniform int    u_numLightsUsed;     // NO. of lights used light arrays
+uniform bool   u_lightIsOn[8];      // flag if light is on
+uniform vec4   u_lightPosVS[8];     // position of light in view space
+uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
 
-uniform vec4   u_matDiffuse;        //!< diffuse color reflection coefficient (kd)
-uniform float  u_matRoughness;      //!< Cook-Torrance material roughness 0-1
-uniform float  u_matMetallic;       //!< Cook-Torrance material metallic 0-1
+uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
+uniform float  u_matRoughness;      // Cook-Torrance material roughness 0-1
+uniform float  u_matMetallic;       // Cook-Torrance material metallic 0-1
 
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
-const float AO = 1.0;               //!< Constant ambient occlusion factor
+const float AO = 1.0;               // Constant ambient occlusion factor
 const float PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 vec3 fresnelSchlick(float cosTheta, vec3 F0)

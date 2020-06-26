@@ -84,11 +84,10 @@ public:
                SLGLProgram*    program,
                SLstring        compileErrorTexFilePath = "");
 
-    ~SLMaterial();
+    ~SLMaterial() override;
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLDrawBits     drawBits,
-                  const SLCol4f& globalAmbiLight);
+    void activate(SLDrawBits drawBits);
 
     //! Passes the material paramters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);

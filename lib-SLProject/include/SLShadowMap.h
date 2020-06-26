@@ -13,6 +13,7 @@
 
 #include <SL.h>
 #include <SLEnums.h>
+#include <SLMat4.h>
 
 class SLGLDepthBuffer;
 class SLGLVertexArrayExt;

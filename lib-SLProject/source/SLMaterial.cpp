@@ -252,17 +252,14 @@ SLMaterial::~SLMaterial()
 
     SLGLState* stateGL = SLGLState::instance();
     if (stateGL->currentMaterial() == this)
-    {
         stateGL->currentMaterial(nullptr);
-    }
 }
 //-----------------------------------------------------------------------------
 /*!
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void SLMaterial::activate(SLDrawBits     drawBits,
-                          const SLCol4f& globalAmbiLight)
+void SLMaterial::activate(SLDrawBits drawBits)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -281,12 +278,7 @@ void SLMaterial::activate(SLDrawBits     drawBits,
     if (!_program)
     {
         if (!_textures.empty())
-        {
-            //if (_textures.size() == 1)
             program(SLGLProgramManager::get(SP_perVrtBlinnTex));
-            //if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
-            //program(s->programs(SP_bumpNormal));
-        }
         else
             program(SLGLProgramManager::get(SP_perVrtBlinn));
     }
@@ -295,11 +287,8 @@ void SLMaterial::activate(SLDrawBits     drawBits,
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
         _textures.clear();
-        //"CompileError.png"
         if (!_errorTexture && !_compileErrorTexFilePath.empty())
-        {
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
-        }
         _textures.push_back(_errorTexture);
     }
 
@@ -314,7 +303,7 @@ void SLMaterial::activate(SLDrawBits     drawBits,
     }
 
     // Activate the shader program now
-    program()->beginUse(this, globalAmbiLight);
+    program()->beginUse(this);
 }
 //-----------------------------------------------------------------------------
 void SLMaterial::passToUniforms(SLGLProgram* program)

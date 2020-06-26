@@ -14,14 +14,14 @@
 precision highp float;
 #endif
 
-varying vec3   v_P_VS;              //!< Interpol. point of illum. in view space (VS)
-varying vec3   v_N_VS;              //!< Interpol. normal at v_P_VS in view space
-varying vec2   v_texCoord;          //!< Interpol. texture coordinate in tex. space
+varying vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
+varying vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
+varying vec2   v_texCoord;          // Interpol. texture coordinate in tex. space
 
-uniform int    u_numLightsUsed;     //!< NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];      //!< flag if light is on
-uniform vec4   u_lightPosVS[8];     //!< position of light in view space
-uniform vec4   u_lightDiffuse[8];   //!< diffuse light intensity (Id)
+uniform int    u_numLightsUsed;     // NO. of lights used light arrays
+uniform bool   u_lightIsOn[8];      // flag if light is on
+uniform vec4   u_lightPosVS[8];     // position of light in view space
+uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
 
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
@@ -30,7 +30,7 @@ uniform sampler2D u_texture1;       //! Normal map
 uniform sampler2D u_texture2;       //! Metallic map
 uniform sampler2D u_texture3;       //! Roughness map
 
-const float AO = 1.0;               //!< Constant ambient occlusion factor
+const float AO = 1.0;               // Constant ambient occlusion factor
 const float PI = 3.14159265359;
 
 // ----------------------------------------------------------------------------

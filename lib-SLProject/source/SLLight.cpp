@@ -10,9 +10,11 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include "SLLight.h"
-#include "SLShadowMap.h"
+#include <SLLight.h>
+#include <SLShadowMap.h>
 
+//-----------------------------------------------------------------------------
+SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,

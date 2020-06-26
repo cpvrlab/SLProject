@@ -9,7 +9,7 @@
 
 #include <stdafx.h>           // precompiled headers
 
-#include "SLRay.h"
+#include <SLRay.h"
 
 // init static variables
 SLint   SLRay::maxDepth = 0;

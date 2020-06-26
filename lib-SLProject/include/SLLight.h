@@ -13,13 +13,13 @@
 
 #include <SL.h>
 #include <SLVec4.h>
-#include "SLOptixDefinitions.h"
-#include "SLOptixHelper.h"
+#include <SLOptixDefinitions.h>
+#include <SLOptixHelper.h>
+#include <SLShadowMap.h>
 
 class SLRay;
 class SLNode;
 class SLSceneView;
-class SLShadowMap;
 
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
@@ -158,6 +158,8 @@ public:
 
     // create the depth buffer(s) for shadow mapping
     virtual void renderShadowMap(SLSceneView* sv, SLNode* root) = 0;
+
+    static SLCol4f globalAmbient; //!< static global ambient light intensity
 
 protected:
     SLint        _id;               //!< OpenGL light number (0-7)

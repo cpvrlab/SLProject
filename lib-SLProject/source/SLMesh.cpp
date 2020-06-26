@@ -369,7 +369,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
 
     if (!_vao.vaoID())
     {
-        mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
+        mat()->activate(*node->drawBits());
         generateVAO();
     }
 
@@ -379,7 +379,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
 
     // 3.a) Apply mesh material if exists & differs from current
     SLMaterial* material = overrideMat != nullptr ? overrideMat : mat();
-    material->activate(*node->drawBits(), sv->s().globalAmbiLight());
+    material->activate(*node->drawBits());
 
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = material->program();

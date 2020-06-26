@@ -19,7 +19,6 @@
 //-----------------------------------------------------------------------------
 SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
 SLMaterialDefaultGray*      SLMaterialDefaultGray::_instance      = nullptr;
-
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene does all one time initialization such as
 loading the standard shader programs from which the pointers are stored in
@@ -97,7 +96,7 @@ void SLScene::init()
     // reset all states
     SLGLState::instance()->initAll();
 
-    _globalAmbiLight.set(0.2f, 0.2f, 0.2f, 0.0f);
+    SLLight::globalAmbient.set(0.15f, 0.15f, 0.15f, 1.0f);
 
     // Reset timing variables
     _frameTimesMS.init(60, 0.0f);
