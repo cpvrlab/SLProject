@@ -192,23 +192,7 @@ int main()
     DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
     DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureImage.sampler(), textureImage);
     Buffer         vertexBuffer   = Buffer(device);
-
-#if 0
-    vector<Vertex> sph;
-    sph.resize(sphere.P.size());
-    for (size_t i = 0; i < sphere.P.size(); i++)
-    {
-        Vertex v;
-        v.pos      = sphere.P[i];
-        v.norm     = sphere.N[i];
-        v.texCoord = sphere.Tc[i];
-        v.color    = sphere.C[i];
-        sph[i]     = v;
-    }
-    vertexBuffer.createVertexBuffer(sph);
-#else
     vertexBuffer.createVertexBuffer(sphere.P, sphere.N, sphere.Tc, sphere.C, sphere.P.size());
-#endif
     // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
     commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)sphere.I32.size());

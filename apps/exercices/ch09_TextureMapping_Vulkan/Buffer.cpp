@@ -99,8 +99,7 @@ void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const S
 
     void* data;
     vkMapMemory(_device.handle(), stagingBuffer._memory, 0, totalBufferSize, 0, &data);
-
-    char* temp = (char*)malloc(totalBufferSize);
+    char* temp = (char*)data;
     for (size_t i = 0; i < size; i++)
     {
         memcpy((temp), &pos[i], sizeof(SLVec3f));
@@ -110,8 +109,6 @@ void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const S
         temp += sizeof(SLCol4f);
     }
     temp -= totalBufferSize;
-    memcpy(data, temp, totalBufferSize);
-    free(temp);
 
     vkUnmapMemory(_device.handle(), stagingBuffer._memory);
 
