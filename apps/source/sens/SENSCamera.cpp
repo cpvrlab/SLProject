@@ -91,7 +91,33 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg)
     return sensFrame;
 }
 
-std::pair<const SENSCameraCharacteristics* const, int> SENSCaptureProperties::findBestMatchingConfig(SENSCameraFacing facing, float horizFov, int width, int height) const
+float SENSCaptureProperties::getHorizFovForConfig(const SENSCameraConfig& camConfig, int targetImgWidth) const
+{
+    float horizFovDeg = -1.f;
+    for (auto it = begin(); it != end(); ++it)
+    {
+        if (it->deviceId() == camConfig.deviceId)
+        {
+            std::vector<SENSCameraCharacteristics::StreamConfig> streamConfigs = it->streamConfigs();
+            if (camConfig.streamConfigIndex < streamConfigs.size())
+            {
+                float focalLengthPix = streamConfigs.at(camConfig.streamConfigIndex).focalLengthPix;
+                if (focalLengthPix > 0.f)
+                {
+                    horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(focalLengthPix, targetImgWidth);
+                }
+            }
+            break;
+        }
+    }
+
+    return horizFovDeg;
+}
+
+std::pair<const SENSCameraCharacteristics* const, int> SENSCaptureProperties::findBestMatchingConfig(SENSCameraFacing facing,
+                                                                                                     const float      horizFov,
+                                                                                                     const int        width,
+                                                                                                     const int        height) const
 {
     struct SortElem
     {
@@ -114,7 +140,31 @@ std::pair<const SENSCameraCharacteristics* const, int> SENSCaptureProperties::fi
         int cropScore;
         //score that respecs necessary scale complexity
         int scaleScore;
+        
+        void print(int idx) const
+        {
+            std::stringstream ss;
+            ss << "Sort Elem " << idx;
+            ss << " fov: " << horizFov;
+            ss << " fov score: " << fovScore;
+            ss << " crop score: " << cropScore;
+            ss << " scale score " << scaleScore;
+            ss << " widthCropped: " << widthCropped;
+            ss << " heightCropped: " << heightCropped;
+            ss << " scale: " << scale;
+            ss << " width orig " << camChars->streamConfigs()[streamConfigIdx].widthPix;
+            ss << " height orig " << camChars->streamConfigs()[streamConfigIdx].heightPix;
+            std::cout << ss.str() << std::endl;
+        }
     };
+    auto printSortElems = [](const std::vector<SortElem>& sortElems, std::string id)
+    {
+        std::cout << id << std::endl;
+        for (int i=0; i < sortElems.size(); ++i)
+            sortElems.at(i).print(i);
+    };
+
+    
     std::vector<SortElem> sortElems;
 
     //make cropped versions of all stream configurations
@@ -128,22 +178,6 @@ std::pair<const SENSCameraCharacteristics* const, int> SENSCaptureProperties::fi
         {
             const SENSCameraCharacteristics::StreamConfig& config               = *itStream;
             float                                          targetWidthDivHeight = (float)width / (float)height;
-            /*
-            if ((targetWidthDivHeight) > ((float)config.widthPix / (float)config.heightPix))
-            {
-                sortElem.scale  = (float)width / (float)config.widthPix;
-                float heightScaled = config.heightPix * sortElem.scale;
-                sortElem.cropScore += heightScaled - height;
-                sortElem.cropScore += (float)config.widthPix * sortElem.scale - (float)width;
-            }
-            else
-            {
-                sortElem.scale = (float)height / (float)config.heightPix;
-                float widthScaled = config.widthPix * sortElem.scale;
-                sortElem.cropScore += widthScaled - width;
-                sortElem.cropScore += (float)config.heightPix * sortElem.scale - (float)height;
-            }
-             */
 
             SortElem sortElem;
             int      cropW, cropH;
@@ -170,25 +204,23 @@ std::pair<const SENSCameraCharacteristics* const, int> SENSCaptureProperties::fi
         }
     }
 
-    //sort
-    std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.fovScore < rhs.fovScore; });
-
-    int i = 0;
-    for (auto it : sortElems)
-    {
-        std::stringstream ss;
-        ss << "Sort Elem " << i;
-        ss << " fov: " << it.horizFov;
-        ss << " fov score: " << it.fovScore;
-        ss << " widthCropped: " << it.widthCropped;
-        ss << " heightCropped: " << it.heightCropped;
-        ss << " scale: " << it.scale;
-        std::cout << ss.str() << std::endl;
-        i++;
-    }
-
     if (sortElems.size())
     {
+        //sort by fov score
+        std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.fovScore < rhs.fovScore; });
+        printSortElems(sortElems, "sortElems");
+        
+        //extract all in a range of +-1 degree compared to the closest to target fov and extract the one with the
+        std::vector<SortElem> closeFovSortElems;
+        float maxFovDiff = sortElems.front().fovScore + 1;
+        for(SortElem elem : sortElems)
+        {
+            if(elem.fovScore < maxFovDiff)
+                closeFovSortElems.push_back(elem);
+        }
+        std::sort(closeFovSortElems.begin(), closeFovSortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.scale > rhs.scale; });
+        printSortElems(closeFovSortElems, "closeFovSortElems");
+
         const SortElem& bestSortElem = sortElems.front();
         return std::make_pair(bestSortElem.camChars, bestSortElem.streamConfigIdx);
     }

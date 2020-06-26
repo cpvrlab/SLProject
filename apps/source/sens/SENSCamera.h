@@ -130,40 +130,20 @@ struct SENSCameraConfig
     bool convertManipToGray = true;
 
     //! adjust image in asynchronous thread
+    //todo:?????
     bool adjustAsynchronously = false;
 
     //! enable video stabilization if available
-    //bool enableVideoStabilization = false;
+    bool enableVideoStabilization = true;
 };
 
 class SENSCaptureProperties : public std::vector<SENSCameraCharacteristics>
 {
 public:
-    float getHorizFovForConfig(const SENSCameraConfig& camConfig, int targetImgWidth) const
-    {
-        float horizFovDeg = -1.f;
-        for (auto it = begin(); it != end(); ++it)
-        {
-            if (it->deviceId() == camConfig.deviceId)
-            {
-                std::vector<SENSCameraCharacteristics::StreamConfig> streamConfigs = it->streamConfigs();
-                if (camConfig.streamConfigIndex < streamConfigs.size())
-                {
-                    float focalLengthPix = streamConfigs.at(camConfig.streamConfigIndex).focalLengthPix;
-                    if (focalLengthPix > 0.f)
-                    {
-                        horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(focalLengthPix, targetImgWidth);
-                    }
-                }
-                break;
-            }
-        }
-
-        return horizFovDeg;
-    }
+    float getHorizFovForConfig(const SENSCameraConfig& camConfig, int targetImgWidth) const;
 
     //returned pointer is null if nothing was found
-    std::pair<const SENSCameraCharacteristics* const, int> findBestMatchingConfig(SENSCameraFacing facing, float horizFov, int width, int height) const;
+    std::pair<const SENSCameraCharacteristics* const, int> findBestMatchingConfig(SENSCameraFacing facing, const float horizFov, const int width, const int height) const;
 };
 
 //! Pure abstract camera class
@@ -181,7 +161,7 @@ public:
 
     //virtual void            start(SENSCameraConfig config)               = 0;
     //! Start camera with a known device id. The camera will select the closest available frame size and crop it to width and height
-    virtual void start(std::string id, int width, int height, SENSCameraFocusMode focusMode = SENSCameraFocusMode::FIXED_INFINITY_FOCUS) = 0;
+    virtual void start(std::string id, int width, int height, SENSCameraFocusMode focusMode) = 0;
     //virtual void start(std::string id, SENSCameraStreamConfigs streamConfig, int width, int height, SENSCameraFocusMode focusMode=SENSCameraFocusMode::FIXED_INFINITY_FOCUS) = 0;
     //! Stop a started camera device
     virtual void stop() = 0;

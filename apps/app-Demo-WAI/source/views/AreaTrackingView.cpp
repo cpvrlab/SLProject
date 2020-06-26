@@ -213,7 +213,7 @@ void AreaTrackingView::startCamera()
             {
                 //start camera
                 //assert("fix me" && false);
-                _camera->start(camCharacs.deviceId(), _cameraFrameTargetSize.width, _cameraFrameTargetSize.height);
+                _camera->start(camCharacs.deviceId(), _cameraFrameTargetSize.width, _cameraFrameTargetSize.height, SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
                 break;
             }
         }

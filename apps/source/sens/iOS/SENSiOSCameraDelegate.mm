@@ -3,6 +3,7 @@
 #import <AVFoundation/AVCaptureInput.h>  // For adding a data input to the camera
 #import <AVFoundation/AVCaptureOutput.h> // For capturing frames
 #import <CoreVideo/CVPixelBuffer.h>      // for using pixel format types
+#import <simd/matrix_types.h>
 
 #import "SENSiOSCameraDelegate.h"
 
@@ -15,6 +16,8 @@
     AVCaptureDevice*          _camera;         // A pointer to the front or to the back camera
     AVCaptureDeviceInput*     _cameraInput;    // This is the data input for the camera that allows us to capture frames
     AVCaptureVideoDataOutput* _videoOutput;    // For the video frame data from the camera
+
+    BOOL _cameraIntrinsicsDelivery;
 }
 
 @end
@@ -31,6 +34,8 @@
     _camera         = nil;
     _cameraInput    = nil;
     _videoOutput    = nil;
+
+    _cameraIntrinsicsDelivery = NO;
 
     return self;
 }
@@ -54,6 +59,30 @@
         {
             NSLog(@"No pixel buffer data");
             return;
+        }
+
+        if (_cameraIntrinsicsDelivery)
+        {
+            CFTypeRef cameraIntrinsicData = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix, nil);
+            if (cameraIntrinsicData != nil)
+            {
+                CFDataRef cfdr = (CFDataRef)(cameraIntrinsicData);
+                (CFDataGetBytePtr(cfdr));
+                matrix_float3x3* camMatrix = (matrix_float3x3*)(CFDataGetBytePtr(cfdr));
+
+                cv::Mat_<float> cvCamMat(3, 3);
+                //printf("Mat ");
+                for (int i = 0; i < 3; ++i)
+                {
+                    simd_float3 col = camMatrix->columns[i];
+                    //printf("%f %f %f\n", col[0], col[1], col[2]);
+                    cvCamMat.at<float>(0, i) = col[0];
+                    cvCamMat.at<float>(1, i) = col[1];
+                    cvCamMat.at<float>(2, i) = col[2];
+                }
+                std::cout << "Mat cv" << std::endl;
+                std::cout << cvCamMat << std::endl;
+            }
         }
 
         if (_callback)
@@ -88,7 +117,11 @@
     }
 }
 
-- (BOOL)startCamera:(NSString*)deviceId withWidth:(int)width andHeight:(int)height
+- (BOOL)startCamera:(NSString*)deviceId
+                withWidth:(int)width
+                andHeight:(int)height
+           autoFocusState:(BOOL)autoFocusEnabled
+  videoStabilizationState:(BOOL)videoStabilizationEnabled
 {
     // Make sure we initialize our camera pointer:
     _camera = nil;
@@ -148,6 +181,21 @@
         [_camera setActiveVideoMinFrameDuration:duration];
         [_camera setActiveVideoMaxFrameDuration:duration];
 
+        //parameterize focus mode
+        if (autoFocusEnabled)
+            [_camera setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        else
+            [_camera setFocusModeLockedWithLensPosition:1.0 completionHandler:nil];
+
+        //we set geometric distortion correction to no for now because we dont know how it influences the camera intrinsics
+        if (@available(iOS 13.0, *))
+        {
+            if ([_camera isGeometricDistortionCorrectionSupported])
+            {
+                [_camera setGeometricDistortionCorrectionEnabled:NO];
+            }
+        }
+
         //Make sure we have a capture session
         if (nil == _captureSession)
         {
@@ -198,7 +246,29 @@
                                                                      forKey:(id)kCVPixelBufferPixelFormatTypeKey];
 
             // Add the video data output to the capture session
-            [_captureSession addOutput:_videoOutput];
+            if ([_captureSession canAddOutput:_videoOutput])
+                [_captureSession addOutput:_videoOutput];
+            else
+                return NO;
+
+            //parameterize video stabilization: if available and should be disabled we disable software video stabilization
+            AVCaptureConnection* capCon = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
+            if (capCon != nil)
+            {
+                if ([capCon isVideoStabilizationSupported])
+                {
+                    if (videoStabilizationEnabled)
+                        [capCon setPreferredVideoStabilizationMode:AVCaptureVideoStabilizationModeAuto];
+                    else
+                        [capCon setPreferredVideoStabilizationMode:AVCaptureVideoStabilizationModeOff];
+                }
+
+                if ([capCon isCameraIntrinsicMatrixDeliverySupported])
+                {
+                    [capCon setCameraIntrinsicMatrixDeliveryEnabled:YES];
+                    _cameraIntrinsicsDelivery = YES;
+                }
+            }
         }
 
         // Set up a callback, so we are notified when the camera actually starts

@@ -206,7 +206,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                     try
                     {
                         if (_camera)
-                            _camera->start(_currCharac->deviceId(), config.widthPix, config.heightPix);
+                            _camera->start(_currCharac->deviceId(), config.widthPix, config.heightPix, SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
                     }
                     catch (SENSException& e)
                     {

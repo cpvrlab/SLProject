@@ -6,7 +6,11 @@
 
 @interface SENSiOSCameraDelegate : NSObject<AVCaptureVideoDataOutputSampleBufferDelegate>
 
-- (BOOL)startCamera:(NSString*)deviceId withWidth:(int)width andHeight:(int)height;
+- (BOOL)startCamera:(NSString*)deviceId
+                withWidth:(int)width
+                andHeight:(int)height
+           autoFocusState:(BOOL)autoFocusEnabled
+  videoStabilizationState:(BOOL)videoStabilizationEnabled;
 - (BOOL)stopCamera;
 
 - (SENSCaptureProperties)retrieveCaptureProperties;

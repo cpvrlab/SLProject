@@ -80,8 +80,10 @@ void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCamer
         if (_caputureProperties.size() == 0)
             throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
 
-        auto best = _caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, _config.targetWidth, _config.targetHeight);
-
+        _caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, 600, 450);
+        _caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, 1000, 500);
+        _caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, 800, 600);
+        
         //check that device id exists
         auto itChars = std::find_if(_caputureProperties.begin(), _caputureProperties.end(), [&](const SENSCameraCharacteristics& cmp) { return cmp.deviceId() == _config.deviceId; });
         if (itChars == _caputureProperties.end())
@@ -91,8 +93,15 @@ void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCamer
         const SENSCameraCharacteristics::StreamConfig& bestConfig = itChars->streamConfigs().at(_config.streamConfigIndex);
 
         NSString* devId = [NSString stringWithUTF8String:_config.deviceId.c_str()];
-        if ([_cameraDelegate startCamera:devId withWidth:bestConfig.widthPix andHeight:bestConfig.heightPix])
+        BOOL enableAutoFocus = (_config.focusMode == SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS) ? YES : NO;
+        if ([_cameraDelegate startCamera:devId
+                               withWidth:bestConfig.widthPix
+                               andHeight:bestConfig.heightPix
+                          autoFocusState:enableAutoFocus
+                 videoStabilizationState:_config.enableVideoStabilization])
+        {
             _started = true;
+        }
         else
             throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
     }
