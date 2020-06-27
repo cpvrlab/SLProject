@@ -35,7 +35,7 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
 layout(RGBA8) uniform image3D texture3D;
@@ -44,9 +44,9 @@ layout(RGBA8) uniform image3D texture3D;
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal 
                  in    vec3 E,   // Normalized vector 
-                 inout vec4 Ia,  // Ambient light intesity
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+                 inout vec4 Ia,  // Ambient light intensity
+                 inout vec4 Id,  // Diffuse light intensity
+                 inout vec4 Is)  // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirWS[i].xyz);
@@ -115,9 +115,9 @@ void PointLight (in    int  i,      // Light number
 void main(){
   vec4 Ia, Id, Is;        // Accumulated light intensities at v_P_VS
    
-  Ia = vec4(0.0);         // Ambient light intesity
-  Id = vec4(0.0);         // Diffuse light intesity
-  Is = vec4(0.0);         // Specular light intesity
+  Ia = vec4(0.0);         // Ambient light intensity
+  Id = vec4(0.0);         // Diffuse light intensity
+  Is = vec4(0.0);         // Specular light intensity
    
   vec3 N = normalize(o_N_WS);  // A varying normal has not anymore unit length
   vec3 E = normalize(u_EyePos - o_F_WS); // Vector from p to the eye

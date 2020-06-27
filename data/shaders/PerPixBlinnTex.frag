@@ -34,7 +34,7 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
@@ -122,9 +122,9 @@ void main()
 {
     vec4 Ia, Id, Is;  // Accumulated light intensities at v_P_VS
    
-    Ia = vec4(0.0);         // Ambient light intesity
-    Id = vec4(0.0);         // Diffuse light intesity
-    Is = vec4(0.0);         // Specular light intesity
+    Ia = vec4(0.0);         // Ambient light intensity
+    Id = vec4(0.0);         // Diffuse light intensity
+    Is = vec4(0.0);         // Specular light intensity
    
     vec3 N = normalize(v_N_VS);  // A varying normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);  // Vector from p to the eye

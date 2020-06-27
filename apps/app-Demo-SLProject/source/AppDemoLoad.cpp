@@ -946,15 +946,25 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
     else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
-             SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
+             SLApplication::sceneID == SID_ShaderPerVertexBlinn ||
+             SLApplication::sceneID == SID_ShaderPerPixelBlinnTemplate) //...............................
     {
-        SLMaterial* m1;
+        SLMaterial* m1 = nullptr;
 
         if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
             m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_perPixBlinn));
+        }
+        else if (SLApplication::sceneID == SID_ShaderPerPixelBlinnTemplate)
+        {
+            s->name("Blinn-Phong per pixel lighting template shader");
+            s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
+            SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                     SLApplication::shaderPath + "PerPixBlinnTemplate.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnTemplate.frag");
+            m1              = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, sp);
         }
         else
         {
@@ -3534,7 +3544,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* shadowPrg = new SLGLGenericProgram(s,
                                                         SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",
                                                         SLApplication::shaderPath + "PerPixBlinnShadowMapping.frag");
-        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f,shadowPrg);
+        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f, shadowPrg);
         SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, shadowPrg);
         SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f, shadowPrg);
 
@@ -3546,7 +3556,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5),1, 1, "Rect", matYel));
+        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f);
         rect->castsShadows(false);

@@ -106,6 +106,7 @@ enum SLSceneID
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
+    SID_ShaderPerPixelBlinnTemplate,
     SID_ShaderPerVertexWave,
     SID_ShaderCookTorrance,
     SID_ShaderWater,

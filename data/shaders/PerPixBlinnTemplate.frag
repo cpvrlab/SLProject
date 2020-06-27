@@ -13,8 +13,6 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-#define NUM_LIGHTS 1
-//-----------------------------------------------------------------------------
 varying vec3    v_P_VS; // Interpol. point of illum. in view space (VS)
 varying vec3    v_N_VS; // Interpol. normal at v_P_VS in view space
 
@@ -34,7 +32,7 @@ uniform vec4    u_globalAmbient;               // Global ambient scene color
 uniform vec4    u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4    u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4    u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4    u_matEmissive;       // emissive color for selfshining materials
+uniform vec4    u_matEmissive;       // emissive color for self-shining materials
 uniform float   u_matShininess;      // shininess exponent
 
 uniform float   u_oneOverGamma;      // 1.0f / Gamma correction value
@@ -43,12 +41,12 @@ uniform int     u_projection;        // type of stereo
 uniform int     u_stereoEye;         // -1=left, 0=center, 1=right
 uniform mat3    u_stereoColorFilter; // color filter matrix
 //-----------------------------------------------------------------------------
-void DirectLightBlinnPhong(in    int  i,   // Light number
-                           in    vec3 N,   // Normalized normal at P_VS
-                           in    vec3 E,   // Normalized vector from P_VS to eye in VS
-                           inout vec4 Ia,  // Ambient light intesity
-                           inout vec4 Id,  // Diffuse light intesity
-                           inout vec4 Is)  // Specular light intesity
+void DirectLightBlinnPhong(in    int  i,      // Light number
+                           in    vec3 N,      // Normalized normal at P_VS
+                           in    vec3 E,      // Normalized vector from P_VS to eye in VS
+                           inout vec4 Ia,     // Ambient light intensity
+                           inout vec4 Id,     // Diffuse light intensity
+                           inout vec4 Is)     // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
@@ -119,9 +117,9 @@ void PointLightBlinnPhong (in    int  i,      // Light number
 void main()
 {
     vec4 Ia, Id, Is;        // Accumulated light intensities at v_P_VS
-    Ia = vec4(0.0);         // Ambient light intesity
-    Id = vec4(0.0);         // Diffuse light intesity
-    Is = vec4(0.0);         // Specular light intesity
+    Ia = vec4(0.0);         // Ambient light intensity
+    Id = vec4(0.0);         // Diffuse light intensity
+    Is = vec4(0.0);         // Specular light intensity
    
     vec3 N = normalize(v_N_VS);  // A varying normal has not anymore unit length
     vec3 E = normalize(-v_P_VS); // Vector from p to the eye
