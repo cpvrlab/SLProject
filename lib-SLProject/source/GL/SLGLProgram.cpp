@@ -115,17 +115,17 @@ void SLGLProgram::initRaw()
     if (!_progID)
         _progID = glCreateProgram();
 
-    for (auto shader : _shaders)
+    for (auto* shader : _shaders)
         shader->createAndCompileSimple();
 
-    for (auto shader : _shaders)
+    for (auto* shader : _shaders)
         glAttachShader(_progID, shader->_shaderID);
 
     GET_GL_ERROR;
 
     glLinkProgram(_progID);
 
-    GLint success;
+    GLint success = 0;
     glGetProgramiv(_progID, GL_LINK_STATUS, &success);
 
     if (!success)
@@ -137,7 +137,7 @@ void SLGLProgram::initRaw()
                   << log << std::endl;
     }
 
-    for (auto shader : _shaders)
+    for (auto* shader : _shaders)
     {
         glDeleteShader(shader->_shaderID);
         GET_GL_ERROR;
@@ -149,15 +149,16 @@ shader objects and attaches them to the shaderprogram. At the end all shaders
 are linked. If a shader fails to compile a simple texture only shader is
 compiled that shows an error message in the texture.
 */
-void SLGLProgram::init()
+void SLGLProgram::init(SLVLight* lights)
 {
     // create program object if it doesn't exist
-    if (!_progID) _progID = glCreateProgram();
+    if (!_progID)
+        _progID = glCreateProgram();
 
     // if already linked, detach, recreate and compile shaders
     if (_isLinked)
     {
-        for (auto shader : _shaders)
+        for (auto* shader : _shaders)
         {
             if (_isLinked)
             {
@@ -170,9 +171,9 @@ void SLGLProgram::init()
 
     // compile all shader objects
     SLbool allSuccuessfullyCompiled = true;
-    for (auto shader : _shaders)
+    for (auto* shader : _shaders)
     {
-        if (!shader->createAndCompile())
+        if (!shader->createAndCompile(lights))
         {
             allSuccuessfullyCompiled = false;
             break;
@@ -184,35 +185,22 @@ void SLGLProgram::init()
     if (!allSuccuessfullyCompiled)
     {
         // delete all shaders and uniforms that where attached
-        for (auto sh : _shaders)
+        for (auto* sh : _shaders)
             delete sh;
-        for (auto uf : _uniforms1f)
+        for (auto* uf : _uniforms1f)
             delete uf;
-        for (auto ui : _uniforms1i)
+        for (auto* ui : _uniforms1i)
             delete ui;
+
         _shaders.clear();
         _uniforms1f.clear();
         _uniforms1i.clear();
-
-        //addShader(new SLGLShader(defaultPath + "ErrorTex.vert", ST_vertex));
-        //addShader(new SLGLShader(defaultPath + "ErrorTex.frag", ST_fragment));
-
-        //allSuccuessfullyCompiled = true;
-        //for (auto shader : _shaders)
-        //{
-        //    if (!shader->createAndCompile())
-        //    {
-        //        allSuccuessfullyCompiled = false;
-        //        break;
-        //    }
-        //    GET_GL_ERROR;
-        //}
     }
 
     // attach all shader objects
     if (allSuccuessfullyCompiled)
     {
-        for (auto shader : _shaders)
+        for (auto* shader : _shaders)
         {
             glAttachShader(_progID, shader->_shaderID);
             GET_GL_ERROR;
@@ -221,7 +209,7 @@ void SLGLProgram::init()
     else
         SL_EXIT_MSG("No successufully compiled shaders attached!");
 
-    int linked;
+    int linked = 0;
     glLinkProgram(_progID);
     GET_GL_ERROR;
     glGetProgramiv(_progID, GL_LINK_STATUS, &linked);
@@ -230,7 +218,7 @@ void SLGLProgram::init()
     if (linked)
     {
         _isLinked = true;
-        for (auto shader : _shaders)
+        for (auto* shader : _shaders)
             _name += shader->name() + ", ";
         //SL_LOG("Linked: %s", _name.c_str());
     }
@@ -240,7 +228,7 @@ void SLGLProgram::init()
         glGetProgramInfoLog(_progID, sizeof(log), nullptr, &log[0]);
         SL_LOG("*** LINKER ERROR ***");
         SL_LOG("Source files: ");
-        for (auto shader : _shaders)
+        for (auto* shader : _shaders)
             SL_LOG("%s", shader->name().c_str());
         SL_LOG("%s", log);
         SL_EXIT_MSG("GLSL linker error");
@@ -252,7 +240,8 @@ Call this initialization if you pass your own custom uniform variables.
 */
 void SLGLProgram::useProgram()
 {
-    if (_progID == 0 && !_shaders.empty()) init();
+    if (_progID == 0 && !_shaders.empty())
+        init(nullptr);
 
     if (_isLinked)
     {
@@ -265,12 +254,12 @@ void SLGLProgram::useProgram()
 the standard light and material parameter as uniform variables. It also passes
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
-void SLGLProgram::beginUse(SLMaterial* mat)
+void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
 {
     assert(mat != nullptr && "SLGLProgram::beginUse: No material passed.");
 
     if (_progID == 0 && !_shaders.empty())
-        init();
+        init(lights);
 
     if (_isLinked)
     {
@@ -315,7 +304,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
                                               : "u_shadowMap_") +
                                            std::to_string(i);
 
-                    SLint loc;
+                    SLint loc = 0;
                     if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
                         stateGL->shadowMaps[i]->activateAsTexture(loc);
                 }
@@ -328,7 +317,7 @@ void SLGLProgram::beginUse(SLMaterial* mat)
 
                 if (!stateGL->lightUsesCubemap[i])
                 {
-                    SLint    loc;
+                    SLint    loc = 0;
                     SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
 
                     if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
@@ -366,9 +355,9 @@ void SLGLProgram::beginUse(SLMaterial* mat)
         uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
 
         // 3: Pass the custom uniform1f variables of the list
-        for (auto uf : _uniforms1f)
+        for (auto* uf : _uniforms1f)
             uniform1f(uf->name(), uf->value());
-        for (auto ui : _uniforms1i)
+        for (auto* ui : _uniforms1i)
             uniform1i(ui->name(), ui->value());
 
         // 4: Send texture units as uniforms texture samplers
@@ -486,7 +475,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
 
             if (!lightUsesCubemap[i])
             {
-                SLint    loc;
+                SLint    loc = 0;
                 SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
 
                 if ((loc = getUniformLocation(uniformName.c_str())) >= 0)

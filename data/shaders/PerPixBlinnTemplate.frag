@@ -13,8 +13,8 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-in       vec3    v_P_VS; // Interpol. point of illum. in view space (VS)
-in       vec3    v_N_VS; // Interpol. normal at v_P_VS in view space
+in      vec3    v_P_VS; // Interpol. point of illum. in view space (VS)
+in      vec3    v_N_VS; // Interpol. normal at v_P_VS in view space
 
 uniform bool    u_lightIsOn[NUM_LIGHTS];       // flag if light is on
 uniform vec4    u_lightPosVS[NUM_LIGHTS];      // position of light in view space
@@ -33,13 +33,12 @@ uniform vec4    u_matAmbient;           // ambient color reflection coefficient 
 uniform vec4    u_matDiffuse;           // diffuse color reflection coefficient (kd)
 uniform vec4    u_matSpecular;          // specular color reflection coefficient (ks)
 uniform vec4    u_matEmissive;          // emissive color for self-shining materials
-uniform float   u_matShininess;         // shininess exponent
+uniform float   u_matShininess;         // shininess expon
 
-uniform float   u_oneOverGamma;         // 1.0f / Gamma correction value
-
+uniform float   u_oneOverGamma;         // 1.0f / Gamma correction va
 uniform int     u_projection;           // type of stereo
 uniform int     u_stereoEye;            // -1=left, 0=center, 1=right
-uniform mat3    u_stereoColorFilter;    // color filter matrix
+uniform mat3    u_stereoColorFilter;    // color filter mat
 
 out     vec4    o_fragColor;            // output fragment color
 //-----------------------------------------------------------------------------

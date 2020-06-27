@@ -63,13 +63,13 @@ public:
     ~SLGLProgram() override;
 
     void addShader(SLGLShader* shader);
-    void init(); //!< create, attach & link shaders
+    void init(SLVLight* lights);
     void initRaw();
 
-    virtual void beginShader(SLMaterial* mat) = 0; //!< starter for derived classes
+    virtual void beginShader(SLMaterial* mat, SLVLight* lights) = 0; //!< starter for derived classes
     virtual void endShader()                                                     = 0;
 
-    void beginUse(SLMaterial* mat);
+    void beginUse(SLMaterial* mat, SLVLight* lights);
     void passLightsToUniforms(SLVLight* lights);
     void endUse();
     void useProgram();

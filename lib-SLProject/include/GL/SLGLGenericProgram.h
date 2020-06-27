@@ -42,7 +42,7 @@ public:
                        const SLstring& geomShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile, geomShaderFile) { ; }
 
-    void beginShader(SLMaterial* mat) override { beginUse(mat); }
+    void beginShader(SLMaterial* mat, SLVLight* lights) override { beginUse(mat, lights); }
     void endShader() override { endUse(); }
 };
 //-----------------------------------------------------------------------------

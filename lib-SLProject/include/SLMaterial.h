@@ -87,7 +87,7 @@ public:
     ~SLMaterial() override;
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLDrawBits drawBits);
+    void activate(SLDrawBits drawBits, SLVLight* lights);
 
     //! Passes the material paramters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);

@@ -94,7 +94,7 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f
     glBindTexture(GL_TEXTURE_2D, tex);
 
     //todo: this does not work anymore
-    sp->beginUse(nullptr);
+    sp->beginUse(nullptr, nullptr);
 
     for (auto & eye : _distortionMeshVAO)
     {

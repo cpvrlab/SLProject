@@ -259,11 +259,12 @@ SLMaterial::~SLMaterial()
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void SLMaterial::activate(SLDrawBits drawBits)
+void SLMaterial::activate(SLDrawBits drawBits, SLVLight* lights)
 {
     SLGLState* stateGL = SLGLState::instance();
 
-    if (stateGL->currentMaterial() == this && stateGL->currentMaterial()->program())
+    if (stateGL->currentMaterial() == this &&
+        stateGL->currentMaterial()->program())
         return;
 
     // Deactivate shader program of the current active material
@@ -303,7 +304,7 @@ void SLMaterial::activate(SLDrawBits drawBits)
     }
 
     // Activate the shader program now
-    program()->beginUse(this);
+    program()->beginUse(this, lights);
 }
 //-----------------------------------------------------------------------------
 void SLMaterial::passToUniforms(SLGLProgram* program)

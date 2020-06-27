@@ -1267,6 +1267,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
                     if (ImGui::MenuItem("Per Pixel Blinn-Phing", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
+                    if (ImGui::MenuItem("Per Pixel Template", nullptr, sid == SID_ShaderPerPixelBlinnTemplate))
+                        s->onLoad(s, sv, SID_ShaderPerPixelBlinnTemplate);
                     if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCookTorrance))
                         s->onLoad(s, sv, SID_ShaderCookTorrance);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
