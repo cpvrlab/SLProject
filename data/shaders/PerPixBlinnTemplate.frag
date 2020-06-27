@@ -42,7 +42,7 @@ uniform mat3    u_stereoColorFilter;    // color filter mat
 
 out     vec4    o_fragColor;            // output fragment color
 //-----------------------------------------------------------------------------
-void DirectLightBlinnPhong(in    int  i,      // Light number
+void directLightBlinnPhong(in    int  i,      // Light number
                            in    vec3 N,      // Normalized normal at P_VS
                            in    vec3 E,      // Normalized vector from P_VS to eye in VS
                            inout vec4 Ia,     // Ambient light intensity
@@ -68,7 +68,7 @@ void DirectLightBlinnPhong(in    int  i,      // Light number
     Is += u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
-void PointLightBlinnPhong (in    int  i,      // Light number
+void pointLightBlinnPhong (in    int  i,      // Light number
                            in    vec3 P_VS,   // Point of illumination in VS
                            in    vec3 N,      // Normalized normal at v_P_VS
                            in    vec3 E,      // Normalized vector from v_P_VS to view in VS
@@ -130,9 +130,9 @@ void main()
         if (u_lightIsOn[i])
         {
             if (u_lightPosVS[i].w == 0.0)
-                DirectLightBlinnPhong(i, N, E, Ia, Id, Is);
+                directLightBlinnPhong(i, N, E, Ia, Id, Is);
             else
-                PointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
+                pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
         }
     }
 
