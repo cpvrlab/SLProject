@@ -11,9 +11,9 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
-
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
+//-----------------------------------------------------------------------------
+in        vec4 a_position;          // Vertex position attribute
+in        vec3 a_normal;            // Vertex normal attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat4   u_mvpMatrix;         // = projection * modelView
@@ -26,12 +26,11 @@ uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
-varying vec3   v_R_OS;              // Reflected ray in object space
-varying vec4   v_specColor;         // Specular color at vertex
-
+out     vec3   v_R_OS;              // Reflected ray in object space
+out     vec4   v_specColor;         // Specular color at vertex
 //-----------------------------------------------------------------------------
 // Replacement for the GLSL reflect function
 vec3 reflect2(vec3 I, vec3 N)

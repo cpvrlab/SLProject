@@ -159,6 +159,7 @@ SLbool SLGLShader::createAndCompile()
         if (state->glIsES3()) srcVersion += " es";
         srcVersion += "\n";
 
+        /*
         // Replace "attribute" and "varying" that came in GLSL 310
         if (verGLSL > "120")
         {
@@ -194,6 +195,7 @@ SLbool SLGLShader::createAndCompile()
                 Utils::replaceString(_code, "textureCube", "texture");
             }
         }
+        */
 
         _code = srcVersion + _code;
 

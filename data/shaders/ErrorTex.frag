@@ -11,11 +11,15 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
+//-----------------------------------------------------------------------------
+in       vec2      v_texCoord;    // Interpol. texture coordinate
 
-uniform sampler2D u_texture0;    // Color map
-varying vec2      v_texCoord;    // Interpol. texture coordinate
+uniform  sampler2D u_texture0;    // Color map
 
+out      vec4      o_fragColor;   // output fragment color
+//-----------------------------------------------------------------------------
 void main()
 {     
-    gl_FragColor = texture2D(u_texture0, v_texCoord);
+    o_fragColor = texture(u_texture0, v_texCoord);
 }
+//-----------------------------------------------------------------------------

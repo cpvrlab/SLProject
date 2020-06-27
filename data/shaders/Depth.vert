@@ -8,10 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute   vec4  a_position;    // Vertex position attribute
+//-----------------------------------------------------------------------------
+in      vec4  a_position;    // Vertex position attribute
 
-uniform     mat4  u_mvpMatrix;   // = projection * modelView
-
+uniform mat4  u_mvpMatrix;   // = projection * modelView
 //-----------------------------------------------------------------------------
 void main(void)
 {

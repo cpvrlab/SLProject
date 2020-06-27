@@ -8,21 +8,21 @@
 //#############################################################################
 
 #version 120
-
+//-----------------------------------------------------------------------------
 uniform mat4 ShadowMapMatrix[8];
 
-varying vec4 ShadowCoord0;
-varying vec4 ShadowCoord1;
-varying vec4 ShadowCoord2;
-varying vec4 ShadowCoord3;
-varying vec4 ShadowCoord4;
-varying vec4 ShadowCoord5;
-varying vec4 ShadowCoord6;
-varying vec4 ShadowCoord7;
+out     vec4 ShadowCoord0;
+out     vec4 ShadowCoord1;
+out     vec4 ShadowCoord2;
+out     vec4 ShadowCoord3;
+out     vec4 ShadowCoord4;
+out     vec4 ShadowCoord5;
+out     vec4 ShadowCoord6;
+out     vec4 ShadowCoord7;
 
-varying vec3 N_VS;
-varying vec3 P_VS;
-
+out     vec3 N_VS;
+out     vec3 P_VS;
+//-----------------------------------------------------------------------------
 void main()
 {
     //Calculate and Save the Texture Coordinates (Varying Array dont work!)
@@ -60,3 +60,4 @@ void main()
 
     gl_Position = ftransform();
 }
+//-----------------------------------------------------------------------------

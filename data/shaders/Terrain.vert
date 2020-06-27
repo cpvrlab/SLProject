@@ -8,9 +8,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
-attribute vec2 a_texCoord;          // Vertex texture coord. attribute
+in      vec4   a_position;          // Vertex position attribute
+in      vec3   a_normal;            // Vertex normal attribute
+in      vec2   a_texCoord;          // Vertex texture coord. attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -25,9 +25,8 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 
-varying vec4   v_color;             // Ambient & diffuse color at vertex
-varying vec2   v_texCoord;          // texture coordinate at vertex
-
+out     vec4   v_color;             // Ambient & diffuse color at vertex
+out     vec2   v_texCoord;          // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {     
@@ -38,7 +37,7 @@ void main()
    // Calculate diffuse & specular factors
    float diffFactor = max(dot(N,L), 0.0);
    
-   // Set the texture coord. varying for interpolated tex. coords.
+   // Set the texture coord. output for interpolated tex. coords.
    v_texCoord = a_texCoord.xy;
    
    // Sum up all the reflected color components except the specular

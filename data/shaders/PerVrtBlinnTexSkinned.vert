@@ -12,11 +12,11 @@
 #version 150
 
 //-----------------------------------------------------------------------------
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
-attribute vec2 a_texCoord;          // Vertex texture coord. attribute
-attribute vec4 a_jointIds;          // Vertex joint indices attributes
-attribute vec4 a_jointWeights;      // Vertex joint weights attributes
+in      vec4   a_position;          // Vertex position attribute
+in      vec3   a_normal;            // Vertex normal attribute
+in      vec2   a_texCoord;          // Vertex texture coord. attribute
+in      vec4   a_jointIds;          // Vertex joint indices attributes
+in      vec4   a_jointWeights;      // Vertex joint weights attributes
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -44,9 +44,9 @@ uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
-varying vec4   v_color;             // Ambient & diffuse color at vertex
-varying vec4   v_specColor;         // Specular color at vertex
-varying vec2   v_texCoord;          // texture coordinate at vertex
+out     vec4   v_color;             // Ambient & diffuse color at vertex
+out     vec4   v_specColor;         // Specular color at vertex
+out     vec2   v_texCoord;          // texture coordinate at vertex
 
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
@@ -194,7 +194,7 @@ void main()
              DirectLight(7, N, E, Ia, Id, Is);
         else PointLight(7, P_VS, N, E, Ia, Id, Is);
    
-    // Set the texture coord. varying for interpolated tex. coords.
+    // Set the texture coord. output for interpolated tex. coords.
     v_texCoord = a_texCoord.xy;
    
     // Sum up all the reflected color components except the specular

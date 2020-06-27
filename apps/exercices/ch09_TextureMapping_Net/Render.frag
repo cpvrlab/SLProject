@@ -1,7 +1,7 @@
 
 #version 120
 
-varying vec2	v_texPos;
+in      vec2	v_texPos;
 
 uniform sampler2D	u_texture0;
 uniform sampler2D	u_texture1;

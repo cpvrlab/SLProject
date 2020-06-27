@@ -9,8 +9,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
+in      vec4   a_position;          // Vertex position attribute
+in      vec3   a_normal;            // Vertex normal attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat4   u_mvpMatrix;         // = projection * modelView
@@ -30,10 +30,10 @@ uniform float  u_h;                 // height of the wave in y direction
 uniform float  u_a;                 // frequency in x direction
 uniform float  u_b;                 // frequency in y direction
 
-varying vec3   v_R_OS;              // Reflected ray in object space
-varying vec3   v_T_OS;              // Refracted ray in object space
-varying float  v_F_Theta;           // Fresnel reflection coefficient
-varying vec4   v_specColor;         // Specular color at vertex
+out     vec3   v_R_OS;              // Reflected ray in object space
+out     vec3   v_T_OS;              // Refracted ray in object space
+out     float  v_F_Theta;           // Fresnel reflection coefficient
+out     vec4   v_specColor;         // Specular color at vertex
 
 //-----------------------------------------------------------------------------
 // Schlick's approximation of the Fresnel reflection coefficient

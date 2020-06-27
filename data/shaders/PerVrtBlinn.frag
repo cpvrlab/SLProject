@@ -11,24 +11,24 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
-
 //-----------------------------------------------------------------------------
-varying vec4      v_color;             // interpolated color from vertex shader
+in      vec4    v_color;                // interpolated color from vertex shader
 
-uniform int       u_projection;        // type of stereo
-uniform int       u_stereoEye;         // -1=left, 0=center, 1=right 
-uniform mat3      u_stereoColorFilter; // color filter matrix
+uniform int     u_projection;           // type of stereo
+uniform int     u_stereoEye;            // -1=left, 0=center, 1=right
+uniform mat3    u_stereoColorFilter;    // color filter matrix
 
+out     vec4    o_fragColor;            // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
-    gl_FragColor = v_color;
+    o_fragColor = v_color;
    
     // Apply stereo eye separation
     if (u_projection > 1)
     {   if (u_projection > 7) // stereoColor??
         {   // Apply color filter but keep alpha
-            gl_FragColor.rgb = u_stereoColorFilter * gl_FragColor.rgb;
+            o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
         }
         else if (u_projection == 5) // stereoLineByLine
         {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even

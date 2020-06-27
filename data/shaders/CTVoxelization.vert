@@ -10,7 +10,7 @@
 //############################################################################
 
 #version 430 core
-
+//-----------------------------------------------------------------------------
 layout(location = 0) in vec4  a_position;    // Vertex position attribute
 layout(location = 1) in vec3  a_normal;      // Vertex normal attribute
 
@@ -22,7 +22,6 @@ out     vec3  v_N_WS;        // Normal at P_VS in world space
 out     vec3  v_P_WS;        // position of vertex in world space
 
 out     vec3  v_P_VS;        // position of vertex in world space
-
 //-----------------------------------------------------------------------------
 void main(void)
 {

@@ -12,10 +12,10 @@
 #version 150
 
 //-----------------------------------------------------------------------------
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
-attribute vec4 a_jointIds;          // Vertex joint indices attributes
-attribute vec4 a_jointWeights;      // Vertex joint weights attributes
+in      vec4   a_position;          // Vertex position attribute
+in      vec3   a_normal;            // Vertex normal attribute
+in      vec4   a_jointIds;          // Vertex joint indices attributes
+in      vec4   a_jointWeights;      // Vertex joint weights attributes
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -43,8 +43,7 @@ uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
-varying vec4   v_color;             // The resulting color per vertex
-
+out     vec4   v_color;             // The resulting color per vertex
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal at P_VS

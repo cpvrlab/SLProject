@@ -1830,8 +1830,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create camera
         SLCamera* cam1 = new SLCamera;
-        cam1->translation(0.0f, 0.40f, 6.35f);
-        cam1->lookAt(0.0f, -0.05f, 0.0f);
+        cam1->translation(0, 0, 8);
+        cam1->lookAt(0, 0, 0);
         cam1->fov(27);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -1843,13 +1843,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         for (SLint i = 0; i < 3; ++i)
         {
-            SLLightSpot* light = new SLLightSpot(s, s, 0.02f);
+            SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
             light->powers(0.2f, 1.5f, 1.0f, SLCol4f(i == 0, i == 1, i == 2));
             light->attenuation(0, 0, 1);
             light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
             light->createsShadows(true);
             scene->addChild(light);
-
             anim->createEllipticNodeTrack(light, 0.2f, A_x, 0.2f, A_z);
         }
 
@@ -3433,7 +3432,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightRect->attenuation(0, 0, 1);
         lightRect->samplesXY(11, 7);
 
-        SLLight::globalAmbient.set(lightEmisRGB * 0.05f);
+        SLLight::globalAmbient.set(lightEmisRGB * 0.01f);
 
         // create camera
         SLCamera* cam1 = new SLCamera();
@@ -3472,10 +3471,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         f->translate(0, 0, pF, TS_object);
         scene->addChild(f);
 
-        //        // near plane
-        //        SLNode* n = new SLNode(new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
-        //        n->translate(0, 0, pN, TS_object);
-        //        scene->addChild(n);
+        // // near plane
+        // SLNode* n = new SLNode(new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
+        // n->translate(0, 0, pN, TS_object);
+        // scene->addChild(n);
 
         // left plane
         SLNode* l = new SLNode(new SLRectangle(s, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", red));

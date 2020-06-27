@@ -8,14 +8,18 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute   vec4     a_position;        // Vertex position attribute
-attribute   vec4     a_color;           // Vertex color attribute
-varying     vec4     v_color;           // Resulting color per vertex
-uniform     mat4     u_mvpMatrix;       // modelview-projection matrix = projection * modelView
+//-----------------------------------------------------------------------------
+in      vec4     a_position;        // Vertex position attribute
+in      vec4     a_color;           // Vertex color attribute
 
+uniform mat4     u_mvpMatrix;       // modelview-projection matrix = projection * modelView
+
+out     vec4     v_color;           // Resulting color per vertex
+//-----------------------------------------------------------------------------
 void main(void)
 {    
     v_color = a_color;                        // pass color for interpolation
 
     gl_Position = u_mvpMatrix * a_position;   // transform vertex position
 }
+//-----------------------------------------------------------------------------

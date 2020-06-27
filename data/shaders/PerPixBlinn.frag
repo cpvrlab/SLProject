@@ -11,9 +11,9 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
-
-varying vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
-varying vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
+//-----------------------------------------------------------------------------
+in       vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
+in       vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
 
 uniform int    u_numLightsUsed;     // NO. of lights used light arrays
 uniform bool   u_lightIsOn[8];      // flag if light is on
@@ -41,6 +41,7 @@ uniform int    u_projection;        // type of stereo
 uniform int    u_stereoEye;         // -1=left, 0=center, 1=right
 uniform mat3   u_stereoColorFilter; // color filter matrix
 
+out     vec4   o_fragColor;         // output fragment color
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal at P_VS
@@ -123,7 +124,7 @@ void main()
     Id = vec4(0.0);         // Diffuse light intensity
     Is = vec4(0.0);         // Specular light intensity
    
-    vec3 N = normalize(v_N_VS);  // A varying normal has not anymore unit length
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS); // Vector from p to the eye
 
     /* Some GPU manufacturers do not allow uniforms in for loops
@@ -148,23 +149,23 @@ void main()
 
    
     // Sum up all the reflected color components
-    gl_FragColor =  u_globalAmbient +
+    o_fragColor =  u_globalAmbient +
                     u_matEmissive + 
                     Ia * u_matAmbient +
                     Id * u_matDiffuse +
                     Is * u_matSpecular;
    
     // For correct alpha blending overwrite alpha component
-    gl_FragColor.a = u_matDiffuse.a;
+    o_fragColor.a = u_matDiffuse.a;
 
     // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
    
     // Apply stereo eye separation
     if (u_projection > 1)
     {   if (u_projection > 7) // stereoColor??
         {   // Apply color filter but keep alpha
-            gl_FragColor.rgb = u_stereoColorFilter * gl_FragColor.rgb;
+            o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
         }
         else if (u_projection == 5) // stereoLineByLine
         {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even

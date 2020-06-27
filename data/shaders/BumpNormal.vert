@@ -13,25 +13,25 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-attribute   vec4  a_position;   // Vertex position attribute
-attribute   vec3  a_normal;     // Vertex normal attribute
-attribute   vec4  a_tangent;    // Vertex tangent attribute
-attribute   vec2  a_texCoord;   // Vertex texture coordiante attribute
+in      vec4  a_position;   // Vertex position attribute
+in      vec3  a_normal;     // Vertex normal attribute
+in      vec4  a_tangent;    // Vertex tangent attribute
+in      vec2  a_texCoord;   // Vertex texture coordiante attribute
 
-uniform     mat4  u_mvMatrix;   // modelview matrix 
-uniform     mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform     mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
 
-uniform     vec4  u_lightPosVS[8];     // position of light in view space
-uniform     vec3  u_lightSpotDirVS[8]; // spot direction in view space
-uniform     float u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
+uniform vec4  u_lightPosVS[8];     // position of light in view space
+uniform vec3  u_lightSpotDirVS[8]; // spot direction in view space
+uniform float u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
 
-varying     vec2  v_texCoord; // Texture coordiante varying
-varying     vec3  v_L_TS;     // Vector to the light 0 in tangent space
-varying     vec3  v_E_TS;     // Vector to the eye in tangent space
-varying     vec3  v_S_TS;     // Spot direction in tangent space
-varying     float v_d;        // Light distance
-
+out     vec2  v_texCoord; // Texture coordiante output
+out     vec3  v_L_TS;     // Vector to the light 0 in tangent space
+out     vec3  v_E_TS;     // Vector to the eye in tangent space
+out     vec3  v_S_TS;     // Spot direction in tangent space
+out     float v_d;        // Light distance
+//-----------------------------------------------------------------------------
 void main()
 {  
     // Pass the texture coord. for interpolation
@@ -66,3 +66,4 @@ void main()
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
 }
+//-----------------------------------------------------------------------------

@@ -12,6 +12,16 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
+in      vec3            P_VS;
+in      vec3            N_VS;
+in      vec4            ShadowCoord0;
+in      vec4            ShadowCoord1;
+in      vec4            ShadowCoord2;
+in      vec4            ShadowCoord3;
+in      vec4            ShadowCoord4;
+in      vec4            ShadowCoord5;
+in      vec4            ShadowCoord6;
+in      vec4            ShadowCoord7;
 
 uniform sampler2DShadow ShadowMap0;
 uniform sampler2DShadow ShadowMap1;
@@ -21,28 +31,16 @@ uniform sampler2DShadow ShadowMap4;
 uniform sampler2DShadow ShadowMap5;
 uniform sampler2DShadow ShadowMap6;
 uniform sampler2DShadow ShadowMap7;
+uniform int             numLights;
+uniform float           xPixelOffset;
+uniform float           yPixelOffset;
 
-uniform int numLights;
-
-uniform float xPixelOffset;
-uniform float yPixelOffset;
-
-varying vec4 ShadowCoord0;
-varying vec4 ShadowCoord1;
-varying vec4 ShadowCoord2;
-varying vec4 ShadowCoord3;
-varying vec4 ShadowCoord4;
-varying vec4 ShadowCoord5;
-varying vec4 ShadowCoord6;
-varying vec4 ShadowCoord7;
-
-varying vec3 P_VS;
-varying vec3 N_VS;
-
+out     vec4        o_fragColor;    // output fragment color
+//-----------------------------------------------------------------------------
 vec4 Ia = vec4(0.0);  //Ambient
 vec4 Id = vec4(0.0);  //Diffuse
 vec4 Is = vec4(0.0);  //Specular
-
+//-----------------------------------------------------------------------------
 float lookup( vec2 offSet, vec4 ShadowCoord, sampler2DShadow ShadowMap)
 {
     // Returns 0 if the Point is in Shadow and 1 if its not (CompareMode: GL_EQUAL)
@@ -51,7 +49,7 @@ float lookup( vec2 offSet, vec4 ShadowCoord, sampler2DShadow ShadowMap)
                                                       0.005, 
                                                       0.0)).w;
 }
-
+//-----------------------------------------------------------------------------
 void shadeBlinnPhongWithShadows(const int i)
 {
     ///////////////////
@@ -145,7 +143,7 @@ void shadeBlinnPhongWithShadows(const int i)
     Id += u_lightDiffuse[i]  * att * nDotL * shadow;
     Is += u_lightSpecular[i] * att * shine *shadow;
 }
-
+//-----------------------------------------------------------------------------
 void main()
 {
     //Go through each active Light and do the lightning / shadowing
@@ -154,9 +152,10 @@ void main()
             shadeBlinnPhongWithShadows(i);
 
     //Update the Fragment Color
-    gl_FragColor =  u_sceneColor +
+    o_fragColor =  u_sceneColor +
                     Ia * u_matAmbient +
                     Id * u_matDiffuse;
 
-    gl_FragColor += Is * u_matSpecular;
+    o_fragColor += Is * u_matSpecular;
 }
+//-----------------------------------------------------------------------------

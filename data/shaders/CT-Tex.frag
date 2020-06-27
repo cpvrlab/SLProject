@@ -10,15 +10,16 @@
 //#############################################################################
 
 #version 430 core
-in vec3 o_N_WS;
-in vec3 o_P_VS;
-in vec3 o_P_WS;
-in vec2 o_Tc;
-
+//-----------------------------------------------------------------------------
 #define VOXEL_SIZE (1/64.0)
 #define SQRT2 (1.41421)
 #define SQRT3 (1.732050807)
 #define SQRT3DOUBLE (2 * 1.732050807)
+//-----------------------------------------------------------------------------
+in vec3 o_N_WS;
+in vec3 o_P_VS;
+in vec3 o_P_WS;
+in vec2 o_Tc;
 
 // general settings:
 uniform float   s_diffuseConeAngle;
@@ -62,9 +63,9 @@ uniform bool   u_matHasTexture;     // flag if material has texture
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
 uniform sampler2D u_texture0;       // Color texture map
-uniform sampler3D u_texture3D;        // Voxelization texture.
+uniform sampler3D u_texture3D;      // Voxelization texture.
 
-out vec4 color;
+out     vec4      o_fragColor;      // output fragment color
 
 //-----------------------------------------------------------------------------
 // Returns true if the point p is inside the unity cube.
@@ -222,7 +223,7 @@ vec4 direct()
     Id = vec4(0.0);     // Diffuse light intensity
     Is = vec4(0.0);     // Specular light intensity
    
-    vec3 N = normalize(o_N_WS);  // A varying normal has not anymore unit length
+    vec3 N = normalize(o_N_WS);  // A input normal has not anymore unit length
     vec3 E = normalize(u_EyePosWS - o_P_WS); // Vector from p to the eye
 
     if (u_lightIsOn[0]) {if (u_lightPosVS[0].w == 0.0) DirectLight(0, N, E, Id, Is); else PointLight(0, o_P_WS, N, E, Id, Is);}
@@ -239,7 +240,7 @@ vec4 direct()
                   Id * u_matDiffuse;
                
     // Componentwise multiply w. texture color
-    color *= texture2D(u_texture0, o_Tc); 
+    color *= texture(u_texture0, o_Tc);
     
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpecular;
@@ -314,17 +315,17 @@ vec4 indirectSpecularLight()
 //-----------------------------------------------------------------------------
 void main()
 {
-    color = vec4(0, 0, 0, 1);
+    o_fragColor = vec4(0, 0, 0, 1);
 
     if(s_diffuseEnabled)
-        color += indirectDiffuse();
+        o_fragColor += indirectDiffuse();
 
     if(s_directEnabled)
-        color += direct();
+        o_fragColor += direct();
   
     if(s_specularEnabled)
-        color += indirectSpecularLight();
+        o_fragColor += indirectSpecularLight();
 
-    color.rgb = pow(color.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

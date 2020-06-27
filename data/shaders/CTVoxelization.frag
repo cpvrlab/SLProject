@@ -9,15 +9,13 @@
 //#############################################################################
 
 #version 430 core
+//-----------------------------------------------------------------------------
 in vec3 o_F_WS;
 in vec3 o_F_VS;
 in vec3 o_N_WS;
 
+uniform vec3 u_EyePos;              // camera settings:
 
-// camera settings:
-uniform vec3 u_EyePos;
-
-// Material & Light settings:
 uniform int    u_numLightsUsed;     // NO. of lights used light arrays
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosWS[8];     // position of light in world space
@@ -39,7 +37,6 @@ uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
 layout(RGBA8) uniform image3D texture3D;
-
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal 
@@ -119,7 +116,7 @@ void main(){
   Id = vec4(0.0);         // Diffuse light intensity
   Is = vec4(0.0);         // Specular light intensity
    
-  vec3 N = normalize(o_N_WS);  // A varying normal has not anymore unit length
+  vec3 N = normalize(o_N_WS);  // A input normal has not anymore unit length
   vec3 E = normalize(u_EyePos - o_F_WS); // Vector from p to the eye
 
   if (u_lightIsOn[0]) {if (u_lightPosWS[0].w == 0.0) DirectLight(0, N, E, Ia, Id, Is); else PointLight(0, o_F_WS, N, E, Ia, Id, Is);}
@@ -142,3 +139,4 @@ void main(){
   vec4 res = vec4(vec3(color.xyz), 1);
   imageStore(texture3D,  ivec3(dim * o_F_VS), res);
 }
+//-----------------------------------------------------------------------------
