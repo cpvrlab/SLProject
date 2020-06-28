@@ -36,8 +36,6 @@ public:
                      SLint   id        = -1);
     virtual ~SLLight() = default;
 
-    virtual void setState() = 0;
-
     // Setters
     void id(const SLint id) { _id = id; }
     void isOn(const SLbool on) { _isOn = on; }
@@ -46,7 +44,7 @@ public:
     void powers(SLfloat ambiPow,
                 SLfloat diffPow,
                 SLfloat specPow,
-                SLCol4f ambiDiffSpecCol = SLCol4f::WHITE)
+                const SLCol4f& ambiDiffSpecCol = SLCol4f::WHITE)
     {
         _ambientColor  = ambiDiffSpecCol;
         _diffuseColor  = ambiDiffSpecCol;
@@ -59,7 +57,7 @@ public:
     //! Sets the ambient and diffuse powers with the same color
     void ambiDiffPowers(SLfloat ambiPow,
                         SLfloat diffPow,
-                        SLCol4f ambiDiffCol = SLCol4f::WHITE)
+                        const SLCol4f& ambiDiffCol = SLCol4f::WHITE)
     {
         _ambientColor = ambiDiffCol;
         _diffuseColor = ambiDiffCol;
@@ -68,7 +66,7 @@ public:
     }
 
     //! Sets the same color to the ambient and diffuse colors
-    void ambiDiffColor(SLCol4f ambiDiffCol)
+    void ambiDiffColor(const SLCol4f& ambiDiffCol)
     {
         _ambientColor = ambiDiffCol;
         _diffuseColor = ambiDiffCol;

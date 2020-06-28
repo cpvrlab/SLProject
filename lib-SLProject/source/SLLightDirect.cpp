@@ -108,8 +108,8 @@ void SLLightDirect::init(SLScene* s)
     }
 
     // Set the OpenGL light states
-    setState();
-    SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
+    //setState();
+    //SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
 
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
@@ -147,10 +147,6 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
-        // Set the OpenGL light states
-        SLLightDirect::setState();
-        SLGLState::instance()->numLightsUsed = (SLint)sv->s().lights().size();
-
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
@@ -237,6 +233,7 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
 //-----------------------------------------------------------------------------
 /*! SLLightRect::setState sets the global rendering state
 */
+/*
 void SLLightDirect::setState()
 {
     if (_id != -1)
@@ -273,4 +270,5 @@ void SLLightDirect::setState()
         }
     }
 }
+*/
 //-----------------------------------------------------------------------------

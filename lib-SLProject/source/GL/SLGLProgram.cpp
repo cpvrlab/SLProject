@@ -268,6 +268,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
         // 1: Activate the shader program object
         stateGL->useProgram(_progID);
 
+        /*
         // 2: Pass light & material parameters
         uniform4fv("u_globalAmbient", 1, (const SLfloat*)&SLLight::globalAmbient);
         uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
@@ -317,7 +318,7 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
 
                 if (!stateGL->lightUsesCubemap[i])
                 {
-                    SLint    loc = 0;
+                    SLint    loc         = 0;
                     SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
 
                     if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
@@ -341,6 +342,10 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
 
             mat->passToUniforms(this);
         }
+        */
+
+        passLightsToUniforms(lights);
+        mat->passToUniforms(this);
 
         // 2b: Set stereo states
         uniform1i("u_projection", stateGL->projection);
@@ -384,30 +389,29 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         SLMat4f viewRotMat(stateGL->viewMatrix);
         viewRotMat.translation(0, 0, 0); // delete translation part, only rotation needed
 
-        // Vectors for each light property
-        SLVint   lightIsOn(nL);           // flag if light is on
-        SLVVec4f lightPosWS(nL);          // position of light in world space
-        SLVVec4f lightPosVS(nL);          // position of light in view space
-        SLVVec4f lightAmbient(nL);        // ambient light intensity (Ia)
-        SLVVec4f lightDiffuse(nL);        // diffuse light intensity (Id)
-        SLVVec4f lightSpecular(nL);       // specular light intensity (Is)
-        SLVVec3f lightSpotDirWS(nL);      // spot direction in world space
-        SLVVec3f lightSpotDirVS(nL);      // spot direction in view space
-        SLVfloat lightSpotCutoff(nL);     // spot cutoff angle 1-180 degrees
-        SLVfloat lightSpotCosCut(nL);     // cosine of spot cutoff angle
-        SLVfloat lightSpotExp(nL);        // spot exponent
-        SLVVec3f lightAtt(nL);            // att. factor (const,linear,quadratic)
-        SLVint   lightDoAtt(nL);          // flag if att. must be calculated
-        SLVint   lightCreatesShadows(nL); // flag if light creates shadows
-        SLVint   lightDoesPCF(nL);        // flag if percentage-closer filtering is enabled
-        SLVuint  lightPCFLevel(nL);       // radius of area to sample
-        SLVint   lightUsesCubemap(nL);    // flag if light has a cube shadow map
-        SLVMat4f lightSpace(nL * 6);      // projection matrix of the light
-
-        vector<SLGLDepthBuffer*> lightShadowMap(nL); // DepthBuffers for Shadow mapping
+        // lighting
+        SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
+        SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
+        SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
+        SLVec4f          lightAmbient[SL_MAX_LIGHTS];        //!< ambient light intensity (Ia)
+        SLVec4f          lightDiffuse[SL_MAX_LIGHTS];        //!< diffuse light intensity (Id)
+        SLVec4f          lightSpecular[SL_MAX_LIGHTS];       //!< specular light intensity (Is)
+        SLVec3f          lightSpotDirWS[SL_MAX_LIGHTS];      //!< spot direction in world space
+        SLVec3f          lightSpotDirVS[SL_MAX_LIGHTS];      //!< spot direction in view space
+        SLfloat          lightSpotCutoff[SL_MAX_LIGHTS];     //!< spot cutoff angle 1-180 degrees
+        SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];     //!< cosine of spot cutoff angle
+        SLfloat          lightSpotExp[SL_MAX_LIGHTS];        //!< spot exponent
+        SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
+        SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< flag if att. must be calculated
+        SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< flag if light creates shadows
+        SLint            lightDoesPCF[SL_MAX_LIGHTS];        //!< flag if percentage-closer filtering is enabled
+        SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
+        SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
+        SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
+        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];      //!< Depth-buffers for Shadow mapping
 
         // Fill up light property vectors
-        for (SLuint i = 0; i < lights->size(); ++i)
+        for (SLuint i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             SLLight*     light     = lights->at(i);
             SLShadowMap* shadowMap = light->shadowMap();
@@ -454,7 +458,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
         uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)&lightSpace);
 
-        for (int i = 0; i < lights->size(); ++i)
+        for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             if (lightIsOn[i] && lightCreatesShadows[i])
             {
@@ -475,7 +479,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
 
             if (!lightUsesCubemap[i])
             {
-                SLint    loc = 0;
+                SLint    loc         = 0;
                 SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
 
                 if ((loc = getUniformLocation(uniformName.c_str())) >= 0)

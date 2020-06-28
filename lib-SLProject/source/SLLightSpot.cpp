@@ -136,10 +136,6 @@ void SLLightSpot::init(SLScene* s)
         s->lights().push_back(this);
     }
 
-    // Set the OpenGL light states
-    SLLightSpot::setState();
-    SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
-
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
         if (_meshes[0]->mat())
@@ -177,11 +173,6 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
-        // Set the OpenGL light states
-        SLLightSpot::setState();
-        SLGLState* stateGL     = SLGLState::instance();
-        stateGL->numLightsUsed = (SLint)sv->s().lights().size();
-
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
@@ -396,6 +387,7 @@ void SLLightSpot::renderShadowMap(SLSceneView* sv, SLNode* root)
 //-----------------------------------------------------------------------------
 /*! SLLightSpot::setState sets the global rendering state
 */
+/*
 void SLLightSpot::setState()
 {
     if (_id != -1)
@@ -428,4 +420,5 @@ void SLLightSpot::setState()
         }
     }
 }
+ */
 //-----------------------------------------------------------------------------

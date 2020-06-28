@@ -44,8 +44,8 @@ void SLGLState::initAll()
     projectionMatrix.identity();
     textureMatrix.identity();
 
+    /*
     numLightsUsed = 0;
-
     for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
     {
         lightIsOn[i]       = 0;
@@ -69,14 +69,7 @@ void SLGLState::initAll()
         lightUsesCubemap[i]    = 0;
         shadowMaps[i]          = nullptr;
     }
-
-    /*
-    matAmbient   = SLCol4f::WHITE;
-    matDiffuse   = SLCol4f::WHITE;
-    matSpecular  = SLCol4f::WHITE;
-    matEmissive  = SLCol4f::BLACK;
-    matShininess = 100;
-	*/
+    */
 
     fogIsOn      = false;
     fogMode      = GL_LINEAR;
@@ -87,7 +80,7 @@ void SLGLState::initAll()
 
     gamma(1.0f);
 
-    globalAmbientLight.set(0.2f, 0.2f, 0.2f, 0.0f);
+    //globalAmbientLight.set(0.2f, 0.2f, 0.2f, 0.0f);
 
     _glVersion     = SLstring((const char*)glGetString(GL_VERSION));
     _glVersionNO   = getGLVersionNO();
@@ -235,15 +228,18 @@ const SLMat4f* SLGLState::mvpMatrix()
 //-----------------------------------------------------------------------------
 /*! Transforms the light position into the view space
  */
+ /*
 void SLGLState::calcLightPosVS(SLint nLights)
 {
     assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
     for (SLint i = 0; i < nLights; ++i)
         lightPosVS[i].set(viewMatrix * lightPosWS[i]);
 }
+  */
 //-----------------------------------------------------------------------------
 /*! Transforms the lights spot direction into the view space
  */
+ /*
 void SLGLState::calcLightDirVS(SLint nLights)
 {
     assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
@@ -253,11 +249,13 @@ void SLGLState::calcLightDirVS(SLint nLights)
     for (SLint i = 0; i < nLights; ++i)
         lightSpotDirVS[i].set(vRot.multVec(lightSpotDirWS[i]));
 }
+  */
 //-----------------------------------------------------------------------------
 /*! Returns the global ambient color as the component wise product of the global
  ambient light intensity and the materials ambient reflection. This is used to
  give the scene a minimal ambient lighting.
  */
+ /*
 const SLCol4f* SLGLState::globalAmbient()
 {
     if (_currentMaterial)
@@ -267,6 +265,7 @@ const SLCol4f* SLGLState::globalAmbient()
 
     return &_globalAmbient;
 }
+  */
 //-----------------------------------------------------------------------------
 void SLGLState::clearColor(const SLCol4f& newColor)
 {

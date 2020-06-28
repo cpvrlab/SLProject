@@ -83,6 +83,7 @@ public:
     SLMat4f viewMatrix;       //!< matrix for the active cameras view transform
     SLMat4f textureMatrix;    //!< matrix for the texture transform
 
+    /*
     // lighting
     SLint            numLightsUsed;                      //!< NO. of lights used
     SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
@@ -103,8 +104,9 @@ public:
     SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
     SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
     SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
-    SLGLDepthBuffer* shadowMaps[SL_MAX_LIGHTS];          //!< DepthBuffers for Shadow mapping
-    SLCol4f          globalAmbientLight;                 //!< global ambient light intensity
+    SLGLDepthBuffer* shadowMaps[SL_MAX_LIGHTS];          //!< Depth-buffers for Shadow mapping
+    //SLCol4f          globalAmbientLight;                 //!< global ambient light intensity
+     */
 
     // fog
     SLbool  fogIsOn;      //!< Flag if fog blending is enabled
@@ -134,7 +136,7 @@ public:
     inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
     inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
     const SLMat4f*        mvpMatrix();     //!< builds and returns proj.mat. x mv mat.
-    const SLCol4f*        globalAmbient(); //!< returns global ambient color
+    //const SLCol4f*        globalAmbient(); //!< returns global ambient color
     inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
     inline SLfloat        gamma() const { return _gamma; }
 
@@ -146,8 +148,8 @@ public:
     SLbool pixelFormatIsSupported(SLint pixelFormat);
 
     // light transformations into view space
-    void calcLightPosVS(SLint nLights);
-    void calcLightDirVS(SLint nLights);
+    //void calcLightPosVS(SLint nLights);
+    //void calcLightDirVS(SLint nLights);
 
     // state setters
     void depthTest(SLbool state);
