@@ -363,26 +363,25 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
         stateGL->polygonOffset(true, 1.0f, 1.0f);
 
-    ////////////////////////////
-    // Activate mesh material //
-    ////////////////////////////
-
-    // Activate mesh material if exists & differs from current
-    SLMaterial* material = overrideMat != nullptr ? overrideMat : mat();
-    material->activate(*node->drawBits(), &sv->s().lights());
-
     ///////////////////////////////////////
     // 2) Generate Vertex Array Object once
     ///////////////////////////////////////
 
     if (!_vao.vaoID())
+    {
+        mat()->activate(*node->drawBits(), &sv->s().lights());
         generateVAO();
+    }
 
     /////////////////////////////
     // 3) Apply Uniform Variables
     /////////////////////////////
 
-    // 3.a) Pass the matrices to the shader program
+    // 3.a) Apply mesh material if exists & differs from current
+    SLMaterial* material = overrideMat != nullptr ? overrideMat : mat();
+    material->activate(*node->drawBits(), &sv->s().lights());
+
+    // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = material->program();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);

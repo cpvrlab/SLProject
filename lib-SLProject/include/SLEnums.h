@@ -88,13 +88,10 @@ enum SLAxis
 enum SLSceneID
 {
     SID_FromFile = -2, // Custom assted loaded over menu
-    SID_Empty    = -1, // No data in scene
-
-    SID_All = 0, // Loads all scenes one after the other
+    SID_Empty    = 0,  // No data in scene
     SID_Minimal,
     SID_Figure,
     SID_MeshLoad,
-    SID_VRSizeTest,
     SID_LargeModel,
     SID_Revolver,
     SID_TextureFilter,

@@ -388,6 +388,31 @@ static void onKeyPress(GLFWwindow* myWindow,
     }
     else
     {
+        // Keyboard shortcuts for next or previous sceneID loading
+        if (modifiers & K_alt && modifiers & K_shift)
+        {
+            SLSceneView* sv = SLApplication::sceneViews[0];
+            if (action == GLFW_PRESS)
+            {
+                if (key == '0' &&  sv)
+                {
+                    appDemoLoadScene(SLApplication::scene, sv, SID_Empty);
+                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                }
+                else if (key == K_left && sv && SLApplication::sceneID > 0)
+                {
+                    appDemoLoadScene(SLApplication::scene, sv, (SLSceneID)(SLApplication::sceneID - 1));
+                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                }
+                else if (key == K_right && sv && SLApplication::sceneID < SID_Maximal-1)
+                {
+                    appDemoLoadScene(SLApplication::scene, sv, (SLSceneID)(SLApplication::sceneID + 1));
+                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                }
+            }
+            return;
+        }
+
         if (action == GLFW_PRESS)
             slKeyPress(svIndex, key, modifiers);
         else if (action == GLFW_RELEASE)
