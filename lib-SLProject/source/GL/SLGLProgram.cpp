@@ -250,7 +250,7 @@ void SLGLProgram::useProgram()
     }
 }
 //-----------------------------------------------------------------------------
-/*! SLGLProgram::beginUse starts using the shaderprogram and transfers the
+/*! SLGLProgram::beginUse starts using the shader program and transfers the
 the standard light and material parameter as uniform variables. It also passes
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
@@ -344,7 +344,8 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
         }
         */
 
-        passLightsToUniforms(lights);
+        if (lights)
+            passLightsToUniforms(lights);
         mat->passToUniforms(this);
 
         // 2b: Set stereo states
@@ -476,11 +477,11 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         uniform1fv("u_lightSpotExp", nL, (SLfloat*)&lightSpotExp);
         uniform3fv("u_lightAtt", nL, (SLfloat*)&lightAtt);
         uniform1iv("u_lightDoAtt", nL, (SLint*)&lightDoAtt);
-        uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
         uniform1iv("u_lightDoesPCF", nL, (SLint*)&lightDoesPCF);
         uniform1iv("u_lightPCFLevel", nL, (SLint*)&lightPCFLevel);
         uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
         uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)&lightSpace);
+        uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
 
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
@@ -554,13 +555,6 @@ void SLGLProgram::addUniform1i(SLGLUniform1i* u)
 SLint SLGLProgram::getUniformLocation(const SLchar* name) const
 {
     SLint loc = glGetUniformLocation(_progID, name);
-    GET_GL_ERROR;
-    return loc;
-}
-//-----------------------------------------------------------------------------
-SLint SLGLProgram::getAttribLocation(const SLchar* name) const
-{
-    SLint loc = glGetAttribLocation(_progID, name);
     GET_GL_ERROR;
     return loc;
 }
