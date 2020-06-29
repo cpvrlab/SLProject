@@ -53,7 +53,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _roughness       = 0.5f;
     _metalness       = 0.0f;
     _translucency    = 0.0f;
-    _receivesShadows = true;
+    _getsShadows     = true;
     _shadowBias      = 0.005f;
     _program         = program;
 
@@ -106,7 +106,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _roughness       = 0.5f;
     _metalness       = 0.0f;
     _translucency    = 0.0f;
-    _receivesShadows = true;
+    _getsShadows     = true;
     _shadowBias      = 0.0005f;
     _program         = shaderProg;
     _kr              = 0.0f;
@@ -145,7 +145,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _roughness       = 0.0f;
     _metalness       = 0.0f;
     _translucency    = 0.0f;
-    _receivesShadows = true;
+    _getsShadows     = true;
     _shadowBias      = 0.0005f;
 
     // Add pointer to the global resource vectors for deallocation
@@ -185,7 +185,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _roughness       = roughness;
     _metalness       = metalness;
     _translucency    = 0.0f;
-    _receivesShadows = true;
+    _getsShadows     = true;
     _shadowBias      = 0.0005f;
     _kr              = 0.0f;
     _kt              = 0.0f;
@@ -228,7 +228,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kr              = 0.0f;
     _kt              = 0.0f;
     _kn              = 1.0f;
-    _receivesShadows = true;
+    _getsShadows     = true;
     _shadowBias      = 0.0005f;
 
     // Add pointer to the global resource vectors for deallocation
@@ -312,19 +312,19 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
     SLint loc;
-    loc = program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
-    loc = program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
-    loc = program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);
-    loc = program->uniform4fv("u_matEmissive", 1, (SLfloat*)&_emissive);
-    loc = program->uniform1f("u_matShininess", _shininess);
-    loc = program->uniform1f("u_matRoughness", _roughness);
-    loc = program->uniform1f("u_matMetallic", _metalness);
-    loc = program->uniform1f("u_matKr", _kr);
-    loc = program->uniform1f("u_matKt", _kt);
-    loc = program->uniform1f("u_matKn", _kn);
-    loc = program->uniform1i("u_receivesShadows", _receivesShadows);
-    loc = program->uniform1f("u_shadowBias", _shadowBias);
-    loc = program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
+    program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
+    program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
+    program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);
+    program->uniform4fv("u_matEmissive", 1, (SLfloat*)&_emissive);
+    program->uniform1f("u_matShininess", _shininess);
+    program->uniform1f("u_matRoughness", _roughness);
+    program->uniform1f("u_matMetallic", _metalness);
+    program->uniform1f("u_matKr", _kr);
+    program->uniform1f("u_matKt", _kt);
+    program->uniform1f("u_matKn", _kn);
+    program->uniform1i("u_matGetsShadows", _getsShadows);
+    program->uniform1f("u_matShadowBias", _shadowBias);
+    program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 }
 //-----------------------------------------------------------------------------
 SLMaterialDiffuseAttribute::SLMaterialDiffuseAttribute()

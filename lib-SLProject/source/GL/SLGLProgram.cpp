@@ -384,12 +384,10 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
 
     if (!lights->empty())
     {
-        SLint nL = lights->size();
-
         SLMat4f viewRotMat(stateGL->viewMatrix);
         viewRotMat.translation(0, 0, 0); // delete translation part, only rotation needed
 
-        // lighting
+        // lighting parameter arrays
         SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
         SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
         SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
@@ -408,10 +406,35 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
         SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
         SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
-        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];      //!< Depth-buffers for Shadow mapping
+        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];      //!< pointers to depth-buffers for shadow mapping
+
+        // Init to defaults
+        for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
+        {
+            lightIsOn[i]       = 0;
+            lightPosWS[i]      = SLVec4f(0, 0, 1, 1);
+            lightPosVS[i]      = SLVec4f(0, 0, 1, 1);
+            lightAmbient[i]    = SLCol4f::BLACK;
+            lightDiffuse[i]    = SLCol4f::BLACK;
+            lightSpecular[i]   = SLCol4f::BLACK;
+            lightSpotDirWS[i]  = SLVec3f(0, 0, -1);
+            lightSpotDirVS[i]  = SLVec3f(0, 0, -1);
+            lightSpotCutoff[i] = 180.0f;
+            lightSpotCosCut[i] = cos(Utils::DEG2RAD * lightSpotCutoff[i]);
+            lightSpotExp[i]    = 1.0f;
+            lightAtt[i].set(1.0f, 0.0f, 0.0f);
+            lightDoAtt[i] = 0;
+            for (SLint ii = 0; ii < 6; ++ii)
+                lightSpace[i * 6 + ii] = SLMat4f();
+            lightCreatesShadows[i] = 0;
+            lightDoesPCF[i]        = 0;
+            lightPCFLevel[i]       = 1;
+            lightUsesCubemap[i]    = 0;
+            lightShadowMap[i]      = nullptr;
+        }
 
         // Fill up light property vectors
-        for (SLuint i = 0; i < SL_MAX_LIGHTS; ++i)
+        for (SLuint i = 0; i < lights->size(); ++i)
         {
             SLLight*     light     = lights->at(i);
             SLShadowMap* shadowMap = light->shadowMap();
@@ -424,10 +447,10 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
             lightSpecular[i].set(light->specular());
             lightSpotDirWS[i].set(light->spotDirWS());
             lightSpotDirVS[i].set(viewRotMat.multVec(lightSpotDirWS[i]));
-            lightSpotCutoff[i] = light->spotCutOffDEG();
-            lightSpotCosCut[i] = light->spotCosCut();
-            lightSpotExp[i]    = light->spotExponent();
-            lightAtt[i].set(light->kc(), light->kl(), light->kq());
+            lightSpotCutoff[i]     = light->spotCutOffDEG();
+            lightSpotCosCut[i]     = light->spotCosCut();
+            lightSpotExp[i]        = light->spotExponent();
+            lightAtt[i]            = SLVec3f(light->kc(), light->kl(), light->kq());
             lightDoAtt[i]          = light->isAttenuated();
             lightCreatesShadows[i] = light->createsShadows();
             lightDoesPCF[i]        = light->doesPCF();
@@ -440,6 +463,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         }
 
         // Pass vectors as uniform vectors
+        SLint nL = lights->size();
         uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
         uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
         uniform4fv("u_lightPosVS", nL, (SLfloat*)&lightPosVS);
@@ -466,8 +490,9 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
                                           ? "u_shadowMapCube_"
                                           : "u_shadowMap_") +
                                        std::to_string(i);
-                SLint loc = getUniformLocation(uniformName.c_str());
-                if (loc >= 0)
+
+                SLint loc = 0;
+                if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
                     lightShadowMap[i]->activateAsTexture(loc);
             }
 
@@ -494,11 +519,12 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
                       SLGLDepthBuffer(SLVec2i(1, 1)),
                       SLGLDepthBuffer(SLVec2i(1, 1)),
                     };
+
                     dummyBuffers[i].activateAsTexture(loc);
                 }
             }
-#endif
         }
+#endif
     }
 }
 //-----------------------------------------------------------------------------

@@ -2872,7 +2872,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
                                 m->kn(kn);
 
-                            SLbool receivesShadows = m->receivesShadows();
+                            SLbool receivesShadows = m->getsShadows();
                             if (ImGui::Checkbox("Receives shadows", &receivesShadows))
                                 m->receivesShadows(receivesShadows);
 
