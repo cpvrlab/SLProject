@@ -415,7 +415,8 @@ void SLLightSpot::setState()
             stateGL->lightUsesCubemap[_id] = _shadowMap->useCubemap();
 
             SLMat4f* mvp = _shadowMap->mvp();
-            for (SLint i = 0; i < 6; ++i) stateGL->lightSpace[_id * 6 + i] = mvp[i];
+            for (SLint i = 0; i < 6; ++i)
+                stateGL->lightSpace[_id * 6 + i] = mvp[i];
             stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
         }
     }

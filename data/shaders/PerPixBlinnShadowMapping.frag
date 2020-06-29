@@ -283,9 +283,9 @@ void main()
         if (u_lightIsOn[i])
         {
             if (u_lightPosVS[i].w == 0.0)
-            directLightBlinnPhong(i, N, E, Ia, Id, Is);
+                directLightBlinnPhong(i, N, E, Ia, Id, Is);
             else
-            pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
+                pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
         }
     }
 
