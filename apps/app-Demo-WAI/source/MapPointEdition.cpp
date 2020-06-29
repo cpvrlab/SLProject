@@ -18,18 +18,18 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint
     _green  = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
 
     _sv->s().eventHandlers().push_back(this);
-    updateMapPointsMeshes("current map points", _mappoints, _mesh1, _yellow);
+
+    _mapNode->setDrawBitsRec(SL_DB_HIDDEN, true);
+    updateMapPointsMeshes("current map points", _mappoints, _mesh, _green);
 }
 
 MapEdition::~MapEdition()
 {
-    deleteMesh(_mesh1);
-    deleteMesh(_mesh2);
+    deleteMesh(_mesh);
     delete _prog;
     delete _yellow;
     delete _green;
     deleteChildren();
-    std::cout << "dajdjaosd  3 " << std::endl;
 }
 
 void MapEdition::updateMapPointsMeshes(std::string                      name,
@@ -39,6 +39,8 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
 {
     //remove old mesh, if it exists
     deleteMesh(mesh);
+    unsigned int i = 0;
+    _meshToMP.clear();
 
     //instantiate and add new mesh
     if (pts.size())
@@ -47,8 +49,12 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
         std::vector<SLVec3f> points, normals;
         for (auto mapPt : pts)
         {
+            i++;
             if (mapPt->isBad())
                 continue;
+
+            _meshToMP.push_back(i-1);
+
             WAI::V3 wP = mapPt->worldPosVec();
             WAI::V3 wN = mapPt->normalVec();
             points.push_back(_mapNode->om() * SLVec3f(wP.x, wP.y, wP.z));
@@ -58,6 +64,7 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
         mesh = new SLPoints(nullptr, points, normals, name, material);
         addMesh(mesh);
         updateAABBRec();
+        _sv->s().selectNodeMesh(this, mesh);
     }
 }
 
@@ -77,24 +84,22 @@ SLbool MapEdition::onKeyPress(const SLKey key, const SLKey mod)
 {
     (void)key;
     (void)mod;
+
     return false;
 }
 
 SLbool MapEdition::onKeyRelease(const SLKey key, const SLKey mod)
 {
-    (void)key;
     (void)mod;
-
 
     if (key == K_delete)
     {
-        for (auto mapPt : _selected)
+        for (unsigned int i = 0; i < _mesh->IS32.size(); i++)
         {
-            mapPt->SetBadFlag();
+            _mappoints[_meshToMP[_mesh->IS32[i]]]->SetBadFlag();
         }
+        updateMapPointsMeshes("current map points", _mappoints, _mesh, _green);
     }
-    _selected.clear();
-    deleteMesh(_mesh2);
     return false;
 }
 
@@ -120,46 +125,5 @@ SLbool MapEdition::onMouseUp(SLMouseButton button,
                              SLint         y,
                              SLKey         mod)
 {
-
-    if (!(mod & K_ctrl))
-    {
-        std::cout << "ctrl modifier not there" << std::endl;
-        return false;
-    }
-
-    vector<WAIMapPoint*> mp;
-
-    if (!(mod & K_shift))
-    {
-        std::cout << "shift modifier not there, clear selected" << std::endl;
-        _selected.clear();
-        mp = _mappoints;
-    }
-    else
-    {
-        mp = _unselected;
-    }
-    _unselected.clear(); 
-
-    for (unsigned int i = 0; i < mp.size(); i++)
-    {
-        WAI::V3 vec = mp[i]->worldPosVec();
-        SLVec2f p = _sv->camera()->projectWorldToNDC(_mapNode->om() * SLVec4f(vec.x, vec.y, vec.z, 1.0f));
-        p.x = (p.x + 1.0) * 0.5 * _sv->viewportW();
-        p.y = (-p.y + 1.0) * 0.5 * _sv->viewportH();
-
-        // Look also at SLMesh::handleRectangleSelection
-        if (_sv->camera()->selectRect().contains(p))
-        {
-            _selected.push_back(mp[i]);
-        }
-        else
-        {
-            _unselected.push_back(mp[i]);
-        }
-    }
-    updateMapPointsMeshes("current map points", _unselected, _mesh1, _yellow);
-    updateMapPointsMeshes("selected mappoints", _selected, _mesh2, _green);
-
-    return true;
+    return false;
 }

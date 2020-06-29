@@ -116,8 +116,6 @@ bool TestView::update()
         }
     }
 
-    updateTrackingVisualization(_mode && _mode->isTracking());
-
     return onPaint();
 }
 
@@ -301,17 +299,26 @@ void TestView::handleEvents()
 
             case WAIEventType_EnterEditMapPointMode: {
                 WAIEventEnterEditMapPointMode* enterEditModeEvent = (WAIEventEnterEditMapPointMode*)event;
-                if (enterEditModeEvent->start && !_mapEdition)
+                if (enterEditModeEvent->action == MapPointEditor_EnterEditMode && !_mapEdition)
                 {
+                    _scene.removeLocalMapPoints();
+                    _scene.removeMapPoints();
+                    _scene.removeKeyframes();
+                    _scene.removeMatchedMapPoints();
+                    _scene.removeMarkerCornerMapPoints();
                     _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_mapEdition);
-                    std::cout << "enter map edition" << std::endl;
+                    std::cout << "enter edit mode" << std::endl;
                 }
-                else if (enterEditModeEvent->save && _mapEdition)
+                else if (enterEditModeEvent->action == MapPointEditor_SaveInMap && _mapEdition)
                 {
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 }
-                else if (enterEditModeEvent->quit && _mapEdition)
+                else if (enterEditModeEvent->action == MapPointEditor_SelectSingleVideo && _mapEdition)
+                {
+                    //todo
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_Quit && _mapEdition)
                 {
                     if (_scene.root3D()->deleteChild(_mapEdition))
                     {
@@ -323,6 +330,9 @@ void TestView::handleEvents()
 
                         _mapEdition = nullptr;
                     }
+
+                    std::cout << "Exit editor, update tracking" << std::endl;
+                    updateTrackingVisualization(_mode);
                 }
                 delete enterEditModeEvent;
             }

@@ -166,6 +166,7 @@ static void onMouseButton(GLFWwindow* myWindow,
     if (action == GLFW_PRESS)
     {
         // simulate double touch from touch devices
+        /*
         if (modifiers & K_alt)
         {
             // init for first touch
@@ -187,7 +188,7 @@ static void onMouseButton(GLFWwindow* myWindow,
                 app.touch2Down(svIndex, x, y, touch2.x, touch2.y);
             }
         }
-        else // Do standard mouse down
+        */
         {
             SLfloat mouseDeltaTime = (SLfloat)glfwGetTime() - lastMouseDownTime;
             lastMouseDownTime      = (SLfloat)glfwGetTime();
@@ -234,6 +235,7 @@ static void onMouseButton(GLFWwindow* myWindow,
         startY = -1;
 
         // simulate double touch from touch devices
+        /*
         if (modifiers & K_alt)
         {
             // Do parallel double finger move
@@ -247,6 +249,7 @@ static void onMouseButton(GLFWwindow* myWindow,
             }
         }
         else // Do standard mouse down
+        */
         {
             switch (button)
             {
@@ -278,6 +281,7 @@ static void onMouseMove(GLFWwindow* myWindow,
     // Offset of 2nd. finger for two finger simulation
 
     // Simulate double finger touches
+    /*
     if (modifiers & K_alt)
     {
         // Do parallel double finger move
@@ -297,6 +301,7 @@ static void onMouseMove(GLFWwindow* myWindow,
         }
     }
     else // Do normal mouse move
+    */
     {
         app.mouseMove(svIndex, (int)x, (int)y);
     }
@@ -350,6 +355,7 @@ static void onKeyPress(GLFWwindow* myWindow,
     }
 
     // Special treatment for ESC key
+    /*
     if (key == K_esc && action == GLFW_RELEASE)
     {
         if (fullscreen)
@@ -365,7 +371,8 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowShouldClose(myWindow, GL_TRUE);
         }
     }
-    else if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
+    else */
+    if (key == K_F9 && action == GLFW_PRESS) // Toggle fullscreen mode
     {
         fullscreen = !fullscreen;
 
@@ -475,9 +482,9 @@ void GLFWInit()
 
     // Set your own physical screen dpi
     dpi = 96;
-    cout << "------------------------------------------------------------------" << endl;
-    cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
-    cout << "DPI             : " << dpi << endl;
+    std::cout << "------------------------------------------------------------------" << endl;
+    std::cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
+    std::cout << "DPI             : " << dpi << endl;
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKeyPress);

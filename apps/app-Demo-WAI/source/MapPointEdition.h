@@ -7,6 +7,7 @@
 #include <SLPolyline.h>
 #include <SLMesh.h>
 
+
 class MapEdition : public SLNode
 {
 public:
@@ -33,24 +34,24 @@ public:
 
     void deleteMesh(SLPoints*& mesh);
     void updateMapPointsMeshes(std::string                      name,
-                         const std::vector<WAIMapPoint*>& pts,
-                         SLPoints*&                       mesh,
-                         SLMaterial*&                     material);
+                               const std::vector<WAIMapPoint*>& pts,
+                               SLPoints*&                       mesh,
+                               SLMaterial*&                     material);
 
 private:
-    int xStart, yStart;
+    int                  xStart, yStart;
     vector<unsigned int> selected;
-    SLSceneView * _sv;
-    SLCamera * _camera;
-    SLNode * _mapNode;
+    SLSceneView*         _sv;
+    SLCamera*            _camera;
+    SLNode*              _mapNode;
     vector<WAIMapPoint*> _selected;
     vector<WAIMapPoint*> _unselected;
     vector<WAIMapPoint*> _mappoints;
-    SLPoints *_mesh1 = nullptr;
-    SLPoints *_mesh2 = nullptr;
-    SLGLProgram* _prog  = nullptr;
-    SLMaterial *_green;
-    SLMaterial *_yellow;
+    SLGLProgram*         _prog  = nullptr;
+    SLMaterial*          _green;
+    SLMaterial*          _yellow;
+    std::vector<int>     _meshToMP;
+    SLPoints*            _mesh = nullptr;
 };
 
 #endif

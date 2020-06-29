@@ -652,7 +652,6 @@ void LoopClosing::doCorrectLoop()
     mpThreadGBA   = new thread(&LoopClosing::RunGlobalBundleAdjustment, this, mpCurrentKF->mnId);
 
     // Loop closed. Release Local Mapping.
-    std::cout << "release" << std::endl;
     mpLocalMapper->Release();
 
     mLastLoopKFid = mpCurrentKF->mnId;
@@ -836,14 +835,15 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                     if (pRefKF->mTcwRefGBA.empty())
                     {
                         cout << "mTcwRefGBA is empty!!!\n It should not be the case" << endl;
-                        cout << "pRefKF->mnMarker[BA_GLOBAL_KF] " << pRefKF->mnMarker[BA_GLOBAL_KF] << endl;
+                        cout << "this happend when refKF is no more in the map" << endl;
+
+                        pMP->SetBadFlag(); // should be set to bad as well
                         continue;
                     }
 
                     // Map to non-corrected camera
                     cv::Mat Rcw = pRefKF->mTcwRefGBA.rowRange(0, 3).colRange(0, 3);
                     cv::Mat tcw = pRefKF->mTcwRefGBA.rowRange(0, 3).col(3);
-
                     cv::Mat Xc  = Rcw * pMP->GetWorldPos() + tcw;
 
                     // Backproject using corrected camera

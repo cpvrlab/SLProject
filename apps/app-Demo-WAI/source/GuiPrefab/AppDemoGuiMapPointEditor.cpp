@@ -36,9 +36,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::Button("Enter edit mode"))
     {
         WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->start = true;
-        event->quit = false;
-        event->save = false;
+        event->action = MapPointEditor_EnterEditMode;
 
         _eventQueue->push(event);
     }
@@ -46,9 +44,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::Button("Exit edit mode"))
     {
         WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->start = false;
-        event->quit = true;
-        event->save = false;
+        event->action = MapPointEditor_Quit;
 
         _eventQueue->push(event);
     }
@@ -56,12 +52,19 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::Button("Save map"))
     {
         WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->start = false;
-        event->quit = false;
-        event->save = true;
+        event->action = MapPointEditor_SaveInMap;
 
         _eventQueue->push(event);
     }
+
+    if (ImGui::Button("Select single video matched"))
+    {
+        WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
+        event->action = MapPointEditor_SelectSingleVideo;
+
+        _eventQueue->push(event);
+    }
+
 
     ImGui::PopFont();
     ImGui::End();

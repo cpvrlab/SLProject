@@ -36,9 +36,10 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType   = ExtractorType_GLSL;
+    config.extractorType   = ExtractorType_FAST_BRIEF_1000;
     config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
     config.calibrationsDir = Utils::getAppsWritableDir() + "calibrations/";
+    config.nLevels         = -1;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -88,9 +89,15 @@ void readArgs(int argc, char* argv[], Config& config)
             else if (!strcmp(argv[i], "FAST_ORBS_6000"))
                 config.extractorType = ExtractorType_FAST_ORBS_6000;
             else if (!strcmp(argv[i], "GLSL_1"))
+            {
                 config.extractorType = ExtractorType_GLSL_1;
+                config.nLevels = 1;
+            }
             else if (!strcmp(argv[i], "GLSL"))
+            {
                 config.extractorType = ExtractorType_GLSL;
+                config.nLevels = 1;
+            }
             else
             {
                 std::cerr << "unkown feature type" << std::endl;
@@ -101,6 +108,11 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             printHelp();
         }
+    }
+    if (config.nLevels == -1)
+    {
+        std::cerr << "pyramid level not specified" << std::endl;
+        exit(1);
     }
 }
 
