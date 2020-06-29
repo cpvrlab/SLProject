@@ -19,7 +19,6 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint
 
     _sv->s().eventHandlers().push_back(this);
 
-    _mapNode->setDrawBitsRec(SL_DB_HIDDEN, true);
     updateMapPointsMeshes("current map points", _mappoints, _mesh, _green);
 }
 

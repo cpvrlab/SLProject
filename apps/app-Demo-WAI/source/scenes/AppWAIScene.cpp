@@ -619,6 +619,8 @@ void AppWAIScene::renderMapPoints(std::string                      name,
         std::vector<SLVec3f> points, normals;
         for (auto mapPt : pts)
         {
+            if (mapPt->isBad())
+                continue;
             WAI::V3 wP = mapPt->worldPosVec();
             WAI::V3 wN = mapPt->normalVec();
             points.push_back(SLVec3f(wP.x, wP.y, wP.z));

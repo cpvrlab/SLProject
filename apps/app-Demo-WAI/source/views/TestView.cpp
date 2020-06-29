@@ -308,7 +308,6 @@ void TestView::handleEvents()
                     _scene.removeMarkerCornerMapPoints();
                     _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_mapEdition);
-                    std::cout << "enter edit mode" << std::endl;
                 }
                 else if (enterEditModeEvent->action == MapPointEditor_SaveInMap && _mapEdition)
                 {
