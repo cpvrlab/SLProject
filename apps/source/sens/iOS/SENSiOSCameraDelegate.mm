@@ -3,7 +3,6 @@
 #import <AVFoundation/AVCaptureInput.h>  // For adding a data input to the camera
 #import <AVFoundation/AVCaptureOutput.h> // For capturing frames
 #import <CoreVideo/CVPixelBuffer.h>      // for using pixel format types
-#import <simd/matrix_types.h>
 
 #import "SENSiOSCameraDelegate.h"
 
@@ -61,6 +60,7 @@
             return;
         }
 
+        matrix_float3x3* camMatrix = nil;
         if (_cameraIntrinsicsDelivery)
         {
             CFTypeRef cameraIntrinsicData = CMGetAttachment(sampleBuffer, kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix, nil);
@@ -68,26 +68,13 @@
             {
                 CFDataRef cfdr = (CFDataRef)(cameraIntrinsicData);
                 (CFDataGetBytePtr(cfdr));
-                matrix_float3x3* camMatrix = (matrix_float3x3*)(CFDataGetBytePtr(cfdr));
-
-                cv::Mat_<float> cvCamMat(3, 3);
-                //printf("Mat ");
-                for (int i = 0; i < 3; ++i)
-                {
-                    simd_float3 col = camMatrix->columns[i];
-                    //printf("%f %f %f\n", col[0], col[1], col[2]);
-                    cvCamMat.at<float>(0, i) = col[0];
-                    cvCamMat.at<float>(1, i) = col[1];
-                    cvCamMat.at<float>(2, i) = col[2];
-                }
-                std::cout << "Mat cv" << std::endl;
-                std::cout << cvCamMat << std::endl;
+                camMatrix = (matrix_float3x3*)(CFDataGetBytePtr(cfdr));
             }
         }
 
         if (_callback)
         {
-            _callback(data, imgWidth, imgHeight);
+            _callback(data, imgWidth, imgHeight, camMatrix);
         }
 
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
@@ -323,7 +310,7 @@
         else
             facing = SENSCameraFacing::UNKNOWN;
 
-        SENSCameraCharacteristics characs(deviceId, facing);
+        SENSCameraDeviceProperties characs(deviceId, facing);
 
         NSArray<AVCaptureDeviceFormat*>* deviceFormats = [device formats];
         for (AVCaptureDeviceFormat* format in deviceFormats)

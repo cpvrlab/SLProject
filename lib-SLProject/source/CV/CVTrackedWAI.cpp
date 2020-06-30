@@ -109,7 +109,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
 
     if (_drawDetection)
     {
-        _waiSlamer->drawInfo(imageRgb, true, true, true);
+        _waiSlamer->drawInfo(imageRgb, 1.0f, true, true, true);
     }
 
     // TODO(dgj1): at the moment we cant differentiate between these two

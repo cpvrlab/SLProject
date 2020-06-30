@@ -60,6 +60,14 @@ public:
                     SENSCameraType  camType,
                     std::string     computerInfos);
 
+    //create a calibration using a known camera matrix (intrinsics) without distortion parameters
+    SENSCalibration(const cv::Mat&     intrinsics,
+                    const cv::Size&    imageSize,
+                    bool               mirroredH,
+                    bool               mirroredV,
+                    SENSCameraType     camType,
+                    const std::string& computerInfos);
+
     bool load(const string& calibDir,
               const string& calibFileName,
               bool          calcUndistortionMaps);
@@ -67,7 +75,7 @@ public:
               const string& calibFileName);
 
     void remap(cv::Mat& inDistorted,
-               cv::Mat& outUndistorted);
+               cv::Mat& outUndistorted) const;
 
     //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
     void adaptForNewResolution(const cv::Size& newSize, bool calcUndistortionMaps);

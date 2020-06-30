@@ -12,6 +12,7 @@
 #include <WAISlam.h>
 #include <sens/SENSCalibration.h>
 #include <WAIOrbVocabulary.h>
+#include <sens/SENSFrame.h>
 
 class SENSCamera;
 
@@ -36,7 +37,7 @@ public:
     void hold();
 
 private:
-    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
+    void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
 
     void            startCamera();
     AreaTrackingGui _gui;
@@ -55,7 +56,7 @@ private:
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     std::unique_ptr<WAISlam> _waiSlam;
 
-    std::unique_ptr<SENSCalibration> _calibration;
+    //std::unique_ptr<SENSCalibration> _calibration;
 
     //parameter:
     cv::Size      _cameraFrameTargetSize       = {640, 480};

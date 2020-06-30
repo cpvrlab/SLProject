@@ -61,7 +61,7 @@ private:
     std::string _exceptionText;
 
     //selection values
-    const SENSCameraCharacteristics* _currCharac{nullptr};
+    const SENSCameraDeviceProperties* _currCharac{nullptr};
     int                              _currSizeIndex{0};
     const std::string*               _currSizeStr{nullptr};
 };

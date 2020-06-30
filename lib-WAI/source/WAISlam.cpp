@@ -161,7 +161,7 @@ void WAISlam::reset()
 void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 {
     _cameraIntrinsic = intrinsic;
-    _distortion = distortion;
+    _distortion      = distortion;
 }
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
@@ -371,6 +371,7 @@ bool WAISlam::update(cv::Mat& imageGray)
 }
 
 void WAISlam::drawInfo(cv::Mat& imageRGB,
+                       float    scale,
                        bool     showInitLine,
                        bool     showKeyPoints,
                        bool     showKeyPointsMatched)
@@ -380,19 +381,19 @@ void WAISlam::drawInfo(cv::Mat& imageRGB,
     if (_state == WAI::TrackingState_Initializing)
     {
         if (showInitLine)
-            drawInitInfo(_iniData, _lastFrame, imageRGB);
+            drawInitInfo(_iniData, _lastFrame, imageRGB, scale);
     }
     else if (_state == WAI::TrackingState_TrackingOK)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB);
+            drawKeyPointInfo(_lastFrame, imageRGB, scale);
         if (showKeyPointsMatched)
-            drawKeyPointMatches(_lastFrame, imageRGB);
+            drawKeyPointMatches(_lastFrame, imageRGB, scale);
     }
     else if (_state == WAI::TrackingState_TrackingLost)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB);
+            drawKeyPointInfo(_lastFrame, imageRGB, scale);
     }
 }
 
@@ -478,7 +479,7 @@ void WAISlam::transformCoords(cv::Mat transform)
     _localMap.mapPoints.clear();
     _localMap.refKF = nullptr;
 
-    WAIMap*  map = _globalMap.get();
+    WAIMap* map = _globalMap.get();
 
     map->transform(transform);
 

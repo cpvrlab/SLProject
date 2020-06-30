@@ -54,7 +54,7 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
         SENS::mirrorImage(rgbImg, _mirrorH, _mirrorV);
         cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
 
-        sensFrame = std::make_shared<SENSFrame>(
+        sensFrame = std::make_unique<SENSFrame>(
           rgbImg,
           grayImg,
           rgbImg.size().width,
@@ -62,7 +62,10 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
           0,
           0,
           _mirrorH,
-          _mirrorV);
+          _mirrorV,
+          1.0f,
+          cv::Mat(),
+          false);
     }
 
     return sensFrame;
@@ -109,7 +112,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
         SENS::mirrorImage(rgbImg, _mirrorH, _mirrorV);
         cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
 
-        sensFrame = std::make_shared<SENSFrame>(
+        sensFrame = std::make_unique<SENSFrame>(
           rgbImg,
           grayImg,
           rgbImg.size().width,
@@ -117,7 +120,10 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
           0,
           0,
           _mirrorH,
-          _mirrorV);
+          _mirrorV,
+          1.0,
+          cv::Mat(),
+          false);
     }
 
     return sensFrame;

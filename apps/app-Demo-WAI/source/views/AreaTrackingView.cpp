@@ -40,7 +40,7 @@ AreaTrackingView::~AreaTrackingView()
 {
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     _waiSlam.release();
-    if(_voc)
+    if (_voc)
         delete _voc;
     //_orbVocabulary.release();
 }
@@ -49,16 +49,23 @@ bool AreaTrackingView::update()
 {
     SENSFramePtr frame;
     if (_camera)
-        frame = _camera->getLatestFrame();
+        frame = _camera->latestFrame();
 
     if (frame && _waiSlam)
     {
+        //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+        if (frame->intrinsicsChanged)
+        {
+            auto calib = _camera->calibration();
+            _waiSlam->changeIntrinsic(calib->cameraMat(), calib->distortion());
+            _scene.updateCameraIntrinsics(calib->cameraFovVDeg());
+        }
         _waiSlam->update(frame->imgManip);
 
         if (_waiSlam->isTracking())
             _scene.updateCameraPose(_waiSlam->getPose());
 
-        updateTrackingVisualization(_waiSlam->isTracking(), frame->imgRGB);
+        updateTrackingVisualization(_waiSlam->isTracking(), *frame.get());
     }
 
     return onPaint();
@@ -81,8 +88,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
 
     //calibration
-    const SENSCaptureProperties& camProps = _camera->getCaptureProperties();
-    float horizFOVDev = camProps.getHorizFovForConfig(_camera->config(), _cameraFrameTargetSize.width);
+    /*
+    const SENSCaptureProperties& camProps    = _camera->captureProperties();
+    float                        horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_camera->config().streamConfig->focalLengthPix, _cameraFrameTargetSize.width);
+
     if (horizFOVDev > 0.f)
     {
         _calibration = std::make_unique<SENSCalibration>(_cameraFrameTargetSize, horizFOVDev, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
@@ -94,8 +103,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //todo:
         //the calculated fov vertical does not fit to the one of the calibration file->normal ?
     }
-
-
+    */
+    
     //cv::Size calibImgSize(3968, 2976);
     //_calibration = std::make_unique<SENSCalibration>(calibImgSize, 60.42 /*63.144f*/, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
 
@@ -108,10 +117,13 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //    return;
     //}
 
+    //todo: adapt correctly in camera
+    /*
     if (_calibration->imageSize() != _cameraFrameTargetSize)
     {
         _calibration->adaptForNewResolution(_cameraFrameTargetSize, true);
     }
+    */
 
     //todo:
     ////parameterize scene camera from calibration
@@ -121,8 +133,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //double  cx = (float)m.at<double>(0, 2);
     //double  cy = (float)m.at<double>(1, 2);
     //m          = (cv::Mat_<double>(3, 3) << fx, 0, cx + 106.f, 0, fy, cy, 0, 0, 1);
-    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg(), _calibration->cameraMatUndistorted());
-                                                                                                                                                                                                  
+
+    //_scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+
     //initialize extractors
     _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize);
     _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize);
@@ -157,8 +171,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //init wai slam
     _waiSlam = std::make_unique<WAISlam>(
-      _calibration->cameraMat(),
-      _calibration->distortion(),
+      _camera->calibration()->cameraMat(),
+      _camera->calibration()->distortion(),
       _voc,
       _initializationExtractor.get(),
       _trackingExtractor.get(),
@@ -196,42 +210,30 @@ void AreaTrackingView::startCamera()
     {
         if (_camera->started())
             _camera->stop();
-        
-        /*
-        SENSCameraConfig config;
-        config.targetWidth   = _cameraFrameTargetSize.width;
-        config.targetHeight  = _cameraFrameTargetSize.height;
-        config.convertToGray = true;
-        */
 
-        //select the best matching configuration
-        const SENSCaptureProperties& camCharcsVec = _camera->getCaptureProperties();
-        for(int i=0; i < camCharcsVec.size(); ++i)
-        {
-            const SENSCameraCharacteristics& camCharacs = camCharcsVec[i];
-            if(camCharacs.facing() == SENSCameraFacing::BACK)
-            {
-                //start camera
-                //assert("fix me" && false);
-                _camera->start(camCharacs.deviceId(), _cameraFrameTargetSize.width, _cameraFrameTargetSize.height, SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
-                break;
-            }
-        }
-
-        
-
+        _camera->start(SENSCameraFacing::BACK,
+                       65.f,
+                       cv::Size(640, 480), //cv::Size(1900, (int)1900.f / 4.f * 3.f),
+                       false,
+                       false,
+                       false,
+                       true,
+                       cv::Size(640, 480),
+                       true,
+                       65.f);
     }
 }
 
-void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame)
 {
+    //todo: add or remove crop in case of wide screens
     //undistort image and copy image to video texture
-    _waiSlam->drawInfo(imgRGB, true, _showKeyPoints, _showKeyPointsMatched);
+    _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, _showKeyPoints, _showKeyPointsMatched);
 
-    if (_calibration->state() == SENSCalibration::State::calibrated)
-        _calibration->remap(imgRGB, _imgBuffer.inputSlot());
+    if (_camera->calibration()->state() == SENSCalibration::State::calibrated)
+        _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
     else
-        _imgBuffer.inputSlot() = imgRGB;
+        _imgBuffer.inputSlot() = frame.imgRGB;
 
     //add bars to image instead of viewport adjustment (we update the mat in the buffer)
     //todo: the matrices in the buffer have different sizes.. problem? no! no!

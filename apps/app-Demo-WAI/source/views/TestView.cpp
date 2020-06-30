@@ -80,7 +80,7 @@ bool TestView::update()
             frame = _videoFileStream->grabNextFrame();
     }
     else if (_camera)
-        frame = _camera->getLatestFrame();
+        frame = _camera->latestFrame();
     else
         Utils::log("WAI WARN", "TestView::update: No active camera or video stream available!");
 
@@ -109,11 +109,11 @@ bool TestView::update()
             if (_autoCal && _autoCal->hasCalibration())
             {
                 _calibration = _autoCal->consumeCalibration();
-                _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
+                _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
                 _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 _fillAutoCalibration = false;
             }
-            updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
+            updateTrackingVisualization(_mode->isTracking(), *frame.get());
         }
     }
 
@@ -187,13 +187,13 @@ void TestView::handleEvents()
 
                     _calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
 
-                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMat());
+                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 }
                 else if (autoCalEvent->restoreOriginalCalibration)
                 {
                     _calibration = _calibrationLoaded;
-                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
+                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 }
                 delete autoCalEvent;
@@ -592,7 +592,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _calibrationLoaded = _calibration;
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
+    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
     //  _scene.cameraNode->fov(_calibration.cameraFovVDeg());
     //// Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     //cv::Mat scMat = _calibration.cameraMatUndistorted();
@@ -779,15 +779,15 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
                         _gui.uiPrefs->showLoopEdges);
 }
 
-void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame)
 {
     //undistort image and copy image to video texture
-    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
+    _mode->drawInfo(frame.imgRGB, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
     if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
+        _calibration.remap(frame.imgRGB, _imgBuffer.inputSlot());
     else
-        _imgBuffer.inputSlot() = imgRGB;
+        _imgBuffer.inputSlot() = frame.imgRGB;
 
     _scene.updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();

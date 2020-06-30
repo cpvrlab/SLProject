@@ -52,7 +52,7 @@ protected:
 
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm);
-    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
+    void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
     void setupDefaultErlebARDirTo(std::string dir);
 
     //video

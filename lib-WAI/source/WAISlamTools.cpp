@@ -11,22 +11,28 @@
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_DEBUG(...) Utils::log("WAISlam", __VA_ARGS__);
 
-void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image)
+void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale)
 {
+    //half rectangle width and rectangle width (values are estimated on 640x480)
+    int rhw = (scale * 3);
+    int rw  = 2 * rhw + 1;
     //show rectangle for all keypoints in current image
     for (size_t i = 0; i < frame.N; i++)
     {
         //Use distorted points because we have to undistort the image later
         //const auto& pt = mCurrentFrame.mvKeys[i].pt;
-        const auto& pt = frame.mvKeys[i].pt;
+        auto pt = scale * frame.mvKeys[i].pt;
         cv::rectangle(image,
-                      cv::Rect((int)(pt.x - 3), (int)(pt.y - 3), 7, 7),
+                      cv::Rect((int)(pt.x - rhw), (int)(pt.y - rhw), rw, rw),
                       cv::Scalar(0, 0, 255));
     }
 }
 
-void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image)
+void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float scale)
 {
+    //half rectangle width and rectangle width (values are estimated on 640x480)
+    int rhw = (scale * 3);
+    int rw  = 2 * rhw + 1;
     for (size_t i = 0; i < frame.N; i++)
     {
         if (frame.mvpMapPoints[i])
@@ -34,23 +40,26 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image)
             if (frame.mvpMapPoints[i]->Observations() > 0)
             {
                 //Use distorted points because we have to undistort the image later
-                const auto& pt = frame.mvKeys[i].pt;
+                auto pt = scale * frame.mvKeys[i].pt;
                 cv::rectangle(image,
-                              cv::Rect((int)(pt.x - 3), (int)(pt.y - 3), 7, 7),
+                              cv::Rect((int)(pt.x - rhw), (int)(pt.y - rhw), rw, rw),
                               cv::Scalar(0, 255, 0));
             }
         }
     }
 }
 
-void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB)
+void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB, float scale)
 {
+    //half rectangle width and rectangle width (values are estimated on 640x480)
+    int rhw = (scale * 3);
+    int rw  = 2 * rhw + 1;
+
     for (unsigned int i = 0; i < iniData.initialFrame.mvKeys.size(); i++)
     {
+        auto pt = scale * iniData.initialFrame.mvKeys[i].pt;
         cv::rectangle(imageRGB,
-                      iniData.initialFrame.mvKeys[i].pt,
-                      cv::Point((int)(iniData.initialFrame.mvKeys[i].pt.x + 3),
-                                (int)(iniData.initialFrame.mvKeys[i].pt.y + 3)),
+                      cv::Rect((int)(pt.x - rhw), (int)(pt.y - rhw), rw, rw),
                       cv::Scalar(0, 0, 255));
     }
 
@@ -59,8 +68,8 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
         if (iniData.iniMatches[i] >= 0)
         {
             cv::line(imageRGB,
-                     iniData.initialFrame.mvKeys[i].pt,
-                     newFrame.mvKeys[iniData.iniMatches[i]].pt,
+                     scale * iniData.initialFrame.mvKeys[i].pt,
+                     scale * newFrame.mvKeys[iniData.iniMatches[i]].pt,
                      cv::Scalar(0, 255, 0));
         }
     }

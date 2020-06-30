@@ -30,9 +30,9 @@ struct InitializerData
 class WAISlamTools
 {
 public:
-    static void drawKeyPointInfo(WAIFrame& frame, cv::Mat& image);
-    static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image);
-    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageRGB);
+    static void drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale);
+    static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float scale);
+    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageRGB, float scale);
 
     static bool initialize(InitializerData&  iniData,
                            WAIFrame&         frame,
@@ -145,11 +145,11 @@ public:
 protected:
     WAISlamTools(){};
 
-    cv::Mat           _distortion;
-    cv::Mat           _cameraIntrinsic;
-    cv::Mat           _cameraExtrinsic;
-    InitializerData   _iniData;
-    WAIFrame          _lastFrame;
+    cv::Mat         _distortion;
+    cv::Mat         _cameraIntrinsic;
+    cv::Mat         _cameraExtrinsic;
+    InitializerData _iniData;
+    WAIFrame        _lastFrame;
 
     std::unique_ptr<WAIMap> _globalMap;
     LocalMap                _localMap;

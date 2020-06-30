@@ -12,7 +12,7 @@
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <opencv2/imgproc.hpp>
-
+#include <sens/SENSUtils.h>
 //-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
@@ -108,6 +108,30 @@ SENSCalibration::SENSCalibration(float           sensorWMM,
     _cameraMatUndistorted = _cameraMat.clone();
     _cameraMatOrig        = _cameraMat.clone();
     _imageSizeOrig        = _imageSize;
+}
+//-----------------------------------------------------------------------------
+SENSCalibration::SENSCalibration(const cv::Mat&     intrinsics,
+                                 const cv::Size&    imageSize,
+                                 bool               mirroredH,
+                                 bool               mirroredV,
+                                 SENSCameraType     camType,
+                                 const std::string& computerInfos)
+  : _imageSize(imageSize),
+    _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType),
+    _computerInfos(computerInfos)
+{
+    _cameraMatUndistorted = intrinsics.clone();
+    _cameraMatOrig        = intrinsics.clone();
+    _cameraMat            = intrinsics.clone();
+
+    _distortion      = (cv::Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
+    float meanFocalLength = 0.5 * (intrinsics.at<double>(0,0) + intrinsics.at<double>(1,1));
+    _cameraFovHDeg   = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.width);
+    _cameraFovVDeg   = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.height);;
+    //_calibrationTime = Utils::getDateTime2String();
+    _state           = State::guessed;
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -342,7 +366,7 @@ void SENSCalibration::buildUndistortionMaps()
 //-----------------------------------------------------------------------------
 //! Undistorts the inDistorted image into the outUndistorted
 void SENSCalibration::remap(cv::Mat& inDistorted,
-                            cv::Mat& outUndistorted)
+                            cv::Mat& outUndistorted) const
 {
     assert(!inDistorted.empty() &&
            "Input image is empty!");

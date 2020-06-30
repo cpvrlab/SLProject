@@ -21,10 +21,10 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
 
     //keep a local copy of all available
     if(_camera)
-        _camCharacs = _camera->getCaptureProperties();
+        _camCharacs = _camera->captureProperties();
 
     //prepare sizes for visualization
-    for (const SENSCameraCharacteristics& c : _camCharacs)
+    for (const SENSCameraDeviceProperties& c : _camCharacs)
     {
         auto                     sizes = c.streamConfigs();
         std::vector<std::string> sizeStrings;
@@ -133,7 +133,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 for (int n = 0; n < _camCharacs.size(); n++)
                 {
-                    const SENSCameraCharacteristics* charac = &_camCharacs[n];
+                    const SENSCameraDeviceProperties* charac = &_camCharacs[n];
                     ImGui::PushID(charac->deviceId().c_str());
                     if (ImGui::Selectable(charac->deviceId().c_str(), charac == _currCharac))
                     {
@@ -187,7 +187,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfigs().size())
                 {
-                    const SENSCameraCharacteristics::StreamConfig& config = _currCharac->streamConfigs()[_currSizeIndex];
+                    const SENSCameraStreamConfig& config = _currCharac->streamConfigs()[_currSizeIndex];
                     
                     /*
                     _cameraConfig.deviceId             = _currCharac->cameraId;
@@ -206,7 +206,9 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                     try
                     {
                         if (_camera)
-                            _camera->start(_currCharac->deviceId(), config.widthPix, config.heightPix, SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
+                            //assert("fixme" && false);
+                            _camera->start(_currCharac->deviceId(),
+                                           config);
                     }
                     catch (SENSException& e)
                     {
