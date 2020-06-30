@@ -24,12 +24,25 @@ public:
     AppDemoGuiMapPointEditor(std::string            name,
                              bool*                  activator,
                              std::queue<WAIEvent*>* eventQueue,
-                             ImFont*                font);
+                             ImFont*                font,
+                             std::string            slamRootDir);
+
+    void loadFileNamesInVector(std::string               directory,
+                               std::vector<std::string>& fileNames,
+                               std::vector<std::string>& extensions,
+                               bool                      addEmpty = true);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
 private:
     std::queue<WAIEvent*>* _eventQueue;
+    bool _showMatchFinder = false;
+    bool _showSelectionChoice = false;
+    std::string _currMatchedFile = "";
+    std::string _slamRootDir;
+    int _nbVideoInMap;
+    int _videoId;
+    std::vector<int> _kFVidMatching;
 };
 
 #endif

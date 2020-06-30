@@ -31,6 +31,12 @@ MapEdition::~MapEdition()
     deleteChildren();
 }
 
+void MapEdition::selectByVid(std::vector<int>* kFVidMatching, int id)
+{
+
+
+}
+
 void MapEdition::updateMapPointsMeshes(std::string                      name,
                                        const std::vector<WAIMapPoint*>& pts,
                                        SLPoints*&                       mesh,

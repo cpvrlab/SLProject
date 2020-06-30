@@ -274,6 +274,7 @@ void TestView::handleEvents()
                     cv::Mat mat = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
                     _mode->transformCoords(mat);
                     _scene.resetMapNode();
+                    updateTrackingVisualization(_mode);
                 }
 
                 if (enterEditModeEvent->editMode == NodeEditMode_None)
@@ -315,7 +316,7 @@ void TestView::handleEvents()
                 }
                 else if (enterEditModeEvent->action == MapPointEditor_SelectSingleVideo && _mapEdition)
                 {
-                    //todo
+                    _mapEdition->selectByVid(enterEditModeEvent->kFVidMatching, enterEditModeEvent->vid);
                 }
                 else if (enterEditModeEvent->action == MapPointEditor_Quit && _mapEdition)
                 {
@@ -329,8 +330,6 @@ void TestView::handleEvents()
 
                         _mapEdition = nullptr;
                     }
-
-                    std::cout << "Exit editor, update tracking" << std::endl;
                     updateTrackingVisualization(_mode);
                 }
                 delete enterEditModeEvent;

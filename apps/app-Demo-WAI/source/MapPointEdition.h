@@ -14,6 +14,8 @@ public:
     MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint*> mp, SLstring shaderDir);
     ~MapEdition() override;
 
+    void selectByVid(std::vector<int>* kFVidMatching, int id);
+
     SLbool onKeyPress(const SLKey key, const SLKey mod) override;
 
     SLbool onKeyRelease(const SLKey key, const SLKey mod) override;

@@ -563,3 +563,44 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     waiMap->setNumLoopClosings(numLoopClosings);
     return true;
 }
+
+void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int nVid, const std::string& dir, const std::string outputKFMatchingFile)
+{
+    if (!Utils::dirExists(dir))
+        Utils::makeDir(dir);
+
+    std::ofstream ofs;
+    ofs.open (dir + "/" + outputKFMatchingFile, std::ofstream::out);
+
+    ofs << to_string(nVid) << "\n";
+
+    for (int i = 0; i < keyFrameVideoMatching.size(); i++)
+    {
+        if (keyFrameVideoMatching[i] >= 0)
+        {
+            ofs << to_string(i) + " " + to_string(keyFrameVideoMatching[i]) << "\n";
+        }
+    }
+    ofs.close();
+}
+
+void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int &nVid, const std::string& dir, const std::string kFMatchingFile)
+{
+    std::ifstream ifs(dir + "/" + kFMatchingFile);
+    keyFrameVideoMatching.resize(1000, -1);
+
+    ifs >> nVid;
+
+    int kfId;
+    int vid;
+    while(ifs >> kfId >> vid)
+    {
+        if (kfId > keyFrameVideoMatching.size())
+        {
+            keyFrameVideoMatching.resize(keyFrameVideoMatching.size() * 2, -1);
+        }
+        keyFrameVideoMatching[kfId] = vid;
+    }
+
+    ifs.close();
+}

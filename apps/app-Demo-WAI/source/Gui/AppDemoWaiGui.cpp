@@ -107,7 +107,8 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
     addInfoDialog(std::make_shared<AppDemoGuiMapPointEditor>("map edit",
                                                                     &uiPrefs->showMapPointEditor,
                                                                     &eventQueue,
-                                                                    _resources.fonts().standard));
+                                                                    _resources.fonts().standard,
+                                                                    deviceData.erlebARTestDir() + "locations/"));
 
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().standard);
     addInfoDialog(_errorDial);
@@ -115,6 +116,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
                                                             *uiPrefs.get(),
                                                             _resources.fonts().standard,
                                                             modeGetterCB));
+
     addInfoDialog(std::make_shared<AppDemoGuiTrackedMapping>("tracked mapping", &uiPrefs->showTrackedMapping, _resources.fonts().standard, modeGetterCB));
     addInfoDialog(std::make_shared<AppDemoGuiVideoStorage>("video/gps storage", &uiPrefs->showVideoStorage, &eventQueue, _resources.fonts().standard, getCameraCB));
     addInfoDialog(std::make_shared<AppDemoGuiVideoControls>("video load", &uiPrefs->showVideoControls, &eventQueue, _resources.fonts().standard, getVideoFileStreamCB));
