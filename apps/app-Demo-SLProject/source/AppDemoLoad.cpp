@@ -1763,7 +1763,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShadowMappingSpotLights) //......................................
     {
         s->name("Shadow Mapping for Spot lights");
-        s->info("Spot lights use a perspective projection for their light space.");
+        s->info("8 Spot lights use a perspective projection for their light space.");
 
         SLGLProgram* program = new SLGLGenericProgram(s,
                                                       SLApplication::shaderPath + "PerPixBlinnShadowMapping.vert",

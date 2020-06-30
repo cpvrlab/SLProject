@@ -9,8 +9,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-in      vec4   a_position;          // Vertex position attribute
-in      vec3   a_normal;            // Vertex normal attribute
+//-----------------------------------------------------------------------------
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat4   u_mvpMatrix;         // = projection * modelView
@@ -34,7 +35,6 @@ out     vec3   v_R_OS;              // Reflected ray in object space
 out     vec3   v_T_OS;              // Refracted ray in object space
 out     float  v_F_Theta;           // Fresnel reflection coefficient
 out     vec4   v_specColor;         // Specular color at vertex
-
 //-----------------------------------------------------------------------------
 // Schlick's approximation of the Fresnel reflection coefficient
 // theta: angle between normal & incident ray in radians in radians

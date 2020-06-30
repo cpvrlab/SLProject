@@ -10,9 +10,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in      vec4  a_position;               // Vertex position attribute
-in      vec3  a_normal;                 // Vertex normal attribute
-in      vec2  a_texCoord;               // Vertex texture coordiante attribute
+layout (location = 0) in vec4  a_position; // Vertex position attribute
+layout (location = 1) in vec3  a_normal;   // Vertex normal attribute
+layout (location = 2) in vec2  a_texCoord; // Vertex texture coordiante attribute
 
 uniform mat4  u_mMatrix;                // model matrix
 uniform mat4  u_mvMatrix;               // modelview matrix

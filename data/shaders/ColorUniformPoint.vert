@@ -8,7 +8,7 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in      vec4     a_position;        // Vertex position attribute
+layout (location = 0) in vec4 a_position; // Vertex position attribute
 
 uniform vec4     u_color;           // uniform color
 uniform float    u_pointSize;       // size of points

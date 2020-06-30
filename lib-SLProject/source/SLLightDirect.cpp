@@ -108,8 +108,8 @@ void SLLightDirect::init(SLScene* s)
     }
 
     // Set the OpenGL light states
-    setState();
-    SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
+    //setState();
+    //SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
 
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
@@ -147,10 +147,6 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
-        // Set the OpenGL light states
-        SLLightDirect::setState();
-        SLGLState::instance()->numLightsUsed = (SLint)sv->s().lights().size();
-
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
@@ -233,44 +229,5 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     if (_shadowMap == nullptr)
         _shadowMap = new SLShadowMap(P_monoOrthographic, this);
     _shadowMap->render(sv, root);
-}
-//-----------------------------------------------------------------------------
-/*! SLLightRect::setState sets the global rendering state
-*/
-void SLLightDirect::setState()
-{
-    if (_id != -1)
-    {
-        SLGLState* stateGL      = SLGLState::instance();
-        stateGL->lightIsOn[_id] = _isOn;
-
-        // For directional lights the position vector is in infinite distance
-        // We use its homogeneos component w as zero as the directional light flag.
-        stateGL->lightPosWS[_id] = positionWS();
-
-        // The spot direction is used in the shaders for the light direction
-        stateGL->lightSpotDirWS[_id] = spotDirWS();
-
-        stateGL->lightAmbient[_id]        = ambient();
-        stateGL->lightDiffuse[_id]        = diffuse();
-        stateGL->lightSpecular[_id]       = specular();
-        stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
-        stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
-        stateGL->lightSpotExp[_id]        = _spotExponent;
-        stateGL->lightAtt[_id].x          = _kc;
-        stateGL->lightAtt[_id].y          = _kl;
-        stateGL->lightAtt[_id].z          = _kq;
-        stateGL->lightDoAtt[_id]          = isAttenuated();
-        stateGL->lightCreatesShadows[_id] = _createsShadows;
-        stateGL->lightDoesPCF[_id]        = _doesPCF;
-        stateGL->lightPCFLevel[_id]       = _pcfLevel;
-        stateGL->lightUsesCubemap[_id]    = false;
-
-        if (_shadowMap != nullptr)
-        {
-            stateGL->lightSpace[_id * 6] = _shadowMap->mvp()[0];
-            stateGL->shadowMaps[_id]     = _shadowMap->depthBuffer();
-        }
-    }
 }
 //-----------------------------------------------------------------------------

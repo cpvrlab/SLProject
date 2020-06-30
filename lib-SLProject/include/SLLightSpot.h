@@ -61,7 +61,6 @@ public:
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMeshes(SLSceneView* sv) override;
-    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -76,7 +75,7 @@ public:
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
 
     // Getters
-    SLfloat      radius() { return _radius; }
+    SLfloat      radius() const { return _radius; }
     SLuint       samples() { return _samples.samples(); }
     SLVec4f      positionWS() const override { return translationWS(); }
     SLVec3f      spotDirWS() override { return forwardWS(); }

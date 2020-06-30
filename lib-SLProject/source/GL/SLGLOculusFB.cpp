@@ -147,7 +147,7 @@ void SLGLOculusFB::drawFramebuffer(SLGLProgram* stereoOculusProgram)
     //bind the rift shader
     SLGLProgram* sp = stereoOculusProgram;
     sp->useProgram();
-    SLint location = sp->getAttribLocation("a_position");
+    SLint location = AT_position;
 
     // Create VBO for screen quad once
     if (!_vao.vaoID())

@@ -290,6 +290,45 @@ void SLMesh::init(SLNode* node)
     _isSelected = false;
 }
 //-----------------------------------------------------------------------------
+//! Simplified drawing method for shadow map creation
+/*! This is used from within SLShadowMap::drawNodesIntoDepthBuffer
+*/
+void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
+                                 SLNode*      node,
+                                 SLMaterial*  depthMat)
+{
+    SLGLState* stateGL = SLGLState::instance();
+
+    // Check data
+    SLstring msg;
+    if (P.empty())
+        msg = "No vertex positions (P)\n";
+    if (_primitive == PT_points && I16.empty() && I32.empty())
+        msg += "No vertex indices (I16 or I32)\n";
+    if (msg.length() > 0)
+    {
+        SL_WARN_MSG((msg + "in SLMesh::draw: " + _name).c_str());
+        return;
+    }
+
+    // Return if hidden
+    if (sv->drawBit(SL_DB_HIDDEN) ||
+        node->drawBit(SL_DB_HIDDEN) ||
+        _primitive == PT_points)
+        return;
+
+    if (!_vao.vaoID())
+        generateVAO();
+
+    // Now use the depth material
+    SLGLProgram* sp    = depthMat->program();
+    SLGLState*   state = SLGLState::instance();
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+
+    _vao.drawElementsAs(PT_triangles);
+}
+//-----------------------------------------------------------------------------
 /*!
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES primitives
 are rendered normally with the vertex position vector P, the normal vector N,
@@ -313,7 +352,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 </p>
 Please view also the full process of rendering <a href="md_on_paint.html"><b>one frame</b></a>
 */
-void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool depthPass)
+void SLMesh::draw(SLSceneView* sv, SLNode* node)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -368,21 +407,17 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
     ///////////////////////////////////////
 
     if (!_vao.vaoID())
-    {
-        mat()->activate(*node->drawBits(), &sv->s().lights());
         generateVAO();
-    }
 
     /////////////////////////////
     // 3) Apply Uniform Variables
     /////////////////////////////
 
     // 3.a) Apply mesh material if exists & differs from current
-    SLMaterial* material = overrideMat != nullptr ? overrideMat : mat();
-    material->activate(*node->drawBits(), &sv->s().lights());
+    _mat->activate(*node->drawBits(), &sv->s().lights());
 
     // 3.b) Pass the matrices to the shader program
-    SLGLProgram* sp = material->program();
+    SLGLProgram* sp = _mat->program();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
@@ -425,10 +460,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node, SLMaterial* overrideMat, bool d
         _vao.drawArrayAs(PT_points);
     else
         _vao.drawElementsAs(primitiveType);
-
-    // The remaining visualizations are not needed for depth passes
-    if (depthPass)
-        return;
 
     //////////////////////////////////////
     // 5) Draw optional normals & tangents
@@ -543,7 +574,7 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
                    (SLfloat)vp.width,
                    (SLfloat)vp.height);
         SLMat4f     v_mvp = v * mvp;
-        set<SLuint> tempIselected;   // Temp. vector for selected vertex indices
+        set<SLuint> tempIselected; // Temp. vector for selected vertex indices
 
         if (!cam->selectRect().isEmpty()) // Do rectangle Selection
         {
@@ -652,13 +683,11 @@ void SLMesh::drawSelectedVertices()
 //! Generate the Vertex Array Object for a specific shader program
 void SLMesh::generateVAO()
 {
-    SLGLProgram* sp = mat()->program();
-
-    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    _vao.setAttrib(AT_position, AT_position, _finalP);
+    if (!N.empty()) _vao.setAttrib(AT_normal, AT_normal, _finalN);
+    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
+    if (!C.empty()) _vao.setAttrib(AT_color, AT_color, &C);
+    if (!T.empty()) _vao.setAttrib(AT_tangent, AT_tangent, &T);
     if (!I16.empty()) _vao.setIndices(&I16);
     if (!I32.empty()) _vao.setIndices(&I32);
 
