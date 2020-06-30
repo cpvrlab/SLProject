@@ -290,6 +290,9 @@ void SLMesh::init(SLNode* node)
     _isSelected = false;
 }
 //-----------------------------------------------------------------------------
+//! Simplified drawing method for shadow map creation
+/*! This is used from within SLShadowMap::drawNodesIntoDepthBuffer
+*/
 void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
                                  SLNode*      node,
                                  SLMaterial*  depthMat)

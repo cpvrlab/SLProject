@@ -268,84 +268,9 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
         // 1: Activate the shader program object
         stateGL->useProgram(_progID);
 
-        /*
-        // 2: Pass light & material parameters
-        uniform4fv("u_globalAmbient", 1, (const SLfloat*)&SLLight::globalAmbient);
-        uniform1i("u_numLightsUsed", stateGL->numLightsUsed);
-
-        if (stateGL->numLightsUsed > 0)
-        {
-            SLint nL = SL_MAX_LIGHTS;
-            stateGL->calcLightPosVS(stateGL->numLightsUsed);
-            stateGL->calcLightDirVS(stateGL->numLightsUsed);
-            uniform1iv("u_lightIsOn", nL, (SLint*)stateGL->lightIsOn);
-            uniform4fv("u_lightPosWS", nL, (SLfloat*)stateGL->lightPosWS);
-            uniform4fv("u_lightPosVS", nL, (SLfloat*)stateGL->lightPosVS);
-            uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)stateGL->lightSpace);
-            uniform4fv("u_lightAmbient", nL, (SLfloat*)stateGL->lightAmbient);
-            uniform4fv("u_lightDiffuse", nL, (SLfloat*)stateGL->lightDiffuse);
-            uniform4fv("u_lightSpecular", nL, (SLfloat*)stateGL->lightSpecular);
-            uniform3fv("u_lightSpotDirVS", nL, (SLfloat*)stateGL->lightSpotDirVS);
-            uniform1fv("u_lightSpotCutoff", nL, (SLfloat*)stateGL->lightSpotCutoff);
-            uniform1fv("u_lightSpotCosCut", nL, (SLfloat*)stateGL->lightSpotCosCut);
-            uniform1fv("u_lightSpotExp", nL, (SLfloat*)stateGL->lightSpotExp);
-            uniform3fv("u_lightAtt", nL, (SLfloat*)stateGL->lightAtt);
-            uniform1iv("u_lightDoAtt", nL, (SLint*)stateGL->lightDoAtt);
-            uniform1iv("u_lightCreatesShadows", nL, (SLint*)stateGL->lightCreatesShadows);
-            uniform1iv("u_lightDoesPCF", nL, (SLint*)stateGL->lightDoesPCF);
-            uniform1iv("u_lightPCFLevel", nL, (SLint*)stateGL->lightPCFLevel);
-            uniform1iv("u_lightUsesCubemap", nL, (SLint*)stateGL->lightUsesCubemap);
-
-            for (int i = 0; i < SL_MAX_LIGHTS; ++i)
-            {
-                if (stateGL->lightIsOn[i] && stateGL->lightCreatesShadows[i])
-                {
-                    SLstring uniformName = (stateGL->lightUsesCubemap[i]
-                                              ? "u_shadowMapCube_"
-                                              : "u_shadowMap_") +
-                                           std::to_string(i);
-
-                    SLint loc = 0;
-                    if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
-                        stateGL->shadowMaps[i]->activateAsTexture(loc);
-                }
-
-#if defined(SL_OS_MACOS) || defined(SL_OS_ANDROID)
-                // On MacOS and Android the shader for shadow mapping does not work unless
-                // all the cubemaps are set. The following code passes eight textures with
-                // size 1x1 to the shader, so it does not crash. Feel free fix this issue
-                // in a cleaner way.
-
-                if (!stateGL->lightUsesCubemap[i])
-                {
-                    SLint    loc         = 0;
-                    SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
-
-                    if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
-                    {
-                        static SLGLDepthBuffer dummyBuffers[] = {
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                          SLGLDepthBuffer(SLVec2i(1, 1)),
-                        };
-
-                        dummyBuffers[i].activateAsTexture(loc);
-                    }
-                }
-#endif
-            }
-
-            mat->passToUniforms(this);
-        }
-        */
-
         if (lights)
             passLightsToUniforms(lights);
+
         mat->passToUniforms(this);
 
         // 2b: Set stereo states
@@ -460,7 +385,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
             lightShadowMap[i]      = shadowMap && shadowMap->depthBuffer() ? shadowMap->depthBuffer() : nullptr;
             if (lightShadowMap[i])
                 for (SLint ls = 0; ls < 6; ++ls)
-                    lightSpace[i * 6 + ls] = shadowMap->mvp()[i];
+                    lightSpace[i * 6 + ls] = shadowMap->mvp()[ls];
         }
 
         // Pass vectors as uniform vectors
