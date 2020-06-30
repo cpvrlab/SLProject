@@ -449,8 +449,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
                     dummyBuffers[i].activateAsTexture(loc);
                 }
             }
-        }
 #endif
+        }
     }
 }
 //-----------------------------------------------------------------------------
