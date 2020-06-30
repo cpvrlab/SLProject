@@ -101,13 +101,13 @@ public:
     SLbool       isOn() const { return _isOn; }
     SLCol4f      ambient() { return _ambientColor * _ambientPower; } //!< return ambientColor * ambientPower
     SLCol4f      ambientColor() { return _ambientColor; }
-    SLfloat      ambientPower() { return _ambientPower; }
+    SLfloat      ambientPower() const { return _ambientPower; }
     SLCol4f      diffuse() { return _diffuseColor * _diffusePower; } //!< return diffuseColor * diffusePower
     SLCol4f      diffuseColor() { return _diffuseColor; }
-    SLfloat      diffusePower() { return _diffusePower; }
+    SLfloat      diffusePower() const { return _diffusePower; }
     SLCol4f      specular() { return _specularColor * _specularPower; } //!< return _specularColor * _specularPower
     SLCol4f      specularColor() { return _specularColor; }
-    SLfloat      specularPower() { return _specularPower; }
+    SLfloat      specularPower() const { return _specularPower; }
     SLfloat      spotCutOffDEG() const { return _spotCutOffDEG; }
     SLfloat      spotCosCut() const { return _spotCosCutOffRAD; }
     SLfloat      spotExponent() const { return _spotExponent; }
@@ -116,10 +116,10 @@ public:
     SLfloat      kq() const { return _kq; }
     SLbool       isAttenuated() const { return _isAttenuated; }
     SLfloat      attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
-    SLbool       createsShadows() { return _createsShadows; }
+    SLbool       createsShadows() const { return _createsShadows; }
     SLShadowMap* shadowMap() { return _shadowMap; }
-    SLbool       doesPCF() { return _doesPCF; }
-    SLuint       pcfLevel() { return _pcfLevel; }
+    SLbool       doesPCF() const { return _doesPCF; }
+    SLuint       pcfLevel() const { return _pcfLevel; }
 
 #ifdef SL_HAS_OPTIX
     virtual ortLight optixLight(bool)
