@@ -172,7 +172,7 @@ SENSFramePtr SENSiOSCamera::latestFrame()
         newFrame = std::move(_processedFrame);
     }
     
-    if (!newFrame->intrinsics.empty())
+    if (newFrame && !newFrame->intrinsics.empty())
     {
         _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
                                                          cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
