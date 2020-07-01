@@ -137,7 +137,6 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAR.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Resources.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/SlamParams.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/MapPointEdition.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp

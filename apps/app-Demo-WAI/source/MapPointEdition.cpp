@@ -4,12 +4,13 @@
 #include <SLPoints.h>
 #include <WAISlam.h>
 
-MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint*> mp, SLstring shaderDir)
+MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint*> mp, vector<WAIKeyFrame*> kf, SLstring shaderDir)
   : SLNode("Map Points Edit")
 { 
     _sv = sv;
     _mapNode = mappointNode;
     _mappoints = mp;
+    _keyframes = kf;
 
     _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
@@ -31,10 +32,52 @@ MapEdition::~MapEdition()
     deleteChildren();
 }
 
-void MapEdition::selectByVid(std::vector<int>* kFVidMatching, int id)
+void MapEdition::updateKFVidMatching(std::vector<int>* kFVidMatching)
 {
+    _kfSet.clear();
+    for (int i = 0; i < kFVidMatching->size(); i++)
+    {
+        if (kFVidMatching->at(i) == -1)
+            continue;
+        if (kFVidMatching->at(i) >= _kfSet.size())
+        {
+            _kfSet.resize(kFVidMatching->at(i)+1);
+        }
+        _kfSet[kFVidMatching->at(i)].push_back(i); //add keyframe i to kfSet[videoId]
+    }
+}
 
+void MapEdition::selectByVid(int id)
+{
+    std::set<WAIMapPoint*> mpset;
+    int lastIdx = 0;
+    for (int i = 0; i < _kfSet[id].size(); i++)
+    {
+        int kfmnid = _kfSet[id][i];
+        int j;
+        for (j = 0; j < _keyframes.size() && _keyframes[j]->mnId != kfmnid; j++);
 
+        if (j == _keyframes.size())
+        {
+            std::cout << "kf with mnid " << kfmnid << "not found" << std::endl;
+            continue;
+        }
+
+        WAIKeyFrame* kf = _keyframes[j];
+
+        std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
+        for (WAIMapPoint* mp : mps)
+        {
+            if (mp == nullptr || mp->isBad())
+                continue;
+            mpset.insert(mp);
+        }
+    }
+
+    std::vector<WAIMapPoint*> mpvec;
+    mpvec.resize(mpset.size());
+    std::copy(mpset.begin(), mpset.end(), mpvec.begin());
+    updateMapPointsMeshes("current map points", mpvec, _mesh, _green);
 }
 
 void MapEdition::updateMapPointsMeshes(std::string                      name,
@@ -47,6 +90,8 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
     unsigned int i = 0;
     _meshToMP.clear();
 
+    std::cout << "mpset size " << pts.size() << std::endl;
+
     //instantiate and add new mesh
     if (pts.size())
     {
@@ -55,7 +100,7 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
         for (auto mapPt : pts)
         {
             i++;
-            if (mapPt->isBad())
+            if (!mapPt || mapPt->isBad())
                 continue;
 
             _meshToMP.push_back(i-1);

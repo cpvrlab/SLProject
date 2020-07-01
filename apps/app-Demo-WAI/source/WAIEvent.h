@@ -25,7 +25,8 @@ enum MapPointEditorEnum
     MapPointEditor_SaveInMap,
     MapPointEditor_Quit,
     MapPointEditor_EnterEditMode,
-    MapPointEditor_SelectSingleVideo
+    MapPointEditor_SelectSingleVideo,
+    MapPointEditor_LoadMatching
 };
 
 struct WAIEvent

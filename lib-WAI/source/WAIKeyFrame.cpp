@@ -661,6 +661,8 @@ void WAIKeyFrame::SetBadFlag()
                 vector<WAIKeyFrame*> vpConnected = pKF->GetVectorCovisibleKeyFrames();
                 for (size_t i = 0, iend = vpConnected.size(); i < iend; i++)
                 {
+                    if (vpConnected[i]->isBad()) { continue; }
+
                     for (set<WAIKeyFrame*>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; spcit++)
                     {
                         if (vpConnected[i]->mnId == (*spcit)->mnId)

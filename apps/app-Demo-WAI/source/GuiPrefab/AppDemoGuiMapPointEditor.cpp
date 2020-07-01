@@ -11,7 +11,6 @@
 #include <stdafx.h>
 #include <AppWAISlamParamHelper.h>
 #include <AppDemoGuiMapPointEditor.h>
-#include <SlamParams.h>
 #include <WAIMapStorage.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -29,7 +28,8 @@ AppDemoGuiMapPointEditor::AppDemoGuiMapPointEditor(std::string            name,
     _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
     _videoId(0),
-    _nbVideoInMap(0)
+    _nbVideoInMap(0),
+    _activator(activator)
 {
 }
 
@@ -74,13 +74,13 @@ void AppDemoGuiMapPointEditor::loadFileNamesInVector(std::string               d
 //-----------------------------------------------------------------------------
 void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Map Point editor");
+    ImGui::Begin("Map Point editor", _activator, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::PushFont(_font);
 
     if (ImGui::Button("Enter edit mode"))
     {
         WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action = MapPointEditor_EnterEditMode;
+        event->action                        = MapPointEditor_EnterEditMode;
 
         _eventQueue->push(event);
     }
@@ -88,24 +88,18 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     if (ImGui::Button("Exit edit mode"))
     {
         WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action = MapPointEditor_Quit;
+        event->action                        = MapPointEditor_Quit;
         _eventQueue->push(event);
     }
 
     if (ImGui::Button("Save map"))
     {
         WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action = MapPointEditor_SaveInMap;
+        event->action                        = MapPointEditor_SaveInMap;
         _eventQueue->push(event);
     }
 
     ImGui::Checkbox("Select point per video", &_showMatchFinder);
-
-        WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action = MapPointEditor_SelectSingleVideo;
-        _eventQueue->push(event);
-
-
 
     if (_showMatchFinder)
     {
@@ -115,7 +109,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
             std::vector<std::string> acceptedExt;
             acceptedExt.push_back(".txt");
 
-            loadFileNamesInVector(constructSlamMapDir(_slamRootDir, SlamParams::lastInstance()->location, SlamParams::lastInstance()->area), availableFile, acceptedExt);
+            loadFileNamesInVector(constructSlamMapDir(_slamRootDir, _location, _area), availableFile, acceptedExt);
 
             for (int n = 0; n < availableFile.size(); n++)
             {
@@ -134,7 +128,11 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (ImGui::Button("Load match file"))
             {
-                WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _nbVideoInMap, constructSlamMapDir(_slamRootDir, SlamParams::lastInstance()->location, SlamParams::lastInstance()->area), _currMatchedFile);
+                WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _nbVideoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
+                WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
+                event->action                        = MapPointEditor_LoadMatching;
+                event->kFVidMatching                 = &_kFVidMatching;
+                _eventQueue->push(event);
                 _showSelectionChoice = true;
             }
             if (_showSelectionChoice)
@@ -152,9 +150,8 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
                             _videoId = i;
 
                             WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-                            event->kFVidMatching = &_kFVidMatching;
-                            event->vid = _videoId;
-                            event->action = MapPointEditor_SelectSingleVideo;
+                            event->vid                           = _videoId;
+                            event->action                        = MapPointEditor_SelectSingleVideo;
                             _eventQueue->push(event);
                         }
                     }
@@ -165,4 +162,12 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 
     ImGui::PopFont();
     ImGui::End();
+}
+
+void AppDemoGuiMapPointEditor::setSlamParams(const SlamParams& params)
+{
+    SlamParams p = params;
+    _location    = p.location.empty() ? "" : Utils::getFileName(p.location);
+    _area        = p.area.empty() ? "" : Utils::getFileName(p.area);
+    _map         = p.mapFile.empty() ? "" : Utils::getFileName(p.mapFile);
 }

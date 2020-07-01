@@ -770,7 +770,6 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
         if (!mbStopGBA)
         {
-            cout << "Updating map ..." << endl;
             mpLocalMapper->RequestStop();
             // Wait until Local Mapping has effectively stopped
 
@@ -796,15 +795,14 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                     WAIKeyFrame* pChild = *sit;
                     if (pChild->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                     {
-                        cv::Mat Tchildc         = pChild->GetPose() * Twc;
-                        pChild->mTcwGBA         = Tchildc * pKF->mTcwGBA; //*Tcorc*pKF->mTcwGBA;
+                        cv::Mat Tchildc                = pChild->GetPose() * Twc;
+                        pChild->mTcwGBA                = Tchildc * pKF->mTcwGBA; //*Tcorc*pKF->mTcwGBA;
                         pChild->mnMarker[BA_GLOBAL_KF] = nLoopKF;
                     }
                     lpKFtoCheck.push_back(pChild);
                 }
 
                 pKF->mTcwRefGBA = pKF->GetPose();
-
                 pKF->SetPose(pKF->mTcwGBA);
                 lpKFtoCheck.pop_front();
             }
@@ -836,12 +834,11 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                     {
                         cout << "mTcwRefGBA is empty!!!\n It should not be the case" << endl;
                         cout << "this happend when refKF is no more in the map" << endl;
-
-                        pMP->SetBadFlag(); // should be set to bad as well
                         continue;
                     }
 
                     // Map to non-corrected camera
+                    std::flush(std::cout);
                     cv::Mat Rcw = pRefKF->mTcwRefGBA.rowRange(0, 3).colRange(0, 3);
                     cv::Mat tcw = pRefKF->mTcwRefGBA.rowRange(0, 3).col(3);
                     cv::Mat Xc  = Rcw * pMP->GetWorldPos() + tcw;
@@ -858,7 +855,6 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
             mpMap->InformNewBigChange();
 
             mpLocalMapper->Release();
-            cout << "Map updated!" << endl;
         }
 
         mbFinishedGBA = true;

@@ -70,10 +70,9 @@ bool WAISlamTools::initialize(InitializerData&  iniData,
                               WAIFrame&         frame,
                               WAIOrbVocabulary* voc,
                               LocalMap&         localMap,
-                              int               mapPointsNeeded,
-                              unsigned long&    lastKeyFrameFrameId)
+                              int               mapPointsNeeded)
 {
-    int matchesNeeded = 100;
+    int matchesNeeded = mapPointsNeeded;
 
     if (!iniData.initializer)
     {
@@ -201,8 +200,8 @@ bool WAISlamTools::initialize(InitializerData&  iniData,
         return false;
     }
 
-    localMap.keyFrames.push_back(pKFcur);
     localMap.keyFrames.push_back(pKFini);
+    localMap.keyFrames.push_back(pKFcur);
     // Scale initial baseline
     cv::Mat Tc2w               = pKFcur->GetPose();
     Tc2w.col(3).rowRange(0, 3) = Tc2w.col(3).rowRange(0, 3) * invMedianDepth;
@@ -221,7 +220,6 @@ bool WAISlamTools::initialize(InitializerData&  iniData,
     }
 
     frame.SetPose(pKFcur->GetPose());
-    lastKeyFrameFrameId = frame.mnId;
     localMap.refKF      = pKFcur;
     frame.mpReferenceKF = pKFcur;
 
@@ -278,10 +276,9 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
                                  LocalMapping*     localMapper,
                                  LoopClosing*      loopCloser,
                                  WAIOrbVocabulary* voc,
-                                 int               mapPointsNeeded,
-                                 unsigned long&    lastKeyFrameFrameId)
+                                 int               mapPointsNeeded)
 {
-    int matchesNeeded = 100;
+    int matchesNeeded = mapPointsNeeded;
 
     // Get Map Mutex -> Map cannot be changed
     std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
@@ -447,15 +444,12 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
     localMapper->InsertKeyFrame(pKFcur);
 
     frame.SetPose(pKFcur->GetPose());
-    lastKeyFrameFrameId = pKFcur->mnId;
-    localMap.refKF      = pKFcur;
-
+    localMap.refKF = pKFcur;
     localMap.mapPoints = map->GetAllMapPoints();
 
     frame.mpReferenceKF = pKFcur;
 
     map->SetReferenceMapPoints(localMap.mapPoints);
-
     map->mvpKeyFrameOrigins.push_back(pKFini);
     return true;
 }

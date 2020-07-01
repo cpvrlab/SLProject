@@ -11,10 +11,11 @@
 class MapEdition : public SLNode
 {
 public:
-    MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint*> mp, SLstring shaderDir);
+    MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint*> mp, vector<WAIKeyFrame*> kf, SLstring shaderDir);
     ~MapEdition() override;
 
-    void selectByVid(std::vector<int>* kFVidMatching, int id);
+    void updateKFVidMatching(std::vector<int>* kFVidMatching);
+    void selectByVid(int id);
 
     SLbool onKeyPress(const SLKey key, const SLKey mod) override;
 
@@ -46,14 +47,15 @@ private:
     SLSceneView*         _sv;
     SLCamera*            _camera;
     SLNode*              _mapNode;
-    vector<WAIMapPoint*> _selected;
-    vector<WAIMapPoint*> _unselected;
     vector<WAIMapPoint*> _mappoints;
+    vector<WAIKeyFrame*> _keyframes;
     SLGLProgram*         _prog  = nullptr;
     SLMaterial*          _green;
     SLMaterial*          _yellow;
     std::vector<int>     _meshToMP;
     SLPoints*            _mesh = nullptr;
+
+    std::vector<std::vector<int>> _kfSet;
 };
 
 #endif

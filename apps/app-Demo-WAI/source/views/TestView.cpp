@@ -307,16 +307,20 @@ void TestView::handleEvents()
                     _scene.removeKeyframes();
                     _scene.removeMatchedMapPoints();
                     _scene.removeMarkerCornerMapPoints();
-                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _dataDir + "shaders/");
+                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _mode->getKeyFrames(), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_mapEdition);
                 }
                 else if (enterEditModeEvent->action == MapPointEditor_SaveInMap && _mapEdition)
                 {
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 }
+                else if (enterEditModeEvent->action == MapPointEditor_LoadMatching && _mapEdition)
+                {
+                    _mapEdition->updateKFVidMatching(enterEditModeEvent->kFVidMatching);
+                }
                 else if (enterEditModeEvent->action == MapPointEditor_SelectSingleVideo && _mapEdition)
                 {
-                    _mapEdition->selectByVid(enterEditModeEvent->kFVidMatching, enterEditModeEvent->vid);
+                    _mapEdition->selectByVid(enterEditModeEvent->vid);
                 }
                 else if (enterEditModeEvent->action == MapPointEditor_Quit && _mapEdition)
                 {
@@ -674,6 +678,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     // 6. save current params
     _currentSlamParams = slamParams;
+    _gui.setSlamParams(slamParams);
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;

@@ -14,8 +14,6 @@ struct ExtractorIds
 
 struct SlamParams
 {
-    SlamParams();
-
     //returns true if loading was successful. Otherwise there may have been no file.
     bool load(std::string fileName)
     {
@@ -125,8 +123,6 @@ struct SlamParams
         Utils::log("WAIApp", "SlamParams saved to %s", fileName.c_str());
     }
 
-    static SlamParams * lastInstance();
-
     std::string     videoFile;
     std::string     mapFile;
     std::string     calibrationFile;
@@ -137,9 +133,6 @@ struct SlamParams
     WAISlam::Params params;
     ExtractorIds    extractorIds;
     int             nLevels;
-
-
-    static SlamParams*     lastParams;
 };
 
 #endif //SLAMPARAMS_H

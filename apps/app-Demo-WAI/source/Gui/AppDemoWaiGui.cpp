@@ -48,7 +48,6 @@
 #include <AppDemoGuiAutoCalibration.h>
 
 #include <AppDemoGuiInfosMapNodeTransform.h>
-#include <AppDemoGuiMapPointEditor.h>
 
 using namespace ErlebAR;
 
@@ -104,11 +103,13 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
                                                                     &eventQueue,
                                                                     _resources.fonts().standard));
 
-    addInfoDialog(std::make_shared<AppDemoGuiMapPointEditor>("map edit",
-                                                                    &uiPrefs->showMapPointEditor,
-                                                                    &eventQueue,
-                                                                    _resources.fonts().standard,
-                                                                    deviceData.erlebARTestDir() + "locations/"));
+    _guiMapEditor = std::make_shared<AppDemoGuiMapPointEditor>("map edit",
+                                                               &uiPrefs->showMapPointEditor,
+                                                               &eventQueue,
+                                                               _resources.fonts().standard,
+                                                               deviceData.erlebARTestDir() + "locations/");
+
+    addInfoDialog(_guiMapEditor);
 
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().standard);
     addInfoDialog(_errorDial);
