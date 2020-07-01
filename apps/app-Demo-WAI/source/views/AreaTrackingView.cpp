@@ -54,7 +54,7 @@ bool AreaTrackingView::update()
     if (frame && _waiSlam)
     {
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-        if (frame->intrinsicsChanged)
+        if (!frame->intrinsics.empty())
         {
             auto calib = _camera->calibration();
             _waiSlam->changeIntrinsic(calib->cameraMat(), calib->distortion());
@@ -85,18 +85,7 @@ void AreaTrackingView::updateSceneCameraFov()
         }
         else
         {
-            //bars top and bottom: we use the image width and the screen aspect ratio to estimate
-            //corresponding screen height and from this the corrected vertical screen field of view
-            //float corrSceneHeight = this->scrWdivH() * _camera->calibration()->imageSize().height;
-            //float sceneVertFov    = SENS::calcFovOfCenteredImg(_camera->calibration()->cameraFovVDeg(),
-            //                                                _camera->calibration()->imageSize().height,
-            //                                                corrSceneHeight);
-            //_scene.updateCameraIntrinsics(sceneVertFov);
-            /*
-            float fovH = _camera->calibration()->cameraFovHDeg();
-            float f    = (0.5f * this->scrW()) / tanf(fovH * 0.5f * Utils::DEG2RAD);
-            float fovV = 2.f * atan(0.5f * this->scrH() / f) * Utils::RAD2DEG;
-             */
+            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
             _scene.updateCameraIntrinsics(fovV);
         }
@@ -192,13 +181,13 @@ void AreaTrackingView::startCamera()
 
         _camera->start(SENSCameraFacing::BACK,
                        65.f,
-                       cv::Size(960, 540),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
+                       cv::Size(1920, 1440),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
                        false,
                        false,
                        false,
                        true,
-                       cv::Size(960, 540),
-                       false,
+                       cv::Size(640, 480),
+                       true,
                        65.f);
     }
 }

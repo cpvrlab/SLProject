@@ -86,6 +86,7 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
     }
 
     //adapt camera calibration if intrinsics changed
+    /*
     if (intrinsicsChanged)
     {
         cv::Size calibImgSize;
@@ -106,7 +107,7 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
         else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
             _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
     }
-
+*/
     SENSFramePtr sensFrame = std::make_unique<SENSFrame>(rgbImg,
                                                          manipImg,
                                                          inputSize.width,
@@ -116,7 +117,7 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
                                                          _config.mirrorH,
                                                          _config.mirrorV,
                                                          1 / scale,
-                                                         intrinsicsChanged);
+                                                         intrinsics);
     return sensFrame;
 }
 

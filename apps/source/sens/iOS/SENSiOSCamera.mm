@@ -145,53 +145,6 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
     return _config;
 }
 
-/*
-void SENSiOSCamera::start(std::string deviceId, int width, int height, SENSCameraFocusMode focusMode)
-{
-    if (!_started)
-    {
-        _config.deviceId     = deviceId;
-        _config.targetWidth  = width;
-        _config.targetHeight = height;
-        _config.focusMode    = focusMode;
-
-        //retrieve all camera characteristics
-        if (_caputureProperties.size() == 0)
-            _caputureProperties = [_cameraDelegate retrieveCaptureProperties];
-
-        if (_caputureProperties.size() == 0)
-            throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
-
-        //_caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, 600, 450);
-        //_caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, 1000, 500);
-        //_caputureProperties.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, 800, 600);
-
-        //check that device id exists
-        auto itChars = std::find_if(_caputureProperties.begin(), _caputureProperties.end(), [&](const SENSCameraDeviceProperties& cmp) { return cmp.deviceId() == _config.deviceId; });
-        if (itChars == _caputureProperties.end())
-            throw SENSException(SENSType::CAM, "Could not find device id!", __LINE__, __FILE__);
-
-        _config.streamConfigIndex                = itChars->findBestMatchingConfig({_config.targetWidth, _config.targetHeight});
-        const SENSCameraStreamConfig& bestConfig = itChars->streamConfigs().at(_config.streamConfigIndex);
-
-        NSString* devId           = [NSString stringWithUTF8String:_config.deviceId.c_str()];
-        BOOL      enableAutoFocus = (_config.focusMode == SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS) ? YES : NO;
-        if ([_cameraDelegate startCamera:devId
-                               withWidth:bestConfig.widthPix
-                               andHeight:bestConfig.heightPix
-                          autoFocusState:enableAutoFocus
-                 videoStabilizationState:_config.enableVideoStabilization])
-        {
-            _started = true;
-        }
-        else
-            throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
-    }
-    else
-        Utils::log("SENSiOSCamera", "Camera already started but start called!");
-}
-*/
-
 void SENSiOSCamera::stop()
 {
     if (_started)
@@ -213,8 +166,28 @@ const SENSCaptureProperties& SENSiOSCamera::captureProperties()
 
 SENSFramePtr SENSiOSCamera::latestFrame()
 {
-    std::lock_guard<std::mutex> lock(_processedFrameMutex);
-    return std::move(_processedFrame);
+    SENSFramePtr newFrame;
+    {
+        std::lock_guard<std::mutex> lock(_processedFrameMutex);
+        newFrame = std::move(_processedFrame);
+    }
+    
+    if (!newFrame->intrinsics.empty())
+    {
+        _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
+                                                         cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
+                                                         _calibration->isMirroredH(),
+                                                         _calibration->isMirroredV(),
+                                                         _calibration->camType(),
+                                                         _calibration->computerInfos());
+        //adjust calibration
+        if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
+            _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
+        else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
+            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+    }
+
+    return newFrame;
 }
 
 void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3)
@@ -237,13 +210,10 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
             intrinsics.at<double>(1, i) = (double)col[1];
             intrinsics.at<double>(2, i) = (double)col[2];
         }
-        //std::cout << "Mat cv" << std::endl;
-        //std::cout << intrinsics << std::endl;
     }
 
     SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, intrinsics, intrinsicsChanged);
 
-    Utils::log("SENSiOSCamera", "next : w %d w %d", sensFrame->imgRGB.size().width, sensFrame->imgRGB.size().height);
     {
         std::lock_guard<std::mutex> lock(_processedFrameMutex);
         _processedFrame = std::move(sensFrame);
