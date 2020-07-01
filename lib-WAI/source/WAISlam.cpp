@@ -472,10 +472,14 @@ bool WAISlam::retainImage()
 void WAISlam::transformCoords(cv::Mat transform)
 {
     _localMapping->RequestStop();
+    while (!_localMapping->isStopped() && !_localMapping->isFinished())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
-    _localMap.keyFrames.clear();
-    _localMap.mapPoints.clear();
-    _localMap.refKF = nullptr;
+    //_localMap.keyFrames.clear();
+    //_localMap.mapPoints.clear();
+    //_localMap.refKF = nullptr;
 
     WAIMap*  map = _globalMap.get();
 
