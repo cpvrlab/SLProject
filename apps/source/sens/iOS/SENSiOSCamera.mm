@@ -8,6 +8,8 @@ SENSiOSCamera::SENSiOSCamera()
 {
     _cameraDelegate = [[SENSiOSCameraDelegate alloc] init];
     [_cameraDelegate setCallback:std::bind(&SENSiOSCamera::processNewFrame, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
+    //todo: fixme
+    _permissionGranted = true;
 }
 
 SENSiOSCamera::~SENSiOSCamera()
