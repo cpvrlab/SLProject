@@ -282,6 +282,8 @@ bool TestRunnerView::update()
                 f.flush();
                 f.close();
 
+                _testResults = "";
+
                 // upload results to pallas
 
                 std::string errorMsg;
