@@ -143,8 +143,10 @@
             CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions(formatDesc);
             if (dims.width == width && dims.height == height)
             {
+                //std::cout << "w " << dims.width << " h " << dims.height << std::endl;
                 for (AVFrameRateRange* range in [format videoSupportedFrameRateRanges])
                 {
+                    //std::cout << "min fps " << range.minFrameRate << " max fps " << range.maxFrameRate << std::endl;
                     if (bestRange == nil || bestRange.maxFrameRate < range.maxFrameRate)
                     {
                         bestFormat = format;
@@ -319,6 +321,8 @@
             CMFormatDescriptionRef formatDesc = [format formatDescription];
             if (formatDesc)
             {
+                //todo: for all formats setup a video output and check for intrinsics and
+
                 CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions(formatDesc);
                 int               w    = dims.width;
                 int               h    = dims.height;

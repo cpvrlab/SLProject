@@ -58,6 +58,9 @@ struct SENSCameraStreamConfig
     //focal length in pixel (-1 means unknown)
     float focalLengthPix = -1.f;
     //todo: min max frame rate
+    //bool intrinsicsProvided = false;
+    //float minFrameRate = 0.f;
+    //float maxFrameRate = 0.f;
 };
 
 class SENSCameraDeviceProperties
@@ -252,9 +255,10 @@ public:
     {
         return _calibration.get();
     }
+
 protected:
     void initCalibration();
-    
+
     SENSCaptureProperties _caputureProperties;
 
     SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intrinsics, bool intrinsicsChanged);
