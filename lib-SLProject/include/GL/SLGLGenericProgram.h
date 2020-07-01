@@ -12,8 +12,8 @@
 #ifndef SLGLGENERICPROGRAM_H
 #define SLGLGENERICPROGRAM_H
 
-#include "SLGLProgram.h"
-#include "SLObject.h"
+#include <SLGLProgram.h>
+#include <SLObject.h>
 
 class SLMaterial;
 class SLAssetManager;
@@ -27,7 +27,7 @@ simple GLSL shader programs with standard types of uniform variables.
 class SLGLGenericProgram : public SLGLProgram
 {
 public:
-    virtual ~SLGLGenericProgram() {}
+    ~SLGLGenericProgram() override = default;
 
     //! If s is not NULL, ownership of SLGLProgram is given to SLScene (automatic deletion)
     SLGLGenericProgram(SLAssetManager* s,
@@ -42,8 +42,8 @@ public:
                        const SLstring& geomShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile, geomShaderFile) { ; }
 
-    virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) { beginUse(mat, globalAmbientLight); }
-    virtual void endShader() { endUse(); }
+    void beginShader(SLMaterial* mat, SLVLight* lights) override { beginUse(mat, lights); }
+    void endShader() override { endUse(); }
 };
 //-----------------------------------------------------------------------------
 

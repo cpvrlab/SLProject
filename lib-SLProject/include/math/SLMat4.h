@@ -113,8 +113,7 @@ class SLMat4
         SLMat4<T>&  operator/=  (const T a);               //!< scalar division
         T&          operator    ()(int row, int col)      {return _m[4*col+row];}
   const T&          operator    ()(int row, int col)const {return _m[4*col+row];}
-        // Transformation corresponding to the equivalent gl* OpenGL function
-        // They all set a transformation that is multiplied onto the matrix
+
         void        multiply    (const SLMat4& A);
         SLVec3<T>   multVec     (const SLVec3<T> v) const;
         SLVec4<T>   multVec     (const SLVec4<T> v) const;

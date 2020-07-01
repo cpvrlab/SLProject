@@ -40,23 +40,35 @@ enum SLGLPrimitiveType
 //! Enumeration for float vertex attribute types
 enum SLGLAttributeType
 {
-    AT_position,    //!< Vertex position as a 2, 3 or 4 component vectors
-    AT_normal,      //!< Vertex normal as a 3 component vector
-    AT_texCoord,    //!< Vertex texture coordinate as 2 component vector
-    AT_tangent,     //!< Vertex tangent as a 4 component vector (see SLMesh)
-    AT_jointWeight, //!< Vertex joint weight for vertex skinning
-    AT_jointIndex,  //!< Vertex joint id for vertex skinning
-    AT_color,       //!< Vertex color as 3 or 4 component vector
-    AT_custom0,     //!< Custom vertex attribute 0
-    AT_custom1,     //!< Custom vertex attribute 1
-    AT_custom2,     //!< Custom vertex attribute 2
-    AT_custom3,     //!< Custom vertex attribute 3
-    AT_custom4,     //!< Custom vertex attribute 4
-    AT_custom5,     //!< Custom vertex attribute 5
-    AT_custom6,     //!< Custom vertex attribute 6
-    AT_custom7,     //!< Custom vertex attribute 7
-    AT_custom8,     //!< Custom vertex attribute 8
-    AT_custom9      //!< Custom vertex attribute 0
+    /*
+    // The enum must correspond to the attributes in SLMesh:
+    SLVVec3f  P;    //!< Vector for vertex positions                   layout (location = 0)
+    SLVVec3f  N;    //!< Vector for vertex normals (opt.)              layout (location = 1)
+    SLVVec2f  Tc;   //!< Vector of vertex tex. coords. (opt.)          layout (location = 2)
+    SLVCol4f  C;    //!< Vector of vertex colors (opt.)                layout (location = 3)
+    SLVVec4f  T;    //!< Vector of vertex tangents (opt.)              layout (location = 4)
+    SLVVuchar Ji;   //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 5)
+    SLVVfloat Jw;   //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 6)
+    */
+
+    AT_position = 0, //!< Vertex position as a 2, 3 or 4 component vectors
+    AT_normal,       //!< Vertex normal as a 3 component vector
+    AT_texCoord,     //!< Vertex texture coordinate as 2 component vector
+    AT_color,        //!< Vertex color as 3 or 4 component vector
+    AT_tangent,      //!< Vertex tangent as a 4 component vector (see SLMesh)
+    AT_jointIndex,   //!< Vertex joint id for vertex skinning
+    AT_jointWeight,  //!< Vertex joint weight for vertex skinning
+
+    AT_custom0,      //!< Custom vertex attribute 0
+    AT_custom1,      //!< Custom vertex attribute 1
+    AT_custom2,      //!< Custom vertex attribute 2
+    AT_custom3,      //!< Custom vertex attribute 3
+    AT_custom4,      //!< Custom vertex attribute 4
+    AT_custom5,      //!< Custom vertex attribute 5
+    AT_custom6,      //!< Custom vertex attribute 6
+    AT_custom7,      //!< Custom vertex attribute 7
+    AT_custom8,      //!< Custom vertex attribute 8
+    AT_custom9       //!< Custom vertex attribute 0
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer usage types also supported by OpenGL ES

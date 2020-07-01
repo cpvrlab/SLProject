@@ -9,8 +9,8 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute   vec4     a_position;       // Vertex position attribute
-attribute   vec3     a_normal;         // Vertex normal attribute
+in          vec4     a_position;       // Vertex position attribute
+in          vec3     a_normal;         // Vertex normal attribute
 
 uniform     mat4     u_mvMatrix;       // modelView matrix
 uniform     mat4     u_mvpMatrix;      // = projection * modelView
@@ -32,8 +32,7 @@ uniform     vec4     u_matSpec;        // material specular reflection (ks)
 uniform     vec4     u_matEmis;        // material emissiveness (ke)
 uniform     float    u_matShine;       // material shininess exponent
 
-varying     vec4     v_color;          // The resulting color per vertex
-
+out         vec4     v_color;          // The resulting color per vertex
 //-----------------------------------------------------------------------------
 void main()
 {        

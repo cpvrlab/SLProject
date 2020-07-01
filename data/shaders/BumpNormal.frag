@@ -11,38 +11,40 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
+//-----------------------------------------------------------------------------
+in      vec2   v_texCoord;          // Texture coordiante varying
+in      vec3   v_L_TS;              // Vector to light 0 in tangent space
+in      vec3   v_E_TS;              // Vector to the eye in tangent space
+in      vec3   v_S_TS;              // Spot direction in tangent space
+in      float  v_d;                 // Light distance
 
-uniform bool   u_lightIsOn[8];      //! flag if light is on
-uniform vec4   u_lightPosVS[8];     //! position of light in view space
-uniform vec4   u_lightAmbient[8];   //! ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   //! diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  //! specular light intensity (Is)
-uniform vec3   u_lightSpotDirVS[8]; //! spot direction in view space
-uniform float  u_lightSpotCosCut[8];//! cosine of spot cutoff angle
-uniform float  u_lightSpotCutoff[8];//! spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotExp[8];   //! spot exponent
-uniform vec3   u_lightAtt[8];       //! attenuation (const,linear,quadr.)
-uniform bool   u_lightDoAtt[8];     //! flag if att. must be calc.
-uniform vec4   u_globalAmbient;     //! Global ambient scene color
+uniform bool   u_lightIsOn[8];      // flag if light is on
+uniform vec4   u_lightPosVS[8];     // position of light in view space
+uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
+uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
+uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
+uniform vec3   u_lightSpotDirVS[8]; // spot direction in view space
+uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
+uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotExp[8];   // spot exponent
+uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
+uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
+uniform vec4   u_globalAmbient;     // Global ambient scene color
 
-uniform vec4   u_matAmbient;        //! ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        //! diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       //! specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       //! emissive color for selfshining materials
-uniform float  u_matShininess;      //! shininess exponent
+uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
+uniform float  u_matShininess;      // shininess exponent
 
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
-uniform sampler2D u_texture0;       //! Color map
-uniform sampler2D u_texture1;       //! Normal map
+uniform sampler2D u_texture0;       // Color map
+uniform sampler2D u_texture1;       // Normal map
 
-varying vec2   v_texCoord;          //! Texture coordiante varying
-varying vec3   v_L_TS;              //! Vector to light 0 in tangent space
-varying vec3   v_E_TS;              //! Vector to the eye in tangent space
-varying vec3   v_S_TS;              //! Spot direction in tangent space
-varying float  v_d;                 //! Light distance
-
-//! Fragment shader for classic normal map bump mapping
+out     vec4      o_fragColor;      // output fragment color
+//-----------------------------------------------------------------------------
+// Fragment shader for classic normal map bump mapping
 void main()
 {   
     vec3 E = normalize(v_E_TS);   // normalized eye direction
@@ -52,7 +54,7 @@ void main()
     vec3 H = normalize(L + E);
   
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture2D(u_texture1, v_texCoord).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_texture1, v_texCoord).rgb * 2.0 - 1.0);
    
     // Calculate attenuation over distance d
     float att = 1.0;  // Total attenuation factor
@@ -82,17 +84,18 @@ void main()
     float specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
    
     // Add ambient & diffuse light components
-    gl_FragColor = u_matEmissive + 
+    o_fragColor = u_matEmissive +
                    u_globalAmbient +
                    att * u_lightAmbient[0] * u_matAmbient +
                    att * u_lightDiffuse[0] * u_matDiffuse * diffFactor;
    
     // Componentwise multiply w. texture color
-    gl_FragColor *= texture2D(u_texture0, v_texCoord);
+    o_fragColor *= texture(u_texture0, v_texCoord);
    
     // Add finally the specular part
-    gl_FragColor += att * u_lightSpecular[0] * u_matSpecular * specFactor;
+    o_fragColor += att * u_lightSpecular[0] * u_matSpecular * specFactor;
 
     // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------

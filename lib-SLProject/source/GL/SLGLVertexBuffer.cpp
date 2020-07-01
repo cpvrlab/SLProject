@@ -92,10 +92,7 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
                     _attribs[(SLuint)index].offsetBytes,
                     _attribs[(SLuint)index].bufferSizeBytes,
                     _attribs[(SLuint)index].dataPointer);
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Generates the OpenGL VBO for one or more vertex attributes. 
@@ -289,10 +286,7 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
 
     totalBufferCount++;
     totalBufferSize += _sizeBytes;
-
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! This method is only used by SLGLVertexArray drawing methods for OpenGL

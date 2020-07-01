@@ -69,6 +69,10 @@ struct SlamParams
                     fs["trackingExtractorId"] >> extractorId;
                     extractorIds.trackingExtractorId = (ExtractorType)extractorId;
                 }
+                if (!fs["nLevels"].empty())
+                    fs["nLevels"] >> nLevels;
+                else
+                    nLevels = 8;
 
                 fs.release();
                 Utils::log("WAIApp", "SlamParams loaded from %s", fileName.c_str());
@@ -113,6 +117,8 @@ struct SlamParams
         fs << "markerExtractorId" << extractorIds.markerExtractorId;
         fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
 
+        fs << "nLevels" << nLevels;
+
         fs.release();
         Utils::log("WAIApp", "SlamParams saved to %s", fileName.c_str());
     }
@@ -126,6 +132,7 @@ struct SlamParams
     std::string     area;
     WAISlam::Params params;
     ExtractorIds    extractorIds;
+    int             nLevels;
 };
 
 #endif //SLAMPARAMS_H

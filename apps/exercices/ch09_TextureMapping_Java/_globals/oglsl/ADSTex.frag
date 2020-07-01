@@ -12,8 +12,8 @@
 precision mediump float;
 #endif
 
-varying vec4      v_color;      // interpolated color from the vertex shader
-varying vec2      v_texCoord;   // interpolated texture coordinate
+in      vec4      v_color;      // interpolated color from the vertex shader
+in      vec2      v_texCoord;   // interpolated texture coordinate
 
 uniform sampler2D u_texture0;   // texture map
 

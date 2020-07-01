@@ -10,7 +10,7 @@
 //#############################################################################
 
 #version 430 core
-
+//-----------------------------------------------------------------------------
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
@@ -21,7 +21,6 @@ in vec3 v_P_VS[];
 out vec3 o_F_WS; // Fragment world position
 out vec3 o_F_VS; // Fragment position in voxel space
 out vec3 o_N_WS; // Fragment normal
-
 //-----------------------------------------------------------------------------
 void main(void)
 {

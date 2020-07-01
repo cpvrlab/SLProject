@@ -11,6 +11,12 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
+//-----------------------------------------------------------------------------
+in      vec2   v_texCoord;          // Texture coordiante varying
+in      vec3   v_L_TS;              // Vector to the light in tangent space
+in      vec3   v_E_TS;              // Vector to the eye in tangent space
+in      vec3   v_S_TS;              // Spot direction in tangent space
+in      float  v_d;                 // Light distance
 
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosVS[8];     // position of light in view space
@@ -28,7 +34,7 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
@@ -38,12 +44,8 @@ uniform sampler2D u_texture2;       // Height map;
 uniform float     u_scale;          // Height scale for parallax mapping
 uniform float     u_offset;         // Height bias for parallax mapping
 
-varying vec2   v_texCoord;          // Texture coordiante varying
-varying vec3   v_L_TS;              // Vector to the light in tangent space
-varying vec3   v_E_TS;              // Vector to the eye in tangent space
-varying vec3   v_S_TS;              // Spot direction in tangent space
-varying float  v_d;                 // Light distance
-
+out     vec4      o_fragColor;      // output fragment color
+//-----------------------------------------------------------------------------
 void main()
 {
     vec3 E = normalize(v_E_TS);   // normalized eye direction
@@ -56,7 +58,7 @@ void main()
     ////////////////////////////////////////////////////////////
     // Calculate new texture coord. Tc for Parallax mapping
     // The height comes from red channel from the height map
-    float height = texture2D(u_texture2, v_texCoord.st).r;
+    float height = texture(u_texture2, v_texCoord.st).r;
    
     // Scale the height and add the bias (height offset)
     height = height * u_scale + u_offset;
@@ -67,7 +69,7 @@ void main()
    
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     //vec3 N = vec3(0.0,0.0,1.0);
-    vec3 N = normalize(texture2D(u_texture1, Tc).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_texture1, Tc).rgb * 2.0 - 1.0);
    
     // Calculate attenuation over distance v_d
     float att = 1.0;  // Total attenuation factor
@@ -97,17 +99,18 @@ void main()
     float specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
    
     // add ambient & diffuse light components
-    gl_FragColor = u_matEmissive + 
+    o_fragColor = u_matEmissive +
                    u_globalAmbient +
                    att * u_lightAmbient[0] * u_matAmbient +
                    att * u_lightDiffuse[0] * u_matDiffuse * diffFactor;
    
     // componentwise multiply w. texture color
-    gl_FragColor *= texture2D(u_texture0, Tc);
+    o_fragColor *= texture(u_texture0, Tc);
    
     // add finally the specular part
-    gl_FragColor += att * u_lightSpecular[0] * u_matSpecular * specFactor;
+    o_fragColor += att * u_lightSpecular[0] * u_matSpecular * specFactor;
 
     // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------

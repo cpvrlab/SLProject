@@ -50,6 +50,7 @@ LocalMapping::LocalMapping(WAIMap*           pMap,
     mbAcceptKeyFrames(true),
     mbAbortBA(false),
     mPause(false),
+    mbPaused(false),
     workingSet(10),
     mMappingThreads(0),
     mFinishedBA(0),
@@ -114,8 +115,15 @@ void LocalMapping::LocalOptimize()
                 break;
         }
 
-        while (CheckPause() && !CheckFinish())
-            std::this_thread::sleep_for(10ms);
+        if (CheckPause())
+        {
+            {
+                unique_lock<mutex> lock(mMutexPause);
+                mbPaused = true;
+            }
+            while (isStopped() && !CheckFinish())
+                std::this_thread::sleep_for(10ms);
+        }
 
         if (CheckFinish())
             break;
@@ -128,6 +136,7 @@ void LocalMapping::LocalOptimize()
 void LocalMapping::ProcessKeyFrames()
 {
     mbFinished = false;
+    mbPaused = false;
 
     while (1)
     {
@@ -137,8 +146,6 @@ void LocalMapping::ProcessKeyFrames()
         // Check if there are keyframes in the queue
         while (CheckNewKeyFrames())
         {
-            AVERAGE_TIMING_START("process keyframe");
-
             WAIKeyFrame* frame = GetNewKeyFrame();
             workingSet.addToUseSet(frame);
 
@@ -148,21 +155,22 @@ void LocalMapping::ProcessKeyFrames()
 
             workingSet.addToLocalAdjustment(frame);
             mpLoopCloser->InsertKeyFrame(frame);
-
-            AVERAGE_TIMING_STOP("process keyframe");
-
-            if (CheckFinish())
-                break;
         }
 
         ResetIfRequested();
         SetAcceptKeyFrames(true);
 
+        if (CheckPause())
+        {
+            {
+                unique_lock<mutex> lock(mMutexPause);
+                mbPaused = true;
+            }
+            while (isStopped() && !CheckFinish())
+                std::this_thread::sleep_for(10ms);
+        }
         if (CheckFinish())
             break;
-
-        while (CheckPause() && !CheckFinish())
-            std::this_thread::sleep_for(10ms);
     }
     SetFinish();
 }
@@ -170,7 +178,7 @@ void LocalMapping::ProcessKeyFrames()
 void LocalMapping::Run()
 {
     mbFinished = false;
-
+    mbPaused = false;
     while (1)
     {
         // Tracking will see that Local Mapping is busy
@@ -203,7 +211,6 @@ void LocalMapping::Run()
                 // Local BA
                 if (mpMap->KeyFramesInMap() > 2)
                     Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
-
                 // Check redundant local Keyframes
                 KeyFrameCulling(frame);
             }
@@ -212,14 +219,17 @@ void LocalMapping::Run()
         }
         else if (CheckPause())
         {
+            {
+                unique_lock<mutex> lock(mMutexPause);
+                mbPaused = true;
+            }
             // Safe area to stop
             while (isStopped() && !CheckFinish())
             {
                 std::this_thread::sleep_for(3ms);
             }
-            if (CheckFinish())
-                break;
         }
+
 
         ResetIfRequested();
 
@@ -1053,6 +1063,7 @@ void LocalMapping::RequestContinue()
 {
     unique_lock<mutex> lock(mMutexPause);
     mPause = false;
+    mbPaused = false;
 }
 
 bool LocalMapping::CheckFinish()
@@ -1075,7 +1086,7 @@ bool LocalMapping::isFinished()
 
 bool LocalMapping::isStopped()
 {
-    return isFinished() || CheckPause();
+    return isFinished() || mbPaused;
 }
 
 } //namespace ORB_SLAM

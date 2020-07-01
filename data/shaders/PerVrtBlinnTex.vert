@@ -9,9 +9,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
-attribute vec2 a_texCoord;          // Vertex texture coord. attribute
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
+layout (location = 2) in vec2  a_texCoord;     // Vertex texture attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -34,12 +34,12 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
-varying vec4   v_color;             // Ambient & diffuse color at vertex
-varying vec4   v_specColor;         // Specular color at vertex
-varying vec2   v_texCoord;          // texture coordinate at vertex
+out     vec4   v_color;             // Ambient & diffuse color at vertex
+out     vec4   v_specColor;         // Specular color at vertex
+out     vec2   v_texCoord;          // texture coordinate at vertex
 
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
@@ -51,15 +51,16 @@ void DirectLight(in    int  i,   // Light number
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
-
-    // Half vector H between L and E
-    vec3 H = normalize(L+E);
    
     // Calculate diffuse & specular factors
     float diffFactor = max(dot(N,L), 0.0);
     float specFactor = 0.0;
-    if (diffFactor!=0.0) 
+    
+    if (diffFactor!=0.0)
+    {
+        vec3 H = normalize(L+E); // Half vector H between L and E
         specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+    }
    
     // accumulate directional light intesities w/o attenuation
     Ia += u_lightAmbient[i];
@@ -118,9 +119,9 @@ void main()
 {
     vec4 Ia, Id, Is;        // Accumulated light intensities at P_VS
    
-    Ia = vec4(0.0);         // Ambient light intesity
-    Id = vec4(0.0);         // Diffuse light intesity
-    Is = vec4(0.0);         // Specular light intesity
+    Ia = vec4(0.0);         // Ambient light intensity
+    Id = vec4(0.0);         // Diffuse light intensity
+    Is = vec4(0.0);         // Specular light intensity
    
     vec3 P_VS = vec3(u_mvMatrix * a_position);
     vec3 N = normalize(u_nMatrix * a_normal);
@@ -171,7 +172,7 @@ void main()
         else PointLight(7, P_VS, N, E, Ia, Id, Is);
 
    
-    // Set the texture coord. varying for interpolated tex. coords.
+    // Set the texture coord. output for interpolated tex. coords.
     v_texCoord = a_texCoord.xy;
    
     // Sum up all the reflected color components except the specular

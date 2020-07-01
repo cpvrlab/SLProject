@@ -108,6 +108,7 @@ protected:
     std::mutex mMutexReset;
 
     bool       CheckPause();
+    bool       mbPaused;
 
     bool       CheckFinish();
     void       SetFinish();

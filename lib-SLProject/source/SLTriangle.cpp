@@ -10,7 +10,7 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include "SLTriangle.h"
+#include <SLTriangle.h>
 
 //-----------------------------------------------------------------------------
 SLTriangle::SLTriangle(SLAssetManager* assetMgr,

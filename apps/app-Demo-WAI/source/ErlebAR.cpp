@@ -98,13 +98,13 @@ const Location defineLocationAvenches()
     loc.id                   = LocationId::AVENCHES;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
-    loc.dspPixWidth          = 800;
+    loc.dspPixWidth          = 2000;
     {
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 878;
-        area.yPosPix         = 666;
+        area.xPosPix         = 820;
+        area.yPosPix         = 660;
         area.viewAngleDeg    = 170;
         area.slamMapFileName = "location/avenches/amphitheaterEntrance/maps/DEVELOPMENT-map_20200528-184748_avenches_amphitheaterEntrance_FAST_ORBS_1000.json";
         loc.areas[area.id]   = area;
@@ -113,8 +113,8 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 520;
-        area.yPosPix         = 742;
+        area.xPosPix         = 472;
+        area.yPosPix         = 736;
         area.viewAngleDeg    = -18;
         area.slamMapFileName = "location/avenches/amphitheater/maps/DEVELOPMENT-map_20200608-130203_avenches_amphitheater_FAST_BRIEF_1000.json";
         loc.areas[area.id]   = area;
@@ -123,8 +123,8 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_TEMPLE;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 1337;
-        area.yPosPix         = 36;
+        area.xPosPix         = 1280;
+        area.yPosPix         = 40;
         area.viewAngleDeg    = 100;
         area.slamMapFileName = "locations/avenches/temple/maps/DEVELOPMENT-map_20200531-143950_avenches_temple_FAST_ORBS_2000.json";
         loc.areas[area.id]   = area;
@@ -133,8 +133,8 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_CYGOGNIER;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 1817;
-        area.yPosPix         = 560;
+        area.xPosPix         = 1760;
+        area.yPosPix         = 554;
         area.viewAngleDeg    = -140;
         area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cygonier-marker_FAST_ORBS_2000.json";
         loc.areas[area.id]   = area;
@@ -143,8 +143,8 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_THEATER;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 2521;
-        area.yPosPix         = 1138;
+        area.xPosPix         = 2463;
+        area.yPosPix         = 1132;
         area.viewAngleDeg    = 50;
         area.slamMapFileName = "locations/avenches/theater-marker/maps/DEVELOPMENT-map_20200602-202250_avenches_theater-marker_FAST_ORBS_1000.json";
         loc.areas[area.id]   = area;

@@ -117,8 +117,6 @@ bool TestView::update()
         }
     }
 
-    updateTrackingVisualization(_mode && _mode->isTracking());
-
     return onPaint();
 }
 
@@ -273,6 +271,7 @@ void TestView::handleEvents()
                     cv::Mat mat = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
                     _mode->transformCoords(mat);
                     _scene.resetMapNode();
+                    updateTrackingVisualization(_mode);
                 }
 
                 if (enterEditModeEvent->editMode == NodeEditMode_None)
@@ -298,17 +297,29 @@ void TestView::handleEvents()
 
             case WAIEventType_EnterEditMapPointMode: {
                 WAIEventEnterEditMapPointMode* enterEditModeEvent = (WAIEventEnterEditMapPointMode*)event;
-                if (enterEditModeEvent->start && !_mapEdition)
+                if (enterEditModeEvent->action == MapPointEditor_EnterEditMode && !_mapEdition)
                 {
-                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _dataDir + "shaders/");
+                    _scene.removeLocalMapPoints();
+                    _scene.removeMapPoints();
+                    _scene.removeKeyframes();
+                    _scene.removeMatchedMapPoints();
+                    _scene.removeMarkerCornerMapPoints();
+                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _mode->getKeyFrames(), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_mapEdition);
-                    std::cout << "enter map edition" << std::endl;
                 }
-                else if (enterEditModeEvent->save && _mapEdition)
+                else if (enterEditModeEvent->action == MapPointEditor_SaveInMap && _mapEdition)
                 {
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 }
-                else if (enterEditModeEvent->quit && _mapEdition)
+                else if (enterEditModeEvent->action == MapPointEditor_LoadMatching && _mapEdition)
+                {
+                    _mapEdition->updateKFVidMatching(enterEditModeEvent->kFVidMatching);
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_SelectSingleVideo && _mapEdition)
+                {
+                    _mapEdition->selectByVid(enterEditModeEvent->vid);
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_Quit && _mapEdition)
                 {
                     if (_scene.root3D()->deleteChild(_mapEdition))
                     {
@@ -320,6 +331,7 @@ void TestView::handleEvents()
 
                         _mapEdition = nullptr;
                     }
+                    updateTrackingVisualization(_mode);
                 }
                 delete enterEditModeEvent;
             }
@@ -364,7 +376,7 @@ void TestView::saveMap(std::string location,
     if (!Utils::dirExists(mapDir))
         Utils::makeDir(mapDir);
 
-    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName());
+    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName(), _mode->getKPextractor()->GetLevels());
     std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
     if (_mode->retainImage())
@@ -611,8 +623,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
         slamParams.params.cullRedundantPerc = 0.99f;
     }
 
-    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
-    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
+    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize, slamParams.nLevels);
+    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize, slamParams.nLevels);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     try
@@ -663,6 +675,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     // 6. save current params
     _currentSlamParams = slamParams;
+    _gui.setSlamParams(slamParams);
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
@@ -741,6 +754,8 @@ void TestView::updateVideoTracking()
 
 void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
+    if (!_mode)
+        return;
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());

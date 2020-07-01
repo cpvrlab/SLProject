@@ -5,7 +5,7 @@
 //#############################################################################
 
 #include <stdafx.h>
-#include "SLPhotonMap.h"
+#include <SLPhotonMap.h"
 
 #define swap(ph,a,b) {SLPhoton* ph2=(*ph)[a]; (*ph)[a]=(*ph)[b]; (*ph)[b]=ph2;}
 

@@ -9,9 +9,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute   vec4     a_position;       // Vertex position attribute
-attribute   vec3     a_normal;         // Vertex normal attribute
-attribute   vec2     a_texCoord;       // Vertex texture coord. attribute
+in          vec4     a_position;       // Vertex position attribute
+in          vec3     a_normal;         // Vertex normal attribute
+in          vec2     a_texCoord;       // Vertex texture coord. attribute
 
 uniform     mat4     u_mvMatrix;       // modelView matrix
 uniform     mat4     u_mvpMatrix;      // = projection * modelView
@@ -29,9 +29,8 @@ uniform     vec4     u_matSpecular;    // material specular reflection (ks)
 uniform     vec4     u_matEmissive;    // material emissiveness (ke)
 uniform     float    u_matShininess;   // material shininess exponent
 
-varying     vec4     v_color;          // The resulting color per vertex
-varying     vec2     v_texCoord;       // texture coordinate at vertex
-
+out     vec4     v_color;          // The resulting color per vertex
+out     vec2     v_texCoord;       // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {     
@@ -63,7 +62,7 @@ void main()
               u_lightDiffuse * u_matDiffuse * diffFactor +
               u_lightSpecular * u_matSpecular * specFactor;
 
-   // Set the texture coord. varying for interpolated tex. coords.
+   // Set the texture coord. output for interpolated tex. coords.
    v_texCoord = a_texCoord;
 
    // Set the transformes vertex position           

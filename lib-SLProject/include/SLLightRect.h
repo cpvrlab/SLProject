@@ -21,11 +21,11 @@ class SLScene;
 
 //-----------------------------------------------------------------------------
 //! Light node class for a rectangular light source
-/*!      
-SLLightRect is a node that renders in OpenGL a light rectangle 
+/*!
+SLLightRect is a node that renders in OpenGL a light rectangle
 object and applies the OpenGL light settings through the SLLight class.
-The light rectangle is defined with its width and height and lies initially 
-centered in the x-y-plane. The light shines as a spotlight with 90 degrees 
+The light rectangle is defined with its width and height and lies initially
+centered in the x-y-plane. The light shines as a spotlight with 90 degrees
 cutoff angle towards the negative z-axis.
 If a light node is added to the scene it stays fix in the scene.\n
 If a light node is added to the camera it moves with the camera.\n
@@ -47,15 +47,13 @@ public:
                 SLfloat         width   = 1,
                 SLfloat         height  = 1,
                 SLbool          hasMesh = true);
-    ~SLLightRect() override { ; }
+    ~SLLightRect() override;
 
-    void init(SLScene* s);
-    void drawRec(SLSceneView* sv) override;
-    bool hitRec(SLRay* ray) override;
-    void statsRec(SLNodeStats& stats) override;
-    void drawMeshes(SLSceneView* sv) override;
-
-    void    setState() override;
+    void    init(SLScene* s);
+    void    drawRec(SLSceneView* sv) override;
+    bool    hitRec(SLRay* ray) override;
+    void    statsRec(SLNodeStats& stats) override;
+    void    drawMeshes(SLSceneView* sv) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -64,6 +62,7 @@ public:
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Setters
     void width(const SLfloat w)
@@ -80,8 +79,8 @@ public:
     void samplesXY(SLint x, SLint y);
 
     // Getters
-    SLfloat width() { return _width; }
-    SLfloat height() { return _height; }
+    SLfloat width() const { return _width; }
+    SLfloat height() const { return _height; }
     SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
     SLVec3f spotDirWS() override
     {

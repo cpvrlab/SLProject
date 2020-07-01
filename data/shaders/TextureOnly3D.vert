@@ -8,13 +8,14 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute   vec4     a_position;    // Vertex position attribute
+//-----------------------------------------------------------------------------
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
 
-uniform     mat4     u_mvpMatrix;   // = projection * modelView
-uniform     mat4     u_tMatrix;     // texture transform matrix
+uniform mat4     u_mvpMatrix;   // = projection * modelView
+uniform mat4     u_tMatrix;     // texture transform matrix
 
-varying     vec4     v_texCoord3D;  // texture coordinate at vertex
-
+out     vec4     v_texCoord3D;  // texture coordinate at vertex
+//-----------------------------------------------------------------------------
 void main()
 {
     // For 3D texturing we use the vertex position as texture coordinate
@@ -24,3 +25,4 @@ void main()
     // Set the transformes vertex position   
     gl_Position = u_mvpMatrix * a_position;
 }
+//-----------------------------------------------------------------------------

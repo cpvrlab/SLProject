@@ -14,21 +14,24 @@
 precision highp float;
 #endif
 
-varying vec3   v_P_VS;              //!< Interpol. point of illum. in view space (VS)
-varying vec3   v_N_VS;              //!< Interpol. normal at v_P_VS in view space
+//-----------------------------------------------------------------------------
+in      vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
+in      vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
 
-uniform int    u_numLightsUsed;     //!< NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];      //!< flag if light is on
-uniform vec4   u_lightPosVS[8];     //!< position of light in view space
-uniform vec4   u_lightDiffuse[8];   //!< diffuse light intensity (Id)
+uniform int    u_numLightsUsed;     // NO. of lights used light arrays
+uniform bool   u_lightIsOn[8];      // flag if light is on
+uniform vec4   u_lightPosVS[8];     // position of light in view space
+uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
 
-uniform vec4   u_matDiffuse;        //!< diffuse color reflection coefficient (kd)
-uniform float  u_matRoughness;      //!< Cook-Torrance material roughness 0-1
-uniform float  u_matMetallic;       //!< Cook-Torrance material metallic 0-1
+uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
+uniform float  u_matRoughness;      // Cook-Torrance material roughness 0-1
+uniform float  u_matMetallic;       // Cook-Torrance material metallic 0-1
 
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
-const float AO = 1.0;               //!< Constant ambient occlusion factor
+out     vec4    o_fragColor;        // output fragment color
+//-----------------------------------------------------------------------------
+const float AO = 1.0;               // Constant ambient occlusion factor
 const float PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
@@ -109,7 +112,7 @@ void PointLight (in    int   i,         // Light number
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec3 N = normalize(v_N_VS);  // A varying normal has not anymore unit length
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     vec3 V = normalize(-v_P_VS); // Vector from p to the viewer
     vec3 F0 = vec3(0.04);        // Init Frenel reflection at 90 deg. (0 to N)
     F0 = mix(F0, u_matDiffuse.rgb, u_matMetallic);
@@ -137,6 +140,6 @@ void main()
     color.rgb = pow(color.rgb, vec3(u_oneOverGamma));
 
     // set the fragment color with opaque alpha
-    gl_FragColor = vec4(color, 1.0);
+    o_fragColor = vec4(color, 1.0);
 }
 //-----------------------------------------------------------------------------

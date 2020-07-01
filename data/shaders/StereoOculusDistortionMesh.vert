@@ -8,24 +8,25 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute vec2  a_position;
-attribute float a_timeWarpFactor;
-attribute float a_vignetteFactor;
-attribute vec2  a_texCoordR;
-attribute vec2  a_texCoordG;
-attribute vec2  a_texCoordB;
+//-----------------------------------------------------------------------------
+layout (location = 0) in vec2  a_position;
+layout (location = 1) in float a_timeWarpFactor;
+layout (location = 2) in float a_vignetteFactor;
+layout (location = 3) in vec2  a_texCoordR;
+layout (location = 4) in vec2  a_texCoordG;
+layout (location = 5) in vec2  a_texCoordB;
 
-uniform   vec2  u_eyeToSourceUVScale;
-uniform   vec2  u_eyeToSourceUVOffset;
-uniform   mat4  u_eyeRotationStart;
-uniform   mat4  u_eyeRotationEnd;
+uniform  vec2  u_eyeToSourceUVScale;
+uniform  vec2  u_eyeToSourceUVOffset;
+uniform  mat4  u_eyeRotationStart;
+uniform  mat4  u_eyeRotationEnd;
 
-varying   vec2  v_texCoordR;
-varying   vec2  v_texCoordG;
-varying   vec2  v_texCoordB;
-varying   float v_vignette;
-varying   float v_timeWarp;
-
+out     vec2  v_texCoordR;
+out     vec2  v_texCoordG;
+out     vec2  v_texCoordB;
+out     float v_vignette;
+out     float v_timeWarp;
+//-----------------------------------------------------------------------------
 vec2 timewarpTexCoord(vec2 texCoord)
 {
     // Vertex inputs are in TanEyeAngle space for the R,G,B channels (i.e. after chromatic

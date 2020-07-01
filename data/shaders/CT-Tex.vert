@@ -11,19 +11,19 @@
 
 #version 430 core
 
+//-----------------------------------------------------------------------------
 layout(location = 0) in vec4  a_position;    // Vertex position attribute
 layout(location = 1) in vec3  a_normal;      // Vertex normal attribute
 layout(location = 2) in vec2  a_texCoord;    // Vertex texture coordiante attribute
 
-uniform     mat4  u_mvpMatrix;   // = projection * modelView
-uniform     mat4  u_mMatrix;     // model matrix
-uniform     mat4  u_wsToVs;      // convert from ws to voxel space
+uniform mat4  u_mvpMatrix;   // = projection * modelView
+uniform mat4  u_mMatrix;     // model matrix
+uniform mat4  u_wsToVs;      // convert from ws to voxel space
 
-out			vec3  o_N_WS;        // Normal at P_VS in world space
-out			vec3  o_P_VS;        // position of vertex in world space
-out			vec3  o_P_WS;        // position of vertex in world space
-out         vec2  o_Tc;          // Texture coordiante varying
-
+out		vec3  o_N_WS;        // Normal at P_VS in world space
+out		vec3  o_P_VS;        // position of vertex in world space
+out		vec3  o_P_WS;        // position of vertex in world space
+out     vec2  o_Tc;          // Texture coordiante output
 //-----------------------------------------------------------------------------
 void main(void)
 {

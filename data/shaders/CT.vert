@@ -10,7 +10,7 @@
 //############################################################################
 
 #version 430 core
-
+//-----------------------------------------------------------------------------
 layout(location = 0) in vec4  a_position;    // Vertex position attribute
 layout(location = 1) in vec3  a_normal;      // Vertex normal attribute
 
@@ -21,7 +21,6 @@ uniform     mat4  u_wsToVs;      // convert from ws to voxel space
 out			vec3  o_N_WS;        // Normal at P_VS in world space
 out			vec3  o_P_VS;        // position of vertex in world space
 out			vec3  o_P_WS;        // position of vertex in world space
-
 //-----------------------------------------------------------------------------
 void main(void)
 {

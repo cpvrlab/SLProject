@@ -14,19 +14,19 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-uniform samplerCube  u_texture0;    // Cubic environment texture map
+in      vec3        v_I_VS;         // Incident ray at point of illum. in viewspace
+in      vec3        v_N_VS;         // normal ray at point of illum. in viewspace
+in      vec3        v_R_OS;         // Reflected ray in object space
+in      float       v_F_Theta;      // Fresnel reflection coefficient
+in      vec4        v_specColor;    // Specular color at vertex
 
-uniform mat4   u_mvMatrix;          // modelview matrix
-uniform mat4   u_invMvMatrix;       // inverse modelview 
-uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
-uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
+uniform samplerCube u_texture0;     // Cubic environment texture map
+uniform mat4        u_mvMatrix;     // modelview matrix
+uniform mat4        u_invMvMatrix;  // inverse modelview
+uniform mat3        u_nMatrix;      // normal matrix=transpose(inverse(mv))
+uniform float       u_oneOverGamma; // 1.0f / Gamma correction value
 
-varying vec3   v_I_VS;              // Incident ray at point of illum. in viewspace 
-varying vec3   v_N_VS;              // normal ray at point of illum. in viewspace 
-varying vec3   v_R_OS;              // Reflected ray in object space
-varying float  v_F_Theta;           // Fresnel reflection coefficient
-varying vec4   v_specColor;         // Specular color at vertex
-
+out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 // Replacement for the GLSL refract function
 vec3 refract2(vec3 I, vec3 N, float eta)
@@ -45,21 +45,22 @@ void main()
     mat3 iMV = mat3(u_invMvMatrix);
    
     // get the reflection & refraction color out of the cubic map
-    vec4 reflCol = textureCube(u_texture0, v_R_OS);
+    vec4 reflCol = texture(u_texture0, v_R_OS);
    
     //Chromatic dispersion refract rays depending on their wave length
     vec4 refrCol;
-    refrCol.r = textureCube(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.45)).r;
-    refrCol.g = textureCube(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.50)).g;
-    refrCol.b = textureCube(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.55)).b;
+    refrCol.r = texture(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.45)).r;
+    refrCol.g = texture(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.50)).g;
+    refrCol.b = texture(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.55)).b;
     refrCol.a = 1.0;
    
     // Mix the final color with the fast frenel factor
-    gl_FragColor = mix(refrCol, reflCol, v_F_Theta);
+    o_fragColor = mix(refrCol, reflCol, v_F_Theta);
 
     // Add specular gloss
-    gl_FragColor.rgb += v_specColor.rgb;
+    o_fragColor.rgb += v_specColor.rgb;
 
     // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------

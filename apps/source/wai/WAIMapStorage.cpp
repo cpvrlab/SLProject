@@ -460,7 +460,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                 }
                 else
                 {
-                    cout << "keyframe with id " << i << " not found!" << endl;
+                    //cout << "keyframe with id " << i << " not found!" << endl;
                 }
             }
             mapPoints.push_back(newPt);
@@ -529,7 +529,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
             WAIKeyFrame* newGraphKf = std::get<0>(topElem);
             unconKfs.erase(newGraphKf);
             newGraphKf->ChangeParent(std::get<1>(topElem));
-            std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+            //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
             //update parent
             graph.insert(newGraphKf);
         }
@@ -562,4 +562,45 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
 
     waiMap->setNumLoopClosings(numLoopClosings);
     return true;
+}
+
+void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int nVid, const std::string& dir, const std::string outputKFMatchingFile)
+{
+    if (!Utils::dirExists(dir))
+        Utils::makeDir(dir);
+
+    std::ofstream ofs;
+    ofs.open (dir + "/" + outputKFMatchingFile, std::ofstream::out);
+
+    ofs << to_string(nVid) << "\n";
+
+    for (int i = 0; i < keyFrameVideoMatching.size(); i++)
+    {
+        if (keyFrameVideoMatching[i] >= 0)
+        {
+            ofs << to_string(i) + " " + to_string(keyFrameVideoMatching[i]) << "\n";
+        }
+    }
+    ofs.close();
+}
+
+void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int &nVid, const std::string& dir, const std::string kFMatchingFile)
+{
+    std::ifstream ifs(dir + "/" + kFMatchingFile);
+    keyFrameVideoMatching.resize(1000, -1);
+
+    ifs >> nVid;
+
+    int kfId;
+    int vid;
+    while(ifs >> kfId >> vid)
+    {
+        if (kfId > keyFrameVideoMatching.size())
+        {
+            keyFrameVideoMatching.resize(keyFrameVideoMatching.size() * 2, -1);
+        }
+        keyFrameVideoMatching[kfId] = vid;
+    }
+
+    ifs.close();
 }

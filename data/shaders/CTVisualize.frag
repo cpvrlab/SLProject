@@ -9,9 +9,11 @@
 //#############################################################################
 
 #version 430 core
-
+//-----------------------------------------------------------------------------
 #define INV_STEP_LENGTH (1.0f/STEP_LENGTH)
 #define STEP_LENGTH 0.005f
+//-----------------------------------------------------------------------------
+in vec2 textureCoordinateFrag;
 
 uniform sampler2D textureBack; // Unit cube back FBO.
 uniform sampler2D textureFront; // Unit cube front FBO.
@@ -19,15 +21,20 @@ uniform sampler3D texture3D; // Texture in which voxelization is stored.
 uniform vec3 cameraPosition; // World camera position.
 uniform int state = 0; // Decides mipmap sample level.
 
-in vec2 textureCoordinateFrag; 
 out vec4 color;
-
+//-----------------------------------------------------------------------------
 // Scales and bias a given vector (i.e. from [-1, 1] to [0, 1]).
-vec3 scaleAndBias(vec3 p) { return 0.5f * p + vec3(0.5f); }
-
+vec3 scaleAndBias(vec3 p)
+{
+	return 0.5f * p + vec3(0.5f);
+}
+//-----------------------------------------------------------------------------
 // Returns true if p is inside the unity cube (+ e) centered on (0, 0, 0).
-bool isInsideCube(vec3 p, float e) { return abs(p.x) < 1 + e && abs(p.y) < 1 + e && abs(p.z) < 1 + e; }
-
+bool isInsideCube(vec3 p, float e)
+{
+	return abs(p.x) < 1 + e && abs(p.y) < 1 + e && abs(p.z) < 1 + e;
+}
+//-----------------------------------------------------------------------------
 void main() {
 	const float mipmapLevel = state;
 
@@ -48,3 +55,4 @@ void main() {
 	} 
 	color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
 }
+//-----------------------------------------------------------------------------
