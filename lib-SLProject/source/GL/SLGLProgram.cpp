@@ -291,13 +291,6 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
         for (auto* ui : _uniforms1i)
             uniform1i(ui->name(), ui->value());
 
-        // 4: Send texture units as uniforms texture samplers
-        for (SLint i = 0; i < (SLint)mat->textures().size(); ++i)
-        {
-            SLchar name[100];
-            sprintf(name, "u_texture%d", i);
-            uniform1i(name, i);
-        }
         GET_GL_ERROR;
     }
 }

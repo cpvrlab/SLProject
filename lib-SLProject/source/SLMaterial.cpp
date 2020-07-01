@@ -325,6 +325,14 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1i("u_matGetsShadows", _getsShadows);
     program->uniform1f("u_matShadowBias", _shadowBias);
     program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
+
+    // pass textures
+    for (SLint i = 0; i < (SLint)_textures.size(); ++i)
+    {
+        SLchar name[100];
+        sprintf(name, "u_texture%d", i);
+        program->uniform1i(name, i);
+    }
 }
 //-----------------------------------------------------------------------------
 SLMaterialDiffuseAttribute::SLMaterialDiffuseAttribute()
@@ -333,3 +341,4 @@ SLMaterialDiffuseAttribute::SLMaterialDiffuseAttribute()
     specular(SLCol4f::BLACK);
     program(SLGLProgramManager::get(SP_perVrtBlinnColorAttrib));
 }
+//-----------------------------------------------------------------------------

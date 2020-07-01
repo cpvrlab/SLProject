@@ -147,10 +147,6 @@ public:
     void   unbindAnythingAndFlush();      //!< finishes all GL commands
     SLbool pixelFormatIsSupported(SLint pixelFormat);
 
-    // light transformations into view space
-    //void calcLightPosVS(SLint nLights);
-    //void calcLightDirVS(SLint nLights);
-
     // state setters
     void depthTest(SLbool state);
     void depthMask(SLbool state);

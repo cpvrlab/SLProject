@@ -21,6 +21,53 @@ class SLRay;
 class SLNode;
 class SLSceneView;
 
+struct lightData
+{
+    SLint   isOn;           //  1
+    SLVec4f posWS;          //  2, 3, 4, 5
+    SLVec4f posVS;          //  6, 7, 8, 9
+    SLVec4f ambient;        // 10,11,12,13
+    SLVec4f diffuse;        // 14,15,16,17
+    SLVec4f specular;       // 18,19,20,21
+    SLVec3f spotDirWS;      // 22,23,24
+    SLfloat __pad25;        // 25
+    SLVec3f spotDirVS;      // 26,27,28
+    SLfloat __pad29;        // 29
+    SLfloat spotCutoff;     // 30
+    SLfloat spotCosCut;     // 31
+    SLfloat spotExp;        // 32
+    SLVec3f attentuation;   // 33,34,35
+    SLfloat __pad36;        // 36
+    SLint   doAttenuation;  // 37
+    SLint   createsShadows; // 38
+    SLint   doesPCF;        // 39
+    SLuint  levelPCF;       // 40
+    SLint   usesCubemap;    // 41
+    SLMat4f space[6];       // 42-133 (92=4x4x6)
+};
+
+/*
+SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
+SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
+SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
+SLVec4f          lightAmbient[SL_MAX_LIGHTS];        //!< ambient light intensity (Ia)
+SLVec4f          lightDiffuse[SL_MAX_LIGHTS];        //!< diffuse light intensity (Id)
+SLVec4f          lightSpecular[SL_MAX_LIGHTS];       //!< specular light intensity (Is)
+SLVec3f          lightSpotDirWS[SL_MAX_LIGHTS];      //!< spot direction in world space
+SLVec3f          lightSpotDirVS[SL_MAX_LIGHTS];      //!< spot direction in view space
+SLfloat          lightSpotCutoff[SL_MAX_LIGHTS];     //!< spot cutoff angle 1-180 degrees
+SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];     //!< cosine of spot cutoff angle
+SLfloat          lightSpotExp[SL_MAX_LIGHTS];        //!< spot exponent
+SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
+SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< flag if att. must be calculated
+SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< flag if light creates shadows
+SLint            lightDoesPCF[SL_MAX_LIGHTS];        //!< flag if percentage-closer filtering is enabled
+SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
+SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
+SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
+SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];      //!< pointers to depth-buffers for shadow mapping
+*/
+
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
 /*! The abstract SLLight class encapsulates an invisible light source according
@@ -41,9 +88,9 @@ public:
     void isOn(const SLbool on) { _isOn = on; }
 
     //! Sets the ambient, diffuse and specular powers all with the same color
-    void powers(SLfloat ambiPow,
-                SLfloat diffPow,
-                SLfloat specPow,
+    void powers(SLfloat        ambiPow,
+                SLfloat        diffPow,
+                SLfloat        specPow,
                 const SLCol4f& ambiDiffSpecCol = SLCol4f::WHITE)
     {
         _ambientColor  = ambiDiffSpecCol;
@@ -55,8 +102,8 @@ public:
     }
 
     //! Sets the ambient and diffuse powers with the same color
-    void ambiDiffPowers(SLfloat ambiPow,
-                        SLfloat diffPow,
+    void ambiDiffPowers(SLfloat        ambiPow,
+                        SLfloat        diffPow,
                         const SLCol4f& ambiDiffCol = SLCol4f::WHITE)
     {
         _ambientColor = ambiDiffCol;
