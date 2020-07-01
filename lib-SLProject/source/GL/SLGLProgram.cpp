@@ -408,6 +408,48 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)&lightSpace);
         uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
 
+        for (int i = 0; i < lights->size(); ++i)
+        {
+            if (lightIsOn[i] && lightCreatesShadows[i])
+            {
+                SLstring uniformName = (lightUsesCubemap[i] ? "u_shadowMapCube"
+                                                            : "u_shadowMap");
+
+                  SLint loc = 0;
+                if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
+                    lightShadowMap[i]->activateAsTexture(loc);
+            }
+
+#if defined(SL_OS_MACOS) || defined(SL_OS_ANDROID)
+            // On MacOS and Android the shader for shadow mapping does not work unless
+            // all the cubemaps are set. The following code passes eight textures with
+            // size 1x1 to the shader, so it does not crash. Feel free fix this issue
+            // in a cleaner way.
+
+            if (!lightUsesCubemap[i])
+            {
+                SLint    loc         = 0;
+                SLstring uniformName = "u_shadowMapCube";
+
+                if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
+                {
+                    static SLGLDepthBuffer dummyBuffers[] = {
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                      SLGLDepthBuffer(SLVec2i(1, 1)),
+                    };
+
+                    dummyBuffers[i].activateAsTexture(loc);
+                }
+            }
+#endif
+        }
+        /*
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             if (lightIsOn[i] && lightCreatesShadows[i])
@@ -451,6 +493,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
             }
 #endif
         }
+        */
     }
 }
 //-----------------------------------------------------------------------------
