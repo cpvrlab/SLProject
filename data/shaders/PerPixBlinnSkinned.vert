@@ -9,13 +9,13 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in      vec4  a_position;    // Vertex position attribute
-in      vec3  a_normal;      // Vertex normal attribute
-in      vec2  a_texCoord;    // Vertex texture attribute
-in      vec4  a_color;       // Vertex color attribute
-in      vec3  a_tangent;     // Vertex tangent attribute
-in      vec4  a_jointIds;    // Vertex joint indices attributes
-in      vec4  a_jointWeights;// Vertex joint weights attributes
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
+layout (location = 2) in vec2  a_texCoord;     // Vertex texture attribute
+layout (location = 3) in vec4  a_color;        // Vertex color attribute
+layout (location = 4) in vec3  a_tangent;      // Vertex tangent attribute
+layout (location = 5) in vec4  a_jointIds;     // Vertex joint indices attributes
+layout (location = 6) in vec4  a_jointWeights; // Vertex joint weights attributes
 
 uniform mat4  u_mvMatrix;    // modelview matrix
 uniform mat3  u_nMatrix;     // normal matrix=transpose(inverse(mv))

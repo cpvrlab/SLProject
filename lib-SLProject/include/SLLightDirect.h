@@ -64,7 +64,6 @@ public:
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMeshes(SLSceneView* sv) override;
-    void    setState() override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -76,8 +75,8 @@ public:
     void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
     // Getters
-    SLfloat radius() { return _arrowRadius; }
-    SLfloat dirLength() { return _arrowLength; }
+    SLfloat radius() const { return _arrowRadius; }
+    SLfloat dirLength() const { return _arrowLength; }
 
     // For directional lights the position vector is interpreted as a
     // direction with the homogeneous component equls zero:

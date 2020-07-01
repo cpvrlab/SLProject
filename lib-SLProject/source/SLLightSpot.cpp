@@ -136,10 +136,6 @@ void SLLightSpot::init(SLScene* s)
         s->lights().push_back(this);
     }
 
-    // Set the OpenGL light states
-    SLLightSpot::setState();
-    SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
-
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
         if (_meshes[0]->mat())
@@ -177,11 +173,6 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
-        // Set the OpenGL light states
-        SLLightSpot::setState();
-        SLGLState* stateGL     = SLGLState::instance();
-        stateGL->numLightsUsed = (SLint)sv->s().lights().size();
-
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
@@ -392,40 +383,5 @@ void SLLightSpot::renderShadowMap(SLSceneView* sv, SLNode* root)
     if (_shadowMap == nullptr) _shadowMap = new SLShadowMap(
                                  P_monoPerspective, this);
     _shadowMap->render(sv, root);
-}
-//-----------------------------------------------------------------------------
-/*! SLLightSpot::setState sets the global rendering state
-*/
-void SLLightSpot::setState()
-{
-    if (_id != -1)
-    {
-        SLGLState* stateGL                = SLGLState::instance();
-        stateGL->lightIsOn[_id]           = _isOn;
-        stateGL->lightPosWS[_id]          = positionWS();
-        stateGL->lightSpotDirWS[_id]      = spotDirWS();
-        stateGL->lightAmbient[_id]        = ambient();
-        stateGL->lightDiffuse[_id]        = diffuse();
-        stateGL->lightSpecular[_id]       = specular();
-        stateGL->lightSpotCutoff[_id]     = _spotCutOffDEG;
-        stateGL->lightSpotCosCut[_id]     = _spotCosCutOffRAD;
-        stateGL->lightSpotExp[_id]        = _spotExponent;
-        stateGL->lightAtt[_id].x          = _kc;
-        stateGL->lightAtt[_id].y          = _kl;
-        stateGL->lightAtt[_id].z          = _kq;
-        stateGL->lightDoAtt[_id]          = isAttenuated();
-        stateGL->lightCreatesShadows[_id] = _createsShadows;
-        stateGL->lightDoesPCF[_id]        = _doesPCF;
-        stateGL->lightPCFLevel[_id]       = _pcfLevel;
-
-        if (_shadowMap != nullptr)
-        {
-            stateGL->lightUsesCubemap[_id] = _shadowMap->useCubemap();
-
-            SLMat4f* mvp = _shadowMap->mvp();
-            for (SLint i = 0; i < 6; ++i) stateGL->lightSpace[_id * 6 + i] = mvp[i];
-            stateGL->shadowMaps[_id] = _shadowMap->depthBuffer();
-        }
-    }
 }
 //-----------------------------------------------------------------------------

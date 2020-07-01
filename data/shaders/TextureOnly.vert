@@ -9,8 +9,8 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in      vec4     a_position;    // Vertex position attribute
-in      vec3     a_texCoord;    // Vertex texture coord. attribute
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 2) in vec2  a_texCoord;     // Vertex texture attribute
 
 uniform mat4     u_mvpMatrix;   // = projection * modelView
 

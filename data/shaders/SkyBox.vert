@@ -9,7 +9,7 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in      vec4    a_position;     // Vertex position attribute
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
 
 uniform mat4    u_mvpMatrix;    // = projection * modelView
 

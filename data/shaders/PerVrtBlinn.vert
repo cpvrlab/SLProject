@@ -9,8 +9,8 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in      vec4   a_position;          // Vertex position attribute
-in      vec3   a_normal;            // Vertex normal attribute
+layout (location = 0) in vec4 a_position; // Vertex position attribute
+layout (location = 1) in vec3 a_normal;   // Vertex normal attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))

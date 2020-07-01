@@ -431,8 +431,8 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     // create buffers on GPU
     SLGLProgram* sp = _fontTexProgram;
     sp->useProgram();
-    vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
-    vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+    vao.setAttrib(AT_position, AT_position, &P);
+    vao.setAttrib(AT_texCoord, AT_texCoord, &T);
     vao.setIndices(&I);
     vao.generate((SLuint)numP);
 }

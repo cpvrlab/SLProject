@@ -223,7 +223,7 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
 
     if (node->castsShadows())
         for (auto* mesh : node->meshes())
-            mesh->draw(sv, node, _mat, true);
+            mesh->drawIntoDepthBuffer(sv, node, _mat);
 
     for (SLNode* child : node->children())
         drawNodesIntoDepthBuffer(child, sv, v);

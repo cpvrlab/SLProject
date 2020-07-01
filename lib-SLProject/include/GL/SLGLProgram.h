@@ -83,7 +83,6 @@ public:
 
     //Variable location getters
     SLint getUniformLocation(const SLchar* name) const;
-    SLint getAttribLocation(const SLchar* name) const;
 
     //Send uniform variables to program
     SLint uniform1f(const SLchar* name, SLfloat v0) const;

@@ -9,12 +9,12 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-in       vec2  a_position;
-in       float a_timeWarpFactor;
-in       float a_vignetteFactor;
-in       vec2  a_texCoordR;
-in       vec2  a_texCoordG;
-in       vec2  a_texCoordB;
+layout (location = 0) in vec2  a_position;
+layout (location = 1) in float a_timeWarpFactor;
+layout (location = 2) in float a_vignetteFactor;
+layout (location = 3) in vec2  a_texCoordR;
+layout (location = 4) in vec2  a_texCoordG;
+layout (location = 5) in vec2  a_texCoordB;
 
 uniform  vec2  u_eyeToSourceUVScale;
 uniform  vec2  u_eyeToSourceUVOffset;

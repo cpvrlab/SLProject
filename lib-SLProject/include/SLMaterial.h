@@ -114,48 +114,22 @@ public:
                 _textures[0]->target() == GL_TEXTURE_2D &&
                 _textures[1]->texType() == TT_normal);
     }
+
     // Setters
-    void ambient(const SLCol4f& ambi)
-    {
-        _ambient = ambi;
-    }
-    void diffuse(const SLCol4f& diff)
-    {
-        _diffuse = diff;
-    }
-    void ambientDiffuse(const SLCol4f& am_di)
-    {
-        _ambient = _diffuse = am_di;
-    }
-    void specular(const SLCol4f& spec)
-    {
-        _specular = spec;
-    }
-    void emissive(const SLCol4f& emis)
-    {
-        _emissive = emis;
-    }
-    void transmissiv(const SLCol4f& transm)
-    {
-        _transmissive = transm;
-    }
-    void translucency(SLfloat transl)
-    {
-        _translucency = transl;
-    }
+    void ambient(const SLCol4f& ambi) { _ambient = ambi; }
+    void diffuse(const SLCol4f& diff) { _diffuse = diff; }
+    void ambientDiffuse(const SLCol4f& am_di) { _ambient = _diffuse = am_di; }
+    void specular(const SLCol4f& spec) { _specular = spec; }
+    void emissive(const SLCol4f& emis) { _emissive = emis; }
+    void transmissiv(const SLCol4f& transm) { _transmissive = transm; }
+    void translucency(SLfloat transl) { _translucency = transl; }
     void shininess(SLfloat shin)
     {
         if (shin < 0.0f) shin = 0.0;
         _shininess = shin;
     }
-    void roughness(SLfloat r)
-    {
-        _roughness = Utils::clamp(r, 0.0f, 1.0f);
-    }
-    void metalness(SLfloat m)
-    {
-        _metalness = Utils::clamp(m, 0.0f, 1.0f);
-    }
+    void roughness(SLfloat r) { _roughness = Utils::clamp(r, 0.0f, 1.0f); }
+    void metalness(SLfloat m) { _metalness = Utils::clamp(m, 0.0f, 1.0f); }
     void kr(SLfloat kr)
     {
         if (kr < 0.0f) kr = 0.0f;
@@ -176,106 +150,49 @@ public:
         assert(kn >= 0.0f);
         _kn = kn;
     }
-    void receivesShadows(SLbool receivesShadows)
-    {
-        _receivesShadows = receivesShadows;
-    }
-    void shadowBias(SLfloat shadowBias)
-    {
-        _shadowBias = shadowBias;
-    }
-    void program(SLGLProgram* sp)
-    {
-        _program = sp;
-    }
+    void receivesShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
+    void shadowBias(SLfloat shadowBias) { _shadowBias = shadowBias; }
+    void program(SLGLProgram* sp) { _program = sp; }
 
     // Getters
-    SLCol4f ambient()
-    {
-        return _ambient;
-    }
-    SLCol4f diffuse()
-    {
-        return _diffuse;
-    }
-    SLCol4f specular()
-    {
-        return _specular;
-    }
-    SLCol4f transmissiv()
-    {
-        return _transmissive;
-    }
-    SLCol4f emissive()
-    {
-        return _emissive;
-    }
-    SLfloat shininess()
-    {
-        return _shininess;
-    }
-    SLfloat roughness()
-    {
-        return _roughness;
-    }
-    SLfloat metalness()
-    {
-        return _metalness;
-    }
-    SLfloat translucency()
-    {
-        return _translucency;
-    }
-    SLfloat kr()
-    {
-        return _kr;
-    }
-    SLfloat kt()
-    {
-        return _kt;
-    }
-    SLfloat kn()
-    {
-        return _kn;
-    }
-    SLbool receivesShadows()
-    {
-        return _receivesShadows;
-    }
-    SLfloat shadowBias()
-    {
-        return _shadowBias;
-    }
-    SLVGLTexture& textures()
-    {
-        return _textures;
-    }
-    SLGLProgram* program()
-    {
-        return _program;
-    }
+    SLCol4f       ambient() { return _ambient; }
+    SLCol4f       diffuse() { return _diffuse; }
+    SLCol4f       specular() { return _specular; }
+    SLCol4f       transmissiv() { return _transmissive; }
+    SLCol4f       emissive() { return _emissive; }
+    SLfloat       shininess() const { return _shininess; }
+    SLfloat       roughness() const { return _roughness; }
+    SLfloat       metalness() const { return _metalness; }
+    SLfloat       translucency() const { return _translucency; }
+    SLfloat       kr() const { return _kr; }
+    SLfloat       kt() const { return _kt; }
+    SLfloat       kn() const { return _kn; }
+    SLbool        getsShadows() const { return _getsShadows; }
+    SLfloat       shadowBias() const { return _shadowBias; }
+    SLVGLTexture& textures() { return _textures; }
+    SLGLProgram*  program() { return _program; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
     static SLfloat PERFECT; //!< PM: shininess/translucency limit
 
 protected:
-    SLCol4f      _ambient;         //!< ambient color (RGB reflection coefficients)
-    SLCol4f      _diffuse;         //!< diffuse color (RGB reflection coefficients)
-    SLCol4f      _specular;        //!< specular color (RGB reflection coefficients)
-    SLCol4f      _transmissive;    //!< PM: transmissive color (RGB reflection coefficients)
-    SLCol4f      _emissive;        //!< emissive color coefficients
-    SLfloat      _shininess;       //!< shininess exponent in Blinn model
-    SLfloat      _roughness;       //!< roughness property (0-1) in Cook-Torrance model
-    SLfloat      _metalness;       //!< metallic property (0-1) in Cook-Torrance model
-    SLfloat      _translucency;    //!< PM: translucency exponent for light refraction
-    SLfloat      _kr{};            //!< reflection coefficient 0.0 - 1.0
-    SLfloat      _kt{};            //!< transmission coefficient 0.0 - 1.0
-    SLfloat      _kn{};            //!< refraction index
-    SLbool       _receivesShadows; //!< true if shadows are visible on this material
-    SLfloat      _shadowBias;      //!< bias to use to prevent shadow acne
-    SLVGLTexture _textures;        //!< vector of texture pointers
-    SLGLProgram* _program{};       //!< pointer to a GLSL shader program
+    SLCol4f      _ambient;      //!< ambient color (RGB reflection coefficients)
+    SLCol4f      _diffuse;      //!< diffuse color (RGB reflection coefficients)
+    SLCol4f      _specular;     //!< specular color (RGB reflection coefficients)
+    SLCol4f      _transmissive; //!< PM: transmissive color (RGB reflection coefficients)
+    SLCol4f      _emissive;     //!< emissive color coefficients
+    SLfloat      _shininess;    //!< shininess exponent in Blinn model
+    SLfloat      _roughness;    //!< roughness property (0-1) in Cook-Torrance model
+    SLfloat      _metalness;    //!< metallic property (0-1) in Cook-Torrance model
+    SLfloat      _translucency; //!< PM: translucency exponent for light refraction
+    SLfloat      _kr{};         //!< reflection coefficient 0.0 - 1.0
+    SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
+    SLfloat      _kn{};         //!< refraction index
+    SLbool       _getsShadows;  //!< true if shadows are visible on this material
+    SLfloat      _shadowBias;   //!< bias to use to prevent shadow acne
+    SLVGLTexture _textures;     //!< vector of texture pointers
+    SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
     SLGLTexture* _errorTexture = nullptr;
     SLstring     _compileErrorTexFilePath;
@@ -338,5 +255,5 @@ private:
 
     static SLMaterialDiffuseAttribute* _instance;
 };
-
+//-----------------------------------------------------------------------------
 #endif

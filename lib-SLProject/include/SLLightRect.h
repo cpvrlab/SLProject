@@ -49,13 +49,11 @@ public:
                 SLbool          hasMesh = true);
     ~SLLightRect() override;
 
-    void init(SLScene* s);
-    void drawRec(SLSceneView* sv) override;
-    bool hitRec(SLRay* ray) override;
-    void statsRec(SLNodeStats& stats) override;
-    void drawMeshes(SLSceneView* sv) override;
-
-    void    setState() override;
+    void    init(SLScene* s);
+    void    drawRec(SLSceneView* sv) override;
+    bool    hitRec(SLRay* ray) override;
+    void    statsRec(SLNodeStats& stats) override;
+    void    drawMeshes(SLSceneView* sv) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -81,8 +79,8 @@ public:
     void samplesXY(SLint x, SLint y);
 
     // Getters
-    SLfloat width() { return _width; }
-    SLfloat height() { return _height; }
+    SLfloat width() const { return _width; }
+    SLfloat height() const { return _height; }
     SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
     SLVec3f spotDirWS() override
     {
@@ -93,11 +91,11 @@ public:
     }
 
 private:
-    SLfloat      _width;      //!< Width of square light in x direction
-    SLfloat      _height;     //!< Lenght of square light in y direction
-    SLfloat      _halfWidth;  //!< Half width of square light in x dir
-    SLfloat      _halfHeight; //!< Half height of square light in y dir
-    SLVec2i      _samples;    //!< Uneven NO. of samples in x and y dir
+    SLfloat _width;      //!< Width of square light in x direction
+    SLfloat _height;     //!< Lenght of square light in y direction
+    SLfloat _halfWidth;  //!< Half width of square light in x dir
+    SLfloat _halfHeight; //!< Half height of square light in y dir
+    SLVec2i _samples;    //!< Uneven NO. of samples in x and y dir
 };
 //-----------------------------------------------------------------------------
 #endif

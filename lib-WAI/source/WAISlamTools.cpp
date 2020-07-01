@@ -993,8 +993,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    auto itKfEnd = localMap.keyFrames.end();
-    for (auto itKF = localMap.keyFrames.begin(); itKF != itKfEnd; itKF++)
+    for (auto itKF = localMap.keyFrames.begin(), itEndKF = localMap.keyFrames.end(); itKF != itEndKF; itKF++)
     {
         // Limit the number of keyframes
         if (localMap.keyFrames.size() > 80)
