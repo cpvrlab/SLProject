@@ -173,7 +173,23 @@ void WAIMapPoint::EraseObservation(WAIKeyFrame* pKF)
 
             if (mpRefKF == pKF)
             {
-                mpRefKF     = mObservations.begin()->first;
+                for (auto it = mObservations.begin(); it != mObservations.end(); it++)
+                {
+                    WAIKeyFrame* kf = it->first;
+                    if (!kf->isBad())
+                    {
+                        mpRefKF = kf;
+                        break;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                if(mpRefKF == pKF)
+                {
+                    bBad = true;
+                }
                 refKfSource = RefKfSource_EraseObservation;
             }
 

@@ -1295,6 +1295,34 @@ int lcm(int a, int b)
 {
     return (a * b) / Utils::gcd(a, b);
 }
+//-----------------------------------------------------------------------------
+//! Returns the closest power of 2 to a passed number.
+unsigned closestPowerOf2(unsigned num)
+{
+    unsigned nextPow2 = 1;
+    if (num <= 0) return 1;
+
+    while (nextPow2 <= num)
+        nextPow2 <<= 1;
+    unsigned prevPow2 = nextPow2 >> 1;
+
+    if (num - prevPow2 < nextPow2 - num)
+        return prevPow2;
+    else
+        return nextPow2;
+}
+//-----------------------------------------------------------------------------
+//! Returns the next power of 2 to a passed number.
+unsigned nextPowerOf2(unsigned num)
+{
+    unsigned nextPow2 = 1;
+    if (num == 0) return 1;
+
+    while (nextPow2 <= num)
+        nextPow2 <<= 1;
+    return nextPow2;
+}
+//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 //ComputerInfos

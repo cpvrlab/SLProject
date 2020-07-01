@@ -32,6 +32,7 @@ enum SLStdShaderProg
     SP_fontTex,
     SP_stereoOculus,
     SP_stereoOculusDistortion,
+    SP_depth,
     SP_errorTex
 };
 

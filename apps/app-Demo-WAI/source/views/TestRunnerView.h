@@ -21,6 +21,7 @@ class TestRunnerView : protected SLSceneView
         std::string map;
         std::string calibration;
         std::string extractorType;
+        int         nLevels;
     };
 
 public:
@@ -70,6 +71,10 @@ private:
 
     std::vector<std::string>  _configFiles;
     std::vector<TestInstance> _testInstances;
+
+    bool         _serial;
+    std::thread* _mappingThread;
+    std::thread* _loopClosingThread;
 
     // iterators
     int _currentTestIndex;

@@ -75,7 +75,7 @@ private:
     void    renderNode(SLNode* node, SLGLProgram* sp);
     void    renderSceneGraph(SLGLProgram* sp);
     void    uploadRenderSettings(SLGLProgram* sp);
-    void    uploadLights(SLGLProgram* sp);
+    //void    uploadLights(SLGLProgram* sp);
     void    calcWS2VoxelSpaceTransform(const SLVec3f& minWs, const SLVec3f& maxWs);
     void    voxelSpaceTransform(SLfloat l,
                                 SLfloat r,

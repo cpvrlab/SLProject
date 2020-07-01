@@ -132,6 +132,7 @@ public:
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
+    void         drawIntoDepthBuffer(SLSceneView* sv, SLNode* node, SLMaterial* depthMat);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
@@ -146,8 +147,9 @@ public:
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO(SLGLProgram* sp);
+    void         generateVAO();
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
+    void         deselectPartialSelection();
 
 #ifdef SL_HAS_OPTIX
     void                allocAndUploadData();
@@ -164,14 +166,16 @@ public:
     SLMaterial*       matOut() const { return _matOut; }
     SLGLPrimitiveType primitive() const { return _primitive; }
     const SLSkeleton* skeleton() const { return _skeleton; }
-    SLuint            numI() { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLuint            numI() const { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
     SLGLVertexArray&  vao() { return _vao; }
+    SLbool            isSelected() const { return _isSelected; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
     void matOut(SLMaterial* m) { _matOut = m; }
     void primitive(SLGLPrimitiveType pt) { _primitive = pt; }
     void skeleton(SLSkeleton* skel) { _skeleton = skel; }
+    void isSelected(bool isSelected) { _isSelected = isSelected; }
 
     // getter for position and normal data for rendering
     SLVec3f finalP(SLuint i) { return _finalP->operator[](i); }
@@ -181,13 +185,14 @@ public:
     SLVVec3f skinnedP; //!< Vector for CPU skinned vertex positions
     SLVVec3f skinnedN; //!< Vector for CPU skinned vertex normals
 
-    SLVVec3f  P;    //!< Vector for vertex positions
-    SLVVec3f  N;    //!< Vector for vertex normals (opt.)
-    SLVVec2f  Tc;   //!< Vector of vertex tex. coords. (opt.)
-    SLVCol4f  C;    //!< Vector of vertex colors (opt.)
-    SLVVec4f  T;    //!< Vector of vertex tangents (opt.)
-    SLVVuchar Ji;   //!< 2D Vector of per vertex joint ids (opt.)
-    SLVVfloat Jw;   //!< 2D Vector of per vertex joint weights (opt.)
+    SLVVec3f  P;  //!< Vector for vertex positions                   layout (location = 0)
+    SLVVec3f  N;  //!< Vector for vertex normals (opt.)              layout (location = 1)
+    SLVVec2f  Tc; //!< Vector of vertex tex. coords. (opt.)          layout (location = 2)
+    SLVCol4f  C;  //!< Vector of vertex colors (opt.)                layout (location = 3)
+    SLVVec4f  T;  //!< Vector of vertex tangents (opt.)              layout (location = 4)
+    SLVVuchar Ji; //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 5) (never used)
+    SLVVfloat Jw; //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 6) (never used)
+
     SLVushort I16;  //!< Vector of vertex indices 16 bit
     SLVuint   I32;  //!< Vector of vertex indices 32 bit
     SLVuint   IS32; //!< Vector of rectangle selected vertex indices 32 bit
@@ -197,16 +202,20 @@ public:
 
 private:
     void calcTangents();
-    void drawSelectedMeshPoints();
+    void handleRectangleSelection(SLSceneView* sv,
+                                  SLGLState*   stateGL,
+                                  SLNode*      node);
+    void drawSelectedVertices();
 
 protected:
-    SLGLPrimitiveType  _primitive; //!< Primitive type (default triangles)
-    SLMaterial*        _mat;       //!< Pointer to the inside material
-    SLMaterial*        _matOut;    //!< Pointer to the outside material
-    SLGLVertexArray    _vao;       //!< OpenGL Vertex Array Object for drawing
-    SLGLVertexArrayExt _vaoN;      //!< OpenGL VAO for optional normal drawing
-    SLGLVertexArrayExt _vaoT;      //!< OpenGL VAO for optional tangent drawing
-    SLGLVertexArrayExt _vaoS;      //!< OpenGL VAO for optional selection drawing
+    SLGLPrimitiveType  _primitive;  //!< Primitive type (default triangles)
+    SLMaterial*        _mat;        //!< Pointer to the inside material
+    SLMaterial*        _matOut;     //!< Pointer to the outside material
+    SLGLVertexArray    _vao;        //!< OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN;       //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT;       //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS;       //!< OpenGL VAO for optional selection drawing
+    SLbool             _isSelected; //!< flag if mesh is partially of fully selected
 
 #ifdef SL_HAS_OPTIX
     SLCudaBuffer<SLVec3f>  _vertexBuffer;

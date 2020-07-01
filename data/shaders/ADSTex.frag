@@ -11,21 +11,24 @@
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision mediump float;
 #endif
+//-----------------------------------------------------------------------------
+in       vec4      v_color;          // interpolated color from the vertex shader
+in       vec2      v_texCoord;       // interpolated texture coordinate
 
-varying vec4      v_color;          // interpolated color from the vertex shader
-varying vec2      v_texCoord;       // interpolated texture coordinate
+uniform sampler2D  u_texture0;       // texture map
+uniform float      u_oneOverGamma;   // 1.0f / Gamma correction value
 
-uniform sampler2D u_texture0;       // texture map
-uniform float     u_oneOverGamma;   // 1.0f / Gamma correction value
-
+out     vec4       o_fragColor;      // output fragment color
+//-----------------------------------------------------------------------------
 void main()
 {  
    // Just set the interpolated color from the vertex shader
-   gl_FragColor = v_color;
+   o_fragColor = v_color;
 
    // componentwise multiply w. texture color
-   gl_FragColor *= texture2D(u_texture0, v_texCoord);
+   o_fragColor *= texture(u_texture0, v_texCoord);
 
    // Apply gamma correction
-   gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+   o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------

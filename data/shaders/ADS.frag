@@ -11,10 +11,13 @@
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision mediump float;
 #endif
+//-----------------------------------------------------------------------------
+in       vec4   v_color;      // interpolated color calculated in the vertex shader
 
-varying vec4 v_color;   // interpolated color calculated in the vertex shader 
-
+out      vec4   o_fragColor;  // output fragment color
+//-----------------------------------------------------------------------------
 void main()
 {     
-   gl_FragColor = v_color;
+   o_fragColor = v_color;
 }
+//-----------------------------------------------------------------------------

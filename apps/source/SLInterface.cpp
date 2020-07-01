@@ -87,8 +87,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     SLApplication::texturePath = texturePath;
     SLApplication::fontPath    = fontPath;
     SLApplication::videoPath   = videoPath;
-
-    SLApplication::configPath = configPath;
+    SLApplication::configPath  = configPath;
 
     SLGLState* stateGL = SLGLState::instance();
 
@@ -248,8 +247,8 @@ void slTerminate()
         } else
             SL_LOG(errorMsg.c_str());
         */
-
-    } else
+    }
+    else
         SL_LOG("No Profile written: %s", filePathName.c_str());
 #else
     SL_LOG("No Profiling");

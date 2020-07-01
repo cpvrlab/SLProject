@@ -13,10 +13,10 @@ enum ExtractorType
     ExtractorType_FAST_ORBS_2000  = 1,
     ExtractorType_FAST_ORBS_4000  = 2,
     ExtractorType_FAST_ORBS_6000  = 3,
-    ExtractorType_FAST_BRIEF_1000  = 4,
-    ExtractorType_FAST_BRIEF_2000  = 5,
-    ExtractorType_FAST_BRIEF_4000  = 6,
-    ExtractorType_FAST_BRIEF_6000  = 7,
+    ExtractorType_FAST_BRIEF_1000 = 4,
+    ExtractorType_FAST_BRIEF_2000 = 5,
+    ExtractorType_FAST_BRIEF_4000 = 6,
+    ExtractorType_FAST_BRIEF_6000 = 7,
     ExtractorType_GLSL_1          = 8,
     ExtractorType_GLSL            = 9,
     ExtractorType_Last            = 10
@@ -26,8 +26,8 @@ class FeatureExtractorFactory
 {
 public:
     FeatureExtractorFactory();
-    std::unique_ptr<ORB_SLAM2::KPextractor> make(ExtractorType id, const cv::Size& videoFrameSize);
-    std::unique_ptr<ORB_SLAM2::KPextractor> make(std::string extractorType, const cv::Size& videoFrameSize);
+    std::unique_ptr<ORB_SLAM2::KPextractor> make(ExtractorType id, const cv::Size& videoFrameSize, int nLevels);
+    std::unique_ptr<ORB_SLAM2::KPextractor> make(std::string extractorType, const cv::Size& videoFrameSize, int nLevels);
 
     const std::vector<std::string>& getExtractorIdToNames() const
     {
@@ -35,8 +35,8 @@ public:
     }
 
 private:
-    std::unique_ptr<ORB_SLAM2::KPextractor> orbExtractor(int nf);
-    std::unique_ptr<ORB_SLAM2::KPextractor> briefExtractor(int nf);
+    std::unique_ptr<ORB_SLAM2::KPextractor> orbExtractor(int nf, int nLevels);
+    std::unique_ptr<ORB_SLAM2::KPextractor> briefExtractor(int nf, int nLevels);
 #ifndef TARGET_OS_IOS
     std::unique_ptr<ORB_SLAM2::KPextractor> glslExtractor(
       const cv::Size& videoFrameSize,

@@ -1175,7 +1175,6 @@ void createSLDistortionMesh(SLGLProgram* stereoOculusDistProgram, SLEyeType eye,
         verts[vertNum].tanEyeAnglesG.y = ov->TanEyeAnglesG.y;
         verts[vertNum].tanEyeAnglesB.x = ov->TanEyeAnglesB.x;
         verts[vertNum].tanEyeAnglesB.y = ov->TanEyeAnglesB.y;
-
         ov++;
     }
 
@@ -1186,12 +1185,12 @@ void createSLDistortionMesh(SLGLProgram* stereoOculusDistProgram, SLEyeType eye,
     sp->useProgram();
 
     // set attributes with all the same data pointer to the interleaved array
-    vao.setAttrib(AT_position, 2, sp->getAttribLocation("a_position"), &verts[0]);
-    vao.setAttrib(AT_custom1, 1, sp->getAttribLocation("a_timeWarpFactor"), &verts[0]);
-    vao.setAttrib(AT_custom2, 1, sp->getAttribLocation("a_vignetteFactor"), &verts[0]);
-    vao.setAttrib(AT_custom3, 2, sp->getAttribLocation("a_texCoordR"), &verts[0]);
-    vao.setAttrib(AT_custom4, 2, sp->getAttribLocation("a_texCoordG"), &verts[0]);
-    vao.setAttrib(AT_custom5, 2, sp->getAttribLocation("a_texCoordB"), &verts[0]);
+    vao.setAttrib(AT_position, 2, AT_position, &verts[0]);
+    vao.setAttrib(AT_custom1, 1, 1, &verts[0]);
+    vao.setAttrib(AT_custom2, 1, 2, &verts[0]);
+    vao.setAttrib(AT_custom3, 2, 3, &verts[0]);
+    vao.setAttrib(AT_custom4, 2, 4, &verts[0]);
+    vao.setAttrib(AT_custom5, 2, 5, &verts[0]);
     vao.setIndices(indexCount, BT_uint, &tempIndex[0]);
     vao.generate(vertexCount);
 

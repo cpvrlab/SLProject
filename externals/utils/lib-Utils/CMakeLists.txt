@@ -1,4 +1,4 @@
-# 
+#
 # CMake configuration for lib-Utils
 #
 
@@ -47,7 +47,7 @@ set(sources
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/zip.c
     )
-    
+
 if("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
     set(headers
         ${headers}
@@ -58,7 +58,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils_iOS.mm
         )
 endif()
-	
+
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
     set(platform_specific_include_dirs
@@ -103,7 +103,7 @@ target_include_directories(${target}
 
 target_compile_definitions(${target}
   PRIVATE
-  
+
     PUBLIC
     ${compile_definitions}
     ${DEFAULT_COMPILE_DEFINITIONS}

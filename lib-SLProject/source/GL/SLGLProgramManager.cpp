@@ -92,6 +92,9 @@ void SLGLProgramManager::makeProgram(SLStdShaderProg id)
         case SP_errorTex:
             _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "ErrorTex.vert", _shaderDir + "ErrorTex.frag")});
             break;
+        case SP_depth:
+            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "Depth.vert", _shaderDir + "Depth.frag")});
+            break;
         default:
             SL_EXIT_MSG("SLGLProgramManager: unknown shader id!");
     }

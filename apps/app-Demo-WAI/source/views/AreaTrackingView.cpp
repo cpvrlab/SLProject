@@ -112,8 +112,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     updateSceneCameraFov();
 
     //initialize extractors
-    _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize);
-    _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize);
+    // TODO(dgj1): make this configurable or read it from map name
+    int nLevels              = 8;
+    _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize, nLevels);
+    _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize, nLevels);
 
     //load vocabulary
     std::string fileName = _vocabularyDir + _vocabularyFileName;

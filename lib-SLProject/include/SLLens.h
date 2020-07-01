@@ -10,7 +10,7 @@
 #ifndef SLLENS_H
 #define SLLENS_H
 
-#include "SLRevolver.h"
+#include <SLRevolver.h>
 
 //-----------------------------------------------------------------------------
 //! SLLens creates a lens mesh based on SLRevolver

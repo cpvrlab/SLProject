@@ -38,8 +38,7 @@ public:
                            WAIFrame&         frame,
                            WAIOrbVocabulary* voc,
                            LocalMap&         localMap,
-                           int               mapPointsNeeded,
-                           unsigned long&    lastKeyFrameFrameId);
+                           int               mapPointsNeeded = 100);
 
     static bool genInitialMap(WAIMap*       globalMap,
                               LocalMapping* localMapper,
@@ -54,8 +53,7 @@ public:
                               LocalMapping*     localMapper,
                               LoopClosing*      loopCloser,
                               WAIOrbVocabulary* voc,
-                              int               mapPointsNeeded,
-                              unsigned long&    lastKeyFrameFrameId);
+                              int               mapPointsNeeded = 100);
 
     static int findFrameFixedMapMatches(WAIFrame&                 frame,
                                         WAIMap*                   waiMap,

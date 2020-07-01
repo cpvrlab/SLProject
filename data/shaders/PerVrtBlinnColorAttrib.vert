@@ -10,9 +10,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute vec4 a_position;          // Vertex position attribute
-attribute vec3 a_normal;            // Vertex normal attribute
-attribute vec4 a_color;             // Vertex color attribute
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
+layout (location = 3) in vec4  a_color;        // Vertex color attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -34,19 +34,18 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
-varying vec4   v_color;             // The resulting color per vertex
-
+out     vec4   v_color;             // The resulting color per vertex
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal at P_VS
                  in    vec3 E,   // Normalized vector from P_VS to eye in VS
-                 inout vec4 Ia,  // Ambient light intesity
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+                 inout vec4 Ia,  // Ambient light intensity
+                 inout vec4 Id,  // Diffuse light intensity
+                 inout vec4 Is)  // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
@@ -70,9 +69,9 @@ void PointLight (in    int  i,   // OpenGL light number
                  in    vec3 P_VS,// Point of illumination in VS
                  in    vec3 N,   // Normalized normal at P_VS
                  in    vec3 E,   // Normalized vector from P_VS to view in VS
-                 inout vec4 Ia,  // Ambient light intesity
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+                 inout vec4 Ia,  // Ambient light intensity
+                 inout vec4 Id,  // Diffuse light intensity
+                 inout vec4 Is)  // Specular light intensity
 {  
     // Vector from P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - P_VS;
@@ -117,9 +116,9 @@ void main()
 {
     vec4 Ia, Id, Is;        // Accumulated light intensities at P_VS
    
-    Ia = vec4(0.0);         // Ambient light intesity
-    Id = vec4(0.0);         // Diffuse light intesity
-    Is = vec4(0.0);         // Specular light intesity
+    Ia = vec4(0.0);         // Ambient light intensity
+    Id = vec4(0.0);         // Diffuse light intensity
+    Is = vec4(0.0);         // Specular light intensity
    
     vec3 P_VS = vec3(u_mvMatrix * a_position);
     vec3 N = normalize(u_nMatrix * a_normal);

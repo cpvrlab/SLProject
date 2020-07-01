@@ -2,7 +2,7 @@
 //  File:      VolumeRenderingRayCast.vert
 //  Purpose:   Base vertex shader that allows for raycast volume rendering through
 //             a proxy geometry (usually a cube). The position of each vertex is
-//             copied into a varying, that provides the entry position of the
+//             copied into a output, that provides the entry position of the
 //             view ray to the according fragment shader for further calculations.
 //  Author:    Manuel Frischknecht
 //  Date:      March 2015
@@ -12,13 +12,12 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute   vec4     a_position;          // Vertex position attribute
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
 
-uniform     mat4     u_mvpMatrix;         // = projection * modelView
+uniform mat4     u_mvpMatrix;         // = projection * modelView
 
-varying     vec3     v_raySource;         //The source coordinate of the view ray
-                                          //(in model coordinates)
-
+out     vec3     v_raySource;         //The source coordinate of the view ray
+                                      //(in model coordinates)
 //-----------------------------------------------------------------------------
 
 void main()

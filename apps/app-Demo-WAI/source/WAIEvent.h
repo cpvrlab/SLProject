@@ -19,6 +19,16 @@ enum WAIEventType
     WAIEventType_EnterEditMapPointMode
 };
 
+enum MapPointEditorEnum
+{
+    MapPointEditor_None,
+    MapPointEditor_SaveInMap,
+    MapPointEditor_Quit,
+    MapPointEditor_EnterEditMode,
+    MapPointEditor_SelectSingleVideo,
+    MapPointEditor_LoadMatching
+};
+
 struct WAIEvent
 {
     WAIEventType type;
@@ -101,14 +111,13 @@ struct WAIEventEnterEditMapPointMode : WAIEvent
 {
     WAIEventEnterEditMapPointMode()
     {
-        type  = WAIEventType_EnterEditMapPointMode;
-        start = false;
-        save  = false;
-        quit  = false;
+        type   = WAIEventType_EnterEditMapPointMode;
+        action = MapPointEditor_None;
+        vid = 0;
     }
-    bool start;
-    bool save;
-    bool quit;
+    MapPointEditorEnum action;
+    std::vector<int> * kFVidMatching;
+    int vid;
 };
 
 #endif //WAI_EVENT_H

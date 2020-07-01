@@ -24,6 +24,10 @@ public:
 
     static cv::Mat convertToCVMat(const SLMat4f slMat);
     static SLMat4f convertToSLMat(const cv::Mat& cvMat);
+
+
+    static void saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int nVid, const std::string& mapDir, const std::string outputKFMatchingFile);
+    static void loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int& nVid, const std::string& mapDir, const std::string outputKFMatchingFile);
 };
 
 #endif

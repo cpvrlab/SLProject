@@ -13,6 +13,12 @@ precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
+in      vec2   v_texCoord;          // Texture coordiante varying
+in      vec3   v_L_TS;              // Vector to the light in tangent space
+in      vec3   v_E_TS;              // Vector to the eye in tangent space
+in      vec3   v_S_TS;              // Spot direction in tangent space
+in      float  v_d;                 // Light distance
+
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosVS[8];     // position of light in view space
 uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
@@ -29,7 +35,7 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
 uniform sampler2D u_texture0;       // Color map
@@ -41,14 +47,9 @@ uniform sampler2D u_texture5;       // Cloud Alpha map;
 uniform sampler2D u_texture6;       // Night Color map;
 uniform float     u_scale;          // Height scale for parallax mapping
 uniform float     u_offset;         // Height bias for parallax mapping
-//uniform float     u_cloud;          // Height of the Clouds
 
-varying vec2   v_texCoord;          // Texture coordiante varying
-varying vec3   v_L_TS;              // Vector to the light in tangent space
-varying vec3   v_E_TS;              // Vector to the eye in tangent space
-varying vec3   v_S_TS;              // Spot direction in tangent space
-varying float  v_d;                 // Light distance
-
+out     vec4      o_fragColor;      // output fragment color
+//-----------------------------------------------------------------------------
 void main()
 {
     // Normalize E and L
@@ -62,7 +63,7 @@ void main()
     ////////////////////////////////////////////////////////////
     // Calculate new texture coord. Tc for Parallax mapping
     // The height comes from red channel from the height map
-    float height = texture2D(u_texture2, v_texCoord.st).r;
+    float height = texture(u_texture2, v_texCoord.st).r;
    
     // Scale the height and add the bias (height offset)
     height = height * u_scale + u_offset;
@@ -74,7 +75,7 @@ void main()
     ////////////////////////////////////////////////////////////
    
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture2D(u_texture1, Tc).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_texture1, Tc).rgb * 2.0 - 1.0);
    
     // Calculate attenuation over distance v_d
     float att = 1.0;  // Total attenuation factor
@@ -104,7 +105,7 @@ void main()
     float specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
    
     // add ambient & diffuse light components
-    gl_FragColor = u_matEmissive + 
+    o_fragColor = u_matEmissive +
                    u_globalAmbient +
                    att * u_lightAmbient[0] * u_matAmbient +
                    att * u_lightDiffuse[0] * u_matDiffuse * diffFactor;
@@ -117,18 +118,19 @@ void main()
     float night2 = nightInv * nightInv;
    
     //Calculate mixed day night texture 
-    float alpha = texture2D(u_texture5, v_texCoord.st)[0];
-    vec4 ground = (texture2D(u_texture6, Tc)*night2 + texture2D(u_texture0, Tc)*(1.0-night2))*alpha;
+    float alpha = texture(u_texture5, v_texCoord.st)[0];
+    vec4 ground = (texture(u_texture6, Tc)*night2 + texture(u_texture0, Tc)*(1.0-night2))*alpha;
    
     //Calculate CloudTexture
-    vec4 cloud = gl_FragColor*texture2D(u_texture4, Wtc)*(1.0-alpha);
+    vec4 cloud = o_fragColor*texture(u_texture4, Wtc)*(1.0-alpha);
    
-    gl_FragColor = ground  + cloud;
+    o_fragColor = ground  + cloud;
    
     //Finally Add specular light
-    gl_FragColor += att * 
+    o_fragColor += att *
                     u_lightSpecular[0] * 
                     u_matSpecular * 
                     specFactor * 
-                    texture2D(u_texture3, Tc)[0];
+                    texture(u_texture3, Tc)[0];
 }
+//-----------------------------------------------------------------------------
