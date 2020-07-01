@@ -242,6 +242,7 @@
             AVCaptureConnection* capCon = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
             if (capCon != nil)
             {
+                //we have to turn video stabilization mode off if we want intrinsics!!
                 if ([capCon isVideoStabilizationSupported])
                 {
                     if (videoStabilizationEnabled)

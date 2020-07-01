@@ -265,3 +265,20 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
         return std::make_pair(nullptr, nullptr);
     }
 }
+
+void SENSCameraBase::initCalibration()
+{
+    //we make a calibration with full resolution and adjust it to the manipulated image size later if neccessary
+    float horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_config.streamConfig->focalLengthPix, _config.streamConfig->widthPix);
+    _calibration      = std::make_unique<SENSCalibration>(cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
+                                                     horizFOVDev,
+                                                     false,
+                                                     false,
+                                                     SENSCameraType::BACKFACING,
+                                                     Utils::ComputerInfos().get());
+    //adjust calibration
+    if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
+        _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
+    else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
+        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+}

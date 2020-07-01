@@ -253,6 +253,8 @@ public:
         return _calibration.get();
     }
 protected:
+    void initCalibration();
+    
     SENSCaptureProperties _caputureProperties;
 
     SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intrinsics, bool intrinsicsChanged);

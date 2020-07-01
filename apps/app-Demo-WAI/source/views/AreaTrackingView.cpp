@@ -170,6 +170,9 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     }
 
     //init wai slam
+    auto calib = _camera->calibration();
+    auto camMat = calib->cameraMat();
+    auto disto = calib->distortion();
     _waiSlam = std::make_unique<WAISlam>(
       _camera->calibration()->cameraMat(),
       _camera->calibration()->distortion(),
@@ -213,7 +216,7 @@ void AreaTrackingView::startCamera()
 
         _camera->start(SENSCameraFacing::BACK,
                        65.f,
-                       cv::Size(640, 480), //cv::Size(1900, (int)1900.f / 4.f * 3.f),
+                       cv::Size(1900, 1440), //cv::Size(1900, (int)1900.f / 4.f * 3.f),
                        false,
                        false,
                        false,

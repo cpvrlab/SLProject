@@ -73,6 +73,9 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     else
         throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
 
+    //initialize guessed camera calibration
+    initCalibration();
+    
     return _config;
 }
 
@@ -100,6 +103,10 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
     _config.manipHeight         = imgManipSize.height;
     _config.provideIntrinsics   = provideIntrinsics;
     _config.fovDegFallbackGuess = fovDegFallbackGuess;
+
+    //for ios to retrieve intrinsics we have to disable video stabilization
+    if (provideIntrinsics)
+        _config.enableVideoStabilization = false;
 
     //retrieve all camera characteristics
     if (_caputureProperties.size() == 0)
@@ -132,22 +139,9 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
     else
         throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
 
-    //todo: focal length has to fit to resolution!!!!!!
-
-    //we make a calibration with full resolution and adjust it to the manipulated image size later if neccessary
-    float horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_config.streamConfig->focalLengthPix, _config.streamConfig->widthPix);
-    _calibration      = std::make_unique<SENSCalibration>(cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
-                                                     horizFOVDev,
-                                                     false,
-                                                     false,
-                                                     SENSCameraType::BACKFACING,
-                                                     Utils::ComputerInfos().get());
-    //adjust calibration
-    if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
-        _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
-    else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
-        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-
+    //initialize guessed camera calibration
+    initCalibration();
+    
     return _config;
 }
 
@@ -238,7 +232,7 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
         intrinsics        = cv::Mat_<double>(3, 3);
         for (int i = 0; i < 3; ++i)
         {
-            simd_float3 col            = camMat3x3->columns[i];
+            simd_float3 col             = camMat3x3->columns[i];
             intrinsics.at<double>(0, i) = (double)col[0];
             intrinsics.at<double>(1, i) = (double)col[1];
             intrinsics.at<double>(2, i) = (double)col[2];
