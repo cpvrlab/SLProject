@@ -389,7 +389,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
         }
 
         // Pass vectors as uniform vectors
-        SLint nL = lights->size();
+        SLint nL = (SLint)lights->size();
         uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
         uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
         uniform4fv("u_lightPosVS", nL, (SLfloat*)&lightPosVS);
@@ -449,8 +449,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights)
                     dummyBuffers[i].activateAsTexture(loc);
                 }
             }
-        }
 #endif
+        }
     }
 }
 //-----------------------------------------------------------------------------

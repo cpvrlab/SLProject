@@ -2311,7 +2311,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Stop all", "Space", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
-            ImGui::Separator;
+            ImGui::Separator();
 
             SLVstring animations = s->animManager().allAnimNames();
             if (curAnimIx == -1) curAnimIx = 0;
