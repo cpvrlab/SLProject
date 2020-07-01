@@ -15,7 +15,6 @@ struct SENSFrame
               bool    mirroredH,
               bool    mirroredV,
               float   scaleToManip,
-              cv::Mat intrinsics,
               bool    intrinsicsChanged)
       : imgRGB(imgRGB),
         imgManip(imgManip),
@@ -26,11 +25,8 @@ struct SENSFrame
         mirroredH(mirroredH),
         mirroredV(mirroredV),
         scaleToManip(scaleToManip),
-        intrinsics(intrinsics),
         intrinsicsChanged(intrinsicsChanged)
     {
-        std::cout << "intrinsics scaled" << std::endl;
-        std::cout << intrinsics << std::endl;
     }
 
     //! cropped input image
@@ -46,8 +42,6 @@ struct SENSFrame
     const bool mirroredV;
     //! scale from imgManip to imgRGB
     const float scaleToManip;
-    //! camera intrinsics
-    cv::Mat intrinsics;
     //! flags if camera intrinsics have changed between this frame and last frame (this is necessary for cameras that dynamically change their intrinsics e.g. on autofocus changes (iOS))
     const bool intrinsicsChanged;
 };

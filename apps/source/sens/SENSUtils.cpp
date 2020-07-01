@@ -179,15 +179,31 @@ void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV)
 
 float calcFOVDegFromFocalLengthPix(const float focalLengthPix, const int imgLength)
 {
-    float fovRad = 2.f * atanf(0.5f * imgLength / focalLengthPix);
+    float fovRad = 2.f * atanf(0.5f * (float)imgLength / focalLengthPix);
     float fovDeg = fovRad * SENS_RAD2DEG;
     return fovDeg;
 }
+
 float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength)
 {
     float fovRad         = fovDeg * SENS_DEG2RAD;
     float focalLengthPix = 0.5f * imgLength / tanf(0.5f * fovRad);
     return focalLengthPix;
 }
+
+float calcFovDegFromOtherFovDeg(const float otherFovDeg, const int otherLength, const int length)
+{
+    float f    = (0.5f *  (float)otherLength) / tanf(otherFovDeg * 0.5f * SENS_DEG2RAD);
+    return 2.f * atan(0.5f * (float)length / f) * SENS_RAD2DEG;
+}
+
+/*
+float calcFovOfCenteredImg(const float oldFovDeg, const int oldImgLength, const int newImgLength)
+{
+    float oldFovRadHalf = SENS_DEG2RAD * 0.5f * oldFovDeg;
+    float newFovDeg = SENS_RAD2DEG * 2 * atan( (float)newImgLength / (float)oldImgLength * tan(oldFovRadHalf));
+    return newFovDeg;
+}
+*/
 
 };

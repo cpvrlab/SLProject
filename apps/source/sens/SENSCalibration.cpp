@@ -125,13 +125,15 @@ SENSCalibration::SENSCalibration(const cv::Mat&     intrinsics,
     _cameraMatUndistorted = intrinsics.clone();
     _cameraMatOrig        = intrinsics.clone();
     _cameraMat            = intrinsics.clone();
+    _imageSizeOrig        = imageSize;
 
-    _distortion      = (cv::Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
-    float meanFocalLength = 0.5 * (intrinsics.at<double>(0,0) + intrinsics.at<double>(1,1));
-    _cameraFovHDeg   = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.width);
-    _cameraFovVDeg   = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.height);;
+    _distortion           = (cv::Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
+    float meanFocalLength = 0.5 * (intrinsics.at<double>(0, 0) + intrinsics.at<double>(1, 1));
+    _cameraFovHDeg        = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.width);
+    _cameraFovVDeg        = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.height);
+    ;
     //_calibrationTime = Utils::getDateTime2String();
-    _state           = State::guessed;
+    _state = State::guessed;
 }
 //-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
@@ -398,7 +400,7 @@ void SENSCalibration::createFromGuessedFOV(int   imageWidthPX,
 {
     //if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
     float f    = (0.5f * imageWidthPX) / tanf(fovH * 0.5f * Utils::DEG2RAD);
-    float fovV = 2.0f * atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
+    float fovV = 2.f * atan(0.5f * imageHeightPX / f) * Utils::RAD2DEG;
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm

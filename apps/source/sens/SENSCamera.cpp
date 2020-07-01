@@ -95,11 +95,16 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
             calibImgSize = rgbImg.size();
 
         _calibration = std::make_unique<SENSCalibration>(intrinsics,
-                                                         calibImgSize,
+                                                         cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
                                                          _calibration->isMirroredH(),
                                                          _calibration->isMirroredV(),
                                                          _calibration->camType(),
                                                          _calibration->computerInfos());
+        //adjust calibration
+        if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
+            _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
+        else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
+            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
     }
 
     SENSFramePtr sensFrame = std::make_unique<SENSFrame>(rgbImg,
@@ -111,7 +116,6 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
                                                          _config.mirrorH,
                                                          _config.mirrorV,
                                                          1 / scale,
-                                                         intrinsics * scale,
                                                          intrinsicsChanged);
     return sensFrame;
 }

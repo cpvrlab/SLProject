@@ -58,7 +58,7 @@ bool AreaTrackingView::update()
         {
             auto calib = _camera->calibration();
             _waiSlam->changeIntrinsic(calib->cameraMat(), calib->distortion());
-            _scene.updateCameraIntrinsics(calib->cameraFovVDeg());
+            updateSceneCameraFov();
         }
         _waiSlam->update(frame->imgManip);
 
@@ -71,71 +71,56 @@ bool AreaTrackingView::update()
     return onPaint();
 }
 
+void AreaTrackingView::updateSceneCameraFov()
+{
+    //if the camera image height is smaller than the sceneview height,
+    //we have to calculate the corresponding vertical field of view for the scene camera
+    float imgWdivH = _camera->calibration()->imageAspectRatio();
+    if (std::abs(this->scrWdivH() - imgWdivH) > 0.00001)
+    {
+        if (this->scrWdivH() > imgWdivH)
+        {
+            //bars left and right: directly use camera vertial field of view as scene vertical field of view
+            _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        }
+        else
+        {
+            //bars top and bottom: we use the image width and the screen aspect ratio to estimate
+            //corresponding screen height and from this the corrected vertical screen field of view
+            //float corrSceneHeight = this->scrWdivH() * _camera->calibration()->imageSize().height;
+            //float sceneVertFov    = SENS::calcFovOfCenteredImg(_camera->calibration()->cameraFovVDeg(),
+            //                                                _camera->calibration()->imageSize().height,
+            //                                                corrSceneHeight);
+            //_scene.updateCameraIntrinsics(sceneVertFov);
+            /*
+            float fovH = _camera->calibration()->cameraFovHDeg();
+            float f    = (0.5f * this->scrW()) / tanf(fovH * 0.5f * Utils::DEG2RAD);
+            float fovV = 2.f * atan(0.5f * this->scrH() / f) * Utils::RAD2DEG;
+             */
+            float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
+            _scene.updateCameraIntrinsics(fovV);
+        }
+    }
+    else
+    {
+        //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
+        _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+    }
+}
+
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
     ErlebAR::Location& location = _locations[locId];
     ErlebAR::Area&     area     = location.areas[areaId];
     _gui.initArea(area);
+
     //start camera
     startCamera();
 
     //load model into scene graph
-    //todo: move standard nodes to a different function than model loading
-    //doWaitOnIdle(false);
     _scene.rebuild(location.name, area.name);
     this->camera(_scene.cameraNode);
-    //onInitialize();
-    //setViewportFromRatio(SLVec2i(_camera->getFrameSize().width, _camera->getFrameSize().height), SLViewportAlign::VA_center, true);
-
-    //calibration
-    /*
-    const SENSCaptureProperties& camProps    = _camera->captureProperties();
-    float                        horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_camera->config().streamConfig->focalLengthPix, _cameraFrameTargetSize.width);
-
-    if (horizFOVDev > 0.f)
-    {
-        _calibration = std::make_unique<SENSCalibration>(_cameraFrameTargetSize, horizFOVDev, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
-    }
-    else
-    {
-        //params from webcam calibration file
-        _calibration = std::make_unique<SENSCalibration>(_cameraFrameTargetSize, 65.f, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
-        //todo:
-        //the calculated fov vertical does not fit to the one of the calibration file->normal ?
-    }
-    */
-    
-    //cv::Size calibImgSize(3968, 2976);
-    //_calibration = std::make_unique<SENSCalibration>(calibImgSize, 60.42 /*63.144f*/, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos().get());
-
-    //std::string calibDir      = "C:/Users/ghm1/AppData/Roaming/SLProject/calibrations/";
-    //std::string calibFileName = "camCalib_ghm1-DESKTOP-V8HAA50-MODEL-_main.xml";
-    //if (!_calibration->load(calibDir, Utils::getFileName(calibFileName), false))
-    //{
-    //    //_gui.showErrorMsg("Error when loading calibration from file: " +
-    //    //                  slamParams.calibrationFile);
-    //    return;
-    //}
-
-    //todo: adapt correctly in camera
-    /*
-    if (_calibration->imageSize() != _cameraFrameTargetSize)
-    {
-        _calibration->adaptForNewResolution(_cameraFrameTargetSize, true);
-    }
-    */
-
-    //todo:
-    ////parameterize scene camera from calibration
-    //cv::Mat m  = _calibration->cameraMatUndistorted();
-    //double  fx = (float)m.at<double>(0, 0);
-    //double  fy = (float)m.at<double>(1, 1);
-    //double  cx = (float)m.at<double>(0, 2);
-    //double  cy = (float)m.at<double>(1, 2);
-    //m          = (cv::Mat_<double>(3, 3) << fx, 0, cx + 106.f, 0, fy, cy, 0, 0, 1);
-
-    //_scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
-    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+    updateSceneCameraFov();
 
     //initialize extractors
     _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize);
@@ -170,9 +155,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     }
 
     //init wai slam
-    auto calib = _camera->calibration();
-    auto camMat = calib->cameraMat();
-    auto disto = calib->distortion();
     _waiSlam = std::make_unique<WAISlam>(
       _camera->calibration()->cameraMat(),
       _camera->calibration()->distortion(),
@@ -185,16 +167,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
       false,
       0.95f);
 
-    //setViewportFromRatio(SLVec2i(_cameraFrameTargetSize.width, _cameraFrameTargetSize.height), SLViewportAlign::VA_center, true);
-    //todo: adjust field of view (or intrinsics) so it fits the bars
-
     if (_trackingExtractor->doubleBufferedOutput())
         _imgBuffer.init(2, _cameraFrameTargetSize);
     else
         _imgBuffer.init(1, _cameraFrameTargetSize);
-
-    //start wai with map for this area (as non-blocking as possible)
-    //todo: separate loading from opengl calls (task in projectplan)
 }
 
 void AreaTrackingView::resume()
@@ -216,13 +192,13 @@ void AreaTrackingView::startCamera()
 
         _camera->start(SENSCameraFacing::BACK,
                        65.f,
-                       cv::Size(1900, 1440), //cv::Size(1900, (int)1900.f / 4.f * 3.f),
+                       cv::Size(960, 540),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
                        false,
                        false,
                        false,
                        true,
-                       cv::Size(640, 480),
-                       true,
+                       cv::Size(960, 540),
+                       false,
                        65.f);
     }
 }

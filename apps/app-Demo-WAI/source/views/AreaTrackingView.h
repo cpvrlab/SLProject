@@ -37,6 +37,7 @@ public:
     void hold();
 
 private:
+    void updateSceneCameraFov();
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
 
     void            startCamera();

@@ -30,6 +30,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         return _config;
     }
 
+    _config.streamConfig        = &streamConfig;
     _config.deviceId            = deviceId;
     _config.mirrorV             = mirrorV;
     _config.mirrorH             = mirrorH;
@@ -68,14 +69,13 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
                       autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
              videoStabilizationState:_config.enableVideoStabilization])
     {
+        //initialize guessed camera calibration
+        initCalibration();
         _started = true;
     }
     else
         throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
 
-    //initialize guessed camera calibration
-    initCalibration();
-    
     return _config;
 }
 
@@ -141,7 +141,7 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
 
     //initialize guessed camera calibration
     initCalibration();
-    
+
     return _config;
 }
 
