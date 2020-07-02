@@ -70,10 +70,6 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(std::string extractor
 std::unique_ptr<KPextractor> FeatureExtractorFactory::orbExtractor(int nf, int nLevels)
 {
     float fScaleFactor = 1.2f;
-<<<<<<< HEAD
-    int   nLevels      = 2;
-=======
->>>>>>> develop
     int   fIniThFAST   = 20;
     int   fMinThFAST   = 7;
     return std::make_unique<ORB_SLAM2::ORBextractor>(nf, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
