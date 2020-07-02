@@ -18,12 +18,10 @@
 //-----------------------------------------------------------------------------
 //! Encapsulation of an OpenGL shader object
 /*!
-The SLGLShader class represents a shader object of the OpenGL Shading Language
-(GLSL). It can load & compile an GLSL shader file and is later on attached
-to an OpenGL shader program (SLGLProgram).
-\n\n
-In the OpenGL debug mode (define _GLDEBUG in SL.h) the adapted shader files 
-get written out as *.debug files beside the original shader files.
+ The SLGLShader class represents a shader object of the OpenGL Shading Language
+ (GLSL). It can load & compile an GLSL shader file and is later on attached
+ to an OpenGL program (SLGLProgram). Instances of SLShader are owned and
+ deleted by their program (SLGLProgram).
 */
 class SLGLShader : public SLObject
 {

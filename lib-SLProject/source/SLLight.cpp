@@ -15,6 +15,7 @@
 
 //-----------------------------------------------------------------------------
 SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
+SLfloat SLLight::gamma = 1.0f;
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,

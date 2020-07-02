@@ -11,6 +11,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/*
+The preprocessor constant #define NUM_LIGHTS will be added at the shader
+compilation time. It must be constant to be used in the for loop in main().
+Therefore this number it can not be passed as a uniform variable.
+*/
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -76,13 +82,10 @@ out     vec4        o_fragColor;              // output fragment color
 int vectorToFace(vec3 vec) // Vector to process
 {
     vec3 absVec = abs(vec);
-
     if (absVec.x > absVec.y && absVec.x > absVec.z)
         return vec.x > 0.0 ? 0 : 1;
-
     else if (absVec.y > absVec.x && absVec.y > absVec.z)
         return vec.y > 0.0 ? 2 : 3;
-
     else
         return vec.z > 0.0 ? 4 : 5;
 }
@@ -118,7 +121,6 @@ float shadowTest(in int i) // Light number
         if (!u_lightUsesCubemap[i] && u_lightDoesPCF[i])
         {
             vec2 texelSize;
-
             if (i == 0) texelSize = 1.0 / vec2(textureSize(u_shadowMap_0, 0));
             if (i == 1) texelSize = 1.0 / vec2(textureSize(u_shadowMap_1, 0));
             if (i == 2) texelSize = 1.0 / vec2(textureSize(u_shadowMap_2, 0));
@@ -127,14 +129,12 @@ float shadowTest(in int i) // Light number
             if (i == 5) texelSize = 1.0 / vec2(textureSize(u_shadowMap_5, 0));
             if (i == 6) texelSize = 1.0 / vec2(textureSize(u_shadowMap_6, 0));
             if (i == 7) texelSize = 1.0 / vec2(textureSize(u_shadowMap_7, 0));
-
             int level = u_lightPCFLevel[i];
 
             for (int x = -level; x <= level; ++x)
             {
                 for (int y = -level; y <= level; ++y)
                 {
-
                     if (i == 0) closestDepth = texture(u_shadowMap_0, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy + vec2(x, y) * texelSize).r;
@@ -143,7 +143,6 @@ float shadowTest(in int i) // Light number
                     if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy + vec2(x, y) * texelSize).r;
-
                     shadow += currentDepth - u_matShadowBias > closestDepth ? 1.0 : 0.0;
                 }
             }
@@ -230,7 +229,8 @@ void pointLightBlinnPhong(in    int  i,      // Light number
     // Calculate attenuation over distance & normalize L
     float att = 1.0;
     if (u_lightDoAtt[i])
-    {   vec3 att_dist;
+    {
+        vec3 att_dist;
         att_dist.x = 1.0;
         att_dist.z = dot(L,L);         // = distance * distance
         att_dist.y = sqrt(att_dist.z); // = distance
@@ -249,7 +249,8 @@ void pointLightBlinnPhong(in    int  i,      // Light number
 
     // Calculate spot attenuation
     if (u_lightSpotCutoff[i] < 180.0)
-    {   float spotDot; // Cosine of angle between L and spotdir
+    {
+        float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, u_lightSpotDirVS[i]);
         if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
@@ -289,17 +290,6 @@ void main()
         }
     }
 
-    /*
-    if (u_lightIsOn[0]) {if (u_lightPosVS[0].w == 0.0) DirectLight(0, N, E, Ia, Id, Is); else PointLight(0, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[1]) {if (u_lightPosVS[1].w == 0.0) DirectLight(1, N, E, Ia, Id, Is); else PointLight(1, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[2]) {if (u_lightPosVS[2].w == 0.0) DirectLight(2, N, E, Ia, Id, Is); else PointLight(2, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[3]) {if (u_lightPosVS[3].w == 0.0) DirectLight(3, N, E, Ia, Id, Is); else PointLight(3, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[4]) {if (u_lightPosVS[4].w == 0.0) DirectLight(4, N, E, Ia, Id, Is); else PointLight(4, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[5]) {if (u_lightPosVS[5].w == 0.0) DirectLight(5, N, E, Ia, Id, Is); else PointLight(5, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Ia, Id, Is); else PointLight(6, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Ia, Id, Is); else PointLight(7, v_P_VS, N, E, Ia, Id, Is);}
-    */
-
     // Sum up all the reflected color components
     o_fragColor =  u_globalAmbient +
                     u_matEmissive +
@@ -315,31 +305,42 @@ void main()
 
     // Apply stereo eye separation
     if (u_projection > 1)
-    {   if (u_projection > 7) // stereoColor??
-        {   // Apply color filter but keep alpha
+    {
+        if (u_projection > 7) // stereoColor
+        {
+            // Apply color filter but keep alpha
             o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
         }
         else if (u_projection == 5) // stereoLineByLine
-        {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
         else if (u_projection == 6) // stereoColByCol
-        {   if (mod(floor(gl_FragCoord.x), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
         else if (u_projection == 7) // stereoCheckerBoard
-        {   bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        {
+            bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
             bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v) // both even or odd
-            {  if (u_stereoEye ==-1) discard;
+            if (h==v)// both even or odd
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
     }

@@ -15,32 +15,14 @@
 #include <SLKeyframeCamera.h>
 #include <GlobalTimer.h>
 #include <Instrumentor.h>
+#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
-SLMaterialDiffuseAttribute* SLMaterialDiffuseAttribute::_instance = nullptr;
-SLMaterialDefaultGray*      SLMaterialDefaultGray::_instance      = nullptr;
+SLMaterialDefaultGray*        SLMaterialDefaultGray::_instance        = nullptr;
+SLGLGenericProgramDefault*    SLGLGenericProgramDefault::_instance    = nullptr;
+SLGLGenericProgramDefaultTex* SLGLGenericProgramDefaultTex::_instance = nullptr;
 //-----------------------------------------------------------------------------
-/*! The constructor of the scene does all one time initialization such as
-loading the standard shader programs from which the pointers are stored in
-the vector _shaderProgs. Custom shader programs that are loaded in a
-scene must be deleted when the scene changes.
-The following standard shaders are preloaded:
-  - ColorAttribute.vert, Color.frag
-  - ColorUniform.vert, Color.frag
-  - DiffuseAttribute.vert, Diffuse.frag
-  - PerVrtBlinn.vert, PerVrtBlinn.frag
-  - PerVrtBlinnTex.vert, PerVrtBlinnTex.frag
-  - TextureOnly.vert, TextureOnly.frag
-  - PerPixBlinn.vert, PerPixBlinn.frag
-  - PerPixBlinnTex.vert, PerPixBlinnTex.frag
-  - PerPixCookTorance.vert, PerPixCookTorance.frag
-  - PerPixCookToranceTex.vert, PerPixCookToranceTex.frag
-  - BumpNormal.vert, BumpNormal.frag
-  - BumpNormal.vert, BumpNormalParallax.frag
-  - FontTex.vert, FontTex.frag
-  - StereoOculus.vert, StereoOculus.frag
-  - StereoOculusDistortionMesh.vert, StereoOculusDistortionMesh.frag
-
+/*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
 the C-interface function slCreateScene in SLInterface.cpp that is called by the
 platform and UI-toolkit dependent window initialization.
@@ -79,9 +61,6 @@ SLScene::~SLScene()
 
     // delete global SLGLState instance
     SLGLState::deleteInstance();
-
-    // clear light pointers
-    _lights.clear();
 
     SL_LOG("Destructor      : ~SLScene");
     SL_LOG("------------------------------------------------------------------");
@@ -126,6 +105,11 @@ void SLScene::unInit()
 
     _selectedMeshes.clear();
     _selectedNodes.clear();
+
+    // Delete the default material and programs that are scene dependent
+    SLGLGenericProgramDefault::deleteInstance();
+    SLGLGenericProgramDefaultTex::deleteInstance();
+    SLMaterialDefaultGray::deleteInstance();
 }
 //-----------------------------------------------------------------------------
 //! Updates animations and AABBs

@@ -137,7 +137,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.clipNear(.1f);
     _sceneViewCamera.clipFar(2000.0f);
     _sceneViewCamera.maxSpeed(40);
-    _sceneViewCamera.eyeSeparation(_sceneViewCamera.focalDist() / 30.0f);
+    _sceneViewCamera.stereoEyeSeparation(_sceneViewCamera.focalDist() / 30.0f);
     _sceneViewCamera.setProjection(this, ET_center);
     _sceneViewCamera.projection(proj);
 

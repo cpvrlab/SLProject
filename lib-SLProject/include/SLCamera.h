@@ -52,8 +52,8 @@ drawn on the far clipping plane of the visualized view frustum.
 class SLCamera : public SLNode
 {
 public:
-    SLCamera(const SLstring& name = "Camera");
-    ~SLCamera() { ; }
+    explicit SLCamera(const SLstring& name = "Camera");
+    ~SLCamera() override { ; }
 
     void           statsRec(SLNodeStats& stats) override;
     void           drawMeshes(SLSceneView* sv) override;
@@ -78,6 +78,7 @@ public:
     SLVec2f projectWorldToNDC(const SLVec4f& worldPos) const;
     SLVec3f trackballVec(SLint x, SLint y) const;
     SLbool  isInFrustum(SLAABBox* aabb);
+    void    passToUniforms(SLGLProgram* program);
 
     // Apply projection, viewport and view transformations
     void setViewport(SLSceneView* sv, SLEyeType eye);
@@ -119,7 +120,7 @@ public:
     void focalDist(const SLfloat f) { _focalDist = f; }
     void lensDiameter(const SLfloat d) { _lensDiameter = d; }
     void lensSamples(SLuint x, SLuint y) { _lensSamples.samples(x, y); }
-    void eyeSeparation(const SLfloat es) { _eyeSeparation = es; }
+    void stereoEyeSeparation(const SLfloat es) { _stereoEyeSeparation = es; }
     void devRotLoc(SLDeviceRotation* devRot, SLDeviceLocation* devLoc)
     {
         _devRot = devRot;
@@ -130,30 +131,42 @@ public:
     const SLMat4f& updateAndGetVM() const { return updateAndGetWMI(); }
     SLProjection   projection() const { return _projection; }
     SLstring       projectionStr() const { return projectionToStr(_projection); }
-    SLfloat        unitScaling() { return _unitScaling; }
+    SLfloat        unitScaling() const { return _unitScaling; }
     SLfloat        fov() const { return _fov; }
     SLfloat        aspect() const { return _viewportRatio; }
     SLfloat        clipNear() const { return _clipNear; }
     SLfloat        clipFar() const { return _clipFar; }
     SLCamAnim      camAnim() const { return _camAnim; }
     SLstring       animationStr() const;
-    SLfloat        lensDiameter() const { return _lensDiameter; }
-    SLSamples2D*   lensSamples() { return &_lensSamples; }
-    SLfloat        eyeSeparation() const { return _eyeSeparation; }
-    SLfloat        focalDist() const { return _focalDist; }
-    SLfloat        focalDistScrW() const;
-    SLfloat        focalDistScrH() const;
-    SLVec3f        focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
-    SLVec3f        focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
-    SLfloat        trackballSize() const { return _trackballSize; }
-    SLBackground&  background() { return _background; }
-    SLfloat        maxSpeed() const { return _maxSpeed; }
-    SLfloat        moveAccel() const { return _moveAccel; }
-    SLfloat        brakeAccel() const { return _brakeAccel; }
-    SLfloat        drag() const { return _drag; }
-    SLstring       toString() const;
-    SLRectf&       selectRect() { return _selectRect; }
-    SLRectf&       deselectRect() { return _deselectRect; }
+
+    SLfloat stereoEyeSeparation() const { return _stereoEyeSeparation; }
+    SLint   stereoEye() const { return _stereoEye; }
+    SLMat3f stereoColorFilter() const { return _stereoColorFilter; }
+
+    SLfloat      lensDiameter() const { return _lensDiameter; }
+    SLSamples2D* lensSamples() { return &_lensSamples; }
+    SLfloat      focalDist() const { return _focalDist; }
+    SLfloat      focalDistScrW() const;
+    SLfloat      focalDistScrH() const;
+    SLVec3f      focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
+    SLVec3f      focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
+
+    SLbool  fogIsOn() const { return _fogIsOn; }
+    SLint   fogMode() const { return _fogMode; }
+    SLfloat fogDensity() const { return _fogDensity; }
+    SLfloat fogDistStart() const { return _fogDistStart; }
+    SLfloat fogDistEnd() const { return _fogDistEnd; }
+    SLCol4f fogColor() const { return _fogColor; }
+
+    SLfloat       trackballSize() const { return _trackballSize; }
+    SLBackground& background() { return _background; }
+    SLfloat       maxSpeed() const { return _maxSpeed; }
+    SLfloat       moveAccel() const { return _moveAccel; }
+    SLfloat       brakeAccel() const { return _brakeAccel; }
+    SLfloat       drag() const { return _drag; }
+    SLstring      toString() const;
+    SLRectf&      selectRect() { return _selectRect; }
+    SLRectf&      deselectRect() { return _deselectRect; }
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -213,8 +226,18 @@ protected:
     SLSamples2D _lensSamples;  //!< sample points for lens sampling (DOF)
 
     // Stereo rendering
-    SLfloat _eyeSeparation; //!< eye separation for stereo mode
-    SLfloat _unitScaling;   //!< indicate what the current unit scaling is to adjust movement and stereo rendering correctly
+    SLfloat _stereoEyeSeparation; //!< eye separation for stereo mode
+    SLfloat _unitScaling;         //!< indicate what the current unit scale is
+    SLint   _stereoEye;           //!< -1=left, 0=center, 1=right
+    SLMat3f _stereoColorFilter;   //!< color filter matrix for anaglyphling is to adjust movement and stereo rendering correctly
+
+    // fog
+    SLbool  _fogIsOn;      //!< Flag if fog blending is enabled
+    SLint   _fogMode;      //!< 0=GL_LINEAR, 1=GL_EXP, 2=GL_EXP2
+    SLfloat _fogDensity;   //!< Fog density for exponential modes
+    SLfloat _fogDistStart; //!< Fog start distance for linear mode
+    SLfloat _fogDistEnd;   //!< Fog end distance for linear mode
+    SLCol4f _fogColor;     //!< fog color blended to the final color
 
     SLDeviceRotation* _devRot = nullptr;
     SLDeviceLocation* _devLoc = nullptr;

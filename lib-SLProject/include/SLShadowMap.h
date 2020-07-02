@@ -41,24 +41,24 @@ public:
 
     // Setters
     void useCubemap(SLbool useCubemap) { _useCubemap = useCubemap; }
-    void rayCount(SLVec2i rayCount) { _rayCount.set(rayCount); }
+    void rayCount(const SLVec2i& rayCount) { _rayCount.set(rayCount); }
     void clipNear(SLfloat clipNear) { _clipNear = clipNear; }
     void clipFar(SLfloat clipFar) { _clipFar = clipFar; }
-    void size(SLVec2f size)
+    void size(const SLVec2f& size)
     {
         _size.set(size);
         _halfSize.set(size / 2);
     }
-    void textureSize(SLVec2i textureSize) { _textureSize.set(textureSize); }
+    void textureSize(const SLVec2i& textureSize) { _textureSize.set(textureSize); }
 
     // Getters
     SLProjection     projection() { return _projection; }
-    SLbool           useCubemap() { return _useCubemap; }
+    SLbool           useCubemap() const { return _useCubemap; }
     SLMat4f*         mvp() { return _mvp; }
     SLGLDepthBuffer* depthBuffer() { return _depthBuffer; }
     SLVec2i          rayCount() { return _rayCount; }
-    SLfloat          clipNear() { return _clipNear; }
-    SLfloat          clipFar() { return _clipFar; }
+    SLfloat          clipNear() const { return _clipNear; }
+    SLfloat          clipFar() const { return _clipFar; }
     SLVec2f          size() { return _size; }
     SLVec2i          textureSize() { return _textureSize; }
 
@@ -77,7 +77,7 @@ private:
     SLMat4f             _p;           //!< Projection matrix
     SLMat4f             _mvp[6];      //!< Model-view-projection matrices
     SLGLDepthBuffer*    _depthBuffer; //!< Framebuffer and texture
-    SLGLVertexArrayExt* _frustumVAO;  //!< Visualization of light-space-furstum
+    SLGLVertexArrayExt* _frustumVAO;  //!< Visualization of light-space-frustum
     SLVec2i             _rayCount;    //!< Amount of rays drawn by drawRays()
     SLMaterial*         _mat;         //!< Material used to render the shadow map
     SLfloat             _clipNear;    //!< Near clipping plane
