@@ -189,7 +189,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     SLfloat scaleBy    = 1.0f; // used to scale surface reflectance at the end of random walk
 
     // Intersect scene
-    SLNode* root = _sv->s().root3D();
+    SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
     // end of recursion - no object hit OR max depth reached
@@ -357,7 +357,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* mat)
     SLfloat lightDist, LdN, df, spotEffect, lighted;
 
     // loop over light sources in scene
-    for (auto* light : _sv->s().lights())
+    for (auto* light : _sv->s()->lights())
     {
         if (light && light->isOn())
         {
@@ -371,7 +371,7 @@ SLCol4f SLPathtracer::shade(SLRay* ray, SLCol4f* mat)
             lighted = (SLfloat)((LdN > 0) ? light->shadowTestMC(ray,
                                                                 L,
                                                                 lightDist,
-                                                                _sv->s().root3D())
+                                                                _sv->s()->root3D())
                                           : 0);
 
             // calculate spot effect if light is a spotlight

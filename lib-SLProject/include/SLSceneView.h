@@ -165,7 +165,8 @@ public:
     }
 
     // Getters
-    SLScene&        s() { return *_s; }
+    SLScene*        s() { return _s; }
+    SLAssetManager* assetManager() { return (SLAssetManager*)_s; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -207,6 +208,7 @@ public:
     AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
+
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer* optixRaytracer()
     {

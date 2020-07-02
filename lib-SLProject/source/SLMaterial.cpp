@@ -310,7 +310,6 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
-    SLint loc;
     program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
     program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
     program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);

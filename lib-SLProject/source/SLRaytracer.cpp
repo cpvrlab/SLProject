@@ -369,7 +369,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
     SLCol4f color(ray->backgroundColor);
 
     // Intersect scene
-    SLNode* root = _sv->s().root3D();
+    SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
     if (ray->length < FLT_MAX)
@@ -482,12 +482,12 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
-    SLScene&      s          = _sv->s();
+    SLScene*      s          = _sv->s();
     SLCol4f       localColor = mat->emissive() + (mat->ambient() & SLLight::globalAmbient);
 
     ray->hitMesh->preShade(ray);
 
-    for (auto* light : s.lights())
+    for (auto* light : s->lights())
     {
         if (light && light->isOn())
         {
@@ -516,7 +516,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             LdotN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
+            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s->root3D()) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();

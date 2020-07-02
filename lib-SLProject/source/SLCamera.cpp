@@ -498,7 +498,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 
         case P_stereoSideBySideD:
-            stateGL->projectionMatrix = sv->s().oculus()->projection(eye);
+            stateGL->projectionMatrix = sv->s()->oculus()->projection(eye);
 
             break;
         // all other stereo projections
@@ -738,10 +738,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             {
                 // get the oculus or mobile device orientation
                 SLQuat4f rotation;
-                if (sv->s().oculus()->isConnected())
+                if (sv->s()->oculus()->isConnected())
                 {
-                    rotation = sv->s().oculus()->orientation(eye);
-                    trackingPos.translate(-1 * sv->s().oculus()->position(eye));
+                    rotation = sv->s()->oculus()->orientation(eye);
+                    trackingPos.translate(-1 * sv->s()->oculus()->position(eye));
                 }
                 //todo else rotation = s->deviceRotation();
 
@@ -754,7 +754,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                        rotZ * SL_RAD2DEG);
                 */
 
-                SLVec3f viewAdjust = sv->s().oculus()->viewAdjust(eye) * _unitScaling;
+                SLVec3f viewAdjust = sv->s()->oculus()->viewAdjust(eye) * _unitScaling;
 
                 SLMat4f vmEye(SLMat4f(viewAdjust.x,
                                       viewAdjust.y,

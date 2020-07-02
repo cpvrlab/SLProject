@@ -9,7 +9,6 @@
 
 #ifdef SL_HAS_OPTIX
 #    include <stdafx.h> // Must be the 1st include followed by  an empty line
-#    include <SLApplication.h>
 #    include <SLProjectScene.h>
 #    include <SLLightRect.h>
 #    include <SLSceneView.h>
@@ -34,7 +33,6 @@ SLOptixRaytracer::SLOptixRaytracer()
 SLOptixRaytracer::~SLOptixRaytracer()
 {
     SL_LOG("Destructor      : ~SLOptixRaytracer");
-
     destroy();
 }
 //-----------------------------------------------------------------------------
@@ -289,7 +287,7 @@ OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::setupScene(SLSceneView* sv)
 {
-    SLAssetManager* am     = (SLAssetManager*)SLApplication::scene;
+    SLAssetManager* am     = sv->assetManager();
     SLVMesh         meshes = am->meshes();
     _sv                    = sv;
 
@@ -313,7 +311,7 @@ void SLOptixRaytracer::setupScene(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::updateScene(SLSceneView* sv)
 {
-    SLScene*  scene  = SLApplication::scene;
+    SLScene*  scene  = sv->s();
     SLCamera* camera = sv->camera();
     _sv              = sv;
 
@@ -372,7 +370,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
     _lightBuffer.alloc_and_upload(lights);
     _params.lights             = reinterpret_cast<ortLight*>(_lightBuffer.devicePointer());
     _params.numLights          = light_count;
-    _params.globalAmbientColor = make_float4(scene->globalAmbiLight());
+    _params.globalAmbientColor = make_float4(SLLight::globalAmbient);
 
     _paramsBuffer.upload(&_params);
 }
