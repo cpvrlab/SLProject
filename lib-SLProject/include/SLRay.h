@@ -204,9 +204,9 @@ SLRay::hitMatIsTransparent() const
 {
     if (!hitMesh) return false;
     SLMaterial* mat = hitMesh->mat();
-    return ((mat->transmissiv().r > 0.0f) ||
-            (mat->transmissiv().g > 0.0f) ||
-            (mat->transmissiv().b > 0.0f));
+    return ((mat->transmissive().r > 0.0f) ||
+            (mat->transmissive().g > 0.0f) ||
+            (mat->transmissive().b > 0.0f));
 }
 //-----------------------------------------------------------------------------
 //! Returns true if the hit material diffuse color is not black

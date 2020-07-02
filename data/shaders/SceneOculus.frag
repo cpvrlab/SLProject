@@ -30,7 +30,8 @@ void main()
 	
 	o_fragColor = color*ambientFactor;
 
-	if(u_cube != 0){
+	if(u_cube != 0)
+	{
 		vec3 direction = vec3(1,-1,-1);
 		direction = normalize(direction);
 		float diffFactor = 0.8*max(dot(v_normal,v_lightDir), 0.0);

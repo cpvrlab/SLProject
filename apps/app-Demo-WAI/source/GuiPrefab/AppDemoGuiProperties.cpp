@@ -109,10 +109,10 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                                                      "Stereo Line By Line",
                                                      "Stereo Column By Column",
                                                      "Stereo Pixel By Pixel",
-                                                     "Stereo Color Red Cyan",
-                                                     "Stereo Color Red Green",
-                                                     "Stereo Color Red Blue",
-                                                     "Stereo Color Yelle Blue"};
+                                                     "Stereo Color Red-Cyan",
+                                                     "Stereo Color Red-Green",
+                                                     "Stereo Color Red-Blue",
+                                                     "Stereo Color Yellow-Blue"};
 
                         int proj = cam->projection();
                         if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
@@ -120,9 +120,9 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
 
                         if (cam->projection() > P_monoOrthographic)
                         {
-                            SLfloat eyeSepar = cam->eyeSeparation();
+                            SLfloat eyeSepar = cam->stereoEyeSeparation();
                             if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
-                                cam->eyeSeparation(eyeSepar);
+                                cam->stereoEyeSeparation(eyeSepar);
                         }
 
                         if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))

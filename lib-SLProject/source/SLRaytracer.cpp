@@ -369,7 +369,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
     SLCol4f color(ray->backgroundColor);
 
     // Intersect scene
-    SLNode* root = _sv->s().root3D();
+    SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
     if (ray->length < FLT_MAX)
@@ -427,7 +427,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
         }
     }
 
-    if (SLGLState::instance()->fogIsOn)
+    if (_cam->fogIsOn())
         color = fogBlend(ray->length, color);
 
     color.clampMinMax(0, 1);
@@ -482,12 +482,12 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
-    SLScene&      s          = _sv->s();
+    SLScene*      s          = _sv->s();
     SLCol4f       localColor = mat->emissive() + (mat->ambient() & SLLight::globalAmbient);
 
     ray->hitMesh->preShade(ray);
 
-    for (auto* light : s.lights())
+    for (auto* light : s->lights())
     {
         if (light && light->isOn())
         {
@@ -516,7 +516,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             LdotN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
+            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s->root3D()) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();
@@ -721,25 +721,24 @@ calculation. See OpenGL docs for more information on fog properties.
 SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
 {
     SLfloat    f;
-    SLGLState* stateGL = SLGLState::instance();
 
     if (z > _sv->_camera->clipFar())
         z = _sv->_camera->clipFar();
 
-    switch (stateGL->fogMode)
+    switch (_cam->fogMode())
     {
         case 0:
-            f = (stateGL->fogDistEnd - z) /
-                (stateGL->fogDistEnd - stateGL->fogDistStart);
+            f = (_cam->fogDistEnd() - z) /
+                (_cam->fogDistEnd() - _cam->fogDistStart());
             break;
         case 1:
-            f = exp(-stateGL->fogDensity * z);
+            f = exp(-_cam->fogDensity() * z);
             break;
         default:
-            f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z);
+            f = exp(-_cam->fogDensity() * z * _cam->fogDensity() * z);
             break;
     }
-    color = f * color + (1 - f) * stateGL->fogColor;
+    color = f * color + (1 - f) * _cam->fogColor();
     color.clampMinMax(0, 1);
     return color;
 }

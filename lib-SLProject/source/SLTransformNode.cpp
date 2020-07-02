@@ -134,7 +134,7 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
 
     setDrawBitRecursive(SL_DB_OVERDRAW, this, true);
 
-    _sv->s().eventHandlers().push_back(this);
+    _sv->s()->eventHandlers().push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!

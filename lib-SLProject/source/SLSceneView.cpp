@@ -10,7 +10,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include <SLApplication.h>
 #include <SLAnimManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
@@ -137,7 +136,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.clipNear(.1f);
     _sceneViewCamera.clipFar(2000.0f);
     _sceneViewCamera.maxSpeed(40);
-    _sceneViewCamera.eyeSeparation(_sceneViewCamera.focalDist() / 30.0f);
+    _sceneViewCamera.stereoEyeSeparation(_sceneViewCamera.focalDist() / 30.0f);
     _sceneViewCamera.setProjection(this, ET_center);
     _sceneViewCamera.projection(proj);
 
@@ -1868,7 +1867,7 @@ SLbool SLSceneView::draw3DOptixRT()
     // if the raytracer not yet got started
     if (_optixRaytracer.state() == rtReady)
     {
-        s().root3D()->needUpdate();
+        s()->root3D()->needUpdate();
 
         _optixRaytracer.updateScene(this);
 
@@ -1907,7 +1906,7 @@ SLbool SLSceneView::draw3DOptixPT()
     // if the path tracer not yet got started
     if (_optixPathtracer.state() == rtReady)
     {
-        s().root3D()->needUpdate();
+        s()->root3D()->needUpdate();
 
         // Start path tracing
         _optixPathtracer.updateScene(this);

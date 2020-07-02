@@ -273,9 +273,9 @@ void SLMesh::init(SLNode* node)
     // otherwise use the default gray material
     if (!mat())
     {
-        if (!C.empty())
-            mat(SLMaterialDiffuseAttribute::instance());
-        else
+        //if (!C.empty())
+        //    mat(SLMaterialDiffuseAttribute::instance());
+        //else
             mat(SLMaterialDefaultGray::instance());
     }
 
@@ -414,7 +414,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 3.a) Apply mesh material if exists & differs from current
-    _mat->activate(*node->drawBits(), &sv->s().lights());
+    _mat->activate(*node->drawBits(), sv->camera(), &sv->s()->lights());
 
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = _mat->program();
@@ -554,7 +554,7 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
                                       SLGLState*   stateGL,
                                       SLNode*      node)
 {
-    SLScene*  s   = &sv->s();
+    SLScene*  s   = sv->s();
     SLCamera* cam = sv->camera();
 
     // Single node and mesh is selected
@@ -1504,7 +1504,7 @@ ortHitData SLMesh::createHitData()
     hitData.material.shininess         = mat()->shininess();
     hitData.material.ambient_color     = make_float4(mat()->ambient());
     hitData.material.specular_color    = make_float4(mat()->specular());
-    hitData.material.transmissiv_color = make_float4(mat()->transmissiv());
+    hitData.material.transmissiv_color = make_float4(mat()->transmissive());
     hitData.material.diffuse_color     = make_float4(mat()->diffuse());
     hitData.material.emissive_color    = make_float4(mat()->emissive());
 

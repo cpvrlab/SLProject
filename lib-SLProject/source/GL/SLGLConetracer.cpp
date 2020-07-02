@@ -287,7 +287,7 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     uploadRenderSettings(program);
 
     //uploadLights(program);
-    program->passLightsToUniforms(&_sv->s().lights());
+    program->passLightsToUniforms(&_sv->s()->lights());
 
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();
@@ -296,7 +296,7 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     glUniform3fv(glGetUniformLocation(progID, "u_EyePosWS"), 1, (SLfloat*)&camPosWS);
     GET_GL_ERROR;
 
-    renderNode(_sv->s().root3D(), program);
+    renderNode(_sv->s()->root3D(), program);
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
