@@ -18,7 +18,7 @@
 class SLGLDepthBuffer
 {
 public:
-    SLGLDepthBuffer(SLVec2i dimensions,
+    SLGLDepthBuffer(const SLVec2i& dimensions,
                     SLenum  magFilter     = GL_NEAREST,
                     SLenum  minFilter     = GL_NEAREST,
                     SLint   wrap          = GL_REPEAT,
@@ -28,11 +28,11 @@ public:
 
     SLint    texID() { return _texID; }
     SLint    target() { return _target; }
-    void     activateAsTexture(SLuint loc);
-    void     bind();
-    void     unbind();
-    void     bindFace(SLenum face);
-    SLfloat* readPixels();
+    void     activateAsTexture(SLuint loc) const;
+    void     bind() const;
+    static void     unbind();
+    void     bindFace(SLenum face) const;
+    SLfloat* readPixels() const;
     SLVec2i  dimensions() { return _dimensions; }
 
 private:

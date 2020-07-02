@@ -18,7 +18,7 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint
     _yellow  = new SLMaterial(nullptr, "Yellow Opaque", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
     _green  = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
 
-    _sv->s().eventHandlers().push_back(this);
+    _sv->s()->eventHandlers().push_back(this);
 
     updateMapPointsMeshes("current map points", _mappoints, _mesh, _green);
 }
@@ -114,7 +114,7 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
         mesh = new SLPoints(nullptr, points, normals, name, material);
         addMesh(mesh);
         updateAABBRec();
-        _sv->s().selectNodeMesh(this, mesh);
+        _sv->s()->selectNodeMesh(this, mesh);
     }
 }
 

@@ -55,7 +55,7 @@ public:
     void    renderDistortion(SLint   width,
                              SLint   height,
                              SLuint  tex,
-                             SLCol4f background);
+                             const SLCol4f& background);
     // Setters
     void lowPersistance(SLbool val);
     void timeWarp(SLbool val);

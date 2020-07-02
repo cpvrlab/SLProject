@@ -34,6 +34,12 @@ SLCamera::SLCamera(const SLstring& name)
     _brakeAccel(16.0f),
     _moveAccel(16.0f),
     _unitScaling(1.0f),
+    _fogIsOn(false),
+    _fogMode(GL_LINEAR),
+    _fogDensity(0.2f),
+    _fogDistStart(1.0f),
+    _fogDistEnd(6.0f),
+    _fogColor(SLCol4f::BLACK),
     _background(SLGLProgramManager::get(SP_TextureOnly), SLGLProgramManager::get(SP_colorAttribute))
 {
     _fovInit       = 0;
@@ -50,8 +56,8 @@ SLCamera::SLCamera(const SLstring& name)
     // depth of field parameters
     _lensDiameter = 0.3f;
     _lensSamples.samples(1, 1); // e.g. 10,10 > 10x10=100 lenssamples
-    _focalDist     = 5;
-    _eyeSeparation = _focalDist / 30.0f;
+    _focalDist           = 5;
+    _stereoEyeSeparation = _focalDist / 30.0f;
 
     _background.colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
 }
@@ -457,8 +463,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     const SLMat4f& vm      = updateAndGetWMI();
     SLGLState*     stateGL = SLGLState::instance();
 
-    stateGL->stereoEye  = eye;
-    stateGL->projection = _projection;
+    _stereoEye = eye;
 
     SLVec3f pos(vm.translation());
     SLfloat top, bottom, left, right, d; // frustum parameters
@@ -493,13 +498,13 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 
         case P_stereoSideBySideD:
-            stateGL->projectionMatrix = sv->s().oculus()->projection(eye);
+            stateGL->projectionMatrix = sv->s()->oculus()->projection(eye);
 
             break;
         // all other stereo projections
         default:
             // asymmetric frustum shift d (see chapter stereo projection)
-            d      = (SLfloat)eye * 0.5f * _eyeSeparation * _clipNear / _focalDist;
+            d      = (SLfloat)eye * 0.5f * _stereoEyeSeparation * _clipNear / _focalDist;
             top    = tan(Utils::DEG2RAD * _fov / 2) * _clipNear;
             bottom = -top;
             left   = -_viewportRatio * top - d;
@@ -549,26 +554,26 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         switch (_projection)
         {
             case P_stereoColorRC:
-                stateGL->stereoColorFilter.setMatrix(0.29f,
-                                                     0.59f,
-                                                     0.12f,
-                                                     0.00f,
-                                                     1.00f,
-                                                     0.00f,
-                                                     0.00f,
-                                                     0.00f,
-                                                     1.00f);
+                _stereoColorFilter.setMatrix(0.29f,
+                                             0.59f,
+                                             0.12f,
+                                             0.00f,
+                                             1.00f,
+                                             0.00f,
+                                             0.00f,
+                                             0.00f,
+                                             1.00f);
                 break;
             case P_stereoColorYB:
-                stateGL->stereoColorFilter.setMatrix(1.00f,
-                                                     0.00f,
-                                                     0.00f,
-                                                     0.00f,
-                                                     1.00f,
-                                                     0.00f,
-                                                     0.15f,
-                                                     0.15f,
-                                                     0.70f);
+                _stereoColorFilter.setMatrix(1.00f,
+                                             0.00f,
+                                             0.00f,
+                                             0.00f,
+                                             1.00f,
+                                             0.00f,
+                                             0.15f,
+                                             0.15f,
+                                             0.70f);
                 break;
             default: break;
         }
@@ -726,17 +731,17 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         {
             // half interpupilar distance
             //_eyeSeparation = s->oculus()->interpupillaryDistance(); update old rift code
-            SLfloat halfIPD = (SLfloat)eye * _eyeSeparation * -0.5f;
+            SLfloat halfIPD = (SLfloat)eye * _stereoEyeSeparation * -0.5f;
 
             SLMat4f trackingPos;
             if (_camAnim == CA_deviceRotYUp)
             {
                 // get the oculus or mobile device orientation
                 SLQuat4f rotation;
-                if (sv->s().oculus()->isConnected())
+                if (sv->s()->oculus()->isConnected())
                 {
-                    rotation = sv->s().oculus()->orientation(eye);
-                    trackingPos.translate(-1 * sv->s().oculus()->position(eye));
+                    rotation = sv->s()->oculus()->orientation(eye);
+                    trackingPos.translate(-1 * sv->s()->oculus()->position(eye));
                 }
                 //todo else rotation = s->deviceRotation();
 
@@ -749,7 +754,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                        rotZ * SL_RAD2DEG);
                 */
 
-                SLVec3f viewAdjust = sv->s().oculus()->viewAdjust(eye) * _unitScaling;
+                SLVec3f viewAdjust = sv->s()->oculus()->viewAdjust(eye) * _unitScaling;
 
                 SLMat4f vmEye(SLMat4f(viewAdjust.x,
                                       viewAdjust.y,
@@ -770,7 +775,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             vm.lookAt(&EYE, &LA, &LU, &LR);
 
             // Shorten LR to half of the eye dist (eye=-1 for left, eye=1 for right)
-            LR *= _eyeSeparation * 0.5f * (SLfloat)eye;
+            LR *= _stereoEyeSeparation * 0.5f * (SLfloat)eye;
 
             // Set the OpenGL view matrix for the left eye
             SLMat4f vmEye;
@@ -1060,7 +1065,7 @@ SLbool SLCamera::onMouseWheel(const SLint delta,
         }
         if (mod == K_ctrl)
         {
-            _eyeSeparation *= (1.0f + sign * 0.1f);
+            _stereoEyeSeparation *= (1.0f + sign * 0.1f);
         }
         if (mod == K_alt)
         {
@@ -1485,5 +1490,18 @@ SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
         vec.normalize(); // d >= 1, so normalize
     }
     return vec;
+}
+//-----------------------------------------------------------------------------
+//! Pass camera parameters to the uniform variables
+void SLCamera::passToUniforms(SLGLProgram* program)
+{
+    assert(program && "SLCamera::passToUniforms: No shader program set!");
+
+    SLint loc;
+    loc = program->uniform1i("u_projection", _projection);
+    loc = program->uniform1i("u_stereoEye", _stereoEye);
+    loc = program->uniformMatrix3fv("u_stereoColorFilter",
+                                    1,
+                                    (SLfloat*)&_stereoColorFilter);
 }
 //-----------------------------------------------------------------------------

@@ -340,7 +340,6 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
     //Todo: if we have a Renderer once, we can use this clean up opengl specific stuff
     SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
-    SLMaterialDiffuseAttribute::deleteInstance();
 
     if (_closeCB)
     {

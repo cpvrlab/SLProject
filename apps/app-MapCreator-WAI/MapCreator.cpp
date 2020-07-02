@@ -1,4 +1,5 @@
 #include <memory>
+#include <vector>
 #include <CVCamera.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
@@ -242,9 +243,9 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
     std::string mapDir      = _outputDir + area + "/";
     bool        initialized = false;
     std::string currentMapFileName;
-
+    std::vector<int> keyFrameVideoMatching;
     const float cullRedundantPerc = 0.99f;
-    initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels);
+    initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels, keyFrameVideoMatching);
 
     if (areaConfig.videos.size() && initialized)
     {
@@ -257,8 +258,11 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
         }
 
         const float cullRedundantPerc = 0.95f;
+
+        std::string kfVideoMatchingFileName = Utils::getFileNameWOExt(mapFile) + "_match.txt";
+
         //select one calibration (we need one to instantiate mode and we need mode to load map)
-        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, areaConfig.videos.front().calibration, cullRedundantPerc, extractorType, nLevels);
+        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, kfVideoMatchingFileName, areaConfig.videos.front().calibration, cullRedundantPerc, extractorType, nLevels, keyFrameVideoMatching, areaConfig.videos);
     }
     else
     {
@@ -274,7 +278,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
                                       const float        cullRedundantPerc,
                                       std::string&       currentMapFileName,
                                       ExtractorType      extractorType,
-                                      int                nLevels)
+                                      int                nLevels,
+                                      std::vector<int>&  keyFrameVideoMatching)
 {
     bool initialized = false;
     //wai mode config
@@ -283,6 +288,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
     modeParams.serial            = false;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
+
+    keyFrameVideoMatching.resize(1000, -1);
 
     //map creation parameter:
     int         videoIndex = 0;
@@ -408,8 +415,17 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             if (!frame)
                 break;
 
+            // VIDEO FRAME MATCHING
+            while (keyFrameVideoMatching.size() < WAIKeyFrame::nNextId)
+            {
+                keyFrameVideoMatching.resize(keyFrameVideoMatching.size() * 2, -1);
+            }
+            keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdx;
+
             //update wai
             waiMode->update(frame->imgGray);
+
+
             if (firstRun)
             {
                 firstRun = false;
@@ -444,14 +460,19 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
     return initialized;
 }
 
+
 void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                   const std::string& inputMapFile,
                                   const std::string& outputMapFile,
+                                  const std::string& outputKFMatchingFile,
                                   CVCalibration&     calib,
                                   const float        cullRedundantPerc,
                                   ExtractorType      extractorType,
-                                  int                nLevels)
+                                  int                nLevels,
+                                  std::vector<int>&  keyFrameVideoMatching,
+                                  Videos&            videos)
 {
+    std::cout << "thinOutNewWAIMap" << std::endl;
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
@@ -480,6 +501,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
         return;
     }
     //instantiate wai mode
+    /*
     std::unique_ptr<WAISlam> waiMode =
       std::make_unique<WAISlam>(calib.cameraMat(),
                                 calib.distortion(),
@@ -491,16 +513,28 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                 modeParams.serial,
                                 modeParams.retainImg,
                                 modeParams.cullRedundantPerc);
+                                */
 
+
+    //testKFVideoMatching(keyFrameVideoMatching);
     //cull keyframes
-    std::vector<WAIKeyFrame*> kfs = waiMode->getMap()->GetAllKeyFrames();
-    cullKeyframes(waiMode.get(), kfs, modeParams.cullRedundantPerc);
+    std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
+    cullKeyframes(map.get(), kfs, keyFrameVideoMatching, modeParams.cullRedundantPerc);
+
+    //testKFVideoMatching(keyFrameVideoMatching);
 
     //save map again (we use the map file name without index because this is the final map)
-    saveMap(waiMode.get(), mapDir, outputMapFile, &mapNode);
+    //saveMap(waiMode.get(), mapDir, outputMapFile, &mapNode);
+
+    if (!WAIMapStorage::saveMap(map.get(), &mapNode, mapDir + outputMapFile))
+    {
+        throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
+    }
+
+    WAIMapStorage::saveKeyFrameVideoMatching(keyFrameVideoMatching, videos.size(), mapDir, outputKFMatchingFile);
 }
 
-void MapCreator::cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc)
+void MapCreator::cullKeyframes(WAIMap* map, std::vector<WAIKeyFrame*>& kfs, std::vector<int>& keyFrameVideoMatching, const float cullRedundantPerc)
 {
     for (auto itKF = kfs.begin(); itKF != kfs.end(); ++itKF)
     {
@@ -562,9 +596,10 @@ void MapCreator::cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs,
 
             if (nRedundantObservations > cullRedundantPerc * nMPs)
             {
+                keyFrameVideoMatching[pKF->mnId] = -1;
                 pKF->SetBadFlag();
-                waiMode->getMap()->EraseKeyFrame(pKF);
-                waiMode->getMap()->GetKeyFrameDB()->erase(pKF);
+                map->EraseKeyFrame(pKF);
+                map->GetKeyFrameDB()->erase(pKF);
             }
         }
     }

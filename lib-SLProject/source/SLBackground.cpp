@@ -157,7 +157,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     SLGLProgram* sp = _texture ? _textureOnlyProgram : _colorAttributeProgram;
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
-    sp->uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
+    sp->uniform1f("u_oneOverGamma", SLLight::oneOverGamma());
 
     // Create or update buffer for vertex position and indices
     if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)

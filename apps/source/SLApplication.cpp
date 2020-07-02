@@ -129,7 +129,6 @@ void SLApplication::deleteAppAndScene()
     //delete default stuff:
     SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
-    SLMaterialDiffuseAttribute::deleteInstance();
 }
 //-----------------------------------------------------------------------------
 //! Starts parallel job if one is queued.

@@ -44,18 +44,18 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLfloat         kt,
                        SLfloat         kn,
                        SLGLProgram*    program,
-                       SLstring        compileErrorTexFilePath) : SLObject(name)
+                       const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
     _ambient = _diffuse = amdi;
     _specular           = spec;
     _emissive.set(0, 0, 0, 0);
-    _shininess       = shininess;
-    _roughness       = 0.5f;
-    _metalness       = 0.0f;
-    _translucency    = 0.0f;
-    _getsShadows     = true;
-    _shadowBias      = 0.005f;
-    _program         = program;
+    _shininess    = shininess;
+    _roughness    = 0.5f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
+    _getsShadows  = true;
+    _shadowBias   = 0.005f;
+    _program      = program;
 
     _kr = kr;
     _kt = kt;
@@ -96,23 +96,23 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture3,
                        SLGLTexture*    texture4,
                        SLGLProgram*    shaderProg,
-                       SLstring        compileErrorTexFilePath) : SLObject(name)
+                       const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
     _emissive.set(0, 0, 0, 0);
-    _shininess       = 125;
-    _roughness       = 0.5f;
-    _metalness       = 0.0f;
-    _translucency    = 0.0f;
-    _getsShadows     = true;
-    _shadowBias      = 0.0005f;
-    _program         = shaderProg;
-    _kr              = 0.0f;
-    _kt              = 0.0f;
-    _kn              = 1.0f;
-    _diffuse.w       = 1.0f - _kt;
+    _shininess    = 125;
+    _roughness    = 0.5f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
+    _getsShadows  = true;
+    _shadowBias   = 0.0005f;
+    _program      = shaderProg;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+    _diffuse.w    = 1.0f - _kt;
 
     if (texture1) _textures.push_back(texture1);
     if (texture2) _textures.push_back(texture2);
@@ -138,21 +138,20 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLGLProgram*    shaderProg,
-                       SLstring        compileErrorTexFilePath) : SLObject(name)
+                       const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
-    _program         = shaderProg;
-    _shininess       = 125.0f;
-    _roughness       = 0.0f;
-    _metalness       = 0.0f;
-    _translucency    = 0.0f;
-    _getsShadows     = true;
-    _shadowBias      = 0.0005f;
+    _program      = shaderProg;
+    _shininess    = 125.0f;
+    _roughness    = 0.0f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
+    _getsShadows  = true;
+    _shadowBias   = 0.0005f;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
         am->materials().push_back(this);
 }
-
 //-----------------------------------------------------------------------------
 /*!
  * Constructor for Cook-Torrance shaded materials with roughness and metalness.
@@ -175,22 +174,22 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLCol4f&  diffuse,
                        SLfloat         roughness,
                        SLfloat         metalness,
-                       SLstring        compileErrorTexFilePath) : SLObject(name)
+                       const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
-    _specular.set(1, 1, 1);                         // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                      // not used in Cook-Torrance
-    _shininess       = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness       = roughness;
-    _metalness       = metalness;
-    _translucency    = 0.0f;
-    _getsShadows     = true;
-    _shadowBias      = 0.0005f;
-    _kr              = 0.0f;
-    _kt              = 0.0f;
-    _kn              = 1.0f;
-    _program         = perPixCookTorranceProgram;
+    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
+    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness    = roughness;
+    _metalness    = metalness;
+    _translucency = 0.0f;
+    _getsShadows  = true;
+    _shadowBias   = 0.0005f;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+    _program      = perPixCookTorranceProgram;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -213,23 +212,23 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    colorUniformProgram,
                        const SLCol4f&  uniformColor,
                        const SLchar*   name,
-                       SLstring        compileErrorTexFilePath)
+                       const SLstring& compileErrorTexFilePath)
   : SLObject(name)
 {
     _ambient.set(0, 0, 0);
     _diffuse = uniformColor;
     _specular.set(0, 0, 0);
     _emissive.set(0, 0, 0, 0);
-    _shininess       = 125;
-    _roughness       = 0.5f;
-    _metalness       = 0.0f;
-    _translucency    = 0.0f;
-    _program         = colorUniformProgram;
-    _kr              = 0.0f;
-    _kt              = 0.0f;
-    _kn              = 1.0f;
-    _getsShadows     = true;
-    _shadowBias      = 0.0005f;
+    _shininess    = 125;
+    _roughness    = 0.5f;
+    _metalness    = 0.0f;
+    _translucency = 0.0f;
+    _program      = colorUniformProgram;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+    _getsShadows  = true;
+    _shadowBias   = 0.0005f;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -259,7 +258,7 @@ SLMaterial::~SLMaterial()
 SLMaterial::activate applies the material parameter to the global render state
 and activates the attached shader
 */
-void SLMaterial::activate(SLDrawBits drawBits, SLVLight* lights)
+void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -275,13 +274,13 @@ void SLMaterial::activate(SLDrawBits drawBits, SLVLight* lights)
     stateGL->currentMaterial(this);
 
     // If no shader program is attached add the default shader program
-    //todo: this should not happen... then we would not have to do magic
+    // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
         if (!_textures.empty())
-            program(SLGLProgramManager::get(SP_perVrtBlinnTex));
+            program(SLGLGenericProgramDefaultTex::instance());
         else
-            program(SLGLProgramManager::get(SP_perVrtBlinn));
+            program(SLGLGenericProgramDefault::instance());
     }
 
     // Check if shader had compile error and the error texture should be shown
@@ -304,14 +303,13 @@ void SLMaterial::activate(SLDrawBits drawBits, SLVLight* lights)
     }
 
     // Activate the shader program now
-    program()->beginUse(this, lights);
+    program()->beginUse(cam, this, lights);
 }
 //-----------------------------------------------------------------------------
 void SLMaterial::passToUniforms(SLGLProgram* program)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
-    SLint loc;
     program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
     program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
     program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);
@@ -325,11 +323,13 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1i("u_matGetsShadows", _getsShadows);
     program->uniform1f("u_matShadowBias", _shadowBias);
     program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
+
+    // pass textures
+    for (SLint i = 0; i < (SLint)_textures.size(); ++i)
+    {
+        SLchar name[100];
+        sprintf(name, "u_texture%d", i);
+        program->uniform1i(name, i);
+    }
 }
 //-----------------------------------------------------------------------------
-SLMaterialDiffuseAttribute::SLMaterialDiffuseAttribute()
-  : SLMaterial(nullptr, "diffuseAttrib")
-{
-    specular(SLCol4f::BLACK);
-    program(SLGLProgramManager::get(SP_perVrtBlinnColorAttrib));
-}
