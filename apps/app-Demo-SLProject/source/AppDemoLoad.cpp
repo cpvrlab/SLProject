@@ -219,7 +219,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->moveAccel(160);
         cam1->brakeAccel(160);
         cam1->focalDist(12);
-        cam1->eyeSeparation(cam1->focalDist() / 30.0f);
+        cam1->stereoEyeSeparation(cam1->focalDist() / 30.0f);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -764,6 +764,68 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
+    else if (SLApplication::sceneID == SID_MassiveData) //...............................................
+    {
+        s->name("Massive Data Test");
+        s->info("No data is shared on the GPU. Check Memory consumption.");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0, 0, 50);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(5);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
+        light1->powers(0.2f, 0.8f, 1.0f);
+        light1->attenuation(1, 0, 0);
+
+        SLNode* scene = new SLNode;
+        scene->addChild(cam1);
+        scene->addChild(light1);
+
+        // Create shader program with 4 uniforms
+        SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "BumpNormal.vert",
+                                                 SLApplication::shaderPath + "BumpNormalParallax.frag");
+
+        SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.01f, 0.002f, 0, 1, (SLKey)'X');
+        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", 0.01f, 0.002f, -1, 1, (SLKey)'O');
+        s->eventHandlers().push_back(scale);
+        s->eventHandlers().push_back(offset);
+        sp->addUniform1f(scale);
+        sp->addUniform1f(offset);
+
+        // create new materials for every sphere
+        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
+        SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
+        SLMaterial*  mat  = new SLMaterial(s, "mat1", texC, texN, nullptr, nullptr, sp);
+
+        // create spheres around the center sphere
+        SLint size = 8;
+        for (SLint iZ = -size; iZ <= size; ++iZ)
+        {
+            for (SLint iY = -size; iY <= size; ++iY)
+            {
+                for (SLint iX = -size; iX <= size; ++iX)
+                {
+                    // add one single sphere in the center
+                    SLuint    res    = 30;
+                    SLSphere* earth  = new SLSphere(s, 0.3f, res, res, "earth", mat);
+                    SLNode*   sphere = new SLNode(earth);
+                    sphere->translate(float(iX), float(iY), float(iZ), TS_object);
+                    scene->addChild(sphere);
+                }
+            }
+        }
+
+        sv->camera(cam1);
+        sv->doWaitOnIdle(false);
+        s->root3D(scene);
+    }
     else if (SLApplication::sceneID == SID_2Dand3DText) //...............................................
     {
         s->name("2D & 3D Text Test");
@@ -844,65 +906,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene3D);
         s->root2D(scene2D);
     }
-    else if (SLApplication::sceneID == SID_MassiveData) //...............................................
-    {
-        s->name("Massive Data Test");
-        s->info("No data is shared on the GPU. Check Memory consumption.");
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->clipNear(0.1f);
-        cam1->clipFar(100);
-        cam1->translation(0, 0, 50);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(5);
-        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
-
-        SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
-        light1->powers(0.2f, 0.8f, 1.0f);
-        light1->attenuation(1, 0, 0);
-
-        SLNode* scene = new SLNode;
-        scene->addChild(cam1);
-        scene->addChild(light1);
-
-        // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "BumpNormal.vert", SLApplication::shaderPath + "BumpNormalParallax.frag");
-        SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.01f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", 0.01f, 0.002f, -1, 1, (SLKey)'O');
-        s->eventHandlers().push_back(scale);
-        s->eventHandlers().push_back(offset);
-        sp->addUniform1f(scale);
-        sp->addUniform1f(offset);
-
-        // create new materials for every sphere
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
-        SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
-        SLMaterial*  mat  = new SLMaterial(s, "mat1", texC, texN, nullptr, nullptr, sp);
-
-        // create spheres around the center sphere
-        SLint size = 8;
-        for (SLint iZ = -size; iZ <= size; ++iZ)
-        {
-            for (SLint iY = -size; iY <= size; ++iY)
-            {
-                for (SLint iX = -size; iX <= size; ++iX)
-                {
-                    // add one single sphere in the center
-                    SLuint    res    = 30;
-                    SLSphere* earth  = new SLSphere(s, 0.3f, res, res, "earth", mat);
-                    SLNode*   sphere = new SLNode(earth);
-                    sphere->translate(float(iX), float(iY), float(iZ), TS_object);
-                    scene->addChild(sphere);
-                }
-            }
-        }
-
-        sv->camera(cam1);
-        sv->doWaitOnIdle(false);
-        s->root3D(scene);
-    }
     else if (SLApplication::sceneID == SID_PointClouds) //...............................................
     {
         s->name("Point Clouds Test");
@@ -946,31 +949,24 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
     else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
-             SLApplication::sceneID == SID_ShaderPerVertexBlinn ||
-             SLApplication::sceneID == SID_ShaderPerPixelBlinnTemplate) //...............................
+             SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
     {
-        SLMaterial* m1 = nullptr;
+        SLMaterial*  m1 = nullptr;
+        SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerPixBlinn.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinn.frag");
 
         if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
-            m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_perPixBlinn));
-        }
-        else if (SLApplication::sceneID == SID_ShaderPerPixelBlinnTemplate)
-        {
-            s->name("Blinn-Phong per pixel lighting template shader");
-            s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
-            SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnTemplate.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnTemplate.frag");
-            m1              = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, sp);
+            m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, sp);
         }
         else
         {
             s->name("Blinn-Phong per vertex lighting");
             s->info("Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex.");
-            m1 = new SLMaterial(s, "m1", nullptr, nullptr);
+            m1 = new SLMaterial(s, "m1");
         }
 
         m1->shininess(500);
@@ -984,7 +980,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
-        //cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // Define 5 light sources
@@ -1056,7 +1051,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderCookTorrance) //........................................
+    else if (SLApplication::sceneID == SID_ShaderCook) //................................................
     {
         s->name("Cook-Torrance Test");
         s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.");
@@ -1082,6 +1077,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
+        SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerPixCook.vert",
+                                                 SLApplication::shaderPath + "PerPixCook.frag");
+
+        SLGLProgram* spTex = new SLGLGenericProgram(s,
+                                                    SLApplication::shaderPath + "PerPixCookTex.vert",
+                                                    SLApplication::shaderPath + "PerPixCookTex.frag");
+
         SLMaterial* mat[nrRows * nrCols];
         SLint       i = 0;
         SLfloat     y = -maxY;
@@ -1099,13 +1102,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048N.jpg"),
                                             new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048M.jpg"),
                                             new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048R.jpg"),
-                                            SLGLProgramManager::get(SP_perPixCookTorranceTex));
+                                            spTex);
                 }
                 else
                 {
                     // Cook-Torrance material without textures
-                    SLGLProgram* program = SLGLProgramManager::get(SP_perPixCookTorrance);
-                    mat[i]               = new SLMaterial(s, program, "CookTorranceMat", SLCol4f::RED * 0.5f, Utils::clamp((float)r * deltaR, 0.05f, 1.0f), (float)m * deltaM);
+                    mat[i] = new SLMaterial(s,
+                                            sp,
+                                            "CookTorranceMat",
+                                            SLCol4f::RED * 0.5f,
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            (float)m * deltaM);
                 }
 
                 SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
@@ -1263,7 +1270,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(rectR);
         scene->addChild(rectB);
         scene->addChild(rect);
-        scene->addChild(new SLNode(new SLSphere(s, 1, 32, 32, "Red Sphere", matRed)));
+        scene->addChild(new SLNode(new SLSphere(s,
+                                                1,
+                                                32,
+                                                32,
+                                                "Red Sphere",
+                                                matRed)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
@@ -1279,8 +1291,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
         SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
 
+        SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "BumpNormal.vert",
+                                                 SLApplication::shaderPath + "BumpNormal.frag");
+
         // Create materials
-        SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN, nullptr, nullptr, SLGLProgramManager::get(SP_bumpNormal));
+        SLMaterial* m1 = new SLMaterial(s,
+                                        "m1",
+                                        texC,
+                                        texN,
+                                        nullptr,
+                                        nullptr,
+                                        sp);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 20);
@@ -1384,7 +1406,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Material for glass
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
-        refr->transmissiv(SLCol4f::WHITE);
+        refr->transmissive(SLCol4f::WHITE);
         refr->textures().push_back(skyboxTex);
         refr->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag"));
 
@@ -1526,20 +1548,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCol4f blueRGB(0.25f, 0.25f, 0.75f);
         SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
 
-        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
-        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
+        SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerPixBlinn.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinn.frag");
+
+        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, sp);
 
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Teapot/Teapot.fbx", SLApplication::texturePath, true, teapotMat);
+        SLNode*          teapot = importer.load(s->animManager(),
+                                       s,
+                                       SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
+                                       SLApplication::texturePath,
+                                       true,
+                                       teapotMat);
 
         teapot->scale(0.5);
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
         scene->addChild(teapot);
 
-        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
-        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
-        // Material for mirror sphere
-        SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
+        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* refl   = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
 
         SLNode* sphere = new SLNode(new SLSphere(s, 0.3f, 32, 32, "Sphere1", refl));
         scene->addChild(sphere);
@@ -1549,7 +1579,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(box);
 
         // animate teapot
-        SLAnimation*     light2Anim = s->animManager().createNodeAnimation("sphere_anim", 5.0f, true, EC_linear, AL_loop);
+        SLAnimation*     light2Anim = s->animManager().createNodeAnimation("sphere_anim",
+                                                                       5.0f,
+                                                                       true,
+                                                                       EC_linear,
+                                                                       AL_loop);
         SLNodeAnimTrack* track      = light2Anim->createNodeAnimationTrack();
         track->animatedNode(sphere);
         SLTransformKeyframe* k1 = track->createNodeKeyframe(0.0f);
@@ -1559,14 +1593,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
-        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
+        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
 
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
         SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
         SLfloat pN = 0.99f, pF = -0.99f; // near/far
 
-        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, SLGLProgramManager::get(SP_perPixBlinn));
+        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
 
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(s, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
@@ -3409,7 +3443,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Material for glass sphere
         SLMaterial* refr = new SLMaterial(s, "refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
-        refr->transmissiv(SLCol4f::WHITE);
+        refr->transmissive(SLCol4f::WHITE);
         refr->textures().push_back(tex1);
         refr->program(sp2);
 

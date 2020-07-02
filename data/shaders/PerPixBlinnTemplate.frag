@@ -8,6 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/*
+The preprocessor constant #define NUM_LIGHTS will be added at the shader
+compilation time. It must be constant to be used in the for loop in main().
+Therefore this number it can not be passed as a uniform variable.
+*/
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -148,34 +154,45 @@ void main()
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-   
+
     // Apply stereo eye separation
     if (u_projection > 1)
-    {   if (u_projection > 7) // stereoColor??
-        {   // Apply color filter but keep alpha
+    {
+        if (u_projection > 7) // stereoColor??
+        {
+            // Apply color filter but keep alpha
             o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
         }
         else if (u_projection == 5) // stereoLineByLine
-        {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
         else if (u_projection == 6) // stereoColByCol
-        {   if (mod(floor(gl_FragCoord.x), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
-        } 
+        }
         else if (u_projection == 7) // stereoCheckerBoard
-        {   bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        {
+            bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
             bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v) // both even or odd
-            {  if (u_stereoEye ==-1) discard;
+            if (h==v)// both even or odd
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
     }

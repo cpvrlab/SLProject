@@ -44,7 +44,7 @@ vec2 timewarpTexCoord(vec2 texCoord)
     // Scale them into ([0,0.5],[0,1]) or ([0.5,0],[0,1]) UV lookup space (depending on eye)
     return(u_eyeToSourceUVScale * flattened + u_eyeToSourceUVOffset);
 }
-
+//-----------------------------------------------------------------------------
 void main()
 {
     v_texCoordR = timewarpTexCoord(a_texCoordR);
@@ -54,10 +54,7 @@ void main()
     v_vignette = a_vignetteFactor;
     gl_Position = vec4(a_position.xy, 0.5, 1.0);
 }
-
-
-
-
+//-----------------------------------------------------------------------------
 /* original hlsl shader below
 float2 EyeToSourceUVScale, EyeToSourceUVOffset;
 float4x4 EyeRotationStart, EyeRotationEnd;
@@ -88,5 +85,5 @@ void main(in float2 Position : POSITION, in float timewarpLerpFactor : POSITION1
     oPosition = float4(Position.xy, 0.5, 1.0);
     oVignette = Vignette; // For vignette fade
 }
-
+//-----------------------------------------------------------------------------
 */

@@ -1267,10 +1267,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
                     if (ImGui::MenuItem("Per Pixel Blinn-Phing", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Template", nullptr, sid == SID_ShaderPerPixelBlinnTemplate))
-                        s->onLoad(s, sv, SID_ShaderPerPixelBlinnTemplate);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCookTorrance))
-                        s->onLoad(s, sv, SID_ShaderCookTorrance);
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCook))
+                        s->onLoad(s, sv, SID_ShaderCook);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
                     if (ImGui::MenuItem("Water", nullptr, sid == SID_ShaderWater))
@@ -1878,9 +1876,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
-                SLfloat gamma = stateGL->gamma();
+                SLfloat gamma = SLLight::gamma;
                 if (ImGui::SliderFloat("Gamma", &gamma, 0.1f, 3.0f, "%.1f"))
-                    stateGL->gamma(gamma);
+                    SLLight::gamma = gamma;
                 ImGui::PopItemWidth();
 
                 ImGui::EndMenu();
@@ -2238,9 +2236,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (proj >= P_stereoSideBySide)
                     {
                         ImGui::Separator();
-                        static SLfloat eyeSepar = cam->eyeSeparation();
+                        static SLfloat eyeSepar = cam->stereoEyeSeparation();
                         if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
-                            cam->eyeSeparation(eyeSepar);
+                            cam->stereoEyeSeparation(eyeSepar);
                     }
 
                     ImGui::EndMenu();
@@ -2311,7 +2309,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Stop all", "Space", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
-            ImGui::Separator;
+            ImGui::Separator();
 
             SLVstring animations = s->animManager().allAnimNames();
             if (curAnimIx == -1) curAnimIx = 0;
@@ -2703,9 +2701,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             if (cam->projection() > P_monoOrthographic)
                             {
-                                SLfloat eyeSepar = cam->eyeSeparation();
+                                SLfloat eyeSepar = cam->stereoEyeSeparation();
                                 if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
-                                    cam->eyeSeparation(eyeSepar);
+                                    cam->stereoEyeSeparation(eyeSepar);
                             }
 
                             if (ImGui::SliderFloat("FOV", &fov, 1.f, 179.f))

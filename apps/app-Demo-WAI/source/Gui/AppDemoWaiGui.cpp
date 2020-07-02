@@ -282,9 +282,9 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
                     if (proj >= P_stereoSideBySide)
                     {
                         ImGui::Separator();
-                        static SLfloat eyeSepar = cam->eyeSeparation();
+                        static SLfloat eyeSepar = cam->stereoEyeSeparation();
                         if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
-                            cam->eyeSeparation(eyeSepar);
+                            cam->stereoEyeSeparation(eyeSepar);
                     }
 
                     ImGui::EndMenu();

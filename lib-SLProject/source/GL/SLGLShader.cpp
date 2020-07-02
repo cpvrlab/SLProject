@@ -159,7 +159,10 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         if (state->glIsES3()) srcVersion += " es";
         srcVersion += "\n";
 
-        // Add NUM_LIGHTS as #define makro
+        // Add NUM_LIGHTS as #define macro
+        // This information can be used in shaders that loop over multiple lights
+        // This number can not be passed a uniform variable because they can't be
+        // used in loops in GLSL.
         SLstring strNumLights;
         if (lights && !lights->empty())
             strNumLights = "#define NUM_LIGHTS " + std::to_string(lights->size()) + "\n";;
@@ -168,14 +171,6 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         _code = srcVersion +
                 strNumLights +
                 _code;
-
-        // write out the parsed shader code as text files
-        //ofstream fs(name()+".Debug");
-        //if(fs)
-        //{
-        //    fs << _code;
-        //    fs.close();
-        //}
 
         const char* src = _code.c_str();
         glShaderSource(_shaderID, 1, &src, nullptr);
@@ -246,7 +241,6 @@ SLstring SLGLShader::removeComments(SLstring src)
             dst += src[i++];
         }
     }
-    //cout << dst << "|" << endl;
     return dst;
 }
 //-----------------------------------------------------------------------------

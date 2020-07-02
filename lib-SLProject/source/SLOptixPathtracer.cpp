@@ -9,7 +9,6 @@
 
 #ifdef SL_HAS_OPTIX
 #    include <stdafx.h> // Must be the 1st include followed by  an empty line
-#    include <SLApplication.h>
 #    include <SLProjectScene.h>
 #    include <SLSceneView.h>
 #    include <SLOptix.h>
@@ -104,7 +103,7 @@ void SLOptixPathtracer::setupOptix()
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::setupScene(SLSceneView* sv)
 {
-    SLAssetManager* am     = (SLAssetManager*)SLApplication::scene;
+    SLAssetManager* am     = sv->assetManager();
     SLVMesh         meshes = am->meshes();
     _sv                    = sv;
 
@@ -146,7 +145,7 @@ void SLOptixPathtracer::setupScene(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::updateScene(SLSceneView* sv)
 {
-    SLScene*  scene  = SLApplication::scene;
+    SLScene*  scene  = sv->s();
     SLCamera* camera = sv->camera();
     _sv              = sv;
 

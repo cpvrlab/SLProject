@@ -69,7 +69,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
     state->currentMaterial(nullptr);
 
     // Set uniform color
-    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
+    glUniform4fv(sp->getUniformLocation("u_matDiffuse"), 1, (SLfloat*)&color);
 
 #ifndef SL_GLES
     if (pointSize != 1.0f)
@@ -114,7 +114,7 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
     state->currentMaterial(nullptr);
 
     // Set uniform color
-    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
+    glUniform4fv(sp->getUniformLocation("u_matDiffuse"), 1, (SLfloat*)&color);
 
 #ifndef SL_GLES
     if (pointSize != 1.0f)

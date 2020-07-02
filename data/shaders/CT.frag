@@ -62,7 +62,7 @@ uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
 uniform sampler3D u_texture3D;      // Voxelization texture.
 
-out vec4          o_fragColor;      // output fragment color
+out     vec4   o_fragColor;         // output fragment color
 //-----------------------------------------------------------------------------
 // Returns true if the point p is inside the unity cube.
 bool isInsideCube(const vec3 p, float e) 
@@ -231,7 +231,6 @@ vec4 direct()
     if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Id, Is); else PointLight(6, o_P_WS, N, E, Id, Is);}
     if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
     
-
     return u_matEmissive + 
            Id * u_matDiffuse +
            Is * u_matSpecular;

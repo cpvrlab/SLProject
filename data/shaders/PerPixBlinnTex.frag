@@ -8,28 +8,34 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/*
+The preprocessor constant #define NUM_LIGHTS will be added at the shader
+compilation time. It must be constant to be used in the for loop in main().
+Therefore this number it can not be passed as a uniform variable.
+*/
+
 #ifdef GL_ES
 precision mediump float;
 #endif
 
 //-----------------------------------------------------------------------------
-in       vec3   v_P_VS;              // Interpol. point of illum. in view space (VS)
-in       vec3   v_N_VS;              // Interpol. normal at v_P_VS in view space
-in       vec2   v_texCoord;          // Interpol. texture coordinate in tex. space
+in      vec3   v_P_VS;     // Interpol. point of illum. in view space (VS)
+in      vec3   v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2   v_texCoord; // Interpol. texture coordinate in tex. space
 
-uniform int    u_numLightsUsed;     // NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];      // flag if light is on
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
-uniform vec3   u_lightSpotDirVS[8]; // spot direction in view space
-uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
-uniform float  u_lightSpotExp[8];   // spot exponent
-uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
-uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
+uniform bool   u_lightIsOn[NUM_LIGHTS];      // flag if light is on
+uniform vec4   u_lightPosVS[NUM_LIGHTS];     // position of light in view space
+uniform vec4   u_lightAmbient[NUM_LIGHTS];   // ambient light intensity (Ia)
+uniform vec4   u_lightDiffuse[NUM_LIGHTS];   // diffuse light intensity (Id)
+uniform vec4   u_lightSpecular[NUM_LIGHTS];  // specular light intensity (Is)
+uniform vec3   u_lightSpotDirVS[NUM_LIGHTS]; // spot direction in view space
+uniform float  u_lightSpotCutoff[NUM_LIGHTS];// spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotCosCut[NUM_LIGHTS];// cosine of spot cutoff angle
+uniform float  u_lightSpotExp[NUM_LIGHTS];   // spot exponent
+uniform vec3   u_lightAtt[NUM_LIGHTS];       // attenuation (const,linear,quadr.)
+uniform bool   u_lightDoAtt[NUM_LIGHTS];     // flag if att. must be calc.
 uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
 
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
@@ -37,21 +43,20 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
-uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
-
 uniform int    u_projection;        // type of stereo
 uniform int    u_stereoEye;         // -1=left, 0=center, 1=right 
 uniform mat3   u_stereoColorFilter; // color filter matrix
+
 uniform sampler2D u_texture0;       // Color texture map
 
 out     vec4    o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
-void DirectLight(in    int  i,   // Light number
-                 in    vec3 N,   // Normalized normal at P_VS
-                 in    vec3 E,   // Normalized vector from P_VS to eye in VS
-                 inout vec4 Ia,  // Ambient light intensity
-                 inout vec4 Id,  // Diffuse light intensity
-                 inout vec4 Is)  // Specular light intensity
+void directLightBlinnPhong(in    int  i,   // Light number
+                           in    vec3 N,   // Normalized normal at P_VS
+                           in    vec3 E,   // Normalized vector from P_VS to eye in VS
+                           inout vec4 Ia,  // Ambient light intensity
+                           inout vec4 Id,  // Diffuse light intensity
+                           inout vec4 Is)  // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
@@ -72,13 +77,13 @@ void DirectLight(in    int  i,   // Light number
     Is += u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
-void PointLight (in    int  i,   // OpenGL light number
-                 in    vec3 P_VS,// Point of illumination in VS
-                 in    vec3 N,   // Normalized normal at v_P_VS
-                 in    vec3 E,   // Normalized vector from v_P_VS to view in VS
-                 inout vec4 Ia,  // Ambient light intensity
-                 inout vec4 Id,  // Diffuse light intensity
-                 inout vec4 Is)  // Specular light intensity
+void pointLightBlinnPhong(in    int  i,   // OpenGL light number
+                          in    vec3 P_VS,// Point of illumination in VS
+                          in    vec3 N,   // Normalized normal at v_P_VS
+                          in    vec3 E,   // Normalized vector from v_P_VS to view in VS
+                          inout vec4 Ia,  // Ambient light intensity
+                          inout vec4 Id,  // Diffuse light intensity
+                          inout vec4 Is)  // Specular light intensity
 {  
     // Vector from v_P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - v_P_VS;
@@ -86,7 +91,8 @@ void PointLight (in    int  i,   // OpenGL light number
     // Calculate attenuation over distance & normalize L
     float att = 1.0;
     if (u_lightDoAtt[i])
-    {   vec3 att_dist;
+    {
+        vec3 att_dist;
         att_dist.x = 1.0;
         att_dist.z = dot(L,L);         // = distance * distance
         att_dist.y = sqrt(att_dist.z); // = distance
@@ -105,7 +111,8 @@ void PointLight (in    int  i,   // OpenGL light number
    
     // Calculate spot attenuation
     if (u_lightSpotCutoff[i] < 180.0)
-    {   float spotDot; // Cosine of angle between L and spotdir
+    {
+        float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, u_lightSpotDirVS[i]);
         if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
@@ -130,69 +137,71 @@ void main()
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);  // Vector from p to the eye
 
-    /* Some GPU manufacturers do not allow uniforms in for loops
-    for (int i=0; i<8; i++)
-    {   if (i < u_numLightsUsed && u_lightIsOn[i])
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
         {
             if (u_lightPosVS[i].w == 0.0)
-                DirectLight(i, N, E, Ia, Id, Is);
+                directLightBlinnPhong(i, N, E, Ia, Id, Is);
             else
-                PointLight(i, v_P_VS, N, E, Ia, Id, Is);
+                pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
         }
-    }*/
+    }
 
-    if (u_lightIsOn[0]) {if (u_lightPosVS[0].w == 0.0) DirectLight(0, N, E, Ia, Id, Is); else PointLight(0, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[1]) {if (u_lightPosVS[1].w == 0.0) DirectLight(1, N, E, Ia, Id, Is); else PointLight(1, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[2]) {if (u_lightPosVS[2].w == 0.0) DirectLight(2, N, E, Ia, Id, Is); else PointLight(2, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[3]) {if (u_lightPosVS[3].w == 0.0) DirectLight(3, N, E, Ia, Id, Is); else PointLight(3, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[4]) {if (u_lightPosVS[4].w == 0.0) DirectLight(4, N, E, Ia, Id, Is); else PointLight(4, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[5]) {if (u_lightPosVS[5].w == 0.0) DirectLight(5, N, E, Ia, Id, Is); else PointLight(5, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Ia, Id, Is); else PointLight(6, v_P_VS, N, E, Ia, Id, Is);}
-    if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Ia, Id, Is); else PointLight(7, v_P_VS, N, E, Ia, Id, Is);}
-   
     // Sum up all the reflected color components
     o_fragColor =  u_globalAmbient +
                     u_matEmissive + 
                     Ia * u_matAmbient +
                     Id * u_matDiffuse;
-                   
+
     // Componentwise multiply w. texture color
     o_fragColor *= texture(u_texture0, v_texCoord);
-   
+
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpecular;
     o_fragColor.rgb += specColor.rgb;
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-   
+
     // Apply stereo eye separation
     if (u_projection > 1)
-    {   if (u_projection > 7) // stereoColor??
-        {   // Apply color filter but keep alpha
+    {
+        if (u_projection > 7) // stereoColor??
+        {
+            // Apply color filter but keep alpha
             o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
         }
         else if (u_projection == 5) // stereoLineByLine
-        {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
         else if (u_projection == 6) // stereoColByCol
-        {   if (mod(floor(gl_FragCoord.x), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
-        } 
+        }
         else if (u_projection == 7) // stereoCheckerBoard
-        {   bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        {
+            bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
             bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v) // both even or odd
-            {   if (u_stereoEye ==-1) discard;
+            if (h==v)// both even or odd
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {   if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
     }
