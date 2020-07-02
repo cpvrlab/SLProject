@@ -251,13 +251,11 @@ void SLGLProgram::useProgram()
 }
 //-----------------------------------------------------------------------------
 /*! SLGLProgram::beginUse starts using the shader program and transfers the
-the standard light and material parameter as uniform variables. It also passes
+the camera,  lights and material parameter as uniform variables. It also passes
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
-void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
+void SLGLProgram::beginUse(SLCamera* cam, SLMaterial* mat, SLVLight* lights)
 {
-    assert(mat != nullptr && "SLGLProgram::beginUse: No material passed.");
-
     if (_progID == 0 && !_shaders.empty())
         init(lights);
 
@@ -265,29 +263,20 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
     {
         SLGLState* stateGL = SLGLState::instance();
 
-        // 1: Activate the shader program object
         stateGL->useProgram(_progID);
 
         if (lights)
             passLightsToUniforms(lights);
 
-        mat->passToUniforms(this);
+        if (mat)
+            mat->passToUniforms(this);
 
-        // 2b: Set stereo states
-        uniform1i("u_projection", stateGL->projection);
-        uniform1i("u_stereoEye", stateGL->stereoEye);
-        uniformMatrix3fv("u_stereoColorFilter", 1, (SLfloat*)&stateGL->stereoColorFilter);
+        if (cam)
+            cam->passToUniforms(this);
 
-        // 2c: Pass diffuse color for uniform color shader
-        SLCol4f diffuse = mat->diffuse();
-        uniform4fv("u_color", 1, (SLfloat*)&diffuse);
-
-        // 2d: Pass gamma correction value
-        uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
-
-        // 3: Pass the custom uniform1f variables of the list
         for (auto* uf : _uniforms1f)
             uniform1f(uf->name(), uf->value());
+
         for (auto* ui : _uniforms1i)
             uniform1i(ui->name(), ui->value());
 
@@ -295,10 +284,12 @@ void SLGLProgram::beginUse(SLMaterial* mat, SLVLight* lights)
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLProgram::passLightsToUniforms(SLVLight* lights)
+void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
 {
     SLGLState* stateGL = SLGLState::instance();
 
+    // Pass global lighting value
+    uniform1f("u_oneOverGamma", SLLight::oneOverGamma());
     uniform4fv("u_globalAmbient", 1, (const SLfloat*)&SLLight::globalAmbient);
 
     if (!lights->empty())

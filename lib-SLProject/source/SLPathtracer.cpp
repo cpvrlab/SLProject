@@ -207,7 +207,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     else if (ray->hitMatIsReflective())
         objectColor = mat->specular();
     else if (ray->hitMatIsTransparent())
-        objectColor = mat->transmissiv();
+        objectColor = mat->transmissive();
 
     // set object emission
     SLCol4f objectEmission = mat->emissive();

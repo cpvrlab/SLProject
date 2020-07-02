@@ -12,12 +12,14 @@
 
 #include <SLGLProgramManager.h>
 
+#include <utility>
+
 std::map<SLStdShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
 std::string                                    SLGLProgramManager::_shaderDir;
 //-----------------------------------------------------------------------------
 void SLGLProgramManager::init(std::string shaderDir)
 {
-    _shaderDir = shaderDir;
+    _shaderDir = std::move(shaderDir);
 }
 //-----------------------------------------------------------------------------
 SLGLGenericProgram* SLGLProgramManager::get(SLStdShaderProg id)
@@ -50,35 +52,8 @@ void SLGLProgramManager::makeProgram(SLStdShaderProg id)
         case SP_colorUniform:
             _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "ColorUniform.vert", _shaderDir + "Color.frag")});
             break;
-        case SP_perVrtBlinn:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerVrtBlinn.vert", _shaderDir + "PerVrtBlinn.frag")});
-            break;
-        case SP_perVrtBlinnColorAttrib:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerVrtBlinnColorAttrib.vert", _shaderDir + "PerVrtBlinn.frag")});
-            break;
-        case SP_perVrtBlinnTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerVrtBlinnTex.vert", _shaderDir + "PerVrtBlinnTex.frag")});
-            break;
         case SP_TextureOnly:
             _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "TextureOnly.vert", _shaderDir + "TextureOnly.frag")});
-            break;
-        case SP_perPixBlinn:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixBlinn.vert", _shaderDir + "PerPixBlinn.frag")});
-            break;
-        case SP_perPixBlinnTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixBlinnTex.vert", _shaderDir + "PerPixBlinnTex.frag")});
-            break;
-        case SP_perPixCookTorrance:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixCookTorrance.vert", _shaderDir + "PerPixCookTorrance.frag")});
-            break;
-        case SP_perPixCookTorranceTex:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "PerPixCookTorranceTex.vert", _shaderDir + "PerPixCookTorranceTex.frag")});
-            break;
-        case SP_bumpNormal:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "BumpNormal.vert", _shaderDir + "BumpNormal.frag")});
-            break;
-        case SP_bumpNormalParallax:
-            _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "BumpNormal.vert", _shaderDir + "BumpNormalParallax.frag")});
             break;
         case SP_fontTex:
             _programs.insert({id, new SLGLGenericProgram(nullptr, _shaderDir + "FontTex.vert", _shaderDir + "FontTex.frag")});

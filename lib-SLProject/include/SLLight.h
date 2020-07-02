@@ -21,7 +21,9 @@ class SLRay;
 class SLNode;
 class SLSceneView;
 
-struct lightData
+//-----------------------------------------------------------------------------
+// Struct for uniform buffer with std140 layout
+struct lightDataStd140
 {
     SLint   isOn;           //  1
     SLVec4f posWS;          //  2, 3, 4, 5
@@ -204,7 +206,10 @@ public:
     // create the depth buffer(s) for shadow mapping
     virtual void renderShadowMap(SLSceneView* sv, SLNode* root) = 0;
 
+    // statics valid for overall lighting
     static SLCol4f globalAmbient; //!< static global ambient light intensity
+    static SLfloat oneOverGamma() {return 1.0f / gamma;}
+    static SLfloat gamma; //!< final output gamma value
 
 protected:
     SLint        _id;               //!< OpenGL light number (0-7)

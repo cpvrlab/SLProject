@@ -42,9 +42,80 @@ public:
                        const SLstring& geomShaderFile)
       : SLGLProgram(s, vertShaderFile, fragShaderFile, geomShaderFile) { ; }
 
-    void beginShader(SLMaterial* mat, SLVLight* lights) override { beginUse(mat, lights); }
+    void beginShader(SLCamera* cam, SLMaterial* mat, SLVLight* lights) override { beginUse(cam, mat, lights); }
     void endShader() override { endUse(); }
 };
 //-----------------------------------------------------------------------------
+// ! Global default shader program with per vertex lighting without textures
+/*!
+ * This default shader program is dependant from the number of lights in a
+ * scene and must therefore be deallocated at scene destruction.
+ */
+class SLGLGenericProgramDefault : public SLGLGenericProgram
+{
+public:
+    static SLGLGenericProgramDefault* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLGenericProgramDefault();
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLGLGenericProgramDefault()
+      : SLGLGenericProgram(nullptr,
+                           SLApplication::shaderPath +  "PerVrtBlinn.vert",
+                           SLApplication::shaderPath + "PerVrtBlinn.frag")
+    {
+        _name = "DefaultPerVertexProgram";
+    };
+
+    static SLGLGenericProgramDefault* _instance;
+};
+//-----------------------------------------------------------------------------
+// ! Global default shader program with per vertex lighting with textures
+/*!
+ * This default shader program is dependant from the number of lights in a
+ * scene and must therefore be deallocated at scene destruction.
+ */
+class SLGLGenericProgramDefaultTex : public SLGLGenericProgram
+{
+public:
+    static SLGLGenericProgramDefaultTex* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLGenericProgramDefaultTex();
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLGLGenericProgramDefaultTex()
+      : SLGLGenericProgram(nullptr,
+                           SLApplication::shaderPath +  "PerVrtBlinnTex.vert",
+                           SLApplication::shaderPath + "PerVrtBlinnTex.frag")
+    {
+        _name = "DefaultPerVertexProgramTex";
+    };
+
+    static SLGLGenericProgramDefaultTex* _instance;
+};
+//-----------------------------------------------------------------------------
+
 
 #endif

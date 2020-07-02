@@ -19,12 +19,14 @@
 #include <SLGLUniform.h>
 #include <SLObject.h>
 #include <SLLight.h>
+#include <SLApplication.h>
 
 class SLGLShader;
 class SLScene;
 class SLMaterial;
 class SLGLState;
 class SLAssetManager;
+class SLCamera;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers
@@ -66,11 +68,15 @@ public:
     void init(SLVLight* lights);
     void initRaw();
 
-    virtual void beginShader(SLMaterial* mat, SLVLight* lights) = 0; //!< starter for derived classes
-    virtual void endShader()                                                     = 0;
+    virtual void beginShader(SLCamera*   cam,
+                             SLMaterial* mat,
+                             SLVLight*   lights) = 0; //!< starter for derived classes
+    virtual void endShader()                   = 0;
 
-    void beginUse(SLMaterial* mat, SLVLight* lights);
-    void passLightsToUniforms(SLVLight* lights);
+    void beginUse(SLCamera*   cam,
+                  SLMaterial* mat,
+                  SLVLight*   lights);
+    void passLightsToUniforms(SLVLight* lights) const;
     void endUse();
     void useProgram();
 

@@ -8,6 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //##############################################################################
 
+/*
+The preprocessor constant #define NUM_LIGHTS will be added at the shader
+compilation time. It must be constant to be used in the for loop in main().
+Therefore this number it can not be passed as a uniform variable.
+*/
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -20,8 +26,8 @@ uniform mat4   u_mvpMatrix;         // = projection * modelView
 uniform mat4   u_invMvMatrix;       // inverse modelview
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
 
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
+uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4   u_lightSpecular[NUM_LIGHTS]; // specular light intensity (Is)
 
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)

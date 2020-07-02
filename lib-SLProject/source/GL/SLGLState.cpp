@@ -44,44 +44,6 @@ void SLGLState::initAll()
     projectionMatrix.identity();
     textureMatrix.identity();
 
-    /*
-    numLightsUsed = 0;
-    for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
-    {
-        lightIsOn[i]       = 0;
-        lightPosWS[i]      = SLVec4f(0, 0, 1, 1);
-        lightPosVS[i]      = SLVec4f(0, 0, 1, 1);
-        lightAmbient[i]    = SLCol4f::BLACK;
-        lightDiffuse[i]    = SLCol4f::BLACK;
-        lightSpecular[i]   = SLCol4f::BLACK;
-        lightSpotDirWS[i]  = SLVec3f(0, 0, -1);
-        lightSpotDirVS[i]  = SLVec3f(0, 0, -1);
-        lightSpotCutoff[i] = 180.0f;
-        lightSpotCosCut[i] = cos(Utils::DEG2RAD * lightSpotCutoff[i]);
-        lightSpotExp[i]    = 1.0f;
-        lightAtt[i].set(1.0f, 0.0f, 0.0f);
-        lightDoAtt[i] = 0;
-        for (SLint ii = 0; ii < 6; ++ii)
-            lightSpace[i * 6 + ii] = SLMat4f();
-        lightCreatesShadows[i] = 0;
-        lightDoesPCF[i]        = 0;
-        lightPCFLevel[i]       = 1;
-        lightUsesCubemap[i]    = 0;
-        shadowMaps[i]          = nullptr;
-    }
-    */
-
-    fogIsOn      = false;
-    fogMode      = GL_LINEAR;
-    fogDensity   = 0.2f;
-    fogDistStart = 1.0f;
-    fogDistEnd   = 6.0f;
-    fogColor     = SLCol4f::BLACK;
-
-    gamma(1.0f);
-
-    //globalAmbientLight.set(0.2f, 0.2f, 0.2f, 0.0f);
-
     _glVersion     = SLstring((const char*)glGetString(GL_VERSION));
     _glVersionNO   = getGLVersionNO();
     _glVersionNOf  = (SLfloat)atof(_glVersionNO.c_str());

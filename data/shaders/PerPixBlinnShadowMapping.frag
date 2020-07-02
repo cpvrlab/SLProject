@@ -11,6 +11,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+/*
+The preprocessor constant #define NUM_LIGHTS will be added at the shader
+compilation time. It must be constant to be used in the for loop in main().
+Therefore this number it can not be passed as a uniform variable.
+*/
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -223,7 +229,8 @@ void pointLightBlinnPhong(in    int  i,      // Light number
     // Calculate attenuation over distance & normalize L
     float att = 1.0;
     if (u_lightDoAtt[i])
-    {   vec3 att_dist;
+    {
+        vec3 att_dist;
         att_dist.x = 1.0;
         att_dist.z = dot(L,L);         // = distance * distance
         att_dist.y = sqrt(att_dist.z); // = distance
@@ -242,7 +249,8 @@ void pointLightBlinnPhong(in    int  i,      // Light number
 
     // Calculate spot attenuation
     if (u_lightSpotCutoff[i] < 180.0)
-    {   float spotDot; // Cosine of angle between L and spotdir
+    {
+        float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, u_lightSpotDirVS[i]);
         if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
@@ -297,31 +305,42 @@ void main()
 
     // Apply stereo eye separation
     if (u_projection > 1)
-    {   if (u_projection > 7) // stereoColor??
-        {   // Apply color filter but keep alpha
+    {
+        if (u_projection > 7) // stereoColor
+        {
+            // Apply color filter but keep alpha
             o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
         }
         else if (u_projection == 5) // stereoLineByLine
-        {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
         else if (u_projection == 6) // stereoColByCol
-        {   if (mod(floor(gl_FragCoord.x), 2.0) < 0.5) // even
-            {  if (u_stereoEye ==-1) discard;
+        {
+            if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
         else if (u_projection == 7) // stereoCheckerBoard
-        {   bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        {
+            bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
             bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v) // both even or odd
-            {  if (u_stereoEye ==-1) discard;
+            if (h==v)// both even or odd
+            {
+                if (u_stereoEye ==-1) discard;
             } else // odd
-            {  if (u_stereoEye == 1) discard;
+            {
+                if (u_stereoEye == 1) discard;
             }
         }
     }

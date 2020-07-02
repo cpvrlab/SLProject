@@ -44,7 +44,7 @@ class SLVec4
                     SLVec4      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
                     SLVec4      (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
                     SLVec4      (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
-                    SLVec4      (const SLstring fourFloatsWithDelimiter) {fromString(fourFloatsWithDelimiter);}
+                    SLVec4      (const SLstring& fourFloatsWithDelimiter) {fromString(fourFloatsWithDelimiter);}
 
             void    set         (const T X,
                                  const T Y,

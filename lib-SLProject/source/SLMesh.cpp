@@ -273,9 +273,9 @@ void SLMesh::init(SLNode* node)
     // otherwise use the default gray material
     if (!mat())
     {
-        if (!C.empty())
-            mat(SLMaterialDiffuseAttribute::instance());
-        else
+        //if (!C.empty())
+        //    mat(SLMaterialDiffuseAttribute::instance());
+        //else
             mat(SLMaterialDefaultGray::instance());
     }
 
@@ -414,7 +414,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 3.a) Apply mesh material if exists & differs from current
-    _mat->activate(*node->drawBits(), &sv->s().lights());
+    _mat->activate(*node->drawBits(), sv->camera(), &sv->s().lights());
 
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = _mat->program();

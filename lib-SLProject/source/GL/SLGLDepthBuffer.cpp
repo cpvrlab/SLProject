@@ -15,12 +15,12 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLGLDepthBuffer::SLGLDepthBuffer(SLVec2i dimensions,
-                                 SLenum  magFilter,
-                                 SLenum  minFilter,
-                                 SLint   wrap,
-                                 SLfloat borderColor[],
-                                 SLenum  target) : _dimensions(dimensions), _target(target)
+SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
+                                 SLenum         magFilter,
+                                 SLenum         minFilter,
+                                 SLint          wrap,
+                                 SLfloat        borderColor[],
+                                 SLenum         target) : _dimensions(dimensions), _target(target)
 {
     PROFILE_FUNCTION();
 
@@ -125,7 +125,7 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::activateAsTexture(SLuint loc)
+void SLGLDepthBuffer::activateAsTexture(SLuint loc) const
 {
     SLGLState* stateGL = SLGLState::instance();
     stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
@@ -134,15 +134,15 @@ void SLGLDepthBuffer::activateAsTexture(SLuint loc)
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-SLfloat* SLGLDepthBuffer::readPixels()
+SLfloat* SLGLDepthBuffer::readPixels() const
 {
-    SLfloat *depth = new SLfloat[_dimensions.y * _dimensions.x];
+    SLfloat* depth = new SLfloat[_dimensions.y * _dimensions.x];
     glReadPixels(0, 0, _dimensions.x, _dimensions.y, GL_DEPTH_COMPONENT, GL_FLOAT, depth);
     GET_GL_ERROR;
     return depth;
 }
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::bind()
+void SLGLDepthBuffer::bind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
     GET_GL_ERROR;
@@ -154,7 +154,7 @@ void SLGLDepthBuffer::unbind()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::bindFace(SLenum face)
+void SLGLDepthBuffer::bindFace(SLenum face) const
 {
     assert(_target == GL_TEXTURE_CUBE_MAP);
     assert(face >= GL_TEXTURE_CUBE_MAP_POSITIVE_X &&

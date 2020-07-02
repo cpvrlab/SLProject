@@ -19,16 +19,18 @@ enum SLStdShaderProg
 {
     SP_colorAttribute = 0,
     SP_colorUniform,
+    SP_TextureOnly,
+    /*
     SP_perVrtBlinn,
     SP_perVrtBlinnColorAttrib,
     SP_perVrtBlinnTex,
-    SP_TextureOnly,
     SP_perPixBlinn,
     SP_perPixBlinnTex,
     SP_perPixCookTorrance,
     SP_perPixCookTorranceTex,
     SP_bumpNormal,
     SP_bumpNormalParallax,
+    */
     SP_fontTex,
     SP_stereoOculus,
     SP_stereoOculusDistortion,
@@ -41,8 +43,10 @@ enum SLStdShaderProg
 /*!
  * Static container for standard shader programs that are not deleted after
  * scene deallocation. The shader program allocation and compilation will be
- * done at the first use.
- * All non standard shader programs will be attached to the asset manager.
+ * done at the first use. ONLY shader programs that are scene independent
+ * should be stored here. Shader programs that depend e.g. on the number of
+ * lights must be created at scene loading time and deallocation at scene
+ * destruction.
  */
 class SLGLProgramManager
 {
@@ -65,6 +69,7 @@ private:
 
     //! Instantiated programs
     static std::map<SLStdShaderProg, SLGLGenericProgram*> _programs;
+
     //! Directory containing all standard shaders
     static std::string _shaderDir;
 };
