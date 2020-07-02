@@ -37,7 +37,7 @@ bool CameraTestView::update()
             //if(!frame->extended)
             //{
             //Utils::log("SENSiOSCamera", "update before: w %d w %d", frame->imgRGB.size().width, frame->imgRGB.size().height);
-            SENS::extendWithBars(frame->imgRGB, this->viewportWdivH());
+            //SENS::extendWithBars(frame->imgRGB, this->viewportWdivH());
             //Utils::log("SENSiOSCamera", "update after: w %d w %d", frame->imgRGB.size().width, frame->imgRGB.size().height);
             //frame->extended = true;
             //}

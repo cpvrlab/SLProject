@@ -484,18 +484,20 @@ void SLBackground::defineWithBars()
         _vao.setIndices(&I);
 
         SLVVec2f T = {
-          {0.0f, 1.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
           {1.0f, 0.0f},
-          {0.0f, 1.0f},
           {0.0f, 0.0f},
           {1.0f, 1.0f},
+          {0.0f, 1.0f},
+
           {1.0f, 0.0f},
-          {0.0f, 1.0f},
           {0.0f, 0.0f},
           {1.0f, 1.0f},
-          {1.0f, 0.0f}};
+          {0.0f, 1.0f},
+
+          {1.0f, 0.0f},
+          {0.0f, 0.0f},
+          {1.0f, 1.0f},
+          {0.0f, 1.0f}};
         _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
         _vao.generate(12);
     }
