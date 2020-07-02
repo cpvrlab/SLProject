@@ -11,7 +11,7 @@
 #ifndef SLGLPROGRAM_MANAGER_H
 #define SLGLPROGRAM_MANAGER_H
 
-#include <SLGLGenericProgram.h>
+class SLGLGenericProgram;
 
 //-----------------------------------------------------------------------------
 //! Enumeration for standard shader programs
@@ -20,17 +20,6 @@ enum SLStdShaderProg
     SP_colorAttribute = 0,
     SP_colorUniform,
     SP_TextureOnly,
-    /*
-    SP_perVrtBlinn,
-    SP_perVrtBlinnColorAttrib,
-    SP_perVrtBlinnTex,
-    SP_perPixBlinn,
-    SP_perPixBlinnTex,
-    SP_perPixCookTorrance,
-    SP_perPixCookTorranceTex,
-    SP_bumpNormal,
-    SP_bumpNormalParallax,
-    */
     SP_fontTex,
     SP_stereoOculus,
     SP_stereoOculusDistortion,
@@ -63,15 +52,15 @@ public:
     //! Returns the size of the program map
     static size_t size() { return _programs.size(); }
 
+    //! Contains the global shader path
+    static std::string shaderDir;
+
 private:
     //! Make a program if it is not contained in _programs
     static void makeProgram(SLStdShaderProg id);
 
     //! Instantiated programs
     static std::map<SLStdShaderProg, SLGLGenericProgram*> _programs;
-
-    //! Directory containing all standard shaders
-    static std::string _shaderDir;
 };
 //-----------------------------------------------------------------------------
 

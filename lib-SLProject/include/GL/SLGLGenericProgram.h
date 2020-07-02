@@ -13,6 +13,7 @@
 #define SLGLGENERICPROGRAM_H
 
 #include <SLGLProgram.h>
+#include <SLGLProgramManager.h>
 #include <SLObject.h>
 
 class SLMaterial;
@@ -72,8 +73,8 @@ public:
 private:
     SLGLGenericProgramDefault()
       : SLGLGenericProgram(nullptr,
-                           SLApplication::shaderPath +  "PerVrtBlinn.vert",
-                           SLApplication::shaderPath + "PerVrtBlinn.frag")
+                           SLGLProgramManager::shaderDir +  "PerVrtBlinn.vert",
+                           SLGLProgramManager::shaderDir + "PerVrtBlinn.frag")
     {
         _name = "DefaultPerVertexProgram";
     };
@@ -107,8 +108,8 @@ public:
 private:
     SLGLGenericProgramDefaultTex()
       : SLGLGenericProgram(nullptr,
-                           SLApplication::shaderPath +  "PerVrtBlinnTex.vert",
-                           SLApplication::shaderPath + "PerVrtBlinnTex.frag")
+                           SLGLProgramManager::shaderDir +  "PerVrtBlinnTex.vert",
+                           SLGLProgramManager::shaderDir + "PerVrtBlinnTex.frag")
     {
         _name = "DefaultPerVertexProgramTex";
     };
