@@ -15,7 +15,7 @@ void CameraOnlyScene::build()
     _mapNode   = new SLNode("map");
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage);
+    cameraNode->background().texture(_videoImage, true);
 
     _root3D->addChild(_mapNode);
 }

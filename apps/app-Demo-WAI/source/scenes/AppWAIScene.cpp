@@ -97,7 +97,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     yellowMat = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage);
+    cameraNode->background().texture(_videoImage, true);
 
     if (location == "avenches")
     {
