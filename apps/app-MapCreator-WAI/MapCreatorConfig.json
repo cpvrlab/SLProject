@@ -14,12 +14,10 @@
 			"location": "augst",
 			"areas": [
 				{ "area": "templeHillTheater", "enabled": true },
-				{ "area": "templeHillTheaterBottom", "enabled": false },
-				{ "area": "templeHillTheaterTop", "enabled": false },
 				{ "area": "theaterArena", "enabled": false },
 				{ "area": "theaterMid", "enabled": false },
 				{ "area": "theaterTop", "enabled": false },
-				{ "area": "templeHill-marker", "enabled": false, "marker": "20191009_103456_ASUSAR-1_640x360.jpg"}
+				{ "area": "templeHill-marker", "enabled": true}
 			]
 		},
 		{
@@ -110,30 +108,6 @@
 		},
 		{
 			"location": "augst",
-			"area": "templeHillTheaterBottom",
-			"videos": [
-				"20191009-102457_rainy_NOKIA6-1_relocalization_640x360.mp4",
-				"20191009-102554_rainy_ASUSAR-1_relocalization_640x360.mp4",
-				"20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
-				"20200122-094650_cloudy_PIXEL3-1_relocalization_640x360.mp4",
-				"20200122-094711_cloudy_PIXEL3-2_relocalization_640x360.mp4",
-				"20200122-094750_cloudy_ASUSAR-1_relocalization_640x360.mp4",
-				"20200122-094822_cloudy_PIXEL3-1_relocalization_640x360.mp4",
-				"20200122-094843_cloudy_NOKIA6-1_relocalization_640x360.mp4",
-				"20200122-094950_cloudy_PIXEL3-1_relocalization_640x360.mp4"
-			]
-		},
-		{
-			"location": "augst",
-			"area": "templeHillTheaterTop",
-			"videos": [
-				"20191009-102705_rainy_NOKIA6-1_relocalization_640x360.mp4",
-				"20191009-102829_rainy_ASUSAR-1_map_640x360.mp4",
-				"20191009-103057_rainy_ASUSAR-1_relocalization_640x360.mp4"
-			]
-		},
-		{
-			"location": "augst",
 			"area": "theaterArena",
 			"videos": [
 				"20191009-110940_rainy_NOKIA6-1_relocalization_640x360.mp4",
@@ -169,8 +143,8 @@
 			"location": "augst",
 			"area": "templeHill-marker",
 			"videos": [
-				"20191009-103255_rainy_ASUSAR-1_marker_640x360.mp4",
 				"20191009-103333_rainy_ASUSAR-1_markerMap_640x360.mp4",
+				"20191009-103255_rainy_ASUSAR-1_marker_640x360.mp4",
 				"20191009-103522_rainy_NOKIA6-1_marker_640x360.mp4",
 				"20191009-103600_rainy_NOKIA6-1_marker_640x360.mp4",
 				"20191212-082856_rainy_NOKIA6-1_marker_640x360.mp4",
