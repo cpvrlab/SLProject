@@ -204,6 +204,7 @@ public:
     @param fovDegFallbackGuess fallback field of view in degree guess if no camera intrinsics can be made via camera api values.
     @returns the found configuration that is adjusted and used when SENSCamera::start() is called.
     */
+    /*
     virtual const SENSCameraConfig& start(SENSCameraFacing facing,
                                           float            approxHorizFov,
                                           cv::Size         imgRGBSize,
@@ -214,6 +215,7 @@ public:
                                           cv::Size         imgManipSize         = cv::Size(),
                                           bool             provideIntrinsics    = true,
                                           float            fovDegFallbackGuess  = 65.f) = 0;
+     */
 
     //! Start camera with a known device id. The camera will select the closest available frame size and crop it to width and height
     //virtual void start(std::string id, int width, int height, SENSCameraFocusMode focusMode) = 0;

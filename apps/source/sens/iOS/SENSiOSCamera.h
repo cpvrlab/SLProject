@@ -19,6 +19,7 @@ public:
                                   bool                          provideIntrinsics    = true,
                                   float                         fovDegFallbackGuess  = 65.f) override;
 
+    /*
     const SENSCameraConfig& start(SENSCameraFacing facing,
                                   float            approxHorizFov,
                                   cv::Size         imgRGBSize,
@@ -29,7 +30,7 @@ public:
                                   cv::Size         imgManipSize         = cv::Size(),
                                   bool             provideIntrinsics    = true,
                                   float            fovDegFallbackGuess  = 65.f) override;
-
+    */
     void                         stop() override;
     const SENSCaptureProperties& captureProperties() override;
     SENSFramePtr                 latestFrame() override;

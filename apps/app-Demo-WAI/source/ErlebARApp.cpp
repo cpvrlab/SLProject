@@ -366,7 +366,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
     if (stateEntry)
     {
         _camera->stop();
-        _camera->start(SENSCameraFacing::BACK, 65.f, cv::Size(640, 480));
+        //_camera->start(SENSCameraFacing::BACK, 65.f, cv::Size(640, 480));
     }
 
     if (_camera->permissionGranted() && _camera->started())

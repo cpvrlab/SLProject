@@ -113,7 +113,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //initialize extractors
     // TODO(dgj1): make this configurable or read it from map name
-    int nLevels              = 8;
+    int nLevels              = 2;
     _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize, nLevels);
     _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize, nLevels);
 
@@ -181,16 +181,42 @@ void AreaTrackingView::startCamera()
         if (_camera->started())
             _camera->stop();
 
+        int trackingImgW = 640;
+        float targetWdivH = 4.f / 3.f;
+        int aproxVisuImgW = 1000;
+        int aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+        
+        auto capProps = _camera->captureProperties();
+        auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
+        if(bestConfig.first && bestConfig.second)
+        {
+            const SENSCameraDeviceProperties* const devProps = bestConfig.first;
+            const SENSCameraStreamConfig* streamConfig = bestConfig.second;
+            //calculate size of tracking image
+            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+            cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
+            _camera->start(devProps->deviceId(),
+                           *streamConfig,
+                           cv::Size(),
+                           false,
+                           false,
+                           true,
+                           trackingImgSize,
+                           true,
+                           65.f);
+        }
+        /*
         _camera->start(SENSCameraFacing::BACK,
                        65.f,
-                       cv::Size(640, 360),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
+                       cv::Size(1920, 1440),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
                        false,
                        false,
                        false,
                        true,
-                       cv::Size(640, 360),
+                       cv::Size(640, 480),
                        true,
                        65.f);
+         */
     }
 }
 

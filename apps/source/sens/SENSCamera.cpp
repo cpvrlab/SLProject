@@ -120,7 +120,7 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
         int widthCropped;
         //cropped height (using stream configuration referenced by streamConfigIdx)
         int heightCropped;
-        //horizontal field of view using cropped width
+        //horizontal and vertical field of view using cropped width
         float horizFov;
         //scale factor between stream config and target resolutions
         float scale;
@@ -180,7 +180,6 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
                 sortElem.streamConfig    = &*itStream;
                 //we have to use the cropped and unscaled width of the stream config because of the resolution of the focalLengthPix
                 sortElem.horizFov = SENS::calcFOVDegFromFocalLengthPix(config.focalLengthPix, sortElem.widthCropped);
-
                 sortElem.fovScore  = std::abs(sortElem.horizFov - horizFov);
                 sortElem.cropScore = cropW + cropH;
                 //if we have to scale add a score for it
@@ -200,7 +199,7 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
         std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.fovScore < rhs.fovScore; });
         printSortElems(sortElems, "sortElems");
 
-        //extract all in a range of +-1 degree compared to the closest to target fov and extract the one with the
+        //extract all in a range of +-3 degree compared to the closest to target fov and extract the one with the
         std::vector<SortElem> closeFovSortElems;
         float                 maxFovDiff = sortElems.front().fovScore + 3;
         for (SortElem elem : sortElems)
@@ -208,6 +207,8 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
             if (elem.fovScore < maxFovDiff)
                 closeFovSortElems.push_back(elem);
         }
+        
+        //now extract the
         std::sort(closeFovSortElems.begin(), closeFovSortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.scale > rhs.scale; });
         printSortElems(closeFovSortElems, "closeFovSortElems");
 

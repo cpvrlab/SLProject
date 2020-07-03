@@ -82,6 +82,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     return _config;
 }
 
+/*
 const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
                                              float            approxHorizFov,
                                              cv::Size         imgRGBSize,
@@ -155,7 +156,7 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
 
     return _config;
 }
-
+*/
 void SENSiOSCamera::stop()
 {
     if (_started)
