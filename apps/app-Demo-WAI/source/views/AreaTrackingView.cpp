@@ -183,12 +183,12 @@ void AreaTrackingView::startCamera()
 
         _camera->start(SENSCameraFacing::BACK,
                        65.f,
-                       cv::Size(1920, 1440),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
+                       cv::Size(640, 360),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
                        false,
                        false,
                        false,
                        true,
-                       cv::Size(640, 480),
+                       cv::Size(640, 360),
                        true,
                        65.f);
     }

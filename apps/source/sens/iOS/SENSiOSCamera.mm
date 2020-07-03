@@ -69,7 +69,8 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
                            withWidth:streamConfig.widthPix
                            andHeight:streamConfig.heightPix
                       autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
-             videoStabilizationState:_config.enableVideoStabilization])
+             videoStabilizationState:_config.enableVideoStabilization
+                     intrinsicsState:_config.provideIntrinsics])
     {
         //initialize guessed camera calibration
         initCalibration();
@@ -127,12 +128,20 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
                                withWidth:streamConfig->widthPix
                                andHeight:streamConfig->heightPix
                           autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
-                 videoStabilizationState:_config.enableVideoStabilization])
+                 videoStabilizationState:_config.enableVideoStabilization
+                         intrinsicsState:_config.provideIntrinsics])
         {
+            //calculate crop for config
+            int cropW, cropH, resW, resH;
+            SENS::calcCrop({streamConfig->widthPix, streamConfig->heightPix},
+                           (float)imgRGBSize.width / (float)imgRGBSize.height,
+                           _config.cropWidth,
+                           _config.cropHeight,
+                           _config.targetWidth,
+                           _config.targetHeight);
+
             _config.deviceId     = bestConfig.first->deviceId();
             _config.streamConfig = streamConfig;
-            _config.targetWidth  = streamConfig->widthPix;
-            _config.targetHeight = streamConfig->heightPix;
             _started             = true;
         }
         else
@@ -173,7 +182,7 @@ SENSFramePtr SENSiOSCamera::latestFrame()
         std::lock_guard<std::mutex> lock(_processedFrameMutex);
         newFrame = std::move(_processedFrame);
     }
-    
+
     if (newFrame && !newFrame->intrinsics.empty())
     {
         _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
@@ -183,9 +192,9 @@ SENSFramePtr SENSiOSCamera::latestFrame()
                                                          _calibration->camType(),
                                                          _calibration->computerInfos());
         //adjust calibration
-        if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
+        if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
             _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
-        else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
+        else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
             _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
     }
 

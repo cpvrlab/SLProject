@@ -55,6 +55,7 @@ int SENSCameraDeviceProperties::findBestMatchingConfig(cv::Size requiredSize) co
 
 SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intrinsics, bool intrinsicsChanged)
 {
+    //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = rgbImg.size();
 
     // Crop Video image to required aspect ratio
@@ -85,29 +86,6 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
         cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
     }
 
-    //adapt camera calibration if intrinsics changed
-    /*
-    if (intrinsicsChanged)
-    {
-        cv::Size calibImgSize;
-        if (_config.manipWidth > 0 && _config.manipHeight > 0)
-            calibImgSize = cv::Size(_config.manipWidth, _config.manipHeight);
-        else
-            calibImgSize = rgbImg.size();
-
-        _calibration = std::make_unique<SENSCalibration>(intrinsics,
-                                                         cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
-                                                         _calibration->isMirroredH(),
-                                                         _calibration->isMirroredV(),
-                                                         _calibration->camType(),
-                                                         _calibration->computerInfos());
-        //adjust calibration
-        if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
-            _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
-        else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
-            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-    }
-*/
     SENSFramePtr sensFrame = std::make_unique<SENSFrame>(rgbImg,
                                                          manipImg,
                                                          inputSize.width,
@@ -120,35 +98,6 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intri
                                                          intrinsics);
     return sensFrame;
 }
-
-/*
-float SENSCaptureProperties::getFovForConfig(const SENSCameraConfig& camConfig, int targetImgLength) const
-{
-    float fovDeg = -1.f;
-    //camConfig.scale;
-    fovDeg = SENS::calcFOVDegFromFocalLengthPix(camConfig.streamConfig->focalLengthPix, targetImgLength);
-    
-    for (auto it = begin(); it != end(); ++it)
-    {
-        if (it->deviceId() == camConfig.deviceId)
-        {
-            std::vector<SENSCameraStreamConfig> streamConfigs = it->streamConfigs();
-            if (camConfig.streamConfigIndex < streamConfigs.size())
-            {
-                float focalLengthPix = streamConfigs.at(camConfig.streamConfigIndex).focalLengthPix;
-                if (focalLengthPix > 0.f)
-                {
-                    horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(focalLengthPix, targetImgWidth);
-                }
-            }
-            break;
-        }
-    }
-
-
-    return fovDeg;
-}
-*/
 
 bool SENSCaptureProperties::containsDeviceId(const std::string& deviceId) const
 {
@@ -273,7 +222,8 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
 
 void SENSCameraBase::initCalibration()
 {
-    //we make a calibration with full resolution and adjust it to the manipulated image size later if neccessary
+    //We make a calibration with full resolution and adjust it to the manipulated image size later if neccessary:
+    //For the initial setup we have to use streamconfig values
     float horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_config.streamConfig->focalLengthPix, _config.streamConfig->widthPix);
     _calibration      = std::make_unique<SENSCalibration>(cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
                                                      horizFOVDev,
@@ -281,9 +231,9 @@ void SENSCameraBase::initCalibration()
                                                      false,
                                                      SENSCameraType::BACKFACING,
                                                      Utils::ComputerInfos().get());
-    //adjust calibration
-    if (_config.manipWidth > 0 && _config.manipHeight > 0 && _config.manipWidth != _config.streamConfig->widthPix && _config.manipHeight != _config.streamConfig->heightPix)
+    //now we adapt the calibration to the target size
+    if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
-    else if (_config.targetWidth != _config.streamConfig->widthPix && _config.targetHeight != _config.streamConfig->heightPix)
+    else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
 }

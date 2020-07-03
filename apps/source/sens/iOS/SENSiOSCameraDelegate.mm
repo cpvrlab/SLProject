@@ -109,6 +109,7 @@
                 andHeight:(int)height
            autoFocusState:(BOOL)autoFocusEnabled
   videoStabilizationState:(BOOL)videoStabilizationEnabled
+          intrinsicsState:(BOOL)provideIntrinsics
 {
     // Make sure we initialize our camera pointer:
     _camera = nil;
@@ -253,7 +254,7 @@
                         [capCon setPreferredVideoStabilizationMode:AVCaptureVideoStabilizationModeOff];
                 }
 
-                if ([capCon isCameraIntrinsicMatrixDeliverySupported])
+                if (provideIntrinsics && [capCon isCameraIntrinsicMatrixDeliverySupported])
                 {
                     [capCon setCameraIntrinsicMatrixDeliveryEnabled:YES];
                     _cameraIntrinsicsDelivery = YES;

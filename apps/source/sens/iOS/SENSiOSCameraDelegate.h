@@ -11,7 +11,8 @@
                 withWidth:(int)width
                 andHeight:(int)height
            autoFocusState:(BOOL)autoFocusEnabled
-  videoStabilizationState:(BOOL)videoStabilizationEnabled;
+  videoStabilizationState:(BOOL)videoStabilizationEnabled
+          intrinsicsState:(BOOL)provideIntrinsics;
 - (BOOL)stopCamera;
 
 - (SENSCaptureProperties)retrieveCaptureProperties;

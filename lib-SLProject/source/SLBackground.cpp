@@ -398,7 +398,8 @@ We render the quad as a triangle strip: <br>
       +----+ +----++----+
       1     3 5    7 9     11
  
- ( drawings are for svWdivH > texWdivH case )
+ ( drawings are for svWdivH > texWdivH case
+  For the other case triangles and indices are mirrored at the x-y quadrant diagonal )
  */
 void SLBackground::defineWithBars()
 {
@@ -408,6 +409,9 @@ void SLBackground::defineWithBars()
     //screen width and height
     SLfloat sW = (SLfloat)_resX;
     SLfloat sH = (SLfloat)_resY;
+
+    //scale factor for bar dimensions for texture coordinate definition
+    SLfloat barS = 0.5f;
 
     if (svWdivH > texWdivH)
     {
@@ -438,19 +442,27 @@ void SLBackground::defineWithBars()
         SLVushort I = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
         _vao.setIndices(&I);
 
+        SLfloat bWS = bW * barS / sW;
+        SLfloat bHS = barS;
+        //offset from texture boarder to scaled bar in texture
+        SLfloat bHO = 0.5f * (1.0f - bHS);
+
         SLVVec2f T = {
-          {0.0f, 1.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
-          {1.0f, 0.0f},
-          {0.0f, 1.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
-          {1.0f, 0.0f},
-          {0.0f, 1.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
-          {1.0f, 0.0f}};
+          {0.0f, bHO + bHS}, //0
+          {0.0f, bHO},       //1
+          {bWS, bHO + bHS},  //2
+          {bWS, bHO},        //3
+
+          {0.0f, 1.0f}, //4
+          {0.0f, 0.0f}, //5
+          {1.0f, 1.0f}, //6
+          {1.0f, 0.0f}, //7
+
+          {1.0f - bWS, bHO + bHS}, //8
+          {1.0f - bWS, bHO},       //9
+          {1.0f, bHO + bHS},       //10
+          {1.0f, bHO}};            //11
+
         _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
         _vao.generate(12);
     }
@@ -483,21 +495,26 @@ void SLBackground::defineWithBars()
         SLVushort I = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
         _vao.setIndices(&I);
 
+        SLfloat bWS = barS;
+        SLfloat bHS = bH * barS / sH;
+        //offset from texture boarder to scaled bar in texture
+        SLfloat bO = 0.5f * (1.0f - bWS);
+
         SLVVec2f T = {
-          {1.0f, 0.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
-          {0.0f, 1.0f},
+          {bO + bWS, 0.0f}, //0
+          {bO, 0.0f},       //1
+          {bO + bWS, bHS},  //2
+          {bO, bHS},        //3
 
-          {1.0f, 0.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
-          {0.0f, 1.0f},
+          {1.0f, 0.0f}, //4
+          {0.0f, 0.0f}, //5
+          {1.0f, 1.0f}, //6
+          {0.0f, 1.0f}, //7
 
-          {1.0f, 0.0f},
-          {0.0f, 0.0f},
-          {1.0f, 1.0f},
-          {0.0f, 1.0f}};
+          {bO + bWS, 1.0f - bHS}, //8
+          {bO, 1.0f - bHS},       //9
+          {bO + bWS, 1.0f},       //10
+          {bO, 1.0f}};            //11
         _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
         _vao.generate(12);
     }
