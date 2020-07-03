@@ -273,7 +273,7 @@ public class TextureMapping
 			_matSpecularLoc  = gl.glGetUniformLocation(_shaderProgID, "u_matSpecular");
 			_matEmissiveLoc  = gl.glGetUniformLocation(_shaderProgID, "u_matEmissive");
 			_matShininessLoc = gl.glGetUniformLocation(_shaderProgID, "u_matShininess");
-			_texture0Loc     = gl.glGetUniformLocation(_shaderProgID, "u_texture0");      
+			_texture0Loc     = gl.glGetUniformLocation(_shaderProgID, "u_matTexture0");
 
 			// Set some OpenGL states
 			gl.glClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color         

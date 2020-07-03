@@ -44,40 +44,45 @@ uniform bool        u_lightDoesPCF[NUM_LIGHTS];        // flag if percentage-clo
 uniform int         u_lightPCFLevel[NUM_LIGHTS];       // radius of area to sample for PCF
 uniform bool        u_lightUsesCubemap[NUM_LIGHTS];    // flag if light has a cube shadow map
 
-uniform vec4        u_globalAmbient;          // Global ambient scene color
-uniform float       u_oneOverGamma;           // 1.0f / Gamma correction value
+uniform vec4        u_globalAmbient;    // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
+uniform vec4        u_matAmbient;       // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiffuse;       // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpecular;      // specular color reflection coefficient (ks)
+uniform vec4        u_matEmissive;      // emissive color for self-shining materials
+uniform float       u_matShininess;     // shininess exponent
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+uniform float       u_matShadowBias;    // Bias to use to prevent shadow
 
-uniform vec4        u_matAmbient;             // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiffuse;             // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpecular;            // specular color reflection coefficient (ks)
-uniform vec4        u_matEmissive;            // emissive color for self-shining materials
-uniform float       u_matShininess;           // shininess exponent
-uniform bool        u_matGetsShadows;         // flag if material receives shadows
-uniform float       u_matShadowBias;          // Bias to use to prevent shadow acne
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
 
-uniform int         u_projection;             // type of stereo
-uniform int         u_stereoEye;              // -1=left, 0=center, 1=right
-uniform mat3        u_stereoColorFilter;      // color filter matrix
+uniform sampler2D   u_shadowMap_0;      // shadow map for light 0
+uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
+uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
+uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
+uniform sampler2D   u_shadowMap_4;      // shadow map for light 4
+uniform sampler2D   u_shadowMap_5;      // shadow map for light 5
+uniform sampler2D   u_shadowMap_6;      // shadow map for light 6
+uniform sampler2D   u_shadowMap_7;      // shadow map for light 7
 
-uniform sampler2D   u_shadowMap_0;            // shadow map for light 0
-uniform sampler2D   u_shadowMap_1;            // shadow map for light 1
-uniform sampler2D   u_shadowMap_2;            // shadow map for light 2
-uniform sampler2D   u_shadowMap_3;            // shadow map for light 3
-uniform sampler2D   u_shadowMap_4;            // shadow map for light 4
-uniform sampler2D   u_shadowMap_5;            // shadow map for light 5
-uniform sampler2D   u_shadowMap_6;            // shadow map for light 6
-uniform sampler2D   u_shadowMap_7;            // shadow map for light 7
+uniform samplerCube u_shadowMapCube_0;  // cubemap for light 0
+uniform samplerCube u_shadowMapCube_1;  // cubemap for light 1
+uniform samplerCube u_shadowMapCube_2;  // cubemap for light 2
+uniform samplerCube u_shadowMapCube_3;  // cubemap for light 3
+uniform samplerCube u_shadowMapCube_4;  // cubemap for light 4
+uniform samplerCube u_shadowMapCube_5;  // cubemap for light 5
+uniform samplerCube u_shadowMapCube_6;  // cubemap for light 6
+uniform samplerCube u_shadowMapCube_7;  // cubemap for light 7
 
-uniform samplerCube u_shadowMapCube_0;        // cubemap for light 0
-uniform samplerCube u_shadowMapCube_1;        // cubemap for light 1
-uniform samplerCube u_shadowMapCube_2;        // cubemap for light 2
-uniform samplerCube u_shadowMapCube_3;        // cubemap for light 3
-uniform samplerCube u_shadowMapCube_4;        // cubemap for light 4
-uniform samplerCube u_shadowMapCube_5;        // cubemap for light 5
-uniform samplerCube u_shadowMapCube_6;        // cubemap for light 6
-uniform samplerCube u_shadowMapCube_7;        // cubemap for light 7
-
-out     vec4        o_fragColor;              // output fragment color
+out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 int vectorToFace(vec3 vec) // Vector to process
 {
@@ -269,6 +274,77 @@ void pointLightBlinnPhong(in    int  i,      // Light number
     Is += att * u_lightSpecular[i] * specFactor * (1.0 - shadow);
 }
 //-----------------------------------------------------------------------------
+vec4 fogBlend(vec3 P_VS, vec4 inColor)
+{
+    float factor = 0.0f;
+    float distance = length(P_VS);
+
+    switch (u_camFogMode)
+    {
+        case 0:
+        factor = (u_camFogEnd - distance) / (u_camFogEnd - u_camFogStart);
+        break;
+        case 1:
+        factor = exp(-u_camFogDensity * distance);
+        break;
+        default:
+        factor = exp(-u_camFogDensity * distance * u_camFogDensity * distance);
+        break;
+    }
+
+    vec4 outColor = factor * inColor + (1 - factor) * u_camFogColor;
+    outColor = clamp(outColor, 0.0, 1.0);
+    return outColor;
+}
+//-----------------------------------------------------------------------------
+void doStereoSeparation()
+{
+    // See SLProjection in SLEnum.h
+    if (u_camProjection > 8) // stereoColors
+    {
+        // Apply color filter but keep alpha
+        o_fragColor.rgb = u_camStereoColors * o_fragColor.rgb;
+    }
+    else if (u_camProjection == 6) // stereoLineByLine
+    {
+        if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+    else if (u_camProjection == 7) // stereoColByCol
+    {
+        if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+    else if (u_camProjection == 8) // stereoCheckerBoard
+    {
+        bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
+        if (h==v)// both even or odd
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 void main()
 {
     vec4 Ia, Id, Is;        // Accumulated light intensities at v_P_VS
@@ -300,49 +376,15 @@ void main()
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiffuse.a;
 
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
-    if (u_projection > 1)
-    {
-        if (u_projection > 7) // stereoColor
-        {
-            // Apply color filter but keep alpha
-            o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
-        }
-        else if (u_projection == 5) // stereoLineByLine
-        {
-            if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
-            {
-                if (u_stereoEye ==-1) discard;
-            } else // odd
-            {
-                if (u_stereoEye == 1) discard;
-            }
-        }
-        else if (u_projection == 6) // stereoColByCol
-        {
-            if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
-            {
-                if (u_stereoEye ==-1) discard;
-            } else // odd
-            {
-                if (u_stereoEye == 1) discard;
-            }
-        }
-        else if (u_projection == 7) // stereoCheckerBoard
-        {
-            bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
-            bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v)// both even or odd
-            {
-                if (u_stereoEye ==-1) discard;
-            } else // odd
-            {
-                if (u_stereoEye == 1) discard;
-            }
-        }
-    }
+    if (u_camProjection > 1)
+        doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

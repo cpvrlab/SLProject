@@ -193,7 +193,7 @@ enum SLCamAnim
 //! Enumeration for different camera projections
 enum SLProjection
 {
-    P_monoPerspective,      //!< standard mono pinhole perspective projection
+    P_monoPerspective = 0,  //!< standard mono pinhole perspective projection
     P_monoIntrinsic,        //!< standard mono pinhole perspective projection from intrinsic calibration
     P_monoOrthographic,     //!< standard mono orthographic projection
     P_stereoSideBySide,     //!< side-by-side
@@ -315,6 +315,13 @@ enum SLViewportAlign
     VA_center = 0,
     VA_leftOrTop,
     VA_rightOrBottom
+};
+//-----------------------------------------------------------------------------
+enum SLFogeMode
+{
+    FM_linear = 0,
+    FM_exp,
+    FM_exp2
 };
 //-----------------------------------------------------------------------------
 #endif

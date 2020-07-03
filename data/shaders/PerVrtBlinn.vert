@@ -43,6 +43,7 @@ uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
 out     vec4   v_color;             // The resulting color per vertex
+out     vec3   v_P_VS;              // Point of illumination in view space (VS)
 //-----------------------------------------------------------------------------
 void directLightBlinnPhong(in    int  i,   // Light number
                            in    vec3 N,   // Normalized normal at P_VS
@@ -124,11 +125,10 @@ void main()
     Ia = vec4(0.0);         // Ambient light intensity
     Id = vec4(0.0);         // Diffuse light intensity
     Is = vec4(0.0);         // Specular light intensity
-   
-    vec3 P_VS = vec3(u_mvMatrix * a_position);
-    vec3 N = normalize(u_nMatrix * a_normal);
-    vec3 E = normalize(-P_VS);
 
+    v_P_VS = vec3(u_mvMatrix * a_position);
+    vec3 N = normalize(u_nMatrix * a_normal);
+    vec3 E = normalize(-v_P_VS);
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -137,7 +137,7 @@ void main()
             if (u_lightPosVS[i].w == 0.0)
                 directLightBlinnPhong(i, N, E, Ia, Id, Is);
             else
-                pointLightBlinnPhong(i, P_VS, N, E, Ia, Id, Is);
+                pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
         }
     }
 
@@ -157,5 +157,4 @@ void main()
     // Set the transformes vertex position           
     gl_Position = u_mvpMatrix * a_position;
 }
-
 //-----------------------------------------------------------------------------

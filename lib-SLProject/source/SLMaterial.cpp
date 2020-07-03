@@ -328,7 +328,7 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     for (SLint i = 0; i < (SLint)_textures.size(); ++i)
     {
         SLchar name[100];
-        sprintf(name, "u_texture%d", i);
+        sprintf(name, "u_matTexture%d", i);
         program->uniform1i(name, i);
     }
 }

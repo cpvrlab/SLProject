@@ -871,10 +871,10 @@ template<class T>
 void SLMat4<T>::perspectiveCenteredPP(const T w, const T h, const T fx, const T fy, 
     const T cx, const T cy, const T n, const T f)
 {
-    _m[0]=fx/cx;     _m[4]=0;          _m[8] = 0;           _m[12]=0;
-    _m[1]=0;          _m[5]=fy/cy;     _m[9] = 0;           _m[13]=0;
-    _m[2]=0;          _m[6]=0;         _m[10]=-(f+n)/(f-n); _m[14]=(-2*f*n)/(f-n);
-    _m[3]=0;          _m[7]=0;         _m[11]=-1;           _m[15]=0;
+    _m[0]=fx/cx; _m[4]=0;     _m[8] = 0;           _m[12]=0;
+    _m[1]=0;     _m[5]=fy/cy; _m[9] = 0;           _m[13]=0;
+    _m[2]=0;     _m[6]=0;     _m[10]=-(f+n)/(f-n); _m[14]=(-2*f*n)/(f-n);
+    _m[3]=0;     _m[7]=0;     _m[11]=-1;           _m[15]=0;
 }
 //---------------------------------------------------------------------------
 //! Defines a ortographic projection matrix equivalent to OpenGL's glOrtho

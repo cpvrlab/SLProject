@@ -41,11 +41,17 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
-uniform int    u_projection;        // type of stereo
-uniform int    u_stereoEye;         // -1=left, 0=center, 1=right
-uniform mat3   u_stereoColorFilter; // color filter matrix
+uniform int    u_camProjection;     // type of stereo
+uniform int    u_camStereoEye;      // -1=left, 0=center, 1=right
+uniform mat3   u_camStereoColors;   // color filter matrix
+uniform bool   u_camFogIsOn;        // flag if fog is on
+uniform int    u_camFogMode;        // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float  u_camFogDensity;     // fog densitiy value
+uniform float  u_camFogStart;       // fog start distance
+uniform float  u_camFogEnd;         // fog end distance
+uniform vec4   u_camFogColor;       // fog color (usually the background)
 
-out     vec4   o_fragColor;// output fragment color
+out     vec4   o_fragColor;         // output fragment color
 //-----------------------------------------------------------------------------
 void directLightBlinnPhong(in    int  i,  // Light number
                            in    vec3 N,  // Normalized normal at P_VS
@@ -73,13 +79,13 @@ void directLightBlinnPhong(in    int  i,  // Light number
     Is += u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
-void pointLightBlinnPhong(in    int  i, // Light number
+void pointLightBlinnPhong(in    int  i,    // Light number
                           in    vec3 P_VS, // Point of illumination in VS
-                          in    vec3 N, // Normalized normal at v_P_VS
-                          in    vec3 E, // Normalized vector from v_P_VS to view in VS
-                          inout vec4 Ia, // Ambient light intensity
-                          inout vec4 Id, // Diffuse light intensity
-                          inout vec4 Is)// Specular light intensity
+                          in    vec3 N,    // Normalized normal at v_P_VS
+                          in    vec3 E,    // Normalized vector from v_P_VS to view in VS
+                          inout vec4 Ia,   // Ambient light intensity
+                          inout vec4 Id,   // Diffuse light intensity
+                          inout vec4 Is)   // Specular light intensity
 {
     // Vector from v_P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - v_P_VS;
@@ -122,10 +128,80 @@ void pointLightBlinnPhong(in    int  i, // Light number
     Is += att * u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
+vec4 fogBlend(vec3 P_VS, vec4 inColor)
+{
+    float factor = 0.0f;
+    float distance = length(P_VS);
+
+    switch (u_camFogMode)
+    {
+        case 0:
+            factor = (u_camFogEnd - distance) / (u_camFogEnd - u_camFogStart);
+            break;
+        case 1:
+            factor = exp(-u_camFogDensity * distance);
+            break;
+        default:
+            factor = exp(-u_camFogDensity * distance * u_camFogDensity * distance);
+            break;
+    }
+
+    vec4 outColor = factor * inColor + (1 - factor) * u_camFogColor;
+    outColor = clamp(outColor, 0.0, 1.0);
+    return outColor;
+}
+//-----------------------------------------------------------------------------
+void doStereoSeparation()
+{
+    // See SLProjection in SLEnum.h
+    if (u_camProjection > 8) // stereoColors
+    {
+        // Apply color filter but keep alpha
+        o_fragColor.rgb = u_camStereoColors * o_fragColor.rgb;
+    }
+    else if (u_camProjection == 6) // stereoLineByLine
+    {
+        if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+    else if (u_camProjection == 7) // stereoColByCol
+    {
+        if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+    else if (u_camProjection == 8) // stereoCheckerBoard
+    {
+        bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
+        if (h==v)// both even or odd
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 void main()
 {
     vec4 Ia, Id, Is;// Accumulated light intensities at v_P_VS
-
     Ia = vec4(0.0);// Ambient light intensity
     Id = vec4(0.0);// Diffuse light intensity
     Is = vec4(0.0);// Specular light intensity
@@ -146,57 +222,23 @@ void main()
 
     // Sum up all the reflected color components
     o_fragColor =  u_globalAmbient +
-    u_matEmissive +
-    Ia * u_matAmbient +
-    Id * u_matDiffuse +
-    Is * u_matSpecular;
+                   u_matEmissive +
+                   Ia * u_matAmbient +
+                   Id * u_matDiffuse +
+                   Is * u_matSpecular;
 
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiffuse.a;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
-    if (u_projection > 1)
-    {
-        if (u_projection > 7) // stereoColor??
-        {
-            // Apply color filter but keep alpha
-            o_fragColor.rgb = u_stereoColorFilter * o_fragColor.rgb;
-        }
-        else if (u_projection == 5) // stereoLineByLine
-        {
-            if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
-            {
-                if (u_stereoEye ==-1) discard;
-            } else // odd
-            {
-                if (u_stereoEye == 1) discard;
-            }
-        }
-        else if (u_projection == 6) // stereoColByCol
-        {
-            if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
-            {
-                if (u_stereoEye ==-1) discard;
-            } else // odd
-            {
-                if (u_stereoEye == 1) discard;
-            }
-        }
-        else if (u_projection == 7) // stereoCheckerBoard
-        {
-            bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
-            bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v)// both even or odd
-            {
-                if (u_stereoEye ==-1) discard;
-            } else // odd
-            {
-                if (u_stereoEye == 1) discard;
-            }
-        }
-    }
+    if (u_camProjection > 1)
+        doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

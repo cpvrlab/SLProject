@@ -47,17 +47,17 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
+out     vec3   v_P_VS;              // Point of illumination in view space (VS)
 out     vec4   v_color;             // Ambient & diffuse color at vertex
 out     vec4   v_specColor;         // Specular color at vertex
 out     vec2   v_texCoord;          // texture coordinate at vertex
-
 //-----------------------------------------------------------------------------
-void DirectLight(in    int  i,   // Light number
-                 in    vec3 N,   // Normalized normal at P_VS
-                 in    vec3 E,   // Normalized vector from P_VS to eye in VS
-                 inout vec4 Ia,  // Ambient light intensity
-                 inout vec4 Id,  // Diffuse light intensity
-                 inout vec4 Is)  // Specular light intensity
+void directLightBlinnPhong(in    int  i,   // Light number
+                           in    vec3 N,   // Normalized normal at P_VS
+                           in    vec3 E,   // Normalized vector from P_VS to eye in VS
+                           inout vec4 Ia,  // Ambient light intensity
+                           inout vec4 Id,  // Diffuse light intensity
+                           inout vec4 Is)  // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirVS[i].xyz);
@@ -77,13 +77,13 @@ void DirectLight(in    int  i,   // Light number
     Is += u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
-void PointLight (in    int  i,   // OpenGL light number
-                 in    vec3 P_VS,// Point of illumination in VS
-                 in    vec3 N,   // Normalized normal at P_VS
-                 in    vec3 E,   // Normalized vector from P_VS to view in VS
-                 inout vec4 Ia,  // Ambient light intensity
-                 inout vec4 Id,  // Diffuse light intensity
-                 inout vec4 Is)  // Specular light intensity
+void pointLightBlinnPhong (in    int  i,   // OpenGL light number
+                           in    vec3 P_VS,// Point of illumination in VS
+                           in    vec3 N,   // Normalized normal at P_VS
+                           in    vec3 E,   // Normalized vector from P_VS to view in VS
+                           inout vec4 Ia,  // Ambient light intensity
+                           inout vec4 Id,  // Diffuse light intensity
+                           inout vec4 Is)  // Specular light intensity
 {  
     // Vector from P_VS to the light in VS
     vec3 L = u_lightPosVS[i].xyz - P_VS;
@@ -148,54 +148,22 @@ void main()
     jnm[0][0] = jm[0][0]; jnm[1][0] = jm[1][0]; jnm[2][0] = jm[2][0];
     jnm[0][1] = jm[0][1]; jnm[1][1] = jm[1][1]; jnm[2][1] = jm[2][1];
     jnm[0][2] = jm[0][2]; jnm[1][2] = jm[1][2]; jnm[2][2] = jm[2][2];
-                        
-    vec3 P_VS = vec3(u_mvMatrix * jm * a_position);
-    vec3 N = normalize(vec3(u_nMatrix * jnm * a_normal));
-    vec3 E = normalize(-P_VS);
 
-    /* Some GPU manufacturers do not allow uniforms in for loops
-    for (int i=0; i<8; i++)
-    {   if (i < u_numLightsUsed && u_lightIsOn[i])
+    v_P_VS = vec3(u_mvMatrix * jm * a_position);
+    vec3 N = normalize(vec3(u_nMatrix * jnm * a_normal));
+    vec3 E = normalize(-v_P_VS);
+
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
         {
             if (u_lightPosVS[i].w == 0.0)
-                DirectLight(i, N, E, Ia, Id, Is);
+                directLightBlinnPhong(i, N, E, Ia, Id, Is);
             else
-                PointLight(i, P_VS, N, E, Ia, Id, Is);
+                pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
         }
-    }*/
-
-    if (u_lightIsOn[0])
-        if (u_lightPosVS[0].w == 0.0)
-             DirectLight(0, N, E, Ia, Id, Is);
-        else PointLight(0, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[1])
-        if (u_lightPosVS[1].w == 0.0)
-             DirectLight(1, N, E, Ia, Id, Is);
-        else PointLight(1, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[2])
-        if (u_lightPosVS[2].w == 0.0)
-             DirectLight(2, N, E, Ia, Id, Is);
-        else PointLight(2, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[3])
-        if (u_lightPosVS[3].w == 0.0)
-             DirectLight(3, N, E, Ia, Id, Is);
-        else PointLight(3, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[4])
-        if (u_lightPosVS[4].w == 0.0)
-             DirectLight(4, N, E, Ia, Id, Is);
-        else PointLight(4, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[5])
-        if (u_lightPosVS[5].w == 0.0)
-             DirectLight(5, N, E, Ia, Id, Is);
-        else PointLight(5, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[6])
-        if (u_lightPosVS[6].w == 0.0)
-             DirectLight(6, N, E, Ia, Id, Is);
-        else PointLight(6, P_VS, N, E, Ia, Id, Is);
-    if (u_lightIsOn[7])
-        if (u_lightPosVS[7].w == 0.0)
-             DirectLight(7, N, E, Ia, Id, Is);
-        else PointLight(7, P_VS, N, E, Ia, Id, Is);
+    }
    
     // Set the texture coord. output for interpolated tex. coords.
     v_texCoord = a_texCoord.xy;

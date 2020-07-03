@@ -2300,6 +2300,35 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Fog"))
+            {
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
+                if (ImGui::MenuItem("Fog is on", nullptr, cam->fogIsOn()))
+                    cam->fogIsOn(!cam->fogIsOn());
+
+                if (ImGui::BeginMenu("Mode"))
+                {
+                    if (ImGui::MenuItem("linear", nullptr, cam->fogMode()==FM_linear))
+                        cam->fogMode(FM_linear);
+                    if (ImGui::MenuItem("exp", nullptr, cam->fogMode()==FM_exp))
+                        cam->fogMode(FM_exp);
+                    if (ImGui::MenuItem("exp2", nullptr, cam->fogMode()==FM_exp2))
+                        cam->fogMode(FM_exp2);
+                    ImGui::EndMenu();
+                }
+
+                if (cam->fogMode() ==FM_exp || cam->fogMode()==FM_exp2)
+                {
+                    static SLfloat fogDensity = cam->fogDensity();
+                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f))
+                        cam->fogDensity(fogDensity);
+                }
+
+                ImGui::PopItemWidth();
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -2683,6 +2712,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLfloat fov       = cam->fov();
 
                             const char* projections[] = {"Mono Perspective",
+                                                         "Mono Intrinsic Calibrated",
                                                          "Mono Orthographic",
                                                          "Stereo Side By Side",
                                                          "Stereo Side By Side Prop.",
