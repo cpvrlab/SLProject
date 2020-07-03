@@ -37,20 +37,20 @@ public:
                     SLstring     shaderDir);
     ~SLTransformNode() override;
 
-    SLbool onMouseDown(SLMouseButton button,
-                       SLint         x,
-                       SLint         y,
-                       SLKey         mod) override;
-    SLbool onMouseUp(SLMouseButton button,
-                     SLint         x,
-                     SLint         y,
-                     SLKey         mod) override;
-    SLbool onMouseMove(SLMouseButton button,
-                       SLint         x,
-                       SLint         y,
-                       SLKey         mod) override;
+    virtual SLbool onMouseDown(SLMouseButton button,
+                               SLint         x,
+                               SLint         y,
+                               SLKey         mod) override;
+    virtual SLbool onMouseUp(SLMouseButton button,
+                             SLint         x,
+                             SLint         y,
+                             SLKey         mod) override;
+    virtual SLbool onMouseMove(SLMouseButton button,
+                               SLint         x,
+                               SLint         y,
+                               SLKey         mod) override;
 
-    void editMode(SLNodeEditMode editMode);
+    virtual void editMode(SLNodeEditMode editMode);
 
     SLNode*        targetNode() { return _targetNode; }
     SLNodeEditMode editMode() { return _editMode; }
@@ -109,6 +109,9 @@ private:
     SLNode* _rotDiskY  = nullptr;
     SLNode* _rotCircZ  = nullptr;
     SLNode* _rotDiskZ  = nullptr;
+
+    // Node that contains all gizmos
+    SLNode* _gizmosNode = nullptr;
 
     bool getClosestPointsBetweenRays(const SLVec3f& ray1O,
                                      const SLVec3f& ray1Dir,

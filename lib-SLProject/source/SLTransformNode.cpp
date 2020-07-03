@@ -126,13 +126,15 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _rotGizmos->addChild(rotationGizmosY);
     _rotGizmos->addChild(rotationGizmosZ);
 
-    this->addChild(_transGizmos);
-    this->addChild(_scaleGizmos);
-    this->addChild(_rotGizmos);
+    _gizmosNode = new SLNode("Gizmos");
+    _gizmosNode->addChild(_transGizmos);
+    _gizmosNode->addChild(_scaleGizmos);
+    _gizmosNode->addChild(_rotGizmos);
+    this->addChild(_gizmosNode);
 
     this->updateAABBRec();
 
-    setDrawBitRecursive(SL_DB_OVERDRAW, this, true);
+    setDrawBitRecursive(SL_DB_OVERDRAW, _gizmosNode, true);
 
     _sv->s()->eventHandlers().push_back(this);
 }
@@ -145,6 +147,11 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
  */
 SLTransformNode::~SLTransformNode()
 {
+    // delete gizmos
+    _gizmosNode->deleteChildren();
+    //delete _gizmosNode;
+    this->deleteChild(_gizmosNode);
+    this->deleteChildren();
     // delete all programs, materials and meshes
     delete _prog;
     delete _matR;
@@ -169,9 +176,6 @@ SLTransformNode::~SLTransformNode()
     delete _diskG;
     delete _diskB;
     delete _diskY;
-
-    // delete child nodes
-    deleteChildren();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -187,21 +191,21 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
     {
         if (_targetNode)
         {
-            this->translation(_targetNode->updateAndGetWM().translation());
+            _gizmosNode->translation(_targetNode->updateAndGetWM().translation());
 
-            SLVec2f p1 = _sv->camera()->projectWorldToNDC(this->translationWS());
-            SLVec2f p2 = _sv->camera()->projectWorldToNDC(this->translationWS() +
+            SLVec2f p1 = _sv->camera()->projectWorldToNDC(_gizmosNode->translationWS());
+            SLVec2f p2 = _sv->camera()->projectWorldToNDC(_gizmosNode->translationWS() +
                                                           _sv->camera()->upWS().normalize());
 
             float actualHeight = (p1 - p2).length();
             float targetHeight = 0.2f; // % of screen that gizmos should occupy
             float scaleFactor  = targetHeight / actualHeight;
 
-            this->scale(scaleFactor / _gizmoScale);
+            _gizmosNode->scale(scaleFactor / _gizmoScale);
             _gizmoScale = scaleFactor;
 
-            setDrawBitRecursive(SL_DB_HIDDEN, this, true);
-            this->drawBits()->set(SL_DB_HIDDEN, false);
+            setDrawBitRecursive(SL_DB_HIDDEN, _gizmosNode, true);
+            _gizmosNode->drawBits()->set(SL_DB_HIDDEN, false);
 
             switch (_editMode)
             {
@@ -235,9 +239,7 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
     }
     else
     {
-        setDrawBitRecursive(SL_DB_HIDDEN, this, true);
-        this->drawBits()->set(SL_DB_HIDDEN, false);
-
+        setDrawBitRecursive(SL_DB_HIDDEN, _gizmosNode, true);
         _editMode = NodeEditMode_None;
     }
 }
@@ -273,7 +275,7 @@ SLbool SLTransformNode::onMouseUp(SLMouseButton button,
 
         if (_targetNode)
         {
-            this->translation(_targetNode->updateAndGetWM().translation());
+            _gizmosNode->translation(_targetNode->updateAndGetWM().translation());
         }
 
         _selectedGizmo = nullptr;
@@ -321,7 +323,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
 
                                 _targetNode->translate(translationDiff, TS_world);
 
-                                this->translation(_targetNode->updateAndGetWM().translation());
+                                _gizmosNode->translation(_targetNode->updateAndGetWM().translation());
 
                                 _hitCoordinate = axisPoint;
                             }
@@ -437,7 +439,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
 
                                 _targetNode->scale(scaleFactor);
                                 _gizmoScale *= scaleFactor;
-                                this->scale(scaleFactor);
+                                _gizmosNode->scale(scaleFactor);
                             }
 
                             result = true;
