@@ -1332,11 +1332,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->lookAt(0, 0, 0);
         light1->spotCutOffDEG(40);
 
+        SLLightDirect* light2 = new SLLightDirect(s, s);
+        light2->ambientColor(SLCol4f(0, 0, 0));
+        light2->diffuseColor(SLCol4f(1, 1, 0));
+        light2->specularColor(SLCol4f(1, 1, 0));
+        light2->translation(-5, -5, 5);
+        light2->lookAt(0, 0, 0);
+        light2->attenuation(1, 0, 0);
+
         SLAnimation* anim = s->animManager().createNodeAnimation("light1_anim", 2.0f);
         anim->createEllipticNodeTrack(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
+        scene->addChild(light2);
         scene->addChild(new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", m1)));
         scene->addChild(cam1);
 
@@ -1383,11 +1392,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->lookAt(0, 0, 0);
         light1->spotCutOffDEG(50);
 
+        SLLightDirect* light2 = new SLLightDirect(s, s);
+        light2->ambientColor(SLCol4f(0, 0, 0));
+        light2->diffuseColor(SLCol4f(1, 1, 0));
+        light2->specularColor(SLCol4f(1, 1, 0));
+        light2->translation(-5, -5, 5);
+        light2->lookAt(0, 0, 0);
+        light2->attenuation(1, 0, 0);
+
         SLAnimation* anim = s->animManager().createNodeAnimation("light1_anim", 2.0f);
         anim->createEllipticNodeTrack(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);
+        scene->addChild(light2);
         scene->addChild(new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", m1)));
         scene->addChild(cam1);
 

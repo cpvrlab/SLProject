@@ -25,12 +25,12 @@ uniform vec4  u_lightPosVS[NUM_LIGHTS];      // position of light in view space
 uniform vec3  u_lightSpotDirVS[NUM_LIGHTS];  // spot direction in view space
 uniform float u_lightSpotCutoff[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
 
-out     vec3  v_P_VS;       // Point of illumination in view space (VS)
-out     vec2  v_texCoord;   // Texture coordiante output
-out     vec3  v_L_TS;       // Vector to the light 0 in tangent space
-out     vec3  v_E_TS;       // Vector to the eye in tangent space
-out     vec3  v_S_TS;       // Spot direction in tangent space
-out     float v_d;          // Light distance
+out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
+out     vec2  v_texCoord;               // Texture coordiante output
+out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
+out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
+out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
+out     float v_lightDist[NUM_LIGHTS];  // Light distance
 //-----------------------------------------------------------------------------
 void main()
 {  
@@ -46,23 +46,24 @@ void main()
    
     // Transform vertex into view space
     v_P_VS = vec3(u_mvMatrix *  a_position);
-   
-    // Transform spotdir into tangent space
-    if (u_lightSpotCutoff[0] < 180.0)
-    {   v_S_TS = u_lightSpotDirVS[0];
-        v_S_TS *= TBN;
-    }
-      
-    // Transform vector to the light 0 into tangent space
-    vec3 L = u_lightPosVS[0].xyz - v_P_VS;
-    v_d = length(L);  // calculate distance to light before normalizing
-    v_L_TS = L;
-    v_L_TS *= TBN;
-   
+
     // Transform vector to the eye into tangent space
-    v_E_TS = -v_P_VS;  // eye vector in view space
-    v_E_TS *= TBN;
-     
+    v_eyeDirTS = -v_P_VS;  // eye vector in view space
+    v_eyeDirTS *= TBN;
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        // Transform spotdir into tangent space
+        v_spotDirTS[i] = u_lightSpotDirVS[i];
+        v_spotDirTS[i]  *= TBN;
+
+        // Transform vector to the light 0 into tangent space
+        vec3 L = u_lightPosVS[0].xyz - v_P_VS;
+        v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
+        v_lightDirTS[i]  = L;
+        v_lightDirTS[i]  *= TBN;
+    }
+
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
 }

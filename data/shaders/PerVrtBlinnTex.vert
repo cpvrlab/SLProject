@@ -123,11 +123,9 @@ void pointLightBlinnPhong (in    int  i,   // OpenGL light number
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec4 Ia, Id, Is;        // Accumulated light intensities at P_VS
-   
-    Ia = vec4(0.0);         // Ambient light intensity
-    Id = vec4(0.0);         // Diffuse light intensity
-    Is = vec4(0.0);         // Specular light intensity
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
    
     v_P_VS = vec3(u_mvMatrix * a_position);
     vec3 N = normalize(u_nMatrix * a_normal);

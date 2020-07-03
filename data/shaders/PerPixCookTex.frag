@@ -205,11 +205,11 @@ void doStereoSeparation()
         if (h==v)// both even or odd
         {
             if (u_camStereoEye ==-1)
-            discard;
+                discard;
         } else // odd
         {
             if (u_camStereoEye == 1)
-            discard;
+                discard;
         }
     }
 }

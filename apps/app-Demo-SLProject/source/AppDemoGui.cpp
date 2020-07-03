@@ -1265,7 +1265,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Per Vertex Blinn-Phong", nullptr, sid == SID_ShaderPerVertexBlinn))
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", nullptr, sid == SID_ShaderPerPixelBlinn))
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phong", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
                     if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCook))
                         s->onLoad(s, sv, SID_ShaderCook);
@@ -2617,7 +2617,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         if (ImGui::Checkbox("Casts shadows", &castsShadows))
                             singleNode->castsShadows(castsShadows);
 
-                        if (SLLight* light = dynamic_cast<SLLight*>(singleNode))
+                        if (auto* light = dynamic_cast<SLLight*>(singleNode))
                         {
                             SLbool createsShadows = light->createsShadows();
                             if (ImGui::Checkbox("Creates shadows", &createsShadows))
@@ -2702,7 +2702,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     // Show special camera properties
                     if (typeid(*singleNode) == typeid(SLCamera))
                     {
-                        SLCamera* cam = (SLCamera*)singleNode;
+                        auto* cam = (SLCamera*)singleNode;
 
                         if (ImGui::TreeNode("Camera"))
                         {
@@ -2808,6 +2808,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             float cutoff = light->spotCutOffDEG();
                             if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
                                 light->spotCutOffDEG(cutoff);
+
+                            float spotExp = light->spotExponent();
+                            if (ImGui::SliderFloat("Spot attenuation", &spotExp, 0.0f, 128.0f))
+                                light->spotExponent(spotExp);
 
                             float kc = light->kc();
                             if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))

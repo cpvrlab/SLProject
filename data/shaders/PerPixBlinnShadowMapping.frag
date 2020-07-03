@@ -347,10 +347,9 @@ void doStereoSeparation()
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec4 Ia, Id, Is;        // Accumulated light intensities at v_P_VS
-    Ia = vec4(0.0);         // Ambient light intensity
-    Id = vec4(0.0);         // Diffuse light intensity
-    Is = vec4(0.0);         // Specular light intensity
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS); // Vector from p to the eye

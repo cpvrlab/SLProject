@@ -12,12 +12,12 @@
 precision mediump float;
 #endif
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
-in      vec2        v_texCoord; // Texture coordiante varying
-in      vec3        v_L_TS;     // Vector to the light in tangent space
-in      vec3        v_E_TS;     // Vector to the eye in tangent space
-in      vec3        v_S_TS;     // Spot direction in tangent space
-in      float       v_d;        // Light distance
+in      vec3        v_P_VS;                     // Interpol. point of illum. in view space (VS)
+in      vec2        v_texCoord;                 // Texture coordiante varying
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to the light in tangent space
+in      vec3        v_eyeDirTS[NUM_LIGHTS];     // Vector to the eye in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+in      float       v_lightDist[NUM_LIGHTS];    // Light distance
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];        // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];       // position of light in view space
@@ -134,8 +134,8 @@ void doStereoSeparation()
 void main()
 {
     // Normalize E and L
-    vec3 E = normalize(v_E_TS);   // normalized eye direction
-    vec3 L = normalize(v_L_TS);   // normalized light direction
+    vec3 E = normalize(v_eyeDirTS[0]);   // normalized eye direction
+    vec3 L = normalize(v_lightDirTS[0]);   // normalized light direction
     vec3 S;                       // normalized spot direction
    
     // Halfvector H between L & E (See Blinn's lighting model)
@@ -164,14 +164,14 @@ void main()
     if (u_lightDoAtt[0])
     {   vec3 att_dist;
         att_dist.x = 1.0;
-        att_dist.y = v_d;
-        att_dist.z = v_d * v_d;
+        att_dist.y = v_lightDist[0];
+        att_dist.z = v_lightDist[0] * v_lightDist[0];
         att = 1.0 / dot(att_dist, u_lightAtt[0]);
     }
    
     // Calculate spot attenuation
     if (u_lightSpotCutoff[0] < 180.0)
-    {   S = normalize(v_S_TS);
+    {   S = normalize(v_spotDirTS[0]);
         float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, S);
@@ -211,10 +211,10 @@ void main()
    
     //Finally Add specular light
     o_fragColor += att *
-                    u_lightSpecular[0] * 
-                    u_matSpecular * 
-                    specFactor * 
-                    texture(u_matTexture3, Tc)[0];
+                   u_lightSpecular[0] *
+                   u_matSpecular *
+                   specFactor *
+                   texture(u_matTexture3, Tc)[0];
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
