@@ -332,7 +332,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
             SLGLTexture* tex = mat->textures()[0];
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(tex->target(), (SLuint)tex->texID());
-            GLint locT = glGetUniformLocation(progID, "u_texture0");
+            GLint locT = glGetUniformLocation(progID, "u_matTexture0");
             glUniform1i(locT, 0);
         }
         */

@@ -62,7 +62,7 @@ uniform float  u_matKr;             // reflection factor (kr)
 uniform bool   u_matHasTexture;     // flag if material has texture
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
-uniform sampler2D u_texture0;       // Color texture map
+uniform sampler2D u_matTexture0;       // Color texture map
 uniform sampler3D u_texture3D;      // Voxelization texture.
 
 out     vec4      o_fragColor;      // output fragment color
@@ -240,7 +240,7 @@ vec4 direct()
                   Id * u_matDiffuse;
                
     // Componentwise multiply w. texture color
-    color *= texture(u_texture0, o_Tc);
+    color *= texture(u_matTexture0, o_Tc);
     
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpecular;

@@ -186,7 +186,7 @@ public class TextureMapping_Net : GameWindow
         _matSpecularLoc    = gl.GetUniformLocation(_shaderProgID, "u_matSpecular");
         _matEmissiveLoc    = gl.GetUniformLocation(_shaderProgID, "u_matEmissive");
         _matShininessLoc   = gl.GetUniformLocation(_shaderProgID, "u_matShininess");
-        _texture0Loc       = gl.GetUniformLocation(_shaderProgID, "u_texture0");      
+        _texture0Loc       = gl.GetUniformLocation(_shaderProgID, "u_matTexture0");
 
         // Set some OpenGL states
         gl.ClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color         

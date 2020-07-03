@@ -373,7 +373,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
         }
 
         // Pass vectors as uniform vectors
-        SLint nL = (SLint)lights->size();
+        auto nL = (SLint)lights->size();
         uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
         uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
         uniform4fv("u_lightPosVS", nL, (SLfloat*)&lightPosVS);

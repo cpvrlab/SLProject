@@ -22,14 +22,14 @@ uniform vec4        u_matSpecular;  // specular color reflection coefficient (ks
 uniform vec4        u_matEmissive;  // emissive color for self-shining materials
 uniform float       u_matShininess; // shininess exponent
 uniform float       u_oneOverGamma; // 1.0f / Gamma correction value
-uniform samplerCube u_texture0;     // Cubic environment texture map
+uniform samplerCube u_matTexture0;     // Cubic environment texture map
 
 out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
     // Get the reflection & refraction color out of the cubic map
-    o_fragColor = texture(u_texture0, v_R_OS);
+    o_fragColor = texture(u_matTexture0, v_R_OS);
    
     // Add Specular highlight
     o_fragColor.rgb += v_specColor.rgb;

@@ -514,12 +514,25 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Texture Blending Test");
         s->info("Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
 
-        SLGLTexture* t1 = new SLGLTexture(s, SLApplication::texturePath + "tree1_1024_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, TT_color, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        SLGLTexture* t2 = new SLGLTexture(s, SLApplication::texturePath + "grass0512_C.jpg", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        SLGLTexture* t1 = new SLGLTexture(s,
+                                          SLApplication::texturePath + "tree1_1024_C.png",
+                                          GL_LINEAR_MIPMAP_LINEAR,
+                                          GL_LINEAR,
+                                          TT_color,
+                                          GL_CLAMP_TO_EDGE,
+                                          GL_CLAMP_TO_EDGE);
+        SLGLTexture* t2 = new SLGLTexture(s,
+                                          SLApplication::texturePath + "grass0512_C.jpg",
+                                          GL_LINEAR_MIPMAP_LINEAR,
+                                          GL_LINEAR);
 
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
-        m1->program(SLGLProgramManager::get(SP_TextureOnly));
+
+        SLGLProgram* sp = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerVrtTextureOnly.vert",
+                                                 SLApplication::shaderPath + "PerVrtTextureOnly.frag");
+        m1->program(sp);
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
 
@@ -789,8 +802,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create shader program with 4 uniforms
         SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "BumpNormal.vert",
-                                                 SLApplication::shaderPath + "BumpNormalParallax.frag");
+                                                 SLApplication::shaderPath + "PerPixBlinnNrm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
 
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.01f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", 0.01f, 0.002f, -1, 1, (SLKey)'O');
@@ -1292,8 +1305,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
 
         SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "BumpNormal.vert",
-                                                 SLApplication::shaderPath + "BumpNormal.frag");
+                                                 SLApplication::shaderPath + "PerPixBlinnNrm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnNrm.frag");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s,
@@ -1339,7 +1352,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "BumpNormal.vert", SLApplication::shaderPath + "BumpNormalParallax.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnNrm.vert", SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1464,7 +1477,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use (SHIFT) & key C to change cloud height");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "BumpNormal.vert", SLApplication::shaderPath + "BumpNormalEarth.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnNrm.vert", SLApplication::shaderPath + "PerPixBlinnNrmEarth.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);

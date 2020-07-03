@@ -20,7 +20,7 @@ in      vec3        v_R_OS;         // Reflected ray in object space
 in      float       v_F_Theta;      // Fresnel reflection coefficient
 in      vec4        v_specColor;    // Specular color at vertex
 
-uniform samplerCube u_texture0;     // Cubic environment texture map
+uniform samplerCube u_matTexture0;     // Cubic environment texture map
 uniform mat4        u_mvMatrix;     // modelview matrix
 uniform mat4        u_invMvMatrix;  // inverse modelview
 uniform mat3        u_nMatrix;      // normal matrix=transpose(inverse(mv))
@@ -45,13 +45,13 @@ void main()
     mat3 iMV = mat3(u_invMvMatrix);
    
     // get the reflection & refraction color out of the cubic map
-    vec4 reflCol = texture(u_texture0, v_R_OS);
+    vec4 reflCol = texture(u_matTexture0, v_R_OS);
    
     //Chromatic dispersion refract rays depending on their wave length
     vec4 refrCol;
-    refrCol.r = texture(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.45)).r;
-    refrCol.g = texture(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.50)).g;
-    refrCol.b = texture(u_texture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.55)).b;
+    refrCol.r = texture(u_matTexture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.45)).r;
+    refrCol.g = texture(u_matTexture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.50)).g;
+    refrCol.b = texture(u_matTexture0, iMV * refract(v_I_VS, v_N_VS, 1.0/1.55)).b;
     refrCol.a = 1.0;
    
     // Mix the final color with the fast frenel factor

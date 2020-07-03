@@ -47,6 +47,7 @@ uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
 out     vec4   v_color;             // The resulting color per vertex
+out     vec3   v_P_VS;              // Point of illumination in view space (VS)
 //-----------------------------------------------------------------------------
 void directLightBlinnPhong(in    int  i,   // Light number
                            in    vec3 N,   // Normalized normal at P_VS
@@ -123,12 +124,10 @@ void pointLightBlinnPhong (in    int  i,   // OpenGL light number
 void main()
 {
     vec4 Ia, Id, Is;        // Accumulated light intensities at P_VS
-   
     Ia = vec4(0.0);         // Ambient light intensity
     Id = vec4(0.0);         // Diffuse light intensity
     Is = vec4(0.0);         // Specular light intensity
-   
-   
+
     // In skinned skeleton animation every vertex of a mesh is transformed by
     // max. four joints (bones) of a skeleton identified by indices. The joint
     // matrix is a weighted sum fore joint matrices and can change per frame
@@ -146,10 +145,10 @@ void main()
     jnm[0][0] = jm[0][0]; jnm[1][0] = jm[1][0]; jnm[2][0] = jm[2][0];
     jnm[0][1] = jm[0][1]; jnm[1][1] = jm[1][1]; jnm[2][1] = jm[2][1];
     jnm[0][2] = jm[0][2]; jnm[1][2] = jm[1][2]; jnm[2][2] = jm[2][2];
-                    
-    vec3 P_VS = vec3(u_mvMatrix * jm * a_position);
+
+    v_P_VS = vec3(u_mvMatrix * jm * a_position);
     vec3 N = normalize(vec3(u_nMatrix * jnm * a_normal));
-    vec3 E = normalize(-P_VS);
+    vec3 E = normalize(-v_P_VS);
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {

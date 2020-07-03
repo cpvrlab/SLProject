@@ -43,10 +43,10 @@ uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks
 uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 
+out     vec3   v_P_VS;              // Point of illumination in view space (VS)
 out     vec4   v_color;             // Ambient & diffuse color at vertex
 out     vec4   v_specColor;         // Specular color at vertex
 out     vec2   v_texCoord;          // texture coordinate at vertex
-
 //-----------------------------------------------------------------------------
 void directLightBlinnPhong(in    int  i,   // Light number
                            in    vec3 N,   // Normalized normal at P_VS
@@ -129,9 +129,9 @@ void main()
     Id = vec4(0.0);         // Diffuse light intensity
     Is = vec4(0.0);         // Specular light intensity
    
-    vec3 P_VS = vec3(u_mvMatrix * a_position);
+    v_P_VS = vec3(u_mvMatrix * a_position);
     vec3 N = normalize(u_nMatrix * a_normal);
-    vec3 E = normalize(-P_VS);
+    vec3 E = normalize(-v_P_VS);
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -140,7 +140,7 @@ void main()
             if (u_lightPosVS[i].w == 0.0)
                 directLightBlinnPhong(i, N, E, Ia, Id, Is);
             else
-                pointLightBlinnPhong(i, P_VS, N, E, Ia, Id, Is);
+                pointLightBlinnPhong(i, v_P_VS, N, E, Ia, Id, Is);
         }
     }
 

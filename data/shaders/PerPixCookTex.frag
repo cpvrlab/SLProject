@@ -29,10 +29,21 @@ uniform vec4        u_lightPosVS[NUM_LIGHTS];    // position of light in view sp
 uniform vec4        u_lightDiffuse[NUM_LIGHTS];  // diffuse light intensity (Id)
 uniform float       u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform sampler2D   u_texture0;       // Diffuse Color map (albedo)
-uniform sampler2D   u_texture1;       // Normal map
-uniform sampler2D   u_texture2;       // Metallic map
-uniform sampler2D   u_texture3;       // Roughness map
+uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+uniform sampler2D   u_matTexture1;      // Normal map
+uniform sampler2D   u_matTexture2;      // Metallic map
+uniform sampler2D   u_matTexture3;      // Roughness map
 
 out     vec4        o_fragColor;        // output fragment color
 // ----------------------------------------------------------------------------
@@ -41,7 +52,7 @@ const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(u_texture1, v_texCoord).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(u_matTexture1, v_texCoord).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(v_P_VS);
     vec3 Q2  = dFdy(v_P_VS);
@@ -132,12 +143,83 @@ void pointLightCookTorrance(in    int   i,         // Light number
      Lo += (kD*diffuse/PI + specular) * radiance * NdotL;
 }
 //-----------------------------------------------------------------------------
+vec4 fogBlend(vec3 P_VS, vec4 inColor)
+{
+    float factor = 0.0f;
+    float distance = length(P_VS);
+
+    switch (u_camFogMode)
+    {
+        case 0:
+        factor = (u_camFogEnd - distance) / (u_camFogEnd - u_camFogStart);
+        break;
+        case 1:
+        factor = exp(-u_camFogDensity * distance);
+        break;
+        default:
+        factor = exp(-u_camFogDensity * distance * u_camFogDensity * distance);
+        break;
+    }
+
+    vec4 outColor = factor * inColor + (1 - factor) * u_camFogColor;
+    outColor = clamp(outColor, 0.0, 1.0);
+    return outColor;
+}
+//-----------------------------------------------------------------------------
+void doStereoSeparation()
+{
+    // See SLProjection in SLEnum.h
+    if (u_camProjection > 8) // stereoColors
+    {
+        // Apply color filter but keep alpha
+        o_fragColor.rgb = u_camStereoColors * o_fragColor.rgb;
+    }
+    else if (u_camProjection == 6) // stereoLineByLine
+    {
+        if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+    else if (u_camProjection == 7) // stereoColByCol
+    {
+        if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+    else if (u_camProjection == 8) // stereoCheckerBoard
+    {
+        bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
+        bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
+        if (h==v)// both even or odd
+        {
+            if (u_camStereoEye ==-1)
+            discard;
+        } else // odd
+        {
+            if (u_camStereoEye == 1)
+            discard;
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 void main()
 {
     // Get the material parameters out of the textures
-    vec3  diffuse   = pow(texture(u_texture0, v_texCoord).rgb, vec3(2.2));
-    float metallic  = texture(u_texture2, v_texCoord).r;
-    float roughness = texture(u_texture3, v_texCoord).r;
+    vec3  diffuse   = pow(texture(u_matTexture0, v_texCoord).rgb, vec3(2.2));
+    float metallic  = texture(u_matTexture2, v_texCoord).r;
+    float roughness = texture(u_matTexture3, v_texCoord).r;
 
     vec3 N = getNormalFromMap();     // Get the distracted normal from map
     vec3 V = normalize(-v_P_VS);     // Vector from p to the viewer
@@ -169,5 +251,9 @@ void main()
 
     // set the fragment color with opaque alpha
     o_fragColor = vec4(color, 1.0);
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
 }
 //-----------------------------------------------------------------------------
