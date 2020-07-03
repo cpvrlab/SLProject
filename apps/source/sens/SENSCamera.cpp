@@ -53,7 +53,7 @@ int SENSCameraDeviceProperties::findBestMatchingConfig(cv::Size requiredSize) co
     return matchingSizes.front().second;
 }
 
-SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intrinsics, bool intrinsicsChanged)
+SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = rgbImg.size();
@@ -121,12 +121,12 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
         //cropped height (using stream configuration referenced by streamConfigIdx)
         int heightCropped;
         //horizontal and vertical field of view using cropped width
-        float horizFov;
+        float horizFov = -1.f;
         //scale factor between stream config and target resolutions
         float scale;
 
         //difference to target field of view
-        float fovScore;
+        float fovScore = 0.f;
         //summed crop (used as later as score to make decision)
         int cropScore;
         //score that respecs necessary scale complexity
@@ -173,23 +173,26 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
             SENS::calcCrop({config.widthPix, config.heightPix}, targetWidthDivHeight, cropW, cropH, sortElem.widthCropped, sortElem.heightCropped);
             sortElem.scale = (float)width / (float)sortElem.widthCropped;
 
-            if (sortElem.scale <= 1.f)
+            //if (sortElem.scale <= 1.f)
+            //{
+            sortElem.camChars        = &*itChars;
+            sortElem.streamConfigIdx = (int)(&*itStream - &*streams.begin());
+            sortElem.streamConfig    = &*itStream;
+            if (config.focalLengthPix > 0)
             {
-                sortElem.camChars        = &*itChars;
-                sortElem.streamConfigIdx = (int)(&*itStream - &*streams.begin());
-                sortElem.streamConfig    = &*itStream;
                 //we have to use the cropped and unscaled width of the stream config because of the resolution of the focalLengthPix
                 sortElem.horizFov = SENS::calcFOVDegFromFocalLengthPix(config.focalLengthPix, sortElem.widthCropped);
-                sortElem.fovScore  = std::abs(sortElem.horizFov - horizFov);
-                sortElem.cropScore = cropW + cropH;
-                //if we have to scale add a score for it
-                if (!isEqualToOne(sortElem.scale))
-                    sortElem.scaleScore = width * height;
-                else
-                    sortElem.scaleScore = 0.f;
-
-                sortElems.push_back(sortElem);
+                sortElem.fovScore = std::abs(sortElem.horizFov - horizFov);
             }
+            sortElem.cropScore = cropW + cropH;
+            //if we have to scale add a score for it
+            if (!isEqualToOne(sortElem.scale))
+                sortElem.scaleScore = width * height;
+            else
+                sortElem.scaleScore = 0.f;
+
+            sortElems.push_back(sortElem);
+            //}
         }
     }
 
@@ -207,7 +210,7 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
             if (elem.fovScore < maxFovDiff)
                 closeFovSortElems.push_back(elem);
         }
-        
+
         //now extract the
         std::sort(closeFovSortElems.begin(), closeFovSortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.scale > rhs.scale; });
         printSortElems(closeFovSortElems, "closeFovSortElems");

@@ -205,18 +205,27 @@ void AreaTrackingView::startCamera()
                            true,
                            65.f);
         }
-        /*
-        _camera->start(SENSCameraFacing::BACK,
-                       65.f,
-                       cv::Size(1920, 1440),//cv::Size(1900, (int)1900.f / 4.f * 3.f),
-                       false,
-                       false,
-                       false,
-                       true,
-                       cv::Size(640, 480),
-                       true,
-                       65.f);
-         */
+        else //try with unknown config (for desktop usage
+        {
+            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
+            if(bestConfig2.first && bestConfig2.second)
+            {
+                const SENSCameraDeviceProperties* const devProps = bestConfig2.first;
+                const SENSCameraStreamConfig* streamConfig = bestConfig2.second;
+                //calculate size of tracking image
+                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+                cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
+                _camera->start(devProps->deviceId(),
+                               *streamConfig,
+                               cv::Size(),
+                               false,
+                               false,
+                               true,
+                               trackingImgSize,
+                               true,
+                               65.f);
+            }
+        }
     }
 }
 

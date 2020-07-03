@@ -118,8 +118,6 @@ struct SENSCameraConfig
     //!
     int cropWidth  = 0;
     int cropHeight = 0;
-    //! current horizontal field of view (-1 if unknown)
-    //float horizFovDeg = -1.f;
 
     //! width of smaller image version (e.g. for tracking)
     int manipWidth = 0;
@@ -129,8 +127,6 @@ struct SENSCameraConfig
     bool mirrorH = false;
     //! mirror image vertically after capturing
     bool mirrorV = false;
-    //! provide scaled (smaller) version with size (manipWidth, manipHeight)
-    //bool provideScaledImage = false;
     //! provide gray version of small image
     bool convertManipToGray = true;
 
@@ -232,9 +228,6 @@ public:
     virtual const SENSCameraConfig& config() const = 0;
     //! returns  SENSCalibration if it was started (maybe a guessed one from a fov guess). Else returns nullptr. The calibration is used for computer vision applications. So, if a manipulated image is requested (see imgManipSize in SENSCamera::start(...), SENSFrame::imgManip and SENSCameraConfig) this calibration is adjusted to fit to this image, else to the original sized image (see SENSFrame::imgRGB)
     virtual const SENSCalibration* const calibration() const = 0;
-    //!  currently selected stream configuration
-    //virtual const SENSCameraStreamConfig& currSteamConfig() const = 0;
-    //virtual const SENSCameraProperties& currCameraProperties() const = 0;
 
     virtual bool started() const = 0;
 
@@ -263,7 +256,7 @@ protected:
 
     SENSCaptureProperties _caputureProperties;
 
-    SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat& intrinsics, bool intrinsicsChanged);
+    SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     //! flags if camera was started
     std::atomic<bool> _started{false};

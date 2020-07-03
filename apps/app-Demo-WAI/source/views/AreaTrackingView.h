@@ -40,7 +40,8 @@ private:
     void updateSceneCameraFov();
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
 
-    void            startCamera();
+    void startCamera();
+
     AreaTrackingGui _gui;
     AppWAIScene     _scene;
 
