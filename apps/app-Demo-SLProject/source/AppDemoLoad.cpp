@@ -964,103 +964,131 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
              SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
     {
-        SLMaterial*  m1 = nullptr;
-        SLGLProgram* sp = new SLGLGenericProgram(s,
+        SLMaterial*  mL = nullptr;
+        SLMaterial*  mM = nullptr;
+        SLMaterial*  mR = nullptr;
+        SLGLProgram* pL = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTex.frag");
+        SLGLProgram* pM = new SLGLGenericProgram(s,
                                                  SLApplication::shaderPath + "PerPixBlinn.vert",
                                                  SLApplication::shaderPath + "PerPixBlinn.frag");
+
+        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
 
         if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
-            s->info("Per-pixel lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per pixel.");
-            m1 = new SLMaterial(s, "m1", nullptr, nullptr, nullptr, nullptr, sp);
+            s->info("Per-pixel lighting with Blinn-Phong light model. The reflection of 5 light sources is calculated per pixel.");
+            SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
+            SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
+            SLGLProgram*   pR     = new SLGLGenericProgram(s,
+                                                     SLApplication::shaderPath + "PerPixBlinnNrm.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
+            SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1);
+            SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1);
+            pR->addUniform1f(scale);
+            pR->addUniform1f(offset);
+            mL = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, pL);
+            mM = new SLMaterial(s, "mM", nullptr, nullptr, nullptr, nullptr, pM);
+            mR = new SLMaterial(s, "mR", texC, texN, texH, nullptr, pR);
         }
         else
         {
             s->name("Blinn-Phong per vertex lighting");
-            s->info("Per-vertex lighting with Blinn-Phong lightmodel. The reflection of 5 light sources is calculated per vertex.");
-            m1 = new SLMaterial(s, "m1");
+            s->info("Per-vertex lighting with Blinn-Phong light model. The reflection of 5 light sources is calculated per vertex.");
+            mL = new SLMaterial(s, "mL", texC);
+            mM = new SLMaterial(s, "mM");
+            mR = new SLMaterial(s, "mR", texC);
         }
 
-        m1->shininess(500);
+        mM->shininess(500);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1, 8);
-        cam1->lookAt(0, 1, 0);
-        cam1->focalDist(8);
+        cam1->translation(0, 0, 7);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(7);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
         scene->addChild(cam1);
 
         // Define 5 light sources
-        // A rectanglar wight light on top
-        SLLightRect* light0 = new SLLightRect(s, s, 2.0f, 1.0f);
-        light0->ambiDiffPowers(0, 1);
-        light0->translation(0, 3, 0);
-        light0->lookAt(0, 0, 0, 0, 0, -1);
-        light0->attenuation(0, 0, 1);
-        scene->addChild(light0);
+        // A rectangular white light attached to the camera
+        SLLightRect* lightW = new SLLightRect(s, s, 2.0f, 1.0f);
+        lightW->ambiDiffPowers(0, 5);
+        lightW->translation(0, 2.5f, -7);
+        lightW->rotate(-90, 1, 0, 0);
+        lightW->attenuation(0, 0, 1);
+        cam1->addChild(lightW);
 
-        // A red point light from from front left
-        SLLightSpot* light1 = new SLLightSpot(s, s, 0.1f);
-        light1->ambientColor(SLCol4f(0, 0, 0));
-        light1->diffuseColor(SLCol4f(1, 0, 0));
-        light1->specularColor(SLCol4f(1, 0, 0));
-        light1->translation(0, 0, 2);
-        light1->lookAt(0, 0, 0);
-        light1->attenuation(0, 0, 1);
-        scene->addChild(light1);
-
-        // A green spot light with 40 deg. spot angle from front right
-        //SLLightSpot* light2 = new SLLightSpot(s,s,0.1f, 20.0f, true);
-        //light2->ambient(SLCol4f(0,0,0));
-        //light2->diffuse(SLCol4f(0,1,0));
-        //light2->specular(SLCol4f(0,1,0));
-        //light2->translation(1.5f, 1.5f, 1.5f);
-        //light2->lookAt(0, 0, 0);
-        //light2->attenuation(0,0,1);
-        //scene->addChild(light2);
+        // A red point light from the front attached in the scene
+        SLLightSpot* lightR = new SLLightSpot(s, s, 0.1f);
+        lightR->ambientColor(SLCol4f(0, 0, 0));
+        lightR->diffuseColor(SLCol4f(1, 0, 0));
+        lightR->specularColor(SLCol4f(1, 0, 0));
+        lightR->translation(0, 0, 2);
+        lightR->lookAt(0, 0, 0);
+        lightR->attenuation(0, 0, 1);
+        scene->addChild(lightR);
 
         // A green spot head light with 40 deg. spot angle from front right
-        SLLightSpot* light2 = new SLLightSpot(s, s, 0.1f, 20.0f, true);
-        light2->ambientColor(SLCol4f(0, 0, 0));
-        light2->diffuseColor(SLCol4f(0, 1, 0));
-        light2->specularColor(SLCol4f(0, 1, 0));
-        light2->translation(1.5f, 0.5f, -6.5f);
-        light2->lookAt(0.5f, -0.5f, -7.5f);
-        light2->attenuation(0, 0, 1);
-        cam1->addChild(light2);
+        SLLightSpot* lightG = new SLLightSpot(s, s, 0.1f, 20, true);
+        lightG->ambientColor(SLCol4f(0, 0, 0));
+        lightG->diffuseColor(SLCol4f(0, 1, 0));
+        lightG->specularColor(SLCol4f(0, 1, 0));
+        /*
+        lightG->translation(1.5f, 1.5f, 1.5f);
+        lightG->lookAt(0, 0, 0);
+        lightG->attenuation(1, 0, 0);
+        scene->addChild(lightG);
+        */
+        lightG->translation(1.5f,  1, -5);
+        lightG->lookAt(0.5f, -0.5f, -7.5f);
+        lightG->attenuation(1, 0, 0);
+        cam1->addChild(lightG);
 
         // A blue spot light with 40 deg. spot angle from front left
-        SLLightSpot* light3 = new SLLightSpot(s, s, 0.1f, 20.0f, true);
-        light3->ambientColor(SLCol4f(0, 0, 0));
-        light3->diffuseColor(SLCol4f(0, 0, 1));
-        light3->specularColor(SLCol4f(0, 0, 1));
-        light3->translation(-1.5f, 1.5f, 1.5f);
-        light3->lookAt(0, 0, 0);
-        light3->attenuation(0, 0, 1);
-        SLAnimation* light3Anim = s->animManager().createNodeAnimation("Ball3_anim", 1.0f, true, EC_outQuad, AL_pingPongLoop);
-        light3Anim->createSimpleTranslationNodeTrack(light3, SLVec3f(0, -2, 0));
-        scene->addChild(light3);
+        SLLightSpot* lightB = new SLLightSpot(s, s, 0.1f, 20.0f, true);
+        lightB->ambientColor(SLCol4f(0, 0, 0));
+        lightB->diffuseColor(SLCol4f(0, 0, 1));
+        lightB->specularColor(SLCol4f(0, 0, 1));
+        lightB->translation(-1.5f, 1.5f, 1.5f);
+        lightB->lookAt(0, 0, 0);
+        lightB->attenuation(1, 0, 0);
+        SLAnimation* light3Anim = s->animManager().createNodeAnimation("Ball3_anim",
+                                                                       1.0f,
+                                                                       true,
+                                                                       EC_outQuad,
+                                                                       AL_pingPongLoop);
+        light3Anim->createSimpleTranslationNodeTrack(lightB, SLVec3f(0, -2, 0));
+        scene->addChild(lightB);
 
         // A yellow directional light from the back-bottom
         // Do constant attenuation for directional lights since it is infinitely far away
-        SLLightDirect* light4 = new SLLightDirect(s, s);
-        light4->ambientColor(SLCol4f(0, 0, 0));
-        light4->diffuseColor(SLCol4f(1, 1, 0));
-        light4->specularColor(SLCol4f(1, 1, 0));
-        light4->translation(-1.5f, -1.5f, -1.5f);
-        light4->lookAt(0, 0, 0);
-        light4->attenuation(1, 0, 0);
-        scene->addChild(light4);
+        SLLightDirect* lightY = new SLLightDirect(s, s);
+        lightY->ambientColor(SLCol4f(0, 0, 0));
+        lightY->diffuseColor(SLCol4f(1, 1, 0));
+        lightY->specularColor(SLCol4f(1, 1, 0));
+        lightY->translation(-1.5f, -1.5f,  1.5f);
+        lightY->lookAt(0, 0, 0);
+        lightY->attenuation(1, 0, 0);
+        scene->addChild(lightY);
 
         // Add some meshes to be lighted
-        scene->addChild(new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 20, 20, "Sphere", m1)));
-        scene->addChild(new SLNode(new SLBox(s, 1, -1, -1, 2, 1, 1, "Box", m1)));
+        SLNode* sphereL = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mL));
+        SLNode* sphereM = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mM));
+        SLNode* sphereR = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mR));
+        sphereL->translate(-2, 0, 0);
+        sphereL->rotate(90, -1, 0, 0);
+        sphereR->translate(2, 0, 0);
+        sphereR->rotate(90, -1, 0, 0);
 
+        scene->addChild(sphereL);
+        scene->addChild(sphereM);
+        scene->addChild(sphereR);
         sv->camera(cam1);
         s->root3D(scene);
     }
@@ -1323,14 +1351,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f, 40, true);
         light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(0, 0, 5);
         light1->lookAt(0, 0, 0);
-        light1->spotCutOffDEG(40);
 
         SLLightDirect* light2 = new SLLightDirect(s, s);
         light2->ambientColor(SLCol4f(0, 0, 0));
@@ -1383,14 +1409,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f, 40, true);
         light1->powers(0.1f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(0, 0, 5);
         light1->lookAt(0, 0, 0);
-        light1->spotCutOffDEG(50);
 
         SLLightDirect* light2 = new SLLightDirect(s, s);
         light2->ambientColor(SLCol4f(0, 0, 0));

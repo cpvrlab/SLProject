@@ -53,13 +53,13 @@ uniform vec4        u_camFogColor;          // fog color (usually the background
 
 out     vec4        o_fragColor;            // output fragment color
 //-----------------------------------------------------------------------------
-void directLightBlinnPhong(in    int  i,   // Light number
-                           in    vec3 N,    // Normalized normal
-                           in    vec3 E,    // normalized eye direction
-                           in    vec3 S,    // Normalized light spot direction
-                           inout vec4 Ia,  // Ambient light intensity
-                           inout vec4 Id,  // Diffuse light intensity
-                           inout vec4 Is)  // Specular light intensity
+void directLightBlinnPhong(in    int  i,    // Light number between 0 and NUM_LIGHTS
+in    vec3 N,    // Normalized normal at v_P
+in    vec3 E,    // Normalized direction at v_P to the eye
+in    vec3 S,    // Normalized light spot direction
+inout vec4 Ia,   // Ambient light intensity
+inout vec4 Id,   // Diffuse light intensity
+inout vec4 Is)   // Specular light intensity
 {
     // Compute diffuse lighting
     float diffFactor = max(dot(S,N), 0.0) ;
@@ -77,14 +77,14 @@ void directLightBlinnPhong(in    int  i,   // Light number
     Is += u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
-void pointLightBlinnPhong( in    int  i,    // Light number
-                           in    vec3 N,    // Normalized normal at v_P
-                           in    vec3 L,    // Unnormalized direction from v_P to light
-                           in    vec3 E,    // normalized eye direction
-                           in    vec3 S,    // normalized spot direction
-                           inout vec4 Ia,   // Ambient light intensity
-                           inout vec4 Id,   // Diffuse light intensity
-                           inout vec4 Is)   // Specular light intensity
+void pointLightBlinnPhong( in    int  i,    // Light number between 0 and NUM_LIGHTS
+in    vec3 N,    // Normalized normal at v_P
+in    vec3 E,    // Normalized direction at v_P to the eye
+in    vec3 S,    // Normalized light spot direction
+in    vec3 L,    // Unnormalized direction at v_P to the light
+inout vec4 Ia,   // Ambient light intensity
+inout vec4 Id,   // Diffuse light intensity
+inout vec4 Is)   // Specular light intensity
 {
     // Halfvector H between L & E (See Blinn's lighting model)
     vec3 H = normalize(L + E);
@@ -220,7 +220,7 @@ void main()
             {
                 vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
                 vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
-                pointLightBlinnPhong(i, N, L, E, S, Ia, Id, Is);
+                pointLightBlinnPhong(i, N, E, S, L, Ia, Id, Is);
             }
         }
     }

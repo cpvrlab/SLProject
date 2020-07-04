@@ -60,8 +60,8 @@ void main()
         // Transform vector to the light 0 into tangent space
         vec3 L = u_lightPosVS[0].xyz - v_P_VS;
         v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
-        v_lightDirTS[i]  = L;
-        v_lightDirTS[i]  *= TBN;
+        v_lightDirTS[i] = L;
+        v_lightDirTS[i] *= TBN;
     }
 
     // pass the vertex w. the fix-function transform

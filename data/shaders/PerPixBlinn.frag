@@ -53,13 +53,13 @@ uniform vec4   u_camFogColor;       // fog color (usually the background)
 
 out     vec4   o_fragColor;         // output fragment color
 //-----------------------------------------------------------------------------
-void directLightBlinnPhong(in    int  i,    // Light number
-                           in    vec3 N,    // Normalized normal at v_P
-                           in    vec3 E,    // Normalized vector from v_P to eye
-                           in    vec3 S,    // Normalized light spot direction
-                           inout vec4 Ia,   // Ambient light intensity
-                           inout vec4 Id,   // Diffuse light intensity
-                           inout vec4 Is)   // Specular light intensity
+void directLightBlinnPhong(in    int  i,    // Light number between 0 and NUM_LIGHTS
+in    vec3 N,    // Normalized normal at v_P
+in    vec3 E,    // Normalized direction at v_P to the eye
+in    vec3 S,    // Normalized light spot direction
+inout vec4 Ia,   // Ambient light intensity
+inout vec4 Id,   // Diffuse light intensity
+inout vec4 Is)   // Specular light intensity
 {
     // Calculate diffuse & specular factors
     float diffFactor = max(dot(N, S), 0.0);
@@ -77,14 +77,14 @@ void directLightBlinnPhong(in    int  i,    // Light number
     Is += u_lightSpecular[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
-void pointLightBlinnPhong(in    int  i,    // Light number
-                          in    vec3 N,    // Normalized normal at v_P
-                          in    vec3 L,    // Unnormalized direction from v_P to light
-                          in    vec3 E,    // Normalized vector from v_P
-                          in    vec3 S,    // normalized spot direction
-                          inout vec4 Ia,   // Ambient light intensity
-                          inout vec4 Id,   // Diffuse light intensity
-                          inout vec4 Is)   // Specular light intensity
+void pointLightBlinnPhong( in    int  i,    // Light number between 0 and NUM_LIGHTS
+in    vec3 N,    // Normalized normal at v_P
+in    vec3 E,    // Normalized direction at v_P to the eye
+in    vec3 S,    // Normalized light spot direction
+in    vec3 L,    // Unnormalized direction at v_P to the light
+inout vec4 Ia,   // Ambient light intensity
+inout vec4 Id,   // Diffuse light intensity
+inout vec4 Is)   // Specular light intensity
 {
     // Normalized halfvector between the eye and the light vector
     vec3 H = normalize(E + L);
@@ -197,10 +197,9 @@ void doStereoSeparation()
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec4 Ia, Id, Is;// Accumulated light intensities at v_P_VS
-    Ia = vec4(0.0); // Ambient light intensity
-    Id = vec4(0.0); // Diffuse light intensity
-    Is = vec4(0.0); // Specular light intensity
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
     vec3 N = normalize(v_N_VS);// A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);// Vector from p to the eye
@@ -219,7 +218,7 @@ void main()
             {
                 vec3 S = u_lightSpotDirVS[i]; // normalized spot direction in VS
                 vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
-                pointLightBlinnPhong(i, N, L, E, S, Ia, Id, Is);
+                pointLightBlinnPhong(i, N, E, S, L, Ia, Id, Is);
             }
         }
     }

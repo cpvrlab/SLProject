@@ -14,8 +14,8 @@ precision mediump float;
 //-----------------------------------------------------------------------------
 in      vec3        v_P_VS;                     // Interpol. point of illum. in view space (VS)
 in      vec2        v_texCoord;                 // Texture coordiante varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to the light in tangent space
-in      vec3        v_eyeDirTS[NUM_LIGHTS];     // Vector to the eye in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 in      float       v_lightDist[NUM_LIGHTS];    // Light distance
 
@@ -134,9 +134,9 @@ void doStereoSeparation()
 void main()
 {
     // Normalize E and L
-    vec3 E = normalize(v_eyeDirTS[0]);   // normalized eye direction
-    vec3 L = normalize(v_lightDirTS[0]);   // normalized light direction
-    vec3 S;                       // normalized spot direction
+    vec3 E = normalize(v_eyeDirTS);         // normalized eye direction
+    vec3 L = normalize(v_lightDirTS[0]);    // normalized light direction
+    vec3 S;                                 // normalized spot direction
    
     // Halfvector H between L & E (See Blinn's lighting model)
     vec3 H = normalize(L + E);
