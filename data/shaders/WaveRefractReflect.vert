@@ -10,6 +10,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
+//-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 
@@ -18,13 +21,13 @@ uniform mat4   u_mvpMatrix;         // = projection * modelView
 uniform mat4   u_invMvMatrix;       // inverse modelview
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
 
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
+uniform vec4   u_lightPosVS[NUM_LIGHTS];     // position of light in view space
+uniform vec4   u_lightSpec[NUM_LIGHTS];  // specular light intensity (Is)
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform float  u_matShininess;      // shininess exponent
+uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpec;       // specular color reflection coefficient (ks)
+uniform float  u_matShin;      // shininess exponent
 
 uniform float  u_t;                 // time
 uniform float  u_h;                 // height of the wave in y direction
@@ -98,8 +101,8 @@ void main(void)
     vec3 E = -I_VS;                      // eye vector
     vec3 L = u_lightPosVS[0].xyz - P_VS; // Vector from P_VS to the light in VS
     vec3 H = normalize(L+E);             // Normalized halfvector between N and L
-    float specFactor = pow(max(dot(N_VS,H), 0.0), u_matShininess);
-    v_specColor = u_lightSpecular[0] * specFactor * u_matSpecular;
+    float specFactor = pow(max(dot(N_VS,H), 0.0), u_matShin);
+    v_specColor = u_lightSpec[0] * specFactor * u_matSpec;
    
     // Finally transform the vertex position
     gl_Position = u_mvpMatrix * p;

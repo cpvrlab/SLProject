@@ -217,11 +217,11 @@ void SLGLConetracer::uploadLights(SLGLProgram* program)
         glUniform1iv(glGetUniformLocation(progID, "u_lightIsOn"), nL, (SLint*)stateGL->lightIsOn);
         glUniform4fv(glGetUniformLocation(progID, "u_lightPosVS"), nL, (SLfloat*)lightsVoxelSpace);
         glUniform4fv(glGetUniformLocation(progID, "u_lightPosWS"), nL, (SLfloat*)stateGL->lightPosWS);
-        glUniform4fv(glGetUniformLocation(progID, "u_lightDiffuse"), nL, (SLfloat*)stateGL->lightDiffuse);
-        glUniform4fv(glGetUniformLocation(progID, "u_lightSpecular"), nL, (SLfloat*)stateGL->lightSpecular);
+        glUniform4fv(glGetUniformLocation(progID, "u_lightDiff"), nL, (SLfloat*)stateGL->lightDiffuse);
+        glUniform4fv(glGetUniformLocation(progID, "u_lightSpec"), nL, (SLfloat*)stateGL->lightSpecular);
         glUniform3fv(glGetUniformLocation(progID, "u_lightSpotDirWS"), nL, (SLfloat*)stateGL->lightSpotDirWS);
-        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotCutoff"), nL, (SLfloat*)stateGL->lightSpotCutoff);
-        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotCosCut"), nL, (SLfloat*)stateGL->lightSpotCosCut);
+        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotDeg"), nL, (SLfloat*)stateGL->lightSpotCutoff);
+        glUniform1fv(glGetUniformLocation(progID, "u_lightSpotCos"), nL, (SLfloat*)stateGL->lightSpotCosCut);
         glUniform1fv(glGetUniformLocation(progID, "u_lightSpotExp"), nL, (SLfloat*)stateGL->lightSpotExp);
         glUniform3fv(glGetUniformLocation(progID, "u_lightAtt"), nL, (SLfloat*)stateGL->lightAtt);
         glUniform1iv(glGetUniformLocation(progID, "u_lightDoAtt"), nL, (SLint*)stateGL->lightDoAtt);

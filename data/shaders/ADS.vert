@@ -18,7 +18,7 @@ uniform     mat3     u_nMatrix;        // normal matrix=transpose(inverse(mv))
 
 uniform     vec4     u_globalAmbi;     // global ambient intensity (Iaglobal)
 uniform     vec3     u_lightPosVS;     // light position in view space
-uniform     vec3     u_lightSpotDirVS; // light direction in view space
+uniform     vec3     u_lightSpotDir; // light direction in view space
 uniform     vec4     u_lightAmbi;      // light ambient light intensity (Ia)
 uniform     vec4     u_lightDiff;      // light diffuse light intensity (Id)
 uniform     vec4     u_lightSpec;      // light specular light intensity (Is)

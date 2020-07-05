@@ -192,7 +192,7 @@ void SLLightSpot::drawMeshes(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 /*!
 SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
-1.0 if it is 100% lighted. A return value inbetween is calculate by the ratio
+1.0 if it is 100% lighted. A return value in between is calculate by the ratio
 of the shadow rays not blocked to the total number of casted shadow rays.
 */
 SLfloat SLLightSpot::shadowTest(SLRay*         ray,       // ray of hit point
