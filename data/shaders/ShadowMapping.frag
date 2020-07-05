@@ -115,7 +115,7 @@ void shadeBlinnPhongWithShadows(const int i)
     float nDotL = max(dot(N,L), 0.0);
     float shine;
     if (nDotL==0.0) shine = 0.0;
-    else shine = pow(max(dot(N,H), 0.0), u_matShininess);
+    else shine = pow(max(dot(N,H), 0.0), u_matShin);
    
     // Calculate attenuation over distance d
     float att = 1.0 / (u_light[i].constantAttenuation +	
@@ -123,11 +123,11 @@ void shadeBlinnPhongWithShadows(const int i)
                        u_light[i].quadraticAttenuation * d * d);
 
     // Calculate spot attenuation
-    if (u_lightSpotCosCut[i] < 180.0)
+    if (u_lightSpotCos[i] < 180.0)
     {   float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, u_light[i].spotDirection);
-        if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
+        if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
         else spotAtt = pow(spotDot, u_lightSpotExp[i]);
         att *= spotAtt;
     }
@@ -139,9 +139,9 @@ void shadeBlinnPhongWithShadows(const int i)
     // Accumulate light intesities and shadow
     shadow = shadow * nDotL;
 
-    Ia += u_lightAmbient[i]  * att * shadow ;
-    Id += u_lightDiffuse[i]  * att * nDotL * shadow;
-    Is += u_lightSpecular[i] * att * shine *shadow;
+    Ia += u_lightAmbi[i]  * att * shadow ;
+    Id += u_lightDiff[i]  * att * nDotL * shadow;
+    Is += u_lightSpec[i] * att * shine *shadow;
 }
 //-----------------------------------------------------------------------------
 void main()
@@ -153,9 +153,9 @@ void main()
 
     //Update the Fragment Color
     o_fragColor =  u_sceneColor +
-                    Ia * u_matAmbient +
-                    Id * u_matDiffuse;
+                    Ia * u_matAmbi +
+                    Id * u_matDiff;
 
-    o_fragColor += Is * u_matSpecular;
+    o_fragColor += Is * u_matSpec;
 }
 //-----------------------------------------------------------------------------

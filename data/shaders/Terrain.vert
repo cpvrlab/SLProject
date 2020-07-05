@@ -18,12 +18,12 @@ uniform mat4   u_mvpMatrix;         // = projection * modelView
 
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform vec4   u_lightAmbi[8];   // ambient light intensity (Ia)
+uniform vec4   u_lightDiff[8];   // diffuse light intensity (Id)
+uniform vec4   u_globalAmbi;     // Global ambient scene color
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
+uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
 
 out     vec4   v_color;             // Ambient & diffuse color at vertex
 out     vec2   v_texCoord;          // texture coordinate at vertex
@@ -41,9 +41,9 @@ void main()
    v_texCoord = a_texCoord.xy;
    
    // Sum up all the reflected color components except the specular
-   v_color =  u_globalAmbient +
-              u_lightAmbient[0] * u_matAmbient +
-              u_lightDiffuse[0] * u_matDiffuse * diffFactor;
+   v_color =  u_globalAmbi +
+              u_lightAmbi[0] * u_matAmbi +
+              u_lightDiff[0] * u_matDiff * diffFactor;
 
    // Set the transformes vertex position   
    gl_Position = u_mvpMatrix * a_position;

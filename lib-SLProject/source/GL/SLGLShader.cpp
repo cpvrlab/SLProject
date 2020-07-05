@@ -49,19 +49,10 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
 //! SLGLShader::load loads a shader file into string _shaderSource
 void SLGLShader::load(const SLstring& filename)
 {
-    fstream shaderFile(filename.c_str(), ios::in);
-
-    if (!shaderFile.is_open())
-    {
-        SL_LOG("File open failed in SLGLShader::load: %s", filename.c_str());
-        exit(1);
-    }
-
-    std::stringstream buffer;
-    buffer << shaderFile.rdbuf();
+    _code = Utils::loadFileIntoString("SLProject", filename);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
-    _code = removeComments(buffer.str());
+    _code = removeComments(_code);
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file from memory into memory
@@ -125,11 +116,7 @@ SLbool SLGLShader::createAndCompileSimple()
 //-----------------------------------------------------------------------------
 //! SLGLShader::createAndCompile creates & compiles the OpenGL shader object
 /*!
-All shaders are written with the initial GLSL version 110 and are therefore
-backwards compatible with the compatibility profile from OpenGL 2.1 and
-OpenGL ES 2 that runs on most mobile devices. To be upwards compatible some
-modification have to be done.
-\return true if compilation was successfull
+\return true if compilation was successful
 */
 SLbool SLGLShader::createAndCompile(SLVLight* lights)
 {
@@ -159,17 +146,10 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         if (state->glIsES3()) srcVersion += " es";
         srcVersion += "\n";
 
-        // Add NUM_LIGHTS as #define macro
-        // This information can be used in shaders that loop over multiple lights
-        // This number can not be passed a uniform variable because they can't be
-        // used in loops in GLSL.
-        SLstring strNumLights;
-        if (lights && !lights->empty())
-            strNumLights = "#define NUM_LIGHTS " + std::to_string(lights->size()) + "\n";;
+        _code = preprocessPragmas(_code, lights);
 
         // Concatenate final code string
         _code = srcVersion +
-                strNumLights +
                 _code;
 
         const char* src = _code.c_str();
@@ -185,12 +165,15 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         GET_GL_ERROR;
         if (compileSuccess == GL_FALSE)
         {
-            GLchar log[256];
+            GLchar log[1024];
             glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
             SL_LOG("*** COMPILER ERROR ***");
             SL_LOG("Source file: %s\n", _file.c_str());
             SL_LOG("%s---", log);
-            SL_LOG("%s", src);
+            SLVstring lines = Utils::getStringLines(_code);
+            SLint lineNum = 1;
+            for (string& line : lines)
+                SL_LOG("%4d: %s", lineNum++, line.c_str());
             return false;
         }
         return true;
@@ -257,3 +240,62 @@ SLstring SLGLShader::typeName()
     }
 }
 // ----------------------------------------------------------------------------
+//! Replaces our own #pragma directives in GLSL code
+SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
+{
+    // Check first if #pragma exists at all
+    size_t pragmaStart = inCode.find("#pragma");
+    if (pragmaStart == string::npos)
+        return inCode;
+
+    SLVstring codeLines = Utils::getStringLines(inCode);
+
+    string outCode;
+
+    for (string& line : codeLines)
+    {
+        pragmaStart = line.find("#pragma");
+        if (pragmaStart == string::npos)
+            outCode += line + '\n';
+        else
+        {
+            SLVstring pragmaParts;
+            Utils::splitString(line, ' ', pragmaParts);
+
+            for (auto& part : pragmaParts)
+                part = Utils::trimString(part);
+
+            if (pragmaParts[1] == "include") //................................
+            {
+                string filename     = Utils::trimString(pragmaParts[2], "\"");
+                string path         = Utils::getPath(_file);
+                string pathFile = path + filename;
+                if (Utils::fileExists(pathFile))
+                {
+                    string includeCode = Utils::loadFileIntoString("SLProject", pathFile);
+                    includeCode        = removeComments(includeCode);
+                    outCode += includeCode + '\n';
+                }
+                else
+                {
+                    SL_LOG("SLGLShader::preprocessPragmas: File doesn't exist: %s",
+                           pathFile.c_str());
+                    outCode += line + '\n';
+                }
+            }
+            else if (pragmaParts[1] == "define") //............................
+            {
+                if (pragmaParts[2] == "NUM_LIGHTS")
+                {
+                    outCode += "#define NUM_LIGHTS " +
+                               std::to_string(lights->size()) + "\n";
+                } else
+                    outCode += line + '\n';
+            } //...............................................................
+            else
+                outCode += line + '\n';
+        }
+    }
+    return outCode;
+}
+//-----------------------------------------------------------------------------

@@ -157,8 +157,8 @@ void onInit()
     _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
     _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
     _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiff");
 
     // Create sphere
     _resolution    = 16;

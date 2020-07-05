@@ -65,6 +65,12 @@ void splitString(const string& s, char delimiter, vector<string>& splits);
 //! Replaces in the source string the from string by the to string
 void replaceString(string& source, const string& from, const string& to);
 
+//! Returns a vector of string one per line of a multiline string
+vector<string> getStringLines(const string& multiLineString);
+
+//! Loads a file into a string and returns it
+string loadFileIntoString(const char* logTag, const string& pathAndFilename);
+
 //! replaces non-filename characters: /\|?%*:"<>'
 string replaceNonFilenameChars(string source, char replaceChar = '-');
 
