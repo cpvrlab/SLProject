@@ -9,6 +9,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
+//-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position; // Vertex position attribute
 layout (location = 1) in vec3  a_normal;   // Vertex normal attribute
 

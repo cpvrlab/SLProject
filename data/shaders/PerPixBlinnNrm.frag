@@ -12,6 +12,9 @@
 precision mediump float;
 #endif
 //-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
+//-----------------------------------------------------------------------------
 in      vec3        v_P_VS;                     // Interpol. point of illum. in view space (VS)
 in      vec2        v_texCoord;                 // Texture coordiante varying
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
@@ -53,146 +56,10 @@ uniform vec4        u_camFogColor;          // fog color (usually the background
 
 out     vec4        o_fragColor;            // output fragment color
 //-----------------------------------------------------------------------------
-void directLightBlinnPhong(in    int  i,    // Light number between 0 and NUM_LIGHTS
-in    vec3 N,    // Normalized normal at v_P
-in    vec3 E,    // Normalized direction at v_P to the eye
-in    vec3 S,    // Normalized light spot direction
-inout vec4 Ia,   // Ambient light intensity
-inout vec4 Id,   // Diffuse light intensity
-inout vec4 Is)   // Specular light intensity
-{
-    // Compute diffuse lighting
-    float diffFactor = max(dot(S,N), 0.0) ;
-    float specFactor = 0.0;
-
-    if (diffFactor!=0.0)
-    {
-        vec3 H = normalize(S + E); // Half vector H between S and E
-        specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
-    }
-
-    // accumulate directional light intesities w/o attenuation
-    Ia += u_lightAmbient[i];
-    Id += u_lightDiffuse[i] * diffFactor;
-    Is += u_lightSpecular[i] * specFactor;
-}
-//-----------------------------------------------------------------------------
-void pointLightBlinnPhong( in    int  i,    // Light number between 0 and NUM_LIGHTS
-in    vec3 N,    // Normalized normal at v_P
-in    vec3 E,    // Normalized direction at v_P to the eye
-in    vec3 S,    // Normalized light spot direction
-in    vec3 L,    // Unnormalized direction at v_P to the light
-inout vec4 Ia,   // Ambient light intensity
-inout vec4 Id,   // Diffuse light intensity
-inout vec4 Is)   // Specular light intensity
-{
-    // Halfvector H between L & E (See Blinn's lighting model)
-    vec3 H = normalize(L + E);
-
-    // Calculate attenuation over distance & normalize L
-    float att = 1.0;
-    if (u_lightDoAtt[i])
-    {
-        vec3 att_dist;
-        att_dist.x = 1.0;
-        att_dist.z = dot(L, L);// = distance * distance
-        att_dist.y = sqrt(att_dist.z);// = distance
-        att = 1.0 / dot(att_dist, u_lightAtt[i]);
-        L /= att_dist.y;// = normalize(L)
-    } else L = normalize(L);
-
-    // Calculate diffuse & specular factors
-    float diffFactor = max(dot(N,L), 0.0);
-    float specFactor = 0.0;
-    if (diffFactor!=0.0)
-    specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
-
-    // Calculate spot attenuation
-    if (u_lightSpotCutoff[i] < 180.0)
-    {
-        float spotDot; // Cosine of angle between L and spotdir
-        float spotAtt; // Spot attenuation
-        spotDot = dot(-L, S);
-        if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
-        else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
-        att *= spotAtt;
-    }
-
-    // Accumulate light intesities
-    Ia += att * u_lightAmbient[i];
-    Id += att * u_lightDiffuse[i] * diffFactor;
-    Is += att * u_lightSpecular[i] * specFactor;
-}
-//-----------------------------------------------------------------------------
-vec4 fogBlend(vec3 P_VS, vec4 inColor)
-{
-    float factor = 0.0f;
-    float distance = length(P_VS);
-    switch (u_camFogMode)
-    {
-        case 0:
-        factor = (u_camFogEnd - distance) / (u_camFogEnd - u_camFogStart);
-        break;
-        case 1:
-        factor = exp(-u_camFogDensity * distance);
-        break;
-        default:
-        factor = exp(-u_camFogDensity * distance * u_camFogDensity * distance);
-        break;
-    }
-
-    vec4 outColor = factor * inColor + (1 - factor) * u_camFogColor;
-    outColor = clamp(outColor, 0.0, 1.0);
-    return outColor;
-}
-//-----------------------------------------------------------------------------
-void doStereoSeparation()
-{
-    // See SLProjection in SLEnum.h
-    if (u_camProjection > 8) // stereoColors
-    {
-        // Apply color filter but keep alpha
-        o_fragColor.rgb = u_camStereoColors * o_fragColor.rgb;
-    }
-    else if (u_camProjection == 6) // stereoLineByLine
-    {
-        if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
-        {
-            if (u_camStereoEye ==-1)
-            discard;
-        } else // odd
-        {
-            if (u_camStereoEye == 1)
-            discard;
-        }
-    }
-    else if (u_camProjection == 7) // stereoColByCol
-    {
-        if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
-        {
-            if (u_camStereoEye ==-1)
-            discard;
-        } else // odd
-        {
-            if (u_camStereoEye == 1)
-            discard;
-        }
-    }
-    else if (u_camProjection == 8) // stereoCheckerBoard
-    {
-        bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
-        bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-        if (h==v)// both even or odd
-        {
-            if (u_camStereoEye ==-1)
-            discard;
-        } else // odd
-        {
-            if (u_camStereoEye == 1)
-            discard;
-        }
-    }
-}
+// SLGLShader::preprocessPragmas replaces the include pragma by the file
+#pragma include "lightingBlinnPhong.glsl"
+#pragma include "fogBlend.glsl"
+#pragma include "doStereoSeparation.glsl"
 //-----------------------------------------------------------------------------
 void main()
 {

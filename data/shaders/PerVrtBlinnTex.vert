@@ -8,12 +8,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-/*
-The preprocessor constant #define NUM_LIGHTS will be added at the shader
-compilation time. It must be constant to be used in the for loop in main().
-Therefore this number it can not be passed as a uniform variable.
-*/
-
+//-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
@@ -48,76 +45,8 @@ out     vec4   v_color;             // Ambient & diffuse color at vertex
 out     vec4   v_specColor;         // Specular color at vertex
 out     vec2   v_texCoord;          // texture coordinate at vertex
 //-----------------------------------------------------------------------------
-void directLightBlinnPhong(in    int  i,    // Light number between 0 and NUM_LIGHTS
-in    vec3 N,    // Normalized normal at v_P
-in    vec3 E,    // Normalized direction at v_P to the eye
-in    vec3 S,    // Normalized light spot direction
-inout vec4 Ia,   // Ambient light intensity
-inout vec4 Id,   // Diffuse light intensity
-inout vec4 Is)   // Specular light intensity
-{
-    // Calculate diffuse & specular factors
-    float diffFactor = max(dot(N, S), 0.0);
-    float specFactor = 0.0;
-
-    if (diffFactor!=0.0)
-    {
-        vec3 H = normalize(S + E);// Half vector H between S and E
-        specFactor = pow(max(dot(N, H), 0.0), u_matShininess);
-    }
-
-    // accumulate directional light intesities w/o attenuation
-    Ia += u_lightAmbient[i];
-    Id += u_lightDiffuse[i] * diffFactor;
-    Is += u_lightSpecular[i] * specFactor;
-}
-//-----------------------------------------------------------------------------
-void pointLightBlinnPhong( in    int  i,    // Light number between 0 and NUM_LIGHTS
-in    vec3 N,    // Normalized normal at v_P
-in    vec3 E,    // Normalized direction at v_P to the eye
-in    vec3 S,    // Normalized light spot direction
-in    vec3 L,    // Unnormalized direction at v_P to the light
-inout vec4 Ia,   // Ambient light intensity
-inout vec4 Id,   // Diffuse light intensity
-inout vec4 Is)   // Specular light intensity
-{
-    // Normalized halfvector between the eye and the light vector
-    vec3 H = normalize(E + L);
-
-    // Calculate attenuation over distance & normalize L
-    float att = 1.0;
-    if (u_lightDoAtt[i])
-    {
-        vec3 att_dist;
-        att_dist.x = 1.0;
-        att_dist.z = dot(L, L);// = distance * distance
-        att_dist.y = sqrt(att_dist.z);// = distance
-        att = 1.0 / dot(att_dist, u_lightAtt[i]);
-        L /= att_dist.y;// = normalize(L)
-    } else L = normalize(L);
-
-    // Calculate diffuse & specular factors
-    float diffFactor = max(dot(N, L), 0.0);
-    float specFactor = 0.0;
-    if (diffFactor!=0.0)
-    specFactor = pow(max(dot(N, H), 0.0), u_matShininess);
-
-    // Calculate spot attenuation
-    if (u_lightSpotCutoff[i] < 180.0)
-    {
-        float spotDot;// Cosine of angle between L and spotdir
-        float spotAtt;// Spot attenuation
-        spotDot = dot(-L, S);
-        if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
-        else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
-        att *= spotAtt;
-    }
-
-    // Accumulate light intesities
-    Ia += att * u_lightAmbient[i];
-    Id += att * u_lightDiffuse[i] * diffFactor;
-    Is += att * u_lightSpecular[i] * specFactor;
-}
+// SLGLShader::preprocessPragmas replaces the include pragma by the file
+#pragma include "lightingBlinnPhong.glsl"
 //-----------------------------------------------------------------------------
 void main()
 {

@@ -10,6 +10,9 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
+//-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 
@@ -18,8 +21,8 @@ uniform mat4   u_mvpMatrix;         // = projection * modelView
 uniform mat4   u_invMvMatrix;       // inverse modelview
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
 
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
+uniform vec4   u_lightPosVS[NUM_LIGHTS];     // position of light in view space
+uniform vec4   u_lightSpecular[NUM_LIGHTS];  // specular light intensity (Is)
 
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
