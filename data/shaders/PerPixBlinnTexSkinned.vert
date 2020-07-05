@@ -16,9 +16,9 @@ layout (location = 2) in vec2  a_texCoord;     // Vertex texture coordiante attr
 layout (location = 5) in vec4  a_jointIds;     // Vertex joint indices attributes
 layout (location = 6) in vec4  a_jointWeights; // Vertex joint weights attributes
 
-uniform mat4  u_mvMatrix;    // modelview matrix
-uniform mat3  u_nMatrix;     // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;   // = projection * modelView
+uniform mat4  u_mvMatrix;           // modelview matrix
+uniform mat3  u_nMatrix;            // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;          // = projection * modelView
 uniform mat4  u_jointMatrices[100]; // joint matrices for skinning
 
 out     vec3  v_P_VS;        // Point of illumination in view space (VS)

@@ -24,9 +24,9 @@ uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
 uniform mat4  u_mvpMatrix;  // = projection * modelView
 
-uniform vec4  u_lightPosVS[NUM_LIGHTS];      // position of light in view space
-uniform vec3  u_lightSpotDirVS[NUM_LIGHTS];  // spot direction in view space
-uniform float u_lightSpotCutoff[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
+uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
+uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
+uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
 
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
 out     vec2  v_texCoord;               // Texture coordiante output
@@ -57,7 +57,7 @@ void main()
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         // Transform spotdir into tangent space
-        v_spotDirTS[i] = u_lightSpotDirVS[i];
+        v_spotDirTS[i] = u_lightSpotDir[i];
         v_spotDirTS[i]  *= TBN;
 
         // Transform vector to the light 0 into tangent space

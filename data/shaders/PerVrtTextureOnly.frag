@@ -12,11 +12,11 @@
 precision mediump float;
 #endif
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;           // Interpol. point of illum. in view space (VS)
-in      vec2        v_texCoord;       // Interpol. texture coordinate
+in      vec3        v_P_VS;             // Interpol. point of illum. in view space (VS)
+in      vec2        v_texCoord;         // Interpol. texture coordinate
 
-uniform sampler2D   u_matTexture0;    // Color map
-uniform float       u_oneOverGamma;   // 1.0f / Gamma correction value
+uniform sampler2D   u_matTexture0;      // Color map
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction value
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -28,7 +28,7 @@ uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
 
-out     vec4        o_fragColor;      // output fragment color
+out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 // SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "fogBlend.glsl"

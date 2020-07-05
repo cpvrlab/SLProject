@@ -13,9 +13,9 @@ layout (location = 1) in vec3 a_normal;   // Vertex normal attribute
 
 uniform mat4     u_mvpMatrix;      // = projection * modelView
 uniform mat3     u_nMatrix;        // normal matrix=transpose(inverse(mv))
-uniform vec3     u_lightSpotDirVS; // light direction in view space
-uniform vec4     u_lightDiffuse;   // diffuse light intensity (Id)
-uniform vec4     u_matDiffuse;     // diffuse material reflection (kd)
+uniform vec3     u_lightSpotDir; // light direction in view space
+uniform vec4     u_lightDiff;   // diffuse light intensity (Id)
+uniform vec4     u_matDiff;     // diffuse material reflection (kd)
 
 out     vec4     diffuseColor;     // The resulting color per vertex
 //-----------------------------------------------------------------------------
@@ -25,13 +25,13 @@ void main()
     vec3 N = normalize(u_nMatrix * a_normal);
    
    // The diffuse reflection factor is the cosine of the angle between N & L
-   float diffFactor = max(dot(N, u_lightSpotDirVS), 0.0);
+   float diffFactor = max(dot(N, u_lightSpotDir), 0.0);
    
    // Scale down the diffuse light intensity
-   vec4 Id = u_lightDiffuse * diffFactor;
+   vec4 Id = u_lightDiff * diffFactor;
    
    // The color is light multiplied by material reflection
-   diffuseColor = Id * u_matDiffuse;
+   diffuseColor = Id * u_matDiff;
    
    // Set the transformes vertex position           
    gl_Position = u_mvpMatrix * a_position;

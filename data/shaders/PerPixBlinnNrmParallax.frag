@@ -22,25 +22,25 @@ in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to the light in tangen
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 in      float       v_lightDist[NUM_LIGHTS];    // Light distance
 
-uniform bool        u_lightIsOn[NUM_LIGHTS];        // flag if light is on
-uniform vec4        u_lightPosVS[NUM_LIGHTS];       // position of light in view space
-uniform vec4        u_lightAmbient[NUM_LIGHTS];     // ambient light intensity (Ia)
-uniform vec4        u_lightDiffuse[NUM_LIGHTS];     // diffuse light intensity (Id)
-uniform vec4        u_lightSpecular[NUM_LIGHTS];    // specular light intensity (Is)
-uniform vec3        u_lightSpotDirVS[NUM_LIGHTS];   // spot direction in view space
-uniform float       u_lightSpotCutoff[NUM_LIGHTS];  // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCosCut[NUM_LIGHTS];  // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS];     // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];         // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];       // flag if att. must be calc.
-uniform vec4        u_globalAmbient;                // Global ambient scene color
-uniform float       u_oneOverGamma;                 // 1.0f / Gamma correction value
+uniform bool        u_lightIsOn[NUM_LIGHTS];     // flag if light is on
+uniform vec4        u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];     // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];     // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];  // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];  // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];  // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];  // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];      // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];    // flag if att. must be calc.
+uniform vec4        u_globalAmbi;                // Global ambient scene color
+uniform float       u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform vec4        u_matAmbient;       // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiffuse;       // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpecular;      // specular color reflection coefficient (ks)
-uniform vec4        u_matEmissive;      // emissive color for self-shining materials
-uniform float       u_matShininess;     // shininess exponent
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
 uniform sampler2D   u_matTexture0;      // Color map
 uniform sampler2D   u_matTexture1;      // Normal map
 uniform sampler2D   u_matTexture2;      // Height map;
@@ -94,28 +94,28 @@ void main()
             {
                 // We use the spot light direction as the light direction vector
                 vec3 S = normalize(-v_spotDirTS[i]);
-                directLightBlinnPhong(i, N, E, S, Ia, Id, Is);
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
             }
             else
             {
                 vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
                 vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
-                pointLightBlinnPhong(i, N, E, S, L, Ia, Id, Is);
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
             }
         }
     }
 
     // Sum up all the reflected color components
-    o_fragColor =  u_matEmissive +
-                   u_globalAmbient +
-                   Ia * u_matAmbient +
-                   Id * u_matDiffuse;
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi +
+                   Id * u_matDiff;
 
     // Componentwise multiply w. texture color
     o_fragColor *= texture(u_matTexture0, Tc);
 
     // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpecular;
+    vec4 specColor = Is * u_matSpec;
     o_fragColor.rgb += specColor.rgb;
 
     // Apply gamma correction

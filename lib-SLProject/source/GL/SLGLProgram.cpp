@@ -290,7 +290,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
 
     // Pass global lighting value
     uniform1f("u_oneOverGamma", SLLight::oneOverGamma());
-    uniform4fv("u_globalAmbient", 1, (const SLfloat*)&SLLight::globalAmbient);
+    uniform4fv("u_globalAmbi", 1, (const SLfloat*)&SLLight::globalAmbient);
 
     if (!lights->empty())
     {
@@ -377,12 +377,12 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
         uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
         uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
         uniform4fv("u_lightPosVS", nL, (SLfloat*)&lightPosVS);
-        uniform4fv("u_lightAmbient", nL, (SLfloat*)&lightAmbient);
-        uniform4fv("u_lightDiffuse", nL, (SLfloat*)&lightDiffuse);
-        uniform4fv("u_lightSpecular", nL, (SLfloat*)&lightSpecular);
-        uniform3fv("u_lightSpotDirVS", nL, (SLfloat*)&lightSpotDirVS);
-        uniform1fv("u_lightSpotCutoff", nL, (SLfloat*)&lightSpotCutoff);
-        uniform1fv("u_lightSpotCosCut", nL, (SLfloat*)&lightSpotCosCut);
+        uniform4fv("u_lightAmbi", nL, (SLfloat*)&lightAmbient);
+        uniform4fv("u_lightDiff", nL, (SLfloat*)&lightDiffuse);
+        uniform4fv("u_lightSpec", nL, (SLfloat*)&lightSpecular);
+        uniform3fv("u_lightSpotDir", nL, (SLfloat*)&lightSpotDirVS);
+        uniform1fv("u_lightSpotDeg", nL, (SLfloat*)&lightSpotCutoff);
+        uniform1fv("u_lightSpotCos", nL, (SLfloat*)&lightSpotCosCut);
         uniform1fv("u_lightSpotExp", nL, (SLfloat*)&lightSpotExp);
         uniform3fv("u_lightAtt", nL, (SLfloat*)&lightAtt);
         uniform1iv("u_lightDoAtt", nL, (SLint*)&lightDoAtt);

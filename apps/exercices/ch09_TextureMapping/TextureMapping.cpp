@@ -311,15 +311,15 @@ void onInit()
     _nMatrixLoc        = glGetUniformLocation(_shaderProgID, "u_nMatrix");
     _globalAmbiLoc     = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
     _lightPosVSLoc     = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
-    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
-    _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbient");
-    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpecular");
-    _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbient");
-    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
-    _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpecular");
-    _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmissive");
-    _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShininess");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbi");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpec");
+    _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbi");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
+    _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpec");
+    _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmis");
+    _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShin");
     _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_matTexture0");
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 

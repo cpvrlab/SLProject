@@ -19,8 +19,8 @@ uniform  mat4  u_mvMatrix;    // modelview matrix
 uniform  mat3  u_nMatrix;     // normal matrix=transpose(inverse(mv))
 uniform  mat4  u_mvpMatrix;   // = projection * modelView
 
-out     vec3  v_P_VS;        // Point of illumination in view space (VS)
-out     vec3  v_N_VS;        // Normal at P_VS in view space
+out      vec3  v_P_VS;        // Point of illumination in view space (VS)
+out      vec3  v_N_VS;        // Normal at P_VS in view space
 //-----------------------------------------------------------------------------
 void main(void)
 {  

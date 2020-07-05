@@ -22,25 +22,25 @@ in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to the light in tangen
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 in      float       v_lightDist[NUM_LIGHTS];    // Light distance
 
-uniform bool        u_lightIsOn[NUM_LIGHTS];        // flag if light is on
-uniform vec4        u_lightPosVS[NUM_LIGHTS];       // position of light in view space
-uniform vec4        u_lightAmbient[NUM_LIGHTS];     // ambient light intensity (Ia)
-uniform vec4        u_lightDiffuse[NUM_LIGHTS];     // diffuse light intensity (Id)
-uniform vec4        u_lightSpecular[NUM_LIGHTS];    // specular light intensity (Is)
-uniform vec3        u_lightSpotDirVS[NUM_LIGHTS];   // spot direction in view space
-uniform float       u_lightSpotCutoff[NUM_LIGHTS];  // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCosCut[NUM_LIGHTS];  // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS];     // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];         // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];       // flag if att. must be calc.
-uniform vec4        u_globalAmbient;                // Global ambient scene color
-uniform float       u_oneOverGamma;                 // 1.0f / Gamma correction value
+uniform bool        u_lightIsOn[NUM_LIGHTS];     // flag if light is on
+uniform vec4        u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];     // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];     // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];  // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];  // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];  // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];  // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];      // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];    // flag if att. must be calc.
+uniform vec4        u_globalAmbi;                // Global ambient scene color
+uniform float       u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform vec4        u_matAmbient;           // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiffuse;           // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpecular;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmissive;          // emissive color for self-shining materials
-uniform float       u_matShininess;         // shininess exponent
+uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;              // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;              // emissive color for self-shining materials
+uniform float       u_matShin;              // shininess exponent
 uniform sampler2D   u_matTexture0;          // Color map
 uniform sampler2D   u_matTexture1;          // Normal map
 uniform sampler2D   u_matTexture2;          // Height map;
@@ -107,12 +107,12 @@ void main()
     }
    
     // Calculate spot attenuation
-    if (u_lightSpotCutoff[0] < 180.0)
+    if (u_lightSpotDeg[0] < 180.0)
     {   S = normalize(v_spotDirTS[0]);
         float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, S);
-        if (spotDot < u_lightSpotCosCut[0]) spotAtt = 0.0;
+        if (spotDot < u_lightSpotCos[0]) spotAtt = 0.0;
         else spotAtt = max(pow(spotDot, u_lightSpotExp[0]), 0.0);
         att *= spotAtt;
     }   
@@ -121,13 +121,13 @@ void main()
     float diffFactor = max(dot(L,N), 0.0) ;
    
     // compute specular lighting
-    float specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+    float specFactor = pow(max(dot(N,H), 0.0), u_matShin);
    
     // add ambient & diffuse light components
-    o_fragColor = u_matEmissive +
-                   u_globalAmbient +
-                   att * u_lightAmbient[0] * u_matAmbient +
-                   att * u_lightDiffuse[0] * u_matDiffuse * diffFactor;
+    o_fragColor = u_matEmis +
+                   u_globalAmbi +
+                   att * u_lightAmbi[0] * u_matAmbi +
+                   att * u_lightDiff[0] * u_matDiff * diffFactor;
    
     //Calculate day night limit
     float night = max(dot(L,vec3(0,0,1)),0.0);
@@ -148,8 +148,8 @@ void main()
    
     //Finally Add specular light
     o_fragColor += att *
-                   u_lightSpecular[0] *
-                   u_matSpecular *
+                   u_lightSpec[0] *
+                   u_matSpec *
                    specFactor *
                    texture(u_matTexture3, Tc)[0];
 
