@@ -37,6 +37,8 @@ MapEdition::~MapEdition()
 void MapEdition::updateKFVidMatching(std::vector<int>* kFVidMatching)
 {
     _vidToKeyframes.clear();
+    _keyFramesToVid.clear();
+
     for (int i = 0; i < kFVidMatching->size(); i++)
     {
         if (kFVidMatching->at(i) == -1)
@@ -55,6 +57,7 @@ void MapEdition::updateKFVidMatching(std::vector<int>* kFVidMatching)
             continue;
         }
         _vidToKeyframes[kFVidMatching->at(i)].push_back(_keyframes[j]); //add keyframe i to kfSet[videoId]
+        _keyFramesToVid.insert(std::pair<WAIKeyFrame*, int> (_keyframes[j], kFVidMatching->at(i)));
     }
 }
 
@@ -64,12 +67,13 @@ void MapEdition::selectAllMap()
     updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
 }
 
+/*
 void MapEdition::selectNMatched(int n)
 {
-    std::map<WAIMapPoint*, int> counters;
-
     for (int vid = 0; vid < _vidToKeyframes.size(); vid++)
     {
+        std::map<WAIMapPoint*, int> counters;
+
         for (int i = 0; i < _vidToKeyframes[vid].size(); i++)
         {
             WAIKeyFrame* kf = _vidToKeyframes[vid][i];
@@ -82,7 +86,10 @@ void MapEdition::selectNMatched(int n)
 
                 auto it = counters.find(mp);
                 if (it != counters.end())
-                    counters.insert(std::pair<WAIMapPoint*, int>(mp, it->second + 1));
+                {
+                    std::cout << "point alredy found   " << it->second << std::endl;
+                    it->second++;
+                }   
                 else
                     counters.insert(std::pair<WAIMapPoint*, int>(mp, 1));
             }
@@ -94,6 +101,38 @@ void MapEdition::selectNMatched(int n)
     {
         if (it->second == n)
             mpvec.push_back(it->first);
+    }
+
+    _activeSet = mpvec;
+    updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
+}
+*/
+
+void MapEdition::selectNMatched(int n)
+{
+    std::vector<std::set<int>> counters;
+    counters.resize(_mappoints.size());
+
+    for (int i = 0; i < _mappoints.size(); i++)
+    {
+        std::map<WAIKeyFrame*, size_t> obs = _mappoints[i]->GetObservations();
+        for (auto it = obs.begin(); it != obs.end(); it++)
+        {
+            WAIKeyFrame * kf = it->first;
+
+            auto kfvid = _keyFramesToVid.find(kf);
+            if (kfvid != _keyFramesToVid.end())
+            {
+                counters[i].insert(kfvid->second);
+            }
+        }
+    }
+
+    std::vector<WAIMapPoint*> mpvec;
+    for (int i = 0; i < counters.size(); i++)
+    {
+        if (counters[i].size() == n)
+            mpvec.push_back(_mappoints[i]);
     }
 
     _activeSet = mpvec;

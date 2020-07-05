@@ -64,9 +64,8 @@ private:
     SLPoints*            _mesh = nullptr;
     bool                 _transformMode;
 
-    std::vector<int> _kFVidMatching;
-
     std::vector<std::vector<WAIKeyFrame*>> _vidToKeyframes;
+    std::map<WAIKeyFrame*, int>            _keyFramesToVid;
 };
 
 #endif
