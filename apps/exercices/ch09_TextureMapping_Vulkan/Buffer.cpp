@@ -91,8 +91,7 @@ void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const SLVVec2f texCoord, const SLVCol4f color, const size_t size)
 {
     VkDeviceSize totalBufferSize = (sizeof(SLVec3f) * 2 + sizeof(SLVec2f) + sizeof(SLCol4f)) * size;
-
-    Buffer stagingBuffer = Buffer(_device);
+    Buffer       stagingBuffer   = Buffer(_device);
     stagingBuffer.createBuffer(totalBufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

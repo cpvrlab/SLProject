@@ -22,11 +22,16 @@ public:
            VkSurfaceKHR              surface,
            const vector<const char*> extensions);
 
+    // Device(const Device&) = delete;
+    // Device(Device&&)      = delete;
+    // Device& operator=(const Device&) = delete;
+    // Device& operator=(Device&&) = delete;
+
     void               destroy();
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void               createCommandPool();
-    void               createSyncObjects(Swapchain& swapchain);
     void               waitIdle();
+    void               createSyncObjects(Swapchain& swapchain);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     // Getter
     Instance&           instance() const { return _instance; }

@@ -1,13 +1,13 @@
 #include "UniformBuffer.h"
 
 //-----------------------------------------------------------------------------
-UniformBuffer::UniformBuffer(Device&    _device,
-                             Swapchain& _swapchain,
-                             SLMat4f&   _camera,
-                             SLMat4f&   _modelPos) : _device{_device},
-                                                   _swapchain{_swapchain},
-                                                   _camera{_camera},
-                                                   _modelPos{_modelPos}
+UniformBuffer::UniformBuffer(Device&    device,
+                             Swapchain& swapchain,
+                             SLMat4f&   camera,
+                             SLMat4f&   modelPos) : _device{device},
+                                                  _swapchain{swapchain},
+                                                  _camera{camera},
+                                                  _modelPos{modelPos}
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
@@ -36,10 +36,12 @@ void UniformBuffer::destroy()
 void UniformBuffer::update(uint32_t currentImage)
 {
     UniformBufferObject ubo{};
-    ubo.model = _modelPos;
-    ubo.view  = _camera;
+    ubo.model    = _modelPos;
+    ubo.view     = _camera;
+    float width  = (float)_swapchain.extent().width;
+    float height = (float)_swapchain.extent().height;
     ubo.proj.perspective(40,
-                         (float)_swapchain.extent().width / (float)_swapchain.extent().height,
+                         width / height,
                          0.1f,
                          100.0f);
 

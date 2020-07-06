@@ -38,6 +38,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/vkEnums.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/VulkanRenderer.h
         )
 
 file(GLOB sources
@@ -70,8 +71,9 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/VertexBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Vertex.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/VulkanRenderer.cpp
+
         )
 
 # file(GLOB shaders

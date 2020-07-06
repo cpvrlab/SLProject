@@ -30,7 +30,7 @@ public:
                          Buffer&        indexBuffer,
                          Pipeline&      pipeline,
                          DescriptorSet& descriptorSet,
-                         int            indicesSize);
+                         const int      indicesSize);
 
     // Getter
     Device&                 device() const { return _device; }

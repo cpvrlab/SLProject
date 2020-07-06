@@ -1,38 +1,16 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
-#include <string>
-#include <CVImage.h> // Image class for image loading
 #include <math/SLVec3.h>
-#include <glUtils.h>
-#include <Utils.h>
-
-#include "Instance.h"
-#include "Device.h"
-#include "Swapchain.h"
-#include "RenderPass.h"
-#include "DescriptorSetLayout.h"
-#include "ShaderModule.h"
-#include "Pipeline.h"
-#include "Framebuffer.h"
-#include "TextureImage.h"
-#include "Sampler.h"
-#include "IndexBuffer.h"
-#include "UniformBuffer.h"
-#include "DescriptorPool.h"
-#include "DescriptorSet.h"
-#include "VertexBuffer.h"
 #include <Node.h>
 #include <Sphere.h>
 #include <Rectangle.h>
+#include <VulkanRenderer.h>
 
 //-----------------------------------------------------------------------------
 //////////////////////
 // Global Variables //
 //////////////////////
-
-struct Vertex;
 
 const int WINDOW_WIDTH   = 800;
 const int WINDOW_HEIGHT  = 600;
@@ -40,12 +18,6 @@ string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader
 string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv";
 
 GLFWwindow* window;
-// Plane
-const vector<Vertex>   vertices = {{{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.f, 0.f, 0.f, 1.f}},
-                                 {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {1.f, 0.f, 0.f, 1.f}},
-                                 {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {1.f, 0.f, 0.f, 1.f}},
-                                 {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}, {1.f, 0.f, 0.f, 1.f}}};
-const vector<uint16_t> indices  = {0, 1, 2, 2, 3, 0};
 
 // Camera
 SLMat4f _viewMatrix;
@@ -151,6 +123,7 @@ void updateCamera()
     _viewMatrix.rotate((float)(_rotY + _deltaY), 0.0f, 1.0f, 0.0f);
 }
 //-----------------------------------------------------------------------------
+
 int main()
 {
     initWindow();
@@ -158,24 +131,27 @@ int main()
     Texture  texture  = Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
     Material material = Material("Texture");
     material.addTexture(&texture);
-    // Mesh sphere = Rectangle::Rectangle("Rect");
-    Mesh sphere = Sphere("Simple_Sphere", 1.0f, 32, 32);
-    sphere.setColor(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
-    sphere.mat = &material;
-    Node node  = Node("Sphere");
-    node.AddMesh(&sphere);
+    Mesh mesh = Rectangle::Rectangle("Bla");
+    //Mesh mesh = Sphere("Simple_Sphere", 1.0f, 4, 4);
+    mesh.setColor(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
+    mesh.mat  = &material;
+    Node node = Node("Sphere");
+    node.AddMesh(&mesh);
+    SLMat4f modelPos = SLMat4f(0.0f, 0.0f, 0.0f);
 
+    VulkanRenderer renderer(window);
+    renderer.createMesh(_viewMatrix, modelPos, mesh);
+
+#if 0
     const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
     // Setting up vulkan
     Instance     instance = Instance("Test", deviceExtensions, validationLayers);
     VkSurfaceKHR surface;
     glfwCreateWindowSurface(instance.handle, window, nullptr, &surface);
-    Device     device     = Device(instance, instance.physicalDevice, surface, deviceExtensions);
-    Swapchain  swapchain  = Swapchain(device, window);
-    RenderPass renderPass = RenderPass(device, swapchain);
-
-    // Shader program setup
+    Device              device              = Device(instance, instance.physicalDevice, surface, deviceExtensions);
+    Swapchain           swapchain           = Swapchain(device, window);
+    RenderPass          renderPass          = RenderPass(device, swapchain);
     DescriptorSetLayout descriptorSetLayout = DescriptorSetLayout(device);
     ShaderModule        vertShaderModule    = ShaderModule(device, vertShaderPath);
     ShaderModule        fragShaderModule    = ShaderModule(device, fragShaderPath);
@@ -183,47 +159,30 @@ int main()
     Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
 
     // Texture setup
-    TextureImage textureImage = TextureImage(device, texture.imageData(), texture.imageWidth(), texture.imageHeight());
+    TextureImage textureImage = TextureImage(device, mesh.mat->textures()[0]->imageData(), mesh.mat->textures()[0]->imageWidth(), mesh.mat->textures()[0]->imageHeight());
 
     // Mesh setup
     Buffer indexBuffer = Buffer(device);
-    indexBuffer.createIndexBuffer(sphere.I32);
+    indexBuffer.createIndexBuffer(mesh.I32);
     UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix, SLMat4f(0.0f, 0.0f, 0.0f));
     DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
     DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureImage.sampler(), textureImage);
     Buffer         vertexBuffer   = Buffer(device);
-    vertexBuffer.createVertexBuffer(sphere.P, sphere.N, sphere.Tc, sphere.C, sphere.P.size());
+    vertexBuffer.createVertexBuffer(mesh.P, mesh.N, mesh.Tc, mesh.C, mesh.P.size());
     // Draw call setup
     CommandBuffer commandBuffer = CommandBuffer(device);
-    commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)sphere.I32.size());
+    commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)mesh.I32.size());
     device.createSyncObjects(swapchain);
-
+#endif
     // Render
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         updateCamera();
-        pipeline.draw(swapchain, uniformBuffer, commandBuffer);
+        //pipeline.draw(uniformBuffer, commandBuffer);
+        renderer.draw();
         printFPS();
     }
-    // Destroy
-    device.waitIdle();
-
-    framebuffer.destroy();
-    commandBuffer.destroy();
-    pipeline.destroy();
-    renderPass.destroy();
-    swapchain.destroy();
-    uniformBuffer.destroy();
-    descriptorPool.destroy();
-    descriptorSetLayout.destroy();
-    textureImage.destroy();
-    indexBuffer.destroy();
-    vertexBuffer.destroy();
-    vertShaderModule.destroy();
-    fragShaderModule.destroy();
-    device.destroy();
-    instance.destroy();
 
     return EXIT_SUCCESS;
 }

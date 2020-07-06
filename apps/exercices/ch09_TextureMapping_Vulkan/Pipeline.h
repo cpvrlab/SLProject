@@ -24,8 +24,7 @@ public:
              ShaderModule&        fragShaderModule);
     void destroy();
 
-    void draw(Swapchain&     swapchain,
-              UniformBuffer& uniformBuffer,
+    void draw(UniformBuffer& uniformBuffer,
               CommandBuffer& commandBuffer);
 
     // Getter
@@ -33,13 +32,14 @@ public:
     VkPipelineLayout pipelineLayout() const { return _pipelineLayout; }
 
 private:
-    void createGraphicsPipeline(VkExtent2D            swapchainExtent,
-                                VkDescriptorSetLayout descriptorSetLayout,
-                                VkRenderPass          renderPass,
-                                VkShaderModule        vertShader,
-                                VkShaderModule        fragShader);
+    void createGraphicsPipeline(const VkExtent2D            swapchainExtent,
+                                const VkDescriptorSetLayout descriptorSetLayout,
+                                const VkRenderPass          renderPass,
+                                const VkShaderModule        vertShader,
+                                const VkShaderModule        fragShader);
 
     Device&          _device;
+    Swapchain&       _swapchain;
     VkPipeline       _graphicsPipeline;
     VkPipelineLayout _pipelineLayout;
     int              _currentFrame = 0;

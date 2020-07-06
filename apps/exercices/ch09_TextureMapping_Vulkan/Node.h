@@ -18,6 +18,10 @@ public:
     void AddMesh(Mesh* mesh);
     void AddChild(Node* child);
 
+    // update()
+    // cull()
+    // draw()
+
 protected:
     Node*         _parent;   //!< pointer to the parent node
     vector<Node*> _children; //!< vector of children nodes

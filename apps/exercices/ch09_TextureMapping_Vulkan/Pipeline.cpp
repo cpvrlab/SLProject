@@ -1,20 +1,19 @@
 #include "Pipeline.h"
 
-Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : _device{device}
+Pipeline::Pipeline(Device& device, Swapchain& swapchain, DescriptorSetLayout& descriptorSetLayout, RenderPass& renderPass, ShaderModule& vertShaderModule, ShaderModule& fragShaderModule) : _device{device}, _swapchain(swapchain)
 {
     createGraphicsPipeline(swapchain.extent(), descriptorSetLayout.handle(), renderPass.handle(), vertShaderModule.handle(), fragShaderModule.handle());
 }
 
 void Pipeline::destroy()
 {
-    if (_graphicsPipeline != VK_NULL_HANDLE)
-        vkDestroyPipeline(_device.handle(), _graphicsPipeline, nullptr);
+    if (_graphicsPipeline != VK_NULL_HANDLE) vkDestroyPipeline(_device.handle(), _graphicsPipeline, nullptr);
 
     if (_pipelineLayout != VK_NULL_HANDLE)
         vkDestroyPipelineLayout(_device.handle(), _pipelineLayout, nullptr);
 }
 
-void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
+void Pipeline::draw(UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
 {
     vkWaitForFences(_device.handle(),
                     1,
@@ -24,7 +23,7 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(_device.handle(),
-                                            swapchain.handle(),
+                                            _swapchain.handle(),
                                             UINT64_MAX,
                                             _device.imageAvailableSemaphores()[_currentFrame],
                                             VK_NULL_HANDLE,
@@ -64,7 +63,7 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores    = signalSemaphores;
 
-    VkSwapchainKHR swapchains[] = {swapchain.handle()};
+    VkSwapchainKHR swapchains[] = {_swapchain.handle()};
     presentInfo.swapchainCount  = 1;
     presentInfo.pSwapchains     = swapchains;
 
@@ -77,7 +76,7 @@ void Pipeline::draw(Swapchain& swapchain, UniformBuffer& uniformBuffer, CommandB
     _currentFrame = (_currentFrame + 1) % 2;
 }
 
-void Pipeline::createGraphicsPipeline(VkExtent2D swapchainExtent, VkDescriptorSetLayout descriptorSetLayout, VkRenderPass renderPass, VkShaderModule vertShader, VkShaderModule fragShader)
+void Pipeline::createGraphicsPipeline(const VkExtent2D swapchainExtent, const VkDescriptorSetLayout descriptorSetLayout, const VkRenderPass renderPass, const VkShaderModule vertShader, VkShaderModule fragShader)
 {
     auto                                 attributeDescriptions = Vertex::getAttributeDescriptions();
     VkVertexInputBindingDescription      bindingDescription    = Vertex::getBindingDescription();

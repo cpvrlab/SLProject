@@ -18,12 +18,12 @@ public:
 
     void setColor(SLCol4f color);
 
-    SLVVec3f  P;   //!< Vector for vertex positions
-    SLVVec3f  N;   //!< Vector for vertex normals (opt.)
-    SLVVec2f  Tc;  //!< Vector of vertex tex. coords. (opt.)
-    SLVCol4f  C;   //!< Vector of vertex colors (opt.)
-    SLVuint   I32; //!< Vector of vertex indices 32 bit
-    Material* mat; //!< Pointer to the outside material
+    SLVVec3f  P;             //!< Vector for vertex positions
+    SLVVec3f  N;             //!< Vector for vertex normals (opt.)
+    SLVVec2f  Tc;            //!< Vector of vertex tex. coords. (opt.)
+    SLVCol4f  C;             //!< Vector of vertex colors (opt.)
+    SLVuint   I32;           //!< Vector of vertex indices 32 bit
+    Material* mat = nullptr; //!< Pointer to the outside material
 
     //VertexArray vao;    //!< OpenGL Vertex Array Object for drawing
 };
