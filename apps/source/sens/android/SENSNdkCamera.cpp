@@ -97,9 +97,9 @@ void SENSNdkCamera::openCamera()
     if (!_cameraManager)
     {
         //init availability
-        for (const SENSCameraCharacteristics& c : _allCharacteristics)
+        for (const SENSCameraDeviceProperties& c : _captureProperties)
         {
-            _cameraAvailability[c.cameraId] = false;
+            _cameraAvailability[c.deviceId()] = false;
         }
 
         LOG_NDKCAM_DEBUG("openCamera: Creating camera manager ...");
@@ -126,12 +126,15 @@ void SENSNdkCamera::openCamera()
         LOG_NDKCAM_DEBUG("openCamera: Camera manager created!");
     }
 
+    //find current SENSCameraDeviceProperties
+    const SENSCameraDeviceProperties* camProps = _captureProperties.camPropsForDeviceId(_config.deviceId);
+
     if (!_cameraDeviceOpened)
     {
         LOG_NDKCAM_DEBUG("openCamera: Camera device not open");
         auto condition = [&] {
             LOG_NDKCAM_DEBUG("openCamera: checking condition");
-            return (_cameraAvailability[_characteristics.cameraId]);
+            return (_cameraAvailability[camProps->deviceId()]);
         };
         std::unique_lock<std::mutex> lock(_cameraAvailabilityMutex);
         //wait here before opening the required camera device until it is available
@@ -151,7 +154,7 @@ void SENSNdkCamera::openCamera()
         while (n < nMax)
         {
             cameraState = ACameraManager_openCamera(_cameraManager,
-                                                    _characteristics.cameraId.c_str(),
+                                                    camProps->deviceId().c_str(),
                                                     &cameraDeviceListener,
                                                     &_cameraDevice);
 
@@ -175,11 +178,10 @@ void SENSNdkCamera::openCamera()
         LOG_NDKCAM_DEBUG("openCamera: Camera device is already open");
     }
 
-    const auto& streamConfig = _characteristics.streamConfig.findBestMatchingConfig({_config.targetWidth, _config.targetHeight});
+    const auto& streamConfig = _config.streamConfig;
+    LOG_NDKCAM_INFO("openCamera: CaptureSize (%d, %d)", streamConfig->widthPix, streamConfig->heightPix);
 
-    LOG_NDKCAM_INFO("openCamera: CaptureSize (%d, %d)", streamConfig.widthPix, streamConfig.heightPix);
-
-    if (_imageReader && _captureSize != cv::Size(streamConfig.widthPix, streamConfig.heightPix))
+    if (_imageReader && _captureSize != cv::Size(streamConfig->widthPix, streamConfig->heightPix))
     {
         LOG_NDKCAM_INFO("openCamera: ImageReader valid and captureSize does not fit");
         //stop repeating request and wait for stopped state
@@ -263,10 +265,10 @@ void SENSNdkCamera::openCamera()
         {
             LOG_NDKCAM_INFO("openCamera: Creating image reader...");
 
-            _captureSize = cv::Size(streamConfig.widthPix, streamConfig.heightPix);
+            _captureSize = cv::Size(streamConfig->widthPix, streamConfig->heightPix);
 
             //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-            if (AImageReader_new(streamConfig.widthPix, streamConfig.heightPix, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
+            if (AImageReader_new(streamConfig->widthPix, streamConfig->heightPix, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
                 throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
             //make the adjustments in an asynchronous thread
@@ -293,58 +295,127 @@ void SENSNdkCamera::openCamera()
     }
 }
 
-void SENSNdkCamera::start(const SENSCameraConfig config)
+const SENSCameraConfig& SENSNdkCamera::start(std::string                   deviceId,
+                                             const SENSCameraStreamConfig& streamConfig,
+                                             cv::Size                      imgRGBSize,
+                                             bool                          mirrorV,
+                                             bool                          mirrorH,
+                                             bool                          convToGrayToImgManip,
+                                             cv::Size                      imgManipSize,
+                                             bool                          provideIntrinsics,
+                                             float                         fovDegFallbackGuess)
 {
-    if (!_started)
+    if (_started)
     {
-        //_state       = State::STARTING;
-        LOG_NDKCAM_DEBUG("start: starting for device id: %s", _config.deviceId.c_str());
-        _config      = config;
-        _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
+        Utils::warnMsg("SENSWebCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
+        return _config;
+    }
 
-        if (_allCharacteristics.size() == 0)
-        {
-            _allCharacteristics = getAllCameraCharacteristics();
-        }
+    _config.streamConfig        = &streamConfig;
+    _config.deviceId            = deviceId;
+    _config.mirrorV             = mirrorV;
+    _config.mirrorH             = mirrorH;
+    _config.convertManipToGray  = convToGrayToImgManip;
+    _config.manipWidth          = imgManipSize.width;
+    _config.manipHeight         = imgManipSize.height;
+    _config.provideIntrinsics   = provideIntrinsics;
+    _config.fovDegFallbackGuess = fovDegFallbackGuess;
 
-        if (_characteristics.cameraId != _config.deviceId)
-        {
-            for (const SENSCameraCharacteristics& c : _allCharacteristics)
-            {
-                if (_config.deviceId == c.cameraId)
-                {
-                    _characteristics = c;
-                    break;
-                }
-            }
-        }
-
-        if (_characteristics.cameraId.empty())
-        {
-            throw SENSException(SENSType::CAM, "Device id does not exist!", __LINE__, __FILE__);
-        }
-
-        //open the camera asynchronously to make sure that it is available
-        /*
-        if (_openCameraThread)
-        {
-            if (_openCameraThread->joinable())
-            {
-                _openCameraThread->join();
-                LOG_NDKCAM_DEBUG("start: Thread joined");
-            }
-            _openCameraThread.release();
-        }
-        _openCameraThread = std::make_unique<std::thread>(&SENSNdkCamera::openCamera, this);
-         */
-        openCamera();
-        _started = true;
+    if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+    {
+        _config.targetWidth  = imgRGBSize.width;
+        _config.targetHeight = imgRGBSize.height;
     }
     else
     {
-        LOG_NDKCAM_WARN("start: ignored because camera is already open! Call stop first!");
+        _config.targetWidth  = streamConfig.widthPix;
+        _config.targetHeight = streamConfig.heightPix;
     }
+
+    //retrieve all camera characteristics
+    if (_captureProperties.size() == 0)
+        captureProperties();
+
+    if (_captureProperties.size() == 0)
+        throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
+
+    if (!_captureProperties.containsDeviceId(deviceId))
+        throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
+
+
+    //open the camera asynchronously to make sure that it is available
+    /*
+    if (_openCameraThread)
+    {
+        if (_openCameraThread->joinable())
+        {
+            _openCameraThread->join();
+            LOG_NDKCAM_DEBUG("start: Thread joined");
+        }
+        _openCameraThread.release();
+    }
+    _openCameraThread = std::make_unique<std::thread>(&SENSNdkCamera::openCamera, this);
+    */
+    openCamera();
+
+    initCalibration();
+    _started = true;
+    return _config;
 }
+/*
+void SENSNdkCamera::start(const SENSCameraConfig config)
+{
+if (!_started)
+{
+    //_state       = State::STARTING;
+    LOG_NDKCAM_DEBUG("start: starting for device id: %s", _config.deviceId.c_str());
+    _config      = config;
+    _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
+
+    if (_allCharacteristics.size() == 0)
+    {
+        _allCharacteristics = getAllCameraCharacteristics();
+    }
+
+    if (_characteristics.cameraId != _config.deviceId)
+    {
+        for (const SENSCameraDeviceProperties& c : _allCharacteristics)
+        {
+            if (_config.deviceId == c.cameraId)
+            {
+                _characteristics = c;
+                break;
+            }
+        }
+    }
+
+    if (_characteristics.cameraId.empty())
+    {
+        throw SENSException(SENSType::CAM, "Device id does not exist!", __LINE__, __FILE__);
+    }
+
+    //open the camera asynchronously to make sure that it is available
+    /*
+    if (_openCameraThread)
+    {
+        if (_openCameraThread->joinable())
+        {
+            _openCameraThread->join();
+            LOG_NDKCAM_DEBUG("start: Thread joined");
+        }
+        _openCameraThread.release();
+    }
+    _openCameraThread = std::make_unique<std::thread>(&SENSNdkCamera::openCamera, this);
+
+    openCamera();
+    _started = true;
+}
+else
+{
+    LOG_NDKCAM_WARN("start: ignored because camera is already open! Call stop first!");
+}
+}
+*/
 
 void SENSNdkCamera::createCaptureSession()
 {
@@ -416,6 +487,7 @@ void SENSNdkCamera::createCaptureSession()
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
 }
 
+/*
 //todo: add callback for image available and/or completely started
 void SENSNdkCamera::start(std::string id, int width, int height)
 {
@@ -425,6 +497,7 @@ void SENSNdkCamera::start(std::string id, int width, int height)
     config.targetHeight = height;
     start(config);
 }
+ */
 
 void SENSNdkCamera::stop()
 {
@@ -531,6 +604,8 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
     cv::Mat rgbImg;
     cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2RGB_NV21, 3);
 
+    SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
+    /*
     cv::Size inputSize = rgbImg.size();
 
     // Crop Video image to required aspect ratio
@@ -559,6 +634,8 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 
     SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _config.mirrorH, _config.mirrorV);
     return std::move(sensFrame);
+     */
+    return sensFrame;
 }
 
 cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
@@ -591,7 +668,7 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     return yuv;
 }
 
-SENSFramePtr SENSNdkCamera::getLatestFrame()
+SENSFramePtr SENSNdkCamera::latestFrame()
 {
     SENSFramePtr sensFrame;
 
@@ -838,9 +915,9 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
     _captureSessionStateCV.notify_one();
 }
 
-const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharacteristics()
+const SENSCaptureProperties& SENSNdkCamera::captureProperties()
 {
-    if(_allCharacteristics.size() == 0)
+    if(_captureProperties.size() == 0)
     {
         ACameraManager*                        cameraManager = ACameraManager_create();
         if (!cameraManager)
@@ -852,12 +929,10 @@ const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharact
 
         for (int i = 0; i < cameraIds->numCameras; ++i)
         {
-            SENSCameraCharacteristics characteristics;
-            characteristics.cameraId = cameraIds->cameraIds[i];
-            //characteristics.provided = true;
+            std::string cameraId = cameraIds->cameraIds[i];
 
             ACameraMetadata* camCharacteristics;
-            ACameraManager_getCameraCharacteristics(cameraManager, characteristics.cameraId.c_str(), &camCharacteristics);
+            ACameraManager_getCameraCharacteristics(cameraManager, cameraId.c_str(), &camCharacteristics);
 
             int32_t         numEntries = 0; //will be filled by getAllTags with number of entries
             const uint32_t* tags       = nullptr;
@@ -865,6 +940,7 @@ const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharact
 
             std::vector<float> focalLengthsMM;
             cv::Size2f physicalSensorSizeMM;
+            SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
 
             //make a first loop to estimate physical sensor parameters
             for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
@@ -876,11 +952,11 @@ const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharact
                     ACameraMetadata_getConstEntry(camCharacteristics, tags[tagIdx], &lensInfo);
                     acamera_metadata_enum_android_lens_facing_t androidFacing = static_cast<acamera_metadata_enum_android_lens_facing_t>(lensInfo.data.u8[0]);
                     if (androidFacing == ACAMERA_LENS_FACING_BACK)
-                        characteristics.facing = SENSCameraFacing::BACK;
+                        facing = SENSCameraFacing::BACK;
                     else if (androidFacing == ACAMERA_LENS_FACING_FRONT)
-                        characteristics.facing = SENSCameraFacing::FRONT;
+                        facing = SENSCameraFacing::FRONT;
                     else //if (androidFacing == ACAMERA_LENS_FACING_EXTERNAL)
-                        characteristics.facing = SENSCameraFacing::EXTERNAL;
+                        facing = SENSCameraFacing::EXTERNAL;
                 }
                 else if (tags[tagIdx] == ACAMERA_LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
                 {
@@ -909,6 +985,8 @@ const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharact
 
             //todo: if we have more than one focal length, what do we do?
             //if we have more than one focal length, we select the first one..
+
+            SENSCameraDeviceProperties characteristics(cameraId, facing);
 
             //in the second loop we use the physical sensor parameters to specify a focal length in pixel for every stream config
             for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
@@ -950,19 +1028,20 @@ const std::vector<SENSCameraCharacteristics>& SENSNdkCamera::getAllCameraCharact
                                     focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
                                 }
 
-                                characteristics.streamConfig.add(width, height, focalLengthPix);
+                                if(!characteristics.contains({width, height}))
+                                    characteristics.add(width, height, focalLengthPix);
                             }
                         }
                     }
                 }
             }
             ACameraMetadata_free(camCharacteristics);
-            _allCharacteristics.push_back(characteristics);
+            _captureProperties.push_back(characteristics);
         }
 
         ACameraManager_deleteCameraIdList(cameraIds);
         ACameraManager_delete(cameraManager);
     }
 
-    return _allCharacteristics;
+    return _captureProperties;
 }

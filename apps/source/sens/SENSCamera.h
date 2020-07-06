@@ -66,6 +66,10 @@ struct SENSCameraStreamConfig
 class SENSCameraDeviceProperties
 {
 public:
+    SENSCameraDeviceProperties()
+    {
+    }
+
     SENSCameraDeviceProperties(const std::string& deviceId, SENSCameraFacing facing)
       : _deviceId(deviceId),
         _facing(facing)
@@ -147,6 +151,7 @@ public:
     //float getFovForConfig(const SENSCameraConfig& camConfig, int targetImgLength) const;
 
     bool containsDeviceId(const std::string& deviceId) const;
+    const SENSCameraDeviceProperties* camPropsForDeviceId(const std::string& deviceId) const;
     //returned pointer is null if nothing was found
     std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig* const> findBestMatchingConfig(SENSCameraFacing facing, const float horizFov, const int width, const int height) const;
 };
@@ -254,7 +259,7 @@ public:
 protected:
     void initCalibration();
 
-    SENSCaptureProperties _caputureProperties;
+    SENSCaptureProperties _captureProperties;
 
     SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged);
 

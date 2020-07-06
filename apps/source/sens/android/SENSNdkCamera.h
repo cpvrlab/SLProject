@@ -25,12 +25,20 @@ public:
     SENSNdkCamera();
     ~SENSNdkCamera();
 
-    void         start(const SENSCameraConfig config) override;
-    void         start(std::string id, int width, int height) override;
-    void         stop() override;
-    SENSFramePtr getLatestFrame() override;
+    const SENSCameraConfig& start(std::string                   deviceId,
+                                  const SENSCameraStreamConfig& streamConfig,
+                                  cv::Size                      imgRGBSize           = cv::Size(),
+                                  bool                          mirrorV              = false,
+                                  bool                          mirrorH              = false,
+                                  bool                          convToGrayToImgManip = false,
+                                  cv::Size                      imgManipSize         = cv::Size(),
+                                  bool                          provideIntrinsics    = true,
+                                  float                         fovDegFallbackGuess  = 65.f) override;
 
-    const std::vector<SENSCameraCharacteristics>& getAllCameraCharacteristics() override;
+    void         stop() override;
+
+    const SENSCaptureProperties& captureProperties() override;
+    SENSFramePtr                 latestFrame() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);

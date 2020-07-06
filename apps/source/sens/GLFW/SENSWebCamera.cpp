@@ -45,13 +45,13 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     }
 
     //retrieve all camera characteristics
-    if (_caputureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         captureProperties();
 
-    if (_caputureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
 
-    if (!_caputureProperties.containsDeviceId(deviceId))
+    if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
     
     
@@ -108,7 +108,7 @@ SENSFramePtr SENSWebCamera::latestFrame()
 
 const SENSCaptureProperties& SENSWebCamera::captureProperties()
 {
-    if (!_caputureProperties.size())
+    if (!_captureProperties.size())
     {
         //definition of standard frame sizes that we want to test for support
         static std::vector<cv::Size> testSizes = {
@@ -145,19 +145,19 @@ const SENSCaptureProperties& SENSWebCamera::captureProperties()
                     }
                 }
 
-                _caputureProperties.push_back(characteristics);
+                _captureProperties.push_back(characteristics);
                 _videoCapture.release();
             }
         }
     }
     
     //if still no caputure properties add a dummy
-    if(_caputureProperties.size() == 0)
+    if(_captureProperties.size() == 0)
     {
         SENSCameraDeviceProperties dummyProps("0", SENSCameraFacing::UNKNOWN);
         dummyProps.add(640, 480, -1.f);
-        _caputureProperties.push_back(dummyProps);
+        _captureProperties.push_back(dummyProps);
     }
 
-    return _caputureProperties;
+    return _captureProperties;
 }

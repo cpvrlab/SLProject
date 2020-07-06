@@ -54,13 +54,13 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     }
 
     //retrieve all camera characteristics
-    if (_caputureProperties.size() == 0)
-        _caputureProperties = [_cameraDelegate retrieveCaptureProperties];
+    if (_captureProperties.size() == 0)
+        _captureProperties = [_cameraDelegate retrieveCaptureProperties];
 
-    if (_caputureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
 
-    if (!_caputureProperties.containsDeviceId(deviceId))
+    if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
     NSString* devId = [NSString stringWithUTF8String:_config.deviceId.c_str()];
@@ -113,13 +113,13 @@ const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
         _config.enableVideoStabilization = false;
 
     //retrieve all camera characteristics
-    if (_caputureProperties.size() == 0)
-        _caputureProperties = [_cameraDelegate retrieveCaptureProperties];
+    if (_captureProperties.size() == 0)
+        _captureProperties = [_cameraDelegate retrieveCaptureProperties];
 
-    if (_caputureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
 
-    auto bestConfig = _caputureProperties.findBestMatchingConfig(facing, approxHorizFov, imgRGBSize.width, imgRGBSize.height);
+    auto bestConfig = _captureProperties.findBestMatchingConfig(facing, approxHorizFov, imgRGBSize.width, imgRGBSize.height);
     if (bestConfig.first && bestConfig.second)
     {
         NSString*                     devId        = [NSString stringWithUTF8String:bestConfig.first->deviceId().c_str()];
@@ -170,10 +170,10 @@ void SENSiOSCamera::stop()
 
 const SENSCaptureProperties& SENSiOSCamera::captureProperties()
 {
-    if (_caputureProperties.size() == 0)
-        _caputureProperties = [_cameraDelegate retrieveCaptureProperties];
+    if (_captureProperties.size() == 0)
+        _captureProperties = [_cameraDelegate retrieveCaptureProperties];
 
-    return _caputureProperties;
+    return _captureProperties;
 }
 
 SENSFramePtr SENSiOSCamera::latestFrame()

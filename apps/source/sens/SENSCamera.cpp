@@ -96,12 +96,22 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrin
                                                          _config.mirrorV,
                                                          1 / scale,
                                                          intrinsics);
+
     return sensFrame;
 }
 
 bool SENSCaptureProperties::containsDeviceId(const std::string& deviceId) const
 {
     return std::find_if(begin(), end(), [&](const SENSCameraDeviceProperties& comp) { return comp.deviceId() == deviceId; }) != end();
+}
+
+const SENSCameraDeviceProperties* SENSCaptureProperties::camPropsForDeviceId(const std::string& deviceId) const
+{
+    auto camPropsIt = std::find_if(begin(), end(), [&](const SENSCameraDeviceProperties& comp) { return comp.deviceId() == deviceId; });
+    if(camPropsIt != end())
+        return &*camPropsIt;
+    else
+        return nullptr;
 }
 
 std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig* const> SENSCaptureProperties::findBestMatchingConfig(SENSCameraFacing facing,
