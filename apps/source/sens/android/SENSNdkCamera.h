@@ -109,6 +109,8 @@ private:
     std::mutex              _cameraDeviceOpeningMutex;
     std::condition_variable _cameraDeviceOpeningCV;
     //camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
+
+    const bool _adjustAsynchronously = true;
 };
 
 #endif //SENS_NDKCAMERA_H

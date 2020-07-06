@@ -155,7 +155,7 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
             ss << " scale: " << scale;
             ss << " width orig " << camChars->streamConfigs()[streamConfigIdx].widthPix;
             ss << " height orig " << camChars->streamConfigs()[streamConfigIdx].heightPix;
-            std::cout << ss.str() << std::endl;
+            Utils::log("SENSCaptureProperties", ss.str().c_str());
         }
     };
     auto printSortElems = [](const std::vector<SortElem>& sortElems, std::string id) {
@@ -183,26 +183,26 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
             SENS::calcCrop({config.widthPix, config.heightPix}, targetWidthDivHeight, cropW, cropH, sortElem.widthCropped, sortElem.heightCropped);
             sortElem.scale = (float)width / (float)sortElem.widthCropped;
 
-            //if (sortElem.scale <= 1.f)
-            //{
-            sortElem.camChars        = &*itChars;
-            sortElem.streamConfigIdx = (int)(&*itStream - &*streams.begin());
-            sortElem.streamConfig    = &*itStream;
-            if (config.focalLengthPix > 0)
+            if (sortElem.scale <= 1.f)
             {
-                //we have to use the cropped and unscaled width of the stream config because of the resolution of the focalLengthPix
-                sortElem.horizFov = SENS::calcFOVDegFromFocalLengthPix(config.focalLengthPix, sortElem.widthCropped);
-                sortElem.fovScore = std::abs(sortElem.horizFov - horizFov);
-            }
-            sortElem.cropScore = cropW + cropH;
-            //if we have to scale add a score for it
-            if (!isEqualToOne(sortElem.scale))
-                sortElem.scaleScore = width * height;
-            else
-                sortElem.scaleScore = 0.f;
+                sortElem.camChars        = &*itChars;
+                sortElem.streamConfigIdx = (int)(&*itStream - &*streams.begin());
+                sortElem.streamConfig    = &*itStream;
+                if (config.focalLengthPix > 0)
+                {
+                    //we have to use the cropped and unscaled width of the stream config because of the resolution of the focalLengthPix
+                    sortElem.horizFov = SENS::calcFOVDegFromFocalLengthPix(config.focalLengthPix, sortElem.widthCropped);
+                    sortElem.fovScore = std::abs(sortElem.horizFov - horizFov);
+                }
+                sortElem.cropScore = cropW + cropH;
+                //if we have to scale add a score for it
+                if (!isEqualToOne(sortElem.scale))
+                    sortElem.scaleScore = width * height;
+                else
+                    sortElem.scaleScore = 0.f;
 
-            sortElems.push_back(sortElem);
-            //}
+                sortElems.push_back(sortElem);
+            }
         }
     }
 

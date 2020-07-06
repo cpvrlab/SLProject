@@ -411,7 +411,7 @@ void SLBackground::defineWithBars()
     SLfloat sH = (SLfloat)_resY;
 
     //scale factor for bar dimensions for texture coordinate definition
-    SLfloat barS = 0.5f;
+    SLfloat barS = 0.1f;
 
     if (svWdivH > texWdivH)
     {

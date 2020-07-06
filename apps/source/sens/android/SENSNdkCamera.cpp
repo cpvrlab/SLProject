@@ -272,7 +272,7 @@ void SENSNdkCamera::openCamera()
                 throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
             //make the adjustments in an asynchronous thread
-            if (_config.adjustAsynchronously)
+            if (_adjustAsynchronously)
             {
                 //register onImageAvailable listener
                 AImageReader_ImageListener listener{
@@ -342,80 +342,12 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
-
-    //open the camera asynchronously to make sure that it is available
-    /*
-    if (_openCameraThread)
-    {
-        if (_openCameraThread->joinable())
-        {
-            _openCameraThread->join();
-            LOG_NDKCAM_DEBUG("start: Thread joined");
-        }
-        _openCameraThread.release();
-    }
-    _openCameraThread = std::make_unique<std::thread>(&SENSNdkCamera::openCamera, this);
-    */
     openCamera();
-
     initCalibration();
+
     _started = true;
     return _config;
 }
-/*
-void SENSNdkCamera::start(const SENSCameraConfig config)
-{
-if (!_started)
-{
-    //_state       = State::STARTING;
-    LOG_NDKCAM_DEBUG("start: starting for device id: %s", _config.deviceId.c_str());
-    _config      = config;
-    _targetWdivH = (float)_config.targetWidth / (float)_config.targetHeight;
-
-    if (_allCharacteristics.size() == 0)
-    {
-        _allCharacteristics = getAllCameraCharacteristics();
-    }
-
-    if (_characteristics.cameraId != _config.deviceId)
-    {
-        for (const SENSCameraDeviceProperties& c : _allCharacteristics)
-        {
-            if (_config.deviceId == c.cameraId)
-            {
-                _characteristics = c;
-                break;
-            }
-        }
-    }
-
-    if (_characteristics.cameraId.empty())
-    {
-        throw SENSException(SENSType::CAM, "Device id does not exist!", __LINE__, __FILE__);
-    }
-
-    //open the camera asynchronously to make sure that it is available
-    /*
-    if (_openCameraThread)
-    {
-        if (_openCameraThread->joinable())
-        {
-            _openCameraThread->join();
-            LOG_NDKCAM_DEBUG("start: Thread joined");
-        }
-        _openCameraThread.release();
-    }
-    _openCameraThread = std::make_unique<std::thread>(&SENSNdkCamera::openCamera, this);
-
-    openCamera();
-    _started = true;
-}
-else
-{
-    LOG_NDKCAM_WARN("start: ignored because camera is already open! Call stop first!");
-}
-}
-*/
 
 void SENSNdkCamera::createCaptureSession()
 {
@@ -674,7 +606,7 @@ SENSFramePtr SENSNdkCamera::latestFrame()
 
     if (_started)
     {
-        if (_config.adjustAsynchronously)
+        if (_adjustAsynchronously)
         {
             std::unique_lock<std::mutex> lock(_threadOutputMutex);
             if (_processedFrame)

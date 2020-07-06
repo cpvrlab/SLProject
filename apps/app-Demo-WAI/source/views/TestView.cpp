@@ -706,7 +706,8 @@ void TestView::downloadCalibrationFilesTo(std::string dir)
     const std::string ftpHost = "pallas.bfh.ch:21";
     const std::string ftpUser = "upload";
     const std::string ftpPwd  = "FaAdbD3F2a";
-    const std::string ftpDir  = "erleb-AR/calibrations/";
+    //const std::string ftpDir  = "erleb-AR/calibrations/";
+    const std::string ftpDir  = "calibrations/";
     std::string       errorMsg;
     if (!FtpUtils::downloadAllFilesFromDir(dir,
                                            ftpHost,

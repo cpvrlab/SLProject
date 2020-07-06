@@ -139,7 +139,7 @@ struct SENSCameraConfig
 
     //! adjust image in asynchronous thread
     //todo:?????
-    bool adjustAsynchronously = false;
+    //bool adjustAsynchronously = false;
 
     //! enable video stabilization if available
     bool enableVideoStabilization = true;
