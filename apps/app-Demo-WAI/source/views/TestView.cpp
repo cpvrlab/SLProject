@@ -287,7 +287,7 @@ void TestView::handleEvents()
                 else if (editMap->action == MapPointEditor_SelectSingleVideo && _mapEdition)
                     _mapEdition->selectByVid(editMap->vid);
                 else if (editMap->action == MapPointEditor_SelectNMatched && _mapEdition)
-                    _mapEdition->selectNMatched(editMap->n);
+                    _mapEdition->selectNMatched(editMap->nmatches);
                 else if (editMap->action == MapPointEditor_SelectAllPoints && _mapEdition)
                     _mapEdition->selectAllMap();
                 else if (editMap->action == MapPointEditor_Quit && _mapEdition)

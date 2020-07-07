@@ -21,7 +21,8 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint
     _yellow = new SLMaterial(nullptr, "Yellow Opaque", SLCol4f::YELLOW, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
     _green  = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
 
-    _activeSet = _mappoints;
+    _activeSet    = _mappoints;
+    _temporarySet = _mappoints;
     updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
 }
 
@@ -49,7 +50,8 @@ void MapEdition::updateKFVidMatching(std::vector<int>* kFVidMatching)
         }
 
         int j;
-        for (j = 0; j < _keyframes.size() && _keyframes[j]->mnId != i; j++);
+        for (j = 0; j < _keyframes.size() && _keyframes[j]->mnId != i; j++)
+            ;
 
         if (j == _keyframes.size())
         {
@@ -57,68 +59,28 @@ void MapEdition::updateKFVidMatching(std::vector<int>* kFVidMatching)
             continue;
         }
         _vidToKeyframes[kFVidMatching->at(i)].push_back(_keyframes[j]); //add keyframe i to kfSet[videoId]
-        _keyFramesToVid.insert(std::pair<WAIKeyFrame*, int> (_keyframes[j], kFVidMatching->at(i)));
+        _keyFramesToVid.insert(std::pair<WAIKeyFrame*, int>(_keyframes[j], kFVidMatching->at(i)));
     }
 }
 
 void MapEdition::selectAllMap()
 {
-    _activeSet = _mappoints;
+    _activeSet    = _mappoints;
+    _temporarySet = _mappoints;
     updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
 }
 
-/*
-void MapEdition::selectNMatched(int n)
-{
-    for (int vid = 0; vid < _vidToKeyframes.size(); vid++)
-    {
-        std::map<WAIMapPoint*, int> counters;
-
-        for (int i = 0; i < _vidToKeyframes[vid].size(); i++)
-        {
-            WAIKeyFrame* kf = _vidToKeyframes[vid][i];
-
-            std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
-            for (WAIMapPoint* mp : mps)
-            {
-                if (mp == nullptr || mp->isBad())
-                    continue;
-
-                auto it = counters.find(mp);
-                if (it != counters.end())
-                {
-                    std::cout << "point alredy found   " << it->second << std::endl;
-                    it->second++;
-                }   
-                else
-                    counters.insert(std::pair<WAIMapPoint*, int>(mp, 1));
-            }
-        }
-    }
-
-    std::vector<WAIMapPoint*> mpvec;
-    for (auto it = counters.begin(); it != counters.end(); it++)
-    {
-        if (it->second == n)
-            mpvec.push_back(it->first);
-    }
-
-    _activeSet = mpvec;
-    updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
-}
-*/
-
-void MapEdition::selectNMatched(int n)
+void MapEdition::selectNMatched(std::vector<bool> nmatches)
 {
     std::vector<std::set<int>> counters;
-    counters.resize(_mappoints.size());
+    counters.resize(_temporarySet.size());
 
-    for (int i = 0; i < _mappoints.size(); i++)
+    for (int i = 0; i < _temporarySet.size(); i++)
     {
-        std::map<WAIKeyFrame*, size_t> obs = _mappoints[i]->GetObservations();
+        std::map<WAIKeyFrame*, size_t> obs = _temporarySet[i]->GetObservations();
         for (auto it = obs.begin(); it != obs.end(); it++)
         {
-            WAIKeyFrame * kf = it->first;
+            WAIKeyFrame* kf = it->first;
 
             auto kfvid = _keyFramesToVid.find(kf);
             if (kfvid != _keyFramesToVid.end())
@@ -129,37 +91,51 @@ void MapEdition::selectNMatched(int n)
     }
 
     std::vector<WAIMapPoint*> mpvec;
+
     for (int i = 0; i < counters.size(); i++)
     {
-        if (counters[i].size() == n)
-            mpvec.push_back(_mappoints[i]);
+        for (int j = 0; j < nmatches.size(); j++)
+        {
+            if (nmatches[j] && counters[i].size() == j)
+            {
+                mpvec.push_back(_temporarySet[i]);
+                break;
+            }
+        }
     }
 
     _activeSet = mpvec;
     updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
 }
 
-void MapEdition::selectByVid(int id)
+void MapEdition::selectByVid(std::vector<bool> vid)
 {
     std::set<WAIMapPoint*> mpset;
     int                    lastIdx = 0;
-    for (int i = 0; i < _vidToKeyframes[id].size(); i++)
+    for (int id = 0; id < vid.size(); id++)
     {
-        WAIKeyFrame* kf = _vidToKeyframes[id][i];
-
-        std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
-        for (WAIMapPoint* mp : mps)
+        if (vid[id])
         {
-            if (mp == nullptr || mp->isBad())
-                continue;
-            mpset.insert(mp);
+            for (int i = 0; i < _vidToKeyframes[id].size(); i++)
+            {
+                WAIKeyFrame* kf = _vidToKeyframes[id][i];
+
+                std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
+                for (WAIMapPoint* mp : mps)
+                {
+                    if (mp == nullptr || mp->isBad())
+                        continue;
+                    mpset.insert(mp);
+                }
+            }
         }
     }
 
     std::vector<WAIMapPoint*> mpvec;
     mpvec.resize(mpset.size());
     std::copy(mpset.begin(), mpset.end(), mpvec.begin());
-    _activeSet = mpvec;
+    _temporarySet = mpvec;
+    _activeSet    = _temporarySet;
     updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
 }
 
@@ -192,10 +168,13 @@ void MapEdition::updateMapPointsMeshes(std::string                      name,
             normals.push_back(SLVec3f(wN.x, wN.y, wN.z));
         }
 
-        mesh = new SLPoints(nullptr, points, normals, name, material);
-        _workingNode->addMesh(mesh);
-        updateAABBRec();
-        _sv->s()->selectNodeMesh(_workingNode, mesh);
+        if (points.size() > 0)
+        {
+            mesh = new SLPoints(nullptr, points, normals, name, material);
+            _workingNode->addMesh(mesh);
+            updateAABBRec();
+            _sv->s()->selectNodeMesh(_workingNode, mesh);
+        }
     }
 }
 
@@ -237,6 +216,20 @@ SLbool MapEdition::onKeyRelease(const SLKey key, const SLKey mod)
         {
             _activeSet[_meshToMP[_mesh->IS32[i]]]->SetBadFlag();
         }
+        /*
+        for (unsigned int i = 0; i < _keyframes.size(); i++)
+        {
+            bool deleteKF = true; 
+            std::vector<WAIMapPoint*> mps = _keyframes[i]->GetMapPointMatches();
+            for (unsigned int j = 0; j < mps.size(); j++)
+            {
+                if (!mps[j]->isBad())
+                    deleteKF = false;
+            }
+            if (deleteKF)
+                _keyframes[i]->SetBadFlag();
+        }
+        */
         updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
     }
     return false;

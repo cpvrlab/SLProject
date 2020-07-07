@@ -40,22 +40,22 @@ public:
 private:
     std::queue<WAIEvent*>* _eventQueue;
 
-    bool             _ready               = false;
-    bool             _showMatchFileFinder = false;
-    bool             _showVideoIdSelect   = false;
-    bool             _showNmatchSelect    = false;
-    bool             _inTransformMode     = false;
-    bool             _advSelection        = false;
-    std::string      _currMatchedFile     = "";
-    std::string      _slamRootDir;
-    int              _nbVideoInMap;
-    int              _videoId;
-    int              _nmatchId;
-    std::vector<int> _kFVidMatching;
-    std::string      _location = "";
-    std::string      _area     = "";
-    std::string      _map      = "";
-    bool*            _activator;
+    bool                     _ready               = false;
+    bool                     _showMatchFileFinder = false;
+    bool                     _showVideoIdSelect   = false;
+    bool                     _showNmatchSelect    = false;
+    bool                     _inTransformMode     = false;
+    bool                     _advSelection        = false;
+    std::string              _currMatchedFile     = "";
+    std::string              _slamRootDir;
+    std::vector<std::string> _videoInMap;
+    std::vector<int>         _kFVidMatching;
+    std::string              _location = "";
+    std::string              _area     = "";
+    std::string              _map      = "";
+    bool*                    _activator;
+    std::vector<bool>        _videosId;
+    std::vector<bool>        _nmatchId;
 };
 
 #endif

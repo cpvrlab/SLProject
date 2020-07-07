@@ -16,8 +16,8 @@ public:
 
     void updateKFVidMatching(std::vector<int>* kFVidMatching);
     void selectAllMap();
-    void selectNMatched(int n);
-    void selectByVid(int id);
+    void selectNMatched(std::vector<bool> nmatches);
+    void selectByVid(std::vector<bool> vid);
 
     SLbool onKeyPress(const SLKey key, const SLKey mod) override;
 
@@ -61,6 +61,7 @@ private:
     SLMaterial*          _yellow;
     std::vector<int>     _meshToMP;
     vector<WAIMapPoint*> _activeSet;
+    vector<WAIMapPoint*> _temporarySet;
     SLPoints*            _mesh = nullptr;
     bool                 _transformMode;
 

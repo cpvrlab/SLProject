@@ -27,9 +27,7 @@ AppDemoGuiMapPointEditor::AppDemoGuiMapPointEditor(std::string            name,
   : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
-    _videoId(0),
     _nmatchId(1),
-    _nbVideoInMap(0),
     _inTransformMode(false),
     _advSelection(false),
     _ready(false),
@@ -85,14 +83,14 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 
     //TODO: I don't know how imgui work!!!!
     ImGui::Text("Map Transform & Edit                   ");
-    SLfloat        bW = ImGui::GetContentRegionAvailWidth();
+    SLfloat bW = ImGui::GetContentRegionAvailWidth();
 
     if (!_ready)
     {
         if (ImGui::Button("Enter Map Editor"))
         {
             WAIEventEditMap* event = new WAIEventEditMap();
-            event->action = MapPointEditor_EnterEditMode;
+            event->action          = MapPointEditor_EnterEditMode;
             _eventQueue->push(event);
             _ready = true;
         }
@@ -107,7 +105,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         {
             WAIEventEditMap* event = new WAIEventEditMap();
             event->editMode        = NodeEditMode_Translate;
-            _inTransformMode = true;
+            _inTransformMode       = true;
             _eventQueue->push(event);
         }
 
@@ -135,12 +133,12 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
             event->action          = MapPointEditor_ApplyToMapPoints;
             _eventQueue->push(event);
         }
-        
+
         if (ImGui::Button("Exit transform mode"))
         {
             WAIEventEditMap* event = new WAIEventEditMap();
             _eventQueue->push(event);
-            _inTransformMode     = false;
+            _inTransformMode = false;
         }
     }
     else
@@ -192,14 +190,21 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (ImGui::Button("Load match file"))
             {
-                WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _nbVideoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
+                WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _videoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
+                std::cout << "init video id" << std::endl;
+                _videosId = std::vector<bool>(_videoInMap.size());
+                _nmatchId = std::vector<bool>(_videoInMap.size());
+                for (int i = 0; i < _videoInMap.size(); i++)
+                {
+                    _videosId[i] = true;
+                    _nmatchId[i] = true;
+                }
                 WAIEventEditMap* event = new WAIEventEditMap();
                 event->action          = MapPointEditor_LoadMatching;
                 event->kFVidMatching   = &_kFVidMatching;
                 _eventQueue->push(event);
                 _advSelection = true;
             }
-
         }
     }
 
@@ -212,71 +217,66 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
             WAIEventEditMap* event = new WAIEventEditMap();
             event->action          = MapPointEditor_SelectAllPoints;
             _eventQueue->push(event);
-            _showVideoIdSelect = false;
-            _showNmatchSelect = false;
+
+            std::cout << "reset video id" << std::endl;
+            for (int i = 0; i < _videoInMap.size(); i++)
+            {
+                _videosId[i] = true;
+                _nmatchId[i] = true;
+            }
         }
 
         ImGui::Separator();
 
         if (ImGui::Button("Video Id"))
         {
-            _showVideoIdSelect = !_showVideoIdSelect;
+            _showVideoIdSelect     = !_showVideoIdSelect;
             WAIEventEditMap* event = new WAIEventEditMap();
-            event->vid             = _videoId;
+            event->vid             = _videosId;
             event->action          = MapPointEditor_SelectSingleVideo;
             _eventQueue->push(event);
         }
+
         if (_showVideoIdSelect)
         {
-            if (ImGui::BeginCombo("Id", std::to_string(_videoId).c_str()))
+            for (int i = 0; i < _videoInMap.size(); i++)
             {
-                for (int i = 0; i < _nbVideoInMap; i++)
+                bool id = _videosId[i];
+                if (ImGui::Checkbox((std::to_string(i) + " " + _videoInMap[i]).c_str(), &id))
                 {
-                    if (ImGui::Selectable(std::to_string(i).c_str(), _videoId == i))
-                    {
-                        if (_videoId == i)
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                        _videoId = i;
-
-                        WAIEventEditMap* event = new WAIEventEditMap();
-                        event->vid             = _videoId;
-                        event->action          = MapPointEditor_SelectSingleVideo;
-                        _eventQueue->push(event);
-                    }
+                    _videosId[i]           = id;
+                    WAIEventEditMap* event = new WAIEventEditMap();
+                    event->vid             = _videosId;
+                    event->action          = MapPointEditor_SelectSingleVideo;
+                    _eventQueue->push(event);
                 }
             }
         }
+
         ImGui::Separator();
 
         if (ImGui::Button("N matches"))
         {
-            _showNmatchSelect = !_showNmatchSelect;
+            _showNmatchSelect      = !_showNmatchSelect;
             WAIEventEditMap* event = new WAIEventEditMap();
-            event->n               = _nmatchId;
+            event->nmatches        = _nmatchId;
             event->action          = MapPointEditor_SelectNMatched;
             _eventQueue->push(event);
         }
         if (_showNmatchSelect)
         {
-            if (ImGui::BeginCombo("N", std::to_string(_nmatchId).c_str()))
+            for (int i = 0; i < _videoInMap.size(); i++)
             {
-                for (int i = 0; i < _nbVideoInMap; i++)
+                if (i % 10 != 0)
+                    ImGui::SameLine();
+                bool id = _nmatchId[i];
+                if (ImGui::Checkbox(std::to_string(i).c_str(), &id))
                 {
-                    if (ImGui::Selectable(std::to_string(i).c_str(), _nmatchId == i))
-                    {
-                        if (_nmatchId == i)
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                        _nmatchId = i;
-
-                        WAIEventEditMap* event = new WAIEventEditMap();
-                        event->n               = _nmatchId;
-                        event->action          = MapPointEditor_SelectNMatched;
-                        _eventQueue->push(event);
-                    }
+                    _nmatchId[i]           = id;
+                    WAIEventEditMap* event = new WAIEventEditMap();
+                    event->nmatches        = _nmatchId;
+                    event->action          = MapPointEditor_SelectNMatched;
+                    _eventQueue->push(event);
                 }
             }
         }
@@ -288,7 +288,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         event->action          = MapPointEditor_Quit;
         _eventQueue->push(event);
 
-        _showMatchFileFinder     = false;
+        _showMatchFileFinder = false;
         _ready               = false;
         _inTransformMode     = false;
     }
@@ -299,8 +299,11 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 
 void AppDemoGuiMapPointEditor::setSlamParams(const SlamParams& params)
 {
-    SlamParams p = params;
-    _location    = p.location.empty() ? "" : Utils::getFileName(p.location);
-    _area        = p.area.empty() ? "" : Utils::getFileName(p.area);
-    _map         = p.mapFile.empty() ? "" : Utils::getFileName(p.mapFile);
+    SlamParams p      = params;
+    _location         = p.location.empty() ? "" : Utils::getFileName(p.location);
+    _area             = p.area.empty() ? "" : Utils::getFileName(p.area);
+    _map              = p.mapFile.empty() ? "" : Utils::getFileName(p.mapFile);
+    _showNmatchSelect = false;
+    _ready            = false;
+    _inTransformMode  = false;
 }
