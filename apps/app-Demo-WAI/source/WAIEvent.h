@@ -15,17 +15,19 @@ enum WAIEventType
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
     WAIEventType_AdjustTransparency,
-    WAIEventType_EnterEditMode,
-    WAIEventType_EnterEditMapPointMode
+    WAIEventType_EditMap
 };
 
 enum MapPointEditorEnum
 {
     MapPointEditor_None,
-    MapPointEditor_SaveInMap,
+    MapPointEditor_SaveMap,
+    MapPointEditor_ApplyToMapPoints,
     MapPointEditor_Quit,
     MapPointEditor_EnterEditMode,
     MapPointEditor_SelectSingleVideo,
+    MapPointEditor_SelectNMatched,
+    MapPointEditor_SelectAllPoints,
     MapPointEditor_LoadMatching
 };
 
@@ -95,29 +97,21 @@ struct WAIEventAdjustTransparency : WAIEvent
     float kt;
 };
 
-struct WAIEventEnterEditMode : WAIEvent
+struct WAIEventEditMap : WAIEvent
 {
-    WAIEventEnterEditMode()
+    WAIEventEditMap()
     {
-        type      = WAIEventType_EnterEditMode;
-        saveToMap = false;
-    }
-
-    SLNodeEditMode editMode;
-    bool saveToMap;
-};
-
-struct WAIEventEnterEditMapPointMode : WAIEvent
-{
-    WAIEventEnterEditMapPointMode()
-    {
-        type   = WAIEventType_EnterEditMapPointMode;
+        type   = WAIEventType_EditMap;
         action = MapPointEditor_None;
-        vid = 0;
+        editMode = NodeEditMode_None;
+        op = '=';
     }
     MapPointEditorEnum action;
+    SLNodeEditMode editMode;
     std::vector<int> * kFVidMatching;
-    int vid;
+    std::vector<bool> vid;
+    std::vector<bool> nmatches;
+    int op;
 };
 
 #endif //WAI_EVENT_H

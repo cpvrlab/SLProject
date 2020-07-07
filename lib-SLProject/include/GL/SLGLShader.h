@@ -29,21 +29,24 @@ class SLGLShader : public SLObject
 
 public:
     SLGLShader();
-    SLGLShader(const SLstring&     filename,
-               SLShaderType type);
+    SLGLShader(const SLstring& filename,
+               SLShaderType    type);
     ~SLGLShader() override;
 
     void     load(const SLstring& filename);
     void     loadFromMemory(const SLstring& program);
-    SLbool   createAndCompile(SLVLight* lights);
-    SLbool   createAndCompileSimple();
-    SLstring removeComments(SLstring src);
     SLstring typeName();
 
     // Getters
     SLShaderType type() { return _type; }
     SLuint       shaderID() const { return _shaderID; }
     SLstring     code() { return _code; }
+
+private:
+    SLbool          createAndCompile(SLVLight* lights);
+    SLbool          createAndCompileSimple();
+    static SLstring removeComments(SLstring src);
+    SLstring        preprocessPragmas(SLstring code, SLVLight* lights);
 
 protected:
     SLShaderType _type;     //!< Shader type enumeration

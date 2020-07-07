@@ -16,7 +16,7 @@ layout (location = 3) in vec4  a_color;    // Vertex color attribute
 
 uniform mat4 u_model;
 uniform mat4 u_view;
-uniform mat4 u_projection;
+uniform mat4 u_camProjection;
 
 uniform mat4 u_mv;
 uniform mat4 u_mvp;

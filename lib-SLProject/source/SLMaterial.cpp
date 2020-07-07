@@ -310,13 +310,13 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
-    program->uniform4fv("u_matAmbient", 1, (SLfloat*)&_ambient);
-    program->uniform4fv("u_matDiffuse", 1, (SLfloat*)&_diffuse);
-    program->uniform4fv("u_matSpecular", 1, (SLfloat*)&_specular);
-    program->uniform4fv("u_matEmissive", 1, (SLfloat*)&_emissive);
-    program->uniform1f("u_matShininess", _shininess);
-    program->uniform1f("u_matRoughness", _roughness);
-    program->uniform1f("u_matMetallic", _metalness);
+    program->uniform4fv("u_matAmbi", 1, (SLfloat*)&_ambient);
+    program->uniform4fv("u_matDiff", 1, (SLfloat*)&_diffuse);
+    program->uniform4fv("u_matSpec", 1, (SLfloat*)&_specular);
+    program->uniform4fv("u_matEmis", 1, (SLfloat*)&_emissive);
+    program->uniform1f("u_matShin", _shininess);
+    program->uniform1f("u_matRough", _roughness);
+    program->uniform1f("u_matMetal", _metalness);
     program->uniform1f("u_matKr", _kr);
     program->uniform1f("u_matKt", _kt);
     program->uniform1f("u_matKn", _kn);
@@ -328,7 +328,7 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     for (SLint i = 0; i < (SLint)_textures.size(); ++i)
     {
         SLchar name[100];
-        sprintf(name, "u_texture%d", i);
+        sprintf(name, "u_matTexture%d", i);
         program->uniform1i(name, i);
     }
 }

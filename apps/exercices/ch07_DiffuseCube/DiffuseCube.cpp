@@ -198,9 +198,9 @@ void onInit()
     _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
     _mvpLoc            = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
     _nmLoc             = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
-    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     buildBox();

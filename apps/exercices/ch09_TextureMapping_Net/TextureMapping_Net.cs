@@ -177,16 +177,16 @@ public class TextureMapping_Net : GameWindow
         _nMatrixLoc        = gl.GetUniformLocation(_shaderProgID, "u_nMatrix");
         _globalAmbiLoc     = gl.GetUniformLocation(_shaderProgID, "u_globalAmbi");
         _lightPosVSLoc     = gl.GetUniformLocation(_shaderProgID, "u_lightPosVS");
-        _lightSpotDirVSLoc = gl.GetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
-        _lightAmbientLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightAmbient");
-        _lightDiffuseLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightDiffuse");
-        _lightSpecularLoc  = gl.GetUniformLocation(_shaderProgID, "u_lightSpecular");
-        _matAmbientLoc     = gl.GetUniformLocation(_shaderProgID, "u_matAmbient");
-        _matDiffuseLoc     = gl.GetUniformLocation(_shaderProgID, "u_matDiffuse");
-        _matSpecularLoc    = gl.GetUniformLocation(_shaderProgID, "u_matSpecular");
-        _matEmissiveLoc    = gl.GetUniformLocation(_shaderProgID, "u_matEmissive");
-        _matShininessLoc   = gl.GetUniformLocation(_shaderProgID, "u_matShininess");
-        _texture0Loc       = gl.GetUniformLocation(_shaderProgID, "u_texture0");      
+        _lightSpotDirVSLoc = gl.GetUniformLocation(_shaderProgID, "u_lightSpotDir");
+        _lightAmbientLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightAmbi");
+        _lightDiffuseLoc   = gl.GetUniformLocation(_shaderProgID, "u_lightDiff");
+        _lightSpecularLoc  = gl.GetUniformLocation(_shaderProgID, "u_lightSpec");
+        _matAmbientLoc     = gl.GetUniformLocation(_shaderProgID, "u_matAmbi");
+        _matDiffuseLoc     = gl.GetUniformLocation(_shaderProgID, "u_matDiff");
+        _matSpecularLoc    = gl.GetUniformLocation(_shaderProgID, "u_matSpec");
+        _matEmissiveLoc    = gl.GetUniformLocation(_shaderProgID, "u_matEmis");
+        _matShininessLoc   = gl.GetUniformLocation(_shaderProgID, "u_matShin");
+        _texture0Loc       = gl.GetUniformLocation(_shaderProgID, "u_matTexture0");
 
         // Set some OpenGL states
         gl.ClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color         

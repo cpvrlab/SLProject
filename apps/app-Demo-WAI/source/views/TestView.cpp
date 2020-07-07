@@ -218,7 +218,6 @@ void TestView::handleEvents()
                     saveVideo(videoRecordingEvent->filename);
                     //saveGPSData(videoRecordingEvent->filename);
                 }
-
                 delete videoRecordingEvent;
             }
             break;
@@ -249,50 +248,10 @@ void TestView::handleEvents()
                 delete adjustTransparencyEvent;
             }
             break;
+            case WAIEventType_EditMap: {
+                WAIEventEditMap* editMap = (WAIEventEditMap*)event;
 
-            case WAIEventType_EnterEditMode: {
-                WAIEventEnterEditMode* enterEditModeEvent = (WAIEventEnterEditMode*)event;
-
-                if (!_transformationNode)
-                {
-                    _transformationNode = new SLTransformNode(this, _scene.root3D()->findChild<SLNode>("map"), _dataDir + "shaders/");
-                    _scene.root3D()->addChild(_transformationNode);
-                }
-
-                if (enterEditModeEvent->saveToMap)
-                {
-                    SLNode*      mapNode = _scene.root3D()->findChild<SLNode>("map");
-                    const float* m       = mapNode->om().m();
-                    cv::Mat      mat     = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
-                    _mode->transformCoords(mat);
-                    _scene.resetMapNode();
-                    updateTrackingVisualization(_mode);
-                }
-
-                if (enterEditModeEvent->editMode == NodeEditMode_None)
-                {
-                    if (_scene.root3D()->deleteChild(_transformationNode))
-                    {
-                        auto it = find(_scene.eventHandlers().begin(),
-                                       _scene.eventHandlers().end(),
-                                       _transformationNode);
-                        if (it != _scene.eventHandlers().end())
-                            _scene.eventHandlers().erase(it);
-
-                        _transformationNode = nullptr;
-                    }
-                }
-                else
-                {
-                    _transformationNode->editMode(enterEditModeEvent->editMode);
-                }
-                delete enterEditModeEvent;
-            }
-            break;
-
-            case WAIEventType_EnterEditMapPointMode: {
-                WAIEventEnterEditMapPointMode* enterEditModeEvent = (WAIEventEnterEditMapPointMode*)event;
-                if (enterEditModeEvent->action == MapPointEditor_EnterEditMode && !_mapEdition)
+                if (editMap->action == MapPointEditor_EnterEditMode && !_mapEdition)
                 {
                     _scene.removeLocalMapPoints();
                     _scene.removeMapPoints();
@@ -301,20 +260,28 @@ void TestView::handleEvents()
                     _scene.removeMarkerCornerMapPoints();
                     _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _mode->getKeyFrames(), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_mapEdition);
+                    _pauseVideo = true;
                 }
-                else if (enterEditModeEvent->action == MapPointEditor_SaveInMap && _mapEdition)
+                else if (editMap->action == MapPointEditor_ApplyToMapPoints && _mapEdition)
                 {
+                    SLNode*      mapNode = _scene.root3D()->findChild<SLNode>("map");
+                    const float* m       = mapNode->om().m();
+                    cv::Mat      mat     = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
+                    _mode->transformCoords(mat);
+                    _scene.resetMapNode();
+                    _mapEdition->updateVisualization();
+                }
+                else if (editMap->action == MapPointEditor_SaveMap && _mapEdition)
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
-                }
-                else if (enterEditModeEvent->action == MapPointEditor_LoadMatching && _mapEdition)
-                {
-                    _mapEdition->updateKFVidMatching(enterEditModeEvent->kFVidMatching);
-                }
-                else if (enterEditModeEvent->action == MapPointEditor_SelectSingleVideo && _mapEdition)
-                {
-                    _mapEdition->selectByVid(enterEditModeEvent->vid);
-                }
-                else if (enterEditModeEvent->action == MapPointEditor_Quit && _mapEdition)
+                else if (editMap->action == MapPointEditor_LoadMatching && _mapEdition)
+                    _mapEdition->updateKFVidMatching(editMap->kFVidMatching);
+                else if (editMap->action == MapPointEditor_SelectSingleVideo && _mapEdition)
+                    _mapEdition->selectByVid(editMap->vid);
+                else if (editMap->action == MapPointEditor_SelectNMatched && _mapEdition)
+                    _mapEdition->selectNMatched(editMap->nmatches);
+                else if (editMap->action == MapPointEditor_SelectAllPoints && _mapEdition)
+                    _mapEdition->selectAllMap();
+                else if (editMap->action == MapPointEditor_Quit && _mapEdition)
                 {
                     if (_scene.root3D()->deleteChild(_mapEdition))
                     {
@@ -328,7 +295,12 @@ void TestView::handleEvents()
                     }
                     updateTrackingVisualization(_mode);
                 }
-                delete enterEditModeEvent;
+                else if (_mapEdition)
+                {
+                    _mapEdition->selectAllMap();
+                    _mapEdition->editMode(editMap->editMode);
+                }
+                delete editMap;
             }
             break;
 

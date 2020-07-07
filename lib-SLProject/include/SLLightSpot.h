@@ -30,10 +30,8 @@ See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
 all light node types are used. \n
 All light nodes inherited from SLLight work automatically together with the
 following shaders: \n
-  - PerVrtBlinn.vert, PerVrtBlinn.frag \n
-  - PerVrtBlinnTex.vert, PerVrtBlinnTex.frag \n
-  - PerPixBlinn.vert, PerPixBlinn.frag \n
-  - PerPixBlinnTex.vert, PerPixBlinnTex.frag \n
+  - PerVrt*.vert, PerVrt*.frag \n
+  - PerPix*.vert, PerPix*.frag \n
 */
 class SLLightSpot : public SLNode
   , public SLLight

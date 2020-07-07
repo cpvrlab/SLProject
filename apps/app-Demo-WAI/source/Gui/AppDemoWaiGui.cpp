@@ -98,10 +98,6 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                          imGuiEn
                                                         &uiPrefs->showSlamLoad,
                                                         std::bind(&AppDemoWaiGui::showErrorMsg, this, std::placeholders::_1));
     addInfoDialog(_guiSlamLoad);
-    addInfoDialog(std::make_shared<AppDemoGuiInfosMapNodeTransform>("map node",
-                                                                    &uiPrefs->showInfosMapNodeTransform,
-                                                                    &eventQueue,
-                                                                    _resources.fonts().standard));
 
     _guiMapEditor = std::make_shared<AppDemoGuiMapPointEditor>("map edit",
                                                                &uiPrefs->showMapPointEditor,
@@ -203,7 +199,6 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Map"))
         {
-            ImGui::MenuItem("Infos Map Node Transform", nullptr, &uiPrefs->showInfosMapNodeTransform);
             ImGui::MenuItem("Map point editor", nullptr, &uiPrefs->showMapPointEditor);
             ImGui::EndMenu();
         }

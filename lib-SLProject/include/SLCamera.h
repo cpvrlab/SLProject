@@ -126,6 +126,9 @@ public:
         _devRot = devRot;
         _devLoc = devLoc;
     }
+    void fogIsOn(const bool isOn) { _fogIsOn = isOn; }
+    void fogMode(const int mode) { _fogMode = mode; }
+    void fogDensity(const float density) { _fogDensity = density; }
 
     // Getters
     const SLMat4f& updateAndGetVM() const { return updateAndGetWMI(); }
@@ -154,8 +157,8 @@ public:
     SLbool  fogIsOn() const { return _fogIsOn; }
     SLint   fogMode() const { return _fogMode; }
     SLfloat fogDensity() const { return _fogDensity; }
-    SLfloat fogDistStart() const { return _fogDistStart; }
-    SLfloat fogDistEnd() const { return _fogDistEnd; }
+    SLfloat fogDistStart() const { return _fogStart; }
+    SLfloat fogDistEnd() const { return _fogEnd; }
     SLCol4f fogColor() const { return _fogColor; }
 
     SLfloat       trackballSize() const { return _trackballSize; }
@@ -232,12 +235,13 @@ protected:
     SLMat3f _stereoColorFilter;   //!< color filter matrix for anaglyphling is to adjust movement and stereo rendering correctly
 
     // fog
-    SLbool  _fogIsOn;      //!< Flag if fog blending is enabled
-    SLint   _fogMode;      //!< 0=GL_LINEAR, 1=GL_EXP, 2=GL_EXP2
-    SLfloat _fogDensity;   //!< Fog density for exponential modes
-    SLfloat _fogDistStart; //!< Fog start distance for linear mode
-    SLfloat _fogDistEnd;   //!< Fog end distance for linear mode
-    SLCol4f _fogColor;     //!< fog color blended to the final color
+    SLbool  _fogIsOn;        //!< Flag if fog blending is enabled
+    SLint   _fogMode;        //!< 0=LINEAR, 1=EXP, 2=EXP2
+    SLfloat _fogDensity;     //!< Fog density for exponential modes
+    SLfloat _fogStart;       //!< Fog start distance for linear mode
+    SLfloat _fogEnd;         //!< Fog end distance for linear mode
+    SLCol4f _fogColor;       //!< fog color blended to the final color
+    SLbool  _fogColorIsBack; //!< fog color blended to the final color
 
     SLDeviceRotation* _devRot = nullptr;
     SLDeviceLocation* _devLoc = nullptr;

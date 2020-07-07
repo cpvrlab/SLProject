@@ -19,22 +19,22 @@ uniform vec3 u_EyePos;              // camera settings:
 uniform int    u_numLightsUsed;     // NO. of lights used light arrays
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosWS[8];     // position of light in world space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
+uniform vec4   u_lightAmbi[8];   // ambient light intensity (Ia)
+uniform vec4   u_lightDiff[8];   // diffuse light intensity (Id)
+uniform vec4   u_lightSpec[8];  // specular light intensity (Is)
 uniform vec3   u_lightSpotDirWS[8]; // spot direction in view space
-uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
+uniform float  u_lightSpotDeg[8];// spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotCos[8];// cosine of spot cutoff angle
 uniform float  u_lightSpotExp[8];   // spot exponente
 uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
 uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
-uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform vec4   u_globalAmbi;     // Global ambient scene color
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for self-shining materials
-uniform float  u_matShininess;      // shininess exponent
+uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpec;       // specular color reflection coefficient (ks)
+uniform vec4   u_matEmis;       // emissive color for self-shining materials
+uniform float  u_matShin;      // shininess exponent
 
 layout(RGBA8) uniform image3D texture3D;
 //-----------------------------------------------------------------------------
@@ -55,12 +55,12 @@ void DirectLight(in    int  i,   // Light number
     float diffFactor = max(dot(N,L), 0.0);
     float specFactor = 0.0;
     if (diffFactor!=0.0) 
-        specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+        specFactor = pow(max(dot(N,H), 0.0), u_matShin);
    
     // accumulate directional light intesities w/o attenuation
-    Ia += u_lightAmbient[i];
-    Id += u_lightDiffuse[i] * diffFactor;
-    Is += u_lightSpecular[i] * specFactor;
+    Ia += u_lightAmbi[i];
+    Id += u_lightDiff[i] * diffFactor;
+    Is += u_lightSpec[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
 void PointLight (in    int  i,      // Light number
@@ -92,20 +92,20 @@ void PointLight (in    int  i,      // Light number
     float diffFactor = max(dot(N,L), 0.0);
     float specFactor = 0.0;
     if (diffFactor!=0.0) 
-        specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+        specFactor = pow(max(dot(N,H), 0.0), u_matShin);
    
     // Calculate spot attenuation
-    if (u_lightSpotCutoff[i] < 180.0)
+    if (u_lightSpotDeg[i] < 180.0)
     {   float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, u_lightSpotDirWS[i]);
-        if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
+        if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
         else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
         att *= spotAtt;
     }
    
     // Accumulate light intesities
-    Id += att * u_lightDiffuse[i] * diffFactor;
+    Id += att * u_lightDiff[i] * diffFactor;
 
 }
 
@@ -128,10 +128,10 @@ void main(){
   if (u_lightIsOn[6]) {if (u_lightPosWS[6].w == 0.0) DirectLight(6, N, E, Ia, Id, Is); else PointLight(6, o_F_WS, N, E, Ia, Id, Is);}
   if (u_lightIsOn[7]) {if (u_lightPosWS[7].w == 0.0) DirectLight(7, N, E, Ia, Id, Is); else PointLight(7, o_F_WS, N, E, Ia, Id, Is);}
 
-  vec4 color = u_matEmissive + 
-               Ia * u_matAmbient +
-               Id * u_matDiffuse +
-               Is * u_matSpecular;
+  vec4 color = u_matEmis +
+               Ia * u_matAmbi +
+               Id * u_matDiff +
+               Is * u_matSpec;
   
   // Output lighting to 3D texture.
   ivec3 dim = imageSize(texture3D);

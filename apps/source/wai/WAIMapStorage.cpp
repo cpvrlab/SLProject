@@ -564,7 +564,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     return true;
 }
 
-void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int nVid, const std::string& dir, const std::string outputKFMatchingFile)
+void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> vidname, const std::string& dir, const std::string outputKFMatchingFile)
 {
     if (!Utils::dirExists(dir))
         Utils::makeDir(dir);
@@ -572,7 +572,12 @@ void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMat
     std::ofstream ofs;
     ofs.open (dir + "/" + outputKFMatchingFile, std::ofstream::out);
 
-    ofs << to_string(nVid) << "\n";
+    ofs << to_string(vidname.size()) << "\n";
+
+    for (int i = 0; i < vidname.size(); i++)
+    {
+        ofs << vidname[i] << "\n";
+    }
 
     for (int i = 0; i < keyFrameVideoMatching.size(); i++)
     {
@@ -584,12 +589,19 @@ void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMat
     ofs.close();
 }
 
-void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, int &nVid, const std::string& dir, const std::string kFMatchingFile)
+void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> &vidname, const std::string& dir, const std::string kFMatchingFile)
 {
     std::ifstream ifs(dir + "/" + kFMatchingFile);
     keyFrameVideoMatching.resize(1000, -1);
 
+    int nVid;
     ifs >> nVid;
+    vidname.resize(nVid);
+
+    for (int i = 0; i < nVid; i++)
+    {
+        ifs >> vidname[i];
+    }
 
     int kfId;
     int vid;

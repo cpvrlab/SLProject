@@ -160,7 +160,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         thread.join();
 
     // Do anti-aliasing w. contrast compare in a 2nd. pass
-    if (_aaSamples > 1)
+    if (_aaSamples > 1 && _cam->lensSamples()->samples() == 1)
     {
         PROFILE_SCOPE("AnitAliasing");
 

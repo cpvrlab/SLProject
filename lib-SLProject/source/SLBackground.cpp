@@ -16,7 +16,7 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-//! The constructor initializes to a uniform black background color
+//! The constructor initializes to a uniform BLACK background color
 SLBackground::SLBackground(SLstring shaderDir)
   : SLObject("Background")
 {
@@ -24,6 +24,7 @@ SLBackground::SLBackground(SLstring shaderDir)
     _colors.push_back(SLCol4f::BLACK); // bottom right
     _colors.push_back(SLCol4f::BLACK); // top right
     _colors.push_back(SLCol4f::BLACK); // top left
+    _avgColor     = SLCol4f::BLACK;
     _isUniform    = true;
     _texture      = nullptr;
     _textureError = nullptr;
@@ -39,7 +40,7 @@ SLBackground::SLBackground(SLstring shaderDir)
     _deletePrograms        = true;
 }
 //-----------------------------------------------------------------------------
-//! The constructor initializes to a uniform black background color
+//! The constructor initializes to a uniform gray background color
 SLBackground::SLBackground(SLGLProgram* textureOnlyProgram,
                            SLGLProgram* colorAttributeProgram)
   : SLObject("Background"),
@@ -51,6 +52,7 @@ SLBackground::SLBackground(SLGLProgram* textureOnlyProgram,
     _colors.push_back(SLCol4f::BLACK); // bottom right
     _colors.push_back(SLCol4f::BLACK); // top right
     _colors.push_back(SLCol4f::BLACK); // top left
+    _avgColor     = SLCol4f::BLACK;
     _isUniform    = true;
     _texture      = nullptr;
     _textureError = nullptr;
@@ -74,6 +76,7 @@ void SLBackground::colors(const SLCol4f& uniformColor)
     _colors[1].set(uniformColor);
     _colors[2].set(uniformColor);
     _colors[3].set(uniformColor);
+    _avgColor  = uniformColor;
     _isUniform = true;
     _texture   = nullptr;
     _vao.clearAttribs();
@@ -87,6 +90,7 @@ void SLBackground::colors(const SLCol4f& topColor,
     _colors[1].set(bottomColor);
     _colors[2].set(topColor);
     _colors[3].set(bottomColor);
+    _avgColor  = (topColor + bottomColor) / 2.0f;
     _isUniform = false;
     _texture   = nullptr;
     _vao.clearAttribs();
@@ -102,6 +106,7 @@ void SLBackground::colors(const SLCol4f& topLeftColor,
     _colors[1].set(bottomLeftColor);
     _colors[2].set(topRightColor);
     _colors[3].set(bottomRightColor);
+    _avgColor  = (_colors[0] + _colors[1] + _colors[2] + _colors[3]) / 4.0f;
     _isUniform = false;
     _texture   = nullptr;
     _vao.clearAttribs();
@@ -113,6 +118,8 @@ void SLBackground::texture(SLGLTexture* backgroundTexture, bool repeatBlurred)
     _texture       = backgroundTexture;
     _repeatBlurred = repeatBlurred;
     _isUniform     = false;
+    _avgColor      = SLCol4f::BLACK;
+
     _vao.clearAttribs();
 }
 //-----------------------------------------------------------------------------
@@ -210,7 +217,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     if (_texture)
     {
         _texture->bindActive(0);
-        sp->uniform1i("u_texture0", 0);
+        sp->uniform1i("u_matTexture0", 0);
     }
 
     //////////////////////////////////////
@@ -275,7 +282,7 @@ void SLBackground::renderInScene(const SLVec3f& LT,
     if (_texture)
     {
         _texture->bindActive(0);
-        sp->uniform1i("u_texture0", 0);
+        sp->uniform1i("u_matTexture0", 0);
     }
 
     ///////////////////////////////////////

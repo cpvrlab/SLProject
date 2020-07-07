@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4 a_position; // Vertex position attribute
 
-uniform vec4     u_matDiffuse;      // uniform color
+uniform vec4     u_matDiff;      // uniform color
 uniform float    u_pointSize;       // size of points
 uniform mat4     u_mvpMatrix;       // = projection * modelView
 
@@ -19,7 +19,7 @@ out     vec4     v_color;           // Resulting color per vertex
 void main(void)
 {    
     gl_PointSize = u_pointSize;
-    v_color = u_matDiffuse;                   // pass color for interpolation
+    v_color = u_matDiff;                   // pass color for interpolation
 
     gl_Position = u_mvpMatrix * a_position;   // transform vertex position
 }

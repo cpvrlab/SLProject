@@ -622,6 +622,17 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
+            if (s->lights().size() && ImGui::TreeNode("Lights"))
+            {
+                for (SLuint i = 0; i < s->lights().size(); ++i)
+                {
+                    SLNode* light = dynamic_cast<SLNode*>(s->lights()[i]);
+                    ImGui::Text("[%u] %s", i, light->name().c_str());
+                }
+
+                ImGui::TreePop();
+            }
+
             if (s->materials().size() && ImGui::TreeNode("Materials"))
             {
                 for (SLuint i = 0; i < s->materials().size(); ++i)
@@ -649,9 +660,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::TreeNode("Programs (standard)"))
             {
                 for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
-                    ImGui::Text("[%u] %s",
-                                i,
-                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+                    ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
 
                 ImGui::TreePop();
             }
@@ -1265,7 +1274,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Per Vertex Blinn-Phong", nullptr, sid == SID_ShaderPerVertexBlinn))
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", nullptr, sid == SID_ShaderPerPixelBlinn))
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phong", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
                     if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCook))
                         s->onLoad(s, sv, SID_ShaderCook);
@@ -2300,6 +2309,35 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Fog"))
+            {
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
+                if (ImGui::MenuItem("Fog is on", nullptr, cam->fogIsOn()))
+                    cam->fogIsOn(!cam->fogIsOn());
+
+                if (ImGui::BeginMenu("Mode"))
+                {
+                    if (ImGui::MenuItem("linear", nullptr, cam->fogMode() == FM_linear))
+                        cam->fogMode(FM_linear);
+                    if (ImGui::MenuItem("exp", nullptr, cam->fogMode() == FM_exp))
+                        cam->fogMode(FM_exp);
+                    if (ImGui::MenuItem("exp2", nullptr, cam->fogMode() == FM_exp2))
+                        cam->fogMode(FM_exp2);
+                    ImGui::EndMenu();
+                }
+
+                if (cam->fogMode() == FM_exp || cam->fogMode() == FM_exp2)
+                {
+                    static SLfloat fogDensity = cam->fogDensity();
+                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f))
+                        cam->fogDensity(fogDensity);
+                }
+
+                ImGui::PopItemWidth();
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -2588,7 +2626,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         if (ImGui::Checkbox("Casts shadows", &castsShadows))
                             singleNode->castsShadows(castsShadows);
 
-                        if (SLLight* light = dynamic_cast<SLLight*>(singleNode))
+                        if (auto* light = dynamic_cast<SLLight*>(singleNode))
                         {
                             SLbool createsShadows = light->createsShadows();
                             if (ImGui::Checkbox("Creates shadows", &createsShadows))
@@ -2673,7 +2711,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     // Show special camera properties
                     if (typeid(*singleNode) == typeid(SLCamera))
                     {
-                        SLCamera* cam = (SLCamera*)singleNode;
+                        auto* cam = (SLCamera*)singleNode;
 
                         if (ImGui::TreeNode("Camera"))
                         {
@@ -2683,6 +2721,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLfloat fov       = cam->fov();
 
                             const char* projections[] = {"Mono Perspective",
+                                                         "Mono Intrinsic Calibrated",
                                                          "Mono Orthographic",
                                                          "Stereo Side By Side",
                                                          "Stereo Side By Side Prop.",
@@ -2778,6 +2817,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             float cutoff = light->spotCutOffDEG();
                             if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
                                 light->spotCutOffDEG(cutoff);
+
+                            float spotExp = light->spotExponent();
+                            if (ImGui::SliderFloat("Spot attenuation", &spotExp, 0.0f, 128.0f))
+                                light->spotExponent(spotExp);
 
                             float kc = light->kc();
                             if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
