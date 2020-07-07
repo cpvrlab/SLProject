@@ -226,7 +226,6 @@ void TestView::handleEvents()
                     saveVideo(videoRecordingEvent->filename);
                     //saveGPSData(videoRecordingEvent->filename);
                 }
-
                 delete videoRecordingEvent;
             }
             break;
@@ -278,7 +277,7 @@ void TestView::handleEvents()
                     cv::Mat      mat     = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
                     _mode->transformCoords(mat);
                     _scene.resetMapNode();
-                    updateTrackingVisualization(_mode);
+                    _mapEdition->updateVisualization();
                 }
                 else if (editMap->action == MapPointEditor_SaveMap && _mapEdition)
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
@@ -305,7 +304,10 @@ void TestView::handleEvents()
                     updateTrackingVisualization(_mode);
                 }
                 else if (_mapEdition)
+                {
+                    _mapEdition->selectAllMap();
                     _mapEdition->editMode(editMap->editMode);
+                }
                 delete editMap;
             }
             break;

@@ -193,7 +193,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
                 WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _videoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
                 std::cout << "init video id" << std::endl;
                 _videosId = std::vector<bool>(_videoInMap.size());
-                _nmatchId = std::vector<bool>(_videoInMap.size());
+                _nmatchId = std::vector<bool>(_videoInMap.size()+1);
                 for (int i = 0; i < _videoInMap.size(); i++)
                 {
                     _videosId[i] = true;
@@ -224,6 +224,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
                 _videosId[i] = true;
                 _nmatchId[i] = true;
             }
+            _nmatchId[_videoInMap.size()] = true;
         }
 
         ImGui::Separator();
@@ -265,7 +266,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         }
         if (_showNmatchSelect)
         {
-            for (int i = 0; i < _videoInMap.size(); i++)
+            for (int i = 0; i < _nmatchId.size(); i++)
             {
                 if (i % 10 != 0)
                     ImGui::SameLine();

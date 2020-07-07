@@ -104,14 +104,14 @@ struct WAIEventEditMap : WAIEvent
         type   = WAIEventType_EditMap;
         action = MapPointEditor_None;
         editMode = NodeEditMode_None;
-        vid = 0;
-        n = 0;
+        op = '=';
     }
     MapPointEditorEnum action;
     SLNodeEditMode editMode;
     std::vector<int> * kFVidMatching;
-    int vid;
-    int n;
+    std::vector<bool> vid;
+    std::vector<bool> nmatches;
+    int op;
 };
 
 #endif //WAI_EVENT_H

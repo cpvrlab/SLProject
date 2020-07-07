@@ -28,8 +28,8 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint
 
 MapEdition::~MapEdition()
 {
-    _mapNode->deleteChild(_workingNode);
     deleteMesh(_mesh);
+    _mapNode->deleteChild(_workingNode);
     delete _prog;
     delete _yellow;
     delete _green;
@@ -136,6 +136,11 @@ void MapEdition::selectByVid(std::vector<bool> vid)
     std::copy(mpset.begin(), mpset.end(), mpvec.begin());
     _temporarySet = mpvec;
     _activeSet    = _temporarySet;
+    updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
+}
+
+void MapEdition::updateVisualization()
+{
     updateMapPointsMeshes("current map points", _activeSet, _mesh, _green);
 }
 

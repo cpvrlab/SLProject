@@ -42,6 +42,8 @@ public:
 
     void deleteMesh(SLPoints*& mesh);
 
+    void updateVisualization();
+
     void updateMapPointsMeshes(std::string                      name,
                                const std::vector<WAIMapPoint*>& pts,
                                SLPoints*&                       mesh,
