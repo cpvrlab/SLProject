@@ -13,16 +13,16 @@ using namespace std;
 class GPUShader : public Object
 {
 public:
-    GPUShader(string GPUShaderName, string filename, vkShaderType type);
+    GPUShader(string GPUShaderName, string filename, ShaderType type);
 
     // Getters
-    vkShaderType type() { return _type; }
-    string       code() { return _code; }
+    const ShaderType    type() { return _type; }
+    const vector<char>& code() { return _code; }
 
 protected:
-    string       _code;     //!< string of the shader source code
+    vector<char> _code;     //!< string of the shader source code
     string       _filename; //!< path and filename of the shader source code
-    vkShaderType _type;     //!< type of the shader
+    ShaderType   _type;     //!< type of the shader
 
 private:
     void readFile();

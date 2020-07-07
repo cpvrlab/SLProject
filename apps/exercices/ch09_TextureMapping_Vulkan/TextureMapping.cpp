@@ -6,12 +6,12 @@
 #include <Sphere.h>
 #include <Rectangle.h>
 #include <VulkanRenderer.h>
+#include <vkEnums.h>
 
 //-----------------------------------------------------------------------------
 //////////////////////
 // Global Variables //
 //////////////////////
-
 const int WINDOW_WIDTH   = 800;
 const int WINDOW_HEIGHT  = 600;
 string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv";
@@ -123,63 +123,61 @@ void updateCamera()
     _viewMatrix.rotate((float)(_rotY + _deltaY), 0.0f, 1.0f, 0.0f);
 }
 //-----------------------------------------------------------------------------
+void createScene(Node& root)
+{
+    // Mesh 1.
+    Texture*  texture1  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
+    Material* material1 = new Material("Texture");
+    material1->addTexture(texture1);
+    GPUProgram* gpuProgram1 = new GPUProgram("First_Shader");
+    GPUShader*  vertShader1 = new GPUShader("vertShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv", ShaderType::VERTEX);
+    GPUShader*  fragShader1 = new GPUShader("fragShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv", ShaderType::FRAGMENT);
+    gpuProgram1->addShader(vertShader1);
+    gpuProgram1->addShader(fragShader1);
+    material1->setProgram(gpuProgram1);
+    Mesh* mesh1 = new Sphere("Simple_Sphere", 1.0f, 32, 32);
+    mesh1->setColor(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
+    mesh1->mat  = material1;
+    Node* node1 = new Node("Sphere");
+    node1->om(SLMat4f(0.0f, 0.0f, 0.0f));
+    node1->SetMesh(mesh1);
 
+    Texture*  texture2  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
+    Material* material2 = new Material("Texture");
+    material2->addTexture(texture2);
+    GPUProgram* gpuProgram2 = new GPUProgram("First_Shader");
+    GPUShader*  vertShader2 = new GPUShader("vertShaderRed", SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShaderRed.vert.spv", ShaderType::VERTEX);
+    GPUShader*  fragShader2 = new GPUShader("fragShaderRed", SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShaderRed.frag.spv", ShaderType::FRAGMENT);
+    gpuProgram2->addShader(vertShader2);
+    gpuProgram2->addShader(fragShader2);
+    material2->setProgram(gpuProgram2);
+    Mesh* mesh2 = new Sphere("Simple_Sphere", 1.0f, 32, 32);
+    mesh2->setColor(SLCol4f(1.0f, 0.0f, 0.0f, 1.0f));
+    mesh2->mat  = material2;
+    Node* node2 = new Node("Sphere");
+    node2->om(SLMat4f(0.0f, 0.0f, 0.0f) * 2);
+    node2->SetMesh(mesh2);
+
+    root.AddChild(node1);
+    root.AddChild(node2);
+}
+//-----------------------------------------------------------------------------
 int main()
 {
     initWindow();
     // Create a sphere
-    Texture  texture  = Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
-    Material material = Material("Texture");
-    material.addTexture(&texture);
-    Mesh mesh = Rectangle::Rectangle("Bla");
-    //Mesh mesh = Sphere("Simple_Sphere", 1.0f, 4, 4);
-    mesh.setColor(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
-    mesh.mat  = &material;
-    Node node = Node("Sphere");
-    node.AddMesh(&mesh);
+    Node root = Node("Root");
+    createScene(root);
     SLMat4f modelPos = SLMat4f(0.0f, 0.0f, 0.0f);
 
     VulkanRenderer renderer(window);
-    renderer.createMesh(_viewMatrix, modelPos, mesh);
+    renderer.createMesh(_viewMatrix, root.children()[1]->om(), root.children()[1]->mesh());
 
-#if 0
-    const vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    const vector<const char*> deviceExtensions = {"VK_KHR_swapchain", "VK_KHR_maintenance1"};
-    // Setting up vulkan
-    Instance     instance = Instance("Test", deviceExtensions, validationLayers);
-    VkSurfaceKHR surface;
-    glfwCreateWindowSurface(instance.handle, window, nullptr, &surface);
-    Device              device              = Device(instance, instance.physicalDevice, surface, deviceExtensions);
-    Swapchain           swapchain           = Swapchain(device, window);
-    RenderPass          renderPass          = RenderPass(device, swapchain);
-    DescriptorSetLayout descriptorSetLayout = DescriptorSetLayout(device);
-    ShaderModule        vertShaderModule    = ShaderModule(device, vertShaderPath);
-    ShaderModule        fragShaderModule    = ShaderModule(device, fragShaderPath);
-    Pipeline            pipeline            = Pipeline(device, swapchain, descriptorSetLayout, renderPass, vertShaderModule, fragShaderModule);
-    Framebuffer         framebuffer         = Framebuffer(device, renderPass, swapchain);
-
-    // Texture setup
-    TextureImage textureImage = TextureImage(device, mesh.mat->textures()[0]->imageData(), mesh.mat->textures()[0]->imageWidth(), mesh.mat->textures()[0]->imageHeight());
-
-    // Mesh setup
-    Buffer indexBuffer = Buffer(device);
-    indexBuffer.createIndexBuffer(mesh.I32);
-    UniformBuffer  uniformBuffer  = UniformBuffer(device, swapchain, _viewMatrix, SLMat4f(0.0f, 0.0f, 0.0f));
-    DescriptorPool descriptorPool = DescriptorPool(device, swapchain);
-    DescriptorSet  descriptorSet  = DescriptorSet(device, swapchain, descriptorSetLayout, descriptorPool, uniformBuffer, textureImage.sampler(), textureImage);
-    Buffer         vertexBuffer   = Buffer(device);
-    vertexBuffer.createVertexBuffer(mesh.P, mesh.N, mesh.Tc, mesh.C, mesh.P.size());
-    // Draw call setup
-    CommandBuffer commandBuffer = CommandBuffer(device);
-    commandBuffer.setVertices(swapchain, framebuffer, renderPass, vertexBuffer, indexBuffer, pipeline, descriptorSet, (int)mesh.I32.size());
-    device.createSyncObjects(swapchain);
-#endif
     // Render
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         updateCamera();
-        //pipeline.draw(uniformBuffer, commandBuffer);
         renderer.draw();
         printFPS();
     }

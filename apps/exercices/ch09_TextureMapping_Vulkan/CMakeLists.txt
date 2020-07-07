@@ -10,13 +10,14 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
+        # ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSet.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorSetLayout.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Device.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/DrawingObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/GPUProgram.h
         ${CMAKE_CURRENT_SOURCE_DIR}/GPUShader.h
@@ -44,8 +45,7 @@ file(GLOB headers
 file(GLOB sources
         ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
         ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.cpp
+        #${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.cpp
@@ -69,6 +69,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Vertex.cpp
@@ -150,6 +151,8 @@ set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.131.2/Bin32/gl
 file(GLOB SHADER_SOURCE_FILES
     "${SL_PROJECT_ROOT}/data/shaders/vertShader.vert"
     "${SL_PROJECT_ROOT}/data/shaders/fragShader.frag"
+    "${SL_PROJECT_ROOT}/data/shaders/vertShaderRed.vert"
+    "${SL_PROJECT_ROOT}/data/shaders/fragShaderRed.frag"
     )
 
 foreach(SHADER ${SHADER_SOURCE_FILES})

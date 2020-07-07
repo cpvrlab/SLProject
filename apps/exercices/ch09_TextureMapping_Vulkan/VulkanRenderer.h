@@ -40,7 +40,7 @@ public:
 
     void draw();
     // temp
-    void createMesh(SLMat4f& camera, SLMat4f& modelPos, Mesh& mesh);
+    void createMesh(SLMat4f& camera, SLMat4f& modelPos, const Mesh* mesh);
 
 private:
     string vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv";

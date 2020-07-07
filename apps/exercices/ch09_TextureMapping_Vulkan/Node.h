@@ -14,8 +14,17 @@ class Node : public Object
 {
 public:
     Node(string name) : Object(name) { ; }
+    ~Node() { ; }
 
-    void AddMesh(Mesh* mesh);
+    // Getter
+    SLMat4f&            om() { return _om; }
+    const Mesh*         mesh() { return _mesh; }
+    const Node*         parent() { return _parent; }
+    const vector<Node*> children() { return _children; }
+
+    // Setter
+    void SetMesh(Mesh* mesh);
+    void om(const SLMat4f& mat);
     void AddChild(Node* child);
 
     // update()
@@ -23,10 +32,10 @@ public:
     // draw()
 
 protected:
-    Node*         _parent;   //!< pointer to the parent node
-    vector<Node*> _children; //!< vector of children nodes
-    VMesh         _meshes;   //!< vector of meshes of the node
-    SLMat4f       _om;       //!< object matrix for local transforms
+    Node*         _parent = nullptr; //!< pointer to the parent node
+    vector<Node*> _children;         //!< vector of children nodes
+    Mesh*         _mesh = nullptr;   //!< vector of meshes of the node
+    SLMat4f       _om;               //!< object matrix for local transforms
 };
 //-----------------------------------------------------------------------------
 typedef vector<Node> VNode;

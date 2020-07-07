@@ -16,6 +16,10 @@ public:
     GPUProgram(string name) : Object(name) { ; }
     ~GPUProgram();
 
+    // Getter
+    VGPUShader& shaders() { return _shaders; }
+
+    // Setter
     void addShader(GPUShader* shader);
 
 protected:

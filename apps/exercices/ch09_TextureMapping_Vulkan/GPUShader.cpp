@@ -1,6 +1,6 @@
 #include "GPUShader.h"
 
-GPUShader::GPUShader(string GPUShaderName, string filename, vkShaderType type)
+GPUShader::GPUShader(string GPUShaderName, string filename, ShaderType type)
   : Object(GPUShaderName), _filename(filename), _type(type)
 {
     readFile();

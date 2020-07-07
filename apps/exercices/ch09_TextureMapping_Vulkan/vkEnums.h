@@ -1,4 +1,7 @@
-enum vkShaderType
+#ifndef VKENUMS_H
+#define VKENUMS_H
+
+enum ShaderType
 {
     NONE                    = 0x00000000,
     VERTEX                  = 0x00000001,
@@ -8,3 +11,5 @@ enum vkShaderType
     FRAGMENT                = 0x00000010,
     COMPUTE                 = 0x00000020,
 };
+
+#endif

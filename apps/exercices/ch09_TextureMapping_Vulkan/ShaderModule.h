@@ -7,7 +7,8 @@
 class ShaderModule
 {
 public:
-    ShaderModule(Device& device, const string& shaderPath);
+    // ShaderModule(Device& device, const string& shaderPath);
+    ShaderModule(Device& device, const vector<char>& code);
     void destroy();
 
     // Getter

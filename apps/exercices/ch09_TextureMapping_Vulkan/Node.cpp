@@ -1,8 +1,13 @@
 #include "Node.h"
 
-void Node::AddMesh(Mesh* mesh)
+void Node::SetMesh(Mesh* mesh)
 {
-    _meshes.push_back(mesh);
+    _mesh = mesh;
+}
+
+void Node::om(const SLMat4f& mat)
+{
+    _om = mat;
 }
 
 void Node::AddChild(Node* child)
