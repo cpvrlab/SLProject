@@ -143,7 +143,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "rectangle mesh", m1);
+        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
@@ -979,7 +979,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
-            s->info("Per-pixel lighting with Blinn-Phong light model. The reflection of 5 light sources is calculated per pixel.");
+            s->info("Per-pixel lighting with Blinn-Phong light model. "
+                    "The reflection of 5 light sources is calculated per pixel. "
+                    "Some of the lights are attached to the camera, some are in the scene.");
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLGenericProgram(s,
@@ -996,7 +998,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         else
         {
             s->name("Blinn-Phong per vertex lighting");
-            s->info("Per-vertex lighting with Blinn-Phong light model. The reflection of 5 light sources is calculated per vertex.");
+            s->info("Per-vertex lighting with Blinn-Phong light model. "
+                    "The reflection of 5 light sources is calculated per vertex. "
+                    "Some of the lights are attached to the camera, some are in the scene.");
             mL = new SLMaterial(s, "mL", texC);
             mM = new SLMaterial(s, "mM");
             mR = new SLMaterial(s, "mR", texC);
@@ -1016,9 +1020,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Define 5 light sources
+
         // A rectangular white light attached to the camera
         SLLightRect* lightW = new SLLightRect(s, s, 2.0f, 1.0f);
         lightW->ambiDiffPowers(0, 5);
+        lightW->translation(0, 2.5f, 0);
         lightW->translation(0, 2.5f, -7);
         lightW->rotate(-90, 1, 0, 0);
         lightW->attenuation(0, 0, 1);
@@ -1039,14 +1045,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightG->ambientColor(SLCol4f(0, 0, 0));
         lightG->diffuseColor(SLCol4f(0, 1, 0));
         lightG->specularColor(SLCol4f(0, 1, 0));
-        /*
-        lightG->translation(1.5f, 1.5f, 1.5f);
-        lightG->lookAt(0, 0, 0);
-        lightG->attenuation(1, 0, 0);
-        scene->addChild(lightG);
-        */
-        lightG->translation(1.5f,  1, -5);
-        lightG->lookAt(0.5f, -0.5f, -7.5f);
+        lightG->translation(1.5f, 1, -5.5f);
+        lightG->lookAt(0, 0, -7);
         lightG->attenuation(1, 0, 0);
         cam1->addChild(lightG);
 
@@ -1072,17 +1072,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightY->ambientColor(SLCol4f(0, 0, 0));
         lightY->diffuseColor(SLCol4f(1, 1, 0));
         lightY->specularColor(SLCol4f(1, 1, 0));
-        lightY->translation(-1.5f, -1.5f,  1.5f);
+        lightY->translation(-1.5f, -1.5f, 1.5f);
         lightY->lookAt(0, 0, 0);
         lightY->attenuation(1, 0, 0);
         scene->addChild(lightY);
 
         // Add some meshes to be lighted
         SLNode* sphereL = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mL));
-        SLNode* sphereM = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mM));
-        SLNode* sphereR = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mR));
         sphereL->translate(-2, 0, 0);
         sphereL->rotate(90, -1, 0, 0);
+        SLNode* sphereM = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mM));
+        SLNode* sphereR = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mR));
         sphereR->translate(2, 0, 0);
         sphereR->rotate(90, -1, 0, 0);
 
@@ -1165,21 +1165,24 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             y += spacing;
         }
 
-        // Add 4 point light
-        SLfloat      power  = 2000.0f;
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
         light1->attenuation(0, 0, 1);
-        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        SLLightDirect* light2 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
+        light2->lookAt(0, 0, 0);
         light2->attenuation(0, 0, 1);
-        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        SLLightSpot* light3 = new SLLightSpot(s, s, 0, 0, maxY, 0.2f, 36, 0, 1000, 1000);
         light3->attenuation(0, 0, 1);
-        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        SLLightDirect* light4 = new SLLightDirect(s, s, -maxX, -maxY, maxY, 0.5f, 0, 10, 10);
+        light4->lookAt(0, 0, 0);
         light4->attenuation(0, 0, 1);
+        SLLightSpot* light5 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.2f, 180, 0, 1000, 1000);
+        light5->attenuation(0, 0, 1);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
         scene->addChild(light4);
-
+        scene->addChild(light5);
         sv->camera(cam1);
         s->root3D(scene);
     }
@@ -1326,7 +1329,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderBumpNormal) //..........................................
     {
         s->name("Normal Map Test");
-        s->info("Normal map bump mapping combined with a per pixel spot lighting.");
+        s->info("Normal map bump mapping combined with a spot and a directional lighting.");
 
         // Create textures
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
@@ -1346,7 +1349,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         sp);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 20);
+        cam1->translation(-10, 10, 10);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
@@ -1381,9 +1384,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderBumpParallax) //........................................
     {
         s->name("Parallax Map Test");
-        s->info("Normal map parallax mapping.");
+        s->info("Normal map parallax mapping with a spot and a directional light");
         SL_LOG("Demo application for parallax bump mapping.");
-        SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.");
+        SL_LOG("Use X-Key to increment (decrement w. shift) parallax scale.");
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
@@ -1404,7 +1407,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* m1 = new SLMaterial(s, "mat1", texC, texN, texH, nullptr, sp);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 20);
+        cam1->translation(-10, 10, 10);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
@@ -1512,11 +1515,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderEarth) //...............................................
     {
         s->name("Earth Shader Test");
-        s->info("Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
+        s->info("Complex earth shader with 7 textures: day color, night color, normal, height & gloss map of earth, color & alphamap of clouds");
         SL_LOG("Earth Shader from Markus Knecht");
-        SL_LOG("Use (SHIFT) & key Y to change scale of the parallax mapping");
-        SL_LOG("Use (SHIFT) & key X to change bias of the parallax mapping");
-        SL_LOG("Use (SHIFT) & key C to change cloud height");
+        SL_LOG("Use (SHIFT) & key X to change scale of the parallax mapping");
+        SL_LOG("Use (SHIFT) & key O to change offset of the parallax mapping");
 
         // Create shader program with 4 uniforms
         SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnNrm.vert", SLApplication::shaderPath + "PerPixBlinnNrmEarth.frag");
@@ -1527,20 +1529,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(scale);
         sp->addUniform1f(offset);
 
-// Create textures
-#ifndef SL_GLES
-        SLGLTexture* texC  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg");      // color map
-        SLGLTexture* texN  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
-        SLGLTexture* texH  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
-        SLGLTexture* texG  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map
-        SLGLTexture* texNC = new SLGLTexture(s, SLApplication::texturePath + "earthNight2048_C.jpg"); // night color  map
-#else
-        SLGLTexture* texC  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");      // color map
-        SLGLTexture* texN  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_N.jpg");      // normal map
-        SLGLTexture* texH  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_H.jpg");      // height map
-        SLGLTexture* texG  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC = new SLGLTexture(s, SLApplication::texturePath + "earthNight1024_C.jpg"); // night color  map
-#endif
+        // Create textures
+        SLGLTexture* texC   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg");      // color map
+        SLGLTexture* texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
+        SLGLTexture* texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
+        SLGLTexture* texG   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map
+        SLGLTexture* texNC  = new SLGLTexture(s, SLApplication::texturePath + "earthNight2048_C.jpg"); // night color  map
         SLGLTexture* texClC = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_A.jpg"); // cloud alpha map
 
@@ -2456,7 +2450,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef APP_USES_GLES
         SLint size = 4;
 #else
-        SLint        size  = 8;
+        SLint size = 8;
 #endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
@@ -3675,9 +3669,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Ray tracing depth of field");
 
+        SLGLProgram* p1 = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTex.frag");
+
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png");
-        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
+        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr, p1);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
         SLMaterial* mB = new SLMaterial(s, "mB", SLCol4f::GRAY);
@@ -3700,19 +3698,31 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 2, 7);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
+        cam1->clipFar(80);
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->fogIsOn(true);
+        cam1->fogMode(FM_exp);
+        cam1->fogDensity(0.04f);
 
-        SLuint  res  = 30;
-        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
+        SLuint  res  = 36;
+        SLNode* rect = new SLNode(new SLRectangle(s,
+                                                  SLVec2f(-40, -10),
+                                                  SLVec2f(40, 70),
+                                                  SLVec2f(0, 0),
+                                                  SLVec2f(4, 4),
+                                                  2,
+                                                  2,
+                                                  "Rect",
+                                                  mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f, TS_object);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 0, 0.1f);
-        light1->attenuation(0, 0, 1);
+        light1->ambiDiffPowers(0.1f,1);
+        light1->attenuation(1, 0, 0);
 
         SLNode* balls = new SLNode;
         SLNode* sp;
