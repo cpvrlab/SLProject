@@ -143,7 +143,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "rectangle mesh", m1);
+        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
@@ -1329,7 +1329,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderBumpNormal) //..........................................
     {
         s->name("Normal Map Test");
-        s->info("Normal map bump mapping combined with a per pixel spot lighting.");
+        s->info("Normal map bump mapping combined with a spot and a directional lighting.");
 
         // Create textures
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
@@ -1349,7 +1349,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         sp);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 20);
+        cam1->translation(-10, 10, 10);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
@@ -1384,7 +1384,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderBumpParallax) //........................................
     {
         s->name("Parallax Map Test");
-        s->info("Normal map parallax mapping.");
+        s->info("Normal map parallax mapping with a spot and a directional light");
         SL_LOG("Demo application for parallax bump mapping.");
         SL_LOG("Use X-Key to increment (decrement w. shift) parallax scale.");
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
@@ -1407,7 +1407,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* m1 = new SLMaterial(s, "mat1", texC, texN, texH, nullptr, sp);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 20);
+        cam1->translation(-10, 10, 10);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
@@ -3669,9 +3669,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Ray tracing depth of field");
 
+        SLGLProgram* p1 = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTex.frag");
+
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png");
-        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
+        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr, p1);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
         SLMaterial* mB = new SLMaterial(s, "mB", SLCol4f::GRAY);
@@ -3694,19 +3698,31 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 2, 7);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
+        cam1->clipFar(80);
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->fogIsOn(true);
+        cam1->fogMode(FM_exp);
+        cam1->fogDensity(0.04f);
 
-        SLuint  res  = 30;
-        SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
+        SLuint  res  = 36;
+        SLNode* rect = new SLNode(new SLRectangle(s,
+                                                  SLVec2f(-40, -10),
+                                                  SLVec2f(40, 70),
+                                                  SLVec2f(0, 0),
+                                                  SLVec2f(4, 4),
+                                                  2,
+                                                  2,
+                                                  "Rect",
+                                                  mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f, TS_object);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 0, 0.1f);
-        light1->attenuation(0, 0, 1);
+        light1->ambiDiffPowers(0.1f,1);
+        light1->attenuation(1, 0, 0);
 
         SLNode* balls = new SLNode;
         SLNode* sp;

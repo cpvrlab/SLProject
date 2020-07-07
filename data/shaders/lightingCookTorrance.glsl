@@ -88,7 +88,6 @@ void pointLightCookTorrance(in    int   i,        // Light index
 {
     float distance = length(L); // distance to light
     L /= distance;              // normalize light vector
-    vec3 H = normalize(E + L);  // Normalized halfvector between eye and light vector
     float att = 1.0 / (distance*distance);  // quadratic light attenuation
 
     // Calculate spot attenuation
@@ -109,6 +108,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
     F0 = mix(F0, matDiff, matMetal);
 
     // cook-torrance brdf
+    vec3  H   = normalize(E + L);  // Normalized halfvector between eye and light vector
     float NDF = distributionGGX(N, H, matRough);
     float G   = geometrySmith(N, E, L, matRough);
     vec3  F   = fresnelSchlick(max(dot(H, E), 0.0), F0);

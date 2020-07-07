@@ -34,9 +34,6 @@ void pointLightBlinnPhong( in    int   i,      // Light number between 0 and NUM
                            inout vec4  Id,     // Diffuse light intensity
                            inout vec4  Is)     // Specular light intensity
 {
-    // Normalized halfvector between the eye and the light vector
-    vec3 H = normalize(E + L);
-
     // Calculate attenuation over distance & normalize L
     float att = 1.0;
     if (u_lightDoAtt[i])
@@ -52,10 +49,11 @@ void pointLightBlinnPhong( in    int   i,      // Light number between 0 and NUM
         L = normalize(L);
 
     // Calculate diffuse & specular factors
-    float diffFactor = max(dot(N, L), 0.0);
+    vec3 H = normalize(E + L);              // Blinn's half vector is faster than Phongs reflected vector
+    float diffFactor = max(dot(N, L), 0.0); // Lambertian downscale factor for diffuse reflection
     float specFactor = 0.0;
-    if (diffFactor!=0.0)
-    specFactor = pow(max(dot(N, H), 0.0), u_matShin);
+    if (diffFactor!=0.0)    // specular reflection is only possible if surface is lit from front
+        specFactor = pow(max(dot(N, H), 0.0), u_matShin); // specular shininess
 
     // Calculate spot attenuation
     if (u_lightSpotDeg[i] < 180.0)
@@ -63,8 +61,10 @@ void pointLightBlinnPhong( in    int   i,      // Light number between 0 and NUM
         float spotDot;// Cosine of angle between L and spotdir
         float spotAtt;// Spot attenuation
         spotDot = dot(-L, S);
-        if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
-        else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
+        if (spotDot < u_lightSpotCos[i])  // if outside spot cone
+            spotAtt = 0.0;
+        else
+            spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
         att *= spotAtt;
     }
 
