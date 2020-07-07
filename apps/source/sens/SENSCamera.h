@@ -137,10 +137,6 @@ struct SENSCameraConfig
     bool  provideIntrinsics   = false;
     float fovDegFallbackGuess = 65.f;
 
-    //! adjust image in asynchronous thread
-    //todo:?????
-    //bool adjustAsynchronously = false;
-
     //! enable video stabilization if available
     bool enableVideoStabilization = true;
 };
@@ -150,7 +146,7 @@ class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
 public:
     //float getFovForConfig(const SENSCameraConfig& camConfig, int targetImgLength) const;
 
-    bool containsDeviceId(const std::string& deviceId) const;
+    bool                              containsDeviceId(const std::string& deviceId) const;
     const SENSCameraDeviceProperties* camPropsForDeviceId(const std::string& deviceId) const;
     //returned pointer is null if nothing was found
     std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig* const> findBestMatchingConfig(SENSCameraFacing facing, const float horizFov, const int width, const int height) const;
@@ -193,34 +189,6 @@ public:
                                           bool                          provideIntrinsics    = true,
                                           float                         fovDegFallbackGuess  = 65.f) = 0;
 
-    /*! Convenience function to automatically configure the camera to your needs. One could alternatively retrieve SENSCaptureProperties
-    @param facing specifies desired camera facting. This facing may not be available or retrievable if not on a mobile device and will be unknown in this case. One can inspect the result in the returned SENSCameraConfig.
-    @param approxHorizFov specifies the approximatly (circa) horizontal field of view. This value is used to select the best fitting camera if there are multiple cameras for the specified facing. Additionally the selection algorithm tries to respect the horizonal field of view after cropping to imgRGBTargetWdivH.
-    @param imgRGBSize specifies the target size and aspect ratio defined by imgRGBSize.width/imgRGBSize.height. The input image is cropped to meet this aspect ratio. If additionally scaleImgRGB is true, the input image is also scaled to fit to imgRGBSize. he result is assigned to SENSFrame::imgRGB.
-    @param mirrorV  enable mirror manipulation of input image vertically
-    @param mirrorV  enable mirror manipulation of input image horizontally
-    @param convToGrayToImgManip specifies if a gray converted version of SENSFrame::imgRGB should be calculated and assigned to SENSFrame::imgManip.
-    @param imgManipSize specifies the size of SENSFrame::imgManip. If convToGrayToImgManip is true, the gray image is resized and cropped. Otherwise a scaled and cropped version of imgRGB is calculated and assigned to SENSFrame::imgManip.
-    @param provideIntrinsics specifies if intrinsics estimation should be enabled. The estimated intrinsics are transferred with every SENSFrame as they may be different for every frame (e.g. on iOS). This value has different effects on different architectures. On android it will fix the autofocus to infinity and the intrinsics will be calculated using the focal length and the sensor size. Luckily on iOS intrinsics are provided even with autofocus. On desktop we will provide a guess using a manually defined fov guess.
-    @param fovDegFallbackGuess fallback field of view in degree guess if no camera intrinsics can be made via camera api values.
-    @returns the found configuration that is adjusted and used when SENSCamera::start() is called.
-    */
-    /*
-    virtual const SENSCameraConfig& start(SENSCameraFacing facing,
-                                          float            approxHorizFov,
-                                          cv::Size         imgRGBSize,
-                                          bool             mirrorV              = false,
-                                          bool             mirrorH              = false,
-                                          bool             scaleImgRGB          = false,
-                                          bool             convToGrayToImgManip = false,
-                                          cv::Size         imgManipSize         = cv::Size(),
-                                          bool             provideIntrinsics    = true,
-                                          float            fovDegFallbackGuess  = 65.f) = 0;
-     */
-
-    //! Start camera with a known device id. The camera will select the closest available frame size and crop it to width and height
-    //virtual void start(std::string id, int width, int height, SENSCameraFocusMode focusMode) = 0;
-    //virtual void start(std::string id, SENSCameraStreamConfigs streamConfig, int width, int height, SENSCameraFocusMode focusMode=SENSCameraFocusMode::FIXED_INFINITY_FOCUS) = 0;
     //! Stop a started camera device
     virtual void stop() = 0;
     //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
@@ -233,6 +201,8 @@ public:
     virtual const SENSCameraConfig& config() const = 0;
     //! returns  SENSCalibration if it was started (maybe a guessed one from a fov guess). Else returns nullptr. The calibration is used for computer vision applications. So, if a manipulated image is requested (see imgManipSize in SENSCamera::start(...), SENSFrame::imgManip and SENSCameraConfig) this calibration is adjusted to fit to this image, else to the original sized image (see SENSFrame::imgRGB)
     virtual const SENSCalibration* const calibration() const = 0;
+    //! Set calibration and adapt it to current image size. Camera has to be started, before this function is called.
+    virtual void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps) = 0;
 
     virtual bool started() const = 0;
 
@@ -256,18 +226,17 @@ public:
         return _calibration.get();
     }
 
+    void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps) override;
+
 protected:
-    void initCalibration();
+    void         initCalibration();
+    SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     SENSCaptureProperties _captureProperties;
 
-    SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged);
-
     //! flags if camera was started
     std::atomic<bool> _started{false};
-
-    SENSCameraConfig _config;
-
+    SENSCameraConfig  _config;
     std::atomic<bool> _permissionGranted{false};
     //! The calibration is used for computer vision applications. So, if a manipulated image is requested (see imgManipSize in SENSCamera::start(...), SENSFrame::imgManip and SENSCameraConfig) this calibration is adjusted to fit to this image, else to the original sized image (see SENSFrame::imgRGB)
     std::unique_ptr<SENSCalibration> _calibration;

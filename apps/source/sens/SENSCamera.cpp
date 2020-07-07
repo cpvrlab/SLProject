@@ -108,7 +108,7 @@ bool SENSCaptureProperties::containsDeviceId(const std::string& deviceId) const
 const SENSCameraDeviceProperties* SENSCaptureProperties::camPropsForDeviceId(const std::string& deviceId) const
 {
     auto camPropsIt = std::find_if(begin(), end(), [&](const SENSCameraDeviceProperties& comp) { return comp.deviceId() == deviceId; });
-    if(camPropsIt != end())
+    if (camPropsIt != end())
         return &*camPropsIt;
     else
         return nullptr;
@@ -250,4 +250,17 @@ void SENSCameraBase::initCalibration()
         _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
     else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+}
+
+void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
+{
+    if (!_started)
+        throw SENSException(SENSType::CAM, "setCalibration not possible if camera is not started!", __LINE__, __FILE__);
+    
+    _calibration = std::make_unique<SENSCalibration>(calibration);
+    //now we adapt the calibration to the target size
+    if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
+        _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, buildUndistortionMaps);
+    else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
+        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
 }

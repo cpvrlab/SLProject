@@ -52,17 +52,17 @@
 using namespace ErlebAR;
 
 //-----------------------------------------------------------------------------
-AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
-                             sm::EventHandler&                     eventHandler,
-                             ErlebAR::Resources&                   resources,
-                             std::string                           appName,
-                             const DeviceData&                     deviceData,
-                             const std::vector<std::string>&       extractorIdToNames,
-                             std ::queue<WAIEvent*>&               eventQueue,
-                             std::function<WAISlam*(void)>         modeGetterCB,
-                             std::function<SENSCamera*(void)>      getCameraCB,
-                             std::function<CVCalibration*(void)>   getCalibrationCB,
-                             std::function<SENSVideoStream*(void)> getVideoFileStreamCB)
+AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                          imGuiEngine,
+                             sm::EventHandler&                           eventHandler,
+                             ErlebAR::Resources&                         resources,
+                             std::string                                 appName,
+                             const DeviceData&                           deviceData,
+                             const std::vector<std::string>&             extractorIdToNames,
+                             std ::queue<WAIEvent*>&                     eventQueue,
+                             std::function<WAISlam*(void)>               modeGetterCB,
+                             std::function<SENSCamera*(void)>            getCameraCB,
+                             std::function<const SENSCalibration*(void)> getCalibrationCB,
+                             std::function<SENSVideoStream*(void)>       getVideoFileStreamCB)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources)

@@ -27,10 +27,10 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),
       _eventQueue,
-      [&]() { return _mode; },                   //getter callback for current mode
-      [&]() { return _camera; },                 //getter callback for current camera
-      [&]() { return &_calibration; },           //getter callback for current calibration
-      [&]() { return _videoFileStream.get(); }), //getter callback for current calibration
+      [&]() { return _mode; },                                      //getter callback for current mode
+      [&]() { return _camera; },                                    //getter callback for current camera
+      [&]() { return _camera ? _camera->calibration() : nullptr; }, //getter callback for current calibration
+      [&]() { return _videoFileStream.get(); }),                    //getter callback for current calibration
     _scene("TestScene", deviceData.dataDir()),
     _camera(camera),
     _configDir(deviceData.writableDir()),
@@ -108,9 +108,9 @@ bool TestView::update()
 
             if (_autoCal && _autoCal->hasCalibration())
             {
-                _calibration = _autoCal->consumeCalibration();
-                _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
-                _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
+                _camera->setCalibration(_autoCal->consumeCalibration(), true);
+                _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+                _mode->changeIntrinsic(_camera->calibration()->cameraMat(), _camera->calibration()->distortion());
                 _fillAutoCalibration = false;
             }
             updateTrackingVisualization(_mode->isTracking(), *frame.get());
@@ -172,27 +172,22 @@ void TestView::handleEvents()
                 }
                 else if (autoCalEvent->useGuessCalibration)
                 {
-                    //default horizontal field of view
-                    //float horizFOVDev = _camera->currHorizFov();
-                    float horizFOVDev = -1;
-                    assert("fix me" && false);
-                    if(horizFOVDev < 0)
-                        horizFOVDev = 65.f;
-                    //try to find a better field of view via camera api
-                    //const SENSCameraStreamConfigs::Config& streamConfig = _camera->currHorizFov();
-                    //if (streamConfig.focalLengthPix > 0)
-                    //    horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, _camera->config().targetWidth);
+                    auto  streamConfig = _camera->config().streamConfig;
+                    float horizFovDeg  = 65.f;
+                    if (streamConfig->focalLengthPix > 0)
+                        horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(streamConfig->focalLengthPix, streamConfig->widthPix);
 
-                    _calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
-
-                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
-                    _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
+                    //_calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
+                    SENSCalibration calib(cv::Size(streamConfig->widthPix, streamConfig->heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
+                    _camera->setCalibration(calib, false);
+                    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+                    _mode->changeIntrinsic(_camera->calibration()->cameraMat(), _camera->calibration()->distortion());
                 }
                 else if (autoCalEvent->restoreOriginalCalibration)
                 {
-                    _calibration = _calibrationLoaded;
-                    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
-                    _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
+                    _camera->setCalibration(*_calibrationLoaded, true);
+                    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+                    _mode->changeIntrinsic(_camera->calibration()->cameraMat(), _camera->calibration()->distortion());
                 }
                 delete autoCalEvent;
             }
@@ -266,9 +261,9 @@ void TestView::handleEvents()
 
                 if (enterEditModeEvent->saveToMap)
                 {
-                    SLNode * mapNode = _scene.root3D()->findChild<SLNode>("map");
-                    const float *m = mapNode->om().m();
-                    cv::Mat mat = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
+                    SLNode*      mapNode = _scene.root3D()->findChild<SLNode>("map");
+                    const float* m       = mapNode->om().m();
+                    cv::Mat      mat     = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
                     _mode->transformCoords(mat);
                     _scene.resetMapNode();
                     updateTrackingVisualization(_mode);
@@ -395,7 +390,7 @@ void TestView::saveMap(std::string location,
                                                     0.75f,
                                                     _mode->getKPextractor(),
                                                     _mode->getMap(),
-                                                    _calibration.cameraMat(),
+                                                    _camera->calibration()->cameraMat(),
                                                     _voc))
         {
             _gui.showErrorMsg("Failed to do marker map preprocessing");
@@ -469,6 +464,32 @@ void TestView::saveVideo(std::string filename)
         ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config().targetWidth, _camera->config().targetHeight), true);
     else
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
+}
+
+void TestView::updateSceneCameraFov()
+{
+    //if the camera image height is smaller than the sceneview height,
+    //we have to calculate the corresponding vertical field of view for the scene camera
+    float imgWdivH = _camera->calibration()->imageAspectRatio();
+    if (std::abs(this->scrWdivH() - imgWdivH) > 0.00001)
+    {
+        if (this->scrWdivH() > imgWdivH)
+        {
+            //bars left and right: directly use camera vertial field of view as scene vertical field of view
+            _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        }
+        else
+        {
+            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
+            float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
+            _scene.updateCameraIntrinsics(fovV);
+        }
+    }
+    else
+    {
+        //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
+        _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+    }
 }
 
 /*
@@ -588,23 +609,34 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    if (!_calibration.load(_calibDir, Utils::getFileName(slamParams.calibrationFile), false))
+    try
+    {
+        _calibrationLoaded = std::make_unique<SENSCalibration>(_calibDir, Utils::getFileName(slamParams.calibrationFile), false);
+    }
+    catch (SENSException& e)
     {
         _gui.showErrorMsg("Error when loading calibration from file: " +
                           slamParams.calibrationFile);
         return;
     }
+    //set and adapt calibration to camera image resolution
+    _camera->setCalibration(*_calibrationLoaded, true);
 
+    /*
     if (_calibration.imageSize() != _videoFrameSize)
     {
         _calibration.adaptForNewResolution(_videoFrameSize, true);
     }
     else
         _calibration.buildUndistortionMaps();
+     */
 
-    _calibrationLoaded = _calibration;
+    //_calibrationLoaded = _calibration;
+
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg());
+    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+    //updateSceneCameraFov();
+
     //  _scene.cameraNode->fov(_calibration.cameraFovVDeg());
     //// Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
     //cv::Mat scMat = _calibration.cameraMatUndistorted();
@@ -633,6 +665,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     }
     catch (std::exception& e)
     {
+        _gui.showErrorMsg("Could not load vocabulary file from " + slamParams.vocabularyFile);
         return;
     }
     std::cout << "vocabulary file : " << slamParams.vocabularyFile << std::endl;
@@ -662,8 +695,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
     }
 
-    _mode = new WAISlam(_calibration.cameraMat(),
-                        _calibration.distortion(),
+    _mode = new WAISlam(_camera->calibration()->cameraMat(),
+                        _camera->calibration()->distortion(),
                         _voc,
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
@@ -706,8 +739,7 @@ void TestView::downloadCalibrationFilesTo(std::string dir)
     const std::string ftpHost = "pallas.bfh.ch:21";
     const std::string ftpUser = "upload";
     const std::string ftpPwd  = "FaAdbD3F2a";
-    //const std::string ftpDir  = "erleb-AR/calibrations/";
-    const std::string ftpDir  = "calibrations/";
+    const std::string ftpDir  = "erleb-AR-data/test/erleb-AR/calibrations/";
     std::string       errorMsg;
     if (!FtpUtils::downloadAllFilesFromDir(dir,
                                            ftpHost,
@@ -755,7 +787,7 @@ void TestView::updateVideoTracking()
 
 void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
-    if(!_mode)
+    if (!_mode)
         return;
 
     if (_gui.uiPrefs->showMapPC)
@@ -801,8 +833,8 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& 
     //undistort image and copy image to video texture
     _mode->drawInfo(frame.imgRGB, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
-    if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(frame.imgRGB, _imgBuffer.inputSlot());
+    if (_camera->calibration()->state() == SENSCalibration::State::calibrated && _showUndistorted)
+        _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
     else
         _imgBuffer.inputSlot() = frame.imgRGB;
 
