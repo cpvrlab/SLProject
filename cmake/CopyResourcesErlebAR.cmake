@@ -55,6 +55,7 @@ function(copy_resources_erlebar TARGET_DIR)
 		${SOURCE_DIR}
 	    ${SL_PROJECT_ROOT}/data/shaders/*.vert
 	    ${SL_PROJECT_ROOT}/data/shaders/*.frag
+		${SL_PROJECT_ROOT}/data/shaders/*.glsl
 	    )
 
 	file(GLOB_RECURSE 

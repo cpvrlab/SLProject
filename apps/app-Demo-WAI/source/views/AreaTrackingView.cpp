@@ -207,6 +207,8 @@ void AreaTrackingView::startCamera()
         }
         else //try with unknown config (for desktop usage
         {
+            aproxVisuImgW = 640;
+            aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
             auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
             if(bestConfig2.first && bestConfig2.second)
             {
