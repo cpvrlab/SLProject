@@ -69,7 +69,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
 {
     deleteData();
 
-    // Check max. allowed no. of verts
+    // Check max. allowed no. of vertices
     SLuint uIntNumV64 = (_resX + 1) * (_resY + 1);
     if (uIntNumV64 > UINT_MAX)
         SL_EXIT_MSG("SLMesh supports max. 2^32 vertices.");

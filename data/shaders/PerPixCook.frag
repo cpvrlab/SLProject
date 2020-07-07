@@ -21,10 +21,16 @@ precision highp float;
 in      vec3    v_P_VS;// Interpol. point of illum. in view space (VS)
 in      vec3    v_N_VS;// Interpol. normal at v_P_VS in view space
 
-uniform bool    u_lightIsOn[NUM_LIGHTS];    // flag if light is on
-uniform vec4    u_lightPosVS[NUM_LIGHTS];   // position of light in view space
-uniform vec4    u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
-uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
+uniform bool    u_lightIsOn[NUM_LIGHTS];     // flag if light is on
+uniform vec4    u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4    u_lightAmbi[NUM_LIGHTS];     // ambient light intensity (Ia)
+uniform vec4    u_lightDiff[NUM_LIGHTS];     // diffuse light intensity (Id)
+uniform vec4    u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec3    u_lightSpotDir[NUM_LIGHTS];  // spot direction in view space
+uniform float   u_lightSpotDeg[NUM_LIGHTS];  // spot cutoff angle 1-180 degrees
+uniform float   u_lightSpotCos[NUM_LIGHTS];  // cosine of spot cutoff angle
+uniform float   u_lightSpotExp[NUM_LIGHTS];  // spot exponent
+uniform float   u_oneOverGamma;              // 1.0f / Gamma correction value
 
 uniform vec4    u_matDiff;// diffuse color reflection coefficient (kd)
 uniform float   u_matRough;// Cook-Torrance material roughness 0-1
@@ -59,12 +65,26 @@ void main()
     {
         if (u_lightIsOn[i])
         {
-            vec3 L = u_lightPosVS[i].xyz - v_P_VS;
-            pointLightCookTorrance(N, E, L,
-                                   u_lightDiff[i].rgb,
-                                   u_matDiff.rgb,
-                                   u_matMetal,
-                                   u_matRough, Lo);
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                directLightCookTorrance(i, N, E, S,
+                                        u_lightDiff[i].rgb,
+                                        u_matDiff.rgb,
+                                        u_matMetal,
+                                        u_matRough, Lo);
+            }
+            else
+            {
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+                vec3 S = u_lightSpotDir[i];// normalized spot direction in VS
+                pointLightCookTorrance( i, N, E, L, S,
+                                        u_lightDiff[i].rgb,
+                                        u_matDiff.rgb,
+                                        u_matMetal,
+                                        u_matRough, Lo);
+            }
         }
     }
 
