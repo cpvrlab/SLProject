@@ -622,6 +622,17 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
+            if (s->lights().size() && ImGui::TreeNode("Lights"))
+            {
+                for (SLuint i = 0; i < s->lights().size(); ++i)
+                {
+                    SLNode* light = dynamic_cast<SLNode*>(s->lights()[i]);
+                    ImGui::Text("[%u] %s", i, light->name().c_str());
+                }
+
+                ImGui::TreePop();
+            }
+
             if (s->materials().size() && ImGui::TreeNode("Materials"))
             {
                 for (SLuint i = 0; i < s->materials().size(); ++i)
@@ -649,9 +660,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::TreeNode("Programs (standard)"))
             {
                 for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
-                    ImGui::Text("[%u] %s",
-                                i,
-                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+                    ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
 
                 ImGui::TreePop();
             }
@@ -2309,16 +2318,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Mode"))
                 {
-                    if (ImGui::MenuItem("linear", nullptr, cam->fogMode()==FM_linear))
+                    if (ImGui::MenuItem("linear", nullptr, cam->fogMode() == FM_linear))
                         cam->fogMode(FM_linear);
-                    if (ImGui::MenuItem("exp", nullptr, cam->fogMode()==FM_exp))
+                    if (ImGui::MenuItem("exp", nullptr, cam->fogMode() == FM_exp))
                         cam->fogMode(FM_exp);
-                    if (ImGui::MenuItem("exp2", nullptr, cam->fogMode()==FM_exp2))
+                    if (ImGui::MenuItem("exp2", nullptr, cam->fogMode() == FM_exp2))
                         cam->fogMode(FM_exp2);
                     ImGui::EndMenu();
                 }
 
-                if (cam->fogMode() ==FM_exp || cam->fogMode()==FM_exp2)
+                if (cam->fogMode() == FM_exp || cam->fogMode() == FM_exp2)
                 {
                     static SLfloat fogDensity = cam->fogDensity();
                     if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f))

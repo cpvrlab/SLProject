@@ -350,13 +350,17 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
             SLShadowMap* shadowMap = light->shadowMap();
 
             lightIsOn[i] = light->isOn();
-            lightPosWS[i].set(light->positionWS());
-            lightPosVS[i].set(stateGL->viewMatrix * lightPosWS[i]);
+            SLVec4f posWS = light->positionWS();
+            lightPosWS[i].set(posWS);
+            SLVec4f posVS = stateGL->viewMatrix * lightPosWS[i];
+            lightPosVS[i].set(posVS);
             lightAmbient[i].set(light->ambient());
             lightDiffuse[i].set(light->diffuse());
             lightSpecular[i].set(light->specular());
-            lightSpotDirWS[i].set(light->spotDirWS());
-            lightSpotDirVS[i].set(viewRotMat.multVec(lightSpotDirWS[i]));
+            SLVec3f dirWS = light->spotDirWS();
+            lightSpotDirWS[i].set(dirWS);
+            SLVec3f dirVS = viewRotMat.multVec(lightSpotDirWS[i]);
+            lightSpotDirVS[i].set(dirVS);
             lightSpotCutoff[i]     = light->spotCutOffDEG();
             lightSpotCosCut[i]     = light->spotCosCut();
             lightSpotExp[i]        = light->spotExponent();

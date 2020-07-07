@@ -979,7 +979,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
-            s->info("Per-pixel lighting with Blinn-Phong light model. The reflection of 5 light sources is calculated per pixel.");
+            s->info("Per-pixel lighting with Blinn-Phong light model. " \
+                    "The reflection of 5 light sources is calculated per pixel. "\
+                    "Some of the lights are attached to the camera, some are in the scene.");
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLGenericProgram(s,
@@ -996,7 +998,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         else
         {
             s->name("Blinn-Phong per vertex lighting");
-            s->info("Per-vertex lighting with Blinn-Phong light model. The reflection of 5 light sources is calculated per vertex.");
+            s->info("Per-vertex lighting with Blinn-Phong light model. " \
+                    "The reflection of 5 light sources is calculated per vertex. "\
+                    "Some of the lights are attached to the camera, some are in the scene.");
             mL = new SLMaterial(s, "mL", texC);
             mM = new SLMaterial(s, "mM");
             mR = new SLMaterial(s, "mR", texC);
@@ -1016,9 +1020,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Define 5 light sources
+
         // A rectangular white light attached to the camera
         SLLightRect* lightW = new SLLightRect(s, s, 2.0f, 1.0f);
         lightW->ambiDiffPowers(0, 5);
+        lightW->translation(0, 2.5f, 0);
         lightW->translation(0, 2.5f, -7);
         lightW->rotate(-90, 1, 0, 0);
         lightW->attenuation(0, 0, 1);
@@ -1039,14 +1045,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightG->ambientColor(SLCol4f(0, 0, 0));
         lightG->diffuseColor(SLCol4f(0, 1, 0));
         lightG->specularColor(SLCol4f(0, 1, 0));
-        /*
-        lightG->translation(1.5f, 1.5f, 1.5f);
-        lightG->lookAt(0, 0, 0);
-        lightG->attenuation(1, 0, 0);
-        scene->addChild(lightG);
-        */
-        lightG->translation(1.5f,  1, -5);
-        lightG->lookAt(0.5f, -0.5f, -7.5f);
+        lightG->translation(1.5f,  1, -5.5f);
+        lightG->lookAt(0, 0, -7);
         lightG->attenuation(1, 0, 0);
         cam1->addChild(lightG);
 
@@ -1079,10 +1079,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add some meshes to be lighted
         SLNode* sphereL = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mL));
-        SLNode* sphereM = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mM));
-        SLNode* sphereR = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mR));
         sphereL->translate(-2, 0, 0);
         sphereL->rotate(90, -1, 0, 0);
+        SLNode* sphereM = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mM));
+        SLNode* sphereR = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 36, 36, "Sphere", mR));
         sphereR->translate(2, 0, 0);
         sphereR->rotate(90, -1, 0, 0);
 
@@ -1383,7 +1383,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Parallax Map Test");
         s->info("Normal map parallax mapping.");
         SL_LOG("Demo application for parallax bump mapping.");
-        SL_LOG("Use S-Key to increment (decrement w. shift) parallax scale.");
+        SL_LOG("Use X-Key to increment (decrement w. shift) parallax scale.");
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
@@ -1512,11 +1512,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_ShaderEarth) //...............................................
     {
         s->name("Earth Shader Test");
-        s->info("Complex earth shader with 7 textures: daycolor, nightcolor, normal, height & gloss map of earth, color & alphamap of clouds");
+        s->info("Complex earth shader with 7 textures: day color, night color, normal, height & gloss map of earth, color & alphamap of clouds");
         SL_LOG("Earth Shader from Markus Knecht");
-        SL_LOG("Use (SHIFT) & key Y to change scale of the parallax mapping");
-        SL_LOG("Use (SHIFT) & key X to change bias of the parallax mapping");
-        SL_LOG("Use (SHIFT) & key C to change cloud height");
+        SL_LOG("Use (SHIFT) & key X to change scale of the parallax mapping");
+        SL_LOG("Use (SHIFT) & key O to change offset of the parallax mapping");
 
         // Create shader program with 4 uniforms
         SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnNrm.vert", SLApplication::shaderPath + "PerPixBlinnNrmEarth.frag");
@@ -1527,20 +1526,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(scale);
         sp->addUniform1f(offset);
 
-// Create textures
-#ifndef SL_GLES
+        // Create textures
         SLGLTexture* texC  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg");      // color map
         SLGLTexture* texN  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
         SLGLTexture* texH  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
         SLGLTexture* texG  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map
         SLGLTexture* texNC = new SLGLTexture(s, SLApplication::texturePath + "earthNight2048_C.jpg"); // night color  map
-#else
-        SLGLTexture* texC  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");      // color map
-        SLGLTexture* texN  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_N.jpg");      // normal map
-        SLGLTexture* texH  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_H.jpg");      // height map
-        SLGLTexture* texG  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_G.jpg");      // gloss map
-        SLGLTexture* texNC = new SLGLTexture(s, SLApplication::texturePath + "earthNight1024_C.jpg"); // night color  map
-#endif
         SLGLTexture* texClC = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_A.jpg"); // cloud alpha map
 
