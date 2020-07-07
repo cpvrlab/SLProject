@@ -19,7 +19,7 @@ public:
         _writableDir = Utils::unifySlashes(writableDir);
 
         _fontDir       = _dataDir + "images/fonts/";
-        _textureDir    = _dataDir + "images/textures/";
+        _textureDir    = _dataDir + "erleb-AR/images/textures/";
         _shaderDir     = _dataDir + "shaders/";
         _vocabularyDir = _dataDir + "calibrations/";
         _erlebARDir    = _dataDir + "erleb-AR/";
