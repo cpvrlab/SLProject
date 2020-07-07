@@ -1,3 +1,4 @@
+//-----------------------------------------------------------------------------
 void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM_LIGHTS
                            in    vec3 N,       // Normalized normal at v_P
                            in    vec3 E,       // Normalized direction at v_P to the eye
@@ -22,7 +23,7 @@ void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM
     Id += u_lightDiff[i]  * diffFactor * (1.0 - shadow);
     Is += u_lightSpec[i] * specFactor * (1.0 - shadow);
 }
-
+//-----------------------------------------------------------------------------
 void pointLightBlinnPhong( in    int   i,      // Light number between 0 and NUM_LIGHTS
                            in    vec3  N,      // Normalized normal at v_P
                            in    vec3  E,      // Normalized direction at v_P to the eye
@@ -69,6 +70,7 @@ void pointLightBlinnPhong( in    int   i,      // Light number between 0 and NUM
 
     // Accumulate light intesities
     Ia += att * u_lightAmbi[i];
-    Id += att * u_lightDiff[i]  * diffFactor * (1.0 - shadow);
+    Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
     Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
 }
+//-----------------------------------------------------------------------------

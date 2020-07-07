@@ -1,8 +1,9 @@
+//-----------------------------------------------------------------------------
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
-
+//-----------------------------------------------------------------------------
 float distributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a      = roughness*roughness;
@@ -16,7 +17,7 @@ float distributionGGX(vec3 N, vec3 H, float roughness)
 
     return nom / denom;
 }
-
+//-----------------------------------------------------------------------------
 float geometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
@@ -27,7 +28,7 @@ float geometrySchlickGGX(float NdotV, float roughness)
 
     return nom / denom;
 }
-
+//-----------------------------------------------------------------------------
 float geometrySmith(vec3 N, vec3 E, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, E), 0.0);
@@ -36,21 +37,72 @@ float geometrySmith(vec3 N, vec3 E, vec3 L, float roughness)
     float ggx1  = geometrySchlickGGX(NdotL, roughness);
     return ggx1 * ggx2;
 }
+//-----------------------------------------------------------------------------
+void directLightCookTorrance(in    int   i,        // Light index
+                             in    vec3  N,        // Normalized normal at v_P_VS
+                             in    vec3  E,        // Normalized vector from v_P to the eye
+                             in    vec3  S,        // Normalized light spot direction
+                             in    vec3  lightDiff,// diffuse light intensity
+                             in    vec3  matDiff,  // diffuse material reflection
+                             in    float matMetal, // diffuse material reflection
+                             in    float matRough, // diffuse material reflection
+                             inout vec3  Lo)       // reflected intensity
+{
+    vec3 H = normalize(E + S);  // Normalized halfvector between eye and light vector
 
-void pointLightCookTorrance(in    vec3  N,        // Normalized normal at v_P_VS
+    vec3 radiance = lightDiff;  // Per light radiance without attenuation
+
+    // Init Fresnel reflection at 90 deg. (0 to N)
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, matDiff, matMetal);
+
+    // cook-torrance brdf
+    float NDF = distributionGGX(N, H, matRough);
+    float G   = geometrySmith(N, E, S, matRough);
+    vec3  F   = fresnelSchlick(max(dot(H, E), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - matMetal;
+
+    vec3  nominator   = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, E), 0.0) * max(dot(N, S), 0.0) + 0.001;
+    vec3  specular    = nominator / denominator;
+
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, S), 0.0);
+
+    Lo += (kD*matDiff.rgb/PI + specular) * radiance * NdotL;
+}
+//-----------------------------------------------------------------------------
+void pointLightCookTorrance(in    int   i,        // Light index
+                            in    vec3  N,        // Normalized normal at v_P_VS
                             in    vec3  E,        // Normalized vector from v_P to the eye
                             in    vec3  L,        // Vector from v_P to the light
+                            in    vec3  S,        // Normalized light spot direction
                             in    vec3  lightDiff,// diffuse light intensity
                             in    vec3  matDiff,  // diffuse material reflection
                             in    float matMetal, // diffuse material reflection
                             in    float matRough, // diffuse material reflection
                             inout vec3  Lo)       // reflected intensity
 {
-    float distance = length(L);// distance to light
-    L /= distance;// normalize light vector
-    vec3 H = normalize(E + L);// Normalized halfvector between eye and light vector
-    float att = 1.0 / (distance*distance);// quadratic light attenuation
-    vec3 radiance = lightDiff * att;// per light radiance
+    float distance = length(L); // distance to light
+    L /= distance;              // normalize light vector
+    vec3 H = normalize(E + L);  // Normalized halfvector between eye and light vector
+    float att = 1.0 / (distance*distance);  // quadratic light attenuation
+
+    // Calculate spot attenuation
+    if (u_lightSpotDeg[i] < 180.0)
+    {
+        float spotAtt; // Spot attenuation
+        float spotDot; // Cosine of angle between L and spotdir
+        spotDot = dot(-L, S);
+        if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
+        else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
+        att *= spotAtt;
+    }
+
+    vec3 radiance = lightDiff * att;        // per light radiance
 
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);
@@ -74,3 +126,4 @@ void pointLightCookTorrance(in    vec3  N,        // Normalized normal at v_P_VS
 
     Lo += (kD*matDiff.rgb/PI + specular) * radiance * NdotL;
 }
+//-----------------------------------------------------------------------------

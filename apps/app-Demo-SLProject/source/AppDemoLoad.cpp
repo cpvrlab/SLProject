@@ -979,8 +979,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
-            s->info("Per-pixel lighting with Blinn-Phong light model. " \
-                    "The reflection of 5 light sources is calculated per pixel. "\
+            s->info("Per-pixel lighting with Blinn-Phong light model. "
+                    "The reflection of 5 light sources is calculated per pixel. "
                     "Some of the lights are attached to the camera, some are in the scene.");
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
@@ -998,8 +998,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         else
         {
             s->name("Blinn-Phong per vertex lighting");
-            s->info("Per-vertex lighting with Blinn-Phong light model. " \
-                    "The reflection of 5 light sources is calculated per vertex. "\
+            s->info("Per-vertex lighting with Blinn-Phong light model. "
+                    "The reflection of 5 light sources is calculated per vertex. "
                     "Some of the lights are attached to the camera, some are in the scene.");
             mL = new SLMaterial(s, "mL", texC);
             mM = new SLMaterial(s, "mM");
@@ -1045,7 +1045,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightG->ambientColor(SLCol4f(0, 0, 0));
         lightG->diffuseColor(SLCol4f(0, 1, 0));
         lightG->specularColor(SLCol4f(0, 1, 0));
-        lightG->translation(1.5f,  1, -5.5f);
+        lightG->translation(1.5f, 1, -5.5f);
         lightG->lookAt(0, 0, -7);
         lightG->attenuation(1, 0, 0);
         cam1->addChild(lightG);
@@ -1072,7 +1072,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         lightY->ambientColor(SLCol4f(0, 0, 0));
         lightY->diffuseColor(SLCol4f(1, 1, 0));
         lightY->specularColor(SLCol4f(1, 1, 0));
-        lightY->translation(-1.5f, -1.5f,  1.5f);
+        lightY->translation(-1.5f, -1.5f, 1.5f);
         lightY->lookAt(0, 0, 0);
         lightY->attenuation(1, 0, 0);
         scene->addChild(lightY);
@@ -1165,21 +1165,24 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             y += spacing;
         }
 
-        // Add 4 point light
-        SLfloat      power  = 2000.0f;
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
         light1->attenuation(0, 0, 1);
-        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        SLLightDirect* light2 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
+        light2->lookAt(0, 0, 0);
         light2->attenuation(0, 0, 1);
-        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        SLLightSpot* light3 = new SLLightSpot(s, s, 0, 0, maxY, 0.2f, 36, 0, 1000, 1000);
         light3->attenuation(0, 0, 1);
-        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, power, power);
+        SLLightDirect* light4 = new SLLightDirect(s, s, -maxX, -maxY, maxY, 0.5f, 0, 10, 10);
+        light4->lookAt(0, 0, 0);
         light4->attenuation(0, 0, 1);
+        SLLightSpot* light5 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.2f, 180, 0, 1000, 1000);
+        light5->attenuation(0, 0, 1);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
         scene->addChild(light4);
-
+        scene->addChild(light5);
         sv->camera(cam1);
         s->root3D(scene);
     }
@@ -1527,11 +1530,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // Create textures
-        SLGLTexture* texC  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg");      // color map
-        SLGLTexture* texN  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
-        SLGLTexture* texH  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
-        SLGLTexture* texG  = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map
-        SLGLTexture* texNC = new SLGLTexture(s, SLApplication::texturePath + "earthNight2048_C.jpg"); // night color  map
+        SLGLTexture* texC   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg");      // color map
+        SLGLTexture* texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
+        SLGLTexture* texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
+        SLGLTexture* texG   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map
+        SLGLTexture* texNC  = new SLGLTexture(s, SLApplication::texturePath + "earthNight2048_C.jpg"); // night color  map
         SLGLTexture* texClC = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_C.jpg"); // cloud color map
         SLGLTexture* texClA = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_A.jpg"); // cloud alpha map
 
@@ -2447,7 +2450,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef APP_USES_GLES
         SLint size = 4;
 #else
-        SLint        size  = 8;
+        SLint size = 8;
 #endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {

@@ -24,8 +24,11 @@ in      vec2        v_texCoord;          // Interpol. texture coordinate in tex.
 uniform bool        u_lightIsOn[NUM_LIGHTS];    // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];   // position of light in view space
 uniform vec4        u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS]; // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
-
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -83,13 +86,26 @@ void main()
     {
         if (u_lightIsOn[i])
         {
-            vec3 L = u_lightPosVS[i].xyz - v_P_VS;
-            pointLightCookTorrance(N, E, L,
-                                   u_lightDiff[i].rgb,
-                                   matDiff,
-                                   matMetal,
-                                   matRough,
-                                   Lo);
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                directLightCookTorrance(i, N, E, S,
+                                        u_lightDiff[i].rgb,
+                                        matDiff.rgb,
+                                        matMetal,
+                                        matRough, Lo);
+            }
+            else
+            {
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+                vec3 S = u_lightSpotDir[i];// normalized spot direction in VS
+                pointLightCookTorrance( i, N, E, L, S,
+                                        u_lightDiff[i].rgb,
+                                        matDiff.rgb,
+                                        matMetal,
+                                        matRough, Lo);
+            }
         }
     }
 
