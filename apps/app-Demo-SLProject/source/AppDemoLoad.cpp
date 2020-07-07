@@ -2956,7 +2956,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          bern = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Christoffel/Bern-Bahnhofsplatz.fbx", SLApplication::texturePath);
+        SLNode*          bern = importer.load(s->animManager(),
+                                     s,
+                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
+                                     SLApplication::texturePath);
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -3085,7 +3088,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
                                                  s,
-                                                 SLApplication::modelPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf",
+                                                 SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
                                                  SLApplication::texturePath,
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
@@ -3121,9 +3124,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
 
         // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
-        SLstring tif = SLApplication::modelPath + "GLTF/AugustaRaurica/DTM-Theater-Tempel-WGS84.tif";
-        if (!Utils::fileExists(tif))
-            tif = SLApplication::modelPath + "DTM-Theater-Tempel-WGS84.tif"; //Android path
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/augst/DTM-Theater-Tempel-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -3177,7 +3178,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
                                              s,
-                                             SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf",
+                                             SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
                                              SLApplication::texturePath,
                                              true,    // only meshes
                                              nullptr, // no replacement material
@@ -3257,7 +3258,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Cigognier1.gltf",
+                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf",
                                           SLApplication::texturePath,
                                           true,    // only meshes
                                           nullptr, // no replacement material
@@ -3337,7 +3338,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf",
+                                                   SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
                                           SLApplication::texturePath,
                                           true,    // only meshes
                                           nullptr, // no replacement material
@@ -3721,7 +3722,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, 0, -0.5f, TS_object);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 0, 0.1f);
-        light1->ambiDiffPowers(0.1f,1);
+        light1->ambiDiffPowers(0.1f, 1);
         light1->attenuation(1, 0, 0);
 
         SLNode* balls = new SLNode;

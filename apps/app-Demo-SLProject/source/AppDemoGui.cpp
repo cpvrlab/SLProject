@@ -1355,36 +1355,43 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Erleb-AR"))
+                SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
+                SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
+                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier1.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
+                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz.fbx";
+
+                if (Utils::fileExists(modelAR1) ||
+                    Utils::fileExists(modelAV1) ||
+                    Utils::fileExists(modelAV2) ||
+                    Utils::fileExists(modelAV3) ||
+                    Utils::fileExists(modelBR1))
                 {
-                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
-                        s->onLoad(s, sv, SID_VideoChristoffel);
+                    if (ImGui::BeginMenu("Erleb-AR"))
+                    {
+                        if (Utils::fileExists(modelBR1))
+                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
+                                s->onLoad(s, sv, SID_VideoChristoffel);
 
-                    SLstring modelAR1 = SLApplication::modelPath + "Tempel-Theater-02.gltf"; // Android
-                    SLstring modelAR2 = SLApplication::modelPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-                    if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
-                        if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
-                            s->onLoad(s, sv, SID_VideoAugustaRaurica);
+                        if (Utils::fileExists(modelAR1))
+                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
+                                s->onLoad(s, sv, SID_VideoAugustaRaurica);
 
-                    SLstring modelAV11 = SLApplication::modelPath + "Aventicum-Amphitheater1.gltf"; // Android
-                    SLstring modelAV12 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
-                    if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
-                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
-                            s->onLoad(s, sv, SID_VideoAventicumAmphi);
+                        if (Utils::fileExists(modelAV1))
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
+                                s->onLoad(s, sv, SID_VideoAventicumAmphi);
 
-                    SLstring modelAV31 = SLApplication::modelPath + "Aventicum-Cigognier1.gltf"; // Android
-                    SLstring modelAV32 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Cigognier1.gltf";
-                    if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
-                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
-                            s->onLoad(s, sv, SID_VideoAventicumCigognier);
+                        if (Utils::fileExists(modelAV2))
+                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
+                                s->onLoad(s, sv, SID_VideoAventicumCigognier);
 
-                    SLstring modelAV21 = SLApplication::modelPath + "Aventicum-Theater1.gltf"; // Android
-                    SLstring modelAV22 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
-                    if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
-                        if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
-                            s->onLoad(s, sv, SID_VideoAventicumTheatre);
+                        if (Utils::fileExists(modelAV3))
+                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
+                                s->onLoad(s, sv, SID_VideoAventicumTheatre);
 
-                    ImGui::EndMenu();
+                        ImGui::EndMenu();
+                    }
                 }
 
                 if (ImGui::BeginMenu("Volume Rendering"))
