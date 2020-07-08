@@ -1,13 +1,17 @@
 #include "Framebuffer.h"
 
+#include <array>
+
 //-----------------------------------------------------------------------------
-Framebuffer::Framebuffer(Device&           device,
-                         const RenderPass& renderPass,
-                         const Swapchain&  swapchain) : _device{device}
+Framebuffer::Framebuffer(Device&             device,
+                         const RenderPass&   renderPass,
+                         const Swapchain&    swapchain,
+                         const TextureImage& depthImage) : _device{device}
 {
     createFramebuffer(renderPass.handle(),
                       swapchain.extent(),
-                      swapchain.imageViews());
+                      swapchain.imageViews(),
+                      depthImage.imageView());
 }
 //-----------------------------------------------------------------------------
 void Framebuffer::destroy()
@@ -19,19 +23,20 @@ void Framebuffer::destroy()
 //-----------------------------------------------------------------------------
 void Framebuffer::createFramebuffer(const VkRenderPass        renderPass,
                                     const VkExtent2D          swapchainExtent,
-                                    const vector<VkImageView> swapchainImageViews)
+                                    const vector<VkImageView> swapchainImageViews,
+                                    const VkImageView         depthImageView)
 {
     _handle.resize(swapchainImageViews.size());
 
     for (size_t i = 0; i < swapchainImageViews.size(); i++)
     {
-        VkImageView attachments[] = {swapchainImageViews[i]};
+        array<VkImageView, 2> attachments = {swapchainImageViews[i], depthImageView};
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass      = renderPass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments    = attachments;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments    = attachments.data();
         framebufferInfo.width           = swapchainExtent.width;
         framebufferInfo.height          = swapchainExtent.height;
         framebufferInfo.layers          = 1;

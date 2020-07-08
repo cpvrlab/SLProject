@@ -1,5 +1,7 @@
 #include "CommandBuffer.h"
 
+#include <array>
+
 void CommandBuffer::destroy()
 {
     if (_handle != VK_NULL_HANDLE)
@@ -71,9 +73,12 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapchain.extent();
 
-        VkClearValue clearColor        = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues    = &clearColor;
+        array<VkClearValue, 2> clearValues{};
+        clearValues[0].color        = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0.0f};
+
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues    = clearValues.data();
 
         vkCmdBeginRenderPass(_handles[i],
                              &renderPassInfo,

@@ -28,6 +28,7 @@
 #include "VertexBuffer.h"
 #include "Node.h"
 #include <memory>
+#include "DrawingObject.h"
 
 class VulkanRenderer
 {
@@ -40,29 +41,30 @@ public:
 
     void draw();
     // temp
-    void createMesh(SLMat4f& camera, SLMat4f& modelPos, const Mesh* mesh);
+    void createMesh(SLMat4f& camera, const vector<DrawingObject>& drawingObj);
 
 private:
-    string vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv";
-    string fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv";
+    void createA();
 
-    Device*              device = nullptr;
-    VkSurfaceKHR         surface;
-    Instance*            instance            = nullptr;
-    Framebuffer*         framebuffer         = nullptr;
-    CommandBuffer*       commandBuffer       = nullptr;
-    Pipeline*            pipeline            = nullptr;
-    RenderPass*          renderPass          = nullptr;
-    Swapchain*           swapchain           = nullptr;
-    UniformBuffer*       uniformBuffer       = nullptr;
-    DescriptorPool*      descriptorPool      = nullptr;
-    DescriptorSet*       descriptorSet       = nullptr;
-    DescriptorSetLayout* descriptorSetLayout = nullptr;
-    TextureImage*        textureImage        = nullptr;
-    Buffer*              indexBuffer         = nullptr;
-    Buffer*              vertexBuffer        = nullptr;
-    ShaderModule*        vertShaderModule    = nullptr;
-    ShaderModule*        fragShaderModule    = nullptr;
+    VkSurfaceKHR  surface;
+    Instance*     instance    = nullptr;
+    Device*       device      = nullptr;
+    Swapchain*    swapchain   = nullptr;
+    RenderPass*   renderPass  = nullptr;
+    Framebuffer*  framebuffer = nullptr;
+    TextureImage* depthImage  = nullptr;
+
+    vector<CommandBuffer*>       commandBufferList;
+    vector<UniformBuffer*>       uniformBufferList;
+    vector<DescriptorPool*>      descriptorPoolList;
+    vector<DescriptorSet*>       descriptorSetList;
+    vector<DescriptorSetLayout*> descriptorSetLayoutList;
+    vector<TextureImage*>        textureImageList;
+    vector<Buffer*>              indexBufferList;
+    vector<Buffer*>              vertexBufferList;
+    vector<ShaderModule*>        vertShaderModuleList;
+    vector<ShaderModule*>        fragShaderModuleList;
+    vector<Pipeline*>            pipelineList;
 };
 
 #endif

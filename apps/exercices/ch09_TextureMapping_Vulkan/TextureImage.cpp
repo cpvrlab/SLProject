@@ -1,10 +1,21 @@
 #include "TextureImage.h"
 
 //-----------------------------------------------------------------------------
-TextureImage::TextureImage(Device&      _device,
-                           void*        pixels,
-                           unsigned int texWidth,
-                           unsigned int texHeight) : _device{_device}
+void TextureImage::destroy()
+{
+    if (_imageView != VK_NULL_HANDLE)
+        vkDestroyImageView(_device.handle(), _imageView, nullptr);
+
+    if (_image != VK_NULL_HANDLE)
+    {
+        vkDestroyImage(_device.handle(), _image, nullptr);
+        vkFreeMemory(_device.handle(), _imageMemory, nullptr);
+    }
+
+    _sampler->destroy();
+    free(_sampler);
+}
+void TextureImage::createTextureImage(void* pixels, unsigned int texWidth, unsigned int texHeight)
 {
     VkDeviceSize imageSize = texWidth * texHeight * 4; // * 4 because of RGBA
 
@@ -27,9 +38,7 @@ TextureImage::TextureImage(Device&      _device,
                 VK_FORMAT_R8G8B8A8_SRGB,
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                _image,
-                &buffer);
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     transitionImageLayout(_image,
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_UNDEFINED,
@@ -45,24 +54,19 @@ TextureImage::TextureImage(Device&      _device,
 
     buffer.destroy();
 
-    _imageView = createImageView(_image, VK_FORMAT_R8G8B8A8_SRGB);
-    // _sampler   = (Sampler*)malloc(sizeof(Sampler));
-    _sampler = new Sampler(_device);
+    _imageView = createImageView(_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    _sampler   = new Sampler(_device);
 }
-//-----------------------------------------------------------------------------
-void TextureImage::destroy()
+void TextureImage::createDepthImage(Swapchain& swapchain)
 {
-    if (_imageView != VK_NULL_HANDLE)
-        vkDestroyImageView(_device.handle(), _imageView, nullptr);
-
-    if (_image != VK_NULL_HANDLE)
-    {
-        vkDestroyImage(_device.handle(), _image, nullptr);
-        vkFreeMemory(_device.handle(), _imageMemory, nullptr);
-    }
-
-    _sampler->destroy();
-    free(_sampler);
+    const VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
+    createImage(swapchain.extent().width,
+                swapchain.extent().height,
+                depthFormat,
+                VK_IMAGE_TILING_OPTIMAL,
+                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    createImageView(_image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 //-----------------------------------------------------------------------------
 void TextureImage::createImage(uint32_t              width,
@@ -70,9 +74,7 @@ void TextureImage::createImage(uint32_t              width,
                                VkFormat              format,
                                VkImageTiling         tiling,
                                VkImageUsageFlags     usage,
-                               VkMemoryPropertyFlags properties,
-                               VkImage&              _image,
-                               Buffer*               buffer)
+                               VkMemoryPropertyFlags properties)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -98,7 +100,7 @@ void TextureImage::createImage(uint32_t              width,
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize  = memRequirements.size;
-    allocInfo.memoryTypeIndex = buffer->findMemoryType(memRequirements.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = Buffer::findMemoryType(_device, memRequirements.memoryTypeBits, properties);
 
     result = vkAllocateMemory(_device.handle(), &allocInfo, nullptr, &_imageMemory);
     ASSERT_VULKAN(result, "Failed to allocate _image memory");
@@ -192,15 +194,16 @@ void TextureImage::copyBufferToImage(VkBuffer buffer,
     commandBuffer.end();
 }
 //-----------------------------------------------------------------------------
-VkImageView TextureImage::createImageView(VkImage& _image,
-                                          VkFormat format)
+VkImageView TextureImage::createImageView(VkImage&           _image,
+                                          VkFormat           format,
+                                          VkImageAspectFlags aspectFlags)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     viewInfo.image                           = _image;
     viewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format                          = format;
-    viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.aspectMask     = aspectFlags;
     viewInfo.subresourceRange.baseMipLevel   = 0;
     viewInfo.subresourceRange.levelCount     = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;

@@ -4,37 +4,68 @@ VulkanRenderer::~VulkanRenderer()
 {
     device->waitIdle();
 
+    depthImage->destroy();
+    delete depthImage;
     framebuffer->destroy();
-    commandBuffer->destroy();
-    pipeline->destroy();
-    renderPass->destroy();
-    swapchain->destroy();
-    uniformBuffer->destroy();
-    descriptorPool->destroy();
-    descriptorSetLayout->destroy();
-    textureImage->destroy();
-    indexBuffer->destroy();
-    vertexBuffer->destroy();
-    vertShaderModule->destroy();
-    fragShaderModule->destroy();
-    device->destroy();
-    instance->destroy();
-
-    delete device;
-    delete instance;
     delete framebuffer;
-    delete commandBuffer;
-    delete pipeline;
+    for (CommandBuffer* c : commandBufferList)
+    {
+        c->destroy();
+        delete c;
+    }
+    renderPass->destroy();
     delete renderPass;
+    swapchain->destroy();
     delete swapchain;
-    delete uniformBuffer;
-    delete descriptorPool;
-    delete descriptorSetLayout;
-    delete textureImage;
-    delete indexBuffer;
-    delete vertexBuffer;
-    delete fragShaderModule;
-    delete vertShaderModule;
+    for (Pipeline* p : pipelineList)
+    {
+        p->destroy();
+        delete p;
+    }
+    for (UniformBuffer* u : uniformBufferList)
+    {
+        u->destroy();
+        delete u;
+    }
+    for (DescriptorPool* d : descriptorPoolList)
+    {
+        d->destroy();
+        delete d;
+    }
+    for (DescriptorSetLayout* d : descriptorSetLayoutList)
+    {
+        d->destroy();
+        delete d;
+    }
+    for (TextureImage* t : textureImageList)
+    {
+        t->destroy();
+        delete t;
+    }
+    for (Buffer* i : indexBufferList)
+    {
+        i->destroy();
+        delete i;
+    }
+    for (Buffer* v : vertexBufferList)
+    {
+        v->destroy();
+        delete v;
+    }
+    for (ShaderModule* v : vertShaderModuleList)
+    {
+        v->destroy();
+        delete v;
+    }
+    for (ShaderModule* f : fragShaderModuleList)
+    {
+        f->destroy();
+        delete f;
+    }
+    device->destroy();
+    delete device;
+    instance->destroy();
+    delete instance;
 }
 //-----------------------------------------------------------------------------
 VulkanRenderer::VulkanRenderer(GLFWwindow* window)
@@ -48,34 +79,57 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
     swapchain   = new Swapchain(*device, window);
     renderPass  = new RenderPass(*device, *swapchain);
     framebuffer = new Framebuffer(*device, *renderPass, *swapchain);
+
+    depthImage = new TextureImage(*device);
+    depthImage->createDepthImage(*swapchain);
 }
 //-----------------------------------------------------------------------------
-void VulkanRenderer::createMesh(SLMat4f& camera, SLMat4f& modelPos, const Mesh* mesh)
+void VulkanRenderer::createMesh(SLMat4f& camera, const vector<DrawingObject>& drawingObj)
 {
-    // Shader program setup
-    descriptorSetLayout = new DescriptorSetLayout(*device);
-    vertShaderModule    = new ShaderModule(*device, mesh->mat->program()->shaders()[0]->code());
-    fragShaderModule    = new ShaderModule(*device, mesh->mat->program()->shaders()[1]->code());
-    pipeline            = new Pipeline(*device, *swapchain, *descriptorSetLayout, *renderPass, *vertShaderModule, *fragShaderModule);
+    for (int i = 0; i < drawingObj.size(); i++)
+    {
+        // Shader program setup
+        DescriptorSetLayout* descriptorSetLayout = new DescriptorSetLayout(*device);
+        descriptorSetLayoutList.push_back(descriptorSetLayout);
+        GPUProgram*   program          = drawingObj[1].mat->program();
+        ShaderModule* vertShaderModule = new ShaderModule(*device, program->shaders()[0]->code());
+        ShaderModule* fragShaderModule = new ShaderModule(*device, program->shaders()[1]->code());
+        vertShaderModuleList.push_back(vertShaderModule);
+        fragShaderModuleList.push_back(fragShaderModule);
+        Pipeline* pipeline = new Pipeline(*device, *swapchain, *descriptorSetLayout, *renderPass, *vertShaderModule, *fragShaderModule);
+        pipelineList.push_back(pipeline);
 
-    // Texture setup
-    textureImage = new TextureImage(*device, mesh->mat->textures()[0]->imageData(), mesh->mat->textures()[0]->imageWidth(), mesh->mat->textures()[0]->imageHeight());
+        // Texture setup
+        Texture*      tex          = drawingObj[0].mat->textures()[0];
+        TextureImage* textureImage = new TextureImage(*device);
+        textureImage->createTextureImage(tex->imageData(), tex->imageWidth(), tex->imageHeight());
+        textureImageList.push_back(textureImage);
 
-    // Mesh setup
-    indexBuffer = new Buffer(*device);
-    indexBuffer->createIndexBuffer(mesh->I32);
-    uniformBuffer  = new UniformBuffer(*device, *swapchain, camera, modelPos);
-    descriptorPool = new DescriptorPool(*device, *swapchain);
-    descriptorSet  = new DescriptorSet(*device, *swapchain, *descriptorSetLayout, *descriptorPool, *uniformBuffer, textureImage->sampler(), *textureImage);
-    vertexBuffer   = new Buffer(*device);
-    vertexBuffer->createVertexBuffer(mesh->P, mesh->N, mesh->Tc, mesh->C, mesh->P.size());
-    // Draw call setup
-    commandBuffer = new CommandBuffer(*device);
-    commandBuffer->setVertices(*swapchain, *framebuffer, *renderPass, *vertexBuffer, *indexBuffer, *pipeline, *descriptorSet, (int)mesh->I32.size());
-    device->createSyncObjects(*swapchain);
+        // Mesh setup
+        const Mesh* mesh        = drawingObj[0].nodeList[0]->mesh();
+        Buffer*     indexBuffer = new Buffer(*device);
+        indexBuffer->createIndexBuffer(mesh->I32);
+        indexBufferList.push_back(indexBuffer);
+        UniformBuffer* uniformBuffer = new UniformBuffer(*device, *swapchain, camera, drawingObj[1].nodeList[0]->om());
+        uniformBufferList.push_back(uniformBuffer);
+        DescriptorPool* descriptorPool = new DescriptorPool(*device, *swapchain);
+        descriptorPoolList.push_back(descriptorPool);
+
+        DescriptorSet* descriptorSet = new DescriptorSet(*device, *swapchain, *descriptorSetLayout, *descriptorPool, *uniformBuffer, textureImage->sampler(), *textureImage);
+        descriptorSetList.push_back(descriptorSet);
+        Buffer* vertexBuffer = new Buffer(*device);
+        vertexBuffer->createVertexBuffer(mesh->P, mesh->N, mesh->Tc, mesh->C, mesh->P.size());
+        vertexBufferList.push_back(vertexBuffer);
+        // Draw call setup
+        CommandBuffer* commandBuffer = new CommandBuffer(*device);
+        commandBuffer->setVertices(*swapchain, *framebuffer, *renderPass, *vertexBuffer, *indexBuffer, *pipeline, *descriptorSet, (int)mesh->I32.size());
+        commandBufferList.push_back(commandBuffer);
+        device->createSyncObjects(*swapchain);
+    }
 }
 //-----------------------------------------------------------------------------
 void VulkanRenderer::draw()
 {
-    pipeline->draw(*uniformBuffer, *commandBuffer);
+    for (int i = 0; i < pipelineList.size(); i++)
+        pipelineList[i]->draw(*uniformBufferList[i], *commandBufferList[i]);
 }

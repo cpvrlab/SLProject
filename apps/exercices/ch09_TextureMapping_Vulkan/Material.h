@@ -27,13 +27,13 @@ public:
     void setProgram(GPUProgram* program) { _program = program; }
 
     // Getters
-    SLCol4f     ambient() { return _ambient; }
-    SLCol4f     diffuse() { return _diffuse; }
-    SLCol4f     specular() { return _specular; }
-    SLCol4f     emissive() { return _emissive; }
-    SLfloat     shininess() { return _shininess; }
-    VTexture    textures() { return _textures; }
-    GPUProgram* program() { return _program; }
+    const SLCol4f  ambient() { return _ambient; }
+    const SLCol4f  diffuse() { return _diffuse; }
+    const SLCol4f  specular() { return _specular; }
+    const SLCol4f  emissive() { return _emissive; }
+    const SLfloat  shininess() { return _shininess; }
+    const VTexture textures() { return _textures; }
+    GPUProgram*    program() { return _program; }
 
     void addTexture(Texture* texture);
 

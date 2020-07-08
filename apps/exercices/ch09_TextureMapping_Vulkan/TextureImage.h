@@ -8,13 +8,11 @@ class CommandBuffer;
 class Device;
 
 //-----------------------------------------------------------------------------
+// TODO: Rename to Image
 class TextureImage
 {
 public:
-    TextureImage(Device&      device,
-                 void*        pixels,
-                 unsigned int texWidth,
-                 unsigned int texHeight);
+    TextureImage(Device& device) : _device{device} { ; }
     void destroy();
 
     // Getter
@@ -25,8 +23,13 @@ public:
     // Setter
     void setSampler(Sampler& sampler) { _sampler = &sampler; }
 
+    void createTextureImage(void*        pixels,
+                            unsigned int texWidth,
+                            unsigned int texHeight);
+    void createDepthImage(Swapchain& swapchain);
+
 private:
-    void        createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, Buffer* buffer);
+    void        createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
     void        transitionImageLayout(VkImage&      image,
                                       VkFormat      format,
                                       VkImageLayout oldLayout,
@@ -35,13 +38,13 @@ private:
                                   VkImage  image,
                                   uint32_t width,
                                   uint32_t height);
-    VkImageView createImageView(VkImage& image, VkFormat format);
+    VkImageView createImageView(VkImage& image, VkFormat format, VkImageAspectFlags aspectFlags);
 
 public:
     Device&        _device;
     VkImage        _image;
     VkDeviceMemory _imageMemory;
     VkImageView    _imageView;
-    Sampler*       _sampler;
+    Sampler*       _sampler = nullptr;
 };
 //-----------------------------------------------------------------------------

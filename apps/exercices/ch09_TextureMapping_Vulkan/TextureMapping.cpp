@@ -156,7 +156,7 @@ void createScene(Node& root)
     mesh2->setColor(SLCol4f(1.0f, 0.0f, 0.0f, 1.0f));
     mesh2->mat  = material2;
     Node* node2 = new Node("Sphere");
-    node2->om(SLMat4f(0.0f, 0.0f, 0.0f) * 2);
+    node2->om(SLMat4f(1.0f, 0.0f, 0.0f));
     node2->SetMesh(mesh2);
 
     root.AddChild(node1);
@@ -199,7 +199,7 @@ int main()
     SceneToMaterial(root, drawingObjectList);
 
     VulkanRenderer renderer(window);
-    renderer.createMesh(_viewMatrix, root.children()[1]->om(), root.children()[1]->mesh());
+    renderer.createMesh(_viewMatrix, drawingObjectList);
 
     // Render
     while (!glfwWindowShouldClose(window))
