@@ -372,7 +372,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
     SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
-    if (ray->length < FLT_MAX)
+    if (ray->length < FLT_MAX && ray->hitMesh->primitive() == PT_triangles)
     {
         color = shade(ray);
 
