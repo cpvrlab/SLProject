@@ -28,7 +28,8 @@ enum MapPointEditorEnum
     MapPointEditor_SelectSingleVideo,
     MapPointEditor_SelectNMatched,
     MapPointEditor_SelectAllPoints,
-    MapPointEditor_LoadMatching
+    MapPointEditor_LoadMatching,
+    MapPointEditor_KeyFrameMode
 };
 
 struct WAIEvent
@@ -104,14 +105,13 @@ struct WAIEventEditMap : WAIEvent
         type   = WAIEventType_EditMap;
         action = MapPointEditor_None;
         editMode = NodeEditMode_None;
-        op = '=';
     }
     MapPointEditorEnum action;
     SLNodeEditMode editMode;
     std::vector<int> * kFVidMatching;
     std::vector<bool> vid;
     std::vector<bool> nmatches;
-    int op;
+    bool b;
 };
 
 #endif //WAI_EVENT_H

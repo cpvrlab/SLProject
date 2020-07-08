@@ -266,7 +266,8 @@ void TestView::handleEvents()
                     _scene.removeKeyframes();
                     _scene.removeMatchedMapPoints();
                     _scene.removeMarkerCornerMapPoints();
-                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _mode->getKeyFrames(), _dataDir + "shaders/");
+                    _scene.removeGraphs();
+                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMap(), _dataDir + "shaders/");
                     _scene.root3D()->addChild(_mapEdition);
                     _pauseVideo = true;
                 }
@@ -287,6 +288,8 @@ void TestView::handleEvents()
                     _mapEdition->selectByVid(editMap->vid);
                 else if (editMap->action == MapPointEditor_SelectNMatched && _mapEdition)
                     _mapEdition->selectNMatched(editMap->nmatches);
+                else if (editMap->action == MapPointEditor_KeyFrameMode && _mapEdition)
+                    _mapEdition->setKeyframeMode(editMap->b);
                 else if (editMap->action == MapPointEditor_SelectAllPoints && _mapEdition)
                     _mapEdition->selectAllMap();
                 else if (editMap->action == MapPointEditor_Quit && _mapEdition)

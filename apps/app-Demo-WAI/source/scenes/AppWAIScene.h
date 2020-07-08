@@ -51,6 +51,8 @@ public:
                       const bool                       showSpanningTree,
                       const bool                       showLoopEdges);
 
+    void removeGraphs();
+
     SLNode* augmentationRoot = nullptr;
 
     void rebuild(std::string location, std::string area);
