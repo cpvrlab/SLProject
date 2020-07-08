@@ -146,8 +146,9 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     }
 
     //init wai slam
-    _waiSlam = std::make_unique<WAISlam>(
-      _camera->calibration()->cameraMat(),
+    float scale = (float)_camera->config().manipWidth / (float)_camera->config().targetWidth;
+    _waiSlam    = std::make_unique<WAISlam>(
+      scale * _camera->calibration()->cameraMat(),
       _camera->calibration()->distortion(),
       _voc,
       _initializationExtractor.get(),
@@ -181,41 +182,40 @@ void AreaTrackingView::startCamera()
         if (_camera->started())
             _camera->stop();
 
-        int trackingImgW = 640;
-        float targetWdivH = 4.f / 3.f;
-        int aproxVisuImgW = 1000;
-        int aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-        
-        auto capProps = _camera->captureProperties();
+        int   trackingImgW  = 640;
+        float targetWdivH   = 4.f / 3.f;
+        int   aproxVisuImgW = 1000;
+        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+
+        auto capProps   = _camera->captureProperties();
         auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-        if(bestConfig.first && bestConfig.second)
+        if (bestConfig.first && bestConfig.second)
         {
-            const SENSCameraDeviceProperties* const devProps = bestConfig.first;
-            const SENSCameraStreamConfig* streamConfig = bestConfig.second;
+            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
+            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
             //calculate size of tracking image
             float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-            cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
             _camera->start(devProps->deviceId(),
                            *streamConfig,
                            cv::Size(),
                            false,
                            false,
                            true,
-                           trackingImgSize,
+                           trackingImgW,
                            true,
                            65.f);
         }
         else //try with unknown config (for desktop usage
         {
-            aproxVisuImgW = 640;
-            aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+            aproxVisuImgW    = 640;
+            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
             auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
-            if(bestConfig2.first && bestConfig2.second)
+            if (bestConfig2.first && bestConfig2.second)
             {
-                const SENSCameraDeviceProperties* const devProps = bestConfig2.first;
-                const SENSCameraStreamConfig* streamConfig = bestConfig2.second;
+                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
+                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
                 //calculate size of tracking image
-                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+                float    imgWdivH        = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
                 cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
                 _camera->start(devProps->deviceId(),
                                *streamConfig,
@@ -223,7 +223,7 @@ void AreaTrackingView::startCamera()
                                false,
                                false,
                                true,
-                               trackingImgSize,
+                               trackingImgW,
                                true,
                                65.f);
             }

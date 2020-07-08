@@ -234,33 +234,42 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
     }
 }
 
-void SENSCameraBase::initCalibration()
+void SENSCameraBase::initCalibration(float fovDegFallbackGuess)
 {
     //We make a calibration with full resolution and adjust it to the manipulated image size later if neccessary:
     //For the initial setup we have to use streamconfig values
-    float horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_config.streamConfig->focalLengthPix, _config.streamConfig->widthPix);
-    _calibration      = std::make_unique<SENSCalibration>(cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
+    float horizFOVDev = fovDegFallbackGuess;
+    if (_config.streamConfig->focalLengthPix > 0)
+        horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_config.streamConfig->focalLengthPix, _config.streamConfig->widthPix);
+    _calibration = std::make_unique<SENSCalibration>(cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
                                                      horizFOVDev,
                                                      false,
                                                      false,
                                                      SENSCameraType::BACKFACING,
                                                      Utils::ComputerInfos().get());
     //now we adapt the calibration to the target size
+    if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
+        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+    /*
     if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
     else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+     */
 }
 
 void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
 {
     if (!_started)
         throw SENSException(SENSType::CAM, "setCalibration not possible if camera is not started!", __LINE__, __FILE__);
-    
+
     _calibration = std::make_unique<SENSCalibration>(calibration);
     //now we adapt the calibration to the target size
+    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
+    /*
     if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, buildUndistortionMaps);
     else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
+     */
 }

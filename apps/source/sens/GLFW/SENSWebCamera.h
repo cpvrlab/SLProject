@@ -18,7 +18,7 @@ public:
                                   bool                          mirrorV              = false,
                                   bool                          mirrorH              = false,
                                   bool                          convToGrayToImgManip = false,
-                                  cv::Size                      imgManipSize         = cv::Size(),
+                                  int                           imgManipWidth        = -1,
                                   bool                          provideIntrinsics    = true,
                                   float                         fovDegFallbackGuess  = 65.f) override;
 

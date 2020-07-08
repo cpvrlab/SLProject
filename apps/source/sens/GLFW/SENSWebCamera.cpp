@@ -13,7 +13,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
                                              bool                          mirrorV,
                                              bool                          mirrorH,
                                              bool                          convToGrayToImgManip,
-                                             cv::Size                      imgManipSize,
+                                             int                           imgManipWidth,
                                              bool                          provideIntrinsics,
                                              float                         fovDegFallbackGuess)
 {
@@ -22,27 +22,33 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
         Utils::warnMsg("SENSWebCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
         return _config;
     }
-    
-    _config.streamConfig        = &streamConfig;
-    _config.deviceId            = deviceId;
-    _config.mirrorV             = mirrorV;
-    _config.mirrorH             = mirrorH;
-    _config.convertManipToGray  = convToGrayToImgManip;
-    _config.manipWidth          = imgManipSize.width;
-    _config.manipHeight         = imgManipSize.height;
-    _config.provideIntrinsics   = provideIntrinsics;
-    _config.fovDegFallbackGuess = fovDegFallbackGuess;
 
+    /*
+    _config.streamConfig       = &streamConfig;
+    _config.deviceId           = deviceId;
+    _config.mirrorV            = mirrorV;
+    _config.mirrorH            = mirrorH;
+    _config.convertManipToGray = convToGrayToImgManip;
+    _config.manipWidth         = imgManipSize.width;
+    _config.manipHeight        = imgManipSize.height;
+    _config.provideIntrinsics  = provideIntrinsics;
+     */
+    //_config.fovDegFallbackGuess = fovDegFallbackGuess;
+
+    cv::Size targetSize;
     if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
     {
-        _config.targetWidth  = imgRGBSize.width;
-        _config.targetHeight = imgRGBSize.height;
+        targetSize.width  = imgRGBSize.width;
+        targetSize.height = imgRGBSize.height;
     }
     else
     {
-        _config.targetWidth  = streamConfig.widthPix;
-        _config.targetHeight = streamConfig.heightPix;
+        targetSize.width  = streamConfig.widthPix;
+        targetSize.height = streamConfig.heightPix;
     }
+
+    cv::Size imgManipSize(imgManipWidth,
+                          (int)((float)imgManipWidth * (float)imgRGBSize.height / (float)imgRGBSize.width));
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -53,9 +59,8 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
 
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
-    
-    
-    int id = std::stoi(_config.deviceId);
+
+    int id = std::stoi(deviceId);
     _videoCapture.open(id);
 
     if (!_videoCapture.isOpened())
@@ -63,11 +68,23 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
 
     _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
     _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
-    _started = true;
+    _started           = true;
     _permissionGranted = true;
-    
-    initCalibration();
-    
+
+    //init config here
+    _config = {deviceId,
+               &streamConfig,
+               SENSCameraFocusMode::UNKNOWN,
+               targetSize.width,
+               targetSize.height,
+               imgManipSize.width,
+               imgManipSize.height,
+               mirrorH,
+               mirrorV,
+               convToGrayToImgManip};
+
+    initCalibration(fovDegFallbackGuess);
+
     return _config;
 }
 
@@ -150,9 +167,9 @@ const SENSCaptureProperties& SENSWebCamera::captureProperties()
             }
         }
     }
-    
+
     //if still no caputure properties add a dummy
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
     {
         SENSCameraDeviceProperties dummyProps("0", SENSCameraFacing::UNKNOWN);
         dummyProps.add(640, 480, -1.f);

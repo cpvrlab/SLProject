@@ -592,7 +592,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         return;
     }
     //set and adapt calibration to camera image resolution
-    _camera->setCalibration(*_calibrationLoaded, true);
+    //_camera->setCalibration(*_calibrationLoaded, true);
 
     /*
     if (_calibration.imageSize() != _videoFrameSize)
@@ -667,7 +667,10 @@ void TestView::startOrbSlam(SlamParams slamParams)
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
     }
 
-    _mode = new WAISlam(_camera->calibration()->cameraMat(),
+    auto  camConfig = _camera->config();
+    float scale     = (float)camConfig.manipWidth / (float)camConfig.targetWidth;
+
+    _mode = new WAISlam(scale * _camera->calibration()->cameraMat(),
                         _camera->calibration()->distortion(),
                         _voc,
                         _initializationExtractor.get(),
@@ -805,10 +808,10 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& 
     //undistort image and copy image to video texture
     _mode->drawInfo(frame.imgRGB, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
-    if (_camera->calibration()->state() == SENSCalibration::State::calibrated && _showUndistorted)
-        _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
-    else
-        _imgBuffer.inputSlot() = frame.imgRGB;
+    //if (_camera->calibration()->state() == SENSCalibration::State::calibrated && _showUndistorted)
+    //    _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
+    //else
+    _imgBuffer.inputSlot() = frame.imgRGB;
 
     _scene.updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();

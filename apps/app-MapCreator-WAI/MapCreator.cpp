@@ -423,7 +423,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdx;
 
             //update wai
-            waiMode->update(frame->imgGray);
+            waiMode->update(frame->imgManip);
 
 
             if (firstRun)
@@ -617,7 +617,7 @@ void MapCreator::decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int cu
         cv::Mat     decoImg = lastFrame.clone();
         std::string state   = waiMode->getPrintableState();
 
-        waiMode->drawInfo(decoImg, true, true, true);
+        waiMode->drawInfo(decoImg, 1.0f, true, true, true);
 
         double     fontScale = 0.5;
         cv::Point  stateOff(10, 25);

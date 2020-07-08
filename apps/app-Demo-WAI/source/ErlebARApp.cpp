@@ -368,7 +368,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
         _camera->stop();
         
         int trackingImgW = 640;
-        float targetWdivH = 4.f / 3.f;
+        float targetWdivH = 16.f / 9.f;
         int aproxVisuImgW = 1000;
         int aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
         
@@ -380,36 +380,34 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
             const SENSCameraStreamConfig* streamConfig = bestConfig.second;
             //calculate size of tracking image
             float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-            cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
             _camera->start(devProps->deviceId(),
                            *streamConfig,
-                           cv::Size(),
+                           cv::Size((int)(1080.f / 3.f * 4.f), 1080),
                            false,
                            false,
                            true,
-                           trackingImgSize,
+                           trackingImgW,
                            true,
                            65.f);
         }
         else //try with unknown config (for desktop usage
         {
-            aproxVisuImgW = 640;
-            aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+            float searchWdivH = 16.f / 9.f;
+            aproxVisuImgW = 1920;
+            aproxVisuImgH = (int)((float)aproxVisuImgW / searchWdivH);
             auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
             if(bestConfig2.first && bestConfig2.second)
             {
                 const SENSCameraDeviceProperties* const devProps = bestConfig2.first;
                 const SENSCameraStreamConfig* streamConfig = bestConfig2.second;
                 //calculate size of tracking image
-                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-                cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
                 _camera->start(devProps->deviceId(),
                                *streamConfig,
-                               cv::Size(),
+                               cv::Size((int)(1080.f * targetWdivH), 1080),
                                false,
                                false,
                                true,
-                               trackingImgSize,
+                               trackingImgW,
                                true,
                                65.f);
             }
