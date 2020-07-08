@@ -31,11 +31,11 @@ public:
                                   bool                          mirrorV              = false,
                                   bool                          mirrorH              = false,
                                   bool                          convToGrayToImgManip = false,
-                                  cv::Size                      imgManipSize         = cv::Size(),
+                                  int                           imgManipWidth        = -1,
                                   bool                          provideIntrinsics    = true,
                                   float                         fovDegFallbackGuess  = 65.f) override;
 
-    void         stop() override;
+    void stop() override;
 
     const SENSCaptureProperties& captureProperties() override;
     SENSFramePtr                 latestFrame() override;
@@ -83,7 +83,7 @@ private:
     std::mutex                  _cameraAvailabilityMutex;
     //async camera start
     //std::unique_ptr<std::thread> _openCameraThread;
-    std::condition_variable      _openCameraCV;
+    std::condition_variable _openCameraCV;
 
     //wait in start() until camera is opened
     std::atomic<bool> _cameraDeviceOpened{false}; // free to use ( no other apps are using it)

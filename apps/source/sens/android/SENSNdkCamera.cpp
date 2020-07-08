@@ -301,7 +301,7 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
                                              bool                          mirrorV,
                                              bool                          mirrorH,
                                              bool                          convToGrayToImgManip,
-                                             cv::Size                      imgManipSize,
+                                             int                           imgManipWidth,
                                              bool                          provideIntrinsics,
                                              float                         fovDegFallbackGuess)
 {
@@ -311,26 +311,20 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
         return _config;
     }
 
-    _config.streamConfig        = &streamConfig;
-    _config.deviceId            = deviceId;
-    _config.mirrorV             = mirrorV;
-    _config.mirrorH             = mirrorH;
-    _config.convertManipToGray  = convToGrayToImgManip;
-    _config.manipWidth          = imgManipSize.width;
-    _config.manipHeight         = imgManipSize.height;
-    _config.provideIntrinsics   = provideIntrinsics;
-    _config.fovDegFallbackGuess = fovDegFallbackGuess;
-
+    cv::Size targetSize;
     if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
     {
-        _config.targetWidth  = imgRGBSize.width;
-        _config.targetHeight = imgRGBSize.height;
+        targetSize.width  = imgRGBSize.width;
+        targetSize.height = imgRGBSize.height;
     }
     else
     {
-        _config.targetWidth  = streamConfig.widthPix;
-        _config.targetHeight = streamConfig.heightPix;
+        targetSize.width  = streamConfig.widthPix;
+        targetSize.height = streamConfig.heightPix;
     }
+
+    cv::Size imgManipSize(imgManipWidth,
+                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -342,8 +336,19 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
+    //init config here
+    _config = SENSCameraConfig(deviceId,
+                               &streamConfig,
+                               SENSCameraFocusMode::UNKNOWN,
+                               targetSize.width,
+                               targetSize.height,
+                               imgManipSize.width,
+                               imgManipSize.height,
+                               mirrorH,
+                               mirrorV,
+                               convToGrayToImgManip);
     openCamera();
-    initCalibration();
+    initCalibration(fovDegFallbackGuess);
 
     _started = true;
     return _config;
@@ -403,8 +408,7 @@ void SENSNdkCamera::createCaptureSession()
     //digital video stabilization (software) -> turn off by default (for now)
     {
         uint8_t mode = ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE_OFF;
-        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE, 1,
-                                    &mode);
+        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE, 1, &mode);
     }
     //optical video stabilization (hardware)
     /*
@@ -849,9 +853,9 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
 
 const SENSCaptureProperties& SENSNdkCamera::captureProperties()
 {
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
     {
-        ACameraManager*                        cameraManager = ACameraManager_create();
+        ACameraManager* cameraManager = ACameraManager_create();
         if (!cameraManager)
             throw SENSException(SENSType::CAM, "Could not instantiate camera manager!", __LINE__, __FILE__);
 
@@ -871,8 +875,8 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
             ACameraMetadata_getAllTags(camCharacteristics, &numEntries, &tags);
 
             std::vector<float> focalLengthsMM;
-            cv::Size2f physicalSensorSizeMM;
-            SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
+            cv::Size2f         physicalSensorSizeMM;
+            SENSCameraFacing   facing = SENSCameraFacing::UNKNOWN;
 
             //make a first loop to estimate physical sensor parameters
             for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)
@@ -909,7 +913,7 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
                         //characteristics.physicalSensorSizeMM.width = lensInfo.data.f[0];
                         //characteristics.physicalSensorSizeMM.height = lensInfo.data.f[1];
 
-                        physicalSensorSizeMM.width = lensInfo.data.f[0];
+                        physicalSensorSizeMM.width  = lensInfo.data.f[0];
                         physicalSensorSizeMM.height = lensInfo.data.f[1];
                     }
                 }
@@ -954,13 +958,13 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
                                 height = lensInfo.data.i32[i + 2];
 
                                 float focalLengthPix = -1.f;
-                                if(focalLengthsMM.size() && physicalSensorSizeMM.width > 0 && physicalSensorSizeMM.height > 0)
+                                if (focalLengthsMM.size() && physicalSensorSizeMM.width > 0 && physicalSensorSizeMM.height > 0)
                                 {
                                     //calculate a focal length in pixel that fits to this stream configuration size
                                     focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
                                 }
 
-                                if(!characteristics.contains({width, height}))
+                                if (!characteristics.contains({width, height}))
                                     characteristics.add(width, height, focalLengthPix);
                             }
                         }

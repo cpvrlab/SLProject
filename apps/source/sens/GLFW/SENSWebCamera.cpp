@@ -60,16 +60,16 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     _permissionGranted = true;
 
     //init config here
-    _config = {deviceId,
-               &streamConfig,
-               SENSCameraFocusMode::UNKNOWN,
-               targetSize.width,
-               targetSize.height,
-               imgManipSize.width,
-               imgManipSize.height,
-               mirrorH,
-               mirrorV,
-               convToGrayToImgManip};
+    _config = SENSCameraConfig(deviceId,
+                               &streamConfig,
+                               SENSCameraFocusMode::UNKNOWN,
+                               targetSize.width,
+                               targetSize.height,
+                               imgManipSize.width,
+                               imgManipSize.height,
+                               mirrorH,
+                               mirrorV,
+                               convToGrayToImgManip);
 
     initCalibration(fovDegFallbackGuess);
 
