@@ -64,9 +64,10 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	file(GLOB_RECURSE 
 		SHADERS
 		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-	    ${SL_PROJECT_ROOT}/data/shaders/*.vert
-	    ${SL_PROJECT_ROOT}/data/shaders/*.frag
+			${SL_PROJECT_DATA_ROOT}
+	    	${SL_PROJECT_ROOT}/data/shaders/*.vert
+	    	${SL_PROJECT_ROOT}/data/shaders/*.frag
+			${SL_PROJECT_ROOT}/data/shaders/*.glsl
 	    )
 
 	file(GLOB_RECURSE 

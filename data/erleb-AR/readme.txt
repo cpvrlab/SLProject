@@ -1,1 +1,0 @@
-Put erlebAR resources in this directory. Define in cmake/CopyResourcesErlebAR.cmake which resources should be transferred to the mobile device.
