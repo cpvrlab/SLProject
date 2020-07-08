@@ -141,10 +141,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     ######################
     # OpenCV for Windows #
     #######################
-    set(OpenCV_VERSION "4.1.2")
+	#version 4 slows down video capture. There are others with the same problem: http://www.emgu.com/forum/viewtopic.php?f=7&t=21526
+    #set(OpenCV_VERSION "4.1.2")
     #set(OpenCV_VERSION "4.3.0") 
-    #version 4 slows down video capture. There are others with the same problem: http://www.emgu.com/forum/viewtopic.php?f=7&t=21526
-    #set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
