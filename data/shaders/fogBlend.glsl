@@ -16,7 +16,7 @@ vec4 fogBlend(vec3 P_VS, vec4 inColor)
         break;
     }
 
-    vec4 outColor = factor * inColor + (1 - factor) * u_camFogColor;
+    vec4 outColor = factor * inColor + (1.0 - factor) * u_camFogColor;
     outColor = clamp(outColor, 0.0, 1.0);
     return outColor;
 }

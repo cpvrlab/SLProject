@@ -8,6 +8,7 @@
 #include <atomic>
 #include <map>
 #include <thread>
+#include <algorithm>
 #include <SENSUtils.h>
 //---------------------------------------------------------------------------
 //Common defininitions:
@@ -37,7 +38,8 @@ static std::string getPrintableFacing(SENSCameraFacing facing)
 enum class SENSCameraFocusMode
 {
     CONTINIOUS_AUTO_FOCUS = 0,
-    FIXED_INFINITY_FOCUS
+    FIXED_INFINITY_FOCUS,
+    UNKNOWN
 };
 
 //! mapping of SENSCameraFocusMode to a readable string
@@ -109,36 +111,62 @@ private:
 //define a config to start a capture session on a camera device
 struct SENSCameraConfig
 {
+    //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
+    SENSCameraConfig(std::string                   deviceId           = "",
+                     const SENSCameraStreamConfig* streamConfig       = nullptr,
+                     SENSCameraFocusMode           focusMode          = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS,
+                     int                           targetWidth        = 0,
+                     int                           targetHeight       = 0,
+                     int                           manipWidth         = 0,
+                     int                           manipHeight        = 0,
+                     bool                          mirrorH            = false,
+                     bool                          mirrorV            = false,
+                     bool                          convertManipToGray = false)
+      : deviceId(deviceId),
+        streamConfig(streamConfig),
+        focusMode(focusMode),
+        targetWidth(targetWidth),
+        targetHeight(targetHeight),
+        manipWidth(manipWidth),
+        manipHeight(manipHeight),
+        mirrorH(mirrorH),
+        mirrorV(mirrorV),
+        convertManipToGray(convertManipToGray)
+    {
+    }
+
+    //SENSCameraConfig& operator=(const SENSCameraConfig& other) = default; // Copy assignment operator
+    //SENSCameraConfig& operator=(SENSCameraConfig&&) = default;            // Move assignment operator
+    //SENSCameraConfig(const SENSCameraConfig&) = default; // Copy constructor
+    //SENSCameraConfig(SENSCameraConfig&&)      = default; // Move constructor
+    //virtual ~SENSCameraConfig() {}                       // Destructor
+
     std::string deviceId;
     //! currently selected stream config index (use it to look up original capture size)
     //int streamConfigIndex = -1;
-    const SENSCameraStreamConfig* streamConfig = nullptr;
+    const SENSCameraStreamConfig* streamConfig;
     //! autofocus mode
-    SENSCameraFocusMode focusMode = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS;
+    SENSCameraFocusMode focusMode;
     //! largest target image width (only RGB)
-    int targetWidth = 0;
+    int targetWidth;
     //! largest target image width (only RGB)
-    int targetHeight = 0;
-    //!
-    int cropWidth  = 0;
-    int cropHeight = 0;
-
+    int targetHeight;
     //! width of smaller image version (e.g. for tracking)
-    int manipWidth = 0;
+    int manipWidth;
     //! height of smaller image version (e.g. for tracking)
-    int manipHeight = 0;
+    int manipHeight;
     //! mirror image horizontally after capturing
-    bool mirrorH = false;
+    bool mirrorH;
     //! mirror image vertically after capturing
-    bool mirrorV = false;
+    bool mirrorV;
     //! provide gray version of small image
-    bool convertManipToGray = true;
+    bool convertManipToGray;
 
-    bool  provideIntrinsics   = false;
-    float fovDegFallbackGuess = 65.f;
+    //bool provideIntrinsics = false;
+    //float fovDegFallbackGuess = 65.f;
 
     //! enable video stabilization if available
-    bool enableVideoStabilization = true;
+    //const bool enableVideoStabilization = true;
 };
 
 class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
@@ -174,7 +202,7 @@ public:
     @param mirrorV  enable mirror manipulation of input image vertically
     @param mirrorV  enable mirror manipulation of input image horizontally
     @param convToGrayToImgManip specifies if a gray converted version of SENSFrame::imgRGB should be calculated and assigned to SENSFrame::imgManip.
-    @param imgManipSize specifies the size of SENSFrame::imgManip. If convToGrayToImgManip is true, the gray image is resized and cropped. Otherwise a scaled and cropped version of imgRGB is calculated and assigned to SENSFrame::imgManip.
+    @param imgManipWidth specifies the width of SENSFrame::imgManip. If convToGrayToImgManip is true, the gray image is resized and cropped to fit to imgManipWidth and the aspect ratio of imgRGBSize. Otherwise a scaled and cropped version of imgRGB is calculated and assigned to SENSFrame::imgManip.
     @param provideIntrinsics specifies if intrinsics estimation should be enabled. The estimated intrinsics are transferred with every SENSFrame as they may be different for every frame (e.g. on iOS). This value has different effects on different architectures. On android it will fix the autofocus to infinity and the intrinsics will be calculated using the focal length and the sensor size. Luckily on iOS intrinsics are provided even with autofocus. On desktop we will provide a guess using a manually defined fov guess.
     @param fovDegFallbackGuess fallback field of view in degree guess if no camera intrinsics can be made via camera api values.
     @returns the found configuration that is adjusted and used when SENSCamera::start() is called.
@@ -185,7 +213,7 @@ public:
                                           bool                          mirrorV              = false,
                                           bool                          mirrorH              = false,
                                           bool                          convToGrayToImgManip = false,
-                                          cv::Size                      imgManipSize         = cv::Size(),
+                                          int                           imgManipWidth        = -1,
                                           bool                          provideIntrinsics    = true,
                                           float                         fovDegFallbackGuess  = 65.f) = 0;
 
@@ -229,7 +257,7 @@ public:
     void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps) override;
 
 protected:
-    void         initCalibration();
+    void         initCalibration(float fovDegFallbackGuess);
     SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     SENSCaptureProperties _captureProperties;
@@ -238,7 +266,7 @@ protected:
     std::atomic<bool> _started{false};
     SENSCameraConfig  _config;
     std::atomic<bool> _permissionGranted{false};
-    //! The calibration is used for computer vision applications. So, if a manipulated image is requested (see imgManipSize in SENSCamera::start(...), SENSFrame::imgManip and SENSCameraConfig) this calibration is adjusted to fit to this image, else to the original sized image (see SENSFrame::imgRGB)
+    //! The calibration is used for computer vision applications. This calibration is adjusted to fit to the original sized image (see SENSFrame::imgRGB and SENSCameraConfig::targetWidth, targetHeight)
     std::unique_ptr<SENSCalibration> _calibration;
 };
 

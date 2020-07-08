@@ -132,7 +132,6 @@ SENSCalibration::SENSCalibration(const cv::Mat&     intrinsics,
     float meanFocalLength = 0.5 * (intrinsics.at<double>(0, 0) + intrinsics.at<double>(1, 1));
     _cameraFovHDeg        = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.width);
     _cameraFovVDeg        = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.height);
-    ;
     //_calibrationTime = Utils::getDateTime2String();
     _state = State::guessed;
 }
@@ -553,8 +552,8 @@ void SENSCalibration::calculateUndistortedCameraMat()
                                                               centerPrinciplePoint);
     }
 
-    //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
-    //std::cout << "_cameraMat: " << _cameraMat << std::endl;
+    std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
+    std::cout << "_cameraMat: " << _cameraMat << std::endl;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees

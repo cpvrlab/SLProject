@@ -11,7 +11,7 @@
 #ifndef SENSCALIBRATION_H
 #define SENSCALIBRATION_H
 
-#include <SENSCalibrationEstimatorParams.h>
+#include <sens/SENSCalibrationEstimatorParams.h>
 
 class SENSCalibration
 {
@@ -189,7 +189,7 @@ private:
     black borders of an undistorted image are removed by scaling fx and fy.
     If the viewport is different to the camera image size it fits to cx and cy have to be additionally adjusted.
     The _cameraMatUndistorted may also be used for reprojection of an undistorted image. 
-    In this context it is used this class to build the undistortion maps 
+    In this context it is used by this class to build the undistortion maps 
     (in buildUndistortionMaps) and the resulting undistortion maps are used to undistort 
     an image in the remap function). If the distortion coefficients are empty (_distortion)
     _cameraMatUndistorted is equal to _cameraMat.
