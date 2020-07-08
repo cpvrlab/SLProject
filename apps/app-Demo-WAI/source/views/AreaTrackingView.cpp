@@ -194,7 +194,6 @@ void AreaTrackingView::startCamera()
             const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
             const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
             //calculate size of tracking image
-            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
             _camera->start(devProps->deviceId(),
                            *streamConfig,
                            cv::Size(),
@@ -215,8 +214,7 @@ void AreaTrackingView::startCamera()
                 const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
                 const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
                 //calculate size of tracking image
-                float    imgWdivH        = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-                cv::Size trackingImgSize = {trackingImgW, (int)((float)trackingImgW / imgWdivH)};
+                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
                 _camera->start(devProps->deviceId(),
                                *streamConfig,
                                cv::Size(),

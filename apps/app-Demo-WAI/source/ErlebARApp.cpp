@@ -172,7 +172,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                    *_imGuiEngine,
                                    dd,
                                    "0.12");
-    
+
     _testView = new TestView(*this,
                              _inputManager,
                              *_imGuiEngine,
@@ -366,18 +366,18 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
     if (stateEntry)
     {
         _camera->stop();
-        
-        int trackingImgW = 640;
-        float targetWdivH = 16.f / 9.f;
-        int aproxVisuImgW = 1000;
-        int aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-        
-        auto capProps = _camera->captureProperties();
+
+        int   trackingImgW  = 640;
+        float targetWdivH   = 16.f / 9.f;
+        int   aproxVisuImgW = 1000;
+        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+
+        auto capProps   = _camera->captureProperties();
         auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-        if(bestConfig.first && bestConfig.second)
+        if (bestConfig.first && bestConfig.second)
         {
-            const SENSCameraDeviceProperties* const devProps = bestConfig.first;
-            const SENSCameraStreamConfig* streamConfig = bestConfig.second;
+            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
+            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
             //calculate size of tracking image
             float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
             _camera->start(devProps->deviceId(),
@@ -392,6 +392,26 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
         }
         else //try with unknown config (for desktop usage
         {
+            aproxVisuImgW    = 640;
+            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
+            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
+            if (bestConfig2.first && bestConfig2.second)
+            {
+                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
+                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
+                //calculate size of tracking image
+                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+                _camera->start(devProps->deviceId(),
+                               *streamConfig,
+                               cv::Size(),
+                               false,
+                               false,
+                               true,
+                               trackingImgW,
+                               true,
+                               65.f);
+            }
+            /*
             float searchWdivH = 16.f / 9.f;
             aproxVisuImgW = 1920;
             aproxVisuImgH = (int)((float)aproxVisuImgW / searchWdivH);
@@ -411,6 +431,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
                                true,
                                65.f);
             }
+            */
         }
         //_camera->start(SENSCameraFacing::BACK, 65.f, cv::Size(640, 480));
     }

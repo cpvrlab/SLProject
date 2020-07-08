@@ -592,7 +592,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         return;
     }
     //set and adapt calibration to camera image resolution
-    //_camera->setCalibration(*_calibrationLoaded, true);
+    _camera->setCalibration(*_calibrationLoaded, true);
 
     /*
     if (_calibration.imageSize() != _videoFrameSize)
@@ -808,10 +808,10 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& 
     //undistort image and copy image to video texture
     _mode->drawInfo(frame.imgRGB, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
-    //if (_camera->calibration()->state() == SENSCalibration::State::calibrated && _showUndistorted)
-    //    _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
-    //else
-    _imgBuffer.inputSlot() = frame.imgRGB;
+    if (_camera->calibration()->state() == SENSCalibration::State::calibrated && _showUndistorted)
+        _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
+    else
+        _imgBuffer.inputSlot() = frame.imgRGB;
 
     _scene.updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();

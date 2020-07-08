@@ -23,18 +23,6 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
         return _config;
     }
 
-    /*
-    _config.streamConfig       = &streamConfig;
-    _config.deviceId           = deviceId;
-    _config.mirrorV            = mirrorV;
-    _config.mirrorH            = mirrorH;
-    _config.convertManipToGray = convToGrayToImgManip;
-    _config.manipWidth         = imgManipSize.width;
-    _config.manipHeight        = imgManipSize.height;
-    _config.provideIntrinsics  = provideIntrinsics;
-     */
-    //_config.fovDegFallbackGuess = fovDegFallbackGuess;
-
     cv::Size targetSize;
     if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
     {
@@ -64,10 +52,10 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     _videoCapture.open(id);
 
     if (!_videoCapture.isOpened())
-        throw SENSException(SENSType::CAM, "Could not open camera with id: " + _config.deviceId, __LINE__, __FILE__);
+        throw SENSException(SENSType::CAM, "Could not open camera with id: " + deviceId, __LINE__, __FILE__);
 
-    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, _config.targetWidth);
-    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, _config.targetHeight);
+    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, targetSize.width);
+    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, targetSize.height);
     _started           = true;
     _permissionGranted = true;
 
