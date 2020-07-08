@@ -17,10 +17,10 @@ public:
     ~Node() { ; }
 
     // Getter
-    SLMat4f&            om() { return _om; }
-    const Mesh*         mesh() { return _mesh; }
-    const Node*         parent() { return _parent; }
-    const vector<Node*> children() { return _children; }
+    SLMat4f&      om() { return _om; }
+    const Mesh*   mesh() { return _mesh; }
+    const Node*   parent() { return _parent; }
+    vector<Node*> children() { return _children; }
 
     // Setter
     void SetMesh(Mesh* mesh);

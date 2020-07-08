@@ -7,6 +7,7 @@
 #include <Rectangle.h>
 #include <VulkanRenderer.h>
 #include <vkEnums.h>
+#include <DrawingObject.h>
 
 //-----------------------------------------------------------------------------
 //////////////////////
@@ -162,13 +163,40 @@ void createScene(Node& root)
     root.AddChild(node2);
 }
 //-----------------------------------------------------------------------------
+void SceneToMaterial(Node& root, vector<DrawingObject>& drawingObjectList)
+{
+    for (Node* node : root.children())
+    {
+        if (node != nullptr)
+            SceneToMaterial(*node, drawingObjectList);
+
+        Material* m     = node->mesh()->mat;
+        int       index = INT_MAX;
+
+        for (size_t i = 0; i < drawingObjectList.size(); i++)
+            if (drawingObjectList[i].mat == m)
+                index = i;
+
+        if (index == INT_MAX)
+        {
+            DrawingObject drawingObj = DrawingObject();
+            drawingObj.mat           = m;
+            drawingObjectList.push_back(drawingObj);
+            index = drawingObjectList.size() - 1;
+        }
+
+        drawingObjectList[index].nodeList.push_back(node);
+    }
+}
+//-----------------------------------------------------------------------------
 int main()
 {
     initWindow();
     // Create a sphere
     Node root = Node("Root");
     createScene(root);
-    SLMat4f modelPos = SLMat4f(0.0f, 0.0f, 0.0f);
+    vector<DrawingObject> drawingObjectList;
+    SceneToMaterial(root, drawingObjectList);
 
     VulkanRenderer renderer(window);
     renderer.createMesh(_viewMatrix, root.children()[1]->om(), root.children()[1]->mesh());
