@@ -110,7 +110,10 @@ bool TestView::update()
             {
                 _camera->setCalibration(_autoCal->consumeCalibration(), true);
                 _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-                _mode->changeIntrinsic(_camera->calibration()->cameraMat(), _camera->calibration()->distortion());
+                cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                            _camera->config().manipWidth,
+                                                            _camera->config().targetWidth);
+                _mode->changeIntrinsic(scaledCamMat, _camera->calibration()->distortion());
                 _fillAutoCalibration = false;
             }
             updateTrackingVisualization(_mode->isTracking(), *frame.get());
@@ -181,13 +184,19 @@ void TestView::handleEvents()
                     SENSCalibration calib(cv::Size(streamConfig->widthPix, streamConfig->heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
                     _camera->setCalibration(calib, false);
                     _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-                    _mode->changeIntrinsic(_camera->calibration()->cameraMat(), _camera->calibration()->distortion());
+                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                                _camera->config().manipWidth,
+                                                                _camera->config().targetWidth);
+                    _mode->changeIntrinsic(scaledCamMat, _camera->calibration()->distortion());
                 }
                 else if (autoCalEvent->restoreOriginalCalibration)
                 {
                     _camera->setCalibration(*_calibrationLoaded, true);
                     _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-                    _mode->changeIntrinsic(_camera->calibration()->cameraMat(), _camera->calibration()->distortion());
+                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                                _camera->config().manipWidth,
+                                                                _camera->config().targetWidth);
+                    _mode->changeIntrinsic(scaledCamMat, _camera->calibration()->distortion());
                 }
                 delete autoCalEvent;
             }
@@ -667,10 +676,10 @@ void TestView::startOrbSlam(SlamParams slamParams)
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
     }
 
-    auto  camConfig = _camera->config();
-    float scale     = (float)camConfig.manipWidth / (float)camConfig.targetWidth;
-
-    _mode = new WAISlam(scale * _camera->calibration()->cameraMat(),
+    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                _camera->config().manipWidth,
+                                                _camera->config().targetWidth);
+    _mode                = new WAISlam(scaledCamMat,
                         _camera->calibration()->distortion(),
                         _voc,
                         _initializationExtractor.get(),

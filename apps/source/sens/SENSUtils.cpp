@@ -193,8 +193,25 @@ float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength)
 
 float calcFovDegFromOtherFovDeg(const float otherFovDeg, const int otherLength, const int length)
 {
-    float f    = (0.5f *  (float)otherLength) / tanf(otherFovDeg * 0.5f * SENS_DEG2RAD);
+    float f = (0.5f * (float)otherLength) / tanf(otherFovDeg * 0.5f * SENS_DEG2RAD);
     return 2.f * atan(0.5f * (float)length / f) * SENS_RAD2DEG;
+}
+
+cv::Mat adaptCameraMat(cv::Mat origMat, int newRefLength, int oldRefLength)
+{
+    double  scale = (double)newRefLength / (double)oldRefLength;
+    cv::Mat newMat(3, 3, CV_64F);
+    newMat.at<double>(0, 0) = scale * origMat.at<double>(0, 0); //fx
+    newMat.at<double>(0, 1) = 0.0;
+    newMat.at<double>(0, 2) = scale * origMat.at<double>(0, 2); //cx
+    newMat.at<double>(1, 0) = 0.0;
+    newMat.at<double>(1, 1) = scale * origMat.at<double>(1, 1); //fy
+    newMat.at<double>(1, 2) = scale * origMat.at<double>(1, 2); //cy
+    newMat.at<double>(2, 0) = 0.0;
+    newMat.at<double>(2, 1) = 0.0;
+    newMat.at<double>(2, 2) = 1.0;
+
+    return newMat;
 }
 
 /*

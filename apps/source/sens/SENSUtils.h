@@ -28,6 +28,14 @@ float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength);
  @returns field of view in degree
 */
 float calcFovDegFromOtherFovDeg(const float otherFovDeg, const int otherLength, const int length);
+/*
+ @brief calculate a scaled camera matrix using new and old reference lengths
+ @param origMat specifies the original camera matrix
+ @param newRefLength specifies the new reference length
+ @param oldRefLength specifies the old reference length
+ @returns adapted camera matrix
+*/
+cv::Mat adaptCameraMat(cv::Mat origMat, int newRefLength, int oldRefLength);
 
 /*
  @brief calculate increased fov: e.g. we know the fov of a, image (oldFovDeg) with height heightOld that is vertically centered in a screen with heightNew and want to know the corresponding new field of view

@@ -56,8 +56,11 @@ bool AreaTrackingView::update()
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         if (!frame->intrinsics.empty())
         {
-            auto calib = _camera->calibration();
-            _waiSlam->changeIntrinsic(calib->cameraMat(), calib->distortion());
+            auto    calib        = _camera->calibration();
+            cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                        _camera->config().manipWidth,
+                                                        _camera->config().targetWidth);
+            _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
             updateSceneCameraFov();
         }
         _waiSlam->update(frame->imgManip);
@@ -145,10 +148,12 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         }
     }
 
-    //init wai slam
-    float scale = (float)_camera->config().manipWidth / (float)_camera->config().targetWidth;
-    _waiSlam    = std::make_unique<WAISlam>(
-      scale * _camera->calibration()->cameraMat(),
+    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                _camera->config().manipWidth,
+                                                _camera->config().targetWidth);
+
+    _waiSlam = std::make_unique<WAISlam>(
+      scaledCamMat,
       _camera->calibration()->distortion(),
       _voc,
       _initializationExtractor.get(),
@@ -206,7 +211,7 @@ void AreaTrackingView::startCamera()
         }
         else //try with unknown config (for desktop usage
         {
-            aproxVisuImgW    = 640;
+            aproxVisuImgW    = 1000;
             aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
             auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
             if (bestConfig2.first && bestConfig2.second)
@@ -214,10 +219,9 @@ void AreaTrackingView::startCamera()
                 const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
                 const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
                 //calculate size of tracking image
-                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
                 _camera->start(devProps->deviceId(),
                                *streamConfig,
-                               cv::Size(),
+                               cv::Size(800, 300),
                                false,
                                false,
                                true,

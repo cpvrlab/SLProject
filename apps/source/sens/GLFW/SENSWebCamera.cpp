@@ -36,7 +36,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     }
 
     cv::Size imgManipSize(imgManipWidth,
-                          (int)((float)imgManipWidth * (float)imgRGBSize.height / (float)imgRGBSize.width));
+                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)

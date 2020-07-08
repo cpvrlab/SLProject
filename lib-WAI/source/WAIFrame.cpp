@@ -97,9 +97,12 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
 {
     AVERAGE_TIMING_START("WAIFrame");
     //ghm1: ORB_SLAM uses float precision
+    K.at<double>(2, 2) = 1.0f;
     K.convertTo(mK, CV_32F);
     distCoef.convertTo(mDistCoef, CV_32F);
 
+    std::cout << K << std::endl;
+    std::cout << imGray.size() << std::endl;
     // Frame ID
     mnId = nNextId++;
 
