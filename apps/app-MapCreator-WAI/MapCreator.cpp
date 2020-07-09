@@ -244,7 +244,7 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
     bool        initialized = false;
     std::string currentMapFileName;
     std::vector<int> keyFrameVideoMatching;
-    const float cullRedundantPerc = 0.99f;
+    const float cullRedundantPerc = 0.995f;
     initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels, keyFrameVideoMatching);
 
     if (areaConfig.videos.size() && initialized)
@@ -257,7 +257,7 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
             }
         }
 
-        const float cullRedundantPerc = 0.95f;
+        const float cullRedundantPerc = 0.995f;
 
         std::string kfVideoMatchingFileName = Utils::getFileNameWOExt(mapFile) + "_match.txt";
 
@@ -531,7 +531,11 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
         throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
     }
 
-    WAIMapStorage::saveKeyFrameVideoMatching(keyFrameVideoMatching, videos.size(), mapDir, outputKFMatchingFile);
+    std::vector<std::string> videosname;
+    for (int i = 0; i < videos.size(); i++)
+        videosname.push_back(videos[i].videoFile);
+
+    WAIMapStorage::saveKeyFrameVideoMatching(keyFrameVideoMatching, videosname, mapDir, outputKFMatchingFile);
 }
 
 void MapCreator::cullKeyframes(WAIMap* map, std::vector<WAIKeyFrame*>& kfs, std::vector<int>& keyFrameVideoMatching, const float cullRedundantPerc)

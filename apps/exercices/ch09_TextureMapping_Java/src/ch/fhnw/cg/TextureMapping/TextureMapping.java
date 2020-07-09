@@ -265,15 +265,15 @@ public class TextureMapping
 			_globalAmbiLoc   = gl.glGetUniformLocation(_shaderProgID, "u_globalAmbi");
 			_lightPosVSLoc   = gl.glGetUniformLocation(_shaderProgID, "u_lightPosVS");
 			_lightDirVSLoc   = gl.glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-			_lightAmbientLoc = gl.glGetUniformLocation(_shaderProgID, "u_lightAmbient");
-			_lightDiffuseLoc = gl.glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-			_lightSpecularLoc= gl.glGetUniformLocation(_shaderProgID, "u_lightSpecular");
-			_matAmbientLoc   = gl.glGetUniformLocation(_shaderProgID, "u_matAmbient");
-			_matDiffuseLoc   = gl.glGetUniformLocation(_shaderProgID, "u_matDiffuse");
-			_matSpecularLoc  = gl.glGetUniformLocation(_shaderProgID, "u_matSpecular");
-			_matEmissiveLoc  = gl.glGetUniformLocation(_shaderProgID, "u_matEmissive");
-			_matShininessLoc = gl.glGetUniformLocation(_shaderProgID, "u_matShininess");
-			_texture0Loc     = gl.glGetUniformLocation(_shaderProgID, "u_texture0");      
+			_lightAmbientLoc = gl.glGetUniformLocation(_shaderProgID, "u_lightAmbi");
+			_lightDiffuseLoc = gl.glGetUniformLocation(_shaderProgID, "u_lightDiff");
+			_lightSpecularLoc= gl.glGetUniformLocation(_shaderProgID, "u_lightSpec");
+			_matAmbientLoc   = gl.glGetUniformLocation(_shaderProgID, "u_matAmbi");
+			_matDiffuseLoc   = gl.glGetUniformLocation(_shaderProgID, "u_matDiff");
+			_matSpecularLoc  = gl.glGetUniformLocation(_shaderProgID, "u_matSpec");
+			_matEmissiveLoc  = gl.glGetUniformLocation(_shaderProgID, "u_matEmis");
+			_matShininessLoc = gl.glGetUniformLocation(_shaderProgID, "u_matShin");
+			_texture0Loc     = gl.glGetUniformLocation(_shaderProgID, "u_matTexture0");
 
 			// Set some OpenGL states
 			gl.glClearColor(0.0f, 0.0f, 0.0f, 1);  // Set the background color         

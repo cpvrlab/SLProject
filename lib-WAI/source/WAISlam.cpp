@@ -471,10 +471,13 @@ bool WAISlam::retainImage()
 
 void WAISlam::transformCoords(cv::Mat transform)
 {
-    _localMapping->RequestStop();
-    while (!_localMapping->isStopped() && !_localMapping->isFinished())
+    if (_loopClosingThread != nullptr)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        _localMapping->RequestStop();
+        while (!_localMapping->isStopped() && !_localMapping->isFinished())
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
 
     //_localMap.keyFrames.clear();

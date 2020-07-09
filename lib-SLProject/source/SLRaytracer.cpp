@@ -160,7 +160,7 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         thread.join();
 
     // Do anti-aliasing w. contrast compare in a 2nd. pass
-    if (_aaSamples > 1)
+    if (_aaSamples > 1 && _cam->lensSamples()->samples() == 1)
     {
         PROFILE_SCOPE("AnitAliasing");
 
@@ -372,7 +372,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
     SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
-    if (ray->length < FLT_MAX)
+    if (ray->length < FLT_MAX && ray->hitMesh->primitive() == PT_triangles)
     {
         color = shade(ray);
 

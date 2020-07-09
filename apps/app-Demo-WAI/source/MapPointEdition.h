@@ -2,20 +2,23 @@
 #define SL_MAP_EDITION_NODE_H
 
 #include <SLSceneView.h>
+#include <SLTransformNode.h>
 #include <WAIMapPoint.h>
 #include <SLPoints.h>
 #include <SLPolyline.h>
 #include <SLMesh.h>
 
-
-class MapEdition : public SLNode
+class MapEdition : public SLTransformNode
 {
 public:
-    MapEdition(SLSceneView* sv, SLNode* mappointNode, vector<WAIMapPoint*> mp, vector<WAIKeyFrame*> kf, SLstring shaderDir);
+    MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap * map, SLstring shaderDir);
     ~MapEdition() override;
 
     void updateKFVidMatching(std::vector<int>* kFVidMatching);
-    void selectByVid(int id);
+    void selectAllMap();
+    void selectNMatched(std::vector<bool> nmatches);
+    void selectByVid(std::vector<bool> vid);
+    void filterVisibleKeyframes(std::vector<WAIKeyFrame*>& kfs, std::vector<WAIMapPoint*> activeMps);
 
     SLbool onKeyPress(const SLKey key, const SLKey mod) override;
 
@@ -25,37 +28,56 @@ public:
                        SLint         x,
                        SLint         y,
                        SLKey         mod) override;
+
     SLbool onMouseUp(SLMouseButton button,
                      SLint         x,
                      SLint         y,
                      SLKey         mod) override;
-    
+
     SLbool onMouseMove(SLMouseButton button,
                        SLint         x,
                        SLint         y,
                        SLKey         mod) override;
 
+    void editMode(SLNodeEditMode editMode) override;
+
     void deleteMesh(SLPoints*& mesh);
-    void updateMapPointsMeshes(std::string                      name,
-                               const std::vector<WAIMapPoint*>& pts,
-                               SLPoints*&                       mesh,
-                               SLMaterial*&                     material);
+
+    void updateVisualization();
+    void setKeyframeMode(bool v);
+
+    void updateMeshes(std::string                      name,
+                      const std::vector<WAIMapPoint*>& pts,
+                      const std::vector<WAIKeyFrame*>& kfs,
+                      SLPoints*&                       mesh,
+                      SLMaterial*&                     material);
 
 private:
-    int                  xStart, yStart;
-    vector<unsigned int> selected;
     SLSceneView*         _sv;
     SLCamera*            _camera;
+    SLGLProgram*         _prog = nullptr;
+    SLMaterial*          _green;
+
     SLNode*              _mapNode;
+    SLNode*              _workingNode;
+    SLNode*              _kfNode;
+    SLNode*              _mpNode;
+
+    SLPoints*            _mesh = nullptr;
+    std::vector<int>     _meshToMP;
+
+    WAIMap*              _map;
     vector<WAIMapPoint*> _mappoints;
     vector<WAIKeyFrame*> _keyframes;
-    SLGLProgram*         _prog  = nullptr;
-    SLMaterial*          _green;
-    SLMaterial*          _yellow;
-    std::vector<int>     _meshToMP;
-    SLPoints*            _mesh = nullptr;
+    vector<WAIMapPoint*> _activeMapPoints;
+    vector<WAIMapPoint*> _temporaryMapPoints;
+    vector<WAIKeyFrame*> _activeKeyframes;
 
-    std::vector<std::vector<int>> _kfSet;
+    bool                 _keyframeMode  = false;
+    bool                 _transformMode = false;
+
+    std::vector<std::vector<WAIKeyFrame*>> _vidToKeyframes;
+    std::map<WAIKeyFrame*, int>            _keyFramesToVid;
 };
 
 #endif

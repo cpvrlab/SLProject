@@ -41,22 +41,22 @@ uniform int    u_numLightsUsed;     // NO. of lights used light arrays
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosVS[8];     // position of light in voxel space
 uniform vec4   u_lightPosWS[8];     // position of light in world space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
+uniform vec4   u_lightAmbi[8];   // ambient light intensity (Ia)
+uniform vec4   u_lightDiff[8];   // diffuse light intensity (Id)
+uniform vec4   u_lightSpec[8];  // specular light intensity (Is)
 uniform vec3   u_lightSpotDirWS[8]; // spot direction in world space
-uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
+uniform float  u_lightSpotDeg[8];// spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotCos[8];// cosine of spot cutoff angle
 uniform float  u_lightSpotExp[8];   // spot exponent
 uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
 uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
-uniform vec4   u_globalAmbient;     // Global ambient scene color
+uniform vec4   u_globalAmbi;     // Global ambient scene color
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for self-shining materials
-uniform float  u_matShininess;      // shininess exponent
+uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpec;       // specular color reflection coefficient (ks)
+uniform vec4   u_matEmis;       // emissive color for self-shining materials
+uniform float  u_matShin;      // shininess exponent
 uniform float  u_matKr;             // reflection factor (kr)
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
@@ -137,11 +137,11 @@ void DirectLight(in    int  i,   // Light number
     float diffFactor = max(dot(N,L), 0.0);
     float specFactor = 0.0;
     if (diffFactor!=0.0) 
-    specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+    specFactor = pow(max(dot(N,H), 0.0), u_matShin);
    
     // accumulate directional light intesities w/o attenuation
-    Id += u_lightDiffuse[i] * diffFactor;
-    Is += u_lightSpecular[i] * specFactor;
+    Id += u_lightDiff[i] * diffFactor;
+    Is += u_lightSpec[i] * specFactor;
 }
 //-----------------------------------------------------------------------------
 void PointLight (in    int  i,      // Light number
@@ -172,14 +172,14 @@ void PointLight (in    int  i,      // Light number
     float diffFactor = max(dot(N,L), 0.0);
     float specFactor = 0.0;
     if (diffFactor!=0.0) 
-        specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+        specFactor = pow(max(dot(N,H), 0.0), u_matShin);
    
     // Calculate spot attenuation
-    if (u_lightSpotCutoff[i] < 180.0)
+    if (u_lightSpotDeg[i] < 180.0)
     {   float spotDot; // Cosine of angle between L and spotdir
         float spotAtt; // Spot attenuation
         spotDot = dot(-L, u_lightSpotDirWS[i]);
-        if (spotDot < u_lightSpotCosCut[i]) spotAtt = 0.0;
+        if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
         else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
         att *= spotAtt;
     }
@@ -208,8 +208,8 @@ void PointLight (in    int  i,      // Light number
     }
     
     // Accumulate light intesities
-    Id += att * u_lightDiffuse[i]  * diffFactor * (1 - shadow.a);
-    Is += att * u_lightSpecular[i] * specFactor * (1 - shadow.a);
+    Id += att * u_lightDiff[i]  * diffFactor * (1 - shadow.a);
+    Is += att * u_lightSpec[i] * specFactor * (1 - shadow.a);
 }
 //-----------------------------------------------------------------------------
 vec4 direct()
@@ -231,9 +231,9 @@ vec4 direct()
     if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Id, Is); else PointLight(6, o_P_WS, N, E, Id, Is);}
     if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
     
-    return u_matEmissive + 
-           Id * u_matDiffuse +
-           Is * u_matSpecular;
+    return u_matEmis +
+           Id * u_matDiff +
+           Is * u_matSpec;
 }
 //-----------------------------------------------------------------------------
 vec4 indirectDiffuse()
@@ -282,7 +282,7 @@ vec4 indirectDiffuse()
     res +=  coneTrace(from, c3, s_diffuseConeAngle);
     res +=  coneTrace(from, c4, s_diffuseConeAngle);
 
-    return (res / 9) * u_matDiffuse;
+    return (res / 9) * u_matDiff;
 }
 //-----------------------------------------------------------------------------
 vec4 indirectSpecularLight()
@@ -292,7 +292,7 @@ vec4 indirectSpecularLight()
     vec3 R = normalize(reflect(-E, N));
 
     vec4 spec = coneTraceStopDist(o_P_VS, R, s_specularConeAngle, SQRT3DOUBLE, o_N_WS, 0.0);
-    return u_matKr * u_matSpecular * spec;
+    return u_matKr * u_matSpec * spec;
 }
 //-----------------------------------------------------------------------------
 void main()

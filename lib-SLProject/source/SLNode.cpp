@@ -620,7 +620,19 @@ bool SLNode::hitRec(SLRay* ray)
     SLbool meshWasHit = false;
 
     // Transform ray to object space for non-groups
-    if (!_meshes.empty())
+    if (_meshes.empty())
+    {
+        // Special selection for cameras
+        if (typeid(*this) == typeid(SLCamera) && ray->sv->camera() != this)
+        {
+            ray->hitNode = this;
+            ray->hitMesh = nullptr;
+            SLVec3f OC   = _aabb.centerWS() - ray->origin;
+            ray->length  = OC.length();
+            return true;
+        }
+    }
+    else
     {
         // transform origin position to object space
         ray->originOS.set(updateAndGetWMI().multVec(ray->origin));

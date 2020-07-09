@@ -622,6 +622,17 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
+            if (s->lights().size() && ImGui::TreeNode("Lights"))
+            {
+                for (SLuint i = 0; i < s->lights().size(); ++i)
+                {
+                    SLNode* light = dynamic_cast<SLNode*>(s->lights()[i]);
+                    ImGui::Text("[%u] %s", i, light->name().c_str());
+                }
+
+                ImGui::TreePop();
+            }
+
             if (s->materials().size() && ImGui::TreeNode("Materials"))
             {
                 for (SLuint i = 0; i < s->materials().size(); ++i)
@@ -649,9 +660,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::TreeNode("Programs (standard)"))
             {
                 for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
-                    ImGui::Text("[%u] %s",
-                                i,
-                                SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+                    ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
 
                 ImGui::TreePop();
             }
@@ -1265,7 +1274,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Per Vertex Blinn-Phong", nullptr, sid == SID_ShaderPerVertexBlinn))
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
-                    if (ImGui::MenuItem("Per Pixel Blinn-Phing", nullptr, sid == SID_ShaderPerPixelBlinn))
+                    if (ImGui::MenuItem("Per Pixel Blinn-Phong", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
                     if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCook))
                         s->onLoad(s, sv, SID_ShaderCook);
@@ -1346,36 +1355,43 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Erleb-AR"))
+                SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
+                SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
+                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier1.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
+                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz.fbx";
+
+                if (Utils::fileExists(modelAR1) ||
+                    Utils::fileExists(modelAV1) ||
+                    Utils::fileExists(modelAV2) ||
+                    Utils::fileExists(modelAV3) ||
+                    Utils::fileExists(modelBR1))
                 {
-                    if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
-                        s->onLoad(s, sv, SID_VideoChristoffel);
+                    if (ImGui::BeginMenu("Erleb-AR"))
+                    {
+                        if (Utils::fileExists(modelBR1))
+                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
+                                s->onLoad(s, sv, SID_VideoChristoffel);
 
-                    SLstring modelAR1 = SLApplication::modelPath + "Tempel-Theater-02.gltf"; // Android
-                    SLstring modelAR2 = SLApplication::modelPath + "GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-                    if (Utils::fileExists(modelAR1) || Utils::fileExists(modelAR2))
-                        if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
-                            s->onLoad(s, sv, SID_VideoAugustaRaurica);
+                        if (Utils::fileExists(modelAR1))
+                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
+                                s->onLoad(s, sv, SID_VideoAugustaRaurica);
 
-                    SLstring modelAV11 = SLApplication::modelPath + "Aventicum-Amphitheater1.gltf"; // Android
-                    SLstring modelAV12 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Amphitheater1.gltf";
-                    if (Utils::fileExists(modelAV11) || Utils::fileExists(modelAV12))
-                        if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
-                            s->onLoad(s, sv, SID_VideoAventicumAmphi);
+                        if (Utils::fileExists(modelAV1))
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
+                                s->onLoad(s, sv, SID_VideoAventicumAmphi);
 
-                    SLstring modelAV31 = SLApplication::modelPath + "Aventicum-Cigognier1.gltf"; // Android
-                    SLstring modelAV32 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Cigognier1.gltf";
-                    if (Utils::fileExists(modelAV31) || Utils::fileExists(modelAV32))
-                        if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
-                            s->onLoad(s, sv, SID_VideoAventicumCigognier);
+                        if (Utils::fileExists(modelAV2))
+                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
+                                s->onLoad(s, sv, SID_VideoAventicumCigognier);
 
-                    SLstring modelAV21 = SLApplication::modelPath + "Aventicum-Theater1.gltf"; // Android
-                    SLstring modelAV22 = SLApplication::modelPath + "GLTF/Aventicum/Aventicum-Theater1.gltf";
-                    if (Utils::fileExists(modelAV21) || Utils::fileExists(modelAV22))
-                        if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
-                            s->onLoad(s, sv, SID_VideoAventicumTheatre);
+                        if (Utils::fileExists(modelAV3))
+                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
+                                s->onLoad(s, sv, SID_VideoAventicumTheatre);
 
-                    ImGui::EndMenu();
+                        ImGui::EndMenu();
+                    }
                 }
 
                 if (ImGui::BeginMenu("Volume Rendering"))
@@ -2300,6 +2316,35 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
+            if (ImGui::BeginMenu("Fog"))
+            {
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
+                if (ImGui::MenuItem("Fog is on", nullptr, cam->fogIsOn()))
+                    cam->fogIsOn(!cam->fogIsOn());
+
+                if (ImGui::BeginMenu("Mode"))
+                {
+                    if (ImGui::MenuItem("linear", nullptr, cam->fogMode() == FM_linear))
+                        cam->fogMode(FM_linear);
+                    if (ImGui::MenuItem("exp", nullptr, cam->fogMode() == FM_exp))
+                        cam->fogMode(FM_exp);
+                    if (ImGui::MenuItem("exp2", nullptr, cam->fogMode() == FM_exp2))
+                        cam->fogMode(FM_exp2);
+                    ImGui::EndMenu();
+                }
+
+                if (cam->fogMode() == FM_exp || cam->fogMode() == FM_exp2)
+                {
+                    static SLfloat fogDensity = cam->fogDensity();
+                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f))
+                        cam->fogDensity(fogDensity);
+                }
+
+                ImGui::PopItemWidth();
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -2588,7 +2633,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         if (ImGui::Checkbox("Casts shadows", &castsShadows))
                             singleNode->castsShadows(castsShadows);
 
-                        if (SLLight* light = dynamic_cast<SLLight*>(singleNode))
+                        if (auto* light = dynamic_cast<SLLight*>(singleNode))
                         {
                             SLbool createsShadows = light->createsShadows();
                             if (ImGui::Checkbox("Creates shadows", &createsShadows))
@@ -2673,7 +2718,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     // Show special camera properties
                     if (typeid(*singleNode) == typeid(SLCamera))
                     {
-                        SLCamera* cam = (SLCamera*)singleNode;
+                        auto* cam = (SLCamera*)singleNode;
 
                         if (ImGui::TreeNode("Camera"))
                         {
@@ -2683,6 +2728,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLfloat fov       = cam->fov();
 
                             const char* projections[] = {"Mono Perspective",
+                                                         "Mono Intrinsic Calibrated",
                                                          "Mono Orthographic",
                                                          "Stereo Side By Side",
                                                          "Stereo Side By Side Prop.",
@@ -2778,6 +2824,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             float cutoff = light->spotCutOffDEG();
                             if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
                                 light->spotCutOffDEG(cutoff);
+
+                            float spotExp = light->spotExponent();
+                            if (ImGui::SliderFloat("Spot attenuation", &spotExp, 0.0f, 128.0f))
+                                light->spotExponent(spotExp);
 
                             float kc = light->kc();
                             if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))

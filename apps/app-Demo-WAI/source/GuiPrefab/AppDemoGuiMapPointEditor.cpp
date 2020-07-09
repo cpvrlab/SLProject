@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      AppDemoGuiInfosMapNodeTransform.cpp
-//  Author:    Michael Goettlicher, Jan Dellsperger
-//  Date:      September 2018
+//  Author:    Luc Girod, Michael Goettlicher, Jan Dellsperger
+//  Date:      July 2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -27,8 +27,12 @@ AppDemoGuiMapPointEditor::AppDemoGuiMapPointEditor(std::string            name,
   : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
     _slamRootDir(slamRootDir),
-    _videoId(0),
-    _nbVideoInMap(0),
+    _nmatchId(1),
+    _inTransformMode(false),
+    _advSelection(false),
+    _ready(false),
+    _showMatchFileFinder(false),
+    _showNmatchSelect(false),
     _activator(activator)
 {
 }
@@ -74,35 +78,100 @@ void AppDemoGuiMapPointEditor::loadFileNamesInVector(std::string               d
 //-----------------------------------------------------------------------------
 void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    ImGui::Begin("Map Point editor", _activator, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Map editor", _activator, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::PushFont(_font);
 
-    if (ImGui::Button("Enter edit mode"))
-    {
-        WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action                        = MapPointEditor_EnterEditMode;
+    //TODO: I don't know how imgui work!!!!
+    ImGui::Text("Map Transform & Edit                   ");
+    SLfloat bW = ImGui::GetContentRegionAvailWidth();
 
-        _eventQueue->push(event);
+    if (!_ready)
+    {
+        if (ImGui::Button("Enter Map Editor"))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->action          = MapPointEditor_EnterEditMode;
+            _eventQueue->push(event);
+            _ready = true;
+        }
+        ImGui::PopFont();
+        ImGui::End();
+        return;
     }
 
-    if (ImGui::Button("Exit edit mode"))
+    if (_inTransformMode)
     {
-        WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action                        = MapPointEditor_Quit;
-        _eventQueue->push(event);
+        if (ImGui::Button("Translate", ImVec2(bW, 0.0f)))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->editMode        = NodeEditMode_Translate;
+            _inTransformMode       = true;
+            _eventQueue->push(event);
+        }
+
+        if (ImGui::Button("Scale", ImVec2(bW, 0.0f)))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->editMode        = NodeEditMode_Scale;
+
+            _inTransformMode = true;
+            _eventQueue->push(event);
+        }
+
+        if (ImGui::Button("Rotate", ImVec2(bW, 0.0f)))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->editMode        = NodeEditMode_Rotate;
+
+            _inTransformMode = true;
+            _eventQueue->push(event);
+        }
+
+        if (ImGui::Button("Transform map points", ImVec2(bW, 0.0f)))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->action          = MapPointEditor_ApplyToMapPoints;
+            _eventQueue->push(event);
+        }
+
+        if (ImGui::Button("Exit transform mode"))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            _eventQueue->push(event);
+            _inTransformMode = false;
+        }
+    }
+    else
+    {
+        if (ImGui::Button("Enter transform mode"))
+        {
+            _inTransformMode = true;
+        }
     }
 
     if (ImGui::Button("Save map"))
     {
-        WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-        event->action                        = MapPointEditor_SaveInMap;
+        WAIEventEditMap* event = new WAIEventEditMap();
+        event->action          = MapPointEditor_SaveMap;
+        _eventQueue->push(event);
+    }
+    if (ImGui::Checkbox("Modify Keyframes", &_keyframeMode))
+    {
+        WAIEventEditMap* event = new WAIEventEditMap();
+        event->action          = MapPointEditor_KeyFrameMode;
+        event->b               = _keyframeMode;
         _eventQueue->push(event);
     }
 
-    ImGui::Checkbox("Select point per video", &_showMatchFinder);
-
-    if (_showMatchFinder)
+    if (_map != "")
     {
+        ImGui::Checkbox("Per video filtering", &_showMatchFileFinder);
+    }
+    if (_showMatchFileFinder)
+    {
+        ImGui::Separator();
+        ImGui::Text("Filtering options");
+
         if (ImGui::BeginCombo("Match file", _currMatchedFile.c_str())) // The second parameter is the label previewed before opening the combo.
         {
             std::vector<std::string> availableFile;
@@ -128,36 +197,107 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         {
             if (ImGui::Button("Load match file"))
             {
-                WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _nbVideoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
-                WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-                event->action                        = MapPointEditor_LoadMatching;
-                event->kFVidMatching                 = &_kFVidMatching;
-                _eventQueue->push(event);
-                _showSelectionChoice = true;
-            }
-            if (_showSelectionChoice)
-            {
-                if (ImGui::BeginCombo("Video Id", std::to_string(_videoId).c_str()))
+                WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _videoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
+                std::cout << "init video id" << std::endl;
+                _videosId = std::vector<bool>(_videoInMap.size());
+                _nmatchId = std::vector<bool>(_videoInMap.size()+1);
+                for (int i = 0; i < _videoInMap.size(); i++)
                 {
-                    for (int i = 0; i < _nbVideoInMap; i++)
-                    {
-                        if (ImGui::Selectable(std::to_string(i).c_str(), _videoId == i))
-                        {
-                            if (_videoId == i)
-                            {
-                                ImGui::SetItemDefaultFocus();
-                            }
-                            _videoId = i;
+                    _videosId[i] = true;
+                    _nmatchId[i] = true;
+                }
+                WAIEventEditMap* event = new WAIEventEditMap();
+                event->action          = MapPointEditor_LoadMatching;
+                event->kFVidMatching   = &_kFVidMatching;
+                _eventQueue->push(event);
+                _advSelection = true;
+            }
+        }
+    }
 
-                            WAIEventEnterEditMapPointMode* event = new WAIEventEnterEditMapPointMode();
-                            event->vid                           = _videoId;
-                            event->action                        = MapPointEditor_SelectSingleVideo;
-                            _eventQueue->push(event);
-                        }
-                    }
+    if (_showMatchFileFinder && _advSelection)
+    {
+        ImGui::Separator();
+        if (ImGui::Button("Select all points"))
+        {
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->action          = MapPointEditor_SelectAllPoints;
+            _eventQueue->push(event);
+
+            std::cout << "reset video id" << std::endl;
+            for (int i = 0; i < _videoInMap.size(); i++)
+            {
+                _videosId[i] = true;
+                _nmatchId[i] = true;
+            }
+            _nmatchId[_videoInMap.size()] = true;
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Video Id"))
+        {
+            _showVideoIdSelect     = !_showVideoIdSelect;
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->vid             = _videosId;
+            event->action          = MapPointEditor_SelectSingleVideo;
+            _eventQueue->push(event);
+        }
+
+        if (_showVideoIdSelect)
+        {
+            for (int i = 0; i < _videoInMap.size(); i++)
+            {
+                bool id = _videosId[i];
+                if (ImGui::Checkbox((std::to_string(i) + " " + _videoInMap[i]).c_str(), &id))
+                {
+                    _videosId[i]           = id;
+                    WAIEventEditMap* event = new WAIEventEditMap();
+                    event->vid             = _videosId;
+                    event->action          = MapPointEditor_SelectSingleVideo;
+                    _eventQueue->push(event);
                 }
             }
         }
+
+        ImGui::Separator();
+
+        if (ImGui::Button("N matches"))
+        {
+            _showNmatchSelect      = !_showNmatchSelect;
+            WAIEventEditMap* event = new WAIEventEditMap();
+            event->nmatches        = _nmatchId;
+            event->action          = MapPointEditor_SelectNMatched;
+            _eventQueue->push(event);
+        }
+        if (_showNmatchSelect)
+        {
+            for (int i = 0; i < _nmatchId.size(); i++)
+            {
+                if (i % 10 != 0)
+                    ImGui::SameLine();
+                bool id = _nmatchId[i];
+                if (ImGui::Checkbox(std::to_string(i).c_str(), &id))
+                {
+                    _nmatchId[i]           = id;
+                    WAIEventEditMap* event = new WAIEventEditMap();
+                    event->nmatches        = _nmatchId;
+                    event->action          = MapPointEditor_SelectNMatched;
+                    _eventQueue->push(event);
+                }
+            }
+        }
+    }
+
+    if (ImGui::Button("Exit"))
+    {
+        WAIEventEditMap* event = new WAIEventEditMap();
+        event->action          = MapPointEditor_Quit;
+        _eventQueue->push(event);
+
+        _showMatchFileFinder = false;
+        _ready               = false;
+        _inTransformMode     = false;
     }
 
     ImGui::PopFont();
@@ -166,8 +306,11 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 
 void AppDemoGuiMapPointEditor::setSlamParams(const SlamParams& params)
 {
-    SlamParams p = params;
-    _location    = p.location.empty() ? "" : Utils::getFileName(p.location);
-    _area        = p.area.empty() ? "" : Utils::getFileName(p.area);
-    _map         = p.mapFile.empty() ? "" : Utils::getFileName(p.mapFile);
+    SlamParams p      = params;
+    _location         = p.location.empty() ? "" : Utils::getFileName(p.location);
+    _area             = p.area.empty() ? "" : Utils::getFileName(p.area);
+    _map              = p.mapFile.empty() ? "" : Utils::getFileName(p.mapFile);
+    _showNmatchSelect = false;
+    _ready            = false;
+    _inTransformMode  = false;
 }

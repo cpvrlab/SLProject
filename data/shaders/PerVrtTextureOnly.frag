@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      PerVrtBlinnTex.frag
-//  Purpose:   GLSL per vertex Blinn-Phong lighting without texturing
+//  File:      PerVrtTextureOnly.frag
+//  Purpose:   GLSL fragment shader for texture mapping only
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -11,15 +11,12 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
-
 //-----------------------------------------------------------------------------
 in      vec3        v_P_VS;             // Interpol. point of illum. in view space (VS)
-in      vec4        v_color;            // Interpol. ambient & diff. color
-in      vec4        v_specColor;        // Interpol. specular color
 in      vec2        v_texCoord;         // Interpol. texture coordinate
 
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction value
 uniform sampler2D   u_matTexture0;      // Color map
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction value
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -35,18 +32,11 @@ out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 // SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "fogBlend.glsl"
-#pragma include "doStereoSeparation.glsl
+#pragma include "doStereoSeparation.glsl"
 //-----------------------------------------------------------------------------
 void main()
-{
-    // Interpolated ambient and diffuse components  
-    o_fragColor = v_color;
-   
-    // componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_texCoord);
-   
-    // add finally the specular RGB part but not alpha
-    o_fragColor.rgb += v_specColor.rgb;
+{     
+    o_fragColor = texture(u_matTexture0, v_texCoord);
 
     // Apply fog by blending over distance
     if (u_camFogIsOn)

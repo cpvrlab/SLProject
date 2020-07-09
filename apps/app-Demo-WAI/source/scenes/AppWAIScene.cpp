@@ -502,6 +502,7 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
     SLVVec3f covisGraphPts;
     SLVVec3f spanningTreePts;
     SLVVec3f loopEdgesPts;
+
     for (auto* kf : kfs)
     {
         cv::Mat Ow = kf->GetCameraCenter();
@@ -543,31 +544,13 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
         }
     }
 
-    if (covisibilityGraphMesh)
-    {
-        if (covisibilityGraph->removeMesh(covisibilityGraphMesh))
-        {
-            assets.removeMesh(covisibilityGraphMesh);
-            delete covisibilityGraphMesh;
-            covisibilityGraphMesh = nullptr;
-        }
-    }
+    removeGraphs();
 
     if (covisGraphPts.size() && showCovisibilityGraph)
     {
         covisibilityGraphMesh = new SLPolyline(&assets, covisGraphPts, false, "CovisibilityGraph", covisibilityGraphMat);
         covisibilityGraph->addMesh(covisibilityGraphMesh);
         covisibilityGraph->updateAABBRec();
-    }
-
-    if (spanningTreeMesh)
-    {
-        if (spanningTree->removeMesh(spanningTreeMesh))
-        {
-            assets.removeMesh(spanningTreeMesh);
-            delete spanningTreeMesh;
-            spanningTreeMesh = nullptr;
-        }
     }
 
     if (spanningTreePts.size() && showSpanningTree)
@@ -577,6 +560,34 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
         //spanningTree->updateAABBRec();
     }
 
+    if (loopEdgesPts.size() && showLoopEdges)
+    {
+        loopEdgesMesh = new SLPolyline(&assets, loopEdgesPts, false, "LoopEdges", loopEdgesMat);
+        loopEdges->addMesh(loopEdgesMesh);
+        loopEdges->updateAABBRec();
+    }
+}
+
+void AppWAIScene::removeGraphs()
+{
+    if (covisibilityGraphMesh)
+    {
+        if (covisibilityGraph->removeMesh(covisibilityGraphMesh))
+        {
+            assets.removeMesh(covisibilityGraphMesh);
+            delete covisibilityGraphMesh;
+            covisibilityGraphMesh = nullptr;
+        }
+    }
+    if (spanningTreeMesh)
+    {
+        if (spanningTree->removeMesh(spanningTreeMesh))
+        {
+            assets.removeMesh(spanningTreeMesh);
+            delete spanningTreeMesh;
+            spanningTreeMesh = nullptr;
+        }
+    }
     if (loopEdgesMesh)
     {
         if (loopEdges->removeMesh(loopEdgesMesh))
@@ -586,14 +597,9 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
             loopEdgesMesh = nullptr;
         }
     }
-
-    if (loopEdgesPts.size() && showLoopEdges)
-    {
-        loopEdgesMesh = new SLPolyline(&assets, loopEdgesPts, false, "LoopEdges", loopEdgesMat);
-        loopEdges->addMesh(loopEdgesMesh);
-        loopEdges->updateAABBRec();
-    }
 }
+
+
 
 void AppWAIScene::renderMapPoints(std::string                      name,
                                   const std::vector<WAIMapPoint*>& pts,

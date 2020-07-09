@@ -105,7 +105,6 @@ string toUpperString(string s)
     transform(cpy.begin(), cpy.end(), cpy.begin(), ::toupper);
     return cpy;
 }
-
 //-----------------------------------------------------------------------------
 //! trims a string at both ends
 string trimString(const string& s, const string& drop)
@@ -172,6 +171,40 @@ void replaceString(string&       source,
     // Care for the rest after last occurrence
     newString += source.substr(lastPos);
     source.swap(newString);
+}
+//-----------------------------------------------------------------------------
+//! Returns a vector of string one per line of a multiline string
+vector<string> getStringLines(const string& multiLineString)
+{
+    std::stringstream        stream(multiLineString);
+    std::vector<std::string> res;
+    while (1)
+    {
+        std::string line;
+        std::getline(stream, line);
+        if (!stream.good())
+            break;
+        res.push_back(line);
+    }
+    return res;
+}
+//-----------------------------------------------------------------------------
+// Loads a file into a string and returns it
+string loadFileIntoString(const char* logTag, const string& pathAndFilename)
+{
+    fstream shaderFile(pathAndFilename.c_str(), ios::in);
+
+    if (!shaderFile.is_open())
+    {
+        log(logTag,
+            "File open failed in SLGLShader::load: %s",
+            pathAndFilename.c_str());
+        exit(1);
+    }
+
+    std::stringstream buffer;
+    buffer << shaderFile.rdbuf();
+    return buffer.str();
 }
 //-----------------------------------------------------------------------------
 //! deletes non-filename characters: /\|?%*:"<>'

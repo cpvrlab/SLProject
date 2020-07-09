@@ -35,12 +35,14 @@ SLCamera::SLCamera(const SLstring& name)
     _moveAccel(16.0f),
     _unitScaling(1.0f),
     _fogIsOn(false),
-    _fogMode(GL_LINEAR),
+    _fogMode(FM_linear),
     _fogDensity(0.2f),
-    _fogDistStart(1.0f),
-    _fogDistEnd(6.0f),
-    _fogColor(SLCol4f::BLACK),
-    _background(SLGLProgramManager::get(SP_TextureOnly), SLGLProgramManager::get(SP_colorAttribute))
+    _fogStart(1.0f),
+    _fogEnd(6.0f),
+    _fogColor(SLCol4f::GRAY),
+    _fogColorIsBack(true),
+    _background(SLGLProgramManager::get(SP_TextureOnly),
+                SLGLProgramManager::get(SP_colorAttribute))
 {
     _fovInit       = 0;
     _viewportW     = 640;
@@ -295,7 +297,8 @@ void SLCamera::drawMeshes(SLSceneView* sv)
             _vao.generateVertexPos(&P);
         }
 
-        _vao.drawArrayAsColored(PT_lines, SLCol4f::WHITE * 0.7f);
+        SLCol4f color = sv->s()->singleNodeSelected() == this ? SLCol4f::YELLOW : SLCol4f::WHITE * 0.7f;
+        _vao.drawArrayAsColored(PT_lines, color);
 
         if (!sv->skybox())
             _background.renderInScene(farLT, farLB, farRT, farRB);
@@ -367,6 +370,7 @@ SLstring SLCamera::projectionToStr(SLProjection p)
     switch (p)
     {
         case P_monoPerspective: return "Perspective";
+        case P_monoIntrinsic: return "Perspective Intrinsic";
         case P_monoOrthographic: return "Orthographic";
         case P_stereoSideBySide: return "Side by Side";
         case P_stereoSideBySideP: return "Side by Side proportional";
@@ -1498,10 +1502,22 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     assert(program && "SLCamera::passToUniforms: No shader program set!");
 
     SLint loc;
-    loc = program->uniform1i("u_projection", _projection);
-    loc = program->uniform1i("u_stereoEye", _stereoEye);
-    loc = program->uniformMatrix3fv("u_stereoColorFilter",
+    loc = program->uniform1i("u_camProjection", _projection);
+    loc = program->uniform1i("u_camStereoEye", _stereoEye);
+    loc = program->uniformMatrix3fv("u_camStereoColors",
                                     1,
                                     (SLfloat*)&_stereoColorFilter);
+    // Pass fog parameters
+    if (_fogColorIsBack)
+        _fogColor = _background.avgColor();
+    _fogStart = _clipNear;
+    _fogEnd   = _clipFar;
+
+    loc = program->uniform1i("u_camFogIsOn", _fogIsOn);
+    loc = program->uniform1i("u_camFogMode", _fogMode);
+    loc = program->uniform1f("u_camFogDensity", _fogDensity);
+    loc = program->uniform1f("u_camFogStart", _fogStart);
+    loc = program->uniform1f("u_camFogEnd", _fogEnd);
+    loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
 }
 //-----------------------------------------------------------------------------
