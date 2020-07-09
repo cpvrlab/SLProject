@@ -158,14 +158,14 @@ const Location defineLocationChristoffel()
     loc.id                   = LocationId::CHRISTOFFEL;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/christoffel/locationMapImgChristoffel.jpg";
-    loc.dspPixWidth          = 800;
+    loc.dspPixWidth          = 2080;
     {
         Area area;
-        area.id            = AreaId::CHRISTOFFEL_SBB;
+        area.id            = AreaId::CHRISTOFFEL_MILCHGAESSLI;
         area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 50;
-        area.yPosPix       = 50;
-        area.viewAngleDeg  = 0;
+        area.xPosPix       = 740;
+        area.yPosPix       = 294;
+        area.viewAngleDeg  = 60;
         loc.areas[area.id] = area;
     }
     return loc;

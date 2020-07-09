@@ -5,7 +5,7 @@
 #include <SLPoints.h>
 #include <WAISlam.h>
 
-MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap * map, SLstring shaderDir)
+MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap* map, SLstring shaderDir)
   : SLTransformNode(sv, mappointNode, shaderDir)
 {
     _sv        = sv;
@@ -18,8 +18,8 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap * map, SLst
     _activeMapPoints    = _mappoints;
     _activeKeyframes    = _keyframes;
 
-    _kfNode = new SLNode("kf working node");
-    _mpNode = new SLNode("map working node");
+    _kfNode      = new SLNode("kf working node");
+    _mpNode      = new SLNode("map working node");
     _workingNode = new SLNode("editor node");
     _workingNode->addChild(_kfNode);
     _workingNode->addChild(_mpNode);
@@ -30,7 +30,7 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap * map, SLst
     _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
-    _green  = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    _green = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
 
     updateMeshes("current map points", _activeMapPoints, _activeKeyframes, _mesh, _green);
 }
@@ -225,7 +225,7 @@ void MapEdition::updateMeshes(std::string                      name,
         if (kf->isBad())
             continue;
 
-        SLKeyframeCamera* cam = new SLKeyframeCamera(std::to_string(i-1));
+        SLKeyframeCamera* cam = new SLKeyframeCamera(std::to_string(i - 1));
 
         cv::Mat Twc = kf->getObjectMatrix();
 
@@ -291,7 +291,7 @@ SLbool MapEdition::onKeyPress(const SLKey key, const SLKey mod)
     return false;
 }
 
-void MapEdition::filterVisibleKeyframes(std::vector<WAIKeyFrame*> &kfs, std::vector<WAIMapPoint*> activeMps)
+void MapEdition::filterVisibleKeyframes(std::vector<WAIKeyFrame*>& kfs, std::vector<WAIMapPoint*> activeMps)
 {
     kfs.clear();
     std::map<WAIKeyFrame*, int> kfsel;
@@ -332,7 +332,7 @@ SLbool MapEdition::onKeyRelease(const SLKey key, const SLKey mod)
         {
             for (auto it = _sv->s()->selectedNodes().begin(); it != _sv->s()->selectedNodes().end(); it++)
             {
-                SLNode * node = *it;
+                SLNode* node = *it;
                 if (node->parent() == _kfNode)
                 {
                     int idx = std::stoi(node->name());
@@ -356,6 +356,8 @@ SLbool MapEdition::onKeyRelease(const SLKey key, const SLKey mod)
 
             for (unsigned int i = 0; i < _keyframes.size(); i++)
             {
+                if (_keyframes[i]->isBad()) continue;
+
                 unsigned int              nbGood = 0;
                 std::vector<WAIMapPoint*> mps    = _keyframes[i]->GetMapPointMatches();
 

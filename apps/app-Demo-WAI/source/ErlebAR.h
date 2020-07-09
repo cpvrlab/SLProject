@@ -57,6 +57,7 @@ enum class AreaId
     AVENCHES_TEMPLE,
     //CHRISTOFFEL
     CHRISTOFFEL_SBB,
+    CHRISTOFFEL_MILCHGAESSLI,
     //BIEL
     BIEL_SOUTHWALL,
     BIEL_GERECHTIGKEITSBRUNNEN,
@@ -91,9 +92,9 @@ public:
     LocationId  id = LocationId::NONE;
     const char* name;
     //name of area map image in erlebAR directory
-    std::string            areaMapImageFileName;
+    std::string areaMapImageFileName;
     //map image display pixel width
-    int dspPixWidth;
+    int                    dspPixWidth;
     std::map<AreaId, Area> areas;
     //location center wgs84 (for gps user positionioning in map)
 };
