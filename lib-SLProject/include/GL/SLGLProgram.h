@@ -18,12 +18,15 @@
 #include <SLVec4.h>
 #include <SLGLUniform.h>
 #include <SLObject.h>
+#include <SLLight.h>
+#include <SLApplication.h>
 
 class SLGLShader;
 class SLScene;
 class SLMaterial;
 class SLGLState;
 class SLAssetManager;
+class SLCamera;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers
@@ -62,13 +65,18 @@ public:
     ~SLGLProgram() override;
 
     void addShader(SLGLShader* shader);
-    void init(); //!< create, attach & link shaders
+    void init(SLVLight* lights);
     void initRaw();
 
-    virtual void beginShader(SLMaterial* mat, const SLCol4f& globalAmbientLight) = 0; //!< starter for derived classes
-    virtual void endShader()                                                     = 0;
+    virtual void beginShader(SLCamera*   cam,
+                             SLMaterial* mat,
+                             SLVLight*   lights) = 0; //!< starter for derived classes
+    virtual void endShader()                   = 0;
 
-    void beginUse(SLMaterial* mat, const SLCol4f& globalAmbientLight); //!< begin using shader
+    void beginUse(SLCamera*   cam,
+                  SLMaterial* mat,
+                  SLVLight*   lights);
+    void passLightsToUniforms(SLVLight* lights) const;
     void endUse();
     void useProgram();
 
@@ -81,7 +89,6 @@ public:
 
     //Variable location getters
     SLint getUniformLocation(const SLchar* name) const;
-    SLint getAttribLocation(const SLchar* name) const;
 
     //Send uniform variables to program
     SLint uniform1f(const SLchar* name, SLfloat v0) const;

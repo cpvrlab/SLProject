@@ -94,6 +94,7 @@ public:
     std::mutex mMutexPointCreation;
 
     //transformation functions
+    void    transform(cv::Mat transform);
     void    rotate(float degVal, int type);
     void    translate(float value, int type);
     void    scale(float value);

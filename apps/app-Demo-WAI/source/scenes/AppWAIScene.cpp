@@ -30,6 +30,7 @@ void AppWAIScene::loadMesh(std::string path)
     // Set some ambient light
     for (auto child : augmentationRoot->children())
     {
+        child->drawBits()->set(SL_DB_NOTSELECTABLE, true);
         for (auto mesh : child->meshes())
         {
             mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
@@ -38,11 +39,16 @@ void AppWAIScene::loadMesh(std::string path)
         }
     }
 
+
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
     if (n)
     {
         n->drawBits()->set(SL_DB_CULLOFF, true);
+        n->drawBits()->set(SL_DB_NOTSELECTABLE, true);
     }
+
+
+    augmentationRoot->drawBits()->set(SL_DB_NOTSELECTABLE, true);
 
     // Create directional light for the sun light
     SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
@@ -98,7 +104,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/AvenchesEntrance.gltf";
+            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
@@ -327,6 +333,13 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
     }
 }
 
+
+void AppWAIScene::resetMapNode()
+{
+    mapNode->translation(0, 0, 0);
+    mapNode->lookAt(0, 0, -1);
+}
+
 void AppWAIScene::updateCameraPose(const cv::Mat& pose)
 {
     // update camera node position
@@ -340,6 +353,7 @@ void AppWAIScene::updateCameraPose(const cv::Mat& pose)
 
     Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
     twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+
 
     SLMat4f om;
     om.setMatrix(PoseInv.at<float>(0, 0),
@@ -605,6 +619,8 @@ void AppWAIScene::renderMapPoints(std::string                      name,
         std::vector<SLVec3f> points, normals;
         for (auto mapPt : pts)
         {
+            if (mapPt->isBad())
+                continue;
             WAI::V3 wP = mapPt->worldPosVec();
             WAI::V3 wN = mapPt->normalVec();
             points.push_back(SLVec3f(wP.x, wP.y, wP.z));

@@ -9,30 +9,29 @@
 //#############################################################################
 
 //-----------------------------------------------------------------------------
-attribute   vec4     a_position;        // Vertex position attribute
-attribute   vec3     a_normal;          // Vertex normal attribute
-attribute   vec2     a_texCoord;        // Vertex texture coord. attribute
+in      vec4     a_position;        // Vertex position attribute
+in      vec3     a_normal;          // Vertex normal attribute
+in      vec2     a_texCoord;        // Vertex texture coord. attribute
 
-uniform     mat4     u_mvMatrix;        // modelView matrix
-uniform     mat4     u_mvpMatrix;       // = projection * modelView
-uniform     mat3     u_nMatrix;         // normal matrix=transpose(inverse(mv))
-uniform     mat4     u_tMatrix;         // texture transform matrix
+uniform mat4     u_mvMatrix;        // modelView matrix
+uniform mat4     u_mvpMatrix;       // = projection * modelView
+uniform mat3     u_nMatrix;         // normal matrix=transpose(inverse(mv))
+uniform mat4     u_tMatrix;         // texture transform matrix
 
-uniform     vec4     u_globalAmbi;      // global ambient intensity (Iaglobal)
-uniform     vec3     u_lightPosVS;      // light position in view space
-uniform     vec3     u_lightSpotDirVS;  // light direction in view space
-uniform     vec4     u_lightAmbient;    // light ambient light intensity (Ia)
-uniform     vec4     u_lightDiffuse;    // light diffuse light intensity (Id)
-uniform     vec4     u_lightSpecular;   // light specular light intensity (Is)
-uniform     vec4     u_matAmbient;      // material ambient reflection (ka)
-uniform     vec4     u_matDiffuse;      // material diffuse reflection (kd)
-uniform     vec4     u_matSpecular;     // material specular reflection (ks)
-uniform     vec4     u_matEmissive;     // material emissiveness (ke)
-uniform     float    u_matShininess;    // material shininess exponent
+uniform vec4     u_globalAmbi;      // global ambient intensity (Iaglobal)
+uniform vec3     u_lightPosVS;      // light position in view space
+uniform vec3     u_lightSpotDirVS;  // light direction in view space
+uniform vec4     u_lightAmbient;    // light ambient light intensity (Ia)
+uniform vec4     u_lightDiffuse;    // light diffuse light intensity (Id)
+uniform vec4     u_lightSpecular;   // light specular light intensity (Is)
+uniform vec4     u_matAmbient;      // material ambient reflection (ka)
+uniform vec4     u_matDiffuse;      // material diffuse reflection (kd)
+uniform vec4     u_matSpecular;     // material specular reflection (ks)
+uniform vec4     u_matEmissive;     // material emissiveness (ke)
+uniform float    u_matShininess;    // material shininess exponent
 
-varying     vec4     v_color;           // The resulting color per vertex
-varying     vec4     v_texCoord3D;      // texture coordinate at vertex
-
+out     vec4     v_color;           // The resulting color per vertex
+out     vec4     v_texCoord3D;      // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {     

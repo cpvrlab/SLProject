@@ -196,12 +196,14 @@ SLbool SLGLConetracer::render(SLSceneView* sv)
     return true;
 }
 //-----------------------------------------------------------------------------
+/*
 void SLGLConetracer::uploadLights(SLGLProgram* program)
 {
     SLGLState* stateGL = SLGLState::instance();
     SLuint     progID  = program->progID();
 
     // no ambient color needed. :-)
+
     glUniform1i(glGetUniformLocation(progID, "u_numLightsUsed"), stateGL->numLightsUsed);
 
     SLVec4f lightsVoxelSpace[SL_MAX_LIGHTS];
@@ -225,6 +227,7 @@ void SLGLConetracer::uploadLights(SLGLProgram* program)
         glUniform1iv(glGetUniformLocation(progID, "u_lightDoAtt"), nL, (SLint*)stateGL->lightDoAtt);
     }
 }
+*/
 //-----------------------------------------------------------------------------
 void SLGLConetracer::uploadRenderSettings(SLGLProgram* program)
 {
@@ -283,7 +286,8 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
 
     uploadRenderSettings(program);
 
-    uploadLights(program);
+    //uploadLights(program);
+    program->passLightsToUniforms(&_sv->s()->lights());
 
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();
@@ -292,7 +296,7 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     glUniform3fv(glGetUniformLocation(progID, "u_EyePosWS"), 1, (SLfloat*)&camPosWS);
     GET_GL_ERROR;
 
-    renderNode(_sv->s().root3D(), program);
+    renderNode(_sv->s()->root3D(), program);
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
@@ -335,7 +339,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 
         // generate a VAO if it does not exist yet
         if (!mesh->vao().vaoID())
-                mesh->generateVAO(program);
+                mesh->generateVAO();
 
         // bind the buffer
         glBindVertexArray(mesh->vao().vaoID());

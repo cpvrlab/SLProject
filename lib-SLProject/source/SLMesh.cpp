@@ -45,6 +45,7 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     _isVolume             = true;    // is used for RT to decide inside/outside
     _accelStruct          = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
+    _isSelected           = false;
 
     // Add this mesh to the global resource vector for deallocation
     if (assetMgr)
@@ -102,13 +103,12 @@ void SLMesh::deleteData()
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Deletes the rectangle selected vertices and the dependend triangles.
+//! Deletes the rectangle selected vertices and the dependent triangles.
 /*! The selection rectangle is defined in SLScene::selectRect and gets set and
- drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
- not empty the SLScene::selectedNode is null. All vertices that are within the
- selectRect are listed in SLMesh::IS32. The selection evaluation is done during
- drawing in SLMesh::draw and is only valid for the current frame.
- All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
+ drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. All vertices that
+ are within the selectRect are listed in SLMesh::IS32. The selection evaluation
+ is done during drawing in SLMesh::handleRectangleSelection and is only valid
+ for the current frame. See also SLMesh::handleRectangleSelection.*/
 void SLMesh::deleteSelected(SLNode* node)
 {
     // Loop over all rectangle selected indexes in IS32
@@ -190,7 +190,10 @@ void SLMesh::deleteSelected(SLNode* node)
         calcTangents();
 
     // delete vertex array object so it gets regenerated
-    _vao.deleteGL();
+    _vao.clearAttribs();
+    _vaoS.deleteGL();
+    _vaoN.deleteGL();
+    _vaoT.deleteGL();
 
     // delete the selection indexes
     IS32.clear();
@@ -270,9 +273,9 @@ void SLMesh::init(SLNode* node)
     // otherwise use the default gray material
     if (!mat())
     {
-        if (!C.empty())
-            mat(SLMaterialDiffuseAttribute::instance());
-        else
+        //if (!C.empty())
+        //    mat(SLMaterialDiffuseAttribute::instance());
+        //else
             mat(SLMaterialDefaultGray::instance());
     }
 
@@ -283,9 +286,50 @@ void SLMesh::init(SLNode* node)
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())
         calcTangents();
+
+    _isSelected = false;
 }
 //-----------------------------------------------------------------------------
-/*! 
+//! Simplified drawing method for shadow map creation
+/*! This is used from within SLShadowMap::drawNodesIntoDepthBuffer
+*/
+void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
+                                 SLNode*      node,
+                                 SLMaterial*  depthMat)
+{
+    SLGLState* stateGL = SLGLState::instance();
+
+    // Check data
+    SLstring msg;
+    if (P.empty())
+        msg = "No vertex positions (P)\n";
+    if (_primitive == PT_points && I16.empty() && I32.empty())
+        msg += "No vertex indices (I16 or I32)\n";
+    if (msg.length() > 0)
+    {
+        SL_WARN_MSG((msg + "in SLMesh::draw: " + _name).c_str());
+        return;
+    }
+
+    // Return if hidden
+    if (sv->drawBit(SL_DB_HIDDEN) ||
+        node->drawBit(SL_DB_HIDDEN) ||
+        _primitive == PT_points)
+        return;
+
+    if (!_vao.vaoID())
+        generateVAO();
+
+    // Now use the depth material
+    SLGLProgram* sp    = depthMat->program();
+    SLGLState*   state = SLGLState::instance();
+    sp->useProgram();
+    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+
+    _vao.drawElementsAs(PT_triangles);
+}
+//-----------------------------------------------------------------------------
+/*!
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES primitives
 are rendered normally with the vertex position vector P, the normal vector N,
 the vector Tc and the index vector I16 or I32. GL_LINES & GL_POINTS don't have
@@ -295,12 +339,12 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 <p> The method performs the following steps:</p>
 <p>
 1) Apply the drawing bits<br>
-2) Apply the uniform variables to the shader<br>
-2a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
-2b) Pass the modelview and modelview-projection matrix to the shader.<br>
-2c) If needed build and pass the inverse modelview and the normal matrix.<br>
-2d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
-3) Generate Vertex Array Object once<br>
+2) Generate Vertex Array Object once<br>
+3) Apply the uniform variables to the shader<br>
+3a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
+3b) Pass the modelview and modelview-projection matrix to the shader.<br>
+3c) If needed build and pass the inverse modelview and the normal matrix.<br>
+3d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
 4) Finally do the draw call<br>
 5) Draw optional normals & tangents<br>
 6) Draw optional acceleration structure<br>
@@ -352,25 +396,33 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     stateGL->cullFace(!noFaceCulling);
 
     // check if texture exists
-    //SLbool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
+    //bool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
         stateGL->polygonOffset(true, 1.0f, 1.0f);
 
+    ///////////////////////////////////////
+    // 2) Generate Vertex Array Object once
+    ///////////////////////////////////////
+
+    if (!_vao.vaoID())
+        generateVAO();
+
     /////////////////////////////
-    // 2) Apply Uniform Variables
+    // 3) Apply Uniform Variables
     /////////////////////////////
 
-    // 2.a) Apply mesh material if exists & differs from current
-    mat()->activate(*node->drawBits(), sv->s().globalAmbiLight());
+    // 3.a) Apply mesh material if exists & differs from current
+    _mat->activate(*node->drawBits(), sv->camera(), &sv->s()->lights());
 
-    // 2.b) Pass the matrices to the shader program
-    SLGLProgram* sp = mat()->program();
+    // 3.b) Pass the matrices to the shader program
+    SLGLProgram* sp = _mat->program();
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
-    // 2.c) Build & pass inverse, normal & texture matrix only if needed
+    // 3.c) Build & pass inverse, normal & texture matrix only if needed
     SLint locIM = sp->getUniformLocation("u_invMvMatrix");
     SLint locNM = sp->getUniformLocation("u_nMatrix");
     SLint locTM = sp->getUniformLocation("u_tMatrix");
@@ -399,13 +451,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             stateGL->textureMatrix = _mat->textures()[0]->tm();
         sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&stateGL->textureMatrix);
     }
-
-    ///////////////////////////////////////
-    // 3) Generate Vertex Array Object once
-    ///////////////////////////////////////
-
-    if (!_vao.vaoID())
-        generateVAO(sp);
 
     ///////////////////////////////
     // 4): Finally do the draw call
@@ -483,87 +528,166 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ////////////////////////////////////
     // 7: Draw selected mesh with points
     ////////////////////////////////////
-    SLScene* s = &sv->s();
 
-    if (s->selectedNode() == node &&
-        s->selectedMesh() == this)
+    if (!node->drawBit(SL_DB_NOTSELECTABLE))
+        handleRectangleSelection(sv, stateGL, node);
+
+    if (blended)
+        stateGL->blend(true);
+}
+//-----------------------------------------------------------------------------
+//! Handles the rectangle section of mesh vertices (partial selection)
+/*
+ There are two different selection modes: Full or partial mesh selection.
+ <br>
+ The full selection is done by double-clicking a mesh. For more information
+ see SLScene::selectNodeMesh.
+ <br>
+ Partial meshes can be selected by drawing a rectangle with CTRL-LMB. The
+ selection rectangle is defined in the SLCamera::selectRect and gets set
+ in SLCamera::onMouseDown, SLCamera::onMouseMove and SLCamera::onMouseUp.
+ The partial selection in SLMesh::handleRectangleSelection. The selected
+ vertices are stored in SLMesh::IS32. A mesh that is used in multiple nodes
+ can only be partially selected from one node.
+*/
+void SLMesh::handleRectangleSelection(SLSceneView* sv,
+                                      SLGLState*   stateGL,
+                                      SLNode*      node)
+{
+    SLScene*  s   = sv->s();
+    SLCamera* cam = sv->camera();
+
+    // Single node and mesh is selected
+    if (cam->selectRect().isEmpty() && cam->deselectRect().isEmpty())
     {
-        stateGL->polygonOffset(true, 1.0f, 1.0f);
-        stateGL->depthMask(false);
-        stateGL->depthTest(false);
-        _vaoS.generateVertexPos(_finalP);
-        _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
-        stateGL->polygonLine(false);
-        stateGL->polygonOffset(false);
-        stateGL->depthMask(true);
-        stateGL->depthTest(true);
+        if (node->isSelected() && _isSelected)
+            drawSelectedVertices();
     }
-    else if (!sv->camera()->selectedRect().isEmpty())
+    else // rect selection or deselection is going on
     {
-        /* The selection rectangle is defined in SLScene::selectRect and gets set and
-         drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. If the selectRect is
-         not empty the SLScene::selectedNode is null. All vertices that are within the
-         selectRect are listed in SLMesh::IS32. The selection evaluation is done during
-         drawing in SLMesh::draw and is only valid for the current frame.
-         All nodes that have selected vertice have their drawbit SL_DB_SELECTED set. */
-
-        // Build full viewport-modelview-projection transform
+        // Build full viewport-modelview-projection transform matrix
         SLMat4f mvp = *stateGL->mvpMatrix();
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
-        v.viewport((SLfloat)vp.x, (SLfloat)vp.y, (SLfloat)vp.width, (SLfloat)vp.height);
-        SLMat4f v_mvp = v * mvp;
-        IS32.clear();
+        v.viewport((SLfloat)vp.x,
+                   (SLfloat)vp.y,
+                   (SLfloat)vp.width,
+                   (SLfloat)vp.height);
+        SLMat4f     v_mvp = v * mvp;
+        set<SLuint> tempIselected; // Temp. vector for selected vertex indices
 
-        // Transform all verices and add the ones in the ROI to IS32
-        for (SLulong i = 0; i < P.size(); ++i)
+        if (!cam->selectRect().isEmpty()) // Do rectangle Selection
         {
-            SLVec3f p = v_mvp * P[i];
-            if (sv->camera()->selectedRect().contains(SLVec2f(p.x, p.y)))
-                IS32.push_back((SLuint)i);
+            // Select by transform all vertices and add the ones in the rect to tempInRect
+            set<SLuint> tempInRect;
+            for (SLulong i = 0; i < P.size(); ++i)
+            {
+                SLVec3f p = v_mvp * P[i];
+                if (cam->selectRect().contains(SLVec2f(p.x, p.y)))
+                    tempInRect.insert((SLuint)i);
+            }
+
+            // Merge the rectangle selected by doing a set union operation
+            set<SLuint> IS32set(IS32.begin(), IS32.end());
+            std::set_union(IS32set.begin(),
+                           IS32set.end(),
+                           tempInRect.begin(),
+                           tempInRect.end(),
+                           inserter(tempIselected, tempIselected.begin()));
+        }
+        else if (!cam->deselectRect().isEmpty()) // Do rectangle Deselection
+        {
+            // Deselect by transform all vertices and add the ones in the rect to tempIdeselected
+            set<SLuint> tempIdeselected; // Temp. vector for deselected vertex indices
+            for (SLulong i = 0; i < P.size(); ++i)
+            {
+                SLVec3f p = v_mvp * P[i];
+                if (cam->deselectRect().contains(SLVec2f(p.x, p.y)))
+                    tempIdeselected.insert((SLuint)i);
+            }
+
+            // Remove the deselected ones by doing a set difference operation
+            tempIselected.clear();
+            set<SLuint> IS32set(IS32.begin(), IS32.end());
+            std::set_difference(IS32set.begin(),
+                                IS32set.end(),
+                                tempIdeselected.begin(),
+                                tempIdeselected.end(),
+                                inserter(tempIselected, tempIselected.begin()));
         }
 
-        if (!IS32.empty())
+        // Flag node and mesh for the first time a mesh gets rectangle selected.
+        if (!tempIselected.empty() && !node->isSelected() && !_isSelected)
         {
-            stateGL->polygonOffset(true, 1.0f, 1.0f);
-            stateGL->depthMask(false);
-            stateGL->depthTest(false);
-            _vaoS.clearAttribs();
-            _vaoS.setIndices(&IS32);
-            _vaoS.generateVertexPos(_finalP);
-            _vaoS.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
-            stateGL->polygonLine(false);
-            stateGL->polygonOffset(false);
-            stateGL->depthMask(true);
-            stateGL->depthTest(true);
-            node->drawBits()->on(SL_DB_SELECTED);
+            node->isSelected(true);
+            s->selectedNodes().push_back(node);
+            _isSelected = true;
+            s->selectedMeshes().push_back(this);
+            drawSelectedVertices();
         }
-        else
-            node->drawBits()->off(SL_DB_SELECTED);
+
+        // Do not rect-select if the mesh is not selected because it got
+        // selected within another node.
+        if (node->isSelected() && _isSelected)
+        {
+            if (!tempIselected.empty())
+                IS32.assign(tempIselected.begin(), tempIselected.end());
+
+            if (!IS32.empty())
+                drawSelectedVertices();
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+/*! Clears the partial selection but not the flag SLMesh::_isSelected
+ See also SLMesh::handleRectangleSelection.
+ */
+void SLMesh::deselectPartialSelection()
+{
+    _vaoS.clearAttribs();
+    IS32.clear();
+}
+//-----------------------------------------------------------------------------
+/*! If the entire mesh is selected all points will be drawn with an the vertex
+ array only without indices. If a subset is selected we use the extra index
+ array IS32. See also SLMesh::handleRectangleSelection.
+ */
+void SLMesh::drawSelectedVertices()
+{
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->polygonOffset(true, 1.0f, 1.0f);
+    stateGL->depthMask(false);
+    stateGL->depthTest(false);
+
+    if (IS32.empty())
+    {
+        // Draw all
+        _vaoS.generateVertexPos(_finalP);
+        _vaoS.drawArrayAsColored(PT_points, SLCol4f::YELLOW, 2);
     }
     else
     {
-        if (_vaoS.vaoID())
-        {
-            _vaoS.clearAttribs();
-            IS32.clear();
-        }
-
-        if (s->selectedNode() == nullptr && sv->camera()->selectedRect().isEmpty())
-            node->drawBits()->off(SL_DB_SELECTED);
+        // Draw only selected
+        _vaoS.clearAttribs();
+        _vaoS.setIndices(&IS32);
+        _vaoS.generateVertexPos(_finalP);
+        _vaoS.drawElementAsColored(PT_points, SLCol4f::YELLOW, 2);
     }
 
-    if (blended) stateGL->blend(true);
+    stateGL->polygonLine(false);
+    stateGL->polygonOffset(false);
+    stateGL->depthMask(true);
+    stateGL->depthTest(true);
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
-void SLMesh::generateVAO(SLGLProgram* sp)
+void SLMesh::generateVAO()
 {
-    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), _finalP);
-    if (!N.empty()) _vao.setAttrib(AT_normal, sp->getAttribLocation("a_normal"), _finalN);
-    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &Tc);
-    if (!C.empty()) _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
-    if (!T.empty()) _vao.setAttrib(AT_tangent, sp->getAttribLocation("a_tangent"), &T);
+    _vao.setAttrib(AT_position, AT_position, _finalP);
+    if (!N.empty()) _vao.setAttrib(AT_normal, AT_normal, _finalN);
+    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
+    if (!C.empty()) _vao.setAttrib(AT_color, AT_color, &C);
+    if (!T.empty()) _vao.setAttrib(AT_tangent, AT_tangent, &T);
     if (!I16.empty()) _vao.setIndices(&I16);
     if (!I32.empty()) _vao.setIndices(&I32);
 
@@ -571,7 +695,7 @@ void SLMesh::generateVAO(SLGLProgram* sp)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMesh::hit does the ray-mesh intersection test. If no acceleration 
+SLMesh::hit does the ray-mesh intersection test. If no acceleration
 structure is defined all triangles are tested in a brute force manner.
 */
 SLbool SLMesh::hit(SLRay* ray, SLNode* node)
@@ -600,7 +724,7 @@ SLbool SLMesh::hit(SLRay* ray, SLNode* node)
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::updateStats updates the parent node statistics.
 */
 void SLMesh::addStats(SLNodeStats& stats)
@@ -627,7 +751,7 @@ void SLMesh::addStats(SLNodeStats& stats)
         _accelStruct->updateStats(stats);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::calcMinMax calculates the axis alligned minimum and maximum point
 */
 void SLMesh::calcMinMax()
@@ -759,7 +883,7 @@ void SLMesh::calcCenterRad(SLVec3f& center, SLfloat& radius)
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLMesh::buildAABB builds the passed axis-aligned bounding box in OS and updates
 the min & max points in WS with the passed WM of the node.
 */
@@ -878,8 +1002,8 @@ void SLMesh::calcNormals()
 }
 //-----------------------------------------------------------------------------
 //! SLMesh::calcTangents computes the tangents per vertex for triangle meshes.
-/*! SLMesh::calcTangents computes the tangent and bi-tangent per vertex used 
-for GLSL normal map bump mapping. The code and mathematical derivation is in 
+/*! SLMesh::calcTangents computes the tangent and bi-tangent per vertex used
+for GLSL normal map bump mapping. The code and mathematical derivation is in
 detail explained in: http://www.terathon.com/code/tangent.html
 */
 void SLMesh::calcTangents()
@@ -992,7 +1116,7 @@ void SLMesh::calcTex3DMatrix(SLNode* node)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle 
+SLMesh::hitTriangleOS is the fast and minimum storage ray-triangle
 intersection test by Tomas Moeller and Ben Trumbore (Journal of graphics
 tools 2, 1997).
 */
@@ -1117,8 +1241,8 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMesh::preShade calculates the rest of the intersection information 
-after the final hit point is determined. Should be called just before the 
+SLMesh::preShade calculates the rest of the intersection information
+after the final hit point is determined. Should be called just before the
 shading when the final intersection point of the closest triangle was found.
 */
 void SLMesh::preShade(SLRay* ray)
@@ -1205,7 +1329,7 @@ void SLMesh::preShade(SLRay* ray)
 each vertex and normal by max. four joints of the skeleton. Each joint has
 a weight and an index. After the transform the VBO have to be updated.
 This skinning process can also be done (a lot faster) on the GPU.
-This software skinning is also needed for ray or path tracing.  
+This software skinning is also needed for ray or path tracing.
 */
 void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
 {
@@ -1380,7 +1504,7 @@ ortHitData SLMesh::createHitData()
     hitData.material.shininess         = mat()->shininess();
     hitData.material.ambient_color     = make_float4(mat()->ambient());
     hitData.material.specular_color    = make_float4(mat()->specular());
-    hitData.material.transmissiv_color = make_float4(mat()->transmissiv());
+    hitData.material.transmissiv_color = make_float4(mat()->transmissive());
     hitData.material.diffuse_color     = make_float4(mat()->diffuse());
     hitData.material.emissive_color    = make_float4(mat()->emissive());
 

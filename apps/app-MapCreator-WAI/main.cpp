@@ -13,6 +13,7 @@ struct Config
     std::string   vocFile;
     std::string   mapOutputDir;
     ExtractorType extractorType;
+    int           nLevels;
 };
 
 void printHelp()
@@ -28,15 +29,17 @@ void printHelp()
     ss << "  -configFile     Path and name to MapCreatorConfig.json" << std::endl;
     ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
     ss << "  -mapOutputDir   Directory where to output generated maps" << std::endl;
+    ss << "  -levels         Number of pyramid levels" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType   = ExtractorType_GLSL;
+    config.extractorType   = ExtractorType_FAST_BRIEF_1000;
     config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
     config.calibrationsDir = Utils::getAppsWritableDir() + "calibrations/";
+    config.nLevels         = -1;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -62,6 +65,10 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.mapOutputDir = argv[++i]; //Not used
         }
+        if (!strcmp(argv[i], "-level"))
+        {
+            config.nLevels = std::stoi(argv[++i]);
+        }
         else if (!strcmp(argv[i], "-feature"))
         {
             i++;
@@ -71,6 +78,8 @@ void readArgs(int argc, char* argv[], Config& config)
                 config.extractorType = ExtractorType_FAST_BRIEF_2000;
             else if (!strcmp(argv[i], "FAST_BRIEF_4000"))
                 config.extractorType = ExtractorType_FAST_BRIEF_4000;
+            else if (!strcmp(argv[i], "FAST_BRIEF_6000"))
+                config.extractorType = ExtractorType_FAST_BRIEF_6000;
             else if (!strcmp(argv[i], "FAST_ORBS_1000"))
                 config.extractorType = ExtractorType_FAST_ORBS_1000;
             else if (!strcmp(argv[i], "FAST_ORBS_2000"))
@@ -80,14 +89,30 @@ void readArgs(int argc, char* argv[], Config& config)
             else if (!strcmp(argv[i], "FAST_ORBS_6000"))
                 config.extractorType = ExtractorType_FAST_ORBS_6000;
             else if (!strcmp(argv[i], "GLSL_1"))
+            {
                 config.extractorType = ExtractorType_GLSL_1;
+                config.nLevels = 1;
+            }
             else if (!strcmp(argv[i], "GLSL"))
+            {
                 config.extractorType = ExtractorType_GLSL;
+                config.nLevels = 1;
+            }
+            else
+            {
+                std::cerr << "unkown feature type" << std::endl;
+                exit(1);
+            }
         }
         else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help"))
         {
             printHelp();
         }
+    }
+    if (config.nLevels == -1)
+    {
+        std::cerr << "pyramid level not specified" << std::endl;
+        exit(1);
     }
 }
 
@@ -162,7 +187,7 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType);
+        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType, config.nLevels);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

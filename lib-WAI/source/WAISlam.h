@@ -4,7 +4,6 @@
 #include <WAIHelper.h>
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
-#include <WAIModeOrbSlam2.h>
 #include <OrbSlam/LocalMapping.h>
 #include <OrbSlam/LoopClosing.h>
 #include <OrbSlam/Initializer.h>
@@ -14,12 +13,27 @@
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
 #include <WAISlamTools.h>
+#include <WAIMap.h>
+#include <WAIMapPoint.h>
+#include <WAIKeyFrame.h>
 #include <memory>
 
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
  * and some variables with getter that are useful for slam in a subclass.
  */
+namespace WAI
+{
+enum TrackingState
+{
+    TrackingState_None,
+    TrackingState_Idle,
+    TrackingState_Initializing,
+    TrackingState_TrackingOK,
+    TrackingState_TrackingLost,
+    TrackingState_TrackingTransformed
+};
+}
 
 class WAISlam : public WAISlamTools
 {
@@ -71,6 +85,8 @@ public:
     virtual void requestStateIdle();
 
     virtual bool retainImage();
+
+    void transformCoords(cv::Mat transform);
 
     std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
     int                       getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching);

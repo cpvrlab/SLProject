@@ -66,11 +66,27 @@ void SLGLOculusFB::generateFBO()
     // generate the intermediate screen texture
     glGenTextures(1, &_texID);
     glBindTexture(GL_TEXTURE_2D, _texID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, PF_rgba, _width, _height, 0, PF_rgba, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MAG_FILTER,
+                    GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S,
+                    GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T,
+                    GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 PF_rgba,
+                 _width,
+                 _height,
+                 0,
+                 PF_rgba,
+                 GL_UNSIGNED_BYTE,
+                 nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // generate the renderbuffer for the depth component
@@ -79,15 +95,26 @@ void SLGLOculusFB::generateFBO()
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _width, _height);
 #else
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, _width, _height);
+    glRenderbufferStorage(GL_RENDERBUFFER,
+                          GL_DEPTH_COMPONENT32,
+                          _width,
+                          _height);
 #endif
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     // finally generate the frame buffer and bind the targets
     glGenFramebuffers(1, &_fbID);
-    glBindFramebuffer(GL_FRAMEBUFFER, _fbID);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texID, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRbID);
+    glBindFramebuffer(GL_FRAMEBUFFER,
+                      _fbID);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D,
+                           _texID,
+                           0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                              GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER,
+                              _depthRbID);
 
     // test if the generated fbo is valid
     if ((glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE)
@@ -147,7 +174,7 @@ void SLGLOculusFB::drawFramebuffer(SLGLProgram* stereoOculusProgram)
     //bind the rift shader
     SLGLProgram* sp = stereoOculusProgram;
     sp->useProgram();
-    SLint location = sp->getAttribLocation("a_position");
+    SLint location = AT_position;
 
     // Create VBO for screen quad once
     if (!_vao.vaoID())

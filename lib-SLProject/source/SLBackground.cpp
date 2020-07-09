@@ -157,7 +157,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     SLGLProgram* sp = _texture ? _textureOnlyProgram : _colorAttributeProgram;
     sp->useProgram();
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
-    sp->uniform1f("u_oneOverGamma", stateGL->oneOverGamma);
+    sp->uniform1f("u_oneOverGamma", SLLight::oneOverGamma());
 
     // Create or update buffer for vertex position and indices
     if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)
@@ -172,7 +172,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
                       {(SLfloat)_resX, (SLfloat)_resY},
                       {(SLfloat)_resX, 0.0f}};
 
-        _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
+        _vao.setAttrib(AT_position, AT_position, &P);
 
         // Indexes for a triangle strip
         SLVushort I = {0, 1, 2, 3};
@@ -181,7 +181,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         if (_texture)
         { // Float array of texture coordinates
             SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
-            _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+            _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
             _vao.generate(4);
         }
         else
@@ -190,7 +190,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
                           {_colors[1].r, _colors[1].g, _colors[1].b},
                           {_colors[2].r, _colors[2].g, _colors[2].b},
                           {_colors[3].r, _colors[3].g, _colors[3].b}};
-            _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+            _vao.setAttrib(AT_color, AT_color, &C);
             _vao.generate(4);
         }
     }
@@ -238,7 +238,7 @@ void SLBackground::renderInScene(const SLVec3f& LT,
 
     // Float array with vertices
     SLVVec3f P = {LT, LB, RT, RB};
-    _vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
+    _vao.setAttrib(AT_position, AT_position, &P);
 
     // Indexes for a triangle strip
     SLVushort I = {0, 1, 2, 3};
@@ -247,7 +247,7 @@ void SLBackground::renderInScene(const SLVec3f& LT,
     if (_texture)
     { // Float array of texture coordinates
         SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
-        _vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+        _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
         _vao.generate(4);
     }
     else
@@ -256,7 +256,7 @@ void SLBackground::renderInScene(const SLVec3f& LT,
                       {_colors[1].r, _colors[1].g, _colors[1].b},
                       {_colors[2].r, _colors[2].g, _colors[2].b},
                       {_colors[3].r, _colors[3].g, _colors[3].b}};
-        _vao.setAttrib(AT_color, sp->getAttribLocation("a_color"), &C);
+        _vao.setAttrib(AT_color, AT_color, &C);
         _vao.generate(4);
     }
 

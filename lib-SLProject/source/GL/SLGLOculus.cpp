@@ -79,7 +79,10 @@ void SLGLOculus::init()
 //-----------------------------------------------------------------------------
 /*! Renders the distortion mesh with time warp and chromatic abberation
 */
-void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f background)
+void SLGLOculus::renderDistortion(SLint   width,
+                                  SLint   height,
+                                  SLuint  tex,
+                                  const SLCol4f& background)
 {
     assert(_stereoOculusDistProgram && "SLGLOculus::renderDistortion: shader program not set");
     SLGLProgram* sp = _stereoOculusDistProgram;
@@ -93,21 +96,18 @@ void SLGLOculus::renderDistortion(SLint width, SLint height, SLuint tex, SLCol4f
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    //todo: this does not work anymore
-    sp->beginUse(nullptr, SLCol4f());
+    sp->beginUse(nullptr, nullptr, nullptr);
 
-    for (int eye = 0; eye < 2; eye++)
+    for (auto& eye : _distortionMeshVAO)
     {
         sp->uniform1i("u_texture", 0);
         sp->uniform2f("u_eyeToSourceUVScale", 0.232f, -0.376f);
         sp->uniform2f("u_eyeToSourceUVOffset", 0.246f, 0.5f);
-
         SLMat4f identity;
 
         sp->uniformMatrix4fv("u_eyeRotationStart", 1, identity.m());
         sp->uniformMatrix4fv("u_eyeRotationEnd", 1, identity.m());
-
-        _distortionMeshVAO[eye].drawElementsAs(PT_triangles);
+        eye.drawElementsAs(PT_triangles);
     }
 
     sp->endUse();

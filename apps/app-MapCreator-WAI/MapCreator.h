@@ -41,7 +41,8 @@ public:
                std::string   calibrationsDir,
                std::string   configFile,
                std::string   vocFile,
-               ExtractorType extractorType);
+               ExtractorType extractorType,
+               int           nLevels);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -49,31 +50,39 @@ public:
     //! check that all files (video and calibration) exist.
     void loadSites(const std::string& erlebARDir, const std::string& configFile);
     //! create dense map using all videos for this location/area and thin out overall resulting map using keyframe culling
-    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType);
+    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels);
 
     bool createNewDenseWaiMap(Videos&            videos,
                               const std::string& mapFile,
                               const std::string& mapDir,
                               const float        cullRedundantPerc,
                               std::string&       currentMapFileName,
-                              ExtractorType      extractorType);
+                              ExtractorType      extractorType,
+                              int                nLevels,
+                              std::vector<int>&  keyFrameVideoMatching);
 
     void thinOutNewWaiMap(const std::string& mapDir,
                           const std::string& inputMapFile,
                           const std::string& outputMapFile,
+                          const std::string& outputKFMatchingFile,
                           CVCalibration&     calib,
                           const float        cullRedundantPerc,
-                          ExtractorType      extractorType);
-    void cullKeyframes(WAISlam* waiMode, std::vector<WAIKeyFrame*>& kfs, const float cullRedundantPerc);
-    void decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs);
-    void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
-    void loadMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
+                          ExtractorType      extractorType,
+                          int                nLevels,
+                          std::vector<int>&  keyFrameVideoMatching,
+                          Videos&            videos);
 
     bool createMarkerMap(AreaConfig&        areaConfig,
                          const std::string& mapFile,
                          const std::string& mapDir,
                          const float        cullRedundantPerc,
-                         ExtractorType      extractorType);
+                         ExtractorType      extractorType,
+                         int                nLevels);
+
+    void cullKeyframes(WAIMap* map, std::vector<WAIKeyFrame*>& kfs, std::vector<int>& keyFrameVideoMatching, const float cullRedundantPerc);
+    void decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs);
+    void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
+    void loadMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
 
 private:
     MapCreator() {}
@@ -89,6 +98,7 @@ private:
     WAIMapPoint* _mpLR;
 
     ExtractorType _extractorType;
+    int           _nLevels;
 
     /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;

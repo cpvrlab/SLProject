@@ -81,7 +81,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
             ///////////////////////////////////
 
             color.gammaCorrect(_oneOverGamma);
-            
+
             _images[0]->setPixeliRGB((SLint)x,
                                      (SLint)y,
                                      CVVec4f(color.r,
@@ -335,7 +335,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                 color /= (SLfloat)_cam->lensSamples()->samples();
 
                 color.gammaCorrect(_oneOverGamma);
-                
+
                 //_mutex.lock();
                 _images[0]->setPixeliRGB((SLint)x, y, CVVec4f(color.r, color.g, color.b, color.a));
                 //_mutex.unlock();
@@ -369,7 +369,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
     SLCol4f color(ray->backgroundColor);
 
     // Intersect scene
-    SLNode* root = _sv->s().root3D();
+    SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
     if (ray->length < FLT_MAX)
@@ -427,7 +427,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
         }
     }
 
-    if (SLGLState::instance()->fogIsOn)
+    if (_cam->fogIsOn())
         color = fogBlend(ray->length, color);
 
     color.clampMinMax(0, 1);
@@ -476,20 +476,18 @@ color = material emission +
 */
 SLCol4f SLRaytracer::shade(SLRay* ray)
 {
-    SLCol4f       localColor = SLCol4f::BLACK;
     SLMaterial*   mat        = ray->hitMesh->mat();
     SLVGLTexture& texture    = mat->textures();
     SLVec3f       L, N, H;
     SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
-    SLScene&      s = _sv->s();
-
-    localColor = mat->emissive() + (mat->ambient() & s.globalAmbiLight());
+    SLScene*      s          = _sv->s();
+    SLCol4f       localColor = mat->emissive() + (mat->ambient() & SLLight::globalAmbient);
 
     ray->hitMesh->preShade(ray);
 
-    for (auto* light : s.lights())
+    for (auto* light : s->lights())
     {
         if (light && light->isOn())
         {
@@ -499,15 +497,15 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             // Distinguish between point and directional lights
             SLVec4f lightPos = light->positionWS();
 
-            // Check if directional light on last component w (0 = light is in infintiy)
+            // Check if directional light on last component w (0 = light is in infinity)
             if (lightPos.w == 0.0f)
-            { 
+            {
                 // directional light
-                L         = lightPos.vec3().normalized();
+                L         = -light->spotDirWS().normalized();
                 lightDist = FLT_MAX; // = infinity
             }
             else
-            { 
+            {
                 // Point light
                 L.sub(lightPos.vec3(), ray->hitPoint);
                 lightDist = L.length();
@@ -518,7 +516,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             LdotN = L.dot(N);
 
             // check shadow ray if hit point is towards the light
-            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s.root3D()) : 0;
+            lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s->root3D()) : 0;
 
             // calculate the ambient part
             amdi = light->ambient() & mat->ambient();
@@ -531,9 +529,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 
                 // check if point is in spot cone
                 if (LdS > light->spotCosCut())
-                {
                     spotEffect = pow(LdS, (SLfloat)light->spotExponent());
-                }
                 else
                 {
                     lighted    = 0.0f;
@@ -548,9 +544,9 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             {
                 H.sub(L, ray->dir); // half vector between light & eye
                 H.normalize();
-                df  = std::max(LdotN, 0.0f); // diffuse factor
+                df    = std::max(LdotN, 0.0f); // diffuse factor
                 NdotH = std::max(N.dot(H), 0.0f);
-                sf  = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
+                sf    = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
 
                 amdi += lighted * df * light->diffuse() & mat->diffuse();
                 spec = lighted * sf * light->specular() & mat->specular();
@@ -725,25 +721,24 @@ calculation. See OpenGL docs for more information on fog properties.
 SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
 {
     SLfloat    f;
-    SLGLState* stateGL = SLGLState::instance();
 
     if (z > _sv->_camera->clipFar())
         z = _sv->_camera->clipFar();
 
-    switch (stateGL->fogMode)
+    switch (_cam->fogMode())
     {
         case 0:
-            f = (stateGL->fogDistEnd - z) /
-                (stateGL->fogDistEnd - stateGL->fogDistStart);
+            f = (_cam->fogDistEnd() - z) /
+                (_cam->fogDistEnd() - _cam->fogDistStart());
             break;
         case 1:
-            f = exp(-stateGL->fogDensity * z);
+            f = exp(-_cam->fogDensity() * z);
             break;
         default:
-            f = exp(-stateGL->fogDensity * z * stateGL->fogDensity * z);
+            f = exp(-_cam->fogDensity() * z * _cam->fogDensity() * z);
             break;
     }
-    color = f * color + (1 - f) * stateGL->fogColor;
+    color = f * color + (1 - f) * _cam->fogColor();
     color.clampMinMax(0, 1);
     return color;
 }

@@ -10,8 +10,12 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-#include "SLLight.h"
+#include <SLLight.h>
+#include <SLShadowMap.h>
 
+//-----------------------------------------------------------------------------
+SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
+SLfloat SLLight::gamma = 1.0f;
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,
@@ -24,6 +28,10 @@ SLLight::SLLight(SLfloat ambiPower,
     _spotCutOffDEG    = 180.0f;
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
     _spotExponent     = 1.0f;
+    _createsShadows   = false;
+    _shadowMap        = nullptr;
+    _doesPCF          = false;
+    _pcfLevel         = 1;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);
@@ -67,5 +75,15 @@ void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
 {
     _spotCutOffDEG    = cutOffAngleDEG;
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
+}
+//-----------------------------------------------------------------------------
+void SLLight::createsShadows(SLbool createsShadows)
+{
+    _createsShadows = createsShadows;
+    if (!createsShadows)
+    {
+        delete _shadowMap;
+        _shadowMap = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------

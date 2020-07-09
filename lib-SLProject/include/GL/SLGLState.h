@@ -35,13 +35,18 @@
 #include <SLMat4.h>
 
 class SLDrawBits;
+class SLGLDepthBuffer;
 class SLMaterial;
 
 //-----------------------------------------------------------------------------
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
+#if defined(DEBUG) || defined(_DEBUG)
 #define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
+#else
+#define GET_GL_ERROR
+#endif
 //-----------------------------------------------------------------------------
 //! Singleton class holding all OpenGL states
 /*!
@@ -78,24 +83,8 @@ public:
     SLMat4f viewMatrix;       //!< matrix for the active cameras view transform
     SLMat4f textureMatrix;    //!< matrix for the texture transform
 
-    // lighting
-    SLint   numLightsUsed;                  //!< NO. of lights used
-    SLint   lightIsOn[SL_MAX_LIGHTS];       //!< Flag if light is on
-    SLVec4f lightPosWS[SL_MAX_LIGHTS];      //!< position of light in world space
-    SLVec4f lightPosVS[SL_MAX_LIGHTS];      //!< position of light in view space
-    SLVec4f lightAmbient[SL_MAX_LIGHTS];    //!< ambient light intensity (Ia)
-    SLVec4f lightDiffuse[SL_MAX_LIGHTS];    //!< diffuse light intensity (Id)
-    SLVec4f lightSpecular[SL_MAX_LIGHTS];   //!< specular light intensity (Is)
-    SLVec3f lightSpotDirWS[SL_MAX_LIGHTS];  //!< spot direction in world space
-    SLVec3f lightSpotDirVS[SL_MAX_LIGHTS];  //!< spot direction in view space
-    SLfloat lightSpotCutoff[SL_MAX_LIGHTS]; //!< spot cutoff angle 1-180 degrees
-    SLfloat lightSpotCosCut[SL_MAX_LIGHTS]; //!< cosine of spot cutoff angle
-    SLfloat lightSpotExp[SL_MAX_LIGHTS];    //!< spot exponent
-    SLVec3f lightAtt[SL_MAX_LIGHTS];        //!< att. factor (const,linear,quadratic)
-    SLint   lightDoAtt[SL_MAX_LIGHTS];      //!< Flag if att. must be calculated
-    SLCol4f globalAmbientLight;             //!< global ambient light intensity
-
     // fog
+    /*
     SLbool  fogIsOn;      //!< Flag if fog blending is enabled
     SLint   fogMode;      //!< 0=GL_LINEAR, 1=GL_EXP, 2=GL_EXP2
     SLfloat fogDensity;   //!< Fog density for exponential modes
@@ -107,25 +96,17 @@ public:
     SLint   projection;        //!< type of projection (see SLCamera)
     SLint   stereoEye;         //!< -1=left, 0=center, 1=right
     SLMat3f stereoColorFilter; //!< color filter matrix for anaglyph
-
-    SLfloat oneOverGamma; //!< final output one over gamma value
+    */
 
     // setters
     void invModelViewMatrix(SLMat4f& im) { _invModelViewMatrix.setMatrix(im); }
     void normalMatrix(SLMat3f& nm) { _normalMatrix.setMatrix(nm); }
-    void gamma(SLfloat g)
-    {
-        _gamma       = g;
-        oneOverGamma = 1.0f / g;
-    }
 
     // getters
     inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
     inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
     const SLMat4f*        mvpMatrix();     //!< builds and returns proj.mat. x mv mat.
-    const SLCol4f*        globalAmbient(); //!< returns global ambient color
     inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
-    inline SLfloat        gamma() const { return _gamma; }
 
     // misc.
     void   buildInverseMatrix();          //!< build inverse matrix from MV
@@ -134,15 +115,12 @@ public:
     void   unbindAnythingAndFlush();      //!< finishes all GL commands
     SLbool pixelFormatIsSupported(SLint pixelFormat);
 
-    // light transformations into view space
-    void calcLightPosVS(SLint nLights);
-    void calcLightDirVS(SLint nLights);
-
     // state setters
     void depthTest(SLbool state);
     void depthMask(SLbool state);
     void cullFace(SLbool state);
     void blend(SLbool state);
+    void blendFunc(SLenum blendFuncSFactor, SLenum blendFuncDFactor);
     void multiSample(SLbool state);
     void polygonLine(SLbool state);
     void polygonOffset(SLbool state, SLfloat factor = 1.0f, SLfloat units = 1.0f);
@@ -152,10 +130,10 @@ public:
     void bindTexture(SLenum target, SLuint textureID);
     void activeTexture(SLenum textureUnit);
     void clearColor(const SLCol4f& c);
+    void currentMaterial(SLMaterial* mat) { _currentMaterial = mat; }
     void clearColorBuffer() { glClear(GL_COLOR_BUFFER_BIT); }
     void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }
     void clearColorDepthBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
-    void currentMaterial(SLMaterial* mat) { _currentMaterial = mat; }
 
     // state getters
     SLbool      blend() const { return _blend; }
@@ -197,9 +175,6 @@ private:
     SLMat3f  _normalMatrix;         //!< matrix for the normal transform
     SLMat4f  _mvpMatrix;            //!< combined modelview-projection transform
     SLSMat4f _modelViewMatrixStack; //!< stack for modelView matrices
-    SLVec4f  _lightPosVS;           //!< light pos. in view space
-    SLVec3f  _lightSpotDirVS;       //!< light spot direction in view space
-    SLCol4f  _globalAmbient;        //!< global ambient color
 
     SLstring _glVersion;     //!< OpenGL Version string
     SLstring _glVersionNO;   //!< OpenGL Version number string
@@ -214,6 +189,8 @@ private:
 
     // read/write states
     SLbool  _blend;                //!< blending default false;
+    SLenum  _blendFuncSfactor;     //!< blend function source factor enum
+    SLenum  _blendFuncDfactor;     //!< blend function destination factor enum
     SLbool  _depthTest;            //!< GL_DEPTH_TEST state
     SLbool  _depthMask;            //!< glDepthMask state
     SLbool  _cullFace;             //!< Face culling state
@@ -225,7 +202,6 @@ private:
     SLfloat _polygonOffsetUnits;   //!< GL_POLYGON_OFFSET_FILL units
     SLVec4i _viewport;             //!< viewport size (x,y,w,h)
     SLCol4f _clearColor;           //!< clear color
-    SLfloat _gamma;                //!< final output gamma value
 
     // states
     SLuint    _programID;     //!< current shader program id
@@ -236,6 +212,8 @@ private:
     GLboolean _colorMaskG;    //!< current color mask for G
     GLboolean _colorMaskB;    //!< current color mask for B
     GLboolean _colorMaskA;    //!< current color mask for A
+
+    SLVstring errors; //!< vector for errors collected in getGLError
 
     SLMaterial* _currentMaterial;
 };

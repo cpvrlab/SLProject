@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      StereoOculus.frag
 //  Purpose:   Oculus Rift Distortion Shader
-//  Author:    Marc Wacker, Roman Kühne
+//  Author:    Marc Wacker, Roman Kï¿½hne
 //  Date:      November 2013
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
@@ -11,26 +11,27 @@
 #ifdef GL_ES
 precision highp float;
 #endif
+//-----------------------------------------------------------------------------
+in      vec2        v_texCoordR;
+in      vec2        v_texCoordG;
+in      vec2        v_texCoordB;
+in      float       v_vignette;
+in      float       v_timeWarp;
 
-uniform sampler2D  u_texture;
+uniform sampler2D   u_texture;
 
-varying   vec2  v_texCoordR;
-varying   vec2  v_texCoordG;
-varying   vec2  v_texCoordB;
-varying   float v_vignette;
-varying   float v_timeWarp;
+out     vec4        o_fragColor;    // output fragment color
+//-----------------------------------------------------------------------------
 
 void main()
 {
     // 3 samples for fixing chromatic aberrations
-    float R = texture2D(u_texture, v_texCoordR).r;
-    float G = texture2D(u_texture, v_texCoordG).g;
-    float B = texture2D(u_texture, v_texCoordB).b;
-    gl_FragColor = (v_vignette*vec4(R,G,B,1));
-    //gl_FragColor = vec4(v_vignette, v_vignette, v_vignette, 1);
-    //gl_FragColor = vec4(v_timeWarp, v_timeWarp, v_timeWarp, 1);
+    float R = texture(u_texture, v_texCoordR).r;
+    float G = texture(u_texture, v_texCoordG).g;
+    float B = texture(u_texture, v_texCoordB).b;
+    o_fragColor = (v_vignette*vec4(R,G,B,1));
 }
-
+//-----------------------------------------------------------------------------
 /* original hlsl shader below
 
 Texture2D Texture : register(t0);
@@ -46,6 +47,5 @@ float4 main(in float4 oPosition : SV_Position, in float2 oTexCoord0 : TEXCOORD0,
     float B = Texture.Sample(Linear, oTexCoord2.xy).b;
     return (oVignette*float4(R,G,B,1));
 }
-
-
 */
+//-----------------------------------------------------------------------------

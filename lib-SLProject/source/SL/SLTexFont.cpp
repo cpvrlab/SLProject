@@ -172,8 +172,8 @@ void SLTexFont::create(SLstring fontFilename)
 
     // 2) build the texture
     charsHeight      = h;
-    SLuint texWidth  = nextPowerOf2((SLuint)lmax);
-    SLuint texHeight = nextPowerOf2(14 * (SLuint)(h + MARGIN_Y));
+    SLuint texWidth  = Utils::nextPowerOf2((SLuint)lmax);
+    SLuint texHeight = Utils::nextPowerOf2(14 * (SLuint)(h + MARGIN_Y));
 
     //Fill up with 0
     SLuchar* bits = new SLuchar[texWidth * texHeight];
@@ -431,8 +431,8 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
     // create buffers on GPU
     SLGLProgram* sp = _fontTexProgram;
     sp->useProgram();
-    vao.setAttrib(AT_position, sp->getAttribLocation("a_position"), &P);
-    vao.setAttrib(AT_texCoord, sp->getAttribLocation("a_texCoord"), &T);
+    vao.setAttrib(AT_position, AT_position, &P);
+    vao.setAttrib(AT_texCoord, AT_texCoord, &T);
     vao.setIndices(&I);
     vao.generate((SLuint)numP);
 }

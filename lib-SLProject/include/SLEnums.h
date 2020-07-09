@@ -88,13 +88,10 @@ enum SLAxis
 enum SLSceneID
 {
     SID_FromFile = -2, // Custom assted loaded over menu
-    SID_Empty    = -1, // No data in scene
-
-    SID_All = 0, // Loads all scenes one after the other
+    SID_Empty    = 0,  // No data in scene
     SID_Minimal,
     SID_Figure,
     SID_MeshLoad,
-    SID_VRSizeTest,
     SID_LargeModel,
     SID_Revolver,
     SID_TextureFilter,
@@ -107,13 +104,17 @@ enum SLSceneID
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
     SID_ShaderPerVertexWave,
-    SID_ShaderCookTorrance,
+    SID_ShaderCook,
     SID_ShaderWater,
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
     SID_ShaderEarth,
     SID_ShaderVoxelConeDemo,
+    SID_ShadowMappingBasicScene,
+    SID_ShadowMappingLightTypes,
+    SID_ShadowMappingPointLights,
+    SID_ShadowMappingSpotLights,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
@@ -232,8 +233,8 @@ enum SLAnimLooping
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for animation easing curves
-/*! 
-Enumerations copied from Qt class QEasingCurve. 
+/*!
+Enumerations copied from Qt class QEasingCurve.
 See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 enum SLEasingCurve

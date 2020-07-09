@@ -15,6 +15,7 @@
 #include <SLRay.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLShadowMap.h>
 #include <SLSphere.h>
 #include <SLSpheric.h>
 
@@ -25,8 +26,9 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLbool          hasMesh)
   : SLNode("LightDirect Node")
 {
-    _arrowRadius = arrowLength * 0.1f;
-    _arrowLength = arrowLength;
+    _arrowRadius  = arrowLength * 0.1f;
+    _arrowLength  = arrowLength;
+    _castsShadows = false;
 
     if (hasMesh)
     {
@@ -82,8 +84,13 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     init(s);
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLLightDirect::init sets the light id, the light states & creates an 
+SLLightDirect::~SLLightDirect()
+{
+    delete _shadowMap;
+}
+//-----------------------------------------------------------------------------
+/*!
+SLLightDirect::init sets the light id, the light states & creates an
 emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
@@ -101,8 +108,8 @@ void SLLightDirect::init(SLScene* s)
     }
 
     // Set the OpenGL light states
-    setState();
-    SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
+    //setState();
+    //SLGLState::instance()->numLightsUsed = (SLint)s->lights().size();
 
     // Set emissive light material to the lights diffuse color
     if (!_meshes.empty())
@@ -133,17 +140,13 @@ void SLLightDirect::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes 
+SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.
 */
 void SLLightDirect::drawMeshes(SLSceneView* sv)
 {
     if (_id != -1)
     {
-        // Set the OpenGL light states
-        SLLightDirect::setState();
-        SLGLState::instance()->numLightsUsed = (SLint)sv->s().lights().size();
-
         // Set emissive light material to the lights diffuse color
         if (!_meshes.empty())
             if (_meshes[0]->mat())
@@ -151,11 +154,18 @@ void SLLightDirect::drawMeshes(SLSceneView* sv)
 
         // now draw the meshes of the node
         SLNode::drawMeshes(sv);
+
+        // Draw the volume affected by the shadow map
+        if (_createsShadows && _isOn && sv->s()->singleNodeSelected() == this)
+        {
+            _shadowMap->drawFrustum();
+            _shadowMap->drawRays();
+        }
     }
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and 
+SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and
 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
 SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point
@@ -184,7 +194,7 @@ SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightDirect::shadowTestMC returns 0.0 if the hit point is completely shaded 
+SLLightDirect::shadowTestMC returns 0.0 if the hit point is completely shaded
 and 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
 SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit point
@@ -212,32 +222,12 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
-/*! SLLightRect::setState sets the global rendering state
+/*! SLLightDirect::renderShadowMap renders the shadow map of the light
 */
-void SLLightDirect::setState()
+void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    if (_id != -1)
-    {
-        SLGLState* stateGL      = SLGLState::instance();
-        stateGL->lightIsOn[_id] = _isOn;
-
-        // For directional lights the position vector is in infinite distance
-        // We use its homogeneos component w as zero as the directional light flag.
-        stateGL->lightPosWS[_id] = positionWS();
-
-        // The spot direction is used in the shaders for the light direction
-        stateGL->lightSpotDirWS[_id] = spotDirWS();
-
-        stateGL->lightAmbient[_id]    = ambient();
-        stateGL->lightDiffuse[_id]    = diffuse();
-        stateGL->lightSpecular[_id]   = specular();
-        stateGL->lightSpotCutoff[_id] = _spotCutOffDEG;
-        stateGL->lightSpotCosCut[_id] = _spotCosCutOffRAD;
-        stateGL->lightSpotExp[_id]    = _spotExponent;
-        stateGL->lightAtt[_id].x      = _kc;
-        stateGL->lightAtt[_id].y      = _kl;
-        stateGL->lightAtt[_id].z      = _kq;
-        stateGL->lightDoAtt[_id]      = isAttenuated();
-    }
+    if (_shadowMap == nullptr)
+        _shadowMap = new SLShadowMap(P_monoOrthographic, this);
+    _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------

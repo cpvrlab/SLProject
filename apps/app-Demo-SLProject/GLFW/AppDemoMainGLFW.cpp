@@ -235,68 +235,43 @@ static void onMouseButton(GLFWwindow* myWindow,
 
     if (action == GLFW_PRESS)
     {
-        // simulate double touch from touch devices
-        if (modifiers & K_alt)
-        {
-            // init for first touch
-            if (touch2.x < 0)
-            {
-                int scrW2 = lastWidth / 2;
-                int scrH2 = lastHeight / 2;
-                touch2.set(scrW2 - (x - scrW2), scrH2 - (y - scrH2));
-                touchDelta.set(x - touch2.x, y - touch2.y);
-            }
+        SLfloat mouseDeltaTime = (SLfloat)glfwGetTime() - lastMouseDownTime;
+        lastMouseDownTime      = (SLfloat)glfwGetTime();
 
-            // Do parallel double finger move
-            if (modifiers & K_shift)
+        // handle double click
+        if (mouseDeltaTime < 0.3f)
+        {
+            switch (button)
             {
-                slTouch2Down(svIndex, x, y, x - touchDelta.x, y - touchDelta.y);
-            }
-            else // Do concentric double finger pinch
-            {
-                slTouch2Down(svIndex, x, y, touch2.x, touch2.y);
+                case GLFW_MOUSE_BUTTON_LEFT:
+                    slDoubleClick(svIndex, MB_left, x, y, modifiers);
+                    break;
+                case GLFW_MOUSE_BUTTON_RIGHT:
+                    slDoubleClick(svIndex, MB_right, x, y, modifiers);
+                    break;
+                case GLFW_MOUSE_BUTTON_MIDDLE:
+                    slDoubleClick(svIndex, MB_middle, x, y, modifiers);
+                    break;
+                default: break;
             }
         }
-        else // Do standard mouse down
+        else // normal mouse clicks
         {
-            SLfloat mouseDeltaTime = (SLfloat)glfwGetTime() - lastMouseDownTime;
-            lastMouseDownTime      = (SLfloat)glfwGetTime();
+            // Start timer for the long touch detection
+            HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
 
-            // handle double click
-            if (mouseDeltaTime < 0.3f)
+            switch (button)
             {
-                switch (button)
-                {
-                    case GLFW_MOUSE_BUTTON_LEFT:
-                        slDoubleClick(svIndex, MB_left, x, y, modifiers);
-                        break;
-                    case GLFW_MOUSE_BUTTON_RIGHT:
-                        slDoubleClick(svIndex, MB_right, x, y, modifiers);
-                        break;
-                    case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slDoubleClick(svIndex, MB_middle, x, y, modifiers);
-                        break;
-                    default: break;
-                }
-            }
-            else // normal mouse clicks
-            {
-                // Start timer for the long touch detection
-                HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
-
-                switch (button)
-                {
-                    case GLFW_MOUSE_BUTTON_LEFT:
-                        slMouseDown(svIndex, MB_left, x, y, modifiers);
-                        break;
-                    case GLFW_MOUSE_BUTTON_RIGHT:
-                        slMouseDown(svIndex, MB_right, x, y, modifiers);
-                        break;
-                    case GLFW_MOUSE_BUTTON_MIDDLE:
-                        slMouseDown(svIndex, MB_middle, x, y, modifiers);
-                        break;
-                    default: break;
-                }
+                case GLFW_MOUSE_BUTTON_LEFT:
+                    slMouseDown(svIndex, MB_left, x, y, modifiers);
+                    break;
+                case GLFW_MOUSE_BUTTON_RIGHT:
+                    slMouseDown(svIndex, MB_right, x, y, modifiers);
+                    break;
+                case GLFW_MOUSE_BUTTON_MIDDLE:
+                    slMouseDown(svIndex, MB_middle, x, y, modifiers);
+                    break;
+                default: break;
             }
         }
     }
@@ -305,34 +280,18 @@ static void onMouseButton(GLFWwindow* myWindow,
         startX = -1;
         startY = -1;
 
-        // simulate double touch from touch devices
-        if (modifiers & K_alt)
+        switch (button)
         {
-            // Do parallel double finger move
-            if (modifiers & K_shift)
-            {
-                slTouch2Up(svIndex, x, y, x - (touch2.x - x), y - (touch2.y - y));
-            }
-            else // Do concentric double finger pinch
-            {
-                slTouch2Up(svIndex, x, y, touch2.x, touch2.y);
-            }
-        }
-        else // Do standard mouse down
-        {
-            switch (button)
-            {
-                case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseUp(svIndex, MB_left, x, y, modifiers);
-                    break;
-                case GLFW_MOUSE_BUTTON_RIGHT:
-                    slMouseUp(svIndex, MB_right, x, y, modifiers);
-                    break;
-                case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slMouseUp(svIndex, MB_middle, x, y, modifiers);
-                    break;
-                default: break;
-            }
+            case GLFW_MOUSE_BUTTON_LEFT:
+                slMouseUp(svIndex, MB_left, x, y, modifiers);
+                break;
+            case GLFW_MOUSE_BUTTON_RIGHT:
+                slMouseUp(svIndex, MB_right, x, y, modifiers);
+                break;
+            case GLFW_MOUSE_BUTTON_MIDDLE:
+                slMouseUp(svIndex, MB_middle, x, y, modifiers);
+                break;
+            default: break;
         }
     }
 }
@@ -348,31 +307,7 @@ static void onMouseMove(GLFWwindow* myWindow,
     mouseX = (int)x;
     mouseY = (int)y;
 
-    // Offset of 2nd. finger for two finger simulation
-
-    // Simulate double finger touches
-    if (modifiers & K_alt)
-    {
-        // Do parallel double finger move
-        if (modifiers & K_shift)
-        {
-            slTouch2Move(svIndex, (int)x, (int)y, (int)x - touchDelta.x, (int)y - touchDelta.y);
-        }
-        else // Do concentric double finger pinch
-        {
-            int scrW2    = lastWidth / 2;
-            int scrH2    = lastHeight / 2;
-            touch2.x     = scrW2 - ((int)x - scrW2);
-            touch2.y     = scrH2 - ((int)y - scrH2);
-            touchDelta.x = (int)x - touch2.x;
-            touchDelta.y = (int)y - touch2.y;
-            slTouch2Move(svIndex, (int)x, (int)y, touch2.x, touch2.y);
-        }
-    }
-    else // Do normal mouse move
-    {
-        slMouseMove(svIndex, (int)x, (int)y);
-    }
+    slMouseMove(svIndex, (int)x, (int)y);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -453,6 +388,31 @@ static void onKeyPress(GLFWwindow* myWindow,
     }
     else
     {
+        // Keyboard shortcuts for next or previous sceneID loading
+        if (modifiers & K_alt && modifiers & K_shift)
+        {
+            SLSceneView* sv = SLApplication::sceneViews[0];
+            if (action == GLFW_PRESS)
+            {
+                if (key == '0' &&  sv)
+                {
+                    appDemoLoadScene(SLApplication::scene, sv, SID_Empty);
+                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                }
+                else if (key == K_left && sv && SLApplication::sceneID > 0)
+                {
+                    appDemoLoadScene(SLApplication::scene, sv, (SLSceneID)(SLApplication::sceneID - 1));
+                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                }
+                else if (key == K_right && sv && SLApplication::sceneID < SID_Maximal-1)
+                {
+                    appDemoLoadScene(SLApplication::scene, sv, (SLSceneID)(SLApplication::sceneID + 1));
+                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                }
+            }
+            return;
+        }
+
         if (action == GLFW_PRESS)
             slKeyPress(svIndex, key, modifiers);
         else if (action == GLFW_RELEASE)

@@ -17,6 +17,7 @@
 #include <memory>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiSlamLoad.h>
+#include <AppDemoGuiMapPointEditor.h>
 
 #include <GUIPreferences.h>
 #include <ImGuiWrapper.h>
@@ -84,6 +85,9 @@ public:
     {
         if (_guiSlamLoad)
             _guiSlamLoad->setSlamParams(params);
+
+        if (_guiMapEditor)
+            _guiMapEditor->setSlamParams(params);
     }
 
     void onShow(); //call when gui becomes visible
@@ -101,8 +105,9 @@ private:
 
     //BackButton _backButton;
 
-    std::shared_ptr<AppDemoGuiError>    _errorDial;
-    std::shared_ptr<AppDemoGuiSlamLoad> _guiSlamLoad;
+    std::shared_ptr<AppDemoGuiError>          _errorDial;
+    std::shared_ptr<AppDemoGuiSlamLoad>       _guiSlamLoad;
+    std::shared_ptr<AppDemoGuiMapPointEditor> _guiMapEditor;
 
     //ImFont* _fontPropDots  = nullptr;
     //ImFont* _fontFixedDots = nullptr;

@@ -20,7 +20,7 @@ on the near clippling plane.
 */
 class SLKeyframeCamera : public SLCamera
 {
-    public:
+public:
     explicit SLKeyframeCamera(SLstring name = "Camera");
     virtual void drawMeshes(SLSceneView* sv);
 
@@ -28,7 +28,7 @@ class SLKeyframeCamera : public SLCamera
     bool renderBackground() { return _renderBackground; }
     bool allowAsActiveCam() { return _allowAsActiveCam; }
 
-    private:
+private:
     bool _allowAsActiveCam = false;
     bool _renderBackground = false;
 };

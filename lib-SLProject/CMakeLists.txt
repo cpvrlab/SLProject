@@ -1,4 +1,4 @@
-# 
+#
 # CMake configuration for lib-SLProject
 #
 
@@ -10,8 +10,8 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
     find_package(OptiX REQUIRED VERSION 7.0)
-    set(DEFAULT_COMPILE_DEFINITIONS 
-        ${DEFAULT_COMPILE_DEFINITIONS} 
+    set(DEFAULT_COMPILE_DEFINITIONS
+        ${DEFAULT_COMPILE_DEFINITIONS}
         SL_HAS_OPTIX
         SL_BUILD_WITH_OPTIX)
 else()
@@ -23,7 +23,7 @@ else()
             message("For Optix you have to install the latest CUDA Toolkit ")
             message("and the latest Optix SDK from NVidia.")
         else()
-            message("Optix is so far only available on Windows or Linux")    
+            message("Optix is so far only available on Windows or Linux")
         endif()
     endif()
 endif()
@@ -55,6 +55,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/CV/CVTrackedFeatures.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLConetracerTex3D.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLDepthBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLFbo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
@@ -148,6 +149,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSamples2D.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLScene.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSceneView.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLShadowMap.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSkeleton.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSphere.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
@@ -174,6 +176,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CV/CVTrackedFeatures.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLConetracerTex3D.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLDepthBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLFbo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLImGui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
@@ -239,6 +242,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSamples2D.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLScene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSceneView.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLShadowMap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSkeleton.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLSkybox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp

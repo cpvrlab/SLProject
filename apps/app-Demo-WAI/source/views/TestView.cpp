@@ -112,7 +112,6 @@ bool TestView::update()
                 _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 _fillAutoCalibration = false;
             }
-
             updateTrackingVisualization(_mode->isTracking(), frame->imgRGB);
         }
     }
@@ -198,7 +197,9 @@ void TestView::handleEvents()
                     _scene.updateCameraIntrinsics(_calibration.cameraFovVDeg(), _calibration.cameraMatUndistorted());
                     _mode->changeIntrinsic(_calibration.cameraMat(), _calibration.distortion());
                 }
+                delete autoCalEvent;
             }
+            break;
 
             case WAIEventType_VideoControl: {
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
@@ -266,6 +267,16 @@ void TestView::handleEvents()
                     _scene.root3D()->addChild(_transformationNode);
                 }
 
+                if (enterEditModeEvent->saveToMap)
+                {
+                    SLNode * mapNode = _scene.root3D()->findChild<SLNode>("map");
+                    const float *m = mapNode->om().m();
+                    cv::Mat mat = (cv::Mat_<float>(4, 4) << m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
+                    _mode->transformCoords(mat);
+                    _scene.resetMapNode();
+                    updateTrackingVisualization(_mode);
+                }
+
                 if (enterEditModeEvent->editMode == NodeEditMode_None)
                 {
                     if (_scene.root3D()->deleteChild(_transformationNode))
@@ -283,7 +294,48 @@ void TestView::handleEvents()
                 {
                     _transformationNode->editMode(enterEditModeEvent->editMode);
                 }
+                delete enterEditModeEvent;
+            }
+            break;
 
+            case WAIEventType_EnterEditMapPointMode: {
+                WAIEventEnterEditMapPointMode* enterEditModeEvent = (WAIEventEnterEditMapPointMode*)event;
+                if (enterEditModeEvent->action == MapPointEditor_EnterEditMode && !_mapEdition)
+                {
+                    _scene.removeLocalMapPoints();
+                    _scene.removeMapPoints();
+                    _scene.removeKeyframes();
+                    _scene.removeMatchedMapPoints();
+                    _scene.removeMarkerCornerMapPoints();
+                    _mapEdition = new MapEdition(this, _scene.root3D()->findChild<SLNode>("map"), _mode->getMapPoints(), _mode->getKeyFrames(), _dataDir + "shaders/");
+                    _scene.root3D()->addChild(_mapEdition);
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_SaveInMap && _mapEdition)
+                {
+                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_LoadMatching && _mapEdition)
+                {
+                    _mapEdition->updateKFVidMatching(enterEditModeEvent->kFVidMatching);
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_SelectSingleVideo && _mapEdition)
+                {
+                    _mapEdition->selectByVid(enterEditModeEvent->vid);
+                }
+                else if (enterEditModeEvent->action == MapPointEditor_Quit && _mapEdition)
+                {
+                    if (_scene.root3D()->deleteChild(_mapEdition))
+                    {
+                        auto it = find(_scene.eventHandlers().begin(),
+                                       _scene.eventHandlers().end(),
+                                       _mapEdition);
+                        if (it != _scene.eventHandlers().end())
+                            _scene.eventHandlers().erase(it);
+
+                        _mapEdition = nullptr;
+                    }
+                    updateTrackingVisualization(_mode);
+                }
                 delete enterEditModeEvent;
             }
             break;
@@ -327,7 +379,7 @@ void TestView::saveMap(std::string location,
     if (!Utils::dirExists(mapDir))
         Utils::makeDir(mapDir);
 
-    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName());
+    std::string filename = constructSlamMapFileName(location, area, _mode->getKPextractor()->GetName(), _mode->getKPextractor()->GetLevels());
     std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
 
     if (_mode->retainImage())
@@ -574,8 +626,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
         slamParams.params.cullRedundantPerc = 0.99f;
     }
 
-    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize);
-    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize);
+    _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize, slamParams.nLevels);
+    _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize, slamParams.nLevels);
     //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     try
@@ -626,6 +678,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     // 6. save current params
     _currentSlamParams = slamParams;
+    _gui.setSlamParams(slamParams);
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
     //_resizeWindow = true;
@@ -702,20 +755,10 @@ void TestView::updateVideoTracking()
     }
 }
 
-void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 {
-    //undistort image and copy image to video texture
-    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
-
-    if (_calibration.state() == CS_calibrated && _showUndistorted)
-        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
-    else
-        _imgBuffer.inputSlot() = imgRGB;
-
-    _scene.updateVideoImage(_imgBuffer.outputSlot());
-    _imgBuffer.incrementSlot();
-
-    //update map point visualization
+    if (!_mode)
+        return;
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());
@@ -752,6 +795,22 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& im
                         _gui.uiPrefs->showCovisibilityGraph,
                         _gui.uiPrefs->showSpanningTree,
                         _gui.uiPrefs->showLoopEdges);
+}
+
+void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB)
+{
+    //undistort image and copy image to video texture
+    _mode->drawInfo(imgRGB, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
+
+    if (_calibration.state() == CS_calibrated && _showUndistorted)
+        _calibration.remap(imgRGB, _imgBuffer.inputSlot());
+    else
+        _imgBuffer.inputSlot() = imgRGB;
+
+    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    _imgBuffer.incrementSlot();
+
+    updateTrackingVisualization(iKnowWhereIAm);
 }
 
 void TestView::setupDefaultErlebARDirTo(std::string dir)

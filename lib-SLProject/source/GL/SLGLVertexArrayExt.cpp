@@ -32,7 +32,7 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
 
     SLGLProgram* sp = SLGLProgramManager::get(SP_colorUniform);
     sp->useProgram();
-    SLint location = sp->getAttribLocation("a_position");
+    SLint location = AT_position;
 
     if (location == -1)
         SL_EXIT_MSG("The position attribute has no variable location.");
@@ -69,7 +69,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
     state->currentMaterial(nullptr);
 
     // Set uniform color
-    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
+    glUniform4fv(sp->getUniformLocation("u_matDiffuse"), 1, (SLfloat*)&color);
 
 #ifndef SL_GLES
     if (pointSize != 1.0f)
@@ -89,9 +89,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
             glPointSize(1.0f);
 #endif
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
@@ -116,7 +114,7 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
     state->currentMaterial(nullptr);
 
     // Set uniform color
-    glUniform4fv(sp->getUniformLocation("u_color"), 1, (SLfloat*)&color);
+    glUniform4fv(sp->getUniformLocation("u_matDiffuse"), 1, (SLfloat*)&color);
 
 #ifndef SL_GLES
     if (pointSize != 1.0f)
@@ -136,8 +134,6 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
             glPointSize(1.0f);
 #endif
 
-#ifdef _GLDEBUG
     GET_GL_ERROR;
-#endif
 }
 //-----------------------------------------------------------------------------

@@ -756,7 +756,6 @@ void LoopClosing::ResetIfRequested()
 void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 {
     cout << "Starting Global Bundle Adjustment" << endl;
-
     int idx = mnFullBAIdx;
     Optimizer::GlobalBundleAdjustemnt(mpMap, 10, &mbStopGBA, nLoopKF, false);
 
@@ -771,8 +770,6 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
         if (!mbStopGBA)
         {
-            cout << "Global Bundle Adjustment finished" << endl;
-            cout << "Updating map ..." << endl;
             mpLocalMapper->RequestStop();
             // Wait until Local Mapping has effectively stopped
 
@@ -792,19 +789,20 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                 WAIKeyFrame*            pKF     = lpKFtoCheck.front();
                 const set<WAIKeyFrame*> sChilds = pKF->GetChilds();
                 cv::Mat                 Twc     = pKF->GetPoseInverse();
+
                 for (set<WAIKeyFrame*>::const_iterator sit = sChilds.begin(); sit != sChilds.end(); sit++)
                 {
                     WAIKeyFrame* pChild = *sit;
                     if (pChild->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                     {
-                        cv::Mat Tchildc         = pChild->GetPose() * Twc;
-                        pChild->mTcwGBA         = Tchildc * pKF->mTcwGBA; //*Tcorc*pKF->mTcwGBA;
+                        cv::Mat Tchildc                = pChild->GetPose() * Twc;
+                        pChild->mTcwGBA                = Tchildc * pKF->mTcwGBA; //*Tcorc*pKF->mTcwGBA;
                         pChild->mnMarker[BA_GLOBAL_KF] = nLoopKF;
                     }
                     lpKFtoCheck.push_back(pChild);
                 }
 
-                pKF->mTcwBefGBA = pKF->GetPose();
+                pKF->mTcwRefGBA = pKF->GetPose();
                 pKF->SetPose(pKF->mTcwGBA);
                 lpKFtoCheck.pop_front();
             }
@@ -832,9 +830,17 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
                     if (pRefKF->mnMarker[BA_GLOBAL_KF] != nLoopKF)
                         continue;
 
+                    if (pRefKF->mTcwRefGBA.empty())
+                    {
+                        cout << "mTcwRefGBA is empty!!!\n It should not be the case" << endl;
+                        cout << "this happend when refKF is no more in the map" << endl;
+                        continue;
+                    }
+
                     // Map to non-corrected camera
-                    cv::Mat Rcw = pRefKF->mTcwBefGBA.rowRange(0, 3).colRange(0, 3);
-                    cv::Mat tcw = pRefKF->mTcwBefGBA.rowRange(0, 3).col(3);
+                    std::flush(std::cout);
+                    cv::Mat Rcw = pRefKF->mTcwRefGBA.rowRange(0, 3).colRange(0, 3);
+                    cv::Mat tcw = pRefKF->mTcwRefGBA.rowRange(0, 3).col(3);
                     cv::Mat Xc  = Rcw * pMP->GetWorldPos() + tcw;
 
                     // Backproject using corrected camera
@@ -849,13 +855,14 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
             mpMap->InformNewBigChange();
 
             mpLocalMapper->Release();
-            cout << "Map updated!" << endl;
         }
 
         mbFinishedGBA = true;
         mbRunningGBA  = false;
         mpLocalMapper->RequestContinue();
     }
+
+    cout << "Global Bundle Adjustment finished" << endl;
 }
 
 void LoopClosing::RequestFinish()

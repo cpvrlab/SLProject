@@ -15,7 +15,18 @@ enum WAIEventType
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
     WAIEventType_AdjustTransparency,
-    WAIEventType_EnterEditMode
+    WAIEventType_EnterEditMode,
+    WAIEventType_EnterEditMapPointMode
+};
+
+enum MapPointEditorEnum
+{
+    MapPointEditor_None,
+    MapPointEditor_SaveInMap,
+    MapPointEditor_Quit,
+    MapPointEditor_EnterEditMode,
+    MapPointEditor_SelectSingleVideo,
+    MapPointEditor_LoadMatching
 };
 
 struct WAIEvent
@@ -86,9 +97,27 @@ struct WAIEventAdjustTransparency : WAIEvent
 
 struct WAIEventEnterEditMode : WAIEvent
 {
-    WAIEventEnterEditMode() { type = WAIEventType_EnterEditMode; }
+    WAIEventEnterEditMode()
+    {
+        type      = WAIEventType_EnterEditMode;
+        saveToMap = false;
+    }
 
     SLNodeEditMode editMode;
+    bool saveToMap;
+};
+
+struct WAIEventEnterEditMapPointMode : WAIEvent
+{
+    WAIEventEnterEditMapPointMode()
+    {
+        type   = WAIEventType_EnterEditMapPointMode;
+        action = MapPointEditor_None;
+        vid = 0;
+    }
+    MapPointEditorEnum action;
+    std::vector<int> * kFVidMatching;
+    int vid;
 };
 
 #endif //WAI_EVENT_H

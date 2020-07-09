@@ -10,14 +10,15 @@
 //#############################################################################
 
 #version 430 core
-in vec3 o_N_WS;
-in vec3 o_P_VS;
-in vec3 o_P_WS;
-
+//-----------------------------------------------------------------------------
 #define VOXEL_SIZE (1/64.0)
 #define SQRT2 (1.41421)
 #define SQRT3 (1.732050807)
 #define SQRT3DOUBLE (2 * 1.732050807)
+//-----------------------------------------------------------------------------
+in vec3 o_N_WS;
+in vec3 o_P_VS;
+in vec3 o_P_WS;
 
 // general settings:
 uniform float   s_diffuseConeAngle;
@@ -54,15 +55,14 @@ uniform vec4   u_globalAmbient;     // Global ambient scene color
 uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
 uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
 uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
+uniform vec4   u_matEmissive;       // emissive color for self-shining materials
 uniform float  u_matShininess;      // shininess exponent
 uniform float  u_matKr;             // reflection factor (kr)
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
 uniform sampler3D u_texture3D;      // Voxelization texture.
 
-out vec4 color;
-
+out     vec4   o_fragColor;         // output fragment color
 //-----------------------------------------------------------------------------
 // Returns true if the point p is inside the unity cube.
 bool isInsideCube(const vec3 p, float e) 
@@ -124,8 +124,8 @@ vec4 coneTrace(vec3 from, vec3 dir, float angle)
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal 
                  in    vec3 E,   // Normalized vector 
-                 inout vec4 Id,  // Diffuse light intesity
-                 inout vec4 Is)  // Specular light intesity
+                 inout vec4 Id,  // Diffuse light intensity
+                 inout vec4 Is)  // Specular light intensity
 {  
     // We use the spot light direction as the light direction vector
     vec3 L = normalize(-u_lightSpotDirWS[i].xyz);
@@ -216,10 +216,10 @@ vec4 direct()
 {
     vec4 Id, Is;        // Accumulated light intensities at v_P_VS
    
-    Id = vec4(0.0);         // Diffuse light intesity
-    Is = vec4(0.0);         // Specular light intesity
+    Id = vec4(0.0);         // Diffuse light intensity
+    Is = vec4(0.0);         // Specular light intensity
    
-    vec3 N = normalize(o_N_WS);  // A varying normal has not anymore unit length
+    vec3 N = normalize(o_N_WS);  // A input normal has not anymore unit length
     vec3 E = normalize(u_EyePosWS - o_P_WS); // Vector from p to the eye
 
     if (u_lightIsOn[0]) {if (u_lightPosVS[0].w == 0.0) DirectLight(0, N, E, Id, Is); else PointLight(0, o_P_WS, N, E, Id, Is);}
@@ -231,7 +231,6 @@ vec4 direct()
     if (u_lightIsOn[6]) {if (u_lightPosVS[6].w == 0.0) DirectLight(6, N, E, Id, Is); else PointLight(6, o_P_WS, N, E, Id, Is);}
     if (u_lightIsOn[7]) {if (u_lightPosVS[7].w == 0.0) DirectLight(7, N, E, Id, Is); else PointLight(7, o_P_WS, N, E, Id, Is);}
     
-
     return u_matEmissive + 
            Id * u_matDiffuse +
            Is * u_matSpecular;
@@ -298,17 +297,17 @@ vec4 indirectSpecularLight()
 //-----------------------------------------------------------------------------
 void main()
 {
-    color = vec4(0, 0, 0, 1);
+    o_fragColor = vec4(0, 0, 0, 1);
 
     if(s_diffuseEnabled)
-        color += indirectDiffuse();
+        o_fragColor += indirectDiffuse();
 
     if(s_directEnabled)
-        color += direct();
+        o_fragColor += direct();
   
     if(s_specularEnabled)
-        color += indirectSpecularLight();
+        o_fragColor += indirectSpecularLight();
 
-    color.rgb = pow(color.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

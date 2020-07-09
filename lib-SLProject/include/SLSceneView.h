@@ -49,7 +49,7 @@ typedef void(SL_STDCALL* cbOnSelectNodeMesh)(SLNode*, SLMesh*);
 
 //-----------------------------------------------------------------------------
 //! SceneView class represents a dynamic real time 3D view onto the scene.
-/*!      
+/*!
  The SLSceneView class has a pointer to an active camera that is used to
  generate the 3D view into a window of the clients GUI system.
  OpenGL ES3.0 or newer is used the default renderer for framebuffer rendering.
@@ -165,7 +165,8 @@ public:
     }
 
     // Getters
-    SLScene&        s() { return *_s; }
+    SLScene*        s() { return _s; }
+    SLAssetManager* assetManager() { return (SLAssetManager*)_s; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -201,13 +202,14 @@ public:
     SLGLOculusFB*   oculusFB() { return &_oculusFB; }
     SLDrawBits*     drawBits() { return &_drawBits; }
     SLbool          drawBit(SLuint bit) { return _drawBits.get(bit); }
+    AvgFloat&       shadowMapTimeMS() { return _shadowMapTimesMS; }
     AvgFloat&       cullTimesMS() { return _cullTimesMS; }
     AvgFloat&       draw2DTimesMS() { return _draw2DTimesMS; }
     AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
-#ifdef SL_HAS_OPTIX
 
+#ifdef SL_HAS_OPTIX
     SLOptixRaytracer* optixRaytracer()
     {
         return &_optixRaytracer;
@@ -239,9 +241,10 @@ protected:
     SLbool     _isFirstFrame;     //!< Flag if it is the first frame rendering
     SLDrawBits _drawBits;         //!< Sceneview level drawing flags
 
-    SLfloat _cullTimeMS;   //!< time for culling in ms
-    SLfloat _draw3DTimeMS; //!< time for 3D drawing in ms
-    SLfloat _draw2DTimeMS; //!< time for 2D drawing in ms
+    SLfloat _shadowMapTimeMS; //!< time for drawing the shadow maps in ms
+    SLfloat _cullTimeMS;      //!< time for culling in ms
+    SLfloat _draw3DTimeMS;    //!< time for 3D drawing in ms
+    SLfloat _draw2DTimeMS;    //!< time for 2D drawing in ms
 
     SLbool  _mouseDownL; //!< Flag if left mouse button is pressed
     SLbool  _mouseDownR; //!< Flag if right mouse button is pressed
@@ -288,9 +291,10 @@ protected:
 
     SLInputManager& _inputManager;
 
-    AvgFloat _cullTimesMS;   //!< Averaged time for culling in ms
-    AvgFloat _draw3DTimesMS; //!< Averaged time for 3D drawing in ms
-    AvgFloat _draw2DTimesMS; //!< Averaged time for 2D drawing in ms
+    AvgFloat _shadowMapTimesMS; //!< Averaged time for drawing the shadow maps in ms
+    AvgFloat _cullTimesMS;      //!< Averaged time for culling in ms
+    AvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
+    AvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
 };
 //-----------------------------------------------------------------------------
 #endif

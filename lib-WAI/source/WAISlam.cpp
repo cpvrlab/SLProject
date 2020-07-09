@@ -1,12 +1,11 @@
 #include <WAISlam.h>
-#include <WAIModeOrbSlam2.h>
 #include <AverageTiming.h>
 #include <Utils.h>
 
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
 //#define MULTI_MAPPING_THREADS 1
-#define MULTI_THREAD_FRAME_PROCESSING 1
+//#define MULTI_THREAD_FRAME_PROCESSING 1
 
 #define LOG_WAISLAM_WARN(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
@@ -162,7 +161,7 @@ void WAISlam::reset()
 void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 {
     _cameraIntrinsic = intrinsic;
-    _distortion = distortion;
+    _distortion      = distortion;
 }
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
@@ -231,7 +230,7 @@ void WAISlam::resume()
 {
     std::unique_lock<std::mutex> lock(_stateMutex);
     _isStop = false;
-    _localMapping->Release();
+    _localMapping->RequestContinue();
     _state = WAI::TrackingState_TrackingLost;
 }
 
@@ -271,17 +270,17 @@ void WAISlam::updatePose(WAIFrame& frame)
     switch (_state)
     {
         case WAI::TrackingState_Initializing: {
-#if 0
-            bool ok = oldInitialize(frame, _iniData, _globalMap, _localMap, _localMapping, _loopClosing, _voc, 100, _lastKeyFrameFrameId);
+#if 1
+            bool ok = oldInitialize(frame, _iniData, _globalMap.get(), _localMap, _localMapping, _loopClosing, _voc);
             if (ok)
             {
                 _lastKeyFrameFrameId = frame.mnId;
                 _lastRelocFrameId    = 0;
-                _state               = TrackingState_TrackingOK;
+                _state               = WAI::TrackingState_TrackingOK;
                 _initialized         = true;
             }
 #else
-            if (initialize(_iniData, frame, _voc, _localMap, 100, _lastKeyFrameFrameId))
+            if (initialize(_iniData, frame, _voc, _localMap))
             {
                 if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap, _serial))
                 {
@@ -445,7 +444,6 @@ void WAISlam::requestStateIdle()
         _localMapping->RequestStop();
         while (!_localMapping->isStopped())
         {
-            std::cout << "localMapping is not yet stopped" << std::endl;
             std::this_thread::sleep_for(std::chrono::microseconds(10));
         }
         std::cout << "localMapping is stopped" << std::endl;
@@ -469,6 +467,26 @@ bool WAISlam::isTracking()
 bool WAISlam::retainImage()
 {
     return false;
+}
+
+void WAISlam::transformCoords(cv::Mat transform)
+{
+    _localMapping->RequestStop();
+    while (!_localMapping->isStopped() && !_localMapping->isFinished())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    //_localMap.keyFrames.clear();
+    //_localMap.mapPoints.clear();
+    //_localMap.refKF = nullptr;
+
+    WAIMap*  map = _globalMap.get();
+
+    map->transform(transform);
+
+    _initialized = true;
+    _localMapping->RequestContinue();
 }
 
 void WAISlam::setMap(std::unique_ptr<WAIMap> globalMap)
