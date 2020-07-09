@@ -623,7 +623,7 @@ bool SLNode::hitRec(SLRay* ray)
     if (_meshes.empty())
     {
         // Special selection for cameras
-        if (typeid(*this) == typeid(SLCamera) && ray->sv->camera() != this)
+        if (dynamic_cast<SLCamera*>(this) && ray->sv->camera() != this)
         {
             ray->hitNode = this;
             ray->hitMesh = nullptr;
@@ -844,7 +844,7 @@ SLNode::updateAABBRec()
         _aabb.maxWS(SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX));
     }
 
-    if (typeid(*this) == typeid(SLCamera))
+    if (dynamic_cast<SLCamera*>(this))
     {
         ((SLCamera*)this)->buildAABB(_aabb, updateAndGetWM());
     }

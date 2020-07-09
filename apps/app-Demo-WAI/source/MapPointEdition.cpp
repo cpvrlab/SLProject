@@ -217,12 +217,15 @@ void MapEdition::updateMeshes(std::string                      name,
 
     _kfNode->deleteChildren();
 
+    i = 0;
     for (WAIKeyFrame* kf : kfs)
     {
+        i++;
+
         if (kf->isBad())
             continue;
 
-        SLKeyframeCamera* cam = new SLKeyframeCamera("Map Edit KF " + std::to_string(kf->mnId));
+        SLKeyframeCamera* cam = new SLKeyframeCamera(std::to_string(i-1));
 
         cv::Mat Twc = kf->getObjectMatrix();
 
@@ -327,13 +330,20 @@ SLbool MapEdition::onKeyRelease(const SLKey key, const SLKey mod)
     {
         if (_keyframeMode)
         {
-
-            std::cout << "delete kfs" << std::endl;
             for (auto it = _sv->s()->selectedNodes().begin(); it != _sv->s()->selectedNodes().end(); it++)
             {
                 SLNode * node = *it;
+                if (node->parent() == _kfNode)
                 {
-                    std::cout << "a keyframe  " << node->name() << std::endl;
+                    int idx = std::stoi(node->name());
+                    if (_activeKeyframes[idx]->mnId == 0)
+                    {
+                        Utils::log("WARNING", "Try to delete initial keyframe\n");
+                        continue;
+                    }
+                    _activeKeyframes[idx]->SetBadFlag();
+                    _map->EraseKeyFrame(_activeKeyframes[idx]);
+                    _map->GetKeyFrameDB()->erase(_activeKeyframes[idx]);
                 }
             }
         }
@@ -362,8 +372,7 @@ SLbool MapEdition::onKeyRelease(const SLKey key, const SLKey mod)
                 }
             }
         }
-
-        updateMeshes("current map points", _activeMapPoints, _keyframes, _mesh, _green);
+        updateMeshes("current map points", _activeMapPoints, _activeKeyframes, _mesh, _green);
     }
     return false;
 }
