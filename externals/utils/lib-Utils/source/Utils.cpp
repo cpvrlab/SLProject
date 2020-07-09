@@ -184,6 +184,7 @@ vector<string> getStringLines(const string& multiLineString)
         std::getline(stream, line);
         if (!stream.good())
             break;
+        line = Utils::trimString(line, "\r");
         res.push_back(line);
     }
     return res;

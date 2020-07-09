@@ -69,6 +69,7 @@ private:
                          SLPoints*&                       mesh,
                          SLMaterial*&                     material);
     void removeMesh(SLNode* node, SLMesh* mesh);
+    void hideNode(SLNode* node);
 
     void loadMesh(std::string path);
 
