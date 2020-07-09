@@ -22,7 +22,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
                                              bool                          mirrorV,
                                              bool                          mirrorH,
                                              bool                          convToGrayToImgManip,
-                                             cv::Size                      imgManipSize,
+                                             int                           imgManipWidth,
                                              bool                          provideIntrinsics,
                                              float                         fovDegFallbackGuess)
 {
@@ -32,26 +32,20 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         return _config;
     }
 
-    _config.streamConfig        = &streamConfig;
-    _config.deviceId            = deviceId;
-    _config.mirrorV             = mirrorV;
-    _config.mirrorH             = mirrorH;
-    _config.convertManipToGray  = convToGrayToImgManip;
-    _config.manipWidth          = imgManipSize.width;
-    _config.manipHeight         = imgManipSize.height;
-    _config.provideIntrinsics   = provideIntrinsics;
-    _config.fovDegFallbackGuess = fovDegFallbackGuess;
-
+    cv::Size targetSize;
     if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
     {
-        _config.targetWidth  = imgRGBSize.width;
-        _config.targetHeight = imgRGBSize.height;
+        targetSize.width  = imgRGBSize.width;
+        targetSize.height = imgRGBSize.height;
     }
     else
     {
-        _config.targetWidth  = streamConfig.widthPix;
-        _config.targetHeight = streamConfig.heightPix;
+        targetSize.width  = streamConfig.widthPix;
+        targetSize.height = streamConfig.heightPix;
     }
+
+    cv::Size imgManipSize(imgManipWidth,
+                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -63,100 +57,42 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
-    NSString* devId = [NSString stringWithUTF8String:_config.deviceId.c_str()];
+    NSString* devId = [NSString stringWithUTF8String:deviceId.c_str()];
+
+    BOOL enableVideoStabilization = YES;
+    if (provideIntrinsics)
+        enableVideoStabilization = NO;
 
     if ([_cameraDelegate startCamera:devId
                            withWidth:streamConfig.widthPix
                            andHeight:streamConfig.heightPix
                       autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
-             videoStabilizationState:_config.enableVideoStabilization
-                     intrinsicsState:_config.provideIntrinsics])
+             videoStabilizationState:enableVideoStabilization
+                     intrinsicsState:provideIntrinsics])
     {
+        //init config here
+        _config = SENSCameraConfig(deviceId,
+                                   streamConfig,
+                                   SENSCameraFocusMode::UNKNOWN,
+                                   targetSize.width,
+                                   targetSize.height,
+                                   imgManipSize.width,
+                                   imgManipSize.height,
+                                   mirrorH,
+                                   mirrorV,
+                                   convToGrayToImgManip);
         //initialize guessed camera calibration
-        initCalibration();
+        initCalibration(fovDegFallbackGuess);
         _started = true;
     }
     else
+    {
         throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
+    }
 
     return _config;
 }
 
-/*
-const SENSCameraConfig& SENSiOSCamera::start(SENSCameraFacing facing,
-                                             float            approxHorizFov,
-                                             cv::Size         imgRGBSize,
-                                             bool             mirrorV,
-                                             bool             mirrorH,
-                                             bool             scaleImgRGB,
-                                             bool             convToGrayToImgManip,
-                                             cv::Size         imgManipSize,
-                                             bool             provideIntrinsics,
-                                             float            fovDegFallbackGuess)
-{
-    if (_started)
-    {
-        Utils::warnMsg("SENSiOSCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
-        return _config;
-    }
-
-    _config.mirrorV             = mirrorV;
-    _config.mirrorH             = mirrorH;
-    _config.convertManipToGray  = convToGrayToImgManip;
-    _config.manipWidth          = imgManipSize.width;
-    _config.manipHeight         = imgManipSize.height;
-    _config.provideIntrinsics   = provideIntrinsics;
-    _config.fovDegFallbackGuess = fovDegFallbackGuess;
-
-    //for ios to retrieve intrinsics we have to disable video stabilization
-    if (provideIntrinsics)
-        _config.enableVideoStabilization = false;
-
-    //retrieve all camera characteristics
-    if (_captureProperties.size() == 0)
-        _captureProperties = [_cameraDelegate retrieveCaptureProperties];
-
-    if (_captureProperties.size() == 0)
-        throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
-
-    auto bestConfig = _captureProperties.findBestMatchingConfig(facing, approxHorizFov, imgRGBSize.width, imgRGBSize.height);
-    if (bestConfig.first && bestConfig.second)
-    {
-        NSString*                     devId        = [NSString stringWithUTF8String:bestConfig.first->deviceId().c_str()];
-        const SENSCameraStreamConfig* streamConfig = bestConfig.second;
-
-        if ([_cameraDelegate startCamera:devId
-                               withWidth:streamConfig->widthPix
-                               andHeight:streamConfig->heightPix
-                          autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
-                 videoStabilizationState:_config.enableVideoStabilization
-                         intrinsicsState:_config.provideIntrinsics])
-        {
-            //calculate crop for config
-            int cropW, cropH, resW, resH;
-            SENS::calcCrop({streamConfig->widthPix, streamConfig->heightPix},
-                           (float)imgRGBSize.width / (float)imgRGBSize.height,
-                           _config.cropWidth,
-                           _config.cropHeight,
-                           _config.targetWidth,
-                           _config.targetHeight);
-
-            _config.deviceId     = bestConfig.first->deviceId();
-            _config.streamConfig = streamConfig;
-            _started             = true;
-        }
-        else
-            throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
-    }
-    else
-        throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
-
-    //initialize guessed camera calibration
-    initCalibration();
-
-    return _config;
-}
-*/
 void SENSiOSCamera::stop()
 {
     if (_started)
@@ -187,15 +123,13 @@ SENSFramePtr SENSiOSCamera::latestFrame()
     if (newFrame && !newFrame->intrinsics.empty())
     {
         _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
-                                                         cv::Size(_config.streamConfig->widthPix, _config.streamConfig->heightPix),
+                                                         cv::Size(_config.streamConfig.widthPix, _config.streamConfig.heightPix),
                                                          _calibration->isMirroredH(),
                                                          _calibration->isMirroredV(),
                                                          _calibration->camType(),
                                                          _calibration->computerInfos());
         //adjust calibration
-        if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
-            _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
-        else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
+        if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
             _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
     }
 

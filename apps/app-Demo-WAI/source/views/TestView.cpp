@@ -177,11 +177,11 @@ void TestView::handleEvents()
                 {
                     auto  streamConfig = _camera->config().streamConfig;
                     float horizFovDeg  = 65.f;
-                    if (streamConfig->focalLengthPix > 0)
-                        horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(streamConfig->focalLengthPix, streamConfig->widthPix);
+                    if (streamConfig.focalLengthPix > 0)
+                        horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, streamConfig.widthPix);
 
                     //_calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
-                    SENSCalibration calib(cv::Size(streamConfig->widthPix, streamConfig->heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
+                    SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
                     _camera->setCalibration(calib, false);
                     _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
                     cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),

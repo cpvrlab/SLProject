@@ -112,8 +112,8 @@ private:
 struct SENSCameraConfig
 {
     //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
-    SENSCameraConfig(std::string                   deviceId           = "",
-                     const SENSCameraStreamConfig* streamConfig       = nullptr,
+    SENSCameraConfig(std::string                   deviceId,
+                     const SENSCameraStreamConfig& streamConfig,
                      SENSCameraFocusMode           focusMode          = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS,
                      int                           targetWidth        = 0,
                      int                           targetHeight       = 0,
@@ -134,6 +134,8 @@ struct SENSCameraConfig
         convertManipToGray(convertManipToGray)
     {
     }
+    SENSCameraConfig() = default;
+    
 
     //SENSCameraConfig& operator=(const SENSCameraConfig& other) = default; // Copy assignment operator
     //SENSCameraConfig& operator=(SENSCameraConfig&&) = default;            // Move assignment operator
@@ -144,7 +146,7 @@ struct SENSCameraConfig
     std::string deviceId;
     //! currently selected stream config index (use it to look up original capture size)
     //int streamConfigIndex = -1;
-    const SENSCameraStreamConfig* streamConfig;
+    SENSCameraStreamConfig streamConfig;
     //! autofocus mode
     SENSCameraFocusMode focusMode;
     //! largest target image width (only RGB)
@@ -161,19 +163,11 @@ struct SENSCameraConfig
     bool mirrorV;
     //! provide gray version of small image
     bool convertManipToGray;
-
-    //bool provideIntrinsics = false;
-    //float fovDegFallbackGuess = 65.f;
-
-    //! enable video stabilization if available
-    //const bool enableVideoStabilization = true;
 };
 
 class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
 {
 public:
-    //float getFovForConfig(const SENSCameraConfig& camConfig, int targetImgLength) const;
-
     bool                              containsDeviceId(const std::string& deviceId) const;
     const SENSCameraDeviceProperties* camPropsForDeviceId(const std::string& deviceId) const;
     //returned pointer is null if nothing was found

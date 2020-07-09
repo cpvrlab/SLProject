@@ -15,22 +15,10 @@ public:
                                   bool                          mirrorV              = false,
                                   bool                          mirrorH              = false,
                                   bool                          convToGrayToImgManip = false,
-                                  cv::Size                      imgManipSize         = cv::Size(),
+                                  int                           imgManipWidth        = -1,
                                   bool                          provideIntrinsics    = true,
                                   float                         fovDegFallbackGuess  = 65.f) override;
 
-    /*
-    const SENSCameraConfig& start(SENSCameraFacing facing,
-                                  float            approxHorizFov,
-                                  cv::Size         imgRGBSize,
-                                  bool             mirrorV              = false,
-                                  bool             mirrorH              = false,
-                                  bool             scaleImgRGB          = false,
-                                  bool             convToGrayToImgManip = false,
-                                  cv::Size         imgManipSize         = cv::Size(),
-                                  bool             provideIntrinsics    = true,
-                                  float            fovDegFallbackGuess  = 65.f) override;
-    */
     void                         stop() override;
     const SENSCaptureProperties& captureProperties() override;
     SENSFramePtr                 latestFrame() override;
