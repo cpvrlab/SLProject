@@ -86,6 +86,8 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
             WAIKeyFrame* kf = kfs[i];
             if (kf->isBad())
                 continue;
+            if (kf->mBowVec.data.empty())
+                continue;
 
             fs << "{"; //new map keyFrame
                        //add id
@@ -545,6 +547,11 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
 
     for (WAIKeyFrame* kf : keyFrames)
     {
+        if (kf->mBowVec.data.empty())
+        {
+            std::cout << "kf->mBowVec.data empty" << std::endl;
+            continue;
+        }
         waiMap->AddKeyFrame(kf);
         waiMap->GetKeyFrameDB()->add(kf);
 
