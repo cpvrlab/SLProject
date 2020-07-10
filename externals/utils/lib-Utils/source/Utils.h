@@ -239,14 +239,23 @@ template<class T> inline T mix(T mix, T a, T b){return (1 - mix) * a + mix * b;}
 template<class T> inline T lerp(T x, T a, T b){return (a + x * (b - a));}
 //template<class T> inline T swap(T& a, T& b){T c = a; a = b; b = c;}
 //-----------------------------------------------------------------------------
+//! Returns true if a number is of power of 2
 inline bool isPowerOf2(unsigned int a)
 {
     return a == 1 || (a & (a - 1)) == 0;
 }
 //-----------------------------------------------------------------------------
+//! Returns a uniform distributed random float number between min and max
 inline float random(float min, float max)
 {
     return ((float)rand() / (float)RAND_MAX) * (max - min) + min;
+}
+//-----------------------------------------------------------------------------
+//! Returns a uniform distributed random int number between min and max
+inline float random(int min, int max)
+{
+    int range = max - min;
+    return min + rand() % range;
 }
 //-----------------------------------------------------------------------------
 //! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)

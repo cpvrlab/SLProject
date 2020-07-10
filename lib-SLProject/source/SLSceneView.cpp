@@ -496,6 +496,7 @@ SLbool SLSceneView::onPaint()
 
     SLbool sceneHasChanged    = false;
     SLbool viewConsumedEvents = false;
+
     // Only update scene if sceneview got repainted: This check is necessary if
     // this function is called for multiple SceneViews. In this way we only
     // update the geometric representations if all SceneViews got painted once.

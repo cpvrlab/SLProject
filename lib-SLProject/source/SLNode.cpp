@@ -453,8 +453,6 @@ _blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
 {
-    //PROFILE_FUNCTION();
-
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this) != typeid(SLCamera) &&
