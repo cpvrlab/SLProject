@@ -46,25 +46,25 @@ public:
 private:
     void createA();
 
-    VkSurfaceKHR  surface;
-    Instance*     instance    = nullptr;
-    Device*       device      = nullptr;
-    Swapchain*    swapchain   = nullptr;
-    RenderPass*   renderPass  = nullptr;
-    Framebuffer*  framebuffer = nullptr;
-    TextureImage* depthImage  = nullptr;
+    VkSurfaceKHR         surface;
+    Instance*            instance            = nullptr;
+    Device*              device              = nullptr;
+    Swapchain*           swapchain           = nullptr;
+    RenderPass*          renderPass          = nullptr;
+    Framebuffer*         framebuffer         = nullptr;
+    TextureImage*        depthImage          = nullptr;
+    DescriptorSetLayout* descriptorSetLayout = nullptr;
 
-    vector<CommandBuffer*>       commandBufferList;
-    vector<UniformBuffer*>       uniformBufferList;
-    vector<DescriptorPool*>      descriptorPoolList;
-    vector<DescriptorSet*>       descriptorSetList;
-    vector<DescriptorSetLayout*> descriptorSetLayoutList;
-    vector<TextureImage*>        textureImageList;
-    vector<Buffer*>              indexBufferList;
-    vector<Buffer*>              vertexBufferList;
-    vector<ShaderModule*>        vertShaderModuleList;
-    vector<ShaderModule*>        fragShaderModuleList;
-    vector<Pipeline*>            pipelineList;
+    vector<CommandBuffer*>  commandBufferList;
+    vector<UniformBuffer*>  uniformBufferList;
+    vector<DescriptorPool*> descriptorPoolList;
+    vector<DescriptorSet*>  descriptorSetList;
+    vector<TextureImage*>   textureImageList;
+    vector<Buffer*>         indexBufferList;
+    vector<Buffer*>         vertexBufferList;
+    vector<ShaderModule*>   vertShaderModuleList;
+    vector<ShaderModule*>   fragShaderModuleList;
+    vector<Pipeline*>       pipelineList;
 };
 
 #endif

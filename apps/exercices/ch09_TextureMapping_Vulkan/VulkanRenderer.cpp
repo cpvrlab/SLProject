@@ -32,10 +32,9 @@ VulkanRenderer::~VulkanRenderer()
         d->destroy();
         delete d;
     }
-    for (DescriptorSetLayout* d : descriptorSetLayoutList)
     {
-        d->destroy();
-        delete d;
+        descriptorSetLayout->destroy();
+        delete descriptorSetLayout;
     }
     for (TextureImage* t : textureImageList)
     {
@@ -75,22 +74,21 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
     // Setting up vulkan
     instance = new Instance("Test", deviceExtensions, validationLayers);
     glfwCreateWindowSurface(instance->handle, window, nullptr, &surface);
-    device      = new Device(*instance, instance->physicalDevice, surface, deviceExtensions);
-    swapchain   = new Swapchain(*device, window);
-    renderPass  = new RenderPass(*device, *swapchain);
-    framebuffer = new Framebuffer(*device, *renderPass, *swapchain);
-
+    device     = new Device(*instance, instance->physicalDevice, surface, deviceExtensions);
+    swapchain  = new Swapchain(*device, window);
+    renderPass = new RenderPass(*device, *swapchain);
     depthImage = new TextureImage(*device);
     depthImage->createDepthImage(*swapchain);
+    framebuffer = new Framebuffer(*device, *renderPass, *swapchain, *depthImage);
 }
 //-----------------------------------------------------------------------------
 void VulkanRenderer::createMesh(SLMat4f& camera, const vector<DrawingObject>& drawingObj)
 {
+    descriptorSetLayout = new DescriptorSetLayout(*device);
+
     for (int i = 0; i < drawingObj.size(); i++)
     {
         // Shader program setup
-        DescriptorSetLayout* descriptorSetLayout = new DescriptorSetLayout(*device);
-        descriptorSetLayoutList.push_back(descriptorSetLayout);
         GPUProgram*   program          = drawingObj[1].mat->program();
         ShaderModule* vertShaderModule = new ShaderModule(*device, program->shaders()[0]->code());
         ShaderModule* fragShaderModule = new ShaderModule(*device, program->shaders()[1]->code());

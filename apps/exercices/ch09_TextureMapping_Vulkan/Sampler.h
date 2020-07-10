@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SAMPLER_H
+#define SAMPLER_H
 
 #include "Device.h"
 
@@ -17,3 +18,4 @@ private:
     VkSampler _handle{VK_NULL_HANDLE};
 };
 //-----------------------------------------------------------------------------
+#endif

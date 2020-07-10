@@ -13,6 +13,7 @@ void Pipeline::destroy()
         vkDestroyPipelineLayout(_device.handle(), _pipelineLayout, nullptr);
 }
 
+// Move method to VulkanRenderer (no dependency to pipeline)
 void Pipeline::draw(UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
 {
     vkWaitForFences(_device.handle(),
@@ -57,17 +58,14 @@ void Pipeline::draw(UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
     result = vkQueueSubmit(_device.graphicsQueue(), 1, &submitInfo, _device.inFlightFences()[_currentFrame]);
     ASSERT_VULKAN(result, "Failed to submit draw command buffer");
 
+    VkSwapchainKHR   swapchains[] = {_swapchain.handle()};
     VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
+    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores    = signalSemaphores;
-
-    VkSwapchainKHR swapchains[] = {_swapchain.handle()};
-    presentInfo.swapchainCount  = 1;
-    presentInfo.pSwapchains     = swapchains;
-
-    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.swapchainCount     = 1;
+    presentInfo.pSwapchains        = swapchains;
+    presentInfo.pImageIndices      = &imageIndex;
 
     result = vkQueuePresentKHR(_device.presentQueue(), &presentInfo);
     if (result != VK_SUCCESS)
@@ -78,6 +76,32 @@ void Pipeline::draw(UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
 
 void Pipeline::createGraphicsPipeline(const VkExtent2D swapchainExtent, const VkDescriptorSetLayout descriptorSetLayout, const VkRenderPass renderPass, const VkShaderModule vertShader, VkShaderModule fragShader)
 {
+    // VkVertexInputBindingDescription bindingDescription;
+    // bindingDescription.binding = 0;
+    // bindingDescription.stride  = 12 * sizeof(float);
+    // bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    // array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
+    // attributeDescriptions[0].binding  = 0;
+    // attributeDescriptions[0].location = 0;
+    // attributeDescriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    // attributeDescriptions[0].offset   = 0;
+    //
+    // attributeDescriptions[1].binding  = 0;
+    // attributeDescriptions[1].location = 1;
+    // attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    // attributeDescriptions[1].offset   = 3 * sizeof(float);
+    //
+    // attributeDescriptions[0].binding  = 0;
+    // attributeDescriptions[0].location = 2;
+    // attributeDescriptions[0].format   = VK_FORMAT_R32G32_SFLOAT;
+    // attributeDescriptions[0].offset   = 6 * sizeof(float);
+    //
+    // attributeDescriptions[0].binding  = 0;
+    // attributeDescriptions[0].location = 3;
+    // attributeDescriptions[0].format   = VK_FORMAT_R32G32B32A32_SFLOAT;
+    // attributeDescriptions[0].offset   = 8 * sizeof(float);
+
     auto                                 attributeDescriptions = Vertex::getAttributeDescriptions();
     VkVertexInputBindingDescription      bindingDescription    = Vertex::getBindingDescription();
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};

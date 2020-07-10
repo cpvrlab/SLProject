@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMMANDBUFFER_H
+#define COMMANDBUFFER_H
 
 #include "Framebuffer.h"
 #include "RenderPass.h"
@@ -13,6 +14,7 @@ class Swapchain;
 class DescriptorSet;
 class Buffer;
 class Pipeline;
+class Framebuffer;
 
 //-----------------------------------------------------------------------------
 class CommandBuffer
@@ -43,3 +45,4 @@ private:
     vector<VkCommandBuffer> _handles;
 };
 //-----------------------------------------------------------------------------
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FRAMEBUFFER_H
+#define FRAMEBUFFER_H
 
 #include "Device.h"
 #include "RenderPass.h"
@@ -7,6 +8,7 @@
 #include <vector>
 
 class Swapchain;
+class TextureImage;
 
 //-----------------------------------------------------------------------------
 class Framebuffer
@@ -31,3 +33,4 @@ private:
     vector<VkFramebuffer> _handle{VK_NULL_HANDLE};
 };
 //-----------------------------------------------------------------------------
+#endif

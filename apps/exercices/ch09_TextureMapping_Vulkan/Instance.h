@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INSTANCE_H
+#define INSTANCE_H
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -58,3 +59,4 @@ public:
     VkPhysicalDevice    physicalDevice;
 };
 //-----------------------------------------------------------------------------
+#endif

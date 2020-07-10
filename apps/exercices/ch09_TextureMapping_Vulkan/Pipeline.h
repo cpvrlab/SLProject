@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PIPELINE_H
+#define PIPELINE_H
 
 #include "DescriptorSetLayout.h"
 #include "RenderPass.h"
@@ -45,3 +46,4 @@ private:
     int              _currentFrame = 0;
 };
 //-----------------------------------------------------------------------------
+#endif

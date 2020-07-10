@@ -66,7 +66,8 @@ void TextureImage::createDepthImage(Swapchain& swapchain)
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    createImageView(_image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    // TODO: Find a better solution (without return)
+    _imageView = createImageView(_image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 //-----------------------------------------------------------------------------
 void TextureImage::createImage(uint32_t              width,

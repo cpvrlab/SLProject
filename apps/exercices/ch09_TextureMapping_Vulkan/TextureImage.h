@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include "Buffer.h"
 
@@ -6,9 +7,10 @@
 class Buffer;
 class CommandBuffer;
 class Device;
+class Sampler;
 
 //-----------------------------------------------------------------------------
-// TODO: Rename to Image
+// TODO: Rename to Image + remove sampler + make class Texture for textures (has a image and sampler)
 class TextureImage
 {
 public:
@@ -21,7 +23,7 @@ public:
     Sampler&    sampler() const { return *_sampler; }
 
     // Setter
-    void setSampler(Sampler& sampler) { _sampler = &sampler; }
+    // void setSampler(Sampler& sampler) { _sampler = &sampler; }
 
     void createTextureImage(void*        pixels,
                             unsigned int texWidth,
@@ -29,7 +31,12 @@ public:
     void createDepthImage(Swapchain& swapchain);
 
 private:
-    void        createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+    void        createImage(uint32_t              width,
+                            uint32_t              height,
+                            VkFormat              format,
+                            VkImageTiling         tiling,
+                            VkImageUsageFlags     usage,
+                            VkMemoryPropertyFlags properties);
     void        transitionImageLayout(VkImage&      image,
                                       VkFormat      format,
                                       VkImageLayout oldLayout,
@@ -38,7 +45,9 @@ private:
                                   VkImage  image,
                                   uint32_t width,
                                   uint32_t height);
-    VkImageView createImageView(VkImage& image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkImageView createImageView(VkImage&           image,
+                                VkFormat           format,
+                                VkImageAspectFlags aspectFlags);
 
 public:
     Device&        _device;
@@ -48,3 +57,4 @@ public:
     Sampler*       _sampler = nullptr;
 };
 //-----------------------------------------------------------------------------
+#endif
