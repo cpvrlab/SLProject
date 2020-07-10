@@ -39,6 +39,8 @@ MapEdition::~MapEdition()
 {
     deleteMesh(_mesh);
     _kfNode->deleteChildren();
+    _mpNode->deleteChildren();
+    _workingNode->deleteChildren();
     _mapNode->deleteChild(_workingNode);
     delete _prog;
     delete _green;
