@@ -85,7 +85,6 @@ private:
     SLMaterial* redMat               = nullptr;
     SLMaterial* greenMat             = nullptr;
     SLMaterial* blueMat              = nullptr;
-    SLMaterial* yellowMat            = nullptr;
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;

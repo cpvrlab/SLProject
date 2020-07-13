@@ -100,7 +100,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::BLUE, "Blue");
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-    yellowMat = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
+
+    covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat",  SLCol4f::YELLOW);
+    covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat",  SLCol4f::GREEN);
+    spanningTreeMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat",  SLCol4f::RED);
+    loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
     cameraNode->background().texture(_videoImage);
@@ -266,10 +272,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #endif
 
     //boxNode->addChild(axisNode);
-
-    covisibilityGraphMat = new SLMaterial(&assets, "YellowLines", SLCol4f::YELLOW);
-    spanningTreeMat      = new SLMaterial(&assets, "GreenLines", SLCol4f::GREEN);
-    loopEdgesMat         = new SLMaterial(&assets, "RedLines", SLCol4f::RED);
 
     cameraNode->translation(0, 0, 0.1f);
     cameraNode->lookAt(0, 0, 0);
@@ -532,7 +534,7 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
     {
         spanningTreeMesh = new SLPolyline(&assets, spanningTreePts, false, "SpanningTree", spanningTreeMat);
         spanningTree->addMesh(spanningTreeMesh);
-        //spanningTree->updateAABBRec();
+        spanningTree->updateAABBRec();
     }
 
     if (loopEdgesPts.size() && showLoopEdges)
