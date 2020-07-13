@@ -25,9 +25,6 @@ public:
              ShaderModule&        fragShaderModule);
     void destroy();
 
-    void draw(UniformBuffer& uniformBuffer,
-              CommandBuffer& commandBuffer);
-
     // Getter
     VkPipeline       graphicsPipeline() const { return _graphicsPipeline; }
     VkPipelineLayout pipelineLayout() const { return _pipelineLayout; }
@@ -43,7 +40,6 @@ private:
     Swapchain&       _swapchain;
     VkPipeline       _graphicsPipeline;
     VkPipelineLayout _pipelineLayout;
-    int              _currentFrame = 0;
 };
 //-----------------------------------------------------------------------------
 #endif

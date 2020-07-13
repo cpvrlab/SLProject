@@ -118,3 +118,82 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
         ASSERT_VULKAN(result, "Failed to record command buffer");
     }
 }
+
+void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, vector<Buffer*> vertexBuffer, vector<Buffer*> indexBuffer, vector<Pipeline*> pipeline, vector<DescriptorSet*> descriptorSet, vector<int> indicesSize)
+{
+    _handles.resize(framebuffer.handle().size());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool        = _device.commandPool();
+    allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)_handles.size();
+
+    VkResult result = vkAllocateCommandBuffers(_device.handle(), &allocInfo, _handles.data());
+    ASSERT_VULKAN(result, "Failed to allocate command buffers");
+
+    for (size_t i = 0; i < _handles.size(); i++)
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        result = vkBeginCommandBuffer(_handles[i], &beginInfo);
+        ASSERT_VULKAN(result, "Failed to begin recording command buffer");
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass        = renderPass.handle();
+        renderPassInfo.framebuffer       = framebuffer.handle()[i];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapchain.extent();
+
+        array<VkClearValue, 2> clearValues{};
+        clearValues[0].color        = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0};
+
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues    = clearValues.data();
+
+        vkCmdBeginRenderPass(_handles[i],
+                             &renderPassInfo,
+                             VK_SUBPASS_CONTENTS_INLINE);
+
+        for (int j = 0; j < pipeline.size(); j++)
+        {
+            vkCmdBindPipeline(_handles[i],
+                              VK_PIPELINE_BIND_POINT_GRAPHICS,
+                              pipeline[j]->graphicsPipeline());
+            // TODO: Fill array of vertexBuffers + indexBuffers
+            VkBuffer     vertexBuffers[] = {vertexBuffer[j]->handle()};
+            VkDeviceSize offsets[]       = {0};
+            vkCmdBindVertexBuffers(_handles[i],
+                                   0,
+                                   1,
+                                   vertexBuffers,
+                                   offsets);
+            vkCmdBindIndexBuffer(_handles[i],
+                                 indexBuffer[j]->handle(),
+                                 0,
+                                 VK_INDEX_TYPE_UINT32);
+            vkCmdBindDescriptorSets(_handles[i],
+                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    pipeline[j]->pipelineLayout(),
+                                    0,
+                                    1,
+                                    &descriptorSet[j]->handles()[i],
+                                    0,
+                                    nullptr);
+            vkCmdDrawIndexed(_handles[i],
+                             static_cast<uint32_t>(indicesSize[j]),
+                             1,
+                             0,
+                             0,
+                             0);
+        }
+
+        vkCmdEndRenderPass(_handles[i]);
+
+        result = vkEndCommandBuffer(_handles[i]);
+        ASSERT_VULKAN(result, "Failed to record command buffer");
+    }
+}

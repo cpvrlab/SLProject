@@ -126,7 +126,7 @@ void updateCamera()
 //-----------------------------------------------------------------------------
 void createScene(Node& root)
 {
-    // Mesh 1.
+    // Mesh 1
     Texture*  texture1  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
     Material* material1 = new Material("Texture");
     material1->addTexture(texture1);
@@ -143,6 +143,7 @@ void createScene(Node& root)
     node1->om(SLMat4f(0.0f, 0.0f, 0.0f));
     node1->SetMesh(mesh1);
 
+    // Mesh 2
     Texture*  texture2  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
     Material* material2 = new Material("Texture");
     material2->addTexture(texture2);

@@ -33,6 +33,14 @@ public:
                          Pipeline&      pipeline,
                          DescriptorSet& descriptorSet,
                          const int      indicesSize);
+    void     setVertices(Swapchain&             swapchain,
+                         Framebuffer&           framebuffer,
+                         RenderPass&            renderPass,
+                         vector<Buffer*>        vertexBuffer,
+                         vector<Buffer*>        indexBuffer,
+                         vector<Pipeline*>      pipeline,
+                         vector<DescriptorSet*> descriptorSet,
+                         vector<int>            indicesSize);
 
     // Getter
     Device&                 device() const { return _device; }

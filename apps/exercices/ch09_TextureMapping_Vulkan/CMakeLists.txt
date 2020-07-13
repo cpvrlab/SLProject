@@ -10,7 +10,6 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
-        # ${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.h
@@ -45,7 +44,6 @@ file(GLOB headers
 file(GLOB sources
         ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
         ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
-        #${CMAKE_CURRENT_SOURCE_DIR}/vkUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.cpp
@@ -72,7 +70,6 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Vertex.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VulkanRenderer.cpp
 
         )

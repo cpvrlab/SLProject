@@ -13,97 +13,34 @@ void Pipeline::destroy()
         vkDestroyPipelineLayout(_device.handle(), _pipelineLayout, nullptr);
 }
 
-// Move method to VulkanRenderer (no dependency to pipeline)
-void Pipeline::draw(UniformBuffer& uniformBuffer, CommandBuffer& commandBuffer)
-{
-    vkWaitForFences(_device.handle(),
-                    1,
-                    &_device.inFlightFences()[_currentFrame],
-                    VK_TRUE,
-                    UINT64_MAX);
-
-    uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(_device.handle(),
-                                            _swapchain.handle(),
-                                            UINT64_MAX,
-                                            _device.imageAvailableSemaphores()[_currentFrame],
-                                            VK_NULL_HANDLE,
-                                            &imageIndex);
-    if (result != VK_SUCCESS)
-        cerr << "failed to acquire swapchain image!" << endl;
-
-    uniformBuffer.update(imageIndex);
-
-    if (_device.imagesInFlight()[imageIndex] != VK_NULL_HANDLE)
-        vkWaitForFences(_device.handle(), 1, &_device.imagesInFlight()[imageIndex], VK_TRUE, UINT64_MAX);
-    _device.imagesInFlight()[imageIndex] = _device.inFlightFences()[_currentFrame];
-
-    VkSemaphore          waitSemaphores[] = {_device.imageAvailableSemaphores()[_currentFrame]};
-    VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    VkSubmitInfo         submitInfo{};
-    submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores    = waitSemaphores;
-    submitInfo.pWaitDstStageMask  = waitStages;
-    submitInfo.commandBufferCount = 1;
-    VkCommandBuffer c             = commandBuffer.handles()[imageIndex];
-    submitInfo.pCommandBuffers    = &c;
-
-    VkSemaphore signalSemaphores[]  = {_device.renderFinishedSemaphores()[_currentFrame]};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores    = signalSemaphores;
-
-    vkResetFences(_device.handle(), 1, &_device.inFlightFences()[_currentFrame]);
-
-    result = vkQueueSubmit(_device.graphicsQueue(), 1, &submitInfo, _device.inFlightFences()[_currentFrame]);
-    ASSERT_VULKAN(result, "Failed to submit draw command buffer");
-
-    VkSwapchainKHR   swapchains[] = {_swapchain.handle()};
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = signalSemaphores;
-    presentInfo.swapchainCount     = 1;
-    presentInfo.pSwapchains        = swapchains;
-    presentInfo.pImageIndices      = &imageIndex;
-
-    result = vkQueuePresentKHR(_device.presentQueue(), &presentInfo);
-    if (result != VK_SUCCESS)
-        cerr << "Failed to present swapchain image" << endl;
-
-    _currentFrame = (_currentFrame + 1) % 2;
-}
-
 void Pipeline::createGraphicsPipeline(const VkExtent2D swapchainExtent, const VkDescriptorSetLayout descriptorSetLayout, const VkRenderPass renderPass, const VkShaderModule vertShader, VkShaderModule fragShader)
 {
-    // VkVertexInputBindingDescription bindingDescription;
-    // bindingDescription.binding = 0;
-    // bindingDescription.stride  = 12 * sizeof(float);
-    // bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    VkVertexInputBindingDescription bindingDescription;
+    bindingDescription.binding   = 0;
+    bindingDescription.stride    = 12 * sizeof(float);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    // array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
-    // attributeDescriptions[0].binding  = 0;
-    // attributeDescriptions[0].location = 0;
-    // attributeDescriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
-    // attributeDescriptions[0].offset   = 0;
-    //
-    // attributeDescriptions[1].binding  = 0;
-    // attributeDescriptions[1].location = 1;
-    // attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
-    // attributeDescriptions[1].offset   = 3 * sizeof(float);
-    //
-    // attributeDescriptions[0].binding  = 0;
-    // attributeDescriptions[0].location = 2;
-    // attributeDescriptions[0].format   = VK_FORMAT_R32G32_SFLOAT;
-    // attributeDescriptions[0].offset   = 6 * sizeof(float);
-    //
-    // attributeDescriptions[0].binding  = 0;
-    // attributeDescriptions[0].location = 3;
-    // attributeDescriptions[0].format   = VK_FORMAT_R32G32B32A32_SFLOAT;
-    // attributeDescriptions[0].offset   = 8 * sizeof(float);
+    array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
+    attributeDescriptions[0].binding  = 0;
+    attributeDescriptions[0].location = 0;
+    attributeDescriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[0].offset   = 0;
 
-    auto                                 attributeDescriptions = Vertex::getAttributeDescriptions();
-    VkVertexInputBindingDescription      bindingDescription    = Vertex::getBindingDescription();
+    attributeDescriptions[1].binding  = 0;
+    attributeDescriptions[1].location = 1;
+    attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[1].offset   = 3 * sizeof(float);
+
+    attributeDescriptions[2].binding  = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format   = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[2].offset   = 6 * sizeof(float);
+
+    attributeDescriptions[3].binding  = 0;
+    attributeDescriptions[3].location = 3;
+    attributeDescriptions[3].format   = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[3].offset   = 8 * sizeof(float);
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount   = 1;

@@ -46,18 +46,18 @@ public:
 private:
     void createA();
 
-    VkSurfaceKHR         surface;
-    Instance*            instance            = nullptr;
-    Device*              device              = nullptr;
-    Swapchain*           swapchain           = nullptr;
-    RenderPass*          renderPass          = nullptr;
-    Framebuffer*         framebuffer         = nullptr;
-    TextureImage*        depthImage          = nullptr;
-    DescriptorSetLayout* descriptorSetLayout = nullptr;
+    VkSurfaceKHR         _surface;
+    Instance*            _instance            = nullptr;
+    Device*              _device              = nullptr;
+    Swapchain*           _swapchain           = nullptr;
+    RenderPass*          _renderPass          = nullptr;
+    Framebuffer*         _framebuffer         = nullptr;
+    TextureImage*        _depthImage          = nullptr;
+    DescriptorSetLayout* _descriptorSetLayout = nullptr;
+    CommandBuffer*       _commandBuffer       = nullptr;
 
-    vector<CommandBuffer*>  commandBufferList;
+    vector<DescriptorPool*> _descriptorPoolList;
     vector<UniformBuffer*>  uniformBufferList;
-    vector<DescriptorPool*> descriptorPoolList;
     vector<DescriptorSet*>  descriptorSetList;
     vector<TextureImage*>   textureImageList;
     vector<Buffer*>         indexBufferList;
@@ -65,6 +65,8 @@ private:
     vector<ShaderModule*>   vertShaderModuleList;
     vector<ShaderModule*>   fragShaderModuleList;
     vector<Pipeline*>       pipelineList;
+
+    int _currentFrame = 0;
 };
 
 #endif
