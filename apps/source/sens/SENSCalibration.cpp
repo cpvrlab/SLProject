@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SENSCalibration.h>
+#include <sens/SENSCalibration.h>
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <opencv2/imgproc.hpp>

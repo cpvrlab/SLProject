@@ -142,13 +142,15 @@ void GLFWInit()
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
+#ifdef __APPLE__
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
-    window = glfwCreateWindow(scrWidth, scrHeight, "WAI Demo", nullptr, nullptr);
+    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", nullptr, nullptr);
 
     //get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
