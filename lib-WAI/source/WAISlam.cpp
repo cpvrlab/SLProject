@@ -270,7 +270,7 @@ void WAISlam::updatePose(WAIFrame& frame)
     switch (_state)
     {
         case WAI::TrackingState_Initializing: {
-#if 1
+#if 0
             bool ok = oldInitialize(frame, _iniData, _globalMap.get(), _localMap, _localMapping, _loopClosing, _voc);
             if (ok)
             {

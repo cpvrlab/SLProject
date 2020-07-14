@@ -58,8 +58,8 @@ protected:
     void updateSceneCameraFov();
 
     //video
-    //CVCalibration                    _calibration       = {CVCameraType::FRONTFACING, ""};
     std::unique_ptr<SENSCalibration> _calibrationLoaded;
+    const SENSCalibration*           _calibration = nullptr;
     SENSCamera*                      _camera      = nullptr;
     cv::VideoWriter*                 _videoWriter = nullptr;
     std::unique_ptr<SENSVideoStream> _videoFileStream;

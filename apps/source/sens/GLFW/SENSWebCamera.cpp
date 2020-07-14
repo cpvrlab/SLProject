@@ -61,7 +61,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
 
     //init config here
     _config = SENSCameraConfig(deviceId,
-                               &streamConfig,
+                               streamConfig,
                                SENSCameraFocusMode::UNKNOWN,
                                targetSize.width,
                                targetSize.height,
@@ -117,8 +117,8 @@ const SENSCaptureProperties& SENSWebCamera::captureProperties()
     {
         //definition of standard frame sizes that we want to test for support
         static std::vector<cv::Size> testSizes = {
-          {640, 360},
           {640, 480},
+          {640, 360},
           {960, 540},
           {1280, 960},
           {1280, 720},
@@ -154,14 +154,14 @@ const SENSCaptureProperties& SENSWebCamera::captureProperties()
                 _videoCapture.release();
             }
         }
-    }
 
-    //if still no caputure properties add a dummy
-    if (_captureProperties.size() == 0)
-    {
-        SENSCameraDeviceProperties dummyProps("0", SENSCameraFacing::UNKNOWN);
-        dummyProps.add(640, 480, -1.f);
-        _captureProperties.push_back(dummyProps);
+        //if still no caputure properties add a dummy
+        if (_captureProperties.size() == 0)
+        {
+            SENSCameraDeviceProperties dummyProps("0", SENSCameraFacing::UNKNOWN);
+            dummyProps.add(640, 480, -1.f);
+            _captureProperties.push_back(dummyProps);
+        }
     }
 
     return _captureProperties;

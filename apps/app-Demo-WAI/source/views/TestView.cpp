@@ -27,10 +27,10 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),
       _eventQueue,
-      [&]() { return _mode; },                                      //getter callback for current mode
-      [&]() { return _camera; },                                    //getter callback for current camera
-      [&]() { return _camera ? _camera->calibration() : nullptr; }, //getter callback for current calibration
-      [&]() { return _videoFileStream.get(); }),                    //getter callback for current calibration
+      [&]() { return _mode; },                            //getter callback for current mode
+      [&]() { return _camera; },                          //getter callback for current camera
+      [&]() { return _camera ? _calibration : nullptr; }, //getter callback for current calibration
+      [&]() { return _videoFileStream.get(); }),          //getter callback for current calibration
     _scene("TestScene", deviceData.dataDir()),
     _camera(camera),
     _configDir(deviceData.writableDir()),
@@ -109,11 +109,12 @@ bool TestView::update()
             if (_autoCal && _autoCal->hasCalibration())
             {
                 _camera->setCalibration(_autoCal->consumeCalibration(), true);
-                _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-                cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                _calibration = _camera->calibration();
+                _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+                cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                             _camera->config().manipWidth,
                                                             _camera->config().targetWidth);
-                _mode->changeIntrinsic(scaledCamMat, _camera->calibration()->distortion());
+                _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 _fillAutoCalibration = false;
             }
             updateTrackingVisualization(_mode->isTracking(), *frame.get());
@@ -183,20 +184,22 @@ void TestView::handleEvents()
                     //_calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
                     SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
                     _camera->setCalibration(calib, false);
-                    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                    _calibration = _camera->calibration();
+                    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                                 _camera->config().manipWidth,
                                                                 _camera->config().targetWidth);
-                    _mode->changeIntrinsic(scaledCamMat, _camera->calibration()->distortion());
+                    _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 }
                 else if (autoCalEvent->restoreOriginalCalibration)
                 {
                     _camera->setCalibration(*_calibrationLoaded, true);
-                    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                    _calibration = _camera->calibration();
+                    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                                 _camera->config().manipWidth,
                                                                 _camera->config().targetWidth);
-                    _mode->changeIntrinsic(scaledCamMat, _camera->calibration()->distortion());
+                    _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 }
                 delete autoCalEvent;
             }
@@ -371,7 +374,7 @@ void TestView::saveMap(std::string location,
                                                     0.75f,
                                                     _mode->getKPextractor(),
                                                     _mode->getMap(),
-                                                    _camera->calibration()->cameraMat(),
+                                                    _calibration->cameraMat(),
                                                     _voc))
         {
             _gui.showErrorMsg("Failed to do marker map preprocessing");
@@ -451,25 +454,25 @@ void TestView::updateSceneCameraFov()
 {
     //if the camera image height is smaller than the sceneview height,
     //we have to calculate the corresponding vertical field of view for the scene camera
-    float imgWdivH = _camera->calibration()->imageAspectRatio();
+    float imgWdivH = _calibration->imageAspectRatio();
     if (std::abs(this->scrWdivH() - imgWdivH) > 0.00001)
     {
         if (this->scrWdivH() > imgWdivH)
         {
             //bars left and right: directly use camera vertial field of view as scene vertical field of view
-            _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+            _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
         }
         else
         {
             //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
-            float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
+            float fovV = SENS::calcFovDegFromOtherFovDeg(_calibration->cameraFovHDeg(), this->scrW(), this->scrH());
             _scene.updateCameraIntrinsics(fovV);
         }
     }
     else
     {
         //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
-        _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
     }
 }
 
@@ -546,14 +549,6 @@ void TestView::startOrbSlam(SlamParams slamParams)
         return;
     }
 
-    /*
-    if (!checkCalibration(calibDir, calibrationFileName))
-    {
-        _gui.showErrorMsg("Calibration file " + calibrationFile + " is incorrect.");
-        return;
-    }
-     */
-
     if (slamParams.vocabularyFile.empty())
     {
         _gui.showErrorMsg("Select a vocabulary file!");
@@ -600,35 +595,24 @@ void TestView::startOrbSlam(SlamParams slamParams)
                           slamParams.calibrationFile);
         return;
     }
-    //set and adapt calibration to camera image resolution
-    _camera->setCalibration(*_calibrationLoaded, true);
 
-    /*
-    if (_calibration.imageSize() != _videoFrameSize)
+    //This really does not look nice.. That I do it like this is because the iOS camera provides camera intrinsics directly for every frame
+    //and android also provides constant intrinsics (by focal length). When I finished it I realized that it does not really fit to the SENSVideoStream concept.
+    //Maybe we find something better..?
+    if (useVideoFile)
     {
-        _calibration.adaptForNewResolution(_videoFrameSize, true);
+        _videoFileStream->setCalibration(*_calibrationLoaded, true);
+        _calibration = _videoFileStream->calibration();
     }
     else
-        _calibration.buildUndistortionMaps();
-     */
-
-    //_calibrationLoaded = _calibration;
+    {
+        //set and adapt calibration to camera image resolution
+        _camera->setCalibration(*_calibrationLoaded, true);
+        _calibration = _camera->calibration();
+    }
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-    //updateSceneCameraFov();
-
-    //  _scene.cameraNode->fov(_calibration.cameraFovVDeg());
-    //// Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
-    //cv::Mat scMat = _calibration.cameraMatUndistorted();
-    //std::cout << "scMat: " << scMat << std::endl;
-    //_scene.cameraNode->intrinsics(scMat.at<double>(0, 0),
-    //                                  scMat.at<double>(1, 1),
-    //                                  scMat.at<double>(0, 2),
-    //                                  scMat.at<double>(1, 2));
-
-    ////enable projection -> intrinsics mode
-    //_scene.cameraNode->projection(P_monoIntrinsic);
+    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
 
     // 4. Create new mode ORBSlam
     if (!slamParams.markerFile.empty())
@@ -638,7 +622,6 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize, slamParams.nLevels);
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize, slamParams.nLevels);
-    //_doubleBufferedOutput    = _trackingExtractor->doubleBufferedOutput();
 
     try
     {
@@ -676,11 +659,11 @@ void TestView::startOrbSlam(SlamParams slamParams)
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
     }
 
-    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+    cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                 _camera->config().manipWidth,
                                                 _camera->config().targetWidth);
     _mode                = new WAISlam(scaledCamMat,
-                        _camera->calibration()->distortion(),
+                        _calibration->distortion(),
                         _voc,
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
@@ -695,7 +678,6 @@ void TestView::startOrbSlam(SlamParams slamParams)
     _gui.setSlamParams(slamParams);
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
-    //_resizeWindow = true;
 
     if (_trackingExtractor->doubleBufferedOutput())
         _imgBuffer.init(2, _videoFrameSize);
@@ -817,8 +799,8 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& 
     //undistort image and copy image to video texture
     _mode->drawInfo(frame.imgRGB, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
-    if (_camera->calibration()->state() == SENSCalibration::State::calibrated && _showUndistorted)
-        _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
+    if (_calibration->state() == SENSCalibration::State::calibrated && _showUndistorted)
+        _calibration->remap(frame.imgRGB, _imgBuffer.inputSlot());
     else
         _imgBuffer.inputSlot() = frame.imgRGB;
 

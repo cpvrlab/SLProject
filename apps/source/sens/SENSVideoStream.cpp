@@ -162,3 +162,14 @@ void SENSVideoStream::moveCapturePosition(int n)
 
     _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
 }
+
+void SENSVideoStream::setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
+{
+    if (!_cap.isOpened())
+        throw SENSException(SENSType::CAM, "setCalibration not possible if video stream is not started!", __LINE__, __FILE__);
+
+    _calibration = std::make_unique<SENSCalibration>(calibration);
+    //now we adapt the calibration to the target size
+    if (_videoFrameSize.width != calibration.imageSize().width || _videoFrameSize.height != calibration.imageSize().height)
+        _calibration->adaptForNewResolution({_videoFrameSize.width, _videoFrameSize.height}, buildUndistortionMaps);
+}

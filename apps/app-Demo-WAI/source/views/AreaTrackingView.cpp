@@ -107,7 +107,11 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     _gui.initArea(area);
 
     //start camera
-    startCamera();
+    if (!startCamera())
+    {
+        Utils::log("AreaTrackingView", "Could not start camera!");
+        return;
+    }
 
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
@@ -180,7 +184,7 @@ void AreaTrackingView::hold()
     _camera->stop();
 }
 
-void AreaTrackingView::startCamera()
+bool AreaTrackingView::startCamera()
 {
     if (_camera)
     {
@@ -211,7 +215,7 @@ void AreaTrackingView::startCamera()
         }
         else //try with unknown config (for desktop usage
         {
-            aproxVisuImgW    = 1000;
+            aproxVisuImgW    = 640;
             aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
             auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
             if (bestConfig2.first && bestConfig2.second)
@@ -221,7 +225,7 @@ void AreaTrackingView::startCamera()
                 //calculate size of tracking image
                 _camera->start(devProps->deviceId(),
                                *streamConfig,
-                               cv::Size(800, 300),
+                               cv::Size(),
                                false,
                                false,
                                true,
@@ -230,6 +234,12 @@ void AreaTrackingView::startCamera()
                                65.f);
             }
         }
+
+        return _camera->started();
+    }
+    else
+    {
+        return false;
     }
 }
 

@@ -142,9 +142,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     # OpenCV for Windows #
     #######################
 	#version 4 slows down video capture. There are others with the same problem: http://www.emgu.com/forum/viewtopic.php?f=7&t=21526
-    #set(OpenCV_VERSION "4.1.2")
-    #set(OpenCV_VERSION "4.3.0") 
-    set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+    #set(OpenCV_VERSION "4.3.0") #live video info retrieval does not work on windows. Video file loading does not work.
+    #set(OpenCV_VERSION "3.4.1") #live video info retrieval works on windows. Video file loading does not work.
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
