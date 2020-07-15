@@ -512,19 +512,11 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera>   webCamera = std::make_unique<SENSWebCamera>();
-        //std::unique_ptr<SENSCameraAsync> camera    = std::make_unique<SENSCameraAsync>(std::move(webCamera));
-
-        //dirs.waiDataRoot   = SLstring(SL_PROJECT_ROOT) + "/data";
-        //dirs.dataDir     = SLstring(SL_PROJECT_ROOT) + "/data/";
-        //dirs.writableDir = Utils::getAppsWritableDir();
-        //dirs.vocabularyDir = dirs.slDataRoot + "calibrations/";
-        //dirs.logFileDir    = dirs.writableDir + "log/";
-
+        std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
         app.init(scrWidth,
                  scrHeight,
                  dpi,
-                 SLstring(SL_PROJECT_ROOT) + "/data/",
+                 std::string(SL_PROJECT_ROOT) + "/data/",
                  Utils::getAppsWritableDir(),
                  webCamera.get());
         app.setCloseAppCallback(closeAppCallback);
@@ -546,7 +538,7 @@ int main(int argc, char* argv[])
             float scr2fbY = (float)fbHeight / (float)wndHeight;
             app.updateScr2fb(svIndex, scr2fbX, scr2fbY);
 
-            SLbool doRepaint = app.update();
+            bool doRepaint = app.update();
 
             glfwSwapBuffers(window);
 
