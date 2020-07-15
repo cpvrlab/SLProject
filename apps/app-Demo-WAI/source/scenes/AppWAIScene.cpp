@@ -109,7 +109,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage);
+    cameraNode->background().texture(_videoImage, false);
+
+    // Create directional light for the sun light
+    SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
+    light->ambientColor(SLCol4f(1, 1, 1));
+    light->diffuseColor(SLCol4f(1, 1, 1));
+    light->specularColor(SLCol4f(1, 1, 1));
+    light->attenuation(1, 0, 0);
+    light->translation(0, 10, 0);
+    light->lookAt(10, 0, 10);
+    _root3D->addChild(light);	
 
     if (location == "avenches")
     {
@@ -163,17 +173,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
             hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
 
-            // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambientColor(SLCol4f(1, 1, 1));
-            light->diffuseColor(SLCol4f(1, 1, 1));
-            light->specularColor(SLCol4f(1, 1, 1));
-            light->attenuation(1, 0, 0);
-            light->translation(0, 10, 0);
-            light->lookAt(10, 0, 10);
-
             _root3D->addChild(augmentationRoot);
-            _root3D->addChild(light);
         }
     }
     else if (location == "christoffel")
@@ -208,16 +208,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         */
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-        light->ambientColor(SLCol4f(1, 1, 1));
-        light->diffuseColor(SLCol4f(1, 1, 1));
-        light->specularColor(SLCol4f(1, 1, 1));
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
-
         _root3D->addChild(augmentationRoot);
-        _root3D->addChild(light);
     }
 
 #if 0 // office table boxes scene

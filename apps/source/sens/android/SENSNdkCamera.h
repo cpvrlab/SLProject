@@ -25,11 +25,20 @@ public:
     SENSNdkCamera();
     ~SENSNdkCamera();
 
-    void         start(const SENSCameraConfig config) override;
-    void         start(std::string id, int width, int height) override;
-    void         stop() override;
-    SENSFramePtr getLatestFrame() override;
-    std::vector<SENSCameraCharacteristics> getAllCameraCharacteristics() override;
+    const SENSCameraConfig& start(std::string                   deviceId,
+                                  const SENSCameraStreamConfig& streamConfig,
+                                  cv::Size                      imgRGBSize           = cv::Size(),
+                                  bool                          mirrorV              = false,
+                                  bool                          mirrorH              = false,
+                                  bool                          convToGrayToImgManip = false,
+                                  int                           imgManipWidth        = -1,
+                                  bool                          provideIntrinsics    = true,
+                                  float                         fovDegFallbackGuess  = 65.f) override;
+
+    void stop() override;
+
+    const SENSCaptureProperties& captureProperties() override;
+    SENSFramePtr                 latestFrame() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);
@@ -74,7 +83,7 @@ private:
     std::mutex                  _cameraAvailabilityMutex;
     //async camera start
     //std::unique_ptr<std::thread> _openCameraThread;
-    std::condition_variable      _openCameraCV;
+    std::condition_variable _openCameraCV;
 
     //wait in start() until camera is opened
     std::atomic<bool> _cameraDeviceOpened{false}; // free to use ( no other apps are using it)
@@ -100,6 +109,8 @@ private:
     std::mutex              _cameraDeviceOpeningMutex;
     std::condition_variable _cameraDeviceOpeningCV;
     //camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
+
+    const bool _adjustAsynchronously = true;
 };
 
 #endif //SENS_NDKCAMERA_H

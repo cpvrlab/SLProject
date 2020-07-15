@@ -172,7 +172,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                    *_imGuiEngine,
                                    dd,
                                    "0.12");
-    
+
     _testView = new TestView(*this,
                              _inputManager,
                              *_imGuiEngine,
@@ -365,14 +365,75 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
 
     if (stateEntry)
     {
-        //start camera
-        SENSCameraConfig config;
-        config.targetWidth   = 640;
-        config.targetHeight  = 360;
-        config.convertToGray = true;
-
         _camera->stop();
-        _camera->start(config);
+
+        int   trackingImgW  = 640;
+        float targetWdivH   = 16.f / 9.f;
+        int   aproxVisuImgW = 1000;
+        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+
+        auto capProps   = _camera->captureProperties();
+        auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
+        if (bestConfig.first && bestConfig.second)
+        {
+            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
+            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
+            //calculate size of tracking image
+            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+            _camera->start(devProps->deviceId(),
+                           *streamConfig,
+                           cv::Size((int)(1080.f / 3.f * 4.f), 1080),
+                           false,
+                           false,
+                           true,
+                           trackingImgW,
+                           true,
+                           65.f);
+        }
+        else //try with unknown config (for desktop usage
+        {
+            aproxVisuImgW    = 640;
+            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
+            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
+            if (bestConfig2.first && bestConfig2.second)
+            {
+                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
+                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
+                //calculate size of tracking image
+                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+                _camera->start(devProps->deviceId(),
+                               *streamConfig,
+                               cv::Size(),
+                               false,
+                               false,
+                               true,
+                               trackingImgW,
+                               true,
+                               65.f);
+            }
+            /*
+            float searchWdivH = 16.f / 9.f;
+            aproxVisuImgW = 1920;
+            aproxVisuImgH = (int)((float)aproxVisuImgW / searchWdivH);
+            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
+            if(bestConfig2.first && bestConfig2.second)
+            {
+                const SENSCameraDeviceProperties* const devProps = bestConfig2.first;
+                const SENSCameraStreamConfig* streamConfig = bestConfig2.second;
+                //calculate size of tracking image
+                _camera->start(devProps->deviceId(),
+                               *streamConfig,
+                               cv::Size((int)(1080.f * targetWdivH), 1080),
+                               false,
+                               false,
+                               true,
+                               trackingImgW,
+                               true,
+                               65.f);
+            }
+            */
+        }
+        //_camera->start(SENSCameraFacing::BACK, 65.f, cv::Size(640, 480));
     }
 
     if (_camera->permissionGranted() && _camera->started())
@@ -419,14 +480,16 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry,
         return;
 
     //start camera
+    /*
     SENSCameraConfig config;
     config.targetWidth          = 640;
     config.targetHeight         = 360;
     config.convertToGray        = true;
     config.adjustAsynchronously = true;
-
+*/
     _camera->stop();
-    _camera->start(config);
+    assert("fix this");
+    //_camera->start(config);
 
     addEvent(new DoneEvent("ErlebARApp::RESUME_TEST"));
 }

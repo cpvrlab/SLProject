@@ -8,11 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SENSCalibration.h>
+#include <sens/SENSCalibration.h>
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <opencv2/imgproc.hpp>
-
+#include <sens/SENSUtils.h>
+#include <sens/SENSException.h>
 //-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
@@ -20,21 +21,21 @@ const int SENSCalibration::_CALIBFILEVERSION = 6;
 
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
-SENSCalibration::SENSCalibration(const cv::Mat& cameraMat,
-                                 const cv::Mat& distortion,
-                                 cv::Size       imageSize,
-                                 cv::Size       boardSize,
-                                 float          boardSquareMM,
-                                 float          reprojectionError,
-                                 int            numCaptured,
-                                 const string&  calibrationTime,
-                                 int            camSizeIndex,
-                                 bool           mirroredH,
-                                 bool           mirroredV,
-                                 SENSCameraType camType,
-                                 string         computerInfos,
-                                 int            calibFlags,
-                                 bool           calcUndistortionMaps)
+SENSCalibration::SENSCalibration(const cv::Mat&     cameraMat,
+                                 const cv::Mat&     distortion,
+                                 cv::Size           imageSize,
+                                 cv::Size           boardSize,
+                                 float              boardSquareMM,
+                                 float              reprojectionError,
+                                 int                numCaptured,
+                                 const std::string& calibrationTime,
+                                 int                camSizeIndex,
+                                 bool               mirroredH,
+                                 bool               mirroredV,
+                                 SENSCameraType     camType,
+                                 std::string        computerInfos,
+                                 int                calibFlags,
+                                 bool               calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(std::move(imageSize)),
@@ -65,7 +66,7 @@ SENSCalibration::SENSCalibration(const cv::Size& imageSize,
                                  bool            mirroredH,
                                  bool            mirroredV,
                                  SENSCameraType  camType,
-                                 string          computerInfos)
+                                 std::string     computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
@@ -86,7 +87,7 @@ SENSCalibration::SENSCalibration(float           sensorWMM,
                                  bool            mirroredH,
                                  bool            mirroredV,
                                  SENSCameraType  camType,
-                                 string          computerInfos)
+                                 std::string     computerInfos)
   : _isMirroredH(mirroredH),
     _isMirroredV(mirroredV),
     _camType(camType),
@@ -110,16 +111,49 @@ SENSCalibration::SENSCalibration(float           sensorWMM,
     _imageSizeOrig        = _imageSize;
 }
 //-----------------------------------------------------------------------------
+SENSCalibration::SENSCalibration(const cv::Mat&     intrinsics,
+                                 const cv::Size&    imageSize,
+                                 bool               mirroredH,
+                                 bool               mirroredV,
+                                 SENSCameraType     camType,
+                                 const std::string& computerInfos)
+  : _imageSize(imageSize),
+    _isMirroredH(mirroredH),
+    _isMirroredV(mirroredV),
+    _camType(camType),
+    _computerInfos(computerInfos)
+{
+    _cameraMatUndistorted = intrinsics.clone();
+    _cameraMatOrig        = intrinsics.clone();
+    _cameraMat            = intrinsics.clone();
+    _imageSizeOrig        = imageSize;
+
+    _distortion           = (cv::Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
+    float meanFocalLength = 0.5 * (intrinsics.at<double>(0, 0) + intrinsics.at<double>(1, 1));
+    _cameraFovHDeg        = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.width);
+    _cameraFovVDeg        = SENS::calcFOVDegFromFocalLengthPix(meanFocalLength, imageSize.height);
+    //_calibrationTime = Utils::getDateTime2String();
+    _state = State::guessed;
+}
+//-----------------------------------------------------------------------------
+SENSCalibration::SENSCalibration(const std::string& calibDir,
+                                 const std::string& calibFileName,
+                                 bool               calcUndistortionMaps)
+{
+    if (!load(calibDir, calibFileName, calcUndistortionMaps))
+        throw SENSException(SENSType::CAM, "Could not load calibration file!", __LINE__, __FILE__);
+}
+//-----------------------------------------------------------------------------
 //! Loads the calibration information from the config file
 /*! Added a flag to disable calculation of undistortion maps because this may take
     a lot of time for big images on mobile devices
 */
-bool SENSCalibration::load(const string& calibDir,
-                           const string& calibFileName,
-                           bool          calcUndistortionMaps)
+bool SENSCalibration::load(const std::string& calibDir,
+                           const std::string& calibFileName,
+                           bool               calcUndistortionMaps)
 {
     //load camera parameter
-    string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
+    std::string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     // try to open the local calibration file
     cv::FileStorage fs(fullPathAndFilename, cv::FileStorage::READ);
@@ -171,7 +205,7 @@ bool SENSCalibration::load(const string& calibDir,
         fs["computerInfos"] >> _computerInfos;
     else
     {
-        std::vector<string> stringParts;
+        std::vector<std::string> stringParts;
         Utils::splitString(Utils::getFileNameWOExt(calibFileName), '_', stringParts);
         if (stringParts.size() >= 3)
             _computerInfos = stringParts[1];
@@ -201,10 +235,10 @@ bool SENSCalibration::load(const string& calibDir,
 }
 //-----------------------------------------------------------------------------
 //! Saves the camera calibration parameters to the config file
-bool SENSCalibration::save(const string& calibDir,
-                           const string& calibFileName)
+bool SENSCalibration::save(const std::string& calibDir,
+                           const std::string& calibFileName)
 {
-    string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
+    std::string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     cv::FileStorage fs(fullPathAndFilename, cv::FileStorage::WRITE);
 
@@ -342,7 +376,7 @@ void SENSCalibration::buildUndistortionMaps()
 //-----------------------------------------------------------------------------
 //! Undistorts the inDistorted image into the outUndistorted
 void SENSCalibration::remap(cv::Mat& inDistorted,
-                            cv::Mat& outUndistorted)
+                            cv::Mat& outUndistorted) const
 {
     assert(!inDistorted.empty() &&
            "Input image is empty!");
@@ -374,7 +408,7 @@ void SENSCalibration::createFromGuessedFOV(int   imageWidthPX,
 {
     //if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
     float f    = (0.5f * imageWidthPX) / tanf(fovH * 0.5f * Utils::DEG2RAD);
-    float fovV = 2.0f * atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
+    float fovV = 2.f * atan(0.5f * imageHeightPX / f) * Utils::RAD2DEG;
 
     // Create standard camera matrix
     // fx, fx, cx, cy are all in pixel values not mm
@@ -439,16 +473,16 @@ void SENSCalibration::adaptForNewResolution(const cv::Size& newSize, bool calcUn
         cy = cyOrig * scaleFactor;
     }
 
-    //std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
+    std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
     _cameraMat = (cv::Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    //std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
+    std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
 
-    //std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
+    std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
     _imageSize.width  = newSize.width;
     _imageSize.height = newSize.height;
-    //std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
+    std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
@@ -518,8 +552,8 @@ void SENSCalibration::calculateUndistortedCameraMat()
                                                               centerPrinciplePoint);
     }
 
-    //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
-    //std::cout << "_cameraMat: " << _cameraMat << std::endl;
+    std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
+    std::cout << "_cameraMat: " << _cameraMat << std::endl;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees

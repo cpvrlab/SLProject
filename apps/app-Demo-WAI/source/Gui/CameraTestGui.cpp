@@ -21,27 +21,27 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
 
     //keep a local copy of all available
     if(_camera)
-        _camCharacs = _camera->getAllCameraCharacteristics();
+        _camCharacs = _camera->captureProperties();
 
     //prepare sizes for visualization
-    for (const SENSCameraCharacteristics& c : _camCharacs)
+    for (const SENSCameraDeviceProperties& c : _camCharacs)
     {
-        auto                     sizes = c.streamConfig.getStreamSizes();
+        auto                     sizes = c.streamConfigs();
         std::vector<std::string> sizeStrings;
         for (auto itSize : sizes)
         {
             std::stringstream ss;
-            ss << itSize.width << ", " << itSize.height;
+            ss << itSize.widthPix << ", " << itSize.heightPix;
             sizeStrings.push_back(ss.str());
         }
-        _sizesStrings[c.cameraId] = sizeStrings;
+        _sizesStrings[c.deviceId()] = sizeStrings;
     }
 
     _currSizeIndex = 0;
     if (_camCharacs.size())
     {
         _currCharac  = &_camCharacs.front();
-        _currSizeStr = &_sizesStrings[_currCharac->cameraId].front();
+        _currSizeStr = &_sizesStrings[_currCharac->deviceId()].front();
     }
 }
 
@@ -129,25 +129,25 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCharac->cameraId.c_str()))
+            if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCharac->deviceId().c_str()))
             {
                 for (int n = 0; n < _camCharacs.size(); n++)
                 {
-                    const SENSCameraCharacteristics* charac = &_camCharacs[n];
-                    ImGui::PushID(charac->cameraId.c_str());
-                    if (ImGui::Selectable(charac->cameraId.c_str(), charac == _currCharac))
+                    const SENSCameraDeviceProperties* charac = &_camCharacs[n];
+                    ImGui::PushID(charac->deviceId().c_str());
+                    if (ImGui::Selectable(charac->deviceId().c_str(), charac == _currCharac))
                     {
                         _currCharac = charac;
                         //reset selected size after camera selection changed
                         _currSizeIndex = 0;
-                        _currSizeStr   = &_sizesStrings[_currCharac->cameraId].front();
+                        _currSizeStr   = &_sizesStrings[_currCharac->deviceId()].front();
                     }
                     ImGui::PopID();
                 }
                 ImGui::EndCombo();
             }
 
-            const std::vector<std::string>& sizes = _sizesStrings[_currCharac->cameraId];
+            const std::vector<std::string>& sizes = _sizesStrings[_currCharac->deviceId()];
             if (ImGui::BeginCombo("Sizes##CameraTestGui", _currSizeStr->c_str()))
             {
                 for (int n = 0; n < sizes.size(); n++)
@@ -166,6 +166,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             }
 
             //visualize current camera characteristics
+            /*
             if (_currCharac->provided)
             {
                 ImGui::Text(getPrintableFacing(_currCharac->facing).c_str());
@@ -180,19 +181,23 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 ImGui::Text("Camera characteristics not provided by this device!");
             }
+            */
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
-                if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfig.getStreamSizes().size())
+                if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfigs().size())
                 {
-                    const cv::Size& selectedFrameSize  = _currCharac->streamConfig.getStreamSizes()[_currSizeIndex];
+                    const SENSCameraStreamConfig& config = _currCharac->streamConfigs()[_currSizeIndex];
+                    
+                    /*
                     _cameraConfig.deviceId             = _currCharac->cameraId;
-                    _cameraConfig.targetWidth          = selectedFrameSize.width;
-                    _cameraConfig.targetHeight         = selectedFrameSize.height;
+                    _cameraConfig.targetWidth          = config.widthPix;
+                    _cameraConfig.targetHeight         = config.heightPix;
                     _cameraConfig.convertToGray        = true;
                     _cameraConfig.adjustAsynchronously = true;
                     _cameraConfig.focusMode            = SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
-                    Utils::log("CameraTestGui", "Start: selected size %d, %d", selectedFrameSize.width, selectedFrameSize.height);
+                     */
+                    Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
 
                     ////make sure the camera is stopped if there is one
                     //if (_camera)
@@ -201,7 +206,9 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                     try
                     {
                         if (_camera)
-                            _camera->start(_cameraConfig);
+                            //assert("fixme" && false);
+                            _camera->start(_currCharac->deviceId(),
+                                           config);
                     }
                     catch (SENSException& e)
                     {
@@ -231,8 +238,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (_camera && _camera->started())
             {
-                cv::Size s(_camera->config().targetWidth, _camera->config().targetHeight);
-                ImGui::Text("Current frame size: w: %d, h: %d", s.width, s.height);
+                ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().targetWidth, _camera->config().targetHeight);
             }
             else
             {

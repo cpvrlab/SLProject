@@ -117,8 +117,9 @@ private:
     int32_t  _pointersDown;
     uint64_t _lastTouchMS;
 
-    SENSCameraAsync* _camera        = nullptr;
-    bool             _cameraGranted = false;
+    //SENSCameraAsync* _camera        = nullptr;
+    SENSCamera* _camera        = nullptr;
+    bool        _cameraGranted = false;
 
     /*
     SensorsHandler* sensorsHandler;
@@ -477,8 +478,9 @@ void Engine::startCamera()
     {
         if (!_camera)
         {
-            std::unique_ptr<SENSNdkCamera> ndkCamera = std::make_unique<SENSNdkCamera>();
-            _camera                                  = new SENSCameraAsync(std::move(ndkCamera));
+            //std::unique_ptr<SENSNdkCamera> ndkCamera = std::make_unique<SENSNdkCamera>();
+            //_camera                                  = new SENSCameraAsync(std::move(ndkCamera));
+            _camera = new SENSNdkCamera();
         }
     }
     catch (std::exception& e)

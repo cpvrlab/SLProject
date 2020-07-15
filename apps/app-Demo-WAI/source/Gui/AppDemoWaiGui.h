@@ -33,7 +33,7 @@ class SLNode;
 class SLGLTexture;
 class AppDemoGuiInfosDialog;
 class SENSCamera;
-class CVCalibration;
+class SENSCalibration;
 class SENSVideoStream;
 
 //-----------------------------------------------------------------------------
@@ -58,17 +58,17 @@ class AppDemoWaiGui : public ImGuiWrapper
   , public sm::EventSender
 {
 public:
-    AppDemoWaiGui(const ImGuiEngine&                    imGuiEngine,
-                  sm::EventHandler&                     eventHandler,
-                  ErlebAR::Resources&                   resources,
-                  std::string                           appName,
-                  const DeviceData&                     deviceData,
-                  const std::vector<std::string>&       extractorIdToNames,
-                  std ::queue<WAIEvent*>&               eventQueue,
-                  std::function<WAISlam*(void)>         modeGetterCB,
-                  std::function<SENSCamera*(void)>      getCameraCB,
-                  std::function<CVCalibration*(void)>   getCalibrationCB,
-                  std::function<SENSVideoStream*(void)> getVideoFileStreamCB);
+    AppDemoWaiGui(const ImGuiEngine&                          imGuiEngine,
+                  sm::EventHandler&                           eventHandler,
+                  ErlebAR::Resources&                         resources,
+                  std::string                                 appName,
+                  const DeviceData&                           deviceData,
+                  const std::vector<std::string>&             extractorIdToNames,
+                  std ::queue<WAIEvent*>&                     eventQueue,
+                  std::function<WAISlam*(void)>               modeGetterCB,
+                  std::function<SENSCamera*(void)>            getCameraCB,
+                  std::function<const SENSCalibration*(void)> getCalibrationCB,
+                  std::function<SENSVideoStream*(void)>       getVideoFileStreamCB);
     ~AppDemoWaiGui();
     //!< Checks, if a dialog with this name already exists, and adds it if not
     void addInfoDialog(std::shared_ptr<AppDemoGuiInfosDialog> dialog);

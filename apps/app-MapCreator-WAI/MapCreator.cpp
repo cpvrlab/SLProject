@@ -11,11 +11,19 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        std::string   configFile,
                        std::string   vocFile,
                        ExtractorType extractorType,
-                       int           nLevels)
+                       int           nLevels,
+                       std::string   outputDir)
   : _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
-    _calibrationsDir = calibrationsDir;
-    _outputDir       = _erlebARDir + "MapCreator/";
+    _calibrationsDir = Utils::unifySlashes(calibrationsDir);
+    if (outputDir.empty())
+    {
+        _outputDir = _erlebARDir + "MapCreator/";
+    }
+    else
+    {
+        _outputDir = Utils::unifySlashes(outputDir);
+    }
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
 
@@ -235,17 +243,17 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
     //the lastly saved map file (only valid if initialized is true)
     FeatureExtractorFactory factory;
     //std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {markerImgGray.cols, markerImgGray.rows});
-    std::string mapFile     = constructSlamMapFileName(location,
+    std::string      mapFile     = constructSlamMapFileName(location,
                                                    area,
                                                    factory.getExtractorIdToNames()[extractorType],
                                                    nLevels,
                                                    Utils::getDateTime2String());
-    std::string mapDir      = _outputDir + area + "/";
-    bool        initialized = false;
-    std::string currentMapFileName;
+    std::string      mapDir      = _outputDir + area + "/";
+    bool             initialized = false;
+    std::string      currentMapFileName;
     std::vector<int> keyFrameVideoMatching;
-    const float cullRedundantPerc = 0.995f;
-    initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels, keyFrameVideoMatching);
+    const float      cullRedundantPerc = 0.995f;
+    initialized                        = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels, keyFrameVideoMatching);
 
     if (areaConfig.videos.size() && initialized)
     {
@@ -423,8 +431,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdx;
 
             //update wai
-            waiMode->update(frame->imgGray);
-
+            waiMode->update(frame->imgManip);
 
             if (firstRun)
             {
@@ -459,7 +466,6 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
 
     return initialized;
 }
-
 
 void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                   const std::string& inputMapFile,
@@ -514,7 +520,6 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                 modeParams.retainImg,
                                 modeParams.cullRedundantPerc);
                                 */
-
 
     //testKFVideoMatching(keyFrameVideoMatching);
     //cull keyframes
@@ -617,7 +622,7 @@ void MapCreator::decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int cu
         cv::Mat     decoImg = lastFrame.clone();
         std::string state   = waiMode->getPrintableState();
 
-        waiMode->drawInfo(decoImg, true, true, true);
+        waiMode->drawInfo(decoImg, 1.0f, true, true, true);
 
         double     fontScale = 0.5;
         cv::Point  stateOff(10, 25);

@@ -14,6 +14,7 @@
 #include <ImageBuffer.h>
 #include <WAIAutoCalibration.h>
 #include <MapPointEdition.h>
+#include <SENSCalibration.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -52,14 +53,15 @@ protected:
 
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm);
-    void updateTrackingVisualization(const bool iKnowWhereIAm, cv::Mat& imgRGB);
+    void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
     void setupDefaultErlebARDirTo(std::string dir);
+    void updateSceneCameraFov();
 
     //video
-    CVCalibration                    _calibration       = {CVCameraType::FRONTFACING, ""};
-    CVCalibration                    _calibrationLoaded = {CVCameraType::FRONTFACING, ""};
-    SENSCamera*                      _camera            = nullptr;
-    cv::VideoWriter*                 _videoWriter       = nullptr;
+    std::unique_ptr<SENSCalibration> _calibrationLoaded;
+    const SENSCalibration*           _calibration = nullptr;
+    SENSCamera*                      _camera      = nullptr;
+    cv::VideoWriter*                 _videoWriter = nullptr;
     std::unique_ptr<SENSVideoStream> _videoFileStream;
     bool                             _pauseVideo           = false;
     int                              _videoCursorMoveIndex = 0;
@@ -94,7 +96,7 @@ protected:
     AutoCalibration* _autoCal = nullptr;
 
     SLTransformNode* _transformationNode = nullptr;
-    MapEdition* _mapEdition = nullptr;
+    MapEdition*      _mapEdition         = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;

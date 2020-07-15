@@ -16,10 +16,10 @@
 //! SLFileSystem provides basic filesystem functions
 class Utils_iOS
 {
-    public:
+public:
     //! Returns true if a file exists.
     static bool fileExists(std::string& pathfilename);
-    
+
     //! Returns all files and folders in a directory as a vector
     static std::vector<std::string> getAllNamesInDir(const std::string& dirName);
 

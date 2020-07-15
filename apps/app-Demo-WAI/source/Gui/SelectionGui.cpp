@@ -22,7 +22,7 @@ SelectionGui::SelectionGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //load background texture
-    std::string imagePath = texturePath + "earth2048_C.jpg";
+    std::string imagePath = texturePath + "selectionViewBackground.jpg";
     if (Utils::fileExists(imagePath))
     {
         // load texture image

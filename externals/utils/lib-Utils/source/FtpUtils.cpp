@@ -365,20 +365,47 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
         {
             for (string& fileInfoLine : vecFilesInDir)
             {
-                //split info line at doublepoint because it is unique (?)
                 vector<string> splits;
-                Utils::splitString(fileInfoLine, ':', splits);
-                if (splits.size() == 2)
+                Utils::splitString(fileInfoLine, ' ', splits);
+                //we have to remove the first 8 strings with first 8 "holes" of unknown length from info line
+                int numOfFoundNonEmpty = 0;
+                bool found = false;
+                
+                int pos = 0;
+                while(pos < splits.size())
                 {
-                    string name = splits.at(1);
-                    //remove first 3 characters which should be minutes fraction of time string and one whitespace
-                    name.erase(0, 3);
-                    retrievedFileNames.push_back(name);
+                    if(!splits[pos].empty())
+                        numOfFoundNonEmpty++;
+                    
+                    if(numOfFoundNonEmpty == 8)
+                    {
+                        found = true;
+                        break;
+                    }
+                    pos++;
+                }
+                //remove next string that we assume to be empty (before interesting part)
+                pos++;
+                
+                //we need minumum 9 splits (compare content of ftpDirResult.txt). The splits after the 8th we combine to one string again
+                if(found && pos < splits.size())
+                {
+                    std::string name;
+                    std::string space(" ");
+                    for(int i = pos; i < splits.size(); ++i)
+                    {
+                        name.append(splits[i]);
+                        if(i != splits.size()-1)
+                            name.append(space);
+                    }
+                    
+                    if(name.size())
+                        retrievedFileNames.push_back(name);
                 }
                 else
                 {
                     //if more than two splits double point is not unique and we get an undefined result
-                    errorMsg = "*** ERROR: getAllFileNamesWithTag: Unexpected result: more than one double point in ftp info line. ***\n";
+                    errorMsg = "*** ERROR: getAllFileNamesWithTag: Unexpected result: Ftp info line was not formatted as expected. ***\n";
                     success  = false;
                 }
             }
