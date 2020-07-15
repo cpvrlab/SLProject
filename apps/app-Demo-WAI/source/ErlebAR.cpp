@@ -15,7 +15,7 @@ const char* mapLocationIdToName(LocationId id)
             return "Avenches";
         case LocationId::BIEL:
             return "Biel";
-        case LocationId::CHRISTOFFEL:
+        case LocationId::BERN:
             return "Christoffelturm";
         default:
             return "Missing id to name mapping!";
@@ -44,8 +44,10 @@ const char* mapAreaIdToName(AreaId id)
             return "Temple";
         case AreaId::AVENCHES_THEATER:
             return "Theater";
-        //christoffel
-        case AreaId::CHRISTOFFEL_SBB:
+            //christoffel
+        case AreaId::BERN_MILCHGAESSLI:
+            return "Milchgaessli";
+        case AreaId::BERN_SBB:
             return "Sbb";
         //biel
         case AreaId::BIEL_GERECHTIGKEITSBRUNNEN:
@@ -145,13 +147,13 @@ const Location defineLocationAvenches()
 const Location defineLocationChristoffel()
 {
     Location loc;
-    loc.id                   = LocationId::CHRISTOFFEL;
+    loc.id                   = LocationId::BERN;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/christoffel/locationMapImgChristoffel.jpg";
+    loc.areaMapImageFileName = "locations/christoffel/locationMapImgBern.jpg";
     loc.dspPixWidth          = 2080;
     {
         Area area;
-        area.id            = AreaId::CHRISTOFFEL_MILCHGAESSLI;
+        area.id            = AreaId::BERN_MILCHGAESSLI;
         area.name          = mapAreaIdToName(area.id);
         area.xPosPix       = 740;
         area.yPosPix       = 294;
@@ -219,10 +221,10 @@ const Location defineLocationBiel()
 const std::map<LocationId, Location> defineLocations()
 {
     std::map<LocationId, Location> locations;
-    locations[LocationId::AUGST]       = defineLocationAugst();
-    locations[LocationId::AVENCHES]    = defineLocationAvenches();
-    locations[LocationId::CHRISTOFFEL] = defineLocationChristoffel();
-    locations[LocationId::BIEL]        = defineLocationBiel();
+    locations[LocationId::AUGST]    = defineLocationAugst();
+    locations[LocationId::AVENCHES] = defineLocationAvenches();
+    locations[LocationId::BERN]     = defineLocationChristoffel();
+    locations[LocationId::BIEL]     = defineLocationBiel();
 
     return locations;
 }

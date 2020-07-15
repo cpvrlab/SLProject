@@ -143,19 +143,19 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         ImGui::SetNextWindowSize(ImVec2(_buttonBoardW, _buttonBoardH), ImGuiCond_Always);
         ImGui::Begin("SelectionGui_ButtonBoard", nullptr, windowFlags);
 
-        if (ImGui::Button("Avenches", _buttonSz))
+        if (ImGui::Button(_resources.strings().avenches(), _buttonSz))
         {
             sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AVENCHES));
         }
 
-        if (ImGui::Button("Augst", _buttonSz))
+        if (ImGui::Button(_resources.strings().augst(), _buttonSz))
         {
             sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AUGST));
         }
 
-        if (ImGui::Button("Christoffel", _buttonSz))
+        if (ImGui::Button(_resources.strings().bern(), _buttonSz))
         {
-            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::CHRISTOFFEL));
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BERN));
         }
 
         if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))

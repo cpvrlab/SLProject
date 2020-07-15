@@ -66,10 +66,10 @@ Resources::Resources(const DeviceData& deviceData)
     _writableDir(deviceData.writableDir())
 {
     //load strings first (we need the id for string selection)
-    stringsEnglish.load(deviceData.dataDir() + "config/StringsEnglish.json");
-    stringsGerman.load(deviceData.dataDir() + "config/StringsGerman.json");
-    stringsFrench.load(deviceData.dataDir() + "config/StringsFrench.json");
-    stringsItalian.load(deviceData.dataDir() + "config/StringsItalian.json");
+    stringsEnglish.load(deviceData.stringsDir() + "StringsEnglish.json");
+    stringsGerman.load(deviceData.stringsDir() + "StringsGerman.json");
+    stringsFrench.load(deviceData.stringsDir() + "StringsFrench.json");
+    stringsItalian.load(deviceData.stringsDir() + "StringsItalian.json");
     //load Resources
     load(deviceData.writableDir() + "ErlebARResources.json");
     //load textures

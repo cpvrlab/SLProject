@@ -37,7 +37,7 @@ enum class LocationId
     AUGST,
     AVENCHES,
     BIEL,
-    CHRISTOFFEL
+    BERN
 };
 
 const char* mapLocationIdToName(LocationId id);
@@ -55,9 +55,9 @@ enum class AreaId
     AVENCHES_THEATER,
     AVENCHES_CIGOGNIER,
     AVENCHES_TEMPLE,
-    //CHRISTOFFEL
-    CHRISTOFFEL_SBB,
-    CHRISTOFFEL_MILCHGAESSLI,
+    //BERN
+    BERN_SBB,
+    BERN_MILCHGAESSLI,
     //BIEL
     BIEL_SOUTHWALL,
     BIEL_GERECHTIGKEITSBRUNNEN,
