@@ -155,17 +155,17 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _resources->fonts().atlas());
 
     //instantiation of views
-    _selectionView = new SelectionView(*this,
-                                       _inputManager,
-                                       *_imGuiEngine,
-                                       *_resources,
-                                       *_dd);
-
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
                                    *_imGuiEngine,
                                    *_dd,
                                    "0.12");
+    /*
+    _selectionView = new SelectionView(*this,
+                                       _inputManager,
+                                       *_imGuiEngine,
+                                       *_resources,
+                                       *_dd);
 
     _testView = new TestView(*this,
                              _inputManager,
@@ -219,7 +219,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                              *_resources,
                                              _camera,
                                              *_dd);
-
+                                             */
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
 
@@ -233,10 +233,102 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
     {
         timer.start();
     }
+    else
+    {
+        //init all other views after first rendering of start screen
+        if (!_selectionView)
+        {
+            _selectionView = new SelectionView(*this,
+                                               _inputManager,
+                                               *_imGuiEngine,
+                                               *_resources,
+                                               *_dd);
+        }
+
+        if (!_testView)
+        {
+            _testView = new TestView(*this,
+                                     _inputManager,
+                                     *_imGuiEngine,
+                                     *_resources,
+                                     _camera,
+                                     *_dd);
+        }
+
+        if (!_testRunnerView)
+        {
+            _testRunnerView = new TestRunnerView(*this,
+                                                 _inputManager,
+                                                 *_imGuiEngine,
+                                                 *_resources,
+                                                 *_dd);
+        }
+
+        if (!_startUpView)
+        {
+            _startUpView = new StartUpView(_inputManager,
+                                           *_dd);
+        }
+
+        if (!_aboutView)
+        {
+            _aboutView = new AboutView(*this,
+                                       _inputManager,
+                                       *_imGuiEngine,
+                                       *_resources,
+                                       *_dd);
+        }
+
+        if (!_settingsView)
+        {
+            _settingsView = new SettingsView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_resources,
+                                             *_dd);
+        }
+
+        if (!_tutorialView)
+        {
+            _tutorialView = new TutorialView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_resources,
+                                             *_dd);
+        }
+
+        if (!_locationMapView)
+        {
+            _locationMapView = new LocationMapView(*this,
+                                                   _inputManager,
+                                                   *_imGuiEngine,
+                                                   *_resources,
+                                                   *_dd);
+        }
+
+        if (!_areaInfoView)
+        {
+            _areaInfoView = new AreaInfoView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_resources,
+                                             *_dd);
+        }
+
+        if (!_areaTrackingView)
+        {
+            _areaTrackingView = new AreaTrackingView(*this,
+                                                     _inputManager,
+                                                     *_imGuiEngine,
+                                                     *_resources,
+                                                     _camera,
+                                                     *_dd);
+        }
+    }
 
     _welcomeView->update();
 
-    if (timer.elapsedTimeInSec() > 0.1f)
+    if (timer.elapsedTimeInSec() > 0.01f)
         addEvent(new DoneEvent("ErlebARApp::WELCOME"));
 }
 
