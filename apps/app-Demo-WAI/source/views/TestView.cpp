@@ -56,15 +56,11 @@ TestView::~TestView()
     {
         delete _mode;
         _mode = nullptr;
-        _currentSlamParams.save(_configDir + "SlamParams.json");
     }
 }
 
 void TestView::start()
 {
-    //if (_ready)
-    //    return;
-
     tryLoadLastSlam();
 }
 
@@ -479,6 +475,68 @@ void TestView::updateSceneCameraFov()
     }
 }
 
+bool TestView::startCamera()
+{
+    if (!_camera)
+    {
+        _gui.showErrorMsg("Camera pointer is not set!");
+        return false;
+    }
+
+    if (_camera->started())
+        _camera->stop();
+
+    auto capProps     = _camera->captureProperties();
+    int  trackingImgW = 640;
+
+    float targetWdivH   = 4.f / 3.f;
+    int   aproxVisuImgW = 640;
+    int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+
+    auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
+
+    if (bestConfig.first && bestConfig.second)
+    {
+        const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
+        const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
+        //calculate size of tracking image
+        float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+        _camera->start(devProps->deviceId(),
+                       *streamConfig,
+                       cv::Size(),
+                       false,
+                       false,
+                       true,
+                       trackingImgW,
+                       true,
+                       65.f);
+    }
+
+    else //try with unknown config (for desktop)
+    {
+        aproxVisuImgW    = 640;
+        auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, 640, 480);
+        if (bestConfig2.first && bestConfig2.second)
+        {
+            const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
+            const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
+            //calculate size of tracking image
+            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
+            _camera->start(devProps->deviceId(),
+                           *streamConfig,
+                           cv::Size(),
+                           false,
+                           false,
+                           true,
+                           trackingImgW,
+                           true,
+                           65.f);
+        }
+    }
+
+    return _camera->started();
+}
+
 /*
 videoFile: path to a video or empty if live video should be used
 calibrationFile: path to a calibration or empty if calibration should be searched automatically
@@ -578,11 +636,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
     }
     else
     {
-        if (!_camera)
-        {
-            _gui.showErrorMsg("Camera pointer is not set!");
+        if (!startCamera())
             return;
-        }
         _videoFrameSize = cv::Size2i(_camera->config().targetWidth, _camera->config().targetHeight);
     }
 
@@ -679,6 +734,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // 6. save current params
     _currentSlamParams = slamParams;
     _gui.setSlamParams(slamParams);
+    _currentSlamParams.save(_configDir + "SlamParams.json");
 
     setViewportFromRatio(SLVec2i(_videoFrameSize.width, _videoFrameSize.height), SLViewportAlign::VA_center, true);
 

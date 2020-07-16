@@ -43,7 +43,9 @@ public:
                std::string   vocFile,
                ExtractorType extractorType,
                int           nLevels,
-               std::string   outputDir);
+               std::string   outputDir,
+               bool          serialMapping,
+               float         thinCullingValue);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -100,6 +102,9 @@ private:
 
     ExtractorType _extractorType = ExtractorType_FAST_ORBS_2000;
     int           _nLevels       = 2;
+
+    bool  _serialMapping    = false;
+    float _thinCullingValue = 0.995f;
 
     /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;

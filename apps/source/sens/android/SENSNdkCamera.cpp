@@ -179,9 +179,9 @@ void SENSNdkCamera::openCamera()
     }
 
     const auto& streamConfig = _config.streamConfig;
-    LOG_NDKCAM_INFO("openCamera: CaptureSize (%d, %d)", streamConfig->widthPix, streamConfig->heightPix);
+    LOG_NDKCAM_INFO("openCamera: CaptureSize (%d, %d)", streamConfig.widthPix, streamConfig.heightPix);
 
-    if (_imageReader && _captureSize != cv::Size(streamConfig->widthPix, streamConfig->heightPix))
+    if (_imageReader && _captureSize != cv::Size(streamConfig.widthPix, streamConfig.heightPix))
     {
         LOG_NDKCAM_INFO("openCamera: ImageReader valid and captureSize does not fit");
         //stop repeating request and wait for stopped state
@@ -265,10 +265,10 @@ void SENSNdkCamera::openCamera()
         {
             LOG_NDKCAM_INFO("openCamera: Creating image reader...");
 
-            _captureSize = cv::Size(streamConfig->widthPix, streamConfig->heightPix);
+            _captureSize = cv::Size(streamConfig.widthPix, streamConfig.heightPix);
 
             //create image reader with 2 surfaces (a surface is the like a ring buffer for images)
-            if (AImageReader_new(streamConfig->widthPix, streamConfig->heightPix, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
+            if (AImageReader_new(streamConfig.widthPix, streamConfig.heightPix, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
                 throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
             //make the adjustments in an asynchronous thread
@@ -338,7 +338,7 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
 
     //init config here
     _config = SENSCameraConfig(deviceId,
-                               &streamConfig,
+                               streamConfig,
                                SENSCameraFocusMode::UNKNOWN,
                                targetSize.width,
                                targetSize.height,

@@ -83,7 +83,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 
     //TODO: I don't know how imgui work!!!!
     ImGui::Text("Map Transform & Edit                   ");
-    SLfloat bW = ImGui::GetContentRegionAvailWidth();
+    SLfloat bW = ImGui::GetContentRegionAvail().x;
 
     if (!_ready)
     {
@@ -200,7 +200,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
                 WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _videoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
                 std::cout << "init video id" << std::endl;
                 _videosId = std::vector<bool>(_videoInMap.size());
-                _nmatchId = std::vector<bool>(_videoInMap.size()+1);
+                _nmatchId = std::vector<bool>(_videoInMap.size() + 1);
                 for (int i = 0; i < _videoInMap.size(); i++)
                 {
                     _videosId[i] = true;

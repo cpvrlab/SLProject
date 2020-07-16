@@ -552,8 +552,8 @@ void SENSCalibration::calculateUndistortedCameraMat()
                                                               centerPrinciplePoint);
     }
 
-    std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
-    std::cout << "_cameraMat: " << _cameraMat << std::endl;
+    //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
+    //std::cout << "_cameraMat: " << _cameraMat << std::endl;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees

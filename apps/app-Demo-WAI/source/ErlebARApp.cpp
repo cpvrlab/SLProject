@@ -154,23 +154,23 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     if (data == nullptr)
         return;
 
-    const DeviceData& dd = data->deviceData;
+    _dd = std::make_unique<DeviceData>(data->deviceData);
 
-    SLGLProgramManager::init(dd.shaderDir());
-    _resources   = new ErlebAR::Resources(dd);
-    _imGuiEngine = new ImGuiEngine(dd.writableDir(), _resources->fonts().atlas());
+    SLGLProgramManager::init(_dd->shaderDir());
+    _resources   = new ErlebAR::Resources(*_dd);
+    _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _resources->fonts().atlas());
 
     //instantiation of views
     _selectionView = new SelectionView(*this,
                                        _inputManager,
                                        *_imGuiEngine,
                                        *_resources,
-                                       dd);
+                                       *_dd);
 
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
                                    *_imGuiEngine,
-                                   dd,
+                                   *_dd,
                                    "0.12");
 
     _testView = new TestView(*this,
@@ -178,60 +178,53 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                              *_imGuiEngine,
                              *_resources,
                              _camera,
-                             dd);
+                             *_dd);
 
     _testRunnerView = new TestRunnerView(*this,
                                          _inputManager,
                                          *_imGuiEngine,
                                          *_resources,
-                                         dd);
+                                         *_dd);
 
     _startUpView = new StartUpView(_inputManager,
-                                   dd);
+                                   *_dd);
 
     _aboutView = new AboutView(*this,
                                _inputManager,
                                *_imGuiEngine,
                                *_resources,
-                               dd);
+                               *_dd);
 
     _settingsView = new SettingsView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
                                      *_resources,
-                                     dd);
+                                     *_dd);
 
     _tutorialView = new TutorialView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
                                      *_resources,
-                                     dd);
+                                     *_dd);
 
     _locationMapView = new LocationMapView(*this,
                                            _inputManager,
                                            *_imGuiEngine,
                                            *_resources,
-                                           dd);
+                                           *_dd);
 
     _areaInfoView = new AreaInfoView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
                                      *_resources,
-                                     dd);
+                                     *_dd);
 
     _areaTrackingView = new AreaTrackingView(*this,
                                              _inputManager,
                                              *_imGuiEngine,
                                              *_resources,
                                              _camera,
-                                             dd);
-
-    _cameraTestView = new CameraTestView(*this,
-                                         _inputManager,
-                                         *_imGuiEngine,
-                                         *_resources,
-                                         _camera,
-                                         dd);
+                                             *_dd);
 
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
@@ -249,7 +242,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
 
     _welcomeView->update();
 
-    if (timer.elapsedTimeInSec() > 2.f)
+    if (timer.elapsedTimeInSec() > 0.1f)
         addEvent(new DoneEvent("ErlebARApp::WELCOME"));
 }
 
@@ -365,82 +358,13 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
 
     if (stateEntry)
     {
-        _camera->stop();
-
-        int   trackingImgW  = 640;
-        float targetWdivH   = 16.f / 9.f;
-        int   aproxVisuImgW = 1000;
-        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-
-        auto capProps   = _camera->captureProperties();
-        auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-        if (bestConfig.first && bestConfig.second)
-        {
-            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
-            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
-            //calculate size of tracking image
-            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-            _camera->start(devProps->deviceId(),
-                           *streamConfig,
-                           cv::Size((int)(1080.f / 3.f * 4.f), 1080),
-                           false,
-                           false,
-                           true,
-                           trackingImgW,
-                           true,
-                           65.f);
-        }
-        else //try with unknown config (for desktop usage
-        {
-            aproxVisuImgW    = 640;
-            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
-            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
-            if (bestConfig2.first && bestConfig2.second)
-            {
-                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
-                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
-                //calculate size of tracking image
-                float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-                _camera->start(devProps->deviceId(),
-                               *streamConfig,
-                               cv::Size(),
-                               false,
-                               false,
-                               true,
-                               trackingImgW,
-                               true,
-                               65.f);
-            }
-            /*
-            float searchWdivH = 16.f / 9.f;
-            aproxVisuImgW = 1920;
-            aproxVisuImgH = (int)((float)aproxVisuImgW / searchWdivH);
-            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
-            if(bestConfig2.first && bestConfig2.second)
-            {
-                const SENSCameraDeviceProperties* const devProps = bestConfig2.first;
-                const SENSCameraStreamConfig* streamConfig = bestConfig2.second;
-                //calculate size of tracking image
-                _camera->start(devProps->deviceId(),
-                               *streamConfig,
-                               cv::Size((int)(1080.f * targetWdivH), 1080),
-                               false,
-                               false,
-                               true,
-                               trackingImgW,
-                               true,
-                               65.f);
-            }
-            */
-        }
-        //_camera->start(SENSCameraFacing::BACK, 65.f, cv::Size(640, 480));
     }
 
-    if (_camera->permissionGranted() && _camera->started())
-    {
-        _testView->start();
-        addEvent(new DoneEvent("ErlebARApp::START_TEST"));
-    }
+    //if (_camera->permissionGranted() && _camera->started())
+    //{
+    _testView->start();
+    addEvent(new DoneEvent("ErlebARApp::START_TEST"));
+    //}
 
     assert(_startUpView != nullptr);
     _startUpView->update();
@@ -450,7 +374,7 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
 {
     if (stateExit)
     {
-        _camera->stop();
+        //_camera->stop();
         return;
     }
 
@@ -468,9 +392,12 @@ void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry,
 
 void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
+    if (stateExit)
+        return;
+
     if (stateEntry)
     {
-        _camera->stop();
+        //_camera->stop();
     }
 }
 
@@ -479,18 +406,7 @@ void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry,
     if (stateExit)
         return;
 
-    //start camera
-    /*
-    SENSCameraConfig config;
-    config.targetWidth          = 640;
-    config.targetHeight         = 360;
-    config.convertToGray        = true;
-    config.adjustAsynchronously = true;
-*/
-    _camera->stop();
-    assert("fix this");
-    //_camera->start(config);
-
+    //_testView->startCamera();
     addEvent(new DoneEvent("ErlebARApp::RESUME_TEST"));
 }
 
@@ -592,6 +508,16 @@ void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry,
 
     if (stateEntry)
     {
+        if (!_cameraTestView)
+        {
+            _cameraTestView = new CameraTestView(*this,
+                                                 _inputManager,
+                                                 *_imGuiEngine,
+                                                 *_resources,
+                                                 _camera,
+                                                 *_dd);
+        }
+
         _cameraTestView->show();
     }
 

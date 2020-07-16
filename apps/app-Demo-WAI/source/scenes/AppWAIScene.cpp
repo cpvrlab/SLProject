@@ -101,11 +101,11 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
-    covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat",  SLCol4f::YELLOW);
+    covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat", SLCol4f::YELLOW);
     covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
-    spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat",  SLCol4f::GREEN);
+    spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat", SLCol4f::GREEN);
     spanningTreeMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
-    loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat",  SLCol4f::RED);
+    loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat", SLCol4f::RED);
     loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -119,24 +119,24 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->attenuation(1, 0, 0);
     light->translation(0, 10, 0);
     light->lookAt(10, 0, 10);
-    _root3D->addChild(light);	
+    _root3D->addChild(light);
 
     if (location == "avenches")
     {
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
+            modelPath = _dataDir + "models/Avenches/Aventicum-Amphitheater1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            modelPath = _dataDir + "models/Avenches/Aventicum-Cigognier1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "theater-marker")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
+            modelPath = _dataDir + "models/Avenches/Aventicum-Theater1.gltf";
             loadMesh(modelPath);
         }
     }
@@ -176,9 +176,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             _root3D->addChild(augmentationRoot);
         }
     }
-    else if (location == "christoffel")
+    else if (location == "bern")
     {
-        std::string modelPath = _dataDir + "models/FBX/bern/Bern-Bahnhofsplatz.fbx";
+        std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
 
         SLAssimpImporter importer;
         augmentationRoot = importer.load(_animManager,
