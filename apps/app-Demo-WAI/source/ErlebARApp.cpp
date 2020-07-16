@@ -33,8 +33,6 @@ ErlebARApp::ErlebARApp()
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::START_TEST>((unsigned int)StateId::START_TEST);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST>((unsigned int)StateId::TEST);
-    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TEST>((unsigned int)StateId::HOLD_TEST);
-    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::RESUME_TEST>((unsigned int)StateId::RESUME_TEST);
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST_RUNNER>((unsigned int)StateId::TEST_RUNNER);
 
@@ -101,10 +99,6 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
             return "START_TEST";
         case StateId::TEST:
             return "TEST";
-        case StateId::HOLD_TEST:
-            return "HOLD_TEST";
-        case StateId::RESUME_TEST:
-            return "RESUME_TEST";
 
         case StateId::TEST_RUNNER:
             return "TEST_RUNNER";
@@ -356,15 +350,11 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
     if (stateExit)
         return;
 
-    if (stateEntry)
+    if (_camera->permissionGranted())
     {
+        _testView->start();
+        addEvent(new DoneEvent("ErlebARApp::START_TEST"));
     }
-
-    //if (_camera->permissionGranted() && _camera->started())
-    //{
-    _testView->start();
-    addEvent(new DoneEvent("ErlebARApp::START_TEST"));
-    //}
 
     assert(_startUpView != nullptr);
     _startUpView->update();
@@ -374,7 +364,6 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
 {
     if (stateExit)
     {
-        //_camera->stop();
         return;
     }
 
@@ -388,26 +377,6 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
 void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     _testRunnerView->update();
-}
-
-void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
-{
-    if (stateExit)
-        return;
-
-    if (stateEntry)
-    {
-        //_camera->stop();
-    }
-}
-
-void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
-{
-    if (stateExit)
-        return;
-
-    //_testView->startCamera();
-    addEvent(new DoneEvent("ErlebARApp::RESUME_TEST"));
 }
 
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)

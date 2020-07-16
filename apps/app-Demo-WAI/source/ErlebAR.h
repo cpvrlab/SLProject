@@ -120,8 +120,6 @@ enum class StateId
 
     START_TEST,
     TEST,
-    HOLD_TEST,
-    RESUME_TEST,
 
     TEST_RUNNER,
 
