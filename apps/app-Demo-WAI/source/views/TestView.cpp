@@ -717,10 +717,19 @@ void TestView::startOrbSlam(SlamParams slamParams)
         extractSlamMapInfosFromFileName(slamParams.mapFile, &slamMapInfos);
     }
 
-    cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                _camera->config().manipWidth,
-                                                _camera->config().targetWidth);
-    _mode                = new WAISlam(scaledCamMat,
+    //I KNOW THIS IS STILL ALL SHIT: THIS IS A HOTFIX BEFORE HOLIDAY
+    cv::Mat scaledCamMat;
+    if (useVideoFile)
+    {
+        scaledCamMat = _calibration->cameraMat();
+    }
+    else
+    {
+        scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
+                                            _camera->config().manipWidth,
+                                            _camera->config().targetWidth);
+    }
+    _mode = new WAISlam(scaledCamMat,
                         _calibration->distortion(),
                         _voc,
                         _initializationExtractor.get(),

@@ -117,8 +117,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->diffuseColor(SLCol4f(1, 1, 1));
     light->specularColor(SLCol4f(1, 1, 1));
     light->attenuation(1, 0, 0);
-    light->translation(0, 10, 0);
-    light->lookAt(10, 0, 10);
+    light->translation(0, 1, 0);
+    light->lookAt(1, 0, 1);
+    light->setDrawBitsRec(SL_DB_HIDDEN, true);
     _root3D->addChild(light);
 
     if (location == "avenches")
@@ -178,6 +179,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "bern")
     {
+#if 0
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
 
         SLAssimpImporter importer;
@@ -209,6 +211,8 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
         // Create directional light for the sun light
         _root3D->addChild(augmentationRoot);
+
+#endif
     }
 
 #if 0 // office table boxes scene
