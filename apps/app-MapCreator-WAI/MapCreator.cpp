@@ -531,7 +531,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     //save map again (we use the map file name without index because this is the final map)
     //saveMap(waiMode.get(), mapDir, outputMapFile, &mapNode);
 
-    if (!WAIMapStorage::saveMap(map.get(), &mapNode, mapDir + outputMapFile))
+    if (!WAIMapStorage::saveMapRaw(map.get(), &mapNode, mapDir + outputMapFile))
     {
         throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
     }
@@ -660,7 +660,7 @@ void MapCreator::saveMap(WAISlam*           waiMode,
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    if (!WAIMapStorage::saveMap(waiMode->getMap(),
+    if (!WAIMapStorage::saveMapRaw(waiMode->getMap(),
                                 mapNode,
                                 mapDir + currentMapFileName,
                                 imgDir))

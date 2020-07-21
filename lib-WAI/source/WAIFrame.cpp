@@ -101,8 +101,6 @@ WAIFrame::WAIFrame(const cv::Mat& imGray, const double& timeStamp, KPextractor* 
     K.convertTo(mK, CV_32F);
     distCoef.convertTo(mDistCoef, CV_32F);
 
-    std::cout << K << std::endl;
-    std::cout << imGray.size() << std::endl;
     // Frame ID
     mnId = nNextId++;
 

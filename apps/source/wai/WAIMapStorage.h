@@ -15,6 +15,11 @@ public:
                         std::string fileName,
                         std::string imgDir = "");
 
+    static bool saveMapRaw(WAIMap*     waiMap,
+                           SLNode*     mapNode,
+                           std::string fileName,
+                           std::string imgDir = "");
+
     static bool loadMap(WAIMap*           waiMap,
                         SLNode*           mapNode,
                         WAIOrbVocabulary* voc,

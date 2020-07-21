@@ -108,7 +108,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 820;
         area.yPosPix         = 660;
         area.viewAngleDeg    = 170;
-        area.slamMapFileName = "location/avenches/amphitheaterEntrance/maps/stable-map_20200710-170350_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.json";
+        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200710-170350_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.json";
         loc.areas[area.id]   = area;
     }
     {
@@ -118,7 +118,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 472;
         area.yPosPix         = 736;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "location/avenches/amphitheater/stable-map_20200710-151049_avenches_amphitheater_FAST-ORBS-2000_2.json";
+        area.slamMapFileName = "locations/avenches/amphitheater/stable-map_20200710-151049_avenches_amphitheater_FAST-ORBS-2000_2.json";
         loc.areas[area.id]   = area;
     }
     {

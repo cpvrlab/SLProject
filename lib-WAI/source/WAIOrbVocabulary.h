@@ -24,6 +24,8 @@
 struct WAIBowVector
 {
     bool isFill = false;
+    WAIBowVector(){};
+    WAIBowVector(std::vector<int> wid, std::vector<float> values);
 #if USE_FBOW
     fbow::fBow  data;
     fbow::fBow& getWordScoreMapping() { return data; }
@@ -35,6 +37,7 @@ struct WAIBowVector
 
 struct WAIFeatVector
 {
+    WAIFeatVector(){};
     bool isFill = false;
 #if USE_FBOW
     fbow::fBow2  data;
