@@ -12,8 +12,12 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        std::string   vocFile,
                        ExtractorType extractorType,
                        int           nLevels,
-                       std::string   outputDir)
-  : _erlebARDir(Utils::unifySlashes(erlebARDir))
+                       std::string   outputDir,
+                       bool          serialMapping,
+                       float         thinCullingValue)
+  : _erlebARDir(Utils::unifySlashes(erlebARDir)),
+    _serialMapping(serialMapping),
+    _thinCullingValue(thinCullingValue)
 {
     _calibrationsDir = Utils::unifySlashes(calibrationsDir);
     if (outputDir.empty())
@@ -199,7 +203,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = false;
+    modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
 
@@ -270,7 +274,7 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
         std::string kfVideoMatchingFileName = Utils::getFileNameWOExt(mapFile) + "_match.txt";
 
         //select one calibration (we need one to instantiate mode and we need mode to load map)
-        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, kfVideoMatchingFileName, areaConfig.videos.front().calibration, cullRedundantPerc, extractorType, nLevels, keyFrameVideoMatching, areaConfig.videos);
+        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, kfVideoMatchingFileName, areaConfig.videos.front().calibration, _thinCullingValue, extractorType, nLevels, keyFrameVideoMatching, areaConfig.videos);
     }
     else
     {
@@ -293,7 +297,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = false;
+    modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
 
@@ -482,7 +486,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = false;
+    modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
 

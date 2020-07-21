@@ -100,7 +100,7 @@ private:
     ErlebARApp _earApp;
     bool       _earAppIsInitialized = false;
 
-    int32_t        _dpi;
+    int32_t _dpi;
 
     EGLConfig  _config;
     EGLDisplay _display;
@@ -162,10 +162,13 @@ void Engine::onInit()
 
         std::string internalPath = getInternalDir();
         //extract folder data in apk to internalPath + "/data"
-        extractAPKFolder(internalPath, "data");
+        if (!Utils::dirExists(internalPath + "/data"))
+            extractAPKFolder(internalPath, "data");
+
         std::string externalPath = getExternalDir();
         //extract folder erleb-AR in apk to externalPath + "/erleb-AR"
-        extractAPKFolder(externalPath, "erleb-AR");
+        if (!Utils::dirExists(externalPath + "/erleb-AR"))
+            extractAPKFolder(externalPath, "erleb-AR");
 
         AConfiguration* appConfig = AConfiguration_new();
         AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);

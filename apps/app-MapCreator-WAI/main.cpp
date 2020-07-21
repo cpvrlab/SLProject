@@ -14,6 +14,8 @@ struct Config
     std::string   outputDir;
     ExtractorType extractorType;
     int           nLevels;
+    bool          serialMapping;
+    float         thinCullingValue;
 };
 
 void printHelp()
@@ -31,16 +33,20 @@ void printHelp()
     ss << "  -vocFile        Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/calibrations/ is used)" << std::endl;
     ss << "  -outputDir      Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for log output)" << std::endl;
     ss << "  -levels         Number of pyramid levels" << std::endl;
+    ss << "  -serial         Serial mapping (1 or 0)" << std::endl;
+    ss << "  -thinCullVal    Thin out culling value (e.g. 0.95)" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType   = ExtractorType_FAST_BRIEF_1000;
-    config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
-    config.calibrationsDir = Utils::getAppsWritableDir() + "calibrations/";
-    config.nLevels         = -1;
+    config.extractorType    = ExtractorType_FAST_BRIEF_1000;
+    config.erlebARDir       = Utils::getAppsWritableDir() + "erleb-AR/";
+    config.calibrationsDir  = Utils::getAppsWritableDir() + "calibrations/";
+    config.nLevels          = -1;
+    config.thinCullingValue = 0.995f;
+    config.serialMapping    = false;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -73,6 +79,15 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-level"))
         {
             config.nLevels = std::stoi(argv[++i]);
+        }
+        else if (!strcmp(argv[i], "-serial"))
+        {
+            int val              = std::stoi(argv[++i]);
+            config.serialMapping = val == 1 ? true : false;
+        }
+        else if (!strcmp(argv[i], "-thinCullVal"))
+        {
+            config.thinCullingValue = std::stof(argv[++i]);
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -201,7 +216,15 @@ int main(int argc, char* argv[])
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType, config.nLevels, config.outputDir);
+        MapCreator mapCreator(config.erlebARDir,
+                              config.calibrationsDir,
+                              config.configFile,
+                              config.vocFile,
+                              config.extractorType,
+                              config.nLevels,
+                              config.outputDir,
+                              config.serialMapping,
+                              config.thinCullingValue);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

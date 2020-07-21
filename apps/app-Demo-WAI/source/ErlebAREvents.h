@@ -138,8 +138,6 @@ public:
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::START_TEST,
                          (unsigned int)StateId::TEST);
-        enableTransition((unsigned int)StateId::RESUME_TEST,
-                         (unsigned int)StateId::TEST);
         enableTransition((unsigned int)StateId::AREA_INFO,
                          (unsigned int)StateId::AREA_TRACKING);
         enableTransition((unsigned int)StateId::TEST_RUNNER,
@@ -245,8 +243,6 @@ public:
     HoldEvent(std::string senderInfo)
       : sm::Event("HoldEvent", senderInfo)
     {
-        enableTransition((unsigned int)StateId::TEST,
-                         (unsigned int)StateId::HOLD_TEST);
         enableTransition((unsigned int)StateId::AREA_INFO,
                          (unsigned int)StateId::HOLD_TRACKING);
         enableTransition((unsigned int)StateId::AREA_TRACKING,
@@ -260,8 +256,6 @@ public:
     ResumeEvent(std::string senderInfo)
       : sm::Event("ResumeEvent", senderInfo)
     {
-        enableTransition((unsigned int)StateId::HOLD_TEST,
-                         (unsigned int)StateId::RESUME_TEST);
         enableTransition((unsigned int)StateId::HOLD_TRACKING,
                          (unsigned int)StateId::AREA_INFO);
     }

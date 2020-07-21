@@ -38,6 +38,8 @@ public:
     //call when view becomes visible
     void show() { _gui.onShow(); }
 
+    bool startCamera();
+
 protected:
     void tryLoadLastSlam();
     void handleEvents();
