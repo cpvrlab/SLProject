@@ -1,5 +1,5 @@
 #include <WAIMapStorage.h>
-#define SAVEBOW 0
+//#define SAVEBOW
 
 cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {
@@ -94,7 +94,6 @@ void saveKeyFrames(std::vector<WAIKeyFrame*> &kfs,
         if (kf->mBowVec.data.empty())
             continue;
 
-        const std::map<size_t, size_t> &matching = KFmatching[kf];
 
         fs << "{"; //new map keyFrame
                    //add id
@@ -119,9 +118,10 @@ void saveKeyFrames(std::vector<WAIKeyFrame*> &kfs,
         // world w.r.t camera
         fs << "Tcw" << kf->GetPose();
 
-        if (matching.size() > 0)
+        if (KFmatching.size() > 0)
         {
             cv::Mat descriptors;
+            const std::map<size_t, size_t>& matching = KFmatching[kf];
             descriptors.create((int)matching.size(), 32, CV_8U);
             std::vector<cv::KeyPoint> keypoints(matching.size());
             for (int j = 0; j < kf->mvKeysUn.size(); j++)
@@ -142,7 +142,7 @@ void saveKeyFrames(std::vector<WAIKeyFrame*> &kfs,
             fs << "keyPtsUndist" << kf->mvKeysUn;
         }
 
-#if SAVEBOW
+#ifdef SAVEBOW
         WAIBowVector &bowVec = kf->mBowVec;
         std::vector<int> wordsId;
         std::vector<float> tfIdf;
@@ -212,30 +212,46 @@ void saveMapPoints(std::vector<WAIMapPoint*> mpts,
         auto        observations = mpt->GetObservations();
         vector<int> observingKfIds;
         vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
-        for (auto it : observations)
+
+        if (!KFmatching.empty())
         {
-            WAIKeyFrame* kf = it.first;
-            size_t kpIdx = it.second;
-            if (!kf || kf->isBad() || kf->mBowVec.data.empty())
-                continue;
-
-            if (KFmatching.find(kf) == KFmatching.end())
+            for (auto it : observations)
             {
-                std::cout << "observation not found in kfmatching" << std::endl;
-                continue;
+                WAIKeyFrame* kf    = it.first;
+                size_t       kpIdx = it.second;
+                if (!kf || kf->isBad() || kf->mBowVec.data.empty())
+                    continue;
+
+                if (KFmatching.find(kf) == KFmatching.end())
+                {
+                    std::cout << "observation not found in kfmatching" << std::endl;
+                    continue;
+                }
+
+                const std::map<size_t, size_t>& matching = KFmatching[kf];
+                auto                            mit      = matching.find(kpIdx);
+                if (mit != matching.end())
+                {
+                    observingKfIds.push_back(kf->mnId);
+                    corrKpIndices.push_back(mit->second);
+                }
             }
-
-            const std::map<size_t, size_t> &matching = KFmatching[kf];
-            auto mit = matching.find(kpIdx);
-            if (mit != matching.end())
+        }
+        else
+        {
+            for (auto it : observations)
             {
-                observingKfIds.push_back(kf->mnId);
-                corrKpIndices.push_back(mit->second);
+                if (!it.first->isBad())
+                {
+                    observingKfIds.push_back(it.first->mnId);
+                    corrKpIndices.push_back(it.second);
+                }
             }
         }
 
         fs << "observingKfIds" << observingKfIds;
         fs << "corrKpIndices" << corrKpIndices;
+
         fs << "refKfId" << (int)mpt->refKf()->mnId;
         fs << "}"; //close map
     }
@@ -264,7 +280,6 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
         return false;
     }
 
-    fs << "version" << 2;
     if (mapNode)
     {
         SLMat4f slOm = mapNode->om();
@@ -294,6 +309,8 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
     if (kfs.size() == 0)
         return false;
 
+    //buildMatching(kfs, KFmatching);
+
     //save keyframes (without graph/neigbourhood information)
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
@@ -302,7 +319,6 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
         return false;
     }
 
-    fs << "version" << 2;
     if (mapNode)
     {
         SLMat4f slOm = mapNode->om();
@@ -335,7 +351,6 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     std::map<int, std::vector<int>> loopEdgesMap;
     std::map<int, WAIKeyFrame*>     kfsMap;
     int                             numLoopClosings = 0;
-    int                             version;
 
     std::string imgDir;
     if (loadImgs)
@@ -350,11 +365,6 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     {
         return false;
     }
-
-    if (!fs["version"].empty())
-        fs["version"] >> version;
-    else
-        version = 1;
 
     if (mapNode && !fs["mapNodeOm"].empty())
     {
@@ -393,15 +403,12 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
 
-#if SAVEBOW
         std::vector<int> wordsId;
         std::vector<float> tfIdf;
-        if (version > 1)
-        {
+        if (!(*it)["BowVectorWordsId"].empty())
             (*it)["BowVectorWordsId"] >> wordsId;
+        if (!(*it)["TfIdf"].empty())
             (*it)["TfIdf"] >> tfIdf;
-        }
-#endif
 
         float scaleFactor;
         (*it)["scaleFactor"] >> scaleFactor;
@@ -470,13 +477,11 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                                              (int)nMaxY,
                                              K);
 
-#if SAVEBOW
-        if (version > 1)
+        if (!wordsId.empty() && !tfIdf.empty())
         {
             WAIBowVector bow(wordsId, tfIdf);
             newKf->SetBowVector(bow);
         }
-#endif
 
         if (imgDir != "")
         {
