@@ -50,7 +50,7 @@ void AppDemoGuiMapPointEditor::loadFileNamesInVector(std::string               d
     }
     else
     {
-        std::vector<std::string> content = Utils::getAllNamesInDir(directory);
+        std::vector<std::string> content = Utils::getFileNamesInDir(directory);
         if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
@@ -193,7 +193,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
                 WAIMapStorage::loadKeyFrameVideoMatching(_kFVidMatching, _videoInMap, constructSlamMapDir(_slamRootDir, _location, _area), _currMatchedFile);
                 std::cout << "init video id" << std::endl;
                 _videosId = std::vector<bool>(_videoInMap.size());
-                _nmatchId = std::vector<bool>(_videoInMap.size()+1);
+                _nmatchId = std::vector<bool>(_videoInMap.size() + 1);
                 for (int i = 0; i < _videoInMap.size(); i++)
                 {
                     _videosId[i] = true;
@@ -243,7 +243,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
             for (int i = 0; i < _videoInMap.size(); i++)
             {
                 bool id = _videosId[i];
-                if (ImGui::Checkbox((std::to_string(i) + " " + _videoInMap[i]).c_str(), &id))
+                if (ImGui::Checkbox((std::to_string(i) + ": " + Utils::getFileName(_videoInMap[i])).c_str(), &id))
                 {
                     _videosId[i]           = id;
                     WAIEventEditMap* event = new WAIEventEditMap();
