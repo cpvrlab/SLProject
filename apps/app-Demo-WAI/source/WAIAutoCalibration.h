@@ -6,7 +6,7 @@
 #include <opencv2/core/core.hpp>
 #include <thread>
 #include <mutex>
-#include <CVCalibration.h>
+#include <sens/SENSCalibration.h>
 
 using namespace std;
 
@@ -14,6 +14,7 @@ class AutoCalibration
 {
 public:
     AutoCalibration(cv::Size frameSize, float mapDimension);
+    ~AutoCalibration();
 
     static void calibrateFrames(AutoCalibration* ac);
 
@@ -23,8 +24,8 @@ public:
     bool hasSucceed();
     bool hasCalibration();
 
-    CVCalibration consumeCalibration();
-    void          reset();
+    const SENSCalibration& consumeCalibration();
+    void                   reset();
 
     static bool calibrateBruteForce(cv::Mat&                               intrinsic,
                                     std::vector<std::vector<cv::Point2f>>& vvP2D,
@@ -88,7 +89,7 @@ public:
                                   std::vector<std::vector<cv::Point2f>>& keypoints,
                                   std::vector<std::vector<cv::Point3f>>& worldpoints);
 
-    static bool calibrate(CVCalibration&                                                              calibration,
+    static bool calibrate(SENSCalibration*&                                                           calibration,
                           cv::Size                                                                    size,
                           std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>& matchings);
 
@@ -104,7 +105,7 @@ private:
     float                _mapDimension;
     std::thread          _calibrationThread;
     cv::Size             _frameSize;
-    CVCalibration        _calibration = {CVCameraType::FRONTFACING, ""};
+    SENSCalibration*     _calibration = nullptr;
     bool                 _hasCalibration;
     bool                 _isRunning;
     bool                 _isFinished;

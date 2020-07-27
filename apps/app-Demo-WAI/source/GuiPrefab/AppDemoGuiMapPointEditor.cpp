@@ -83,7 +83,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
 
     //TODO: I don't know how imgui work!!!!
     ImGui::Text("Map Transform & Edit                   ");
-    SLfloat bW = ImGui::GetContentRegionAvailWidth();
+    SLfloat bW = ImGui::GetContentRegionAvail().x;
 
     if (!_ready)
     {
@@ -155,6 +155,13 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         event->action          = MapPointEditor_SaveMap;
         _eventQueue->push(event);
     }
+    if (ImGui::Checkbox("Modify Keyframes", &_keyframeMode))
+    {
+        WAIEventEditMap* event = new WAIEventEditMap();
+        event->action          = MapPointEditor_KeyFrameMode;
+        event->b               = _keyframeMode;
+        _eventQueue->push(event);
+    }
 
     if (_map != "")
     {
@@ -211,7 +218,6 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     if (_showMatchFileFinder && _advSelection)
     {
         ImGui::Separator();
-
         if (ImGui::Button("Select all points"))
         {
             WAIEventEditMap* event = new WAIEventEditMap();

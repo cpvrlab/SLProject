@@ -124,7 +124,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_Minimal) //...................................................
     {
-        // Set scene name and info string
+         // Set scene name and info string
         s->name("Minimal Scene Test");
         s->info("Minimal texture mapping example with one light source.");
 
@@ -787,10 +787,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(100);
         cam1->translation(0, 0, 50);
         cam1->lookAt(0, 0, 0);
-        cam1->focalDist(5);
+        cam1->focalDist(50);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
@@ -800,25 +799,26 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
         scene->addChild(light1);
 
-        // Create shader program with 4 uniforms
-        SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
-
-        SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.01f, 0.002f, 0, 1, (SLKey)'X');
-        SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", 0.01f, 0.002f, -1, 1, (SLKey)'O');
-        s->eventHandlers().push_back(scale);
-        s->eventHandlers().push_back(offset);
-        sp->addUniform1f(scale);
-        sp->addUniform1f(offset);
-
-        // create new materials for every sphere
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
-        SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
-        SLMaterial*  mat  = new SLMaterial(s, "mat1", texC, texN, nullptr, nullptr, sp);
+        // Generate NUM_MAT materials
+        const int   NUM_MAT = 20;
+        SLMaterial* mat[NUM_MAT];
+        for (int i = 0; i < NUM_MAT; ++i)
+        {
+            SLGLProgram* sp      = new SLGLGenericProgram(s,
+                                                     SLApplication::shaderPath + "PerPixBlinnNrm.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnNrm.frag");
+            SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
+            SLGLTexture* texN    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
+            SLstring     matName = "mat-" + std::to_string(i);
+            mat[i]               = new SLMaterial(s, matName.c_str(), texC, texN, nullptr, nullptr, sp);
+            SLCol4f color;
+            color.hsva2rgba(SLVec3f(Utils::TWOPI * i / NUM_MAT, 1.0f, 1.0f));
+            mat[i]->diffuse(color);
+        }
 
         // create spheres around the center sphere
-        SLint size = 8;
+        SLint  size = 10;
+        SLuint n    = 0;
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
             for (SLint iY = -size; iY <= size; ++iY)
@@ -826,11 +826,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 for (SLint iX = -size; iX <= size; ++iX)
                 {
                     // add one single sphere in the center
-                    SLuint    res    = 30;
-                    SLSphere* earth  = new SLSphere(s, 0.3f, res, res, "earth", mat);
-                    SLNode*   sphere = new SLNode(earth);
+                    SLuint    res      = 36;
+                    SLint iMat = Utils::random(0,19);
+                    SLstring  nodeName = "earth-" + std::to_string(n);
+                    SLSphere* earth    = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
+                    SLNode*   sphere   = new SLNode(earth);
                     sphere->translate(float(iX), float(iY), float(iZ), TS_object);
                     scene->addChild(sphere);
+                    SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
+                    n++;
                 }
             }
         }
@@ -3338,7 +3342,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                                   SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
+                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
                                           SLApplication::texturePath,
                                           true,    // only meshes
                                           nullptr, // no replacement material

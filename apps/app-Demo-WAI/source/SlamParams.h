@@ -132,7 +132,7 @@ struct SlamParams
     std::string     area;
     WAISlam::Params params;
     ExtractorIds    extractorIds;
-    int             nLevels;
+    int             nLevels = 2;
 };
 
 #endif //SLAMPARAMS_H

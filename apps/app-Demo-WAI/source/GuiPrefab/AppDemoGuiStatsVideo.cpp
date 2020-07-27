@@ -1,14 +1,14 @@
 #include <AppDemoGuiStatsVideo.h>
 
 #include <sens/SENSCamera.h>
-#include <CVCalibration.h>
+#include <sens/SENSCalibration.h>
 
 //-----------------------------------------------------------------------------
-AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string                         name,
-                                           bool*                               activator,
-                                           ImFont*                             font,
-                                           std::function<SENSCamera*(void)>    getCameraCB,
-                                           std::function<CVCalibration*(void)> getCalibrationCB)
+AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string                                 name,
+                                           bool*                                       activator,
+                                           ImFont*                                     font,
+                                           std::function<SENSCamera*(void)>            getCameraCB,
+                                           std::function<const SENSCalibration*(void)> getCalibrationCB)
   : AppDemoGuiInfosDialog(name, activator, font),
     _getCamera(getCameraCB),
     _getCalibration(getCalibrationCB)
@@ -32,7 +32,7 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
         sprintf(m + strlen(m), "Camera invalid\n");
     }
 
-    const CVCalibration* calib = _getCalibration();
+    const SENSCalibration* calib = _getCalibration();
     if (calib)
     {
         sprintf(m + strlen(m),     "Vert. FOV (deg.): %4.1f\n", calib->cameraFovVDeg());

@@ -68,6 +68,16 @@ void WAIOrbVocabulary::loadFromFile(std::string strVocFile)
 #endif
 }
 
+WAIBowVector::WAIBowVector(std::vector<int> wid, std::vector<float> values)
+{
+    for (int i = 0; i < wid.size(); i++)
+    {
+        fbow::_float v;
+        v.var = values[i];
+        data.insert(std::pair<uint32_t, fbow::_float>(wid[i], v));
+    }
+}
+
 void WAIOrbVocabulary::transform(const cv::Mat& descriptors, WAIBowVector& bow, WAIFeatVector& feat)
 {
     bow.isFill  = true;

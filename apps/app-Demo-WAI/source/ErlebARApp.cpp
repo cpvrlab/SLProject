@@ -33,8 +33,6 @@ ErlebARApp::ErlebARApp()
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::START_TEST>((unsigned int)StateId::START_TEST);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST>((unsigned int)StateId::TEST);
-    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::HOLD_TEST>((unsigned int)StateId::HOLD_TEST);
-    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::RESUME_TEST>((unsigned int)StateId::RESUME_TEST);
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST_RUNNER>((unsigned int)StateId::TEST_RUNNER);
 
@@ -101,10 +99,6 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
             return "START_TEST";
         case StateId::TEST:
             return "TEST";
-        case StateId::HOLD_TEST:
-            return "HOLD_TEST";
-        case StateId::RESUME_TEST:
-            return "RESUME_TEST";
 
         case StateId::TEST_RUNNER:
             return "TEST_RUNNER";
@@ -154,84 +148,18 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     if (data == nullptr)
         return;
 
-    const DeviceData& dd = data->deviceData;
+    _dd = std::make_unique<DeviceData>(data->deviceData);
 
-    SLGLProgramManager::init(dd.shaderDir());
-    _resources   = new ErlebAR::Resources(dd);
-    _imGuiEngine = new ImGuiEngine(dd.writableDir(), _resources->fonts().atlas());
+    SLGLProgramManager::init(_dd->shaderDir());
+    _resources   = new ErlebAR::Resources(*_dd);
+    _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _resources->fonts().atlas());
 
     //instantiation of views
-    _selectionView = new SelectionView(*this,
-                                       _inputManager,
-                                       *_imGuiEngine,
-                                       *_resources,
-                                       dd);
-
     _welcomeView = new WelcomeView(_inputManager,
                                    *_resources,
                                    *_imGuiEngine,
-                                   dd,
+                                   *_dd,
                                    "0.12");
-    
-    _testView = new TestView(*this,
-                             _inputManager,
-                             *_imGuiEngine,
-                             *_resources,
-                             _camera,
-                             dd);
-
-    _testRunnerView = new TestRunnerView(*this,
-                                         _inputManager,
-                                         *_imGuiEngine,
-                                         *_resources,
-                                         dd);
-
-    _startUpView = new StartUpView(_inputManager,
-                                   dd);
-
-    _aboutView = new AboutView(*this,
-                               _inputManager,
-                               *_imGuiEngine,
-                               *_resources,
-                               dd);
-
-    _settingsView = new SettingsView(*this,
-                                     _inputManager,
-                                     *_imGuiEngine,
-                                     *_resources,
-                                     dd);
-
-    _tutorialView = new TutorialView(*this,
-                                     _inputManager,
-                                     *_imGuiEngine,
-                                     *_resources,
-                                     dd);
-
-    _locationMapView = new LocationMapView(*this,
-                                           _inputManager,
-                                           *_imGuiEngine,
-                                           *_resources,
-                                           dd);
-
-    _areaInfoView = new AreaInfoView(*this,
-                                     _inputManager,
-                                     *_imGuiEngine,
-                                     *_resources,
-                                     dd);
-
-    _areaTrackingView = new AreaTrackingView(*this,
-                                             _inputManager,
-                                             *_imGuiEngine,
-                                             *_resources,
-                                             _camera,
-                                             dd);
-
-    _cameraTestView = new CameraTestView(*this,
-                                         _inputManager,
-                                         *_imGuiEngine,
-                                         *_resources,
-                                         _camera,
-                                         dd);
 
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
@@ -246,10 +174,102 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
     {
         timer.start();
     }
+    else
+    {
+        //init all other views after first rendering of start screen
+        if (!_selectionView)
+        {
+            _selectionView = new SelectionView(*this,
+                                               _inputManager,
+                                               *_imGuiEngine,
+                                               *_resources,
+                                               *_dd);
+        }
+
+        if (!_testView)
+        {
+            _testView = new TestView(*this,
+                                     _inputManager,
+                                     *_imGuiEngine,
+                                     *_resources,
+                                     _camera,
+                                     *_dd);
+        }
+
+        if (!_testRunnerView)
+        {
+            _testRunnerView = new TestRunnerView(*this,
+                                                 _inputManager,
+                                                 *_imGuiEngine,
+                                                 *_resources,
+                                                 *_dd);
+        }
+
+        if (!_startUpView)
+        {
+            _startUpView = new StartUpView(_inputManager,
+                                           *_dd);
+        }
+
+        if (!_aboutView)
+        {
+            _aboutView = new AboutView(*this,
+                                       _inputManager,
+                                       *_imGuiEngine,
+                                       *_resources,
+                                       *_dd);
+        }
+
+        if (!_settingsView)
+        {
+            _settingsView = new SettingsView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_resources,
+                                             *_dd);
+        }
+
+        if (!_tutorialView)
+        {
+            _tutorialView = new TutorialView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_resources,
+                                             *_dd);
+        }
+
+        if (!_locationMapView)
+        {
+            _locationMapView = new LocationMapView(*this,
+                                                   _inputManager,
+                                                   *_imGuiEngine,
+                                                   *_resources,
+                                                   *_dd);
+        }
+
+        if (!_areaInfoView)
+        {
+            _areaInfoView = new AreaInfoView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_resources,
+                                             *_dd);
+        }
+
+        if (!_areaTrackingView)
+        {
+            _areaTrackingView = new AreaTrackingView(*this,
+                                                     _inputManager,
+                                                     *_imGuiEngine,
+                                                     *_resources,
+                                                     _camera,
+                                                     *_dd);
+        }
+    }
 
     _welcomeView->update();
 
-    if (timer.elapsedTimeInSec() > 2.f)
+    if (timer.elapsedTimeInSec() > 0.01f)
         addEvent(new DoneEvent("ErlebARApp::WELCOME"));
 }
 
@@ -363,19 +383,7 @@ void ErlebARApp::START_TEST(const sm::NoEventData* data, const bool stateEntry, 
     if (stateExit)
         return;
 
-    if (stateEntry)
-    {
-        //start camera
-        SENSCameraConfig config;
-        config.targetWidth   = 640;
-        config.targetHeight  = 360;
-        config.convertToGray = true;
-
-        _camera->stop();
-        _camera->start(config);
-    }
-
-    if (_camera->permissionGranted() && _camera->started())
+    if (_camera->permissionGranted())
     {
         _testView->start();
         addEvent(new DoneEvent("ErlebARApp::START_TEST"));
@@ -389,7 +397,6 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
 {
     if (stateExit)
     {
-        _camera->stop();
         return;
     }
 
@@ -403,32 +410,6 @@ void ErlebARApp::TEST(const sm::NoEventData* data, const bool stateEntry, const 
 void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     _testRunnerView->update();
-}
-
-void ErlebARApp::HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
-{
-    if (stateEntry)
-    {
-        _camera->stop();
-    }
-}
-
-void ErlebARApp::RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
-{
-    if (stateExit)
-        return;
-
-    //start camera
-    SENSCameraConfig config;
-    config.targetWidth          = 640;
-    config.targetHeight         = 360;
-    config.convertToGray        = true;
-    config.adjustAsynchronously = true;
-
-    _camera->stop();
-    _camera->start(config);
-
-    addEvent(new DoneEvent("ErlebARApp::RESUME_TEST"));
 }
 
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)
@@ -529,6 +510,16 @@ void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry,
 
     if (stateEntry)
     {
+        if (!_cameraTestView)
+        {
+            _cameraTestView = new CameraTestView(*this,
+                                                 _inputManager,
+                                                 *_imGuiEngine,
+                                                 *_resources,
+                                                 _camera,
+                                                 *_dd);
+        }
+
         _cameraTestView->show();
     }
 

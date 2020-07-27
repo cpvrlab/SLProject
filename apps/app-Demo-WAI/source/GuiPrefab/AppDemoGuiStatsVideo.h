@@ -5,23 +5,23 @@
 
 class WAIApp;
 class SENSCamera;
-class CVCalibration;
+class SENSCalibration;
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiStatsVideo : public AppDemoGuiInfosDialog
 {
 public:
-    AppDemoGuiStatsVideo(std::string                         name,
-                         bool*                               activator,
-                         ImFont*                             font,
-                         std::function<SENSCamera*(void)>    getCameraCB,
-                         std::function<CVCalibration*(void)> getCalibrationCB);
+    AppDemoGuiStatsVideo(std::string                                 name,
+                         bool*                                       activator,
+                         ImFont*                                     font,
+                         std::function<SENSCamera*(void)>            getCameraCB,
+                         std::function<const SENSCalibration*(void)> getCalibrationCB);
 
     void buildInfos(SLScene* s, SLSceneView* sv) override;
 
 private:
-    std::function<SENSCamera*(void)>    _getCamera;
-    std::function<CVCalibration*(void)> _getCalibration;
+    std::function<SENSCamera*(void)>            _getCamera;
+    std::function<const SENSCalibration*(void)> _getCalibration;
 };
 
 #endif //SL_IMGUI_TRACKEDMAPPING_H

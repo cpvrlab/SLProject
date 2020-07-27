@@ -53,7 +53,7 @@ void LocationMapGui::resize(int scrW, int scrH)
 void LocationMapGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiWrapper::onMouseDown(button, x, y);
-    _move = true;
+    _move     = true;
     _lastPosY = y;
     _lastPosX = x;
 }
@@ -61,7 +61,7 @@ void LocationMapGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
 void LocationMapGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
 {
     ImGuiWrapper::onMouseUp(button, x, y);
-    _move = false;
+    _move     = false;
     _lastPosY = y;
     _lastPosX = x;
 }
@@ -206,8 +206,9 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
                                             _locTextureW,
                                             _locTextureH);
 
-        _dspPixWidth  = (float)_loc.dspPixWidth;
-        _dspPixHeight = (float)(_loc.dspPixWidth * _screenH) / (float)(_screenW);
+        float screenRatio = _screenH / _screenW;
+        _dspPixWidth      = (float)_loc.dspPixWidth;
+        _dspPixHeight     = (float)(_loc.dspPixWidth * screenRatio);
 
         _fracW = _dspPixWidth / (float)_locTextureW; //Should never be bigger than 1
         _fracH = _dspPixHeight / (float)_locTextureH;
@@ -219,13 +220,13 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
             _dspPixWidth  = (float)_locTextureW;
             _dspPixHeight = (float)(_dspPixWidth * _screenH) / (float)(_screenW);
         }
-        if (_fracH > 1.0)
+        /*if (_fracH > 1.0)
         {
             _fracH        = 1.0;
             _fracW        = _screenW / _screenH;
             _dspPixHeight = (float)_locTextureH;
             _dspPixWidth  = (float)(_dspPixHeight * _screenW) / (float)(_screenH);
-        }
+        }*/
     }
     else
         Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);

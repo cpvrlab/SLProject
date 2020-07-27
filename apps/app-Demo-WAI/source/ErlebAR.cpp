@@ -15,7 +15,7 @@ const char* mapLocationIdToName(LocationId id)
             return "Avenches";
         case LocationId::BIEL:
             return "Biel";
-        case LocationId::CHRISTOFFEL:
+        case LocationId::BERN:
             return "Christoffelturm";
         default:
             return "Missing id to name mapping!";
@@ -38,14 +38,16 @@ const char* mapAreaIdToName(AreaId id)
             return "Amphitheater";
         case AreaId::AVENCHES_AMPHITHEATER_ENTRANCE:
             return "Amphitheater-Entrance";
-        case AreaId::AVENCHES_CYGOGNIER:
-            return "cygognier";
+        case AreaId::AVENCHES_CIGOGNIER:
+            return "cigognier";
         case AreaId::AVENCHES_TEMPLE:
             return "Temple";
         case AreaId::AVENCHES_THEATER:
             return "Theater";
-        //christoffel
-        case AreaId::CHRISTOFFEL_SBB:
+            //christoffel
+        case AreaId::BERN_MILCHGAESSLI:
+            return "Milchgaessli";
+        case AreaId::BERN_SBB:
             return "Sbb";
         //biel
         case AreaId::BIEL_GERECHTIGKEITSBRUNNEN:
@@ -106,7 +108,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 820;
         area.yPosPix         = 660;
         area.viewAngleDeg    = 170;
-        area.slamMapFileName = "location/avenches/amphitheaterEntrance/maps/DEVELOPMENT-map_20200528-184748_avenches_amphitheaterEntrance_FAST_ORBS_1000.json";
+        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200710-170350_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.json";
         loc.areas[area.id]   = area;
     }
     {
@@ -116,27 +118,17 @@ const Location defineLocationAvenches()
         area.xPosPix         = 472;
         area.yPosPix         = 736;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "location/avenches/amphitheater/maps/DEVELOPMENT-map_20200608-130203_avenches_amphitheater_FAST_BRIEF_1000.json";
+        area.slamMapFileName = "locations/avenches/amphitheater/stable-map_20200710-151049_avenches_amphitheater_FAST-ORBS-2000_2.json";
         loc.areas[area.id]   = area;
     }
     {
         Area area;
-        area.id              = AreaId::AVENCHES_TEMPLE;
-        area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 1280;
-        area.yPosPix         = 40;
-        area.viewAngleDeg    = 100;
-        area.slamMapFileName = "locations/avenches/temple/maps/DEVELOPMENT-map_20200531-143950_avenches_temple_FAST_ORBS_2000.json";
-        loc.areas[area.id]   = area;
-    }
-    {
-        Area area;
-        area.id              = AreaId::AVENCHES_CYGOGNIER;
+        area.id              = AreaId::AVENCHES_CIGOGNIER;
         area.name            = mapAreaIdToName(area.id);
         area.xPosPix         = 1760;
         area.yPosPix         = 554;
         area.viewAngleDeg    = -140;
-        area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cygonier-marker_FAST_ORBS_2000.json";
+        area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
         loc.areas[area.id]   = area;
     }
     {
@@ -146,7 +138,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 2463;
         area.yPosPix         = 1132;
         area.viewAngleDeg    = 50;
-        area.slamMapFileName = "locations/avenches/theater-marker/maps/DEVELOPMENT-map_20200602-202250_avenches_theater-marker_FAST_ORBS_1000.json";
+        area.slamMapFileName = "locations/avenches/theater/maps/DEVELOPMENT-map_20200710-182227_avenches_theater_FAST-ORBS-2000_2.json";
         loc.areas[area.id]   = area;
     }
 
@@ -155,17 +147,17 @@ const Location defineLocationAvenches()
 const Location defineLocationChristoffel()
 {
     Location loc;
-    loc.id                   = LocationId::CHRISTOFFEL;
+    loc.id                   = LocationId::BERN;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/christoffel/locationMapImgChristoffel.jpg";
-    loc.dspPixWidth          = 800;
+    loc.areaMapImageFileName = "locations/christoffel/locationMapImgBern.jpg";
+    loc.dspPixWidth          = 2080;
     {
         Area area;
-        area.id            = AreaId::CHRISTOFFEL_SBB;
+        area.id            = AreaId::BERN_MILCHGAESSLI;
         area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 50;
-        area.yPosPix       = 50;
-        area.viewAngleDeg  = 0;
+        area.xPosPix       = 740;
+        area.yPosPix       = 294;
+        area.viewAngleDeg  = 60;
         loc.areas[area.id] = area;
     }
     return loc;
@@ -229,10 +221,10 @@ const Location defineLocationBiel()
 const std::map<LocationId, Location> defineLocations()
 {
     std::map<LocationId, Location> locations;
-    locations[LocationId::AUGST]       = defineLocationAugst();
-    locations[LocationId::AVENCHES]    = defineLocationAvenches();
-    locations[LocationId::CHRISTOFFEL] = defineLocationChristoffel();
-    locations[LocationId::BIEL]        = defineLocationBiel();
+    locations[LocationId::AUGST]    = defineLocationAugst();
+    locations[LocationId::AVENCHES] = defineLocationAvenches();
+    locations[LocationId::BERN]     = defineLocationChristoffel();
+    locations[LocationId::BIEL]     = defineLocationBiel();
 
     return locations;
 }

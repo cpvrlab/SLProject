@@ -46,6 +46,7 @@ private:
     bool                     _showNmatchSelect    = false;
     bool                     _inTransformMode     = false;
     bool                     _advSelection        = false;
+    bool                     _keyframeMode        = false;
     std::string              _currMatchedFile     = "";
     std::string              _slamRootDir;
     std::vector<std::string> _videoInMap;

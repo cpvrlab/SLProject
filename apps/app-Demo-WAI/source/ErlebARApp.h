@@ -64,8 +64,6 @@ private:
     void START_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
-    void HOLD_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
-    void RESUME_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
     void LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit);
     void AREA_INFO(const AreaEventData* data, const bool stateEntry, const bool stateExit);
@@ -77,7 +75,9 @@ private:
     void SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
-    SLInputManager _inputManager;
+    SLInputManager              _inputManager;
+    std::unique_ptr<DeviceData> _dd;
+    SENSCamera*                 _camera = nullptr;
 
     SelectionView*    _selectionView    = nullptr;
     TestView*         _testView         = nullptr;
@@ -92,7 +92,6 @@ private:
     AreaTrackingView* _areaTrackingView = nullptr;
     CameraTestView*   _cameraTestView   = nullptr;
 
-    SENSCamera*      _camera;
     CloseAppCallback _closeCB = nullptr;
 
     ErlebAR::Resources* _resources   = nullptr;

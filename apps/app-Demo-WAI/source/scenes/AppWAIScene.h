@@ -15,16 +15,17 @@ class AppWAIScene : public SLScene
 public:
     AppWAIScene(SLstring name, std::string dataDir);
 
-    void updateCameraIntrinsics(float cameraFovVDeg, cv::Mat cameraMatUndistorted)
+    void updateCameraIntrinsics(float cameraFovVDeg)
     {
         cameraNode->fov(cameraFovVDeg);
         // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
         //std::cout << "cameraMatUndistorted: " << cameraMatUndistorted << std::endl;
+        /*
         cameraNode->intrinsics((float)cameraMatUndistorted.at<double>(0, 0),
                                (float)cameraMatUndistorted.at<double>(1, 1),
                                (float)cameraMatUndistorted.at<double>(0, 2),
                                (float)cameraMatUndistorted.at<double>(1, 2));
-
+        */
         //enable projection -> intrinsics mode
         //cameraNode->projection(P_monoIntrinsic);
         cameraNode->projection(P_monoPerspective);
@@ -51,6 +52,8 @@ public:
                       const bool                       showSpanningTree,
                       const bool                       showLoopEdges);
 
+    void removeGraphs();
+
     SLNode* augmentationRoot = nullptr;
 
     void rebuild(std::string location, std::string area);
@@ -67,6 +70,7 @@ private:
                          SLPoints*&                       mesh,
                          SLMaterial*&                     material);
     void removeMesh(SLNode* node, SLMesh* mesh);
+    void hideNode(SLNode* node);
 
     void loadMesh(std::string path);
 
@@ -82,7 +86,6 @@ private:
     SLMaterial* redMat               = nullptr;
     SLMaterial* greenMat             = nullptr;
     SLMaterial* blueMat              = nullptr;
-    SLMaterial* yellowMat            = nullptr;
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;

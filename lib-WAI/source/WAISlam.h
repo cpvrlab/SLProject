@@ -144,6 +144,7 @@ public:
     virtual WAI::TrackingState getTrackingState() { return _state; }
 
     virtual void drawInfo(cv::Mat& imageRGB,
+                          float    scale,
                           bool     showInitLine,
                           bool     showKeyPoints,
                           bool     showKeyPointsMatched);

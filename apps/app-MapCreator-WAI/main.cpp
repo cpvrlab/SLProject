@@ -11,9 +11,11 @@ struct Config
     std::string   calibrationsDir;
     std::string   configFile;
     std::string   vocFile;
-    std::string   mapOutputDir;
+    std::string   outputDir;
     ExtractorType extractorType;
     int           nLevels;
+    bool          serialMapping;
+    float         thinCullingValue;
 };
 
 void printHelp()
@@ -25,21 +27,26 @@ void printHelp()
     ss << "" << std::endl;
     ss << "Options: " << std::endl;
     ss << "  -h/-help        print this help, e.g. -h" << std::endl;
-    ss << "  -erlebARDir     Path to Erleb-AR root directory" << std::endl;
+    ss << "  -erlebARDir     Path to Erleb-AR root directory (Optional. If not specified, <AppsWritableDir>/erleb-AR/ is used)" << std::endl;
+    ss << "  -calibDir       Path to directory containing camera calibrations (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
     ss << "  -configFile     Path and name to MapCreatorConfig.json" << std::endl;
-    ss << "  -vocFile        Path and name to Vocabulary file" << std::endl;
-    ss << "  -mapOutputDir   Directory where to output generated maps" << std::endl;
+    ss << "  -vocFile        Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/calibrations/ is used)" << std::endl;
+    ss << "  -outputDir      Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for log output)" << std::endl;
     ss << "  -levels         Number of pyramid levels" << std::endl;
+    ss << "  -serial         Serial mapping (1 or 0)" << std::endl;
+    ss << "  -thinCullVal    Thin out culling value (e.g. 0.95)" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType   = ExtractorType_FAST_BRIEF_1000;
-    config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
-    config.calibrationsDir = Utils::getAppsWritableDir() + "calibrations/";
-    config.nLevels         = -1;
+    config.extractorType    = ExtractorType_FAST_BRIEF_1000;
+    config.erlebARDir       = Utils::getAppsWritableDir() + "erleb-AR/";
+    config.calibrationsDir  = Utils::getAppsWritableDir() + "calibrations/";
+    config.nLevels          = -1;
+    config.thinCullingValue = 0.995f;
+    config.serialMapping    = false;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -53,6 +60,10 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.erlebARDir = argv[++i];
         }
+        else if (!strcmp(argv[i], "-calibDir"))
+        {
+            config.calibrationsDir = argv[++i];
+        }
         else if (!strcmp(argv[i], "-configFile"))
         {
             config.configFile = argv[++i];
@@ -61,13 +72,22 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.vocFile = argv[++i];
         }
-        else if (!strcmp(argv[i], "-mapOutputDir"))
+        else if (!strcmp(argv[i], "-outputDir"))
         {
-            config.mapOutputDir = argv[++i]; //Not used
+            config.outputDir = argv[++i]; //Not used
         }
-        if (!strcmp(argv[i], "-level"))
+        else if (!strcmp(argv[i], "-level"))
         {
             config.nLevels = std::stoi(argv[++i]);
+        }
+        else if (!strcmp(argv[i], "-serial"))
+        {
+            int val              = std::stoi(argv[++i]);
+            config.serialMapping = val == 1 ? true : false;
+        }
+        else if (!strcmp(argv[i], "-thinCullVal"))
+        {
+            config.thinCullingValue = std::stof(argv[++i]);
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -91,12 +111,12 @@ void readArgs(int argc, char* argv[], Config& config)
             else if (!strcmp(argv[i], "GLSL_1"))
             {
                 config.extractorType = ExtractorType_GLSL_1;
-                config.nLevels = 1;
+                config.nLevels       = 1;
             }
             else if (!strcmp(argv[i], "GLSL"))
             {
                 config.extractorType = ExtractorType_GLSL;
-                config.nLevels = 1;
+                config.nLevels       = 1;
             }
             else
             {
@@ -142,13 +162,15 @@ void GLFWInit()
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
+#ifdef __APPLE__
     //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
-    window = glfwCreateWindow(scrWidth, scrHeight, "WAI Demo", nullptr, nullptr);
+    window = glfwCreateWindow(scrWidth, scrHeight, "My Title", nullptr, nullptr);
 
     //get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
@@ -183,11 +205,26 @@ int main(int argc, char* argv[])
 
         //initialize logger
         std::string cwd = Utils::getCurrentWorkingDir();
-        Utils::initFileLog(Utils::unifySlashes(config.erlebARDir) + "MapCreator/", true);
+        if (config.outputDir.empty())
+        {
+            Utils::initFileLog(Utils::unifySlashes(config.erlebARDir) + "MapCreator/", true);
+        }
+        else
+        {
+            Utils::initFileLog(Utils::unifySlashes(config.outputDir) + "log/", true);
+        }
         Utils::log("Main", "MapCreator");
 
         //init map creator
-        MapCreator mapCreator(config.erlebARDir, config.calibrationsDir, config.configFile, config.vocFile, config.extractorType, config.nLevels);
+        MapCreator mapCreator(config.erlebARDir,
+                              config.calibrationsDir,
+                              config.configFile,
+                              config.vocFile,
+                              config.extractorType,
+                              config.nLevels,
+                              config.outputDir,
+                              config.serialMapping,
+                              config.thinCullingValue);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

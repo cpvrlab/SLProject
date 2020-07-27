@@ -13,9 +13,9 @@
 
 @class ErlebARViewController;
 
-@interface ErlebARAppDelegate : UIResponder <UIApplicationDelegate>
+@interface ErlebARAppDelegate : UIResponder<UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) ErlebARViewController *viewController;
+@property (strong, nonatomic) UIWindow*              window;
+@property (strong, nonatomic) ErlebARViewController* viewController;
 
 @end

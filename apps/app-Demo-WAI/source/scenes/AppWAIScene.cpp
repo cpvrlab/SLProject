@@ -39,14 +39,12 @@ void AppWAIScene::loadMesh(std::string path)
         }
     }
 
-
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
     if (n)
     {
         n->drawBits()->set(SL_DB_CULLOFF, true);
         n->drawBits()->set(SL_DB_NOTSELECTABLE, true);
     }
-
 
     augmentationRoot->drawBits()->set(SL_DB_NOTSELECTABLE, true);
 
@@ -61,6 +59,14 @@ void AppWAIScene::loadMesh(std::string path)
 
     _root3D->addChild(augmentationRoot);
     _root3D->addChild(light);
+}
+
+void AppWAIScene::hideNode(SLNode* node)
+{
+    if (node)
+    {
+        node->drawBits()->set(SL_DB_HIDDEN, true);
+    }
 }
 
 void AppWAIScene::rebuild(std::string location, std::string area)
@@ -94,27 +100,44 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::BLUE, "Blue");
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-    yellowMat = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
+
+    covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat", SLCol4f::YELLOW);
+    covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat", SLCol4f::GREEN);
+    spanningTreeMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat", SLCol4f::RED);
+    loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage);
+    cameraNode->background().texture(_videoImage, false);
+
+    // Create directional light for the sun light
+    SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
+    light->ambientColor(SLCol4f(1, 1, 1));
+    light->diffuseColor(SLCol4f(1, 1, 1));
+    light->specularColor(SLCol4f(1, 1, 1));
+    light->attenuation(1, 0, 0);
+    light->translation(0, 1, 0);
+    light->lookAt(1, 0, 1);
+    light->setDrawBitsRec(SL_DB_HIDDEN, true);
+    _root3D->addChild(light);
 
     if (location == "avenches")
     {
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
+            modelPath = _dataDir + "models/Avenches/Aventicum-Amphitheater1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            modelPath = _dataDir + "models/Avenches/Aventicum-Cigognier1.gltf";
             loadMesh(modelPath);
         }
         else if (area == "theater-marker")
         {
-            modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
+            modelPath = _dataDir + "models/Avenches/Aventicum-Theater1.gltf";
             loadMesh(modelPath);
         }
     }
@@ -129,74 +152,11 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             {
                 modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
             }
-            augmentationRoot = importer.load(_animManager,
-                                             &assets,
-                                             modelPath,
-                                             _dataDir + "images/textures/",
-                                             true,
-                                             nullptr,
-                                             0.4f);
 
-            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
-            if (portikusSockel)
-            {
-                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
-            }
+            loadMesh(modelPath);
 
-            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
-            if (boden)
-            {
-                boden->drawBits()->set(SL_DB_HIDDEN, true);
-            }
-
-            // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambientColor(SLCol4f(1, 1, 1));
-            light->diffuseColor(SLCol4f(1, 1, 1));
-            light->specularColor(SLCol4f(1, 1, 1));
-            light->attenuation(1, 0, 0);
-            light->translation(0, 10, 0);
-            light->lookAt(10, 0, 10);
-
-            _root3D->addChild(augmentationRoot);
-            _root3D->addChild(light);
-        }
-        else if (area == "templeHillTheaterBottom")
-        {
-            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-
-            SLAssimpImporter importer;
-            augmentationRoot = importer.load(_animManager,
-                                             &assets,
-                                             modelPath,
-                                             _dataDir + "images/textures/",
-                                             true,
-                                             nullptr,
-                                             0.4f);
-
-            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
-            if (portikusSockel)
-            {
-                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
-            }
-
-            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
-            if (boden)
-            {
-                boden->drawBits()->set(SL_DB_HIDDEN, true);
-            }
-
-            // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambientColor(SLCol4f(1, 1, 1));
-            light->diffuseColor(SLCol4f(1, 1, 1));
-            light->specularColor(SLCol4f(1, 1, 1));
-            light->attenuation(1, 0, 0);
-            light->translation(0, 10, 0);
-            light->lookAt(10, 0, 10);
-
-            _root3D->addChild(augmentationRoot);
-            _root3D->addChild(light);
+            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
+            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
         }
         else if (area == "templeHillTheater")
         {
@@ -211,30 +171,48 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                                              nullptr,
                                              0.4f);
 
-            SLNode* portikusSockel = augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true);
-            if (portikusSockel)
-            {
-                portikusSockel->drawBits()->set(SL_DB_HIDDEN, true);
-            }
-
-            SLNode* boden = augmentationRoot->findChild<SLNode>("Tmp-Boden", true);
-            if (boden)
-            {
-                boden->drawBits()->set(SL_DB_HIDDEN, true);
-            }
-
-            // Create directional light for the sun light
-            SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-            light->ambientColor(SLCol4f(1, 1, 1));
-            light->diffuseColor(SLCol4f(1, 1, 1));
-            light->specularColor(SLCol4f(1, 1, 1));
-            light->attenuation(1, 0, 0);
-            light->translation(0, 10, 0);
-            light->lookAt(10, 0, 10);
+            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
+            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
 
             _root3D->addChild(augmentationRoot);
-            _root3D->addChild(light);
         }
+    }
+    else if (location == "bern")
+    {
+#if 0
+        std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
+
+        SLAssimpImporter importer;
+        augmentationRoot = importer.load(_animManager,
+                                         &assets,
+                                         modelPath,
+                                         _dataDir + "images/textures/");
+
+        hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
+
+        /*
+        mauer_wand          = bern->findChild<SLNode>("Mauer-Wand", true);
+        mauer_dach          = bern->findChild<SLNode>("Mauer-Dach", true);
+        mauer_turm          = bern->findChild<SLNode>("Mauer-Turm", true);
+        mauer_weg           = bern->findChild<SLNode>("Mauer-Weg", true);
+        grab_mauern         = bern->findChild<SLNode>("Graben-Mauern", true);
+        grab_brueck         = bern->findChild<SLNode>("Graben-Bruecken", true);
+        grab_grass          = bern->findChild<SLNode>("Graben-Grass", true);
+        grab_t_dach         = bern->findChild<SLNode>("Graben-Turm-Dach", true);
+        grab_t_fahn         = bern->findChild<SLNode>("Graben-Turm-Fahne", true);
+        grab_t_stein        = bern->findChild<SLNode>("Graben-Turm-Stein", true);
+        christ_aussen       = bern->findChild<SLNode>("Christoffel-Aussen", true);
+        christ_innen        = bern->findChild<SLNode>("Christoffel-Innen", true);
+        */
+
+        // Create directional light for the sun light
+        _root3D->addChild(augmentationRoot);
+
+#endif
     }
 
 #if 0 // office table boxes scene
@@ -290,10 +268,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
     //boxNode->addChild(axisNode);
 
-    covisibilityGraphMat = new SLMaterial(&assets, "YellowLines", SLCol4f::YELLOW);
-    spanningTreeMat      = new SLMaterial(&assets, "GreenLines", SLCol4f::GREEN);
-    loopEdgesMat         = new SLMaterial(&assets, "RedLines", SLCol4f::RED);
-
     cameraNode->translation(0, 0, 0.1f);
     cameraNode->lookAt(0, 0, 0);
     //for tracking we have to use the field of view from calibration
@@ -333,7 +307,6 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
     }
 }
 
-
 void AppWAIScene::resetMapNode()
 {
     mapNode->translation(0, 0, 0);
@@ -353,7 +326,6 @@ void AppWAIScene::updateCameraPose(const cv::Mat& pose)
 
     Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
     twc.copyTo(PoseInv.rowRange(0, 3).col(3));
-
 
     SLMat4f om;
     om.setMatrix(PoseInv.at<float>(0, 0),
@@ -502,6 +474,7 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
     SLVVec3f covisGraphPts;
     SLVVec3f spanningTreePts;
     SLVVec3f loopEdgesPts;
+
     for (auto* kf : kfs)
     {
         cv::Mat Ow = kf->GetCameraCenter();
@@ -543,6 +516,32 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
         }
     }
 
+    removeGraphs();
+
+    if (covisGraphPts.size() && showCovisibilityGraph)
+    {
+        covisibilityGraphMesh = new SLPolyline(&assets, covisGraphPts, false, "CovisibilityGraph", covisibilityGraphMat);
+        covisibilityGraph->addMesh(covisibilityGraphMesh);
+        covisibilityGraph->updateAABBRec();
+    }
+
+    if (spanningTreePts.size() && showSpanningTree)
+    {
+        spanningTreeMesh = new SLPolyline(&assets, spanningTreePts, false, "SpanningTree", spanningTreeMat);
+        spanningTree->addMesh(spanningTreeMesh);
+        spanningTree->updateAABBRec();
+    }
+
+    if (loopEdgesPts.size() && showLoopEdges)
+    {
+        loopEdgesMesh = new SLPolyline(&assets, loopEdgesPts, false, "LoopEdges", loopEdgesMat);
+        loopEdges->addMesh(loopEdgesMesh);
+        loopEdges->updateAABBRec();
+    }
+}
+
+void AppWAIScene::removeGraphs()
+{
     if (covisibilityGraphMesh)
     {
         if (covisibilityGraph->removeMesh(covisibilityGraphMesh))
@@ -552,14 +551,6 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
             covisibilityGraphMesh = nullptr;
         }
     }
-
-    if (covisGraphPts.size() && showCovisibilityGraph)
-    {
-        covisibilityGraphMesh = new SLPolyline(&assets, covisGraphPts, false, "CovisibilityGraph", covisibilityGraphMat);
-        covisibilityGraph->addMesh(covisibilityGraphMesh);
-        covisibilityGraph->updateAABBRec();
-    }
-
     if (spanningTreeMesh)
     {
         if (spanningTree->removeMesh(spanningTreeMesh))
@@ -569,14 +560,6 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
             spanningTreeMesh = nullptr;
         }
     }
-
-    if (spanningTreePts.size() && showSpanningTree)
-    {
-        spanningTreeMesh = new SLPolyline(&assets, spanningTreePts, false, "SpanningTree", spanningTreeMat);
-        spanningTree->addMesh(spanningTreeMesh);
-        //spanningTree->updateAABBRec();
-    }
-
     if (loopEdgesMesh)
     {
         if (loopEdges->removeMesh(loopEdgesMesh))
@@ -585,13 +568,6 @@ void AppWAIScene::renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
             delete loopEdgesMesh;
             loopEdgesMesh = nullptr;
         }
-    }
-
-    if (loopEdgesPts.size() && showLoopEdges)
-    {
-        loopEdgesMesh = new SLPolyline(&assets, loopEdgesPts, false, "LoopEdges", loopEdgesMat);
-        loopEdges->addMesh(loopEdgesMesh);
-        loopEdges->updateAABBRec();
     }
 }
 

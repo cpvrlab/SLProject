@@ -39,6 +39,11 @@ WAIKeyFrameDB::WAIKeyFrameDB(WAIOrbVocabulary* voc) : mpVoc(voc)
 void WAIKeyFrameDB::add(WAIKeyFrame* pKF)
 {
     std::unique_lock<std::mutex> lock(mMutex);
+    if (pKF->mBowVec.data.empty())
+    {
+        std::cout <<"kf data empty" << std::endl;
+        return;
+    }
     for (auto vit = pKF->mBowVec.getWordScoreMapping().begin(), vend = pKF->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
     {
         mvInvertedFile[vit->first].push_back(pKF);

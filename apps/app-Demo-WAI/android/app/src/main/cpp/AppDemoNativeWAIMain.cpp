@@ -100,7 +100,7 @@ private:
     ErlebARApp _earApp;
     bool       _earAppIsInitialized = false;
 
-    int32_t        _dpi;
+    int32_t _dpi;
 
     EGLConfig  _config;
     EGLDisplay _display;
@@ -117,8 +117,9 @@ private:
     int32_t  _pointersDown;
     uint64_t _lastTouchMS;
 
-    SENSCameraAsync* _camera        = nullptr;
-    bool             _cameraGranted = false;
+    //SENSCameraAsync* _camera        = nullptr;
+    SENSCamera* _camera        = nullptr;
+    bool        _cameraGranted = false;
 
     /*
     SensorsHandler* sensorsHandler;
@@ -161,10 +162,13 @@ void Engine::onInit()
 
         std::string internalPath = getInternalDir();
         //extract folder data in apk to internalPath + "/data"
-        extractAPKFolder(internalPath, "data");
+        if (!Utils::dirExists(internalPath + "/data"))
+            extractAPKFolder(internalPath, "data");
+
         std::string externalPath = getExternalDir();
         //extract folder erleb-AR in apk to externalPath + "/erleb-AR"
-        extractAPKFolder(externalPath, "erleb-AR");
+        if (!Utils::dirExists(externalPath + "/erleb-AR"))
+            extractAPKFolder(externalPath, "erleb-AR");
 
         AConfiguration* appConfig = AConfiguration_new();
         AConfiguration_fromAssetManager(appConfig, _app->activity->assetManager);
@@ -477,8 +481,9 @@ void Engine::startCamera()
     {
         if (!_camera)
         {
-            std::unique_ptr<SENSNdkCamera> ndkCamera = std::make_unique<SENSNdkCamera>();
-            _camera                                  = new SENSCameraAsync(std::move(ndkCamera));
+            //std::unique_ptr<SENSNdkCamera> ndkCamera = std::make_unique<SENSNdkCamera>();
+            //_camera                                  = new SENSCameraAsync(std::move(ndkCamera));
+            _camera = new SENSNdkCamera();
         }
     }
     catch (std::exception& e)

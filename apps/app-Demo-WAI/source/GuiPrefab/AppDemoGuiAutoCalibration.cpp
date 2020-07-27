@@ -5,12 +5,12 @@
 #include <AppDemoGuiAutoCalibration.h>
 #include <SLGLImGui.h>
 //-----------------------------------------------------------------------------
-AppDemoGuiAutoCalibration::AppDemoGuiAutoCalibration(string                              name,
-                                                     bool*                               activator,
-                                                     std::queue<WAIEvent*>*              eventQueue,
-                                                     std::function<SENSCamera*(void)>    getCameraCB,
-                                                     std::function<CVCalibration*(void)> getCalibrationCB,
-                                                     ImFont*                             font)
+AppDemoGuiAutoCalibration::AppDemoGuiAutoCalibration(string                                      name,
+                                                     bool*                                       activator,
+                                                     std::queue<WAIEvent*>*                      eventQueue,
+                                                     std::function<SENSCamera*(void)>            getCameraCB,
+                                                     std::function<const SENSCalibration*(void)> getCalibrationCB,
+                                                     ImFont*                                     font)
   : AppDemoGuiInfosDialog(name, activator, font)
 {
     _eventQueue     = eventQueue;
@@ -30,7 +30,7 @@ void AppDemoGuiAutoCalibration::buildInfos(SLScene* s, SLSceneView* sv)
     else
         sprintf(m + strlen(m), "Camera invalid\n");
  
-    const CVCalibration* calib = _getCalibration();
+    const SENSCalibration* calib = _getCalibration();
     if (calib)
     {
         sprintf(m + strlen(m), "Horiz. FOV (deg.): %4.1f\n", calib->cameraFovHDeg());

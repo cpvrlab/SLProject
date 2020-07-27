@@ -8,6 +8,9 @@
 :: Open "Developer Command Prompt for VS 2019" and navigate to a 
 :: directory where you want to clone and build opencv library.
 :: Add git to your PATH variable (C:\Program Files (x86)\Git\bin).
+
+:: To get gstreamer support: Download and install GStreamer from https://gstreamer.freedesktop.org/download/ . You need versions (MSVC 64-bit (VS 2019) 1.16.2 runtime installer and 1.16.2 development installer. Add bin to PATH variable so that cmake can find the libs. Then enable flag WITH_GSTREAMER=on. (ATTENTION: gstreamer only works if all gstreamer dlls are distributed or installed)
+
 :: Call this script from build directory and transfer first required version (e.g. 4.1.1)
 
 :: To use the library with SLProject, copy all *.lib and *.dll files to a directory called lib.
@@ -54,7 +57,7 @@ git pull origin %OPENCV_VERSION%
 :: make build directory, run cmake and build
 mkdir BUILD-%OPENCV_VERSION%-vs
 cd BUILD-%OPENCV_VERSION%-vs
-cmake -G %CMAKE_GENERATOR% -A %CMAKE_ARCHITECTURE% -DWITH_CUDA=off -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules -DWITH_FFMPEG=true -DBUILD_opencv_python_bindings_generator=off -DBUILD_opencv_java=off -DBUILD_opencv_python=off -DOPENCV_ENABLE_NONFREE=on -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
+cmake -G %CMAKE_GENERATOR% -A %CMAKE_ARCHITECTURE% -DWITH_CUDA=off -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules -DWITH_FFMPEG=true -DBUILD_opencv_python_bindings_generator=off -DBUILD_opencv_java=off -DBUILD_opencv_python=off -DOPENCV_ENABLE_NONFREE=on -DWITH_GSTREAMER=off -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Debug
 msbuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Release
 cd ..\..

@@ -1,50 +1,167 @@
 #import "SENSiOSCamera.h"
 #include <Utils.h>
+#include <functional>
+#include <sens/SENSUtils.h>
+#include <memory>
 
 SENSiOSCamera::SENSiOSCamera()
 {
     _cameraDelegate = [[SENSiOSCameraDelegate alloc] init];
+    [_cameraDelegate setCallback:std::bind(&SENSiOSCamera::processNewFrame, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
+    //todo: fixme
+    _permissionGranted = true;
 }
 
 SENSiOSCamera::~SENSiOSCamera()
 {
 }
 
-void SENSiOSCamera::start(SENSCameraConfig config)
+const SENSCameraConfig& SENSiOSCamera::start(std::string                   deviceId,
+                                             const SENSCameraStreamConfig& streamConfig,
+                                             cv::Size                      imgRGBSize,
+                                             bool                          mirrorV,
+                                             bool                          mirrorH,
+                                             bool                          convToGrayToImgManip,
+                                             int                           imgManipWidth,
+                                             bool                          provideIntrinsics,
+                                             float                         fovDegFallbackGuess)
 {
-    if(_started)
+    if (_started)
     {
-        Utils::log("SENSiOSCamera", "Camera already started!");
-        return;
+        Utils::warnMsg("SENSiOSCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
+        return _config;
     }
-    [_cameraDelegate startCamera];
-}
 
-void SENSiOSCamera::start(std::string id, int width, int height)
-{
-    
+    cv::Size targetSize;
+    if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+    {
+        targetSize.width  = imgRGBSize.width;
+        targetSize.height = imgRGBSize.height;
+    }
+    else
+    {
+        targetSize.width  = streamConfig.widthPix;
+        targetSize.height = streamConfig.heightPix;
+    }
+
+    cv::Size imgManipSize(imgManipWidth,
+                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+
+    //retrieve all camera characteristics
+    if (_captureProperties.size() == 0)
+        _captureProperties = [_cameraDelegate retrieveCaptureProperties];
+
+    if (_captureProperties.size() == 0)
+        throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
+
+    if (!_captureProperties.containsDeviceId(deviceId))
+        throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
+
+    NSString* devId = [NSString stringWithUTF8String:deviceId.c_str()];
+
+    BOOL enableVideoStabilization = YES;
+    if (provideIntrinsics)
+        enableVideoStabilization = NO;
+
+    if ([_cameraDelegate startCamera:devId
+                           withWidth:streamConfig.widthPix
+                           andHeight:streamConfig.heightPix
+                      autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
+             videoStabilizationState:enableVideoStabilization
+                     intrinsicsState:provideIntrinsics])
+    {
+        //init config here
+        _config = SENSCameraConfig(deviceId,
+                                   streamConfig,
+                                   SENSCameraFocusMode::UNKNOWN,
+                                   targetSize.width,
+                                   targetSize.height,
+                                   imgManipSize.width,
+                                   imgManipSize.height,
+                                   mirrorH,
+                                   mirrorV,
+                                   convToGrayToImgManip);
+        //initialize guessed camera calibration
+        initCalibration(fovDegFallbackGuess);
+        _started = true;
+    }
+    else
+    {
+        throw SENSException(SENSType::CAM, "Could not start camera!", __LINE__, __FILE__);
+    }
+
+    return _config;
 }
 
 void SENSiOSCamera::stop()
 {
-    
-}
-
-std::vector<SENSCameraCharacteristics> SENSiOSCamera::getAllCameraCharacteristics()
-{
-    std::vector<SENSCameraCharacteristics> characteristicsVec;
+    if (_started)
     {
-        SENSCameraCharacteristics characteristics;
-        characteristics.cameraId = "0";
-        characteristics.streamConfig.add(cv::Size(640, 480));
-        
-        characteristicsVec.push_back(characteristics);
+        if ([_cameraDelegate stopCamera])
+            _started = false;
     }
-    return characteristicsVec;
+    else
+        Utils::log("SENSiOSCamera", "Camera not started but stop called!");
 }
 
-SENSFramePtr SENSiOSCamera::getLatestFrame()
+const SENSCaptureProperties& SENSiOSCamera::captureProperties()
 {
-    SENSFramePtr frame;
-    return frame;
+    if (_captureProperties.size() == 0)
+        _captureProperties = [_cameraDelegate retrieveCaptureProperties];
+
+    return _captureProperties;
+}
+
+SENSFramePtr SENSiOSCamera::latestFrame()
+{
+    SENSFramePtr newFrame;
+    {
+        std::lock_guard<std::mutex> lock(_processedFrameMutex);
+        newFrame = std::move(_processedFrame);
+    }
+
+    if (newFrame && !newFrame->intrinsics.empty())
+    {
+        _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
+                                                         cv::Size(_config.streamConfig.widthPix, _config.streamConfig.heightPix),
+                                                         _calibration->isMirroredH(),
+                                                         _calibration->isMirroredV(),
+                                                         _calibration->camType(),
+                                                         _calibration->computerInfos());
+        //adjust calibration
+        if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
+            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+    }
+
+    return newFrame;
+}
+
+void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3)
+{
+    //Utils::log("SENSiOSCamera", "processNewFrame: w %d w %d", imgWidth, imgHeight);
+    cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
+    cv::Mat rgbImg;
+    cvtColor(rgba, rgbImg, cv::COLOR_RGBA2RGB, 3);
+
+    cv::Mat intrinsics;
+    bool    intrinsicsChanged = false;
+    if (camMat3x3)
+    {
+        intrinsicsChanged = true;
+        intrinsics        = cv::Mat_<double>(3, 3);
+        for (int i = 0; i < 3; ++i)
+        {
+            simd_float3 col             = camMat3x3->columns[i];
+            intrinsics.at<double>(0, i) = (double)col[0];
+            intrinsics.at<double>(1, i) = (double)col[1];
+            intrinsics.at<double>(2, i) = (double)col[2];
+        }
+    }
+
+    SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, intrinsics, intrinsicsChanged);
+
+    {
+        std::lock_guard<std::mutex> lock(_processedFrameMutex);
+        _processedFrame = std::move(sensFrame);
+    }
 }

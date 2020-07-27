@@ -36,6 +36,7 @@ bool SelectionView::update()
 {
     //the viewport may be wrong when returning from TestView, which may have another ratio.
     //setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
+    //todo: understand again and find another solution (without calling resize all the time)
     _viewportRect.set(0, 0, _scrW, _scrH);
     _gui.onResize(_viewportRect.width,
                   _viewportRect.height,

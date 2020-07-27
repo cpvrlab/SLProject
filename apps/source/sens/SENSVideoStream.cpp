@@ -54,7 +54,7 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
         SENS::mirrorImage(rgbImg, _mirrorH, _mirrorV);
         cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
 
-        sensFrame = std::make_shared<SENSFrame>(
+        sensFrame = std::make_unique<SENSFrame>(
           rgbImg,
           grayImg,
           rgbImg.size().width,
@@ -62,7 +62,9 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
           0,
           0,
           _mirrorH,
-          _mirrorV);
+          _mirrorV,
+          1.0f,
+          cv::Mat());
     }
 
     return sensFrame;
@@ -109,7 +111,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
         SENS::mirrorImage(rgbImg, _mirrorH, _mirrorV);
         cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
 
-        sensFrame = std::make_shared<SENSFrame>(
+        sensFrame = std::make_unique<SENSFrame>(
           rgbImg,
           grayImg,
           rgbImg.size().width,
@@ -117,7 +119,9 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
           0,
           0,
           _mirrorH,
-          _mirrorV);
+          _mirrorV,
+          1.0,
+          cv::Mat());
     }
 
     return sensFrame;
@@ -157,4 +161,15 @@ void SENSVideoStream::moveCapturePosition(int n)
         frameIndex = _frameCount;
 
     _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+}
+
+void SENSVideoStream::setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
+{
+    if (!_cap.isOpened())
+        throw SENSException(SENSType::CAM, "setCalibration not possible if video stream is not started!", __LINE__, __FILE__);
+
+    _calibration = std::make_unique<SENSCalibration>(calibration);
+    //now we adapt the calibration to the target size
+    if (_videoFrameSize.width != calibration.imageSize().width || _videoFrameSize.height != calibration.imageSize().height)
+        _calibration->adaptForNewResolution({_videoFrameSize.width, _videoFrameSize.height}, buildUndistortionMaps);
 }

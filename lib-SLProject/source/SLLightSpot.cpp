@@ -206,7 +206,7 @@ SLfloat SLLightSpot::shadowTest(SLRay*         ray,       // ray of hit point
         SLRay shadowRay(lightDist, L, ray);
         root3D->hitRec(&shadowRay);
 
-        if (shadowRay.length < lightDist)
+        if (shadowRay.length < lightDist && shadowRay.hitMesh)
         {
             // Handle shadow value of transparent materials
             if (shadowRay.hitMesh->mat()->hasAlpha())

@@ -19,7 +19,7 @@ set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvr.erlebar") # <== Set to your app's bund
 set(PROVISIONING_PROFILE "ErlebAR - Development")
 set(CODE_SIGN_IDENTITY "Apple Development: Michael Göttlicher (KMX9985DR7)")  # <== Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
 
-set(DEPLOYMENT_TARGET 9.0)                                  # <== Set your deployment target version of iOS
+set(DEPLOYMENT_TARGET 11.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
 #include(BundleUtilities)

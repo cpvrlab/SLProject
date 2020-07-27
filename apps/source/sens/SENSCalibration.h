@@ -11,9 +11,7 @@
 #ifndef SENSCALIBRATION_H
 #define SENSCALIBRATION_H
 
-#include <SENSCalibrationEstimatorParams.h>
-
-using namespace std;
+#include <sens/SENSCalibrationEstimatorParams.h>
 
 class SENSCalibration
 {
@@ -21,7 +19,7 @@ public:
     enum class State
     {
         uncalibrated, //!< The camera is not calibrated (no calibration found)
-        calibrated,   //!< The camera is calibrated
+        calibrated,   //!< The camera is calibrated (mainly this means it has distortion coeffs)
         guessed,      //!< The camera intrinsics where estimated from FOV
     };
 
@@ -60,14 +58,23 @@ public:
                     SENSCameraType  camType,
                     std::string     computerInfos);
 
-    bool load(const string& calibDir,
-              const string& calibFileName,
-              bool          calcUndistortionMaps);
-    bool save(const string& calibDir,
-              const string& calibFileName);
+    //create a calibration using a known camera matrix (intrinsics) without distortion parameters
+    SENSCalibration(const cv::Mat&     intrinsics,
+                    const cv::Size&    imageSize,
+                    bool               mirroredH,
+                    bool               mirroredV,
+                    SENSCameraType     camType,
+                    const std::string& computerInfos);
+
+    SENSCalibration(const std::string& calibDir,
+                    const std::string& calibFileName,
+                    bool               calcUndistortionMaps);
+
+    bool save(const std::string& calibDir,
+              const std::string& calibFileName);
 
     void remap(cv::Mat& inDistorted,
-               cv::Mat& outUndistorted);
+               cv::Mat& outUndistorted) const;
 
     //! Adapts an already calibrated camera to a new resolution (cropping and scaling)
     void adaptForNewResolution(const cv::Size& newSize, bool calcUndistortionMaps);
@@ -128,10 +135,10 @@ public:
     cv::Size       boardSize() const { return _boardSize; }
     float          boardSquareMM() const { return _boardSquareMM; }
     float          boardSquareM() const { return _boardSquareMM * 0.001f; }
-    string         calibrationTime() const { return _calibrationTime; }
-    string         calibFileName() const { return _calibFileName; }
-    string         computerInfos() const { return _computerInfos; }
-    string         stateStr() const
+    std::string    calibrationTime() const { return _calibrationTime; }
+    std::string    calibFileName() const { return _calibFileName; }
+    std::string    computerInfos() const { return _computerInfos; }
+    std::string    stateStr() const
     {
         switch (_state)
         {
@@ -146,6 +153,10 @@ public:
     void calculateUndistortedCameraMat();
 
 private:
+    bool load(const std::string& calibDir,
+              const std::string& calibFileName,
+              bool               calcUndistortionMaps);
+
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
     ///////////////////////////////////////////////////////////////////////////////////
     cv::Mat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
@@ -155,13 +166,13 @@ private:
     cv::Mat  _cameraMatOrig; //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
     cv::Size _imageSizeOrig; //!< original image size (original from loading or calibration estimation)
 
-    State  _state         = State::uncalibrated; //!< calibration state enumeration
-    float  _cameraFovVDeg = 0.0f;                //!< Vertical field of view in degrees
-    float  _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
-    string _calibFileName;                       //!< name for calibration file
-    int    _calibFlags  = 0;                     //!< OpenCV calibration flags
-    bool   _isMirroredH = false;                 //!< Flag if image must be horizontally mirrored
-    bool   _isMirroredV = false;                 //!< Flag if image must be vertically mirrored
+    State       _state         = State::uncalibrated; //!< calibration state enumeration
+    float       _cameraFovVDeg = 0.0f;                //!< Vertical field of view in degrees
+    float       _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
+    std::string _calibFileName;                       //!< name for calibration file
+    int         _calibFlags  = 0;                     //!< OpenCV calibration flags
+    bool        _isMirroredH = false;                 //!< Flag if image must be horizontally mirrored
+    bool        _isMirroredV = false;                 //!< Flag if image must be vertically mirrored
 
     int      _numCaptured = 0;           //!< NO. of images captured
     cv::Size _boardSize;                 //!< NO. of inner chessboard corners.
@@ -178,14 +189,14 @@ private:
     black borders of an undistorted image are removed by scaling fx and fy.
     If the viewport is different to the camera image size it fits to cx and cy have to be additionally adjusted.
     The _cameraMatUndistorted may also be used for reprojection of an undistorted image. 
-    In this context it is used this class to build the undistortion maps 
+    In this context it is used by this class to build the undistortion maps 
     (in buildUndistortionMaps) and the resulting undistortion maps are used to undistort 
     an image in the remap function). If the distortion coefficients are empty (_distortion)
     _cameraMatUndistorted is equal to _cameraMat.
     */
     cv::Mat        _cameraMatUndistorted;
-    string         _calibrationTime = "-"; //!< Time stamp string of calibration
-    string         _computerInfos;
+    std::string    _calibrationTime = "-"; //!< Time stamp string of calibration
+    std::string    _computerInfos;
     SENSCameraType _camType = SENSCameraType::FRONTFACING;
 
     static const int _CALIBFILEVERSION; //!< Global const file format version

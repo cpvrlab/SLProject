@@ -140,8 +140,8 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Bind render functions to be called multi-threaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1
-                                  ? bind(&SLRaytracer::renderSlices, this, _1)
-                                  : bind(&SLRaytracer::renderSlicesMS, this, _1);
+                                    ? bind(&SLRaytracer::renderSlices, this, _1)
+                                    : bind(&SLRaytracer::renderSlicesMS, this, _1);
 
     // Do multi-threading only in release config
     // Render image without anti-aliasing
@@ -372,7 +372,7 @@ SLCol4f SLRaytracer::trace(SLRay* ray)
     SLNode* root = _sv->s()->root3D();
     if (root) root->hitRec(ray);
 
-    if (ray->length < FLT_MAX)
+    if (ray->length < FLT_MAX && ray->hitMesh && ray->hitMesh->primitive() == PT_triangles)
     {
         color = shade(ray);
 
@@ -476,8 +476,8 @@ color = material emission +
 */
 SLCol4f SLRaytracer::shade(SLRay* ray)
 {
-    SLMaterial*   mat        = ray->hitMesh->mat();
-    SLVGLTexture& texture    = mat->textures();
+    SLMaterial*   mat     = ray->hitMesh->mat();
+    SLVGLTexture& texture = mat->textures();
     SLVec3f       L, N, H;
     SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;
@@ -720,7 +720,7 @@ calculation. See OpenGL docs for more information on fog properties.
 */
 SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
 {
-    SLfloat    f;
+    SLfloat f;
 
     if (z > _sv->_camera->clipFar())
         z = _sv->_camera->clipFar();

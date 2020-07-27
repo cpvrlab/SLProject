@@ -453,8 +453,6 @@ _blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
 {
-    //PROFILE_FUNCTION();
-
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() &&
         typeid(*this) != typeid(SLCamera) &&
@@ -620,7 +618,19 @@ bool SLNode::hitRec(SLRay* ray)
     SLbool meshWasHit = false;
 
     // Transform ray to object space for non-groups
-    if (!_meshes.empty())
+    if (_meshes.empty())
+    {
+        // Special selection for cameras
+        if (dynamic_cast<SLCamera*>(this) && ray->sv->camera() != this)
+        {
+            ray->hitNode = this;
+            ray->hitMesh = nullptr;
+            SLVec3f OC   = _aabb.centerWS() - ray->origin;
+            ray->length  = OC.length();
+            return true;
+        }
+    }
+    else
     {
         // transform origin position to object space
         ray->originOS.set(updateAndGetWMI().multVec(ray->origin));
@@ -832,7 +842,7 @@ SLNode::updateAABBRec()
         _aabb.maxWS(SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX));
     }
 
-    if (typeid(*this) == typeid(SLCamera))
+    if (dynamic_cast<SLCamera*>(this))
     {
         ((SLCamera*)this)->buildAABB(_aabb, updateAndGetWM());
     }

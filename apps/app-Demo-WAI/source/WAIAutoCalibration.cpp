@@ -19,9 +19,15 @@ AutoCalibration::AutoCalibration(cv::Size frameSize, float mapDimension)
     _isRunning      = false;
 }
 
+ AutoCalibration::~AutoCalibration()
+{
+    if(_calibration)
+        delete _calibration;
+}
+
 void AutoCalibration::calibrateFrames(AutoCalibration* ac)
 {
-    CVCalibration                calibration = {CVCameraType::FRONTFACING, ""};
+    SENSCalibration*             calibration = nullptr;
     std::unique_lock<std::mutex> lock(ac->_calibrationMutex);
 
     std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> matchings;
@@ -97,12 +103,12 @@ bool AutoCalibration::hasCalibration()
     return _hasCalibration;
 }
 
-CVCalibration AutoCalibration::consumeCalibration()
+const SENSCalibration& AutoCalibration::consumeCalibration()
 {
     std::unique_lock<std::mutex> lock(_calibrationMutex);
     _hasCalibration = false;
     _isFinished     = true;
-    return _calibration;
+    return *_calibration;
 }
 
 void AutoCalibration::reset()
@@ -490,7 +496,7 @@ float AutoCalibration::calcCameraHorizontalFOV(cv::Mat& cameraMat)
     return 2.0f * atan2(cx, fx) * 180.0f / (float)M_PI;
 }
 
-bool AutoCalibration::calibrate(CVCalibration&                                                              calibration,
+bool AutoCalibration::calibrate(SENSCalibration*&                                                           calibration,
                                 cv::Size                                                                    size,
                                 std::vector<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>& matchings)
 {
@@ -534,21 +540,21 @@ bool AutoCalibration::calibrate(CVCalibration&                                  
                                           preselectedWorldPoints,
                                           nbFill);
 
-    calibration = CVCalibration(intrinsic,
-                                distortion,
-                                size,
-                                cv::Size(0, 0),
-                                0.0f,
-                                error,
-                                (int)matchings.size(),
-                                Utils::getDateTime2String(),
-                                -1,
-                                false,
-                                false,
-                                CVCameraType::BACKFACING,
-                                Utils::ComputerInfos::get(),
-                                CALIB_FLAGS,
-                                true);
+    calibration = new SENSCalibration(intrinsic,
+                                      distortion,
+                                      size,
+                                      cv::Size(0, 0),
+                                      0.0f,
+                                      error,
+                                      (int)matchings.size(),
+                                      Utils::getDateTime2String(),
+                                      -1,
+                                      false,
+                                      false,
+                                      SENSCameraType::BACKFACING,
+                                      Utils::ComputerInfos::get(),
+                                      CALIB_FLAGS,
+                                      true);
 
     return true;
 }

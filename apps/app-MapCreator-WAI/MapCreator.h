@@ -42,7 +42,10 @@ public:
                std::string   configFile,
                std::string   vocFile,
                ExtractorType extractorType,
-               int           nLevels);
+               int           nLevels,
+               std::string   outputDir,
+               bool          serialMapping,
+               float         thinCullingValue);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -90,15 +93,18 @@ private:
     std::string               _erlebARDir;
     std::string               _calibrationsDir;
     std::string               _outputDir;
-    WAIOrbVocabulary*         _voc;
+    WAIOrbVocabulary*         _voc = nullptr;
 
-    WAIMapPoint* _mpUL;
-    WAIMapPoint* _mpUR;
-    WAIMapPoint* _mpLL;
-    WAIMapPoint* _mpLR;
+    WAIMapPoint* _mpUL = nullptr;
+    WAIMapPoint* _mpUR = nullptr;
+    WAIMapPoint* _mpLL = nullptr;
+    WAIMapPoint* _mpLR = nullptr;
 
-    ExtractorType _extractorType;
-    int           _nLevels;
+    ExtractorType _extractorType = ExtractorType_FAST_ORBS_2000;
+    int           _nLevels       = 2;
+
+    bool  _serialMapping    = false;
+    float _thinCullingValue = 0.995f;
 
     /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;

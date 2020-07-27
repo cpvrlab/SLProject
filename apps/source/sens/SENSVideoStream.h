@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 #include "SENSFrame.h"
+#include "SENSCalibration.h"
 
 class SENSVideoStream
 {
@@ -22,6 +23,13 @@ public:
 
     bool isOpened() const { return _cap.isOpened(); }
 
+    const SENSCalibration* const calibration() const
+    {
+        return _calibration.get();
+    }
+
+    void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps);
+
 private:
     void moveCapturePosition(int n);
 
@@ -36,6 +44,8 @@ private:
 
     bool _mirrorH = false;
     bool _mirrorV = false;
+
+    std::unique_ptr<SENSCalibration> _calibration;
 };
 
 #endif //SENS_VIDEOSTREAM_H

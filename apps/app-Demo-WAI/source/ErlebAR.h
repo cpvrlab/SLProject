@@ -37,7 +37,7 @@ enum class LocationId
     AUGST,
     AVENCHES,
     BIEL,
-    CHRISTOFFEL
+    BERN
 };
 
 const char* mapLocationIdToName(LocationId id);
@@ -53,10 +53,11 @@ enum class AreaId
     AVENCHES_AMPHITHEATER,
     AVENCHES_AMPHITHEATER_ENTRANCE,
     AVENCHES_THEATER,
-    AVENCHES_CYGOGNIER,
+    AVENCHES_CIGOGNIER,
     AVENCHES_TEMPLE,
-    //CHRISTOFFEL
-    CHRISTOFFEL_SBB,
+    //BERN
+    BERN_SBB,
+    BERN_MILCHGAESSLI,
     //BIEL
     BIEL_SOUTHWALL,
     BIEL_GERECHTIGKEITSBRUNNEN,
@@ -91,9 +92,9 @@ public:
     LocationId  id = LocationId::NONE;
     const char* name;
     //name of area map image in erlebAR directory
-    std::string            areaMapImageFileName;
+    std::string areaMapImageFileName;
     //map image display pixel width
-    int dspPixWidth;
+    int                    dspPixWidth;
     std::map<AreaId, Area> areas;
     //location center wgs84 (for gps user positionioning in map)
 };
@@ -119,8 +120,6 @@ enum class StateId
 
     START_TEST,
     TEST,
-    HOLD_TEST,
-    RESUME_TEST,
 
     TEST_RUNNER,
 

@@ -97,6 +97,7 @@ public:
 
     // Bag of Words Representation
     void ComputeBoW(WAIOrbVocabulary* vocabulary);
+    void SetBowVector(WAIBowVector &bow);
 
     // Covisibility graph functions
     void                      AddConnection(WAIKeyFrame* pKF, int weight);

@@ -15,13 +15,19 @@ void CameraOnlyScene::build()
     _mapNode   = new SLNode("map");
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage);
+    cameraNode->background().texture(_videoImage, true);
 
     _root3D->addChild(_mapNode);
 }
 
 void CameraOnlyScene::updateVideoImage(const cv::Mat& image)
 {
+    float newImgWdivH = (float)image.cols / (float)image.rows;
+    float oldImgWdivH = (float)cameraNode->background().texture()->width() / (float)cameraNode->background().texture()->height();
+    if (std::abs(newImgWdivH - oldImgWdivH) > 0.001f)
+    {
+        cameraNode->background().texture(_videoImage, true);
+    }
     _videoImage->copyVideoImage(image.cols,
                                 image.rows,
                                 CVImage::cv2glPixelFormat(image.type()),

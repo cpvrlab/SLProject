@@ -17,13 +17,15 @@ public:
         _scrHeight   = scrHeight;
         _dataDir     = Utils::unifySlashes(dataDir);
         _writableDir = Utils::unifySlashes(writableDir);
-
-        _fontDir       = _dataDir + "images/fonts/";
-        _textureDir    = _dataDir + "images/textures/";
+        //SLProject
         _shaderDir     = _dataDir + "shaders/";
         _vocabularyDir = _dataDir + "calibrations/";
-        _erlebARDir    = _dataDir + "erleb-AR/";
-
+        _fontDir       = _dataDir + "images/fonts/";
+        //Erleb-AR productive
+        _erlebARDir = _dataDir + "erleb-AR/";
+        _textureDir = _dataDir + "erleb-AR/images/textures/";
+        _stringsDir = _dataDir + "erleb-AR/strings/";
+        //Erleb-AR test
         _erlebARTestDir      = _writableDir + "erleb-AR/";
         _erlebARCalibTestDir = _writableDir + "erleb-AR/calibrations/";
     }
@@ -44,6 +46,8 @@ public:
     const std::string& fontDir() const { return _fontDir; }
     //path to textures
     const std::string& textureDir() const { return _textureDir; }
+    //path to strings
+    const std::string& stringsDir() const { return _stringsDir; }
     //path to shaders
     const std::string& shaderDir() const { return _shaderDir; }
     //path to vocabulary
@@ -71,6 +75,8 @@ private:
     std::string _fontDir;
     //path to textures
     std::string _textureDir;
+    //path to strings in different languages
+    std::string _stringsDir;
     //path to shaders
     std::string _shaderDir;
     //path to vocabulary

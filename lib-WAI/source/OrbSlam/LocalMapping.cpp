@@ -136,7 +136,7 @@ void LocalMapping::LocalOptimize()
 void LocalMapping::ProcessKeyFrames()
 {
     mbFinished = false;
-    mbPaused = false;
+    mbPaused   = false;
 
     while (1)
     {
@@ -154,7 +154,7 @@ void LocalMapping::ProcessKeyFrames()
             CreateNewMapPoints(frame);
 
             workingSet.addToLocalAdjustment(frame);
-            mpLoopCloser->InsertKeyFrame(frame);
+            //mpLoopCloser->InsertKeyFrame(frame);
         }
 
         ResetIfRequested();
@@ -178,7 +178,7 @@ void LocalMapping::ProcessKeyFrames()
 void LocalMapping::Run()
 {
     mbFinished = false;
-    mbPaused = false;
+    mbPaused   = false;
     while (1)
     {
         // Tracking will see that Local Mapping is busy
@@ -229,7 +229,6 @@ void LocalMapping::Run()
                 std::this_thread::sleep_for(3ms);
             }
         }
-
 
         ResetIfRequested();
 
@@ -1062,7 +1061,7 @@ void LocalMapping::RequestStop()
 void LocalMapping::RequestContinue()
 {
     unique_lock<mutex> lock(mMutexPause);
-    mPause = false;
+    mPause   = false;
     mbPaused = false;
 }
 

@@ -11,11 +11,23 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        std::string   configFile,
                        std::string   vocFile,
                        ExtractorType extractorType,
-                       int           nLevels)
-  : _erlebARDir(Utils::unifySlashes(erlebARDir))
+                       int           nLevels,
+                       std::string   outputDir,
+                       bool          serialMapping,
+                       float         thinCullingValue)
+  : _erlebARDir(Utils::unifySlashes(erlebARDir)),
+    _serialMapping(serialMapping),
+    _thinCullingValue(thinCullingValue)
 {
-    _calibrationsDir = calibrationsDir;
-    _outputDir       = _erlebARDir + "MapCreator/";
+    _calibrationsDir = Utils::unifySlashes(calibrationsDir);
+    if (outputDir.empty())
+    {
+        _outputDir = _erlebARDir + "MapCreator/";
+    }
+    else
+    {
+        _outputDir = Utils::unifySlashes(outputDir);
+    }
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
 
@@ -191,7 +203,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = false;
+    modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
 
@@ -235,17 +247,17 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
     //the lastly saved map file (only valid if initialized is true)
     FeatureExtractorFactory factory;
     //std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {markerImgGray.cols, markerImgGray.rows});
-    std::string mapFile     = constructSlamMapFileName(location,
+    std::string      mapFile     = constructSlamMapFileName(location,
                                                    area,
                                                    factory.getExtractorIdToNames()[extractorType],
                                                    nLevels,
                                                    Utils::getDateTime2String());
-    std::string mapDir      = _outputDir + area + "/";
-    bool        initialized = false;
-    std::string currentMapFileName;
+    std::string      mapDir      = _outputDir + area + "/";
+    bool             initialized = false;
+    std::string      currentMapFileName;
     std::vector<int> keyFrameVideoMatching;
-    const float cullRedundantPerc = 0.995f;
-    initialized                   = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels, keyFrameVideoMatching);
+    const float      cullRedundantPerc = 0.995f;
+    initialized                        = createNewDenseWaiMap(areaConfig.videos, mapFile, mapDir, cullRedundantPerc, currentMapFileName, extractorType, nLevels, keyFrameVideoMatching);
 
     if (areaConfig.videos.size() && initialized)
     {
@@ -262,7 +274,7 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
         std::string kfVideoMatchingFileName = Utils::getFileNameWOExt(mapFile) + "_match.txt";
 
         //select one calibration (we need one to instantiate mode and we need mode to load map)
-        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, kfVideoMatchingFileName, areaConfig.videos.front().calibration, cullRedundantPerc, extractorType, nLevels, keyFrameVideoMatching, areaConfig.videos);
+        thinOutNewWaiMap(mapDir, currentMapFileName, mapFile, kfVideoMatchingFileName, areaConfig.videos.front().calibration, _thinCullingValue, extractorType, nLevels, keyFrameVideoMatching, areaConfig.videos);
     }
     else
     {
@@ -285,7 +297,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = false;
+    modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
 
@@ -423,8 +435,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
             keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdx;
 
             //update wai
-            waiMode->update(frame->imgGray);
-
+            waiMode->update(frame->imgManip);
 
             if (firstRun)
             {
@@ -460,7 +471,6 @@ bool MapCreator::createNewDenseWaiMap(Videos&            videos,
     return initialized;
 }
 
-
 void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                   const std::string& inputMapFile,
                                   const std::string& outputMapFile,
@@ -476,7 +486,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     //wai mode config
     WAISlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = false;
+    modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
     modeParams.retainImg         = false;
 
@@ -515,7 +525,6 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
                                 modeParams.cullRedundantPerc);
                                 */
 
-
     //testKFVideoMatching(keyFrameVideoMatching);
     //cull keyframes
     std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
@@ -526,7 +535,7 @@ void MapCreator::thinOutNewWaiMap(const std::string& mapDir,
     //save map again (we use the map file name without index because this is the final map)
     //saveMap(waiMode.get(), mapDir, outputMapFile, &mapNode);
 
-    if (!WAIMapStorage::saveMap(map.get(), &mapNode, mapDir + outputMapFile))
+    if (!WAIMapStorage::saveMapRaw(map.get(), &mapNode, mapDir + outputMapFile))
     {
         throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
     }
@@ -617,7 +626,7 @@ void MapCreator::decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int cu
         cv::Mat     decoImg = lastFrame.clone();
         std::string state   = waiMode->getPrintableState();
 
-        waiMode->drawInfo(decoImg, true, true, true);
+        waiMode->drawInfo(decoImg, 1.0f, true, true, true);
 
         double     fontScale = 0.5;
         cv::Point  stateOff(10, 25);
@@ -655,7 +664,7 @@ void MapCreator::saveMap(WAISlam*           waiMode,
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    if (!WAIMapStorage::saveMap(waiMode->getMap(),
+    if (!WAIMapStorage::saveMapRaw(waiMode->getMap(),
                                 mapNode,
                                 mapDir + currentMapFileName,
                                 imgDir))

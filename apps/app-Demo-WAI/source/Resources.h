@@ -165,6 +165,11 @@ public:
         return _id.c_str();
     }
 
+    const char* augst() const { return _augst.c_str(); }
+    const char* avenches() const { return _avenches.c_str(); }
+    const char* bern() const { return _bern.c_str(); }
+    const char* biel() const { return _biel.c_str(); }
+
     const char* settings() const { return _settings.c_str(); }
     const char* about() const { return _about.c_str(); }
     const char* tutorial() const { return _tutorial.c_str(); }
@@ -184,6 +189,10 @@ protected:
     std::string _id;
 
     //selection
+    std::string _augst    = "Augst";
+    std::string _avenches = "Avenches";
+    std::string _bern     = "Bern";
+    std::string _biel     = "Biel";
     std::string _settings;
     std::string _about;
     std::string _tutorial;
