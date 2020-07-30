@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------------
 UniformBuffer::UniformBuffer(Device&    device,
                              Swapchain& swapchain,
-                             SLMat4f&   camera,
+                             Camera&    camera,
                              SLMat4f&   modelPos) : _device{device},
                                                   _swapchain{swapchain},
                                                   _camera{camera},
@@ -37,13 +37,13 @@ void UniformBuffer::update(uint32_t currentImage)
 {
     UniformBufferObject ubo{};
     ubo.model    = _modelPos;
-    ubo.view     = _camera;
+    ubo.view     = _camera.om();
     float width  = (float)_swapchain.extent().width;
     float height = (float)_swapchain.extent().height;
-    ubo.proj.perspective(40,
-                         width / height,
-                         0.1f,
-                         100.0f);
+    ubo.proj.perspective(_camera.fov(),
+                         _camera.viewportRatio(),
+                         _camera.clipNear(),
+                         _camera.clipFar());
 
     void* data;
     vkMapMemory(_device.handle(), _buffers[currentImage]->memory(), 0, sizeof(ubo), 0, &data);

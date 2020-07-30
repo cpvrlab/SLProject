@@ -7,8 +7,10 @@
 #include <Material.h>
 #include <Mesh.h>
 #include <SLMat4.h>
+#include <SLAABBox.h>
 
 using namespace std;
+
 //-----------------------------------------------------------------------------
 class Node : public Object
 {
@@ -27,6 +29,12 @@ public:
     void om(const SLMat4f& mat);
     void AddChild(Node* child);
 
+    void           updateWM();
+    const SLMat4f& updateAndGetWM();
+    const SLMat4f& updateAndGetWMI();
+    const SLMat4f& updateAndGetWMN();
+
+    SLAABBox& updateAABBRec();
     // update()
     // cull()
     // draw()
@@ -36,6 +44,12 @@ protected:
     vector<Node*> _children;         //!< vector of children nodes
     Mesh*         _mesh = nullptr;   //!< vector of meshes of the node
     SLMat4f       _om;               //!< object matrix for local transforms
+    SLMat4f       _wm;               //!< world matrix for world transform
+    SLMat4f       _wmI;              //!< inverse world matrix;
+    SLMat3f       _wmN;              //!< normal world matrix;
+    SLAABBox      _aabb;             //!< axis aligned bounding box
+    bool          _isAABBUpToDate = false;
+    bool          _isWMUpToDate   = false;
 };
 //-----------------------------------------------------------------------------
 typedef vector<Node> VNode;

@@ -8,6 +8,8 @@
 #include <VulkanRenderer.h>
 #include <vkEnums.h>
 #include <DrawingObject.h>
+#include <Camera.h>
+#include <random>
 
 //-----------------------------------------------------------------------------
 //////////////////////
@@ -21,8 +23,10 @@ string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader
 GLFWwindow* window;
 
 // Camera
-SLMat4f _viewMatrix;
-float   _camZ = 6.0f;
+// SLMat4f _viewMatrix;
+float  _camZ                  = 6.0f;
+float  _mouseWheelSensitivity = 0.5f;
+Camera camera;
 
 // Mouse
 int  _startX, _startY;
@@ -66,7 +70,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 //-----------------------------------------------------------------------------
 void onMouseWheel(GLFWwindow* window, double xScroll, double yScroll)
 {
-    _camZ -= (SLfloat)Utils::sign(yScroll) * 0.1f;
+    _camZ -= (SLfloat)Utils::sign(yScroll) * _mouseWheelSensitivity;
 }
 //-----------------------------------------------------------------------------
 float calcFPS(float deltaTime)
@@ -118,14 +122,58 @@ void initWindow()
 //-----------------------------------------------------------------------------
 void updateCamera()
 {
-    _viewMatrix.identity();
-    _viewMatrix.translate(0.0f, 0.0f, -_camZ);
-    _viewMatrix.rotate((float)(_rotX + _deltaX), 1.0f, 0.0f, 0.0f);
-    _viewMatrix.rotate((float)(_rotY + _deltaY), 0.0f, 1.0f, 0.0f);
+    camera.om().identity();
+    camera.om().translate(0.0f, 0.0f, -_camZ);
+    camera.om().rotate((float)(_rotX + _deltaX), 1.0f, 0.0f, 0.0f);
+    camera.om().rotate((float)(_rotY + _deltaY), 0.0f, 1.0f, 0.0f);
 }
 //-----------------------------------------------------------------------------
 void createScene(Node& root)
 {
+    int   sizeX           = 3;
+    int   sizeY           = 3;
+    int   sizeZ           = 3;
+    float offsetDimension = 2.5f;
+
+    float offsetX = (sizeX % 2 != 0) ? 0.0f : 0.5f;
+    float offsetY = (sizeY % 2 != 0) ? 0.0f : 0.5f;
+    float offsetZ = (sizeZ % 2 != 0) ? 0.0f : 0.5f;
+
+    for (int x = 0; x < sizeX; x++)
+    {
+        for (int y = 0; y < sizeY; y++)
+        {
+            for (int z = 0; z < sizeZ; z++)
+            {
+                Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
+                Material* material = new Material("Texture");
+                material->addTexture(texture);
+                GPUProgram* gpuProgram = new GPUProgram("First_Shader");
+                GPUShader*  vertShader = new GPUShader("vertShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv", ShaderType::VERTEX);
+                GPUShader*  fragShader = new GPUShader("fragShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv", ShaderType::FRAGMENT);
+                gpuProgram->addShader(vertShader);
+                gpuProgram->addShader(fragShader);
+                material->setProgram(gpuProgram);
+                Mesh* mesh = new Sphere("Simple_Sphere", 1.0f, 32, 32);
+
+                float rR = random(0.0f, 1.0f);
+                float rG = random(0.0f, 1.0f);
+                float rB = random(0.0f, 1.0f);
+                mesh->setColor(SLCol4f(rR, rG, rB, 1.0f));
+
+                mesh->mat  = material;
+                Node* node = new Node("Sphere");
+                node->om(SLMat4f((x + offsetX - (sizeX / 2)) * offsetDimension,
+                                 (y + offsetY - (sizeY / 2)) * offsetDimension,
+                                 (z + offsetZ - (sizeZ / 2)) * offsetDimension));
+                node->SetMesh(mesh);
+
+                root.AddChild(node);
+            }
+        }
+    }
+
+#if 0
     // Mesh 1
     Texture*  texture1  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
     Material* material1 = new Material("Texture");
@@ -140,7 +188,7 @@ void createScene(Node& root)
     mesh1->setColor(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
     mesh1->mat  = material1;
     Node* node1 = new Node("Sphere");
-    node1->om(SLMat4f(0.0f, 0.0f, 0.0f));
+    node1->om(SLMat4f(-2.0f, 0.0f, 0.0f));
     node1->SetMesh(mesh1);
 
     // Mesh 2
@@ -157,50 +205,72 @@ void createScene(Node& root)
     mesh2->setColor(SLCol4f(1.0f, 0.0f, 0.0f, 1.0f));
     mesh2->mat  = material2;
     Node* node2 = new Node("Sphere");
-    node2->om(SLMat4f(1.0f, 0.0f, 0.0f));
+    node2->om(SLMat4f(2.0f, 0.0f, 0.0f));
     node2->SetMesh(mesh2);
 
     root.AddChild(node1);
     root.AddChild(node2);
+#endif
 }
 //-----------------------------------------------------------------------------
-void SceneToMaterial(Node& root, vector<DrawingObject>& drawingObjectList)
+void SceneToMaterialCompromissed(Node& root, vector<DrawingObject>& objectsInScene)
 {
     for (Node* node : root.children())
     {
         if (node != nullptr)
-            SceneToMaterial(*node, drawingObjectList);
+            SceneToMaterialCompromissed(*node, objectsInScene);
 
         Material* m     = node->mesh()->mat;
         int       index = INT_MAX;
 
-        for (size_t i = 0; i < drawingObjectList.size(); i++)
-            if (drawingObjectList[i].mat == m)
+        for (size_t i = 0; i < objectsInScene.size(); i++)
+            if (objectsInScene[i].mat == m)
                 index = i;
 
         if (index == INT_MAX)
         {
             DrawingObject drawingObj = DrawingObject();
             drawingObj.mat           = m;
-            drawingObjectList.push_back(drawingObj);
-            index = drawingObjectList.size() - 1;
+            objectsInScene.push_back(drawingObj);
+            index = objectsInScene.size() - 1;
         }
 
-        drawingObjectList[index].nodeList.push_back(node);
+        objectsInScene[index].nodeList.push_back(node);
+    }
+}
+//-----------------------------------------------------------------------------
+void SceneToMaterialSimple(Node& root, vector<DrawingObject>& objectsInScene)
+{
+    for (Node* node : root.children())
+    {
+        if (node != nullptr)
+            SceneToMaterialCompromissed(*node, objectsInScene);
+
+        DrawingObject drawingObj = DrawingObject();
+        drawingObj.mat           = node->mesh()->mat;
+        objectsInScene.push_back(drawingObj);
+        int index = objectsInScene.size() - 1;
+        objectsInScene[index].nodeList.push_back(node);
     }
 }
 //-----------------------------------------------------------------------------
 int main()
 {
     initWindow();
+    camera.setViewport(WINDOW_WIDTH, WINDOW_HEIGHT);
     // Create a sphere
     Node root = Node("Root");
     createScene(root);
-    vector<DrawingObject> drawingObjectList;
-    SceneToMaterial(root, drawingObjectList);
+    vector<DrawingObject> objectsInScene;
+    SceneToMaterialSimple(root, objectsInScene);
 
     VulkanRenderer renderer(window);
-    renderer.createMesh(_viewMatrix, drawingObjectList);
+    renderer.createMesh(camera, objectsInScene);
+
+    // TODO:
+    // - Create other vector<DrawingObject> for actural drawing in scene
+    // - Loop checking each nodes frustum and take it from objectsInScene
+    // - Clear list after each frame (or check if camera has been moved)
 
     // Render
     while (!glfwWindowShouldClose(window))
@@ -208,6 +278,7 @@ int main()
         glfwPollEvents();
         updateCamera();
         renderer.draw();
+
         printFPS();
     }
 

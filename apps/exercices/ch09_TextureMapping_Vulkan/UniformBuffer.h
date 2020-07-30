@@ -3,6 +3,7 @@
 #include "Buffer.h"
 #include "UniformBufferObject.h"
 #include <math/SLMat4.h>
+#include <Camera.h>
 
 class Swapchain;
 class Device;
@@ -12,7 +13,7 @@ class Buffer;
 class UniformBuffer
 {
 public:
-    UniformBuffer(Device& device, Swapchain& swapchain, SLMat4f& camera, SLMat4f& modelPos);
+    UniformBuffer(Device& device, Swapchain& swapchain, Camera& camera, SLMat4f& modelPos);
     void destroy();
     void update(uint32_t currentImage);
 
@@ -23,7 +24,7 @@ private:
     Device&         _device;
     Swapchain&      _swapchain;
     vector<Buffer*> _buffers;
-    SLMat4f&        _camera;
+    Camera&         _camera;
     SLMat4f&        _modelPos;
 };
 //-----------------------------------------------------------------------------

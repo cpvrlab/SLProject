@@ -10,6 +10,7 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Camera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.h

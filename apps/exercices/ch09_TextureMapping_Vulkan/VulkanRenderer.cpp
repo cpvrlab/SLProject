@@ -81,7 +81,8 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
     _framebuffer = new Framebuffer(*_device, *_renderPass, *_swapchain, *_depthImage);
 }
 //-----------------------------------------------------------------------------
-void VulkanRenderer::createMesh(SLMat4f& camera, const vector<DrawingObject>& drawingObj)
+// TODO: Break this method down into diffenent create*()
+void VulkanRenderer::createMesh(Camera& camera, const vector<DrawingObject>& drawingObj)
 {
     vector<int> indexSize;
     _descriptorSetLayout = new DescriptorSetLayout(*_device);

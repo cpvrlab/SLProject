@@ -28,6 +28,7 @@
 #include "VertexBuffer.h"
 #include "Node.h"
 #include <memory>
+#include <Camera.h>
 #include "DrawingObject.h"
 
 class VulkanRenderer
@@ -41,7 +42,7 @@ public:
 
     void draw();
     // temp
-    void createMesh(SLMat4f& camera, const vector<DrawingObject>& drawingObj);
+    void createMesh(Camera& camera, const vector<DrawingObject>& drawingObj);
 
 private:
     void createA();
