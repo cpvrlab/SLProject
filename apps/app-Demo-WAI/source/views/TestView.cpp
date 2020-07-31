@@ -281,9 +281,9 @@ void TestView::handleEvents()
                     _mapEdition->updateVisualization();
                 }
                 else if (editMap->action == MapPointEditor_SaveMap && _mapEdition)
-                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
+                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile, false, editMap->b);
                 else if (editMap->action == MapPointEditor_SaveMapRaw && _mapEdition)
-                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile, true);
+                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 else if (editMap->action == MapPointEditor_LoadMatching && _mapEdition)
                     _mapEdition->updateKFVidMatching(editMap->kFVidMatching);
                 else if (editMap->action == MapPointEditor_SelectSingleVideo && _mapEdition)
@@ -348,7 +348,8 @@ void TestView::loadWAISceneView(std::string location, std::string area)
 void TestView::saveMap(std::string location,
                        std::string area,
                        std::string marker,
-                       bool raw)
+                       bool        raw,
+                       bool        bow)
 {
     _mode->requestStateIdle();
 
@@ -411,7 +412,8 @@ void TestView::saveMap(std::string location,
             if (!WAIMapStorage::saveMap(_mode->getMap(),
                                         _scene.mapNode,
                                         mapDir + filename,
-                                        imgDir))
+                                        imgDir,
+                                        bow))
             {
                 _gui.showErrorMsg("Failed to save map " + mapDir + filename);
             }

@@ -153,8 +153,12 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     {
         WAIEventEditMap* event = new WAIEventEditMap();
         event->action          = MapPointEditor_SaveMap;
+        event->b               = _saveBow;
         _eventQueue->push(event);
     }
+    ImGui::SameLine();
+    ImGui::Checkbox("BowVec", &_saveBow);
+
     if (ImGui::Button("Save map raw"))
     {
         WAIEventEditMap* event = new WAIEventEditMap();
