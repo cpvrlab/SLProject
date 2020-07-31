@@ -44,7 +44,7 @@ protected:
     void tryLoadLastSlam();
     void handleEvents();
     void loadWAISceneView(std::string location, std::string area);
-    void saveMap(std::string location, std::string area, std::string marker);
+    void saveMap(std::string location, std::string area, std::string marker, bool raw = false);
     void saveVideo(std::string filename);
     void startOrbSlam(SlamParams slamParams);
     void transformMapNode(SLTransformSpace tSpace,

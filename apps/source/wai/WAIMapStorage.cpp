@@ -1,5 +1,5 @@
 #include <WAIMapStorage.h>
-//#define SAVEBOW
+#define SAVEBOW
 
 cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {

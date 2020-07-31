@@ -155,6 +155,13 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
         event->action          = MapPointEditor_SaveMap;
         _eventQueue->push(event);
     }
+    if (ImGui::Button("Save map raw"))
+    {
+        WAIEventEditMap* event = new WAIEventEditMap();
+        event->action          = MapPointEditor_SaveMapRaw;
+        _eventQueue->push(event);
+    }
+
     if (ImGui::Checkbox("Modify Keyframes", &_keyframeMode))
     {
         WAIEventEditMap* event = new WAIEventEditMap();

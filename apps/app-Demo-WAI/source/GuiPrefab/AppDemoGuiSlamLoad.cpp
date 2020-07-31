@@ -50,9 +50,9 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
     _vocExtensions.push_back(".bin");
     _markerExtensions.push_back(".jpg");
 
-    _p.extractorIds.trackingExtractorId       = ExtractorType_GLSL;
-    _p.extractorIds.initializationExtractorId = ExtractorType_GLSL;
-    _p.extractorIds.markerExtractorId         = ExtractorType_GLSL;
+    _p.extractorIds.trackingExtractorId       = ExtractorType_FAST_ORBS_1000;
+    _p.extractorIds.initializationExtractorId = ExtractorType_FAST_ORBS_2000;
+    _p.extractorIds.markerExtractorId         = ExtractorType_FAST_ORBS_3000;
 }
 
 void AppDemoGuiSlamLoad::loadDirNamesInVector(std::string               directory,
