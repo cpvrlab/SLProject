@@ -1,5 +1,4 @@
 #include <WAIMapStorage.h>
-//#define SAVEBOW
 
 cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {
@@ -51,8 +50,8 @@ SLMat4f WAIMapStorage::convertToSLMat(const cv::Mat& cvMat)
     return slMat;
 }
 
-void buildMatching(std::vector<WAIKeyFrame*> &kfs,
-                   std::map<WAIKeyFrame*, std::map<size_t, size_t>> &KFmatching)
+void buildMatching(std::vector<WAIKeyFrame*>&                        kfs,
+                   std::map<WAIKeyFrame*, std::map<size_t, size_t>>& KFmatching)
 {
     for (int i = 0; i < kfs.size(); ++i)
     {
@@ -78,10 +77,11 @@ void buildMatching(std::vector<WAIKeyFrame*> &kfs,
     }
 }
 
-void saveKeyFrames(std::vector<WAIKeyFrame*> &kfs,
-                   std::map<WAIKeyFrame*, std::map<size_t, size_t>> &KFmatching,
-                   cv::FileStorage &fs,
-                   std::string imgDir)
+void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
+                   std::map<WAIKeyFrame*, std::map<size_t, size_t>>& KFmatching,
+                   cv::FileStorage&                                  fs,
+                   std::string                                       imgDir,
+                   bool                                              saveBOW)
 {
     //start sequence keyframes
     fs << "KeyFrames"
@@ -142,19 +142,20 @@ void saveKeyFrames(std::vector<WAIKeyFrame*> &kfs,
             fs << "keyPtsUndist" << kf->mvKeysUn;
         }
 
-#ifdef SAVEBOW
-        WAIBowVector &bowVec = kf->mBowVec;
-        std::vector<int> wordsId;
-        std::vector<float> tfIdf;
-        for (auto it = bowVec.getWordScoreMapping().begin(); it != bowVec.getWordScoreMapping().end(); it++)
+        if (saveBOW)
         {
-            wordsId.push_back(it->first);
-            tfIdf.push_back(it->second);
-        }
+            WAIBowVector&      bowVec = kf->mBowVec;
+            std::vector<int>   wordsId;
+            std::vector<float> tfIdf;
+            for (auto it = bowVec.getWordScoreMapping().begin(); it != bowVec.getWordScoreMapping().end(); it++)
+            {
+                wordsId.push_back(it->first);
+                tfIdf.push_back(it->second);
+            }
 
-        fs << "BowVectorWordsId" << wordsId;
-        fs << "TfIdf" << tfIdf;
-#endif
+            fs << "BowVectorWordsId" << wordsId;
+            fs << "TfIdf" << tfIdf;
+        }
 
         //scale factor
         fs << "scaleFactor" << kf->mfScaleFactor;
@@ -189,9 +190,9 @@ void saveKeyFrames(std::vector<WAIKeyFrame*> &kfs,
     fs << "]"; //close sequence keyframes
 }
 
-void saveMapPoints(std::vector<WAIMapPoint*> mpts, 
-                   std::map<WAIKeyFrame*, std::map<size_t, size_t>> &KFmatching,
-                   cv::FileStorage &fs)
+void saveMapPoints(std::vector<WAIMapPoint*>                         mpts,
+                   std::map<WAIKeyFrame*, std::map<size_t, size_t>>& KFmatching,
+                   cv::FileStorage&                                  fs)
 {
     //start map points sequence
     fs << "MapPoints"
@@ -261,7 +262,8 @@ void saveMapPoints(std::vector<WAIMapPoint*> mpts,
 bool WAIMapStorage::saveMap(WAIMap*     waiMap,
                             SLNode*     mapNode,
                             std::string filename,
-                            std::string imgDir)
+                            std::string imgDir,
+                            bool        saveBOW)
 {
     std::vector<WAIKeyFrame*> kfs  = waiMap->GetAllKeyFrames();
     std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
@@ -289,7 +291,7 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
         fs << "mapNodeOm" << cvOm;
     }
 
-    saveKeyFrames(kfs, KFmatching, fs, imgDir);
+    saveKeyFrames(kfs, KFmatching, fs, imgDir, saveBOW);
     saveMapPoints(mpts, KFmatching, fs);
 
     // explicit close
@@ -328,7 +330,7 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
         fs << "mapNodeOm" << cvOm;
     }
 
-    saveKeyFrames(kfs, KFmatching, fs, imgDir);
+    saveKeyFrames(kfs, KFmatching, fs, imgDir, false);
     saveMapPoints(mpts, KFmatching, fs);
 
     // explicit close

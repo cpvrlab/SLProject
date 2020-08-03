@@ -281,6 +281,8 @@ void TestView::handleEvents()
                     _mapEdition->updateVisualization();
                 }
                 else if (editMap->action == MapPointEditor_SaveMap && _mapEdition)
+                    saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile, false, editMap->b);
+                else if (editMap->action == MapPointEditor_SaveMapRaw && _mapEdition)
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 else if (editMap->action == MapPointEditor_LoadMatching && _mapEdition)
                     _mapEdition->updateKFVidMatching(editMap->kFVidMatching);
@@ -345,7 +347,9 @@ void TestView::loadWAISceneView(std::string location, std::string area)
 
 void TestView::saveMap(std::string location,
                        std::string area,
-                       std::string marker)
+                       std::string marker,
+                       bool        raw,
+                       bool        bow)
 {
     _mode->requestStateIdle();
 
@@ -393,12 +397,26 @@ void TestView::saveMap(std::string location,
     }
     else
     {
-        if (!WAIMapStorage::saveMap(_mode->getMap(),
-                                    _scene.mapNode,
-                                    mapDir + filename,
-                                    imgDir))
+        if (raw)
         {
-            _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+            if (!WAIMapStorage::saveMapRaw(_mode->getMap(),
+                                           _scene.mapNode,
+                                           mapDir + filename,
+                                           imgDir))
+            {
+                _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+            }
+        }
+        else
+        {
+            if (!WAIMapStorage::saveMap(_mode->getMap(),
+                                        _scene.mapNode,
+                                        mapDir + filename,
+                                        imgDir,
+                                        bow))
+            {
+                _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+            }
         }
     }
 
