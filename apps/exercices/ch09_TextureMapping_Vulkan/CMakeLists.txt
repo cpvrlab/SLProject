@@ -28,6 +28,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/Object.h
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/RangeManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Rectangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.h
@@ -61,6 +62,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/PhysicalDevice.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Rectangle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Pipeline.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RangeManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.cpp

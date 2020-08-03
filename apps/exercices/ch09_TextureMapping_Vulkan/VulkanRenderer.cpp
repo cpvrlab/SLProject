@@ -26,7 +26,7 @@ VulkanRenderer::~VulkanRenderer()
         u->destroy();
         delete u;
     }
-    for (DescriptorPool* d : _descriptorPoolList)
+    for (DescriptorPool* d : descriptorPoolList)
     {
         d->destroy();
         delete d;
@@ -82,10 +82,12 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 }
 //-----------------------------------------------------------------------------
 // TODO: Break this method down into diffenent create*()
+#include <RangeManager.h>
 void VulkanRenderer::createMesh(Camera& camera, const vector<DrawingObject>& drawingObj)
 {
     vector<int> indexSize;
-    _descriptorSetLayout = new DescriptorSetLayout(*_device);
+    _descriptorSetLayout      = new DescriptorSetLayout(*_device);
+    RangeManager rangeManager = RangeManager(drawingObj.size());
 
     for (int i = 0; i < drawingObj.size(); i++)
     {
@@ -104,26 +106,34 @@ void VulkanRenderer::createMesh(Camera& camera, const vector<DrawingObject>& dra
         textureImage->createTextureImage(tex->imageData(), tex->imageWidth(), tex->imageHeight());
         textureImageList.push_back(textureImage);
 
+        int meshCounter = 0;
         // Mesh setup
-        const Mesh* mesh        = drawingObj[i].nodeList[0]->mesh();
-        Buffer*     indexBuffer = new Buffer(*_device);
-        indexBuffer->createIndexBuffer(mesh->I32);
-        indexBufferList.push_back(indexBuffer);
-        UniformBuffer* uniformBuffer = new UniformBuffer(*_device, *_swapchain, camera, drawingObj[i].nodeList[0]->om());
-        uniformBufferList.push_back(uniformBuffer);
+        for (int j = 0; j < drawingObj[i].nodeList.size(); j++)
+        {
+            const Mesh* mesh        = drawingObj[i].nodeList[j]->mesh();
+            Buffer*     indexBuffer = new Buffer(*_device);
+            indexBuffer->createIndexBuffer(mesh->I32);
+            indexBufferList.push_back(indexBuffer);
+            UniformBuffer* uniformBuffer = new UniformBuffer(*_device, *_swapchain, camera, drawingObj[i].nodeList[j]->om());
+            uniformBufferList.push_back(uniformBuffer);
 
-        DescriptorPool* descriptorPool = new DescriptorPool(*_device, *_swapchain);
-        _descriptorPoolList.push_back(descriptorPool);
-        DescriptorSet* descriptorSet = new DescriptorSet(*_device, *_swapchain, *_descriptorSetLayout, *descriptorPool, *uniformBuffer, textureImage->sampler(), *textureImage);
-        descriptorSetList.push_back(descriptorSet);
-        Buffer* vertexBuffer = new Buffer(*_device);
-        vertexBuffer->createVertexBuffer(mesh->P, mesh->N, mesh->Tc, mesh->C, mesh->P.size());
-        vertexBufferList.push_back(vertexBuffer);
-        indexSize.push_back((int)mesh->I32.size());
+            DescriptorPool* descriptorPool = new DescriptorPool(*_device, *_swapchain);
+            descriptorPoolList.push_back(descriptorPool);
+            DescriptorSet* descriptorSet = new DescriptorSet(*_device, *_swapchain, *_descriptorSetLayout, *descriptorPool, *uniformBuffer, textureImage->sampler(), *textureImage);
+            descriptorSetList.push_back(descriptorSet);
+            Buffer* vertexBuffer = new Buffer(*_device);
+            vertexBuffer->createVertexBuffer(mesh->P, mesh->N, mesh->Tc, mesh->C, mesh->P.size());
+            vertexBufferList.push_back(vertexBuffer);
+            indexSize.push_back((int)mesh->I32.size());
+
+            meshCounter++;
+        }
+
+        rangeManager.add(i, meshCounter);
     }
 
     _commandBuffer = new CommandBuffer(*_device);
-    _commandBuffer->setVertices(*_swapchain, *_framebuffer, *_renderPass, vertexBufferList, indexBufferList, pipelineList, descriptorSetList, indexSize);
+    _commandBuffer->setVertices(*_swapchain, *_framebuffer, *_renderPass, vertexBufferList, indexBufferList, pipelineList, descriptorSetList, indexSize, rangeManager);
     _device->createSyncObjects(*_swapchain);
 }
 //-----------------------------------------------------------------------------

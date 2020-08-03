@@ -1,5 +1,5 @@
 #include "Camera.h"
-
+/*
 bool Camera::isInFrustum(SLAABBox* aabb)
 {
     // check the 6 planes of the frustum
@@ -19,6 +19,7 @@ bool Camera::isInFrustum(SLAABBox* aabb)
     aabb->sqrViewDist(viewToCenter.lengthSqr());
     return true;
 }
+
 
 void Camera::setFrustumPlanes()
 {
@@ -52,3 +53,4 @@ void Camera::setFrustumPlanes()
                               -A.m(10) + A.m(11),
                               -A.m(14) + A.m(15));
 }
+*/

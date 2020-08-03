@@ -28,8 +28,9 @@
 #include "VertexBuffer.h"
 #include "Node.h"
 #include <memory>
-#include <Camera.h>
+#include "Camera.h"
 #include "DrawingObject.h"
+#include "RangeManager.h"
 
 class VulkanRenderer
 {
@@ -57,7 +58,7 @@ private:
     DescriptorSetLayout* _descriptorSetLayout = nullptr;
     CommandBuffer*       _commandBuffer       = nullptr;
 
-    vector<DescriptorPool*> _descriptorPoolList;
+    vector<DescriptorPool*> descriptorPoolList;
     vector<UniformBuffer*>  uniformBufferList;
     vector<DescriptorSet*>  descriptorSetList;
     vector<TextureImage*>   textureImageList;

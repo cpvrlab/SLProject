@@ -5,13 +5,13 @@ void Mesh::setColor(SLCol4f color)
     for (size_t i = 0; i < C.size(); i++)
         C[i] = color;
 }
-
+/*
 void Mesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
     calcMinMax();
     aabb.fromOStoWS(minP, maxP, wmNode);
 }
-
+*/
 void Mesh::calcMinMax()
 {
     // init min & max points

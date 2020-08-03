@@ -7,6 +7,9 @@
 #include "Pipeline.h"
 #include "DescriptorSet.h"
 #include "VertexBuffer.h"
+#include "RangeManager.h"
+
+#include <array>
 
 struct Vertex;
 class Device;
@@ -40,7 +43,8 @@ public:
                          vector<Buffer*>        indexBuffer,
                          vector<Pipeline*>      pipeline,
                          vector<DescriptorSet*> descriptorSet,
-                         vector<int>            indicesSize);
+                         vector<int>            indicesSize,
+                         RangeManager&          rangeManager);
 
     // Getter
     Device&                 device() const { return _device; }

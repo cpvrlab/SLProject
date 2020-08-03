@@ -130,14 +130,32 @@ void updateCamera()
 //-----------------------------------------------------------------------------
 void createScene(Node& root)
 {
-    int   sizeX           = 3;
-    int   sizeY           = 3;
-    int   sizeZ           = 3;
+    int   sizeX           = 5;
+    int   sizeY           = 5;
+    int   sizeZ           = 5;
+    int   materialCount   = 10;
     float offsetDimension = 2.5f;
 
     float offsetX = (sizeX % 2 != 0) ? 0.0f : 0.5f;
     float offsetY = (sizeY % 2 != 0) ? 0.0f : 0.5f;
     float offsetZ = (sizeZ % 2 != 0) ? 0.0f : 0.5f;
+
+    vector<Material*> materialList = vector<Material*>(materialCount);
+
+    for (int x = 0; x < materialCount; x++)
+    {
+        Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
+        Material* material = new Material("Texture");
+        material->addTexture(texture);
+        GPUProgram* gpuProgram = new GPUProgram("First_Shader");
+        GPUShader*  vertShader = new GPUShader("vertShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv", ShaderType::VERTEX);
+        GPUShader*  fragShader = new GPUShader("fragShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv", ShaderType::FRAGMENT);
+        gpuProgram->addShader(vertShader);
+        gpuProgram->addShader(fragShader);
+        material->setProgram(gpuProgram);
+
+        materialList[x] = material;
+    }
 
     for (int x = 0; x < sizeX; x++)
     {
@@ -145,15 +163,7 @@ void createScene(Node& root)
         {
             for (int z = 0; z < sizeZ; z++)
             {
-                Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
-                Material* material = new Material("Texture");
-                material->addTexture(texture);
-                GPUProgram* gpuProgram = new GPUProgram("First_Shader");
-                GPUShader*  vertShader = new GPUShader("vertShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv", ShaderType::VERTEX);
-                GPUShader*  fragShader = new GPUShader("fragShader", SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv", ShaderType::FRAGMENT);
-                gpuProgram->addShader(vertShader);
-                gpuProgram->addShader(fragShader);
-                material->setProgram(gpuProgram);
+
                 Mesh* mesh = new Sphere("Simple_Sphere", 1.0f, 32, 32);
 
                 float rR = random(0.0f, 1.0f);
@@ -161,8 +171,9 @@ void createScene(Node& root)
                 float rB = random(0.0f, 1.0f);
                 mesh->setColor(SLCol4f(rR, rG, rB, 1.0f));
 
-                mesh->mat  = material;
-                Node* node = new Node("Sphere");
+                int randomMaterialIndex = (int)random(0, materialCount);
+                mesh->mat               = materialList[randomMaterialIndex];
+                Node* node              = new Node("Sphere");
                 node->om(SLMat4f((x + offsetX - (sizeX / 2)) * offsetDimension,
                                  (y + offsetY - (sizeY / 2)) * offsetDimension,
                                  (z + offsetZ - (sizeZ / 2)) * offsetDimension));
@@ -262,7 +273,7 @@ int main()
     Node root = Node("Root");
     createScene(root);
     vector<DrawingObject> objectsInScene;
-    SceneToMaterialSimple(root, objectsInScene);
+    SceneToMaterialCompromissed(root, objectsInScene);
 
     VulkanRenderer renderer(window);
     renderer.createMesh(camera, objectsInScene);

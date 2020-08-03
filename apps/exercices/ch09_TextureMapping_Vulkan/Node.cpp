@@ -52,7 +52,7 @@ const SLMat4f& Node::updateAndGetWMN()
 
     return _wmN;
 }
-
+/*
 SLAABBox& Node::updateAABBRec()
 {
     if (_isAABBUpToDate)
@@ -84,17 +84,19 @@ SLAABBox& Node::updateAABBRec()
 
         if (!childIsCamera || cameraHasChildren)
         */
-        child->updateAABBRec();
-        _aabb.mergeWS(child->updateAABBRec());
-    }
-
-    // We need min & max also in OS for the uniform grid intersection in OS
-    _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
-
-    // For visualizing the nodes orientation we finally updateRec the axis in WS
-    _aabb.updateAxisWS(updateAndGetWM());
-
-    _isAABBUpToDate = true;
-
-    return _aabb;
+/*
+child->updateAABBRec();
+_aabb.mergeWS(child->updateAABBRec());
 }
+
+// We need min & max also in OS for the uniform grid intersection in OS
+_aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
+
+// For visualizing the nodes orientation we finally updateRec the axis in WS
+_aabb.updateAxisWS(updateAndGetWM());
+
+_isAABBUpToDate = true;
+
+return _aabb;
+}
+*/

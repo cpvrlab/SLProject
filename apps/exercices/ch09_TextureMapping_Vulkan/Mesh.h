@@ -8,7 +8,7 @@
 #include <SLVec2.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
-#include <SLAABBox.h>
+// #include <SLAABBox.h>
 
 using namespace std;
 //-----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ public:
     Mesh(string name) : Object(name) { _finalP = &P; }
 
     void setColor(SLCol4f color);
-    void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
+    // void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void calcMinMax();
 
     SLVec3f finalP(SLuint i) { return _finalP->operator[](i); }

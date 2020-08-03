@@ -119,7 +119,7 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
     }
 }
 
-void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, vector<Buffer*> vertexBuffer, vector<Buffer*> indexBuffer, vector<Pipeline*> pipeline, vector<DescriptorSet*> descriptorSet, vector<int> indicesSize)
+void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, vector<Buffer*> vertexBuffer, vector<Buffer*> indexBuffer, vector<Pipeline*> pipeline, vector<DescriptorSet*> descriptorSet, vector<int> indicesSize, RangeManager& rangeManager)
 {
     _handles.resize(framebuffer.handle().size());
 
@@ -163,32 +163,51 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
             vkCmdBindPipeline(_handles[i],
                               VK_PIPELINE_BIND_POINT_GRAPHICS,
                               pipeline[j]->graphicsPipeline());
+
             // TODO: Fill array of vertexBuffers + indexBuffers
-            VkBuffer     vertexBuffers[] = {vertexBuffer[j]->handle()};
-            VkDeviceSize offsets[]       = {0};
+            // VkBuffer* vertexBuffers = new VkBuffer[rangeManager.getDiff(j)];
+            // for (int k = rangeManager.getMin(j); k < rangeManager.getMax(j); k++)
+            //     vertexBuffers[k] = vertexBuffer[k]->handle();
+            vector<VkBuffer> vertexBuffers = vector<VkBuffer>(rangeManager.getDiff(j));
+            int              zeroCounter   = 0;
+            for (int k = rangeManager.getMin(j); k < rangeManager.getMax(j); k++)
+            {
+                vertexBuffers[zeroCounter] = vertexBuffer[k]->handle();
+                zeroCounter++;
+            }
+            // VkBuffer     vertexBuffers[] = {vertexBuffer[j]->handle()};
+            VkDeviceSize offsets[1] = {0};
             vkCmdBindVertexBuffers(_handles[i],
                                    0,
                                    1,
-                                   vertexBuffers,
+                                   vertexBuffers.data(),
                                    offsets);
-            vkCmdBindIndexBuffer(_handles[i],
-                                 indexBuffer[j]->handle(),
+
+            // TODO: Create List for which pipeline owns which vertexBuffer
+            for (int k = rangeManager.getMin(j); k < rangeManager.getMax(j); k++)
+            {
+                vkCmdBindIndexBuffer(_handles[i],
+                                     indexBuffer[k]->handle(),
+                                     0,
+                                     VK_INDEX_TYPE_UINT32);
+                vkCmdBindDescriptorSets(_handles[i],
+                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                        pipeline[j]->pipelineLayout(),
+                                        0,
+                                        1,
+                                        &descriptorSet[k]->handles()[i],
+                                        0,
+                                        nullptr);
+                vkCmdDrawIndexed(_handles[i],
+                                 static_cast<uint32_t>(indicesSize[k]),
+                                 1,
                                  0,
-                                 VK_INDEX_TYPE_UINT32);
-            vkCmdBindDescriptorSets(_handles[i],
-                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                    pipeline[j]->pipelineLayout(),
-                                    0,
-                                    1,
-                                    &descriptorSet[j]->handles()[i],
-                                    0,
-                                    nullptr);
-            vkCmdDrawIndexed(_handles[i],
-                             static_cast<uint32_t>(indicesSize[j]),
-                             1,
-                             0,
-                             0,
-                             0);
+                                 0,
+                                 0);
+            }
+
+            // delete[] vertexBuffers;
+            // vertexBuffers = nullptr;
         }
 
         vkCmdEndRenderPass(_handles[i]);
