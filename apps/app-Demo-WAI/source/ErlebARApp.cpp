@@ -166,9 +166,6 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
 void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
-    if (stateExit)
-        return;
-
     static HighResTimer timer;
     if (stateEntry)
     {
@@ -266,6 +263,9 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                      *_dd);
         }
     }
+
+    if (stateExit)
+        return;
 
     _welcomeView->update();
 

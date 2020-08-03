@@ -50,7 +50,7 @@ void AppDemoGuiMapPointEditor::loadFileNamesInVector(std::string               d
     }
     else
     {
-        std::vector<std::string> content = Utils::getAllNamesInDir(directory);
+        std::vector<std::string> content = Utils::getFileNamesInDir(directory);
         if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
@@ -260,7 +260,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
             for (int i = 0; i < _videoInMap.size(); i++)
             {
                 bool id = _videosId[i];
-                if (ImGui::Checkbox((std::to_string(i) + " " + _videoInMap[i]).c_str(), &id))
+                if (ImGui::Checkbox((std::to_string(i) + ": " + Utils::getFileName(_videoInMap[i])).c_str(), &id))
                 {
                     _videosId[i]           = id;
                     WAIEventEditMap* event = new WAIEventEditMap();
