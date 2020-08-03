@@ -473,16 +473,16 @@ void SENSCalibration::adaptForNewResolution(const cv::Size& newSize, bool calcUn
         cy = cyOrig * scaleFactor;
     }
 
-    std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
+    //std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
     _cameraMat = (cv::Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
+    //std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
 
-    std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
+    //std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
     _imageSize.width  = newSize.width;
     _imageSize.height = newSize.height;
-    std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
+    //std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();

@@ -187,6 +187,11 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
 }
 //-----------------------------------------------------------------------------
 
+void WAIKeyFrame::SetBowVector(WAIBowVector &bow)
+{
+    mBowVec = bow;
+}
+
 //TODO: set levels according to vocabulary
 void WAIKeyFrame::ComputeBoW(WAIOrbVocabulary* vocabulary)
 {

@@ -50,7 +50,7 @@ void AppDemoGuiMapPointEditor::loadFileNamesInVector(std::string               d
     }
     else
     {
-        std::vector<std::string> content = Utils::getAllNamesInDir(directory);
+        std::vector<std::string> content = Utils::getFileNamesInDir(directory);
         if (addEmpty) fileNames.push_back("");
 
         for (auto path : content)
@@ -153,8 +153,19 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
     {
         WAIEventEditMap* event = new WAIEventEditMap();
         event->action          = MapPointEditor_SaveMap;
+        event->b               = _saveBow;
         _eventQueue->push(event);
     }
+    ImGui::SameLine();
+    ImGui::Checkbox("BowVec", &_saveBow);
+
+    if (ImGui::Button("Save map raw"))
+    {
+        WAIEventEditMap* event = new WAIEventEditMap();
+        event->action          = MapPointEditor_SaveMapRaw;
+        _eventQueue->push(event);
+    }
+
     if (ImGui::Checkbox("Modify Keyframes", &_keyframeMode))
     {
         WAIEventEditMap* event = new WAIEventEditMap();
@@ -249,7 +260,7 @@ void AppDemoGuiMapPointEditor::buildInfos(SLScene* s, SLSceneView* sv)
             for (int i = 0; i < _videoInMap.size(); i++)
             {
                 bool id = _videosId[i];
-                if (ImGui::Checkbox((std::to_string(i) + " " + _videoInMap[i]).c_str(), &id))
+                if (ImGui::Checkbox((std::to_string(i) + ": " + Utils::getFileName(_videoInMap[i])).c_str(), &id))
                 {
                     _videosId[i]           = id;
                     WAIEventEditMap* event = new WAIEventEditMap();

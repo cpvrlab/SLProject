@@ -13,7 +13,13 @@ public:
     static bool saveMap(WAIMap*     waiMap,
                         SLNode*     mapNode,
                         std::string fileName,
-                        std::string imgDir = "");
+                        std::string imgDir  = "",
+                        bool        saveBOW = true);
+
+    static bool saveMapRaw(WAIMap*     waiMap,
+                           SLNode*     mapNode,
+                           std::string fileName,
+                           std::string imgDir = "");
 
     static bool loadMap(WAIMap*           waiMap,
                         SLNode*           mapNode,

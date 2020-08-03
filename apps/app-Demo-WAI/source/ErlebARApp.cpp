@@ -160,74 +160,12 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
                                    *_imGuiEngine,
                                    *_dd,
                                    "0.12");
-    /*
-    _selectionView = new SelectionView(*this,
-                                       _inputManager,
-                                       *_imGuiEngine,
-                                       *_resources,
-                                       *_dd);
 
-    _testView = new TestView(*this,
-                             _inputManager,
-                             *_imGuiEngine,
-                             *_resources,
-                             _camera,
-                             *_dd);
-
-    _testRunnerView = new TestRunnerView(*this,
-                                         _inputManager,
-                                         *_imGuiEngine,
-                                         *_resources,
-                                         *_dd);
-
-    _startUpView = new StartUpView(_inputManager,
-                                   *_dd);
-
-    _aboutView = new AboutView(*this,
-                               _inputManager,
-                               *_imGuiEngine,
-                               *_resources,
-                               *_dd);
-
-    _settingsView = new SettingsView(*this,
-                                     _inputManager,
-                                     *_imGuiEngine,
-                                     *_resources,
-                                     *_dd);
-
-    _tutorialView = new TutorialView(*this,
-                                     _inputManager,
-                                     *_imGuiEngine,
-                                     *_resources,
-                                     *_dd);
-
-    _locationMapView = new LocationMapView(*this,
-                                           _inputManager,
-                                           *_imGuiEngine,
-                                           *_resources,
-                                           *_dd);
-
-    _areaInfoView = new AreaInfoView(*this,
-                                     _inputManager,
-                                     *_imGuiEngine,
-                                     *_resources,
-                                     *_dd);
-
-    _areaTrackingView = new AreaTrackingView(*this,
-                                             _inputManager,
-                                             *_imGuiEngine,
-                                             *_resources,
-                                             _camera,
-                                             *_dd);
-                                             */
     addEvent(new DoneEvent("ErlebARApp::INIT"));
 }
 
 void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
-    if (stateExit)
-        return;
-
     static HighResTimer timer;
     if (stateEntry)
     {
@@ -325,6 +263,9 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                      *_dd);
         }
     }
+
+    if (stateExit)
+        return;
 
     _welcomeView->update();
 

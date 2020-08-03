@@ -650,8 +650,6 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     vector<WAIKeyFrame*> vpCandidateKFs;
     vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
 
-    //std::cout << "N after DetectRelocalizationCandidates: " << vpCandidateKFs.size() << std::endl;
-
     if (vpCandidateKFs.empty())
     {
         AVERAGE_TIMING_STOP("relocalization");
@@ -687,11 +685,9 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
         else
         {
             int nmatches = matcher.SearchByBoW(pKF, currentFrame, vvpMapPointMatches[i]);
-            //cout << "Num matches: " << nmatches << endl;
             if (nmatches < 15)
             {
                 vbDiscarded[i] = true;
-
                 continue;
             }
             else

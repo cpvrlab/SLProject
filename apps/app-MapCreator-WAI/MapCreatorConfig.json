@@ -30,6 +30,12 @@
 				{ "area": "southWall", "enabled": false },
 				{ "area": "citymap-marker", "enabled": false, "marker": "20191119-084002_ASUSAR-1.jpg" }
 			]
+		},
+		{
+			"location": "christoffel",
+			"areas": [
+				{ "area": "milchgaessli", "enabled": false}
+			]
 		}
 	],
 	"mappingVideos": [
@@ -236,6 +242,16 @@
 			"area": "citymap-marker",
 			"videos": [
 				"20191119-084036_sunny_ASUSAR-1_markerMap_640x360.mp4"
+			]
+		},
+		{
+			"location": "christoffel",
+			"area": "milchgaessli",
+			"videos": [
+				"20200702-145235_sunny_GALAXYS6-1_map_640x360.mp4",
+				"20200702-143430_sunny_ASUSAR-1_relocalization_640x360.mp4",
+				"20200702-144225_sunny_PIXEL3-1_relocalization_640x360.mp4",
+				"20200702-144618_sunny_NOKIA6-1_relocalization_640x360.mp4"
 			]
 		}
 	]
