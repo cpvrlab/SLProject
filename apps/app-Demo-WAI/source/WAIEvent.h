@@ -22,6 +22,7 @@ enum MapPointEditorEnum
 {
     MapPointEditor_None,
     MapPointEditor_SaveMap,
+    MapPointEditor_SaveMapRaw,
     MapPointEditor_ApplyToMapPoints,
     MapPointEditor_Quit,
     MapPointEditor_EnterEditMode,
