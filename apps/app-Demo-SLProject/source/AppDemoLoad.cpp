@@ -816,7 +816,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             mat[i]->diffuse(color);
         }
 
-        // create spheres around the center sphere
+        // create a 3D array of spheres
         SLint  size = 10;
         SLuint n    = 0;
         for (SLint iZ = -size; iZ <= size; ++iZ)
@@ -825,15 +825,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             {
                 for (SLint iX = -size; iX <= size; ++iX)
                 {
-                    // add one single sphere in the center
+                    // Choose a random material index
                     SLuint    res      = 36;
                     SLint iMat = Utils::random(0,19);
                     SLstring  nodeName = "earth-" + std::to_string(n);
+
+                    // Create a new sphere and node and translate it
                     SLSphere* earth    = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
                     SLNode*   sphere   = new SLNode(earth);
                     sphere->translate(float(iX), float(iY), float(iZ), TS_object);
                     scene->addChild(sphere);
-                    SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
+                    //SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
                     n++;
                 }
             }
