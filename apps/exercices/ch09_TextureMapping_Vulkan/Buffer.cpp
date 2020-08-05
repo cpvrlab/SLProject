@@ -32,10 +32,10 @@ void Buffer::createBuffer(VkDeviceSize          size,
     allocInfo.memoryTypeIndex = findMemoryType(_device, memRequirements.memoryTypeBits, properties);
 
     result = vkAllocateMemory(_device.handle(), &allocInfo, nullptr, &_memory);
-    ASSERT_VULKAN(result, "Failed to allocate buffer _memory");
+    ASSERT_VULKAN(result, "Failed to allocate buffer memory");
 
     result = vkBindBufferMemory(_device.handle(), _handle, _memory, 0);
-    ASSERT_VULKAN(result, "Failed to bind Buffer _memory!");
+    ASSERT_VULKAN(result, "Failed to bind Buffer memory!");
 }
 //-----------------------------------------------------------------------------
 uint32_t Buffer::findMemoryType(Device&               device,

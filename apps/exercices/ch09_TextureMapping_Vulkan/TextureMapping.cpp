@@ -96,10 +96,15 @@ void printFPS()
 {
     char         title[255];
     static float lastTimeSec = 0.0f;
-    float        timeNowSec  = (float)glfwGetTime();
-    float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "fps: %5.0f", fps);
-    glfwSetWindowTitle(window, title);
+    // static float updateTimeSec = 0.0f;
+    float timeNowSec = (float)glfwGetTime();
+    float fps        = calcFPS(timeNowSec - lastTimeSec);
+    // if ((timeNowSec - updateTimeSec) >= 0.001f)
+    {
+        sprintf(title, "fps: %5.0f", fps);
+        glfwSetWindowTitle(window, title);
+        //  updateTimeSec = timeNowSec;
+    }
     lastTimeSec = timeNowSec;
 }
 //-----------------------------------------------------------------------------
@@ -130,10 +135,10 @@ void updateCamera()
 //-----------------------------------------------------------------------------
 void createScene(Node& root)
 {
-    int   sizeX           = 5;
-    int   sizeY           = 5;
-    int   sizeZ           = 5;
-    int   materialCount   = 10;
+    int   sizeX           = 1; // 17;
+    int   sizeY           = 1; // 17;
+    int   sizeZ           = 1; // 17;
+    int   materialCount   = 1; // 7 * 7;
     float offsetDimension = 2.5f;
 
     float offsetX = (sizeX % 2 != 0) ? 0.0f : 0.5f;
@@ -144,7 +149,7 @@ void createScene(Node& root)
 
     for (int x = 0; x < materialCount; x++)
     {
-        Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/tree1_1024_C.png");
+        Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/earth1024_C_alpha.png");
         Material* material = new Material("Texture");
         material->addTexture(texture);
         GPUProgram* gpuProgram = new GPUProgram("First_Shader");
@@ -164,7 +169,7 @@ void createScene(Node& root)
             for (int z = 0; z < sizeZ; z++)
             {
 
-                Mesh* mesh = new Sphere("Simple_Sphere", 1.0f, 32, 32);
+                Mesh* mesh = new Sphere("Simple_Sphere", 1.0f, 18, 18);
 
                 float rR = random(0.0f, 1.0f);
                 float rG = random(0.0f, 1.0f);
