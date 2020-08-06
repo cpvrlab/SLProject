@@ -415,7 +415,7 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
     if (medianDepth < 0 || pKFcur->TrackedMapPoints(1) < mapPointsNeeded)
     {
         Utils::log("WAI", "Wrong initialization, reseting...");
-        localMapper->reset();
+        localMapper->RequestReset();
         loopCloser->reset();
 
         map->clear();
@@ -486,6 +486,20 @@ bool WAISlamTools::tracking(WAIMap*   map,
     return trackLocalMap(localMap, frame, lastRelocFrameId, inliers);
 }
 
+bool WAISlamTools::strictTracking(WAIMap*   map,
+                                LocalMap& localMap,
+                                WAIFrame& frame,
+                                WAIFrame& lastFrame,
+                                int       lastRelocFrameId,
+                                int&      inliers)
+{
+    inliers = 0;
+    if (!strictTrackReferenceKeyFrame(localMap, lastFrame, frame))
+        return false;
+
+    return trackLocalMap(localMap, frame, lastRelocFrameId, inliers);
+}
+
 bool WAISlamTools::trackLocalMap(LocalMap& localMap,
                                  WAIFrame& frame,
                                  int       lastRelocFrameId,
@@ -513,16 +527,20 @@ void WAISlamTools::mapping(WAIMap*             map,
     if (needNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
     {
         createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
-        //TODO: test if should be here of outside the if statement
-        /*
-        for (int i = 0; i < frame.N; i++)
-        {
-            if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
-            {
-                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-            }
-        }
-        */
+    }
+}
+
+void WAISlamTools::strictMapping(WAIMap*             map,
+                                 LocalMap&           localMap,
+                                 LocalMapping*       localMapper,
+                                 WAIFrame&           frame,
+                                 int                 inliers,
+                                 const unsigned long lastRelocFrameId,
+                                 unsigned long&      lastKeyFrameFrameId)
+{
+    if (strictNeedNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
+    {
+        createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
     }
 }
 
@@ -538,17 +556,23 @@ void WAISlamTools::serialMapping(WAIMap*             map,
     if (needNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
     {
         createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
-        //TODO: test if should be here of outside the if statement
-        /*
-        for (int i = 0; i < frame.N; i++)
-        {
-            if (frame.mvpMapPoints[i] && frame.mvbOutlier[i])
-            {
-                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-            }
-        }
-        */
+        localMapper->RunOnce();
+        loopCloser->RunOnce();
+    }
+}
 
+void WAISlamTools::strictSerialMapping(WAIMap*             map,
+                                       LocalMap&           localMap,
+                                       LocalMapping*       localMapper,
+                                       LoopClosing*        loopCloser,
+                                       WAIFrame&           frame,
+                                       int                 inliers,
+                                       const unsigned long lastRelocFrameId,
+                                       unsigned long&      lastKeyFrameFrameId)
+{
+    if (strictNeedNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
+    {
+        createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
         localMapper->RunOnce();
         loopCloser->RunOnce();
     }
@@ -597,17 +621,14 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
                                    LocalMap&           localMap,
                                    LocalMapping*       localMapper,
                                    WAIFrame&           frame,
-                                   int                 nInliners,
+                                   int                 nInliers,
                                    const unsigned long lastRelocFrameId,
                                    const unsigned long lastKeyFrameFrameId)
 {
-    // If Local Mapping is freezed by a Loop Closure do not insert keyframes
-    if (localMapper->isStopped())
-        return false;
-
     const int nKFs = map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
+    // this condition is only valid after MAX_FRAMES
     if (frame.mnId < lastRelocFrameId + MAX_FRAMES && nKFs > MAX_FRAMES)
     {
         return false;
@@ -619,9 +640,6 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
         nMinObs = 2;
     int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
 
-    // Local Mapping accept keyframes?
-    bool bLocalMappingIdle = localMapper->AcceptKeyFrames();
-
     // Thresholds
     float thRefRatio = 0.9f;
     if (nKFs < 2)
@@ -630,11 +648,42 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
     const bool c1a = frame.mnId >= lastKeyFrameFrameId + MAX_FRAMES;
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
-    const bool c1b = (frame.mnId >= lastKeyFrameFrameId + MIN_FRAMES && bLocalMappingIdle);
+    const bool c1b = (frame.mnId >= lastKeyFrameFrameId + MIN_FRAMES) && localMapper->AcceptKeyFrames();
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
-    const bool c2 = ((nInliners < nRefMatches * thRefRatio) && nInliners > 15);
+    const bool c2 = ((nInliers < nRefMatches * thRefRatio) && nInliers > 15);
 
-    return ((c1a || c1b) && c2 && bLocalMappingIdle);
+    return ((c1a || c1b) && c2);
+}
+
+bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
+                                         LocalMap&           localMap,
+                                         LocalMapping*       localMapper,
+                                         WAIFrame&           frame,
+                                         int                 nInliers,
+                                         const unsigned long lastRelocFrameId,
+                                         const unsigned long lastKeyFrameFrameId)
+{
+    const int nKFs = map->KeyFramesInMap();
+
+    // Do not insert keyframes if not enough frames have passed from last relocalisation
+    // this condition is only valid after MAX_FRAMES
+    if (frame.mnId < lastRelocFrameId + MAX_FRAMES && nKFs > MAX_FRAMES)
+    {
+        return false;
+    }
+
+    // Tracked MapPoints in the reference keyframe
+    int nMinObs = 3;
+    if (nKFs <= 2)
+        nMinObs = 2;
+    int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
+
+    // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
+    const bool c1b = (frame.mnId >= lastKeyFrameFrameId + MIN_FRAMES) && localMapper->AcceptKeyFrames();
+    // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
+    const bool c2 = ((nInliers < nRefMatches) && nInliers > nRefMatches * 0.5 && nInliers > 40);
+
+    return (c1b && c2);
 }
 
 bool WAISlamTools::relocalization(WAIFrame& currentFrame,
@@ -752,12 +801,6 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                 if (nGood < 10)
                     continue;
 
-                /*
-                for (int io = 0; io < currentFrame.N; io++)
-                    if (currentFrame.mvbOutlier[io])
-                        currentFrame.mvpMapPoints[io] = static_cast<WAIMapPoint*>(NULL);
-                */
-
                 // If few inliers, search by projection in a coarse window and optimize again:
                 //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
                 //the current frame using the position that was calculated using the matches from BoW matcher
@@ -822,7 +865,7 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map,
 
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
-    ORBmatcher           matcher(0.7f, false); //don't test rotation
+    ORBmatcher           matcher(0.7f, true);
     vector<WAIMapPoint*> vpMapPointMatches;
 
     int nmatches = matcher.SearchByBoW(map.refKF, frame, vpMapPointMatches);
@@ -839,25 +882,55 @@ bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map,
     nmatches = Optimizer::PoseOptimization(&frame);
 
     // Discard outliers
-    /*
-    int nmatchesMap = 0;
-    for (int i = 0; i < frame.N; i++)
-    {
-        if (frame.mvpMapPoints[i])
-        {
-            WAIMapPoint* pMP = frame.mvpMapPoints[i];
-
-            frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-            frame.mvbOutlier[i]   = false;
-            nmatches--;
-        }
-        else if (frame.mvpMapPoints[i]->Observations() > 0)
-            nmatchesMap++;
-    }
-    */
+    // Now in the PoseOptimization itself the mappoint
+    // in the frame is set to null already if the point is an outlier
 
     AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
-    return nmatches >= 10; //nmatchesMap >= 10;
+    return nmatches >= 10;
+}
+
+bool WAISlamTools::strictTrackReferenceKeyFrame(LocalMap& map,
+                                                WAIFrame& lastFrame,
+                                                WAIFrame& frame)
+{
+    //This routine is called if current tracking state is OK but we have NO valid motion model
+    //1. Berechnung des BoW-Vectors für den current frame
+    //2. using BoW we search mappoint matches (from reference keyframe) with orb in current frame (ORB that belong to the same vocabulary node (at a certain level))
+    //3. if there are less than 15 matches return.
+    //4. we use the pose found for the last frame as initial pose for the current frame
+    //5. This pose is optimized using the matches to map points found by BoW search with reference frame
+    //6. Matches classified as outliers by the optimization routine are updated in the mvpMapPoints vector in the current frame and the valid matches are counted
+    //7. If there are more than 10 valid matches the reference frame tracking was successful.
+
+    AVERAGE_TIMING_START("TrackReferenceKeyFrame");
+
+    // Compute Bag of Words vector
+    frame.ComputeBoW();
+
+    // We perform first an ORB matching with the reference keyframe
+    // If enough matches are found we setup a PnP solver
+    ORBmatcher           matcher(0.7f, true);
+    vector<WAIMapPoint*> vpMapPointMatches;
+
+    int nmatches = matcher.SearchByBoW(map.refKF, frame, vpMapPointMatches);
+
+    if (nmatches < 15)
+    {
+        AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
+        return false;
+    }
+
+    frame.mvpMapPoints = vpMapPointMatches;
+    frame.SetPose(lastFrame.mTcw);
+
+    nmatches = Optimizer::PoseOptimization(&frame);
+
+    // Discard outliers
+    // Now in the PoseOptimization itself the mappoint
+    // in the frame is set to null already if the point is an outlier
+
+    AVERAGE_TIMING_STOP("TrackReferenceKeyFrame");
+    return nmatches >= 20;
 }
 
 int WAISlamTools::trackLocalMapPoints(LocalMap& localMap,
@@ -928,22 +1001,6 @@ int WAISlamTools::trackLocalMapPoints(LocalMap& localMap,
         }
     }
 
-    //TOTO(LULUC) check why that is done after "matchLocalMapPoint" in modOrbSlam2
-    //and why outlier flag is set to false if no observation
-    /*
-    for (int i = 0; i < frame.N; i++)
-    {
-        WAIMapPoint* pMP = frame.mvpMapPoints[i];
-        if (pMP)
-        {
-            if (pMP->Observations() < 1)
-            {
-                frame.mvbOutlier[i]   = false;
-                frame.mvpMapPoints[i] = static_cast<WAIMapPoint*>(NULL);
-            }
-        }
-    }
-    */
     return matchesInliers;
 }
 

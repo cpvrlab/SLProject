@@ -22,6 +22,19 @@ struct InitializerData
     std::vector<int>         iniMatches; //has length of keypoints of initial frame and contains matched keypoint index in current frame
 };
 
+namespace WAI
+{
+enum TrackingState
+{
+    TrackingState_None,
+    TrackingState_Idle,
+    TrackingState_Initializing,
+    TrackingState_TrackingOK,
+    TrackingState_TrackingLost,
+    TrackingState_TrackingTransformed
+};
+}
+
 /* 
  * This class should not be instanciated. It contains only pure virtual methods
  * and some variables with getter that are useful for slam in a subclass.
@@ -73,6 +86,13 @@ public:
                          cv::Mat&  velocity,
                          int&      inliers);
 
+    static bool strictTracking(WAIMap*   map,
+                               LocalMap& localMap,
+                               WAIFrame& frame,
+                               WAIFrame& lastFrame,
+                               int       lastRelocFrameId,
+                               int&      inliers);
+
     static bool trackLocalMap(LocalMap& localMap,
                               WAIFrame& frame,
                               int       lastRelocFrameId,
@@ -86,6 +106,14 @@ public:
                         const unsigned long lastRelocFrameId,
                         unsigned long&      lastKeyFrameFrameId);
 
+    static void strictMapping(WAIMap*             map,
+                              LocalMap&           localMap,
+                              LocalMapping*       localMapper,
+                              WAIFrame&           frame,
+                              int                 inliers,
+                              const unsigned long lastRelocFrameId,
+                              unsigned long&      lastKeyFrameFrameId);
+
     static void serialMapping(WAIMap*             map,
                               LocalMap&           localMap,
                               LocalMapping*       localMapper,
@@ -95,12 +123,23 @@ public:
                               const unsigned long lastRelocFrameId,
                               unsigned long&      lastKeyFrameFrameId);
 
+    static void strictSerialMapping(WAIMap* map,
+                                    LocalMap&           localMap,
+                                    LocalMapping*       localMapper,
+                                    LoopClosing*        loopCloser,
+                                    WAIFrame&           frame,
+                                    int                 inliers,
+                                    const unsigned long lastRelocFrameId,
+                                    unsigned long&      lastKeyFrameFrameId);
+
     static void motionModel(WAIFrame& frame,
                             WAIFrame& lastFrame,
                             cv::Mat&  velocity,
                             cv::Mat&  pose);
 
     static bool trackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WAIFrame& frame);
+
+    static bool strictTrackReferenceKeyFrame(LocalMap& map, WAIFrame& lastFrame, WAIFrame& frame);
 
     static bool trackWithMotionModel(cv::Mat velocity, WAIFrame& previousFrame, WAIFrame& frame);
 
@@ -115,6 +154,14 @@ public:
                                 int                 nInliners,
                                 const unsigned long lastRelocFrameId,
                                 const unsigned long lastKeyFrameFrameId);
+
+    static bool strictNeedNewKeyFrame(WAIMap*             map,
+                                      LocalMap&           localMap,
+                                      LocalMapping*       localMapper,
+                                      WAIFrame&           frame,
+                                      int                 nInliers,
+                                      const unsigned long lastRelocFrameId,
+                                      const unsigned long lastKeyFrameFrameId);
 
     static void createNewKeyFrame(LocalMapping*  localMapper,
                                   LocalMap&      localMap,
