@@ -439,7 +439,7 @@ cv::Mat WAISlam::getPose()
 
 void WAISlam::requestStateIdle()
 {
-    if (!_serial)
+    if (!_serial && !_trackingOnly)
     {
         std::unique_lock<std::mutex> guard(_mutexStates);
         _localMapping->RequestStop();

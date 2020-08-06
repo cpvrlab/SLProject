@@ -194,6 +194,17 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
         hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
 
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Wand", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Dach", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Turm", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Weg", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Mauern", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Bruecken", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Grass", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Dach", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Fahne", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
+
         /*
         mauer_wand          = bern->findChild<SLNode>("Mauer-Wand", true);
         mauer_dach          = bern->findChild<SLNode>("Mauer-Dach", true);
