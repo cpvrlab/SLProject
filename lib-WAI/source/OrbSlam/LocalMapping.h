@@ -44,11 +44,12 @@ class LoopClosing;
 class LocalMapping
 {
 public:
-    LocalMapping(WAIMap* pMap, const float bMonocular, WAIOrbVocabulary* vocabulary, float cullRedundantPerc = 0.9);
+    LocalMapping(WAIMap* pMap, WAIOrbVocabulary* vocabulary, float cullRedundantPerc = 0.9);
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
     // Main function
     void Run();
+    void Run2();
     void LocalOptimize();
     void ProcessKeyFrames();
 
@@ -57,18 +58,22 @@ public:
     void InsertKeyFrame(WAIKeyFrame* pKF);
 
     // Thread Synch
-    void RequestStop();
-    void RequestContinue();
-    void RequestReset();
     void Release();
-    bool isStopped();
     bool AcceptKeyFrames();
     void SetAcceptKeyFrames(bool flag);
-    //ghm1
-    void reset();
+
+    void RequestReset();
+    void Reset();
 
     void RequestFinish();
     bool isFinished();
+    void Finish();
+
+    void RequestPause();
+    bool isPaused();
+    void Pause();
+    void RequestContinue();
+
 
     int KeyframesInQueue()
     {
@@ -80,8 +85,10 @@ public:
 
 protected:
 
-    bool CheckNewKeyFrames();
     WAIKeyFrame* GetNewKeyFrame();
+
+    bool CheckNewKeyFrames();
+    int  KeyFramesToProcess();
     void ProcessNewKeyFrame(WAIKeyFrame * kf);
     void CreateNewMapPoints(WAIKeyFrame * kf);
 
@@ -98,32 +105,26 @@ protected:
 
     cv::Mat SkewSymmetricMatrix(const cv::Mat& v);
 
-    WorkingSet workingSet;
-
     WAIMap* mpMap;
-    bool    mbMonocular;
 
-    void       ResetIfRequested();
-    bool       mbResetRequested;
-    std::mutex mMutexReset;
-
-    bool       CheckPause();
-    bool       mbPaused;
-
-    bool       CheckFinish();
-    void       SetFinish();
-    bool       mbFinishRequested;
-    bool       mbFinished;
-    int        mFinishedBA;
-    int        mMappingThreads;
-    std::mutex mMutexFinish;
-
-    std::queue<WAIKeyFrame*> toLocalAdjustment;
     std::mutex mMutexMapping;
     std::mutex mStateMutex;
 
+    bool       mbResetRequested;
+    bool       mbFinishRequested;
+    bool       mPauseRequested;
+
+    bool       mbFinished;
+    bool       mPaused;
+
+    std::mutex mMutexReset;
+    std::mutex mMutexFinish;
     std::mutex mMutexPause;
-    bool       mPause;
+
+    bool       CheckReset();
+    bool       CheckFinish();
+    bool       CheckPause();
+
 
     LoopClosing* mpLoopCloser;
 
