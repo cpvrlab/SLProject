@@ -289,7 +289,8 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
             }
         }
 
-        std::string kfVideoMatchingFileName = Utils::getFileNameWOExt(mapFile) + "_match.txt";
+        //call getFileNameWOExt because there may be a .json.gz at the end
+        std::string kfVideoMatchingFileName = Utils::getFileNameWOExt(Utils::getFileNameWOExt(mapFile)) + "_match.txt";
 
         //concatenate old an new videos for match file
         for (int i = 0; i < areaConfig.videos.size(); i++)
