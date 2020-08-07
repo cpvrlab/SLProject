@@ -190,6 +190,8 @@ public:
 protected:
     WAISlamTools(){};
 
+    static void countReprojectionOutliers(WAIFrame& frame, unsigned int& n, unsigned int& outliers);
+
     cv::Mat         _distortion;
     cv::Mat         _cameraIntrinsic;
     cv::Mat         _cameraExtrinsic;

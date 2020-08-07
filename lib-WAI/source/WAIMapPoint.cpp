@@ -34,7 +34,8 @@ WAIMapPoint::WAIMapPoint(int id, const cv::Mat& Pos, bool fixMp)
     mpReplaced(static_cast<WAIMapPoint*>(NULL)),
     mfMinDistance(0),
     mfMaxDistance(0),
-    _fixed(fixMp)
+    _fixed(fixMp),
+    _loadedFromMap(true)
 {
 
     mnMarker[0] = 0;
@@ -68,7 +69,8 @@ WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
     mpReplaced(static_cast<WAIMapPoint*>(NULL)),
     mfMinDistance(0),
     mfMaxDistance(0),
-    _fixed(false)
+    _fixed(false),
+    _loadedFromMap(false)
 {
     mnMarker[0] = 0;
     mnMarker[1] = 0;
@@ -89,6 +91,7 @@ WAIMapPoint::WAIMapPoint(const cv::Mat& Pos,
 
     refKfSource = RefKfSource_Constructor;
 }
+
 //-----------------------------------------------------------------------------
 WAI::V3 WAIMapPoint::worldPosVec()
 {

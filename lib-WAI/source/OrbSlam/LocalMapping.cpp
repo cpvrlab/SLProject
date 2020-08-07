@@ -101,7 +101,6 @@ void LocalMapping::Run()
         }
         else if (CheckPause())
         {
-            SetAcceptKeyFrames(false);
             Pause();
             while (isPaused() && !CheckFinish())
                 std::this_thread::sleep_for(3ms);
@@ -115,18 +114,19 @@ void LocalMapping::Run()
         if (CheckFinish())
             break;
 
-        std::this_thread::sleep_for(3ms);
+        std::this_thread::sleep_for(10ms);
     }
     Finish();
 }
 
 void LocalMapping::Run2()
 {
-    mbFinished = false;
-    mPaused    = false;
+    mbFinished     = false;
+    mPaused        = false;
+    bool lba       = true;
+    bool neighbors = true;
     while (1)
     {
-        SetAcceptKeyFrames(false);
         // Check if there are keyframes in the queue
         if (CheckNewKeyFrames())
         {
@@ -140,21 +140,41 @@ void LocalMapping::Run2()
             // Triangulate new MapPoints
             CreateNewMapPoints(frame);
 
-            if (KeyFramesToProcess() < 3 && !CheckFinish())
+            if (KeyFramesToProcess() > 8)
+            {
+                lba = false;
+                neighbors = false;
+                SetAcceptKeyFrames(false);
+            }
+            else if (KeyFramesToProcess() > 5)
+            {
+                lba = false;
+                SetAcceptKeyFrames(false);
+            }
+            else if (KeyFramesToProcess() < 2)
+            {
+                neighbors = true;
+                lba       = true;
+                SetAcceptKeyFrames(true);
+            }
+
+            if (!CheckFinish() && neighbors)
             {
                 SearchInNeighbors(frame);
 
-                mbAbortBA = false;
+                if (lba)
+                {
+                    mbAbortBA = false;
 
-                // Local BA
-                if (mpMap->KeyFramesInMap() > 2)
-                    Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
-                KeyFrameCulling(frame);
+                    // Local BA
+                    if (mpMap->KeyFramesInMap() > 2)
+                        Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
+                    KeyFrameCulling(frame);
+                }
             }
 
             mpLoopCloser->InsertKeyFrame(frame);
         }
-        SetAcceptKeyFrames(true);
 
         if (CheckPause())
         {
@@ -169,7 +189,8 @@ void LocalMapping::Run2()
         if (CheckFinish())
             break;
 
-        std::this_thread::sleep_for(5ms);
+        //SetAcceptKeyFrames(true);
+        //std::this_thread::sleep_for(1ms);
     }
     Finish();
 }

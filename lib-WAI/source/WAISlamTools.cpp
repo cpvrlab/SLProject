@@ -617,6 +617,55 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     localMapper->InsertKeyFrame(pKF);
 }
 
+void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &n, unsigned int &outliers)
+{
+    //calculation of mean reprojection error
+    double reprojectionError = 0.0;
+
+    //current frame extrinsic
+    const cv::Mat Rcw = frame.GetRotationCW();
+    const cv::Mat tcw = frame.GetTranslationCW();
+    //current frame intrinsics
+    const float fx = frame.fx;
+    const float fy = frame.fy;
+    const float cx = frame.cx;
+    const float cy = frame.cy;
+    n = 0;
+    outliers = 0;
+
+    for (size_t i = 0; i < frame.N; i++)
+    {
+        if (frame.mvpMapPoints[i] == nullptr || frame.mvpMapPoints[i]->isBad() || !frame.mvpMapPoints[i]->loadedFromMap())
+            continue;
+
+        n++;
+
+        // 3D in absolute coordinates
+        cv::Mat Pw = frame.mvpMapPoints[i]->GetWorldPos();
+        // 3D in camera coordinates
+        const cv::Mat Pc  = Rcw * Pw + tcw;
+        const float&  PcX = Pc.at<float>(0);
+        const float&  PcY = Pc.at<float>(1);
+        const float&  PcZ = Pc.at<float>(2);
+
+        // Check positive depth
+        if (PcZ < 0.0f)
+            continue;
+
+        // Project in image and check it is not outside
+        const float invz = 1.0f / PcZ;
+        const float u    = fx * PcX * invz + cx;
+        const float v    = fy * PcY * invz + cy;
+
+        cv::Point2f ptProj(u, v);
+        //Use distorted points because we have to undistort the image later
+        const auto& ptImg = frame.mvKeysUn[i].pt;
+
+        if (cv::norm(cv::Mat(ptImg), cv::Mat(ptProj)) > 1.4)
+            outliers++;
+    }
+}
+
 bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
                                    LocalMap&           localMap,
                                    LocalMapping*       localMapper,
@@ -625,6 +674,9 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
                                    const unsigned long lastRelocFrameId,
                                    const unsigned long lastKeyFrameFrameId)
 {
+    if (localMapper->isPaused())
+        return false;
+
     const int nKFs = map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
@@ -663,6 +715,9 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
                                          const unsigned long lastRelocFrameId,
                                          const unsigned long lastKeyFrameFrameId)
 {
+    if (localMapper->isPaused() || !localMapper->AcceptKeyFrames())
+        return false;
+
     const int nKFs = map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
@@ -678,12 +733,19 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
         nMinObs = 2;
     int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
 
-    // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
-    const bool c1b = (frame.mnId >= lastKeyFrameFrameId + MIN_FRAMES) && localMapper->AcceptKeyFrames();
-    // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
-    const bool c2 = ((nInliers < nRefMatches) && nInliers > nRefMatches * 0.5 && nInliers > 40);
-
-    return (c1b && c2);
+    unsigned int n, outliers;
+    bool c2 = nInliers > 45; //3000 features is 3x default => 45 is 3x 15
+    bool c3 = false;
+    // Count # of matched mappoint and also number of outliers from loaded map
+    countReprojectionOutliers(frame, n, outliers);
+    if (n - outliers > 100)
+    {
+        if ((float)(n - outliers) / (float)n > 0.5f)
+        {
+            c3 = true;
+        }
+    }
+    return c2 && c3;
 }
 
 bool WAISlamTools::relocalization(WAIFrame& currentFrame,
