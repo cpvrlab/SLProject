@@ -210,7 +210,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
                                  int                nLevels)
 {
     //wai mode config
-    WAISlam::Params modeParams;
+    WAIMapSlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
@@ -329,7 +329,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
 {
     bool initialized = false;
     //wai mode config
-    WAISlam::Params modeParams;
+    WAIMapSlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
@@ -432,17 +432,13 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
 #endif
 
         //instantiate wai mode
-        std::unique_ptr<WAISlam> waiMode =
-          std::make_unique<WAISlam>(calibration.cameraMat(),
-                                    calibration.distortion(),
-                                    _voc,
-                                    kpIniExtractorPtr,
-                                    kpExtractor.get(),
-                                    std::move(map),
-                                    modeParams.onlyTracking,
-                                    modeParams.serial,
-                                    modeParams.retainImg,
-                                    modeParams.cullRedundantPerc);
+        std::unique_ptr<WAIMapSlam> waiMode =
+          std::make_unique<WAIMapSlam>(calibration.cameraMat(),
+                                       calibration.distortion(),
+                                       _voc,
+                                       kpExtractor.get(),
+                                       std::move(map),
+                                       modeParams);
 
         int firstRun = true;
 
@@ -533,7 +529,7 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
 {
     std::cout << "thinOutNewWAIMap" << std::endl;
     //wai mode config
-    WAISlam::Params modeParams;
+    WAIMapSlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
     modeParams.serial            = _serialMapping;
     modeParams.fixOldKfs         = false;
@@ -559,21 +555,6 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
         std::cout << ("MapCreator::thinOutNewWaiMap: Could not load map from file " + inputMapFile) << std::endl;
         return;
     }
-    //instantiate wai mode
-    /*
-    std::unique_ptr<WAISlam> waiMode =
-      std::make_unique<WAISlam>(calib.cameraMat(),
-                                calib.distortion(),
-                                _voc,
-                                kpExtractor.get(),
-                                kpExtractor.get(),
-                                std::move(map),
-                                modeParams.onlyTracking,
-                                modeParams.serial,
-                                modeParams.retainImg,
-                                modeParams.cullRedundantPerc);
-                                */
-
     //testKFVideoMatching(keyFrameVideoMatching);
     //cull keyframes
     std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
@@ -663,7 +644,7 @@ void MapCreator::cullKeyframes(WAIMap* map, std::vector<WAIKeyFrame*>& kfs, std:
     }
 }
 
-void MapCreator::decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs)
+void MapCreator::decorateDebug(WAIMapSlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs)
 {
     //#ifdef _DEBUG
     if (!lastFrame.empty())
@@ -687,7 +668,7 @@ void MapCreator::decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int cu
     //#endif
 }
 
-void MapCreator::saveMap(WAISlam*           waiMode,
+void MapCreator::saveMap(WAIMapSlam*        waiMode,
                          const std::string& mapDir,
                          const std::string& currentMapFileName,
                          SLNode*            mapNode)

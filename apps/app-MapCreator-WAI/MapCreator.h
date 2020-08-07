@@ -5,7 +5,7 @@
 #include <WAIHelper.h>
 #include <Utils.h>
 #include <AppWAISlamParamHelper.h>
-#include <WAISlam.h>
+#include <WAIMapSlam.h>
 #include <WAIMapStorage.h>
 #include <FeatureExtractorFactory.h>
 #include <WAIOrbVocabulary.h>
@@ -25,7 +25,6 @@ class MapCreator
     typedef struct VideoAndCalib
     {
         std::string videoFile;
-        //std::string calibFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
     } VideoAndCalib;
     typedef std::vector<VideoAndCalib> Videos;
@@ -86,8 +85,8 @@ public:
                          int                nLevels);
 
     void cullKeyframes(WAIMap* map, std::vector<WAIKeyFrame*>& kfs, std::vector<int>& keyFrameVideoMatching, const float cullRedundantPerc);
-    void decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs);
-    void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
+    void decorateDebug(WAIMapSlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs);
+    void saveMap(WAIMapSlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
 
 private:
     MapCreator() {}
