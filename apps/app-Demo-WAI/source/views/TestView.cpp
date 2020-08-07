@@ -851,7 +851,7 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
     else
     {
         _scene.removeMapPoints();
-        _scene.removeMarkerCornerMapPoints();
+        //_scene.removeMarkerCornerMapPoints();
     }
 
     //update visualization of local map points (when WAI pose is valid)
