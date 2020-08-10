@@ -22,19 +22,6 @@
  * This class should not be instanciated. It contains only pure virtual methods
  * and some variables with getter that are useful for slam in a subclass.
  */
-namespace WAI
-{
-enum TrackingState
-{
-    TrackingState_None,
-    TrackingState_Idle,
-    TrackingState_Initializing,
-    TrackingState_TrackingOK,
-    TrackingState_TrackingLost,
-    TrackingState_TrackingTransformed
-};
-}
-
 class WAISlam : public WAISlamTools
 {
 public:

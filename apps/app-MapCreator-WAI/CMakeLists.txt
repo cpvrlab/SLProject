@@ -18,12 +18,14 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
+    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/WAIMapSlam.h
     )
 
 set(sources
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/main.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.cpp
+    ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/WAIMapSlam.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
     ${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp

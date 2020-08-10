@@ -5,7 +5,7 @@
 #include <WAIHelper.h>
 #include <Utils.h>
 #include <AppWAISlamParamHelper.h>
-#include <WAISlam.h>
+#include <WAIMapSlam.h>
 #include <WAIMapStorage.h>
 #include <FeatureExtractorFactory.h>
 #include <WAIOrbVocabulary.h>
@@ -25,7 +25,6 @@ class MapCreator
     typedef struct VideoAndCalib
     {
         std::string videoFile;
-        //std::string calibFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
     } VideoAndCalib;
     typedef std::vector<VideoAndCalib> Videos;
@@ -33,6 +32,7 @@ class MapCreator
     {
         Videos      videos;
         std::string markerFile;
+        std::string initialMapFile;
     } AreaConfig;
     typedef std::map<Area, AreaConfig> Areas;
 
@@ -55,25 +55,27 @@ public:
     //! create dense map using all videos for this location/area and thin out overall resulting map using keyframe culling
     void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels);
 
-    bool createNewDenseWaiMap(Videos&            videos,
-                              const std::string& mapFile,
-                              const std::string& mapDir,
-                              const float        cullRedundantPerc,
-                              std::string&       currentMapFileName,
-                              ExtractorType      extractorType,
-                              int                nLevels,
-                              std::vector<int>&  keyFrameVideoMatching);
+    bool createNewDenseWaiMap(Videos&                   videos,
+                              const std::string&        mapFile,
+                              const std::string&        mapDir,
+                              const float               cullRedundantPerc,
+                              std::string&              currentMapFileName,
+                              ExtractorType             extractorType,
+                              int                       nLevels,
+                              std::vector<int>&         keyFrameVideoMatching,
+                              std::vector<std::string>& matchFileVideoNames, //video names loaded from match file
+                              const std::string&        initialMapFileName);
 
-    void thinOutNewWaiMap(const std::string& mapDir,
-                          const std::string& inputMapFile,
-                          const std::string& outputMapFile,
-                          const std::string& outputKFMatchingFile,
-                          CVCalibration&     calib,
-                          const float        cullRedundantPerc,
-                          ExtractorType      extractorType,
-                          int                nLevels,
-                          std::vector<int>&  keyFrameVideoMatching,
-                          Videos&            videos);
+    void thinOutNewWaiMap(const std::string&              mapDir,
+                          const std::string&              inputMapFile,
+                          const std::string&              outputMapFile,
+                          const std::string&              outputKFMatchingFile,
+                          CVCalibration&                  calib,
+                          const float                     cullRedundantPerc,
+                          ExtractorType                   extractorType,
+                          int                             nLevels,
+                          std::vector<int>&               keyFrameVideoMatching,
+                          const std::vector<std::string>& allVideos);
 
     bool createMarkerMap(AreaConfig&        areaConfig,
                          const std::string& mapFile,
@@ -83,9 +85,8 @@ public:
                          int                nLevels);
 
     void cullKeyframes(WAIMap* map, std::vector<WAIKeyFrame*>& kfs, std::vector<int>& keyFrameVideoMatching, const float cullRedundantPerc);
-    void decorateDebug(WAISlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs);
-    void saveMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
-    void loadMap(WAISlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, bool fixKfsForLBA, SLNode* mapNode);
+    void decorateDebug(WAIMapSlam* waiMode, cv::Mat lastFrame, const int currentFrameIndex, const int videoLength, const int numOfKfs);
+    void saveMap(WAIMapSlam* waiMode, const std::string& mapDir, const std::string& currentMapFileName, SLNode* mapNode = nullptr);
 
 private:
     MapCreator() {}
@@ -105,7 +106,6 @@ private:
 
     bool  _serialMapping    = false;
     float _thinCullingValue = 0.995f;
-
     /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
     std::unique_ptr<KPextractor> _kpExtractor       = nullptr;
