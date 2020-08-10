@@ -91,7 +91,7 @@ void WAIOrbVocabulary::transform(const cv::Mat& descriptors, WAIBowVector& bow, 
         return;
 
 #if USE_FBOW
-    _vocabulary->transform(descriptors, 1, bow.data, feat.data);
+    _vocabulary->transform(descriptors, 2, bow.data, feat.data);
 #else
     vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(descriptors);
     _vocabulary->transform(vCurrentDesc, bow.data, feat.data, _vocabulary->getDepthLevels() - 2);
