@@ -72,9 +72,13 @@ WAIBowVector::WAIBowVector(std::vector<int> wid, std::vector<float> values)
 {
     for (int i = 0; i < wid.size(); i++)
     {
+#if USE_FBOW
         fbow::_float v;
         v.var = values[i];
         data.insert(std::pair<uint32_t, fbow::_float>(wid[i], v));
+#else
+        data.insert(std::pair<DBoW2::WordId, DBoW2::WordValue>(wid[i], values[i]));
+#endif
     }
 }
 
