@@ -14,8 +14,6 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap* map, SLstr
     _mappoints = _map->GetAllMapPoints();
     _keyframes = _map->GetAllKeyFrames();
 
-    SLMaterial* green = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
-
     _temporaryMapPointSets.push_back(_mappoints);
     _activeMapPointSets.push_back(_mappoints);
     _activeKeyframes = _keyframes;
@@ -32,7 +30,8 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap* map, SLstr
     _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
-    //_green = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    SLMaterial* green = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
+    _materials.push_back(green);
 
     updateMeshes("current map points", _activeMapPointSets, _activeKeyframes, _meshes, _materials);
 }

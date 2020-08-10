@@ -127,17 +127,37 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            modelPath = _dataDir + "models/Avenches/Aventicum-Amphitheater1.gltf";
+            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
+            SLAssimpImporter importer;
+
+            if (!Utils::fileExists(modelPath))
+            {
+                modelPath = _dataDir + "models/Avenches/Aventicum-Amphitheater1.gltf";
+            }
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-            modelPath = _dataDir + "models/Avenches/Aventicum-Cigognier1.gltf";
+            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            SLAssimpImporter importer;
+
+            if (!Utils::fileExists(modelPath))
+            {
+                modelPath = _dataDir + "models/Avenches/Aventicum-Cigognier1.gltf";
+            }
+
             loadMesh(modelPath);
         }
         else if (area == "theater-marker")
         {
-            modelPath = _dataDir + "models/Avenches/Aventicum-Theater1.gltf";
+            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
+            SLAssimpImporter importer;
+
+            if (!Utils::fileExists(modelPath))
+            {
+                modelPath = _dataDir + "models/Avenches/Aventicum-Theater1.gltf";
+            }
+
             loadMesh(modelPath);
         }
     }
