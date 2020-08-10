@@ -22,9 +22,15 @@ string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader
 
 GLFWwindow* window;
 
+// Generated dimensions
+int   sizeX           = 17;
+int   sizeY           = 17;
+int   sizeZ           = 17;
+int   materialCount   = 20;
+float offsetDimension = 2.5f;
+
 // Camera
-// SLMat4f _viewMatrix;
-float  _camZ                  = 6.0f;
+float  _camZ                  = 6.0f * sizeZ * 0.6f;
 float  _mouseWheelSensitivity = 0.5f;
 Camera camera;
 
@@ -135,12 +141,6 @@ void updateCamera()
 //-----------------------------------------------------------------------------
 void createScene(Node& root)
 {
-    int   sizeX           = 1; // 17;
-    int   sizeY           = 1; // 17;
-    int   sizeZ           = 1; // 17;
-    int   materialCount   = 1; // 7 * 7;
-    float offsetDimension = 2.5f;
-
     float offsetX = (sizeX % 2 != 0) ? 0.0f : 0.5f;
     float offsetY = (sizeY % 2 != 0) ? 0.0f : 0.5f;
     float offsetZ = (sizeZ % 2 != 0) ? 0.0f : 0.5f;
