@@ -453,7 +453,7 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
     localMapper->InsertKeyFrame(pKFcur);
 
     frame.SetPose(pKFcur->GetPose());
-    localMap.refKF = pKFcur;
+    localMap.refKF     = pKFcur;
     localMap.mapPoints = map->GetAllMapPoints();
 
     frame.mpReferenceKF = pKFcur;
@@ -487,11 +487,11 @@ bool WAISlamTools::tracking(WAIMap*   map,
 }
 
 bool WAISlamTools::strictTracking(WAIMap*   map,
-                                LocalMap& localMap,
-                                WAIFrame& frame,
-                                WAIFrame& lastFrame,
-                                int       lastRelocFrameId,
-                                int&      inliers)
+                                  LocalMap& localMap,
+                                  WAIFrame& frame,
+                                  WAIFrame& lastFrame,
+                                  int       lastRelocFrameId,
+                                  int&      inliers)
 {
     inliers = 0;
     if (!strictTrackReferenceKeyFrame(localMap, lastFrame, frame))
@@ -617,7 +617,7 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     localMapper->InsertKeyFrame(pKF);
 }
 
-void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &n, unsigned int &outliers)
+void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int& n, unsigned int& outliers)
 {
     //calculation of mean reprojection error
     double reprojectionError = 0.0;
@@ -630,8 +630,8 @@ void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &n, u
     const float fy = frame.fy;
     const float cx = frame.cx;
     const float cy = frame.cy;
-    n = 0;
-    outliers = 0;
+    n              = 0;
+    outliers       = 0;
 
     for (size_t i = 0; i < frame.N; i++)
     {
@@ -734,8 +734,8 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
     int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
 
     unsigned int n, outliers;
-    bool c2 = nInliers > 45; //3000 features is 3x default => 45 is 3x 15
-    bool c3 = false;
+    bool         c2 = nInliers > 45; //3000 features is 3x default => 45 is 3x 15
+    bool         c3 = false;
     // Count # of matched mappoint and also number of outliers from loaded map
     countReprojectionOutliers(frame, n, outliers);
     if (n - outliers > 100)
