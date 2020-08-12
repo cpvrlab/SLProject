@@ -328,6 +328,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
                                       const std::string&        initialMapFileName)
 {
     bool initialized = false;
+    bool genInitialMatching = false;
     //wai mode config
     WAIMapSlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
@@ -349,8 +350,15 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
         std::string inputMatchFileDir  = Utils::getPath(initialMapFileName);
         std::string inputMatchFileName = Utils::getFileNameWOExt(initialMapFileName) + "_match.txt";
         if (!Utils::fileExists(inputMatchFileDir + inputMatchFileName))
-            throw std::runtime_error("MapCreator::createNewDenseWaiMap: Could not load match file: " + inputMatchFileDir + inputMatchFileName);
-        WAIMapStorage::loadKeyFrameVideoMatching(keyFrameVideoMatching, matchFileVideoNames, inputMatchFileDir, inputMatchFileName);
+        {
+            std::cout << ("MapCreator::createNewDenseWaiMap: Could not load match file: " + inputMatchFileDir + inputMatchFileName) << std::endl;
+            std::cout << "Generate initial matching file" << std::endl;
+            genInitialMatching = true;
+        }
+        else
+        {
+            WAIMapStorage::loadKeyFrameVideoMatching(keyFrameVideoMatching, matchFileVideoNames, inputMatchFileDir, inputMatchFileName);
+        }
     }
 
     if (keyFrameVideoMatching.size() == 0)
@@ -401,6 +409,22 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
             {
                 std::cout << ("MapCreator::createNewDenseWaiMap: Could not load map from file " + lastMapFileName) << std::endl;
                 return false;
+            }
+
+            if (genInitialMatching)
+            {
+                std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
+
+                for (WAIKeyFrame* kf : kfs)
+                {
+                    while (keyFrameVideoMatching.size() < kf->mnId)
+                        keyFrameVideoMatching.resize(keyFrameVideoMatching.size() * 2, -1);
+
+                    keyFrameVideoMatching[kf->mnId] = 0;
+                }
+                matchFileVideoNames.push_back("initial_map");  
+
+                genInitialMatching = false;
             }
         }
         else
@@ -480,7 +504,10 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
             keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdx;
 
             //update wai
-            waiMode->update(frame->imgManip);
+            if (initialized)
+                waiMode->update2(frame->imgManip);
+            else
+                waiMode->update(frame->imgManip);
 
             if (firstRun)
             {

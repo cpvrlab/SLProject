@@ -58,8 +58,8 @@ void buildMatching(std::vector<WAIKeyFrame*>&                        kfs,
         WAIKeyFrame* kf = kfs[i];
         if (kf->isBad())
             continue;
-        if (kf->mBowVec.data.empty())
-            continue;
+        //if (kf->mBowVec.data.empty())
+        //    continue;
 
         std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
         std::map<size_t, size_t>  matching;
@@ -310,7 +310,7 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
     if (kfs.size() == 0)
         return false;
 
-    //buildMatching(kfs, KFmatching);
+    //in this case we dont build a keyframe matching..
 
     //save keyframes (without graph/neigbourhood information)
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);

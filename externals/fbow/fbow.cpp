@@ -67,9 +67,7 @@ void Vocabulary::transform(const cv::Mat& features, int level, fBow& result, fBo
         if (cpu_info->HW_x64)
         {
             if (_params._desc_size == 32)
-            {
                 _transform2<L1_32bytes>(features, level, result, result2);
-            }
             //full akaze
             else if (_params._desc_size == 61 && _params._aligment % 8 == 0)
                 _transform2<L1_61bytes>(features, level, result, result2);
@@ -217,7 +215,6 @@ void Vocabulary::fromStream(std::istream& str)
 
 double fBow::score(const fBow& v1, const fBow& v2)
 {
-
     fBow::const_iterator       v1_it, v2_it;
     const fBow::const_iterator v1_end = v1.end();
     const fBow::const_iterator v2_end = v2.end();
@@ -234,7 +231,8 @@ double fBow::score(const fBow& v1, const fBow& v2)
 
         if (v1_it->first == v2_it->first)
         {
-            score += vi * wi;
+       //     score += vi * wi;
+            score += fabs(vi - wi) - fabs(vi) - fabs(wi);
 
             // move v1 and v2 forward
             ++v1_it;
@@ -243,28 +241,31 @@ double fBow::score(const fBow& v1, const fBow& v2)
         else if (v1_it->first < v2_it->first)
         {
             // move v1 forward
-            //            v1_it = v1.lower_bound(v2_it->first);
             while (v1_it != v1_end && v1_it->first < v2_it->first)
                 ++v1_it;
         }
         else
         {
             // move v2 forward
-            //            v2_it = v2.lower_bound(v1_it->first);
             while (v2_it != v2_end && v2_it->first < v1_it->first)
                 ++v2_it;
-
-            // v2_it = (first element >= v1_it.id)
         }
     }
+    // ||v - w||_{L1} = 2 + Sum(|v_i - w_i| - |v_i| - |w_i|)
+    //		for all i | v_i != 0 and w_i != 0
 
     // ||v - w||_{L2} = sqrt( 2 - 2 * Sum(v_i * w_i) )
     //		for all i | v_i != 0 and w_i != 0 )
     // (Nister, 2006)
+
+    score = -score/2.0;
+    /*
+    //Work only with normalized values
     if (score >= 1) // rounding errors
         score = 1.0;
     else
         score = 1.0 - sqrt(1.0 - score); // [0..1]
+        */
 
     return score;
 }
