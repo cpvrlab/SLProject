@@ -617,7 +617,7 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     localMapper->InsertKeyFrame(pKF);
 }
 
-void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &m, unsigned int &n, unsigned int &outliers)
+void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int& m, unsigned int& n, unsigned int& outliers)
 {
     //calculation of mean reprojection error
     double reprojectionError = 0.0;
@@ -631,7 +631,7 @@ void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &m, u
     const float cx = frame.cx;
     const float cy = frame.cy;
     n              = 0;
-    m = 0;
+    m              = 0;
     outliers       = 0;
 
     for (size_t i = 0; i < frame.N; i++)
@@ -639,7 +639,7 @@ void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &m, u
         if (frame.mvpMapPoints[i] == nullptr || frame.mvpMapPoints[i]->isBad())
             continue;
 
-        if(!frame.mvpMapPoints[i]->loadedFromMap())
+        if (!frame.mvpMapPoints[i]->loadedFromMap())
         {
             m++;
             continue;
@@ -1125,13 +1125,13 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (auto itKF = localMap.keyFrames.begin(), itEndKF = localMap.keyFrames.end(); itKF != itEndKF; itKF++)
+    for (int i = 0; i < localMap.keyFrames.size(); ++i)
     {
         // Limit the number of keyframes
         if (localMap.keyFrames.size() > 80)
             break;
 
-        WAIKeyFrame* pKF = *itKF;
+        WAIKeyFrame* pKF = localMap.keyFrames[i];
 
         const vector<WAIKeyFrame*> vNeighs = pKF->GetBestCovisibilityKeyFrames(10);
 
@@ -1177,9 +1177,9 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     localMap.mapPoints.clear();
-    for (vector<WAIKeyFrame*>::const_iterator itKF = localMap.keyFrames.begin(), itEndKF = localMap.keyFrames.end(); itKF != itEndKF; itKF++)
+    for (int i = 0; i < localMap.keyFrames.size(); ++i)
     {
-        WAIKeyFrame*               pKF   = *itKF;
+        WAIKeyFrame*               pKF   = localMap.keyFrames[i];
         const vector<WAIMapPoint*> vpMPs = pKF->GetMapPointMatches();
 
         for (vector<WAIMapPoint*>::const_iterator itMP = vpMPs.begin(), itEndMP = vpMPs.end(); itMP != itEndMP; itMP++)
