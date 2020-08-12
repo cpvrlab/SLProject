@@ -453,7 +453,7 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
     localMapper->InsertKeyFrame(pKFcur);
 
     frame.SetPose(pKFcur->GetPose());
-    localMap.refKF = pKFcur;
+    localMap.refKF     = pKFcur;
     localMap.mapPoints = map->GetAllMapPoints();
 
     frame.mpReferenceKF = pKFcur;
@@ -487,11 +487,11 @@ bool WAISlamTools::tracking(WAIMap*   map,
 }
 
 bool WAISlamTools::strictTracking(WAIMap*   map,
-                                LocalMap& localMap,
-                                WAIFrame& frame,
-                                WAIFrame& lastFrame,
-                                int       lastRelocFrameId,
-                                int&      inliers)
+                                  LocalMap& localMap,
+                                  WAIFrame& frame,
+                                  WAIFrame& lastFrame,
+                                  int       lastRelocFrameId,
+                                  int&      inliers)
 {
     inliers = 0;
     if (!strictTrackReferenceKeyFrame(localMap, lastFrame, frame))
@@ -617,7 +617,7 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     localMapper->InsertKeyFrame(pKF);
 }
 
-void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &m, unsigned int &n, unsigned int &outliers)
+void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int& m, unsigned int& n, unsigned int& outliers)
 {
     //calculation of mean reprojection error
     double reprojectionError = 0.0;
@@ -630,16 +630,16 @@ void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &m, u
     const float fy = frame.fy;
     const float cx = frame.cx;
     const float cy = frame.cy;
-    n = 0;
-    m = 0;
-    outliers = 0;
+    n              = 0;
+    m              = 0;
+    outliers       = 0;
 
     for (size_t i = 0; i < frame.N; i++)
     {
         if (frame.mvpMapPoints[i] == nullptr || frame.mvpMapPoints[i]->isBad())
             continue;
 
-        if(!frame.mvpMapPoints[i]->loadedFromMap())
+        if (!frame.mvpMapPoints[i]->loadedFromMap())
         {
             m++;
             continue;
@@ -741,8 +741,8 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
     int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
 
     unsigned int m, n, outliers;
-    bool c2 = nInliers > 45; //3000 features is 3x default => 45 is 3x 15
-    bool c3 = false;
+    bool         c2 = nInliers > 45; //3000 features is 3x default => 45 is 3x 15
+    bool         c3 = false;
     // Count # of matched mappoint and also number of outliers from loaded map
     countReprojectionOutliers(frame, m, n, outliers);
     unsigned int nLoadedCorrect = n - outliers;
@@ -1125,13 +1125,13 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (auto itKF = localMap.keyFrames.begin(), itEndKF = localMap.keyFrames.end(); itKF != itEndKF; itKF++)
+    for (int i = 0; i < localMap.keyFrames.size(); ++i)
     {
         // Limit the number of keyframes
         if (localMap.keyFrames.size() > 80)
             break;
 
-        WAIKeyFrame* pKF = *itKF;
+        WAIKeyFrame* pKF = localMap.keyFrames[i];
 
         const vector<WAIKeyFrame*> vNeighs = pKF->GetBestCovisibilityKeyFrames(10);
 
@@ -1177,9 +1177,9 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     localMap.mapPoints.clear();
-    for (vector<WAIKeyFrame*>::const_iterator itKF = localMap.keyFrames.begin(), itEndKF = localMap.keyFrames.end(); itKF != itEndKF; itKF++)
+    for (int i = 0; i < localMap.keyFrames.size(); ++i)
     {
-        WAIKeyFrame*               pKF   = *itKF;
+        WAIKeyFrame*               pKF   = localMap.keyFrames[i];
         const vector<WAIMapPoint*> vpMPs = pKF->GetMapPointMatches();
 
         for (vector<WAIMapPoint*>::const_iterator itMP = vpMPs.begin(), itEndMP = vpMPs.end(); itMP != itEndMP; itMP++)
