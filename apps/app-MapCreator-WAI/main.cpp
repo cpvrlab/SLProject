@@ -16,6 +16,7 @@ struct Config
     int           nLevels;
     bool          serialMapping;
     float         thinCullingValue;
+    bool          ensureKFIntegration;
 };
 
 void printHelp()
@@ -26,27 +27,29 @@ void printHelp()
     ss << "Example2 (unix): ./app-MapCreator -erlebARDir C:/Erleb-AR -configFile MapCreatorConfig.json -mapOutputDir output" << std::endl;
     ss << "" << std::endl;
     ss << "Options: " << std::endl;
-    ss << "  -h/-help        print this help, e.g. -h" << std::endl;
-    ss << "  -erlebARDir     Path to Erleb-AR root directory (Optional. If not specified, <AppsWritableDir>/erleb-AR/ is used)" << std::endl;
-    ss << "  -calibDir       Path to directory containing camera calibrations (Optional. If not specified, <AppsWritableDir>/calibrations/ is used)" << std::endl;
-    ss << "  -configFile     Path and name to MapCreatorConfig.json" << std::endl;
-    ss << "  -vocFile        Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
-    ss << "  -outputDir      Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for output, also log output)" << std::endl;
-    ss << "  -levels         Number of pyramid levels" << std::endl;
-    ss << "  -serial         Serial mapping (1 or 0)" << std::endl;
-    ss << "  -thinCullVal    Thin out culling value (e.g. 0.95)" << std::endl;
+    ss << "  -h/-help               print this help, e.g. -h" << std::endl;
+    ss << "  -erlebARDir            Path to Erleb-AR root directory (Optional. If not specified, <AppsWritableDir>/erleb-AR/ is used)" << std::endl;
+    ss << "  -calibDir              Path to directory containing camera calibrations (Optional. If not specified, <AppsWritableDir>/calibrations/ is used)" << std::endl;
+    ss << "  -configFile            Path and name to MapCreatorConfig.json" << std::endl;
+    ss << "  -vocFile               Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
+    ss << "  -outputDir             Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for output, also log output)" << std::endl;
+    ss << "  -levels                Number of pyramid levels" << std::endl;
+    ss << "  -serial                Serial mapping (1 or 0)" << std::endl;
+    ss << "  -thinCullVal           Thin out culling value (e.g. 0.95)" << std::endl;
+    ss << "  -ensureKFIntegration   Ensure new keyframe have mappoints in common with previously loaded map" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType    = ExtractorType_FAST_BRIEF_1000;
-    config.erlebARDir       = Utils::getAppsWritableDir() + "erleb-AR/";
-    config.calibrationsDir  = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
-    config.nLevels          = -1;
-    config.thinCullingValue = 0.995f;
-    config.serialMapping    = false;
+    config.extractorType       = ExtractorType_FAST_BRIEF_1000;
+    config.erlebARDir          = Utils::getAppsWritableDir() + "erleb-AR/";
+    config.calibrationsDir     = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
+    config.nLevels             = -1;
+    config.thinCullingValue    = 0.995f;
+    config.serialMapping       = false;
+    config.ensureKFIntegration = false;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -88,6 +91,10 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-thinCullVal"))
         {
             config.thinCullingValue = std::stof(argv[++i]);
+        }
+        else if (!strcmp(argv[i], "-ensureKFIntegration"))
+        {
+            config.ensureKFIntegration = true;
         }
         else if (!strcmp(argv[i], "-feature"))
         {

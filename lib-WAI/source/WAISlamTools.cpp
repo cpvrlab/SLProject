@@ -1107,6 +1107,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     localMap.keyFrames.reserve(3 * keyframeCounter.size());
 
     // All keyframes that observe a map point are included in the local map. Also check which keyframe shares most points
+
     for (auto it = keyframeCounter.begin(), itEnd = keyframeCounter.end(); it != itEnd; it++)
     {
         WAIKeyFrame* pKF = it->first;
@@ -1125,7 +1126,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (int i = 0; i < localMap.keyFrames.size(); ++i)
+    for (int i = 0, iend = localMap.keyFrames.size(); i < iend; ++i)
     {
         // Limit the number of keyframes
         if (localMap.keyFrames.size() > 80)

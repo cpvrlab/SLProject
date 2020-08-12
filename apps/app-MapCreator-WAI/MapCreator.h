@@ -45,7 +45,8 @@ public:
                int           nLevels,
                std::string   outputDir,
                bool          serialMapping,
-               float         thinCullingValue);
+               float         thinCullingValue,
+               bool          ensureKFIntegration);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -53,7 +54,7 @@ public:
     //! check that all files (video and calibration) exist.
     void loadSites(const std::string& erlebARDir, const std::string& configFile);
     //! create dense map using all videos for this location/area and thin out overall resulting map using keyframe culling
-    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels);
+    void createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels, bool ensureKFIntegration);
 
     bool createNewDenseWaiMap(Videos&                   videos,
                               const std::string&        mapFile,
@@ -64,7 +65,8 @@ public:
                               int                       nLevels,
                               std::vector<int>&         keyFrameVideoMatching,
                               std::vector<std::string>& matchFileVideoNames, //video names loaded from match file
-                              const std::string&        initialMapFileName);
+                              const std::string&        initialMapFileName,
+                              bool                      ensureKFIntegration);
 
     void thinOutNewWaiMap(const std::string&              mapDir,
                           const std::string&              inputMapFile,
@@ -95,6 +97,7 @@ private:
     std::string               _calibrationsDir;
     std::string               _outputDir;
     WAIOrbVocabulary*         _voc = nullptr;
+    bool                      _ensureKFIntegration;
 
     WAIMapPoint* _mpUL = nullptr;
     WAIMapPoint* _mpUR = nullptr;

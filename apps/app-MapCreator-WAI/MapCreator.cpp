@@ -14,7 +14,8 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        int           nLevels,
                        std::string   outputDir,
                        bool          serialMapping,
-                       float         thinCullingValue)
+                       float         thinCullingValue,
+                       bool          ensureKFIntegration)
   : _erlebARDir(Utils::unifySlashes(erlebARDir)),
     _serialMapping(serialMapping),
     _thinCullingValue(thinCullingValue)
@@ -47,8 +48,9 @@ MapCreator::MapCreator(std::string   erlebARDir,
     _mpLL = nullptr;
     _mpLR = nullptr;
 
-    _extractorType = extractorType;
-    _nLevels       = nLevels;
+    _extractorType       = extractorType;
+    _nLevels             = nLevels;
+    _ensureKFIntegration = ensureKFIntegration;
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
@@ -250,7 +252,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     return result;
 }
 
-void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels)
+void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels, bool ensureKFintegration)
 {
     WAI_INFO("MapCreator::createNewWaiMap: Starting map creation for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
@@ -277,7 +279,8 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
                                        nLevels,
                                        keyFrameVideoMatching,
                                        matchFileVideoNames,
-                                       areaConfig.initialMapFile);
+                                       areaConfig.initialMapFile,
+                                       ensureKFintegration);
 
     if (areaConfig.videos.size() && initialized)
     {
@@ -325,7 +328,8 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
                                       int                       nLevels,
                                       std::vector<int>&         keyFrameVideoMatching,
                                       std::vector<std::string>& matchFileVideoNames,
-                                      const std::string&        initialMapFileName)
+                                      const std::string&        initialMapFileName,
+                                      bool                      ensureKFIntegration)
 {
     bool initialized        = false;
     bool genInitialMatching = false;
@@ -509,7 +513,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
             keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdxOffset + videoIdx;
 
             //update wai
-            if (initialized)
+            if (initialized && ensureKFIntegration)
                 waiMode->update2(frame->imgManip);
             else
                 waiMode->update(frame->imgManip);
@@ -742,7 +746,7 @@ void MapCreator::execute()
             Areas& areas = itLocations->second;
             for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
             {
-                createNewWaiMap(itLocations->first, itAreas->first, itAreas->second, _extractorType, _nLevels);
+                createNewWaiMap(itLocations->first, itAreas->first, itAreas->second, _extractorType, _nLevels, _ensureKFIntegration);
             }
         }
     }
