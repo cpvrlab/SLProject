@@ -746,7 +746,7 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
     // Count # of matched mappoint and also number of outliers from loaded map
     countReprojectionOutliers(frame, m, n, outliers);
     unsigned int nLoadedCorrect = n - outliers;
-    if (nLoadedCorrect > 100 && nLoadedCorrect > 0.25 * m)
+    if (nLoadedCorrect > 0.25 * m)
     {
         if ((float)(nLoadedCorrect) / (float)n > 0.5f)
         {

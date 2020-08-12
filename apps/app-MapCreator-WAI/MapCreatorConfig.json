@@ -3,10 +3,10 @@
 		{
 			"location": "avenches",
 			"areas": [
-				{ "area": "amphitheater", "enabled": false },
+				{ "area": "amphitheater", "enabled": false, "initialMap": "DEVELOPMENT-map_20200811-143204_avenches_amphitheater_FAST-ORBS-3000_2.json.gz"  },
 				{ "area": "cigonier-marker", "enabled": false },
 				{ "area": "amphitheaterEntrance", "enabled": false },
-				{ "area": "theater", "enabled": false },
+				{ "area": "theater", "enabled": false, "initialMap": "preworked-map_20200811-174901_avenches_theater_FAST-ORBS-3000_2.json.gz" },
 				{ "area": "teather-marker", "enabled": false, "marker": "marker.png"  }
 			]
 		},
@@ -44,9 +44,8 @@
                     "location": "avenches",
                     "area": "amphitheater",
                     "videos": [
-                        "20190925_115458_HUAWEIP20-1_sunny_640x360.mp4",
-                        "20200715_115200_PIXEL4_shade_640x360.mp4",
                         "20200311_145441_GALAXYS6-1_shade_640x360.mp4",
+                        "20200715_115200_PIXEL4_shade_640x360.mp4",
                         "20200311_145701_GALAXYS6-1_shade_640x360.mp4",
                         "20200311_150303_HUAWEIP20-1_shade_640x360.mp4",
                         "20200517_170518_PIXEL4_sunny_640x360.mp4",
@@ -58,8 +57,8 @@
                         "20200711_192901_ASUSAR-1_shade_640x360.mp4",
                         "20200715_114719_ASUSAR-1_shade_640x360.mp4",
                         "20190925_115824_HUAWEIP20-1_sunny_640x360.mp4",
+                        "20190925_115458_HUAWEIP20-1_sunny_640x360.mp4",
                         "20200311_145224_GALAXYS6-1_shade_640x360.mp4"
-
                     ]
                 },
                 {
@@ -105,12 +104,12 @@
                     "area": "theater",
                     "videos": [
                         "20200711_112824_ASUSAR-1_shade_640x360.mp4",
-                        "20200711_113534_PIXEL4_shade_640x360.mp4",
                         "20200711_114108_PIXEL3-1_shade_640x360.mp4",
                         "20200711_112234_GALAXYS6-1_shade_640x360.mp4",
                         "20200711_195047_GALAXYS6-1_shade_640x360.mp4",
                         "20200711_195253_ASUSAR-1_shade_640x360.mp4",
                         "20200711_195706_PIXEL3-1_shade_640x360.mp4",
+                        "20200711_113534_PIXEL4_shade_640x360.mp4",
                         "20200715_113000_PIXEL4_shade_640x360.mp4",
                         "20200108_162436_PIXEL3-1_shade_640x360.mp4",
                         "20200704_162231_PIXEL4_shade_640x360.mp4",

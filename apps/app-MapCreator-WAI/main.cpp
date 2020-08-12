@@ -221,7 +221,8 @@ int main(int argc, char* argv[])
                               config.nLevels,
                               config.outputDir,
                               config.serialMapping,
-                              config.thinCullingValue);
+                              config.thinCullingValue,
+                              config.ensureKFIntegration);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();
