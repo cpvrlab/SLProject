@@ -143,39 +143,20 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "augst" || location == "Augst")
     {
-        if (area == "templeHill-marker")
+        std::string      modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+        SLAssimpImporter importer;
+
+        if (!Utils::fileExists(modelPath))
         {
-            std::string      modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
-            SLAssimpImporter importer;
-
-            if (!Utils::fileExists(modelPath))
-            {
-                modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
-            }
-
-            loadMesh(modelPath);
-
-            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
-            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
+            modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
         }
-        else if (area == "templeHillTheater")
-        {
-            std::string modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
 
-            SLAssimpImporter importer;
-            augmentationRoot = importer.load(_animManager,
-                                             &assets,
-                                             modelPath,
-                                             _dataDir + "images/textures/",
-                                             true,
-                                             nullptr,
-                                             0.4f);
+        loadMesh(modelPath);
 
-            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
-            hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
-
-            _root3D->addChild(augmentationRoot);
-        }
+        hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden-zw-Tht-Tmp", true));
     }
     else if (location == "bern")
     {

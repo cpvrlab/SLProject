@@ -617,7 +617,7 @@ void WAISlamTools::createNewKeyFrame(LocalMapping*  localMapper,
     localMapper->InsertKeyFrame(pKF);
 }
 
-void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int& n, unsigned int& outliers)
+void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int &m, unsigned int &n, unsigned int &outliers)
 {
     //calculation of mean reprojection error
     double reprojectionError = 0.0;
@@ -631,12 +631,19 @@ void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int& n, u
     const float cx = frame.cx;
     const float cy = frame.cy;
     n              = 0;
+    m = 0;
     outliers       = 0;
 
     for (size_t i = 0; i < frame.N; i++)
     {
-        if (frame.mvpMapPoints[i] == nullptr || frame.mvpMapPoints[i]->isBad() || !frame.mvpMapPoints[i]->loadedFromMap())
+        if (frame.mvpMapPoints[i] == nullptr || frame.mvpMapPoints[i]->isBad())
             continue;
+
+        if(!frame.mvpMapPoints[i]->loadedFromMap())
+        {
+            m++;
+            continue;
+        }
 
         n++;
 
@@ -661,7 +668,7 @@ void WAISlamTools::countReprojectionOutliers(WAIFrame& frame, unsigned int& n, u
         //Use distorted points because we have to undistort the image later
         const auto& ptImg = frame.mvKeysUn[i].pt;
 
-        if (cv::norm(cv::Mat(ptImg), cv::Mat(ptProj)) > 1.4)
+        if (cv::norm(cv::Mat(ptImg), cv::Mat(ptProj)) > 1.3)
             outliers++;
     }
 }
@@ -733,14 +740,15 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
         nMinObs = 2;
     int nRefMatches = localMap.refKF->TrackedMapPoints(nMinObs);
 
-    unsigned int n, outliers;
+    unsigned int m, n, outliers;
     bool         c2 = nInliers > 45; //3000 features is 3x default => 45 is 3x 15
     bool         c3 = false;
     // Count # of matched mappoint and also number of outliers from loaded map
-    countReprojectionOutliers(frame, n, outliers);
-    if (n - outliers > 100)
+    countReprojectionOutliers(frame, m, n, outliers);
+    unsigned int nLoadedCorrect = n - outliers;
+    if (nLoadedCorrect > 100 && nLoadedCorrect > 0.25 * m)
     {
-        if ((float)(n - outliers) / (float)n > 0.5f)
+        if ((float)(nLoadedCorrect) / (float)n > 0.5f)
         {
             c3 = true;
         }
