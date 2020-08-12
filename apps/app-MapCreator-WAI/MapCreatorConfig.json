@@ -14,11 +14,11 @@
 			"location": "augst",
 			"areas": [
 				{ "area": "templeHillTheater", "enabled": false },
-				{ "area": "templeHillTheaterBottom", "enabled": true },
+				{ "area": "templeHillTheaterBottom", "enabled": false },
 				{ "area": "theaterArena", "enabled": false },
 				{ "area": "theaterMid", "enabled": false },
 				{ "area": "theaterTop", "enabled": false },
-				{ "area": "templeHill-marker", "enabled": false}
+				{ "area": "templeHill-marker", "enabled": true, "initialMap": "0-transformedAndCulled-map_20200812-114622_augst_templeHill-marker_FAST-ORBS-3000_2.json.gz"}
 			]
 		},
 		{
@@ -146,13 +146,13 @@
 					"location": "augst",
 					"area": "templeHillTheaterBottom",
 					"videos": [
-						"20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
 						"20191009-102457_rainy_NOKIA6-1_map_640x360.mp4",
-						"20200704-143619_sunny_ASUSAR-1_map_640x360.mp4",
-						"20200704-143755_sunny_PIXEL3-1_map_640x360.mp4",
-						"20200704-143809_sunny_NOKIA6-1_map_640x360.mp4",
+						"20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
 						"20200122-094711_cloudy_PIXEL3-2_map_640x360.mp4",
 						"20200122-094950_cloudy_PIXEL3-1_map_640x360.mp4",
+						"20200704-143755_sunny_PIXEL3-1_map_640x360.mp4",
+						"20200704-143809_sunny_NOKIA6-1_map_640x360.mp4",
+						"20200704-143619_sunny_ASUSAR-1_map_640x360.mp4",
 						"20200704-143523_sunny_GALAXYS6-1_map_640x360.mp4"
 					]
 				},
@@ -193,16 +193,18 @@
                     "location": "augst",
                     "area": "templeHill-marker",
                     "videos": [
-                        "20191009-103333_rainy_ASUSAR-1_markerMap_640x360.mp4",
-                        "20191009-103255_rainy_ASUSAR-1_marker_640x360.mp4",
-                        "20191009-103522_rainy_NOKIA6-1_marker_640x360.mp4",
-                        "20191009-103600_rainy_NOKIA6-1_marker_640x360.mp4",
-                        "20191212-082856_rainy_NOKIA6-1_marker_640x360.mp4",
-                        "20191212-083503_rainy_ASUSAR-1_marker_640x360.mp4",
-                        "20200122-101401_cloudy_PIXEL3-1_marker_640x360.mp4",
-                        "20200122-101455_cloudy_PIXEL3-2_marker_640x360.mp4",
-                        "20200122-101527_cloudy_ASUSAR-1_marker_640x360.mp4",
-                        "20200122-101618_cloudy_NOKIA6-1_marker_640x360.mp4"
+						"20191009-103333_rainy_ASUSAR-1_markerMap_640x360.mp4",
+						"20191009-103522_rainy_NOKIA6-1_markerMap_640x360.mp4",
+						"20191212-083503_rainy_ASUSAR-1_markerMap_640x360.mp4",
+						"20200704-141647_sunny_ASUSAR-1_markerMap_640x360.mp4",
+						"20200704-142234_sunny_PIXEL3-1_markerMap_640x360.mp4",
+						"20200704-142340_sunny_NOKIA6-1_markerMap_640x360.mp4",
+						"20200122-101401_cloudy_PIXEL3-1_markerMap_640x360.mp4",
+						"20200122-101455_cloudy_PIXEL3-2_markerMap_640x360.mp4",
+						"20200122-101618_cloudy_NOKIA6-1_markerMap_640x360.mp4",
+						"20200704-142531_sunny_GALAXYS6-1_markerMap_640x360.mp4",
+						"20200704-142615_sunny_GALAXYS6-1_markerMap_640x360.mp4",
+                        "20191212-083540_rainy_ASUSAR-1_augmentation_640x360.mp4"
                     ]
                 },
                 {
