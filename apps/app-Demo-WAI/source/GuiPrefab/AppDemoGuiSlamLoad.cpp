@@ -36,12 +36,13 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
     _eventQueue(eventQueue),
     _errorMsgCB(errorMsgCB)
 {
-    _p.params.retainImg    = true;
-    _p.params.serial       = false;
-    _p.params.onlyTracking = false;
-    _p.params.trackOptFlow = false;
-    _p.params.onlyTracking = false;
-    _p.params.fixOldKfs    = false;
+    _p.params.retainImg           = false;
+    _p.params.serial              = false;
+    _p.params.ensureKFIntegration = false;
+    _p.params.onlyTracking        = false;
+    _p.params.trackOptFlow        = false;
+    _p.params.onlyTracking        = false;
+    _p.params.fixOldKfs           = false;
 
     _videoExtensions.push_back(".mp4");
     _videoExtensions.push_back(".avi");
@@ -438,6 +439,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
         ImGui::Checkbox("track optical flow", &_p.params.trackOptFlow);
         ImGui::Checkbox("tracking only", &_p.params.onlyTracking);
         ImGui::Checkbox("serial", &_p.params.serial);
+        ImGui::Checkbox("ensureKFIntegration", &_p.params.ensureKFIntegration);
         ImGui::Checkbox("fix Kfs and MPts loaded from map\n(disables loop closing)", &_p.params.fixOldKfs);
 
         if (ImGui::Button("Start", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
@@ -456,16 +458,17 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 event->params.area     = _p.area;
                 event->params.location = _p.location;
 
-                event->params.videoFile           = _p.videoFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/videos/" + _p.videoFile;
-                event->params.mapFile             = _p.mapFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/maps/" + _p.mapFile;
-                event->params.calibrationFile     = _p.calibrationFile.empty() ? "" : _calibrationsDir + _p.calibrationFile;
-                event->params.vocabularyFile      = _p.vocabularyFile.empty() ? "" : _vocabulariesDir + _p.vocabularyFile;
-                event->params.markerFile          = _p.markerFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/markers/" + _p.markerFile;
-                event->params.params.retainImg    = _p.params.retainImg;
-                event->params.params.trackOptFlow = _p.params.trackOptFlow;
-                event->params.params.onlyTracking = _p.params.onlyTracking;
-                event->params.params.serial       = _p.params.serial;
-                event->params.params.fixOldKfs    = _p.params.fixOldKfs;
+                event->params.videoFile                  = _p.videoFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/videos/" + _p.videoFile;
+                event->params.mapFile                    = _p.mapFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/maps/" + _p.mapFile;
+                event->params.calibrationFile            = _p.calibrationFile.empty() ? "" : _calibrationsDir + _p.calibrationFile;
+                event->params.vocabularyFile             = _p.vocabularyFile.empty() ? "" : _vocabulariesDir + _p.vocabularyFile;
+                event->params.markerFile                 = _p.markerFile.empty() ? "" : _slamRootDir + _p.location + "/" + _p.area + "/markers/" + _p.markerFile;
+                event->params.params.retainImg           = _p.params.retainImg;
+                event->params.params.trackOptFlow        = _p.params.trackOptFlow;
+                event->params.params.onlyTracking        = _p.params.onlyTracking;
+                event->params.params.serial              = _p.params.serial;
+                event->params.params.ensureKFIntegration = _p.params.ensureKFIntegration;
+                event->params.params.fixOldKfs           = _p.params.fixOldKfs;
 
                 event->params.extractorIds.trackingExtractorId       = _p.extractorIds.trackingExtractorId;
                 event->params.extractorIds.initializationExtractorId = _p.extractorIds.initializationExtractorId;

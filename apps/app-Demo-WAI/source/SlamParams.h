@@ -48,6 +48,8 @@ struct SlamParams
                     fs["retainImg"] >> params.retainImg;
                 if (!fs["serial"].empty())
                     fs["serial"] >> params.serial;
+                if (!fs["ensureKFIntegration"].empty())
+                    fs["ensureKFIntegration"] >> params.ensureKFIntegration;
                 if (!fs["trackOptFlow"].empty())
                     fs["trackOptFlow"] >> params.trackOptFlow;
 
@@ -111,6 +113,7 @@ struct SlamParams
         fs << "onlyTracking" << params.onlyTracking;
         fs << "retainImg" << params.retainImg;
         fs << "serial" << params.serial;
+        fs << "ensureKFintegration" << params.ensureKFIntegration;
         fs << "trackOptFlow" << params.trackOptFlow;
 
         fs << "initializationExtractorId" << extractorIds.initializationExtractorId;

@@ -753,10 +753,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
                         _initializationExtractor.get(),
                         _trackingExtractor.get(),
                         std::move(map),
-                        slamParams.params.onlyTracking,
-                        slamParams.params.serial,
-                        slamParams.params.retainImg,
-                        slamParams.params.cullRedundantPerc);
+                        slamParams.params);
 
     // 6. save current params
     _currentSlamParams = slamParams;

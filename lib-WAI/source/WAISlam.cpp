@@ -17,15 +17,10 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
                  KPextractor*            iniExtractor,
                  KPextractor*            extractor,
                  std::unique_ptr<WAIMap> globalMap,
-                 bool                    trackingOnly,
-                 bool                    serial,
-                 bool                    retainImg,
-                 float                   cullRedundantPerc)
+                 WAISlam::Params         params)
 {
     _iniData.initializer = nullptr;
-    _serial              = serial;
-    _trackingOnly        = trackingOnly;
-    _retainImg           = retainImg;
+    _params = params;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
@@ -55,19 +50,17 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
         _initialized = true;
     }
 
-    _localMapping = new ORB_SLAM2::LocalMapping(_globalMap.get(), _voc, cullRedundantPerc);
+    _localMapping = new ORB_SLAM2::LocalMapping(_globalMap.get(), _voc, params.cullRedundantPerc);
     _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap.get(), _voc, false, false);
 
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
 
-    if (!_serial)
+    if (!_params.onlyTracking && !_params.serial)
     {
-        if (!_trackingOnly)
-        {
-            _mappingThreads.push_back(new std::thread(&LocalMapping::Run, _localMapping));
-            _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
-        }
+        _mappingThreads.push_back(new std::thread(&LocalMapping::Run, _localMapping));
+        _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
+    }
 
 #if MULTI_THREAD_FRAME_PROCESSING
         _poseUpdateThread = new std::thread(updatePoseThread, this);
@@ -75,7 +68,6 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
         _isStop           = false;
         _requestFinish    = false;
 #endif
-    }
 
     _iniData.initializer = nullptr;
     _cameraExtrinsic     = cv::Mat::eye(4, 4, CV_32F);
@@ -85,27 +77,27 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
 
 WAISlam::~WAISlam()
 {
-    if (!_serial)
+    if (!_params.serial)
     {
         _localMapping->RequestFinish();
         _loopClosing->RequestFinish();
+    }
 
-        // Wait until all thread have effectively stopped
-        if (_processNewKeyFrameThread)
-            _processNewKeyFrameThread->join();
+    // Wait until all thread have effectively stopped
+    if (_processNewKeyFrameThread)
+        _processNewKeyFrameThread->join();
 
-        for (std::thread* t : _mappingThreads) { t->join(); }
+    for (std::thread* t : _mappingThreads) { t->join(); }
 
-        if (_loopClosingThread)
-            _loopClosingThread->join();
+    if (_loopClosingThread)
+        _loopClosingThread->join();
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        requestFinish();
-        _poseUpdateThread->join();
-        delete _poseUpdateThread;
-        _poseUpdateThread = nullptr;
+    requestFinish();
+    _poseUpdateThread->join();
+    delete _poseUpdateThread;
+    _poseUpdateThread = nullptr;
 #endif
-    }
 
     delete _localMapping;
     delete _loopClosing;
@@ -113,23 +105,16 @@ WAISlam::~WAISlam()
 
 void WAISlam::reset()
 {
-    std::cout << "WAISlam reset" << std::endl;
-    if (!_serial)
+    if (!_params.serial)
     {
-        std::cout << "Request Reset" << std::endl;
         _localMapping->RequestReset();
         _loopClosing->RequestReset();
+    }
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        requestFinish();
-        _poseUpdateThread->join();
+    requestFinish();
+    _poseUpdateThread->join();
 #endif
-    }
-    else
-    {
-        _localMapping->Reset();
-        _loopClosing->reset();
-    }
 
     _globalMap->clear();
     _localMap.keyFrames.clear();
@@ -162,9 +147,9 @@ void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
     if (getTrackingState() == WAI::TrackingState_Initializing)
-        frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
+        frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
     else
-        frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _retainImg);
+        frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
 }
 
 /* Separate Pose update thread */
@@ -235,7 +220,12 @@ void WAISlam::updatePoseThread(WAISlam* ptr)
     {
         WAIFrame f;
         while (ptr->getNextFrame(f) && !ptr->finishRequested())
-            ptr->updatePose(f);
+        {
+            if (ptr->_params.ensureKFIntegration)
+                ptr->updatePoseKFIntegration(f);
+            else
+                ptr->updatePose(f);
+        }
 
         if (ptr->finishRequested())
         {
@@ -277,12 +267,19 @@ void WAISlam::updatePose(WAIFrame& frame)
 #else
             if (initialize(_iniData, frame, _voc, _localMap))
             {
-                if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap, _serial))
+                if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap))
                 {
+                    _localMapping->InsertKeyFrame(_localMap.keyFrames[0]);
+                    _localMapping->InsertKeyFrame(_localMap.keyFrames[1]);
                     _lastKeyFrameFrameId = frame.mnId;
                     _lastRelocFrameId    = 0;
                     _state               = WAI::TrackingState_TrackingOK;
                     _initialized         = true;
+                    if (_params.serial)
+                    {
+                        _localMapping->RunOnce();
+                        _localMapping->RunOnce();
+                    }
                 }
             }
 #endif
@@ -295,12 +292,12 @@ void WAISlam::updatePose(WAIFrame& frame)
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 lock.unlock();
-
-                if (_serial)
-                    serialMapping(_globalMap.get(), _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                else
-                    mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-
+                mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                if (_params.serial)
+                {
+                    _localMapping->RunOnce();
+                    _loopClosing->RunOnce();
+                }
                 _infoMatchedInliners = inliers;
             }
             else
@@ -325,6 +322,47 @@ void WAISlam::updatePose(WAIFrame& frame)
     _lastFrame = WAIFrame(frame);
 }
 
+void WAISlam::updatePoseKFIntegration(WAIFrame& frame)
+{
+    switch (_state)
+    {
+        case WAI::TrackingState_TrackingOK: {
+            int inliers;
+            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
+            {
+                std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
+                motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
+                lock.unlock();
+                strictMapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                if (_params.serial)
+                {
+                    _localMapping->RunOnce();
+                    _loopClosing->RunOnce();
+                }
+                _infoMatchedInliners = inliers;
+            }
+            else
+            {
+                _state = WAI::TrackingState_TrackingLost;
+            }
+        }
+        break;
+        case WAI::TrackingState_TrackingLost: {
+            int inliers;
+            if (relocalization(frame, _globalMap.get(), _localMap, inliers))
+            {
+                _lastRelocFrameId    = frame.mnId;
+                _velocity            = cv::Mat();
+                _state               = WAI::TrackingState_TrackingOK;
+                _infoMatchedInliners = inliers;
+            }
+        }
+        break;
+    }
+
+    _lastFrame = WAIFrame(frame);
+}
+
 WAIFrame WAISlam::getLastFrame()
 {
     std::unique_lock<std::mutex> lock(_lastFrameMutex);
@@ -342,15 +380,13 @@ bool WAISlam::update(cv::Mat& imageGray)
     createFrame(frame, imageGray);
 
 #if MULTI_THREAD_FRAME_PROCESSING
-    if (!_serial)
-    {
         std::unique_lock<std::mutex> lock(_frameQueueMutex);
         _framesQueue.push(frame);
-    }
+#else
+    if (_params.ensureKFIntegration)
+        updatePoseKFIntegration(frame);
     else
         updatePose(frame);
-#else
-    updatePose(frame);
 #endif
     return isTracking();
 }
@@ -424,7 +460,7 @@ cv::Mat WAISlam::getPose()
 
 void WAISlam::requestStateIdle()
 {
-    if (!_serial && !_trackingOnly)
+    if (!_params.onlyTracking || !_params.serial)
     {
         std::unique_lock<std::mutex> guard(_mutexStates);
         _localMapping->RequestPause();
@@ -465,10 +501,6 @@ void WAISlam::transformCoords(cv::Mat transform)
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
-
-    //_localMap.keyFrames.clear();
-    //_localMap.mapPoints.clear();
-    //_localMap.refKF = nullptr;
 
     WAIMap* map = _globalMap.get();
 

@@ -148,7 +148,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
             loadMesh(modelPath);
         }
-        else if (area == "theater-marker")
+        else if (area == "theater-marker" || area == "theater")
         {
             std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
             SLAssimpImporter importer;

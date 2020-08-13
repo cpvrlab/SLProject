@@ -128,8 +128,15 @@ void WAIMapSlam::updatePose(WAIFrame& frame)
 
             if (initialize(_iniData, frame, _voc, _localMap))
             {
-                if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap, _params.serial))
+                if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap))
                 {
+                    _localMapping->InsertKeyFrame(_localMap.keyFrames[0]);
+                    _localMapping->InsertKeyFrame(_localMap.keyFrames[1]);
+                    if (_params.serial)
+                    {
+                        _localMapping->RunOnce();
+                        _localMapping->RunOnce();
+                    }
                     _lastKeyFrameFrameId = frame.mnId;
                     _lastRelocFrameId    = 0;
                     _state               = WAI::TrackingState_TrackingOK;
@@ -145,10 +152,12 @@ void WAIMapSlam::updatePose(WAIFrame& frame)
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 lock.unlock();
+                mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                 if (_params.serial)
-                    serialMapping(_globalMap.get(), _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                else
-                    mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                {
+                    _localMapping->RunOnce();
+                    _loopClosing->RunOnce();
+                }
 
                 _infoMatchedInliners = inliers;
             }
@@ -185,10 +194,12 @@ void WAIMapSlam::updatePose2(WAIFrame& frame)
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 lock.unlock();
+                strictMapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                 if (_params.serial)
-                    strictSerialMapping(_globalMap.get(), _localMap, _localMapping, _loopClosing, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                else
-                    strictMapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                {
+                    _localMapping->RunOnce();
+                    _loopClosing->RunOnce();
+                }
 
                 _infoMatchedInliners = inliers;
             }
