@@ -93,6 +93,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                  _voc,
                                  _initializationExtractor,
                                  _trackingExtractor,
+                                 _trackingExtractor,
                                  nullptr, // global map
                                  params);
     }

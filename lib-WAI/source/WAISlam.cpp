@@ -15,6 +15,7 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
                  const cv::Mat&          distortion,
                  WAIOrbVocabulary*       voc,
                  KPextractor*            iniExtractor,
+                 KPextractor*            relocExtractor,
                  KPextractor*            extractor,
                  std::unique_ptr<WAIMap> globalMap,
                  WAISlam::Params         params)
@@ -31,8 +32,15 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
     _distortion      = distortion.clone();
     _cameraIntrinsic = intrinsic.clone();
     _voc             = voc;
+
     _extractor       = extractor;
+    _relocExtractor  = relocExtractor;
     _iniExtractor    = iniExtractor;
+
+    if (_iniExtractor == nullptr)
+        _iniExtractor = _extractor;
+    if (_relocExtractor == nullptr)
+        _relocExtractor = _extractor;
 
     if (globalMap == nullptr)
     {
@@ -146,10 +154,18 @@ void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
-    if (getTrackingState() == WAI::TrackingState_Initializing)
-        frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
-    else
-        frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+    switch(getTrackingState())
+    {
+        case WAI::TrackingState_Initializing:
+            frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+            break;
+        case WAI::TrackingState_TrackingLost:
+        case WAI::TrackingState_TrackingStart:
+            frame = WAIFrame(imageGray, 0.0, _relocExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+            break;
+        default:
+            frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+    }
 }
 
 /* Separate Pose update thread */
@@ -285,6 +301,11 @@ void WAISlam::updatePose(WAIFrame& frame)
 #endif
         }
         break;
+        case WAI::TrackingState_TrackingStart: {
+            _relocFrameCounter++;
+            if (_relocFrameCounter > 30)
+                _state = WAI::TrackingState_TrackingOK;
+        }
         case WAI::TrackingState_TrackingOK: {
             int inliers;
             if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
@@ -310,9 +331,10 @@ void WAISlam::updatePose(WAIFrame& frame)
             int inliers;
             if (relocalization(frame, _globalMap.get(), _localMap, inliers))
             {
-                _lastRelocFrameId = frame.mnId;
-                _velocity         = cv::Mat();
-                _state            = WAI::TrackingState_TrackingOK;
+                _relocFrameCounter = 0;
+                _lastRelocFrameId  = frame.mnId;
+                _velocity          = cv::Mat();
+                _state             = WAI::TrackingState_TrackingStart;
             }
         }
         break;
