@@ -97,7 +97,7 @@ enum SLSceneID
     SID_TextureFilter,
     SID_TextureBlend,
     SID_FrustumCull,
-    SID_MassiveData,
+    SID_MassiveScene,
     SID_2Dand3DText,
     SID_PointClouds,
 

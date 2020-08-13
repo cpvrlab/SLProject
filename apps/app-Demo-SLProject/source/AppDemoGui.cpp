@@ -1260,8 +1260,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_TextureFilter);
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(s, sv, SID_FrustumCull);
-                    if (ImGui::MenuItem("Massive Data Scene", nullptr, sid == SID_MassiveData))
-                        s->onLoad(s, sv, SID_MassiveData);
+                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
+                        s->onLoad(s, sv, SID_MassiveScene);
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))

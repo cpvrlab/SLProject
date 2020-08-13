@@ -110,9 +110,9 @@ public:
     //! Returns true if a material with textures tangents as additional attributes
     SLbool needsTangents()
     {
-        return (_textures.size() >= 2 &&
-                _textures[0]->target() == GL_TEXTURE_2D &&
-                _textures[1]->texType() == TT_normal);
+        return _textures.size() >= 2 &&
+               _textures[0]->target() == GL_TEXTURE_2D &&
+               _textures[1]->texType() == TT_normal;
     }
 
     // Setters
@@ -171,6 +171,7 @@ public:
     SLfloat       shadowBias() const { return _shadowBias; }
     SLVGLTexture& textures() { return _textures; }
     SLGLProgram*  program() { return _program; }
+    SLVNode&      nodesVisible() { return _nodesVisible;}
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
@@ -194,8 +195,10 @@ protected:
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
-    SLGLTexture* _errorTexture = nullptr;
+    SLGLTexture* _errorTexture = nullptr; //!< pointer to error texture that is shown if another texture fails
     SLstring     _compileErrorTexFilePath;
+
+    SLVNode _nodesVisible; //!< Vector of all visible 3D nodes of with this material
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers

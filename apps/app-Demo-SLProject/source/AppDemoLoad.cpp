@@ -777,7 +777,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_MassiveData) //...............................................
+    else if (SLApplication::sceneID == SID_MassiveScene) //..............................................
     {
         s->name("Massive Data Test");
         s->info("No data is shared on the GPU. Check Memory consumption.");
@@ -800,7 +800,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Generate NUM_MAT materials
-        const int   NUM_MAT = 20;
+        const int   NUM_MAT = 10;
         SLMaterial* mat[NUM_MAT];
         for (int i = 0; i < NUM_MAT; ++i)
         {
@@ -817,17 +817,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // create a 3D array of spheres
-        SLint  size = 10;
+        SLint  halfSize = 5;
         SLuint n    = 0;
-        for (SLint iZ = -size; iZ <= size; ++iZ)
+        for (SLint iZ = -halfSize; iZ <= halfSize; ++iZ)
         {
-            for (SLint iY = -size; iY <= size; ++iY)
+            for (SLint iY = -halfSize; iY <= halfSize; ++iY)
             {
-                for (SLint iX = -size; iX <= size; ++iX)
+                for (SLint iX = -halfSize; iX <= halfSize; ++iX)
                 {
                     // Choose a random material index
                     SLuint    res      = 36;
-                    SLint iMat = Utils::random(0,19);
+                    SLint iMat = Utils::random(0,NUM_MAT-1);
                     SLstring  nodeName = "earth-" + std::to_string(n);
 
                     // Create a new sphere and node and translate it
