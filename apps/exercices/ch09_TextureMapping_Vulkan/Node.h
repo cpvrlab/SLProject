@@ -7,7 +7,30 @@
 #include <Material.h>
 #include <Mesh.h>
 #include <SLMat4.h>
-// #include <SLAABBox.h>
+
+struct NodeStats
+{
+    SLuint numNodes      = 0; //!< No. of nodes
+    SLuint NodesBytes    = 0; //!< Size of nodes in bytes
+    SLuint numEmptyNodes = 0; //!< No. of empty nodes
+    SLuint numMeshes     = 0; //!< No. of meshs
+    SLuint MeshBytes     = 0; //!< Size of meshs in bytes
+
+    void print()
+    {
+        // SL_LOG("Nodes          : %d", numNodes);
+        // SL_LOG("MB Nodes       : %f", (SLfloat)NodesBytes / 1000000.0f);
+        // SL_LOG("Empty Nodes    : %d", numEmptyNodes);
+        // SL_LOG("Meshes         : %d", numMeshes);
+        // SL_LOG("MB Meshes      : %f", (SLfloat)numMeshBytes / 1000000.0f);
+
+        std::cout << "Nodes          :" << numNodes << std::endl;
+        std::cout << "MB Nodes       :" << (SLfloat)NodesBytes / 1000000.0f << std::endl;
+        std::cout << "Empty Nodes    :" << numEmptyNodes << std::endl;
+        std::cout << "Meshes         :" << numMeshes << std::endl;
+        std::cout << "MB Meshes      :" << (SLfloat)MeshBytes / 1000000.0f << std::endl;
+    }
+};
 
 using namespace std;
 
@@ -33,11 +56,6 @@ public:
     const SLMat4f& updateAndGetWM();
     const SLMat4f& updateAndGetWMI();
     const SLMat4f& updateAndGetWMN();
-
-    // SLAABBox& updateAABBRec();
-    // update()
-    // cull()
-    // draw()
 
 protected:
     Node*         _parent = nullptr; //!< pointer to the parent node

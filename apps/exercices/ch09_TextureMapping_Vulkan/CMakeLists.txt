@@ -34,6 +34,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/Sampler.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderModule.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Sphere.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Statistic.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Swapchain.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureImage.h

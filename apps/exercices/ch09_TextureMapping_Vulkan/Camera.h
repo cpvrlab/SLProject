@@ -37,7 +37,7 @@ protected:
     float   _viewportHeight;
     float   _viewportRatio;
     float   _clipNear = 0.1f;
-    float   _clipFar  = 100.0f;
+    float   _clipFar  = 200.0f;
     SLPlane _plane[6]; //!< 6 frustum planes (t, b, l, r, n, f)
 };
 

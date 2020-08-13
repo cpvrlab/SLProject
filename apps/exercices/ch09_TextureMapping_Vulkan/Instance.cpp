@@ -1,5 +1,4 @@
 #include "Instance.h"
-#include "PhysicalDevice.h"
 
 //-----------------------------------------------------------------------------
 Instance::Instance(const char*                applicationName,
@@ -43,6 +42,11 @@ Instance::Instance(const char*                applicationName,
 
     findSuitableGPU();
     setupDebugMessenger();
+
+    // TODO: Remove later
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    std::cout << "Max Memory Allocation Count: " << properties.limits.maxMemoryAllocationCount << std::endl;
 }
 //-----------------------------------------------------------------------------
 void Instance::destroy()

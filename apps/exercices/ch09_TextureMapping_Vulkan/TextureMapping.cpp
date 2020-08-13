@@ -27,11 +27,11 @@ int   sizeX           = 17;
 int   sizeY           = 17;
 int   sizeZ           = 17;
 int   materialCount   = 20;
-float offsetDimension = 2.5f;
+float offsetDimension = 4.0f;
 
 // Camera
-float  _camZ                  = 6.0f * sizeZ * 0.6f;
-float  _mouseWheelSensitivity = 0.5f;
+float  _camZ                  = 6.0f * sizeZ * 0.8f;
+float  _mouseWheelSensitivity = 1.0f;
 Camera camera;
 
 // Mouse
@@ -93,7 +93,7 @@ float calcFPS(float deltaTime)
 
     frameNo++;
     float frameTimeSec = sumTime / (SLfloat)FILTERSIZE;
-    float fps          = 1 / frameTimeSec;
+    float fps          = 1.0f / frameTimeSec;
 
     return fps;
 }
@@ -270,6 +270,13 @@ void SceneToMaterialSimple(Node& root, vector<DrawingObject>& objectsInScene)
     }
 }
 //-----------------------------------------------------------------------------
+int getSizeOfScene(vector<DrawingObject>& objectsInScene)
+{
+    return sizeof(objectsInScene);
+}
+
+#include "Statistic.h"
+
 int main()
 {
     initWindow();
@@ -297,6 +304,9 @@ int main()
 
         printFPS();
     }
+
+    NodeStats stats = Statistic::getSizeOf(objectsInScene);
+    stats.print();
 
     return EXIT_SUCCESS;
 }
