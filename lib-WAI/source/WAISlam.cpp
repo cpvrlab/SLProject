@@ -33,9 +33,9 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
     _cameraIntrinsic = intrinsic.clone();
     _voc             = voc;
 
-    _extractor       = extractor;
-    _relocExtractor  = relocExtractor;
-    _iniExtractor    = iniExtractor;
+    _extractor      = extractor;
+    _relocExtractor = relocExtractor;
+    _iniExtractor   = iniExtractor;
 
     if (_iniExtractor == nullptr)
         _iniExtractor = _extractor;
@@ -154,7 +154,7 @@ void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
-    switch(getTrackingState())
+    switch (getTrackingState())
     {
         case WAI::TrackingState_Initializing:
             frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
@@ -303,7 +303,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingStart: {
             _relocFrameCounter++;
-            if (_relocFrameCounter > 30)
+            if (_relocFrameCounter > 0)
                 _state = WAI::TrackingState_TrackingOK;
         }
         case WAI::TrackingState_TrackingOK: {
