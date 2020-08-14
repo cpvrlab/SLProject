@@ -9,6 +9,7 @@ struct ExtractorIds
 {
     ExtractorType trackingExtractorId;
     ExtractorType initializationExtractorId;
+    ExtractorType relocalizationExtractorId;
     ExtractorType markerExtractorId;
 };
 
@@ -59,18 +60,36 @@ struct SlamParams
                     fs["initializationExtractorId"] >> extractorId;
                     extractorIds.initializationExtractorId = (ExtractorType)extractorId;
                 }
+                else
+                    extractorIds.initializationExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
+                if (!fs["relocalizationExtractorId"].empty())
+                {
+                    int extractorId;
+                    fs["relocalizationExtractorId"] >> extractorId;
+                    extractorIds.relocalizationExtractorId = (ExtractorType)extractorId;
+                }
+                else
+                    extractorIds.relocalizationExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
                 if (!fs["markerExtractorId"].empty())
                 {
                     int extractorId;
                     fs["markerExtractorId"] >> extractorId;
                     extractorIds.markerExtractorId = (ExtractorType)extractorId;
                 }
+                else
+                    extractorIds.markerExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
                 if (!fs["trackingExtractorId"].empty())
                 {
                     int extractorId;
                     fs["trackingExtractorId"] >> extractorId;
                     extractorIds.trackingExtractorId = (ExtractorType)extractorId;
                 }
+                else
+                    extractorIds.trackingExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
                 if (!fs["nLevels"].empty())
                     fs["nLevels"] >> nLevels;
                 else
@@ -117,6 +136,7 @@ struct SlamParams
         fs << "trackOptFlow" << params.trackOptFlow;
 
         fs << "initializationExtractorId" << extractorIds.initializationExtractorId;
+        fs << "relocalizationExtractorId" << extractorIds.relocalizationExtractorId;
         fs << "markerExtractorId" << extractorIds.markerExtractorId;
         fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
 

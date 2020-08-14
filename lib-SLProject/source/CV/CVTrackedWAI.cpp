@@ -78,16 +78,24 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                                                nLevels,
                                                                fIniThFAST,
                                                                fMinThFAST);
-        //_waiSlamer = new WAISlam(calib->cameraMat(),
-        //                         calib->distortion(),
-        //                         _voc,
-        //                         _initializationExtractor,
-        //                         _trackingExtractor,
-        //                         nullptr, // global map
-        //                         false,   // tracking only
-        //                         false,   // serial
-        //                         false,   // retain image
-        //                         0.95f);
+
+        WAISlam::Params params;
+        params.cullRedundantPerc   = 0.95f;
+        params.ensureKFIntegration = false;
+        params.fixOldKfs           = false;
+        params.onlyTracking        = false;
+        params.retainImg           = false;
+        params.serial              = false;
+        params.trackOptFlow        = false;
+
+        _waiSlamer = new WAISlam(calib->cameraMat(),
+                                 calib->distortion(),
+                                 _voc,
+                                 _initializationExtractor,
+                                 _trackingExtractor,
+                                 _trackingExtractor,
+                                 nullptr, // global map
+                                 params);
     }
 
     if (_waiSlamer->update(imageGray))

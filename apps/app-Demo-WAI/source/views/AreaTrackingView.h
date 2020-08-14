@@ -52,6 +52,7 @@ private:
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
+    std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
     WAIOrbVocabulary*            _voc;
 
@@ -62,6 +63,7 @@ private:
 
     ////parameter:
     //cv::Size _cameraFrameTargetSize = {640, 480};
+    ExtractorType _relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
 
 #if USE_FBOW
     std::string _vocabularyFileName = "voc_fbow.bin";

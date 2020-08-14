@@ -696,6 +696,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     }
 
     _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize, slamParams.nLevels);
+    _relocalizationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.relocalizationExtractorId, _videoFrameSize, slamParams.nLevels);
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize, slamParams.nLevels);
 
     try
@@ -750,6 +751,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
                         _calibration->distortion(),
                         _voc,
                         _initializationExtractor.get(),
+                        _relocalizationExtractor.get(),
                         _trackingExtractor.get(),
                         std::move(map),
                         slamParams.params);

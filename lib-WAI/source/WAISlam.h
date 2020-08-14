@@ -51,6 +51,7 @@ public:
             const cv::Mat&          distortion,
             WAIOrbVocabulary*       voc,
             KPextractor*            iniExtractor,
+            KPextractor*            relocExtractor,
             KPextractor*            extractor,
             std::unique_ptr<WAIMap> globalMap,
             WAISlam::Params         params);
@@ -171,9 +172,11 @@ protected:
 
     WAISlam::Params      _params;
 
+    unsigned int         _relocFrameCounter   = 0;
     unsigned long        _lastRelocFrameId    = 0;
     unsigned long        _lastKeyFrameFrameId = 0;
     KPextractor*         _extractor           = nullptr;
+    KPextractor*         _relocExtractor      = nullptr;
     KPextractor*         _iniExtractor        = nullptr;
     int                  _infoMatchedInliners = 0;
     std::thread*         _poseUpdateThread;

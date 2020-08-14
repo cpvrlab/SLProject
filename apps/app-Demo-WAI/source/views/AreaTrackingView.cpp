@@ -129,6 +129,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //initialize extractors
     _initializationExtractor = _featureExtractorFactory.make(area.initializationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
     _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
+    _relocalizationExtractor = _featureExtractorFactory.make(_relocalizationExtractorType, _cameraFrameTargetSize, nLevels);
 
     //load vocabulary
     std::string fileName = _vocabularyDir + _vocabularyFileName;
@@ -187,6 +188,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
       _camera->calibration()->distortion(),
       _voc,
       _initializationExtractor.get(),
+      _relocalizationExtractor.get(),
       _trackingExtractor.get(),
       std::move(waiMap),
       params);
