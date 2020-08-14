@@ -16,7 +16,7 @@ const char* mapLocationIdToName(LocationId id)
         case LocationId::BIEL:
             return "Biel";
         case LocationId::BERN:
-            return "Christoffelturm";
+            return "Bern";
         default:
             return "Missing id to name mapping!";
     }
@@ -60,6 +60,8 @@ const char* mapAreaIdToName(AreaId id)
             return "Ring";
         case AreaId::BIEL_SOUTHWALL:
             return "Southwall";
+        case AreaId::BIEL_OFFICE:
+            return "Office";
         default:
             return "Missing id to name mapping!";
     }
@@ -214,6 +216,16 @@ const Location defineLocationBiel()
         area.yPosPix       = 250;
         area.viewAngleDeg  = 270.f;
         loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id              = AreaId::BIEL_OFFICE;
+        area.name            = mapAreaIdToName(area.id);
+        area.xPosPix         = 322;
+        area.yPosPix         = 238;
+        area.viewAngleDeg    = 20.f;
+        area.slamMapFileName = "locations/biel/office/maps/DEVELOPMENT-map_20200813-171657_biel_office_FAST-ORBS-1000_2.json";
+        loc.areas[area.id]   = area;
     }
     return loc;
 }

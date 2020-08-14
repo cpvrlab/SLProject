@@ -102,6 +102,14 @@ void AreaTrackingView::updateSceneCameraFov()
 
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
+    //todo:
+    /*
+    load correct map
+    load correct model
+    init correct extractors and number of levels (put it to ErlebAR::Area directly)
+    move params to ErlebAR::Area
+    start camera with size from area
+    */
     ErlebAR::Location& location = _locations[locId];
     ErlebAR::Area&     area     = location.areas[areaId];
     _gui.initArea(area);
@@ -119,10 +127,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     updateSceneCameraFov();
 
     //initialize extractors
-    // TODO(dgj1): make this configurable or read it from map name
-    int nLevels              = 2;
-    _initializationExtractor = _featureExtractorFactory.make(_initializationExtractorType, _cameraFrameTargetSize, nLevels);
-    _trackingExtractor       = _featureExtractorFactory.make(_trackingExtractorType, _cameraFrameTargetSize, nLevels);
+    _initializationExtractor = _featureExtractorFactory.make(area.initializationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
+    _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
 
     //load vocabulary
     std::string fileName = _vocabularyDir + _vocabularyFileName;
@@ -136,9 +142,20 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     std::unique_ptr<WAIMap> waiMap;
     if (!area.slamMapFileName.empty())
     {
+        bool mapFileExists = false;
         Utils::log("AreaTrackingView", "map for area is: %s", area.slamMapFileName.c_str());
         std::string mapFileName = _erlebARDir + area.slamMapFileName;
         if (Utils::fileExists(mapFileName))
+        {
+            mapFileExists = true;
+        }
+        else if (Utils::fileExists(mapFileName + ".gz"))
+        {
+            mapFileName += ".gz";
+            mapFileExists = true;
+        }
+
+        if (mapFileExists)
         {
             Utils::log("AreaTrackingView", "loading map file from: %s", mapFileName.c_str());
             WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(_voc);
@@ -157,9 +174,9 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
                                                 _camera->config().targetWidth);
 
     WAISlam::Params params;
-    params.cullRedundantPerc = 0.95f;
+    params.cullRedundantPerc   = 0.95f;
     params.ensureKFIntegration = false;
-    params.fixOldKfs           = false;
+    params.fixOldKfs           = true;
     params.onlyTracking        = false;
     params.retainImg           = false;
     params.serial              = false;
@@ -175,9 +192,9 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
       params);
 
     if (_trackingExtractor->doubleBufferedOutput())
-        _imgBuffer.init(2, _cameraFrameTargetSize);
+        _imgBuffer.init(2, area.cameraFrameTargetSize);
     else
-        _imgBuffer.init(1, _cameraFrameTargetSize);
+        _imgBuffer.init(1, area.cameraFrameTargetSize);
 }
 
 void AreaTrackingView::resume()

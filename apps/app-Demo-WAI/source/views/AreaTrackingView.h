@@ -60,10 +60,8 @@ private:
 
     //std::unique_ptr<SENSCalibration> _calibration;
 
-    //parameter:
-    cv::Size      _cameraFrameTargetSize       = {640, 480};
-    ExtractorType _initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
-    ExtractorType _trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
+    ////parameter:
+    //cv::Size _cameraFrameTargetSize = {640, 480};
 
 #if USE_FBOW
     std::string _vocabularyFileName = "voc_fbow.bin";

@@ -20,7 +20,7 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
                  WAISlam::Params         params)
 {
     _iniData.initializer = nullptr;
-    _params = params;
+    _params              = params;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
@@ -63,10 +63,10 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
     }
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        _poseUpdateThread = new std::thread(updatePoseThread, this);
-        _isFinish         = false;
-        _isStop           = false;
-        _requestFinish    = false;
+    _poseUpdateThread = new std::thread(updatePoseThread, this);
+    _isFinish         = false;
+    _isStop           = false;
+    _requestFinish    = false;
 #endif
 
     _iniData.initializer = nullptr;
@@ -380,8 +380,8 @@ bool WAISlam::update(cv::Mat& imageGray)
     createFrame(frame, imageGray);
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        std::unique_lock<std::mutex> lock(_frameQueueMutex);
-        _framesQueue.push(frame);
+    std::unique_lock<std::mutex> lock(_frameQueueMutex);
+    _framesQueue.push(frame);
 #else
     if (_params.ensureKFIntegration)
         updatePoseKFIntegration(frame);
@@ -460,7 +460,7 @@ cv::Mat WAISlam::getPose()
 
 void WAISlam::requestStateIdle()
 {
-    if (!_params.onlyTracking || !_params.serial)
+    if (!(_params.onlyTracking || _params.serial))
     {
         std::unique_lock<std::mutex> guard(_mutexStates);
         _localMapping->RequestPause();

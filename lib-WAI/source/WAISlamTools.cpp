@@ -721,8 +721,9 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Relocalization is performed when tracking is lost
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
-    vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
-
+    //vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
+    vpCandidateKFs = waiMap->GetAllKeyFrames();
+    std::cout << "Number of candidates:" << vpCandidateKFs.size() << std::endl;
     if (vpCandidateKFs.empty())
     {
         AVERAGE_TIMING_STOP("relocalization");
@@ -861,6 +862,8 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                     bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
                     break;
                 }
+
+                std::cout << "Number of nGood:" << nGood << std::endl;
             }
         }
     }

@@ -529,7 +529,6 @@ bool TestView::startCamera()
                        true,
                        65.f);
     }
-
     else //try with unknown config (for desktop)
     {
         aproxVisuImgW    = 640;
