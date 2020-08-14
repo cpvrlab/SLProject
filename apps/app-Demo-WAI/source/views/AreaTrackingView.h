@@ -59,12 +59,6 @@ private:
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     std::unique_ptr<WAISlam> _waiSlam;
 
-    //std::unique_ptr<SENSCalibration> _calibration;
-
-    ////parameter:
-    //cv::Size _cameraFrameTargetSize = {640, 480};
-    ExtractorType _relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
-
 #if USE_FBOW
     std::string _vocabularyFileName = "voc_fbow.bin";
 #else

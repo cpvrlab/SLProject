@@ -87,6 +87,7 @@ public:
     std::string slamMapFileName;
     //WaiSlam extractor types
     ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
+    ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
     ExtractorType trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
     int           nExtractorLevels            = 2;
     //camera image size
