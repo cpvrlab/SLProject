@@ -684,16 +684,16 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             material->GetTexture(textureType, 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
             SLTextureType texType = textureType == aiTextureType_DIFFUSE
                                       ? TT_color
-                                      : textureType == aiTextureType_NORMALS
-                                          ? TT_normal
-                                          : textureType == aiTextureType_SPECULAR
-                                              ? TT_gloss
-                                              : textureType == aiTextureType_HEIGHT
-                                                  ? TT_height
-                                                  : textureType == aiTextureType_OPACITY
-                                                      ? TT_color
-                                                      : TT_unknown;
-            SLstring texFile = checkFilePath(modelPath, texturePath, aipath.data);
+                                    : textureType == aiTextureType_NORMALS
+                                      ? TT_normal
+                                    : textureType == aiTextureType_SPECULAR
+                                      ? TT_gloss
+                                    : textureType == aiTextureType_HEIGHT
+                                      ? TT_height
+                                    : textureType == aiTextureType_OPACITY
+                                      ? TT_color
+                                      : TT_unknown;
+            SLstring      texFile = checkFilePath(modelPath, texturePath, aipath.data);
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation
@@ -1010,11 +1010,10 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
 /*!
 SLAssimpImporter::loadNodesRec loads the scene graph node tree recursively.
 */
-SLNode* SLAssimpImporter::loadNodesRec(
-  SLNode*    curNode,    //!< Pointer to the current node. Pass nullptr for root node
-  aiNode*    node,       //!< The according assimp node. Pass nullptr for root node
-  SLMeshMap& meshes,     //!< Reference to the meshes vector
-  SLbool     loadMeshesOnly) //!< Only load nodes with meshes
+SLNode* SLAssimpImporter::loadNodesRec(SLNode*    curNode,    //!< Pointer to the current node. Pass nullptr for root node
+                                       aiNode*    node,       //!< The according assimp node. Pass nullptr for root node
+                                       SLMeshMap& meshes,     //!< Reference to the meshes vector
+                                       SLbool     loadMeshesOnly) //!< Only load nodes with meshes
 {
     // we're at the root
     if (!curNode)
@@ -1024,10 +1023,10 @@ SLNode* SLAssimpImporter::loadNodesRec(
     aiMatrix4x4* M = &node->mTransformation;
 
     // clang-format off
-    SLMat4f      SLM(M->a1, M->a2, M->a3, M->a4,
-                     M->b1, M->b2, M->b3, M->b4,
-                     M->c1, M->c2, M->c3, M->c4,
-                     M->d1, M->d2, M->d3, M->d4);
+    SLMat4f SLM(M->a1, M->a2, M->a3, M->a4,
+                M->b1, M->b2, M->b3, M->b4,
+                M->c1, M->c2, M->c3, M->c4,
+                M->d1, M->d2, M->d3, M->d4);
     // clang-format on
 
     curNode->om(SLM);
@@ -1068,9 +1067,9 @@ SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnima
     oss << "unnamed_anim_" << animManager.allAnimNames().size();
     SLstring animName        = oss.str();
     SLfloat  animTicksPerSec = (anim->mTicksPerSecond < 0.0001f)
-                                ? 30.0f
-                                : (SLfloat)anim->mTicksPerSecond;
-    SLfloat animDuration = (SLfloat)anim->mDuration / animTicksPerSec;
+                                 ? 30.0f
+                                 : (SLfloat)anim->mTicksPerSecond;
+    SLfloat  animDuration    = (SLfloat)anim->mDuration / animTicksPerSec;
 
     if (anim->mName.length > 0)
         animName = anim->mName.C_Str();

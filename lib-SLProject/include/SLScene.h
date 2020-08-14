@@ -60,6 +60,7 @@ public:
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
+    SLAssetManager*  assetManager() { return _assetManager; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
@@ -95,7 +96,7 @@ public:
     // Misc.
     bool         onUpdate(bool renderTypeIsRT,
                           bool voxelsAreShown);
-    void         init();
+    void         init(SLAssetManager* am);
     virtual void unInit();
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
     void         deselectAllNodesAndMeshes();
@@ -106,6 +107,7 @@ protected:
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
     SLAnimManager   _animManager;   //!< Animation manager instance
+    SLAssetManager* _assetManager;  //!< Pointer to the asset manager
 
     SLNode*  _root3D;         //!< Root node for 3D scene
     SLNode*  _root2D;         //!< Root node for 2D scene displayed in ortho projection

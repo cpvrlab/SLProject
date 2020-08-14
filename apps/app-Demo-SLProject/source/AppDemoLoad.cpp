@@ -106,7 +106,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sceneview->unInit();
 
     // Initialize all preloaded stuff from SLScene
-    s->init();
+    s->init((SLAssetManager*)s);
 
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
@@ -2334,8 +2334,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Mass Animation Test");
         s->info("Performance test for transform updates from many animations.");
-
-        s->init();
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.1f);
         light1->translate(0, 10, 0);

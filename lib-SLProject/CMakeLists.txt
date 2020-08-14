@@ -130,6 +130,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNodeMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptix.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixAccelerationStructure.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
@@ -227,6 +228,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNodeMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptix.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelStruct.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp

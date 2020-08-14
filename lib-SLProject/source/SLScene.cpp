@@ -68,8 +68,11 @@ SLScene::~SLScene()
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
 */
-void SLScene::init()
+void SLScene::init(SLAssetManager* am)
 {
+    assert(am != nullptr && "No asset manager passed");
+
+    _assetManager = am;
     unInit();
 
     // reset all states

@@ -89,7 +89,7 @@ public:
     //! Sets the material states and passes all variables to the shader program
     void activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights);
 
-    //! Passes the material paramters to shader programs uniform variables
+    //! Passes the material parameters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures

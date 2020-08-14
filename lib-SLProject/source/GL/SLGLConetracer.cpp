@@ -339,7 +339,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 
         // generate a VAO if it does not exist yet
         if (!mesh->vao().vaoID())
-                mesh->generateVAO();
+            mesh->generateVAO(mesh->vao());
 
         // bind the buffer
         glBindVertexArray(mesh->vao().vaoID());

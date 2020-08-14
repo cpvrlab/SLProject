@@ -11,6 +11,7 @@
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLAnimManager.h>
+#include <SLAssetManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
@@ -710,6 +711,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _nodesBlended.clear();
     _nodesVisible.clear();
     _nodesOverdrawn.clear();
+
     if (_s->root3D())
         _s->root3D()->cull3DRec(this);
     _cullTimeMS = GlobalTimer::timeMS() - startMS;

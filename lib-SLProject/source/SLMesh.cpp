@@ -318,7 +318,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
         return;
 
     if (!_vao.vaoID())
-        generateVAO();
+        generateVAO(_vao);
 
     // Now use the depth material
     SLGLProgram* sp    = depthMat->program();
@@ -407,7 +407,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ///////////////////////////////////////
 
     if (!_vao.vaoID())
-        generateVAO();
+        generateVAO(_vao);
 
     /////////////////////////////
     // 3) Apply Uniform Variables
@@ -681,17 +681,16 @@ void SLMesh::drawSelectedVertices()
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
-void SLMesh::generateVAO()
+void SLMesh::generateVAO(SLGLVertexArray& vao)
 {
-    _vao.setAttrib(AT_position, AT_position, _finalP);
-    if (!N.empty()) _vao.setAttrib(AT_normal, AT_normal, _finalN);
-    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
-    if (!C.empty()) _vao.setAttrib(AT_color, AT_color, &C);
-    if (!T.empty()) _vao.setAttrib(AT_tangent, AT_tangent, &T);
-    if (!I16.empty()) _vao.setIndices(&I16);
-    if (!I32.empty()) _vao.setIndices(&I32);
-
-    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
+    vao.setAttrib(AT_position, AT_position, _finalP);
+    if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
+    if (!Tc.empty()) vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
+    if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
+    if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
+    if (!I16.empty()) vao.setIndices(&I16);
+    if (!I32.empty()) vao.setIndices(&I32);
+    vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 /*!
