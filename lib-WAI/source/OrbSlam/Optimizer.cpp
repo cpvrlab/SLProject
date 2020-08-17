@@ -496,12 +496,15 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
 
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
-    const float chi2Mono[4]   = {CHI2_1, CHI2_2, CHI2_3, CHI2_4};
-    const int   its[4]        = {10, 10, 10, 10};
+    const float chi2Mono[4] = {CHI2_1, CHI2_2, CHI2_3, CHI2_4};
+    const int   its[4]      = {10, 10, 10, 10};
 
     int nBad = 0;
     for (size_t it = 0; it < 4; it++)
     {
+        //if (nBad >= vpEdgesMono.size())
+        //    std::cout << "No good edged left" << std::endl;
+
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
         optimizer.initializeOptimization(0);
         optimizer.optimize(its[it]);
@@ -635,8 +638,8 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     AVERAGE_TIMING_START("PoseOpt.Part2");
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
-    const float chi2Mono[4]   = {CHI2_1, CHI2_2, CHI2_3, CHI2_4};
-    const int   its[4]        = {10, 10, 10, 10};
+    const float chi2Mono[4] = {CHI2_1, CHI2_2, CHI2_3, CHI2_4};
+    const int   its[4]      = {10, 10, 10, 10};
 
     int nBad = 0;
     for (size_t it = 0; it < 3; it++)

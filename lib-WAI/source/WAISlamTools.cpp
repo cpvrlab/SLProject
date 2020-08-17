@@ -722,7 +722,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
     vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
-
+    //std::cout << "Number of candidates:" << vpCandidateKFs.size() << std::endl;
     if (vpCandidateKFs.empty())
     {
         AVERAGE_TIMING_STOP("relocalization");
@@ -823,7 +823,10 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                 int nGood = Optimizer::PoseOptimization(&currentFrame, outliers);
 
                 if (nGood < 10)
+                {
+                    //std::cout << "Number of nGood:" << nGood << std::endl;
                     continue;
+                }
 
                 // If few inliers, search by projection in a coarse window and optimize again:
                 //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
@@ -859,6 +862,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                 if (nGood >= 50)
                 {
                     bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
+                    //std::cout << "Number of nGood:" << nGood << std::endl;
                     break;
                 }
             }
