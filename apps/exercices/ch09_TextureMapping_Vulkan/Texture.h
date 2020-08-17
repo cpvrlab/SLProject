@@ -15,7 +15,7 @@ class Texture : public Object
 
 public:
     Texture(string name, const string filename);
-    Texture(const Texture&) = default;
+    Texture(Texture&) = default;
     void load();
 
     // Getter

@@ -142,11 +142,13 @@ target_compile_options(${target}
         INTERFACE
         )
 
-
-
-
 # Generates glsl shader to spirv
-set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.131.2/Bin32/glslc.exe")
+if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX") #---------------------------------------------------------------------------
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
+    set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.131.2/Bin32/glslc.exe")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
+    set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/mac64_vulkan_1.2.135.0/macOS/bin/glslc")
+endif()
 
 # To convert all shader in folder, replace filename with *.vert / *.frag
 file(GLOB SHADER_SOURCE_FILES
