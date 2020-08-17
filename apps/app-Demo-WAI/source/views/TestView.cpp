@@ -341,8 +341,6 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     doWaitOnIdle(false);
     camera(_scene.cameraNode);
     onInitialize();
-    if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
 }
 
 void TestView::saveMap(std::string location,

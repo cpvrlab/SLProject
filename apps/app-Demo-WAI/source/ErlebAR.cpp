@@ -201,12 +201,14 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id            = AreaId::BIEL_RING;
-        area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 200;
-        area.yPosPix       = 200;
-        area.viewAngleDeg  = 110.f;
-        loc.areas[area.id] = area;
+        area.id                    = AreaId::BIEL_RING;
+        area.name                  = mapAreaIdToName(area.id);
+        area.xPosPix               = 200;
+        area.yPosPix               = 200;
+        area.viewAngleDeg          = 110.f;
+        area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.json.gz";
+        area.cameraFrameTargetSize = {640, 480};
+        loc.areas[area.id]         = area;
     }
     {
         Area area;
@@ -219,13 +221,14 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id              = AreaId::BIEL_OFFICE;
-        area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 322;
-        area.yPosPix         = 238;
-        area.viewAngleDeg    = 20.f;
-        area.slamMapFileName = "locations/biel/office/maps/DEVELOPMENT-map_20200813-171657_biel_office_FAST-ORBS-1000_2.json";
-        loc.areas[area.id]   = area;
+        area.id                    = AreaId::BIEL_OFFICE;
+        area.name                  = mapAreaIdToName(area.id);
+        area.xPosPix               = 322;
+        area.yPosPix               = 238;
+        area.viewAngleDeg          = 20.f;
+        area.slamMapFileName       = "locations/biel/office/maps/DEVELOPMENT-map_20200813-171657_biel_office_FAST-ORBS-1000_2.json.gz";
+        area.cameraFrameTargetSize = {640, 360};
+        loc.areas[area.id]         = area;
     }
     return loc;
 }

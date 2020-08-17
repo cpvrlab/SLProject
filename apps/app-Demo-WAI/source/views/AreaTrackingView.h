@@ -40,7 +40,8 @@ private:
     void updateSceneCameraFov();
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
 
-    bool startCamera();
+    bool                    startCamera(const cv::Size& cameraFrameTargetSize);
+    std::unique_ptr<WAIMap> tryLoadMap(const std::string& slamMapFileName);
 
     AreaTrackingGui _gui;
     AppWAIScene     _scene;
@@ -74,6 +75,8 @@ private:
     bool _showKeyPointsMatched = true;
     bool _showMapPC            = true;
     bool _showMatchesPC        = true;
+    //size with which camera was started last time (needed for a resume call)
+    cv::Size _cameraFrameResumeSize;
 };
 
 #endif //AREA_TRACKING_VIEW_H

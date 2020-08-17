@@ -29,6 +29,8 @@ private:
     CameraTestGui   _gui;
     CameraOnlyScene _scene;
     SENSCamera*     _sensCamera;
+
+    const DeviceData& _deviceData;
 };
 
 #endif //CAMERA_TEST_VIEW_H

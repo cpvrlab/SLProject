@@ -100,6 +100,57 @@ void AreaTrackingView::updateSceneCameraFov()
     }
 }
 
+std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& slamMapFileName)
+{
+    std::unique_ptr<WAIMap> waiMap;
+    if (!slamMapFileName.empty())
+    {
+        bool        mapFileExists = false;
+        std::string mapFileName   = _erlebARDir + slamMapFileName;
+        Utils::log("AreaTrackingView", "map file name for area is: %s", mapFileName.c_str());
+        //hick hack for android: android extracts our .gz file and renames them without .gz
+        if (Utils::fileExists(mapFileName))
+        {
+            mapFileExists = true;
+        }
+        else if (Utils::fileExists(mapFileName + ".gz"))
+        {
+            mapFileName += ".gz";
+            mapFileExists = true;
+        }
+        else if (Utils::containsString(mapFileName, ".gz"))
+        {
+            std::string mapFileNameWOExt;
+
+            size_t i = mapFileName.rfind('.gz');
+            if (i != std::string::npos)
+                mapFileNameWOExt = mapFileName.substr(0, i - 2);
+
+            //try without .gz
+            if (Utils::fileExists(mapFileNameWOExt))
+            {
+                mapFileName   = mapFileNameWOExt;
+                mapFileExists = true;
+            }
+        }
+
+        if (mapFileExists)
+        {
+            Utils::log("AreaTrackingView", "loading map file from: %s", mapFileName.c_str());
+            WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(_voc);
+            waiMap                          = std::make_unique<WAIMap>(keyframeDataBase);
+            bool mapLoadingSuccess          = WAIMapStorage::loadMap(waiMap.get(),
+                                                            _scene.mapNode,
+                                                            _voc,
+                                                            mapFileName,
+                                                            false,
+                                                            true);
+        }
+    }
+
+    return waiMap;
+}
+
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
     //todo:
@@ -115,7 +166,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     _gui.initArea(area);
 
     //start camera
-    if (!startCamera())
+    //if (!startCamera(cv::Size(this->scrW, this->scrH)))
+    if (!startCamera(area.cameraFrameTargetSize))
     {
         Utils::log("AreaTrackingView", "Could not start camera!");
         return;
@@ -139,36 +191,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _voc->loadFromFile(fileName);
     }
 
-    //load map
-    std::unique_ptr<WAIMap> waiMap;
-    if (!area.slamMapFileName.empty())
-    {
-        bool mapFileExists = false;
-        Utils::log("AreaTrackingView", "map for area is: %s", area.slamMapFileName.c_str());
-        std::string mapFileName = _erlebARDir + area.slamMapFileName;
-        if (Utils::fileExists(mapFileName))
-        {
-            mapFileExists = true;
-        }
-        else if (Utils::fileExists(mapFileName + ".gz"))
-        {
-            mapFileName += ".gz";
-            mapFileExists = true;
-        }
-
-        if (mapFileExists)
-        {
-            Utils::log("AreaTrackingView", "loading map file from: %s", mapFileName.c_str());
-            WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(_voc);
-            waiMap                          = std::make_unique<WAIMap>(keyframeDataBase);
-            bool mapLoadingSuccess          = WAIMapStorage::loadMap(waiMap.get(),
-                                                            _scene.mapNode,
-                                                            _voc,
-                                                            mapFileName,
-                                                            false,
-                                                            true);
-        }
-    }
+    //try to load map
+    std::unique_ptr<WAIMap> waiMap = tryLoadMap(area.slamMapFileName);
 
     cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
                                                 _camera->config().manipWidth,
@@ -201,7 +225,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
 void AreaTrackingView::resume()
 {
-    startCamera();
+    startCamera(_cameraFrameResumeSize);
 }
 
 void AreaTrackingView::hold()
@@ -209,28 +233,38 @@ void AreaTrackingView::hold()
     _camera->stop();
 }
 
-bool AreaTrackingView::startCamera()
+bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
 {
     if (_camera)
     {
         if (_camera->started())
             _camera->stop();
 
-        int   trackingImgW  = 640;
-        float targetWdivH   = 4.f / 3.f;
+        //we have to store this for a resume call..
+        _cameraFrameResumeSize = cameraFrameTargetSize;
+
+        int trackingImgW = 640;
+        //float targetWdivH   = 4.f / 3.f;
+        float targetWdivH   = (float)cameraFrameTargetSize.width / (float)cameraFrameTargetSize.height;
         int   aproxVisuImgW = 1000;
         int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
 
         auto capProps   = _camera->captureProperties();
         auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
+
         if (bestConfig.first && bestConfig.second)
         {
             const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
             const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
-            //calculate size of tracking image
+            Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
+
+            int cropW,
+              cropH, w, h;
+            SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
+
             _camera->start(devProps->deviceId(),
                            *streamConfig,
-                           cv::Size(),
+                           cv::Size(w, h),
                            false,
                            false,
                            true,
@@ -238,25 +272,29 @@ bool AreaTrackingView::startCamera()
                            true,
                            65.f);
         }
-        else //try with unknown config (for desktop usage
+        else //try with unknown config (for desktop usage, there may be no high resolution available)
         {
             aproxVisuImgW    = 640;
             aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
-            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, aproxVisuImgW, aproxVisuImgH);
+            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 52.5f, aproxVisuImgW, aproxVisuImgH);
             if (bestConfig2.first && bestConfig2.second)
             {
                 const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
                 const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
-                //calculate size of tracking image
+                Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
+
+                int cropW, cropH, w, h;
+                SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
+
                 _camera->start(devProps->deviceId(),
                                *streamConfig,
-                               cv::Size(),
+                               cv::Size(w, h),
                                false,
                                false,
                                true,
                                trackingImgW,
                                true,
-                               65.f);
+                               52.5f);
             }
         }
 
