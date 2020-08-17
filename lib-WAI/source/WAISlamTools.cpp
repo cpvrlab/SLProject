@@ -238,13 +238,10 @@ bool WAISlamTools::initialize(InitializerData&  iniData,
 bool WAISlamTools::genInitialMap(WAIMap*       map,
                                  LocalMapping* localMapper,
                                  LoopClosing*  loopCloser,
-                                 LocalMap&     localMap,
-                                 bool          serial)
+                                 LocalMap&     localMap)
 {
     if (localMap.keyFrames.size() != 2)
-    {
         return false;
-    }
 
     std::unique_lock<std::mutex> lock(map->mMutexMapUpdate, std::defer_lock);
     lock.lock();
@@ -263,17 +260,8 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
     // Bundle Adjustment
     Optimizer::GlobalBundleAdjustemnt(map, 20);
 
-    localMapper->InsertKeyFrame(localMap.keyFrames[0]);
-    localMapper->InsertKeyFrame(localMap.keyFrames[1]);
-
     map->SetReferenceMapPoints(localMap.mapPoints);
     map->mvpKeyFrameOrigins.push_back(localMap.keyFrames[0]);
-
-    if (serial)
-    {
-        localMapper->RunOnce();
-        localMapper->RunOnce();
-    }
 
     return true;
 }
@@ -541,40 +529,6 @@ void WAISlamTools::strictMapping(WAIMap*             map,
     if (strictNeedNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
     {
         createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
-    }
-}
-
-void WAISlamTools::serialMapping(WAIMap*             map,
-                                 LocalMap&           localMap,
-                                 LocalMapping*       localMapper,
-                                 LoopClosing*        loopCloser,
-                                 WAIFrame&           frame,
-                                 int                 inliers,
-                                 const unsigned long lastRelocFrameId,
-                                 unsigned long&      lastKeyFrameFrameId)
-{
-    if (needNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
-    {
-        createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
-        localMapper->RunOnce();
-        loopCloser->RunOnce();
-    }
-}
-
-void WAISlamTools::strictSerialMapping(WAIMap*             map,
-                                       LocalMap&           localMap,
-                                       LocalMapping*       localMapper,
-                                       LoopClosing*        loopCloser,
-                                       WAIFrame&           frame,
-                                       int                 inliers,
-                                       const unsigned long lastRelocFrameId,
-                                       unsigned long&      lastKeyFrameFrameId)
-{
-    if (strictNeedNewKeyFrame(map, localMap, localMapper, frame, inliers, lastRelocFrameId, lastKeyFrameFrameId))
-    {
-        createNewKeyFrame(localMapper, localMap, map, frame, lastKeyFrameFrameId);
-        localMapper->RunOnce();
-        loopCloser->RunOnce();
     }
 }
 

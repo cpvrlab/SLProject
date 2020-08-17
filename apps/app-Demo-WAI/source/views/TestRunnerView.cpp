@@ -23,8 +23,7 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _ftpPwd("FaAdbD3F2a"),
     _ftpDir("erleb-AR/"),
     _videoWasDownloaded(false),
-    _summedTime(0.0f),
-    _serial(false)
+    _summedTime(0.0f)
 {
     init("TestRunnerView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
 
@@ -113,15 +112,7 @@ bool TestRunnerView::update()
                         {
                             _trackingFrameCount++;
                             WAISlamTools::motionModel(currentFrame, _lastFrame, _velocity, _extrinsic);
-
-                            if (_serial)
-                            {
-                                WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                            }
-                            else
-                            {
-                                WAISlamTools::mapping(_map, _localMap, _localMapping, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                            }
+                            WAISlamTools::mapping(_map, _localMap, _localMapping, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                         }
                         else
                         {
@@ -142,15 +133,7 @@ bool TestRunnerView::update()
                             _relocalizeOnce = true;
 
                             WAISlamTools::motionModel(currentFrame, _lastFrame, _velocity, _extrinsic);
-
-                            if (_serial)
-                            {
-                                WAISlamTools::serialMapping(_map, _localMap, _localMapping, _loopClosing, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                            }
-                            else
-                            {
-                                WAISlamTools::mapping(_map, _localMap, _localMapping, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
-                            }
+                            WAISlamTools::mapping(_map, _localMap, _localMapping, currentFrame, _inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
                         }
                     }
 
@@ -209,14 +192,11 @@ bool TestRunnerView::update()
 
                         _maxTrackingFrameCount = 0;
 
-                        if (!_serial)
-                        {
-                            _localMapping->RequestFinish();
-                            _loopClosing->RequestFinish();
+                        _localMapping->RequestFinish();
+                        _loopClosing->RequestFinish();
 
-                            _mappingThread->join();
-                            _loopClosingThread->join();
-                        }
+                        _mappingThread->join();
+                        _loopClosingThread->join();
                     }
                     break;
                 }
@@ -441,11 +421,8 @@ bool TestRunnerView::update()
                         _localMapping->SetLoopCloser(_loopClosing);
                         _loopClosing->SetLocalMapper(_localMapping);
 
-                        if (!_serial)
-                        {
-                            _mappingThread     = new std::thread(&LocalMapping::Run, _localMapping);
-                            _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
-                        }
+                        _mappingThread     = new std::thread(&LocalMapping::Run, _localMapping);
+                        _loopClosingThread = new std::thread(&LoopClosing::Run, _loopClosing);
                     }
 
                     if (_vStream)

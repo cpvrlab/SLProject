@@ -31,6 +31,7 @@ enum TrackingState
     TrackingState_Initializing,
     TrackingState_TrackingOK,
     TrackingState_TrackingLost,
+    TrackingState_TrackingStart,
     TrackingState_TrackingTransformed
 };
 }
@@ -56,8 +57,7 @@ public:
     static bool genInitialMap(WAIMap*       globalMap,
                               LocalMapping* localMapper,
                               LoopClosing*  loopCloser,
-                              LocalMap&     localMap,
-                              bool          serial);
+                              LocalMap&     localMap);
 
     static bool oldInitialize(WAIFrame&         frame,
                               InitializerData&  iniData,
@@ -113,24 +113,6 @@ public:
                               int                 inliers,
                               const unsigned long lastRelocFrameId,
                               unsigned long&      lastKeyFrameFrameId);
-
-    static void serialMapping(WAIMap*             map,
-                              LocalMap&           localMap,
-                              LocalMapping*       localMapper,
-                              LoopClosing*        loopCloser,
-                              WAIFrame&           frame,
-                              int                 inliers,
-                              const unsigned long lastRelocFrameId,
-                              unsigned long&      lastKeyFrameFrameId);
-
-    static void strictSerialMapping(WAIMap* map,
-                                    LocalMap&           localMap,
-                                    LocalMapping*       localMapper,
-                                    LoopClosing*        loopCloser,
-                                    WAIFrame&           frame,
-                                    int                 inliers,
-                                    const unsigned long lastRelocFrameId,
-                                    unsigned long&      lastKeyFrameFrameId);
 
     static void motionModel(WAIFrame& frame,
                             WAIFrame& lastFrame,
