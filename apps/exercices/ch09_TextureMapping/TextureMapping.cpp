@@ -113,25 +113,29 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     assert(stacks > 3 && slices > 3);
 
     // create vertex array
-    _numV               = (stacks + 1) * (slices + 1);
-    VertexPNT* vertices = new VertexPNT[_numV];
+    GLuint     numV = (stacks + 1) * (slices + 1);
+    VertexPNT* v    = new VertexPNT[numV];
 
     float  theta, dtheta; // angles around x-axis
     float  phi, dphi;     // angles around z-axis
-    GLuint i, j;          // loop counters
+    float  s, t, ds, dt;  // texture coords
+    int    i, j;          // loop counters
     GLuint iv = 0;
 
     // init start values
     theta  = 0.0f;
     dtheta = Utils::PI / stacks;
     dphi   = 2.0f * Utils::PI / slices;
+    ds     = 1.0f / slices;
+    dt     = 1.0f / stacks;
+    t      = 1.0f;
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= stacks; ++i)
     {
         float sin_theta = sin(theta);
         float cos_theta = cos(theta);
-        phi             = 0.0f;
+        phi = s = 0.0f;
 
         // Loop through all slices
         for (j = 0; j <= slices; ++j)
@@ -139,23 +143,25 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
             if (j == slices) phi = 0.0f;
 
             // define first the normal with length 1
-            vertices[iv].n.x = sin_theta * cos(phi);
-            vertices[iv].n.y = sin_theta * sin(phi);
-            vertices[iv].n.z = cos_theta;
+            v[iv].n.x = sin_theta * cos(phi);
+            v[iv].n.y = sin_theta * sin(phi);
+            v[iv].n.z = cos_theta;
 
             // set the vertex position w. the scaled normal
-            vertices[iv].p.x = radius * vertices[iv].n.x;
-            vertices[iv].p.y = radius * vertices[iv].n.y;
-            vertices[iv].p.z = radius * vertices[iv].n.z;
+            v[iv].p.x = radius * v[iv].n.x;
+            v[iv].p.y = radius * v[iv].n.y;
+            v[iv].p.z = radius * v[iv].n.z;
 
             // set the texture coords.
-            vertices[iv].t.x = 0; // ???
-            vertices[iv].t.y = 0; // ???
+            v[iv].t.x = s;
+            v[iv].t.y = t;
 
             phi += dphi;
+            s += ds;
             iv++;
         }
         theta += dtheta;
+        t -= dt;
     }
 
     // create Index array x
@@ -185,8 +191,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     glUtils::buildVAO(_vao,
                       _vboV,
                       _vboI,
-                      vertices,
-                      (GLint)_numV,
+                      v,
+                      (GLint)numV,
                       sizeof(VertexPNT),
                       indices,
                       (GLint)_numI,
@@ -197,7 +203,7 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
                       _nLoc);
 
     // Delete arrays on heap
-    delete[] vertices;
+    delete[] v;
     delete[] indices;
 }
 //-----------------------------------------------------------------------------
@@ -324,7 +330,8 @@ void onInit()
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object
-    buildSquare();
+    buildSphere(1.0f, 30, 30);
+    // buildSquare();
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
@@ -666,7 +673,7 @@ int main(int argc, char* argv[])
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
     // Init OpenGL access library gl3w
-    if (gl3wInit()!=0)
+    if (gl3wInit() != 0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
