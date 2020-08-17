@@ -163,7 +163,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "augst" || location == "Augst")
     {
-        std::string      modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+        std::string      modelPath = _dataDir + "models/GLTF/augst/Tempel-Theater-02.gltf";
         SLAssimpImporter importer;
 
         if (!Utils::fileExists(modelPath))
