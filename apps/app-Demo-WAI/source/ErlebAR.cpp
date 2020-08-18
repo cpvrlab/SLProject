@@ -32,7 +32,7 @@ const char* mapAreaIdToName(AreaId id)
         case AreaId::AUGST_TEMPLE_HILL_MARKER:
             return "templeHill-marker";
         case AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM:
-            return "templeHillTheater";
+            return "templeHillTheaterBottom";
         //avenches
         case AreaId::AVENCHES_AMPHITHEATER:
             return "Amphitheater";
@@ -79,7 +79,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 496;
         area.yPosPix         = 566;
         area.viewAngleDeg    = 120;
-        area.slamMapFileName = "locations/augst/templeHill-marker/maps/final_marker-map_20200526-142338_augst_templeHill-marker_FAST_ORBS_1000.json";
+        area.slamMapFileName = "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.json.gz";
         loc.areas[area.id]   = area;
     }
     {
@@ -89,7 +89,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 627;
         area.yPosPix         = 606;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "locations/augst/templeHillTheaterBottom/maps/DEVELOPMENT-map_20200528-090204_augst_templeHillTheaterBottom_FAST_ORBS_1000.json";
+        area.slamMapFileName = "locations/augst/templeHillTheaterBottom/maps/map_20200811-145434_augst_templeHillTheaterBottom_FAST-ORBS-2000_2.json.gz";
         loc.areas[area.id]   = area;
     }
     return loc;
