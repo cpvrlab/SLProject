@@ -52,6 +52,7 @@ const SLMat4f& Node::updateAndGetWMN()
 
     return _wmN;
 }
+
 /*
 SLAABBox& Node::updateAABBRec()
 {
@@ -76,15 +77,14 @@ SLAABBox& Node::updateAABBRec()
 
     // Merge children in WS except for cameras except if cameras have children
     for (Node* child : _children)
-    { /*
+    {
         bool childIsCamera = typeid(*child)==typeid(SLCamera);
         bool cameraHasChildren = false;
         if (childIsCamera)
             cameraHasChildren = !child->children().empty();
 
         if (!childIsCamera || cameraHasChildren)
-        */
-/*
+
 child->updateAABBRec();
 _aabb.mergeWS(child->updateAABBRec());
 }

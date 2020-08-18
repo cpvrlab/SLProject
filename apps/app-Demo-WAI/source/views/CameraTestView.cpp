@@ -16,7 +16,8 @@ CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
          deviceData.scrHeight(),
          sensCamera),
     _scene("CameraTestScene", deviceData.dataDir()),
-    _sensCamera(sensCamera)
+    _sensCamera(sensCamera),
+    _deviceData(deviceData)
 {
     scene(&_scene);
     init("CameraTestView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
@@ -30,8 +31,13 @@ bool CameraTestView::update()
     if (_gui.camera() && _gui.camera()->started())
     {
         SENSFramePtr frame = _gui.camera()->latestFrame();
+
         if (frame)
         {
+            //std::string imgFileName = _deviceData.writableDir() + "imgTest.jpg";
+            //Utils::log("CameraTestView", "saving image to %s", imgFileName.c_str());
+            //cv::imwrite(imgFileName, frame->imgRGB);
+
             //add bars to image instead of viewport adjustment (we update the mat in the buffer)
             //todo: the matrices in the buffer have different sizes.. problem? no! no!
             //if(!frame->extended)
@@ -40,7 +46,8 @@ bool CameraTestView::update()
             //SENS::extendWithBars(frame->imgRGB, this->viewportWdivH());
             //Utils::log("SENSiOSCamera", "update after: w %d w %d", frame->imgRGB.size().width, frame->imgRGB.size().height);
             //frame->extended = true;
-            //}
+            //}s
+            SENS::extendWithBars(frame->imgRGB, this->viewportWdivH());
             _scene.updateVideoImage(frame->imgRGB);
         }
     }

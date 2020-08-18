@@ -1,5 +1,7 @@
 #include "CameraOnlyScene.h"
 
+#include "sens/SENSUtils.h"
+
 CameraOnlyScene::CameraOnlyScene(std::string name, std::string dataDir)
   : SLScene(name, nullptr),
     _dataDir(dataDir)
@@ -15,7 +17,7 @@ void CameraOnlyScene::build()
     _mapNode   = new SLNode("map");
 
     _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage, true);
+    cameraNode->background().texture(_videoImage, false);
 
     _root3D->addChild(_mapNode);
 }
@@ -26,8 +28,9 @@ void CameraOnlyScene::updateVideoImage(const cv::Mat& image)
     float oldImgWdivH = (float)cameraNode->background().texture()->width() / (float)cameraNode->background().texture()->height();
     if (std::abs(newImgWdivH - oldImgWdivH) > 0.001f)
     {
-        cameraNode->background().texture(_videoImage, true);
+        cameraNode->background().texture(_videoImage, false);
     }
+
     _videoImage->copyVideoImage(image.cols,
                                 image.rows,
                                 CVImage::cv2glPixelFormat(image.type()),

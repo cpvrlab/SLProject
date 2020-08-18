@@ -158,7 +158,6 @@ void createScene(Node& root)
         gpuProgram->addShader(vertShader);
         gpuProgram->addShader(fragShader);
         material->setProgram(gpuProgram);
-
         materialList[x] = material;
     }
 

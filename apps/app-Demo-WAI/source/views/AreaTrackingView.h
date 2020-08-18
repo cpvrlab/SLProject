@@ -40,7 +40,8 @@ private:
     void updateSceneCameraFov();
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
 
-    bool startCamera();
+    bool                    startCamera(const cv::Size& cameraFrameTargetSize);
+    std::unique_ptr<WAIMap> tryLoadMap(const std::string& slamMapFileName);
 
     AreaTrackingGui _gui;
     AppWAIScene     _scene;
@@ -59,14 +60,6 @@ private:
     //wai slam depends on _orbVocabulary and has to be uninitializd first
     std::unique_ptr<WAISlam> _waiSlam;
 
-    //std::unique_ptr<SENSCalibration> _calibration;
-
-    //parameter:
-    cv::Size      _cameraFrameTargetSize       = {640, 480};
-    ExtractorType _initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
-    ExtractorType _relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
-    ExtractorType _trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
-
 #if USE_FBOW
     std::string _vocabularyFileName = "voc_fbow.bin";
 #else
@@ -82,6 +75,8 @@ private:
     bool _showKeyPointsMatched = true;
     bool _showMapPC            = true;
     bool _showMatchesPC        = true;
+    //size with which camera was started last time (needed for a resume call)
+    cv::Size _cameraFrameResumeSize;
 };
 
 #endif //AREA_TRACKING_VIEW_H

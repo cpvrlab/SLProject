@@ -21,7 +21,7 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
                  WAISlam::Params         params)
 {
     _iniData.initializer = nullptr;
-    _params = params;
+    _params              = params;
 
     WAIFrame::nNextId               = 0;
     WAIFrame::mbInitialComputations = true;
@@ -33,9 +33,9 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
     _cameraIntrinsic = intrinsic.clone();
     _voc             = voc;
 
-    _extractor       = extractor;
-    _relocExtractor  = relocExtractor;
-    _iniExtractor    = iniExtractor;
+    _extractor      = extractor;
+    _relocExtractor = relocExtractor;
+    _iniExtractor   = iniExtractor;
 
     if (_iniExtractor == nullptr)
         _iniExtractor = _extractor;
@@ -71,10 +71,10 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
     }
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        _poseUpdateThread = new std::thread(updatePoseThread, this);
-        _isFinish         = false;
-        _isStop           = false;
-        _requestFinish    = false;
+    _poseUpdateThread = new std::thread(updatePoseThread, this);
+    _isFinish         = false;
+    _isStop           = false;
+    _requestFinish    = false;
 #endif
 
     _iniData.initializer = nullptr;
@@ -154,7 +154,7 @@ void WAISlam::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 
 void WAISlam::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
-    switch(getTrackingState())
+    switch (getTrackingState())
     {
         case WAI::TrackingState_Initializing:
             frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
@@ -303,7 +303,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingStart: {
             _relocFrameCounter++;
-            if (_relocFrameCounter > 30)
+            if (_relocFrameCounter > 0)
                 _state = WAI::TrackingState_TrackingOK;
         }
         case WAI::TrackingState_TrackingOK: {
@@ -402,8 +402,8 @@ bool WAISlam::update(cv::Mat& imageGray)
     createFrame(frame, imageGray);
 
 #if MULTI_THREAD_FRAME_PROCESSING
-        std::unique_lock<std::mutex> lock(_frameQueueMutex);
-        _framesQueue.push(frame);
+    std::unique_lock<std::mutex> lock(_frameQueueMutex);
+    _framesQueue.push(frame);
 #else
     if (_params.ensureKFIntegration)
         updatePoseKFIntegration(frame);
@@ -482,7 +482,7 @@ cv::Mat WAISlam::getPose()
 
 void WAISlam::requestStateIdle()
 {
-    if (!_params.onlyTracking || !_params.serial)
+    if (!(_params.onlyTracking || _params.serial))
     {
         std::unique_lock<std::mutex> guard(_mutexStates);
         _localMapping->RequestPause();

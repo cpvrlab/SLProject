@@ -1,4 +1,5 @@
 #include "Instance.h"
+#include <cstring>
 
 //-----------------------------------------------------------------------------
 Instance::Instance(const char*                applicationName,

@@ -85,7 +85,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
-                             _area.name,
+                             _area.name.c_str(),
                              [&]() { sendEvent(new GoBackEvent("AreaInfoGui")); });
 
     //content
