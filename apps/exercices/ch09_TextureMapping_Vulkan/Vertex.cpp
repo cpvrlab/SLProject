@@ -1,6 +1,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
-#include <math\SLVec4.h>
+#include <SLVec4.h>
 #include <array>
 
 //-----------------------------------------------------------------------------
