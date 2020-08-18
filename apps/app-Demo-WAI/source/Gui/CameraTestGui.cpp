@@ -178,20 +178,6 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             {
                 ImGui::Text("Camera characteristics not provided by this device!");
             }
-            //if (_currCamProps->provided)
-            //{
-            //    ImGui::Text(getPrintableFacing(_currCamProps->facing).c_str());
-            //    ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _currCamProps->physicalSensorSizeMM.width, _currCamProps->physicalSensorSizeMM.height);
-            //    ImGui::Text("Focal lengths (mm):");
-            //    for (auto fl : _currCamProps->focalLenghtsMM)
-            //    {
-            //        ImGui::Text("  %f", fl);
-            //    }
-            //}
-            //else
-            //{
-            //    ImGui::Text("Camera characteristics not provided by this device!");
-            //}
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
@@ -199,19 +185,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                 {
                     const SENSCameraStreamConfig& config = _currCamProps->streamConfigs()[_currSizeIndex];
 
-                    /*
-                    _cameraConfig.deviceId             = _currCamProps->cameraId;
-                    _cameraConfig.targetWidth          = config.widthPix;
-                    _cameraConfig.targetHeight         = config.heightPix;
-                    _cameraConfig.convertToGray        = true;
-                    _cameraConfig.adjustAsynchronously = true;
-                    _cameraConfig.focusMode            = SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
-                     */
                     Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
-
-                    ////make sure the camera is stopped if there is one
-                    //if (_camera)
-                    //    _camera->stop();
 
                     try
                     {
@@ -219,7 +193,6 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
                         {
                             if (_camera->started())
                                 _camera->stop();
-                            //assert("fixme" && false);
                             _camera->start(_currCamProps->deviceId(),
                                            config);
                         }
@@ -264,7 +237,6 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::PopFont();
         ImGui::PopStyleVar(3);
-        //ImGui::PopStyleColor(1);
     }
 
     //ImGui::ShowMetricsWindow();

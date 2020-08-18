@@ -2,13 +2,16 @@ package ch.cpvr.wai;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.NativeActivity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -17,6 +20,61 @@ import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
 
 public class WAIActivity extends NativeActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //Hide toolbar
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if(SDK_INT >= 19)
+        {
+            setImmersiveSticky();
+
+            View decorView = getWindow().getDecorView();
+            decorView.setOnSystemUiVisibilityChangeListener
+                    (new View.OnSystemUiVisibilityChangeListener() {
+                        @Override
+                        public void onSystemUiVisibilityChange(int visibility) {
+                            setImmersiveSticky();
+                        }
+                    });
+        }
+
+    }
+
+    @TargetApi(19)
+    protected void onResume() {
+        super.onResume();
+
+        //Hide toolbar
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if(SDK_INT >= 11 && SDK_INT < 14)
+        {
+            getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_HIDDEN);
+        }
+        else if(SDK_INT >= 14 && SDK_INT < 19)
+        {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        }
+        else if(SDK_INT >= 19)
+        {
+            setImmersiveSticky();
+        }
+
+    }
+    // Our popup window, you will call it from your C/C++ code later
+
+    @TargetApi(19)
+    void setImmersiveSticky() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+    }
 
     private boolean isCamera2Device() {
         CameraManager camMgr = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
