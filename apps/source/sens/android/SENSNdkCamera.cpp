@@ -970,8 +970,12 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
                                 float focalLengthPix = -1.f;
                                 if (focalLengthsMM.size() && physicalSensorSizeMM.width > 0 && physicalSensorSizeMM.height > 0)
                                 {
-                                    //calculate a focal length in pixel that fits to this stream configuration size
-                                    focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
+                                    //we assume the image is cropped at one side only. we compare the sensor aspect ratio
+                                    //with the image aspect ratio and use the uncropped length to estimate a focal length in pixel that fits to this stream configuration size
+                                    if((float)physicalSensorSizeMM.width / (float)physicalSensorSizeMM.height > (float)width / (float)height)
+                                        focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.height * (float)height;
+                                    else
+                                        focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
                                 }
 
                                 if (!characteristics.contains({width, height}))
