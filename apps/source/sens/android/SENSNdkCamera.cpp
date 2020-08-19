@@ -538,7 +538,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 {
     //concert yuv to rgb
     cv::Mat rgbImg;
-    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2RGB_NV21, 3);
+    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2BGR_NV21, 3);
 
     SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
     /*
@@ -582,10 +582,10 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     AImage_getPlaneRowStride(image, 0, &rowStrideY);
 
     //pointers to yuv data planes and length of yuv data planes in byte
-    uint8_t *yPixel, *uPixel, *vPixel;
-    int32_t  yLen, uLen, vLen;
+    uint8_t *yPixel, /* *uPixel,*/ *vPixel;
+    int32_t  yLen, /*uLen,*/ vLen;
     AImage_getPlaneData(image, 0, &yPixel, &yLen);
-    AImage_getPlaneData(image, 1, &uPixel, &uLen);
+    //AImage_getPlaneData(image, 1, &uPixel, &uLen);
     AImage_getPlaneData(image, 2, &vPixel, &vLen);
 
     //Attention: There may be additional padding at the end of every line, in this case width is not equal to rowStrideY.
@@ -599,9 +599,14 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     //copy image data to yuv image: we use the rowStrideY to define the maximum data block width including potential padding
     cv::Mat yuv(height + (height / 2), rowStrideY, CV_8UC1);
     memcpy(yuv.data, yPixel, yLen);
-    memcpy(yuv.data + yLen + (rowStrideY - width), uPixel, uLen);
+    //The interleaved uv data starts with v pixels, you can inspect this by comparing uPixel and vPixel adresses,
+    //which is one byte lower. So the order is V/U: NV12: YYYYUV NV21: YYYYVU
+    // This is also described like this in wikipedia in section https://en.wikipedia.org/wiki/YUV#Y%E2%80%B2UV420sp_(NV21)_to_RGB_conversion_(Android)
+    // U follows V in the interleaved block (in contradiction to what is shown in the drawing explaining yuv in wikipedia).
+    // As both planes have the same length, but one starts one byte lower, we have to copy one
+    //additional byte to get all the data.
     //We do not have to additionally copy the v plane. The u plane contains the interleaved u and v data!
-    //memcpy(yuv.data + yLen + uLen, vPixel, vLen);
+    memcpy(yuv.data + yLen + (rowStrideY - width), vPixel, vLen + 1);
 
     //If there is line padding we get rid of it now by defining a sub region of interest in the target image size
     if (rowStrideY > width)
