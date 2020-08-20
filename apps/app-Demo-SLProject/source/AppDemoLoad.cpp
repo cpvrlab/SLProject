@@ -805,12 +805,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < NUM_MAT; ++i)
         {
             SLGLProgram* sp      = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnNrm.frag");
+                                                     SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnTex.frag");
             SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
-            SLGLTexture* texN    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLstring     matName = "mat-" + std::to_string(i);
-            mat[i]               = new SLMaterial(s, matName.c_str(), texC, texN, nullptr, nullptr, sp);
+            mat[i]               = new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp);
             SLCol4f color;
             color.hsva2rgba(SLVec3f(Utils::TWOPI * i / NUM_MAT, 1.0f, 1.0f));
             mat[i]->diffuse(color);

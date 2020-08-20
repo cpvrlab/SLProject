@@ -16,7 +16,7 @@ const char* mapLocationIdToName(LocationId id)
         case LocationId::BIEL:
             return "Biel";
         case LocationId::BERN:
-            return "Christoffelturm";
+            return "Bern";
         default:
             return "Missing id to name mapping!";
     }
@@ -32,7 +32,7 @@ const char* mapAreaIdToName(AreaId id)
         case AreaId::AUGST_TEMPLE_HILL_MARKER:
             return "templeHill-marker";
         case AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM:
-            return "templeHillTheater";
+            return "templeHillTheaterBottom";
         //avenches
         case AreaId::AVENCHES_AMPHITHEATER:
             return "Amphitheater";
@@ -60,6 +60,8 @@ const char* mapAreaIdToName(AreaId id)
             return "Ring";
         case AreaId::BIEL_SOUTHWALL:
             return "Southwall";
+        case AreaId::BIEL_OFFICE:
+            return "Office";
         default:
             return "Missing id to name mapping!";
     }
@@ -79,7 +81,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 496;
         area.yPosPix         = 566;
         area.viewAngleDeg    = 120;
-        area.slamMapFileName = "locations/augst/templeHill-marker/maps/final_marker-map_20200526-142338_augst_templeHill-marker_FAST_ORBS_1000.json";
+        area.slamMapFileName = "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.json.gz";
         loc.areas[area.id]   = area;
     }
     {
@@ -89,7 +91,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 627;
         area.yPosPix         = 606;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "locations/augst/templeHillTheaterBottom/maps/DEVELOPMENT-map_20200528-090204_augst_templeHillTheaterBottom_FAST_ORBS_1000.json";
+        area.slamMapFileName = "locations/augst/templeHillTheaterBottom/maps/map_20200811-145434_augst_templeHillTheaterBottom_FAST-ORBS-2000_2.json.gz";
         loc.areas[area.id]   = area;
     }
     return loc;
@@ -199,12 +201,14 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id            = AreaId::BIEL_RING;
-        area.name          = mapAreaIdToName(area.id);
-        area.xPosPix       = 200;
-        area.yPosPix       = 200;
-        area.viewAngleDeg  = 110.f;
-        loc.areas[area.id] = area;
+        area.id                    = AreaId::BIEL_RING;
+        area.name                  = mapAreaIdToName(area.id);
+        area.xPosPix               = 200;
+        area.yPosPix               = 200;
+        area.viewAngleDeg          = 110.f;
+        area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.json.gz";
+        area.cameraFrameTargetSize = {640, 480};
+        loc.areas[area.id]         = area;
     }
     {
         Area area;
@@ -214,6 +218,17 @@ const Location defineLocationBiel()
         area.yPosPix       = 250;
         area.viewAngleDeg  = 270.f;
         loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id                    = AreaId::BIEL_OFFICE;
+        area.name                  = mapAreaIdToName(area.id);
+        area.xPosPix               = 322;
+        area.yPosPix               = 238;
+        area.viewAngleDeg          = 20.f;
+        area.slamMapFileName       = "locations/biel/office/maps/DEVELOPMENT-map_20200813-171657_biel_office_FAST-ORBS-1000_2.json.gz";
+        area.cameraFrameTargetSize = {640, 360};
+        loc.areas[area.id]         = area;
     }
     return loc;
 }

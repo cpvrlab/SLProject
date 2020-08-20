@@ -76,6 +76,7 @@ protected:
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
+    std::unique_ptr<KPextractor> _relocalizationExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _markerExtractor;
     ImageBuffer                  _imgBuffer;

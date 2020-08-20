@@ -63,7 +63,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
             return false;
 
         int   nf           = 1000; // NO. of features
-        float fScaleFactor = 1.2f;  // Scale factor for pyramid construction
+        float fScaleFactor = 1.2f; // Scale factor for pyramid construction
         int   nLevels      = 8;    // NO. of pyramid levels
         int   fIniThFAST   = 20;   // Init threshold for FAST corner detector
         int   fMinThFAST   = 7;    // Min. threshold for FAST corner detector
@@ -92,6 +92,7 @@ bool CVTrackedWAI::track(CVMat          imageGray,
                                  calib->distortion(),
                                  _voc,
                                  _initializationExtractor,
+                                 _trackingExtractor,
                                  _trackingExtractor,
                                  nullptr, // global map
                                  params);

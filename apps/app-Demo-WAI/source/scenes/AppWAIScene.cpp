@@ -71,6 +71,7 @@ void AppWAIScene::hideNode(SLNode* node)
 
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
+    Utils::log("AppWAIScene", "rebuild for location %s", location.c_str());
     //init(); //uninitializes everything
     //todo: is this necessary?
     assets.clear();
@@ -163,7 +164,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "augst" || location == "Augst")
     {
-        std::string      modelPath = _dataDir + "models/GLTF/AugustaRaurica/Tempel-Theater-02.gltf";
+        std::string      modelPath = _dataDir + "models/GLTF/augst/Tempel-Theater-02.gltf";
         SLAssimpImporter importer;
 
         if (!Utils::fileExists(modelPath))
@@ -178,9 +179,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden", true));
         hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden-zw-Tht-Tmp", true));
     }
-    else if (location == "bern")
+    else if (location == "Bern")
     {
-#if 0
+#if 1
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
 
         SLAssimpImporter importer;
@@ -225,6 +226,35 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         _root3D->addChild(augmentationRoot);
 
 #endif
+    }
+    else if (location == "Biel")
+    {
+        std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
+        Utils::log("AppWAIScene", "loading model from path: %s", modelPath.c_str());
+        SLAssimpImporter importer;
+        augmentationRoot = importer.load(_animManager,
+                                         &assets,
+                                         modelPath,
+                                         _dataDir + "images/textures/");
+
+        hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
+
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Wand", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Dach", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Turm", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Weg", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Mauern", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Bruecken", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Grass", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Dach", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Fahne", true));
+        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
+
+        _root3D->addChild(augmentationRoot);
     }
 
 #if 0 // office table boxes scene

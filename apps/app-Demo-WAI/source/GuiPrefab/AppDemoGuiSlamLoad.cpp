@@ -47,11 +47,13 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
     _videoExtensions.push_back(".mp4");
     _videoExtensions.push_back(".avi");
     _mapExtensions.push_back(".json");
+    _mapExtensions.push_back(".gz");
     _calibExtensions.push_back(".xml");
     _vocExtensions.push_back(".bin");
     _markerExtensions.push_back(".jpg");
 
     _p.extractorIds.trackingExtractorId       = ExtractorType_FAST_ORBS_1000;
+    _p.extractorIds.relocalizationExtractorId = ExtractorType_FAST_ORBS_1000;
     _p.extractorIds.initializationExtractorId = ExtractorType_FAST_ORBS_2000;
     _p.extractorIds.markerExtractorId         = ExtractorType_FAST_ORBS_3000;
 }
@@ -374,7 +376,20 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             ImGui::EndCombo();
         }
-
+        if (ImGui::BeginCombo("Relocalization extractor", _extractorIdToNames.at(_p.extractorIds.relocalizationExtractorId).c_str()))
+        {
+            for (int i = 0; i < _extractorIdToNames.size(); i++)
+            {
+                bool isSelected = (_p.extractorIds.relocalizationExtractorId == i); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+                {
+                    _p.extractorIds.relocalizationExtractorId = (ExtractorType)i;
+                }
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
         if (ImGui::BeginCombo("Init extractor", _extractorIdToNames.at(_p.extractorIds.initializationExtractorId).c_str()))
         {
             for (int i = 0; i < _extractorIdToNames.size(); i++)
@@ -472,6 +487,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
 
                 event->params.extractorIds.trackingExtractorId       = _p.extractorIds.trackingExtractorId;
                 event->params.extractorIds.initializationExtractorId = _p.extractorIds.initializationExtractorId;
+                event->params.extractorIds.relocalizationExtractorId = _p.extractorIds.relocalizationExtractorId;
                 event->params.extractorIds.markerExtractorId         = _p.extractorIds.markerExtractorId;
 
                 event->params.nLevels = _p.nLevels;

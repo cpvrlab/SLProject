@@ -33,9 +33,9 @@ struct QueueFamilyIndices
 
 struct SwapchainSupportDetails
 {
-    VkSurfaceCapabilitiesKHR        capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR>   presentModes;
+    VkSurfaceCapabilitiesKHR   capabilities;
+    vector<VkSurfaceFormatKHR> formats;
+    vector<VkPresentModeKHR>   presentModes;
 };
 
 struct UniformBufferObject
@@ -87,122 +87,122 @@ struct Vertex
 class TextureMapping
 {
 public:
-    const int                      WIDTH                = 800;
-    const int                      HEIGHT               = 600;
-    const int                      MAX_FRAMES_IN_FLIGHT = 2;
-    const std::vector<const char*> validationLayers     = {"VK_LAYER_KHRONOS_validation"};
-    const std::vector<const char*> deviceExtensions     = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                                       VK_KHR_MAINTENANCE1_EXTENSION_NAME};
+    const int                 WIDTH                = 800;
+    const int                 HEIGHT               = 600;
+    const int                 MAX_FRAMES_IN_FLIGHT = 2;
+    const vector<const char*> validationLayers     = {"VK_LAYER_KHRONOS_validation"};
+    const vector<const char*> deviceExtensions     = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                                  VK_KHR_MAINTENANCE1_EXTENSION_NAME};
 
 private:
-    GLFWwindow*                  window;
-    VkInstance                   instance;
-    VkDebugUtilsMessengerEXT     debugMessenger;
-    VkSurfaceKHR                 surface;
-    VkPhysicalDevice             physicalDevice = VK_NULL_HANDLE;
-    VkDevice                     device;
-    VkQueue                      graphicsQueue;
-    VkQueue                      presentQueue;
-    VkBuffer                     vertexBuffer;
-    VkDeviceMemory               vertexBufferMemory;
-    VkSwapchainKHR               swapchain;
-    std::vector<VkImage>         swapchainImages;
-    VkFormat                     swapchainImageFormat;
-    VkExtent2D                   swapchainExtent;
-    std::vector<VkImageView>     swapchainImageViews;
-    std::vector<VkFramebuffer>   swapchainFramebuffers;
-    VkRenderPass                 renderPass;
-    VkDescriptorSetLayout        descriptorSetLayout;
-    VkDescriptorPool             descriptorPool;
-    VkPipelineLayout             pipelineLayout;
-    VkPipeline                   graphicsPipeline;
-    VkCommandPool                commandPool;
-    VkBuffer                     stagingBuffer;
-    VkDeviceMemory               stagingBufferMemory;
-    VkImage                      textureImage;
-    VkDeviceMemory               textureImageMemory;
-    VkImageView                  textureImageView;
-    VkSampler                    textureSampler;
-    VkBuffer                     indexBuffer;
-    VkDeviceMemory               indexBufferMemory;
-    std::vector<VkDescriptorSet> descriptorSets;
-    std::vector<VkBuffer>        uniformBuffers;
-    std::vector<VkDeviceMemory>  uniformBuffersMemory;
-    std::vector<VkCommandBuffer> commandBuffers;
-    std::vector<VkSemaphore>     imageAvailableSemaphores;
-    std::vector<VkSemaphore>     renderFinishedSemaphores;
-    std::vector<VkFence>         inFlightFences;
-    std::vector<VkFence>         imagesInFlight;
-    size_t                       currentFrame       = 0;
-    bool                         framebufferResized = false;
-    const std::vector<Vertex>    vertices           = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-                                          {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-                                          {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-                                          {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
+    GLFWwindow*              window;
+    VkInstance               instance;
+    VkDebugUtilsMessengerEXT debugMessenger;
+    VkSurfaceKHR             surface;
+    VkPhysicalDevice         physicalDevice = VK_NULL_HANDLE;
+    VkDevice                 device;
+    VkQueue                  graphicsQueue;
+    VkQueue                  presentQueue;
+    VkBuffer                 vertexBuffer;
+    VkDeviceMemory           vertexBufferMemory;
+    VkSwapchainKHR           swapchain;
+    vector<VkImage>          swapchainImages;
+    VkFormat                 swapchainImageFormat;
+    VkExtent2D               swapchainExtent;
+    vector<VkImageView>      swapchainImageViews;
+    vector<VkFramebuffer>    swapchainFramebuffers;
+    VkRenderPass             renderPass;
+    VkDescriptorSetLayout    descriptorSetLayout;
+    VkDescriptorPool         descriptorPool;
+    VkPipelineLayout         pipelineLayout;
+    VkPipeline               graphicsPipeline;
+    VkCommandPool            commandPool;
+    VkBuffer                 stagingBuffer;
+    VkDeviceMemory           stagingBufferMemory;
+    VkImage                  textureImage;
+    VkDeviceMemory           textureImageMemory;
+    VkImageView              textureImageView;
+    VkSampler                textureSampler;
+    VkBuffer                 indexBuffer;
+    VkDeviceMemory           indexBufferMemory;
+    vector<VkDescriptorSet>  descriptorSets;
+    vector<VkBuffer>         uniformBuffers;
+    vector<VkDeviceMemory>   uniformBuffersMemory;
+    vector<VkCommandBuffer>  commandBuffers;
+    vector<VkSemaphore>      imageAvailableSemaphores;
+    vector<VkSemaphore>      renderFinishedSemaphores;
+    vector<VkFence>          inFlightFences;
+    vector<VkFence>          imagesInFlight;
+    size_t                   currentFrame       = 0;
+    bool                     framebufferResized = false;
+    const vector<Vertex>     vertices           = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+                                     {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+                                     {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+                                     {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
 
-    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 public:
     void run();
 
 private:
-    void                     initVulkan();
-    void                     initWindow();
-    void                     mainLoop();
-    void                     cleanupSwapchain();
-    void                     cleanup();
-    void                     recreateSwapchain();
-    void                     createInstance();
-    void                     populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
-    void                     setupDebugMessenger();
-    void                     createSurface();
-    void                     pickPhysicalDevice();
-    void                     createLogicalDevice();
-    void                     createSwapchain();
-    void                     createImageViews();
-    void                     createRenderPass();
-    void                     createGraphicsPipeline();
-    void                     createFramebuffers();
-    void                     createUniformBuffers();
-    void                     createDescriptorPool();
-    void                     createDescriptorSets();
-    void                     createDescriptorSetLayout();
-    void                     createCommandPool();
-    void                     createTextureImage();
-    void                     createTextureImageView();
-    void                     createTextureSampler();
-    void                     createImage(uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags, VkImage&, VkDeviceMemory&);
-    void                     transitionImageLayout(VkImage, VkFormat, VkImageLayout, VkImageLayout);
-    void                     copyBufferToImage(VkBuffer, VkImage, uint32_t, uint32_t);
-    void                     createVertexBuffer();
-    void                     createIndexBuffer();
-    void                     createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
-    void                     copyBuffer(VkBuffer, VkBuffer, VkDeviceSize);
-    void                     updateUniformBuffer(uint32_t);
-    void                     createCommandBuffers();
-    void                     createSyncObjects();
-    void                     drawFrame();
-    void                     DestroyDebugUtilsMessengerEXT(VkInstance,
-                                                           VkDebugUtilsMessengerEXT,
-                                                           const VkAllocationCallbacks*);
-    bool                     checkValidationLayerSupport();
-    bool                     isDeviceSuitable(VkPhysicalDevice);
-    bool                     checkDeviceExtensionSupport(VkPhysicalDevice);
-    uint32_t                 findMemoryType(uint32_t, VkMemoryPropertyFlags);
-    VkCommandBuffer          beginSingleTimeCommands();
-    void                     endSingleTimeCommands(VkCommandBuffer);
-    VkImageView              createImageView(VkImage, VkFormat);
-    VkShaderModule           createShaderModule(const std::vector<char>&);
-    VkSurfaceFormatKHR       chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
-    VkPresentModeKHR         chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&); // Must be replaced
-    VkExtent2D               chooseSwapExtent(const VkSurfaceCapabilitiesKHR&);
-    SwapchainSupportDetails  querySwapchainSupport(VkPhysicalDevice);
-    QueueFamilyIndices       findQueueFamilies(VkPhysicalDevice);
-    std::vector<const char*> getRequiredExtensions();
-    VkResult                 CreateDebugUtilsMessengerEXT(VkInstance,
-                                                          const VkDebugUtilsMessengerCreateInfoEXT*,
-                                                          const VkAllocationCallbacks*,
-                                                          VkDebugUtilsMessengerEXT*);
+    void                    initVulkan();
+    void                    initWindow();
+    void                    mainLoop();
+    void                    cleanupSwapchain();
+    void                    cleanup();
+    void                    recreateSwapchain();
+    void                    createInstance();
+    void                    populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
+    void                    setupDebugMessenger();
+    void                    createSurface();
+    void                    pickPhysicalDevice();
+    void                    createLogicalDevice();
+    void                    createSwapchain();
+    void                    createImageViews();
+    void                    createRenderPass();
+    void                    createGraphicsPipeline();
+    void                    createFramebuffers();
+    void                    createUniformBuffers();
+    void                    createDescriptorPool();
+    void                    createDescriptorSets();
+    void                    createDescriptorSetLayout();
+    void                    createCommandPool();
+    void                    createTextureImage();
+    void                    createTextureImageView();
+    void                    createTextureSampler();
+    void                    createImage(uint32_t, uint32_t, VkFormat, VkImageTiling, VkImageUsageFlags, VkMemoryPropertyFlags, VkImage&, VkDeviceMemory&);
+    void                    transitionImageLayout(VkImage, VkFormat, VkImageLayout, VkImageLayout);
+    void                    copyBufferToImage(VkBuffer, VkImage, uint32_t, uint32_t);
+    void                    createVertexBuffer();
+    void                    createIndexBuffer();
+    void                    createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
+    void                    copyBuffer(VkBuffer, VkBuffer, VkDeviceSize);
+    void                    updateUniformBuffer(uint32_t);
+    void                    createCommandBuffers();
+    void                    createSyncObjects();
+    void                    drawFrame();
+    void                    DestroyDebugUtilsMessengerEXT(VkInstance,
+                                                          VkDebugUtilsMessengerEXT,
+                                                          const VkAllocationCallbacks*);
+    bool                    checkValidationLayerSupport();
+    bool                    isDeviceSuitable(VkPhysicalDevice);
+    bool                    checkDeviceExtensionSupport(VkPhysicalDevice);
+    uint32_t                findMemoryType(uint32_t, VkMemoryPropertyFlags);
+    VkCommandBuffer         beginSingleTimeCommands();
+    void                    endSingleTimeCommands(VkCommandBuffer);
+    VkImageView             createImageView(VkImage, VkFormat);
+    VkShaderModule          createShaderModule(const vector<char>&);
+    VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>&);
+    VkPresentModeKHR        chooseSwapPresentMode(const vector<VkPresentModeKHR>&); // Must be replaced
+    VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR&);
+    SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice);
+    QueueFamilyIndices      findQueueFamilies(VkPhysicalDevice);
+    vector<const char*>     getRequiredExtensions();
+    VkResult                CreateDebugUtilsMessengerEXT(VkInstance,
+                                                         const VkDebugUtilsMessengerCreateInfoEXT*,
+                                                         const VkAllocationCallbacks*,
+                                                         VkDebugUtilsMessengerEXT*);
 
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
@@ -219,16 +219,16 @@ private:
         return VK_FALSE;
     }
 };
-
-static std::vector<char> readFile(const std::string& filename)
+//-----------------------------------------------------------------------------
+static vector<char> readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open())
         throw std::runtime_error("failed to open file!");
 
-    size_t            fileSize = (size_t)file.tellg();
-    std::vector<char> buffer(fileSize);
+    size_t       fileSize = (size_t)file.tellg();
+    vector<char> buffer(fileSize);
 
     file.seekg(0);
     file.read(buffer.data(), fileSize);
@@ -237,3 +237,4 @@ static std::vector<char> readFile(const std::string& filename)
 
     return buffer;
 }
+//-----------------------------------------------------------------------------

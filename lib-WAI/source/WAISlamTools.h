@@ -31,6 +31,7 @@ enum TrackingState
     TrackingState_Initializing,
     TrackingState_TrackingOK,
     TrackingState_TrackingLost,
+    TrackingState_TrackingStart,
     TrackingState_TrackingTransformed
 };
 }
