@@ -1031,13 +1031,40 @@ SLNode* SLAssimpImporter::loadNodesRec(SLNode*    curNode,    //!< Pointer to th
 
     curNode->om(SLM);
 
-    // add the meshes
+#ifdef SL_RENDER_BY_MATERIAL
+    // New: Add only one mesh per node so that they can be sorted by material
+    // If a mesh has multiple meshes add a sub-node for each mesh
+    if (node->mNumMeshes > 1)
+    {
+        for (SLuint i = 0; i < node->mNumMeshes; ++i)
+        {
+            // Only add meshes that were added to the meshMap (triangle meshes)
+            if (meshes.count((SLint)node->mMeshes[i]))
+            {
+                SLstring nodeMeshName = node->mName.data;
+                nodeMeshName += "-";
+                nodeMeshName += meshes[(SLint)node->mMeshes[i]]->name();
+                SLNode* child = new SLNode(nodeMeshName);
+                curNode->addChild(child);
+                child->addMesh(meshes[(SLint)node->mMeshes[i]]);
+            }
+        }
+    }
+    else if (node->mNumMeshes == 1)
+    {
+        // Only add meshes that were added to the meshMap (triangle meshes)
+        if (meshes.count((SLint)node->mMeshes[0]))
+            curNode->addMesh(meshes[(SLint)node->mMeshes[0]]);
+    }
+#else
+    //add multiple the meshes
     for (SLuint i = 0; i < node->mNumMeshes; ++i)
     {
         // Only add meshes that were added to the meshMap (triangle meshes)
         if (meshes.count((SLint)node->mMeshes[i]))
             curNode->addMesh(meshes[(SLint)node->mMeshes[i]]);
     }
+#endif
 
     // load children recursively
     for (SLuint i = 0; i < node->mNumChildren; i++)

@@ -11,6 +11,8 @@
 #ifndef SLNODE_H
 #define SLNODE_H
 
+#define SL_RENDER_BY_MATERIAL
+
 #include <SLDrawBits.h>
 #include <SLEnums.h>
 #include <SLEventHandler.h>
@@ -24,7 +26,7 @@ class SLNode;
 class SLAnimation;
 
 //-----------------------------------------------------------------------------
-//! SLVNode typdef for a vector of SLNodes
+//! SLVNode typedef for a vector of SLNodes
 typedef vector<SLNode*> SLVNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
@@ -33,19 +35,21 @@ SLNode::statsRec method.
 */
 struct SLNodeStats
 {
-    SLuint  numNodes;      //!< NO. of children nodes
-    SLuint  numBytes;      //!< NO. of bytes allocated
-    SLuint  numBytesAccel; //!< NO. of bytes in accel. structs
-    SLuint  numGroupNodes; //!< NO. of group nodes
-    SLuint  numLeafNodes;  //!< NO. of leaf nodes
-    SLuint  numMeshes;     //!< NO. of visible shapes in node
-    SLuint  numLights;     //!< NO. of lights in mesh
-    SLuint  numTriangles;  //!< NO. of triangles in mesh
-    SLuint  numLines;      //!< NO. of lines in mesh
-    SLuint  numVoxels;     //!< NO. of voxels
-    SLfloat numVoxEmpty;   //!< NO. of empty voxels
-    SLuint  numVoxMaxTria; //!< Max. no. of triangles per voxel
-    SLuint  numAnimations; //!< NO. of animations
+    SLuint  numNodes;        //!< NO. of children nodes
+    SLuint  numBytes;        //!< NO. of bytes allocated
+    SLuint  numBytesAccel;   //!< NO. of bytes in accel. structs
+    SLuint  numNodesGroup;   //!< NO. of group nodes
+    SLuint  numNodesLeaf;    //!< NO. of leaf nodes
+    SLuint  numNodesOpaque;  //!< NO. of visible opaque nodes
+    SLuint  numNodesBlended; //!< NO. of visible blended nodes
+    SLuint  numMeshes;       //!< NO. of meshes in node
+    SLuint  numLights;       //!< NO. of lights in mesh
+    SLuint  numTriangles;    //!< NO. of triangles in mesh
+    SLuint  numLines;        //!< NO. of lines in mesh
+    SLuint  numVoxels;       //!< NO. of voxels
+    SLfloat numVoxEmpty;     //!< NO. of empty voxels
+    SLuint  numVoxMaxTria;   //!< Max. no. of triangles per voxel
+    SLuint  numAnimations;   //!< NO. of animations
 
     //! Resets all counters to zero
     void clear()
@@ -53,8 +57,8 @@ struct SLNodeStats
         numNodes      = 0;
         numBytes      = 0;
         numBytesAccel = 0;
-        numGroupNodes = 0;
-        numLeafNodes  = 0;
+        numNodesGroup = 0;
+        numNodesLeaf  = 0;
         numMeshes     = 0;
         numLights     = 0;
         numTriangles  = 0;
@@ -68,9 +72,9 @@ struct SLNodeStats
     //! Prints all statistic informations on the std out stream.
     void print() const
     {
-        SLfloat voxelsEmpty = numVoxels ? (SLfloat)numVoxEmpty /
+        SLfloat voxelsEmpty  = numVoxels ? (SLfloat)numVoxEmpty /
                                             (SLfloat)numVoxels * 100.0f
-                                        : 0;
+                                         : 0;
         SLfloat avgTriPerVox = numVoxels ? (SLfloat)numTriangles /
                                              (SLfloat)(numVoxels - numVoxEmpty)
                                          : 0;
@@ -80,8 +84,8 @@ struct SLNodeStats
         SL_LOG("Max. Tria/Voxel: %d", numVoxMaxTria);
         SL_LOG("MB Meshes      : %f", (SLfloat)numBytes / 1000000.0f);
         SL_LOG("MB Accel.      : %f", (SLfloat)numBytesAccel / 1000000.0f);
-        SL_LOG("Group Nodes    : %d", numGroupNodes);
-        SL_LOG("Leaf Nodes     : %d", numLeafNodes);
+        SL_LOG("Group Nodes    : %d", numNodesGroup);
+        SL_LOG("Leaf Nodes     : %d", numNodesLeaf);
         SL_LOG("Meshes         : %d", numMeshes);
         SL_LOG("Triangles      : %d", numTriangles);
         SL_LOG("Lights         : %d\n", numLights);
@@ -156,7 +160,14 @@ public:
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
 
     // Mesh methods (see impl. for details)
-    SLint        numMeshes() { return (SLint)_meshes.size(); }
+#ifdef SL_RENDER_BY_MATERIAL
+    void         addMesh(SLMesh* mesh);
+    virtual void drawMesh(SLSceneView* sv);
+#else
+    SLint numMeshes()
+    {
+        return (SLint)_meshes.size();
+    }
     void         addMesh(SLMesh* mesh);
     bool         insertMesh(SLMesh* insertM, SLMesh* afterM);
     void         removeMeshes() { _meshes.clear(); }
@@ -169,6 +180,7 @@ public:
                                      SLbool      recursive = true);
     SLbool       containsMesh(const SLMesh* mesh);
     virtual void drawMeshes(SLSceneView* sv);
+#endif
 
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }
@@ -274,22 +286,41 @@ public:
     void         needWMUpdate();
     void         needAABBUpdate();
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
+#ifdef SL_RENDER_BY_MATERIAL
+    void mesh(SLMesh* mesh)
+    {
+        _mesh = mesh;
+    }
+#endif
 
     // Getters (see also member)
-    SLNode*           parent() { return _parent; }
-    SLint             depth() const { return _depth; }
-    const SLMat4f&    om() { return _om; }
-    const SLMat4f&    initialOM() { return _initialOM; }
-    const SLMat4f&    updateAndGetWM() const;
-    const SLMat4f&    updateAndGetWMI() const;
-    const SLMat3f&    updateAndGetWMN() const;
-    SLDrawBits*       drawBits() { return &_drawBits; }
-    SLbool            drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLAABBox*         aabb() { return &_aabb; }
-    SLAnimation*      animation() { return _animation; }
-    SLbool            castsShadows() { return _castsShadows; }
-    SLVMesh&          meshes() { return _meshes; }
-    SLVNode&          children() { return _children; }
+    SLNode*        parent() { return _parent; }
+    SLint          depth() const { return _depth; }
+    const SLMat4f& om() { return _om; }
+    const SLMat4f& initialOM() { return _initialOM; }
+    const SLMat4f& updateAndGetWM() const;
+    const SLMat4f& updateAndGetWMI() const;
+    const SLMat3f& updateAndGetWMN() const;
+    SLDrawBits*    drawBits() { return &_drawBits; }
+    SLbool         drawBit(SLuint bit) { return _drawBits.get(bit); }
+    SLAABBox*      aabb() { return &_aabb; }
+    SLAnimation*   animation() { return _animation; }
+    SLbool         castsShadows() { return _castsShadows; }
+#ifdef SL_RENDER_BY_MATERIAL
+    SLMesh* mesh()
+    {
+        return _mesh;
+    }
+#else
+    SLVMesh& meshes()
+    {
+        return _meshes;
+    }
+#endif
+    SLVNode& children()
+    {
+        return _children;
+    }
     const SLSkeleton* skeleton();
     void              updateRec();
     virtual void      doUpdate() {}
@@ -322,9 +353,15 @@ private:
                             SLbool           findRecursive);
 
 protected:
-    SLNode*         _parent;         //!< pointer to the parent node
-    SLVNode         _children;       //!< vector of children nodes
-    SLVMesh         _meshes;         //!< vector of meshes of the node
+    SLNode* _parent;   //!< pointer to the parent node
+    SLVNode _children; //!< vector of children nodes
+
+#ifdef SL_RENDER_BY_MATERIAL
+    SLMesh* _mesh; //!< pointer to a single mesh
+#else
+    SLVMesh _meshes; //!< vector of meshes of the node
+#endif
+
     SLint           _depth;          //!< depth of the node in a scene tree
     SLMat4f         _om;             //!< object matrix for local transforms
     SLMat4f         _initialOM;      //!< the initial om state

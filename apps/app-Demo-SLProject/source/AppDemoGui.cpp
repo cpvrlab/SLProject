@@ -547,15 +547,13 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
             SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
             SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOpaqueNodes    = (int)sv->nodesVisible()->size();
-            SLint        numBlendedNodes   = (int)sv->nodesBlended()->size();
             SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn()->size();
-            SLint        numVisibleNodes   = numOpaqueNodes + numBlendedNodes + numOverdrawnNodes;
-            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
+            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOpaquePC       = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numBlendedPC      = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOpaquePC       = (SLint)((SLfloat)stats3D.numNodesOpaque / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numBlendedPC      = (SLint)((SLfloat)stats3D.numNodesBlended / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
 
@@ -580,11 +578,11 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
             sprintf(m + strlen(m), "Name: %s\n", s->name().c_str());
             sprintf(m + strlen(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
-            sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numGroupNodes, numGroupPC);
-            sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numLeafNodes, numLeafPC);
+            sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numNodesGroup, numGroupPC);
+            sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numNodesLeaf, numLeafPC);
             sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
-            sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
-            sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+            sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", stats3D.numNodesOpaque, numOpaquePC);
+            sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", stats3D.numNodesBlended, numBlendedPC);
             sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
             sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
             sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
@@ -686,7 +684,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
+                                                                                 : vt == VT_FILE ? "File"
+                                                                                                 : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -1085,12 +1085,18 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             static SLfloat christTransp = 0.0f;
             if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
             {
+#ifdef SL_RENDER_BY_MATERIAL
+                christ_aussen->mesh()->mat()->kt(christTransp);
+                christ_aussen->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+                christ_aussen->mesh()->init(christ_aussen);
+#else
                 for (auto* mesh : christ_aussen->meshes())
                 {
                     mesh->mat()->kt(christTransp);
                     mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
                     mesh->init(christ_aussen);
                 }
+#endif
 
                 // Hide inner parts if transparency is on
                 christ_innen->drawBits()->set(SL_DB_HIDDEN, christTransp > 0.01f);
@@ -2487,7 +2493,12 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
-    SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
+
+#ifdef SL_RENDER_BY_MATERIAL
+    SLbool isLeafNode = node->children().empty() && !node->mesh();
+#else
+    SLbool isLeafNode = node->children().empty() && node->meshes().empty();
+#endif
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -2508,6 +2519,28 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 
     if (nodeIsOpen)
     {
+#ifdef SL_RENDER_BY_MATERIAL
+        if (node->mesh())
+        {
+            SLMesh* mesh = node->mesh();
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+            ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
+            if (s->singleMeshFullSelected() == mesh)
+                meshFlags |= ImGuiTreeNodeFlags_Selected;
+
+            ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
+
+            if (ImGui::IsItemClicked())
+            {
+                s->deselectAllNodesAndMeshes();
+                s->selectNodeMesh(node, mesh);
+            }
+
+            ImGui::TreePop();
+            ImGui::PopStyleColor();
+        }
+#else
         for (auto* mesh : node->meshes())
         {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
@@ -2527,6 +2560,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::TreePop();
             ImGui::PopStyleColor();
         }
+#endif
 
         for (auto* child : node->children())
             addSceneGraphNode(s, child);
@@ -2567,8 +2601,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 if (singleNode)
                 {
                     SLuint c = (SLuint)singleNode->children().size();
-                    SLuint m = (SLuint)singleNode->meshes().size();
 
+#ifdef SL_RENDER_BY_MATERIAL
+                    SLuint m = singleNode->mesh() ? 1 : 0;
+#else
+                    SLuint m = (SLuint)singleNode->meshes().size();
+#endif
                     ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                     ImGui::Text("No. of children : %u", c);
                     ImGui::Text("No. of meshes   : %u", m);
@@ -3098,6 +3136,26 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             for (auto* selectedNode : s->selectedNodes())
             {
+#ifdef SL_RENDER_BY_MATERIAL
+                if (selectedNode->mesh())
+                {
+                    ImGui::Text("Node: %s", selectedNode->name().c_str());
+                    SLMesh* selectedMesh = selectedNode->mesh();
+
+                    if (!selectedMesh->IS32.empty())
+                    {
+                        ImGui::Text("   Mesh: %s {%u v.}",
+                                    selectedMesh->name().c_str(),
+                                    (SLuint)selectedMesh->IS32.size());
+                        ImGui::SameLine();
+                        SLstring delBtn = "DEL##" + selectedMesh->name();
+                        if (ImGui::Button(delBtn.c_str()))
+                        {
+                            selectedMesh->deleteSelected(selectedNode);
+                        }
+                    }
+                }
+#else
                 if (!selectedNode->meshes().empty())
                 {
                     ImGui::Text("Node: %s", selectedNode->name().c_str());
@@ -3117,6 +3175,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         }
                     }
                 }
+#endif
             }
 
             ImGui::End();

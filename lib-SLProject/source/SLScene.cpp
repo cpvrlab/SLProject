@@ -68,11 +68,8 @@ SLScene::~SLScene()
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
 */
-void SLScene::init(SLAssetManager* am)
+void SLScene::init()
 {
-    assert(am != nullptr && "No asset manager passed");
-
-    _assetManager = am;
     unInit();
 
     // reset all states
@@ -289,6 +286,18 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     {
         // Check if other mesh from same node is selected
         bool otherMeshIsSelected = false;
+
+#ifdef SL_RENDER_BY_MATERIAL
+        SLMesh* nm = nodeToSelect->mesh();
+        for (auto sm : _selectedMeshes)
+        {
+            if (nm == sm && nm != meshToSelect)
+            {
+                otherMeshIsSelected = true;
+                goto endLoop;
+            }
+        }
+#else
         for (auto nm : nodeToSelect->meshes())
         {
             for (auto sm : _selectedMeshes)
@@ -300,6 +309,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
                 }
             }
         }
+#endif
 
     endLoop:
         if (!otherMeshIsSelected)

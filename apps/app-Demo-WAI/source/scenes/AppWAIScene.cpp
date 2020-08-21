@@ -31,12 +31,19 @@ void AppWAIScene::loadMesh(std::string path)
     for (auto child : augmentationRoot->children())
     {
         child->drawBits()->set(SL_DB_NOTSELECTABLE, true);
+
+#ifdef SL_RENDER_BY_MATERIAL
+        child->mesh()->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
+        child->mesh()->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
+        child->mesh()->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
+#else
         for (auto mesh : child->meshes())
         {
             mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
             mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
             mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
         }
+#endif
     }
 
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
@@ -339,12 +346,18 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
     {
         for (SLNode* child : augmentationRoot->children())
         {
+#ifdef SL_RENDER_BY_MATERIAL
+            child->mesh()->mat()->kt(kt);
+            child->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            child->mesh()->init(child);
+#else
             for (SLMesh* mesh : child->meshes())
             {
                 mesh->mat()->kt(kt);
                 mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
                 mesh->init(child);
             }
+#endif
         }
     }
 }
@@ -586,30 +599,63 @@ void AppWAIScene::removeGraphs()
 {
     if (covisibilityGraphMesh)
     {
+
+#ifdef SL_RENDER_BY_MATERIAL
+        if (covisibilityGraph->mesh() == covisibilityGraphMesh)
+        {
+            covisibilityGraph->mesh(nullptr);
+            assets.removeMesh(covisibilityGraphMesh);
+            delete covisibilityGraphMesh;
+            covisibilityGraphMesh = nullptr;
+        }
+#else
         if (covisibilityGraph->removeMesh(covisibilityGraphMesh))
         {
             assets.removeMesh(covisibilityGraphMesh);
             delete covisibilityGraphMesh;
             covisibilityGraphMesh = nullptr;
         }
+#endif
     }
     if (spanningTreeMesh)
     {
+#ifdef SL_RENDER_BY_MATERIAL
+        if (spanningTree->mesh()==spanningTreeMesh)
+        {
+            spanningTree->mesh(nullptr);
+            assets.removeMesh(spanningTreeMesh);
+            delete spanningTreeMesh;
+            spanningTreeMesh = nullptr;
+        }
+
+#else
         if (spanningTree->removeMesh(spanningTreeMesh))
         {
             assets.removeMesh(spanningTreeMesh);
             delete spanningTreeMesh;
             spanningTreeMesh = nullptr;
         }
+#endif
     }
     if (loopEdgesMesh)
     {
+#ifdef SL_RENDER_BY_MATERIAL
+        if (loopEdges->mesh() == loopEdgesMesh)
+        {
+            loopEdges->mesh(nullptr);
+            assets.removeMesh(loopEdgesMesh);
+            delete loopEdgesMesh;
+            loopEdgesMesh = nullptr;
+        }
+
+#else
         if (loopEdges->removeMesh(loopEdgesMesh))
         {
             assets.removeMesh(loopEdgesMesh);
             delete loopEdgesMesh;
             loopEdgesMesh = nullptr;
         }
+#endif
     }
 }
 
@@ -622,12 +668,24 @@ void AppWAIScene::renderMapPoints(std::string                      name,
     //remove old mesh, if it exists
     if (mesh)
     {
+
+#ifdef SL_RENDER_BY_MATERIAL
+        if (node->mesh() == mesh)
+        {
+            node->mesh(nullptr);
+            assets.removeMesh(mesh);
+            delete mesh;
+            mesh = nullptr;
+        }
+
+#else
         if (node->removeMesh(mesh))
         {
             assets.removeMesh(mesh);
             delete mesh;
             mesh = nullptr;
         }
+#endif
     }
 
     //instantiate and add new mesh
@@ -655,11 +713,21 @@ void AppWAIScene::removeMesh(SLNode* node, SLMesh* mesh)
 {
     if (mesh)
     {
+#ifdef SL_RENDER_BY_MATERIAL
+        if (node->mesh() == mesh)
+        {
+            node->mesh(nullptr);
+            assets.removeMesh(mesh);
+            delete mesh;
+            mesh = nullptr;
+        }
+#else
         if (node->removeMesh(mesh))
         {
             assets.removeMesh(mesh);
             delete mesh;
             mesh = nullptr;
         }
+#endif
     }
 }

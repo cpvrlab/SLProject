@@ -364,10 +364,15 @@ void SLSceneView::onInitialize()
     else
         stateGL->onInitialize(SLCol4f::GRAY);
 
+#ifdef SL_RENDER_BY_MATERIAL
+
+#else
     _nodesBlended.clear();
     _nodesVisible.clear();
-    _nodesOverdrawn.clear();
     _nodesVisible2D.clear();
+#endif
+
+    _nodesOverdrawn.clear();
     _stats2D.clear();
     _stats3D.clear();
 
@@ -707,10 +712,18 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 5. Frustum Culling //
     ////////////////////////
 
-    _camera->setFrustumPlanes();
+#ifdef SL_RENDER_BY_MATERIAL
+    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
+    for (auto material : am->materials())
+        material->nodesVisible3D().clear();
+#else
     _nodesBlended.clear();
     _nodesVisible.clear();
+#endif
     _nodesOverdrawn.clear();
+    _stats3D.numNodesOpaque  = 0;
+    _stats3D.numNodesBlended = 0;
+    _camera->setFrustumPlanes();
 
     if (_s->root3D())
         _s->root3D()->cull3DRec(this);
@@ -770,18 +783,50 @@ void SLSceneView::draw3DGLAll()
 {
     PROFILE_FUNCTION();
 
+#ifdef SL_RENDER_BY_MATERIAL
+    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
+
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
+    for (auto material : am->materials())
+    {
+        if (!material->hasAlpha())
+        {
+            draw3DGLNodes(material->nodesVisible3D(), false, false);
+            _stats3D.numNodesOpaque += material->nodesVisible3D().size();
+        }
+        draw3DGLLines(material->nodesVisible3D());
+    }
+
+    // 2) Draw blended nodes sorted back to front
+    for (auto material : am->materials())
+    {
+        if (material->hasAlpha())
+        {
+            draw3DGLNodes(material->nodesVisible3D(), true, true);
+            _stats3D.numNodesBlended += material->nodesVisible3D().size();
+        }
+    }
+
+    // 3) Draw helper
+    for (auto material : am->materials())
+        draw3DGLLinesOverlay(material->nodesVisible3D());
+    draw3DGLLinesOverlay(_nodesOverdrawn);
+#else
+    // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
+    _stats3D.numNodesOpaque = _nodesVisible.size();
     draw3DGLNodes(_nodesVisible, false, false);
     draw3DGLLines(_nodesVisible);
     draw3DGLLines(_nodesBlended);
 
     // 2) Draw blended nodes sorted back to front
+    _stats3D.numNodesBlended = _nodesVisible.size();
     draw3DGLNodes(_nodesBlended, true, true);
 
     // 3) Draw helper
     draw3DGLLinesOverlay(_nodesVisible);
     draw3DGLLinesOverlay(_nodesBlended);
     draw3DGLLinesOverlay(_nodesOverdrawn);
+#endif
 
     // 4) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
@@ -829,7 +874,11 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
         // Finally the nodes meshes
+#ifdef SL_RENDER_BY_MATERIAL
+        node->drawMesh(this);
+#else
         node->drawMeshes(this);
+#endif
     }
 
     GET_GL_ERROR; // Check if any OGL errors occurred
@@ -866,7 +915,11 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
                 !node->isSelected())
             {
+#ifdef SL_RENDER_BY_MATERIAL
+                if (node->mesh())
+#else
                 if (node->numMeshes() > 0)
+#endif
                     node->aabb()->drawWS(SLCol3f::RED);
                 else
                     node->aabb()->drawWS(SLCol3f::MAGENTA);
@@ -947,25 +1000,31 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             }
             else if (node->drawBit(SL_DB_OVERDRAW))
             {
-                // For blended nodes we activate OpenGL blending and stop depth buffer updates
-                SLGLState* stateGL = SLGLState::instance();
-                //stateGL->blend(true);
-                stateGL->depthMask(false); // Freeze depth buffer for blending
-                stateGL->depthTest(false); // Turn of depth test for overlay
+                if (node->mesh() && node->mesh()->mat())
+                {
+                    SLMesh* mesh = node->mesh();
+                    bool hasAlpha = mesh->mat()->hasAlpha();
 
-                stateGL->blend(node->aabb()->hasAlpha());
-                //stateGL->depthMask(!node->aabb()->hasAlpha());
+                    // For blended nodes we activate OpenGL blending and stop depth buffer updates
+                    SLGLState* stateGL = SLGLState::instance();
+                    stateGL->blend(hasAlpha);
+                    stateGL->depthMask(!hasAlpha);
+                    stateGL->depthTest(false); // Turn of depth test for overlay
 
-                // Set the view transform
-                stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+                    // Set the view transform
+                    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
-                // Apply world transform
-                stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+                    // Apply world transform
+                    stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-                // Finally the nodes meshes
-                node->drawMeshes(this);
-
-                GET_GL_ERROR; // Check if any OGL errors occurred
+                    // Finally the nodes meshes
+#ifdef SL_RENDER_BY_MATERIAL
+                    node->drawMesh(this);
+#else
+                    node->drawMeshes(this);
+#endif
+                    GET_GL_ERROR; // Check if any OGL errors occurred
+                }
             }
         }
     }
@@ -984,8 +1043,10 @@ void SLSceneView::draw2DGL()
     SLGLState* stateGL = SLGLState::instance();
     SLfloat    startMS = GlobalTimer::timeMS();
 
-    SLfloat w2 = (SLfloat)_scrWdiv2;
-    SLfloat h2 = (SLfloat)_scrHdiv2;
+    SLfloat w2               = (SLfloat)_scrWdiv2;
+    SLfloat h2               = (SLfloat)_scrHdiv2;
+    _stats2D.numNodesOpaque  = 0;
+    _stats2D.numNodesBlended = 0;
 
     // Set orthographic projection with 0,0,0 in the screen center
     if (_camera && _camera->projection() != P_stereoSideBySideD)
@@ -1000,7 +1061,13 @@ void SLSceneView::draw2DGL()
                               (int)(_scrH * _scr2fbY));
 
             // 2. Pseudo 2D Frustum Culling
+#ifdef SL_RENDER_BY_MATERIAL
+            SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
+            for (auto material : am->materials())
+                material->nodesVisible2D().clear();
+#else
             _nodesVisible2D.clear();
+#endif
             if (_s->root2D())
                 _s->root2D()->cull2DRec(this);
 
@@ -1066,6 +1133,22 @@ void SLSceneView::draw2DGLNodes()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
+#ifdef SL_RENDER_BY_MATERIAL
+    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
+    for (auto material : am->materials())
+    {
+        _stats2D.numNodesOpaque += material->nodesVisible2D().size();
+        for (auto* node : material->nodesVisible2D())
+        {
+            // Apply world transform
+            stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+            // Finally the nodes meshes
+            node->drawMesh(this);
+        }
+    }
+#else
+    _stats2D.numVisibleNodes += _nodesVisible2D.size();
     for (auto* node : _nodesVisible2D)
     {
         // Apply world transform
@@ -1074,6 +1157,7 @@ void SLSceneView::draw2DGLNodes()
         // Finally the nodes meshes
         node->drawMeshes(this);
     }
+#endif
 
     // Draw rotation helpers during camera animations
     if ((_mouseDownL || _mouseDownM) && _touchDowns == 0)
@@ -1733,21 +1817,18 @@ SLstring SLSceneView::windowTitle()
     }
     else
     {
-        SLuint nr = (uint)_nodesVisible.size();
+        string format;
         if (_s->fps() > 5)
-            sprintf(title,
-                    "%s (fps: %4.0f, %u nodes of %u rendered)",
-                    _s->name().c_str(),
-                    _s->fps(),
-                    nr,
-                    _stats3D.numNodes);
+            format = "%s (fps: %4.0f, %u nodes of %u rendered)";
         else
-            sprintf(title,
-                    "%s (fps: %4.1f, %u nodes of %u rendered)",
-                    _s->name().c_str(),
-                    _s->fps(),
-                    nr,
-                    _stats3D.numNodes);
+            format = "%s (fps: %4.1f, %u nodes of %u rendered)";
+
+        sprintf(title,
+                format.c_str(),
+                _s->name().c_str(),
+                _s->fps(),
+                _stats3D.numNodesOpaque + _stats3D.numNodesBlended,
+                _stats3D.numNodes);
     }
     return profiling + SLstring(title) + profiling;
 }

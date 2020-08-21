@@ -44,6 +44,10 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
+
+#ifdef SL_RENDER_BY_MATERIAL
+    _mesh = nullptr;
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -51,6 +55,8 @@ Constructor with a mesh pointer and name.
 */
 SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 {
+    assert(mesh && "No mesh passed");
+
     _parent = nullptr;
     _depth  = 1;
     _om.identity();
@@ -64,7 +70,11 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _isAABBUpToDate = false;
     _isSelected     = false;
 
+#ifdef SL_RENDER_BY_MATERIAL
+    _mesh = mesh;
+#else
     addMesh(mesh);
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -89,25 +99,85 @@ Simply adds a mesh to its mesh pointer vector of the node.
 */
 void SLNode::addMesh(SLMesh* mesh)
 {
-    if (!mesh)
-        return;
+    assert(mesh && "No mesh passed");
 
+#ifdef SL_RENDER_BY_MATERIAL
+    _mesh = mesh;
+
+    // Take over mesh name if node name is default name
+    if (_name == "Node" && _mesh->name() != "Mesh")
+        _name = _mesh->name() + "-Node";
+
+    _isAABBUpToDate = false;
+    _mesh->init(this);
+#else
     if (std::find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
         return;
+    _meshes.push_back(mesh);
 
     // Take over mesh name if node name is default name
     if (_name == "Node" && mesh->name() != "Mesh")
         _name = mesh->name() + "-Node";
 
     _isAABBUpToDate = false;
-    _meshes.push_back(mesh);
     mesh->init(this);
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
 Inserts a mesh pointer in the mesh pointer vector after the
 specified afterM pointer.
 */
+#ifdef SL_RENDER_BY_MATERIAL
+void SLNode::drawMesh(SLSceneView* sv)
+{
+    if (_mesh)
+        _mesh->draw(sv, this);
+}
+#else
+//-----------------------------------------------------------------------------
+/*!
+DrawMeshes draws the meshes by just calling the SLMesh::draw method.
+See also the SLNode::drawRec method for more information. There are two
+possibilities to guarantee that the meshes of a node are transformed correctly:
+<ul>
+<li>
+<b>Flat drawing</b>: Before the SLNode::drawMeshes is called we must multiply the
+nodes world matrix (SLNode::_wm) to the OpenGL modelview matrix
+(SLGLState::modelViewMatrix). The flat drawing method is slightly faster and
+the order of drawing doesn't matter anymore. This method is used within
+SLSceneView::draw3D to draw first a list of all opaque meshes and the a list
+of all meshes with a transparent material.
+</li>
+<li>
+<b>Recursive drawing</b>: By calling SLNode::drawRec all meshes are drawn with
+SLNode::drawMeshes with only the object matrix applied before drawing. After
+the meshes the drawRec method is called on each children node. By pushing
+the OpenGL modelview matrix before on a stack this method is also referred as
+stack drawing.
+</li>
+<li>
+<b>Filter meshes for blended or opaque pass</b>:
+SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
+the blended nodes have to be drawn from back to front.
+During the cull traversal all nodes with alpha materials are flagged and
+added the to the vector _alphaNodes. The visibleNodes vector contains all
+visible opaque and transparent nodes because a node with alpha meshes still
+can have nodes with opaque material. To avoid double drawing the
+SLNode::drawMeshes draws in the blended pass only the alpha meshes and in
+the opaque pass only the opaque meshes.
+</li>
+</ul>
+*/
+void SLNode::drawMeshes(SLSceneView* sv)
+{
+    SLGLState* stateGL = SLGLState::instance();
+    for (auto* mesh : _meshes)
+        if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
+            (!stateGL->blend() && !mesh->mat()->hasAlpha()))
+            mesh->draw(sv, this);
+}
+//-----------------------------------------------------------------------------
 bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
 {
     assert(insertM && afterM);
@@ -253,47 +323,7 @@ SLbool SLNode::containsMesh(const SLMesh* mesh)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*!
-DrawMeshes draws the meshes by just calling the SLMesh::draw method.
-See also the SLNode::drawRec method for more information. There are two
-possibilities to guarantee that the meshes of a node are transformed correctly:
-<ul>
-<li>
-<b>Flat drawing</b>: Before the SLNode::drawMeshes is called we must multiply the
-nodes world matrix (SLNode::_wm) to the OpenGL modelview matrix
-(SLGLState::modelViewMatrix). The flat drawing method is slightly faster and
-the order of drawing doesn't matter anymore. This method is used within
-SLSceneView::draw3D to draw first a list of all opaque meshes and the a list
-of all meshes with a transparent material.
-</li>
-<li>
-<b>Recursive drawing</b>: By calling SLNode::drawRec all meshes are drawn with
-SLNode::drawMeshes with only the object matrix applied before drawing. After
-the meshes the drawRec method is called on each children node. By pushing
-the OpenGL modelview matrix before on a stack this method is also referred as
-stack drawing.
-</li>
-<li>
-<b>Filter meshes for blended or opaque pass</b>:
-SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
-the blended nodes have to be drawn from back to front.
-During the cull traversal all nodes with alpha materials are flagged and
-added the to the vector _alphaNodes. The visibleNodes vector contains all
-visible opaque and transparent nodes because a node with alpha meshes still
-can have nodes with opaque material. To avoid double drawing the
-SLNode::drawMeshes draws in the blended pass only the alpha meshes and in
-the opaque pass only the opaque meshes.
-</li>
-</ul>
-*/
-void SLNode::drawMeshes(SLSceneView* sv)
-{
-    SLGLState* stateGL = SLGLState::instance();
-    for (auto* mesh : _meshes)
-        if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
-            (!stateGL->blend() && !mesh->mat()->hasAlpha()))
-            mesh->draw(sv, this);
-}
+#endif
 //-----------------------------------------------------------------------------
 /*!
 Adds a child node to the children vector
@@ -406,8 +436,14 @@ void SLNode::findChildrenHelper(const SLMesh*    mesh,
 {
     for (auto* child : _children)
     {
+
+#ifdef SL_RENDER_BY_MATERIAL
+        if (child->_mesh == mesh)
+            list.push_back(child);
+#else
         if (child->containsMesh(mesh))
             list.push_back(child);
+#endif
         if (findRecursive)
             child->findChildrenHelper(mesh, list, findRecursive);
     }
@@ -473,6 +509,10 @@ void SLNode::cull3DRec(SLSceneView* sv)
         // TODO(dgj1): dont leave this like so!! very bad way of checking
         if (!this->drawBit(SL_DB_OVERDRAW))
         {
+#ifdef SL_RENDER_BY_MATERIAL
+            if (this->mesh())
+                this->mesh()->mat()->nodesVisible3D().push_back(this);
+#else
             // for leaf nodes add them to the blended vector
             if (_aabb.hasAlpha())
                 sv->nodesBlended()->push_back(this);
@@ -480,6 +520,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
             // Add all nodes to the opaque list
             // A node that has alpha meshes still can have opaque meshes
             sv->nodesVisible()->push_back(this);
+#endif
         }
         else
         {
@@ -501,9 +542,13 @@ void SLNode::cull2DRec(SLSceneView* sv)
     for (auto* child : _children)
         child->cull2DRec(sv);
 
-    // Add all nodes to the opaque list
-    // A node that has alpha meshes still can have opaque meshes
+        // Add all nodes to the opaque 2D vector
+#ifdef SL_RENDER_BY_MATERIAL
+    if (this->mesh())
+        this->mesh()->mat()->nodesVisible2D().push_back(this);
+#else
     sv->nodesVisible2D()->push_back(this);
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -529,7 +574,11 @@ void SLNode::drawRec(SLSceneView* sv)
     stateGL->buildInverseAndNormalMatrix();
 
     ///////////////
+#ifdef SL_RENDER_BY_MATERIAL
+    drawMesh(sv);
+#else
     drawMeshes(sv);
+#endif
     ///////////////
 
     for (auto* child : _children)
@@ -550,7 +599,11 @@ void SLNode::drawRec(SLSceneView* sv)
         // Draw AABB of all other shapes only
         if (showBBOX && !showSELECT)
         {
+#ifdef SL_RENDER_BY_MATERIAL
+            if (_mesh)
+#else
             if (!_meshes.empty())
+#endif
                 _aabb.drawWS(SLCol3f(1, 0, 0));
             else
                 _aabb.drawWS(SLCol3f(1, 0, 1));
@@ -579,16 +632,21 @@ void SLNode::statsRec(SLNodeStats& stats)
     stats.numNodes++;
 
     if (_children.empty())
-        stats.numLeafNodes++;
+        stats.numNodesLeaf++;
     else
-        stats.numGroupNodes++;
+        stats.numNodesGroup++;
 
     if (typeid(*this) == typeid(SLLightSpot)) stats.numLights++;
     if (typeid(*this) == typeid(SLLightRect)) stats.numLights++;
     if (typeid(*this) == typeid(SLLightDirect)) stats.numLights++;
 
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh)
+        _mesh->addStats(stats);
+#else
     for (auto* mesh : _meshes)
         mesh->addStats(stats);
+#endif
     for (auto* child : _children)
         child->statsRec(stats);
 }
@@ -618,7 +676,11 @@ bool SLNode::hitRec(SLRay* ray)
     SLbool meshWasHit = false;
 
     // Transform ray to object space for non-groups
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh == nullptr)
+#else
     if (_meshes.empty())
+#endif
     {
         // Special selection for cameras
         if (dynamic_cast<SLCamera*>(this) && ray->sv->camera() != this)
@@ -639,6 +701,12 @@ bool SLNode::hitRec(SLRay* ray)
         ray->setDirOS(_wmI.mat3() * ray->dir);
 
         // test all meshes
+#ifdef SL_RENDER_BY_MATERIAL
+        if (_mesh->hit(ray, this) && !meshWasHit)
+            meshWasHit = true;
+        if (ray->isShaded())
+            return true;
+#else
         for (auto* mesh : _meshes)
         {
             if (mesh->hit(ray, this) && !meshWasHit)
@@ -646,6 +714,7 @@ bool SLNode::hitRec(SLRay* ray)
             if (ray->isShaded())
                 return true;
         }
+#endif
     }
 
     // Test children nodes
@@ -679,8 +748,13 @@ SLNode* SLNode::copyRec()
     else
         copy->_animation = nullptr;
 
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh)
+        copy->addMesh(_mesh);
+#else
     for (auto* mesh : _meshes)
         copy->addMesh(mesh);
+#endif
     for (auto* child : _children)
         copy->addChild(child->copyRec());
 
@@ -835,8 +909,12 @@ SLNode::updateAABBRec()
     if (_isAABBUpToDate)
         return _aabb;
 
-    // empty the AABB (= max negative AABB)
+        // empty the AABB (= max negative AABB)
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh || !_children.empty())
+#else
     if (!_meshes.empty() || !_children.empty())
+#endif
     {
         _aabb.minWS(SLVec3f(FLT_MAX, FLT_MAX, FLT_MAX));
         _aabb.maxWS(SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX));
@@ -848,12 +926,21 @@ SLNode::updateAABBRec()
     }
 
     // Build or updateRec AABB of meshes & merge them to the nodes aabb in WS
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh)
+    {
+        SLAABBox aabbMesh;
+        _mesh->buildAABB(aabbMesh, updateAndGetWM());
+        _aabb.mergeWS(aabbMesh);
+    }
+#else
     for (auto* mesh : _meshes)
     {
         SLAABBox aabbMesh;
         mesh->buildAABB(aabbMesh, updateAndGetWM());
         _aabb.mergeWS(aabbMesh);
     }
+#endif
 
     // Merge children in WS except for cameras except if cameras have children
     for (auto* child : _children)
@@ -889,6 +976,15 @@ void SLNode::dumpRec()
     cout << "Node: " << _name << endl;
 
     // dump meshes of node
+#ifdef SL_RENDER_BY_MATERIAL
+    for (SLint i = 0; i < _depth; ++i)
+        cout << "   ";
+    cout << "- Mesh: " << _mesh->name();
+    cout << ", " << _mesh->numI() * 3 << " tri";
+    if (_mesh->mat())
+        cout << ", Mat: " << _mesh->mat()->name();
+    cout << endl;
+#else
     if (!_meshes.empty())
     {
         for (auto* mesh : _meshes)
@@ -902,6 +998,7 @@ void SLNode::dumpRec()
             cout << endl;
         }
     }
+#endif
 
     // dump children nodes
     for (auto* child : _children)
@@ -926,8 +1023,12 @@ void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
     for (auto* child : _children)
         child->setPrimitiveTypeRec(primitiveType);
 
+#ifdef SL_RENDER_BY_MATERIAL
+    _mesh->primitive(primitiveType);
+#else
     for (auto* mesh : _meshes)
         mesh->primitive(primitiveType);
+#endif
 }
 //-----------------------------------------------------------------------------
 
@@ -1214,9 +1315,14 @@ void SLNode::resetToInitialState()
 const SLSkeleton*
 SLNode::skeleton()
 {
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh && _mesh->skeleton())
+        return _mesh->skeleton();
+#else
     for (auto* mesh : _meshes)
         if (mesh->skeleton())
             return mesh->skeleton();
+#endif
     return nullptr;
 }
 //-----------------------------------------------------------------------------
@@ -1236,6 +1342,15 @@ void SLNode::updateRec()
 bool SLNode::updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes)
 {
     bool hasChanges = false;
+
+#ifdef SL_RENDER_BY_MATERIAL
+    // Do software skinning on changed skeleton
+    if (_mesh && _mesh->skeleton() && _mesh->skeleton()->changed())
+    {
+        _mesh->transformSkin(cbInformNodes);
+        hasChanges = true;
+    }
+#else
     for (auto* mesh : _meshes)
     {
         // Do software skinning on all changed skeletons
@@ -1245,6 +1360,7 @@ bool SLNode::updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes)
             hasChanges = true;
         }
     }
+#endif
 
     for (auto* child : _children)
         hasChanges |= child->updateMeshSkins(cbInformNodes);
@@ -1256,12 +1372,16 @@ void SLNode::updateMeshAccelStructs()
 {
     PROFILE_FUNCTION();
 
+#ifdef SL_RENDER_BY_MATERIAL
+    if (_mesh)
+        _mesh->updateAccelStruct();
+#else
     for (auto* mesh : _meshes)
     {
         // updateRec any out of date acceleration structure for RT or if they're being rendered.
         mesh->updateAccelStruct();
     }
-
+#endif
     for (auto* child : _children)
         child->updateMeshAccelStructs();
 }

@@ -87,7 +87,11 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
     stateGL->depthMask(false);
 
     // Draw the box
+#ifdef SL_RENDER_BY_MATERIAL
+    this->drawMesh(sv);
+#else
     this->drawMeshes(sv);
+#endif
 
     // Unlock depth buffer
     stateGL->depthMask(true);
@@ -96,10 +100,15 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 //! Returns the color in the skybox at the the specified direction dir
 SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
 {
+#ifdef SL_RENDER_BY_MATERIAL
+    assert(_mesh);
+    assert(_mesh->mat()->textures().empty());
+    SLGLTexture* tex = _mesh->mat()->textures()[0];
+#else
     assert(!_meshes.empty());
     assert(!_meshes[0]->mat()->textures().empty());
-
     SLGLTexture* tex = _meshes[0]->mat()->textures()[0];
+#endif
 
     return tex->getTexelf(dir);
 }

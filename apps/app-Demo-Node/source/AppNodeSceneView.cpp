@@ -153,7 +153,12 @@ void AppNodeSceneView::postSceneLoad()
     if (!_curObject)
     {
         _curObject = _moveBoxChild;
+
+#ifdef SL_RENDER_BY_MATERIAL
+        _s->selectNodeMesh(_curObject, _curObject->mesh());
+#else
         _s->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+#endif
     }
     updateInfoText();
     updateCurOrigin();
@@ -330,7 +335,11 @@ SLbool AppNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
         // select parent object
         case K_F1:
             _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox;
+#ifdef SL_RENDER_BY_MATERIAL
+            SLApplication::scene->selectNodeMesh(_curObject, _curObject->mesh());
+#else
             SLApplication::scene->selectNodeMesh(_curObject, _curObject->meshes()[0]);
+#endif
             break;
         case K_F2: _continuousInput = !_continuousInput; break;
         case 'R': reset(); break;

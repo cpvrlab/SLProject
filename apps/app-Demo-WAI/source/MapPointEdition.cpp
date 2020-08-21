@@ -329,12 +329,19 @@ void MapEdition::deleteMesh(SLPoints*& mesh)
 {
     if (mesh)
     {
+#ifdef SL_RENDER_BY_MATERIAL
+        _mpNode->mesh(nullptr);
+        delete mesh;
+        mesh = nullptr;
+        _sv->s()->selectNodeMesh(nullptr, nullptr);
+#else
         if (_mpNode->removeMesh(mesh))
         {
             delete mesh;
             mesh = nullptr;
             _sv->s()->selectNodeMesh(nullptr, nullptr);
         }
+#endif
     }
 }
 

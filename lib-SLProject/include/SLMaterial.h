@@ -171,7 +171,10 @@ public:
     SLfloat       shadowBias() const { return _shadowBias; }
     SLVGLTexture& textures() { return _textures; }
     SLGLProgram*  program() { return _program; }
-    SLVNode&      nodesVisible() { return _nodesVisible;}
+#ifdef SL_RENDER_BY_MATERIAL
+    SLVNode&      nodesVisible2D() { return _nodesVisible2D;}
+    SLVNode&      nodesVisible3D() { return _nodesVisible3D;}
+#endif
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
@@ -198,7 +201,10 @@ protected:
     SLGLTexture* _errorTexture = nullptr; //!< pointer to error texture that is shown if another texture fails
     SLstring     _compileErrorTexFilePath;
 
-    SLVNode _nodesVisible; //!< Vector of all visible 3D nodes of with this material
+#ifdef SL_RENDER_BY_MATERIAL
+    SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes of with this material
+    SLVNode _nodesVisible3D; //!< Vector of all visible 3D nodes of with this material
+#endif
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers

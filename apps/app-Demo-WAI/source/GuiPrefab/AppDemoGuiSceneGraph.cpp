@@ -26,7 +26,11 @@ void AppDemoGuiSceneGraph::buildInfos(SLScene* s, SLSceneView* sv)
 void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     SLbool isSelectedNode = s->singleNodeSelected() == node;
-    SLbool isLeafNode     = node->children().size() == 0 && node->meshes().size() == 0;
+#ifdef SL_RENDER_BY_MATERIAL
+    SLbool isLeafNode = node->children().size() == 0 && node->mesh() == nullptr;
+#else
+    SLbool isLeafNode = node->children().size() == 0 && node->meshes().size() == 0;
+#endif
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -44,6 +48,23 @@ void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)
 
     if (nodeIsOpen)
     {
+
+#ifdef SL_RENDER_BY_MATERIAL
+        SLMesh* mesh = node->mesh();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+        ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
+        if (s->singleMeshFullSelected() == mesh)
+            meshFlags |= ImGuiTreeNodeFlags_Selected;
+
+        ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
+
+        if (ImGui::IsItemClicked())
+            s->selectNodeMesh(node, mesh);
+
+        ImGui::TreePop();
+        ImGui::PopStyleColor();
+#else
         for (auto mesh : node->meshes())
         {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
@@ -60,6 +81,7 @@ void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::TreePop();
             ImGui::PopStyleColor();
         }
+#endif
 
         for (auto child : node->children())
             addSceneGraphNode(s, child);
