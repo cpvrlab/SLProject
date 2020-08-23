@@ -268,20 +268,19 @@ void SLMesh::init(SLNode* node)
 
     if (N.empty()) calcNormals();
 
-    // Set default materials if no materials are asigned
+    // Set default materials if no materials are assigned
     // If colors are available use diffuse color attribute shader
     // otherwise use the default gray material
     if (!mat())
-    {
-        //if (!C.empty())
-        //    mat(SLMaterialDiffuseAttribute::instance());
-        //else
-            mat(SLMaterialDefaultGray::instance());
-    }
+        mat(SLMaterialDefaultGray::instance());
+
 
     // set transparent flag of the node if mesh contains alpha material
+#ifdef SL_RENDER_BY_MATERIAL
+#else
     if (!node->aabb()->hasAlpha() && mat()->hasAlpha())
         node->aabb()->hasAlpha(true);
+#endif
 
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())

@@ -1,14 +1,12 @@
 //#############################################################################
 //  File:      SLNode.cpp
-//  Author:    Marc Wacker, Marcus Hudritsch
+//  Author:    Marc Wacker, Marcus Hudritsch, Jan Dellsperger
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
-
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
 
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
@@ -18,8 +16,6 @@
 #include <SLNode.h>
 #include <SLSceneView.h>
 #include <Instrumentor.h>
-
-#include <utility>
 
 unsigned int SLNode::instanceIndex = 0;
 
@@ -71,7 +67,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _isSelected     = false;
 
 #ifdef SL_RENDER_BY_MATERIAL
-    _mesh = mesh;
+    addMesh(mesh);
 #else
     addMesh(mesh);
 #endif
@@ -79,7 +75,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 //-----------------------------------------------------------------------------
 /*!
 Destructor deletes all children recursively and the animation.
-The meshes are not deleted. They are deleted at the end by the SLScene mesh
+The mesh is not deleted. Meshes get deleted at the end by the SLAssetManager
 vector. The entire scenegraph is deleted by deleting the SLScene::_root3D node.
 Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */
@@ -129,10 +125,33 @@ Inserts a mesh pointer in the mesh pointer vector after the
 specified afterM pointer.
 */
 #ifdef SL_RENDER_BY_MATERIAL
+//! Draws the single mesh
 void SLNode::drawMesh(SLSceneView* sv)
 {
     if (_mesh)
         _mesh->draw(sv, this);
+}
+//-----------------------------------------------------------------------------
+//! Returns true if a mesh was assigned and set it to nullptr
+bool SLNode::removeMesh()
+{
+    if (_mesh)
+    {
+        _mesh = nullptr;
+        return true;
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------
+//! Returns true if the passed mesh was assigned and sets it to nullptr
+bool SLNode::removeMesh(SLMesh* mesh)
+{
+    if (_mesh == mesh && mesh != nullptr)
+    {
+        _mesh = nullptr;
+        return true;
+    }
+    return false;
 }
 #else
 //-----------------------------------------------------------------------------
@@ -428,7 +447,7 @@ SLNode::findChildren(const SLMesh* mesh,
 }
 //-----------------------------------------------------------------------------
 /*!
-Helper function of findChildren for meshes
+Helper function of findChildren for the passed mesh pointer
 */
 void SLNode::findChildrenHelper(const SLMesh*    mesh,
                                 vector<SLNode*>& list,
@@ -463,7 +482,7 @@ SLNode::findChildren(const SLuint drawbit,
 }
 //-----------------------------------------------------------------------------
 /*!
-Helper function of findChildren for meshes
+Helper function of findChildren for passed drawing bit
 */
 void SLNode::findChildrenHelper(const SLuint     drawbit,
                                 vector<SLNode*>& list,
@@ -484,7 +503,7 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
 Does the view frustum culling by checking whether the AABB is inside the 3D
 cameras view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
-If a node containes meshes with alpha blended materials it is added to the
+If a node contains meshes with alpha blended materials it is added to the
 _blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)

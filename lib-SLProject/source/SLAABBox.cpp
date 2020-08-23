@@ -40,7 +40,10 @@ void SLAABBox::reset()
     _axisYWS     = SLVec3f::ZERO;
     _axisZWS     = SLVec3f::ZERO;
 
+#ifdef SL_RENDER_BY_MATERIAL
+#else
     _hasAlpha  = false;
+#endif
     _isVisible = true;
 }
 //-----------------------------------------------------------------------------

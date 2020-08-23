@@ -23,7 +23,8 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                          SLScene*        s,
                          SLfloat         radius,
                          SLfloat         spotAngleDEG,
-                         SLbool          hasMesh) : SLNode("LightSpot Node")
+                         SLbool          hasMesh)
+  : SLNode("LightSpot Node")
 {
     _radius = radius;
     _samples.samples(1, 1, false);
@@ -36,7 +37,6 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         if (spotAngleDEG < 180.0f)
-        {
             addMesh(new SLSpheric(assetMgr,
                                   radius,
                                   0.0f,
@@ -45,17 +45,13 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                   16,
                                   "LightSpot Mesh",
                                   mat));
-            addMesh(new SLSpheric(assetMgr,
-                                  radius,
-                                  spotAngleDEG,
-                                  180.0f,
-                                  16,
-                                  16,
-                                  "LightSpot Back Mesh",
-                                  SLMaterialDefaultGray::instance()));
-        }
         else
-            addMesh(new SLSphere(assetMgr, radius, 16, 16, "LightSpot Mesh", mat));
+            addMesh(new SLSphere(assetMgr,
+                                 radius,
+                                 16,
+                                 16,
+                                 "LightSpot Mesh",
+                                 mat));
     }
 
     init(s);
@@ -89,7 +85,6 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         if (spotAngleDEG < 180.0f)
-        {
             addMesh(new SLSpheric(assetMgr,
                                   radius,
                                   0.0f,
@@ -98,17 +93,13 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                   16,
                                   "LightSpot Mesh",
                                   mat));
-            addMesh(new SLSpheric(assetMgr,
-                                  radius,
-                                  spotAngleDEG,
-                                  180.0f,
-                                  16,
-                                  16,
-                                  "LightSpot Back Mesh",
-                                  SLMaterialDefaultGray::instance()));
-        }
         else
-            addMesh(new SLSphere(assetMgr, radius, 16, 16, "LightSpot Mesh", mat));
+            addMesh(new SLSphere(assetMgr,
+                                 radius,
+                                 16,
+                                 16,
+                                 "LightSpot Mesh",
+                                 mat));
     }
     init(s);
 }
@@ -119,8 +110,7 @@ SLLightSpot::~SLLightSpot()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSpot::init sets the light id, the light states & creates an
-emissive mat.
+SLLightSpot::init sets the light id, the light states & creates an emissive mat.
 @todo properly remove this function and find a clean way to init lights in a scene
 */
 void SLLightSpot::init(SLScene* s)
@@ -172,22 +162,23 @@ void SLLightSpot::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightSpot::drawMeshes sets the light states and calls then the drawMeshes
+SLLightSpot::drawMesh sets the light states and calls then the drawMesh
 method of its node.
 */
-
 #ifdef SL_RENDER_BY_MATERIAL
 void SLLightSpot::drawMesh(SLSceneView* sv)
 {
     if (_id != -1)
     {
-        // Set emissive light material to the lights diffuse color
+        // Set emissive light mesh material to the lights diffuse color
         if (_mesh)
+        {
             if (_mesh->mat())
                 _mesh->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
 
-        // now draw the meshes of the node
-        SLNode::drawMesh(sv);
+            // now draw the single mesh of the node
+            SLNode::drawMesh(sv);
+        }
 
         // Draw the volume affected by the shadow map
         if (_createsShadows && _isOn && sv->s()->singleNodeSelected() == this)
@@ -410,8 +401,9 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray,       // ray of hit point
 */
 void SLLightSpot::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    if (_shadowMap == nullptr) _shadowMap = new SLShadowMap(
-                                 P_monoPerspective, this);
+    if (_shadowMap == nullptr)
+        _shadowMap = new SLShadowMap(
+          P_monoPerspective, this);
     _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------

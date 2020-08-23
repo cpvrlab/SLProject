@@ -322,21 +322,24 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
 
     // draw meshes of the node
 #ifdef SL_RENDER_BY_MATERIAL
-    SLMesh* mesh = node->mesh();
-    SLMaterial* mat = mesh->mat();
-    mat->passToUniforms(program);
+    if (node->mesh())
+    {
+        SLMesh* mesh = node->mesh();
+        SLMaterial* mat = mesh->mat();
+        mat->passToUniforms(program);
 
-    // generate a VAO if it does not exist yet
-    if (!mesh->vao().vaoID())
-        mesh->generateVAO(mesh->vao());
+        // generate a VAO if it does not exist yet
+        if (!mesh->vao().vaoID())
+            mesh->generateVAO(mesh->vao());
 
-    // bind the buffer
-    glBindVertexArray(mesh->vao().vaoID());
+        // bind the buffer
+        glBindVertexArray(mesh->vao().vaoID());
 
-    glDrawElements(GL_TRIANGLES,
-                   mesh->vao().numIndices(),
-                   GL_UNSIGNED_SHORT,
-                   nullptr);
+        glDrawElements(GL_TRIANGLES,
+                       mesh->vao().numIndices(),
+                       GL_UNSIGNED_SHORT,
+                       nullptr);
+    }
 #else
     for (auto* mesh : node->meshes())
     {

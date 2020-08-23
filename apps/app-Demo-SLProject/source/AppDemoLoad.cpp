@@ -2424,7 +2424,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define camera
         SLCamera* cam1 = new SLCamera;
-        cam1->translation(0, 20, 20);
+        cam1->translation(0, 10, 10);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
@@ -2454,12 +2454,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(center);
         scene->addChild(cam1);
 
-// create astroboys around the center astroboy
-#ifdef APP_USES_GLES
+        // create astroboys around the center astroboy
         SLint size = 4;
-#else
-        SLint size = 8;
-#endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
             for (SLint iX = -size; iX <= size; ++iX)
@@ -2467,12 +2463,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 SLbool shift = iX % 2 != 0;
                 if (iX != 0 || iZ != 0)
                 {
-                    SLNode* n  = new SLNode;
                     float   xt = float(iX) * 1.0f;
                     float   zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
-                    n->translate(xt, 0, zt, TS_object);
+#ifdef SL_RENDER_BY_MATERIAL
+                    SLNode* n  = center->copyRec();
+#else
                     for (auto m : importer.meshes())
                         n->addMesh(m);
+#endif
+                    n->translate(xt, 0, zt, TS_object);
                     scene->addChild(n);
                 }
             }
@@ -3033,7 +3032,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (auto node : bern->children())
         {
 #ifdef SL_RENDER_BY_MATERIAL
-            node->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            if (node->mesh())
+                node->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
 #else
             for (auto mesh : node->meshes())
             {

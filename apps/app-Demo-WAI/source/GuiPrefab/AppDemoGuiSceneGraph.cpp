@@ -50,20 +50,23 @@ void AppDemoGuiSceneGraph::addSceneGraphNode(SLScene* s, SLNode* node)
     {
 
 #ifdef SL_RENDER_BY_MATERIAL
-        SLMesh* mesh = node->mesh();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+        if (node->mesh())
+        {
+            SLMesh* mesh = node->mesh();
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 
-        ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
-        if (s->singleMeshFullSelected() == mesh)
-            meshFlags |= ImGuiTreeNodeFlags_Selected;
+            ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
+            if (s->singleMeshFullSelected() == mesh)
+                meshFlags |= ImGuiTreeNodeFlags_Selected;
 
-        ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
+            ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
 
-        if (ImGui::IsItemClicked())
-            s->selectNodeMesh(node, mesh);
+            if (ImGui::IsItemClicked())
+                s->selectNodeMesh(node, mesh);
 
-        ImGui::TreePop();
-        ImGui::PopStyleColor();
+            ImGui::TreePop();
+            ImGui::PopStyleColor();
+        }
 #else
         for (auto mesh : node->meshes())
         {

@@ -1000,9 +1000,14 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             }
             else if (node->drawBit(SL_DB_OVERDRAW))
             {
+#ifdef SL_RENDER_BY_MATERIAL
                 if (node->mesh() && node->mesh()->mat())
                 {
                     SLMesh* mesh = node->mesh();
+#else
+                for (auto* mesh : node->meshes())
+                {
+#endif
                     bool hasAlpha = mesh->mat()->hasAlpha();
 
                     // For blended nodes we activate OpenGL blending and stop depth buffer updates
@@ -1148,7 +1153,7 @@ void SLSceneView::draw2DGLNodes()
         }
     }
 #else
-    _stats2D.numVisibleNodes += _nodesVisible2D.size();
+    _stats2D.numNodesOpaque += _nodesVisible2D.size();
     for (auto* node : _nodesVisible2D)
     {
         // Apply world transform

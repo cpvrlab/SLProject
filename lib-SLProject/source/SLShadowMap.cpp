@@ -222,7 +222,7 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
     stateGL->modelViewMatrix = v * node->updateAndGetWM();
 
 #ifdef SL_RENDER_BY_MATERIAL
-    if (node->castsShadows())
+    if (node->castsShadows() && node->mesh())
         node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
 #else
     if (node->castsShadows())

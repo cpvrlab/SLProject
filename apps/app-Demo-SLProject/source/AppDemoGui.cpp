@@ -634,7 +634,27 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (s->materials().size() && ImGui::TreeNode("Materials"))
             {
                 for (SLuint i = 0; i < s->materials().size(); ++i)
-                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
+                {
+                    SLVNode& matNodes = s->materials()[i]->nodesVisible3D();
+                    sprintf(m,
+                            "[%u] %s [%u n.]",
+                            i,
+                            s->materials()[i]->name().c_str(),
+                            (SLuint)matNodes.size());
+
+                    if (matNodes.size())
+                    {
+                        if (ImGui::TreeNode(m))
+                        {
+                            for (auto* node : matNodes)
+                                ImGui::Text(node->name().c_str());
+
+                            ImGui::TreePop();
+                        }
+                    }
+                    else
+                        ImGui::Text(m);
+                }
 
                 ImGui::TreePop();
             }

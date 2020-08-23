@@ -15,6 +15,8 @@
 // Preprocessor constant definitions used in the SLProject
 //////////////////////////////////////////////////////////
 
+#define SL_RENDER_BY_MATERIAL
+
 //-----------------------------------------------------------------------------
 /* Determine one of the following operating systems:
 SL_OS_MACOS    :Apple Mac OSX

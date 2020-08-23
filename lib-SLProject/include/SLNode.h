@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLNode.h
-//  Author:    Marc Wacker, Marcus Hudritsch
+//  Author:    Marc Wacker, Marcus Hudritsch, Jan Dellsperger
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
@@ -10,8 +10,6 @@
 
 #ifndef SLNODE_H
 #define SLNODE_H
-
-#define SL_RENDER_BY_MATERIAL
 
 #include <SLDrawBits.h>
 #include <SLEnums.h>
@@ -96,17 +94,17 @@ struct SLNodeStats
 /*!
  * SLNode is the most important building block of the scene graph.
  * A node can have 0-N children nodes in the vector _children. With child
- * nodes you can build hierarchical structures. A node without meshes can act
+ * nodes you can build hierarchical structures. A node without a mesh can act
  * as parent node to group its children. A node without children only makes
- * sense to hold one or more meshes for visualization. The pointer _parent
- * points to the parent of a child node. \n\n
+ * sense to hold a mesh for visualization. The pointer _parent points to the
+ * parent of a child node. \n\n
  *
- * A node can use 0-N mesh objects in the SLMesh vector _meshes for the
- * rendering of triangled or lined meshes. Meshes are stored in the
- * SLAssetManager::_meshes vector. Multiple nodes can point to the same mesh
- * object. The node is therefore not the owner of the meshes and does not
- * delete them. The nodes meshes are drawn by the methods SLNode::drawMeshes
- * and alternatively by SLNode::drawRec.\n\n
+ * A node can point to a single SLMesh object for the rendering of triangles
+ * lines or points meshes. Meshes are stored in the SLAssetManager::_meshes
+ * vector. Multiple nodes can point to the same mesh object. The node is
+ * therefore not the owner of the meshes and does not delete them. The mesh
+ * is drawn by the methods SLNode::drawMesh and alternatively by
+ * SLNode::drawRec.\n\n
  *
  * A node can be transformed and has therefore a object matrix (_om) for its
  * local transform. All other matrices such as the world matrix (_wm), the
@@ -122,7 +120,7 @@ struct SLNodeStats
  * - TS_Parent: Space relative to our parent's transformation.
  * - TS_Object: Space relative to our current node's origin.
  *
- * A node can implement one of the eventhandlers defined in the inherited
+ * A node can implement one of the event handlers defined in the inherited
  * SLEventHandler interface. There is special node called SLTransformNode
  * that acts as a visual gizmo for editing the transform. See the example
  * in the menu Edit of the SLProject demo app.\n\n
@@ -163,6 +161,8 @@ public:
 #ifdef SL_RENDER_BY_MATERIAL
     void         addMesh(SLMesh* mesh);
     virtual void drawMesh(SLSceneView* sv);
+    bool         removeMesh();
+    bool         removeMesh(SLMesh* mesh);
 #else
     SLint numMeshes()
     {
@@ -286,12 +286,6 @@ public:
     void         needWMUpdate();
     void         needAABBUpdate();
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
-#ifdef SL_RENDER_BY_MATERIAL
-    void mesh(SLMesh* mesh)
-    {
-        _mesh = mesh;
-    }
-#endif
 
     // Getters (see also member)
     SLNode*        parent() { return _parent; }
