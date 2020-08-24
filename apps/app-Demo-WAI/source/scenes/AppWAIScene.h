@@ -13,7 +13,7 @@
 class AppWAIScene : public SLScene
 {
 public:
-    AppWAIScene(SLstring name, std::string dataDir);
+    AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
 
     void updateCameraIntrinsics(float cameraFovVDeg)
     {
@@ -102,6 +102,7 @@ private:
 
     //path to data directory
     std::string _dataDir;
+    std::string _erlebARDir;
 };
 
 #endif

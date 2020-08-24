@@ -31,7 +31,7 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       [&]() { return _camera; },                          //getter callback for current camera
       [&]() { return _camera ? _calibration : nullptr; }, //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }),          //getter callback for current calibration
-    _scene("TestScene", deviceData.dataDir()),
+    _scene("TestScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _camera(camera),
     _configDir(deviceData.writableDir()),
     _vocabularyDir(deviceData.vocabularyDir()),

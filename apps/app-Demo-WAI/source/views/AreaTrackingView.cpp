@@ -17,7 +17,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          deviceData.scrWidth(),
          deviceData.scrHeight(),
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1)),
-    _scene("AreaTrackingScene", deviceData.dataDir()),
+    _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _camera(camera),
     _vocabularyDir(deviceData.vocabularyDir()),
     _erlebARDir(deviceData.erlebARDir())

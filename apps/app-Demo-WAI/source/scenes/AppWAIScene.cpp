@@ -9,15 +9,15 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 
-AppWAIScene::AppWAIScene(SLstring name, std::string dataDir)
+AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
-    _dataDir(Utils::unifySlashes(dataDir))
+    _dataDir(Utils::unifySlashes(dataDir)),
+    _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
 }
 
 void AppWAIScene::loadMesh(std::string path)
 {
-
     SLAssimpImporter importer;
     augmentationRoot = importer.load(_animManager,
                                      &assets,
@@ -162,9 +162,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             loadMesh(modelPath);
         }
     }
-    else if (location == "augst" || location == "Augst")
+    else if (location == "augst")
     {
-        std::string      modelPath = _dataDir + "models/GLTF/augst/Tempel-Theater-02.gltf";
+        std::string      modelPath = _erlebARDir + "models/augst/Tempel-Theater-02.gltf";
         SLAssimpImporter importer;
 
         if (!Utils::fileExists(modelPath))
