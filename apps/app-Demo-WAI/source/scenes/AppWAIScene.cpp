@@ -599,63 +599,30 @@ void AppWAIScene::removeGraphs()
 {
     if (covisibilityGraphMesh)
     {
-
-#ifdef SL_RENDER_BY_MATERIAL
-        if (covisibilityGraph->mesh() == covisibilityGraphMesh)
-        {
-            covisibilityGraph->mesh(nullptr);
-            assets.removeMesh(covisibilityGraphMesh);
-            delete covisibilityGraphMesh;
-            covisibilityGraphMesh = nullptr;
-        }
-#else
         if (covisibilityGraph->removeMesh(covisibilityGraphMesh))
         {
             assets.removeMesh(covisibilityGraphMesh);
             delete covisibilityGraphMesh;
             covisibilityGraphMesh = nullptr;
         }
-#endif
     }
     if (spanningTreeMesh)
     {
-#ifdef SL_RENDER_BY_MATERIAL
-        if (spanningTree->mesh()==spanningTreeMesh)
-        {
-            spanningTree->mesh(nullptr);
-            assets.removeMesh(spanningTreeMesh);
-            delete spanningTreeMesh;
-            spanningTreeMesh = nullptr;
-        }
-
-#else
         if (spanningTree->removeMesh(spanningTreeMesh))
         {
             assets.removeMesh(spanningTreeMesh);
             delete spanningTreeMesh;
             spanningTreeMesh = nullptr;
         }
-#endif
     }
     if (loopEdgesMesh)
     {
-#ifdef SL_RENDER_BY_MATERIAL
-        if (loopEdges->mesh() == loopEdgesMesh)
-        {
-            loopEdges->mesh(nullptr);
-            assets.removeMesh(loopEdgesMesh);
-            delete loopEdgesMesh;
-            loopEdgesMesh = nullptr;
-        }
-
-#else
         if (loopEdges->removeMesh(loopEdgesMesh))
         {
             assets.removeMesh(loopEdgesMesh);
             delete loopEdgesMesh;
             loopEdgesMesh = nullptr;
         }
-#endif
     }
 }
 
@@ -668,24 +635,12 @@ void AppWAIScene::renderMapPoints(std::string                      name,
     //remove old mesh, if it exists
     if (mesh)
     {
-
-#ifdef SL_RENDER_BY_MATERIAL
-        if (node->mesh() == mesh)
-        {
-            node->mesh(nullptr);
-            assets.removeMesh(mesh);
-            delete mesh;
-            mesh = nullptr;
-        }
-
-#else
         if (node->removeMesh(mesh))
         {
             assets.removeMesh(mesh);
             delete mesh;
             mesh = nullptr;
         }
-#endif
     }
 
     //instantiate and add new mesh
@@ -713,21 +668,11 @@ void AppWAIScene::removeMesh(SLNode* node, SLMesh* mesh)
 {
     if (mesh)
     {
-#ifdef SL_RENDER_BY_MATERIAL
-        if (node->mesh() == mesh)
-        {
-            node->mesh(nullptr);
-            assets.removeMesh(mesh);
-            delete mesh;
-            mesh = nullptr;
-        }
-#else
         if (node->removeMesh(mesh))
         {
             assets.removeMesh(mesh);
             delete mesh;
             mesh = nullptr;
         }
-#endif
     }
 }
