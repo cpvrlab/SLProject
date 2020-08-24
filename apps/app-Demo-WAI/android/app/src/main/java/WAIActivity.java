@@ -62,7 +62,6 @@ public class WAIActivity extends NativeActivity
         }
 
     }
-    // Our popup window, you will call it from your C/C++ code later
 
     @TargetApi(19)
     void setImmersiveSticky() {
