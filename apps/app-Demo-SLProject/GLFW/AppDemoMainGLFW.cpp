@@ -531,7 +531,7 @@ void initSL(SLVstring& cmdLineArgs)
     //setup platform dependent data path
     SLApplication::calibFilePath = configDir;
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
-    //CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), SLApplication::calibFilePath); // for calibrations made
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), SLApplication::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

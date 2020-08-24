@@ -716,6 +716,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
     for (auto material : am->materials())
         material->nodesVisible3D().clear();
+    _nodesText3D.clear();
 #else
     _nodesBlended.clear();
     _nodesVisible.clear();
@@ -807,7 +808,11 @@ void SLSceneView::draw3DGLAll()
         }
     }
 
-    // 3) Draw helper
+    // 3) Draw text nodes blended (needs redesign)
+    _stats3D.numNodesBlended += _nodesText3D.size();
+    draw3DGLNodes(_nodesText3D, true, true);
+
+    // 4) Draw helper
     for (auto material : am->materials())
         draw3DGLLinesOverlay(material->nodesVisible3D());
     draw3DGLLinesOverlay(_nodesOverdrawn);
@@ -1070,6 +1075,7 @@ void SLSceneView::draw2DGL()
             SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
             for (auto material : am->materials())
                 material->nodesVisible2D().clear();
+            _nodesText2D.clear();
 #else
             _nodesVisible2D.clear();
 #endif
@@ -1151,6 +1157,17 @@ void SLSceneView::draw2DGLNodes()
             // Finally the nodes meshes
             node->drawMesh(this);
         }
+    }
+
+    // Depricated: SLText node need to be meshes as well
+    _stats2D.numNodesOpaque += _nodesText2D.size();
+    for (auto* node : _nodesText2D)
+    {
+        // Apply world transform
+        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+
+        // Finally the nodes meshes
+        node->drawMesh(this);
     }
 #else
     _stats2D.numNodesOpaque += _nodesVisible2D.size();

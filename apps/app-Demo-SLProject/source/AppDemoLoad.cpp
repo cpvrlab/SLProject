@@ -791,7 +791,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(s, s, 15, 15, 15, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
         light1->attenuation(1, 0, 0);
 
@@ -2468,6 +2468,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_RENDER_BY_MATERIAL
                     SLNode* n  = center->copyRec();
 #else
+                    SLNode* n  = new SLNode();
                     for (auto m : importer.meshes())
                         n->addMesh(m);
 #endif

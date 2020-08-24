@@ -547,7 +547,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
             SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
             SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn()->size();
+            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
             SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
             SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
@@ -635,6 +635,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             {
                 for (SLuint i = 0; i < s->materials().size(); ++i)
                 {
+#ifdef SL_RENDER_BY_MATERIAL
                     SLVNode& matNodes = s->materials()[i]->nodesVisible3D();
                     sprintf(m,
                             "[%u] %s [%u n.]",
@@ -653,6 +654,12 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                         }
                     }
                     else
+#else
+                    sprintf(m,
+                            "[%u] %s",
+                            i,
+                            s->materials()[i]->name().c_str());
+#endif
                         ImGui::Text(m);
                 }
 
@@ -2502,6 +2509,9 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
 
     if (s->root3D())
         addSceneGraphNode(s, s->root3D());
+
+    if (s->root2D())
+        addSceneGraphNode(s, s->root2D());
 
     ImGui::End();
     ImGui::PopFont();

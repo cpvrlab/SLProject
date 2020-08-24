@@ -14,6 +14,7 @@
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
 #include <SLNode.h>
+#include <SLText.h>
 #include <SLSceneView.h>
 #include <Instrumentor.h>
 
@@ -66,11 +67,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _isAABBUpToDate = false;
     _isSelected     = false;
 
-#ifdef SL_RENDER_BY_MATERIAL
     addMesh(mesh);
-#else
-    addMesh(mesh);
-#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -97,27 +94,20 @@ void SLNode::addMesh(SLMesh* mesh)
 {
     assert(mesh && "No mesh passed");
 
-#ifdef SL_RENDER_BY_MATERIAL
-    _mesh = mesh;
-
-    // Take over mesh name if node name is default name
-    if (_name == "Node" && _mesh->name() != "Mesh")
-        _name = _mesh->name() + "-Node";
-
-    _isAABBUpToDate = false;
-    _mesh->init(this);
-#else
-    if (std::find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
-        return;
-    _meshes.push_back(mesh);
-
     // Take over mesh name if node name is default name
     if (_name == "Node" && mesh->name() != "Mesh")
         _name = mesh->name() + "-Node";
 
+#ifdef SL_RENDER_BY_MATERIAL
+    _mesh = mesh;
+#else
+    if (std::find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
+        return;
+    _meshes.push_back(mesh);
+#endif
+
     _isAABBUpToDate = false;
     mesh->init(this);
-#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -526,24 +516,24 @@ void SLNode::cull3DRec(SLSceneView* sv)
             child->cull3DRec(sv);
 
         // TODO(dgj1): dont leave this like so!! very bad way of checking
-        if (!this->drawBit(SL_DB_OVERDRAW))
+        if (this->drawBit(SL_DB_OVERDRAW))
+            sv->nodesOverdrawn().push_back(this);
+        else
         {
 #ifdef SL_RENDER_BY_MATERIAL
             if (this->mesh())
                 this->mesh()->mat()->nodesVisible3D().push_back(this);
+            else if (typeid(*this) == typeid(SLText))
+                sv->nodesText3D().push_back(this);
 #else
             // for leaf nodes add them to the blended vector
             if (_aabb.hasAlpha())
-                sv->nodesBlended()->push_back(this);
+                sv->nodesBlended().push_back(this);
 
             // Add all nodes to the opaque list
             // A node that has alpha meshes still can have opaque meshes
-            sv->nodesVisible()->push_back(this);
+            sv->nodesVisible().push_back(this);
 #endif
-        }
-        else
-        {
-            sv->nodesOverdrawn()->push_back(this);
         }
     }
 }
@@ -565,8 +555,10 @@ void SLNode::cull2DRec(SLSceneView* sv)
 #ifdef SL_RENDER_BY_MATERIAL
     if (this->mesh())
         this->mesh()->mat()->nodesVisible2D().push_back(this);
+    else if (typeid(*this) == typeid(SLText))
+        sv->nodesText2D().push_back(this);
 #else
-    sv->nodesVisible2D()->push_back(this);
+    sv->nodesVisible2D().push_back(this);
 #endif
 }
 //-----------------------------------------------------------------------------
