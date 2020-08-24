@@ -30,10 +30,6 @@ SLText::SLText(SLstring   text,
     _color = color;
     _maxW  = maxWidth;
     _lineH = lineHeightFactor;
-#ifdef SL_RENDER_BY_MATERIAL
-#else
-    _aabb.hasAlpha(true);
-#endif
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -56,13 +56,7 @@ public:
     ~SLCamera() override { ; }
 
     void           statsRec(SLNodeStats& stats) override;
-
-#ifdef SL_RENDER_BY_MATERIAL
-    void    drawMesh(SLSceneView* sv) override;
-#else
-    void    drawMeshes(SLSceneView* sv) override;
-#endif
-
+    void           drawMesh(SLSceneView* sv) override;
     virtual SLbool camUpdate(SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
     void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;

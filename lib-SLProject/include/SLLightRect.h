@@ -53,11 +53,7 @@ public:
     void    drawRec(SLSceneView* sv) override;
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-#ifdef SL_RENDER_BY_MATERIAL
     void    drawMesh(SLSceneView* sv) override;
-#else
-    void    drawMeshes(SLSceneView* sv) override;
-#endif
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,

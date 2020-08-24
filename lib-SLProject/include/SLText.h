@@ -41,21 +41,8 @@ public:
     void      statsRec(SLNodeStats& stats) override;
     SLAABBox& updateAABBRec() override;
     SLbool    hitRec(SLRay* ray) override { return false; }
-#ifdef SL_RENDER_BY_MATERIAL
-    void drawMesh(SLSceneView* sv) override
-    {
-        drawText(sv);
-    };
-#else
-    void drawMeshes(SLSceneView* sv) override
-    {
-        drawText(sv);
-    };
-#endif
-    void preShade(SLRay* ray)
-    {
-        ;
-    }
+    void      drawMesh(SLSceneView* sv) override { drawText(sv); };
+    void      preShade(SLRay* ray) { ; }
 
     // Getters
     SLstring text() { return _text; }

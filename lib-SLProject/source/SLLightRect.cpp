@@ -72,21 +72,10 @@ void SLLightRect::init(SLScene* s)
         s->lights().push_back(this);
     }
 
-    // Set the OpenGL light states
-    //setState();
-    //SLGLState* stateGL     = SLGLState::instance();
-    //stateGL->numLightsUsed = (SLint)s->lights().size();
-
     // Set emissive light material to the lights diffuse color
-#ifdef SL_RENDER_BY_MATERIAL
     if (_mesh)
         if (_mesh->mat())
             _mesh->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-#else
-    if (!_meshes.empty())
-        if (_meshes[0]->mat())
-            _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -98,15 +87,9 @@ void SLLightRect::drawRec(SLSceneView* sv)
     if (_id != -1)
     {
         // Set emissive light material to the lights diffuse color
-#ifdef SL_RENDER_BY_MATERIAL
         if (_mesh)
             if (_mesh->mat())
                 _mesh->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-#else
-        if (!_meshes.empty())
-            if (_meshes[0]->mat())
-                _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-#endif
 
         // now draw the inherited object
         SLNode::drawRec(sv);
@@ -140,7 +123,6 @@ void SLLightRect::statsRec(SLNodeStats& stats)
 SLLightRect::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.
 */
-#ifdef SL_RENDER_BY_MATERIAL
 void SLLightRect::drawMesh(SLSceneView* sv)
 {
     if (_id != -1)
@@ -163,30 +145,6 @@ void SLLightRect::drawMesh(SLSceneView* sv)
         }
     }
 }
-#else
-void SLLightRect::drawMeshes(SLSceneView* sv)
-{
-    if (_id != -1)
-    {
-        // Set emissive light material to the lights diffuse color
-        if (!_meshes.empty())
-        {
-            if (_meshes[0]->mat())
-                _meshes[0]->mat()->emissive(_isOn ? diffuse() : SLCol4f::BLACK);
-        }
-
-        // now draw the meshes of the node
-        SLNode::drawMeshes(sv);
-
-        // Draw the volume affected by the shadow map
-        if (_createsShadows && _isOn && sv->s()->singleNodeSelected() == this)
-        {
-            _shadowMap->drawFrustum();
-            _shadowMap->drawRays();
-        }
-    }
-}
-#endif
 //-----------------------------------------------------------------------------
 /*!
 SLLightRect::shadowTest returns 0.0 if the hit point is completely shaded and

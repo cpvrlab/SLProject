@@ -158,29 +158,11 @@ public:
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
 
     // Mesh methods (see impl. for details)
-#ifdef SL_RENDER_BY_MATERIAL
     void         addMesh(SLMesh* mesh);
     virtual void drawMesh(SLSceneView* sv);
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
-#else
-    SLint numMeshes()
-    {
-        return (SLint)_meshes.size();
-    }
-    void         addMesh(SLMesh* mesh);
-    bool         insertMesh(SLMesh* insertM, SLMesh* afterM);
-    void         removeMeshes() { _meshes.clear(); }
-    bool         removeMesh();
-    bool         removeMesh(SLMesh* mesh);
-    bool         removeMesh(const SLstring& name);
-    SLMesh*      findMesh(const SLstring& name,
-                          SLbool          recursive = false);
-    void         setAllMeshMaterials(SLMaterial* mat,
-                                     SLbool      recursive = true);
-    SLbool       containsMesh(const SLMesh* mesh);
-    virtual void drawMeshes(SLSceneView* sv);
-#endif
+
 
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }
@@ -288,43 +270,27 @@ public:
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
 
     // Getters (see also member)
-    SLNode*        parent() { return _parent; }
-    SLint          depth() const { return _depth; }
-    const SLMat4f& om() { return _om; }
-    const SLMat4f& initialOM() { return _initialOM; }
-    const SLMat4f& updateAndGetWM() const;
-    const SLMat4f& updateAndGetWMI() const;
-    const SLMat3f& updateAndGetWMN() const;
-    SLDrawBits*    drawBits() { return &_drawBits; }
-    SLbool         drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLAABBox*      aabb() { return &_aabb; }
-    SLAnimation*   animation() { return _animation; }
-    SLbool         castsShadows() { return _castsShadows; }
-#ifdef SL_RENDER_BY_MATERIAL
-    SLMesh* mesh()
-    {
-        return _mesh;
-    }
-#else
-    SLVMesh& meshes()
-    {
-        return _meshes;
-    }
-#endif
-    SLVNode& children()
-    {
-        return _children;
-    }
+    SLNode*           parent() { return _parent; }
+    SLint             depth() const { return _depth; }
+    const SLMat4f&    om() { return _om; }
+    const SLMat4f&    initialOM() { return _initialOM; }
+    const SLMat4f&    updateAndGetWM() const;
+    const SLMat4f&    updateAndGetWMI() const;
+    const SLMat3f&    updateAndGetWMN() const;
+    SLDrawBits*       drawBits() { return &_drawBits; }
+    SLbool            drawBit(SLuint bit) { return _drawBits.get(bit); }
+    SLAABBox*         aabb() { return &_aabb; }
+    SLAnimation*      animation() { return _animation; }
+    SLbool            castsShadows() { return _castsShadows; }
+    SLMesh*           mesh() { return _mesh; }
+    SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
     void              updateRec();
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
-
-#ifdef SL_RENDER_BY_MATERIAL
     void              updateMeshMat(function<void(SLMaterial* m)> setMat,
                                     bool                          recursive);
-#endif
     bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
@@ -354,12 +320,7 @@ private:
 protected:
     SLNode* _parent;   //!< pointer to the parent node
     SLVNode _children; //!< vector of children nodes
-
-#ifdef SL_RENDER_BY_MATERIAL
-    SLMesh* _mesh; //!< pointer to a single mesh
-#else
-    SLVMesh _meshes; //!< vector of meshes of the node
-#endif
+    SLMesh* _mesh;     //!< pointer to a single mesh
 
     SLint           _depth;          //!< depth of the node in a scene tree
     SLMat4f         _om;             //!< object matrix for local transforms

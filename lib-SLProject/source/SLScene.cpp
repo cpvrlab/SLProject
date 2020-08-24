@@ -287,7 +287,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
         // Check if other mesh from same node is selected
         bool otherMeshIsSelected = false;
 
-#ifdef SL_RENDER_BY_MATERIAL
         SLMesh* nm = nodeToSelect->mesh();
         for (auto sm : _selectedMeshes)
         {
@@ -297,19 +296,6 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
                 goto endLoop;
             }
         }
-#else
-        for (auto nm : nodeToSelect->meshes())
-        {
-            for (auto sm : _selectedMeshes)
-            {
-                if (nm == sm && nm != meshToSelect)
-                {
-                    otherMeshIsSelected = true;
-                    goto endLoop;
-                }
-            }
-        }
-#endif
 
     endLoop:
         if (!otherMeshIsSelected)

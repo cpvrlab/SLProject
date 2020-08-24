@@ -364,14 +364,6 @@ void SLSceneView::onInitialize()
     else
         stateGL->onInitialize(SLCol4f::GRAY);
 
-#ifdef SL_RENDER_BY_MATERIAL
-
-#else
-    _nodesBlended.clear();
-    _nodesVisible.clear();
-    _nodesVisible2D.clear();
-#endif
-
     _nodesOverdrawn.clear();
     _stats2D.clear();
     _stats3D.clear();
@@ -712,15 +704,10 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 5. Frustum Culling //
     ////////////////////////
 
-#ifdef SL_RENDER_BY_MATERIAL
     SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
     for (auto material : am->materials())
         material->nodesVisible3D().clear();
     _nodesText3D.clear();
-#else
-    _nodesBlended.clear();
-    _nodesVisible.clear();
-#endif
     _nodesOverdrawn.clear();
     _stats3D.numNodesOpaque  = 0;
     _stats3D.numNodesBlended = 0;
@@ -784,7 +771,6 @@ void SLSceneView::draw3DGLAll()
 {
     PROFILE_FUNCTION();
 
-#ifdef SL_RENDER_BY_MATERIAL
     SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
 
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
@@ -816,22 +802,6 @@ void SLSceneView::draw3DGLAll()
     for (auto material : am->materials())
         draw3DGLLinesOverlay(material->nodesVisible3D());
     draw3DGLLinesOverlay(_nodesOverdrawn);
-#else
-    // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
-    _stats3D.numNodesOpaque = _nodesVisible.size();
-    draw3DGLNodes(_nodesVisible, false, false);
-    draw3DGLLines(_nodesVisible);
-    draw3DGLLines(_nodesBlended);
-
-    // 2) Draw blended nodes sorted back to front
-    _stats3D.numNodesBlended = _nodesVisible.size();
-    draw3DGLNodes(_nodesBlended, true, true);
-
-    // 3) Draw helper
-    draw3DGLLinesOverlay(_nodesVisible);
-    draw3DGLLinesOverlay(_nodesBlended);
-    draw3DGLLinesOverlay(_nodesOverdrawn);
-#endif
 
     // 4) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
@@ -878,12 +848,8 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-        // Finally the nodes meshes
-#ifdef SL_RENDER_BY_MATERIAL
+        // Finally draw the nodes mesh
         node->drawMesh(this);
-#else
-        node->drawMeshes(this);
-#endif
     }
 
     GET_GL_ERROR; // Check if any OGL errors occurred
@@ -920,11 +886,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             if ((drawBit(SL_DB_BBOX) || node->drawBit(SL_DB_BBOX)) &&
                 !node->isSelected())
             {
-#ifdef SL_RENDER_BY_MATERIAL
                 if (node->mesh())
-#else
-                if (node->numMeshes() > 0)
-#endif
                     node->aabb()->drawWS(SLCol3f::RED);
                 else
                     node->aabb()->drawWS(SLCol3f::MAGENTA);
@@ -1005,14 +967,9 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             }
             else if (node->drawBit(SL_DB_OVERDRAW))
             {
-#ifdef SL_RENDER_BY_MATERIAL
                 if (node->mesh() && node->mesh()->mat())
                 {
                     SLMesh* mesh = node->mesh();
-#else
-                for (auto* mesh : node->meshes())
-                {
-#endif
                     bool hasAlpha = mesh->mat()->hasAlpha();
 
                     // For blended nodes we activate OpenGL blending and stop depth buffer updates
@@ -1027,12 +984,8 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                     // Apply world transform
                     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-                    // Finally the nodes meshes
-#ifdef SL_RENDER_BY_MATERIAL
+                    // Finally draw the nodes mesh
                     node->drawMesh(this);
-#else
-                    node->drawMeshes(this);
-#endif
                     GET_GL_ERROR; // Check if any OGL errors occurred
                 }
             }
@@ -1071,14 +1024,10 @@ void SLSceneView::draw2DGL()
                               (int)(_scrH * _scr2fbY));
 
             // 2. Pseudo 2D Frustum Culling
-#ifdef SL_RENDER_BY_MATERIAL
             SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
             for (auto material : am->materials())
                 material->nodesVisible2D().clear();
             _nodesText2D.clear();
-#else
-            _nodesVisible2D.clear();
-#endif
             if (_s->root2D())
                 _s->root2D()->cull2DRec(this);
 
@@ -1144,7 +1093,6 @@ void SLSceneView::draw2DGLNodes()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-#ifdef SL_RENDER_BY_MATERIAL
     SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
     for (auto material : am->materials())
     {
@@ -1169,17 +1117,6 @@ void SLSceneView::draw2DGLNodes()
         // Finally the nodes meshes
         node->drawMesh(this);
     }
-#else
-    _stats2D.numNodesOpaque += _nodesVisible2D.size();
-    for (auto* node : _nodesVisible2D)
-    {
-        // Apply world transform
-        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
-
-        // Finally the nodes meshes
-        node->drawMeshes(this);
-    }
-#endif
 
     // Draw rotation helpers during camera animations
     if ((_mouseDownL || _mouseDownM) && _touchDowns == 0)

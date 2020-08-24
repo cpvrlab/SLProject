@@ -190,14 +190,8 @@ public:
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
     SLbool          doWaitOnIdle() const { return _doWaitOnIdle; }
-#ifdef SL_RENDER_BY_MATERIAL
     SLVNode&        nodesText2D() { return _nodesText2D; }
     SLVNode&        nodesText3D() { return _nodesText3D; }
-#else
-    SLVNode&        nodesVisible() { return _nodesVisible; }
-    SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
-    SLVNode&        nodesBlended() { return _nodesBlended; }
-#endif
     SLVNode&        nodesOverdrawn() { return _nodesOverdrawn; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
@@ -275,14 +269,8 @@ protected:
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
-#ifdef SL_RENDER_BY_MATERIAL
-    SLVNode _nodesText2D;      //!< Vector of 2D text nodes that get blended (needs redesign)
-    SLVNode _nodesText3D;      //!< Vector of 3D text nodes that get blended (needs redesign)
-#else
-    SLVNode _nodesVisible;   //!< Vector of all visible 3D nodes
-    SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes drawn in orthographic projection
-    SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
-#endif
+    SLVNode _nodesText2D;    //!< Vector of 2D text nodes that get blended (needs redesign)
+    SLVNode _nodesText3D;    //!< Vector of 3D text nodes that get blended (needs redesign)
     SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
 
     SLRaytracer                     _raytracer;  //!< Whitted style raytracer

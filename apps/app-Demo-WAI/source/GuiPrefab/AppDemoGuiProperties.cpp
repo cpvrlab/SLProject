@@ -33,12 +33,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
             if (singleNode)
             {
                 SLuint c = (SLuint)singleNode->children().size();
-
-#ifdef SL_RENDER_BY_MATERIAL
                 SLuint m = singleNode->mesh() ? 1 : 0;
-#else
-                SLuint m = (SLuint)singleNode->meshes().size();
-#endif
                 ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                 ImGui::Text("No. of children : %u", c);
                 ImGui::Text("No. of meshes   : %u", m);
@@ -83,13 +78,13 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                 if (ImGui::TreeNode("Local Transform"))
                 {
                     SLMat4f om(singleNode->om());
-                    SLVec3f t, r, s;
-                    om.decompose(t, r, s);
-                    r *= Utils::RAD2DEG;
+                    SLVec3f trn, rot, scl;
+                    om.decompose(trn, rot, scl);
+                    rot *= Utils::RAD2DEG;
 
-                    ImGui::Text("Translation  : %s", t.toString().c_str());
-                    ImGui::Text("Rotation     : %s", r.toString().c_str());
-                    ImGui::Text("Scaling      : %s", s.toString().c_str());
+                    ImGui::Text("Translation  : %s", trn.toString().c_str());
+                    ImGui::Text("Rotation     : %s", rot.toString().c_str());
+                    ImGui::Text("Scaling      : %s", scl.toString().c_str());
                     ImGui::TreePop();
                 }
 
@@ -443,8 +438,6 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
 
         for (auto* selectedNode : s->selectedNodes())
         {
-
-#ifdef SL_RENDER_BY_MATERIAL
             if (selectedNode->mesh())
             {
                 ImGui::Text("Node: %s", selectedNode->name().c_str());
@@ -462,27 +455,6 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                     }
                 }
             }
-#else
-            if (selectedNode->meshes().size() > 0)
-            {
-                ImGui::Text("Node: %s", selectedNode->name().c_str());
-                for (auto selectedMesh : selectedNode->meshes())
-                {
-                    if ((SLuint)selectedMesh->IS32.size() > 0)
-                    {
-                        ImGui::Text("   Mesh: %s {%u v.}",
-                                    selectedMesh->name().c_str(),
-                                    (SLuint)selectedMesh->IS32.size());
-                        ImGui::SameLine();
-                        SLstring delBtn = "DEL##" + selectedMesh->name();
-                        if (ImGui::Button(delBtn.c_str()))
-                        {
-                            selectedMesh->deleteSelected(selectedNode);
-                        }
-                    }
-                }
-            }
-#endif
         }
 
         ImGui::End();

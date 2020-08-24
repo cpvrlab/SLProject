@@ -274,14 +274,6 @@ void SLMesh::init(SLNode* node)
     if (!mat())
         mat(SLMaterialDefaultGray::instance());
 
-
-    // set transparent flag of the node if mesh contains alpha material
-#ifdef SL_RENDER_BY_MATERIAL
-#else
-    if (!node->aabb()->hasAlpha() && mat()->hasAlpha())
-        node->aabb()->hasAlpha(true);
-#endif
-
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())
         calcTangents();

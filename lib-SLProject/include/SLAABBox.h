@@ -32,7 +32,7 @@ center point are stored in _radiusOS/_centerOS and _radiusWS/_centerWS.
 */
 class SLAABBox
 {
-    public:
+public:
     SLAABBox();
 
     // Setters
@@ -42,12 +42,6 @@ class SLAABBox
     void maxOS(const SLVec3f& maxC) { _maxOS = maxC; }
 
     void isVisible(SLbool visible) { _isVisible = visible; }
-
-#ifdef SL_RENDER_BY_MATERIAL
-
-#else
-    void hasAlpha(SLbool transp) { _hasAlpha = transp; }
-#endif
     void sqrViewDist(SLfloat sqrVD) { _sqrViewDist = sqrVD; }
 
     // Getters
@@ -60,11 +54,6 @@ class SLAABBox
     SLVec3f centerOS() { return _centerOS; }
     SLfloat radiusOS() { return _radiusOS; }
     SLbool  isVisible() { return _isVisible; }
-#ifdef SL_RENDER_BY_MATERIAL
-
-#else
-    SLbool  hasAlpha() { return _hasAlpha; }
-#endif
     SLfloat sqrViewDist() { return _sqrViewDist; }
 
     // Misc.
@@ -88,7 +77,7 @@ class SLAABBox
     SLbool isHitInOS(SLRay* ray);
     SLbool isHitInWS(SLRay* ray);
 
-    private:
+private:
     SLVec3f            _minWS;        //!< Min. corner in world space
     SLVec3f            _minOS;        //!< Min. corner in object space
     SLVec3f            _maxWS;        //!< Max. corner in world space
@@ -105,10 +94,6 @@ class SLAABBox
     SLbool             _boneIsOffset; //!< Flag if the connection parent to us is a bone or an offset
     SLVec3f            _parent0WS;    //!< World space vector to the parent position
     SLbool             _isVisible;    //!< Flag if AABB is in the view frustum
-#ifdef SL_RENDER_BY_MATERIAL
-#else
-    SLbool             _hasAlpha;     //!< Flag if AABB has transparent shapes
-#endif
     SLGLVertexArrayExt _vao;          //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------

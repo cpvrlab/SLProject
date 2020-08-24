@@ -127,15 +127,9 @@ void SLLightSpot::init(SLScene* s)
     }
 
     // Set emissive light material to the lights diffuse color
-#ifdef SL_RENDER_BY_MATERIAL
     if (_mesh)
         if (_mesh->mat())
             _mesh->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-#else
-    if (!_meshes.empty())
-        if (_meshes[0]->mat())
-            _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -165,7 +159,6 @@ void SLLightSpot::statsRec(SLNodeStats& stats)
 SLLightSpot::drawMesh sets the light states and calls then the drawMesh
 method of its node.
 */
-#ifdef SL_RENDER_BY_MATERIAL
 void SLLightSpot::drawMesh(SLSceneView* sv)
 {
     if (_id != -1)
@@ -188,28 +181,6 @@ void SLLightSpot::drawMesh(SLSceneView* sv)
         }
     }
 }
-#else
-void SLLightSpot::drawMeshes(SLSceneView* sv)
-{
-    if (_id != -1)
-    {
-        // Set emissive light material to the lights diffuse color
-        if (!_meshes.empty())
-            if (_meshes[0]->mat())
-                _meshes[0]->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-
-        // now draw the meshes of the node
-        SLNode::drawMeshes(sv);
-
-        // Draw the volume affected by the shadow map
-        if (_createsShadows && _isOn && sv->s()->singleNodeSelected() == this)
-        {
-            _shadowMap->drawFrustum();
-            _shadowMap->drawRays();
-        }
-    }
-}
-#endif
 //-----------------------------------------------------------------------------
 /*!
 SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and

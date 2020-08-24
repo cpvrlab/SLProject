@@ -1459,12 +1459,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         SLApplication::texturePath + "Desert-Y1024_C.jpg",
                                         SLApplication::texturePath + "Desert+Z1024_C.jpg",
                                         SLApplication::texturePath + "Desert-Z1024_C.jpg");
-
-#ifdef SL_RENDER_BY_MATERIAL
         SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures()[0];
-#else
-        SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
-#endif
 
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
@@ -2465,13 +2460,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 {
                     float xt = float(iX) * 1.0f;
                     float zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
-#ifdef SL_RENDER_BY_MATERIAL
                     SLNode* n = center->copyRec();
-#else
-                    SLNode* n = new SLNode();
-                    for (auto m : importer.meshes())
-                        n->addMesh(m);
-#endif
                     n->translate(xt, 0, zt, TS_object);
                     scene->addChild(n);
                 }
@@ -2973,33 +2962,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
         if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
 
-#ifdef SL_RENDER_BY_MATERIAL
         auto updateKtAmbiFnc = [](SLMaterial* m) {
             m->kt(0.5f);
             m->ambient(SLCol4f(.3f, .3f, .3f));
         };
+
         UmgD->updateMeshMat(updateKtAmbiFnc, true);
-#else
-        for (auto mesh : UmgD->meshes())
-        {
-            mesh->mat()->kt(0.5f);
-            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            mesh->init(UmgD); // reset the correct hasAlpha flag
-        }
-#endif
         SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
         if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
-
-#ifdef SL_RENDER_BY_MATERIAL
         UmgF->updateMeshMat(updateKtAmbiFnc, true);
-#else
-        for (auto mesh : UmgF->meshes())
-        {
-            mesh->mat()->kt(0.5f);
-            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            mesh->init(UmgF); // reset the correct hasAlpha flag
-        }
-#endif
 
         // Hide some objects
         bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -3019,17 +2990,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Set ambient on all child nodes
-#ifdef SL_RENDER_BY_MATERIAL
         bern->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);
-#else
-        for (auto node : bern->children())
-        {
-            for (auto mesh : node->meshes())
-            {
-                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            }
-        }
-#endif
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3122,13 +3083,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         // Set some ambient light
-#ifdef SL_RENDER_BY_MATERIAL
         TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
-#else
-        for (auto child : TheaterAndTempel->children())
-            for (auto mesh : child->meshes())
-                mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));
-#endif
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);

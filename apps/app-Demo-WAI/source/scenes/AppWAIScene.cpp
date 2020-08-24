@@ -31,19 +31,9 @@ void AppWAIScene::loadMesh(std::string path)
     for (auto child : augmentationRoot->children())
     {
         child->drawBits()->set(SL_DB_NOTSELECTABLE, true);
-
-#ifdef SL_RENDER_BY_MATERIAL
         child->mesh()->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
         child->mesh()->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
         child->mesh()->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
-#else
-        for (auto mesh : child->meshes())
-        {
-            mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
-            mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
-            mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
-        }
-#endif
     }
 
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
@@ -346,18 +336,9 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
     {
         for (SLNode* child : augmentationRoot->children())
         {
-#ifdef SL_RENDER_BY_MATERIAL
             child->mesh()->mat()->kt(kt);
             child->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
             child->mesh()->init(child);
-#else
-            for (SLMesh* mesh : child->meshes())
-            {
-                mesh->mat()->kt(kt);
-                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                mesh->init(child);
-            }
-#endif
         }
     }
 }

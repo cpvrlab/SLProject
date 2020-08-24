@@ -634,7 +634,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             {
                 for (SLuint i = 0; i < s->materials().size(); ++i)
                 {
-#ifdef SL_RENDER_BY_MATERIAL
                     SLVNode& matNodes = s->materials()[i]->nodesVisible3D();
                     sprintf(m,
                             "[%u] %s [%u n.]",
@@ -653,12 +652,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                         }
                     }
                     else
-#else
-                    sprintf(m,
-                            "[%u] %s",
-                            i,
-                            s->materials()[i]->name().c_str());
-#endif
                         ImGui::Text(m);
                 }
 
@@ -1111,16 +1104,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             static SLfloat christTransp = 0.0f;
             if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
             {
-#ifdef SL_RENDER_BY_MATERIAL
-                christ_aussen->updateMeshMat([](SLMaterial* m) {m->kt(christTransp);}, true);
-#else
-                for (auto* mesh : christ_aussen->meshes())
-                {
-                    mesh->mat()->kt(christTransp);
-                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                    mesh->init(christ_aussen);
-                }
-#endif
+                christ_aussen->updateMeshMat([](SLMaterial* m) { m->kt(christTransp); }, true);
 
                 // Hide inner parts if transparency is on
                 christ_innen->drawBits()->set(SL_DB_HIDDEN, christTransp > 0.01f);
@@ -2520,12 +2504,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
-
-#ifdef SL_RENDER_BY_MATERIAL
     SLbool isLeafNode = node->children().empty() && !node->mesh();
-#else
-    SLbool isLeafNode = node->children().empty() && node->meshes().empty();
-#endif
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -2546,7 +2525,6 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 
     if (nodeIsOpen)
     {
-#ifdef SL_RENDER_BY_MATERIAL
         if (node->mesh())
         {
             SLMesh* mesh = node->mesh();
@@ -2567,27 +2545,6 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
             ImGui::TreePop();
             ImGui::PopStyleColor();
         }
-#else
-        for (auto* mesh : node->meshes())
-        {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-
-            ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
-            if (s->singleMeshFullSelected() == mesh)
-                meshFlags |= ImGuiTreeNodeFlags_Selected;
-
-            ImGui::TreeNodeEx(mesh, meshFlags, "%s", mesh->name().c_str());
-
-            if (ImGui::IsItemClicked())
-            {
-                s->deselectAllNodesAndMeshes();
-                s->selectNodeMesh(node, mesh);
-            }
-
-            ImGui::TreePop();
-            ImGui::PopStyleColor();
-        }
-#endif
 
         for (auto* child : node->children())
             addSceneGraphNode(s, child);
@@ -2628,12 +2585,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 if (singleNode)
                 {
                     SLuint c = (SLuint)singleNode->children().size();
-
-#ifdef SL_RENDER_BY_MATERIAL
                     SLuint m = singleNode->mesh() ? 1 : 0;
-#else
-                    SLuint m = (SLuint)singleNode->meshes().size();
-#endif
                     ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                     ImGui::Text("No. of children : %u", c);
                     ImGui::Text("No. of meshes   : %u", m);
@@ -3163,7 +3115,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             for (auto* selectedNode : s->selectedNodes())
             {
-#ifdef SL_RENDER_BY_MATERIAL
                 if (selectedNode->mesh())
                 {
                     ImGui::Text("Node: %s", selectedNode->name().c_str());
@@ -3182,27 +3133,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         }
                     }
                 }
-#else
-                if (!selectedNode->meshes().empty())
-                {
-                    ImGui::Text("Node: %s", selectedNode->name().c_str());
-                    for (auto* selectedMesh : selectedNode->meshes())
-                    {
-                        if (!selectedMesh->IS32.empty())
-                        {
-                            ImGui::Text("   Mesh: %s {%u v.}",
-                                        selectedMesh->name().c_str(),
-                                        (SLuint)selectedMesh->IS32.size());
-                            ImGui::SameLine();
-                            SLstring delBtn = "DEL##" + selectedMesh->name();
-                            if (ImGui::Button(delBtn.c_str()))
-                            {
-                                selectedMesh->deleteSelected(selectedNode);
-                            }
-                        }
-                    }
-                }
-#endif
             }
 
             ImGui::End();
