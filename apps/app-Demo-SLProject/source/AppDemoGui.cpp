@@ -201,18 +201,17 @@ Please close first this info dialog on the top-left.\n\
 //-----------------------------------------------------------------------------
 off64_t ftpXferSizeMax = 0;
 //-----------------------------------------------------------------------------
+// Callback routine for FTP file transfer to progress the progressbar
 int ftpCallbackXfer(off64_t xfered, void* arg)
 {
     if (ftpXferSizeMax)
     {
         int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
-        cout << "Bytes transfered: " << xfered << " (" << xferedPC << ")" << endl;
+        cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
         SLApplication::jobProgressNum(xferedPC);
     }
     else
-    {
-        cout << "Bytes transfered: " << xfered << endl;
-    }
+        cout << "Bytes transferred: " << xfered << endl;
     return xfered ? 1 : 0;
 }
 //-----------------------------------------------------------------------------
@@ -1113,9 +1112,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
             {
 #ifdef SL_RENDER_BY_MATERIAL
-                christ_aussen->mesh()->mat()->kt(christTransp);
-                christ_aussen->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                christ_aussen->mesh()->init(christ_aussen);
+                christ_aussen->updateMeshMat([](SLMaterial* m) {m->kt(christTransp);}, true);
 #else
                 for (auto* mesh : christ_aussen->meshes())
                 {
@@ -1237,7 +1234,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                     {
                                         ftp.SetCallbackXferFunction(ftpCallbackXfer);
                                         ftp.SetCallbackBytes(1024000);
-                                        if (ftp.Chdir("test"))
+                                        if (ftp.Chdir("SLProject/models/PLY"))
                                         {
                                             int remoteSize = 0;
                                             ftp.Size("xyzrgb_dragon.ply",

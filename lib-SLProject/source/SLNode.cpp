@@ -1397,6 +1397,18 @@ void SLNode::updateMeshAccelStructs()
         child->updateMeshAccelStructs();
 }
 //-----------------------------------------------------------------------------
+#ifdef SL_RENDER_BY_MATERIAL
+void SLNode::updateMeshMat(function<void(SLMaterial* m)> setMat, bool recursive)
+{
+    if (_mesh && _mesh->mat())
+        setMat(_mesh->mat());
+
+    if (recursive)
+        for (auto* child : _children)
+            child->updateMeshMat(setMat, recursive);
+}
+#endif
+//-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX
 void SLNode::createInstanceAccelerationStructureTree()
 {

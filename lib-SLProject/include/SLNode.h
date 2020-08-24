@@ -320,6 +320,11 @@ public:
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
+
+#ifdef SL_RENDER_BY_MATERIAL
+    void              updateMeshMat(function<void(SLMaterial* m)> setMat,
+                                    bool                          recursive);
+#endif
     bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
