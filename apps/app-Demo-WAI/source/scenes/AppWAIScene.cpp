@@ -162,7 +162,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             loadMesh(modelPath);
         }
     }
-    else if (location == "augst")
+    else if (location == "Augst")
     {
         std::string      modelPath = _erlebARDir + "models/augst/Tempel-Theater-02.gltf";
         SLAssimpImporter importer;

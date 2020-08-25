@@ -122,7 +122,7 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& slamMapF
         {
             std::string mapFileNameWOExt;
 
-            size_t i = mapFileName.rfind('.gz');
+            size_t i = mapFileName.rfind(".gz");
             if (i != std::string::npos)
                 mapFileNameWOExt = mapFileName.substr(0, i - 2);
 
