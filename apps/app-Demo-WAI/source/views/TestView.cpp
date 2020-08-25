@@ -403,8 +403,6 @@ void TestView::saveMapBinary(std::string location,
         }
     }
 
-    ZipUtils::zip(mapDir + filename, mapDir + filename + ".gz");
-
     _mode->resume();
 }
 
@@ -784,14 +782,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         if (Utils::containsString(slamParams.mapFile, ".waimap"))
         {
             std::string mapFile = slamParams.mapFile;
-
-            if (Utils::containsString(mapFile, ".gz"))
-            {
-                ZipUtils::unzip(mapFile);
-                Utils::replaceString(mapFile, ".gz", "");
-            }
-
-            mapLoadingSuccess = WAIMapStorage::loadMapBinary(map.get(),
+            mapLoadingSuccess   = WAIMapStorage::loadMapBinary(map.get(),
                                                              _scene.mapNode,
                                                              _voc,
                                                              mapFile,
