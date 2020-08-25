@@ -141,10 +141,10 @@ public:
     }
 
 private:
-    ImVec4 _buttonColor = {BFHColors::OrangePrimary.r,
-                           BFHColors::OrangePrimary.g,
-                           BFHColors::OrangePrimary.b,
-                           BFHColors::OrangePrimary.a};
+    ImVec4 _buttonColor = {BFHColors::Orange.r,
+                           BFHColors::Orange.g,
+                           BFHColors::Orange.b,
+                           BFHColors::Orange.a};
 
     ImVec4 _buttonColorPressed = {BFHColors::GrayLogo.r,
                                   BFHColors::GrayLogo.g,

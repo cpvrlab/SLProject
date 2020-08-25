@@ -77,10 +77,10 @@ public:
     // percental button rounding relative to screen height
     float buttonRounding = 0.01f;
     //selection gui button color
-    ImVec4 buttonColorSelection = {BFHColors::OrangePrimary.r,
-                                   BFHColors::OrangePrimary.g,
-                                   BFHColors::OrangePrimary.b,
-                                   0.3f};
+    ImVec4 buttonColorSelection = {BFHColors::Orange.r,
+                                   BFHColors::Orange.g,
+                                   BFHColors::Orange.b,
+                                   0.6f};
     //selection gui pressed button color
     ImVec4 buttonColorPressedSelection = {BFHColors::GrayLogo.r,
                                           BFHColors::GrayLogo.g,
@@ -110,12 +110,13 @@ public:
                                 1.0};
     ImVec4 textHeadingColor  = {1.f, 1.f, 1.f, 1.f};
 
-    ImVec4 backgroundColorPrimary = {BFHColors::OrangePrimary.r,
-                                     BFHColors::OrangePrimary.g,
-                                     BFHColors::OrangePrimary.b,
-                                     BFHColors::OrangePrimary.a};
-    ImVec4 transparentColor       = {0.f, 0.f, 0.f, 0.f};
-    ImVec4 whiteColor             = {1.f, 1.f, 1.f, 1.f};
+    ImVec4 backgroundColorPrimary = {BFHColors::Orange.r,
+                                     BFHColors::Orange.g,
+                                     BFHColors::Orange.b,
+                                     BFHColors::Orange.a};
+
+    ImVec4 transparentColor = {0.f, 0.f, 0.f, 0.f};
+    ImVec4 whiteColor       = {1.f, 1.f, 1.f, 1.f};
     // percental window padding for content (e.g. about and settings) rel. to screen height
     float windowPaddingContent = 0.03f;
     // percental frame padding for content (e.g. about and settings) rel. to screen height

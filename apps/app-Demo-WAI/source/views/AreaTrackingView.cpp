@@ -130,6 +130,7 @@ bool AreaTrackingView::update()
             Utils::log("AreaTrackingView", "worker done");
 
             cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+            std::cout << "mapNodeOm" << mapNodeOm << std::endl;
             if (!mapNodeOm.empty())
             {
                 SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
@@ -244,12 +245,26 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARD
             Utils::log("AreaTrackingView", "loading map file from: %s", mapFileName.c_str());
             WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(voc);
             waiMap                          = std::make_unique<WAIMap>(keyframeDataBase);
-            bool mapLoadingSuccess          = WAIMapStorage::loadMap(waiMap.get(),
-                                                            mapNodeOm,
-                                                            voc,
-                                                            mapFileName,
-                                                            false,
-                                                            true);
+
+            bool mapLoadingSuccess = false;
+            if (Utils::containsString(mapFileName, ".waimap"))
+            {
+                mapLoadingSuccess = WAIMapStorage::loadMapBinary(waiMap.get(),
+                                                                 mapNodeOm,
+                                                                 voc,
+                                                                 mapFileName,
+                                                                 false,
+                                                                 true);
+            }
+            else
+            {
+                mapLoadingSuccess = WAIMapStorage::loadMap(waiMap.get(),
+                                                           mapNodeOm,
+                                                           voc,
+                                                           mapFileName,
+                                                           false,
+                                                           true);
+            }
         }
     }
 

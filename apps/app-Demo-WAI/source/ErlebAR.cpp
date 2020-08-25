@@ -161,7 +161,8 @@ const Location defineLocationChristoffel()
         area.yPosPix         = 294;
         area.viewAngleDeg    = 60;
         area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.json.gz";
-        loc.areas[area.id]   = area;
+        //area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.waimap";
+        loc.areas[area.id] = area;
     }
     return loc;
 }
