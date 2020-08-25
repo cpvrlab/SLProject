@@ -338,7 +338,7 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
 }
 
 bool WAIMapStorage::loadMap(WAIMap*           waiMap,
-                            SLNode*           mapNode,
+                            cv::Mat&          mapNodeOm,
                             WAIOrbVocabulary* voc,
                             std::string       path,
                             bool              loadImgs,
@@ -365,14 +365,9 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         return false;
     }
 
-    if (mapNode && !fs["mapNodeOm"].empty())
+    if (!fs["mapNodeOm"].empty())
     {
-        cv::Mat cvOm;
-        fs["mapNodeOm"] >> cvOm;
-        SLMat4f slOm = convertToSLMat(cvOm);
-        std::cout << "slOm: " << slOm.toString() << std::endl;
-
-        mapNode->om(slOm);
+        fs["mapNodeOm"] >> mapNodeOm;
     }
 
     cv::FileNode n = fs["KeyFrames"];

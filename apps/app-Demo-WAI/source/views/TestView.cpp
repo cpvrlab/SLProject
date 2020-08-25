@@ -561,7 +561,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 {
     _gui.clearErrorMsg();
     if (_videoFileStream)
-        _videoFileStream.release();
+        _videoFileStream.reset();
 
     bool useVideoFile             = !slamParams.videoFile.empty();
     bool detectCalibAutomatically = slamParams.calibrationFile.empty();
@@ -712,14 +712,21 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // 5. Load map data
     if (useMapFile)
     {
-        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
-        map                    = std::make_unique<WAIMap>(kfdb);
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                        _scene.mapNode,
+        WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(_voc);
+        map                 = std::make_unique<WAIMap>(kfdb);
+        cv::Mat mapNodeOm;
+        bool    mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
+                                                        mapNodeOm,
                                                         _voc,
                                                         slamParams.mapFile,
                                                         false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                         slamParams.params.fixOldKfs);
+        if (!mapNodeOm.empty())
+        {
+            SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+            //std::cout << "slOm: " << slOm.toString() << std::endl;
+            _scene.mapNode->om(slOm);
+        }
 
         _autoCal = new AutoCalibration(_videoFrameSize, map->GetSize());
 

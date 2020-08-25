@@ -122,6 +122,9 @@ public:
     float framePaddingContent = 0.02f;
     // percental item spacing for content (e.g. about and settings) rel. to screen height
     float itemSpacingContent = 0.03f;
+    //waiting spinner color
+    ImVec4 waitingSpinnerMainColor     = {1.f, 1.f, 1.f, 1.f};
+    ImVec4 waitingSpinnerBackDropColor = headerBarBackgroundTranspColor;
 };
 
 //-----------------------------------------------------------------------------

@@ -31,6 +31,11 @@ public:
 
     void initArea(ErlebAR::Area area);
 
+    void showLoading() { _isLoading = true; }
+    void hideLoading() { _isLoading = false; }
+
+    void showErrorMsg(const std::string& msg) { _errorMsg = msg; }
+
 private:
     void resize(int scrW, int scrH);
 
@@ -48,6 +53,10 @@ private:
     float                      _sliderValue = 0.f;
     ErlebAR::Area              _area;
     std::function<void(float)> _transparencyChangedCB;
+
+    //indicates that area information is loading
+    bool        _isLoading = false;
+    std::string _errorMsg;
 
     ErlebAR::Resources& _resources;
 };

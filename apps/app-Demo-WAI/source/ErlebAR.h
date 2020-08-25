@@ -92,6 +92,8 @@ public:
     int           nExtractorLevels            = 2;
     //camera image size
     cv::Size cameraFrameTargetSize = {640, 360};
+    //crop the camera image to fit screen aspect ratio
+    bool cameraFrameCropToScreen = false;
 };
 
 //location description
