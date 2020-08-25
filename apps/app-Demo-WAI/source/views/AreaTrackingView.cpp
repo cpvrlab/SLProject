@@ -19,7 +19,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          deviceData.scrWidth(),
          deviceData.scrHeight(),
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1)),
-    _scene("AreaTrackingScene", deviceData.dataDir()),
+    _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _camera(camera),
     _vocabularyDir(deviceData.vocabularyDir()),
     _erlebARDir(deviceData.erlebARDir())
@@ -227,7 +227,7 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARD
         {
             std::string mapFileNameWOExt;
 
-            size_t i = mapFileName.rfind('.gz');
+            size_t i = mapFileName.rfind(".gz");
             if (i != std::string::npos)
                 mapFileNameWOExt = mapFileName.substr(0, i - 2);
 

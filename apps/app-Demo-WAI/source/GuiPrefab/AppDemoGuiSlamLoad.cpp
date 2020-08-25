@@ -48,6 +48,7 @@ AppDemoGuiSlamLoad::AppDemoGuiSlamLoad(const std::string&               name,
     _videoExtensions.push_back(".avi");
     _mapExtensions.push_back(".json");
     _mapExtensions.push_back(".gz");
+    _mapExtensions.push_back(".waimap");
     _calibExtensions.push_back(".xml");
     _vocExtensions.push_back(".bin");
     _markerExtensions.push_back(".jpg");

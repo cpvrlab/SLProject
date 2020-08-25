@@ -5,6 +5,7 @@
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
+#include <ZipUtils.h>
 #include <WAIAutoCalibration.h>
 #include <sens/SENSUtils.h>
 
@@ -31,7 +32,7 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       [&]() { return _camera; },                          //getter callback for current camera
       [&]() { return _camera ? _calibration : nullptr; }, //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }),          //getter callback for current calibration
-    _scene("TestScene", deviceData.dataDir()),
+    _scene("TestScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _camera(camera),
     _configDir(deviceData.writableDir()),
     _vocabularyDir(deviceData.vocabularyDir()),
@@ -284,6 +285,8 @@ void TestView::handleEvents()
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile, false, editMap->b);
                 else if (editMap->action == MapPointEditor_SaveMapRaw && _mapEdition)
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
+                else if (editMap->action == MapPointEditor_SaveMapBinary && _mapEdition)
+                    saveMapBinary(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 else if (editMap->action == MapPointEditor_LoadMatching && _mapEdition)
                     _mapEdition->updateKFVidMatching(editMap->kFVidMatching);
                 else if (editMap->action == MapPointEditor_SelectSingleVideo && _mapEdition)
@@ -341,6 +344,66 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     doWaitOnIdle(false);
     camera(_scene.cameraNode);
     onInitialize();
+}
+
+void TestView::saveMapBinary(std::string location,
+                             std::string area,
+                             std::string marker)
+{
+    _mode->requestStateIdle();
+
+    std::string slamRootDir = _configDir + "erleb-AR/locations/";
+    std::string mapDir      = constructSlamMapDir(slamRootDir, location, area);
+    if (!Utils::dirExists(mapDir))
+        Utils::makeDir(mapDir);
+
+    std::string filename = constructBinarySlamMapFileName(location, area, _mode->getKPextractor()->GetName(), _mode->getKPextractor()->GetLevels());
+    std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
+
+    if (_mode->retainImage())
+    {
+        if (!Utils::dirExists(imgDir))
+            Utils::makeDir(imgDir);
+    }
+
+    if (!marker.empty())
+    {
+        _voc->loadFromFile(_currentSlamParams.vocabularyFile);
+
+        cv::Mat nodeTransform;
+        if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
+                                                    nodeTransform,
+                                                    0.75f,
+                                                    _mode->getKPextractor(),
+                                                    _mode->getMap(),
+                                                    _calibration->cameraMat(),
+                                                    _voc))
+        {
+            _gui.showErrorMsg("Failed to do marker map preprocessing");
+        }
+        else
+        {
+            if (!WAIMapStorage::saveMapBinary(_mode->getMap(),
+                                              _scene.mapNode,
+                                              mapDir + filename,
+                                              imgDir))
+            {
+                _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+            }
+        }
+    }
+    else
+    {
+        if (!WAIMapStorage::saveMapBinary(_mode->getMap(),
+                                          _scene.mapNode,
+                                          mapDir + filename,
+                                          imgDir))
+        {
+            _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+        }
+    }
+
+    _mode->resume();
 }
 
 void TestView::saveMap(std::string location,
@@ -714,13 +777,29 @@ void TestView::startOrbSlam(SlamParams slamParams)
     {
         WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(_voc);
         map                 = std::make_unique<WAIMap>(kfdb);
+
+        bool    mapLoadingSuccess = false;
         cv::Mat mapNodeOm;
-        bool    mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                        mapNodeOm,
-                                                        _voc,
-                                                        slamParams.mapFile,
-                                                        false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
-                                                        slamParams.params.fixOldKfs);
+        if (Utils::containsString(slamParams.mapFile, ".waimap"))
+        {
+            std::string mapFile = slamParams.mapFile;
+            mapLoadingSuccess   = WAIMapStorage::loadMapBinary(map.get(),
+                                                             mapNodeOm,
+                                                             _voc,
+                                                             mapFile,
+                                                             false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
+                                                             slamParams.params.fixOldKfs);
+        }
+        else
+        {
+            mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
+                                                       mapNodeOm,
+                                                       _voc,
+                                                       slamParams.mapFile,
+                                                       false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
+                                                       slamParams.params.fixOldKfs);
+        }
+
         if (!mapNodeOm.empty())
         {
             SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
