@@ -384,6 +384,7 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
     }
 
     WAIMapStorage::MapInfo mapInfo = {};
+    mapInfo.version                = 1;
 
     for (int i = 0; i < kfs.size(); ++i)
     {

@@ -11,6 +11,7 @@ class WAI_API WAIMapStorage
 {
     struct MapInfo
     {
+        int32_t version;
         int32_t kfCount, mpCount;
         bool    nodeOmSaved;
     };
