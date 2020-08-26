@@ -13,7 +13,8 @@ class WAI_API WAIMapStorage
     {
         int32_t version;
         int32_t kfCount, mpCount;
-        bool    nodeOmSaved;
+        // nodeOmSaved is used as boolean... sizeof(bool) is not defined in the c++ standard, thats why we have to use an int
+        int32_t nodeOmSaved;
     };
 
     struct KeyFrameInfo
@@ -46,12 +47,12 @@ class WAI_API WAIMapStorage
 
     struct KeyPointData
     {
-        float x, y;
-        float size;
-        float angle;
-        float response;
-        int   octave;
-        int   classId;
+        float   x, y;
+        float   size;
+        float   angle;
+        float   response;
+        int32_t octave;
+        int32_t classId;
     };
 
 public:

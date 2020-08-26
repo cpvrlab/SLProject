@@ -8,6 +8,7 @@
 #include <ZipUtils.h>
 #include <WAIAutoCalibration.h>
 #include <sens/SENSUtils.h>
+#include <AverageTiming.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
@@ -782,6 +783,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
         cv::Mat mapNodeOm;
         if (Utils::containsString(slamParams.mapFile, ".waimap"))
         {
+            HighResTimer timer;
+            timer.start();
             std::string mapFile = slamParams.mapFile;
             mapLoadingSuccess   = WAIMapStorage::loadMapBinary(map.get(),
                                                              mapNodeOm,
@@ -789,15 +792,21 @@ void TestView::startOrbSlam(SlamParams slamParams)
                                                              mapFile,
                                                              false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                              slamParams.params.fixOldKfs);
+            timer.stop();
+            Utils::log("WAI::MapLoading", "loadMapBinary time: %f ms", timer.elapsedTimeInMilliSec());
         }
         else
         {
+            HighResTimer timer;
+            timer.start();
             mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
                                                        mapNodeOm,
                                                        _voc,
                                                        slamParams.mapFile,
                                                        false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                        slamParams.params.fixOldKfs);
+            timer.stop();
+            Utils::log("WAI::MapLoading", "loadMap time: %f ms", timer.elapsedTimeInMilliSec());
         }
 
         if (!mapNodeOm.empty())
