@@ -33,7 +33,7 @@ void printHelp()
     ss << "  -configFile            Path and name to MapCreatorConfig.json" << std::endl;
     ss << "  -vocFile               Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
     ss << "  -outputDir             Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for output, also log output)" << std::endl;
-    ss << "  -levels                Number of pyramid levels" << std::endl;
+    ss << "  -level                Number of pyramid levels" << std::endl;
     ss << "  -serial                Serial mapping (1 or 0)" << std::endl;
     ss << "  -thinCullVal           Thin out culling value (e.g. 0.95)" << std::endl;
     ss << "  -ensureKFIntegration   Ensure new keyframe have mappoints in common with previously loaded map" << std::endl;

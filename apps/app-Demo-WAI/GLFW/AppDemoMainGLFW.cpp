@@ -24,8 +24,8 @@ static ErlebARApp app;
 // GLobal application variables
 static GLFWwindow* window;                                         //!< The global glfw window handle
 static SLint       svIndex;                                        //!< SceneView index
-static SLint       scrWidth  = 960;                                //!< Window width at start up
-static SLint       scrHeight = 540;                                //!< Window height at start up
+static SLint       scrWidth  = 1920;                               //!< Window width at start up
+static SLint       scrHeight = 1080;                               //!< Window height at start up
 static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
 static SLint       startX;                                         //!< start position x in pixels
 static SLint       startY;                                         //!< start position y in pixels

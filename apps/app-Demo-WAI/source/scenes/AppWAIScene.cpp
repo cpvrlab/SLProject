@@ -9,15 +9,15 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 
-AppWAIScene::AppWAIScene(SLstring name, std::string dataDir)
+AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
-    _dataDir(Utils::unifySlashes(dataDir))
+    _dataDir(Utils::unifySlashes(dataDir)),
+    _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
 }
 
 void AppWAIScene::loadMesh(std::string path)
 {
-
     SLAssimpImporter importer;
     augmentationRoot = importer.load(_animManager,
                                      &assets,
@@ -123,6 +123,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->setDrawBitsRec(SL_DB_HIDDEN, true);
     _root3D->addChild(light);
 
+    HighResTimer t;
     if (location == "avenches")
     {
         std::string modelPath;
@@ -162,9 +163,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             loadMesh(modelPath);
         }
     }
-    else if (location == "augst" || location == "Augst")
+    else if (location == "Augst")
     {
-        std::string      modelPath = _dataDir + "models/GLTF/augst/Tempel-Theater-02.gltf";
+        std::string      modelPath = _erlebARDir + "models/augst/Tempel-Theater-02.gltf";
         SLAssimpImporter importer;
 
         if (!Utils::fileExists(modelPath))
@@ -307,6 +308,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(boxNode3);
     _root3D->addChild(boxNode4);
 #endif
+    Utils::log("LoadingTime", "model loading time: %f ms", t.elapsedTimeInMilliSec());
 
     //boxNode->addChild(axisNode);
 
