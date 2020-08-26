@@ -130,7 +130,6 @@ bool AreaTrackingView::update()
             Utils::log("AreaTrackingView", "worker done");
 
             cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
-            std::cout << "mapNodeOm" << mapNodeOm << std::endl;
             if (!mapNodeOm.empty())
             {
                 SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);

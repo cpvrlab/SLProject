@@ -607,9 +607,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
     if (mapInfo->nodeOmSaved)
     {
-        uchar* nodeOmData = fContent;
-        int    bytesRead  = loadCVMatFromBinaryStream(nodeOmData, mapNodeOm);
-
+        uchar*  nodeOmData = fContent;
+        cv::Mat cvMat;
+        int     bytesRead = loadCVMatFromBinaryStream(nodeOmData, cvMat);
+        mapNodeOm         = cvMat.clone();
         fContent += bytesRead;
     }
 

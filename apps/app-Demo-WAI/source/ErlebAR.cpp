@@ -155,14 +155,14 @@ const Location defineLocationChristoffel()
     loc.dspPixWidth          = 2080;
     {
         Area area;
-        area.id              = AreaId::BERN_MILCHGAESSLI;
-        area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 740;
-        area.yPosPix         = 294;
-        area.viewAngleDeg    = 60;
-        area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.json.gz";
-        //area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.waimap";
-        loc.areas[area.id] = area;
+        area.id           = AreaId::BERN_MILCHGAESSLI;
+        area.name         = mapAreaIdToName(area.id);
+        area.xPosPix      = 740;
+        area.yPosPix      = 294;
+        area.viewAngleDeg = 60;
+        //area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.json.gz";
+        area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.waimap";
+        loc.areas[area.id]   = area;
     }
     return loc;
 }
@@ -203,12 +203,13 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id                    = AreaId::BIEL_RING;
-        area.name                  = mapAreaIdToName(area.id);
-        area.xPosPix               = 200;
-        area.yPosPix               = 200;
-        area.viewAngleDeg          = 110.f;
-        area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.json.gz";
+        area.id           = AreaId::BIEL_RING;
+        area.name         = mapAreaIdToName(area.id);
+        area.xPosPix      = 200;
+        area.yPosPix      = 200;
+        area.viewAngleDeg = 110.f;
+        //area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.json.gz";
+        area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.waimap";
         area.cameraFrameTargetSize = {640, 480};
         loc.areas[area.id]         = area;
     }
