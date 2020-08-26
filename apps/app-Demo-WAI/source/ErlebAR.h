@@ -13,21 +13,28 @@
 //bfh colors
 namespace BFHColors
 {
+//primary colors
 const SLVec4f GrayPrimary   = {105.f / 255.f, 125.f / 255.f, 145.f / 255.f, 1.f};
 const SLVec4f OrangePrimary = {250.f / 255.f, 165.f / 255.f, 0.f / 255.f, 1.f};
-const SLVec4f Orange        = {250.f / 255.f, 195.f / 255.f, 0.f / 255.f, 1.f};
-const SLVec4f GrayLogo      = {105.f / 255.f, 125.f / 255.f, 145.f / 255.f, 1.f};
-const SLVec4f OrangeLogo    = {250.f / 255.f, 19.f / 255.f, 0.f / 255.f, 1.f};
-const SLVec4f GrayText      = {75.f / 255.f, 100.f / 255.f, 125.f / 255.f, 1.f};
-const SLVec4f Gray1         = {100.f / 255.f, 120.f / 255.f, 139.f / 255.f, 1.f};
-const SLVec4f Gray2         = {162.f / 255.f, 174.f / 255.f, 185.f / 255.f, 1.f};
-const SLVec4f Gray3         = {193.f / 255.f, 201.f / 255.f, 209.f / 255.f, 1.f};
-const SLVec4f Gray4         = {224.f / 255.f, 228.f / 255.f, 232.f / 255.f, 1.f};
-const SLVec4f Gray5         = {239.f / 255.f, 241.f / 255.f, 243.f / 255.f, 1.f};
-const SLVec4f Orange1Text   = {189.f / 255.f, 126.f / 255.f, 0.f / 255.f, 1.f};
-const SLVec4f Orange2Text   = {255.f / 255.f, 203.f / 255.f, 62.f / 255.f, 1.f};
+//logo colors
+const SLVec4f GrayLogo   = {105.f / 255.f, 125.f / 255.f, 145.f / 255.f, 1.f};
+const SLVec4f OrangeLogo = {250.f / 255.f, 195.f / 255.f, 0.f / 255.f, 1.f};
+//gray for text
+const SLVec4f GrayText = {75.f / 255.f, 100.f / 255.f, 125.f / 255.f, 1.f};
+//grays for backgrounds
+const SLVec4f Gray1Backgr = {100.f / 255.f, 120.f / 255.f, 139.f / 255.f, 1.f};
+const SLVec4f Gray2Backgr = {162.f / 255.f, 174.f / 255.f, 185.f / 255.f, 1.f};
+const SLVec4f Gray3Backgr = {193.f / 255.f, 201.f / 255.f, 209.f / 255.f, 1.f};
+const SLVec4f Gray4Backgr = {224.f / 255.f, 228.f / 255.f, 232.f / 255.f, 1.f};
+const SLVec4f Gray5Backgr = {239.f / 255.f, 241.f / 255.f, 243.f / 255.f, 1.f};
+//Orange for text, e.g. title or hover effect
+const SLVec4f Orange1TitleOrHover = {189.f / 255.f, 126.f / 255.f, 0.f / 255.f, 1.f};
+//Orange for text, e.g. negative text on dark background or hover effect
+const SLVec4f Orange2Text = {255.f / 255.f, 203.f / 255.f, 62.f / 255.f, 1.f};
+//orange for graphical elements
 const SLVec4f OrangeGraphic = {250.f / 255.f, 165.f / 255.f, 0.f / 255.f, 1.f};
-const SLVec4f GrayDark      = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
+//for intranet, for combinartion with secondary colors
+const SLVec4f GrayDark = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
 };
 
 namespace ErlebAR
