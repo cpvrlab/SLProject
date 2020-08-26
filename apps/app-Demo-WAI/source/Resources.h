@@ -252,7 +252,7 @@ public:
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
 
-    bool developerMode = false;
+    bool developerMode = true;
 
     StringsEnglish stringsEnglish;
     StringsGerman  stringsGerman;
