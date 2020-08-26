@@ -805,18 +805,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < NUM_MAT; ++i)
         {
             SLGLProgram* sp      = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnNrm.frag");
+                                                     SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnTex.frag");
             SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
-            SLGLTexture* texN    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLstring     matName = "mat-" + std::to_string(i);
-            mat[i]               = new SLMaterial(s, matName.c_str(), texC, texN, nullptr, nullptr, sp);
+            mat[i]               = new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp);
             SLCol4f color;
             color.hsva2rgba(SLVec3f(Utils::TWOPI * i / NUM_MAT, 1.0f, 1.0f));
             mat[i]->diffuse(color);
         }
 
-        // create spheres around the center sphere
+        // create a 3D array of spheres
         SLint  size = 10;
         SLuint n    = 0;
         for (SLint iZ = -size; iZ <= size; ++iZ)
@@ -825,15 +824,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             {
                 for (SLint iX = -size; iX <= size; ++iX)
                 {
-                    // add one single sphere in the center
+                    // Choose a random material index
                     SLuint    res      = 36;
-                    SLint iMat = Utils::random(0,19);
+                    SLint iMat = Utils::random(0,NUM_MAT);
                     SLstring  nodeName = "earth-" + std::to_string(n);
+
+                    // Create a new sphere and node and translate it
                     SLSphere* earth    = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
                     SLNode*   sphere   = new SLNode(earth);
                     sphere->translate(float(iX), float(iY), float(iZ), TS_object);
                     scene->addChild(sphere);
-                    SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
+                    //SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
                     n++;
                 }
             }

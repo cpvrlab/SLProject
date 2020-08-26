@@ -25,6 +25,11 @@
 #include <AverageTiming.h>
 #include <mutex>
 
+#define CHI2_1 5.991f
+#define CHI2_2 5.991f
+#define CHI2_3 5.991f
+#define CHI2_4 5.991f
+
 namespace ORB_SLAM2
 {
 
@@ -79,7 +84,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
             maxKFid = pKF->mnId;
     }
 
-    const float thHuber2D = sqrt(5.99f);
+    const float thHuber2D = sqrt(CHI2_1);
 
     // Set WAIMapPoint vertices
     for (size_t i = 0; i < vpMP.size(); i++)
@@ -442,7 +447,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
     vnIndexEdgeMono.reserve(N);
     vbOutliers.resize(N);
 
-    const float deltaMono = sqrt(5.991f);
+    const float deltaMono = sqrt(CHI2_1);
     {
         unique_lock<mutex> lock(WAIMapPoint::mGlobalMutex);
 
@@ -491,13 +496,15 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame, vector<bool>& vbOutliers)
 
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
-    const float chi2Mono[4]   = {5.991f, 5.991f, 5.991f, 5.991f};
-    const float chi2Stereo[4] = {7.815f, 7.815f, 7.815f, 7.815f};
-    const int   its[4]        = {10, 10, 10, 10};
+    const float chi2Mono[4] = {CHI2_1, CHI2_2, CHI2_3, CHI2_4};
+    const int   its[4]      = {10, 10, 10, 10};
 
     int nBad = 0;
     for (size_t it = 0; it < 4; it++)
     {
+        //if (nBad >= vpEdgesMono.size())
+        //    std::cout << "No good edged left" << std::endl;
+
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
         optimizer.initializeOptimization(0);
         optimizer.optimize(its[it]);
@@ -577,7 +584,7 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     vbOutliers.resize(N);
 
     AVERAGE_TIMING_START("PoseOpt.Part1");
-    const float deltaMono = sqrt(5.991f);
+    const float deltaMono = sqrt(CHI2_1);
     {
         unique_lock<mutex> lock(WAIMapPoint::mGlobalMutex);
 
@@ -631,9 +638,8 @@ int Optimizer::PoseOptimization(WAIFrame* pFrame)
     AVERAGE_TIMING_START("PoseOpt.Part2");
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
-    const float chi2Mono[4]   = {5.991f, 5.991f, 5.991f, 5.991f};
-    const float chi2Stereo[4] = {7.815f, 7.815f, 7.815f, 7.815f};
-    const int   its[4]        = {10, 10, 10, 10};
+    const float chi2Mono[4] = {CHI2_1, CHI2_2, CHI2_3, CHI2_4};
+    const int   its[4]      = {10, 10, 10, 10};
 
     int nBad = 0;
     for (size_t it = 0; it < 3; it++)
@@ -993,7 +999,7 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
     os->lmap.keyFrames.push_back(pKF);
     pKF->mnMarker[BA_LOCAL_KF] = pKF->mnId;
 
-    const float thHuberMono = sqrt(5.991f);
+    const float thHuberMono = sqrt(CHI2_1);
 
     const vector<WAIKeyFrame*> vNeighKFs = pKF->GetVectorCovisibleKeyFrames();
     for (int i = 0, iend = (int)vNeighKFs.size(); i < iend; i++)
@@ -1158,7 +1164,7 @@ void Optimizer::LocalBundleAdjustment(OptimizerStruct* os, bool* pbStopFlag)
             if (pMP->isBad())
                 continue;
 
-            if (e->chi2() > 5.991 || !e->isDepthPositive())
+            if (e->chi2() > CHI2_1 || !e->isDepthPositive())
             {
                 e->setLevel(1);
             }
@@ -1185,7 +1191,7 @@ void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
         if (pMP->isBad())
             continue;
 
-        if (e->chi2() > 5.991 || !e->isDepthPositive())
+        if (e->chi2() > CHI2_1 || !e->isDepthPositive())
         {
             WAIKeyFrame* pKFi = os->vpEdgeKFMono[i];
             vToErase.push_back(make_pair(pKFi, pMP));
@@ -1351,7 +1357,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
     vpMapPointEdgeStereo.reserve(nExpectedSize);
     */
 
-    const float thHuberMono = sqrt(5.991f);
+    const float thHuberMono = sqrt(CHI2_1);
 
     for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
     {
@@ -1428,34 +1434,15 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
             if (pMP->isBad())
                 continue;
 
-            if (e->chi2() > 5.991 || !e->isDepthPositive())
+            if (e->chi2() > CHI2_1 || !e->isDepthPositive())
             {
                 e->setLevel(1);
             }
 
             e->setRobustKernel(0);
         }
-
-        /*
-        for (size_t i = 0, iend = vpEdgesStereo.size(); i < iend; i++)
-        {
-            g2o::EdgeStereoSE3ProjectXYZ* e   = vpEdgesStereo[i];
-            WAIMapPoint*                  pMP = vpMapPointEdgeStereo[i];
-
-            if (pMP->isBad())
-                continue;
-
-            if (e->chi2() > 7.815 || !e->isDepthPositive())
-            {
-                e->setLevel(1);
-            }
-
-            e->setRobustKernel(0);
-        }
-        */
 
         // Optimize again without the outliers
-
         optimizer.initializeOptimization(0);
         optimizer.optimize(10);
     }
@@ -1473,7 +1460,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
         if (pMP->isBad())
             continue;
 
-        if (e->chi2() > 5.991 || !e->isDepthPositive())
+        if (e->chi2() > CHI2_1 || !e->isDepthPositive())
         {
             WAIKeyFrame* pKFi = vpEdgeKFMono[i];
             vToErase.push_back(make_pair(pKFi, pMP));

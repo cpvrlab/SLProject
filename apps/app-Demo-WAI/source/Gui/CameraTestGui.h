@@ -48,10 +48,10 @@ private:
 
     ErlebAR::Resources& _resources;
 
-    SENSCamera*      _camera;
+    SENSCamera* _camera;
 
     SENSCaptureProperties _camCharacs;
-    
+
     std::map<std::string, std::vector<std::string>> _sizesStrings;
     //callbacks
     //std::function<void(void)> _startCameraCB;
@@ -61,9 +61,9 @@ private:
     std::string _exceptionText;
 
     //selection values
-    const SENSCameraDeviceProperties* _currCharac{nullptr};
-    int                              _currSizeIndex{0};
-    const std::string*               _currSizeStr{nullptr};
+    const SENSCameraDeviceProperties* _currCamProps{nullptr};
+    int                               _currSizeIndex{0};
+    const std::string*                _currSizeStr{nullptr};
 };
 
 #endif //CAMERA_TEST_GUI_H

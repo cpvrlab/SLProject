@@ -330,7 +330,7 @@ void TestView::handleEvents()
 //    doWaitOnIdle(false);
 //    camera(_scene.cameraNode);
 //    onInitialize();
-//    if (_camera)
+//    if (_camera && _camera->started())
 //        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
 //}
 
@@ -341,8 +341,6 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     doWaitOnIdle(false);
     camera(_scene.cameraNode);
     onInitialize();
-    if (_camera)
-        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
 }
 
 void TestView::saveMap(std::string location,
@@ -529,7 +527,6 @@ bool TestView::startCamera()
                        true,
                        65.f);
     }
-
     else //try with unknown config (for desktop)
     {
         aproxVisuImgW    = 640;
@@ -697,6 +694,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     }
 
     _trackingExtractor       = _featureExtractorFactory.make(slamParams.extractorIds.trackingExtractorId, _videoFrameSize, slamParams.nLevels);
+    _relocalizationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.relocalizationExtractorId, _videoFrameSize, slamParams.nLevels);
     _initializationExtractor = _featureExtractorFactory.make(slamParams.extractorIds.initializationExtractorId, _videoFrameSize, slamParams.nLevels);
 
     try
@@ -751,12 +749,10 @@ void TestView::startOrbSlam(SlamParams slamParams)
                         _calibration->distortion(),
                         _voc,
                         _initializationExtractor.get(),
+                        _relocalizationExtractor.get(),
                         _trackingExtractor.get(),
                         std::move(map),
-                        slamParams.params.onlyTracking,
-                        slamParams.params.serial,
-                        slamParams.params.retainImg,
-                        slamParams.params.cullRedundantPerc);
+                        slamParams.params);
 
     // 6. save current params
     _currentSlamParams = slamParams;
@@ -851,7 +847,7 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
     else
     {
         _scene.removeMapPoints();
-        _scene.removeMarkerCornerMapPoints();
+        //_scene.removeMarkerCornerMapPoints();
     }
 
     //update visualization of local map points (when WAI pose is valid)

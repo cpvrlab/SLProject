@@ -136,7 +136,7 @@ static std::string constructSlamMapFileName(std::string location,
                                             int         nLevels,
                                             std::string dateTime = "")
 {
-    std::string result = constructSlamMapIdentifierString(location, area, extractorType, nLevels, dateTime) + ".json";
+    std::string result = constructSlamMapIdentifierString(location, area, extractorType, nLevels, dateTime) + ".json.gz";
 
     return result;
 }

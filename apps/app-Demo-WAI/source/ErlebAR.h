@@ -8,6 +8,7 @@
 #include <SLVec4.h>
 
 #include <DeviceData.h>
+#include <FeatureExtractorFactory.h>
 
 //bfh colors
 namespace BFHColors
@@ -45,7 +46,7 @@ const char* mapLocationIdToName(LocationId id);
 //erlebar area
 enum class AreaId
 {
-    NONE,
+    NONE = 0,
     //AUGST
     AUGST_TEMPLE_HILL_MARKER,
     AUGST_TEMPLE_HILL_THEATER_BOTTOM,
@@ -63,7 +64,8 @@ enum class AreaId
     BIEL_GERECHTIGKEITSBRUNNEN,
     BIEL_JACOB_ROSINUS,
     BIEL_LEUBRINGENBAHN,
-    BIEL_RING
+    BIEL_RING,
+    BIEL_OFFICE
 };
 
 const char* mapAreaIdToName(AreaId id);
@@ -73,16 +75,23 @@ class Area
 public:
     //Area(AreaId id, int posXPix, int posYPix, float viewAngle);
 
-    AreaId      id;
-    const char* name;
+    AreaId      id = AreaId::NONE;
+    std::string name;
     //x position in pixel (only valid for current map image)
-    int xPosPix;
+    int xPosPix = 0;
     //y position in pixel (only valid for current map image)
-    int yPosPix;
+    int yPosPix = 0;
     //view angle in degree
-    float viewAngleDeg;
+    float viewAngleDeg = 0.f;
     //map name in erlebAR directory
     std::string slamMapFileName;
+    //WaiSlam extractor types
+    ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
+    ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000;
+    ExtractorType trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
+    int           nExtractorLevels            = 2;
+    //camera image size
+    cv::Size cameraFrameTargetSize = {640, 360};
 };
 
 //location description
@@ -90,7 +99,7 @@ class Location
 {
 public:
     LocationId  id = LocationId::NONE;
-    const char* name;
+    std::string name;
     //name of area map image in erlebAR directory
     std::string areaMapImageFileName;
     //map image display pixel width

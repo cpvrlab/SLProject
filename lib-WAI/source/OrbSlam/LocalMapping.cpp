@@ -38,22 +38,17 @@ namespace ORB_SLAM2
 {
 
 LocalMapping::LocalMapping(WAIMap*           pMap,
-                           const float       bMonocular,
                            WAIOrbVocabulary* vocabulary,
                            float             cullRedundantPerc)
   : mpMap(pMap),
-    mbMonocular(bMonocular),
     _vocabulary(vocabulary),
     mbResetRequested(false),
     mbFinishRequested(false),
     mbFinished(false),
     mbAcceptKeyFrames(true),
     mbAbortBA(false),
-    mPause(false),
-    mbPaused(false),
-    workingSet(10),
-    mMappingThreads(0),
-    mFinishedBA(0),
+    mPauseRequested(false),
+    mPaused(false),
     _cullRedundantPerc(cullRedundantPerc)
 {
 }
@@ -63,122 +58,10 @@ void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
     mpLoopCloser = pLoopCloser;
 }
 
-void LocalMapping::LocalOptimize()
-{
-    while (1)
-    {
-        bool         emptyQueue = false;
-        int          kfInQueue;
-        WAIKeyFrame* frame;
-
-        while ((kfInQueue = workingSet.popFromLocalAdjustment(&frame)) != 0)
-        {
-            std::unique_lock<std::mutex> stateLock(mStateMutex);
-            if (kfInQueue > 5)
-                emptyQueue = true;
-            else if (kfInQueue <= 1)
-                emptyQueue = false;
-
-            if (emptyQueue)
-            {
-                if (kfInQueue % 3 != 0)
-                {
-                    workingSet.removeFromUseSet(frame);
-                    continue;
-                }
-            }
-            stateLock.unlock();
-
-            std::unique_lock<std::mutex> lock(mMutexMapping);
-            LocalMap                     neighborsLocalMap;
-            searchNeihborsLocalMap(neighborsLocalMap, workingSet, frame);
-            SearchInNeighbors(neighborsLocalMap);
-
-            if (mpMap->KeyFramesInMap() > 2)
-            {
-                OptimizerStruct os;
-                Optimizer::initOptimizerStruct(&os, frame, workingSet);
-
-                lock.unlock();
-                mbAbortBA = false;
-                Optimizer::LocalBundleAdjustment(&os, &mbAbortBA);
-                lock.lock();
-            }
-
-            KeyFrameCulling(frame, workingSet);
-            lock.unlock();
-
-            //mpLoopCloser->InsertKeyFrame(frame);
-            workingSet.removeFromUseSet(frame);
-
-            if (CheckFinish() || CheckPause())
-                break;
-        }
-
-        if (CheckPause())
-        {
-            {
-                unique_lock<mutex> lock(mMutexPause);
-                mbPaused = true;
-            }
-            while (isStopped() && !CheckFinish())
-                std::this_thread::sleep_for(10ms);
-        }
-
-        if (CheckFinish())
-            break;
-    }
-
-    unique_lock<mutex> lock(mMutexFinish);
-    mFinishedBA++;
-}
-
-void LocalMapping::ProcessKeyFrames()
-{
-    mbFinished = false;
-    mbPaused   = false;
-
-    while (1)
-    {
-        // Tracking will see that Local Mapping is busy (not used for keyframe insertion but as a condition
-        SetAcceptKeyFrames(false);
-
-        // Check if there are keyframes in the queue
-        while (CheckNewKeyFrames())
-        {
-            WAIKeyFrame* frame = GetNewKeyFrame();
-            workingSet.addToUseSet(frame);
-
-            ProcessNewKeyFrame(frame);
-            MapPointCulling(frame);
-            CreateNewMapPoints(frame);
-
-            workingSet.addToLocalAdjustment(frame);
-            //mpLoopCloser->InsertKeyFrame(frame);
-        }
-
-        ResetIfRequested();
-        SetAcceptKeyFrames(true);
-
-        if (CheckPause())
-        {
-            {
-                unique_lock<mutex> lock(mMutexPause);
-                mbPaused = true;
-            }
-            while (isStopped() && !CheckFinish())
-                std::this_thread::sleep_for(10ms);
-        }
-        if (CheckFinish())
-            break;
-    }
-    SetFinish();
-}
-
 void LocalMapping::Run()
 {
     mbFinished = false;
-    mbPaused   = false;
+    mPaused    = false;
     while (1)
     {
         // Tracking will see that Local Mapping is busy
@@ -211,7 +94,6 @@ void LocalMapping::Run()
                 // Local BA
                 if (mpMap->KeyFramesInMap() > 2)
                     Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
-                // Check redundant local Keyframes
                 KeyFrameCulling(frame);
             }
 
@@ -219,30 +101,98 @@ void LocalMapping::Run()
         }
         else if (CheckPause())
         {
-            {
-                unique_lock<mutex> lock(mMutexPause);
-                mbPaused = true;
-            }
-            // Safe area to stop
-            while (isStopped() && !CheckFinish())
-            {
+            Pause();
+            while (isPaused() && !CheckFinish())
                 std::this_thread::sleep_for(3ms);
-            }
         }
 
-        ResetIfRequested();
+        if (CheckReset())
+            Reset();
 
-        // Tracking will see that Local Mapping is busy
         SetAcceptKeyFrames(true);
 
         if (CheckFinish())
             break;
 
-        //usleep(3000);
-        std::this_thread::sleep_for(3ms);
+        std::this_thread::sleep_for(10ms);
     }
+    Finish();
+}
 
-    SetFinish();
+void LocalMapping::Run2()
+{
+    mbFinished     = false;
+    mPaused        = false;
+    bool lba       = true;
+    bool neighbors = true;
+    while (1)
+    {
+        // Check if there are keyframes in the queue
+        if (CheckNewKeyFrames())
+        {
+            // BoW conversion and insertion in Map
+            WAIKeyFrame* frame = GetNewKeyFrame();
+            ProcessNewKeyFrame(frame);
+
+            // Check recent MapPoints
+            MapPointCulling(frame);
+
+            // Triangulate new MapPoints
+            CreateNewMapPoints(frame);
+
+            if (KeyFramesToProcess() > 8)
+            {
+                lba = false;
+                neighbors = false;
+                SetAcceptKeyFrames(false);
+            }
+            else if (KeyFramesToProcess() > 5)
+            {
+                lba = false;
+                SetAcceptKeyFrames(false);
+            }
+            else if (KeyFramesToProcess() < 2)
+            {
+                neighbors = true;
+                lba       = true;
+                SetAcceptKeyFrames(true);
+            }
+
+            if (!CheckFinish() && neighbors)
+            {
+                SearchInNeighbors(frame);
+
+                if (lba)
+                {
+                    mbAbortBA = false;
+
+                    // Local BA
+                    if (mpMap->KeyFramesInMap() > 2)
+                        Optimizer::LocalBundleAdjustment(frame, &mbAbortBA, mpMap);
+                    KeyFrameCulling(frame);
+                }
+            }
+
+            mpLoopCloser->InsertKeyFrame(frame);
+        }
+
+        if (CheckPause())
+        {
+            Pause();
+            while (isPaused() && !CheckFinish())
+                std::this_thread::sleep_for(3ms);
+        }
+
+        if (CheckReset())
+            Reset();
+
+        if (CheckFinish())
+            break;
+
+        //SetAcceptKeyFrames(true);
+        //std::this_thread::sleep_for(1ms);
+    }
+    Finish();
 }
 
 void LocalMapping::RunOnce()
@@ -277,16 +227,20 @@ void LocalMapping::RunOnce()
 
 void LocalMapping::InsertKeyFrame(WAIKeyFrame* pKF)
 {
-    {
-        unique_lock<mutex> lock(mMutexNewKFs);
-        mlNewKeyFrames.push_back(pKF);
-    }
+    unique_lock<mutex> lock(mMutexNewKFs);
+    mlNewKeyFrames.push_back(pKF);
 }
 
 bool LocalMapping::CheckNewKeyFrames()
 {
     unique_lock<mutex> lock(mMutexNewKFs);
     return (!mlNewKeyFrames.empty());
+}
+
+int LocalMapping::KeyFramesToProcess()
+{
+    unique_lock<mutex> lock(mMutexNewKFs);
+    return (mlNewKeyFrames.size());
 }
 
 WAIKeyFrame* LocalMapping::GetNewKeyFrame()
@@ -339,11 +293,7 @@ void LocalMapping::MapPointCulling(WAIKeyFrame* kf)
     const unsigned long int      nCurrentKFid = kf->mnId;
 
     int nThObs = 2;
-    //int nThObs;
-    /*if (mbMonocular)
-        nThObs = 2;
-    else
-        nThObs = 3;*/
+
     const int cnThObs = nThObs;
 
     int mapPointsCulled = 0;
@@ -994,75 +944,41 @@ cv::Mat LocalMapping::SkewSymmetricMatrix(const cv::Mat& v)
     return (cv::Mat_<float>(3, 3) << 0.0f, -v.at<float>(2), v.at<float>(1), v.at<float>(2), 0.0f, -v.at<float>(0), -v.at<float>(1), v.at<float>(0), 0.0f);
 }
 
+//Reset
 void LocalMapping::RequestReset()
 {
-    {
-        unique_lock<mutex> lock(mMutexReset);
-        mbResetRequested = true;
-        mbAbortBA        = true;
-    }
-
-    while (1)
-    {
-        {
-            unique_lock<mutex> lock2(mMutexReset);
-            if (!mbResetRequested)
-                break;
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    unique_lock<mutex> lock(mMutexReset);
+    mbResetRequested = true;
+    mbAbortBA        = true;
 }
 
-void LocalMapping::ResetIfRequested()
+bool LocalMapping::CheckReset()
 {
     unique_lock<mutex> lock(mMutexReset);
-    if (mbResetRequested)
-    {
-        reset();
-    }
+    return mbResetRequested;
 }
 
-void LocalMapping::reset()
+void LocalMapping::Reset()
 {
+    unique_lock<mutex> lock(mMutexReset);
+    unique_lock<mutex> lock2(mMutexNewKFs);
     mlNewKeyFrames.clear();
     mlpRecentAddedMapPoints.clear();
-    workingSet.reset();
     mbResetRequested = false;
 }
 
-std::thread* LocalMapping::AddLocalBAThread()
-{
-    mMappingThreads++;
-    return new std::thread(&LocalMapping::LocalOptimize, this);
-}
-
+//Finish
 void LocalMapping::RequestFinish()
 {
-    {
-        unique_lock<mutex> lock(mMutexFinish);
-        mbFinishRequested = true;
-        mbAbortBA         = true;
-    }
+    unique_lock<mutex> lock(mMutexFinish);
+    mbFinishRequested = true;
+    mbAbortBA         = true;
 }
 
-bool LocalMapping::CheckPause()
+bool LocalMapping::isFinished()
 {
-    unique_lock<mutex> lock(mMutexPause);
-    return mPause;
-}
-
-void LocalMapping::RequestStop()
-{
-    unique_lock<mutex> lock(mMutexPause);
-    mPause    = true;
-    mbAbortBA = true;
-}
-
-void LocalMapping::RequestContinue()
-{
-    unique_lock<mutex> lock(mMutexPause);
-    mPause   = false;
-    mbPaused = false;
+    unique_lock<mutex> lock(mMutexFinish);
+    return mbFinished;
 }
 
 bool LocalMapping::CheckFinish()
@@ -1071,21 +987,46 @@ bool LocalMapping::CheckFinish()
     return mbFinishRequested;
 }
 
-void LocalMapping::SetFinish()
+void LocalMapping::Finish()
 {
     unique_lock<mutex> lock(mMutexFinish);
+    SetAcceptKeyFrames(false);
+    mbFinishRequested = false;
     mbFinished = true;
 }
 
-bool LocalMapping::isFinished()
+//Pause
+void LocalMapping::RequestPause()
 {
-    unique_lock<mutex> lock(mMutexFinish);
-    return mbFinished && mFinishedBA >= mMappingThreads;
+    unique_lock<mutex> lock(mMutexPause);
+    mPauseRequested = true;
+    mbAbortBA       = true;
 }
 
-bool LocalMapping::isStopped()
+bool LocalMapping::isPaused()
 {
-    return isFinished() || mbPaused;
+    unique_lock<mutex> lock(mMutexPause);
+    return mPaused;
 }
+
+bool LocalMapping::CheckPause()
+{
+    unique_lock<mutex> lock(mMutexPause);
+    return mPauseRequested;
+}
+
+void LocalMapping::Pause()
+{
+    unique_lock<mutex> lock(mMutexPause);
+    mPauseRequested = false;
+    mPaused = true;
+}
+
+void LocalMapping::RequestContinue()
+{
+    unique_lock<mutex> lock(mMutexPause);
+    mPaused   = false;
+}
+
 
 } //namespace ORB_SLAM

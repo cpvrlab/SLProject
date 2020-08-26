@@ -58,18 +58,18 @@ void buildMatching(std::vector<WAIKeyFrame*>&                        kfs,
         WAIKeyFrame* kf = kfs[i];
         if (kf->isBad())
             continue;
-        if (kf->mBowVec.data.empty())
-            continue;
+        //if (kf->mBowVec.data.empty())
+        //    continue;
 
         std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
-        std::map<size_t, size_t> matching;
+        std::map<size_t, size_t>  matching;
 
         size_t id = 0;
         for (int j = 0; j < mps.size(); j++)
         {
             if (mps[j] != nullptr)
             {
-                matching.insert(std::pair<size_t, size_t> (j, id));
+                matching.insert(std::pair<size_t, size_t>(j, id));
                 id++;
             }
         }
@@ -93,7 +93,6 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
             continue;
         if (kf->mBowVec.data.empty())
             continue;
-
 
         fs << "{"; //new map keyFrame
                    //add id
@@ -120,7 +119,7 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
 
         if (KFmatching.size() > 0)
         {
-            cv::Mat descriptors;
+            cv::Mat                         descriptors;
             const std::map<size_t, size_t>& matching = KFmatching[kf];
             descriptors.create((int)matching.size(), 32, CV_8U);
             std::vector<cv::KeyPoint> keypoints(matching.size());
@@ -137,7 +136,7 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
             fs << "keyPtsUndist" << keypoints;
         }
         else
-        { 
+        {
             fs << "featureDescriptors" << kf->mDescriptors;
             fs << "keyPtsUndist" << kf->mvKeysUn;
         }
@@ -265,8 +264,8 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
                             std::string imgDir,
                             bool        saveBOW)
 {
-    std::vector<WAIKeyFrame*> kfs  = waiMap->GetAllKeyFrames();
-    std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
+    std::vector<WAIKeyFrame*>                        kfs  = waiMap->GetAllKeyFrames();
+    std::vector<WAIMapPoint*>                        mpts = waiMap->GetAllMapPoints();
     std::map<WAIKeyFrame*, std::map<size_t, size_t>> KFmatching;
 
     if (kfs.size() == 0)
@@ -304,14 +303,14 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
                                std::string filename,
                                std::string imgDir)
 {
-    std::vector<WAIKeyFrame*> kfs  = waiMap->GetAllKeyFrames();
-    std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
+    std::vector<WAIKeyFrame*>                        kfs  = waiMap->GetAllKeyFrames();
+    std::vector<WAIMapPoint*>                        mpts = waiMap->GetAllMapPoints();
     std::map<WAIKeyFrame*, std::map<size_t, size_t>> KFmatching;
 
     if (kfs.size() == 0)
         return false;
 
-    //buildMatching(kfs, KFmatching);
+    //in this case we dont build a keyframe matching..
 
     //save keyframes (without graph/neigbourhood information)
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
@@ -337,8 +336,6 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
     fs.release();
     return true;
 }
-
-
 
 bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                             SLNode*           mapNode,
@@ -405,7 +402,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
 
-        std::vector<int> wordsId;
+        std::vector<int>   wordsId;
         std::vector<float> tfIdf;
         if (!(*it)["BowVectorWordsId"].empty())
             (*it)["BowVectorWordsId"] >> wordsId;
@@ -714,12 +711,13 @@ void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMat
         Utils::makeDir(dir);
 
     std::ofstream ofs;
-    ofs.open (dir + "/" + outputKFMatchingFile, std::ofstream::out);
+    ofs.open(dir + "/" + outputKFMatchingFile, std::ofstream::out);
 
     ofs << to_string(vidname.size()) << "\n";
 
     for (int i = 0; i < vidname.size(); i++)
     {
+        vidname[i] = Utils::getFileName(vidname[i]);
         ofs << vidname[i] << "\n";
     }
 
@@ -733,7 +731,7 @@ void WAIMapStorage::saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMat
     ofs.close();
 }
 
-void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> &vidname, const std::string& dir, const std::string kFMatchingFile)
+void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string>& vidname, const std::string& dir, const std::string kFMatchingFile)
 {
     std::ifstream ifs(dir + "/" + kFMatchingFile);
     keyFrameVideoMatching.resize(1000, -1);
@@ -745,11 +743,12 @@ void WAIMapStorage::loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMat
     for (int i = 0; i < nVid; i++)
     {
         ifs >> vidname[i];
+        vidname[i] = Utils::getFileName(vidname[i]);
     }
 
     int kfId;
     int vid;
-    while(ifs >> kfId >> vid)
+    while (ifs >> kfId >> vid)
     {
         if (kfId > keyFrameVideoMatching.size())
         {

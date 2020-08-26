@@ -31,6 +31,7 @@ AppDemoGuiSlamParam::AppDemoGuiSlamParam(const std::string&              name,
 {
     _currentId       = 2;
     _iniCurrentId    = 1;
+    _relocCurrentId  = 1;
     _markerCurrentId = 1;
 }
 
@@ -44,6 +45,21 @@ void AppDemoGuiSlamParam::buildInfos(SLScene* s, SLSceneView* sv)
             bool isSelected = (_currentId == i); // You can store your selection however you want, outside or inside your objects
             if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
                 _currentId = i;
+            if (isSelected)
+                ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+        }
+        ImGui::EndCombo();
+    }
+
+    if (ImGui::BeginCombo("Reloc extractor", _extractorIdToNames.at(_relocCurrentId).c_str()))
+    {
+        for (int i = 0; i < _extractorIdToNames.size(); i++)
+        {
+            bool isSelected = (_relocCurrentId == i); // You can store your selection however you want, outside or inside your objects
+            if (ImGui::Selectable(_extractorIdToNames.at(i).c_str(), isSelected))
+            {
+                _iniCurrentId = i;
+            }
             if (isSelected)
                 ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
         }

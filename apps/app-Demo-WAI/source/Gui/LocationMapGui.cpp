@@ -113,7 +113,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                              buttonSize,
                              _resources.textures.texIdBackArrow,
                              _spacingBackButtonToText,
-                             _loc.name,
+                             _loc.name.c_str(),
                              [&]() { sendEvent(new GoBackEvent("LocationMapGui")); });
 
     //content
@@ -162,7 +162,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
             ImGui::SetCursorPosY(y * (float)_locTextureH * (float)_screenH / (float)(_dspPixHeight)-_headerBarH);
 
             //ImGui::PushID(i);
-            if (ErlebAR::PoseShapeButton(area.name,
+            if (ErlebAR::PoseShapeButton(area.name.c_str(),
                                          ImVec2(buttonSize, buttonSize),
                                          circleRadius,
                                          triangleLength,

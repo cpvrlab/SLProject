@@ -72,9 +72,13 @@ WAIBowVector::WAIBowVector(std::vector<int> wid, std::vector<float> values)
 {
     for (int i = 0; i < wid.size(); i++)
     {
+#if USE_FBOW
         fbow::_float v;
         v.var = values[i];
         data.insert(std::pair<uint32_t, fbow::_float>(wid[i], v));
+#else
+        data.insert(std::pair<DBoW2::WordId, DBoW2::WordValue>(wid[i], values[i]));
+#endif
     }
 }
 
@@ -87,7 +91,7 @@ void WAIOrbVocabulary::transform(const cv::Mat& descriptors, WAIBowVector& bow, 
         return;
 
 #if USE_FBOW
-    _vocabulary->transform(descriptors, 1, bow.data, feat.data);
+    _vocabulary->transform(descriptors, 2, bow.data, feat.data);
 #else
     vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(descriptors);
     _vocabulary->transform(vCurrentDesc, bow.data, feat.data, _vocabulary->getDepthLevels() - 2);

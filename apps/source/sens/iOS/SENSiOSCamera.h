@@ -1,6 +1,7 @@
 #include <SENSCamera.h>
 #import "SENSiOSCameraDelegate.h"
 #import <simd/matrix_types.h>
+#include <opencv2/opencv.hpp>
 
 class SENSiOSCamera : public SENSCameraBase
 {

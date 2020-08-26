@@ -9,6 +9,7 @@ struct ExtractorIds
 {
     ExtractorType trackingExtractorId;
     ExtractorType initializationExtractorId;
+    ExtractorType relocalizationExtractorId;
     ExtractorType markerExtractorId;
 };
 
@@ -48,6 +49,8 @@ struct SlamParams
                     fs["retainImg"] >> params.retainImg;
                 if (!fs["serial"].empty())
                     fs["serial"] >> params.serial;
+                if (!fs["ensureKFIntegration"].empty())
+                    fs["ensureKFIntegration"] >> params.ensureKFIntegration;
                 if (!fs["trackOptFlow"].empty())
                     fs["trackOptFlow"] >> params.trackOptFlow;
 
@@ -57,18 +60,36 @@ struct SlamParams
                     fs["initializationExtractorId"] >> extractorId;
                     extractorIds.initializationExtractorId = (ExtractorType)extractorId;
                 }
+                else
+                    extractorIds.initializationExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
+                if (!fs["relocalizationExtractorId"].empty())
+                {
+                    int extractorId;
+                    fs["relocalizationExtractorId"] >> extractorId;
+                    extractorIds.relocalizationExtractorId = (ExtractorType)extractorId;
+                }
+                else
+                    extractorIds.relocalizationExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
                 if (!fs["markerExtractorId"].empty())
                 {
                     int extractorId;
                     fs["markerExtractorId"] >> extractorId;
                     extractorIds.markerExtractorId = (ExtractorType)extractorId;
                 }
+                else
+                    extractorIds.markerExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
                 if (!fs["trackingExtractorId"].empty())
                 {
                     int extractorId;
                     fs["trackingExtractorId"] >> extractorId;
                     extractorIds.trackingExtractorId = (ExtractorType)extractorId;
                 }
+                else
+                    extractorIds.trackingExtractorId = (ExtractorType)ExtractorType_FAST_ORBS_1000;
+
                 if (!fs["nLevels"].empty())
                     fs["nLevels"] >> nLevels;
                 else
@@ -111,9 +132,11 @@ struct SlamParams
         fs << "onlyTracking" << params.onlyTracking;
         fs << "retainImg" << params.retainImg;
         fs << "serial" << params.serial;
+        fs << "ensureKFintegration" << params.ensureKFIntegration;
         fs << "trackOptFlow" << params.trackOptFlow;
 
         fs << "initializationExtractorId" << extractorIds.initializationExtractorId;
+        fs << "relocalizationExtractorId" << extractorIds.relocalizationExtractorId;
         fs << "markerExtractorId" << extractorIds.markerExtractorId;
         fs << "trackingExtractorId" << extractorIds.trackingExtractorId;
 

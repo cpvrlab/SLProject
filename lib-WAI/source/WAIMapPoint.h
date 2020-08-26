@@ -102,6 +102,7 @@ public:
     size_t getSizeOf();
 
     bool isFixed() const { return _fixed; }
+    bool loadedFromMap() { return _loadedFromMap; }
 
 public:
     long unsigned int mnId = -1;
@@ -139,6 +140,8 @@ public:
 protected:
     //flags if fixed, then
     bool _fixed = false;
+    //flags if loaded from map
+    bool _loadedFromMap = false;
 
     //open cv coordinate representation: z-axis points to principlal point,
     // x-axis to the right and y-axis down
