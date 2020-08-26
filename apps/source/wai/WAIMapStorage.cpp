@@ -602,6 +602,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
     fclose(f);
 
+    HighResTimer timer;
+    timer.start();
     MapInfo* mapInfo = (MapInfo*)fContent;
     fContent += sizeof(MapInfo);
 
@@ -620,7 +622,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
         fContent += bytesRead;
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "header time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     for (int i = 0; i < mapInfo->kfCount; i++)
     {
         KeyFrameInfo* kfInfo = (KeyFrameInfo*)fContent;
@@ -751,7 +756,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         keyFrames.push_back(newKf);
         kfsMap[newKf->mnId] = newKf;
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "keyframe time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     //set parent keyframe pointers into keyframes
     for (WAIKeyFrame* kf : keyFrames)
     {
@@ -771,7 +779,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                 cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
         }
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "keyframe parents time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     int numberOfLoopClosings = 0;
     //set loop edge pointer into keyframes
     for (WAIKeyFrame* kf : keyFrames)
@@ -794,7 +805,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         }
     }
     numLoopClosings = numberOfLoopClosings / 2;
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "loopClosing time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     for (int i = 0; i < mapInfo->mpCount; i++)
     {
         MapPointInfo* mpInfo = (MapPointInfo*)fContent;
@@ -868,8 +882,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             delete newPt;
         }
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "mapPoint time: %f ms", timer.elapsedTimeInMilliSec());
 
-    std::cout << "update the covisibility graph, when all keyframes and mappoints are loaded" << std::endl;
+    timer.start();
     //update the covisibility graph, when all keyframes and mappoints are loaded
     WAIKeyFrame* firstKF           = nullptr;
     bool         buildSpanningTree = false;
@@ -886,9 +902,12 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             buildSpanningTree = true;
         }
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "update graph time: %f ms", timer.elapsedTimeInMilliSec());
 
     wai_assert(firstKF && "Could not find keyframe with id 0\n");
 
+    timer.start();
     // Build spanning tree if keyframes have no parents (legacy support)
     if (buildSpanningTree)
     {
@@ -933,7 +952,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             graph.insert(newGraphKf);
         }
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "spanning tree time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     //compute resulting values for map points
     for (WAIMapPoint*& mp : mapPoints)
     {
@@ -941,7 +963,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         mp->UpdateNormalAndDepth();
         mp->ComputeDistinctiveDescriptors();
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "mappoint update time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     for (WAIKeyFrame* kf : keyFrames)
     {
         if (kf->mBowVec.data.empty())
@@ -958,11 +983,16 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             waiMap->mvpKeyFrameOrigins.push_back(kf);
         }
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "keyframe add time: %f ms", timer.elapsedTimeInMilliSec());
 
+    timer.start();
     for (WAIMapPoint* point : mapPoints)
     {
         waiMap->AddMapPoint(point);
     }
+    timer.stop();
+    Utils::log("WAI::WAIMapStorage::loadMapBinary", "mappoint add time: %f ms", timer.elapsedTimeInMilliSec());
 
     waiMap->setNumLoopClosings(numLoopClosings);
 
