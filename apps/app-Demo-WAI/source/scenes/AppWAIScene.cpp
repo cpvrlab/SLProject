@@ -123,6 +123,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->setDrawBitsRec(SL_DB_HIDDEN, true);
     _root3D->addChild(light);
 
+    HighResTimer t;
     if (location == "avenches")
     {
         std::string modelPath;
@@ -307,6 +308,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(boxNode3);
     _root3D->addChild(boxNode4);
 #endif
+    Utils::log("LoadingTime", "model loading time: %f ms", t.elapsedTimeInMilliSec());
 
     //boxNode->addChild(axisNode);
 

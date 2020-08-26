@@ -625,7 +625,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 {
     _gui.clearErrorMsg();
     if (_videoFileStream)
-        _videoFileStream.release();
+        _videoFileStream.reset();
 
     bool useVideoFile             = !slamParams.videoFile.empty();
     bool detectCalibAutomatically = slamParams.calibrationFile.empty();
@@ -779,14 +779,15 @@ void TestView::startOrbSlam(SlamParams slamParams)
         WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(_voc);
         map                 = std::make_unique<WAIMap>(kfdb);
 
-        bool mapLoadingSuccess = false;
+        bool    mapLoadingSuccess = false;
+        cv::Mat mapNodeOm;
         if (Utils::containsString(slamParams.mapFile, ".waimap"))
         {
             HighResTimer timer;
             timer.start();
             std::string mapFile = slamParams.mapFile;
             mapLoadingSuccess   = WAIMapStorage::loadMapBinary(map.get(),
-                                                             _scene.mapNode,
+                                                             mapNodeOm,
                                                              _voc,
                                                              mapFile,
                                                              false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
@@ -799,13 +800,20 @@ void TestView::startOrbSlam(SlamParams slamParams)
             HighResTimer timer;
             timer.start();
             mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                       _scene.mapNode,
+                                                       mapNodeOm,
                                                        _voc,
                                                        slamParams.mapFile,
                                                        false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
                                                        slamParams.params.fixOldKfs);
             timer.stop();
             Utils::log("WAI::MapLoading", "loadMap time: %f ms", timer.elapsedTimeInMilliSec());
+        }
+
+        if (!mapNodeOm.empty())
+        {
+            SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+            //std::cout << "slOm: " << slOm.toString() << std::endl;
+            _scene.mapNode->om(slOm);
         }
 
         _autoCal = new AutoCalibration(_videoFrameSize, map->GetSize());

@@ -3,6 +3,8 @@
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
 
+#define LOAD_ASYNC
+
 AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    SLInputManager&     inputManager,
                                    const ImGuiEngine&  imGuiEngine,
@@ -28,7 +30,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     //_scene.init();
     //_scene.build();
     onInitialize();
-    _voc = new WAIOrbVocabulary();
+
     //set scene camera into sceneview
     //(camera node not initialized yet)
     //this->camera(_scene.cameraNode);
@@ -39,36 +41,136 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 AreaTrackingView::~AreaTrackingView()
 {
     //wai slam depends on _orbVocabulary and has to be uninitializd first
-    _waiSlam.release();
+    _waiSlam.reset();
     if (_voc)
         delete _voc;
-    //_orbVocabulary.release();
+
+    if (_asyncLoader)
+        delete _asyncLoader;
 }
+
+//void AreaTrackingView::checkLoadingStatus()
+//{
+//    if (_loadingFuture.valid() && _loadingFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+//    {
+//        std::unique_ptr<WAIMap> waiMap;
+//        try
+//        {
+//            //get map
+//            waiMap = _loadingFuture.get();
+//        }
+//        catch (std::exception& e)
+//        {
+//            Utils::log("AreaTrackingView", "loading map file failed: %s", e.what());
+//        }
+//
+//        _loadingThread->join();
+//        _loadingThread.reset();
+//
+//        //init waislam
+//        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+//                                                    _camera->config().manipWidth,
+//                                                    _camera->config().targetWidth);
+//
+//        WAISlam::Params params;
+//        params.cullRedundantPerc   = 0.95f;
+//        params.ensureKFIntegration = false;
+//        params.fixOldKfs           = true;
+//        params.onlyTracking        = false;
+//        params.retainImg           = false;
+//        params.serial              = false;
+//        params.trackOptFlow        = false;
+//
+//        _waiSlam = std::make_unique<WAISlam>(
+//          scaledCamMat,
+//          _camera->calibration()->distortion(),
+//          _voc,
+//          _initializationExtractor.get(),
+//          _relocalizationExtractor.get(),
+//          _trackingExtractor.get(),
+//          std::move(waiMap),
+//          params);
+//
+//        //update scene graph for map visualization
+//    }
+//}
 
 bool AreaTrackingView::update()
 {
-    SENSFramePtr frame;
-    if (_camera)
-        frame = _camera->latestFrame();
-
-    if (frame && _waiSlam)
+    try
     {
-        //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-        if (!frame->intrinsics.empty())
+        SENSFramePtr frame;
+        if (_camera)
+            frame = _camera->latestFrame();
+
+        if (frame && _waiSlam)
         {
-            auto    calib        = _camera->calibration();
+            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+            if (!frame->intrinsics.empty())
+            {
+                auto    calib        = _camera->calibration();
+                cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                            _camera->config().manipWidth,
+                                                            _camera->config().targetWidth);
+                _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
+                updateSceneCameraFov();
+            }
+            _waiSlam->update(frame->imgManip);
+
+            if (_waiSlam->isTracking())
+                _scene.updateCameraPose(_waiSlam->getPose());
+
+            updateTrackingVisualization(_waiSlam->isTracking(), *frame.get());
+        }
+        else if (frame)
+            updateVideoImage(*frame.get());
+
+        if (_asyncLoader && _asyncLoader->isReady())
+        {
+            Utils::log("AreaTrackingView", "worker done");
+
+            cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+            if (!mapNodeOm.empty())
+            {
+                SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+                //std::cout << "slOm: " << slOm.toString() << std::endl;
+                _scene.mapNode->om(slOm);
+            }
+
             cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
                                                         _camera->config().manipWidth,
                                                         _camera->config().targetWidth);
-            _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
-            updateSceneCameraFov();
+
+            WAISlam::Params params;
+            params.cullRedundantPerc   = 0.95f;
+            params.ensureKFIntegration = false;
+            params.fixOldKfs           = true;
+            params.onlyTracking        = false;
+            params.retainImg           = false;
+            params.serial              = false;
+            params.trackOptFlow        = false;
+
+            _waiSlam = std::make_unique<WAISlam>(
+              scaledCamMat,
+              _camera->calibration()->distortion(),
+              _voc,
+              _initializationExtractor.get(),
+              _relocalizationExtractor.get(),
+              _trackingExtractor.get(),
+              std::move(_asyncLoader->moveWaiMap()),
+              params);
+
+            delete _asyncLoader;
+            _asyncLoader = nullptr;
+            _gui.hideLoading();
         }
-        _waiSlam->update(frame->imgManip);
-
-        if (_waiSlam->isTracking())
-            _scene.updateCameraPose(_waiSlam->getPose());
-
-        updateTrackingVisualization(_waiSlam->isTracking(), *frame.get());
+    }
+    catch (std::exception& e)
+    {
+        _gui.showErrorMsg(e.what());
+    }
+    catch (...)
+    {
     }
 
     return onPaint();
@@ -100,13 +202,16 @@ void AreaTrackingView::updateSceneCameraFov()
     }
 }
 
-std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& slamMapFileName)
+std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARDir,
+                                                     const std::string& slamMapFileName,
+                                                     WAIOrbVocabulary*  voc,
+                                                     cv::Mat&           mapNodeOm)
 {
     std::unique_ptr<WAIMap> waiMap;
     if (!slamMapFileName.empty())
     {
         bool        mapFileExists = false;
-        std::string mapFileName   = _erlebARDir + slamMapFileName;
+        std::string mapFileName   = erlebARDir + slamMapFileName;
         Utils::log("AreaTrackingView", "map file name for area is: %s", mapFileName.c_str());
         //hick hack for android: android extracts our .gz file and renames them without .gz
         if (Utils::fileExists(mapFileName))
@@ -137,14 +242,28 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& slamMapF
         if (mapFileExists)
         {
             Utils::log("AreaTrackingView", "loading map file from: %s", mapFileName.c_str());
-            WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(_voc);
+            WAIKeyFrameDB* keyframeDataBase = new WAIKeyFrameDB(voc);
             waiMap                          = std::make_unique<WAIMap>(keyframeDataBase);
-            bool mapLoadingSuccess          = WAIMapStorage::loadMap(waiMap.get(),
-                                                            _scene.mapNode,
-                                                            _voc,
-                                                            mapFileName,
-                                                            false,
-                                                            true);
+
+            bool mapLoadingSuccess = false;
+            if (Utils::containsString(mapFileName, ".waimap"))
+            {
+                mapLoadingSuccess = WAIMapStorage::loadMapBinary(waiMap.get(),
+                                                                 mapNodeOm,
+                                                                 voc,
+                                                                 mapFileName,
+                                                                 false,
+                                                                 true);
+            }
+            else
+            {
+                mapLoadingSuccess = WAIMapStorage::loadMap(waiMap.get(),
+                                                           mapNodeOm,
+                                                           voc,
+                                                           mapFileName,
+                                                           false,
+                                                           true);
+            }
         }
     }
 
@@ -154,19 +273,17 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& slamMapF
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
     //todo:
-    /*
-    load correct map
-    load correct model
-    init correct extractors and number of levels (put it to ErlebAR::Area directly)
-    move params to ErlebAR::Area
-    start camera with size from area
-    */
+    //init camera with resolution in screen aspect ratio
+
+    //stop possible wai slam instances
+    if (_waiSlam)
+        _waiSlam.reset();
+
     ErlebAR::Location& location = _locations[locId];
     ErlebAR::Area&     area     = location.areas[areaId];
     _gui.initArea(area);
 
     //start camera
-    //if (!startCamera(cv::Size(this->scrW, this->scrH)))
     if (!startCamera(area.cameraFrameTargetSize))
     {
         Utils::log("AreaTrackingView", "Could not start camera!");
@@ -183,16 +300,43 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
     _relocalizationExtractor = _featureExtractorFactory.make(area.relocalizationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
 
+    if (_trackingExtractor->doubleBufferedOutput())
+        _imgBuffer.init(2, area.cameraFrameTargetSize);
+    else
+        _imgBuffer.init(1, area.cameraFrameTargetSize);
+
+#ifdef LOAD_ASYNC
+    std::string fileName = _vocabularyDir + _vocabularyFileName;
+
+    //delete managed object
+    if (_asyncLoader)
+        delete _asyncLoader;
+
+    _asyncLoader = new MapLoader(_voc, fileName, _erlebARDir, area.slamMapFileName);
+    _asyncLoader->start();
+    _gui.showLoading();
+#else
     //load vocabulary
     std::string fileName = _vocabularyDir + _vocabularyFileName;
     if (Utils::fileExists(fileName))
     {
         Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
+        _voc = new WAIOrbVocabulary();
         _voc->loadFromFile(fileName);
     }
 
     //try to load map
-    std::unique_ptr<WAIMap> waiMap = tryLoadMap(area.slamMapFileName);
+    HighResTimer            t;
+    cv::Mat                 mapNodeOm;
+    std::unique_ptr<WAIMap> waiMap = tryLoadMap(_erlebARDir, area.slamMapFileName, _voc, mapNodeOm);
+    Utils::log("LoadingTime", "map loading time: %f ms", t.elapsedTimeInMilliSec());
+
+    if (!mapNodeOm.empty())
+    {
+        SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+        //std::cout << "slOm: " << slOm.toString() << std::endl;
+        _scene.mapNode->om(slOm);
+    }
 
     cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
                                                 _camera->config().manipWidth,
@@ -216,11 +360,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
       _trackingExtractor.get(),
       std::move(waiMap),
       params);
-
-    if (_trackingExtractor->doubleBufferedOutput())
-        _imgBuffer.init(2, area.cameraFrameTargetSize);
-    else
-        _imgBuffer.init(1, area.cameraFrameTargetSize);
+#endif
 }
 
 void AreaTrackingView::resume()
@@ -306,12 +446,8 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
     }
 }
 
-void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame)
+void AreaTrackingView::updateVideoImage(SENSFrame& frame)
 {
-    //todo: add or remove crop in case of wide screens
-    //undistort image and copy image to video texture
-    _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, _showKeyPoints, _showKeyPointsMatched);
-
     if (_camera->calibration()->state() == SENSCalibration::State::calibrated)
         _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
     else
@@ -323,6 +459,15 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 
     _scene.updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();
+}
+
+void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame)
+{
+    //todo: add or remove crop in case of wide screens
+    //undistort image and copy image to video texture
+    _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, _showKeyPoints, _showKeyPointsMatched);
+
+    updateVideoImage(frame);
 
     //update map point visualization
     if (_showMapPC)

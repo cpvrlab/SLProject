@@ -73,14 +73,14 @@ public:
                               std::string imgDir = "");
 
     static bool loadMap(WAIMap*           waiMap,
-                        SLNode*           mapNode,
+                        cv::Mat&          mapNodeOm,
                         WAIOrbVocabulary* voc,
                         std::string       path,
                         bool              loadImgs,
                         bool              fixKfsAndMPts);
 
     static bool loadMapBinary(WAIMap*           waiMap,
-                              SLNode*           mapNode,
+                              cv::Mat&          mapNodeOm,
                               WAIOrbVocabulary* voc,
                               std::string       path,
                               bool              loadImgs,
@@ -89,9 +89,8 @@ public:
     static cv::Mat            convertToCVMat(const SLMat4f slMat);
     static SLMat4f            convertToSLMat(const cv::Mat& cvMat);
     static std::vector<uchar> convertCVMatToVector(const cv::Mat& mat);
-
-    static void saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
-    static void loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string>& vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
+    static void               saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
+    static void               loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string>& vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
 
     static void writeCVMatToBinaryFile(FILE* f, const cv::Mat& mat);
     static int  loadCVMatFromBinaryStream(uint8_t* data, cv::Mat& mat);

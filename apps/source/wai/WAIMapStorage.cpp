@@ -563,7 +563,7 @@ int WAIMapStorage::loadCVMatFromBinaryStream(uint8_t* data, cv::Mat& mat)
 }
 
 bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
-                                  SLNode*           mapNode,
+                                  cv::Mat&          mapNodeOm,
                                   WAIOrbVocabulary* voc,
                                   std::string       path,
                                   bool              loadImgs,
@@ -610,16 +610,9 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     if (mapInfo->nodeOmSaved)
     {
         uchar*  nodeOmData = fContent;
-        cv::Mat cvOm;
-        int     bytesRead = loadCVMatFromBinaryStream(nodeOmData, cvOm);
-        SLMat4f slOm      = convertToSLMat(cvOm);
-        std::cout << "slOm: " << slOm.toString() << std::endl;
-
-        if (mapNode)
-        {
-            mapNode->om(slOm);
-        }
-
+        cv::Mat cvMat;
+        int     bytesRead = loadCVMatFromBinaryStream(nodeOmData, cvMat);
+        mapNodeOm         = cvMat.clone();
         fContent += bytesRead;
     }
     timer.stop();
@@ -1002,7 +995,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 }
 
 bool WAIMapStorage::loadMap(WAIMap*           waiMap,
-                            SLNode*           mapNode,
+                            cv::Mat&          mapNodeOm,
                             WAIOrbVocabulary* voc,
                             std::string       path,
                             bool              loadImgs,
@@ -1029,14 +1022,9 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         return false;
     }
 
-    if (mapNode && !fs["mapNodeOm"].empty())
+    if (!fs["mapNodeOm"].empty())
     {
-        cv::Mat cvOm;
-        fs["mapNodeOm"] >> cvOm;
-        SLMat4f slOm = convertToSLMat(cvOm);
-        std::cout << "slOm: " << slOm.toString() << std::endl;
-
-        mapNode->om(slOm);
+        fs["mapNodeOm"] >> mapNodeOm;
     }
 
     cv::FileNode n = fs["KeyFrames"];

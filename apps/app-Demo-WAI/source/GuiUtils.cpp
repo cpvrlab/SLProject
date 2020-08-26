@@ -1,5 +1,5 @@
 #if defined(__clang__)
-#pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
+#    pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
 #endif
 
 #include "GuiUtils.h"
@@ -287,13 +287,13 @@ ImRect calcBoundingBox(const std::vector<ImVec2>& triPts, float r)
 std::vector<ImVec2> constructTrianglePts(const float angleDeg, const ImVec2& center, const float length, const float width)
 {
     std::vector<ImVec2> triangle(3);
-    triangle[0] = ImVec2(center);                                    //root (point center)
+    triangle[0] = ImVec2(center);                                     //root (point center)
     triangle[1] = ImVec2(center.x + length, center.y + 0.5f * width); //bottom right
     triangle[2] = ImVec2(center.x + length, center.y - 0.5f * width); //top right
     return rotatePts(triangle, angleDeg, triangle[0]);
 }
 
-bool PoseShapeButton(const char*   label,
+bool poseShapeButton(const char*   label,
                      const ImVec2& sizeArg,
                      const float   circleRadius,
                      const float   viewTriangleLength,
@@ -352,5 +352,49 @@ bool PoseShapeButton(const char*   label,
     }
 
     return pressed;
+}
+
+void waitingSpinner(const char*   label,
+                    const ImVec2& pos,
+                    const float   indicatorRadius,
+                    const ImVec4& mainColor,
+                    const ImVec4& backdropColor,
+                    const int     circleCount,
+                    const float   speed)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+    {
+        return;
+    }
+
+    ImGuiContext&     g     = *GImGui;
+    const ImGuiID     id    = window->GetID(label);
+    const ImGuiStyle& style = g.Style;
+
+    const float  circle_radius = indicatorRadius / 10.0f;
+    const ImRect bb(pos, ImVec2(pos.x + indicatorRadius * 2.0f, pos.y + indicatorRadius * 2.0f));
+    ImGui::ItemSize(bb, style.FramePadding.y);
+    if (!ImGui::ItemAdd(bb, id))
+    {
+        return;
+    }
+    const float t             = g.Time;
+    const auto  degree_offset = 2.0f * IM_PI / circleCount;
+    for (int i = 0; i < circleCount; ++i)
+    {
+        const float x      = indicatorRadius * std::sin(degree_offset * i);
+        const float y      = indicatorRadius * std::cos(degree_offset * i);
+        const float growth = std::max(0.0f, std::sin(t * speed - i * degree_offset));
+        ImVec4      color;
+        color.x = mainColor.x * growth + backdropColor.x * (1.0f - growth);
+        color.y = mainColor.y * growth + backdropColor.y * (1.0f - growth);
+        color.z = mainColor.z * growth + backdropColor.z * (1.0f - growth);
+        color.w = mainColor.w * growth + backdropColor.w * (1.0f - growth);
+        window->DrawList->AddCircleFilled(ImVec2(pos.x + indicatorRadius + x,
+                                                 pos.y + indicatorRadius - y),
+                                          circle_radius + growth * circle_radius,
+                                          ImGui::GetColorU32(color));
+    }
 }
 };
