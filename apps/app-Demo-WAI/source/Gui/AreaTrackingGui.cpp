@@ -27,6 +27,7 @@ AreaTrackingGui::~AreaTrackingGui()
 void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
+    _opacityController.reset();
 }
 
 void AreaTrackingGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -50,30 +51,65 @@ void AreaTrackingGui::resize(int scrW, int scrH)
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
+void AreaTrackingGui::mouseDown(bool doNotDispatch)
+{
+    if (!doNotDispatch)
+        _opacityController.mouseDown();
+}
+
+void AreaTrackingGui::mouseMove()
+{
+    //_opacityController.reset();
+}
+
+//void AreaTrackingGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
+//{
+//    ImGuiWrapper::onMouseDown(button, x, y);
+//    if (!doNotDispatchMouse()) //not working, as the imgui in spread over the whole screen. We would have to make small windows
+//        _opacityController.onMouseDown();
+//}
+//
+//void AreaTrackingGui::onMouseMove(SLint xPos, SLint yPos)
+//{
+//    ImGuiWrapper::onMouseMove(xPos, yPos);
+//    _opacityController.reset();
+//}
+
 void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
 {
+    _opacityController.update();
+    float         opacity            = _opacityController.opacity();
+    const ImVec4& cHB                = _resources.style().headerBarTextColor;
+    ImVec4        sliderGrabCol      = {cHB.x, cHB.y, cHB.z, cHB.w * opacity};
+    const ImVec4& cFB                = _resources.style().frameBgColor;
+    ImVec4        frameBgColor       = {cFB.x, cFB.y, cFB.z, cFB.w * opacity};
+    const ImVec4& cFBA               = _resources.style().frameBgActiveColor;
+    ImVec4        frameBgActiveColor = {cFBA.x, cFBA.y, cFBA.z, cFBA.w * opacity};
+
     //header bar
     float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
 
-    ErlebAR::renderHeaderBar("AreaTrackingGui",
-                             _screenW,
-                             _headerBarH,
-                             _resources.style().headerBarBackgroundTranspColor,
-                             _resources.style().headerBarTextColor,
-                             _resources.style().headerBarBackButtonTranspColor,
-                             _resources.style().headerBarBackButtonPressedTranspColor,
-                             _resources.fonts().headerBar,
-                             _buttonRounding,
-                             buttonSize,
-                             _resources.textures.texIdBackArrow,
-                             _spacingBackButtonToText,
-                             _area.name.c_str(),
-                             [&]() { sendEvent(new GoBackEvent("AreaTrackingGui")); });
+    ErlebAR::renderHeaderBar(
+      "AreaTrackingGui",
+      _screenW,
+      _headerBarH,
+      _resources.style().headerBarBackgroundTranspColor,
+      _resources.style().headerBarTextColor,
+      _resources.style().headerBarBackButtonTranspColor,
+      _resources.style().headerBarBackButtonPressedTranspColor,
+      _resources.fonts().headerBar,
+      _buttonRounding,
+      buttonSize,
+      _resources.textures.texIdBackArrow,
+      _spacingBackButtonToText,
+      _area.name.c_str(),
+      [&]() { sendEvent(new GoBackEvent("AreaTrackingGui")); },
+      opacity);
 
     //content
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenW / 2.f, _contentH), ImGuiCond_Always);
         ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
@@ -92,78 +128,83 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
 
-        ImGui::Begin("AreaTrackingGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AreaTrackingGui_content_child", ImVec2(0, 0), false, childWindowFlags);
-
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, _resources.style().frameBgColor);
-        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, _resources.style().frameBgColor);
-        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, _resources.style().frameBgActiveColor);
-        ImGui::PushStyleColor(ImGuiCol_SliderGrab, _resources.style().headerBarTextColor);
-        ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, _resources.style().headerBarTextColor);
-        ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
-        ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
-        if (ImGui::VSliderFloat("##AreaTrackingGui_verticalSlider", ImVec2(buttonSize, _contentH * 0.7f), &_sliderValue, 0.0f, 1.0f, ""))
+        //slider
         {
-            if (_transparencyChangedCB)
-                _transparencyChangedCB(_sliderValue);
-        }
+            ImGui::Begin("AreaTrackingGui_content", nullptr, windowFlags);
+            ImGui::BeginChild("AreaTrackingGui_content_child", ImVec2(0, 0), false, childWindowFlags);
 
-        if (_isLoading)
-        {
-            const float spinnerRadius = _headerBarH;
-            ImVec2      spinnerPos    = {(0.5f * _screenW) - spinnerRadius, (0.5f * _screenH) - spinnerRadius};
-            //ImGui::SetCursorPos(spinnerPos);
-            ErlebAR::waitingSpinner("spinnerLocationMapGui",
-                                    spinnerPos,
-                                    spinnerRadius,
-                                    _resources.style().waitingSpinnerMainColor,
-                                    _resources.style().waitingSpinnerBackDropColor,
-                                    13,
-                                    10.f);
-        }
-
-        ImGui::PopStyleColor(5);
-        ImGui::PopStyleVar(2);
-
-        ImGui::EndChild();
-        ImGui::End();
-
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(7);
-
-        if (!_errorMsg.empty())
-        {
-            // Calculate window position for dynamic status bar at the bottom of the main window
-            ImGuiWindowFlags window_flags = 0;
-            window_flags |= ImGuiWindowFlags_NoTitleBar;
-            window_flags |= ImGuiWindowFlags_NoResize;
-            float w = (float)_screenW - 10;
-
-            ImFont* font = _resources.fonts().tiny;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::PushFont(font);
-
-            ImVec2 size = ImGui::CalcTextSize(_errorMsg.c_str(), nullptr, true, w);
-            float  btnH = _screenH * 0.2;
-            float  h    = size.y + ImGui::GetStyle().WindowPadding.y * 2.f + ImGui::GetStyle().ItemSpacing.y + btnH;
-
-            ImGui::SetNextWindowPos(ImVec2(5, (_screenH * 0.5f) - (h * 0.5f)));
-            ImGui::SetNextWindowSize(ImVec2(w, h));
-
-            ImGui::Begin("Error", nullptr, window_flags);
-
-            ImGui::TextWrapped("%s", _errorMsg.c_str());
-
-            if (ImGui::Button("Okay##AreaTrackingGui", ImVec2(w * 0.2, btnH)))
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, frameBgColor);
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, frameBgColor);
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, frameBgActiveColor);
+            ImGui::PushStyleColor(ImGuiCol_SliderGrab, sliderGrabCol);
+            ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, sliderGrabCol);
+            ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, buttonSize);
+            ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, _buttonRounding);
+            if (ImGui::VSliderFloat("##AreaTrackingGui_verticalSlider", ImVec2(buttonSize, _contentH * 0.7f), &_sliderValue, 0.0f, 1.0f, ""))
             {
-                _errorMsg.clear();
+                if (_transparencyChangedCB)
+                    _transparencyChangedCB(_sliderValue);
             }
+
+            if (_isLoading)
+            {
+                const float spinnerRadius = _headerBarH;
+                ImVec2      spinnerPos    = {(0.5f * _screenW) - spinnerRadius, (0.5f * _screenH) - spinnerRadius};
+                //ImGui::SetCursorPos(spinnerPos);
+                ErlebAR::waitingSpinner("spinnerLocationMapGui",
+                                        spinnerPos,
+                                        spinnerRadius,
+                                        _resources.style().waitingSpinnerMainColor,
+                                        _resources.style().waitingSpinnerBackDropColor,
+                                        13,
+                                        10.f);
+            }
+
+            ImGui::PopStyleColor(5);
+            ImGui::PopStyleVar(2);
+
+            ImGui::EndChild();
 
             ImGui::End();
 
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
+            ImGui::PopStyleColor(1);
+            ImGui::PopStyleVar(7);
         }
+    }
+
+    //error message
+    if (!_errorMsg.empty())
+    {
+        // Calculate window position for dynamic status bar at the bottom of the main window
+        ImGuiWindowFlags window_flags = 0;
+        window_flags |= ImGuiWindowFlags_NoTitleBar;
+        window_flags |= ImGuiWindowFlags_NoResize;
+        float w = (float)_screenW - 10;
+
+        ImFont* font = _resources.fonts().tiny;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+        ImGui::PushFont(font);
+
+        ImVec2 size = ImGui::CalcTextSize(_errorMsg.c_str(), nullptr, true, w);
+        float  btnH = _screenH * 0.2;
+        float  h    = size.y + ImGui::GetStyle().WindowPadding.y * 2.f + ImGui::GetStyle().ItemSpacing.y + btnH;
+
+        ImGui::SetNextWindowPos(ImVec2(5, (_screenH * 0.5f) - (h * 0.5f)));
+        ImGui::SetNextWindowSize(ImVec2(w, h));
+
+        ImGui::Begin("Error", nullptr, window_flags);
+
+        ImGui::TextWrapped("%s", _errorMsg.c_str());
+
+        if (ImGui::Button("Okay##AreaTrackingGui", ImVec2(w * 0.2, btnH)))
+        {
+            _errorMsg.clear();
+        }
+
+        ImGui::End();
+
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
     }
 
     //ImGui::ShowMetricsWindow();

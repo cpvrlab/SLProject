@@ -130,6 +130,27 @@ bool AreaTrackingView::update()
     return onPaint();
 }
 
+SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+{
+    SLbool dontDispatch = SLSceneView::onMouseDown(button, scrX, scrY, mod);
+    _gui.mouseDown(dontDispatch);
+    return dontDispatch;
+}
+
+//SLbool AreaTrackingView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+//{
+//    SLbool dontDispatch = SLSceneView::onMouseUp(button, scrX, scrY, mod);
+//
+//    return dontDispatch;
+//}
+
+SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
+{
+    SLbool dontDispatch = SLSceneView::onMouseMove(x, y);
+    _gui.mouseMove();
+    return dontDispatch;
+}
+
 void AreaTrackingView::updateSceneCameraFov()
 {
     //if the camera image height is smaller than the sceneview height,
