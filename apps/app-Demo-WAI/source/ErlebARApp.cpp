@@ -17,6 +17,8 @@
 
 #include <SLGLProgramManager.h>
 
+#include <Instrumentor.h>
+
 #define LOG_ERLEBAR_WARN(...) Utils::log("ErlebARApp", __VA_ARGS__);
 #define LOG_ERLEBAR_INFO(...) Utils::log("ErlebARApp", __VA_ARGS__);
 #define LOG_ERLEBAR_DEBUG(...) Utils::log("ErlebARApp", __VA_ARGS__);
@@ -153,6 +155,8 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     SLGLProgramManager::init(_dd->shaderDir());
     _resources   = new ErlebAR::Resources(*_dd);
     _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _resources->fonts().atlas());
+
+    BEGIN_PROFILING_SESSION("WAI-Profile", true, _dd->writableDir() + "Profiling-Results.json");
 
     //instantiation of views
     _welcomeView = new WelcomeView(_inputManager,
@@ -366,6 +370,8 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
         LOG_ERLEBAR_DEBUG("Close Callback!");
         _closeCB();
     }
+
+    END_PROFILING_SESSION;
 
     addEvent(new DoneEvent("ErlebARApp::DESTROY"));
 }

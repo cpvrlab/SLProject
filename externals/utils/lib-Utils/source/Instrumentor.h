@@ -24,9 +24,13 @@
 
 //-----------------------------------------------------------------------------
 #if PROFILING
+#    define BEGIN_PROFILING_SESSION(name, storeInMemory, outputPath) Instrumentor::get().beginSession(name, storeInMemory, outputPath)
+#    define END_PROFILING_SESSION Instrumentor::get().endSession()
 #    define PROFILE_SCOPE(name) InstrumentationTimer timer##__LINE__(name)
 #    define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
 #else
+#    define BEGIN_PROFILING_SESSION(name, storeInMemory, outputPath)
+#    define END_PROFILING_SESSION
 #    define PROFILE_SCOPE(name)
 #    define PROFILE_FUNCTION()
 #endif
