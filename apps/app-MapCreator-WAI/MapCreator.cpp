@@ -220,11 +220,10 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
 
     WAIKeyFrameDB* kfDB          = new WAIKeyFrameDB(_voc);
     WAIMap*        map           = new WAIMap(kfDB);
-    SLNode         mapNode       = SLNode();
     cv::Mat        nodeTransform = cv::Mat::eye(4, 4, CV_32F);
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
-                                                    &mapNode,
+                                                    nodeTransform,
                                                     _voc,
                                                     mapDir + "/" + mapFile,
                                                     false,
@@ -403,13 +402,14 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
         std::unique_ptr<WAIMap> map = nullptr;
 
         //if we have an active map from one of the previously processed videos for this area then load it
-        SLNode mapNode = SLNode();
+        SLNode  mapNode       = SLNode();
+        cv::Mat nodeTransform = cv::Mat::eye(4, 4, CV_32F);
         if (initialized)
         {
             WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
             map                    = std::make_unique<WAIMap>(kfdb);
             bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                            &mapNode,
+                                                            nodeTransform,
                                                             _voc,
                                                             lastMapFileName,
                                                             false,
@@ -575,13 +575,14 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
     std::unique_ptr<WAIMap> map  = std::make_unique<WAIMap>(kfdb);
 
     //load the map (currentMapFileName is valid if initialized is true)
-    SLNode mapNode = SLNode();
+    SLNode  mapNode       = SLNode();
+    cv::Mat nodeTransform = cv::Mat::eye(4, 4, CV_32F);
 
     FeatureExtractorFactory      factory;
     std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, calib.imageSize(), nLevels);
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                    &mapNode,
+                                                    nodeTransform,
                                                     _voc,
                                                     inputMapFile,
                                                     false,

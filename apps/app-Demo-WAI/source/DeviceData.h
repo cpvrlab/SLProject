@@ -20,8 +20,8 @@ public:
         //SLProject
         _shaderDir     = _dataDir + "shaders/";
         _vocabularyDir = _dataDir + "calibrations/";
-        _fontDir       = _dataDir + "images/fonts/";
         //Erleb-AR productive
+        _fontDir    = _dataDir + "erleb-AR/images/fonts/";
         _erlebARDir = _dataDir + "erleb-AR/";
         _textureDir = _dataDir + "erleb-AR/images/textures/";
         _stringsDir = _dataDir + "erleb-AR/strings/";

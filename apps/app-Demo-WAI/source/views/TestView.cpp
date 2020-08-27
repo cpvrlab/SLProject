@@ -5,8 +5,10 @@
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
+#include <ZipUtils.h>
 #include <WAIAutoCalibration.h>
 #include <sens/SENSUtils.h>
+#include <AverageTiming.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
@@ -284,6 +286,8 @@ void TestView::handleEvents()
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile, false, editMap->b);
                 else if (editMap->action == MapPointEditor_SaveMapRaw && _mapEdition)
                     saveMap(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
+                else if (editMap->action == MapPointEditor_SaveMapBinary && _mapEdition)
+                    saveMapBinary(_currentSlamParams.location, _currentSlamParams.area, _currentSlamParams.markerFile);
                 else if (editMap->action == MapPointEditor_LoadMatching && _mapEdition)
                     _mapEdition->updateKFVidMatching(editMap->kFVidMatching);
                 else if (editMap->action == MapPointEditor_SelectSingleVideo && _mapEdition)
@@ -341,6 +345,66 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     doWaitOnIdle(false);
     camera(_scene.cameraNode);
     onInitialize();
+}
+
+void TestView::saveMapBinary(std::string location,
+                             std::string area,
+                             std::string marker)
+{
+    _mode->requestStateIdle();
+
+    std::string slamRootDir = _configDir + "erleb-AR/locations/";
+    std::string mapDir      = constructSlamMapDir(slamRootDir, location, area);
+    if (!Utils::dirExists(mapDir))
+        Utils::makeDir(mapDir);
+
+    std::string filename = constructBinarySlamMapFileName(location, area, _mode->getKPextractor()->GetName(), _mode->getKPextractor()->GetLevels());
+    std::string imgDir   = constructSlamMapImgDir(mapDir, filename);
+
+    if (_mode->retainImage())
+    {
+        if (!Utils::dirExists(imgDir))
+            Utils::makeDir(imgDir);
+    }
+
+    if (!marker.empty())
+    {
+        _voc->loadFromFile(_currentSlamParams.vocabularyFile);
+
+        cv::Mat nodeTransform;
+        if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
+                                                    nodeTransform,
+                                                    0.75f,
+                                                    _mode->getKPextractor(),
+                                                    _mode->getMap(),
+                                                    _calibration->cameraMat(),
+                                                    _voc))
+        {
+            _gui.showErrorMsg("Failed to do marker map preprocessing");
+        }
+        else
+        {
+            if (!WAIMapStorage::saveMapBinary(_mode->getMap(),
+                                              _scene.mapNode,
+                                              mapDir + filename,
+                                              imgDir))
+            {
+                _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+            }
+        }
+    }
+    else
+    {
+        if (!WAIMapStorage::saveMapBinary(_mode->getMap(),
+                                          _scene.mapNode,
+                                          mapDir + filename,
+                                          imgDir))
+        {
+            _gui.showErrorMsg("Failed to save map " + mapDir + filename);
+        }
+    }
+
+    _mode->resume();
 }
 
 void TestView::saveMap(std::string location,
@@ -561,7 +625,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 {
     _gui.clearErrorMsg();
     if (_videoFileStream)
-        _videoFileStream.release();
+        _videoFileStream.reset();
 
     bool useVideoFile             = !slamParams.videoFile.empty();
     bool detectCalibAutomatically = slamParams.calibrationFile.empty();
@@ -712,14 +776,45 @@ void TestView::startOrbSlam(SlamParams slamParams)
     // 5. Load map data
     if (useMapFile)
     {
-        WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
-        map                    = std::make_unique<WAIMap>(kfdb);
-        bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                        _scene.mapNode,
-                                                        _voc,
-                                                        slamParams.mapFile,
-                                                        false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
-                                                        slamParams.params.fixOldKfs);
+        WAIKeyFrameDB* kfdb = new WAIKeyFrameDB(_voc);
+        map                 = std::make_unique<WAIMap>(kfdb);
+
+        bool    mapLoadingSuccess = false;
+        cv::Mat mapNodeOm;
+        if (Utils::containsString(slamParams.mapFile, ".waimap"))
+        {
+            HighResTimer timer;
+            timer.start();
+            std::string mapFile = slamParams.mapFile;
+            mapLoadingSuccess   = WAIMapStorage::loadMapBinary(map.get(),
+                                                             mapNodeOm,
+                                                             _voc,
+                                                             mapFile,
+                                                             false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
+                                                             slamParams.params.fixOldKfs);
+            timer.stop();
+            Utils::log("WAI::MapLoading", "loadMapBinary time: %f ms", timer.elapsedTimeInMilliSec());
+        }
+        else
+        {
+            HighResTimer timer;
+            timer.start();
+            mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
+                                                       mapNodeOm,
+                                                       _voc,
+                                                       slamParams.mapFile,
+                                                       false, //TODO(lulu) add this param to slamParams _mode->retainImage(),
+                                                       slamParams.params.fixOldKfs);
+            timer.stop();
+            Utils::log("WAI::MapLoading", "loadMap time: %f ms", timer.elapsedTimeInMilliSec());
+        }
+
+        if (!mapNodeOm.empty())
+        {
+            SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+            //std::cout << "slOm: " << slOm.toString() << std::endl;
+            _scene.mapNode->om(slOm);
+        }
 
         _autoCal = new AutoCalibration(_videoFrameSize, map->GetSize());
 

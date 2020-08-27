@@ -123,6 +123,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->setDrawBitsRec(SL_DB_HIDDEN, true);
     _root3D->addChild(light);
 
+    HighResTimer t;
     if (location == "avenches")
     {
         std::string modelPath;
@@ -162,7 +163,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             loadMesh(modelPath);
         }
     }
-    else if (location == "augst")
+    else if (location == "Augst")
     {
         std::string      modelPath = _erlebARDir + "models/augst/Tempel-Theater-02.gltf";
         SLAssimpImporter importer;
@@ -179,7 +180,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden", true));
         hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden-zw-Tht-Tmp", true));
     }
-    else if (location == "Bern")
+    else if (location == "Bern" || location == "bern")
     {
 #if 1
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
@@ -227,7 +228,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
 #endif
     }
-    else if (location == "Biel")
+    else if (location == "Biel" || location == "biel")
     {
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
         Utils::log("AppWAIScene", "loading model from path: %s", modelPath.c_str());
@@ -307,6 +308,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(boxNode3);
     _root3D->addChild(boxNode4);
 #endif
+    Utils::log("LoadingTime", "model loading time: %f ms", t.elapsedTimeInMilliSec());
 
     //boxNode->addChild(axisNode);
 

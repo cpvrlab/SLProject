@@ -23,39 +23,42 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH)
     //    context = ImGui::CreateContext();
 
     //ImFontAtlas* atlas = context->IO.Fonts;
-    std::string ttf = fontDir + "Roboto-Medium.ttf";
-    if (Utils::fileExists(ttf))
+    std::string unitRounded      = fontDir + "UnitRoundedPro.otf";
+    std::string unitRoundedMedi  = fontDir + "UnitRoundedPro-Medi.otf";
+    std::string unitRoundedLight = fontDir + "UnitRoundedPro-Light.otf";
+    if (Utils::fileExists(unitRounded) && ::fileExists(unitRoundedMedi))
     {
         //header bar font
         float headerBarH     = style.headerBarPercH * screenH;
         float headerBarTextH = style.headerBarTextH * headerBarH;
-        headerBar            = _atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
+        headerBar            = _atlas->AddFontFromFileTTF(unitRoundedMedi.c_str(), headerBarTextH);
+        //headerBar            = _atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
         //standard font
         float standardTextH = style.textStandardH * (float)screenH;
-        standard            = _atlas->AddFontFromFileTTF(ttf.c_str(), standardTextH);
+        standard            = _atlas->AddFontFromFileTTF(unitRoundedLight.c_str(), standardTextH);
         //heading font
         float headingTextH = style.textHeadingH * (float)screenH;
-        heading            = _atlas->AddFontFromFileTTF(ttf.c_str(), headingTextH);
+        heading            = _atlas->AddFontFromFileTTF(unitRoundedMedi.c_str(), headingTextH);
         //tiny font
         float tinyTextH = 0.035f * (float)screenH;
-        tiny            = _atlas->AddFontFromFileTTF(ttf.c_str(), tinyTextH);
+        tiny            = _atlas->AddFontFromFileTTF(unitRoundedLight.c_str(), tinyTextH);
         //big font
         float bigTextHPix      = 0.3f * (float)screenH;
         float scale            = 2.0f;
         float bigTextHPixAlloc = bigTextHPix / scale;
         float bigTextH         = 0.035f * (float)screenH;
-        big                    = _atlas->AddFontFromFileTTF(ttf.c_str(), bigTextHPixAlloc);
+        big                    = _atlas->AddFontFromFileTTF(unitRounded.c_str(), bigTextHPixAlloc);
         big->Scale             = scale;
         //selection buttons
         int   nButVert  = 6;
-        int   buttonH   = (int)((0.6f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert);
+        int   buttonH   = (int)((0.7f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert);
         float selectBtn = buttonH * style.buttonTextH;
-        selectBtns      = _atlas->AddFontFromFileTTF(ttf.c_str(), selectBtn);
+        selectBtns      = _atlas->AddFontFromFileTTF(unitRoundedMedi.c_str(), selectBtn);
     }
     else
     {
         std ::stringstream ss;
-        ss << "Font does not exist: " << ttf;
+        ss << "Fonts do not exist: " << unitRounded << ", " << unitRoundedMedi;
         Utils::exitMsg("Resources", ss.str().c_str(), __LINE__, __FILE__);
     }
 }

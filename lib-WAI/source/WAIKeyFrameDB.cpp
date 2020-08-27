@@ -41,7 +41,7 @@ void WAIKeyFrameDB::add(WAIKeyFrame* pKF)
     std::unique_lock<std::mutex> lock(mMutex);
     if (pKF->mBowVec.data.empty())
     {
-        std::cout <<"kf data empty" << std::endl;
+        std::cout << "kf data empty" << std::endl;
         return;
     }
     for (auto vit = pKF->mBowVec.getWordScoreMapping().begin(), vend = pKF->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
@@ -152,12 +152,12 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
     }
 
     std::list<std::pair<float, WAIKeyFrame*>> lAccScoreAndMatch;
-    float                           bestAccScore = minScore;
+    float                                     bestAccScore = minScore;
 
     // Lets now accumulate score by covisibility
     for (std::list<std::pair<float, WAIKeyFrame*>>::iterator it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++)
     {
-        WAIKeyFrame*         pKFi     = it->second;
+        WAIKeyFrame*              pKFi     = it->second;
         std::vector<WAIKeyFrame*> vpNeighs = pKFi->GetBestCovisibilityKeyFrames(10);
 
         float        bestScore = it->first;
@@ -216,6 +216,13 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
 
         for (auto vit = F->mBowVec.getWordScoreMapping().begin(), vend = F->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
         {
+            if (vit->first > mvInvertedFile.size())
+            {
+                std::stringstream ss;
+                ss << "WAIKeyFrameDB::DetectRelocalizationCandidates: word index bigger than inverted file. word: " << vit->first << " val: " << vit->second;
+                throw std::runtime_error(ss.str());
+            }
+
             std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
 
             for (std::list<WAIKeyFrame*>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++)
@@ -268,7 +275,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
         /*We group those keyframes that are connected in the covisibility graph and caluculate an accumulated score.
             We return all keyframe matches whose scores are higher than the 75 % of the best score.*/
         std::list<std::pair<float, WAIKeyFrame*>> lScoreAndMatch;
-        int                             nscores = 0;
+        int                                       nscores = 0;
 
         // Compute similarity score.
         for (std::list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
@@ -294,7 +301,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
         // Lets now accumulate score by covisibility
         for (std::list<std::pair<float, WAIKeyFrame*>>::iterator it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++)
         {
-            WAIKeyFrame*         pKFi     = it->second;
+            WAIKeyFrame*              pKFi     = it->second;
             std::vector<WAIKeyFrame*> vpNeighs = pKFi->GetBestCovisibilityKeyFrames(10);
 
             float        bestScore = it->first;

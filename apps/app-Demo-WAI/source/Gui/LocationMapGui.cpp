@@ -162,7 +162,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
             ImGui::SetCursorPosY(y * (float)_locTextureH * (float)_screenH / (float)(_dspPixHeight)-_headerBarH);
 
             //ImGui::PushID(i);
-            if (ErlebAR::PoseShapeButton(area.name.c_str(),
+            if (ErlebAR::poseShapeButton(area.name.c_str(),
                                          ImVec2(buttonSize, buttonSize),
                                          circleRadius,
                                          triangleLength,
