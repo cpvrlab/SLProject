@@ -1,4 +1,5 @@
 #include <WAIMapStorage.h>
+#include <Instrumentor.h>
 
 cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {
@@ -446,6 +447,8 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         kfInfo.maxX = kf->mnMaxX;
         kfInfo.maxY = kf->mnMaxY;
 
+        kfInfo.kpCount = kf->mvKeysUn.size();
+
         if (kf->mnId != 0) //kf with id 0 has no parent
             kfInfo.parentId = (int32_t)kf->GetParent()->mnId;
         else
@@ -465,23 +468,6 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
 
         // TODO(dgj1): decide what to do with KFmatching
 
-        std::vector<KeyPointData> keyPoints;
-        for (cv::KeyPoint kp : kf->mvKeysUn)
-        {
-            KeyPointData kpData;
-            kpData.x        = kp.pt.x;
-            kpData.y        = kp.pt.y;
-            kpData.size     = kp.size;
-            kpData.angle    = kp.angle;
-            kpData.response = kp.response;
-            kpData.octave   = kp.octave;
-            kpData.classId  = kp.class_id;
-
-            keyPoints.push_back(kpData);
-        }
-
-        kfInfo.kpCount = keyPoints.size();
-
         // TODO(dgj1): decide what to do with saveBow
 
         fwrite(&kfInfo, sizeof(KeyFrameInfo), 1, f);
@@ -489,7 +475,7 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         writeCVMatToBinaryFile(f, kf->GetPose());
         fwrite(loopEdgeIds.data(), sizeof(int32_t), loopEdgeIds.size(), f);
         writeCVMatToBinaryFile(f, kf->mDescriptors);
-        fwrite(keyPoints.data(), sizeof(KeyPointData), keyPoints.size(), f);
+        fwrite(kf->mvKeysUn.data(), sizeof(cv::KeyPoint), kf->mvKeysUn.size(), f);
 
         //save the original frame image for this keyframe
         if (imgDir != "")
@@ -569,6 +555,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                                   bool              loadImgs,
                                   bool              fixKfsAndMPts)
 {
+    PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary");
+
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
     std::map<int, int>              parentIdMap;
@@ -602,8 +590,6 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
     fclose(f);
 
-    HighResTimer timer;
-    timer.start();
     MapInfo* mapInfo = (MapInfo*)fContent;
     fContent += sizeof(MapInfo);
 
@@ -615,12 +601,11 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         mapNodeOm         = cvMat.clone();
         fContent += bytesRead;
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "header time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     for (int i = 0; i < mapInfo->kfCount; i++)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::keyFrames");
+
         KeyFrameInfo* kfInfo = (KeyFrameInfo*)fContent;
         fContent += sizeof(KeyFrameInfo);
 
@@ -640,13 +625,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
         if (kfInfo->loopEdgesCount > 0)
         {
-            std::vector<int> loopEdges;
-            for (int j = 0; j < kfInfo->loopEdgesCount; j++)
-            {
-                int32_t loopEdgeId = ((int32_t)*fContent);
-                loopEdges.push_back(loopEdgeId);
-                fContent += sizeof(int32_t);
-            }
+            int      loopEdgeVectorSize = sizeof(int32_t) * kfInfo->loopEdgesCount;
+            int32_t* loopEdgeData       = (int32_t*)malloc(loopEdgeVectorSize);
+            memcpy(loopEdgeData, fContent, loopEdgeVectorSize);
+            std::vector<int32_t> loopEdges(loopEdgeData, loopEdgeData + kfInfo->loopEdgesCount);
 
             loopEdgesMap[id] = loopEdges;
         }
@@ -655,21 +637,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         bytesRead = loadCVMatFromBinaryStream(fContent, featureDescriptors);
         fContent += bytesRead;
 
-        std::vector<cv::KeyPoint> keyPtsUndist;
-        for (int j = 0; j < kfInfo->kpCount; j++)
-        {
-            KeyPointData* kpData = (KeyPointData*)fContent;
-            cv::KeyPoint  kp     = cv::KeyPoint(kpData->x,
-                                           kpData->y,
-                                           kpData->size,
-                                           kpData->angle,
-                                           kpData->response,
-                                           kpData->octave,
-                                           kpData->classId);
-            keyPtsUndist.push_back(kp);
-
-            fContent += sizeof(KeyPointData);
-        }
+        cv::KeyPoint* keyPointsData = (cv::KeyPoint*)malloc(sizeof(cv::KeyPoint) * kfInfo->kpCount);
+        memcpy(keyPointsData, fContent, sizeof(cv::KeyPoint) * kfInfo->kpCount);
+        std::vector<cv::KeyPoint> keyPtsUndist(keyPointsData, keyPointsData + kfInfo->kpCount);
+        fContent += sizeof(cv::KeyPoint) * kfInfo->kpCount;
 
         float scaleFactor  = kfInfo->scaleFactor;
         int   nScaleLevels = kfInfo->scaleLevels;
@@ -749,10 +720,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         keyFrames.push_back(newKf);
         kfsMap[newKf->mnId] = newKf;
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "keyframe time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     //set parent keyframe pointers into keyframes
     for (WAIKeyFrame* kf : keyFrames)
     {
@@ -772,10 +740,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                 cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
         }
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "keyframe parents time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     int numberOfLoopClosings = 0;
     //set loop edge pointer into keyframes
     for (WAIKeyFrame* kf : keyFrames)
@@ -798,12 +763,11 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         }
     }
     numLoopClosings = numberOfLoopClosings / 2;
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "loopClosing time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     for (int i = 0; i < mapInfo->mpCount; i++)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::mapPoints");
+
         MapPointInfo* mpInfo = (MapPointInfo*)fContent;
         fContent += sizeof(MapPointInfo);
 
@@ -875,10 +839,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             delete newPt;
         }
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "mapPoint time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     //update the covisibility graph, when all keyframes and mappoints are loaded
     WAIKeyFrame* firstKF           = nullptr;
     bool         buildSpanningTree = false;
@@ -895,12 +856,9 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             buildSpanningTree = true;
         }
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "update graph time: %f ms", timer.elapsedTimeInMilliSec());
 
     wai_assert(firstKF && "Could not find keyframe with id 0\n");
 
-    timer.start();
     // Build spanning tree if keyframes have no parents (legacy support)
     if (buildSpanningTree)
     {
@@ -945,10 +903,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             graph.insert(newGraphKf);
         }
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "spanning tree time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     //compute resulting values for map points
     for (WAIMapPoint*& mp : mapPoints)
     {
@@ -956,10 +911,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         mp->UpdateNormalAndDepth();
         mp->ComputeDistinctiveDescriptors();
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "mappoint update time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     for (WAIKeyFrame* kf : keyFrames)
     {
         if (kf->mBowVec.data.empty())
@@ -976,16 +928,11 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             waiMap->mvpKeyFrameOrigins.push_back(kf);
         }
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "keyframe add time: %f ms", timer.elapsedTimeInMilliSec());
 
-    timer.start();
     for (WAIMapPoint* point : mapPoints)
     {
         waiMap->AddMapPoint(point);
     }
-    timer.stop();
-    Utils::log("WAI::WAIMapStorage::loadMapBinary", "mappoint add time: %f ms", timer.elapsedTimeInMilliSec());
 
     waiMap->setNumLoopClosings(numLoopClosings);
 

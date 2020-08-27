@@ -25,8 +25,8 @@ StartUpView::StartUpView(SLInputManager&   inputManager,
     sceneCamera->translation(0, 0, 5);
     sceneCamera->lookAt(0, 0, 0);
     sceneCamera->focalDist(5);
-    sceneCamera->background().colors(BFHColors::Orange,
-                                     BFHColors::Orange);
+    sceneCamera->background().colors(BFHColors::OrangeLogo,
+                                     BFHColors::OrangeLogo);
     sceneCamera->setInitialState();
 
     // Now create 2D text but don't scale it (all sizes in pixels)

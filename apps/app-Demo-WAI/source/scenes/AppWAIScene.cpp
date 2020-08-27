@@ -180,7 +180,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden", true));
         hideNode(augmentationRoot->findChild<SLNode>("Tht-Boden-zw-Tht-Tmp", true));
     }
-    else if (location == "Bern")
+    else if (location == "Bern" || location == "bern")
     {
 #if 1
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
@@ -228,7 +228,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
 #endif
     }
-    else if (location == "Biel")
+    else if (location == "Biel" || location == "biel")
     {
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
         Utils::log("AppWAIScene", "loading model from path: %s", modelPath.c_str());

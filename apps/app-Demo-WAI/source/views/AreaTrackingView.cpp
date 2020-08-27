@@ -293,6 +293,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
     this->camera(_scene.cameraNode);
+    _scene.cameraNode->clipNear(1.0f);
+    _scene.cameraNode->clipFar(2000.0f);
     updateSceneCameraFov();
 
     //initialize extractors

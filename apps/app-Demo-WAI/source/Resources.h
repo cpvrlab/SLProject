@@ -15,7 +15,7 @@ class Textures
 public:
     void load(std::string textureDir)
     {
-        texIdBackArrow = loadTexture(textureDir + "back1white.png", false, false, 1.f);
+        texIdBackArrow = loadTexture(textureDir + "back1orange.png", false, false, 1.f);
     }
     void free()
     {
@@ -32,29 +32,32 @@ public:
 class Style
 {
 public:
+    ImVec4 transparentColor = {0.f, 0.f, 0.f, 0.f};
+    ImVec4 whiteColor       = {1.f, 1.f, 1.f, 1.f};
     //header bar:
     // percental header bar height relative to screen height
-    float headerBarPercH = 0.1f;
+    float headerBarPercH = 0.125f;
     // percental header bar text height relative to header bar height
     float headerBarTextH = 0.8f;
     // percental header bar button height relative to header bar height
     float headerBarButtonH = 0.8f;
 
-    ImVec4 headerBarBackgroundColor       = {BFHColors::Gray2.r,
-                                       BFHColors::Gray2.g,
-                                       BFHColors::Gray2.b,
-                                       BFHColors::Gray2.a};
-    ImVec4 headerBarBackgroundTranspColor = {BFHColors::Gray2.r,
-                                             BFHColors::Gray2.g,
-                                             BFHColors::Gray2.b,
-                                             0.2f};
+    ImVec4 headerBarBackgroundColor       = {BFHColors::Gray1Backgr.r,
+                                       BFHColors::Gray1Backgr.g,
+                                       BFHColors::Gray1Backgr.b,
+                                       BFHColors::Gray1Backgr.a};
+    ImVec4 headerBarBackgroundTranspColor = {BFHColors::Gray1Backgr.r,
+                                             BFHColors::Gray1Backgr.g,
+                                             BFHColors::Gray1Backgr.b,
+                                             0.5f};
 
-    ImVec4 headerBarTextColor = {1.f, 1.f, 1.f, 1.f}; //white
-                                                      //selection gui button color
-    ImVec4 headerBarBackButtonColor       = {BFHColors::GrayDark.r,
-                                       BFHColors::GrayDark.g,
-                                       BFHColors::GrayDark.b,
-                                       0.0};
+    //ImVec4 headerBarTextColor = {1.f, 1.f, 1.f, 1.f}; //white
+    ImVec4 headerBarTextColor = {BFHColors::Orange2Text.r,
+                                 BFHColors::Orange2Text.g,
+                                 BFHColors::Orange2Text.b,
+                                 1.f};
+
+    ImVec4 headerBarBackButtonColor       = headerBarBackgroundColor;
     ImVec4 headerBarBackButtonTranspColor = {0.f, 0.f, 0.f, 0.f};
 
     //selection gui pressed button color
@@ -77,21 +80,34 @@ public:
     // percental button rounding relative to screen height
     float buttonRounding = 0.01f;
     //selection gui button color
-    ImVec4 buttonColorSelection = {BFHColors::Orange.r,
-                                   BFHColors::Orange.g,
-                                   BFHColors::Orange.b,
-                                   0.6f};
+    ImVec4 buttonColorSelection = {BFHColors::Gray1Backgr.r,
+                                   BFHColors::Gray1Backgr.g,
+                                   BFHColors::Gray1Backgr.b,
+                                   1.0f};
     //selection gui pressed button color
     ImVec4 buttonColorPressedSelection = {BFHColors::GrayLogo.r,
                                           BFHColors::GrayLogo.g,
                                           BFHColors::GrayLogo.b,
                                           0.3f};
 
+    ImVec4 buttonTextColorSelection = {BFHColors::Orange2Text.r,
+                                       BFHColors::Orange2Text.g,
+                                       BFHColors::Orange2Text.b,
+                                       1.f};
+
     //area pose button
-    ImVec4 areaPoseButtonShapeColor        = {1.f, 0.f, 0.f, 0.5f};
-    ImVec4 areaPoseButtonShapeColorPressed = {1.f, 1.f, 1.f, 1.f};
-    ImVec4 areaPoseButtonColor             = {1.f, 1.f, 1.f, 0.f};
-    ImVec4 areaPoseButtonColorPressed      = {1.f, 1.f, 1.f, 0.f};
+    ImVec4 areaPoseButtonShapeColor = {BFHColors::OrangeGraphic.r,
+                                       BFHColors::OrangeGraphic.g,
+                                       BFHColors::OrangeGraphic.b,
+                                       1.f};
+
+    ImVec4 areaPoseButtonShapeColorPressed = {BFHColors::Gray4Backgr.r,
+                                              BFHColors::Gray4Backgr.g,
+                                              BFHColors::Gray4Backgr.b,
+                                              1.f};
+    //the background of the button
+    ImVec4 areaPoseButtonColor        = {1.f, 1.f, 1.f, 0.f};
+    ImVec4 areaPoseButtonColorPressed = {1.f, 1.f, 1.f, 0.f};
     //percental view triangle width relative to screen heigth
     float areaPoseButtonViewTriangleWidth = 0.1f;
     //percental view triangle length relative to view triangle width
@@ -108,15 +124,14 @@ public:
                                 BFHColors::GrayDark.g,
                                 BFHColors::GrayDark.b,
                                 1.0};
-    ImVec4 textHeadingColor  = {1.f, 1.f, 1.f, 1.f};
 
-    ImVec4 backgroundColorPrimary = {BFHColors::Orange.r,
-                                     BFHColors::Orange.g,
-                                     BFHColors::Orange.b,
-                                     BFHColors::Orange.a};
+    ImVec4 textHeadingColor = headerBarTextColor;
 
-    ImVec4 transparentColor = {0.f, 0.f, 0.f, 0.f};
-    ImVec4 whiteColor       = {1.f, 1.f, 1.f, 1.f};
+    ImVec4 backgroundColorPrimary = {BFHColors::Gray5Backgr.r,
+                                     BFHColors::Gray5Backgr.g,
+                                     BFHColors::Gray5Backgr.b,
+                                     BFHColors::Gray5Backgr.a};
+
     // percental window padding for content (e.g. about and settings) rel. to screen height
     float windowPaddingContent = 0.03f;
     // percental frame padding for content (e.g. about and settings) rel. to screen height
@@ -124,7 +139,7 @@ public:
     // percental item spacing for content (e.g. about and settings) rel. to screen height
     float itemSpacingContent = 0.03f;
     //waiting spinner color
-    ImVec4 waitingSpinnerMainColor     = {1.f, 1.f, 1.f, 1.f};
+    ImVec4 waitingSpinnerMainColor     = whiteColor;
     ImVec4 waitingSpinnerBackDropColor = headerBarBackgroundTranspColor;
 };
 
@@ -252,7 +267,7 @@ public:
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
 
-    bool developerMode = false;
+    bool developerMode = true;
 
     StringsEnglish stringsEnglish;
     StringsGerman  stringsGerman;

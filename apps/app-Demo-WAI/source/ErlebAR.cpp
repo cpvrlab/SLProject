@@ -229,7 +229,7 @@ const Location defineLocationBiel()
         area.xPosPix                 = 322;
         area.yPosPix                 = 238;
         area.viewAngleDeg            = 20.f;
-        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200813-171657_biel_office_FAST-ORBS-1000_2.json.gz";
+        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200826-110314_biel_office_FAST-ORBS-3000_2.waimap";
         area.cameraFrameTargetSize   = {640, 360};
         area.cameraFrameCropToScreen = false;
         loc.areas[area.id]           = area;
