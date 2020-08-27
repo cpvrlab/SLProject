@@ -256,6 +256,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
 
         _root3D->addChild(augmentationRoot);
+
+        //adjust camera frustum
+        cameraNode->clipNear(1.0f);
+        cameraNode->clipFar(2000.0f);
     }
 
 #if 0 // office table boxes scene

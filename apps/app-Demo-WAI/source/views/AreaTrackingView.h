@@ -39,8 +39,6 @@ public:
     void resume();
     void hold();
 
-    //void checkLoadingStatus();
-
     static std::unique_ptr<WAIMap> tryLoadMap(const std::string& erlebARDir,
                                               const std::string& slamMapFileName,
                                               WAIOrbVocabulary*  voc,
