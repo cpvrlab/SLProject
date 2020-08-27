@@ -722,7 +722,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
     vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
-    //std::cout << "Number of candidates:" << vpCandidateKFs.size() << std::endl;
+
     if (vpCandidateKFs.empty())
     {
         AVERAGE_TIMING_STOP("relocalization");
