@@ -32,6 +32,7 @@
 #include <WAIMapPoint.h>
 #include <WAIKeyFrameDB.h>
 #include <OrbSlam/Converter.h>
+#include <Instrumentor.h>
 
 long unsigned int WAIKeyFrame::nNextId = 0;
 
@@ -187,7 +188,7 @@ WAIKeyFrame::WAIKeyFrame(WAIFrame& F, bool retainImg)
 }
 //-----------------------------------------------------------------------------
 
-void WAIKeyFrame::SetBowVector(WAIBowVector &bow)
+void WAIKeyFrame::SetBowVector(WAIBowVector& bow)
 {
     mBowVec = bow;
 }
@@ -195,6 +196,8 @@ void WAIKeyFrame::SetBowVector(WAIBowVector &bow)
 //TODO: set levels according to vocabulary
 void WAIKeyFrame::ComputeBoW(WAIOrbVocabulary* vocabulary)
 {
+    PROFILE_SCOPE("WAI::WAIKeyFrame::ComputeBoW");
+
     if (mBowVec.data.empty() || mFeatVec.data.empty())
     {
         //vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(mDescriptors);
@@ -213,6 +216,8 @@ void WAIKeyFrame::ComputeBoW(WAIOrbVocabulary* vocabulary)
 //-----------------------------------------------------------------------------
 void WAIKeyFrame::SetPose(const cv::Mat& Tcw)
 {
+    PROFILE_SCOPE("WAI::WAIKeyFrame::SetPose");
+
     unique_lock<mutex> lock(mMutexPose);
     Tcw.copyTo(_Tcw);
     cv::Mat Rcw = _Tcw.rowRange(0, 3).colRange(0, 3);
@@ -845,6 +850,8 @@ cv::Mat WAIKeyFrame::getObjectMatrix()
 //! this is a function from Frame, but we need it here for map loading
 void WAIKeyFrame::AssignFeaturesToGrid()
 {
+    PROFILE_SCOPE("WAI::WAIKeyFrame::AssignFeaturesToGrid");
+
     int nReserve = (int)(0.5f * N / (FRAME_GRID_COLS * FRAME_GRID_ROWS));
     for (unsigned int i = 0; i < FRAME_GRID_COLS; i++)
         for (unsigned int j = 0; j < FRAME_GRID_ROWS; j++)

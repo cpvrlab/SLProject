@@ -23,6 +23,7 @@ enum MapPointEditorEnum
     MapPointEditor_None,
     MapPointEditor_SaveMap,
     MapPointEditor_SaveMapRaw,
+    MapPointEditor_SaveMapBinary,
     MapPointEditor_ApplyToMapPoints,
     MapPointEditor_Quit,
     MapPointEditor_EnterEditMode,
@@ -103,16 +104,16 @@ struct WAIEventEditMap : WAIEvent
 {
     WAIEventEditMap()
     {
-        type   = WAIEventType_EditMap;
-        action = MapPointEditor_None;
+        type     = WAIEventType_EditMap;
+        action   = MapPointEditor_None;
         editMode = NodeEditMode_None;
     }
     MapPointEditorEnum action;
-    SLNodeEditMode editMode;
-    std::vector<int> * kFVidMatching;
-    std::vector<bool> vid;
-    std::vector<bool> nmatches;
-    bool b;
+    SLNodeEditMode     editMode;
+    std::vector<int>*  kFVidMatching;
+    std::vector<bool>  vid;
+    std::vector<bool>  nmatches;
+    bool               b;
 };
 
 #endif //WAI_EVENT_H

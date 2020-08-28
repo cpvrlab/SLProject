@@ -13,12 +13,13 @@
 		{
 			"location": "augst",
 			"areas": [
-				{ "area": "templeHillTheater", "enabled": false },
+				{ "area": "templeHillTheater", "enabled": false, "initialMap": "DEVELOPMENT-map_20200819-143552_augst_templeHillTheater_FAST-ORBS-3000_2.json.gz" },
 				{ "area": "templeHillTheaterBottom", "enabled": false },
 				{ "area": "theaterArena", "enabled": false },
 				{ "area": "theaterMid", "enabled": false },
 				{ "area": "theaterTop", "enabled": false },
-				{ "area": "templeHill-marker", "enabled": true, "initialMap": "0-transformedAndCulled-map_20200812-114622_augst_templeHill-marker_FAST-ORBS-3000_2.json.gz"}
+                { "area": "templeHill-marker", "enabled": false, "initialMap": "0-transformedAndCulled-map_20200812-114622_augst_templeHill-marker_FAST-ORBS-3000_2.json.gz"},
+                { "area": "theaterSide", "enabled": true}
 			]
 		},
 		{
@@ -128,17 +129,15 @@
                     "videos": [
                         "20191009-102829_rainy_ASUSAR-1_map_640x360.mp4",
                         "20191009-104244_rainy_ASUSAR-1_map_640x360.mp4",
-                        "20191009-102457_rainy_NOKIA6-1_map_640x360.mp4",
-                        "20200122-094711_cloudy_PIXEL3-2_map_640x360.mp4",
-                        "20200122-094950_cloudy_PIXEL3-1_map_640x360.mp4",
+                        "20200704-142817_sunny_ASUSAR-1_map_640x360.mp4",
                         "20200704-143028_sunny_PIXEL3-1_map_640x360.mp4",
                         "20200704-143121_sunny_NOKIA6-1_map_640x360.mp4",
-                        "20200704-143350_sunny_GALAXYS6-1_map_640x360.mp4",
                         "20200704-143619_sunny_ASUSAR-1_map_640x360.mp4",
                         "20200704-143755_sunny_PIXEL3-1_map_640x360.mp4",
                         "20200704-143809_sunny_NOKIA6-1_map_640x360.mp4",
-                        "20200704-142817_sunny_ASUSAR-1_map_640x360.mp4",
-                        "20200704-143523_sunny_GALAXYS6-1_map_640x360.mp4"
+                        "20200704-143350_sunny_GALAXYS6-1_map_640x360.mp4",
+                        "20200704-143523_sunny_GALAXYS6-1_map_640x360.mp4",
+                        "20200819-105932_sunny_NOKIA6-1_map_640x360.mp4"
                     ]
                 },
 				{
@@ -186,6 +185,13 @@
                         "20191009-105238_rainy_NOKIA6-1_relocalization_640x360.mp4",
                         "20191009-105321_rainy_ASUSAR-1_relocalization_640x360.mp4",
                         "20191009-105350_rainy_ASUSAR-1_map_640x360.mp4"
+                    ]
+                },
+                {
+                    "location": "augst",
+                    "area": "theaterSide",
+                    "videos": [
+                        "20200819-110530_sunny_NOKIA6-1_map_640x360.mp4"
                     ]
                 },
                 {

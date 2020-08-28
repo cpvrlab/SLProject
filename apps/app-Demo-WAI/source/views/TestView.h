@@ -45,6 +45,7 @@ protected:
     void handleEvents();
     void loadWAISceneView(std::string location, std::string area);
     void saveMap(std::string location, std::string area, std::string marker, bool raw = true, bool bow = true);
+    void saveMapBinary(std::string location, std::string area, std::string marker);
     void saveVideo(std::string filename);
     void startOrbSlam(SlamParams slamParams);
     void transformMapNode(SLTransformSpace tSpace,

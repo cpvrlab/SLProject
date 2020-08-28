@@ -84,8 +84,8 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonRounding         = _resources.style().buttonRounding * _screenHPix;
     float frameButtonBoardB = 0.1f * _screenHPix;
     float frameButtonBoardR = 0.1f * _screenWPix;
-    _buttonBoardW           = 0.5f * _screenWPix;
-    _buttonBoardH           = 0.6f * _screenHPix;
+    _buttonBoardW           = 0.3f * _screenWPix;
+    _buttonBoardH           = 0.7f * _screenHPix;
     _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
@@ -103,7 +103,7 @@ void SelectionGui::pushStyle()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPadding, _windowPadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_buttonSpace, _buttonSpace));
-
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().buttonTextColorSelection);
     ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().buttonColorSelection);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().buttonColorSelection);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().buttonColorPressedSelection);
@@ -115,7 +115,7 @@ void SelectionGui::pushStyle()
 void SelectionGui::popStyle()
 {
     ImGui::PopStyleVar(7);
-    ImGui::PopStyleColor(4);
+    ImGui::PopStyleColor(5);
 
     ImGui::PopFont();
 }
