@@ -29,6 +29,8 @@ class WAI_API WAIMapStorage
 
         int32_t loopEdgesCount;
         int32_t kpCount;
+
+        int32_t bowVecSize;
     };
 
     struct MapPointInfo
@@ -70,7 +72,8 @@ public:
     static bool saveMapBinary(WAIMap*     waiMap,
                               SLNode*     mapNode,
                               std::string fileName,
-                              std::string imgDir = "");
+                              std::string imgDir  = "",
+                              bool        saveBOW = true);
 
     static bool loadMap(WAIMap*           waiMap,
                         cv::Mat&          mapNodeOm,
