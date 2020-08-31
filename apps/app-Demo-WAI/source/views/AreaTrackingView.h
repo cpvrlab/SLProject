@@ -46,7 +46,6 @@ public:
 
 private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
-    //virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
 
     void updateSceneCameraFov();

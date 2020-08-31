@@ -49,7 +49,7 @@ public:
 private:
     HighResTimer _timer;
 
-    const float _visibleTimeS = 5.f;
+    const float _visibleTimeS = 3.f;
     const float _dimTimeS     = 1.f;
     float       _opacity      = 1.f;
     //user tapped to switch off visibility
@@ -81,12 +81,10 @@ public:
     void showErrorMsg(const std::string& msg) { _errorMsg = msg; }
 
     void mouseDown(bool doNotDispatch);
-    void mouseMove();
+    void mouseMove(bool doNotDispatch);
 
 private:
     void resize(int scrW, int scrH);
-    //void onMouseDown(SLMouseButton button, SLint x, SLint y) override;
-    //void onMouseMove(SLint xPos, SLint yPos) override;
 
     float _screenW;
     float _screenH;
@@ -96,8 +94,8 @@ private:
     float _spacingBackButtonToText;
     float _buttonRounding;
     float _textWrapW;
-    float _windowPaddingContent;
-    float _itemSpacingContent;
+    //float _windowPaddingContent;
+    //float _itemSpacingContent;
 
     float                      _sliderValue = 0.f;
     ErlebAR::Area              _area;

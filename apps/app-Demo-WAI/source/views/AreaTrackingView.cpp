@@ -132,23 +132,16 @@ bool AreaTrackingView::update()
 
 SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
 {
-    SLbool dontDispatch = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-    _gui.mouseDown(dontDispatch);
-    return dontDispatch;
+    SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
+    _gui.mouseDown(_gui.doNotDispatchMouse());
+    return ret;
 }
-
-//SLbool AreaTrackingView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
-//{
-//    SLbool dontDispatch = SLSceneView::onMouseUp(button, scrX, scrY, mod);
-//
-//    return dontDispatch;
-//}
 
 SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
 {
-    SLbool dontDispatch = SLSceneView::onMouseMove(x, y);
-    _gui.mouseMove();
-    return dontDispatch;
+    SLbool ret = SLSceneView::onMouseMove(x, y);
+    _gui.mouseMove(_gui.doNotDispatchMouse());
+    return ret;
 }
 
 void AreaTrackingView::updateSceneCameraFov()

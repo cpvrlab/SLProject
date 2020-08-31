@@ -210,7 +210,7 @@ target_link_libraries(${target}
 
     PUBLIC
     ${DEFAULT_LINKER_OPTIONS}
-    ${OpenCV_LIBS}
+    #${OpenCV_LIBS}
 
     INTERFACE
     )
