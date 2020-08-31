@@ -238,11 +238,11 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                                          modelPath,
                                          _dataDir + "images/textures/");
 
-        hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
 
         hideNode(augmentationRoot->findChild<SLNode>("Mauer-Wand", true));
         hideNode(augmentationRoot->findChild<SLNode>("Mauer-Dach", true));
@@ -256,6 +256,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
 
         _root3D->addChild(augmentationRoot);
+
+        //adjust camera frustum
+        cameraNode->clipNear(1.0f);
+        cameraNode->clipFar(10.0f);
     }
 
 #if 0 // office table boxes scene
