@@ -53,6 +53,9 @@ class WAI_API WAIKeyFrameDB
 
     void clear();
 
+
+    std::vector<std::list<WAIKeyFrame*>>& getInvertedFile() { return mvInvertedFile; }
+
     // Loop Detection
     enum LoopDetectionErrorCodes
     {

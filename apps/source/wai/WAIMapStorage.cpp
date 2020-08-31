@@ -368,15 +368,17 @@ void WAIMapStorage::writeCVMatToBinaryFile(FILE* f, const cv::Mat& mat)
 bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
                                   SLNode*     mapNode,
                                   std::string filename,
-                                  std::string imgDir)
+                                  std::string imgDir,
+                                  bool        saveBOW)
 {
-    std::vector<WAIKeyFrame*> kfs  = waiMap->GetAllKeyFrames();
-    std::vector<WAIMapPoint*> mpts = waiMap->GetAllMapPoints();
+    std::vector<WAIKeyFrame*>                        kfs  = waiMap->GetAllKeyFrames();
+    std::vector<WAIMapPoint*>                        mpts = waiMap->GetAllMapPoints();
+    std::map<WAIKeyFrame*, std::map<size_t, size_t>> KFmatching;
 
     if (kfs.size() == 0)
         return false;
 
-    //in this case we dont build a keyframe matching..
+    buildMatching(kfs, KFmatching);
 
     FILE* f = fopen(filename.c_str(), "wb");
     if (!f)
@@ -447,7 +449,30 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         kfInfo.maxX = kf->mnMaxX;
         kfInfo.maxY = kf->mnMaxY;
 
-        kfInfo.kpCount = kf->mvKeysUn.size();
+        cv::Mat     descriptors;
+        CVVKeyPoint keyPoints;
+        if (KFmatching.size() > 0)
+        {
+            const std::map<size_t, size_t>& matching = KFmatching[kf];
+            descriptors.create((int)matching.size(), 32, CV_8U);
+            keyPoints.resize(matching.size());
+            for (int j = 0; j < kf->mvKeysUn.size(); j++)
+            {
+                auto it = matching.find(j);
+                if (it != matching.end())
+                {
+                    kf->mDescriptors.row(j).copyTo(descriptors.row(it->second));
+                    keyPoints[it->second] = kf->mvKeysUn[j];
+                }
+            }
+        }
+        else
+        {
+            descriptors = kf->mDescriptors;
+            keyPoints   = kf->mvKeysUn;
+        }
+
+        kfInfo.kpCount = keyPoints.size();
 
         if (kf->mnId != 0) //kf with id 0 has no parent
             kfInfo.parentId = (int32_t)kf->GetParent()->mnId;
@@ -466,16 +491,34 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
             }
         }
 
-        // TODO(dgj1): decide what to do with KFmatching
+        std::vector<int32_t> wordsId;
+        std::vector<float>   tfIdf;
+        if (saveBOW)
+        {
+            WAIBowVector& bowVec = kf->mBowVec;
+            for (auto it = bowVec.getWordScoreMapping().begin();
+                 it != bowVec.getWordScoreMapping().end();
+                 it++)
+            {
+                wordsId.push_back(it->first);
+                tfIdf.push_back(it->second);
+            }
 
-        // TODO(dgj1): decide what to do with saveBow
+            kfInfo.bowVecSize = wordsId.size();
+        }
 
         fwrite(&kfInfo, sizeof(KeyFrameInfo), 1, f);
         writeCVMatToBinaryFile(f, kf->mK);
         writeCVMatToBinaryFile(f, kf->GetPose());
         fwrite(loopEdgeIds.data(), sizeof(int32_t), loopEdgeIds.size(), f);
-        writeCVMatToBinaryFile(f, kf->mDescriptors);
-        fwrite(kf->mvKeysUn.data(), sizeof(cv::KeyPoint), kf->mvKeysUn.size(), f);
+        writeCVMatToBinaryFile(f, descriptors);
+        fwrite(keyPoints.data(), sizeof(cv::KeyPoint), keyPoints.size(), f);
+
+        if (saveBOW)
+        {
+            fwrite(wordsId.data(), sizeof(int32_t), wordsId.size(), f);
+            fwrite(tfIdf.data(), sizeof(float), tfIdf.size(), f);
+        }
 
         //save the original frame image for this keyframe
         if (imgDir != "")
@@ -507,22 +550,47 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         mpInfo.id           = (int32_t)mpt->mnId;
         mpInfo.refKfId      = (int32_t)mpt->refKf()->mnId;
 
-        // TODO(dgj1): decide what to do with KFmatching
-
         //save keyframe observations
         std::map<WAIKeyFrame*, size_t> observations = mpt->GetObservations();
         vector<int32_t>                observingKfIds;
         vector<int32_t>                corrKpIndices; //corresponding keypoint indices in observing keyframe
-        for (std::pair<WAIKeyFrame* const, size_t> it : observations)
+        if (!KFmatching.empty())
         {
-            if (!it.first->isBad())
+            for (std::pair<WAIKeyFrame* const, size_t> it : observations)
             {
-                observingKfIds.push_back(it.first->mnId);
-                corrKpIndices.push_back(it.second);
+                WAIKeyFrame* kf    = it.first;
+                size_t       kpIdx = it.second;
+                if (!kf || kf->isBad() || kf->mBowVec.data.empty())
+                    continue;
 
-                mpInfo.nObervations++;
+                if (KFmatching.find(kf) == KFmatching.end())
+                {
+                    std::cout << "observation not found in kfmatching" << std::endl;
+                    continue;
+                }
+
+                const std::map<size_t, size_t>& matching = KFmatching[kf];
+                auto                            mit      = matching.find(kpIdx);
+                if (mit != matching.end())
+                {
+                    observingKfIds.push_back(kf->mnId);
+                    corrKpIndices.push_back(mit->second);
+                }
             }
         }
+        else
+        {
+            for (std::pair<WAIKeyFrame* const, size_t> it : observations)
+            {
+                if (!it.first->isBad())
+                {
+                    observingKfIds.push_back(it.first->mnId);
+                    corrKpIndices.push_back(it.second);
+                }
+            }
+        }
+
+        mpInfo.nObervations = observingKfIds.size();
 
         fwrite(&mpInfo, sizeof(mpInfo), 1, f);
         writeCVMatToBinaryFile(f, mpt->GetWorldPos());
@@ -703,6 +771,22 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                                              (int)nMaxX,
                                              (int)nMaxY,
                                              K);
+
+        if (kfInfo->bowVecSize > 0)
+        {
+            int32_t* wordsIdData = (int32_t*)malloc(sizeof(int32_t) * kfInfo->bowVecSize);
+            memcpy(wordsIdData, fContent, sizeof(int32_t) * kfInfo->bowVecSize);
+            std::vector<int32_t> wordsId(wordsIdData, wordsIdData + kfInfo->bowVecSize);
+            fContent += sizeof(int32_t) * kfInfo->bowVecSize;
+
+            float* tfIdfData = (float*)malloc(sizeof(float) * kfInfo->bowVecSize);
+            memcpy(tfIdfData, fContent, sizeof(float) * kfInfo->bowVecSize);
+            std::vector<float> tfIdf(tfIdfData, tfIdfData + kfInfo->bowVecSize);
+            fContent += sizeof(float) * kfInfo->bowVecSize;
+
+            WAIBowVector bow(wordsId, tfIdf);
+            newKf->SetBowVector(bow);
+        }
 
         if (imgDir != "")
         {
