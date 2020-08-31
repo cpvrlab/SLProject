@@ -396,7 +396,24 @@ bool TestRunnerView::update()
 
                     _map = new WAIMap(keyFrameDB);
                     cv::Mat mapNodeOm;
-                    WAIMapStorage::loadMap(_map, mapNodeOm, &_voc, mapFile, false, true);
+                    if (Utils::containsString(mapFile, ".waimap"))
+                    {
+                        WAIMapStorage::loadMapBinary(_map,
+                                                     mapNodeOm,
+                                                     &_voc,
+                                                     mapFile,
+                                                     false,
+                                                     true);
+                    }
+                    else
+                    {
+                        WAIMapStorage::loadMap(_map,
+                                               mapNodeOm,
+                                               &_voc,
+                                               mapFile,
+                                               false,
+                                               true);
+                    }
 
                     if (_localMapping)
                         delete _localMapping;
