@@ -65,8 +65,20 @@ void renderHeaderBar(std::string               id,
                      GLuint                    texId,
                      float                     spacingButtonToText,
                      const char*               text,
-                     std::function<void(void)> cb)
+                     std::function<void(void)> cb,
+                     float                     opacity)
 {
+    //if headerbar is transparent, we disable it
+    if (opacity < 0.0001f)
+        return;
+
+    //reduce opacity of colors (for invisible
+    const ImVec4 backgroundColorOp    = {backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w * opacity};
+    const ImVec4 textColorOp          = {textColor.x, textColor.y, textColor.z, textColor.w * opacity};
+    const ImVec4 buttonColorOp        = {buttonColor.x, buttonColor.y, buttonColor.z, buttonColor.w * opacity};
+    const ImVec4 buttonColorPressedOp = {buttonColorPressed.x, buttonColorPressed.y, buttonColorPressed.z, buttonColorPressed.w * opacity};
+    const ImVec4 btnImgCol            = {1.f, 1.f, 1.f, opacity};
+
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
                                    ImGuiWindowFlags_NoMove |
                                    ImGuiWindowFlags_AlwaysAutoResize |
@@ -75,11 +87,11 @@ void renderHeaderBar(std::string               id,
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, backgroundColor);
-    ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColor);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressed);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, backgroundColorOp);
+    ImGui::PushStyleColor(ImGuiCol_Text, textColorOp);
+    ImGui::PushStyleColor(ImGuiCol_Button, buttonColorOp);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColorOp);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColorPressedOp);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));                          //we adjust this by SetNextWindowPos for child windows
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(buttonRounding, buttonRounding)); //distance button border to button texture
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, buttonRounding);                        //here same as framepadding, frame padding needs minimum the rounding size
@@ -96,7 +108,7 @@ void renderHeaderBar(std::string               id,
     ImGui::SetNextWindowPos(ImVec2(buttonWinPadding, buttonWinPadding), ImGuiCond_Always);
     ImGui::BeginChild((id + "_button").c_str(), ImVec2(buttonHeight, buttonHeight), false, windowFlags);
     //if (ImGui::ImageButton((ImTextureID)texId, (ImTextureID)texIdPressed, ImVec2(texSize, texSize)))
-    if (ImGui::ImageButton((ImTextureID)texId, ImVec2(texSize, texSize)))
+    if (ImGui::ImageButton((ImTextureID)texId, ImVec2(texSize, texSize), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), btnImgCol))
     {
         cb();
     }

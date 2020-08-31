@@ -27,7 +27,8 @@ void renderHeaderBar(std::string               id,
                      GLuint                    texId,
                      float                     spacingButtonToText,
                      const char*               text,
-                     std::function<void(void)> cb);
+                     std::function<void(void)> cb,
+                     float                     opacity = 1.f);
 
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH, int& textureW, int& textureH);
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& textureW, int& textureH);

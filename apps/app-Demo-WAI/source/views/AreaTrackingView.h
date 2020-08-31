@@ -39,14 +39,15 @@ public:
     void resume();
     void hold();
 
-    //void checkLoadingStatus();
-
     static std::unique_ptr<WAIMap> tryLoadMap(const std::string& erlebARDir,
                                               const std::string& slamMapFileName,
                                               WAIOrbVocabulary*  voc,
                                               cv::Mat&           mapNodeOm);
 
 private:
+    virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseMove(SLint x, SLint y);
+
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);

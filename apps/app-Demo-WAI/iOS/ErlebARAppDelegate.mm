@@ -29,6 +29,9 @@
     self.viewController.view.hidden = NO;
     self.window.rootViewController  = self.viewController;
     [self.window makeKeyAndVisible];
+
+    //usleep(1000000);
+    //[NSThread sleepForTimeInterval:5.0f];
     return YES;
 }
 

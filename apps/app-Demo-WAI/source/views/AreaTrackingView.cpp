@@ -49,52 +49,6 @@ AreaTrackingView::~AreaTrackingView()
         delete _asyncLoader;
 }
 
-//void AreaTrackingView::checkLoadingStatus()
-//{
-//    if (_loadingFuture.valid() && _loadingFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
-//    {
-//        std::unique_ptr<WAIMap> waiMap;
-//        try
-//        {
-//            //get map
-//            waiMap = _loadingFuture.get();
-//        }
-//        catch (std::exception& e)
-//        {
-//            Utils::log("AreaTrackingView", "loading map file failed: %s", e.what());
-//        }
-//
-//        _loadingThread->join();
-//        _loadingThread.reset();
-//
-//        //init waislam
-//        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-//                                                    _camera->config().manipWidth,
-//                                                    _camera->config().targetWidth);
-//
-//        WAISlam::Params params;
-//        params.cullRedundantPerc   = 0.95f;
-//        params.ensureKFIntegration = false;
-//        params.fixOldKfs           = true;
-//        params.onlyTracking        = false;
-//        params.retainImg           = false;
-//        params.serial              = false;
-//        params.trackOptFlow        = false;
-//
-//        _waiSlam = std::make_unique<WAISlam>(
-//          scaledCamMat,
-//          _camera->calibration()->distortion(),
-//          _voc,
-//          _initializationExtractor.get(),
-//          _relocalizationExtractor.get(),
-//          _trackingExtractor.get(),
-//          std::move(waiMap),
-//          params);
-//
-//        //update scene graph for map visualization
-//    }
-//}
-
 bool AreaTrackingView::update()
 {
     try
@@ -174,6 +128,20 @@ bool AreaTrackingView::update()
     }
 
     return onPaint();
+}
+
+SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+{
+    SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
+    _gui.mouseDown(_gui.doNotDispatchMouse());
+    return ret;
+}
+
+SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
+{
+    SLbool ret = SLSceneView::onMouseMove(x, y);
+    _gui.mouseMove(_gui.doNotDispatchMouse());
+    return ret;
 }
 
 void AreaTrackingView::updateSceneCameraFov()
@@ -293,8 +261,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
     this->camera(_scene.cameraNode);
-    _scene.cameraNode->clipNear(1.0f);
-    _scene.cameraNode->clipFar(2000.0f);
     updateSceneCameraFov();
 
     //initialize extractors
@@ -400,8 +366,7 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
             const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
             Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
 
-            int cropW,
-              cropH, w, h;
+            int cropW, cropH, w, h;
             SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
 
             _camera->start(devProps->deviceId(),
