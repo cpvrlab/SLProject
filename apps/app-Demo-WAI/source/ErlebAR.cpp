@@ -81,7 +81,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 496;
         area.yPosPix         = 566;
         area.viewAngleDeg    = 120;
-        area.slamMapFileName = "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.json.gz";
+        area.slamMapFileName = "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
     {
@@ -91,7 +91,7 @@ const Location defineLocationAugst()
         area.xPosPix         = 627;
         area.yPosPix         = 606;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "locations/augst/templeHillTheaterBottom/maps/map_20200811-145434_augst_templeHillTheaterBottom_FAST-ORBS-2000_2.json.gz";
+        area.slamMapFileName = "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
     return loc;
