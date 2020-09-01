@@ -27,7 +27,9 @@ class WAISlam : public WAISlamTools
 public:
     struct Params
     {
-        //run local mapper and loopclosing serial to tracking
+        //ensure all new keyframe have enough in common with loaded map
+        bool ensureKFIntegration = false;
+        //wait for localmapping
         bool serial = false;
         //retain the images in the keyframes, so we can store them later
         bool retainImg = false;
@@ -49,12 +51,10 @@ public:
             const cv::Mat&          distortion,
             WAIOrbVocabulary*       voc,
             KPextractor*            iniExtractor,
+            KPextractor*            relocExtractor,
             KPextractor*            extractor,
             std::unique_ptr<WAIMap> globalMap,
-            bool                    trackingOnly      = false,
-            bool                    serial            = false,
-            bool                    retainImg         = false,
-            float                   cullRedundantPerc = 0.95);
+            WAISlam::Params         params);
 
     virtual ~WAISlam();
 
@@ -65,6 +65,7 @@ public:
 
     virtual void updatePose(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
+    virtual void updatePoseKFIntegration(WAIFrame& frame);
     virtual void resume();
 
     virtual bool isTracking();
@@ -168,12 +169,14 @@ protected:
     std::mutex           _cameraExtrinsicMutex;
     std::mutex           _mutexStates;
     std::mutex           _lastFrameMutex;
-    bool                 _retainImg           = false;
+
+    WAISlam::Params      _params;
+
+    unsigned int         _relocFrameCounter   = 0;
     unsigned long        _lastRelocFrameId    = 0;
     unsigned long        _lastKeyFrameFrameId = 0;
-    bool                 _serial              = false;
-    bool                 _trackingOnly        = false;
     KPextractor*         _extractor           = nullptr;
+    KPextractor*         _relocExtractor      = nullptr;
     KPextractor*         _iniExtractor        = nullptr;
     int                  _infoMatchedInliners = 0;
     std::thread*         _poseUpdateThread;

@@ -141,6 +141,17 @@ static std::string constructSlamMapFileName(std::string location,
     return result;
 }
 
+static std::string constructBinarySlamMapFileName(std::string location,
+                                                  std::string area,
+                                                  std::string extractorType,
+                                                  int         nLevels,
+                                                  std::string dateTime = "")
+{
+    std::string result = constructSlamMapIdentifierString(location, area, extractorType, nLevels, dateTime) + ".waimap";
+
+    return result;
+}
+
 static std::string constructSlamMarkerDir(std::string locationsRootDir, std::string location, std::string area)
 {
     std::string result = constructSlamAreaDir(locationsRootDir, location, area) + "markers/";

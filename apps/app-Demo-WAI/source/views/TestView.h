@@ -45,6 +45,7 @@ protected:
     void handleEvents();
     void loadWAISceneView(std::string location, std::string area);
     void saveMap(std::string location, std::string area, std::string marker, bool raw = true, bool bow = true);
+    void saveMapBinary(std::string location, std::string area, std::string marker);
     void saveVideo(std::string filename);
     void startOrbSlam(SlamParams slamParams);
     void transformMapNode(SLTransformSpace tSpace,
@@ -76,6 +77,7 @@ protected:
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
+    std::unique_ptr<KPextractor> _relocalizationExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _markerExtractor;
     ImageBuffer                  _imgBuffer;

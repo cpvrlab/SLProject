@@ -34,6 +34,7 @@ public:
 
 private:
     int _currentId;
+    int _relocCurrentId;
     int _iniCurrentId;
     int _markerCurrentId;
 

@@ -20,7 +20,7 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //keep a local copy of all available
-    if(_camera)
+    if (_camera)
         _camCharacs = _camera->captureProperties();
 
     //prepare sizes for visualization
@@ -40,8 +40,8 @@ CameraTestGui::CameraTestGui(const ImGuiEngine&  imGuiEngine,
     _currSizeIndex = 0;
     if (_camCharacs.size())
     {
-        _currCharac  = &_camCharacs.front();
-        _currSizeStr = &_sizesStrings[_currCharac->deviceId()].front();
+        _currCamProps = &_camCharacs.front();
+        _currSizeStr  = &_sizesStrings[_currCamProps->deviceId()].front();
     }
 }
 
@@ -121,7 +121,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             ImGui::TextWrapped(_exceptionText.c_str());
             ImGui::PopStyleColor();
         }
-        else if(_camCharacs.size() == 0)
+        else if (_camCharacs.size() == 0)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
             ImGui::TextWrapped("Camera has no characteristics!");
@@ -129,25 +129,25 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCharac->deviceId().c_str()))
+            if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCamProps->deviceId().c_str()))
             {
                 for (int n = 0; n < _camCharacs.size(); n++)
                 {
                     const SENSCameraDeviceProperties* charac = &_camCharacs[n];
                     ImGui::PushID(charac->deviceId().c_str());
-                    if (ImGui::Selectable(charac->deviceId().c_str(), charac == _currCharac))
+                    if (ImGui::Selectable(charac->deviceId().c_str(), charac == _currCamProps))
                     {
-                        _currCharac = charac;
+                        _currCamProps = charac;
                         //reset selected size after camera selection changed
                         _currSizeIndex = 0;
-                        _currSizeStr   = &_sizesStrings[_currCharac->deviceId()].front();
+                        _currSizeStr   = &_sizesStrings[_currCamProps->deviceId()].front();
                     }
                     ImGui::PopID();
                 }
                 ImGui::EndCombo();
             }
 
-            const std::vector<std::string>& sizes = _sizesStrings[_currCharac->deviceId()];
+            const std::vector<std::string>& sizes = _sizesStrings[_currCamProps->deviceId()];
             if (ImGui::BeginCombo("Sizes##CameraTestGui", _currSizeStr->c_str()))
             {
                 for (int n = 0; n < sizes.size(); n++)
@@ -166,49 +166,36 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
             }
 
             //visualize current camera characteristics
-            /*
-            if (_currCharac->provided)
+            SENSCameraStreamConfig currStreamConfig = _currCamProps->streamConfigs()[_currSizeIndex];
+            if (currStreamConfig.focalLengthPix > 0)
             {
-                ImGui::Text(getPrintableFacing(_currCharac->facing).c_str());
-                ImGui::Text("Physical sensor size (mm): w: %f, h: %f", _currCharac->physicalSensorSizeMM.width, _currCharac->physicalSensorSizeMM.height);
-                ImGui::Text("Focal lengths (mm):");
-                for (auto fl : _currCharac->focalLenghtsMM)
-                {
-                    ImGui::Text("  %f", fl);
-                }
+                ImGui::Text(getPrintableFacing(_currCamProps->facing()).c_str());
+                float horizFov = SENS::calcFOVDegFromFocalLengthPix(currStreamConfig.focalLengthPix, currStreamConfig.widthPix);
+                float vertFov  = SENS::calcFOVDegFromFocalLengthPix(currStreamConfig.focalLengthPix, currStreamConfig.heightPix);
+                ImGui::Text("FOV degree: vert: %f, horiz: %f", vertFov, horizFov);
             }
             else
             {
                 ImGui::Text("Camera characteristics not provided by this device!");
             }
-            */
 
             if (ImGui::Button("Start##startCamera", ImVec2(w, 0)))
             {
-                if (_currSizeIndex >= 0 && _currSizeIndex < _currCharac->streamConfigs().size())
+                if (_currSizeIndex >= 0 && _currSizeIndex < _currCamProps->streamConfigs().size())
                 {
-                    const SENSCameraStreamConfig& config = _currCharac->streamConfigs()[_currSizeIndex];
-                    
-                    /*
-                    _cameraConfig.deviceId             = _currCharac->cameraId;
-                    _cameraConfig.targetWidth          = config.widthPix;
-                    _cameraConfig.targetHeight         = config.heightPix;
-                    _cameraConfig.convertToGray        = true;
-                    _cameraConfig.adjustAsynchronously = true;
-                    _cameraConfig.focusMode            = SENSCameraFocusMode::FIXED_INFINITY_FOCUS;
-                     */
-                    Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
+                    const SENSCameraStreamConfig& config = _currCamProps->streamConfigs()[_currSizeIndex];
 
-                    ////make sure the camera is stopped if there is one
-                    //if (_camera)
-                    //    _camera->stop();
+                    Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
 
                     try
                     {
                         if (_camera)
-                            //assert("fixme" && false);
-                            _camera->start(_currCharac->deviceId(),
+                        {
+                            if (_camera->started())
+                                _camera->stop();
+                            _camera->start(_currCamProps->deviceId(),
                                            config);
+                        }
                     }
                     catch (SENSException& e)
                     {
@@ -250,7 +237,6 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
         ImGui::PopFont();
         ImGui::PopStyleVar(3);
-        //ImGui::PopStyleColor(1);
     }
 
     //ImGui::ShowMetricsWindow();

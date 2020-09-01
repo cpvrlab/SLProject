@@ -538,7 +538,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 {
     //concert yuv to rgb
     cv::Mat rgbImg;
-    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2RGB_NV21, 3);
+    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2BGR_NV21, 3);
 
     SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
     /*
@@ -576,32 +576,47 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 
 cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
 {
-    //int32_t format;
-    int32_t height;
-    int32_t width;
-    //AImage_getFormat(image, &format);
+    int32_t height, width, rowStrideY;
     AImage_getHeight(image, &height);
     AImage_getWidth(image, &width);
+    AImage_getPlaneRowStride(image, 0, &rowStrideY);
 
-    //copy image data to yuv image
-    //pointers to yuv data planes
-    uint8_t *yPixel, *uPixel, *vPixel;
-    //length of yuv data planes in byte
-    int32_t yLen, uLen, vLen;
+    //pointers to yuv data planes and length of yuv data planes in byte
+    uint8_t *yPixel, /* *uPixel,*/ *vPixel;
+    int32_t  yLen, /*uLen,*/ vLen;
     AImage_getPlaneData(image, 0, &yPixel, &yLen);
-    AImage_getPlaneData(image, 1, &uPixel, &uLen);
+    //AImage_getPlaneData(image, 1, &uPixel, &uLen);
     AImage_getPlaneData(image, 2, &vPixel, &vLen);
 
-    cv::Mat yuv(height + (height / 2), width, CV_8UC1);
-    size_t  yubBytes  = yuv.total();
-    size_t  origBytes = yLen + uLen + vLen;
-    //LOGI("yubBytes %d origBytes %d", yubBytes, origBytes);
-    memcpy(yuv.data, yPixel, yLen);
-    memcpy(yuv.data + yLen, uPixel, uLen);
-    //We do not have to copy the v plane. The u plane contains the interleaved u and v data!
-    //memcpy(yuv.data + yLen + uLen, vPixel, vLen);
+    //Attention: There may be additional padding at the end of every line, in this case width is not equal to rowStrideY.
+    //As this padding is not contained at the end of the Y-block, yLen can be calculated as follows:
+    // yLen = rowStrideY * height - (rowStrideY - width)
+    //But when copying the UV-block we have to "insert" the additional padding at the end of the Y-block
+    //in the new yuv image!
+    //(https://stackoverflow.com/questions/40030533/android-camera2-preview-output-sizes)
+    //(https://stackoverflow.com/questions/52726002/camera2-captured-picture-conversion-from-yuv-420-888-to-nv21/52740776#52740776)
 
-    return yuv;
+    //copy image data to yuv image: we use the rowStrideY to define the maximum data block width including potential padding
+    cv::Mat yuv(height + (height / 2), rowStrideY, CV_8UC1);
+    memcpy(yuv.data, yPixel, yLen);
+    //The interleaved uv data starts with v pixels, you can inspect this by comparing uPixel and vPixel adresses,
+    //which is one byte lower. So the order is V/U: NV12: YYYYUV NV21: YYYYVU
+    // This is also described like this in wikipedia in section https://en.wikipedia.org/wiki/YUV#Y%E2%80%B2UV420sp_(NV21)_to_RGB_conversion_(Android)
+    // U follows V in the interleaved block (in contradiction to what is shown in the drawing explaining yuv in wikipedia).
+    // As both planes have the same length, but one starts one byte lower, we have to copy one
+    //additional byte to get all the data.
+    //We do not have to additionally copy the v plane. The u plane contains the interleaved u and v data!
+    memcpy(yuv.data + yLen + (rowStrideY - width), vPixel, vLen + 1);
+
+    //If there is line padding we get rid of it now by defining a sub region of interest in the target image size
+    if (rowStrideY > width)
+    {
+        cv::Rect roi(0, 0, width, yuv.rows);
+        cv::Mat  roiYuv = yuv(roi);
+        return roiYuv;
+    }
+    else
+        return yuv;
 }
 
 SENSFramePtr SENSNdkCamera::latestFrame()
@@ -718,7 +733,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
 
         //move yuv image to worker thread input
         {
-            static int newImage = 0;
+            // static int newImage = 0;
             //LOG_NDKCAM_INFO("imageCallback: new image %d", newImage++);
             std::lock_guard<std::mutex> lock(_threadInputMutex);
             _yuvImgToProcess = yuv;
@@ -948,8 +963,8 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
                         for (uint32_t i = 0; i < lensInfo.count; i += 4)
                         {
                             //example for content interpretation:
-                            //std::string format direction = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
-                            //std::string format = GetFormatStr(lensInfo.data.i32[i]);
+                            //std::string direction         = lensInfo.data.i32[i + 3] ? "INPUT" : "OUTPUT";
+                            //std::string format            = GetFormatStr(lensInfo.data.i32[i]);
 
                             //OUTPUT format and AIMAGE_FORMAT_YUV_420_888 image format
                             if (!lensInfo.data.i32[i + 3] && lensInfo.data.i32[i] == AIMAGE_FORMAT_YUV_420_888)
@@ -960,8 +975,12 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
                                 float focalLengthPix = -1.f;
                                 if (focalLengthsMM.size() && physicalSensorSizeMM.width > 0 && physicalSensorSizeMM.height > 0)
                                 {
-                                    //calculate a focal length in pixel that fits to this stream configuration size
-                                    focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
+                                    //we assume the image is cropped at one side only. we compare the sensor aspect ratio
+                                    //with the image aspect ratio and use the uncropped length to estimate a focal length in pixel that fits to this stream configuration size
+                                    if((float)physicalSensorSizeMM.width / (float)physicalSensorSizeMM.height > (float)width / (float)height)
+                                        focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.height * (float)height;
+                                    else
+                                        focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;
                                 }
 
                                 if (!characteristics.contains({width, height}))

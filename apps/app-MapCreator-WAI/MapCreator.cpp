@@ -14,7 +14,8 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        int           nLevels,
                        std::string   outputDir,
                        bool          serialMapping,
-                       float         thinCullingValue)
+                       float         thinCullingValue,
+                       bool          ensureKFIntegration)
   : _erlebARDir(Utils::unifySlashes(erlebARDir)),
     _serialMapping(serialMapping),
     _thinCullingValue(thinCullingValue)
@@ -47,8 +48,9 @@ MapCreator::MapCreator(std::string   erlebARDir,
     _mpLL = nullptr;
     _mpLR = nullptr;
 
-    _extractorType = extractorType;
-    _nLevels       = nLevels;
+    _extractorType       = extractorType;
+    _nLevels             = nLevels;
+    _ensureKFIntegration = ensureKFIntegration;
 
     //scan erlebar directory and config file, collect everything that is enabled in the config file and
     //check that all files (video and calibration) exist.
@@ -218,11 +220,10 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
 
     WAIKeyFrameDB* kfDB          = new WAIKeyFrameDB(_voc);
     WAIMap*        map           = new WAIMap(kfDB);
-    SLNode         mapNode       = SLNode();
     cv::Mat        nodeTransform = cv::Mat::eye(4, 4, CV_32F);
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
-                                                    &mapNode,
+                                                    nodeTransform,
                                                     _voc,
                                                     mapDir + "/" + mapFile,
                                                     false,
@@ -250,7 +251,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     return result;
 }
 
-void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels)
+void MapCreator::createNewWaiMap(const Location& location, const Area& area, AreaConfig& areaConfig, ExtractorType extractorType, int nLevels, bool ensureKFintegration)
 {
     WAI_INFO("MapCreator::createNewWaiMap: Starting map creation for area: %s", area.c_str());
     //the lastly saved map file (only valid if initialized is true)
@@ -277,7 +278,8 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
                                        nLevels,
                                        keyFrameVideoMatching,
                                        matchFileVideoNames,
-                                       areaConfig.initialMapFile);
+                                       areaConfig.initialMapFile,
+                                       ensureKFintegration);
 
     if (areaConfig.videos.size() && initialized)
     {
@@ -325,9 +327,11 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
                                       int                       nLevels,
                                       std::vector<int>&         keyFrameVideoMatching,
                                       std::vector<std::string>& matchFileVideoNames,
-                                      const std::string&        initialMapFileName)
+                                      const std::string&        initialMapFileName,
+                                      bool                      ensureKFIntegration)
 {
-    bool initialized = false;
+    bool initialized        = false;
+    bool genInitialMatching = false;
     //wai mode config
     WAIMapSlam::Params modeParams;
     modeParams.cullRedundantPerc = cullRedundantPerc;
@@ -339,6 +343,9 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
     int         videoIndex = 0;
     std::string lastMapFileName;
 
+    //Offset for video id for keyframe matching file. Needed if an existing map file was loaded
+    int videoIdxOffset = 0;
+
     //if initial map file is not empty we load it and match file, which has to have the same naming pattern (<name>_match.txt without .json)
     if (!initialMapFileName.empty())
     {
@@ -349,8 +356,17 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
         std::string inputMatchFileDir  = Utils::getPath(initialMapFileName);
         std::string inputMatchFileName = Utils::getFileNameWOExt(initialMapFileName) + "_match.txt";
         if (!Utils::fileExists(inputMatchFileDir + inputMatchFileName))
-            throw std::runtime_error("MapCreator::createNewDenseWaiMap: Could not load match file: " + inputMatchFileDir + inputMatchFileName);
-        WAIMapStorage::loadKeyFrameVideoMatching(keyFrameVideoMatching, matchFileVideoNames, inputMatchFileDir, inputMatchFileName);
+        {
+            //if there is no match file a consistent match file is generated for the existing content
+            std::cout << ("MapCreator::createNewDenseWaiMap: Could not load match file: " + inputMatchFileDir + inputMatchFileName) << std::endl;
+            std::cout << "Generate initial matching file" << std::endl;
+            genInitialMatching = true;
+        }
+        else
+        {
+            WAIMapStorage::loadKeyFrameVideoMatching(keyFrameVideoMatching, matchFileVideoNames, inputMatchFileDir, inputMatchFileName);
+            videoIdxOffset = matchFileVideoNames.size();
+        }
     }
 
     if (keyFrameVideoMatching.size() == 0)
@@ -386,13 +402,14 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
         std::unique_ptr<WAIMap> map = nullptr;
 
         //if we have an active map from one of the previously processed videos for this area then load it
-        SLNode mapNode = SLNode();
+        SLNode  mapNode       = SLNode();
+        cv::Mat nodeTransform = cv::Mat::eye(4, 4, CV_32F);
         if (initialized)
         {
             WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
             map                    = std::make_unique<WAIMap>(kfdb);
             bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                            &mapNode,
+                                                            nodeTransform,
                                                             _voc,
                                                             lastMapFileName,
                                                             false,
@@ -401,6 +418,22 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
             {
                 std::cout << ("MapCreator::createNewDenseWaiMap: Could not load map from file " + lastMapFileName) << std::endl;
                 return false;
+            }
+
+            if (genInitialMatching)
+            {
+                std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
+
+                for (WAIKeyFrame* kf : kfs)
+                {
+                    while (keyFrameVideoMatching.size() < kf->mnId)
+                        keyFrameVideoMatching.resize(keyFrameVideoMatching.size() * 2, -1);
+
+                    keyFrameVideoMatching[kf->mnId] = 0;
+                }
+                matchFileVideoNames.push_back("initial_map");
+                videoIdxOffset     = matchFileVideoNames.size();
+                genInitialMatching = false;
             }
         }
         else
@@ -477,10 +510,13 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
             {
                 keyFrameVideoMatching.resize(keyFrameVideoMatching.size() * 2, -1);
             }
-            keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdx;
+            keyFrameVideoMatching[WAIKeyFrame::nNextId] = videoIdxOffset + videoIdx;
 
             //update wai
-            waiMode->update(frame->imgManip);
+            if (initialized && ensureKFIntegration)
+                waiMode->update2(frame->imgManip);
+            else
+                waiMode->update(frame->imgManip);
 
             if (firstRun)
             {
@@ -539,13 +575,14 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
     std::unique_ptr<WAIMap> map  = std::make_unique<WAIMap>(kfdb);
 
     //load the map (currentMapFileName is valid if initialized is true)
-    SLNode mapNode = SLNode();
+    SLNode  mapNode       = SLNode();
+    cv::Mat nodeTransform = cv::Mat::eye(4, 4, CV_32F);
 
     FeatureExtractorFactory      factory;
     std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, calib.imageSize(), nLevels);
 
     bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                    &mapNode,
+                                                    nodeTransform,
                                                     _voc,
                                                     inputMapFile,
                                                     false,
@@ -710,7 +747,7 @@ void MapCreator::execute()
             Areas& areas = itLocations->second;
             for (auto itAreas = areas.begin(); itAreas != areas.end(); ++itAreas)
             {
-                createNewWaiMap(itLocations->first, itAreas->first, itAreas->second, _extractorType, _nLevels);
+                createNewWaiMap(itLocations->first, itAreas->first, itAreas->second, _extractorType, _nLevels, _ensureKFIntegration);
             }
         }
     }
