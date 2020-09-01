@@ -50,7 +50,7 @@ private:
     HighResTimer _timer;
 
     const float _visibleTimeS = 3.f;
-    const float _dimTimeS     = 1.f;
+    const float _dimTimeS     = 0.5f;
     float       _opacity      = 1.f;
     //user tapped to switch off visibility
     bool _manualSwitchOff = false;
@@ -82,7 +82,8 @@ public:
 
     void mouseDown(bool doNotDispatch);
     void mouseMove(bool doNotDispatch);
-
+    float opacity() const { return _opacityController.opacity(); }
+    
 private:
     void resize(int scrW, int scrH);
 
