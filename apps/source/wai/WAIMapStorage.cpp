@@ -168,6 +168,22 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
         fs << "nMaxX" << kf->mnMaxX;
         fs << "nMaxY" << kf->mnMaxY;
 
+        std::vector<int>          bestCovisibleKeyFrameIds;
+        std::vector<int>          bestCovisibleWeights;
+        std::vector<WAIKeyFrame*> bestCovisibles = kf->GetBestCovisibilityKeyFrames(20);
+        for (WAIKeyFrame* covisible : bestCovisibles)
+        {
+            int weight = kf->GetWeight(covisible);
+            if (weight)
+            {
+                bestCovisibleKeyFrameIds.push_back(covisible->mnId);
+                bestCovisibleWeights.push_back(weight);
+            }
+        }
+
+        fs << "bestCovisibleKeyFrameIds" << bestCovisibleKeyFrameIds;
+        fs << "bestCovisibleWeights" << bestCovisibleWeights;
+
         fs << "}"; //close map
 
         //save the original frame image for this keyframe
@@ -252,6 +268,11 @@ void saveMapPoints(std::vector<WAIMapPoint*>                         mpts,
 
         fs << "observingKfIds" << observingKfIds;
         fs << "corrKpIndices" << corrKpIndices;
+
+        fs << "mfMaxDistance" << mpt->GetMaxDistance();
+        fs << "mfMinDistance" << mpt->GetMinDistance();
+        fs << "mNormalVector" << mpt->GetNormal();
+        fs << "mDescriptor" << mpt->GetDescriptor();
 
         fs << "refKfId" << (int)mpt->refKf()->mnId;
         fs << "}"; //close map
@@ -932,7 +953,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::updateConnections");
 
         // Update links in the Covisibility Graph, do not build the spanning tree yet
-        kf->UpdateConnections(false);
+        kf->FindAndUpdateConnections(false);
         if (kf->mnId == 0)
         {
             firstKF = kf;
@@ -1042,6 +1063,8 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                             bool              loadImgs,
                             bool              fixKfsAndMPts)
 {
+    PROFILE_FUNCTION();
+
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
     std::map<int, int>              parentIdMap;
@@ -1067,6 +1090,11 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     {
         fs["mapNodeOm"] >> mapNodeOm;
     }
+
+    std::map<int, std::vector<int>> bestCovisibleKeyFrameIdsMap;
+    std::map<int, std::vector<int>> bestCovisibleWeightsMap;
+
+    bool updateKeyFrameConnections = false;
 
     cv::FileNode n = fs["KeyFrames"];
     for (auto it = n.begin(); it != n.end(); ++it)
@@ -1189,6 +1217,22 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         }
         keyFrames.push_back(newKf);
         kfsMap[newKf->mnId] = newKf;
+
+        if (!(*it)["bestCovisibleKeyFrameIds"].empty() &&
+            !(*it)["bestCovisibleWeights"].empty())
+        {
+            std::vector<int> bestCovisibleKeyFrameIds;
+            (*it)["bestCovisibleKeyFrameIds"] >> bestCovisibleKeyFrameIds;
+            std::vector<int> bestCovisibleWeights;
+            (*it)["bestCovisibleWeights"] >> bestCovisibleWeights;
+
+            bestCovisibleKeyFrameIdsMap[newKf->mnId] = bestCovisibleKeyFrameIds;
+            bestCovisibleWeightsMap[newKf->mnId]     = bestCovisibleWeights;
+        }
+        else
+        {
+            updateKeyFrameConnections = true;
+        }
     }
 
     //set parent keyframe pointers into keyframes
@@ -1240,6 +1284,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         cerr << "strings is not a sequence! FAIL" << endl;
     }
 
+    bool needMapPointUpdate = false;
     for (auto it = n.begin(); it != n.end(); ++it)
     {
         //newPt->id( (int)(*it)["id"]);
@@ -1278,6 +1323,24 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
             }
         }
 
+        if (!(*it)["mfMaxDistance"].empty() &&
+            !(*it)["mfMinDistance"].empty() &&
+            !(*it)["mNormalVector"].empty() &&
+            !(*it)["mDescriptor"].empty())
+        {
+            newPt->SetMaxDistance((float)(*it)["mfMaxDistance"]);
+            newPt->SetMinDistance((float)(*it)["mfMinDistance"]);
+            cv::Mat normal, descriptor;
+            (*it)["mNormalVector"] >> normal;
+            (*it)["mDescriptor"] >> descriptor;
+            newPt->SetNormal(normal);
+            newPt->SetDescriptor(descriptor);
+        }
+        else
+        {
+            needMapPointUpdate = true;
+        }
+
         if (refKFFound)
         {
             //find and add pointers of observing keyframes to map point
@@ -1305,8 +1368,28 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     bool         buildSpanningTree = false;
     for (WAIKeyFrame* kf : keyFrames)
     {
-        // Update links in the Covisibility Graph, do not build the spanning tree yet
-        kf->UpdateConnections(false);
+        if (updateKeyFrameConnections)
+        {
+            // Update links in the Covisibility Graph, do not build the spanning tree yet
+            kf->FindAndUpdateConnections(false);
+        }
+        else
+        {
+            std::map<WAIKeyFrame*, int> keyFrameWeightMap;
+
+            std::vector<int> bestCovisibleKeyFrameIds = bestCovisibleKeyFrameIdsMap[kf->mnId];
+            std::vector<int> bestCovisibleWeights     = bestCovisibleWeightsMap[kf->mnId];
+
+            for (int i = 0; i < bestCovisibleKeyFrameIds.size(); i++)
+            {
+                int          keyFrameId        = bestCovisibleKeyFrameIds[i];
+                int          weight            = bestCovisibleWeights[i];
+                WAIKeyFrame* covisibleKF       = kfsMap[keyFrameId];
+                keyFrameWeightMap[covisibleKF] = weight;
+            }
+
+            kf->UpdateConnections(keyFrameWeightMap, false);
+        }
         if (kf->mnId == 0)
         {
             firstKF = kf;
@@ -1364,12 +1447,17 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         }
     }
 
-    //compute resulting values for map points
-    for (WAIMapPoint*& mp : mapPoints)
+    if (needMapPointUpdate)
     {
-        //mean viewing direction and depth
-        mp->UpdateNormalAndDepth();
-        mp->ComputeDistinctiveDescriptors();
+        PROFILE_SCOPE("Updating MapPoints");
+
+        //compute resulting values for map points
+        for (WAIMapPoint*& mp : mapPoints)
+        {
+            //mean viewing direction and depth
+            mp->UpdateNormalAndDepth();
+            mp->ComputeDistinctiveDescriptors();
+        }
     }
 
     for (WAIKeyFrame* kf : keyFrames)
