@@ -22,7 +22,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _camera(camera),
     _vocabularyDir(deviceData.vocabularyDir()),
-    _erlebARDir(deviceData.erlebARDir())
+    _erlebARDir(deviceData.erlebARDir()),
+    _resources(resources)
 {
     scene(&_scene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
@@ -111,7 +112,7 @@ bool AreaTrackingView::update()
               _initializationExtractor.get(),
               _relocalizationExtractor.get(),
               _trackingExtractor.get(),
-              std::move(_asyncLoader->moveWaiMap()),
+              _asyncLoader->moveWaiMap(),
               params);
 
             delete _asyncLoader;
@@ -125,6 +126,7 @@ bool AreaTrackingView::update()
     }
     catch (...)
     {
+        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
     }
 
     return onPaint();
@@ -432,19 +434,18 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 {
     //todo: add or remove crop in case of wide screens
     //undistort image and copy image to video texture
-    _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, _showKeyPoints, _showKeyPointsMatched);
+    if(_resources.developerMode)
+        _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, false, true);
 
     updateVideoImage(frame);
 
     //update map point visualization
-    if (_showMapPC)
+    if(_resources.developerMode)
         _scene.renderMapPoints(_waiSlam->getMapPoints());
-    else
-        _scene.removeMapPoints();
-
+    
     //update visualization of matched map points (when WAI pose is valid)
-    if (_showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFramePtr()));
+    if (iKnowWhereIAm && (_gui.opacity() > 0.0001f))
+        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFramePtr()), _gui.opacity());
     else
         _scene.removeMatchedMapPoints();
 }

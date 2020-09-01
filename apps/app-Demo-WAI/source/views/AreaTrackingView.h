@@ -81,15 +81,12 @@ private:
     std::string _erlebARDir;
     std::string _mapFileName;
 
-    //debug visualization
-    bool _showKeyPoints        = false;
-    bool _showKeyPointsMatched = true;
-    bool _showMapPC            = true;
-    bool _showMatchesPC        = true;
     //size with which camera was started last time (needed for a resume call)
     cv::Size _cameraFrameResumeSize;
 
     MapLoader* _asyncLoader = nullptr;
+    
+    ErlebAR::Resources& _resources;
 };
 
 //! Async loader for vocabulary and maps
