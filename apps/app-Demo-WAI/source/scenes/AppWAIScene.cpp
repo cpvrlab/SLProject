@@ -99,7 +99,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::GreenLight, "Green");
     greenMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
-    blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::BlueLight, "Blue");
+    blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::BlueImgui1, "Blue");
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
@@ -653,7 +653,7 @@ void AppWAIScene::renderMapPoints(std::string                      name,
             points.push_back(SLVec3f(wP.x, wP.y, wP.z));
             normals.push_back(SLVec3f(wN.x, wN.y, wN.z));
         }
-        
+
         material->kt(1.f - opacity);
 
         mesh = new SLPoints(&assets, points, normals, name, material);

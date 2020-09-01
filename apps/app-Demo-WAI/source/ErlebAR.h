@@ -38,13 +38,14 @@ const SLVec4f GrayDark = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
 
 //secondary colors
 //green:
-const SLVec4f GreenDark = {85.f / 255.f, 100.f / 255.f, 85.f / 255.f, 1.f};
-const SLVec4f GreenMean = {105.f / 255.f, 150.f / 255.f, 115.f / 255.f, 1.f};
+const SLVec4f GreenDark  = {85.f / 255.f, 100.f / 255.f, 85.f / 255.f, 1.f};
+const SLVec4f GreenMean  = {105.f / 255.f, 150.f / 255.f, 115.f / 255.f, 1.f};
 const SLVec4f GreenLight = {140.f / 255.f, 175.f / 255.f, 130.f / 255.f, 1.f};
 //blue:
-const SLVec4f BlueDark = {80.f / 255.f, 110.f / 255.f, 150.f / 255.f, 1.f};
-const SLVec4f BlueMean = {105.f / 255.f, 155.f / 255.f, 190.f / 255.f, 1.f};
-const SLVec4f BlueLight = {135.f / 255.f, 185.f / 255.f, 200.f / 255.f, 1.f};
+const SLVec4f BlueDark   = {80.f / 255.f, 110.f / 255.f, 150.f / 255.f, 1.f};
+const SLVec4f BlueMean   = {105.f / 255.f, 155.f / 255.f, 190.f / 255.f, 1.f};
+const SLVec4f BlueLight  = {135.f / 255.f, 185.f / 255.f, 200.f / 255.f, 1.f};
+const SLVec4f BlueImgui1 = {0.24f, 0.52f, 0.88f, 1.00f};
 //violett
 //ocker
 
