@@ -110,7 +110,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 820;
         area.yPosPix         = 660;
         area.viewAngleDeg    = 170;
-        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200710-170350_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.json";
+        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200901-155552_avenches_amphitheaterEntrance_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
     {
@@ -120,7 +120,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 472;
         area.yPosPix         = 736;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "locations/avenches/amphitheater/stable-map_20200710-151049_avenches_amphitheater_FAST-ORBS-2000_2.json";
+        area.slamMapFileName = "locations/avenches/amphitheater/maps/stable-map_20200831-142136_avenches_amphitheater_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
     {
@@ -140,7 +140,7 @@ const Location defineLocationAvenches()
         area.xPosPix         = 2463;
         area.yPosPix         = 1132;
         area.viewAngleDeg    = 50;
-        area.slamMapFileName = "locations/avenches/theater/maps/DEVELOPMENT-map_20200710-182227_avenches_theater_FAST-ORBS-2000_2.json";
+        area.slamMapFileName = "locations/avenches/theater/maps/stable-map_20200831-142406_avenches_theater_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
 
