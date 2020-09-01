@@ -14,6 +14,7 @@
 			"location": "augst",
 			"areas": [
 				{ "area": "templeHillTheater", "enabled": false },
+				{ "area": "templeHillTheaterBottom", "enabled": true },
 				{ "area": "theaterArena", "enabled": false },
 				{ "area": "theaterMid", "enabled": false },
 				{ "area": "theaterTop", "enabled": false },
@@ -139,6 +140,13 @@
                         "20200704-143809_sunny_NOKIA6-1_map_640x360.mp4",
                         "20200704-142817_sunny_ASUSAR-1_map_640x360.mp4",
                         "20200704-143523_sunny_GALAXYS6-1_map_640x360.mp4"
+                    ]
+                },
+                {
+                    "location": "augst",
+                    "area": "templeHillTheaterBottom",
+                    "videos": [
+                        "20191009-104244_rainy_ASUSAR-1_map_640x360.mp4"
                     ]
                 },
                 {
