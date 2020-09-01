@@ -39,14 +39,15 @@ public:
     void resume();
     void hold();
 
-    //void checkLoadingStatus();
-
     static std::unique_ptr<WAIMap> tryLoadMap(const std::string& erlebARDir,
                                               const std::string& slamMapFileName,
                                               WAIOrbVocabulary*  voc,
                                               cv::Mat&           mapNodeOm);
 
 private:
+    virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseMove(SLint x, SLint y);
+
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
@@ -80,15 +81,12 @@ private:
     std::string _erlebARDir;
     std::string _mapFileName;
 
-    //debug visualization
-    bool _showKeyPoints        = false;
-    bool _showKeyPointsMatched = true;
-    bool _showMapPC            = true;
-    bool _showMatchesPC        = true;
     //size with which camera was started last time (needed for a resume call)
     cv::Size _cameraFrameResumeSize;
 
     MapLoader* _asyncLoader = nullptr;
+    
+    ErlebAR::Resources& _resources;
 };
 
 //! Async loader for vocabulary and maps

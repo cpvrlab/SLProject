@@ -8,6 +8,7 @@
 #include <SLVec4.h>
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
+#include <ErlebAR.h>
 
 AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
@@ -95,10 +96,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     redMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
     redMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
-    greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::GREEN, "Green");
+    greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::GreenLight, "Green");
     greenMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
-    blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::BLUE, "Blue");
+    blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::BlueLight, "Blue");
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
@@ -120,7 +121,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->attenuation(1, 0, 0);
     light->translation(0, 1, 0);
     light->lookAt(1, 0, 1);
-    light->setDrawBitsRec(SL_DB_HIDDEN, true);
+    light->setDrawBitsRec(SL_DB_HIDDEN, false);
     _root3D->addChild(light);
 
     HighResTimer t;
@@ -238,11 +239,11 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                                          modelPath,
                                          _dataDir + "images/textures/");
 
-        hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
+        //hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
 
         hideNode(augmentationRoot->findChild<SLNode>("Mauer-Wand", true));
         hideNode(augmentationRoot->findChild<SLNode>("Mauer-Dach", true));
@@ -256,6 +257,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
 
         _root3D->addChild(augmentationRoot);
+
+        //adjust camera frustum
+        cameraNode->clipNear(1.0f);
+        cameraNode->clipFar(10.0f);
     }
 
 #if 0 // office table boxes scene
@@ -414,16 +419,17 @@ void AppWAIScene::renderMarkerCornerMapPoints(const std::vector<WAIMapPoint*>& p
 
 void AppWAIScene::renderLocalMapPoints(const std::vector<WAIMapPoint*>& pts)
 {
-    renderMapPoints("LocalMapPoints", pts, mapLocalPC, mappointsLocalMesh, blueMat);
+    renderMapPoints("LocalMapPoints", pts, mapLocalPC, mappointsLocalMesh, greenMat);
 }
 
-void AppWAIScene::renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts)
+void AppWAIScene::renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts, float opacity)
 {
     renderMapPoints("MatchedMapPoints",
                     pts,
                     mapMatchedPC,
                     mappointsMatchedMesh,
-                    greenMat);
+                    blueMat,
+                    opacity);
 }
 
 void AppWAIScene::removeMapPoints()
@@ -619,7 +625,8 @@ void AppWAIScene::renderMapPoints(std::string                      name,
                                   const std::vector<WAIMapPoint*>& pts,
                                   SLNode*&                         node,
                                   SLPoints*&                       mesh,
-                                  SLMaterial*&                     material)
+                                  SLMaterial*&                     material,
+                                  float                            opacity)
 {
     //remove old mesh, if it exists
     if (mesh)
@@ -646,6 +653,8 @@ void AppWAIScene::renderMapPoints(std::string                      name,
             points.push_back(SLVec3f(wP.x, wP.y, wP.z));
             normals.push_back(SLVec3f(wN.x, wN.y, wN.z));
         }
+        
+        material->kt(1.f - opacity);
 
         mesh = new SLPoints(&assets, points, normals, name, material);
         node->addMesh(mesh);

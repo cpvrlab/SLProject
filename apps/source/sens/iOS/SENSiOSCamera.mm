@@ -33,6 +33,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     }
 
     cv::Size targetSize;
+
     if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
     {
         targetSize.width  = imgRGBSize.width;

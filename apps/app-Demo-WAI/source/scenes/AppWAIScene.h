@@ -38,7 +38,7 @@ public:
     void renderMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderMarkerCornerMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderLocalMapPoints(const std::vector<WAIMapPoint*>& pts);
-    void renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts);
+    void renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts, float opacity=1.0f);
     void removeMapPoints();
     void removeMarkerCornerMapPoints();
     void removeLocalMapPoints();
@@ -68,7 +68,8 @@ private:
                          const std::vector<WAIMapPoint*>& pts,
                          SLNode*&                         node,
                          SLPoints*&                       mesh,
-                         SLMaterial*&                     material);
+                         SLMaterial*&                     material,
+                         float                            opacity = 1.f);
     void removeMesh(SLNode* node, SLMesh* mesh);
     void hideNode(SLNode* node);
 

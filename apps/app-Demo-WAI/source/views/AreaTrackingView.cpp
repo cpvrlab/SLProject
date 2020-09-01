@@ -22,7 +22,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _camera(camera),
     _vocabularyDir(deviceData.vocabularyDir()),
-    _erlebARDir(deviceData.erlebARDir())
+    _erlebARDir(deviceData.erlebARDir()),
+    _resources(resources)
 {
     scene(&_scene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
@@ -48,52 +49,6 @@ AreaTrackingView::~AreaTrackingView()
     if (_asyncLoader)
         delete _asyncLoader;
 }
-
-//void AreaTrackingView::checkLoadingStatus()
-//{
-//    if (_loadingFuture.valid() && _loadingFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
-//    {
-//        std::unique_ptr<WAIMap> waiMap;
-//        try
-//        {
-//            //get map
-//            waiMap = _loadingFuture.get();
-//        }
-//        catch (std::exception& e)
-//        {
-//            Utils::log("AreaTrackingView", "loading map file failed: %s", e.what());
-//        }
-//
-//        _loadingThread->join();
-//        _loadingThread.reset();
-//
-//        //init waislam
-//        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-//                                                    _camera->config().manipWidth,
-//                                                    _camera->config().targetWidth);
-//
-//        WAISlam::Params params;
-//        params.cullRedundantPerc   = 0.95f;
-//        params.ensureKFIntegration = false;
-//        params.fixOldKfs           = true;
-//        params.onlyTracking        = false;
-//        params.retainImg           = false;
-//        params.serial              = false;
-//        params.trackOptFlow        = false;
-//
-//        _waiSlam = std::make_unique<WAISlam>(
-//          scaledCamMat,
-//          _camera->calibration()->distortion(),
-//          _voc,
-//          _initializationExtractor.get(),
-//          _relocalizationExtractor.get(),
-//          _trackingExtractor.get(),
-//          std::move(waiMap),
-//          params);
-//
-//        //update scene graph for map visualization
-//    }
-//}
 
 bool AreaTrackingView::update()
 {
@@ -157,7 +112,7 @@ bool AreaTrackingView::update()
               _initializationExtractor.get(),
               _relocalizationExtractor.get(),
               _trackingExtractor.get(),
-              std::move(_asyncLoader->moveWaiMap()),
+              _asyncLoader->moveWaiMap(),
               params);
 
             delete _asyncLoader;
@@ -171,9 +126,24 @@ bool AreaTrackingView::update()
     }
     catch (...)
     {
+        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
     }
 
     return onPaint();
+}
+
+SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+{
+    SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
+    _gui.mouseDown(_gui.doNotDispatchMouse());
+    return ret;
+}
+
+SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
+{
+    SLbool ret = SLSceneView::onMouseMove(x, y);
+    _gui.mouseMove(_gui.doNotDispatchMouse());
+    return ret;
 }
 
 void AreaTrackingView::updateSceneCameraFov()
@@ -293,8 +263,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
     this->camera(_scene.cameraNode);
-    _scene.cameraNode->clipNear(1.0f);
-    _scene.cameraNode->clipFar(2000.0f);
     updateSceneCameraFov();
 
     //initialize extractors
@@ -400,8 +368,7 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
             const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
             Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
 
-            int cropW,
-              cropH, w, h;
+            int cropW, cropH, w, h;
             SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
 
             _camera->start(devProps->deviceId(),
@@ -467,19 +434,18 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 {
     //todo: add or remove crop in case of wide screens
     //undistort image and copy image to video texture
-    _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, _showKeyPoints, _showKeyPointsMatched);
+    if(_resources.developerMode)
+        _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, false, true);
 
     updateVideoImage(frame);
 
     //update map point visualization
-    if (_showMapPC)
+    if(_resources.developerMode)
         _scene.renderMapPoints(_waiSlam->getMapPoints());
-    else
-        _scene.removeMapPoints();
-
+    
     //update visualization of matched map points (when WAI pose is valid)
-    if (_showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFramePtr()));
+    if (iKnowWhereIAm && (_gui.opacity() > 0.0001f))
+        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFramePtr()), _gui.opacity());
     else
         _scene.removeMatchedMapPoints();
 }

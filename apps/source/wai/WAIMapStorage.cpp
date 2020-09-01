@@ -929,6 +929,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     bool         buildSpanningTree = false;
     for (WAIKeyFrame* kf : keyFrames)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::updateConnections");
+
         // Update links in the Covisibility Graph, do not build the spanning tree yet
         kf->UpdateConnections(false);
         if (kf->mnId == 0)
@@ -946,6 +948,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     // Build spanning tree if keyframes have no parents (legacy support)
     if (buildSpanningTree)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::buildSpanningTree");
+
         //QueueElem: <unconnected_kf, graph_kf, weight>
         using QueueElem                 = std::tuple<WAIKeyFrame*, WAIKeyFrame*, int>;
         auto                   cmpQueue = [](const QueueElem& left, const QueueElem& right) { return (std::get<2>(left) < std::get<2>(right)); };
@@ -991,6 +995,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     //compute resulting values for map points
     for (WAIMapPoint*& mp : mapPoints)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::updateMapPoint");
+
         //mean viewing direction and depth
         mp->UpdateNormalAndDepth();
         mp->ComputeDistinctiveDescriptors();
@@ -998,6 +1004,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
     for (WAIKeyFrame* kf : keyFrames)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::addKeyFrame");
+
         if (kf->mBowVec.data.empty())
         {
             std::cout << "kf->mBowVec.data empty" << std::endl;
@@ -1015,6 +1023,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
     for (WAIMapPoint* point : mapPoints)
     {
+        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::addMapPoint");
+
         waiMap->AddMapPoint(point);
     }
 
