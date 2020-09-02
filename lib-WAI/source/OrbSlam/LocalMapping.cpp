@@ -142,7 +142,7 @@ void LocalMapping::Run2()
 
             if (KeyFramesToProcess() > 8)
             {
-                lba = false;
+                lba       = false;
                 neighbors = false;
                 SetAcceptKeyFrames(false);
             }
@@ -280,7 +280,7 @@ void LocalMapping::ProcessNewKeyFrame(WAIKeyFrame* kf)
         }
     }
     // Update links in the Covisibility Graph
-    kf->UpdateConnections();
+    kf->FindAndUpdateConnections();
 
     // Insert Keyframe in Map
     mpMap->AddKeyFrame(kf);
@@ -656,7 +656,7 @@ void LocalMapping::SearchInNeighbors(LocalMap& lmap)
     }
 
     // Update connections in covisibility graph
-    lmap.refKF->UpdateConnections();
+    lmap.refKF->FindAndUpdateConnections();
 }
 
 void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
@@ -738,7 +738,7 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
     }
 
     // Update connections in covisibility graph
-    frame->UpdateConnections();
+    frame->FindAndUpdateConnections();
 }
 
 cv::Mat LocalMapping::ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2)
@@ -992,7 +992,7 @@ void LocalMapping::Finish()
     unique_lock<mutex> lock(mMutexFinish);
     SetAcceptKeyFrames(false);
     mbFinishRequested = false;
-    mbFinished = true;
+    mbFinished        = true;
 }
 
 //Pause
@@ -1019,14 +1019,13 @@ void LocalMapping::Pause()
 {
     unique_lock<mutex> lock(mMutexPause);
     mPauseRequested = false;
-    mPaused = true;
+    mPaused         = true;
 }
 
 void LocalMapping::RequestContinue()
 {
     unique_lock<mutex> lock(mMutexPause);
-    mPaused   = false;
+    mPaused = false;
 }
-
 
 } //namespace ORB_SLAM

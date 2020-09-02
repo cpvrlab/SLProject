@@ -156,6 +156,13 @@
 				},
                 {
                     "location": "augst",
+                    "area": "templeHillTheaterBottom",
+                    "videos": [
+                        "20191009-104244_rainy_ASUSAR-1_map_640x360.mp4"
+                    ]
+                },
+                {
+                    "location": "augst",
                     "area": "theaterArena",
                     "videos": [
                         "20191009-110940_rainy_NOKIA6-1_relocalization_640x360.mp4",

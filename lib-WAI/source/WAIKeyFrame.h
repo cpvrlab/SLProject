@@ -57,7 +57,6 @@ points that were found in this frame. It also contains descriptors for the found
 keypoints.
 */
 
-
 class WAI_API WAIKeyFrame
 {
 public:
@@ -97,12 +96,13 @@ public:
 
     // Bag of Words Representation
     void ComputeBoW(WAIOrbVocabulary* vocabulary);
-    void SetBowVector(WAIBowVector &bow);
+    void SetBowVector(WAIBowVector& bow);
 
     // Covisibility graph functions
     void                      AddConnection(WAIKeyFrame* pKF, int weight);
     void                      EraseConnection(WAIKeyFrame* pKF);
-    void                      UpdateConnections(bool buildSpanningTree = true);
+    void                      FindAndUpdateConnections(bool buildSpanningTree = true);
+    void                      UpdateConnections(std::map<WAIKeyFrame*, int> KFcounter, bool buildSpanningTree);
     void                      UpdateBestCovisibles();
     std::set<WAIKeyFrame*>    GetConnectedKeyFrames();
     std::vector<WAIKeyFrame*> GetVectorCovisibleKeyFrames();
@@ -208,8 +208,8 @@ public:
     float             mRelocScore  = -1.0f;
 
     // Variables used by loop closing
-    cv::Mat           mTcwGBA;
-    cv::Mat           mTcwRefGBA;
+    cv::Mat mTcwGBA;
+    cv::Mat mTcwRefGBA;
 
     // Calibration parameters
     const float fx, fy, cx, cy, invfx, invfy; /*, mbf, mb, mThDepth;*/
@@ -284,7 +284,6 @@ protected:
     bool mbBad;
 
 public:
-
     std::mutex mMutexPose;
     std::mutex mMutexConnections;
     std::mutex mMutexFeatures;
