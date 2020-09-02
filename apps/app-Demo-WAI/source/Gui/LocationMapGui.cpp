@@ -207,26 +207,22 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
                                             _locTextureH);
 
         float screenRatio = _screenH / _screenW;
-        _dspPixWidth      = (float)_loc.dspPixWidth;
-        _dspPixHeight     = (float)(_loc.dspPixWidth * screenRatio);
+
+        _dspPixWidth = (float)_loc.dspPixWidth;
+        //make sure that the defined width is always bigger than the image width
+        if (_dspPixWidth > _locTextureW)
+            _dspPixWidth = _locTextureW;
+
+        _dspPixHeight = _dspPixWidth * screenRatio;
+        if (_dspPixHeight > _locTextureH)
+        {
+            //make the display width smaller, so that we dont repeat the texture in vertical direction
+            _dspPixHeight = _locTextureH;
+            _dspPixWidth  = _dspPixHeight / screenRatio;
+        }
 
         _fracW = _dspPixWidth / (float)_locTextureW; //Should never be bigger than 1
         _fracH = _dspPixHeight / (float)_locTextureH;
-
-        if (_fracW > 1.0)
-        {
-            _fracW        = 1.0;
-            _fracH        = _screenH / _screenW;
-            _dspPixWidth  = (float)_locTextureW;
-            _dspPixHeight = (float)(_dspPixWidth * _screenH) / (float)(_screenW);
-        }
-        /*if (_fracH > 1.0)
-        {
-            _fracH        = 1.0;
-            _fracW        = _screenW / _screenH;
-            _dspPixHeight = (float)_locTextureH;
-            _dspPixWidth  = (float)(_dspPixHeight * _screenW) / (float)(_screenH);
-        }*/
     }
     else
         Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);
