@@ -29,6 +29,7 @@ class WAI_API WAIMapStorage
 
         int32_t loopEdgesCount;
         int32_t kpCount;
+        int32_t covisiblesCount;
 
         int32_t bowVecSize;
     };
@@ -39,6 +40,8 @@ class WAI_API WAIMapStorage
         int32_t refKfId;
 
         int32_t nObervations;
+
+        float minDistance, maxDistance;
     };
 
     struct KeyPointData

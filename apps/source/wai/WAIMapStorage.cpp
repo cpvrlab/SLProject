@@ -527,6 +527,21 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
             kfInfo.bowVecSize = wordsId.size();
         }
 
+        std::vector<int32_t>      bestCovisibleKeyFrameIds;
+        std::vector<int32_t>      bestCovisibleWeights;
+        std::vector<WAIKeyFrame*> bestCovisibles = kf->GetBestCovisibilityKeyFrames(20);
+        for (WAIKeyFrame* covisible : bestCovisibles)
+        {
+            int weight = kf->GetWeight(covisible);
+            if (weight)
+            {
+                bestCovisibleKeyFrameIds.push_back(covisible->mnId);
+                bestCovisibleWeights.push_back(weight);
+            }
+        }
+
+        kfInfo.covisiblesCount = bestCovisibleKeyFrameIds.size();
+
         fwrite(&kfInfo, sizeof(KeyFrameInfo), 1, f);
         writeCVMatToBinaryFile(f, kf->mK);
         writeCVMatToBinaryFile(f, kf->GetPose());
@@ -539,6 +554,9 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
             writeVectorToBinaryFile(f, wordsId);
             writeVectorToBinaryFile(f, tfIdf);
         }
+
+        writeVectorToBinaryFile(f, bestCovisibleKeyFrameIds);
+        writeVectorToBinaryFile(f, bestCovisibleWeights);
 
         //save the original frame image for this keyframe
         if (imgDir != "")
@@ -611,11 +629,15 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         }
 
         mpInfo.nObervations = observingKfIds.size();
+        mpInfo.minDistance  = mpt->GetMinDistance();
+        mpInfo.maxDistance  = mpt->GetMaxDistance();
 
         fwrite(&mpInfo, sizeof(mpInfo), 1, f);
         writeCVMatToBinaryFile(f, mpt->GetWorldPos());
         writeVectorToBinaryFile(f, observingKfIds);
         writeVectorToBinaryFile(f, corrKpIndices);
+        writeCVMatToBinaryFile(f, mpt->GetNormal());
+        writeCVMatToBinaryFile(f, mpt->GetDescriptor());
     }
 
     fclose(f);
@@ -652,7 +674,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                                   bool              loadImgs,
                                   bool              fixKfsAndMPts)
 {
-    PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary");
+    PROFILE_FUNCTION();
 
     std::vector<WAIMapPoint*>       mapPoints;
     std::vector<WAIKeyFrame*>       keyFrames;
@@ -695,6 +717,9 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         cv::Mat cvMat = loadCVMatFromBinaryStream(&fContent, 4, 4, CV_32F);
         mapNodeOm     = cvMat.clone();
     }
+
+    std::map<int, std::vector<int>> bestCovisibleKeyFrameIdsMap;
+    std::map<int, std::vector<int>> bestCovisibleWeightsMap;
 
     for (int i = 0; i < mapInfo->kfCount; i++)
     {
@@ -811,6 +836,12 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
         keyFrames.push_back(newKf);
         kfsMap[newKf->mnId] = newKf;
+
+        std::vector<int32_t> bestCovisibleKeyFrameIds = loadVectorFromBinaryStream<int32_t>(&fContent, kfInfo->covisiblesCount);
+        std::vector<int32_t> bestCovisibleWeights     = loadVectorFromBinaryStream<int32_t>(&fContent, kfInfo->covisiblesCount);
+
+        bestCovisibleKeyFrameIdsMap[newKf->mnId] = bestCovisibleKeyFrameIds;
+        bestCovisibleWeightsMap[newKf->mnId]     = bestCovisibleWeights;
     }
 
     //set parent keyframe pointers into keyframes
@@ -869,7 +900,14 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         std::vector<int32_t> observingKfIds = loadVectorFromBinaryStream<int32_t>(&fContent, mpInfo->nObervations);
         std::vector<int32_t> corrKpIndices  = loadVectorFromBinaryStream<int32_t>(&fContent, mpInfo->nObervations);
 
+        cv::Mat normal     = loadCVMatFromBinaryStream(&fContent, 3, 1, CV_32F);
+        cv::Mat descriptor = loadCVMatFromBinaryStream(&fContent, 1, 32, CV_8U);
+
         WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, fixKfsAndMPts);
+        newPt->SetMinDistance(mpInfo->minDistance);
+        newPt->SetMaxDistance(mpInfo->maxDistance);
+        newPt->SetNormal(normal);
+        newPt->SetDescriptor(descriptor);
 
         //get reference keyframe id
         int  refKfId    = (int)mpInfo->refKfId;
@@ -923,8 +961,21 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     {
         PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::updateConnections");
 
-        // Update links in the Covisibility Graph, do not build the spanning tree yet
-        kf->FindAndUpdateConnections(false);
+        std::map<WAIKeyFrame*, int> keyFrameWeightMap;
+
+        std::vector<int> bestCovisibleKeyFrameIds = bestCovisibleKeyFrameIdsMap[kf->mnId];
+        std::vector<int> bestCovisibleWeights     = bestCovisibleWeightsMap[kf->mnId];
+
+        for (int i = 0; i < bestCovisibleKeyFrameIds.size(); i++)
+        {
+            int          keyFrameId        = bestCovisibleKeyFrameIds[i];
+            int          weight            = bestCovisibleWeights[i];
+            WAIKeyFrame* covisibleKF       = kfsMap[keyFrameId];
+            keyFrameWeightMap[covisibleKF] = weight;
+        }
+
+        kf->UpdateConnections(keyFrameWeightMap, false);
+
         if (kf->mnId == 0)
         {
             firstKF = kf;
@@ -982,16 +1033,6 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             //update parent
             graph.insert(newGraphKf);
         }
-    }
-
-    //compute resulting values for map points
-    for (WAIMapPoint*& mp : mapPoints)
-    {
-        PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::updateMapPoint");
-
-        //mean viewing direction and depth
-        mp->UpdateNormalAndDepth();
-        mp->ComputeDistinctiveDescriptors();
     }
 
     for (WAIKeyFrame* kf : keyFrames)
