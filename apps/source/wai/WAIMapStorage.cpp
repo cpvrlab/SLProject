@@ -359,9 +359,9 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
     return true;
 }
 
-std::vector<uchar> WAIMapStorage::convertCVMatToVector(const cv::Mat& mat)
+std::vector<uint8_t> WAIMapStorage::convertCVMatToVector(const cv::Mat& mat)
 {
-    std::vector<uchar> result;
+    std::vector<uint8_t> result;
 
     // makes sure mat is continuous
     cv::Mat continuousMat = mat.clone();
@@ -372,18 +372,17 @@ std::vector<uchar> WAIMapStorage::convertCVMatToVector(const cv::Mat& mat)
     return result;
 }
 
+template<typename T>
+void WAIMapStorage::writeVectorToBinaryFile(FILE* f, const std::vector<T> vec)
+{
+    fwrite(vec.data(), sizeof(T), vec.size(), f);
+}
+
 void WAIMapStorage::writeCVMatToBinaryFile(FILE* f, const cv::Mat& mat)
 {
-    CVMatHeader header;
+    std::vector<uint8_t> data = convertCVMatToVector(mat);
 
-    header.cols = mat.cols;
-    header.rows = mat.rows;
-    header.type = mat.type();
-
-    std::vector<uchar> data = convertCVMatToVector(mat);
-
-    fwrite(&header, sizeof(CVMatHeader), 1, f);
-    fwrite(data.data(), sizeof(uchar), data.size(), f);
+    writeVectorToBinaryFile(f, data);
 }
 
 bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
@@ -531,14 +530,14 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         fwrite(&kfInfo, sizeof(KeyFrameInfo), 1, f);
         writeCVMatToBinaryFile(f, kf->mK);
         writeCVMatToBinaryFile(f, kf->GetPose());
-        fwrite(loopEdgeIds.data(), sizeof(int32_t), loopEdgeIds.size(), f);
+        writeVectorToBinaryFile(f, loopEdgeIds);
         writeCVMatToBinaryFile(f, descriptors);
-        fwrite(keyPoints.data(), sizeof(cv::KeyPoint), keyPoints.size(), f);
+        writeVectorToBinaryFile(f, keyPoints);
 
         if (saveBOW)
         {
-            fwrite(wordsId.data(), sizeof(int32_t), wordsId.size(), f);
-            fwrite(tfIdf.data(), sizeof(float), tfIdf.size(), f);
+            writeVectorToBinaryFile(f, wordsId);
+            writeVectorToBinaryFile(f, tfIdf);
         }
 
         //save the original frame image for this keyframe
@@ -615,8 +614,8 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
 
         fwrite(&mpInfo, sizeof(mpInfo), 1, f);
         writeCVMatToBinaryFile(f, mpt->GetWorldPos());
-        fwrite(observingKfIds.data(), sizeof(int32_t), observingKfIds.size(), f);
-        fwrite(corrKpIndices.data(), sizeof(int32_t), corrKpIndices.size(), f);
+        writeVectorToBinaryFile(f, observingKfIds);
+        writeVectorToBinaryFile(f, corrKpIndices);
     }
 
     fclose(f);
@@ -624,15 +623,24 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
     return true;
 }
 
-// returns the number of bytes loaded
-int WAIMapStorage::loadCVMatFromBinaryStream(uint8_t* data, cv::Mat& mat)
+template<typename T>
+std::vector<T> WAIMapStorage::loadVectorFromBinaryStream(uint8_t** data, int count)
 {
-    CVMatHeader* header = (CVMatHeader*)data;
+    std::vector<T> result((T*)(*data), ((T*)(*data)) + count);
+    *data += sizeof(T) * count;
 
-    uint8_t* matData = data + sizeof(CVMatHeader);
-    mat              = cv::Mat(header->rows, header->cols, header->type, matData);
+    return result;
+}
 
-    int result = sizeof(CVMatHeader) + mat.total() * mat.elemSize();
+// returns the number of bytes loaded
+cv::Mat WAIMapStorage::loadCVMatFromBinaryStream(uint8_t** data,
+                                                 int       rows,
+                                                 int       cols,
+                                                 int       type)
+{
+    cv::Mat result = cv::Mat(rows, cols, type, *data);
+
+    *data += rows * cols * result.elemSize();
 
     return result;
 }
@@ -684,11 +692,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
     if (mapInfo->nodeOmSaved)
     {
-        uchar*  nodeOmData = fContent;
-        cv::Mat cvMat;
-        int     bytesRead = loadCVMatFromBinaryStream(nodeOmData, cvMat);
-        mapNodeOm         = cvMat.clone();
-        fContent += bytesRead;
+        cv::Mat cvMat = loadCVMatFromBinaryStream(&fContent, 4, 4, CV_32F);
+        mapNodeOm     = cvMat.clone();
     }
 
     for (int i = 0; i < mapInfo->kfCount; i++)
@@ -706,30 +711,19 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             parentIdMap[id] = parentId;
         }
 
-        cv::Mat K, Tcw;
-        int     bytesRead = loadCVMatFromBinaryStream(fContent, K);
-        fContent += bytesRead;
-        bytesRead = loadCVMatFromBinaryStream(fContent, Tcw);
-        fContent += bytesRead;
+        cv::Mat K   = loadCVMatFromBinaryStream(&fContent, 3, 3, CV_32F);
+        cv::Mat Tcw = loadCVMatFromBinaryStream(&fContent, 4, 4, CV_32F);
 
         if (kfInfo->loopEdgesCount > 0)
         {
-            int      loopEdgeVectorSize = sizeof(int32_t) * kfInfo->loopEdgesCount;
-            int32_t* loopEdgeData       = (int32_t*)malloc(loopEdgeVectorSize);
-            memcpy(loopEdgeData, fContent, loopEdgeVectorSize);
-            std::vector<int32_t> loopEdges(loopEdgeData, loopEdgeData + kfInfo->loopEdgesCount);
+            std::vector<int32_t> loopEdges =
+              loadVectorFromBinaryStream<int32_t>(&fContent, kfInfo->loopEdgesCount);
 
             loopEdgesMap[id] = loopEdges;
         }
 
-        cv::Mat featureDescriptors;
-        bytesRead = loadCVMatFromBinaryStream(fContent, featureDescriptors);
-        fContent += bytesRead;
-
-        cv::KeyPoint* keyPointsData = (cv::KeyPoint*)malloc(sizeof(cv::KeyPoint) * kfInfo->kpCount);
-        memcpy(keyPointsData, fContent, sizeof(cv::KeyPoint) * kfInfo->kpCount);
-        std::vector<cv::KeyPoint> keyPtsUndist(keyPointsData, keyPointsData + kfInfo->kpCount);
-        fContent += sizeof(cv::KeyPoint) * kfInfo->kpCount;
+        cv::Mat                   featureDescriptors = loadCVMatFromBinaryStream(&fContent, kfInfo->kpCount, 32, CV_8U);
+        std::vector<cv::KeyPoint> keyPtsUndist       = loadVectorFromBinaryStream<cv::KeyPoint>(&fContent, kfInfo->kpCount);
 
         float scaleFactor  = kfInfo->scaleFactor;
         int   nScaleLevels = kfInfo->scaleLevels;
@@ -795,15 +789,8 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
         if (kfInfo->bowVecSize > 0)
         {
-            int32_t* wordsIdData = (int32_t*)malloc(sizeof(int32_t) * kfInfo->bowVecSize);
-            memcpy(wordsIdData, fContent, sizeof(int32_t) * kfInfo->bowVecSize);
-            std::vector<int32_t> wordsId(wordsIdData, wordsIdData + kfInfo->bowVecSize);
-            fContent += sizeof(int32_t) * kfInfo->bowVecSize;
-
-            float* tfIdfData = (float*)malloc(sizeof(float) * kfInfo->bowVecSize);
-            memcpy(tfIdfData, fContent, sizeof(float) * kfInfo->bowVecSize);
-            std::vector<float> tfIdf(tfIdfData, tfIdfData + kfInfo->bowVecSize);
-            fContent += sizeof(float) * kfInfo->bowVecSize;
+            std::vector<int32_t> wordsId = loadVectorFromBinaryStream<int32_t>(&fContent, kfInfo->bowVecSize);
+            std::vector<float>   tfIdf   = loadVectorFromBinaryStream<float>(&fContent, kfInfo->bowVecSize);
 
             WAIBowVector bow(wordsId, tfIdf);
             newKf->SetBowVector(bow);
@@ -878,25 +865,9 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
         int id = mpInfo->id;
 
-        cv::Mat mWorldPos;
-        int     bytesRead = loadCVMatFromBinaryStream(fContent, mWorldPos);
-        fContent += bytesRead;
-
-        std::vector<int32_t> observingKfIds;
-        for (int j = 0; j < mpInfo->nObervations; j++)
-        {
-            int32_t observationId = *((int32_t*)fContent);
-            observingKfIds.push_back(observationId);
-            fContent += sizeof(int32_t);
-        }
-
-        std::vector<int32_t> corrKpIndices;
-        for (int j = 0; j < mpInfo->nObervations; j++)
-        {
-            int32_t kpIndex = *((int32_t*)fContent);
-            corrKpIndices.push_back(kpIndex);
-            fContent += sizeof(int32_t);
-        }
+        cv::Mat              mWorldPos      = loadCVMatFromBinaryStream(&fContent, 3, 1, CV_32F);
+        std::vector<int32_t> observingKfIds = loadVectorFromBinaryStream<int32_t>(&fContent, mpInfo->nObervations);
+        std::vector<int32_t> corrKpIndices  = loadVectorFromBinaryStream<int32_t>(&fContent, mpInfo->nObervations);
 
         WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, fixKfsAndMPts);
 

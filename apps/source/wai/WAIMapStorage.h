@@ -41,12 +41,6 @@ class WAI_API WAIMapStorage
         int32_t nObervations;
     };
 
-    struct CVMatHeader
-    {
-        int32_t rows, cols;
-        int32_t type;
-    };
-
     struct KeyPointData
     {
         float   x, y;
@@ -89,14 +83,18 @@ public:
                               bool              loadImgs,
                               bool              fixKfsAndMPts);
 
-    static cv::Mat            convertToCVMat(const SLMat4f slMat);
-    static SLMat4f            convertToSLMat(const cv::Mat& cvMat);
-    static std::vector<uchar> convertCVMatToVector(const cv::Mat& mat);
-    static void               saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
-    static void               loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string>& vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
+    static cv::Mat              convertToCVMat(const SLMat4f slMat);
+    static SLMat4f              convertToSLMat(const cv::Mat& cvMat);
+    static std::vector<uint8_t> convertCVMatToVector(const cv::Mat& mat);
+    static void                 saveKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string> vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
+    static void                 loadKeyFrameVideoMatching(std::vector<int>& keyFrameVideoMatching, std::vector<std::string>& vidname, const std::string& mapDir, const std::string outputKFMatchingFile);
 
-    static void writeCVMatToBinaryFile(FILE* f, const cv::Mat& mat);
-    static int  loadCVMatFromBinaryStream(uint8_t* data, cv::Mat& mat);
+    template<typename T>
+    static void writeVectorToBinaryFile(FILE* f, const std::vector<T> vec);
+    template<typename T>
+    static std::vector<T> loadVectorFromBinaryStream(uint8_t** data, int count);
+    static void           writeCVMatToBinaryFile(FILE* f, const cv::Mat& mat);
+    static cv::Mat        loadCVMatFromBinaryStream(uint8_t** data, int rows, int cols, int type);
 };
 
 #endif
