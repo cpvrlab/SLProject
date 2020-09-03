@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,10 +17,18 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import java.security.Permission;
+
 import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
 
 public class WAIActivity extends NativeActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+    private final String[] accessPermissions = new String[] {
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.INTERNET
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +48,6 @@ public class WAIActivity extends NativeActivity
                         }
                     });
         }
-
     }
 
     @TargetApi(19)
@@ -99,54 +107,49 @@ public class WAIActivity extends NativeActivity
     }
 
     private static final int PERMISSION_REQUEST_CODE_CAMERA = 1;
+    private static final int PERMISSIONS_MULTIPLE_REQUEST = 123;
     public void RequestCamera() {
         if(!isCamera2Device()) {
             Log.e("WAI", "Found legacy camera Device, this sample needs camera2 device");
             return;
         }
-        String[] accessPermissions = new String[] {
-                Manifest.permission.CAMERA,
-                Manifest.permission.INTERNET
-        };
+
         boolean needRequire  = false;
         for(String access : accessPermissions) {
-            int curPermission = ActivityCompat.checkSelfPermission(this, access);
-            if(curPermission != PackageManager.PERMISSION_GRANTED) {
+            if(ActivityCompat.checkSelfPermission(this, access) != PackageManager.PERMISSION_GRANTED) {
                 needRequire = true;
                 break;
             }
         }
+
         if (needRequire) {
             ActivityCompat.requestPermissions(
                     this,
                     accessPermissions,
-                    PERMISSION_REQUEST_CODE_CAMERA);
-            return;
+                    PERMISSIONS_MULTIPLE_REQUEST);
         }
-        notifyCameraPermission(true);
+        else {
+            notifyPermission(true, true);
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        /*
-         * if any permission failed, the sample could not play
-         */
-        if (PERMISSION_REQUEST_CODE_CAMERA != requestCode) {
+
+        if (PERMISSIONS_MULTIPLE_REQUEST == requestCode && grantResults.length == accessPermissions.length) {
+                notifyPermission(grantResults[0] == PackageManager.PERMISSION_GRANTED,
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED);
+        }
+        else {
             super.onRequestPermissionsResult(requestCode,
                     permissions,
                     grantResults);
-            return;
-        }
-
-        if(grantResults.length == 2) {
-            notifyCameraPermission(grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED);
         }
     }
 
-    native static void notifyCameraPermission(boolean granted);
+    native static void notifyPermission(boolean cameraGranted, boolean gpsGranted);
 
     static {
         System.loadLibrary("native-lib");

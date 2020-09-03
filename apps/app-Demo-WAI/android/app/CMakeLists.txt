@@ -8,12 +8,14 @@ set(headers
 		${erlebar_headers}
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.h
     )
 
 set(sources
 		${erlebar_sources}
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     )
 
