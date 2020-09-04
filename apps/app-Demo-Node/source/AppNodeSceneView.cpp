@@ -122,14 +122,15 @@ AppNodeSceneView::~AppNodeSceneView()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::postSceneLoad()
 {
-    SLMaterial* rMat = new SLMaterial(&_assets, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
-    SLMaterial* gMat = new SLMaterial(&_assets, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
+    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
+    SLMaterial* rMat = new SLMaterial(am, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
+    SLMaterial* gMat = new SLMaterial(am, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
 
     // build parent box
     _moveBox = new SLNode("Parent");
     _moveBox->translation(0, 0, 2);
     _moveBox->rotation(22.5f, SLVec3f(0, -1, 0));
-    _moveBox->addMesh(new SLBox(&_assets, -0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
+    _moveBox->addMesh(new SLBox(am, -0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
     _moveBox->setInitialState();
 
     // build child box
@@ -137,13 +138,13 @@ void AppNodeSceneView::postSceneLoad()
     _moveBoxChild->translation(0, 1, 0);
     _moveBoxChild->rotation(22.5f, SLVec3f(0, -1, 0));
     _moveBoxChild->setInitialState();
-    _moveBoxChild->addMesh(new SLBox(&_assets, -0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
+    _moveBoxChild->addMesh(new SLBox(am, -0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
     _moveBox->addChild(_moveBoxChild);
 
     // load coordinate axis arrows
     SLAssimpImporter importer;
     _axesNode = importer.load(_s->animManager(),
-                              &_assets,
+                              am,
                               SLApplication::modelPath + "FBX/Axes/axes_blender.fbx",
                               SLApplication::texturePath);
 
