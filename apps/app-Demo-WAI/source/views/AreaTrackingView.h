@@ -19,6 +19,60 @@
 class SENSCamera;
 class MapLoader;
 
+struct UserGuidanceInfo
+{
+    UserGuidanceInfo() { _started = false; }
+    void terminate() { _terminate = true; }
+
+    bool update(float timeNow, AreaTrackingGui* gui)
+    {
+        if (!_started)
+        {
+            _timeStart = timeNow;
+            _started = true;
+            _terminate = false;
+        }
+        if (!_terminate) { _timeTerminate = timeNow; }
+        if (!updateFct(timeNow - _timeStart, timeNow - _timeTerminate, gui, _terminate))
+        {
+            _started = false;
+            return false;
+        }
+        return true;
+    }
+
+    bool _started;
+    bool _terminate;
+    float _timeStart;
+    float _timeTerminate;
+    std::function<bool(float, float, AreaTrackingGui*, bool&)> updateFct;
+};
+
+class UserGuidance
+{
+    public:
+    UserGuidance(AreaTrackingGui * gui);
+    void update(WAI::TrackingState state);
+
+    private:
+
+    void flush();
+
+    AreaTrackingGui *_gui;
+    WAI::TrackingState _lastWAIState;
+    HighResTimer _timer;
+
+    UserGuidanceInfo _alignImgInfo;
+    UserGuidanceInfo _moveLeftRight;
+    UserGuidanceInfo _trackingMarker;
+    UserGuidanceInfo _trackingStarted;
+
+    std::queue<UserGuidanceInfo*> _queuedInfos;
+
+    bool _marker;
+    bool _trackedOnce;
+};
+
 class AreaTrackingView : public SLSceneView
 {
 public:
@@ -39,14 +93,15 @@ public:
     void resume();
     void hold();
 
-    //void checkLoadingStatus();
-
     static std::unique_ptr<WAIMap> tryLoadMap(const std::string& erlebARDir,
                                               const std::string& slamMapFileName,
                                               WAIOrbVocabulary*  voc,
                                               cv::Mat&           mapNodeOm);
 
 private:
+    virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseMove(SLint x, SLint y);
+
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
@@ -80,15 +135,13 @@ private:
     std::string _erlebARDir;
     std::string _mapFileName;
 
-    //debug visualization
-    bool _showKeyPoints        = false;
-    bool _showKeyPointsMatched = true;
-    bool _showMapPC            = true;
-    bool _showMatchesPC        = true;
     //size with which camera was started last time (needed for a resume call)
     cv::Size _cameraFrameResumeSize;
+    UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;
+    
+    ErlebAR::Resources& _resources;
 };
 
 //! Async loader for vocabulary and maps

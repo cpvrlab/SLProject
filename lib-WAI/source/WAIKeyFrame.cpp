@@ -435,7 +435,7 @@ WAIMapPoint* WAIKeyFrame::GetMapPoint(const size_t& idx)
     return mvpMapPoints[idx];
 }
 //-----------------------------------------------------------------------------
-void WAIKeyFrame::UpdateConnections(bool buildSpanningTree)
+void WAIKeyFrame::FindAndUpdateConnections(bool buildSpanningTree)
 {
     //ghm1: a covisibility graph between keyframes (nodes) is maintained:
     //if two keyframes share more than 15 observations of the same map points an edge is added. The number of the common observations is the edge weight.
@@ -470,6 +470,11 @@ void WAIKeyFrame::UpdateConnections(bool buildSpanningTree)
         }
     }
 
+    UpdateConnections(KFcounter, buildSpanningTree);
+}
+//-----------------------------------------------------------------------------
+void WAIKeyFrame::UpdateConnections(std::map<WAIKeyFrame*, int> KFcounter, bool buildSpanningTree)
+{
     // This should not happen
     if (KFcounter.empty())
         return;

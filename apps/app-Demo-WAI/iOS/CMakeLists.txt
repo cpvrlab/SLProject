@@ -79,6 +79,7 @@ set(CONFIG_FILES
 
 set(ASSET_CATALOG
 	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
+    ${CMAKE_CURRENT_SOURCE_DIR}/Images/LaunchImage.jpg
 	)
 
 # Group data resource files in Xcode Resource directory

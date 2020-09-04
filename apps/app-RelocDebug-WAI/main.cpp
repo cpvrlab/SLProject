@@ -51,10 +51,10 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType       = ExtractorType_FAST_ORBS_1000;
-    config.erlebARDir          = Utils::getAppsWritableDir() + "erleb-AR/";
-    config.calibrationsDir     = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
-    config.nLevels             = -1;
+    config.extractorType   = ExtractorType_FAST_ORBS_1000;
+    config.erlebARDir      = Utils::getAppsWritableDir() + "erleb-AR/";
+    config.calibrationsDir = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
+    config.nLevels         = -1;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -139,7 +139,7 @@ void readArgs(int argc, char* argv[], Config& config)
     std::cout << "map1 : " << config.map1File << std::endl;
     std::cout << "map2 : " << config.map2File << std::endl;
     std::string s = FeatureExtractorFactory().getExtractorIdToNames()[config.extractorType];
-    std::cout << "feature type = " << s << " with " << config.nLevels << " levels" <<  std::endl;
+    std::cout << "feature type = " << s << " with " << config.nLevels << " levels" << std::endl;
     std::cout << "voc path : " << config.vocFile << std::endl;
     std::cout << "video path : " << config.videoFile << std::endl;
     std::cout << "=====" << std::endl;
@@ -147,23 +147,23 @@ void readArgs(int argc, char* argv[], Config& config)
 
 struct InfoDebug
 {
-    int nSharingWordKF = 0;
-    int maxCommonWords = 0;
-    int nKFMinCommonWords = 0;
-    int vpCandidates = 0;
-    int nCandidates = 0;
-    int nGood1 = 0;
-    int nadditional1 = 0;
-    int nGood2 = 0;
-    int nadditional2 = 0;
-    int nGood3 = 0;
-    int bMatch = 0;
-    int commonWidCounter = 0;
+    int     nSharingWordKF    = 0;
+    int     maxCommonWords    = 0;
+    int     nKFMinCommonWords = 0;
+    int     vpCandidates      = 0;
+    int     nCandidates       = 0;
+    int     nGood1            = 0;
+    int     nadditional1      = 0;
+    int     nGood2            = 0;
+    int     nadditional2      = 0;
+    int     nGood3            = 0;
+    int     bMatch            = 0;
+    int     commonWidCounter  = 0;
     cv::Mat pose1;
     cv::Mat pose2;
     cv::Mat pose3;
 
-    std::vector<int> nmatches;
+    std::vector<int>          nmatches;
     std::vector<WAIKeyFrame*> cKF;
 };
 
@@ -193,10 +193,10 @@ int main(int argc, char* argv[])
         SENSCalibration calibration = SENSCalibration(config.calibrationsDir, Utils::getFileName(config.calibrationFile), true);
         vStream.setCalibration(calibration, true);
     }
-    const SENSCalibration* calibration = vStream.calibration();
-    cv::Size2i videoFrameSize = vStream.getFrameSize();
+    const SENSCalibration* calibration    = vStream.calibration();
+    cv::Size2i             videoFrameSize = vStream.getFrameSize();
 
-    FeatureExtractorFactory extractorF = FeatureExtractorFactory();
+    FeatureExtractorFactory      extractorF        = FeatureExtractorFactory();
     std::unique_ptr<KPextractor> trackingExtractor = extractorF.make(config.extractorType, videoFrameSize, config.nLevels);
 
     WAIOrbVocabulary* voc = new WAIOrbVocabulary();
@@ -209,58 +209,55 @@ int main(int argc, char* argv[])
 
     WAIKeyFrameDB* kfdb1 = new WAIKeyFrameDB(voc);
     WAIKeyFrameDB* kfdb2 = new WAIKeyFrameDB(voc);
-    WAIMap* map1 = new WAIMap(kfdb1);
-    WAIMap* map2 = new WAIMap(kfdb2);
+    WAIMap*        map1  = new WAIMap(kfdb1);
+    WAIMap*        map2  = new WAIMap(kfdb2);
 
-    SLNode map1Node = SLNode();
-    SLNode map2Node = SLNode();
+    cv::Mat map1nodeOm, map2nodeOm;
 
     WAIMapStorage::loadMap(map1,
-                           &map1Node,
+                           map1nodeOm,
                            voc,
                            config.map1File,
                            false,
                            true);
 
     WAIMapStorage::loadMap(map2,
-                           &map2Node,
+                           map2nodeOm,
                            voc,
                            config.map2File,
                            false,
                            true);
 
-
     for (int i = 0; i < map1->GetAllKeyFrames().size(); i++)
     {
-        WAIKeyFrame * kf = map1->GetAllKeyFrames()[i];
-
+        WAIKeyFrame* kf = map1->GetAllKeyFrames()[i];
     }
 
     int frameCounter = 0;
 
     DUtils::Random::SeedRand(42);
 
-    while(1)
+    while (1)
     {
         SENSFramePtr sensFrame = vStream.grabNextFrame();
         if (sensFrame == nullptr)
             break;
 
-        cv::Mat intrinsic = calibration->cameraMat();
+        cv::Mat intrinsic  = calibration->cameraMat();
         cv::Mat distortion = calibration->distortion();
 
-        WAIFrame frame = WAIFrame(sensFrame.get()->imgManip, 
-                                 0.0, 
-                                 trackingExtractor.get(), 
-                                 intrinsic,
-                                 distortion,
-                                 voc, 
-                                 false);
+        WAIFrame frame = WAIFrame(sensFrame.get()->imgManip,
+                                  0.0,
+                                  trackingExtractor.get(),
+                                  intrinsic,
+                                  distortion,
+                                  voc,
+                                  false);
 
         frame.ComputeBoW();
 
-        int inliers1 = 0;
-        int inliers2 = 0;
+        int             inliers1 = 0;
+        int             inliers2 = 0;
         struct LocalMap localMap1;
         struct LocalMap localMap2;
 
@@ -287,9 +284,12 @@ int main(int argc, char* argv[])
             std::cout << "  nadditional2 " << info1.nadditional2 << std::endl;
             std::cout << "  nGood3 " << info1.nGood3 << std::endl;
             std::cout << "  bMatch " << info1.bMatch << std::endl;
-            std::cout << "  pose 1 " << std::endl << info1.pose1 << std::endl;
-            std::cout << "  pose 2 " << std::endl << info1.pose2 << std::endl;
-            std::cout << "  pose 3 " << std::endl << info1.pose3 << std::endl;
+            std::cout << "  pose 1 " << std::endl
+                      << info1.pose1 << std::endl;
+            std::cout << "  pose 2 " << std::endl
+                      << info1.pose2 << std::endl;
+            std::cout << "  pose 3 " << std::endl
+                      << info1.pose3 << std::endl;
 
             std::cout << "  nmatches " << std::endl;
             std::cout << "    ";
@@ -316,9 +316,12 @@ int main(int argc, char* argv[])
             std::cout << "  nadditional2 " << info2.nadditional2 << std::endl;
             std::cout << "  nGood3 " << info2.nGood3 << std::endl;
             std::cout << "  bMatch " << info2.bMatch << std::endl;
-            std::cout << "  pose 1 " << std::endl << info2.pose1 << std::endl;
-            std::cout << "  pose 2 " << std::endl << info2.pose2 << std::endl;
-            std::cout << "  pose 3 " << std::endl << info2.pose3 << std::endl;
+            std::cout << "  pose 1 " << std::endl
+                      << info2.pose1 << std::endl;
+            std::cout << "  pose 2 " << std::endl
+                      << info2.pose2 << std::endl;
+            std::cout << "  pose 3 " << std::endl
+                      << info2.pose3 << std::endl;
             std::cout << "  nmatches " << std::endl;
             std::cout << "    ";
             for (int i = 0; i < info2.nmatches.size(); i++)
@@ -329,7 +332,6 @@ int main(int argc, char* argv[])
             for (int i = 0; i < info2.cKF.size(); i++)
                 std::cout << info2.cKF[i]->mnId << " ";
             std::cout << std::endl;
-
         }
     }
 
@@ -345,7 +347,7 @@ bool relocalization(WAIFrame&         frame,
 {
     vector<WAIKeyFrame*> vpCandidateKFs;
     vpCandidateKFs = DetectRelocalizationCandidates(kfdb, &frame, voc, true, info);
-    info->cKF = vpCandidateKFs;
+    info->cKF      = vpCandidateKFs;
 
     //INFO
     info->vpCandidates = vpCandidateKFs.size();
@@ -448,7 +450,7 @@ bool relocalization(WAIFrame&         frame,
 
                 //INFO
                 info->nGood1 = nGood;
-                info->pose1 = frame.mTcw;
+                info->pose1  = frame.mTcw;
 
                 if (nGood < 10)
                     continue;
@@ -460,13 +462,12 @@ bool relocalization(WAIFrame&         frame,
                     //INFO
                     info->nadditional1 = nadditional;
 
-
                     if (nadditional + nGood >= 50)
                     {
                         nGood = Optimizer::PoseOptimization(&frame, outliers);
                         //INFO
                         info->nGood2 = nGood;
-                        info->pose2 = frame.mTcw;
+                        info->pose2  = frame.mTcw;
 
                         if (nGood > 30 && nGood < 50)
                         {
@@ -485,7 +486,7 @@ bool relocalization(WAIFrame&         frame,
                                 nGood = Optimizer::PoseOptimization(&frame);
                                 //INFO
                                 info->nGood3 = nGood;
-                                info->pose3 = frame.mTcw;
+                                info->pose3  = frame.mTcw;
                             }
                         }
                     }
@@ -552,7 +553,7 @@ std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIKeyFrameDB* kfdb, WA
 
     {
         std::list<std::pair<float, WAIKeyFrame*>> lScoreAndMatch;
-        int                             nscores = 0;
+        int                                       nscores = 0;
 
         // Compute similarity score.
         for (std::list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
@@ -562,7 +563,7 @@ std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIKeyFrameDB* kfdb, WA
             if (pKFi->mnRelocWords > minCommonWords)
             {
                 nscores++;
-                float si = (float)voc->score(F->mBowVec, pKFi->mBowVec);
+                float si          = (float)voc->score(F->mBowVec, pKFi->mBowVec);
                 pKFi->mRelocScore = si;
                 lScoreAndMatch.push_back(std::make_pair(si, pKFi));
             }
@@ -579,7 +580,7 @@ std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIKeyFrameDB* kfdb, WA
 
         for (std::list<std::pair<float, WAIKeyFrame*>>::iterator it = lScoreAndMatch.begin(), itend = lScoreAndMatch.end(); it != itend; it++)
         {
-            WAIKeyFrame*         pKFi     = it->second;
+            WAIKeyFrame*              pKFi     = it->second;
             std::vector<WAIKeyFrame*> vpNeighs = pKFi->GetBestCovisibilityKeyFrames(10);
 
             float        bestScore = it->first;
@@ -603,7 +604,7 @@ std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIKeyFrameDB* kfdb, WA
                 bestAccScore = accScore;
         }
 
-        float minScoreToRetain = 0.75f * bestAccScore;
+        float                     minScoreToRetain = 0.75f * bestAccScore;
         std::set<WAIKeyFrame*>    spAlreadyAddedKF;
         std::vector<WAIKeyFrame*> vpRelocCandidates;
         vpRelocCandidates.reserve(lAccScoreAndMatch.size());
@@ -645,7 +646,6 @@ int DescriptorDistance(const cv::Mat& a, const cv::Mat& b)
 
     return dist;
 }
-
 
 void ComputeThreeMaxima(vector<int>* histo, const int L, int& ind1, int& ind2, int& ind3)
 {

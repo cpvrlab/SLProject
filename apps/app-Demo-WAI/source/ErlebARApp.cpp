@@ -461,6 +461,11 @@ void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry,
     if (stateExit)
         return;
 
+    if (stateEntry)
+    {
+        _areaTrackingView->show();
+    }
+
     _areaTrackingView->update();
 }
 

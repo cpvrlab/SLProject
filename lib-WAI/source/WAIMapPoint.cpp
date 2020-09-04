@@ -143,6 +143,12 @@ cv::Mat WAIMapPoint::GetNormal()
     return mNormalVector.clone();
 }
 //-----------------------------------------------------------------------------
+void WAIMapPoint::SetNormal(const cv::Mat& normal)
+{
+    unique_lock<mutex> lock(mMutexPos);
+    normal.copyTo(mNormalVector);
+}
+//-----------------------------------------------------------------------------
 WAIKeyFrame* WAIMapPoint::GetReferenceKeyFrame()
 {
     unique_lock<mutex> lock(mMutexFeatures);
@@ -189,7 +195,7 @@ void WAIMapPoint::EraseObservation(WAIKeyFrame* pKF)
                         continue;
                     }
                 }
-                if(mpRefKF == pKF)
+                if (mpRefKF == pKF)
                 {
                     bBad = true;
                 }
@@ -403,6 +409,12 @@ cv::Mat WAIMapPoint::GetDescriptor()
     return mDescriptor.clone();
 }
 //-----------------------------------------------------------------------------
+void WAIMapPoint::SetDescriptor(const cv::Mat& descriptor)
+{
+    unique_lock<mutex> lock(mMutexFeatures);
+    descriptor.copyTo(mDescriptor);
+}
+//-----------------------------------------------------------------------------
 int WAIMapPoint::GetIndexInKeyFrame(WAIKeyFrame* pKF)
 {
     unique_lock<mutex> lock(mMutexFeatures);
@@ -472,6 +484,26 @@ float WAIMapPoint::GetMaxDistanceInvariance()
 {
     unique_lock<mutex> lock(mMutexPos);
     return 1.2f * mfMaxDistance;
+}
+//-----------------------------------------------------------------------------
+float WAIMapPoint::GetMinDistance()
+{
+    return mfMinDistance;
+}
+//-----------------------------------------------------------------------------
+float WAIMapPoint::GetMaxDistance()
+{
+    return mfMaxDistance;
+}
+//-----------------------------------------------------------------------------
+void WAIMapPoint::SetMaxDistance(float maxDist)
+{
+    mfMaxDistance = maxDist;
+}
+//-----------------------------------------------------------------------------
+void WAIMapPoint::SetMinDistance(float minDist)
+{
+    mfMinDistance = minDist;
 }
 //-----------------------------------------------------------------------------
 int WAIMapPoint::PredictScale(const float& currentDist, WAIKeyFrame* pKF)
