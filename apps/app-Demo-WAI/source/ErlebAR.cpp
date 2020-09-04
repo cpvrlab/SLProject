@@ -111,6 +111,7 @@ const Location defineLocationAvenches()
         area.yPosPix         = 660;
         area.viewAngleDeg    = 170;
         area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200901-155552_avenches_amphitheaterEntrance_FAST-ORBS-3000_2.waimap";
+        area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
         loc.areas[area.id]   = area;
     }
     {
@@ -121,6 +122,7 @@ const Location defineLocationAvenches()
         area.yPosPix         = 736;
         area.viewAngleDeg    = -18;
         area.slamMapFileName = "locations/avenches/amphitheater/maps/stable-map_20200831-142136_avenches_amphitheater_FAST-ORBS-3000_2.waimap";
+        area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
         loc.areas[area.id]   = area;
     }
     {
@@ -141,6 +143,7 @@ const Location defineLocationAvenches()
         area.yPosPix         = 1132;
         area.viewAngleDeg    = 50;
         area.slamMapFileName = "locations/avenches/theater/maps/stable-map_20200831-142406_avenches_theater_FAST-ORBS-3000_2.waimap";
+        area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
         loc.areas[area.id]   = area;
     }
 
@@ -229,7 +232,8 @@ const Location defineLocationBiel()
         area.xPosPix                 = 322;
         area.yPosPix                 = 238;
         area.viewAngleDeg            = 20.f;
-        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200826-110314_biel_office_FAST-ORBS-3000_2.waimap";
+        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200902-175109_biel_office_FAST-ORBS-2000_2.json.gz";
+        area.relocAlignImage         = "locations/biel/office/office-reloc-align-img.jpg";
         area.cameraFrameTargetSize   = {640, 360};
         area.cameraFrameCropToScreen = false;
         loc.areas[area.id]           = area;
