@@ -562,6 +562,17 @@ Java_ch_cpvr_wai_WAIActivity_notifyPermission(
     permissionHandler.detach();
 }
 
+extern "C" JNIEXPORT void JNICALL
+Java_ch_cpvr_wai_WAIActivity_onLocationLLA(JNIEnv* env,
+                                           jclass  obj,
+                                           jdouble latitudeDEG,
+                                           jdouble longitudeDEG,
+                                           jdouble altitudeM,
+                                           jdouble  accuracyM)
+{
+    Utils::log("SENSGps", "onLocationLLA");
+}
+
 std::string Engine::getInternalDir()
 {
     JavaVM* jvm            = _app->activity->vm;

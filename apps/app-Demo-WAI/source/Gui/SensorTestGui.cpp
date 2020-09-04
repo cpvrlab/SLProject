@@ -83,7 +83,7 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
           ImGuiWindowFlags_NoTitleBar |
           ImGuiWindowFlags_NoScrollbar;
 
-        ImGui::PushFont(_resources.fonts().headerBar);
+        ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _resources.fonts().headerBar->FontSize) * 0.5f));
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _headerBarH);
@@ -127,6 +127,8 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
             if (_gps)
             {
                 //show gps position
+                SENSGps::Location loc = _gps->getLocation();
+                ImGui::Text("Lat: %fdeg Lon: %fdeg Alt: %fm Acc: %fm", loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
             }
             else
             {

@@ -12,6 +12,11 @@ public:
 
 	bool start() override;
 	void stop() override;
+
+	void updateLocation(double latitudeDEG,
+						double longitudeDEG,
+						double altitudeM,
+						float  accuracyM);
 private:
 
     JavaVM* _vm = nullptr;

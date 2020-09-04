@@ -100,6 +100,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp

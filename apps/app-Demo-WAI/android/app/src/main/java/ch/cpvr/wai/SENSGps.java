@@ -16,10 +16,12 @@ public class SENSGps {
     LocationManager _locationManager;
     SENSLocationListener _locationListener;
     boolean _isRunning = false;
+    //long _gpsClassPtr;
 
     //set java activity context
     public void init(Context context) {
         _context = context;
+        //_gpsClassPtr = gpsClassPtr;
     }
 
     @SuppressWarnings("ResourceType")
@@ -38,7 +40,7 @@ public class SENSGps {
             _locationManager = (LocationManager) _context.getSystemService(Context.LOCATION_SERVICE);
         }
         if (_locationListener == null) {
-            _locationListener = new SENSLocationListener();
+            _locationListener = new SENSLocationListener(_context);
         }
 
         if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
@@ -61,6 +63,19 @@ public class SENSGps {
             _isRunning = false;
         }
     }
+
+    public void stop() {
+        if(!_isRunning)
+            return;
+
+        if (_locationListener != null) {
+            Log.d("SENSGps", "Removing locationManager updates");
+            _locationManager.removeUpdates(_locationListener);
+        }
+        _isRunning = false;
+    }
+
+    native static void onLocationLLA(double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
 }
 
 class SENSLocationListener implements LocationListener {
@@ -73,12 +88,21 @@ class SENSLocationListener implements LocationListener {
     protected String ageOfDgpsData;
     protected String dgpsId;
     protected int satellitesUsedInFix;
+    Context _context;
+
+    public SENSLocationListener(Context context) {
+        _context = context;
+    }
 
     @Override
     public void onLocationChanged(Location loc) {
         Log.i(TAG, "onLocationChanged");
         if (loc != null) {
 
+            SENSGps.onLocationLLA(loc.getLatitude(),
+                    loc.getLongitude(),
+                    loc.getAltitude(),
+                    loc.getAccuracy());
         }
     }
 

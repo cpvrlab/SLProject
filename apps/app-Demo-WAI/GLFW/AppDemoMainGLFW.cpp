@@ -15,6 +15,7 @@
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <GLFW/SENSWebCamera.h>
+#include <sens/SENSGps.h>
 #include <DeviceData.h>
 #include <GLFW/glfw3.h>
 
@@ -513,13 +514,15 @@ int main(int argc, char* argv[])
     try
     {
         std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSDummyGps>  gps       = std::make_unique<SENSDummyGps>(47.142472, 7.243057, 300);
+
         app.init(scrWidth,
                  scrHeight,
                  dpi,
                  std::string(SL_PROJECT_ROOT) + "/data/",
                  Utils::getAppsWritableDir(),
                  webCamera.get(),
-                 nullptr);
+                 gps.get());
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");
