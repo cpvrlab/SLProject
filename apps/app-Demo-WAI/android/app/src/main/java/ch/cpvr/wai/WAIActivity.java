@@ -48,6 +48,9 @@ public class WAIActivity extends NativeActivity
                         }
                     });
         }
+
+        //SENSGps.init(this);
+        //SENSGps.start();
     }
 
     @TargetApi(19)

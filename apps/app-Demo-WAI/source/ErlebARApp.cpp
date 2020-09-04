@@ -54,10 +54,12 @@ void ErlebARApp::init(int                scrWidth,
                       int                dpi,
                       const std::string& dataDir,
                       const std::string& writableDir,
-                      SENSCamera*        camera)
+                      SENSCamera*        camera,
+                      SENSGps*           gps)
 {
     //store camera so we can stop on terminate
     _camera = camera;
+    _gps    = gps;
     addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dataDir, writableDir));
 }
 
@@ -274,7 +276,13 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
     _welcomeView->update();
 
     if (timer.elapsedTimeInSec() > 0.01f)
-        addEvent(new DoneEvent("ErlebARApp::WELCOME"));
+    {
+        if (_gps && _gps->isInitialized())
+        {
+            //_gps->start();
+            addEvent(new DoneEvent("ErlebARApp::WELCOME"));
+        }
+    }
 }
 
 void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)

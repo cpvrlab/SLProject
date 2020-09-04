@@ -9,7 +9,10 @@ public:
 	virtual bool start() = 0;
 	virtual void stop() = 0;
 
-private:
+	bool isInitialized() const { return _initialized; }
+
+protected:
+	bool _initialized = false;
 };
 
 #endif

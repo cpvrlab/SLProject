@@ -8,10 +8,10 @@ class SENSNdkGps : public SENSGps
 {
 public:
 	SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz, jobject* object );
+    void init(bool granted);
+
 	bool start() override;
 	void stop() override;
-
-	void setPermissionGranted();
 private:
 
     JavaVM* _vm = nullptr;

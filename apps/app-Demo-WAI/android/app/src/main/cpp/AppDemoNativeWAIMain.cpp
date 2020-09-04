@@ -87,12 +87,6 @@ public:
     //this callback can be called by the wrapped app to make native activity shutdown
     void closeAppCallback();
 
-    void startGps()
-    {
-        if (_gps && _gpsGranted)
-            _gps->start();
-    }
-
 private:
     void initDisplay();
     bool resumeDisplay();
@@ -156,6 +150,11 @@ void Engine::update()
 {
     if (_display)
     {
+        if(_gpsGranted)
+        {
+            _gps->init(true);
+            _gps->start();
+        }
         //ENGINE_DEBUG("eglSwapBuffers");
         _earApp.update();
         eglSwapBuffers(_display, _surface);
@@ -191,7 +190,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps);
         _earAppIsInitialized = true;
     }
     else
@@ -206,7 +205,7 @@ void Engine::onInit()
 
             std::string internalPath = getInternalDir();
             std::string externalPath = getExternalDir();
-            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps);
         }
         else
         {
@@ -542,11 +541,8 @@ void Engine::onPermissionGranted(jboolean cameraGranted, jboolean gpsGranted)
     if (cameraGranted != JNI_FALSE)
         _camera->setPermissionGranted();
 
-    if (_gpsGranted)
-    {
-        _gps->setPermissionGranted();
-        //bool success = _gps->start();
-    }
+    //_gps->init(_gpsGranted);
+    //_gps->start();
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
@@ -557,8 +553,12 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
     vm->AttachCurrentThread(&env, NULL);
 
     jclass c = env->FindClass("ch/cpvr/wai/SENSGps");
-    env->AllocObject(c);
-    gGpsClass = (jclass)env->NewGlobalRef(c);
+    gGpsClass = reinterpret_cast<jclass>(env->NewGlobalRef(c));
+    jobject o = env->AllocObject(gGpsClass);
+    gGpsObj = env->NewGlobalRef(o);
+
+    //gGpsClass = (jclass)env->NewGlobalRef(c);
+
     //gGpsObj = env->NewGlobalRef(c);
     //gGpsClass = env->GetObjectClass(gGpsObj);
 
@@ -1067,8 +1067,6 @@ void android_main(struct android_app* app)
                 {
                     source->process(app, source);
                 }
-
-                engine.startGps();
 
                 // Check if we are exiting.
                 if (app->destroyRequested != 0)
