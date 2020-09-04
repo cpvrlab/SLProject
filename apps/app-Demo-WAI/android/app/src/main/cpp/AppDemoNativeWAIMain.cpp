@@ -57,9 +57,7 @@
 //#define ENGINE_WARN(...)  // nothing
 
 // global JNI interface variables
-JNIEnv* gEnv = nullptr; //! Pointer to JAVA environment used in ray tracing callback
 jclass  gGpsClass;
-jobject gGpsObj;
 
 class Engine
 {
@@ -150,11 +148,6 @@ void Engine::update()
 {
     if (_display)
     {
-        if(_gpsGranted)
-        {
-            _gps->init(true);
-            _gps->start();
-        }
         //ENGINE_DEBUG("eglSwapBuffers");
         _earApp.update();
         eglSwapBuffers(_display, _surface);
@@ -501,7 +494,7 @@ void Engine::initSensors()
 
         if (!_gps)
         {
-            _gps = new SENSNdkGps(_app->activity->vm, &_app->activity->clazz, &gGpsClass, &gGpsObj);
+            _gps = new SENSNdkGps(_app->activity->vm, &_app->activity->clazz, &gGpsClass);
         }
     }
     catch (std::exception& e)
@@ -541,62 +534,20 @@ void Engine::onPermissionGranted(jboolean cameraGranted, jboolean gpsGranted)
     if (cameraGranted != JNI_FALSE)
         _camera->setPermissionGranted();
 
-    //_gps->init(_gpsGranted);
+    _gps->init(_gpsGranted);
     //_gps->start();
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     JNIEnv* env;
-    vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-
-    vm->AttachCurrentThread(&env, NULL);
+    if( vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+        return JNI_ERR; // JNI version not supported.
+    }
 
     jclass c = env->FindClass("ch/cpvr/wai/SENSGps");
     gGpsClass = reinterpret_cast<jclass>(env->NewGlobalRef(c));
-    jobject o = env->AllocObject(gGpsClass);
-    gGpsObj = env->NewGlobalRef(o);
 
-    //gGpsClass = (jclass)env->NewGlobalRef(c);
-
-    //gGpsObj = env->NewGlobalRef(c);
-    //gGpsClass = env->GetObjectClass(gGpsObj);
-
-    /*
-    jmethodID methodId = env->GetMethodID(c,
-                                          "start",
-                                          "()V");
-
-    jmethodID methodId2 = env->GetMethodID(gGpsClass,
-                                           "start",
-                                           "()V");
-    */
-    //gGpsClass = env->NewGlobalRef();
-
-    /*
-JNIEnv* env;
-//memset(&g_ctx, 0, sizeof(g_ctx));
-
-//g_ctx.javaVM = vm;
-if (vm->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
-    return JNI_ERR; // JNI version not supported.
-}
-
-jclass  clz = (*env)->FindClass(env,
-                                "com/example/hellojnicallback/JniHandler");
-g_ctx.jniHelperClz = (*env)->NewGlobalRef(env, clz);
-
-
-jmethodID  jniHelperCtor = (*env)->GetMethodID(env, g_ctx.jniHelperClz,
-                                               "<init>", "()V");
-jobject    handler = (*env)->NewObject(env, g_ctx.jniHelperClz,
-                                       jniHelperCtor);
-g_ctx.jniHelperObj = (*env)->NewGlobalRef(env, handler);
-queryRuntimeInfo(env, g_ctx.jniHelperObj);
-
-g_ctx.done = 0;
-g_ctx.mainActivityObj = NULL;
- */
     return JNI_VERSION_1_6;
 }
 

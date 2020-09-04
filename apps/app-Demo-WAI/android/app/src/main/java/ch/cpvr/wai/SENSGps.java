@@ -1,10 +1,7 @@
 package ch.cpvr.wai;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,58 +15,51 @@ public class SENSGps {
     Context _context;
     LocationManager _locationManager;
     SENSLocationListener _locationListener;
-    SENSGpsStatusListener _statusListener;
     boolean _isRunning = false;
 
+    //set java activity context
     public void init(Context context) {
         _context = context;
-        //_activity = (Activity)context;
-        if(_locationManager == null) {
-            _locationManager = (LocationManager) _context.getSystemService(Context.LOCATION_SERVICE);
-        }
     }
 
     @SuppressWarnings("ResourceType")
     public void start() {
         Log.i("SENSGps", "start()");
 
+        if(_context == null) {
+            Log.i("SENSGps", "start: you have to call init first!");
+            return;
+        }
+
         if(_isRunning)
             return;
+
+        if(_locationManager == null) {
+            _locationManager = (LocationManager) _context.getSystemService(Context.LOCATION_SERVICE);
+        }
+        if (_locationListener == null) {
+            _locationListener = new SENSLocationListener();
+        }
 
         if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             Log.i("SENSGps", "Requesting GPS location updates");
 
-            if (_locationListener == null) {
-                _locationListener = new SENSLocationListener();
-            }
-            if (_statusListener == null) {
-                _statusListener = new SENSGpsStatusListener();
-            }
+            _isRunning = true;
 
             Activity activity = (Activity)_context;
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    if(!_locationManager.addGpsStatusListener(_statusListener)) {
-                        Log.i("SENSGps", "addGpsStatusListener failed");
-                    }
+
                     _locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                             1000,
                             0,
                             _locationListener);
-
-                    _isRunning = true;
                 }
             });
+
         } else {
             _isRunning = false;
         }
-    }
-}
-
-class SENSGpsStatusListener implements GpsStatus.Listener {
-    @Override
-    public void onGpsStatusChanged(int event) {
-        Log.i("SENSGps", "onGpsStatusChanged");
     }
 }
 

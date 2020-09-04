@@ -16,6 +16,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
@@ -35,6 +36,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/CameraTestGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SensorTestGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAutoCalibration.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
@@ -82,6 +84,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/CameraTestView.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SensorTestView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.h
 	)
@@ -112,6 +115,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AreaTrackingGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/CameraTestGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SensorTestGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAutoCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
@@ -153,6 +157,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/AreaTrackingView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/LocationMapView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/CameraTestView.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SensorTestView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.cpp
 	)

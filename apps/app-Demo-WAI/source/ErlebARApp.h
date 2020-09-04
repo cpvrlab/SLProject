@@ -24,6 +24,7 @@ class LocationMapView;
 class AreaInfoView;
 class AreaTrackingView;
 class CameraTestView;
+class SensorTestView;
 class ImGuiEngine;
 
 class ErlebARApp : public sm::StateMachine
@@ -76,6 +77,7 @@ private:
     void ABOUT(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
     SLInputManager              _inputManager;
     std::unique_ptr<DeviceData> _dd;
@@ -93,6 +95,7 @@ private:
     AreaInfoView*               _areaInfoView     = nullptr;
     AreaTrackingView*           _areaTrackingView = nullptr;
     CameraTestView*             _cameraTestView   = nullptr;
+    SensorTestView*             _sensorTestView   = nullptr;
 
     CloseAppCallback _closeCB = nullptr;
 

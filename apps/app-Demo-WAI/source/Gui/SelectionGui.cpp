@@ -198,6 +198,11 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
             sendEvent(new StartCameraTestEvent("SelectionGui"));
         }
 
+        if (ImGui::Button("Sensor Test", develButtonSize))
+        {
+            sendEvent(new StartSensorTestEvent("SelectionGui"));
+        }
+
         if (ImGui::Button("Biel", develButtonSize))
         {
             sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BIEL));

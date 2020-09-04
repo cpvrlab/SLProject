@@ -7,7 +7,7 @@
 class SENSNdkGps : public SENSGps
 {
 public:
-	SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz, jobject* object );
+	SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz);
     void init(bool granted);
 
 	bool start() override;
@@ -15,9 +15,7 @@ public:
 private:
 
     JavaVM* _vm = nullptr;
-    jclass* _clazz = nullptr;
-    jobject* _object = nullptr;
-    jobject* _context = nullptr;
+    jobject _object = nullptr;
 
 	bool _permissionGranted = false;
 };

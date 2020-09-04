@@ -14,6 +14,7 @@
 #include <views/LocationMapView.h>
 #include <views/AreaInfoView.h>
 #include <views/CameraTestView.h>
+#include <views/SensorTestView.h>
 
 #include <SLGLProgramManager.h>
 
@@ -47,6 +48,7 @@ ErlebARApp::ErlebARApp()
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SETTINGS>((unsigned int)StateId::SETTINGS);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::ABOUT>((unsigned int)StateId::ABOUT);
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::CAMERA_TEST>((unsigned int)StateId::CAMERA_TEST);
+    registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::SENSOR_TEST>((unsigned int)StateId::SENSOR_TEST);
 }
 
 void ErlebARApp::init(int                scrWidth,
@@ -277,11 +279,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
 
     if (timer.elapsedTimeInSec() > 0.01f)
     {
-        if (_gps && _gps->isInitialized())
-        {
-            //_gps->start();
-            addEvent(new DoneEvent("ErlebARApp::WELCOME"));
-        }
+        addEvent(new DoneEvent("ErlebARApp::WELCOME"));
     }
 }
 
@@ -344,6 +342,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
     {
         delete _cameraTestView;
         _cameraTestView = nullptr;
+    }
+    if (_sensorTestView)
+    {
+        delete _sensorTestView;
+        _sensorTestView = nullptr;
     }
 
     if (_camera)
@@ -539,8 +542,34 @@ void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry,
                                                  *_dd);
         }
 
-        _cameraTestView->show();
+        _cameraTestView->onShow();
     }
 
     _cameraTestView->update();
+}
+
+void ErlebARApp::SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
+{
+    if (stateExit)
+    {
+        _sensorTestView->onHide();
+        return;
+    }
+
+    if (stateEntry)
+    {
+        if (!_sensorTestView)
+        {
+            _sensorTestView = new SensorTestView(*this,
+                                                 _inputManager,
+                                                 *_imGuiEngine,
+                                                 *_resources,
+                                                 _gps,
+                                                 *_dd);
+        }
+
+        _sensorTestView->onShow();
+    }
+
+    _sensorTestView->update();
 }

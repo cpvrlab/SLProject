@@ -164,7 +164,8 @@ enum class StateId
     TUTORIAL,
     ABOUT,
     SETTINGS,
-    CAMERA_TEST
+    CAMERA_TEST,
+    SENSOR_TEST
 };
 
 #endif //ERLEBAR_H
