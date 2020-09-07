@@ -381,6 +381,7 @@ target_include_directories(${target}
         ${assimp_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/externals/nlohmann
+        ${SL_PROJECT_ROOT}/externals/libigl/include
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE

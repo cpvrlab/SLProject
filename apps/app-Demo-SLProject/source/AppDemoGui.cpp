@@ -1781,6 +1781,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
                         selN->drawBits()->toggle(SL_DB_MESHWIRED);
 
+                    if (ImGui::MenuItem("Hard edges Mesh", nullptr, selN->drawBits()->get(SL_DB_HARDEDGES)))
+                        selN->drawBits()->toggle(SL_DB_MESHWIRED);
+
                     if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
                         selN->drawBits()->toggle(SL_DB_NORMALS);
 
@@ -1857,6 +1860,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 if (ImGui::MenuItem("Mesh Wired", "M", sv->drawBits()->get(SL_DB_MESHWIRED)))
                     sv->drawBits()->toggle(SL_DB_MESHWIRED);
+
+                if (ImGui::MenuItem("Hardedges", "H", sv->drawBits()->get(SL_DB_HARDEDGES)))
+                    sv->drawBits()->toggle(SL_DB_HARDEDGES);
 
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->drawBits()->toggle(SL_DB_NORMALS);

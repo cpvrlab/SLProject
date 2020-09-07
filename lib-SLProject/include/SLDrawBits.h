@@ -29,6 +29,7 @@ view or per single node object. Not all are used from the beginning
 #define SL_DB_CULLOFF 256     //!< Turn off face culling
 #define SL_DB_TEXOFF 512      //!< Turn off texture mapping
 #define SL_DB_OVERDRAW 1024   //!< Draw node over all other nodes
+#define SL_DB_HARDEDGES 2048  //!< Draw hardedges
 
 //-----------------------------------------------------------------------------
 //! Drawing states stored in the bits of an unsigned int

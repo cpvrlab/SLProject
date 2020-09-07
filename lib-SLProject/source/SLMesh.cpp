@@ -9,7 +9,6 @@
 //#############################################################################
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
@@ -19,6 +18,9 @@
 #include <SLMesh.h>
 #include <SLAssetManager.h>
 #include <Instrumentor.h>
+#include <igl/remove_duplicate_vertices.h>
+#include <igl/per_face_normals.h>
+#include <igl/unique_edge_map.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -80,6 +82,8 @@ void SLMesh::deleteData()
     I16.clear();
     I32.clear();
     IS32.clear();
+    IE16.clear();
+    IE32.clear();
 
     _jointMatrices.clear();
     skinnedP.clear();
@@ -94,6 +98,7 @@ void SLMesh::deleteData()
     _vao.deleteGL();
     _vaoN.deleteGL();
     _vaoT.deleteGL();
+    _vaoE.deleteGL();
 
 #ifdef SL_HAS_OPTIX
     _vertexBuffer.free();
@@ -456,10 +461,24 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (_primitive == PT_points)
-        _vao.drawArrayAs(PT_points);
+    if (sv->drawBit(SL_DB_HARDEDGES) && (!IE32.empty() || !IE16.empty()))
+    {
+        if (!_vaoE.vaoID())
+        {
+            _vaoE.setAttrib(AT_position, AT_position, _finalP);
+            if (!IE16.empty()) _vaoE.setIndices(&IE16);
+            if (!IE32.empty()) _vaoE.setIndices(&IE32);
+            _vaoE.generate((SLuint)P.size(), BU_static, true);
+        }
+        _vaoE.drawElementAsColored(PT_lines, SLCol4f::RED, 4.0);
+    }
     else
-        _vao.drawElementsAs(primitiveType);
+    {
+        if (_primitive == PT_points)
+            _vao.drawArrayAs(PT_points);
+        else
+            _vao.drawElementsAs(primitiveType);
+    }
 
     //////////////////////////////////////
     // 5) Draw optional normals & tangents
@@ -694,6 +713,86 @@ void SLMesh::generateVAO()
     _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
+
+void SLMesh::computeHardEdgesIndices(float angle, float epsilon)
+{
+    if (_primitive != PT_triangles)
+        return;
+
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    Eigen::MatrixXd NV;
+    Eigen::MatrixXi NF;
+    Eigen::MatrixXi E;
+    Eigen::MatrixXi EMAP;
+    Eigen::MatrixXi uE;
+    Eigen::MatrixXd N;
+    Eigen::VectorXi SVI;
+    Eigen::VectorXi SVJ;
+
+    std::vector<std::vector<int>> uE2E;
+
+    //Fill Input Matrixes
+    V.resize(P.size(), 3);
+    for (int i = 0; i < P.size(); i++)
+        V.row(i) << P[i].x, P[i].y, P[i].z;
+
+    if (!I16.empty())
+    {
+        F.resize(I16.size() / 3, 3);
+        for (int j = 0, i = 0; i < I16.size(); j++, i += 3)
+            F.row(j) << I16[i], I16[i + 1], I16[i + 2];
+    }
+    if (!I32.empty())
+    {
+        F.resize(I32.size() / 3, 3);
+        for (int j = 0, i = 0; i < I32.size(); j++, i += 3)
+            F.row(j) << I32[i], I32[i + 1], I32[i + 2];
+    }
+
+    //Extract sharp edges
+    igl::remove_duplicate_vertices(V, F, epsilon, NV, SVI, SVJ, NF);
+    igl::per_face_normals(NV, NF, N);
+    igl::unique_edge_map(NF, E, uE, EMAP, uE2E);
+
+    for (int u = 0; u < uE2E.size(); u++)
+    {
+        bool sharp = false;
+        if (uE2E[u].size() == 1)
+            sharp = true;
+
+        for (int i = 0; i < uE2E[u].size(); i++)
+        {
+            for (int j = i + 1; j < uE2E[u].size(); j++)
+            {
+                const int                   ei  = uE2E[u][i];
+                const int                   fi  = ei % NF.rows();
+                const int                   ej  = uE2E[u][j];
+                const int                   fj  = ej % NF.rows();
+                Eigen::Matrix<double, 1, 3> ni  = N.row(fi);
+                Eigen::Matrix<double, 1, 3> nj  = N.row(fj);
+                Eigen::Matrix<double, 1, 3> ev  = (V.row(E(ei, 1)) - V.row(E(ei, 0))).normalized();
+                float                       dij = M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
+                if (std::abs(dij - M_PI) > angle)
+                    sharp = true;
+            }
+        }
+        if (sharp)
+        {
+            if (!I16.empty())
+            {
+                IE16.push_back(SVI[uE(u, 0)]);
+                IE16.push_back(SVI[uE(u, 1)]);
+            }
+            else if (!I32.empty())
+            {
+                IE32.push_back(SVI[uE(u, 0)]);
+                IE32.push_back(SVI[uE(u, 1)]);
+            }
+        }
+    }
+}
+
 /*!
 SLMesh::hit does the ray-mesh intersection test. If no acceleration
 structure is defined all triangles are tested in a brute force manner.

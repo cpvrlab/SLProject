@@ -148,6 +148,7 @@ public:
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO();
+    void         computeHardEdgesIndices(float angle, float epsilon);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();
 
@@ -197,6 +198,9 @@ public:
     SLVuint   I32;  //!< Vector of vertex indices 32 bit
     SLVuint   IS32; //!< Vector of rectangle selected vertex indices 32 bit
 
+    SLVushort IE16;  //!< Vector of hard edges vertex indices 16 bit
+    SLVuint   IE32;  //!< Vector of hard edges vertex indices 32 bit
+
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
 
@@ -215,6 +219,7 @@ protected:
     SLGLVertexArrayExt _vaoN;       //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;       //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;       //!< OpenGL VAO for optional selection drawing
+    SLGLVertexArrayExt _vaoE;       //!< OpenGL VAO for optional hard edges drawing
     SLbool             _isSelected; //!< flag if mesh is partially of fully selected
 
 #ifdef SL_HAS_OPTIX
