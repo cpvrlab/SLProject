@@ -126,6 +126,11 @@ public:
     std::string name;
     //name of area map image in erlebAR directory
     std::string areaMapImageFileName;
+    //top left image corner in WGS84 (lla)
+    SLVec3d mapTLLla = {0, 0, 0};
+    //bottom right image corner in WGS84 (lla)
+    SLVec3d mapBRLla = {0, 0, 0};
+
     //map image display pixel width
     int                    dspPixWidth;
     std::map<AreaId, Area> areas;
@@ -135,7 +140,7 @@ public:
 //get definition of current locations and areas
 const Location defineLocationAugst();
 const Location defineLocationAvenches();
-const Location defineLocationChristoffel();
+const Location defineLocationBern();
 const Location defineLocationBiel();
 
 const std::map<LocationId, Location> defineLocations();

@@ -514,7 +514,32 @@ int main(int argc, char* argv[])
     try
     {
         std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
-        std::unique_ptr<SENSDummyGps>  gps       = std::make_unique<SENSDummyGps>(47.142472, 7.243057, 300);
+        std::unique_ptr<SENSDummyGps>  gps       = std::make_unique<SENSDummyGps>();
+
+        SENSGps::Location church1 = {46.94783, 7.44064, 542.0, 1.0f};
+        gps->addDummyPos(church1);
+        //define some dummy positions (bern)
+        SENSGps::Location tl = {46.94885, 7.43808, 542.0, 10.0f};
+        SENSGps::Location br = {46.94701, 7.44290, 542.0, 1.0f};
+
+        //interpolate n values
+        int    n    = 10;
+        double latD = (br.latitudeDEG - tl.latitudeDEG) / n;
+        double lonD = (br.longitudeDEG - tl.longitudeDEG) / n;
+        double altD = (br.altitudeM - tl.altitudeM) / n;
+        double accD = (br.accuracyM - tl.accuracyM) / n;
+
+        gps->addDummyPos(tl);
+        for (int i = 1; i < n; ++i)
+        {
+            SENSGps::Location loc;
+            loc.latitudeDEG  = tl.latitudeDEG + i * latD;
+            loc.longitudeDEG = tl.longitudeDEG + i * lonD;
+            loc.altitudeM    = tl.altitudeM + i * altD;
+            loc.accuracyM    = tl.accuracyM + i * accD;
+            gps->addDummyPos(loc);
+        }
+        gps->addDummyPos(br);
 
         app.init(scrWidth,
                  scrHeight,

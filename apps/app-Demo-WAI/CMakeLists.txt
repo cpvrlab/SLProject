@@ -71,6 +71,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageBuffer.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GPSMapper2D.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
@@ -145,6 +146,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/MapPointEdition.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GPSMapper2D.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp

@@ -7,28 +7,13 @@ SENSGps::Location SENSGps::getLocation()
     return _location;
 }
 
-void SENSGps::setLocation(double latitudeDEG,
-                          double longitudeDEG,
-                          double altitudeM,
-                          float  accuracyM)
+void SENSGps::setLocation(SENSGps::Location location)
 {
     const std::lock_guard<std::mutex> lock(_llaMutex);
-    _location.latitudeDEG  = latitudeDEG;
-    _location.longitudeDEG = longitudeDEG;
-    _location.altitudeM    = altitudeM;
-    _location.accuracyM    = accuracyM;
+    _location = location;
 }
 
 /**********************************************************************/
-
-SENSDummyGps::SENSDummyGps(double latitudeDEG,
-                           double longitudeDEG,
-                           double altitudeM)
-{
-    _dummyLoc.latitudeDEG  = latitudeDEG;
-    _dummyLoc.longitudeDEG = longitudeDEG;
-    _dummyLoc.altitudeM    = altitudeM;
-}
 
 SENSDummyGps::~SENSDummyGps()
 {
@@ -65,16 +50,17 @@ void SENSDummyGps::stopSimulation()
 
 void SENSDummyGps::run()
 {
+    int i = 0;
     while (true)
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         if (_stop)
             break;
 
+        i++;
+        i = i % _dummyLocs.size();
+
         Utils::log("SENSDummyGps", "run");
-        setLocation(_dummyLoc.latitudeDEG,
-                    _dummyLoc.longitudeDEG,
-                    _dummyLoc.altitudeM,
-                    _dummyLoc.accuracyM);
+        setLocation(_dummyLocs[i]);
     }
 }

@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <vector>
 
 class SENSGps
 {
@@ -26,10 +27,7 @@ public:
     bool isRunning() { return _running; }
 
 protected:
-    void setLocation(double latitudeDEG,
-                     double longitudeDEG,
-                     double altitudeM,
-                     float  accuracyM);
+    void setLocation(SENSGps::Location location);
 
     bool _running = false;
 
@@ -42,13 +40,15 @@ private:
 class SENSDummyGps : public SENSGps
 {
 public:
-    SENSDummyGps(double latitudeDEG  = 47.142472,
-                 double longitudeDEG = 7.243057,
-                 double altitudeM    = 300);
     ~SENSDummyGps();
 
     bool start() override;
     void stop() override;
+
+    void addDummyPos(SENSGps::Location loc)
+    {
+        _dummyLocs.push_back(loc);
+    }
 
 private:
     void startSimulation();
@@ -58,7 +58,7 @@ private:
     std::thread      _thread;
     std::atomic_bool _stop{false};
 
-    SENSGps::Location _dummyLoc;
+    std::vector<SENSGps::Location> _dummyLocs;
 };
 
 #endif

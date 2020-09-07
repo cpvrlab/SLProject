@@ -249,7 +249,8 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                    _inputManager,
                                                    *_imGuiEngine,
                                                    *_resources,
-                                                   *_dd);
+                                                   *_dd,
+                                                   _gps);
         }
 
         if (!_areaInfoView)
@@ -432,12 +433,18 @@ void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry,
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _locationMapView->onHide();
         return;
+    }
 
     if (stateEntry)
     {
         if (data)
+        {
             _locationMapView->initLocation(data->location);
+        }
+        _locationMapView->onShow();
     }
 
     _locationMapView->update();

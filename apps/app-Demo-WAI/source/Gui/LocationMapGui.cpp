@@ -11,11 +11,13 @@ LocationMapGui::LocationMapGui(const ImGuiEngine&  imGuiEngine,
                                int                 dotsPerInch,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
-                               std::string         erlebARDir)
+                               std::string         erlebARDir,
+                               SENSGps*            gps)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
-    _erlebARDir(erlebARDir)
+    _erlebARDir(erlebARDir),
+    _gps(gps)
 {
     resize(screenWidthPix, screenHeightPix);
 }
@@ -27,6 +29,14 @@ LocationMapGui::~LocationMapGui()
 void LocationMapGui::onShow()
 {
     _panScroll.enable();
+    if (_gps)
+        _gps->start();
+}
+
+void LocationMapGui::onHide()
+{
+    if (_gps)
+        _gps->stop();
 }
 
 void LocationMapGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -174,6 +184,31 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                 sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first));
             }
 
+            //draw gps position
+            if (_gps)
+            {
+                ImVec2 posPanCorr;
+
+                SENSGps::Location loc    = _gps->getLocation();
+                SLVec2i           mapPos = _gpsMapper->mapLLALocation({loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM});
+                //accuracy in meter to pixel
+                int radius = _gpsMapper->toMapScale(loc.accuracyM);
+
+                //[0, 1] on the texture
+                float x = (float)mapPos.x / (float)_locTextureW - _x;
+                float y = (float)mapPos.y / (float)_locTextureH - _y;
+
+                //[0, texSize] to screen coordinate
+
+                posPanCorr.x = x * (float)_locTextureW * (float)_screenW / (float)(_dspPixWidth);
+                posPanCorr.y = y * (float)_locTextureH * (float)_screenH / (float)(_dspPixHeight);
+
+                //debug overwrite
+                //posPanCorr.x = mapPos.x;
+                //posPanCorr.y = mapPos.y;
+                ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)radius, ImGui::GetColorU32(_resources.style().areaPoseButtonShapeColor));
+            }
+
             //ImGui::PopID();
             i++;
         }
@@ -223,6 +258,9 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
 
         _fracW = _dspPixWidth / (float)_locTextureW; //Should never be bigger than 1
         _fracH = _dspPixHeight / (float)_locTextureH;
+
+        //instantiate location map for wgs84 to image coordinate system transformation
+        _gpsMapper = std::make_unique<GPSMapper2D>(_loc.mapTLLla, _loc.mapBRLla, _locTextureW, _locTextureH);
     }
     else
         Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);

@@ -138,11 +138,11 @@ void SLDeviceLocation::originLLA(SLdouble latDEG,
                      sinLam * cosPhi,
                      sinPhi);
 
-    //world frame (scene) w.r.t. ENU frame
+    // ENU frame w.r.t. world frame (scene)
     SLMat3d wRenu; //same as before
     wRenu.rotation(-90, 1, 0, 0);
 
-    //world frame (scene) w.r.t. ECEF
+    //ECEF w.r.t. world frame (scene)
     _wRecef    = wRenu * enuRecef;
     _originENU = _wRecef * _originECEF;
 

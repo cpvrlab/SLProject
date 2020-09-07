@@ -6,6 +6,7 @@
 #include <SLSceneView.h>
 #include <LocationMapGui.h>
 #include <ErlebAR.h>
+#include <sens/SENSGps.h>
 
 class LocationMapView : public SLSceneView
 {
@@ -14,10 +15,12 @@ public:
                     SLInputManager&     inputManager,
                     const ImGuiEngine&  imGuiEngine,
                     ErlebAR::Resources& resources,
-                    const DeviceData&   deviceData);
+                    const DeviceData&   deviceData,
+                    SENSGps*            gps);
     bool update();
     //call when view becomes visible
-    void show() { _gui.onShow(); }
+    void onShow() { _gui.onShow(); }
+    void onHide() { _gui.onHide(); }
     void initLocation(ErlebAR::LocationId locId);
 
 private:

@@ -73,7 +73,9 @@ const Location defineLocationAugst()
     loc.id                   = LocationId::AUGST;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/augst/locationMapImgAugst.jpg";
-    loc.dspPixWidth          = 800;
+    loc.mapTLLla             = {47.53443, 7.71890, 282.6};
+    loc.mapBRLla             = {47.53194, 7.72524, 282.6};
+
     {
         Area area;
         area.id              = AreaId::AUGST_TEMPLE_HILL_MARKER;
@@ -102,7 +104,10 @@ const Location defineLocationAvenches()
     loc.id                   = LocationId::AVENCHES;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
-    loc.dspPixWidth          = 2000;
+    loc.mapTLLla             = {46.88264, 7.04148, 455.0};
+    loc.mapBRLla             = {46.87954, 7.04983, 455.0};
+
+    loc.dspPixWidth = 2000;
     {
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
@@ -146,12 +151,14 @@ const Location defineLocationAvenches()
 
     return loc;
 }
-const Location defineLocationChristoffel()
+const Location defineLocationBern()
 {
     Location loc;
     loc.id                   = LocationId::BERN;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/bern/locationMapImgBern.jpg";
+    loc.mapTLLla             = {46.94885, 7.43808, 542.0};
+    loc.mapBRLla             = {46.94701, 7.44290, 542.0};
     loc.dspPixWidth          = 2080;
     {
         Area area;
@@ -242,7 +249,7 @@ const std::map<LocationId, Location> defineLocations()
     std::map<LocationId, Location> locations;
     locations[LocationId::AUGST]    = defineLocationAugst();
     locations[LocationId::AVENCHES] = defineLocationAvenches();
-    locations[LocationId::BERN]     = defineLocationChristoffel();
+    locations[LocationId::BERN]     = defineLocationBern();
     locations[LocationId::BIEL]     = defineLocationBiel();
 
     return locations;

@@ -43,7 +43,7 @@ public class SENSGps {
             _locationListener = new SENSLocationListener(_context);
         }
 
-        if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Log.i("SENSGps", "Requesting GPS location updates");
 
             _isRunning = true;
