@@ -25,8 +25,8 @@ static ErlebARApp app;
 // GLobal application variables
 static GLFWwindow* window;                                         //!< The global glfw window handle
 static SLint       svIndex;                                        //!< SceneView index
-static SLint       scrWidth  = 640;                                //!< Window width at start up
-static SLint       scrHeight = 480;                                //!< Window height at start up
+static SLint       scrWidth  = 1920;                               //!< Window width at start up
+static SLint       scrHeight = 1080;                               //!< Window height at start up
 static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
 static SLint       startX;                                         //!< start position x in pixels
 static SLint       startY;                                         //!< start position y in pixels
@@ -516,30 +516,37 @@ int main(int argc, char* argv[])
         std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
         std::unique_ptr<SENSDummyGps>  gps       = std::make_unique<SENSDummyGps>();
 
-        SENSGps::Location church1 = {46.94783, 7.44064, 542.0, 1.0f};
-        gps->addDummyPos(church1);
         //define some dummy positions (bern)
-        SENSGps::Location tl = {46.94885, 7.43808, 542.0, 10.0f};
-        SENSGps::Location br = {46.94701, 7.44290, 542.0, 1.0f};
+        //SENSGps::Location church1 = {46.94783, 7.44064, 542.0, 1.0f};
+        //gps->addDummyPos(church1);
+        //SENSGps::Location tl = {46.94885, 7.43808, 542.0, 10.0f};
+        //SENSGps::Location br = {46.94701, 7.44290, 542.0, 1.0f};
 
-        //interpolate n values
-        int    n    = 10;
-        double latD = (br.latitudeDEG - tl.latitudeDEG) / n;
-        double lonD = (br.longitudeDEG - tl.longitudeDEG) / n;
-        double altD = (br.altitudeM - tl.altitudeM) / n;
-        double accD = (br.accuracyM - tl.accuracyM) / n;
+        //biel
+        SENSGps::Location poi1 = {47.14246, 7.24311, 542.0, 1.0f};
+        gps->addDummyPos(poi1);
 
-        gps->addDummyPos(tl);
-        for (int i = 1; i < n; ++i)
-        {
-            SENSGps::Location loc;
-            loc.latitudeDEG  = tl.latitudeDEG + i * latD;
-            loc.longitudeDEG = tl.longitudeDEG + i * lonD;
-            loc.altitudeM    = tl.altitudeM + i * altD;
-            loc.accuracyM    = tl.accuracyM + i * accD;
-            gps->addDummyPos(loc);
-        }
-        gps->addDummyPos(br);
+        //SENSGps::Location tl = {47.14290, 7.24225, 506.3, 10.0f};
+        //SENSGps::Location br = {47.14060, 7.24693, 434.3, 1.0f};
+
+        ////interpolate n values
+        //int    n    = 10;
+        //double latD = (br.latitudeDEG - tl.latitudeDEG) / n;
+        //double lonD = (br.longitudeDEG - tl.longitudeDEG) / n;
+        //double altD = (br.altitudeM - tl.altitudeM) / n;
+        //double accD = (br.accuracyM - tl.accuracyM) / n;
+
+        //gps->addDummyPos(tl);
+        //for (int i = 1; i < n; ++i)
+        //{
+        //    SENSGps::Location loc;
+        //    loc.latitudeDEG  = tl.latitudeDEG + i * latD;
+        //    loc.longitudeDEG = tl.longitudeDEG + i * lonD;
+        //    loc.altitudeM    = tl.altitudeM + i * altD;
+        //    loc.accuracyM    = tl.accuracyM + i * accD;
+        //    gps->addDummyPos(loc);
+        //}
+        //gps->addDummyPos(br);
 
         app.init(scrWidth,
                  scrHeight,
@@ -547,7 +554,8 @@ int main(int argc, char* argv[])
                  std::string(SL_PROJECT_ROOT) + "/data/",
                  Utils::getAppsWritableDir(),
                  webCamera.get(),
-                 gps.get());
+                 gps.get(),
+                 nullptr);
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");

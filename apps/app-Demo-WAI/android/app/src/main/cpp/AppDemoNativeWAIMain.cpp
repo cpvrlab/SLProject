@@ -42,6 +42,7 @@
 #include <CV/CVImage.h>
 #include <HighResTimer.h>
 #include <sens/android/SENSNdkGps.h>
+#include <sens/android/SENSNdkOrientation.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
@@ -57,7 +58,8 @@
 //#define ENGINE_WARN(...)  // nothing
 
 // global JNI interface variables
-jclass  gGpsClass;
+jclass gGpsClass;
+jclass gOrientationClass;
 
 class Engine
 {
@@ -126,7 +128,8 @@ private:
     bool        _cameraGranted = false;
     bool        _gpsGranted    = false;
 
-    SENSNdkGps* _gps = nullptr;
+    SENSNdkGps*         _gps         = nullptr;
+    SENSNdkOrientation* _orientation = nullptr;
     /*
     SensorsHandler* sensorsHandler;
     */
@@ -183,7 +186,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation);
         _earAppIsInitialized = true;
     }
     else
@@ -198,7 +201,7 @@ void Engine::onInit()
 
             std::string internalPath = getInternalDir();
             std::string externalPath = getExternalDir();
-            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps);
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation);
         }
         else
         {
@@ -496,6 +499,11 @@ void Engine::initSensors()
         {
             _gps = new SENSNdkGps(_app->activity->vm, &_app->activity->clazz, &gGpsClass);
         }
+
+        if (!_orientation)
+        {
+            _orientation = new SENSNdkOrientation(_app->activity->vm, &_app->activity->clazz, &gOrientationClass);
+        }
     }
     catch (std::exception& e)
     {
@@ -535,19 +543,21 @@ void Engine::onPermissionGranted(jboolean cameraGranted, jboolean gpsGranted)
         _camera->setPermissionGranted();
 
     _gps->init(_gpsGranted);
-    //_gps->start();
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     JNIEnv* env;
-    if( vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+    if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK)
+    {
         return JNI_ERR; // JNI version not supported.
     }
 
-    jclass c = env->FindClass("ch/cpvr/wai/SENSGps");
-    gGpsClass = reinterpret_cast<jclass>(env->NewGlobalRef(c));
+    jclass cGps  = env->FindClass("ch/cpvr/wai/SENSGps");
+    gGpsClass = reinterpret_cast<jclass>(env->NewGlobalRef(cGps));
 
+    jclass cOrient  = env->FindClass("ch/cpvr/wai/SENSOrientation");
+    gOrientationClass = reinterpret_cast<jclass>(env->NewGlobalRef(cOrient));
     return JNI_VERSION_1_6;
 }
 
@@ -560,17 +570,6 @@ Java_ch_cpvr_wai_WAIActivity_notifyPermission(
 {
     std::thread permissionHandler(&Engine::onPermissionGranted, GetEngine(), cameraGranted, gpsGranted);
     permissionHandler.detach();
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_ch_cpvr_wai_WAIActivity_onLocationLLA(JNIEnv* env,
-                                           jclass  obj,
-                                           jdouble latitudeDEG,
-                                           jdouble longitudeDEG,
-                                           jdouble altitudeM,
-                                           jdouble  accuracyM)
-{
-    Utils::log("SENSGps", "onLocationLLA");
 }
 
 std::string Engine::getInternalDir()

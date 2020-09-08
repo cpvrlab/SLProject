@@ -1,31 +1,30 @@
-#include "SENSNdkGps.h"
+#include "SENSNdkOrientation.h"
 #include <jni.h>
 #include <assert.h>
 #include <Utils.h>
 
-static SENSNdkGps* gGpsPtr = nullptr;
-SENSNdkGps*        GetGpsPtr()
+static SENSNdkOrientation* gOrientationPtr = nullptr;
+SENSNdkOrientation*        GetOrientationPtr()
 {
-	if(gGpsPtr==nullptr)
-		Utils::log("SENSNdkGps", "Global gps pointer has not been initialized");
-    return gGpsPtr;
+	if(gOrientationPtr== nullptr)
+		Utils::log("SENSNdkOrientation", "Global orientation pointer has not been initialized");
+    return gOrientationPtr;
 }
 
-SENSNdkGps::SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz)
+SENSNdkOrientation::SENSNdkOrientation(JavaVM* vm, jobject* activityContext, jclass* clazz)
   : _vm(vm)
 {
-    gGpsPtr = this;
+    gOrientationPtr = this;
 
     JNIEnv* env;
     _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
     _vm->AttachCurrentThread(&env, NULL);
 
-    //allocate object SENSGps java class
+    //allocate object SENSOrientation java class
     jobject o = env->AllocObject(*clazz);
     _object   = env->NewGlobalRef(o);
 
     //set java activity context
-    //jclass clazz = env->GetObjectClass(_object);
     jmethodID methodId = env->GetMethodID(*clazz,
                                           "init",
                                           "(Landroid/content/Context;)V");
@@ -34,17 +33,8 @@ SENSNdkGps::SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz)
     _vm->DetachCurrentThread();
 }
 
-void SENSNdkGps::init(bool granted)
+bool SENSNdkOrientation::start()
 {
-    Utils::log("SENSNdkGps", "init called");
-    _permissionGranted = granted;
-}
-
-bool SENSNdkGps::start()
-{
-    if (!_permissionGranted)
-        return false;
-
     JNIEnv* env;
     _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
     _vm->AttachCurrentThread(&env, NULL);
@@ -61,7 +51,7 @@ bool SENSNdkGps::start()
     return true;
 }
 
-void SENSNdkGps::stop()
+void SENSNdkOrientation::stop()
 {
     if(!_running)
         return;
@@ -81,23 +71,15 @@ void SENSNdkGps::stop()
     _vm->DetachCurrentThread();
 }
 
-void SENSNdkGps::updateLocation(double latitudeDEG,
-                                double longitudeDEG,
-                                double altitudeM,
-                                float  accuracyM)
+void SENSNdkOrientation::updateOrientation(const SENSOrientation::Quat& orientation)
 {
-    Utils::log("SENSGps", "updateLocation");
-    setLocation({latitudeDEG, longitudeDEG, altitudeM, accuracyM});
+    Utils::log("SENSNdkOrientation", "updateLocation");
+    setOrientation(orientation);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_ch_cpvr_wai_SENSGps_onLocationLLA(JNIEnv* env,
-                                       jclass  obj,
-                                       jdouble latitudeDEG,
-                                       jdouble longitudeDEG,
-                                       jdouble altitudeM,
-                                       jfloat  accuracyM)
+Java_ch_cpvr_wai_SENSOrientation_onOrientationQuat(JNIEnv* env, jclass obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
 {
-    Utils::log("SENSGps", "onLocationLLA");
-    GetGpsPtr()->updateLocation(latitudeDEG, longitudeDEG, altitudeM, accuracyM);
+    Utils::log("SENSNdkOrientation", "onLocationLLA");
+    GetOrientationPtr()->updateOrientation({quatX, quatY, quatZ, quatW});
 }

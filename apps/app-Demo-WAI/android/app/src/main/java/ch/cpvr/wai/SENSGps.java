@@ -16,12 +16,10 @@ public class SENSGps {
     LocationManager _locationManager;
     SENSLocationListener _locationListener;
     boolean _isRunning = false;
-    //long _gpsClassPtr;
 
     //set java activity context
     public void init(Context context) {
         _context = context;
-        //_gpsClassPtr = gpsClassPtr;
     }
 
     @SuppressWarnings("ResourceType")
@@ -40,7 +38,7 @@ public class SENSGps {
             _locationManager = (LocationManager) _context.getSystemService(Context.LOCATION_SERVICE);
         }
         if (_locationListener == null) {
-            _locationListener = new SENSLocationListener(_context);
+            _locationListener = new SENSLocationListener();
         }
 
         if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -81,18 +79,6 @@ public class SENSGps {
 class SENSLocationListener implements LocationListener {
 
     private static final String TAG = "SENSGps";
-    protected String latestHdop;
-    protected String latestPdop;
-    protected String latestVdop;
-    protected String geoIdHeight;
-    protected String ageOfDgpsData;
-    protected String dgpsId;
-    protected int satellitesUsedInFix;
-    Context _context;
-
-    public SENSLocationListener(Context context) {
-        _context = context;
-    }
 
     @Override
     public void onLocationChanged(Location loc) {

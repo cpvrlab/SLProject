@@ -8,6 +8,7 @@
 #include <ErlebAR.h>
 #include <Resources.h>
 #include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 
 class SLScene;
 class SLSceneView;
@@ -23,7 +24,8 @@ public:
                   int                 dotsPerInch,
                   int                 screenWidthPix,
                   int                 screenHeightPix,
-                  SENSGps*            gps);
+                  SENSGps*            gps,
+                  SENSOrientation*    orientation);
     ~SensorTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -32,6 +34,8 @@ public:
 
 private:
     void resize(int scrW, int scrH);
+    void updateGpsSensor();
+    void updateOrientationSensor();
 
     float _screenW;
     float _screenH;
@@ -49,7 +53,8 @@ private:
     bool        _hasException = false;
     std::string _exceptionText;
 
-    SENSGps* _gps = nullptr;
+    SENSGps*         _gps         = nullptr;
+    SENSOrientation* _orientation = nullptr;
 };
 
 #endif //SENSOR_TEST_GUI_H

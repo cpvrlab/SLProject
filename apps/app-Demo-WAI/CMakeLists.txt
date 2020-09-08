@@ -17,6 +17,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
@@ -102,6 +103,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp

@@ -3,6 +3,7 @@
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 #include <sens/SENSException.h>
+#include <SLQuat4.h>
 
 using namespace ErlebAR;
 
@@ -12,11 +13,13 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
                              int                 dotsPerInch,
                              int                 screenWidthPix,
                              int                 screenHeightPix,
-                             SENSGps*            gps)
+                             SENSGps*            gps,
+                             SENSOrientation*    orientation)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
-    _gps(gps)
+    _gps(gps),
+    _orientation(orientation)
 {
     resize(screenWidthPix, screenHeightPix);
 }
@@ -99,41 +102,8 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
-            if (ImGui::Button("Start##startSensor", ImVec2(btnW, 0)))
-            {
-                if (_gps && !_gps->start())
-                {
-                    Utils::log("SensorTestGui", "Start: failed");
-                }
-            }
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Stop##stopSensor", ImVec2(btnW, 0)))
-            {
-                try
-                {
-                    if (_gps)
-                        _gps->stop();
-                }
-                catch (SENSException& e)
-                {
-                    _exceptionText = e.what();
-                    _hasException  = true;
-                }
-            }
-
-            if (_gps)
-            {
-                //show gps position
-                SENSGps::Location loc = _gps->getLocation();
-                ImGui::Text("Lat: %fdeg Lon: %fdeg Alt: %fm Acc: %fm", loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
-            }
-            else
-            {
-                ImGui::Text("Sensor not started");
-            }
+            updateGpsSensor();
+            updateOrientationSensor();
         }
 
         ImGui::End();
@@ -146,4 +116,98 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
+}
+
+void SensorTestGui::updateGpsSensor()
+{
+    float w    = ImGui::GetContentRegionAvailWidth();
+    float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
+    if (ImGui::Button("Start##startGpsSensor", ImVec2(btnW, 0)))
+    {
+        if (_gps && !_gps->start())
+        {
+            Utils::log("SensorTestGui", "Start: failed");
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Stop##stopGpsSensor", ImVec2(btnW, 0)))
+    {
+        try
+        {
+            if (_gps)
+                _gps->stop();
+        }
+        catch (SENSException& e)
+        {
+            _exceptionText = e.what();
+            _hasException  = true;
+        }
+    }
+
+    if (_gps)
+    {
+        if (_gps->isRunning())
+        {
+            //show gps position
+            SENSGps::Location loc = _gps->getLocation();
+            ImGui::Text("Lat: %fdeg Lon: %fdeg Alt: %fm Acc: %fm", loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
+        }
+        else
+            ImGui::Text("Sensor not started");
+    }
+    else
+        ImGui::Text("Sensor not available");
+}
+
+void SensorTestGui::updateOrientationSensor()
+{
+    float w    = ImGui::GetContentRegionAvailWidth();
+    float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
+    if (ImGui::Button("Start##startOrientSensor", ImVec2(btnW, 0)))
+    {
+        if (_orientation && !_orientation->start())
+        {
+            Utils::log("SensorTestGui", "Start orientation sensor failed");
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Stop##stopOrientSensor", ImVec2(btnW, 0)))
+    {
+        try
+        {
+            if (_orientation)
+                _orientation->stop();
+        }
+        catch (SENSException& e)
+        {
+            _exceptionText = e.what();
+            _hasException  = true;
+        }
+    }
+
+    if (_orientation)
+    {
+        if (_orientation->isRunning())
+        {
+            //show gps position
+            SENSOrientation::Quat o = _orientation->getOrientation();
+            SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
+            float                 rollRAD, pitchRAD, yawRAD;
+            quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+            ImGui::Text("Euler angles XYZ");
+            ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+
+            quat.toEulerAnglesZYX(rollRAD, pitchRAD, yawRAD);
+            ImGui::Text("Euler angles ZYX");
+            ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+        }
+        else
+            ImGui::Text("Sensor not started");
+    }
+    else
+        ImGui::Text("Sensor not available");
 }
