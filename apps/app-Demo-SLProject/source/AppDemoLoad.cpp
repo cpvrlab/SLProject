@@ -142,11 +142,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->name("light node");
         scene->addChild(light1);
 
+        scene->addChild(new SLNode(new SLBox(s, -0.8f, -0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", m1), "chest"));
+
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
-        rectMesh->computeHardEdgesIndices(1.5, 0.001);
-        SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
-        scene->addChild(rectNode);
+        //SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
+        //SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
+        //scene->addChild(rectNode);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));

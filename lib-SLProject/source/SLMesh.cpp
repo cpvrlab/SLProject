@@ -48,6 +48,9 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     _accelStruct          = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
     _isSelected           = false;
+    _edgesGenerated       = false;
+    _edgeAngleDEG         = 30.0f;
+    _vertexPosEpsilon     = 0.001f;
 
     // Add this mesh to the global resource vector for deallocation
     if (assetMgr)
@@ -281,7 +284,7 @@ void SLMesh::init(SLNode* node)
         //if (!C.empty())
         //    mat(SLMaterialDiffuseAttribute::instance());
         //else
-            mat(SLMaterialDefaultGray::instance());
+        mat(SLMaterialDefaultGray::instance());
     }
 
     // set transparent flag of the node if mesh contains alpha material
@@ -414,6 +417,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     if (!_vao.vaoID())
         generateVAO();
 
+    if (!_edgesGenerated)
+    {
+        IE16.clear();
+        IE32.clear();
+        computeHardEdgesIndices(_edgeAngleDEG, _vertexPosEpsilon);
+        _edgesGenerated = true;
+    }
+
     /////////////////////////////
     // 3) Apply Uniform Variables
     /////////////////////////////
@@ -461,7 +472,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (sv->drawBit(SL_DB_HARDEDGES) && (!IE32.empty() || !IE16.empty()))
+    if (sv->drawBit(SL_DB_HARDEDGES) && (_edgesGenerated && (!IE32.empty() || !IE16.empty())))
     {
         if (!_vaoE.vaoID())
         {
@@ -470,7 +481,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (!IE32.empty()) _vaoE.setIndices(&IE32);
             _vaoE.generate((SLuint)P.size(), BU_static, true);
         }
-        _vaoE.drawElementAsColored(PT_lines, SLCol4f::RED, 4.0);
+        _vaoE.drawElementAsColored(PT_lines, SLCol4f::WHITE, 2.0f);
     }
     else
     {
@@ -714,21 +725,23 @@ void SLMesh::generateVAO()
 }
 //-----------------------------------------------------------------------------
 
-void SLMesh::computeHardEdgesIndices(float angle, float epsilon)
+void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
 {
+    float angleRAD = angleDEG * Utils::DEG2RAD;
+
     if (_primitive != PT_triangles)
         return;
 
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
-    Eigen::MatrixXd NV;
-    Eigen::MatrixXi NF;
-    Eigen::MatrixXi E;
-    Eigen::MatrixXi EMAP;
-    Eigen::MatrixXi uE;
-    Eigen::MatrixXd N;
-    Eigen::VectorXi SVI;
-    Eigen::VectorXi SVJ;
+    Eigen::MatrixXd newV; // new vertices after duplicate removal
+    Eigen::MatrixXi newF; // new faces after duplicate removal
+    Eigen::MatrixXi edges;  // all edges
+    Eigen::MatrixXi edgeMAP;
+    Eigen::MatrixXi uniqueEdges;
+    Eigen::MatrixXd faceN;
+    Eigen::VectorXi SVI; // new to old index mapping
+    Eigen::VectorXi SVJ; // old to new index mapping
 
     std::vector<std::vector<int>> uE2E;
 
@@ -751,9 +764,9 @@ void SLMesh::computeHardEdgesIndices(float angle, float epsilon)
     }
 
     //Extract sharp edges
-    igl::remove_duplicate_vertices(V, F, epsilon, NV, SVI, SVJ, NF);
-    igl::per_face_normals(NV, NF, N);
-    igl::unique_edge_map(NF, E, uE, EMAP, uE2E);
+    igl::remove_duplicate_vertices(V, F, epsilon, newV, SVI, SVJ, newF);
+    igl::per_face_normals(newV, newF, faceN);
+    igl::unique_edge_map(newF, edges, uniqueEdges, edgeMAP, uE2E);
 
     for (int u = 0; u < uE2E.size(); u++)
     {
@@ -766,14 +779,14 @@ void SLMesh::computeHardEdgesIndices(float angle, float epsilon)
             for (int j = i + 1; j < uE2E[u].size(); j++)
             {
                 const int                   ei  = uE2E[u][i];
-                const int                   fi  = ei % NF.rows();
+                const int                   fi  = ei % newF.rows();
                 const int                   ej  = uE2E[u][j];
-                const int                   fj  = ej % NF.rows();
-                Eigen::Matrix<double, 1, 3> ni  = N.row(fi);
-                Eigen::Matrix<double, 1, 3> nj  = N.row(fj);
-                Eigen::Matrix<double, 1, 3> ev  = (V.row(E(ei, 1)) - V.row(E(ei, 0))).normalized();
+                const int                   fj  = ej % newF.rows();
+                Eigen::Matrix<double, 1, 3> ni  = faceN.row(fi);
+                Eigen::Matrix<double, 1, 3> nj  = faceN.row(fj);
+                Eigen::Matrix<double, 1, 3> ev  = (V.row(edges(ei, 1)) - V.row(edges(ei, 0))).normalized();
                 float                       dij = M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
-                if (std::abs(dij - M_PI) > angle)
+                if (std::abs(dij - M_PI) > angleRAD)
                     sharp = true;
             }
         }
@@ -781,13 +794,13 @@ void SLMesh::computeHardEdgesIndices(float angle, float epsilon)
         {
             if (!I16.empty())
             {
-                IE16.push_back(SVI[uE(u, 0)]);
-                IE16.push_back(SVI[uE(u, 1)]);
+                IE16.push_back(SVI[uniqueEdges(u, 0)]);
+                IE16.push_back(SVI[uniqueEdges(u, 1)]);
             }
             else if (!I32.empty())
             {
-                IE32.push_back(SVI[uE(u, 0)]);
-                IE32.push_back(SVI[uE(u, 1)]);
+                IE32.push_back(SVI[uniqueEdges(u, 0)]);
+                IE32.push_back(SVI[uniqueEdges(u, 1)]);
             }
         }
     }
