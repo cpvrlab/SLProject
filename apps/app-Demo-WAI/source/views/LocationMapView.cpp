@@ -5,9 +5,10 @@ LocationMapView::LocationMapView(sm::EventHandler&   eventHandler,
                                  const ImGuiEngine&  imGuiEngine,
                                  ErlebAR::Resources& resources,
                                  const DeviceData&   deviceData,
-                                 SENSGps*            gps)
+                                 SENSGps*            gps,
+                                 SENSOrientation*    orientation)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
-    _gui(imGuiEngine, eventHandler, resources, deviceData.dpi(), deviceData.scrWidth(), deviceData.scrHeight(), deviceData.erlebARDir(), gps)
+    _gui(imGuiEngine, eventHandler, resources, deviceData.dpi(), deviceData.scrWidth(), deviceData.scrHeight(), deviceData.erlebARDir(), gps, orientation)
 {
     init("LocationMapView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();

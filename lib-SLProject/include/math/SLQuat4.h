@@ -393,7 +393,7 @@ void SLQuat4<T>::toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const
     // pitch (y-axis rotation)
     double sinp = +2.0 * (_w *_y - _z *_x);
     if (fabs(sinp) >= 1)
-        pitchRAD = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+        pitchRAD = copysign(PI / 2, sinp); // use 90 degrees if out of range
     else
         pitchRAD = asin(sinp);
 

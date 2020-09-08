@@ -252,7 +252,8 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                    *_imGuiEngine,
                                                    *_resources,
                                                    *_dd,
-                                                   _gps);
+                                                   _gps,
+                                                   _orientation);
         }
 
         if (!_areaInfoView)

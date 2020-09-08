@@ -9,6 +9,7 @@
 #include <Resources.h>
 #include <GPSMapper2D.h>
 #include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 
 class SLScene;
 class SLSceneView;
@@ -25,7 +26,8 @@ public:
                    int                 screenWidthPix,
                    int                 screenHeightPix,
                    std::string         erlebARDir,
-                   SENSGps*            gps);
+                   SENSGps*            gps,
+                   SENSOrientation*    orientation);
     ~LocationMapGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -73,7 +75,8 @@ private:
     float             _dspPixWidth;
     float             _dspPixHeight;
 
-    SENSGps*                     _gps = nullptr;
+    SENSGps*                     _gps         = nullptr;
+    SENSOrientation*             _orientation = nullptr;
     std::unique_ptr<GPSMapper2D> _gpsMapper;
 };
 

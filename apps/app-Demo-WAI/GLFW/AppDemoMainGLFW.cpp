@@ -523,7 +523,7 @@ int main(int argc, char* argv[])
         //SENSGps::Location br = {46.94701, 7.44290, 542.0, 1.0f};
 
         //biel
-        SENSGps::Location poi1 = {47.14246, 7.24311, 542.0, 1.0f};
+        SENSGps::Location poi1 = {47.14246, 7.24311, 542.0, 10.0f};
         gps->addDummyPos(poi1);
 
         //SENSGps::Location tl = {47.14290, 7.24225, 506.3, 10.0f};

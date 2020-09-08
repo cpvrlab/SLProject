@@ -2,6 +2,7 @@
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
+#include <SLQuat4.h>
 
 using namespace ErlebAR;
 
@@ -12,12 +13,14 @@ LocationMapGui::LocationMapGui(const ImGuiEngine&  imGuiEngine,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
                                std::string         erlebARDir,
-                               SENSGps*            gps)
+                               SENSGps*            gps,
+                               SENSOrientation*    orientation)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
     _erlebARDir(erlebARDir),
-    _gps(gps)
+    _gps(gps),
+    _orientation(orientation)
 {
     resize(screenWidthPix, screenHeightPix);
 }
@@ -31,12 +34,16 @@ void LocationMapGui::onShow()
     _panScroll.enable();
     if (_gps)
         _gps->start();
+    if (_orientation)
+        _orientation->start();
 }
 
 void LocationMapGui::onHide()
 {
     if (_gps)
         _gps->stop();
+    if (_orientation)
+        _orientation->stop();
 }
 
 void LocationMapGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -203,10 +210,40 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                 posPanCorr.x = x * (float)_locTextureW * (float)_screenW / (float)(_dspPixWidth);
                 posPanCorr.y = y * (float)_locTextureH * (float)_screenH / (float)(_dspPixHeight);
 
-                //debug overwrite
-                //posPanCorr.x = mapPos.x;
-                //posPanCorr.y = mapPos.y;
-                ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)radius, ImGui::GetColorU32(_resources.style().areaPoseButtonShapeColor));
+                ImVec4 circleGpsCol = {BFHColors::BlueImgui1.r,
+                                       BFHColors::BlueImgui1.g,
+                                       BFHColors::BlueImgui1.b,
+                                       0.05f};
+                ImVec4 orientCol    = {BFHColors::BlueImgui1.r,
+                                    BFHColors::BlueImgui1.g,
+                                    BFHColors::BlueImgui1.b,
+                                    1.0f};
+                ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)radius, ImGui::GetColorU32(circleGpsCol), 20);
+                if (_orientation && _orientation->isRunning())
+                {
+                    SENSOrientation::Quat o = _orientation->getOrientation();
+                    SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
+                    float                 rollRAD, pitchRAD, yawRAD;
+                    quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+                    float angle = -yawRAD * RAD2DEG;
+
+                    ImGui::SetCursorPosX(posPanCorr.x);
+                    ImGui::SetCursorPosY(posPanCorr.y - _headerBarH);
+
+                    //Utils::log("LocationMapGui", "orientation: %f deg", angle);
+                    ErlebAR::poseShapeButton("GpsIcon",
+                                             ImVec2(buttonSize, buttonSize),
+                                             circleRadius,
+                                             triangleLength,
+                                             triangleWidth,
+                                             angle,
+                                             orientCol,
+                                             orientCol);
+                }
+                else
+                {
+                    ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)circleRadius, ImGui::GetColorU32(orientCol), 20);
+                }
             }
 
             //ImGui::PopID();

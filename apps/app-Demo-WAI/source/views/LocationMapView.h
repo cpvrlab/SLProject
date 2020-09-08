@@ -7,6 +7,7 @@
 #include <LocationMapGui.h>
 #include <ErlebAR.h>
 #include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 
 class LocationMapView : public SLSceneView
 {
@@ -16,7 +17,8 @@ public:
                     const ImGuiEngine&  imGuiEngine,
                     ErlebAR::Resources& resources,
                     const DeviceData&   deviceData,
-                    SENSGps*            gps);
+                    SENSGps*            gps,
+                    SENSOrientation*    orientation);
     bool update();
     //call when view becomes visible
     void onShow() { _gui.onShow(); }

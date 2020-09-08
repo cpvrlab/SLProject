@@ -195,15 +195,31 @@ void SensorTestGui::updateOrientationSensor()
         {
             //show gps position
             SENSOrientation::Quat o = _orientation->getOrientation();
-            SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
-            float                 rollRAD, pitchRAD, yawRAD;
-            quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
-            ImGui::Text("Euler angles XYZ");
-            ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+            {
+                SLQuat4f quat(o.quatX, o.quatY, o.quatZ, o.quatW);
+                float    rollRAD, pitchRAD, yawRAD;
+                quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+                ImGui::Text("Euler angles XYZ");
+                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
 
-            quat.toEulerAnglesZYX(rollRAD, pitchRAD, yawRAD);
-            ImGui::Text("Euler angles ZYX");
-            ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+                quat.toEulerAnglesZYX(rollRAD, pitchRAD, yawRAD);
+                ImGui::Text("Euler angles ZYX");
+                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+            }
+            {
+                SLQuat4f quat(o.quatX, o.quatY, o.quatZ, o.quatW);
+                SLMat3f  enuRdev = quat.toMat3();
+                SLMat3f  devRmap;
+                devRmap.rotation(180, 1, 0, 0);
+
+                SLMat3f enuRmap = enuRdev * devRmap;
+
+                SLQuat4f res(enuRmap);
+                float    rollRAD, pitchRAD, yawRAD;
+                res.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+                ImGui::Text("Map angles ZYX");
+                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+            }
         }
         else
             ImGui::Text("Sensor not started");

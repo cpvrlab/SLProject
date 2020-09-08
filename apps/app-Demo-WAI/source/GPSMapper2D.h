@@ -4,6 +4,7 @@
 #include <SLVec3.h>
 #include <SLMat3.h>
 #include <SLVec2.h>
+#include <SLQuat4.h>
 
 class GPSMapper2D
 {
@@ -12,7 +13,7 @@ public:
 
     //transform given lla location to map coordinate system
     SLVec2i mapLLALocation(const SLVec3d& llaLoc);
-    int     toMapScale(const double valMeter);
+    int toMapScale(const double valMeter);
 
 private:
     //calcualte initial values
