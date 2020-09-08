@@ -17,6 +17,7 @@
 *.psess
 *.db
 *.so
+*.spv
 *.bak
 *.log
 *.tlog
@@ -25,6 +26,7 @@
 *~
 xyzrgb_dragon.ply
 
+data/erleb-AR
 data/models/PLY/xyzrgb_dragon.ply
 data/models/DAE/Aventicum
 data/models/GLTF/Aventicum
