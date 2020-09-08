@@ -42,6 +42,7 @@ externals/g2o/BUILD*
 externals/g2o/INSTALL*
 externals/g2o/bin
 externals/g2o/lib*
+externals/libigl
 externals/prebuild_scripts/opencv
 externals/prebuild_scripts/opencv_contrib
 externals/prebuild_scripts/assimp
