@@ -179,9 +179,11 @@ const Location defineLocationBiel()
     Location loc;
     loc.id                   = LocationId::BIEL;
     loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/biel/locationMapImgBiel.jpg";
-    loc.mapTLLla             = {47.14290, 7.24225, 506.3};
-    loc.mapBRLla             = {47.14060, 7.24693, 434.3};
+    loc.areaMapImageFileName = "locations/biel/locationMapImgBiel2.jpg";
+    loc.mapTLLla             = {47.14954, 7.23246, 741.0};
+    //loc.mapTLLla             = {47.14290, 7.24225, 506.3};
+    loc.mapBRLla             = {47.14778, 7.23661, 696.0};
+    //loc.mapBRLla             = {47.14060, 7.24693, 434.3};
     loc.dspPixWidth          = 800;
     {
         Area area;
