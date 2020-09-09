@@ -26,11 +26,12 @@ public:
 
     bool isRunning() { return _running; }
 
+    bool permissionGranted() const { return _permissionGranted; }
 protected:
     void setLocation(SENSGps::Location location);
 
     bool _running = false;
-
+    bool _permissionGranted = false;
 private:
     std::mutex _llaMutex;
 

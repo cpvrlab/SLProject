@@ -15,6 +15,8 @@
 #import <sys/utsname.h>
 #import <mach-o/arch.h>
 #import <iOS/SENSiOSCamera.h>
+#import <iOS/SENSiOSGps.h>
+
 //includes
 #include <mach/mach_time.h>
 #include <Utils.h>
@@ -34,8 +36,9 @@
     float _dpi;
     // ErlebAR app instance
     ErlebARApp _erlebARApp;
-    //std::unique_ptr<SENSiOSCamera> _camera;
+
     SENSiOSCamera* _camera;
+    SENSiOSGps* _gps;
 }
 - (float)getSeconds;
 
@@ -61,6 +64,7 @@
         _screenScale = 1.0f;
         _dpi         = 0.f;
         _camera      = nullptr;
+        _gps         = nullptr;
     }
 
     return self;
@@ -119,6 +123,7 @@
 
     Utils::initFileLog(Utils_iOS::getAppsWritableDir() + "log/", true);
     _camera = new SENSiOSCamera();
+    _gps    = new SENSiOSGps();
 }
 //-----------------------------------------------------------------------------
 - (void)viewWillLayoutSubviews
@@ -131,7 +136,9 @@
                      _dpi,
                      exePath + "data/",
                      configPath,
-                     _camera);
+                     _camera,
+                     _gps,
+                     nullptr);
 
     printf("viewWillLayoutSubviews: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }
@@ -162,6 +169,7 @@
     _erlebARApp.destroy();
     _erlebARApp.update();
     delete _camera;
+    delete _gps;
 }
 //-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
@@ -173,7 +181,8 @@
     _erlebARApp.destroy();
     _erlebARApp.update();
     delete _camera;
-
+    delete _gps;
+    
     if ([EAGLContext currentContext] == self.context)
     {
         [EAGLContext setCurrentContext:nil];

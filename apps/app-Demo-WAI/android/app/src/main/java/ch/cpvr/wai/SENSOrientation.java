@@ -64,6 +64,13 @@ public class SENSOrientation {
         if(!_isRunning)
             return;
 
+        Activity activity = (Activity)_context;
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                _sensorManager.unregisterListener(_sensorListener);
+            }
+        });
+
         _isRunning = false;
     }
 

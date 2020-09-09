@@ -47,6 +47,10 @@ set(headers
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.h
     ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.h
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.h
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGps.h
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.h
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.h
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.h
     )
 
 set(sources
@@ -56,6 +60,10 @@ set(sources
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.mm
     ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.mm
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.mm
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGps.mm
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.mm
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.mm
+	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.mm
 	)
  
 # Group source files

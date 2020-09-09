@@ -68,7 +68,13 @@ public class SENSGps {
 
         if (_locationListener != null) {
             Log.d("SENSGps", "Removing locationManager updates");
-            _locationManager.removeUpdates(_locationListener);
+
+            Activity activity = (Activity)_context;
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    _locationManager.removeUpdates(_locationListener);
+                }
+            });
         }
         _isRunning = false;
     }

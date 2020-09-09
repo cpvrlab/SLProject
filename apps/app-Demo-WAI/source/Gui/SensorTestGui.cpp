@@ -154,6 +154,8 @@ void SensorTestGui::updateGpsSensor()
             SENSGps::Location loc = _gps->getLocation();
             ImGui::Text("Lat: %fdeg Lon: %fdeg Alt: %fm Acc: %fm", loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
         }
+        else if(!_gps->permissionGranted())
+            ImGui::Text("Sensor permission not granted");
         else
             ImGui::Text("Sensor not started");
     }

@@ -1,3 +1,6 @@
+#ifndef SENS_IOSCAMERA_H
+#define SENS_IOSCAMERA_H
+
 #include <SENSCamera.h>
 #import "SENSiOSCameraDelegate.h"
 #import <simd/matrix_types.h>
@@ -32,3 +35,5 @@ private:
     std::mutex   _processedFrameMutex;
     SENSFramePtr _processedFrame;
 };
+
+#endif

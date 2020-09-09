@@ -21,8 +21,6 @@ private:
 
     JavaVM* _vm = nullptr;
     jobject _object = nullptr;
-
-	bool _permissionGranted = false;
 };
 
 #endif
