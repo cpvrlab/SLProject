@@ -191,8 +191,8 @@ bool WAISlamTools::initialize(InitializerData&  iniData,
     }
 
     // Update Connections
-    pKFini->UpdateConnections();
-    pKFcur->UpdateConnections();
+    pKFini->FindAndUpdateConnections();
+    pKFcur->FindAndUpdateConnections();
 
     // Set median depth to 1
     float medianDepth    = pKFini->ComputeSceneMedianDepth(2);
@@ -388,8 +388,8 @@ bool WAISlamTools::oldInitialize(WAIFrame&         frame,
     }
 
     // Update Connections
-    pKFini->UpdateConnections();
-    pKFcur->UpdateConnections();
+    pKFini->FindAndUpdateConnections();
+    pKFcur->FindAndUpdateConnections();
 
     //cout << "New Map created with " << _map->MapPointsInMap() << " points" << endl;
 

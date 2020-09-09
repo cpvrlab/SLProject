@@ -54,6 +54,7 @@ public:
     cv::Mat GetWorldPos();
 
     cv::Mat      GetNormal();
+    void         SetNormal(const cv::Mat& normal);
     WAIKeyFrame* GetReferenceKeyFrame();
 
     std::map<WAIKeyFrame*, size_t> GetObservations();
@@ -77,6 +78,7 @@ public:
 
     void    ComputeDistinctiveDescriptors();
     cv::Mat GetDescriptor();
+    void    SetDescriptor(const cv::Mat& descriptor);
 
     void UpdateNormalAndDepth();
 
@@ -104,7 +106,6 @@ public:
     bool isFixed() const { return _fixed; }
     bool loadedFromMap() { return _loadedFromMap; }
 
-public:
     long unsigned int mnId = -1;
     //ghm1: this keeps track of the highest used id, to never use the same id again
     static long unsigned int nNextId;
@@ -117,11 +118,11 @@ public:
     float mTrackProjY = 0.0f;
 
     //ghm1: flags, if the map point is in frustum of the current frame
-    bool              mbTrackInView            = false;
-    int               mnTrackScaleLevel        = 0;
-    float             mTrackViewCos            = 0.0f;
+    bool  mbTrackInView     = false;
+    int   mnTrackScaleLevel = 0;
+    float mTrackViewCos     = 0.0f;
     //long unsigned int mnTrackReferenceForFrame = 0;
-    long unsigned int mnLastFrameSeen          = 0;
+    long unsigned int mnLastFrameSeen = 0;
 
     // Variables used by local mapping
     //long unsigned int mnBALocalForKF;
@@ -136,6 +137,12 @@ public:
 
     static std::mutex mGlobalMutex;
     static std::mutex mMutexMapPointCreation;
+
+    float GetMaxDistance();
+    float GetMinDistance();
+
+    void SetMaxDistance(float maxDist);
+    void SetMinDistance(float minDist);
 
 protected:
     //flags if fixed, then

@@ -125,7 +125,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(light);
 
     HighResTimer t;
-    if (location == "avenches")
+    if (location == "avenches" || location == "Avenches")
     {
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
