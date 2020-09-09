@@ -371,15 +371,22 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
             int cropW, cropH, w, h;
             SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
 
-            _camera->start(devProps->deviceId(),
-                           *streamConfig,
-                           cv::Size(w, h),
-                           false,
-                           false,
-                           true,
-                           trackingImgW,
-                           true,
-                           65.f);
+            try
+            {
+                _camera->start(devProps->deviceId(),
+                               *streamConfig,
+                               cv::Size(w, h),
+                               false,
+                               false,
+                               true,
+                               trackingImgW,
+                               true,
+                               65.f);
+            }
+            catch (...)
+            {
+                _gui.showErrorMsg(_resources.strings().cameraStartError());
+            }
         }
         else //try with unknown config (for desktop usage, there may be no high resolution available)
         {
@@ -434,15 +441,15 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 {
     //todo: add or remove crop in case of wide screens
     //undistort image and copy image to video texture
-    if(_resources.developerMode)
+    if (_resources.developerMode)
         _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, false, true);
 
     updateVideoImage(frame);
 
     //update map point visualization
-    if(_resources.developerMode)
+    if (_resources.developerMode)
         _scene.renderMapPoints(_waiSlam->getMapPoints());
-    
+
     //update visualization of matched map points (when WAI pose is valid)
     if (iKnowWhereIAm && (_gui.opacity() > 0.0001f))
         _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(_waiSlam->getLastFramePtr()), _gui.opacity());

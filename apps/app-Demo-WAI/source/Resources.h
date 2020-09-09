@@ -200,53 +200,33 @@ public:
     const char* language() const { return _language.c_str(); }
     const char* develMode() const { return _develMode.c_str(); }
 
+    const char* cameraStartError() const { return _cameraStartError.c_str(); }
+
     void load(std::string fileName);
 
 protected:
     //static void loadString(const cv::FileStorage& fs, const std::string& name, std::string& target);
 
-    std::string _id;
+    std::string _id = "English";
 
     //selection
     std::string _augst    = "Augst";
     std::string _avenches = "Avenches";
     std::string _bern     = "Bern";
     std::string _biel     = "Biel";
-    std::string _settings;
-    std::string _about;
-    std::string _tutorial;
+    std::string _settings = "Settings";
+    std::string _about    = "About";
+    std::string _tutorial = "Tutorial";
     //about
-    std::string _general;
-    std::string _generalContent;
-    std::string _developers;
-    std::string _developerNames;
+    std::string _general        = "General";
+    std::string _generalContent = "Lorem ipsum dolor sit amet";
+    std::string _developers     = "Developers";
+    std::string _developerNames = "Jan Dellsperger\nLuc Girod\nMichael G�ttlicher";
     //settings
-    std::string _language;
-    std::string _develMode;
-};
-
-class StringsEnglish : public Strings
-{
-public:
-    StringsEnglish();
-};
-
-class StringsGerman : public Strings
-{
-public:
-    StringsGerman();
-};
-
-class StringsFrench : public Strings
-{
-public:
-    StringsFrench();
-};
-
-class StringsItalian : public Strings
-{
-public:
-    StringsItalian();
+    std::string _language  = "Language";
+    std::string _develMode = "Developer mode";
+    //errors
+    std::string _cameraStartError = "Could not start camera!";
 };
 
 //-----------------------------------------------------------------------------
@@ -269,10 +249,10 @@ public:
 
     bool developerMode = true;
 
-    StringsEnglish stringsEnglish;
-    StringsGerman  stringsGerman;
-    StringsFrench  stringsFrench;
-    StringsItalian stringsItalian;
+    Strings stringsEnglish;
+    Strings stringsGerman;
+    Strings stringsFrench;
+    Strings stringsItalian;
 
     Textures textures;
 

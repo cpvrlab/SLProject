@@ -7,7 +7,8 @@
 SENSiOSCamera::SENSiOSCamera()
 {
     _cameraDelegate = [[SENSiOSCameraDelegate alloc] init];
-    [_cameraDelegate setCallback:std::bind(&SENSiOSCamera::processNewFrame, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
+    [_cameraDelegate setPermissionCB:std::bind(&SENSiOSCamera::updatePermission, this, std::placeholders::_1)];
+    [_cameraDelegate setUpdateCB:std::bind(&SENSiOSCamera::processNewFrame, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
     //todo: fixme
     _permissionGranted = true;
 }
@@ -165,4 +166,9 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
         std::lock_guard<std::mutex> lock(_processedFrameMutex);
         _processedFrame = std::move(sensFrame);
     }
+}
+
+void SENSiOSCamera::updatePermission(bool granted)
+{
+    _permissionGranted = granted;
 }

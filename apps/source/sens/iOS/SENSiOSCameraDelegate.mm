@@ -36,6 +36,11 @@
 
     _cameraIntrinsicsDelivery = NO;
 
+    if (self)
+    {
+        [self checkPermission];
+    }
+
     return self;
 }
 
@@ -72,9 +77,9 @@
             }
         }
 
-        if (_callback)
+        if (_updateCB)
         {
-            _callback(data, imgWidth, imgHeight, camMatrix);
+            _updateCB(data, imgWidth, imgHeight, camMatrix);
         }
 
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
@@ -342,6 +347,45 @@
         characsVec.push_back(characs);
     }
     return characsVec;
+}
+
+- (void)checkPermission
+{
+    NSString*             mediaType  = AVMediaTypeVideo;
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    if (authStatus == AVAuthorizationStatusAuthorized)
+    {
+        if (_permissionCB)
+            _permissionCB(true);
+    }
+    else if (authStatus == AVAuthorizationStatusDenied)
+    {
+        if (_permissionCB)
+            _permissionCB(false);
+    }
+    else if (authStatus == AVAuthorizationStatusRestricted)
+    {
+        // restricted, normally won't happen
+    }
+    else if (authStatus == AVAuthorizationStatusNotDetermined)
+    {
+        // not determined?!
+        [AVCaptureDevice requestAccessForMediaType:mediaType
+                                 completionHandler:^(BOOL granted) {
+                                   if (granted)
+                                   {
+                                       NSLog(@"Granted access to %@", mediaType);
+                                       if (_permissionCB)
+                                           _permissionCB(true);
+                                   }
+                                   else
+                                   {
+                                       NSLog(@"Not granted access to %@", mediaType);
+                                       if (_permissionCB)
+                                           _permissionCB(false);
+                                   }
+                                 }];
+    }
 }
 
 @end

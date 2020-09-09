@@ -29,7 +29,8 @@ public:
 
 private:
     void processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3);
-
+    void updatePermission(bool granted);
+    
     SENSiOSCameraDelegate* _cameraDelegate;
 
     std::mutex   _processedFrameMutex;
