@@ -16,6 +16,7 @@
 #import <mach-o/arch.h>
 #import <iOS/SENSiOSCamera.h>
 #import <iOS/SENSiOSGps.h>
+#import <iOS/SENSiOSOrientation.h>
 
 //includes
 #include <mach/mach_time.h>
@@ -39,6 +40,7 @@
 
     SENSiOSCamera* _camera;
     SENSiOSGps* _gps;
+    SENSiOSOrientation* _orientation;
 }
 - (float)getSeconds;
 
@@ -65,6 +67,7 @@
         _dpi         = 0.f;
         _camera      = nullptr;
         _gps         = nullptr;
+        _orientation = nullptr;
     }
 
     return self;
@@ -122,8 +125,9 @@
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
 
     Utils::initFileLog(Utils_iOS::getAppsWritableDir() + "log/", true);
-    _camera = new SENSiOSCamera();
-    _gps    = new SENSiOSGps();
+    _camera      = new SENSiOSCamera();
+    _gps         = new SENSiOSGps();
+    _orientation = new SENSiOSOrientation();
 }
 //-----------------------------------------------------------------------------
 - (void)viewWillLayoutSubviews
@@ -138,7 +142,7 @@
                      configPath,
                      _camera,
                      _gps,
-                     nullptr);
+                     _orientation);
 
     printf("viewWillLayoutSubviews: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }
@@ -170,6 +174,7 @@
     _erlebARApp.update();
     delete _camera;
     delete _gps;
+    delete _orientation;
 }
 //-----------------------------------------------------------------------------
 - (void)didReceiveMemoryWarning
@@ -182,6 +187,7 @@
     _erlebARApp.update();
     delete _camera;
     delete _gps;
+    delete _orientation;
     
     if ([EAGLContext currentContext] == self.context)
     {
