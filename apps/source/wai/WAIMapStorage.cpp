@@ -174,6 +174,8 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
         std::vector<WAIKeyFrame*> bestCovisibles = kf->GetBestCovisibilityKeyFrames(20);
         for (WAIKeyFrame* covisible : bestCovisibles)
         {
+            if (covisible->isBad())
+                continue;
             int weight = kf->GetWeight(covisible);
             if (weight)
             {
@@ -534,6 +536,8 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         std::vector<WAIKeyFrame*> bestCovisibles = kf->GetBestCovisibilityKeyFrames(20);
         for (WAIKeyFrame* covisible : bestCovisibles)
         {
+            if (covisible->isBad())
+                continue;
             int weight = kf->GetWeight(covisible);
             if (weight)
             {
