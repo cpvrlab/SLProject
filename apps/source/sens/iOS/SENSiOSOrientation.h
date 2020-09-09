@@ -18,8 +18,6 @@ private:
                            float quatY,
                            float quatZ,
                            float quatW);
-    //callback for permission update
-    void updatePermission(bool granted);
 
     SENSiOSOrientationDelegate* _orientationDelegate;
 };

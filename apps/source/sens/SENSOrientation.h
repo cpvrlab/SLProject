@@ -22,13 +22,11 @@ public:
     Quat getOrientation();
 
     bool isRunning() { return _running; }
-    bool permissionGranted() const { return _permissionGranted; }
-    
+
 protected:
     void setOrientation(Quat orientation);
 
     bool _running           = false;
-    bool _permissionGranted = false;
 
 private:
     std::mutex _orientationMutex;
