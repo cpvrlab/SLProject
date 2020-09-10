@@ -21,6 +21,7 @@
 #include <igl/remove_duplicate_vertices.h>
 #include <igl/per_face_normals.h>
 #include <igl/unique_edge_map.h>
+//#include <igl/sharp_edges.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -727,6 +728,7 @@ void SLMesh::generateVAO()
 
 void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
 {
+    //Dihedral angle considered to sharp
     float angleRAD = angleDEG * Utils::DEG2RAD;
 
     if (_primitive != PT_triangles)
@@ -768,10 +770,29 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
     igl::per_face_normals(newV, newF, faceN);
     igl::unique_edge_map(newF, edges, uniqueEdges, edgeMAP, uE2E);
 
+    /*
+    Eigen::MatrixXi SE; // sharp edges
+    igl::sharp_edges(newV, newF, angleRAD, SE);
+    std::cout << "SE.rows() = " << SE.rows() << std::endl;
+    std::cout << "angle " << angleRAD << std::endl;
+    for (int i = 0; i < SE.rows(); i++)
+    {
+        if (!I16.empty())
+        {
+            IE16.push_back(SVI[SE(i, 0)]);
+            IE16.push_back(SVI[SE(i, 1)]);
+        }
+        else if (!I32.empty())
+        {
+            IE32.push_back(SVI[SE(i, 0)]);
+            IE32.push_back(SVI[SE(i, 1)]);
+        }
+    }
+    */
     for (int u = 0; u < uE2E.size(); u++)
     {
         bool sharp = false;
-        if (uE2E[u].size() == 1)
+        if (uE2E[u].size() == 1) // Edges at the border (with only one triangle)
             sharp = true;
 
         for (int i = 0; i < uE2E[u].size(); i++)
@@ -784,7 +805,7 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
                 const int                   fj  = ej % newF.rows();
                 Eigen::Matrix<double, 1, 3> ni  = faceN.row(fi);
                 Eigen::Matrix<double, 1, 3> nj  = faceN.row(fj);
-                Eigen::Matrix<double, 1, 3> ev  = (V.row(edges(ei, 1)) - V.row(edges(ei, 0))).normalized();
+                Eigen::Matrix<double, 1, 3> ev  = (newV.row(edges(ei, 1)) - newV.row(edges(ei, 0))).normalized();
                 float                       dij = M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
                 if (std::abs(dij - M_PI) > angleRAD)
                     sharp = true;
