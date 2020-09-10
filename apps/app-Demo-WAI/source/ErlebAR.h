@@ -107,7 +107,7 @@ public:
     float viewAngleDeg = 0.f;
     //map name in erlebAR directory
     std::string slamMapFileName;
-    std::string relocAlignImage;
+    std::string relocAlignImage = "dummy.jpg";
     //WaiSlam extractor types
     ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
     ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000;

@@ -170,6 +170,8 @@ public:
                                          WAIOrbVocabulary* voc);
 
 protected:
+    //virtal destructor is mandatory
+    virtual ~WAISlamTools() {}
     WAISlamTools(){};
 
     static void countReprojectionOutliers(WAIFrame& frame, unsigned int &m, unsigned int &n, unsigned int &outliers);

@@ -116,7 +116,7 @@ private:
     std::string _displayText;
     GLuint      _areaAlignTexture         = 0;
     float       _areaAlighTextureBlending = 1.0f;
-    bool        _showAlignImage;
+    bool        _showAlignImage = false;
 };
 
 #endif //AREA_TRACKING_GUI_H

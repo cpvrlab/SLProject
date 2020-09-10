@@ -2,6 +2,7 @@
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
+#include <Utils.h>
 
 using namespace ErlebAR;
 
@@ -20,10 +21,6 @@ AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
     _erlebARDir(erlebARDir)
 {
     resize(screenWidthPix, screenHeightPix);
-
-
-
-
 }
 
 AreaTrackingGui::~AreaTrackingGui()
@@ -189,7 +186,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PopStyleVar(1);
             }
 
-            if (_showAlignImage)
+            if (_showAlignImage && _areaAlignTexture != 0)
             {
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
                 {
@@ -278,10 +275,13 @@ void AreaTrackingGui::initArea(ErlebAR::Area area)
     int w, h;
 
     ErlebAR::deleteTexture(_areaAlignTexture);
-    _areaAlignTexture = ErlebAR::loadTexture(_erlebARDir + area.relocAlignImage,
-                                             false,
-                                             true,
-                                             _screenW / _screenH,
-                                             w,
-                                             h);
+    if(Utils::fileExists(_erlebARDir + area.relocAlignImage))
+    {
+        _areaAlignTexture = ErlebAR::loadTexture(_erlebARDir + area.relocAlignImage,
+                                                 false,
+                                                 true,
+                                                 _screenW / _screenH,
+                                                 w,
+                                                 h);
+    }
 }
