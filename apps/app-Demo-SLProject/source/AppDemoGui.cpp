@@ -1781,8 +1781,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
                         selN->drawBits()->toggle(SL_DB_MESHWIRED);
 
-                    if (ImGui::MenuItem("Hard edges Mesh", nullptr, selN->drawBits()->get(SL_DB_HARDEDGES)))
-                        selN->drawBits()->toggle(SL_DB_MESHWIRED);
+                    if (ImGui::MenuItem("With hard edges", nullptr, selN->drawBits()->get(SL_DB_WITHEDGES)))
+                        selN->drawBits()->toggle(SL_DB_WITHEDGES);
+
+                    if (ImGui::MenuItem("Only hard edges", nullptr, selN->drawBits()->get(SL_DB_ONLYEDGES)))
+                        selN->drawBits()->toggle(SL_DB_ONLYEDGES);
 
                     if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
                         selN->drawBits()->toggle(SL_DB_NORMALS);
@@ -1861,8 +1864,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Mesh Wired", "M", sv->drawBits()->get(SL_DB_MESHWIRED)))
                     sv->drawBits()->toggle(SL_DB_MESHWIRED);
 
-                if (ImGui::MenuItem("Hardedges", "H", sv->drawBits()->get(SL_DB_HARDEDGES)))
-                    sv->drawBits()->toggle(SL_DB_HARDEDGES);
+                if (ImGui::MenuItem("Width hard edges", "H", sv->drawBits()->get(SL_DB_WITHEDGES)))
+                    sv->drawBits()->toggle(SL_DB_WITHEDGES);
+
+                if (ImGui::MenuItem("Only hard edges", "O", sv->drawBits()->get(SL_DB_ONLYEDGES)))
+                    sv->drawBits()->toggle(SL_DB_ONLYEDGES);
 
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->drawBits()->toggle(SL_DB_NORMALS);

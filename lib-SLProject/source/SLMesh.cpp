@@ -21,7 +21,6 @@
 #include <igl/remove_duplicate_vertices.h>
 #include <igl/per_face_normals.h>
 #include <igl/unique_edge_map.h>
-//#include <igl/sharp_edges.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -423,6 +422,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         IE16.clear();
         IE32.clear();
         computeHardEdgesIndices(_edgeAngleDEG, _vertexPosEpsilon);
+
+        _vaoE.deleteGL();
+        _vaoE.setAttrib(AT_position, AT_position, _finalP);
+        if (!IE16.empty()) _vaoE.setIndices(&IE16);
+        if (!IE32.empty()) _vaoE.setIndices(&IE32);
+        _vaoE.generate((SLuint)P.size(), BU_static, true);
+
         _edgesGenerated = true;
     }
 
@@ -473,23 +479,23 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (sv->drawBit(SL_DB_HARDEDGES) && (_edgesGenerated && (!IE32.empty() || !IE16.empty())))
-    {
-        if (!_vaoE.vaoID())
-        {
-            _vaoE.setAttrib(AT_position, AT_position, _finalP);
-            if (!IE16.empty()) _vaoE.setIndices(&IE16);
-            if (!IE32.empty()) _vaoE.setIndices(&IE32);
-            _vaoE.generate((SLuint)P.size(), BU_static, true);
-        }
+    if (sv->drawBit(SL_DB_ONLYEDGES) && (_edgesGenerated && (!IE32.empty() || !IE16.empty())))
         _vaoE.drawElementAsColored(PT_lines, SLCol4f::WHITE, 2.0f);
-    }
     else
     {
         if (_primitive == PT_points)
             _vao.drawArrayAs(PT_points);
         else
+        {
             _vao.drawElementsAs(primitiveType);
+
+            if (sv->drawBit(SL_DB_WITHEDGES) && (_edgesGenerated && (!IE32.empty() || !IE16.empty())))
+            {
+                stateGL->polygonOffset(true, 1.0f, 1.0f);
+                _vaoE.drawElementAsColored(PT_lines, SLCol4f::WHITE, 2.0f);
+                stateGL->polygonOffset(false);
+            }
+        }
     }
 
     //////////////////////////////////////
@@ -722,10 +728,12 @@ void SLMesh::generateVAO()
     if (!I16.empty()) _vao.setIndices(&I16);
     if (!I32.empty()) _vao.setIndices(&I32);
 
-    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
+    _vao.generate((SLuint)P.size(),
+                  !Ji.empty() ? BU_stream : BU_static,
+                  Ji.empty());
 }
 //-----------------------------------------------------------------------------
-
+//! computes the hard edges and stores the vertex indexes separately
 void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
 {
     //Dihedral angle considered to sharp
@@ -736,10 +744,10 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
 
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
-    Eigen::MatrixXd newV; // new vertices after duplicate removal
-    Eigen::MatrixXi newF; // new faces after duplicate removal
-    Eigen::MatrixXi edges;  // all edges
-    Eigen::MatrixXi edgeMAP;
+    Eigen::MatrixXd newV;  // new vertices after duplicate removal
+    Eigen::MatrixXi newF;  // new faces after duplicate removal
+    Eigen::MatrixXi edges; // all edges
+    Eigen::MatrixXi edgeMap;
     Eigen::MatrixXi uniqueEdges;
     Eigen::MatrixXd faceN;
     Eigen::VectorXi SVI; // new to old index mapping
@@ -747,10 +755,10 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
 
     std::vector<std::vector<int>> uE2E;
 
-    //Fill Input Matrixes
-    V.resize(P.size(), 3);
-    for (int i = 0; i < P.size(); i++)
-        V.row(i) << P[i].x, P[i].y, P[i].z;
+    // fill input matrices
+    V.resize(_finalP->size(), 3);
+    for (int i = 0; i < _finalP->size(); i++)
+        V.row(i) << finalP(i).x, finalP(i).y, finalP(i).z;
 
     if (!I16.empty())
     {
@@ -768,27 +776,8 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
     //Extract sharp edges
     igl::remove_duplicate_vertices(V, F, epsilon, newV, SVI, SVJ, newF);
     igl::per_face_normals(newV, newF, faceN);
-    igl::unique_edge_map(newF, edges, uniqueEdges, edgeMAP, uE2E);
+    igl::unique_edge_map(newF, edges, uniqueEdges, edgeMap, uE2E);
 
-    /*
-    Eigen::MatrixXi SE; // sharp edges
-    igl::sharp_edges(newV, newF, angleRAD, SE);
-    std::cout << "SE.rows() = " << SE.rows() << std::endl;
-    std::cout << "angle " << angleRAD << std::endl;
-    for (int i = 0; i < SE.rows(); i++)
-    {
-        if (!I16.empty())
-        {
-            IE16.push_back(SVI[SE(i, 0)]);
-            IE16.push_back(SVI[SE(i, 1)]);
-        }
-        else if (!I32.empty())
-        {
-            IE32.push_back(SVI[SE(i, 0)]);
-            IE32.push_back(SVI[SE(i, 1)]);
-        }
-    }
-    */
     for (int u = 0; u < uE2E.size(); u++)
     {
         bool sharp = false;
@@ -811,6 +800,7 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
                     sharp = true;
             }
         }
+
         if (sharp)
         {
             if (!I16.empty())
@@ -826,7 +816,6 @@ void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
         }
     }
 }
-
 /*!
 SLMesh::hit does the ray-mesh intersection test. If no acceleration
 structure is defined all triangles are tested in a brute force manner.

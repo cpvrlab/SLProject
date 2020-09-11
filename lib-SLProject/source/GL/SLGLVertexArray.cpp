@@ -164,7 +164,7 @@ or a sequential vertex buffer.\n\n
 */
 void SLGLVertexArray::generate(SLuint          numVertices,
                                SLGLBufferUsage usage,
-                               SLbool          outputinterleaved)
+                               SLbool          outputInterleaved)
 {
     assert(numVertices);
 
@@ -183,7 +183,7 @@ void SLGLVertexArray::generate(SLuint          numVertices,
 
     // Generate the vertex buffer object for float attributes
     if (_VBOf.attribs().size())
-        _VBOf.generate(numVertices, usage, outputinterleaved);
+        _VBOf.generate(numVertices, usage, outputInterleaved);
 
     //////////////////////////////////////////
     // Create Element Array Buffer for Indices

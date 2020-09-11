@@ -1588,6 +1588,8 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='P') {startPathtracing(5, 10);}
 
     if (key=='M') {drawBits()->toggle(SL_DB_MESHWIRED); return true;}
+    if (key=='H') {drawBits()->toggle(SL_DB_WITHEDGES); return true;}
+    if (key=='O') {drawBits()->toggle(SL_DB_ONLYEDGES); return true;}
     if (key=='N') {drawBits()->toggle(SL_DB_NORMALS); return true;}
     if (key=='B') {drawBits()->toggle(SL_DB_BBOX); return true;}
     if (key=='V') {drawBits()->toggle(SL_DB_VOXELS); return true;}
