@@ -278,7 +278,12 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
     if (!_program)
     {
         if (!_textures.empty())
-            program(SLGLGenericProgramDefaultTex::instance());
+        {
+            if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
+                program(SLGLGenericProgramDefaultTexNormal::instance());
+            else
+                program(SLGLGenericProgramDefaultTex::instance());
+        }
         else
             program(SLGLGenericProgramDefault::instance());
     }

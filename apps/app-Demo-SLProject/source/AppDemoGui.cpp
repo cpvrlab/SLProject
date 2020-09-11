@@ -1011,7 +1011,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
-        if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
+        if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
         {
             ImGui::Begin("Christoffel",
                          &showChristoffel,
@@ -1371,24 +1371,24 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
                         if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
-                                s->onLoad(s, sv, SID_VideoChristoffel);
+                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_ErlebARChristoffel))
+                                s->onLoad(s, sv, SID_ErlebARChristoffel);
 
                         if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
-                                s->onLoad(s, sv, SID_VideoAugustaRaurica);
+                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_ErlebARAugustaRaurica))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
 
                         if (Utils::fileExists(modelAV1))
-                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
-                                s->onLoad(s, sv, SID_VideoAventicumAmphi);
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_ErlebARAventicumAmphi))
+                                s->onLoad(s, sv, SID_ErlebARAventicumAmphi);
 
                         if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
-                                s->onLoad(s, sv, SID_VideoAventicumCigognier);
+                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_ErlebARAventicumCigognier))
+                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
 
                         if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
-                                s->onLoad(s, sv, SID_VideoAventicumTheatre);
+                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_ErlebARAventicumTheatre))
+                                s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
 
                         ImGui::EndMenu();
                     }
@@ -2447,7 +2447,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            if (SLApplication::sceneID == SID_VideoChristoffel)
+            if (SLApplication::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);

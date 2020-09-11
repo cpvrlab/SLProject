@@ -18,9 +18,10 @@
 #include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
-SLMaterialDefaultGray*        SLMaterialDefaultGray::_instance        = nullptr;
-SLGLGenericProgramDefault*    SLGLGenericProgramDefault::_instance    = nullptr;
-SLGLGenericProgramDefaultTex* SLGLGenericProgramDefaultTex::_instance = nullptr;
+SLMaterialDefaultGray*              SLMaterialDefaultGray::_instance              = nullptr;
+SLGLGenericProgramDefault*          SLGLGenericProgramDefault::_instance          = nullptr;
+SLGLGenericProgramDefaultTex*       SLGLGenericProgramDefaultTex::_instance       = nullptr;
+SLGLGenericProgramDefaultTexNormal* SLGLGenericProgramDefaultTexNormal::_instance = nullptr;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
