@@ -124,7 +124,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_Minimal) //...................................................
     {
-         // Set scene name and info string
+        // Set scene name and info string
         s->name("Minimal Scene Test");
         s->info("Minimal texture mapping example with one light source.");
 
@@ -825,13 +825,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 for (SLint iX = -size; iX <= size; ++iX)
                 {
                     // Choose a random material index
-                    SLuint    res      = 36;
-                    SLint iMat = Utils::random(0,NUM_MAT);
-                    SLstring  nodeName = "earth-" + std::to_string(n);
+                    SLuint   res      = 36;
+                    SLint    iMat     = Utils::random(0, NUM_MAT);
+                    SLstring nodeName = "earth-" + std::to_string(n);
 
                     // Create a new sphere and node and translate it
-                    SLSphere* earth    = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
-                    SLNode*   sphere   = new SLNode(earth);
+                    SLSphere* earth  = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
+                    SLNode*   sphere = new SLNode(earth);
                     sphere->translate(float(iX), float(iY), float(iZ), TS_object);
                     scene->addChild(sphere);
                     //SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
@@ -3031,9 +3031,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
-                                              SLApplication::texturePath);
+                                     s,
+                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
+                                     SLApplication::texturePath);
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -3161,12 +3161,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
-                                                          s,
-                                                          SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
-                                                          SLApplication::texturePath,
-                                                          true,    // only meshes
-                                                          nullptr, // no replacement material
-                                                          0.4f);   // 40% ambient reflection
+                                                 s,
+                                                 SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
+                                                 SLApplication::texturePath,
+                                                 true,    // only meshes
+                                                 nullptr, // no replacement material
+                                                 0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
@@ -3251,12 +3251,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
-                                                      s,
-                                                      SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
-                                                      SLApplication::texturePath,
-                                                      true,    // only meshes
-                                                      nullptr, // no replacement material
-                                                      0.4f);   // 40% ambient reflection
+                                             s,
+                                             SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
+                                             SLApplication::texturePath,
+                                             true,    // only meshes
+                                             nullptr, // no replacement material
+                                             0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
@@ -3331,12 +3331,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
-                                                   s,
-                                                   SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf",
-                                                   SLApplication::texturePath,
-                                                   true,    // only meshes
-                                                   nullptr, // no replacement material
-                                                   0.4f);   // 40% ambient reflection
+                                          s,
+                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf",
+                                          SLApplication::texturePath,
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
@@ -3388,7 +3388,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
-        cam1->lookAt(0, 0,  0);
+        cam1->lookAt(0, 0, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f);
         cam1->focalDist(150);
@@ -3411,12 +3411,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
-                                                   s,
-                                                   SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
-                                                   SLApplication::texturePath,
-                                                   true,    // only meshes
-                                                   nullptr, // no replacement material
-                                                   0.4f);   // 40% ambient reflection
+                                          s,
+                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
+                                          SLApplication::texturePath,
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
