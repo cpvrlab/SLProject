@@ -131,7 +131,7 @@ struct SLNodeStats
  * scene. Cameras and lights can be placed in the scene because of their
  * inheritance of SLNode.\n
  */
-class   SLNode
+class SLNode
   : public SLObject
   , public SLEventHandler
 #ifdef SL_HAS_OPTIX
@@ -290,6 +290,7 @@ public:
     void              updateMeshAccelStructs();
     void              updateMeshMat(function<void(SLMaterial* m)> setMat,
                                     bool                          recursive);
+    void              setMeshMat(SLMaterial* mat, bool recursive);
     bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame

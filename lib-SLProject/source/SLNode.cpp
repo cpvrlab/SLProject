@@ -287,8 +287,10 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
 Does the view frustum culling by checking whether the AABB is inside the 3D
 cameras view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
-If a node contains meshes with alpha blended materials it is added to the
-_blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
+If a node is visible its mesh material is added to the
+SLSceneview::_visibleMaterials3D set and the node to the
+SLMaterials::nodesVisible3D vector.
+See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
 {
@@ -315,7 +317,10 @@ void SLNode::cull3DRec(SLSceneView* sv)
         else
         {
             if (this->mesh())
+            {
+                sv->visibleMaterials3D().insert(this->mesh()->mat());
                 this->mesh()->mat()->nodesVisible3D().push_back(this);
+            }
             else if (typeid(*this) == typeid(SLText))
                 sv->nodesText3D().push_back(this);
         }
@@ -323,7 +328,10 @@ void SLNode::cull3DRec(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-Adds all 2D Nodes to the visible nodes vector
+Does the 2D frustum culling. If a node is visible its mesh material is added
+to the SLSceneview::_visibleMaterials2D set and the node to the
+SLMaterials::nodesVisible2D vector.
+See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull2DRec(SLSceneView* sv)
 {
@@ -337,7 +345,10 @@ void SLNode::cull2DRec(SLSceneView* sv)
 
     // Add all nodes to the opaque 2D vector
     if (this->mesh())
+    {
+        sv->visibleMaterials2D().insert(this->mesh()->mat());
         this->mesh()->mat()->nodesVisible2D().push_back(this);
+    }
     else if (typeid(*this) == typeid(SLText))
         sv->nodesText2D().push_back(this);
 }
@@ -1097,6 +1108,17 @@ void SLNode::updateMeshMat(function<void(SLMaterial* m)> setMat, bool recursive)
     if (recursive)
         for (auto* child : _children)
             child->updateMeshMat(setMat, recursive);
+}
+//-----------------------------------------------------------------------------
+//! Set the mesh material recursively
+void SLNode::setMeshMat(SLMaterial* mat, bool recursive)
+{
+    if (_mesh)
+        _mesh->mat(mat);
+
+    if (recursive)
+        for (auto* child : _children)
+            child->setMeshMat(mat, recursive);
 }
 //-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX

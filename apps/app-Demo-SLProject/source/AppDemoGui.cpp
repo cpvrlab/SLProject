@@ -630,15 +630,14 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
-            if (s->materials().size() && ImGui::TreeNode("Materials"))
+            if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
             {
-                for (SLuint i = 0; i < s->materials().size(); ++i)
+                for (auto* mat : sv->visibleMaterials3D())
                 {
-                    SLVNode& matNodes = s->materials()[i]->nodesVisible3D();
+                    SLVNode& matNodes = mat->nodesVisible3D();
                     sprintf(m,
-                            "[%u] %s [%u n.]",
-                            i,
-                            s->materials()[i]->name().c_str(),
+                            "%s [%u n.]",
+                            mat->name().c_str(),
                             (SLuint)matNodes.size());
 
                     if (matNodes.size())

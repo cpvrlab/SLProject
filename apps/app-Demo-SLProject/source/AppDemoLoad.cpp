@@ -3083,15 +3083,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Set the video background shader on the baldachin and the ground
-        SLNode* baldachin_stahl = bern->findChild<SLNode>("Baldachin-Stahl");
-        for (auto mesh : baldachin_stahl->meshes())
-            mesh->mat(matVideoBackground);
-        SLNode* baldachin_glas = bern->findChild<SLNode>("Baldachin-Glas");
-        for (auto mesh : baldachin_glas->meshes())
-            mesh->mat(matVideoBackground);
-        SLNode* boden = bern->findChild<SLNode>("Boden");
-        for (auto mesh : boden->meshes())
-            mesh->mat(matVideoBackground);
+        bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackground, true);
 
         // Set ambient on all child nodes
         bern->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);

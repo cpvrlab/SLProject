@@ -8,10 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLAnimManager.h>
-#include <SLAssetManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
 #include <SLLightRect.h>
@@ -364,6 +361,8 @@ void SLSceneView::onInitialize()
     else
         stateGL->onInitialize(SLCol4f::GRAY);
 
+    _visibleMaterials2D.clear();
+    _visibleMaterials3D.clear();
     _nodesOverdrawn.clear();
     _stats2D.clear();
     _stats3D.clear();
@@ -586,24 +585,20 @@ for the center or left eye.
 </li>
 <li>
 <b>Frustum Culling</b>:
-The frustum culling traversal fills the vectors SLSceneView::_visibleNodes
-and SLSceneView::_blendNodes with the visible transparent nodes.
-Nodes that are not visible with the current camera are not drawn.
+During the cull traversal all materials that are seen in the view frustum get
+collected in _visibleMaterials. All nodes with their meshes get collected in
+SLMaterial::_nodesVisible3D. These materials and nodes get drawn in draw3DGLAll.
 </li>
 <li>
 <b>Draw Skybox</b>:
 The skybox is draw as first object with frozen depth buffer.
-The skybox is allways around the active camera.
+The skybox is always around the active camera.
 </li>
 <li>
 <b>Draw Opaque and Blended Nodes</b>:
-By calling the SLSceneView::draw3D all nodes in the vectors
-SLSceneView::_visibleNodes and SLSceneView::_blendNodes will be drawn.
-_blendNodes is a vector with all nodes that contain 1-n meshes with
-alpha material. _visibleNodes is a vector with all visible nodes.
-Even if a node contains alpha meshes it still can contain meshes with
-opaque material. If a stereo projection is set, the scene gets drawn
-a second time for the right eye.
+By calling the SLSceneView::draw3DGL all visible nodes of all visible materials
+get drawn sorted by material and transparency. If a stereo projection is set,
+the scene gets drawn a second time for the right eye.
 </li>
 <li>
 <b>Draw Oculus Framebuffer</b>:
@@ -704,9 +699,11 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 5. Frustum Culling //
     ////////////////////////
 
-    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
-    for (auto material : am->materials())
+    // Delete all visible nodes from the last frame
+    for (auto* material : _visibleMaterials3D)
         material->nodesVisible3D().clear();
+
+    _visibleMaterials3D.clear();
     _nodesText3D.clear();
     _nodesOverdrawn.clear();
     _stats3D.numNodesOpaque  = 0;
@@ -715,6 +712,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     if (_s->root3D())
         _s->root3D()->cull3DRec(this);
+
     _cullTimeMS = GlobalTimer::timeMS() - startMS;
 
     ////////////////////
@@ -759,22 +757,24 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
-the blended nodes have to be drawn from back to front.
-During the cull traversal all nodes with alpha materials are flagged and
-added the to the vector _alphaNodes. The _visibleNodes vector contains all
-nodes because a node with alpha meshes still can have nodes with opaque
-material. To avoid double drawing the SLNode::drawMeshes draws in the blended
-pass only the alpha meshes and in the opaque pass only the opaque meshes.
+ SLSceneView::draw3DGLAll renders by material sorted to avoid expensive material
+ switches on the GPU. During the cull traversal all materials that are seen in
+ the view frustum get collected in _visibleMaterials. All nodes with their
+ meshes get collected in SLMaterial::_nodesVisible3D. <br>
+The 3D rendering has then the following steps:
+1) Draw first the opaque shapes and all helper lines (normals and AABBs)<br>
+2) Draw blended nodes sorted back to front<br>
+3) Draw text nodes blended (needs redesign)<br>
+4) Draw helpers in overlay mode (not depth buffered)<br>
+5) Draw visualization lines of animation curves<br>
+6) Turn blending off again for correct anaglyph stereo modes<br>
 */
 void SLSceneView::draw3DGLAll()
 {
     PROFILE_FUNCTION();
 
-    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
-
     // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
-    for (auto material : am->materials())
+    for (auto material : _visibleMaterials3D)
     {
         if (!material->hasAlpha())
         {
@@ -785,7 +785,7 @@ void SLSceneView::draw3DGLAll()
     }
 
     // 2) Draw blended nodes sorted back to front
-    for (auto material : am->materials())
+    for (auto material : _visibleMaterials3D)
     {
         if (material->hasAlpha())
         {
@@ -798,15 +798,15 @@ void SLSceneView::draw3DGLAll()
     _stats3D.numNodesBlended += _nodesText3D.size();
     draw3DGLNodes(_nodesText3D, true, true);
 
-    // 4) Draw helper
-    for (auto material : am->materials())
+    // 4) Draw helpers in overlay mode (not depth buffered)
+    for (auto material : _visibleMaterials3D)
         draw3DGLLinesOverlay(material->nodesVisible3D());
     draw3DGLLinesOverlay(_nodesOverdrawn);
 
-    // 4) Draw visualization lines of animation curves
+    // 5) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
 
-    // 5) Turn blending off again for correct anaglyph stereo modes
+    // 6) Turn blending off again for correct anaglyph stereo modes
     SLGLState* stateGL = SLGLState::instance();
     stateGL->blend(false);
     stateGL->depthMask(true);
@@ -1024,9 +1024,9 @@ void SLSceneView::draw2DGL()
                               (int)(_scrH * _scr2fbY));
 
             // 2. Pseudo 2D Frustum Culling
-            SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
-            for (auto material : am->materials())
+            for (auto material : _visibleMaterials2D)
                 material->nodesVisible2D().clear();
+            _visibleMaterials2D.clear();
             _nodesText2D.clear();
             if (_s->root2D())
                 _s->root2D()->cull2DRec(this);
@@ -1093,8 +1093,7 @@ void SLSceneView::draw2DGLNodes()
 
     // Draw all 2D nodes blended (mostly text font textures)
     // draw the shapes directly with their wm transform
-    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
-    for (auto material : am->materials())
+    for (auto material : _visibleMaterials2D)
     {
         _stats2D.numNodesOpaque += material->nodesVisible2D().size();
         for (auto* node : material->nodesVisible2D())

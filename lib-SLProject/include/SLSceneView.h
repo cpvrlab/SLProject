@@ -26,6 +26,7 @@
 #include <SLOptixPathtracer.h>
 #include <SLRect.h>
 #include <SLUiInterface.h>
+#include <unordered_set>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -207,6 +208,9 @@ public:
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
 
+    unordered_set<SLMaterial*>& visibleMaterials2D() { return _visibleMaterials2D; }
+    unordered_set<SLMaterial*>& visibleMaterials3D() { return _visibleMaterials3D; }
+
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer* optixRaytracer()
     {
@@ -292,6 +296,9 @@ protected:
     AvgFloat _cullTimesMS;      //!< Averaged time for culling in ms
     AvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
+
+    unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
+    unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
 };
 //-----------------------------------------------------------------------------
 #endif
