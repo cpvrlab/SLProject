@@ -131,7 +131,7 @@ struct SLNodeStats
  * scene. Cameras and lights can be placed in the scene because of their
  * inheritance of SLNode.\n
  */
-class SLNode
+class   SLNode
   : public SLObject
   , public SLEventHandler
 #ifdef SL_HAS_OPTIX

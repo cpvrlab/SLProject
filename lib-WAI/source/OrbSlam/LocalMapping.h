@@ -112,10 +112,10 @@ protected:
 
     bool       mbResetRequested;
     bool       mbFinishRequested;
-    bool       mPauseRequested;
+    bool       mbPauseRequested;
 
     bool       mbFinished;
-    bool       mPaused;
+    bool       mbPaused;
 
     std::mutex mMutexReset;
     std::mutex mMutexFinish;

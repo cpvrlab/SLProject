@@ -22,10 +22,6 @@
 #include <SLGLDepthBuffer.h>
 
 //-----------------------------------------------------------------------------
-//! Default path for shader files used when only filename is passed in load.
-//! Is overwritten in slCreateAppAndScene.
-//SLstring SLGLProgram::defaultPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders";
-//-----------------------------------------------------------------------------
 // Error Strings defined in SLGLShader.h
 extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------

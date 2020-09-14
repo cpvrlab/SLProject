@@ -272,7 +272,12 @@ void SLMesh::init(SLNode* node)
     // If colors are available use diffuse color attribute shader
     // otherwise use the default gray material
     if (!mat())
-        mat(SLMaterialDefaultGray::instance());
+    {
+        if (!C.empty())
+            mat(SLMaterialDefaultColorAttribute::instance());
+        else
+            mat(SLMaterialDefaultGray::instance());
+    }
 
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())

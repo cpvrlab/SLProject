@@ -22,7 +22,7 @@ beginUse method.
 template<class T>
 class SLGLUniform : public SLEventHandler
 {
-    public:
+public:
     SLGLUniform(SLUniformType type,
                 const SLchar* name,
                 T             value,
@@ -40,16 +40,28 @@ class SLGLUniform : public SLEventHandler
         _keyInc = keyInc;
     }
 
+    SLGLUniform(const SLchar*     name,
+                function<T(void)> getFunc)
+    {
+        _name   = name;
+        _type    = UT_lambda;
+        getValue = getFunc;
+    }
+
     const SLchar* name() { return _name.c_str(); }
 
     /*!
-        calculates the current value & returns it. 
-        This method is called on every frame.
-        */
+    calculates the current value & returns it.
+    This method is called on every frame.
+    */
     T value()
     {
         if (_type == UT_const)
             return _value;
+
+        if (_type == UT_lambda)
+            return getValue();
+
         if (_type == UT_incDec)
         {
             if ((_inc > 0.0f && _value >= _max) ||
@@ -57,6 +69,7 @@ class SLGLUniform : public SLEventHandler
             _value += _inc;
             return _value;
         }
+
         if (_type == UT_incInc)
         {
             if (_inc > 0 && _value >= _max) _value = _min;
@@ -64,16 +77,19 @@ class SLGLUniform : public SLEventHandler
             _value += _inc;
             return _value;
         }
+
         if (_type == UT_inc)
         {
             _value += _inc;
             return _value;
         }
+
         if (_type == UT_random)
         {
             _value = _min + ((T)rand() / (T)RAND_MAX) * (_max - _min);
             return _value;
         }
+
         if (_type == UT_seconds)
         {
             _value = (T)clock() / CLOCKS_PER_SEC;
@@ -83,7 +99,7 @@ class SLGLUniform : public SLEventHandler
             return _value;
     }
 
-    //! Key press eventhandler
+    //! Key press event-handler
     SLbool onKeyPress(const SLKey key, const SLKey mod) override
     {
         if (_keyInc != K_none)
@@ -119,14 +135,15 @@ class SLGLUniform : public SLEventHandler
         return false;
     }
 
-    private:
-    SLstring      _name;   //!< Name of the variable
-    T             _value;  //!< Current value
-    T             _max;    //!< Max. value for IncInc, IncDec & random types
-    T             _min;    //!< Min. value for IncInc, IncDec & random types
-    T             _inc;    //!< Increment value for IncInc, IncDec & Inc types
-    SLUniformType _type;   //!< Uniform1f type
-    SLKey         _keyInc; //!< keyboard key incrementing const values
+private:
+    SLstring          _name;    //!< Name of the variable
+    T                 _value;   //!< Current value
+    T                 _max;     //!< Max. value for IncInc, IncDec & random types
+    T                 _min;     //!< Min. value for IncInc, IncDec & random types
+    T                 _inc;     //!< Increment value for IncInc, IncDec & Inc types
+    SLUniformType     _type;    //!< Uniform1f type
+    SLKey             _keyInc;  //!< keyboard key incrementing const values
+    function<T(void)> getValue; //!< lambda getter function
 };
 //-----------------------------------------------------------------------------
 typedef SLGLUniform<SLfloat> SLGLUniform1f;
