@@ -268,14 +268,14 @@ void SLMesh::init(SLNode* node)
 
     if (N.empty()) calcNormals();
 
-    // Set default materials if no materials are asigned
+    // Set default materials if no materials are assigned
     // If colors are available use diffuse color attribute shader
     // otherwise use the default gray material
     if (!mat())
     {
-        //if (!C.empty())
-        //    mat(SLMaterialDiffuseAttribute::instance());
-        //else
+        if (!C.empty())
+            mat(SLMaterialDefaultColorAttribute::instance());
+        else
             mat(SLMaterialDefaultGray::instance());
     }
 

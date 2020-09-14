@@ -236,4 +236,33 @@ private:
     static SLMaterialDefaultGray* _instance;
 };
 //-----------------------------------------------------------------------------
+//! Global default color attribute material for meshes that have colors per vertex
+class SLMaterialDefaultColorAttribute : public SLMaterial
+{
+public:
+    static SLMaterialDefaultColorAttribute* instance()
+    {
+        if (!_instance)
+            _instance = new SLMaterialDefaultColorAttribute;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLMaterialDefaultColorAttribute()
+      : SLMaterial(nullptr, "ColorAttribute")
+    {
+        program(SLGLGenericProgramDefaultColorAttrib::instance());
+    }
+
+    static SLMaterialDefaultColorAttribute* _instance;
+};
+//-----------------------------------------------------------------------------
 #endif

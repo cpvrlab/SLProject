@@ -18,10 +18,12 @@
 #include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
-SLMaterialDefaultGray*              SLMaterialDefaultGray::_instance              = nullptr;
-SLGLGenericProgramDefault*          SLGLGenericProgramDefault::_instance          = nullptr;
-SLGLGenericProgramDefaultTex*       SLGLGenericProgramDefaultTex::_instance       = nullptr;
-SLGLGenericProgramDefaultTexNormal* SLGLGenericProgramDefaultTexNormal::_instance = nullptr;
+SLMaterialDefaultGray*                SLMaterialDefaultGray::_instance                = nullptr;
+SLMaterialDefaultColorAttribute*      SLMaterialDefaultColorAttribute::_instance      = nullptr;
+SLGLGenericProgramDefault*            SLGLGenericProgramDefault::_instance            = nullptr;
+SLGLGenericProgramDefaultColorAttrib* SLGLGenericProgramDefaultColorAttrib::_instance = nullptr;
+SLGLGenericProgramDefaultTex*         SLGLGenericProgramDefaultTex::_instance         = nullptr;
+SLGLGenericProgramDefaultTexNormal*   SLGLGenericProgramDefaultTexNormal::_instance   = nullptr;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
@@ -110,7 +112,10 @@ void SLScene::unInit()
     // Delete the default material and programs that are scene dependent
     SLGLGenericProgramDefault::deleteInstance();
     SLGLGenericProgramDefaultTex::deleteInstance();
+    SLGLGenericProgramDefaultColorAttrib::deleteInstance();
+    SLGLGenericProgramDefaultTexNormal::deleteInstance();
     SLMaterialDefaultGray::deleteInstance();
+    SLMaterialDefaultColorAttribute::deleteInstance();
 }
 //-----------------------------------------------------------------------------
 //! Updates animations and AABBs
