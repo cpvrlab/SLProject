@@ -292,12 +292,13 @@ enum SLShaderType
 //! Type definition for GLSL uniform1f variables that change per frame.
 enum SLUniformType
 {
-    UT_const,  //!< constant value
-    UT_incDec, //!< never ending loop from min to max and max to min
-    UT_incInc, //!< never ending loop from min to max
-    UT_inc,    //!< never ending increment
-    UT_random, //!< random values between min and max
-    UT_seconds //!< seconds since the process has started
+    UT_const,   //!< constant value
+    UT_incDec,  //!< never ending loop from min to max and max to min
+    UT_incInc,  //!< never ending loop from min to max
+    UT_inc,     //!< never ending increment
+    UT_random,  //!< random values between min and max
+    UT_seconds, //!< seconds since the process has started
+    UT_lambda   //!< lambda getter function
 };
 //-----------------------------------------------------------------------------
 // @todo build a dedicated log class that defines this verbosity levels

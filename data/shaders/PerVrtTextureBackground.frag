@@ -12,12 +12,18 @@
 precision mediump float;
 #endif
 //-----------------------------------------------------------------------------
+uniform float       u_viewportW;     // viewport width
+uniform float       u_viewportH;     // viewport height
 uniform sampler2D   u_matTexture0;      // Color map
+
+in      vec2        v_P_SS;             // vertex position in screen space
+
+out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
-
-    vec2 texCoord = Vec2(gl_FragCoord.x / texSize.x, gl_FragCoord.y / texSize.y);
+    vec2 texCoord = vec2(gl_FragCoord.x/u_viewportW,
+                         gl_FragCoord.y/u_viewportH);
     o_fragColor = texture(u_matTexture0, texCoord);
 }
 //-----------------------------------------------------------------------------

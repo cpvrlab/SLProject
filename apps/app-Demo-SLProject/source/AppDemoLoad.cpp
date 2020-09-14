@@ -3009,6 +3009,30 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        // Add dynamic uniform variable for viewport width
+        auto                  viewportW    = [](SLSceneView* sv) { return (float)sv->viewportW() * sv->scr2fbX(); };
+        function<float(void)> getViewportW = bind(viewportW, sv);
+        SLGLUniform1f*        u_viewportW  = new SLGLUniform1f("u_viewportW", getViewportW);
+        spVideoBackground->addUniform1f(u_viewportW);
+
+        // Add dynamic uniform variable for viewport width
+        auto                  viewportH    = [](SLSceneView* sv) { return (float)sv->viewportH() * sv->scr2fbY(); };
+        function<float(void)> getViewportH = bind(viewportH, sv);
+        SLGLUniform1f*        u_viewportH  = new SLGLUniform1f("u_viewportH", getViewportH);
+        spVideoBackground->addUniform1f(u_viewportH);
+
+        SLMaterial* matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
@@ -3078,14 +3102,21 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
+        // Set the video background shader on the baldachin and the ground
+        SLNode* baldachin_stahl = bern->findChild<SLNode>("Baldachin-Stahl");
+        for (auto mesh : baldachin_stahl->meshes())
+            mesh->mat(matVideoBackground);
+        SLNode* baldachin_glas = bern->findChild<SLNode>("Baldachin-Glas");
+        for (auto mesh : baldachin_glas->meshes())
+            mesh->mat(matVideoBackground);
+        SLNode* boden = bern->findChild<SLNode>("Boden");
+        for (auto mesh : boden->meshes())
+            mesh->mat(matVideoBackground);
+
         // Set ambient on all child nodes
         for (auto node : bern->children())
-        {
             for (auto mesh : node->meshes())
-            {
                 mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            }
-        }
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
