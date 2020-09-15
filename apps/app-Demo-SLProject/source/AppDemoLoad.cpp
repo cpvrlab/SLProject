@@ -1451,7 +1451,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Sky box cube with cubemap skybox shader");
 
         // Create textures and materials
-        SLSkybox* skybox = new SLSkybox(s,
+        SLSkybox*    skybox    = new SLSkybox(s,
                                         SLApplication::shaderPath,
                                         SLApplication::texturePath + "Desert+X1024_C.jpg",
                                         SLApplication::texturePath + "Desert-X1024_C.jpg",
@@ -2458,9 +2458,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 SLbool shift = iX % 2 != 0;
                 if (iX != 0 || iZ != 0)
                 {
-                    float xt = float(iX) * 1.0f;
-                    float zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
-                    SLNode* n = center->copyRec();
+                    float   xt = float(iX) * 1.0f;
+                    float   zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
+                    SLNode* n  = center->copyRec();
                     n->translate(xt, 0, zt, TS_object);
                     scene->addChild(n);
                 }
@@ -3383,8 +3383,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_ErlebARAventicumTheatre) //...................................
     {
-        s->name("Aventicum Cigonier AR");
-        s->info("Augmented Reality for Aventicum Cigonier Temple");
+        s->name("Aventicum Theatre AR");
+        s->info("Augmented Reality for Aventicum Theatre");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -3419,7 +3419,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
-        theatre->rotate(13.7f, 0, 1, 0, TS_parent);
+        theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3434,11 +3434,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
+        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
-        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.originLLA(46.88029, 7.04876, 454.9f); // Zentrum Orchestra
+        SLApplication::devLoc.defaultLLA(46.88044, 7.04846, 455.3f + 1.7);  // Vor dem Bühnenhaus
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                    // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                        // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
