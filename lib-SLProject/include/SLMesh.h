@@ -148,7 +148,7 @@ public:
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO();
+    void         generateVAO(SLGLVertexArray& vao);
     void         computeHardEdgesIndices(float angleRAD, float epsilon);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();

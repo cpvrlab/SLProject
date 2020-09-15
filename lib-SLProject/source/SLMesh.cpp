@@ -397,10 +397,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // Set face culling
     bool noFaceCulling = sv->drawBit(SL_DB_CULLOFF) || node->drawBit(SL_DB_CULLOFF);
-    stateGL->cullFace(!noFaceCulling);
-
-    // check if texture exists
-    //bool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
+    stateGL->cullFace(!noFaceCulling);x
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))

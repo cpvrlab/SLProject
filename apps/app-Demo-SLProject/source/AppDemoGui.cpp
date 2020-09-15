@@ -1913,7 +1913,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     sv->drawBits()->on(SL_DB_BBOX);
                     sv->drawBits()->on(SL_DB_SKELETON);
                     sv->drawBits()->on(SL_DB_CULLOFF);
-                    sv->drawBits()->on(SL_DB_TEXOFF);
                 }
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
@@ -2633,10 +2632,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         db = singleNode->drawBit(SL_DB_CULLOFF);
                         if (ImGui::Checkbox("Show back faces", &db))
                             singleNode->drawBits()->set(SL_DB_CULLOFF, db);
-
-                        db = singleNode->drawBit(SL_DB_TEXOFF);
-                        if (ImGui::Checkbox("No textures", &db))
-                            singleNode->drawBits()->set(SL_DB_TEXOFF, db);
 
                         ImGui::TreePop();
                     }

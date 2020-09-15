@@ -27,10 +27,9 @@ view or per single node object. Not all are used from the beginning
 #define SL_DB_VOXELS 64       //!< Draw the voxels of the uniform grid
 #define SL_DB_SKELETON 128    //!< Draw the skeletons joints
 #define SL_DB_CULLOFF 256     //!< Turn off face culling
-#define SL_DB_TEXOFF 512      //!< Turn off texture mapping
-#define SL_DB_OVERDRAW 1024   //!< Draw node over all other nodes
-#define SL_DB_WITHEDGES 2048  //!< Draw faces with hard edges
-#define SL_DB_ONLYEDGES 4096  //!< Draw only hard edges
+#define SL_DB_OVERDRAW 512    //!< Draw node over all other nodes
+#define SL_DB_WITHEDGES 1024  //!< Draw faces with hard edges
+#define SL_DB_ONLYEDGES 2048  //!< Draw only hard edges
 
 //-----------------------------------------------------------------------------
 //! Drawing states stored in the bits of an unsigned int
