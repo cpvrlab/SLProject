@@ -81,8 +81,9 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     name("Track Keyframe based Features");
     info("Example for loading an existing pose graph with map points.");
 
-    _root3D           = new SLNode("scene");
-    cameraNode        = new SLCamera("Camera 1");
+    _root3D    = new SLNode("scene");
+    cameraNode = new SLCamera("Camera 1");
+
     mapNode           = new SLNode("map");
     mapPC             = new SLNode("MapPC");
     mapMatchedPC      = new SLNode("MapMatchedPC");
@@ -123,6 +124,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->lookAt(1, 0, 1);
     light->setDrawBitsRec(SL_DB_HIDDEN, false);
     _root3D->addChild(light);
+
+    cameraNode->translation(0, 0, 0.f);
+    cameraNode->lookAt(0, 0, 1);
+    //for tracking we have to use the field of view from calibration
+    cameraNode->clipNear(0.1f);
+    cameraNode->clipFar(1000.0f); // Increase to infinity?
+    cameraNode->setInitialState();
 
     HighResTimer t;
     if (location == "avenches" || location == "Avenches")
@@ -231,6 +239,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "Biel" || location == "biel")
     {
+        /*
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
         Utils::log("AppWAIScene", "loading model from path: %s", modelPath.c_str());
         SLAssimpImporter importer;
@@ -258,6 +267,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
         _root3D->addChild(augmentationRoot);
 
+         */
         //adjust camera frustum
         cameraNode->clipNear(1.0f);
         cameraNode->clipFar(10.0f);
@@ -314,15 +324,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(boxNode4);
 #endif
     Utils::log("LoadingTime", "model loading time: %f ms", t.elapsedTimeInMilliSec());
-
-    //boxNode->addChild(axisNode);
-
-    cameraNode->translation(0, 0, 0.1f);
-    cameraNode->lookAt(0, 0, 0);
-    //for tracking we have to use the field of view from calibration
-    cameraNode->clipNear(0.001f);
-    cameraNode->clipFar(1000000.0f); // Increase to infinity?
-    cameraNode->setInitialState();
 
     mapNode->addChild(mapPC);
     mapNode->addChild(mapMatchedPC);

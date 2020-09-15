@@ -102,18 +102,6 @@ bool WAISlamTrackPool::update(cv::Mat& imageGray)
     return (_state == WAI::TrackingState_TrackingOK);
 }
 
-void WAISlamTrackPool::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
-{
-    _cameraIntrinsic = intrinsic;
-    _distortion      = distortion;
-}
-
-cv::Mat WAISlamTrackPool::getPose()
-{
-    std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
-    return _cameraExtrinsic;
-}
-
 void WAISlamTrackPool::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
     switch (getTrackingState())
@@ -195,6 +183,18 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
     }
 
     _lastFrame = WAIFrame(frame);
+}
+
+void WAISlamTrackPool::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
+{
+    _cameraIntrinsic = intrinsic;
+    _distortion      = distortion;
+}
+
+cv::Mat WAISlamTrackPool::getPose()
+{
+    std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
+    return _cameraExtrinsic;
 }
 
 void WAISlamTrackPool::drawInfo(cv::Mat& imageRGB,

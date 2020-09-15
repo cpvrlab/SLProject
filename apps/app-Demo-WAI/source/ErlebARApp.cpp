@@ -272,6 +272,8 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                      *_imGuiEngine,
                                                      *_resources,
                                                      _camera,
+                                                     _gps,
+                                                     _orientation,
                                                      *_dd);
         }
     }
@@ -480,11 +482,14 @@ void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry, con
 void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _areaTrackingView->onHide();
         return;
+    }
 
     if (stateEntry)
     {
-        _areaTrackingView->show();
+        _areaTrackingView->onShow();
     }
 
     _areaTrackingView->update();

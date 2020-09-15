@@ -38,7 +38,7 @@ public:
     void renderMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderMarkerCornerMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderLocalMapPoints(const std::vector<WAIMapPoint*>& pts);
-    void renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts, float opacity=1.0f);
+    void renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts, float opacity = 1.0f);
     void removeMapPoints();
     void removeMarkerCornerMapPoints();
     void removeLocalMapPoints();

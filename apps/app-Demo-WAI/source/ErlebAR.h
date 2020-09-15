@@ -56,7 +56,7 @@ namespace ErlebAR
 //erlebar location
 enum class LocationId
 {
-    NONE,
+    NONE = 0,
     AUGST,
     AVENCHES,
     BIEL,
@@ -103,6 +103,7 @@ public:
     int xPosPix = 0;
     //y position in pixel (only valid for current map image)
     int yPosPix = 0;
+    SLVec3f lla;
     //view angle in degree
     float viewAngleDeg = 0.f;
     //map name in erlebAR directory

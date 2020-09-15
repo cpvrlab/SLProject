@@ -10,6 +10,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    const ImGuiEngine&  imGuiEngine,
                                    ErlebAR::Resources& resources,
                                    SENSCamera*         camera,
+                                   SENSGps*            gps,
+                                   SENSOrientation*    orientation,
                                    const DeviceData&   deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
@@ -21,22 +23,21 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1),
          deviceData.erlebARDir()),
     _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
+    _testScene(deviceData.dataDir()),
     _camera(camera),
+    _gps(gps),
+    _orientation(orientation),
     _vocabularyDir(deviceData.vocabularyDir()),
     _erlebARDir(deviceData.erlebARDir()),
     _resources(resources)
-    //_userGuidance(&_gui)
+//_userGuidance(&_gui)
 {
-    scene(&_scene);
+    scene(&_testScene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     //todo: ->moved to constructor of AreaTrackingScene: can this lead to any problems?
     //_scene.init();
     //_scene.build();
     onInitialize();
-
-    //set scene camera into sceneview
-    //(camera node not initialized yet)
-    //this->camera(_scene.cameraNode);
 
     _locations = resources.locations();
 }
@@ -54,6 +55,128 @@ AreaTrackingView::~AreaTrackingView()
 
 bool AreaTrackingView::update()
 {
+    if (_orientation)
+    {
+        ///////////////////////////////////////////////////////////////////////
+        // Build pose of camera in world frame (scene) using device rotation //
+        ///////////////////////////////////////////////////////////////////////
+
+        //camera rotation with respect to (w.r.t.) sensor
+        SLMat3f sRc;
+        sRc.rotation(-90, 0, 0, 1);
+
+        //sensor rotation w.r.t. east-north-down
+        SLMat3f enuRs;
+
+        SENSOrientation::Quat ori      = _orientation->getOrientation();
+        SLMat3f               rotation = SLQuat4f(ori.quatX, ori.quatY, ori.quatZ, ori.quatW).toMat3();
+        enuRs.setMatrix(rotation);
+
+        //world-yaw rotation w.r.t. world
+        SLMat3f wRenu;
+        wRenu.rotation(-90, 1, 0, 0);
+        //combiniation of partial rotations to orientation of camera w.r.t world
+        SLMat3f wRc = wRenu * enuRs * sRc;
+
+        //camera translations w.r.t world:
+        SLVec3f wtc = _testScene.camera->updateAndGetWM().translation();
+
+        //combination of rotation and translation:
+        SLMat4f wTc;
+        wTc.setRotation(wRc);
+        wTc.setTranslation(wtc);
+
+        _testScene.camera->om(wTc);
+
+        //ARROW ROTATION CALCULATION:
+        //auto loc = _gps->getLocation();
+        SENSGps::Location loc = {47.14899, 7.23354, 728.4, 1.f};
+
+        //ROTATION OF ENU WRT. ECEF
+        //calculation of ecef to world (scene) rotation matrix
+        //definition of rotation matrix for ECEF to world frame rotation:
+        //world frame (scene) w.r.t. ENU frame
+        double phiRad = loc.latitudeDEG * Utils::DEG2RAD;  //   phi == latitude
+        double lamRad = loc.longitudeDEG * Utils::DEG2RAD; //lambda == longitude
+        double sinPhi = sin(phiRad);
+        double cosPhi = cos(phiRad);
+        double sinLam = sin(lamRad);
+        double cosLam = cos(lamRad);
+
+        SLMat3d enuRecef(-sinLam,
+                         cosLam,
+                         0,
+                         -cosLam * sinPhi,
+                         -sinLam * sinPhi,
+                         cosPhi,
+                         cosLam * cosPhi,
+                         sinLam * cosPhi,
+                         sinPhi);
+
+        //ROTATION OF DIRECTION ARROW WRT. ENU FRAME
+        //area location in ecef
+        //ErlebAR::Area& area = _locations[_locId].areas[_areaId];
+        SLVec3d ecefAREA;
+        //schornstein brügg
+        ecefAREA.lla2ecef({47.12209, 7.25821, 431.8});
+
+        //device location in ecef
+        SLVec3d ecefDEVICE;
+        ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM});
+        //build direction vector from device to area in ecef
+        SLVec3d ecefAD = ecefAREA - ecefDEVICE;
+        //rotation to enu
+        SLVec3d X = enuRecef * ecefAD; //enuAD
+        X.normalize();
+        //build y and z vectors
+        SLVec3d Y;
+        Y.cross(X, {0.0, 0.0, 1.0});
+        Y.normalize();
+        SLVec3d Z;
+        Z.cross(X, Y);
+        Z.normalize();
+        //build rotation matrix
+        // clang-format off
+         SLMat3f enuRp(X.x, Y.x, Z.x,
+                       X.y, Y.y, Z.y,
+                       X.z, Y.z, Z.z);
+        // clang-format on
+
+        //ROTATION OF ARROW WRT. CAMERA
+        SLMat3f cRw = wRc.transposed();
+        SLMat3f cRp = cRw * wRenu * enuRp;
+        //set arrow rotation
+        _testScene.updateArrowRot(cRp);
+    }
+
+    try {
+        SENSFramePtr frame;
+        if (_camera)
+            frame = _camera->latestFrame();
+        
+        if (frame)
+            updateVideoImage(*frame.get());
+        
+    }
+    catch (std::exception& e)
+    {
+        _gui.showErrorMsg(e.what());
+    }
+    catch (...)
+    {
+        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
+    }
+    
+    return onPaint();
+
+    
+    
+    
+    
+    
+    
+    
+    
     WAI::TrackingState slamState = WAI::TrackingState_None;
     try
     {
@@ -61,6 +184,9 @@ bool AreaTrackingView::update()
         if (_camera)
             frame = _camera->latestFrame();
 
+
+
+        /*
         if (frame && _waiSlam)
         {
             //the intrinsics may change dynamically on focus changes (e.g. on iOS)
@@ -81,7 +207,9 @@ bool AreaTrackingView::update()
 
             updateTrackingVisualization(isTracking, *frame.get());
         }
-        else if (frame)
+
+        else */
+        if (frame)
             updateVideoImage(*frame.get());
 
         if (_asyncLoader && _asyncLoader->isReady())
@@ -163,18 +291,21 @@ void AreaTrackingView::updateSceneCameraFov()
         {
             //bars left and right: directly use camera vertial field of view as scene vertical field of view
             _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+            _testScene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
         }
         else
         {
             //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
             _scene.updateCameraIntrinsics(fovV);
+            _testScene.updateCameraIntrinsics(fovV);
         }
     }
     else
     {
         //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
         _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        _testScene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
     }
 }
 
@@ -248,6 +379,9 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARD
 
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
+    _locId  = locId;
+    _areaId = areaId;
+
     //todo:
     //init camera with resolution in screen aspect ratio
 
@@ -268,7 +402,12 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
-    this->camera(_scene.cameraNode);
+
+    if(_userGuidanceMode)
+        this->camera(_testScene.camera);
+    else
+        this->camera(_scene.cameraNode);
+    
     updateSceneCameraFov();
 
     //initialize extractors
@@ -439,7 +578,11 @@ void AreaTrackingView::updateVideoImage(SENSFrame& frame)
     //todo: the matrices in the buffer have different sizes.. problem? no! no!
     SENS::extendWithBars(_imgBuffer.outputSlot(), this->viewportWdivH());
 
-    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    if(_userGuidanceMode)
+        _testScene.updateVideoImage(_imgBuffer.outputSlot());
+    else
+        _scene.updateVideoImage(_imgBuffer.outputSlot());
+    
     _imgBuffer.incrementSlot();
 }
 
