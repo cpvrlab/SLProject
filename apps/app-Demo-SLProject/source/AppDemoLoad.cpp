@@ -3005,18 +3005,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        // Add dynamic uniform variable for viewport width
-        auto                  viewportW    = [](SLSceneView* sv) { return (float)sv->viewportW() * sv->scr2fbX(); };
-        function<float(void)> getViewportW = bind(viewportW, sv);
-        SLGLUniform1f*        u_viewportW  = new SLGLUniform1f("u_viewportW", getViewportW);
-        spVideoBackground->addUniform1f(u_viewportW);
-
-        // Add dynamic uniform variable for viewport width
-        auto                  viewportH    = [](SLSceneView* sv) { return (float)sv->viewportH() * sv->scr2fbY(); };
-        function<float(void)> getViewportH = bind(viewportH, sv);
-        SLGLUniform1f*        u_viewportH  = new SLGLUniform1f("u_viewportH", getViewportH);
-        spVideoBackground->addUniform1f(u_viewportH);
-
         SLMaterial* matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3399,6 +3387,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial* matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
         light->powers(1.0f, 1.0f, 1.0f);
@@ -3420,6 +3420,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Rotate to the true geographic rotation
         theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through the grass plane
+        theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
