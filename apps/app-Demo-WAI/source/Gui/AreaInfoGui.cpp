@@ -39,8 +39,7 @@ void AreaInfoGui::resize(int scrW, int scrH)
     _screenH = (float)scrH;
 
     _headerBarH              = _resources.style().headerBarPercH * _screenH;
-    _buttonBoardH            = _headerBarH;
-    _contentH                = _screenH - _headerBarH - _buttonBoardH;
+    _contentH                = _screenH - _headerBarH;
     _contentStartY           = _headerBarH;
     _spacingBackButtonToText = _resources.style().headerBarSpacingBB2Text * _headerBarH;
     _buttonRounding          = _resources.style().buttonRounding * _screenH;
@@ -134,32 +133,75 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::EndChild();
         ImGui::End();
 
-        ImGuiWindowFlags windowFlags2 =
-          ImGuiWindowFlags_NoTitleBar |
-          ImGuiWindowFlags_NoMove |
-          ImGuiWindowFlags_AlwaysAutoResize |
-          ImGuiWindowFlags_NoScrollWithMouse |
-          ImGuiWindowFlags_NoScrollbar;
-
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-        ImGui::PushFont(_resources.fonts().heading);
-
-        ImGui::SetNextWindowPos(ImVec2(0, _headerBarH + _contentH), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _buttonBoardH), ImGuiCond_Always);
-        ImGui::Begin("AreaInfoGui_startButton", nullptr, windowFlags2);
-        float buttonW = _buttonBoardH * 0.8f;
-        ImGui::SetCursorPosX(_textWrapW - buttonW);
-        ImGui::SetCursorPosY(_buttonBoardH * 0.1f);
-        if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(_buttonBoardH * 2.f, buttonW)))
         {
-            sendEvent(new DoneEvent("AreaInfoGui"));
+            ImGuiWindowFlags childWindowFlags2 = ImGuiWindowFlags_NoTitleBar |
+                                                 ImGuiWindowFlags_NoMove |
+                                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                                 ImGuiWindowFlags_NoBackground |
+                                                 //ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                                 ImGuiWindowFlags_NoScrollbar;
+            ImGuiWindowFlags windowFlags2 = childWindowFlags2 |
+                                            ImGuiWindowFlags_NoScrollWithMouse;
+
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+            ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+            ImGui::PushFont(_resources.fonts().heading);
+
+            float buttonBoardW = _screenW - _textWrapW;
+            float buttonW      = 0.8 * buttonBoardW;
+            float buttonH      = _headerBarH * 0.8f;
+            float buttonStartX = _textWrapW + ((buttonBoardW - buttonW) * 0.5);
+            float buttonStartY = _screenH - _headerBarH;
+
+            //float buttonStartX = 1500;
+            //float buttonStartY = 500;
+
+            ImGui::SetNextWindowPos(ImVec2(buttonStartX, buttonStartY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(buttonW, buttonH), ImGuiCond_Always);
+            ImGui::Begin("AreaInfoGui_startButton", nullptr, windowFlags2);
+            ImGui::BeginChild("AreaInfoGui_startButton_child", ImVec2(0, 0), false, childWindowFlags2);
+            if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
+            {
+                sendEvent(new DoneEvent("AreaInfoGui"));
+            }
+            ImGui::EndChild();
+            ImGui::End();
+            ImGui::PopStyleColor(4);
+            ImGui::PopStyleVar(1);
+            ImGui::PopFont();
+
+#if 0
+            ImGuiWindowFlags windowFlags2 =
+              ImGuiWindowFlags_NoTitleBar |
+              ImGuiWindowFlags_NoMove |
+              ImGuiWindowFlags_AlwaysAutoResize |
+              ImGuiWindowFlags_NoScrollWithMouse |
+              ImGuiWindowFlags_NoScrollbar;
+
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+            ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
+            ImGui::PushFont(_resources.fonts().heading);
+
+            ImGui::SetNextWindowPos(ImVec2(0, _headerBarH + _contentH), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(_screenW, _buttonBoardH), ImGuiCond_Always);
+            ImGui::Begin("AreaInfoGui_startButton", nullptr, windowFlags2);
+            float buttonW = _buttonBoardH * 0.8f;
+            ImGui::SetCursorPosX(_textWrapW - buttonW);
+            ImGui::SetCursorPosY(_buttonBoardH * 0.1f);
+            if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(_buttonBoardH * 2.f, buttonW)))
+            {
+                sendEvent(new DoneEvent("AreaInfoGui"));
+            }
+            ImGui::End();
+            ImGui::PopStyleColor(4);
+            ImGui::PopFont();
+#endif
         }
-        ImGui::End();
-        ImGui::PopStyleColor(4);
-        ImGui::PopFont();
 
         ImGui::PopStyleColor(1);
         ImGui::PopStyleVar(7);

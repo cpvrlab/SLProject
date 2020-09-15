@@ -40,7 +40,7 @@ namespace fs = std::experimental::filesystem;
 #    endif
 #    include <dirent.h>
 #    include <sys/stat.h> //dirent
-#    include <unistd.h>   //getcwd
+#    include <unistd.h> //getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <android/log.h>
 #    include <dirent.h>
@@ -852,11 +852,11 @@ unsigned int getFileSize(std::ifstream& fs)
 
 //-----------------------------------------------------------------------------
 //! Returns the writable configuration directory with trailing forward slash
-string getAppsWritableDir()
+string getAppsWritableDir(string appName)
 {
 #if defined(_WIN32)
     string appData   = getenv("APPDATA");
-    string configDir = appData + "/SLProject";
+    string configDir = appData + "/" + appName;
     replaceString(configDir, "\\", "/");
     if (!dirExists(configDir))
         makeDir(configDir.c_str());
@@ -864,7 +864,7 @@ string getAppsWritableDir()
 #elif defined(__APPLE__)
     string home      = getenv("HOME");
     string appData   = home + "/Library/Application Support";
-    string configDir = appData + "/SLProject";
+    string configDir = appData + "/" + appName;
     if (!dirExists(configDir))
         mkdir(configDir.c_str(), S_IRWXU);
     return configDir + "/";
@@ -873,7 +873,7 @@ string getAppsWritableDir()
 #elif defined(linux) || defined(__linux) || defined(__linux__)
     // @todo Where is the app data path on Linux?
     string home      = getenv("HOME");
-    string configDir = home + "/.SLProject";
+    string configDir = home + "/." + appName;
     if (!dirExists(configDir))
         mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
     return configDir + "/";

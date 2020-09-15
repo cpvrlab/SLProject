@@ -50,7 +50,6 @@ private:
     float _textWrapW;
     float _windowPaddingContent;
     float _itemSpacingContent;
-    float _buttonBoardH;
 
     //ImFont* _fontBig      = nullptr;
     //ImFont* _fontSmall    = nullptr;
