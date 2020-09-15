@@ -1907,6 +1907,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("All on"))
                 {
                     sv->drawBits()->on(SL_DB_MESHWIRED);
+                    sv->drawBits()->on(SL_DB_WITHEDGES);
+                    sv->drawBits()->on(SL_DB_ONLYEDGES);
                     sv->drawBits()->on(SL_DB_NORMALS);
                     sv->drawBits()->on(SL_DB_VOXELS);
                     sv->drawBits()->on(SL_DB_AXIS);

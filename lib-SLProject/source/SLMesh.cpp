@@ -48,7 +48,6 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     _accelStruct          = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
     _isSelected           = false;
-    _edgesGenerated       = false;
     _edgeAngleDEG         = 30.0f;
     _vertexPosEpsilon     = 0.001f;
 
@@ -101,7 +100,6 @@ void SLMesh::deleteData()
     _vao.deleteGL();
     _vaoN.deleteGL();
     _vaoT.deleteGL();
-    _vaoE.deleteGL();
 
 #ifdef SL_HAS_OPTIX
     _vertexBuffer.free();
@@ -397,7 +395,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // Set face culling
     bool noFaceCulling = sv->drawBit(SL_DB_CULLOFF) || node->drawBit(SL_DB_CULLOFF);
-    stateGL->cullFace(!noFaceCulling);x
+    stateGL->cullFace(!noFaceCulling);
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
@@ -409,21 +407,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     if (!_vao.vaoID())
         generateVAO(_vao);
-
-    if (!_edgesGenerated)
-    {
-        IE16.clear();
-        IE32.clear();
-        computeHardEdgesIndices(_edgeAngleDEG, _vertexPosEpsilon);
-
-        _vaoE.deleteGL();
-        _vaoE.setAttrib(AT_position, AT_position, _finalP);
-        if (!IE16.empty()) _vaoE.setIndices(&IE16);
-        if (!IE32.empty()) _vaoE.setIndices(&IE32);
-        _vaoE.generate((SLuint)P.size(), BU_static, true);
-
-        _edgesGenerated = true;
-    }
 
     /////////////////////////////
     // 3) Apply Uniform Variables
@@ -472,8 +455,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (sv->drawBit(SL_DB_ONLYEDGES) && (_edgesGenerated && (!IE32.empty() || !IE16.empty())))
-        _vaoE.drawElementAsColored(PT_lines, SLCol4f::WHITE, 2.0f);
+    if (sv->drawBit(SL_DB_ONLYEDGES) && (!IE32.empty() || !IE16.empty()))
+        _vao.drawEdges(SLCol4f::WHITE, 3.0f);
     else
     {
         if (_primitive == PT_points)
@@ -482,10 +465,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             _vao.drawElementsAs(primitiveType);
 
-            if (sv->drawBit(SL_DB_WITHEDGES) && (_edgesGenerated && (!IE32.empty() || !IE16.empty())))
+            if (sv->drawBit(SL_DB_WITHEDGES) && (!IE32.empty() || !IE16.empty()))
             {
                 stateGL->polygonOffset(true, 1.0f, 1.0f);
-                _vaoE.drawElementAsColored(PT_lines, SLCol4f::WHITE, 2.0f);
+                _vao.drawEdges(SLCol4f::WHITE, 3.0f);
                 stateGL->polygonOffset(false);
             }
         }
@@ -718,13 +701,37 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
     if (!Tc.empty()) vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
     if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
     if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
-    if (!I16.empty()) vao.setIndices(&I16);
-    if (!I32.empty()) vao.setIndices(&I32);
-    vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
+
+    if (!I16.empty() || !I32.empty())
+    {
+        // for triangle meshes compute hard edges and store indices behind the ones of the triangles
+        if (_primitive == PT_triangles)
+        {
+            IE16.clear();
+            IE32.clear();
+
+            // compute hard edges with libigl
+            computeHardEdgesIndices(_edgeAngleDEG, _vertexPosEpsilon);
+
+            if (!I16.empty()) vao.setIndices(&I16, &IE16);
+            if (!I32.empty()) vao.setIndices(&I32, &IE32);
+        }
+        else
+        {
+            // for points there are no indices at all
+            if (!I16.empty()) vao.setIndices(&I16);
+            if (!I32.empty()) vao.setIndices(&I32);
+        }
+    }
+
+    vao.generate((SLuint)P.size(),
+                 !Ji.empty() ? BU_stream : BU_static,
+                 Ji.empty());
 }
 //-----------------------------------------------------------------------------
 //! computes the hard edges and stores the vertex indexes separately
-void SLMesh::computeHardEdgesIndices(float angleDEG, float epsilon)
+void SLMesh::computeHardEdgesIndices(float angleDEG,
+                                     float epsilon)
 {
     //Dihedral angle considered to sharp
     float angleRAD = angleDEG * Utils::DEG2RAD;

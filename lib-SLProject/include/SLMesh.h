@@ -220,9 +220,7 @@ protected:
     SLGLVertexArrayExt _vaoN;             //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;             //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;             //!< OpenGL VAO for optional selection drawing
-    SLGLVertexArrayExt _vaoE;             //!< OpenGL VAO for optional hard edges drawing
     SLbool             _isSelected;       //!< flag if mesh is partially of fully selected
-    SLbool             _edgesGenerated;   //!< flag if edges got generated
     SLfloat            _edgeAngleDEG;     //!< edge crease angle in degrees between face normals (30 deg. default)
     SLfloat            _vertexPosEpsilon; //!< vertex position epsilon
 
