@@ -82,6 +82,37 @@ private:
     static SLGLGenericProgramDefault* _instance;
 };
 //-----------------------------------------------------------------------------
+// ! Global default shader program with per vertex color shading
+class SLGLGenericProgramDefaultColorAttrib : public SLGLGenericProgram
+{
+public:
+    static SLGLGenericProgramDefaultColorAttrib* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLGenericProgramDefaultColorAttrib();
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLGLGenericProgramDefaultColorAttrib()
+      : SLGLGenericProgram(nullptr,
+                           SLGLProgramManager::shaderDir + "ColorAttribute.vert",
+                           SLGLProgramManager::shaderDir + "Color.frag")
+    {
+        _name = "ProgramDefaultColorAttrib";
+    };
+
+    static SLGLGenericProgramDefaultColorAttrib* _instance;
+};
+//-----------------------------------------------------------------------------
 // ! Global default shader program with per vertex lighting with textures
 /*!
  * This default shader program is dependant from the number of lights in a

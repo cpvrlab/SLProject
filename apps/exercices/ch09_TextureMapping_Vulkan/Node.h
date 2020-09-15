@@ -52,22 +52,22 @@ public:
     void om(const SLMat4f& mat);
     void AddChild(Node* child);
 
-    void           updateWM();
-    const SLMat4f& updateAndGetWM();
-    const SLMat4f& updateAndGetWMI();
-    const SLMat4f& updateAndGetWMN();
+    void           updateWM() const;
+    const SLMat4f& updateAndGetWM() const;
+    const SLMat4f& updateAndGetWMI() const;
+    const SLMat4f& updateAndGetWMN() const;
 
 protected:
-    Node*         _parent = nullptr; //!< pointer to the parent node
-    vector<Node*> _children;         //!< vector of children nodes
-    Mesh*         _mesh = nullptr;   //!< vector of meshes of the node
-    SLMat4f       _om;               //!< object matrix for local transforms
-    SLMat4f       _wm;               //!< world matrix for world transform
-    SLMat4f       _wmI;              //!< inverse world matrix;
-    SLMat3f       _wmN;              //!< normal world matrix;
+    Node*           _parent = nullptr; //!< pointer to the parent node
+    vector<Node*>   _children;         //!< vector of children nodes
+    Mesh*           _mesh = nullptr;   //!< vector of meshes of the node
+    SLMat4f         _om;               //!< object matrix for local transforms
+    mutable SLMat4f _wm;               //!< world matrix for world transform
+    mutable SLMat4f _wmI;              //!< inverse world matrix;
+    mutable SLMat3f _wmN;              //!< normal world matrix;
     // SLAABBox      _aabb;             //!< axis aligned bounding box
-    bool _isAABBUpToDate = false;
-    bool _isWMUpToDate   = false;
+    mutable bool _isAABBUpToDate = false;
+    mutable bool _isWMUpToDate   = false;
 };
 //-----------------------------------------------------------------------------
 typedef vector<Node> VNode;

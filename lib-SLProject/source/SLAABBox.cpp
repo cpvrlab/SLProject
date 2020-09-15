@@ -39,9 +39,7 @@ void SLAABBox::reset()
     _axisXWS     = SLVec3f::ZERO;
     _axisYWS     = SLVec3f::ZERO;
     _axisZWS     = SLVec3f::ZERO;
-
-    _hasAlpha  = false;
-    _isVisible = true;
+    _isVisible   = true;
 }
 //-----------------------------------------------------------------------------
 //! Recalculate min and max after transformation in world coords

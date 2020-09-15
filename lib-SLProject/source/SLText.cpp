@@ -22,7 +22,7 @@ SLText::SLText(SLstring   text,
                SLCol4f    color,
                SLfloat    maxWidth,
                SLfloat    lineHeightFactor)
-  : SLNode("Text_" + text.substr(0, 10))
+  : SLNode("Text_" + text.substr(text.length()-10, 10))
 {
     assert(font);
     _font  = font;
@@ -30,14 +30,12 @@ SLText::SLText(SLstring   text,
     _color = color;
     _maxW  = maxWidth;
     _lineH = lineHeightFactor;
-
-    _aabb.hasAlpha(true);
 }
 //-----------------------------------------------------------------------------
 /*!
 SLText::shapeDraw draws the text buffer objects
 */
-void SLText::drawRec(SLSceneView* sv)
+void SLText::drawText(SLSceneView* sv)
 {
     if (_drawBits.get(SL_DB_HIDDEN) || !SLGLState::instance()->blend()) return;
 
@@ -60,10 +58,6 @@ void SLText::drawRec(SLSceneView* sv)
     sp->uniform1i("u_matTexture0", 0);
 
     _vao.drawElementsAs(PT_triangles, (SLuint)_text.length() * 2 * 3);
-}
-void SLText::drawMeshes(SLSceneView* sv)
-{
-    drawRec(sv);
 }
 //-----------------------------------------------------------------------------
 /*!

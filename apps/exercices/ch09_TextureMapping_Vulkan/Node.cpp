@@ -15,7 +15,7 @@ void Node::AddChild(Node* child)
     _children.push_back(child);
 }
 
-void Node::updateWM()
+void Node::updateWM() const
 {
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om);
@@ -29,7 +29,7 @@ void Node::updateWM()
     _isWMUpToDate = true;
 }
 
-const SLMat4f& Node::updateAndGetWM()
+const SLMat4f& Node::updateAndGetWM() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -37,7 +37,7 @@ const SLMat4f& Node::updateAndGetWM()
     return _wm;
 }
 
-const SLMat4f& Node::updateAndGetWMI()
+const SLMat4f& Node::updateAndGetWMI() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -45,7 +45,7 @@ const SLMat4f& Node::updateAndGetWMI()
     return _wmI;
 }
 
-const SLMat4f& Node::updateAndGetWMN()
+const SLMat4f& Node::updateAndGetWMN() const
 {
     if (!_isWMUpToDate)
         updateWM();

@@ -276,20 +276,16 @@ void SLMesh::init(SLNode* node)
 
     if (N.empty()) calcNormals();
 
-    // Set default materials if no materials are asigned
+    // Set default materials if no materials are assigned
     // If colors are available use diffuse color attribute shader
     // otherwise use the default gray material
     if (!mat())
     {
-        //if (!C.empty())
-        //    mat(SLMaterialDiffuseAttribute::instance());
-        //else
-        mat(SLMaterialDefaultGray::instance());
+        if (!C.empty())
+            mat(SLMaterialDefaultColorAttribute::instance());
+        else
+            mat(SLMaterialDefaultGray::instance());
     }
-
-    // set transparent flag of the node if mesh contains alpha material
-    if (!node->aabb()->hasAlpha() && mat()->hasAlpha())
-        node->aabb()->hasAlpha(true);
 
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())
@@ -326,7 +322,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
         return;
 
     if (!_vao.vaoID())
-        generateVAO();
+        generateVAO(_vao);
 
     // Now use the depth material
     SLGLProgram* sp    = depthMat->program();
@@ -415,7 +411,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ///////////////////////////////////////
 
     if (!_vao.vaoID())
-        generateVAO();
+        generateVAO(_vao);
 
     if (!_edgesGenerated)
     {
@@ -718,19 +714,16 @@ void SLMesh::drawSelectedVertices()
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
-void SLMesh::generateVAO()
+void SLMesh::generateVAO(SLGLVertexArray& vao)
 {
-    _vao.setAttrib(AT_position, AT_position, _finalP);
-    if (!N.empty()) _vao.setAttrib(AT_normal, AT_normal, _finalN);
-    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
-    if (!C.empty()) _vao.setAttrib(AT_color, AT_color, &C);
-    if (!T.empty()) _vao.setAttrib(AT_tangent, AT_tangent, &T);
-    if (!I16.empty()) _vao.setIndices(&I16);
-    if (!I32.empty()) _vao.setIndices(&I32);
-
-    _vao.generate((SLuint)P.size(),
-                  !Ji.empty() ? BU_stream : BU_static,
-                  Ji.empty());
+    vao.setAttrib(AT_position, AT_position, _finalP);
+    if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
+    if (!Tc.empty()) vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
+    if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
+    if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
+    if (!I16.empty()) vao.setIndices(&I16);
+    if (!I32.empty()) vao.setIndices(&I32);
+    vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
 }
 //-----------------------------------------------------------------------------
 //! computes the hard edges and stores the vertex indexes separately

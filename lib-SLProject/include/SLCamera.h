@@ -56,7 +56,7 @@ public:
     ~SLCamera() override { ; }
 
     void           statsRec(SLNodeStats& stats) override;
-    void           drawMeshes(SLSceneView* sv) override;
+    void           drawMesh(SLSceneView* sv) override;
     virtual SLbool camUpdate(SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
     void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;
@@ -189,10 +189,11 @@ protected:
     SLint        _viewportW;     //!< screen width in screen coordinates (the framebuffer may be bigger)
     SLint        _viewportH;     //!< screen height in screen coordinates (the framebuffer may be bigger)
     SLfloat      _viewportRatio; //!< _scrW /_srcH = screen ratio
-    SLfloat      _fx;
-    SLfloat      _fy;
-    SLfloat      _cx;
-    SLfloat      _cy;
+    SLfloat      _fx;            //!< horizontal focal length
+    SLfloat      _fy;            //!< vertical focal length
+    SLfloat      _cx;            //!< sensor center in x direction
+    SLfloat      _cy;            //!< sensor center in y direction
+    SLRecti      _fbRect;        //!< framebuffer rectangle (this could be different than the viewport on high dpi displays such as on MacOS)
 
     enum
     {

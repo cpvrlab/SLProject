@@ -221,9 +221,8 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
     SLGLState* stateGL       = SLGLState::instance();
     stateGL->modelViewMatrix = v * node->updateAndGetWM();
 
-    if (node->castsShadows())
-        for (auto* mesh : node->meshes())
-            mesh->drawIntoDepthBuffer(sv, node, _mat);
+    if (node->castsShadows() && node->mesh())
+        node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
 
     for (SLNode* child : node->children())
         drawNodesIntoDepthBuffer(child, sv, v);
