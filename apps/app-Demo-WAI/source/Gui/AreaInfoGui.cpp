@@ -51,6 +51,7 @@ void AreaInfoGui::resize(int scrW, int scrH)
 
 void AreaInfoGui::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
+    _locationId           = locId;
     const auto& locations = _resources.locations();
     auto        locIt     = locations.find(locId);
     if (locIt != locations.end())
@@ -106,47 +107,29 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
 
         ImGui::Begin("AreaInfoGui_content", nullptr, windowFlags);
         ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(_screenW, _contentH), false, childWindowFlags);
 
-        //general
-        ImGui::PushFont(_resources.fonts().heading);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().general());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
+        if (_locationId == ErlebAR::LocationId::AUGST)
+            renderInfoAugst();
+        else if (_locationId == ErlebAR::LocationId::AVENCHES)
+            renderInfoAvenches();
+        else if (_locationId == ErlebAR::LocationId::BERN)
+            renderInfoBern();
+        else
+        {
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
+            ImGui::PushFont(_resources.fonts().standard);
+            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+            ImGui::Text("No info available", _textWrapW);
 
-        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
-        ImGui::PushFont(_resources.fonts().standard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().generalContent(), _textWrapW);
-
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-        ImGui::PopTextWrapPos();
-
-        ImGui::Separator();
-
-        //developers
-        ImGui::PushFont(_resources.fonts().heading);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().developers());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::PushFont(_resources.fonts().standard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().developerNames(), _textWrapW);
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::Separator();
-
-        //credits
-        //..
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::PopTextWrapPos();
+        }
 
         ImGui::EndChild();
         ImGui::End();
@@ -186,4 +169,41 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
+}
+
+void AreaInfoGui::renderInfoAugst()
+{
+}
+
+void AreaInfoGui::renderInfoAvenches()
+{
+}
+
+void AreaInfoGui::renderInfoBern()
+{
+    renderInfoHeading(_resources.strings().bernInfoHeading1());
+    renderInfoText(_resources.strings().bernInfoText1());
+    renderInfoHeading(_resources.strings().bernInfoHeading2());
+    renderInfoText(_resources.strings().bernInfoText2());
+}
+
+void AreaInfoGui::renderInfoHeading(const char* text)
+{
+    ImGui::PushFont(_resources.fonts().heading);
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+    ImGui::Text(text);
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+}
+
+void AreaInfoGui::renderInfoText(const char* text)
+{
+    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
+    ImGui::PushFont(_resources.fonts().standard);
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+    ImGui::Text(text, _textWrapW);
+
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+    ImGui::PopTextWrapPos();
 }

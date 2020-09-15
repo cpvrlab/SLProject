@@ -217,6 +217,12 @@ void Strings::load(std::string fileName)
             loadString(fs, "develMode", _develMode);
             //errors
             loadString(fs, "cameraStartError", _cameraStartError);
+            //info text
+            //bern:
+            loadString(fs, "bernInfoHeading1", _bernInfoHeading1);
+            loadString(fs, "bernInfoText1", _bernInfoText1);
+            loadString(fs, "bernInfoHeading2", _bernInfoHeading2);
+            loadString(fs, "bernInfoText2", _bernInfoText2);
         }
     }
     else

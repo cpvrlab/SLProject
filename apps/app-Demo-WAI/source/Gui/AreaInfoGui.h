@@ -33,6 +33,13 @@ public:
 private:
     void resize(int scrW, int scrH);
 
+    void renderInfoAugst();
+    void renderInfoAvenches();
+    void renderInfoBern();
+
+    void renderInfoHeading(const char* text);
+    void renderInfoText(const char* text);
+
     float _screenW;
     float _screenH;
     float _headerBarH;
@@ -51,6 +58,7 @@ private:
 
     ErlebAR::Resources& _resources;
     ErlebAR::Area       _area;
+    ErlebAR::LocationId _locationId = ErlebAR::LocationId::NONE;
 };
 
 #endif //AREA_INFO_GUI_H

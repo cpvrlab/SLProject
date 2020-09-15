@@ -202,6 +202,13 @@ public:
 
     const char* cameraStartError() const { return _cameraStartError.c_str(); }
 
+    //info text
+    //bern:
+    const char* bernInfoHeading1() const { return _bernInfoHeading1.c_str(); }
+    const char* bernInfoText1() const { return _bernInfoText1.c_str(); }
+    const char* bernInfoHeading2() const { return _bernInfoHeading2.c_str(); }
+    const char* bernInfoText2() const { return _bernInfoText2.c_str(); }
+
     void load(std::string fileName);
 
 protected:
@@ -227,6 +234,13 @@ protected:
     std::string _develMode = "Developer mode";
     //errors
     std::string _cameraStartError = "Could not start camera!";
+
+    //info text
+    //bern:
+    std::string _bernInfoHeading1 = "bern heading 1";
+    std::string _bernInfoText1    = "bern info 1";
+    std::string _bernInfoHeading2 = "bern heading 2";
+    std::string _bernInfoText2    = "bern info 2";
 };
 
 //-----------------------------------------------------------------------------
