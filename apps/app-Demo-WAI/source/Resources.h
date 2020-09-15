@@ -116,8 +116,8 @@ public:
     float areaPoseButtonCircleRadius = 0.2f;
 
     //other:
-    // percental standard text height relative to screen height
-    float textStandardH = 0.05f;
+    // text height in mm
+    float textStandardHMM = 3.8f;
     // percental heading text height relative to screen height
     float  textHeadingH      = 0.07f;
     ImVec4 textStandardColor = {BFHColors::GrayDark.r,
@@ -156,7 +156,7 @@ public:
     Fonts();
     ~Fonts();
 
-    void load(std::string fontDir, const Style& style, int screenH);
+    void load(std::string fontDir, const Style& style, int screenH, int dpi);
 
     ImFont* headerBar{nullptr};  //font in header bars
     ImFont* standard{nullptr};   //e.g. about, widgets text

@@ -42,6 +42,22 @@ static SLbool      fullscreen        = false;                      //!< flag if 
 static int         dpi;
 static bool        appShouldClose = false;
 static int         longTouchMS    = 500;
+
+//-----------------------------------------------------------------------------
+int getDpi()
+{
+    const float  inchPerMM = 0.0393701;
+    float        scaleX = 0, scaleY = 0;
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    glfwGetMonitorContentScale(monitor, &scaleX, &scaleY);
+    int widthMM, heightMM;
+    glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    float widthDpi = (float)mode->width / (float)widthMM / inchPerMM * scaleY;
+
+    return (int)widthDpi;
+}
 //-----------------------------------------------------------------------------
 /*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -482,7 +498,8 @@ void GLFWInit()
     GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    dpi = 96;
+    dpi = getDpi();
+
     std::cout << "------------------------------------------------------------------" << endl;
     std::cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
     std::cout << "DPI             : " << dpi << endl;

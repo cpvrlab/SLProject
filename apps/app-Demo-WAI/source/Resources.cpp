@@ -16,7 +16,7 @@ Fonts::~Fonts()
         delete _atlas;
 }
 
-void Fonts::load(std::string fontDir, const Style& style, int screenH)
+void Fonts::load(std::string fontDir, const Style& style, int screenH, int dpi)
 {
     //ImGuiContext* context = ImGui::GetCurrentContext();
     //if (!context)
@@ -34,7 +34,8 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH)
         headerBar            = _atlas->AddFontFromFileTTF(unitRoundedMedi.c_str(), headerBarTextH);
         //headerBar            = _atlas->AddFontFromFileTTF(ttf.c_str(), headerBarTextH);
         //standard font
-        float standardTextH = style.textStandardH * (float)screenH;
+        //float standardTextH = style.textStandardH * (float)screenH;
+        float standardTextH = style.textStandardHMM * (float)dpi * 0.0393701f;
         standard            = _atlas->AddFontFromFileTTF(unitRoundedLight.c_str(), standardTextH);
         //heading font
         float headingTextH = style.textHeadingH * (float)screenH;
@@ -78,7 +79,7 @@ Resources::Resources(const DeviceData& deviceData)
     //load textures
     textures.load(deviceData.textureDir());
     //load fonts
-    _fonts.load(deviceData.fontDir(), _style, _screenH);
+    _fonts.load(deviceData.fontDir(), _style, _screenH, deviceData.dpi());
 
     //definition of erlebar locations and areas
     _locations = ErlebAR::defineLocations();
