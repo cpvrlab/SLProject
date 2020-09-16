@@ -102,10 +102,10 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-    
+
     ImGui::SetNextWindowPos(ImVec2(0, _headerBarH), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(_textWrapW, _contentH), ImGuiCond_Once);
-    
+
     ImGui::Begin("AreaInfoGui_content", nullptr, flags);
 
     ImVec2 canvas_size = ImGui::GetContentRegionAvail();
@@ -139,45 +139,45 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::EndChild();
     ImGui::PopFont();
         */
-    
+
     ImGui::PopTextWrapPos();
     ImGui::End();
-    
+
     //button window
     ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
     ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushFont(_resources.fonts().heading);
-    
-    float buttonBoardW = _screenW - _textWrapW;
-    float buttonW      = 0.8 * buttonBoardW;
-    float buttonH      = _headerBarH * 0.8f;
-    float buttonStartX = _textWrapW + ((buttonBoardW - buttonW) * 0.5);
-    float buttonStartY = _screenH - _headerBarH;
-    
-    ImGui::SetNextWindowPos(ImVec2(buttonStartX, buttonStartY), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(buttonW, buttonH), ImGuiCond_Once);
+
+    float buttonWinW    = _screenW - _textWrapW;
+    float buttonW       = 0.8 * buttonWinW;
+    float buttonH       = _headerBarH * 0.8f;
+    float buttonPadding = 0.5f * (buttonWinW - buttonW);
+    ImGui::SetNextWindowPos(ImVec2(_textWrapW, _headerBarH), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(buttonWinW, _contentH), ImGuiCond_Once);
     ImGui::Begin("AreaInfoGui_startButton", nullptr, flags);
-    
+
+    ImGui::SetCursorPosX(buttonPadding);
+    ImGui::SetCursorPosY(_contentH - buttonH - buttonPadding);
     if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
     {
         sendEvent(new DoneEvent("AreaInfoGui"));
     }
-    
+
     ImGui::End();
-    
+
     //button window styles
-    ImGui::PopStyleColor(5);
-    ImGui::PopStyleVar(1);
+    ImGui::PopStyleColor(4);
+    ImGui::PopStyleVar(2);
     ImGui::PopFont();
 
     //common styles
     ImGui::PopStyleVar(4);
     ImGui::PopStyleColor();
-    
+
 #if 0
     //content
     {
@@ -317,6 +317,7 @@ void AreaInfoGui::renderInfoAvenches()
 void AreaInfoGui::renderInfoBern()
 {
     renderInfoHeading(_resources.strings().bernInfoHeading1());
+    renderInfoText(_resources.strings().bernInfoText1());
     renderInfoText(_resources.strings().bernInfoText1());
     renderInfoHeading(_resources.strings().bernInfoHeading2());
     renderInfoText(_resources.strings().bernInfoText2());
