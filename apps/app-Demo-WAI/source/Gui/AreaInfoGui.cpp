@@ -88,8 +88,6 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              _area.name.c_str(),
                              [&]() { sendEvent(new GoBackEvent("AreaInfoGui")); });
 
-    //ImGui::PushFont(_resources.fonts().standard);
-
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
                              ImGuiWindowFlags_NoScrollbar |
                              ImGuiWindowFlags_NoMove |
@@ -107,7 +105,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     ImGui::SetNextWindowSize(ImVec2(_textWrapW, _contentH), ImGuiCond_Once);
 
     ImGui::Begin("AreaInfoGui_content", nullptr, flags);
-
+    ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(0, 0), false, flags);
     ImVec2 canvas_size = ImGui::GetContentRegionAvail();
     ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
     if (_locationId == ErlebAR::LocationId::AUGST)
@@ -125,22 +123,9 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor();
         ImGui::PopFont();
     }
-    /*
-    //ImGui::BeginChild("sfsdfsdfklj");
-    static int lines = 10;
-
-    ImVec2 canvas_size = ImGui::GetContentRegionAvail();
-    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
-    ImGui::PushFont(_resources.fonts().standard);
-    ImGui::Text("Window will resize every-frame to the size of its content. Note that you probably don't want to query the window size to output your content because that would create a feedback loop.");
-    ImGui::SliderInt("Number of lines", &lines, 1, 200);
-    for (int i = 0; i < lines; i++)
-        ImGui::Text("%*sThis is line %d", i * 4, "", i); // Pad with space to extend size horizontally
-    //ImGui::EndChild();
-    ImGui::PopFont();
-        */
 
     ImGui::PopTextWrapPos();
+    ImGui::EndChild();
     ImGui::End();
 
     //button window
@@ -178,132 +163,9 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     ImGui::PopStyleVar(4);
     ImGui::PopStyleColor();
 
-#if 0
-    //content
-    {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW , _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
-                                            ImGuiWindowFlags_NoMove |
-                                            ImGuiWindowFlags_AlwaysAutoResize |
-                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar;
-        ImGuiWindowFlags windowFlags = childWindowFlags |
-                                       ImGuiWindowFlags_NoScrollWithMouse;
-
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, 0));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
-
-        ImGui::Begin("AreaInfoGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(_screenW, _contentH), false, childWindowFlags);
-
-        if (_locationId == ErlebAR::LocationId::AUGST)
-            renderInfoAugst();
-        else if (_locationId == ErlebAR::LocationId::AVENCHES)
-            renderInfoAvenches();
-        else if (_locationId == ErlebAR::LocationId::BERN)
-            renderInfoBern();
-        else
-        {
-            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
-            ImGui::PushFont(_resources.fonts().standard);
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-            ImGui::Text("No info available", _textWrapW);
-
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
-            ImGui::PopTextWrapPos();
-        }
-
-        ImGui::EndChild();
-        ImGui::End();
-
-        {
-            ImGuiWindowFlags childWindowFlags2 = ImGuiWindowFlags_NoTitleBar |
-                                                 ImGuiWindowFlags_NoMove |
-                                                 ImGuiWindowFlags_AlwaysAutoResize |
-                                                 ImGuiWindowFlags_NoBackground |
-                                                 //ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                                 ImGuiWindowFlags_NoScrollbar;
-            ImGuiWindowFlags windowFlags2 = childWindowFlags2 |
-                                            ImGuiWindowFlags_NoScrollWithMouse;
-
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-            ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-            ImGui::PushFont(_resources.fonts().heading);
-
-            float buttonBoardW = _screenW - _textWrapW;
-            float buttonW      = 0.8 * buttonBoardW;
-            float buttonH      = _headerBarH * 0.8f;
-            float buttonStartX = _textWrapW + ((buttonBoardW - buttonW) * 0.5);
-            float buttonStartY = _screenH - _headerBarH;
-
-            //float buttonStartX = 1500;
-            //float buttonStartY = 500;
-
-            ImGui::SetNextWindowPos(ImVec2(buttonStartX, buttonStartY), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(buttonW, buttonH), ImGuiCond_Always);
-            ImGui::Begin("AreaInfoGui_startButton", nullptr, windowFlags2);
-            ImGui::BeginChild("AreaInfoGui_startButton_child", ImVec2(0, 0), false, childWindowFlags2);
-            if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
-            {
-                sendEvent(new DoneEvent("AreaInfoGui"));
-            }
-            ImGui::EndChild();
-            ImGui::End();
-            ImGui::PopStyleColor(4);
-            ImGui::PopStyleVar(1);
-            ImGui::PopFont();
-
-#    if 0
-            ImGuiWindowFlags windowFlags2 =
-              ImGuiWindowFlags_NoTitleBar |
-              ImGuiWindowFlags_NoMove |
-              ImGuiWindowFlags_AlwaysAutoResize |
-              ImGuiWindowFlags_NoScrollWithMouse |
-              ImGuiWindowFlags_NoScrollbar;
-
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-            ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-            ImGui::PushFont(_resources.fonts().heading);
-
-            ImGui::SetNextWindowPos(ImVec2(0, _headerBarH + _contentH), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(_screenW, _buttonBoardH), ImGuiCond_Always);
-            ImGui::Begin("AreaInfoGui_startButton", nullptr, windowFlags2);
-            float buttonW = _buttonBoardH * 0.8f;
-            ImGui::SetCursorPosX(_textWrapW - buttonW);
-            ImGui::SetCursorPosY(_buttonBoardH * 0.1f);
-            if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(_buttonBoardH * 2.f, buttonW)))
-            {
-                sendEvent(new DoneEvent("AreaInfoGui"));
-            }
-            ImGui::End();
-            ImGui::PopStyleColor(4);
-            ImGui::PopFont();
-#    endif
-        }
-
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(7);
-    }
-
-    //ImGui::ShowMetricsWindow();
-
     //debug: draw log window
+    //ImGui::ShowMetricsWindow();
     _resources.logWinDraw();
-
-#endif
 }
 
 void AreaInfoGui::renderInfoAugst()
@@ -317,7 +179,6 @@ void AreaInfoGui::renderInfoAvenches()
 void AreaInfoGui::renderInfoBern()
 {
     renderInfoHeading(_resources.strings().bernInfoHeading1());
-    renderInfoText(_resources.strings().bernInfoText1());
     renderInfoText(_resources.strings().bernInfoText1());
     renderInfoHeading(_resources.strings().bernInfoHeading2());
     renderInfoText(_resources.strings().bernInfoText2());
