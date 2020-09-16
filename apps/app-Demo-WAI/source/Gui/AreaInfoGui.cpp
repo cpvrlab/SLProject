@@ -88,6 +88,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              _area.name.c_str(),
                              [&]() { sendEvent(new GoBackEvent("AreaInfoGui")); });
 
+#if 0
     //content
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
@@ -173,7 +174,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
             ImGui::PopStyleVar(1);
             ImGui::PopFont();
 
-#if 0
+#    if 0
             ImGuiWindowFlags windowFlags2 =
               ImGuiWindowFlags_NoTitleBar |
               ImGuiWindowFlags_NoMove |
@@ -200,7 +201,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopStyleColor(4);
             ImGui::PopFont();
-#endif
+#    endif
         }
 
         ImGui::PopStyleColor(1);
@@ -211,6 +212,8 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
+
+#endif
 }
 
 void AreaInfoGui::renderInfoAugst()
