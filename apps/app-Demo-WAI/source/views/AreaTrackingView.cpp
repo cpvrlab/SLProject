@@ -546,16 +546,22 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
 
                 int cropW, cropH, w, h;
                 SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
-
-                _camera->start(devProps->deviceId(),
-                               *streamConfig,
-                               cv::Size(w, h),
-                               false,
-                               false,
-                               true,
-                               trackingImgW,
-                               true,
-                               52.5f);
+                try
+                {
+                    _camera->start(devProps->deviceId(),
+                                   *streamConfig,
+                                   cv::Size(w, h),
+                                   false,
+                                   false,
+                                   true,
+                                   trackingImgW,
+                                   true,
+                                   52.5f);
+                }
+                catch (...)
+                {
+                    _gui.showErrorMsg(_resources.strings().cameraStartError());
+                }
             }
         }
 

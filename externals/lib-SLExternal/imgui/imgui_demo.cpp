@@ -236,6 +236,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     static bool show_app_window_titles      = false;
     static bool show_app_custom_rendering   = false;
 
+    /*
     if (show_app_main_menu_bar) ShowExampleAppMainMenuBar();
     if (show_app_dockspace) ShowExampleAppDockSpace(&show_app_dockspace); // Process the Docking app first, as explicit DockSpace() nodes needs to be submitted early (read comments near the DockSpace function)
     if (show_app_documents) ShowExampleAppDocuments(&show_app_documents); // Process the Document app next, as it may also use a DockSpace()
@@ -244,6 +245,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     if (show_app_layout) ShowExampleAppLayout(&show_app_layout);
     if (show_app_property_editor) ShowExampleAppPropertyEditor(&show_app_property_editor);
     if (show_app_long_text) ShowExampleAppLongText(&show_app_long_text);
+     */
     if (show_app_auto_resize) ShowExampleAppAutoResize(&show_app_auto_resize);
     if (show_app_constrained_resize) ShowExampleAppConstrainedResize(&show_app_constrained_resize);
     if (show_app_simple_overlay) ShowExampleAppSimpleOverlay(&show_app_simple_overlay);
@@ -4760,18 +4762,25 @@ static void ShowExampleAppLongText(bool* p_open)
 static void ShowExampleAppAutoResize(bool* p_open)
 {
     bool             open  = true;
-    ImGuiWindowFlags flags = /*ImGuiWindowFlags_AlwaysAutoResize | */ ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+    ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_Once);
     if (!ImGui::Begin("Example: Auto-resizing window", &open, flags))
     {
         ImGui::End();
         return;
     }
 
+    //ImGui::BeginChild("sfsdfsdfklj");
     static int lines = 10;
-    ImGui::Text("Window will resize every-frame to the size of its content.\nNote that you probably don't want to query the window size to\noutput your content because that would create a feedback loop.");
+    
+    ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
+    ImGui::Text("Window will resize every-frame to the size of its content. Note that you probably don't want to query the window size to output your content because that would create a feedback loop.");
     ImGui::SliderInt("Number of lines", &lines, 1, 20);
     for (int i = 0; i < lines; i++)
         ImGui::Text("%*sThis is line %d", i * 4, "", i); // Pad with space to extend size horizontally
+    //ImGui::EndChild();
     ImGui::End();
 }
 

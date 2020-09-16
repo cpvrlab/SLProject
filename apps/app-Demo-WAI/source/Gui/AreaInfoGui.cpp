@@ -88,11 +88,101 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              _area.name.c_str(),
                              [&]() { sendEvent(new GoBackEvent("AreaInfoGui")); });
 
+    //ImGui::PushFont(_resources.fonts().standard);
+
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
+                             ImGuiWindowFlags_NoScrollbar |
+                             ImGuiWindowFlags_NoMove |
+                             ImGuiWindowFlags_NoResize |
+                             ImGuiWindowFlags_NoBringToFrontOnFocus |
+                             ImGuiWindowFlags_NoScrollbar;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+    
+    ImGui::SetNextWindowPos(ImVec2(0, _headerBarH), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(_textWrapW, _contentH), ImGuiCond_Once);
+    
+    ImGui::Begin("AreaInfoGui_content", nullptr, flags);
+
+    ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
+    if (_locationId == ErlebAR::LocationId::AUGST)
+        renderInfoAugst();
+    else if (_locationId == ErlebAR::LocationId::AVENCHES)
+        renderInfoAvenches();
+    else if (_locationId == ErlebAR::LocationId::BERN)
+        renderInfoBern();
+    else
+    {
+        ImGui::PushFont(_resources.fonts().standard);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+        ImGui::Text("No info available", _textWrapW);
+
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+    }
+    /*
+    //ImGui::BeginChild("sfsdfsdfklj");
+    static int lines = 10;
+
+    ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
+    ImGui::PushFont(_resources.fonts().standard);
+    ImGui::Text("Window will resize every-frame to the size of its content. Note that you probably don't want to query the window size to output your content because that would create a feedback loop.");
+    ImGui::SliderInt("Number of lines", &lines, 1, 200);
+    for (int i = 0; i < lines; i++)
+        ImGui::Text("%*sThis is line %d", i * 4, "", i); // Pad with space to extend size horizontally
+    //ImGui::EndChild();
+    ImGui::PopFont();
+        */
+    
+    ImGui::PopTextWrapPos();
+    ImGui::End();
+    
+    //button window
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+    ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::PushFont(_resources.fonts().heading);
+    
+    float buttonBoardW = _screenW - _textWrapW;
+    float buttonW      = 0.8 * buttonBoardW;
+    float buttonH      = _headerBarH * 0.8f;
+    float buttonStartX = _textWrapW + ((buttonBoardW - buttonW) * 0.5);
+    float buttonStartY = _screenH - _headerBarH;
+    
+    ImGui::SetNextWindowPos(ImVec2(buttonStartX, buttonStartY), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(buttonW, buttonH), ImGuiCond_Once);
+    ImGui::Begin("AreaInfoGui_startButton", nullptr, flags);
+    
+    if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
+    {
+        sendEvent(new DoneEvent("AreaInfoGui"));
+    }
+    
+    ImGui::End();
+    
+    //button window styles
+    ImGui::PopStyleColor(5);
+    ImGui::PopStyleVar(1);
+    ImGui::PopFont();
+
+    //common styles
+    ImGui::PopStyleVar(4);
+    ImGui::PopStyleColor();
+    
 #if 0
     //content
     {
         ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(_screenW , _contentH), ImGuiCond_Always);
         ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
                                             ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_AlwaysAutoResize |
@@ -243,12 +333,10 @@ void AreaInfoGui::renderInfoHeading(const char* text)
 
 void AreaInfoGui::renderInfoText(const char* text)
 {
-    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
     ImGui::PushFont(_resources.fonts().standard);
     ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-    ImGui::Text(text, _textWrapW);
+    ImGui::Text(text);
 
     ImGui::PopStyleColor();
     ImGui::PopFont();
-    ImGui::PopTextWrapPos();
 }
