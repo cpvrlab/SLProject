@@ -32,8 +32,9 @@ class SLAssetManager;
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
-The SLMesh class represents a single GL_TRIANGLES or GL_LINES mesh object. The
-mesh object is drawn with one draw call using the vertex indices in I16 or I32.
+The SLMesh class represents a single mesh object. The mesh object is drawn
+with one draw call using the vertex indices in I16 or I32. A mesh can be drawn
+with triangles, lines or points.
 The vertex attributes are stored in vectors with equal number of elements:
 \n P (vertex position, mandatory)
 \n N (vertex normals)
@@ -147,7 +148,7 @@ public:
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO();
+    void         generateVAO(SLGLVertexArray& vao);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();
 

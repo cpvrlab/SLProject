@@ -89,7 +89,7 @@ public:
     //! Sets the material states and passes all variables to the shader program
     void activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights);
 
-    //! Passes the material paramters to shader programs uniform variables
+    //! Passes the material parameters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
@@ -110,9 +110,9 @@ public:
     //! Returns true if a material with textures tangents as additional attributes
     SLbool needsTangents()
     {
-        return (_textures.size() >= 2 &&
-                _textures[0]->target() == GL_TEXTURE_2D &&
-                _textures[1]->texType() == TT_normal);
+        return _textures.size() >= 2 &&
+               _textures[0]->target() == GL_TEXTURE_2D &&
+               _textures[1]->texType() == TT_normal;
     }
 
     // Setters
@@ -171,6 +171,8 @@ public:
     SLfloat       shadowBias() const { return _shadowBias; }
     SLVGLTexture& textures() { return _textures; }
     SLGLProgram*  program() { return _program; }
+    SLVNode&      nodesVisible2D() { return _nodesVisible2D; }
+    SLVNode&      nodesVisible3D() { return _nodesVisible3D; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
@@ -194,8 +196,11 @@ protected:
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 
-    SLGLTexture* _errorTexture = nullptr;
+    SLGLTexture* _errorTexture = nullptr; //!< pointer to error texture that is shown if another texture fails
     SLstring     _compileErrorTexFilePath;
+
+    SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes of with this material
+    SLVNode _nodesVisible3D; //!< Vector of all visible 3D nodes of with this material
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers
@@ -234,6 +239,35 @@ private:
     }
 
     static SLMaterialDefaultGray* _instance;
+};
+//-----------------------------------------------------------------------------
+//! Global default color attribute material for meshes that have colors per vertex
+class SLMaterialDefaultColorAttribute : public SLMaterial
+{
+public:
+    static SLMaterialDefaultColorAttribute* instance()
+    {
+        if (!_instance)
+            _instance = new SLMaterialDefaultColorAttribute;
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLMaterialDefaultColorAttribute()
+      : SLMaterial(nullptr, "ColorAttribute")
+    {
+        program(SLGLGenericProgramDefaultColorAttrib::instance());
+    }
+
+    static SLMaterialDefaultColorAttribute* _instance;
 };
 //-----------------------------------------------------------------------------
 #endif

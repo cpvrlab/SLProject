@@ -201,18 +201,17 @@ Please close first this info dialog on the top-left.\n\
 //-----------------------------------------------------------------------------
 off64_t ftpXferSizeMax = 0;
 //-----------------------------------------------------------------------------
+// Callback routine for FTP file transfer to progress the progressbar
 int ftpCallbackXfer(off64_t xfered, void* arg)
 {
     if (ftpXferSizeMax)
     {
         int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
-        cout << "Bytes transfered: " << xfered << " (" << xferedPC << ")" << endl;
+        cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
         SLApplication::jobProgressNum(xferedPC);
     }
     else
-    {
-        cout << "Bytes transfered: " << xfered << endl;
-    }
+        cout << "Bytes transferred: " << xfered << endl;
     return xfered ? 1 : 0;
 }
 //-----------------------------------------------------------------------------
@@ -547,15 +546,13 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
             SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
             SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOpaqueNodes    = (int)sv->nodesVisible()->size();
-            SLint        numBlendedNodes   = (int)sv->nodesBlended()->size();
-            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn()->size();
-            SLint        numVisibleNodes   = numOpaqueNodes + numBlendedNodes + numOverdrawnNodes;
-            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numGroupNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numLeafNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
+            SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
+            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOpaquePC       = (SLint)((SLfloat)numOpaqueNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numBlendedPC      = (SLint)((SLfloat)numBlendedNodes / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numOpaquePC       = (SLint)((SLfloat)stats3D.numNodesOpaque / (SLfloat)stats3D.numNodes * 100.0f);
+            SLint        numBlendedPC      = (SLint)((SLfloat)stats3D.numNodesBlended / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
             SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
 
@@ -580,11 +577,11 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
             sprintf(m + strlen(m), "Name: %s\n", s->name().c_str());
             sprintf(m + strlen(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
-            sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numGroupNodes, numGroupPC);
-            sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numLeafNodes, numLeafPC);
+            sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numNodesGroup, numGroupPC);
+            sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numNodesLeaf, numLeafPC);
             sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
-            sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", numOpaqueNodes, numOpaquePC);
-            sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", numBlendedNodes, numBlendedPC);
+            sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", stats3D.numNodesOpaque, numOpaquePC);
+            sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", stats3D.numNodesBlended, numBlendedPC);
             sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
             sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
             sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
@@ -633,10 +630,29 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
-            if (s->materials().size() && ImGui::TreeNode("Materials"))
+            if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
             {
-                for (SLuint i = 0; i < s->materials().size(); ++i)
-                    ImGui::Text("[%u] %s", i, s->materials()[i]->name().c_str());
+                for (auto* mat : sv->visibleMaterials3D())
+                {
+                    SLVNode& matNodes = mat->nodesVisible3D();
+                    sprintf(m,
+                            "%s [%u n.]",
+                            mat->name().c_str(),
+                            (SLuint)matNodes.size());
+
+                    if (matNodes.size())
+                    {
+                        if (ImGui::TreeNode(m))
+                        {
+                            for (auto* node : matNodes)
+                                ImGui::Text(node->name().c_str());
+
+                            ImGui::TreePop();
+                        }
+                    }
+                    else
+                        ImGui::Text(m);
+                }
 
                 ImGui::TreePop();
             }
@@ -686,7 +702,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
+                                                                                 : vt == VT_FILE ? "File"
+                                                                                                 : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -1011,7 +1029,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
-        if (showChristoffel && SLApplication::sceneID == SID_VideoChristoffel)
+        if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
         {
             ImGui::Begin("Christoffel",
                          &showChristoffel,
@@ -1085,12 +1103,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             static SLfloat christTransp = 0.0f;
             if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
             {
-                for (auto* mesh : christ_aussen->meshes())
-                {
-                    mesh->mat()->kt(christTransp);
-                    mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                    mesh->init(christ_aussen);
-                }
+                christ_aussen->updateMeshMat([](SLMaterial* m) { m->kt(christTransp); }, true);
 
                 // Hide inner parts if transparency is on
                 christ_innen->drawBits()->set(SL_DB_HIDDEN, christTransp > 0.01f);
@@ -1204,7 +1217,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                     {
                                         ftp.SetCallbackXferFunction(ftpCallbackXfer);
                                         ftp.SetCallbackBytes(1024000);
-                                        if (ftp.Chdir("test"))
+                                        if (ftp.Chdir("SLProject/models/PLY"))
                                         {
                                             int remoteSize = 0;
                                             ftp.Size("xyzrgb_dragon.ply",
@@ -1260,8 +1273,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_TextureFilter);
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(s, sv, SID_FrustumCull);
-                    if (ImGui::MenuItem("Massive Data Scene", nullptr, sid == SID_MassiveData))
-                        s->onLoad(s, sv, SID_MassiveData);
+                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
+                        s->onLoad(s, sv, SID_MassiveScene);
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
@@ -1371,24 +1384,24 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
                         if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_VideoChristoffel))
-                                s->onLoad(s, sv, SID_VideoChristoffel);
+                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_ErlebARChristoffel))
+                                s->onLoad(s, sv, SID_ErlebARChristoffel);
 
                         if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_VideoAugustaRaurica))
-                                s->onLoad(s, sv, SID_VideoAugustaRaurica);
+                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_ErlebARAugustaRaurica))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
 
                         if (Utils::fileExists(modelAV1))
-                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_VideoAventicumAmphi))
-                                s->onLoad(s, sv, SID_VideoAventicumAmphi);
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_ErlebARAventicumAmphi))
+                                s->onLoad(s, sv, SID_ErlebARAventicumAmphi);
 
                         if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_VideoAventicumCigognier))
-                                s->onLoad(s, sv, SID_VideoAventicumCigognier);
+                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_ErlebARAventicumCigognier))
+                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
 
                         if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_VideoAventicumTheatre))
-                                s->onLoad(s, sv, SID_VideoAventicumTheatre);
+                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_ErlebARAventicumTheatre))
+                                s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
 
                         ImGui::EndMenu();
                     }
@@ -2447,7 +2460,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            if (SLApplication::sceneID == SID_VideoChristoffel)
+            if (SLApplication::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);
@@ -2477,6 +2490,9 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
     if (s->root3D())
         addSceneGraphNode(s, s->root3D());
 
+    if (s->root2D())
+        addSceneGraphNode(s, s->root2D());
+
     ImGui::End();
     ImGui::PopFont();
 }
@@ -2487,7 +2503,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
-    SLbool isLeafNode     = node->children().empty() && node->meshes().empty();
+    SLbool isLeafNode = node->children().empty() && !node->mesh();
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -2508,8 +2524,9 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 
     if (nodeIsOpen)
     {
-        for (auto* mesh : node->meshes())
+        if (node->mesh())
         {
+            SLMesh* mesh = node->mesh();
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
 
             ImGuiTreeNodeFlags meshFlags = ImGuiTreeNodeFlags_Leaf;
@@ -2567,8 +2584,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 if (singleNode)
                 {
                     SLuint c = (SLuint)singleNode->children().size();
-                    SLuint m = (SLuint)singleNode->meshes().size();
-
+                    SLuint m = singleNode->mesh() ? 1 : 0;
                     ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                     ImGui::Text("No. of children : %u", c);
                     ImGui::Text("No. of meshes   : %u", m);
@@ -3098,22 +3114,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             for (auto* selectedNode : s->selectedNodes())
             {
-                if (!selectedNode->meshes().empty())
+                if (selectedNode->mesh())
                 {
                     ImGui::Text("Node: %s", selectedNode->name().c_str());
-                    for (auto* selectedMesh : selectedNode->meshes())
+                    SLMesh* selectedMesh = selectedNode->mesh();
+
+                    if (!selectedMesh->IS32.empty())
                     {
-                        if (!selectedMesh->IS32.empty())
+                        ImGui::Text("   Mesh: %s {%u v.}",
+                                    selectedMesh->name().c_str(),
+                                    (SLuint)selectedMesh->IS32.size());
+                        ImGui::SameLine();
+                        SLstring delBtn = "DEL##" + selectedMesh->name();
+                        if (ImGui::Button(delBtn.c_str()))
                         {
-                            ImGui::Text("   Mesh: %s {%u v.}",
-                                        selectedMesh->name().c_str(),
-                                        (SLuint)selectedMesh->IS32.size());
-                            ImGui::SameLine();
-                            SLstring delBtn = "DEL##" + selectedMesh->name();
-                            if (ImGui::Button(delBtn.c_str()))
-                            {
-                                selectedMesh->deleteSelected(selectedNode);
-                            }
+                            selectedMesh->deleteSelected(selectedNode);
                         }
                     }
                 }

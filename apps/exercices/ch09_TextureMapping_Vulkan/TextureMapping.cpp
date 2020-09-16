@@ -15,22 +15,15 @@
 //////////////////////
 // Global Variables //
 //////////////////////
-const int WINDOW_WIDTH   = 800;
-const int WINDOW_HEIGHT  = 600;
+const int WINDOW_WIDTH   = 1280;
+const int WINDOW_HEIGHT  = 720;
 string    vertShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/vertShader.vert.spv";
 string    fragShaderPath = SLstring(SL_PROJECT_ROOT) + "/data/shaders/fragShader.frag.spv";
 
 GLFWwindow* window;
 
-// Generated dimensions
-int   sizeX           = 17;
-int   sizeY           = 17;
-int   sizeZ           = 17;
-int   materialCount   = 20;
-float offsetDimension = 4.0f;
-
 // Camera
-float  _camZ                  = 6.0f * sizeZ * 0.8f;
+float  _camZ                  = 50.0f;
 float  _mouseWheelSensitivity = 1.0f;
 Camera camera;
 
@@ -42,7 +35,7 @@ int  _rotX, _rotY;
 bool _mouseLeftDown;
 
 //-----------------------------------------------------------------------------
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -62,7 +55,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
     }
 }
 //-----------------------------------------------------------------------------
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -74,7 +67,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
     }
 }
 //-----------------------------------------------------------------------------
-void onMouseWheel(GLFWwindow* window, double xScroll, double yScroll)
+void onMouseWheel(GLFWwindow* myWindow, double xScroll, double yScroll)
 {
     _camZ -= (SLfloat)Utils::sign(yScroll) * _mouseWheelSensitivity;
 }
@@ -141,13 +134,10 @@ void updateCamera()
 //-----------------------------------------------------------------------------
 void createScene(Node& root)
 {
-    float offsetX = (sizeX % 2 != 0) ? 0.0f : 0.5f;
-    float offsetY = (sizeY % 2 != 0) ? 0.0f : 0.5f;
-    float offsetZ = (sizeZ % 2 != 0) ? 0.0f : 0.5f;
+    const int         NUM_MAT      = 20;
+    vector<Material*> materialList = vector<Material*>(NUM_MAT);
 
-    vector<Material*> materialList = vector<Material*>(materialCount);
-
-    for (int x = 0; x < materialCount; x++)
+    for (int x = 0; x < NUM_MAT; x++)
     {
         Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/earth1024_C_alpha.png");
         Material* material = new Material("Texture");
@@ -161,6 +151,35 @@ void createScene(Node& root)
         materialList[x] = material;
     }
 
+    // create a 3D array of spheres
+    SLint   halfSize = 10;
+    SLuint  n        = 0;
+    SLCol4f color;
+    for (SLint iZ = -halfSize; iZ <= halfSize; ++iZ)
+    {
+        for (SLint iY = -halfSize; iY <= halfSize; ++iY)
+        {
+            for (SLint iX = -halfSize; iX <= halfSize; ++iX)
+            {
+                // Choose a random material index
+                SLuint   res      = 36;
+                SLint    iMat     = Utils::random(0, NUM_MAT - 1);
+                SLstring nodeName = "earth-" + std::to_string(n);
+
+                Mesh* mesh = new Sphere("sphere-mesh", 0.3f, res, res);
+                color.hsva2rgba(SLVec3f(Utils::TWOPI * iMat / NUM_MAT, 1.0f, 1.0f));
+                mesh->setColor(color);
+                mesh->mat  = materialList[iMat];
+                Node* node = new Node("sphere-node");
+                node->SetMesh(mesh);
+                node->om(SLMat4f((float)iX, (float)iY, (float)iZ));
+                root.AddChild(node);
+                n++;
+            }
+        }
+    }
+
+    /*
     for (int x = 0; x < sizeX; x++)
     {
         for (int y = 0; y < sizeY; y++)
@@ -187,6 +206,7 @@ void createScene(Node& root)
             }
         }
     }
+    */
 
 #if 0
     // Mesh 1

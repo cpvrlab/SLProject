@@ -228,6 +228,9 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
             for (std::list<WAIKeyFrame*>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++)
             {
                 WAIKeyFrame* pKFi = *lit;
+                if (pKFi->isBad())
+                    continue;
+
                 if (pKFi->mnRelocQuery != F->mnId)
                 {
                     pKFi->mnRelocWords = 0;

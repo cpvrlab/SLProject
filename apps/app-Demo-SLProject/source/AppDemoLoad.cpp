@@ -124,7 +124,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_Minimal) //...................................................
     {
-         // Set scene name and info string
+        // Set scene name and info string
         s->name("Minimal Scene Test");
         s->info("Minimal texture mapping example with one light source.");
 
@@ -777,7 +777,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_MassiveData) //...............................................
+    else if (SLApplication::sceneID == SID_MassiveScene) //..............................................
     {
         s->name("Massive Data Test");
         s->info("No data is shared on the GPU. Check Memory consumption.");
@@ -791,7 +791,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
+        SLLightSpot* light1 = new SLLightSpot(s, s, 15, 15, 15, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
         light1->attenuation(1, 0, 0);
 
@@ -816,22 +816,22 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // create a 3D array of spheres
-        SLint  size = 10;
-        SLuint n    = 0;
-        for (SLint iZ = -size; iZ <= size; ++iZ)
+        SLint  halfSize = 10;
+        SLuint n        = 0;
+        for (SLint iZ = -halfSize; iZ <= halfSize; ++iZ)
         {
-            for (SLint iY = -size; iY <= size; ++iY)
+            for (SLint iY = -halfSize; iY <= halfSize; ++iY)
             {
-                for (SLint iX = -size; iX <= size; ++iX)
+                for (SLint iX = -halfSize; iX <= halfSize; ++iX)
                 {
                     // Choose a random material index
-                    SLuint    res      = 36;
-                    SLint iMat = Utils::random(0,NUM_MAT);
-                    SLstring  nodeName = "earth-" + std::to_string(n);
+                    SLuint   res      = 36;
+                    SLint    iMat     = Utils::random(0, NUM_MAT - 1);
+                    SLstring nodeName = "earth-" + std::to_string(n);
 
                     // Create a new sphere and node and translate it
-                    SLSphere* earth    = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
-                    SLNode*   sphere   = new SLNode(earth);
+                    SLSphere* earth  = new SLSphere(s, 0.3f, res, res, nodeName, mat[iMat]);
+                    SLNode*   sphere = new SLNode(earth);
                     sphere->translate(float(iX), float(iY), float(iZ), TS_object);
                     scene->addChild(sphere);
                     //SL_LOG("Earth: %000d (Mat: %00d)", n, iMat);
@@ -1459,7 +1459,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         SLApplication::texturePath + "Desert-Y1024_C.jpg",
                                         SLApplication::texturePath + "Desert+Z1024_C.jpg",
                                         SLApplication::texturePath + "Desert-Z1024_C.jpg");
-        SLGLTexture* skyboxTex = skybox->meshes()[0]->mat()->textures()[0];
+        SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures()[0];
 
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
@@ -1578,7 +1578,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderVoxelConeDemo) //........................................
+    else if (SLApplication::sceneID == SID_ShaderVoxelConeDemo) //.......................................
     {
         s->name("Voxelization Test");
         s->info("Voxelizing a Scnene and Display result");
@@ -1700,7 +1700,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingBasicScene) //......................................
+    else if (SLApplication::sceneID == SID_ShadowMappingBasicScene) //...................................
     {
         s->name("Shadow Mapping Basic Scene");
         s->info("Shadow Mapping is a technique to render shadows.");
@@ -1752,7 +1752,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingLightTypes) //......................................
+    else if (SLApplication::sceneID == SID_ShadowMappingLightTypes) //...................................
     {
         s->name("Shadow Mapping light types");
         s->info("Shadow Mapping is implemented for these light types.");
@@ -1848,7 +1848,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingSpotLights) //......................................
+    else if (SLApplication::sceneID == SID_ShadowMappingSpotLights) //...................................
     {
         s->name("Shadow Mapping for Spot lights");
         s->info("8 Spot lights use a perspective projection for their light space.");
@@ -1902,7 +1902,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingPointLights) //......................................
+    else if (SLApplication::sceneID == SID_ShadowMappingPointLights) //..................................
     {
         s->name("Shadow Mapping for point lights");
         s->info("Point lights use cubemaps to store shadow maps.");
@@ -2334,8 +2334,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Mass Animation Test");
         s->info("Performance test for transform updates from many animations.");
 
-        s->init();
-
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.1f);
         light1->translate(0, 10, 0);
 
@@ -2421,7 +2419,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define camera
         SLCamera* cam1 = new SLCamera;
-        cam1->translation(0, 20, 20);
+        cam1->translation(0, 10, 10);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
@@ -2451,12 +2449,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(center);
         scene->addChild(cam1);
 
-// create astroboys around the center astroboy
-#ifdef APP_USES_GLES
+        // create astroboys around the center astroboy
         SLint size = 4;
-#else
-        SLint size = 8;
-#endif
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
             for (SLint iX = -size; iX <= size; ++iX)
@@ -2464,12 +2458,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 SLbool shift = iX % 2 != 0;
                 if (iX != 0 || iZ != 0)
                 {
-                    SLNode* n  = new SLNode;
                     float   xt = float(iX) * 1.0f;
                     float   zt = float(iZ) * 1.0f + ((shift) ? 0.5f : 0.0f);
+                    SLNode* n  = center->copyRec();
                     n->translate(xt, 0, zt, TS_object);
-                    for (auto m : importer.meshes())
-                        n->addMesh(m);
                     scene->addChild(n);
                 }
             }
@@ -2867,6 +2859,75 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         s->root3D(scene);
     }
+#ifdef SL_BUILD_WAI
+    else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
+    {
+        CVCapture::instance()->videoType(VT_MAIN);
+        s->name("Track WAI (main cam.)");
+        s->info("Track the scene with a point cloud built with the WAI (Where Am I) library.");
+
+        // Create video texture on global pointer updated in AppDemoVideo
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
+        // Material
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.5f));
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a camera node 1
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 5);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
+        cam1->background().texture(videoTexture);
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
+        light1->translation(0.12f, 0.12f, 0.12f);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Get the half edge length of the aruco marker
+        SLfloat edgeLen = 0.1f;
+        SLfloat he      = edgeLen * 0.5f;
+
+        // Build mesh & node that will be tracked by the 1st marker (camera)
+        SLBox*  box1      = new SLBox(s, -he, -he, -he, he, he, he, "Box 1", yellow);
+        SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
+        SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
+        axisNode1->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axisNode1->scale(edgeLen);
+        axisNode1->translate(-he, -he, -he, TS_parent);
+        boxNode1->addChild(axisNode1);
+        boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
+        boxNode1->translate(0.0f, 0.0f, 1.0f, TS_world);
+        scene->addChild(boxNode1);
+
+        // Create OpenCV Tracker for the box node
+        std::string vocFileName;
+#    if USE_FBOW
+        vocFileName = "voc_fbow.bin";
+#    else
+        vocFileName = "ORBvoc.bin";
+#    endif
+        tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {SLApplication::calibIniPath, SLApplication::exePath}));
+        tracker->drawDetection(true);
+        trackedNode = cam1;
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Set active camera
+        sv->camera(cam1);
+
+        // Turn on constant redraw
+        sv->doWaitOnIdle(false);
+    }
+#endif
     else if (SLApplication::sceneID == SID_VideoSensorAR) //.............................................
     {
         // Set scene name and info string
@@ -2932,13 +2993,25 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
-    else if (SLApplication::sceneID == SID_VideoChristoffel) //..........................................
+    else if (SLApplication::sceneID == SID_ErlebARChristoffel) //........................................
     {
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial* matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
@@ -2969,28 +3042,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
         if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
-        for (auto mesh : UmgD->meshes())
-        {
-            mesh->mat()->kt(0.5f);
-            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            mesh->init(UmgD); // reset the correct hasAlpha flag
-        }
 
+        auto updateKtAmbiFnc = [](SLMaterial* m) {
+            m->kt(0.5f);
+            m->ambient(SLCol4f(.3f, .3f, .3f));
+        };
+
+        UmgD->updateMeshMat(updateKtAmbiFnc, true);
         SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
         if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
-        for (auto mesh : UmgF->meshes())
-        {
-            mesh->mat()->kt(0.5f);
-            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            mesh->init(UmgF); // reset the correct hasAlpha flag
-        }
-
-        SLNode* ChrA = bern->findChild<SLNode>("Christoffel-Aussen");
-        if (!ChrA) SL_EXIT_MSG("Node: Christoffel-Aussen not found!");
-        for (auto mesh : ChrA->meshes())
-        {
-            mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-        }
+        UmgF->updateMeshMat(updateKtAmbiFnc, true);
 
         // Hide some objects
         bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -3009,14 +3070,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
+        // Set the video background shader on the baldachin and the ground
+        bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackground, true);
+
         // Set ambient on all child nodes
-        for (auto node : bern->children())
-        {
-            for (auto mesh : node->meshes())
-            {
-                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-            }
-        }
+        bern->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3062,7 +3122,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAugustaRaurica) //.......................................
+    else if (SLApplication::sceneID == SID_ErlebARAugustaRaurica) //.....................................
     {
         s->name("Augusta Raurica AR");
         s->info("Augmented Reality for Augusta Raurica");
@@ -3109,10 +3169,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         // Set some ambient light
-        for (auto child : TheaterAndTempel->children())
-            for (auto mesh : child->meshes())
-                mesh->mat()->ambient(SLCol4f(0.25f, 0.23f, 0.15f));
-
+        TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
@@ -3151,7 +3208,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAventicumAmphi) //.......................................
+    else if (SLApplication::sceneID == SID_ErlebARAventicumAmphi) //.....................................
     {
         s->name("Aventicum Amphitheatre AR");
         s->info("Augmented Reality for Aventicum Amphitheatre");
@@ -3232,7 +3289,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAventicumCigognier) //...................................
+    else if (SLApplication::sceneID == SID_ErlebARAventicumCigognier) //.................................
     {
         s->name("Aventicum Cigonier AR");
         s->info("Augmented Reality for Aventicum Cigonier Temple");
@@ -3312,10 +3369,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VideoAventicumTheatre) //...................................
+    else if (SLApplication::sceneID == SID_ErlebARAventicumTheatre) //...................................
     {
-        s->name("Aventicum Cigonier AR");
-        s->info("Augmented Reality for Aventicum Cigonier Temple");
+        s->name("Aventicum Theatre AR");
+        s->info("Augmented Reality for Aventicum Theatre");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -3330,6 +3387,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial* matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
         light->powers(1.0f, 1.0f, 1.0f);
@@ -3341,16 +3410,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(light);
 
         SLAssimpImporter importer;
-        SLNode*          cigognier = importer.load(s->animManager(),
-                                          s,
-                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
-                                          SLApplication::texturePath,
-                                          true,    // only meshes
-                                          nullptr, // no replacement material
-                                          0.4f);   // 40% ambient reflection
+        SLNode*          theatre = importer.load(s->animManager(),
+                                        s,
+                                        SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
+                                        SLApplication::texturePath,
+                                        true,    // only meshes
+                                        nullptr, // no replacement material
+                                        0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
-        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+        theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through the grass plane
+        theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3361,15 +3433,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("Scene");
         scene->addChild(light);
         scene->addChild(axis);
-        scene->addChild(cigognier);
+        scene->addChild(theatre);
         scene->addChild(cam1);
 
         //initialize sensor stuff
+        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
-        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.originLLA(46.88029, 7.04876, 454.9f); // Zentrum Orchestra
+        SLApplication::devLoc.defaultLLA(46.88044, 7.04846, 455.3f + 1.7);  // Vor dem Bühnenhaus
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                    // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                        // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
@@ -3392,75 +3465,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-#ifdef SL_BUILD_WAI
-    else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
-    {
-        CVCapture::instance()->videoType(VT_MAIN);
-        s->name("Track WAI (main cam.)");
-        s->info("Track the scene with a point cloud built with the WAI (Where Am I) library.");
-
-        // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-
-        // Material
-        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.5f));
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create a camera node 1
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 5);
-        cam1->lookAt(0, 0, 0);
-        cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
-        cam1->background().texture(videoTexture);
-        cam1->setInitialState();
-        scene->addChild(cam1);
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
-        light1->translation(0.12f, 0.12f, 0.12f);
-        light1->name("light node");
-        scene->addChild(light1);
-
-        // Get the half edge length of the aruco marker
-        SLfloat edgeLen = 0.1f;
-        SLfloat he      = edgeLen * 0.5f;
-
-        // Build mesh & node that will be tracked by the 1st marker (camera)
-        SLBox*  box1      = new SLBox(s, -he, -he, -he, he, he, he, "Box 1", yellow);
-        SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
-        SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
-        axisNode1->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axisNode1->scale(edgeLen);
-        axisNode1->translate(-he, -he, -he, TS_parent);
-        boxNode1->addChild(axisNode1);
-        boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
-        boxNode1->translate(0.0f, 0.0f, 1.0f, TS_world);
-        scene->addChild(boxNode1);
-
-        // Create OpenCV Tracker for the box node
-        std::string vocFileName;
-#    if USE_FBOW
-        vocFileName = "voc_fbow.bin";
-#    else
-        vocFileName = "ORBvoc.bin";
-#    endif
-        tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {SLApplication::calibIniPath, SLApplication::exePath}));
-        tracker->drawDetection(true);
-        trackedNode = cam1;
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Set active camera
-        sv->camera(cam1);
-
-        // Turn on constant redraw
-        sv->doWaitOnIdle(false);
-    }
-#endif
     else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
     {
         s->name("Muttenzer Box");

@@ -45,16 +45,16 @@ public:
     SLTexFont(SLstring fontFilename, SLstring shaderDir);
     ~SLTexFont();
 
-    void         create(SLstring fontFilename);
-    SLVec2f      calcTextSize(const SLstring& text,
-                              SLfloat         maxWidth         = 0.0f,
-                              SLfloat         lineHeightFactor = 1.5f);
-    SLVstring    wrapTextToLines(SLstring text,
-                                 SLfloat  maxW);
-    void         buildTextBuffers(SLGLVertexArray& vao,
-                                  const SLstring&  text,
-                                  SLfloat          maxWidth   = 0.0f,
-                                  SLfloat          lineHeight = 1.5f);
+    void      create(SLstring fontFilename);
+    SLVec2f   calcTextSize(const SLstring& text,
+                           SLfloat         maxWidth         = 0.0f,
+                           SLfloat         lineHeightFactor = 1.5f);
+    SLVstring wrapTextToLines(SLstring text,
+                              SLfloat  maxW);
+    void      buildTextBuffers(SLGLVertexArray& vao,
+                               const SLstring&  text,
+                               SLfloat          maxWidth   = 0.0f,
+                               SLfloat          lineHeight = 1.5f);
     SLGLProgram* fontTexProgram() { return _fontTexProgram; }
 
     //! Single Character info struct w. min. and max. texcoords.
