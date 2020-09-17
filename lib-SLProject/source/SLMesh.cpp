@@ -781,13 +781,17 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
         if (uE2E[u].size() == 1) // Edges at the border (with only one triangle)
             sharp = true;
 
+        // If more than one edge is passing here, compute dihedral angles
         for (int i = 0; i < uE2E[u].size(); i++)
         {
             for (int j = i + 1; j < uE2E[u].size(); j++)
             {
-                const int                   ei  = uE2E[u][i];
+                // E[faceId + |F| * c] opposite of vertex F[faceId][c]
+                // ei = fi + |F| * c -> ei % |F| = fi % |F| = fi; fi is the face adjacent to ei
+                // ej = fj + |F| * c -> ej % |F| = fj % |F| = fj; fj is the face adjacent to ej
+                const int                   ei  = uE2E[u][i]; // edge i
                 const int                   fi  = ei % newF.rows();
-                const int                   ej  = uE2E[u][j];
+                const int                   ej  = uE2E[u][j]; // edge j
                 const int                   fj  = ej % newF.rows();
                 Eigen::Matrix<double, 1, 3> ni  = faceN.row(fi);
                 Eigen::Matrix<double, 1, 3> nj  = faceN.row(fj);
