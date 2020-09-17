@@ -29,8 +29,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _orientation(orientation),
     _vocabularyDir(deviceData.vocabularyDir()),
     _erlebARDir(deviceData.erlebARDir()),
-    _resources(resources)
-//_userGuidance(&_gui)
+    _resources(resources),
+    _userGuidance(&_gui)
 {
     scene(&_testScene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
@@ -55,215 +55,211 @@ AreaTrackingView::~AreaTrackingView()
 
 bool AreaTrackingView::update()
 {
-    if (_orientation)
+    if (_userGuidanceMode)
     {
-        ///////////////////////////////////////////////////////////////////////
-        // Build pose of camera in world frame (scene) using device rotation //
-        ///////////////////////////////////////////////////////////////////////
-
-        //camera rotation with respect to (w.r.t.) sensor
-        SLMat3f sRc;
-        sRc.rotation(-90, 0, 0, 1);
-
-        //sensor rotation w.r.t. east-north-down
-        SLMat3f enuRs;
-
-        SENSOrientation::Quat ori      = _orientation->getOrientation();
-        SLMat3f               rotation = SLQuat4f(ori.quatX, ori.quatY, ori.quatZ, ori.quatW).toMat3();
-        enuRs.setMatrix(rotation);
-
-        //world-yaw rotation w.r.t. world
-        SLMat3f wRenu;
-        wRenu.rotation(-90, 1, 0, 0);
-        //combiniation of partial rotations to orientation of camera w.r.t world
-        SLMat3f wRc = wRenu * enuRs * sRc;
-
-        //camera translations w.r.t world:
-        SLVec3f wtc = _testScene.camera->updateAndGetWM().translation();
-
-        //combination of rotation and translation:
-        SLMat4f wTc;
-        wTc.setRotation(wRc);
-        wTc.setTranslation(wtc);
-
-        _testScene.camera->om(wTc);
-
-        //ARROW ROTATION CALCULATION:
-        //auto loc = _gps->getLocation();
-        SENSGps::Location loc = {47.14899, 7.23354, 728.4, 1.f};
-
-        //ROTATION OF ENU WRT. ECEF
-        //calculation of ecef to world (scene) rotation matrix
-        //definition of rotation matrix for ECEF to world frame rotation:
-        //world frame (scene) w.r.t. ENU frame
-        double phiRad = loc.latitudeDEG * Utils::DEG2RAD;  //   phi == latitude
-        double lamRad = loc.longitudeDEG * Utils::DEG2RAD; //lambda == longitude
-        double sinPhi = sin(phiRad);
-        double cosPhi = cos(phiRad);
-        double sinLam = sin(lamRad);
-        double cosLam = cos(lamRad);
-
-        SLMat3d enuRecef(-sinLam,
-                         cosLam,
-                         0,
-                         -cosLam * sinPhi,
-                         -sinLam * sinPhi,
-                         cosPhi,
-                         cosLam * cosPhi,
-                         sinLam * cosPhi,
-                         sinPhi);
-
-        //ROTATION OF DIRECTION ARROW WRT. ENU FRAME
-        //area location in ecef
-        //ErlebAR::Area& area = _locations[_locId].areas[_areaId];
-        SLVec3d ecefAREA;
-        //schornstein brügg
-        ecefAREA.lla2ecef({47.12209, 7.25821, 431.8});
-
-        //device location in ecef
-        SLVec3d ecefDEVICE;
-        ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM});
-        //build direction vector from device to area in ecef
-        SLVec3d ecefAD = ecefAREA - ecefDEVICE;
-        //rotation to enu
-        SLVec3d X = enuRecef * ecefAD; //enuAD
-        X.normalize();
-        //build y and z vectors
-        SLVec3d Y;
-        Y.cross(X, {0.0, 0.0, 1.0});
-        Y.normalize();
-        SLVec3d Z;
-        Z.cross(X, Y);
-        Z.normalize();
-        //build rotation matrix
-        // clang-format off
-         SLMat3f enuRp(X.x, Y.x, Z.x,
-                       X.y, Y.y, Z.y,
-                       X.z, Y.z, Z.z);
-        // clang-format on
-
-        //ROTATION OF ARROW WRT. CAMERA
-        SLMat3f cRw = wRc.transposed();
-        SLMat3f cRp = cRw * wRenu * enuRp;
-        //set arrow rotation
-        _testScene.updateArrowRot(cRp);
-    }
-
-    try {
-        SENSFramePtr frame;
-        if (_camera)
-            frame = _camera->latestFrame();
-        
-        if (frame)
-            updateVideoImage(*frame.get());
-        
-    }
-    catch (std::exception& e)
-    {
-        _gui.showErrorMsg(e.what());
-    }
-    catch (...)
-    {
-        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
-    }
-    
-    return onPaint();
-
-    
-    
-    
-    
-    
-    
-    
-    
-    WAI::TrackingState slamState = WAI::TrackingState_None;
-    try
-    {
-        SENSFramePtr frame;
-        if (_camera)
-            frame = _camera->latestFrame();
-
-
-
-        /*
-        if (frame && _waiSlam)
+        this->scene(&_testScene);
+        this->camera(_testScene.camera);
+        if (_orientation)
         {
-            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-            if (!frame->intrinsics.empty())
+            ///////////////////////////////////////////////////////////////////////
+            // Build pose of camera in world frame (scene) using device rotation //
+            ///////////////////////////////////////////////////////////////////////
+
+            //camera rotation with respect to (w.r.t.) sensor
+            SLMat3f sRc;
+            sRc.rotation(-90, 0, 0, 1);
+
+            //sensor rotation w.r.t. east-north-down
+            SLMat3f enuRs;
+
+            SENSOrientation::Quat ori      = _orientation->getOrientation();
+            SLMat3f               rotation = SLQuat4f(ori.quatX, ori.quatY, ori.quatZ, ori.quatW).toMat3();
+            enuRs.setMatrix(rotation);
+
+            //world-yaw rotation w.r.t. world
+            SLMat3f wRenu;
+            wRenu.rotation(-90, 1, 0, 0);
+            //combiniation of partial rotations to orientation of camera w.r.t world
+            SLMat3f wRc = wRenu * enuRs * sRc;
+
+            //camera translations w.r.t world:
+            SLVec3f wtc = _testScene.camera->updateAndGetWM().translation();
+
+            //combination of rotation and translation:
+            SLMat4f wTc;
+            wTc.setRotation(wRc);
+            wTc.setTranslation(wtc);
+
+            _testScene.camera->om(wTc);
+
+            //ARROW ROTATION CALCULATION:
+            //auto loc = _gps->getLocation();
+            SENSGps::Location loc = {47.14899, 7.23354, 728.4, 1.f};
+
+            //ROTATION OF ENU WRT. ECEF
+            //calculation of ecef to world (scene) rotation matrix
+            //definition of rotation matrix for ECEF to world frame rotation:
+            //world frame (scene) w.r.t. ENU frame
+            double phiRad = loc.latitudeDEG * Utils::DEG2RAD;  //   phi == latitude
+            double lamRad = loc.longitudeDEG * Utils::DEG2RAD; //lambda == longitude
+            double sinPhi = sin(phiRad);
+            double cosPhi = cos(phiRad);
+            double sinLam = sin(lamRad);
+            double cosLam = cos(lamRad);
+
+            SLMat3d enuRecef(-sinLam,
+                             cosLam,
+                             0,
+                             -cosLam * sinPhi,
+                             -sinLam * sinPhi,
+                             cosPhi,
+                             cosLam * cosPhi,
+                             sinLam * cosPhi,
+                             sinPhi);
+
+            //ROTATION OF DIRECTION ARROW WRT. ENU FRAME
+            //area location in ecef
+            //ErlebAR::Area& area = _locations[_locId].areas[_areaId];
+            SLVec3d ecefAREA;
+            //schornstein brügg
+            ecefAREA.lla2ecef({47.12209, 7.25821, 431.8});
+
+            //device location in ecef
+            SLVec3d ecefDEVICE;
+            ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM});
+            //build direction vector from device to area in ecef
+            SLVec3d ecefAD = ecefAREA - ecefDEVICE;
+            //rotation to enu
+            SLVec3d X = enuRecef * ecefAD; //enuAD
+            X.normalize();
+            //build y and z vectors
+            SLVec3d Y;
+            Y.cross(X, {0.0, 0.0, 1.0});
+            Y.normalize();
+            SLVec3d Z;
+            Z.cross(X, Y);
+            Z.normalize();
+            //build rotation matrix
+            // clang-format off
+            SLMat3f enuRp(X.x, Y.x, Z.x,
+                          X.y, Y.y, Z.y,
+                          X.z, Y.z, Z.z);
+            // clang-format on
+
+            //ROTATION OF ARROW WRT. CAMERA
+            SLMat3f cRw = wRc.transposed();
+            SLMat3f cRp = cRw * wRenu * enuRp;
+            //set arrow rotation
+            _testScene.updateArrowRot(cRp);
+        }
+
+        try
+        {
+            SENSFramePtr frame;
+            if (_camera)
+                frame = _camera->latestFrame();
+
+            if (frame)
+                updateVideoImage(*frame.get());
+        }
+        catch (std::exception& e)
+        {
+            _gui.showErrorMsg(e.what());
+        }
+        catch (...)
+        {
+            _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
+        }
+
+        return onPaint();
+    }
+    else
+    {
+        this->scene(&_scene);
+        this->camera(_scene.cameraNode);
+        WAI::TrackingState slamState = WAI::TrackingState_None;
+        try
+        {
+            SENSFramePtr frame;
+            if (_camera)
+                frame = _camera->latestFrame();
+
+            if (frame && _waiSlam)
             {
-                auto    calib        = _camera->calibration();
+                //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+                if (!frame->intrinsics.empty())
+                {
+                    auto    calib        = _camera->calibration();
+                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                                _camera->config().manipWidth,
+                                                                _camera->config().targetWidth);
+                    _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
+                    updateSceneCameraFov();
+                }
+                _waiSlam->update(frame->imgManip);
+
+                bool isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
+                if (isTracking)
+                    _scene.updateCameraPose(_waiSlam->getPose());
+
+                updateTrackingVisualization(isTracking, *frame.get());
+            }
+            else if (frame)
+                updateVideoImage(*frame.get());
+
+            if (_asyncLoader && _asyncLoader->isReady())
+            {
+                Utils::log("AreaTrackingView", "worker done");
+
+                cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+                if (!mapNodeOm.empty())
+                {
+                    SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+                    //std::cout << "slOm: " << slOm.toString() << std::endl;
+                    _scene.mapNode->om(slOm);
+                }
+
                 cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
                                                             _camera->config().manipWidth,
                                                             _camera->config().targetWidth);
-                _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
-                updateSceneCameraFov();
+
+                WAISlamTrackPool::Params params;
+                params.cullRedundantPerc   = 0.95f;
+                params.ensureKFIntegration = false;
+                params.fixOldKfs           = true;
+                params.onlyTracking        = false;
+                params.retainImg           = false;
+                params.serial              = false;
+                params.trackOptFlow        = false;
+
+                _waiSlam = std::make_unique<WAISlamTrackPool>(
+                  scaledCamMat,
+                  _camera->calibration()->distortion(),
+                  _voc,
+                  _initializationExtractor.get(),
+                  _relocalizationExtractor.get(),
+                  _trackingExtractor.get(),
+                  _asyncLoader->moveWaiMap(),
+                  params);
+
+                delete _asyncLoader;
+                _asyncLoader = nullptr;
+                _gui.hideLoading();
             }
-            _waiSlam->update(frame->imgManip);
-  
-            bool isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
-            if (isTracking)
-                _scene.updateCameraPose(_waiSlam->getPose());
-
-            updateTrackingVisualization(isTracking, *frame.get());
         }
-
-        else */
-        if (frame)
-            updateVideoImage(*frame.get());
-
-        if (_asyncLoader && _asyncLoader->isReady())
+        catch (std::exception& e)
         {
-            Utils::log("AreaTrackingView", "worker done");
-
-            cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
-            if (!mapNodeOm.empty())
-            {
-                SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
-                //std::cout << "slOm: " << slOm.toString() << std::endl;
-                _scene.mapNode->om(slOm);
-            }
-
-            cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                                                        _camera->config().manipWidth,
-                                                        _camera->config().targetWidth);
-
-            WAISlamTrackPool::Params params;
-            params.cullRedundantPerc   = 0.95f;
-            params.ensureKFIntegration = false;
-            params.fixOldKfs           = true;
-            params.onlyTracking        = false;
-            params.retainImg           = false;
-            params.serial              = false;
-            params.trackOptFlow        = false;
-
-            _waiSlam = std::make_unique<WAISlamTrackPool>(
-              scaledCamMat,
-              _camera->calibration()->distortion(),
-              _voc,
-              _initializationExtractor.get(),
-              _relocalizationExtractor.get(),
-              _trackingExtractor.get(),
-              _asyncLoader->moveWaiMap(),
-              params);
-
-            delete _asyncLoader;
-            _asyncLoader = nullptr;
-            _gui.hideLoading();
+            _gui.showErrorMsg(e.what());
         }
-    }
-    catch (std::exception& e)
-    {
-        _gui.showErrorMsg(e.what());
-    }
-    catch (...)
-    {
-        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
-    }
+        catch (...)
+        {
+            _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
+        }
 
-    //_userGuidance.update(slamState);
+        _userGuidance.update(slamState);
 
-    return onPaint();
+        return onPaint();
+    }
 }
 
 SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
@@ -403,11 +399,11 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
 
-    if(_userGuidanceMode)
+    if (_userGuidanceMode)
         this->camera(_testScene.camera);
     else
         this->camera(_scene.cameraNode);
-    
+
     updateSceneCameraFov();
 
     //initialize extractors
@@ -584,11 +580,11 @@ void AreaTrackingView::updateVideoImage(SENSFrame& frame)
     //todo: the matrices in the buffer have different sizes.. problem? no! no!
     SENS::extendWithBars(_imgBuffer.outputSlot(), this->viewportWdivH());
 
-    if(_userGuidanceMode)
+    if (_userGuidanceMode)
         _testScene.updateVideoImage(_imgBuffer.outputSlot());
     else
         _scene.updateVideoImage(_imgBuffer.outputSlot());
-    
+
     _imgBuffer.incrementSlot();
 }
 

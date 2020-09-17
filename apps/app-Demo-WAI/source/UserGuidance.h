@@ -63,8 +63,8 @@ private:
 
     std::queue<UserGuidanceInfo*> _queuedInfos;
 
-    bool _marker;
-    bool _trackedOnce;
+    bool _marker = false;
+    bool _trackedOnce = false;
 };
 
 #endif

@@ -5,8 +5,6 @@ UserGuidance::UserGuidance(AreaTrackingGui * gui)
 {
     _gui = gui;
     _lastWAIState = WAI::TrackingState_None;
-    _marker = false;
-    _trackedOnce = false;
     _timer.start();
 
     _alignImgInfo.updateFct = [](float tStart, float tTerminate, AreaTrackingGui* gui, bool &terminate)

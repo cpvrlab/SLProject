@@ -237,7 +237,7 @@ private:
 
     //size with which camera was started last time (needed for a resume call)
     cv::Size _cameraFrameResumeSize;
-    //UserGuidance _userGuidance;
+    UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;
 
@@ -246,7 +246,7 @@ private:
     ErlebAR::LocationId _locId  = ErlebAR::LocationId::NONE;
     ErlebAR::AreaId     _areaId = ErlebAR::AreaId::NONE;
     
-    bool _userGuidanceMode = true;
+    bool _userGuidanceMode = false;
 };
 
 //! Async loader for vocabulary and maps
