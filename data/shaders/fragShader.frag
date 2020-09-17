@@ -11,7 +11,7 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
 	float ambient = 0.3f;
-	vec3 lightPos = vec3(5.0f, 5.0f, 5.0f);
+	vec3 lightPos = vec3(15.0f, 15.0f, 15.0f);
 	
 	 vec3 norm = normalize(fragNormal);
 	 vec3 lightDir = normalize(lightPos - fragPos);

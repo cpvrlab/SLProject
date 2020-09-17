@@ -26,7 +26,7 @@ void main()
     // Set the texture coord. output for interpolated tex. coords.
     v_texCoord = a_texCoord.xy;
    
-    // Set the transformes vertex position   
+    // Set the transformes vertex position
     gl_Position = u_mvpMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

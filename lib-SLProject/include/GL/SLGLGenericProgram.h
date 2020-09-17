@@ -73,13 +73,44 @@ public:
 private:
     SLGLGenericProgramDefault()
       : SLGLGenericProgram(nullptr,
-                           SLGLProgramManager::shaderDir +  "PerVrtBlinn.vert",
+                           SLGLProgramManager::shaderDir + "PerVrtBlinn.vert",
                            SLGLProgramManager::shaderDir + "PerVrtBlinn.frag")
     {
         _name = "DefaultPerVertexProgram";
     };
 
     static SLGLGenericProgramDefault* _instance;
+};
+//-----------------------------------------------------------------------------
+// ! Global default shader program with per vertex color shading
+class SLGLGenericProgramDefaultColorAttrib : public SLGLGenericProgram
+{
+public:
+    static SLGLGenericProgramDefaultColorAttrib* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLGenericProgramDefaultColorAttrib();
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+
+private:
+    SLGLGenericProgramDefaultColorAttrib()
+      : SLGLGenericProgram(nullptr,
+                           SLGLProgramManager::shaderDir + "ColorAttribute.vert",
+                           SLGLProgramManager::shaderDir + "Color.frag")
+    {
+        _name = "ProgramDefaultColorAttrib";
+    };
+
+    static SLGLGenericProgramDefaultColorAttrib* _instance;
 };
 //-----------------------------------------------------------------------------
 // ! Global default shader program with per vertex lighting with textures
@@ -108,7 +139,7 @@ public:
 private:
     SLGLGenericProgramDefaultTex()
       : SLGLGenericProgram(nullptr,
-                           SLGLProgramManager::shaderDir +  "PerVrtBlinnTex.vert",
+                           SLGLProgramManager::shaderDir + "PerVrtBlinnTex.vert",
                            SLGLProgramManager::shaderDir + "PerVrtBlinnTex.frag")
     {
         _name = "DefaultPerVertexProgramTex";
@@ -117,6 +148,40 @@ private:
     static SLGLGenericProgramDefaultTex* _instance;
 };
 //-----------------------------------------------------------------------------
+// ! Global default shader with per pixel lighting with texture and normal mapping
+/*!
+ * This default shader program is dependant from the number of lights in a
+ * scene and must therefore be deallocated at scene destruction.
+ */
+class SLGLGenericProgramDefaultTexNormal : public SLGLGenericProgram
+{
+public:
+    static SLGLGenericProgramDefaultTexNormal* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLGenericProgramDefaultTexNormal();
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
 
+private:
+    SLGLGenericProgramDefaultTexNormal()
+      : SLGLGenericProgram(nullptr,
+                           SLGLProgramManager::shaderDir + "PerPixBlinnNrm.vert",
+                           SLGLProgramManager::shaderDir + "PerPixBlinnNrm.frag")
+    {
+        _name = "DefaultPerPixelProgramTexNormal";
+    };
+
+    static SLGLGenericProgramDefaultTexNormal* _instance;
+};
+//-----------------------------------------------------------------------------
 
 #endif

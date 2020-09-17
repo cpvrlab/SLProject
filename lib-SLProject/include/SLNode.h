@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLNode.h
-//  Author:    Marc Wacker, Marcus Hudritsch
+//  Author:    Marc Wacker, Marcus Hudritsch, Jan Dellsperger
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
@@ -24,7 +24,7 @@ class SLNode;
 class SLAnimation;
 
 //-----------------------------------------------------------------------------
-//! SLVNode typdef for a vector of SLNodes
+//! SLVNode typedef for a vector of SLNodes
 typedef vector<SLNode*> SLVNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
@@ -33,19 +33,21 @@ SLNode::statsRec method.
 */
 struct SLNodeStats
 {
-    SLuint  numNodes;      //!< NO. of children nodes
-    SLuint  numBytes;      //!< NO. of bytes allocated
-    SLuint  numBytesAccel; //!< NO. of bytes in accel. structs
-    SLuint  numGroupNodes; //!< NO. of group nodes
-    SLuint  numLeafNodes;  //!< NO. of leaf nodes
-    SLuint  numMeshes;     //!< NO. of visible shapes in node
-    SLuint  numLights;     //!< NO. of lights in mesh
-    SLuint  numTriangles;  //!< NO. of triangles in mesh
-    SLuint  numLines;      //!< NO. of lines in mesh
-    SLuint  numVoxels;     //!< NO. of voxels
-    SLfloat numVoxEmpty;   //!< NO. of empty voxels
-    SLuint  numVoxMaxTria; //!< Max. no. of triangles per voxel
-    SLuint  numAnimations; //!< NO. of animations
+    SLuint  numNodes;        //!< NO. of children nodes
+    SLuint  numBytes;        //!< NO. of bytes allocated
+    SLuint  numBytesAccel;   //!< NO. of bytes in accel. structs
+    SLuint  numNodesGroup;   //!< NO. of group nodes
+    SLuint  numNodesLeaf;    //!< NO. of leaf nodes
+    SLuint  numNodesOpaque;  //!< NO. of visible opaque nodes
+    SLuint  numNodesBlended; //!< NO. of visible blended nodes
+    SLuint  numMeshes;       //!< NO. of meshes in node
+    SLuint  numLights;       //!< NO. of lights in mesh
+    SLuint  numTriangles;    //!< NO. of triangles in mesh
+    SLuint  numLines;        //!< NO. of lines in mesh
+    SLuint  numVoxels;       //!< NO. of voxels
+    SLfloat numVoxEmpty;     //!< NO. of empty voxels
+    SLuint  numVoxMaxTria;   //!< Max. no. of triangles per voxel
+    SLuint  numAnimations;   //!< NO. of animations
 
     //! Resets all counters to zero
     void clear()
@@ -53,8 +55,8 @@ struct SLNodeStats
         numNodes      = 0;
         numBytes      = 0;
         numBytesAccel = 0;
-        numGroupNodes = 0;
-        numLeafNodes  = 0;
+        numNodesGroup = 0;
+        numNodesLeaf  = 0;
         numMeshes     = 0;
         numLights     = 0;
         numTriangles  = 0;
@@ -68,9 +70,9 @@ struct SLNodeStats
     //! Prints all statistic informations on the std out stream.
     void print() const
     {
-        SLfloat voxelsEmpty = numVoxels ? (SLfloat)numVoxEmpty /
+        SLfloat voxelsEmpty  = numVoxels ? (SLfloat)numVoxEmpty /
                                             (SLfloat)numVoxels * 100.0f
-                                        : 0;
+                                         : 0;
         SLfloat avgTriPerVox = numVoxels ? (SLfloat)numTriangles /
                                              (SLfloat)(numVoxels - numVoxEmpty)
                                          : 0;
@@ -80,8 +82,8 @@ struct SLNodeStats
         SL_LOG("Max. Tria/Voxel: %d", numVoxMaxTria);
         SL_LOG("MB Meshes      : %f", (SLfloat)numBytes / 1000000.0f);
         SL_LOG("MB Accel.      : %f", (SLfloat)numBytesAccel / 1000000.0f);
-        SL_LOG("Group Nodes    : %d", numGroupNodes);
-        SL_LOG("Leaf Nodes     : %d", numLeafNodes);
+        SL_LOG("Group Nodes    : %d", numNodesGroup);
+        SL_LOG("Leaf Nodes     : %d", numNodesLeaf);
         SL_LOG("Meshes         : %d", numMeshes);
         SL_LOG("Triangles      : %d", numTriangles);
         SL_LOG("Lights         : %d\n", numLights);
@@ -92,17 +94,17 @@ struct SLNodeStats
 /*!
  * SLNode is the most important building block of the scene graph.
  * A node can have 0-N children nodes in the vector _children. With child
- * nodes you can build hierarchical structures. A node without meshes can act
+ * nodes you can build hierarchical structures. A node without a mesh can act
  * as parent node to group its children. A node without children only makes
- * sense to hold one or more meshes for visualization. The pointer _parent
- * points to the parent of a child node. \n\n
+ * sense to hold a mesh for visualization. The pointer _parent points to the
+ * parent of a child node. \n\n
  *
- * A node can use 0-N mesh objects in the SLMesh vector _meshes for the
- * rendering of triangled or lined meshes. Meshes are stored in the
- * SLAssetManager::_meshes vector. Multiple nodes can point to the same mesh
- * object. The node is therefore not the owner of the meshes and does not
- * delete them. The nodes meshes are drawn by the methods SLNode::drawMeshes
- * and alternatively by SLNode::drawRec.\n\n
+ * A node can point to a single SLMesh object for the rendering of triangles
+ * lines or points meshes. Meshes are stored in the SLAssetManager::_meshes
+ * vector. Multiple nodes can point to the same mesh object. The node is
+ * therefore not the owner of the meshes and does not delete them. The mesh
+ * is drawn by the methods SLNode::drawMesh and alternatively by
+ * SLNode::drawRec.\n\n
  *
  * A node can be transformed and has therefore a object matrix (_om) for its
  * local transform. All other matrices such as the world matrix (_wm), the
@@ -118,7 +120,7 @@ struct SLNodeStats
  * - TS_Parent: Space relative to our parent's transformation.
  * - TS_Object: Space relative to our current node's origin.
  *
- * A node can implement one of the eventhandlers defined in the inherited
+ * A node can implement one of the event handlers defined in the inherited
  * SLEventHandler interface. There is special node called SLTransformNode
  * that acts as a visual gizmo for editing the transform. See the example
  * in the menu Edit of the SLProject demo app.\n\n
@@ -156,19 +158,10 @@ public:
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
 
     // Mesh methods (see impl. for details)
-    SLint        numMeshes() { return (SLint)_meshes.size(); }
     void         addMesh(SLMesh* mesh);
-    bool         insertMesh(SLMesh* insertM, SLMesh* afterM);
-    void         removeMeshes() { _meshes.clear(); }
+    virtual void drawMesh(SLSceneView* sv);
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
-    bool         removeMesh(const SLstring& name);
-    SLMesh*      findMesh(const SLstring& name,
-                          SLbool          recursive = false);
-    void         setAllMeshMaterials(SLMaterial* mat,
-                                     SLbool      recursive = true);
-    SLbool       containsMesh(const SLMesh* mesh);
-    virtual void drawMeshes(SLSceneView* sv);
 
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }
@@ -288,13 +281,16 @@ public:
     SLAABBox*         aabb() { return &_aabb; }
     SLAnimation*      animation() { return _animation; }
     SLbool            castsShadows() { return _castsShadows; }
-    SLVMesh&          meshes() { return _meshes; }
+    SLMesh*           mesh() { return _mesh; }
     SLVNode&          children() { return _children; }
     const SLSkeleton* skeleton();
     void              updateRec();
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
+    void              updateMeshMat(function<void(SLMaterial* m)> setMat,
+                                    bool                          recursive);
+    void              setMeshMat(SLMaterial* mat, bool recursive);
     bool              isSelected() { return _isSelected; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
@@ -322,9 +318,10 @@ private:
                             SLbool           findRecursive);
 
 protected:
-    SLNode*         _parent;         //!< pointer to the parent node
-    SLVNode         _children;       //!< vector of children nodes
-    SLVMesh         _meshes;         //!< vector of meshes of the node
+    SLNode* _parent;   //!< pointer to the parent node
+    SLVNode _children; //!< vector of children nodes
+    SLMesh* _mesh;     //!< pointer to a single mesh
+
     SLint           _depth;          //!< depth of the node in a scene tree
     SLMat4f         _om;             //!< object matrix for local transforms
     SLMat4f         _initialOM;      //!< the initial om state

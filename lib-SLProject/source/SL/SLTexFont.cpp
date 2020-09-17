@@ -239,7 +239,7 @@ void SLTexFont::create(SLstring fontFilename)
 }
 //-----------------------------------------------------------------------------
 /*! Returns the size (width & height) of the full text in float pixels. If a
-max. width is passed the text is first wrapped into multiple lines. For mulitline
+max. width is passed the text is first wrapped into multiple lines. For multiline
 text the line height is calculate as the font height * lineHeightFactor.
 */
 SLVec2f SLTexFont::calcTextSize(const SLstring& text,
@@ -254,8 +254,8 @@ SLVec2f SLTexFont::calcTextSize(const SLstring& text,
         SLVstring lines = wrapTextToLines(text, maxWidth);
         for (const auto& line : lines)
         {
-            SLVec2f size = calcTextSize(line);
-            if (size.x > maxX) maxX = size.x;
+            SLVec2f sizeLine = calcTextSize(line);
+            if (sizeLine.x > maxX) maxX = sizeLine.x;
         }
         size.x = maxX;
         size.y = (SLfloat)(lines.size() - 1) * (SLfloat)charsHeight * lineHeightFactor;
@@ -341,15 +341,15 @@ SLVstring SLTexFont::wrapTextToLines(SLstring text, // text to wrap
 }
 //-----------------------------------------------------------------------------
 /*! 
-Builds the buffer objects bufP, bufT & bufI with 2 texture mapped triangles per 
+Builds the vertex array object with 2 texture mapped triangles per
 character. The text width < maxWidth the text will be on one line. If it is 
 wider it will be split into multiple lines with a 
 height = font height * lineHeight.
 */
-void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
-                                 const SLstring&  text,     // text
-                                 SLfloat          maxWidth, // max. width for multi-line text
-                                 SLfloat          lineHeight)        // line height factor
+void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,         //!< external vertex array object
+                                 const SLstring&  text,        //!< text to render
+                                 SLfloat          maxWidth,    //!<  max. width for multi-line text
+                                 SLfloat          lineHeight)  //!< line height factor
 {
     SLVstring lines;    // Vector of text lines
     SLVVec2f  sizes;    // Sizes of text lines
@@ -362,7 +362,8 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
 
     // Calculate number of vertices & indices
     if (maxWidth > 0.0f)
-    { // multiple text lines
+    {
+        // multiple text lines
         lines = wrapTextToLines(text, maxWidth);
         for (auto& line : lines)
         {
@@ -373,7 +374,8 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,
         numI = numP * 2 * 3;
     }
     else
-    { // single text line
+    {
+        // single text line
         lines.push_back(text);
         numP = text.length() * 4;
         numI = text.length() * 2 * 3;

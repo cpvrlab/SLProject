@@ -21,6 +21,7 @@
 *.log
 *.tlog
 *.lnk
+*.spv
 *.xcuserstate
 *~
 

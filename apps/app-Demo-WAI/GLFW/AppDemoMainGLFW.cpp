@@ -124,6 +124,7 @@ SLKey mapKeyToSLKey(SLint key)
         case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
         case GLFW_KEY_KP_ADD: return K_NPAdd;
         case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
+        case GLFW_KEY_UNKNOWN: return K_none;
     }
     return (SLKey)key;
 }

@@ -161,6 +161,7 @@ SLKey mapKeyToSLKey(SLint key)
         case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
         case GLFW_KEY_KP_ADD: return K_NPAdd;
         case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
+        case GLFW_KEY_UNKNOWN: return K_none;
         default: break;
     }
     return (SLKey)key;
@@ -531,8 +532,7 @@ void initSL(SLVstring& cmdLineArgs)
     //setup platform dependent data path
     SLApplication::calibFilePath = configDir;
     SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),
-                                            SLApplication::calibFilePath); // for calibrations made
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), SLApplication::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,

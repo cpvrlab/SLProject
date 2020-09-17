@@ -130,6 +130,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNodeMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptix.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixAccelerationStructure.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
@@ -381,6 +382,8 @@ target_include_directories(${target}
         ${assimp_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/externals/nlohmann
+        ${SL_PROJECT_ROOT}/externals/eigen
+        ${SL_PROJECT_ROOT}/externals/libigl/include
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE

@@ -9,7 +9,6 @@
 //#############################################################################
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
@@ -19,6 +18,9 @@
 #include <SLMesh.h>
 #include <SLAssetManager.h>
 #include <Instrumentor.h>
+#include <igl/remove_duplicate_vertices.h>
+#include <igl/per_face_normals.h>
+#include <igl/unique_edge_map.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -46,6 +48,8 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     _accelStruct          = nullptr; // no initial acceleration structure
     _accelStructOutOfDate = true;
     _isSelected           = false;
+    _edgeAngleDEG         = 30.0f;
+    _vertexPosEpsilon     = 0.001f;
 
     // Add this mesh to the global resource vector for deallocation
     if (assetMgr)
@@ -80,6 +84,8 @@ void SLMesh::deleteData()
     I16.clear();
     I32.clear();
     IS32.clear();
+    IE16.clear();
+    IE32.clear();
 
     _jointMatrices.clear();
     skinnedP.clear();
@@ -268,20 +274,16 @@ void SLMesh::init(SLNode* node)
 
     if (N.empty()) calcNormals();
 
-    // Set default materials if no materials are asigned
+    // Set default materials if no materials are assigned
     // If colors are available use diffuse color attribute shader
     // otherwise use the default gray material
     if (!mat())
     {
-        //if (!C.empty())
-        //    mat(SLMaterialDiffuseAttribute::instance());
-        //else
+        if (!C.empty())
+            mat(SLMaterialDefaultColorAttribute::instance());
+        else
             mat(SLMaterialDefaultGray::instance());
     }
-
-    // set transparent flag of the node if mesh contains alpha material
-    if (!node->aabb()->hasAlpha() && mat()->hasAlpha())
-        node->aabb()->hasAlpha(true);
 
     // build tangents for bump mapping
     if (mat()->needsTangents() && !Tc.empty() && T.empty())
@@ -318,7 +320,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
         return;
 
     if (!_vao.vaoID())
-        generateVAO();
+        generateVAO(_vao);
 
     // Now use the depth material
     SLGLProgram* sp    = depthMat->program();
@@ -395,9 +397,6 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     bool noFaceCulling = sv->drawBit(SL_DB_CULLOFF) || node->drawBit(SL_DB_CULLOFF);
     stateGL->cullFace(!noFaceCulling);
 
-    // check if texture exists
-    //bool useTexture = Tc.size() && !sv->drawBit(SL_DB_TEXOFF) && !node->drawBit(SL_DB_TEXOFF);
-
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
         stateGL->polygonOffset(true, 1.0f, 1.0f);
@@ -407,7 +406,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ///////////////////////////////////////
 
     if (!_vao.vaoID())
-        generateVAO();
+        generateVAO(_vao);
 
     /////////////////////////////
     // 3) Apply Uniform Variables
@@ -456,10 +455,24 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (_primitive == PT_points)
-        _vao.drawArrayAs(PT_points);
+    if (sv->drawBit(SL_DB_ONLYEDGES) && (!IE32.empty() || !IE16.empty()))
+        _vao.drawEdges(SLCol4f::WHITE, 3.0f);
     else
-        _vao.drawElementsAs(primitiveType);
+    {
+        if (_primitive == PT_points)
+            _vao.drawArrayAs(PT_points);
+        else
+        {
+            _vao.drawElementsAs(primitiveType);
+
+            if (sv->drawBit(SL_DB_WITHEDGES) && (!IE32.empty() || !IE16.empty()))
+            {
+                stateGL->polygonOffset(true, 1.0f, 1.0f);
+                _vao.drawEdges(SLCol4f::WHITE, 3.0f);
+                stateGL->polygonOffset(false);
+            }
+        }
+    }
 
     //////////////////////////////////////
     // 5) Draw optional normals & tangents
@@ -681,19 +694,125 @@ void SLMesh::drawSelectedVertices()
 }
 //-----------------------------------------------------------------------------
 //! Generate the Vertex Array Object for a specific shader program
-void SLMesh::generateVAO()
+void SLMesh::generateVAO(SLGLVertexArray& vao)
 {
-    _vao.setAttrib(AT_position, AT_position, _finalP);
-    if (!N.empty()) _vao.setAttrib(AT_normal, AT_normal, _finalN);
-    if (!Tc.empty()) _vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
-    if (!C.empty()) _vao.setAttrib(AT_color, AT_color, &C);
-    if (!T.empty()) _vao.setAttrib(AT_tangent, AT_tangent, &T);
-    if (!I16.empty()) _vao.setIndices(&I16);
-    if (!I32.empty()) _vao.setIndices(&I32);
+    vao.setAttrib(AT_position, AT_position, _finalP);
+    if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
+    if (!Tc.empty()) vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
+    if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
+    if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
 
-    _vao.generate((SLuint)P.size(), !Ji.empty() ? BU_stream : BU_static, Ji.empty());
+    if (!I16.empty() || !I32.empty())
+    {
+        // for triangle meshes compute hard edges and store indices behind the ones of the triangles
+        if (_primitive == PT_triangles)
+        {
+            IE16.clear();
+            IE32.clear();
+
+            // compute hard edges with libigl
+            computeHardEdgesIndices(_edgeAngleDEG, _vertexPosEpsilon);
+
+            if (!I16.empty()) vao.setIndices(&I16, &IE16);
+            if (!I32.empty()) vao.setIndices(&I32, &IE32);
+        }
+        else
+        {
+            // for points there are no indices at all
+            if (!I16.empty()) vao.setIndices(&I16);
+            if (!I32.empty()) vao.setIndices(&I32);
+        }
+    }
+
+    vao.generate((SLuint)P.size(),
+                 !Ji.empty() ? BU_stream : BU_static,
+                 Ji.empty());
 }
 //-----------------------------------------------------------------------------
+//! computes the hard edges and stores the vertex indexes separately
+void SLMesh::computeHardEdgesIndices(float angleDEG,
+                                     float epsilon)
+{
+    //Dihedral angle considered to sharp
+    float angleRAD = angleDEG * Utils::DEG2RAD;
+
+    if (_primitive != PT_triangles)
+        return;
+
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    Eigen::MatrixXd newV;  // new vertices after duplicate removal
+    Eigen::MatrixXi newF;  // new faces after duplicate removal
+    Eigen::MatrixXi edges; // all edges
+    Eigen::MatrixXi edgeMap;
+    Eigen::MatrixXi uniqueEdges;
+    Eigen::MatrixXd faceN;
+    Eigen::VectorXi SVI; // new to old index mapping
+    Eigen::VectorXi SVJ; // old to new index mapping
+
+    std::vector<std::vector<int>> uE2E;
+
+    // fill input matrices
+    V.resize(_finalP->size(), 3);
+    for (int i = 0; i < _finalP->size(); i++)
+        V.row(i) << finalP(i).x, finalP(i).y, finalP(i).z;
+
+    if (!I16.empty())
+    {
+        F.resize(I16.size() / 3, 3);
+        for (int j = 0, i = 0; i < I16.size(); j++, i += 3)
+            F.row(j) << I16[i], I16[i + 1], I16[i + 2];
+    }
+    if (!I32.empty())
+    {
+        F.resize(I32.size() / 3, 3);
+        for (int j = 0, i = 0; i < I32.size(); j++, i += 3)
+            F.row(j) << I32[i], I32[i + 1], I32[i + 2];
+    }
+
+    //Extract sharp edges
+    igl::remove_duplicate_vertices(V, F, epsilon, newV, SVI, SVJ, newF);
+    igl::per_face_normals(newV, newF, faceN);
+    igl::unique_edge_map(newF, edges, uniqueEdges, edgeMap, uE2E);
+
+    for (int u = 0; u < uE2E.size(); u++)
+    {
+        bool sharp = false;
+        if (uE2E[u].size() == 1) // Edges at the border (with only one triangle)
+            sharp = true;
+
+        for (int i = 0; i < uE2E[u].size(); i++)
+        {
+            for (int j = i + 1; j < uE2E[u].size(); j++)
+            {
+                const int                   ei  = uE2E[u][i];
+                const int                   fi  = ei % newF.rows();
+                const int                   ej  = uE2E[u][j];
+                const int                   fj  = ej % newF.rows();
+                Eigen::Matrix<double, 1, 3> ni  = faceN.row(fi);
+                Eigen::Matrix<double, 1, 3> nj  = faceN.row(fj);
+                Eigen::Matrix<double, 1, 3> ev  = (newV.row(edges(ei, 1)) - newV.row(edges(ei, 0))).normalized();
+                float                       dij = M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
+                if (std::abs(dij - M_PI) > angleRAD)
+                    sharp = true;
+            }
+        }
+
+        if (sharp)
+        {
+            if (!I16.empty())
+            {
+                IE16.push_back(SVI[uniqueEdges(u, 0)]);
+                IE16.push_back(SVI[uniqueEdges(u, 1)]);
+            }
+            else if (!I32.empty())
+            {
+                IE32.push_back(SVI[uniqueEdges(u, 0)]);
+                IE32.push_back(SVI[uniqueEdges(u, 1)]);
+            }
+        }
+    }
+}
 /*!
 SLMesh::hit does the ray-mesh intersection test. If no acceleration
 structure is defined all triangles are tested in a brute force manner.

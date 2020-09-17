@@ -278,7 +278,12 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
     if (!_program)
     {
         if (!_textures.empty())
-            program(SLGLGenericProgramDefaultTex::instance());
+        {
+            if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
+                program(SLGLGenericProgramDefaultTexNormal::instance());
+            else
+                program(SLGLGenericProgramDefaultTex::instance());
+        }
         else
             program(SLGLGenericProgramDefault::instance());
     }
@@ -292,11 +297,8 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
         _textures.push_back(_errorTexture);
     }
 
-    // Determine use of shaders & textures
-    SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);
-
     // Enable or disable texturing
-    if (useTexture && !_textures.empty())
+    if (!_textures.empty())
     {
         for (SLulong i = 0; i < _textures.size(); ++i)
             _textures[i]->bindActive((SLint)i);

@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLNode.cpp
-//  Author:    Marc Wacker, Marcus Hudritsch
+//  Author:    Marc Wacker, Marcus Hudritsch, Jan Dellsperger
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
@@ -8,18 +8,15 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
 #include <SLNode.h>
+#include <SLText.h>
 #include <SLSceneView.h>
 #include <Instrumentor.h>
-
-#include <utility>
 
 unsigned int SLNode::instanceIndex = 0;
 
@@ -44,6 +41,7 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
+    _mesh           = nullptr;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -51,6 +49,8 @@ Constructor with a mesh pointer and name.
 */
 SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 {
+    assert(mesh && "No mesh passed");
+
     _parent = nullptr;
     _depth  = 1;
     _om.identity();
@@ -69,7 +69,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 //-----------------------------------------------------------------------------
 /*!
 Destructor deletes all children recursively and the animation.
-The meshes are not deleted. They are deleted at the end by the SLScene mesh
+The mesh is not deleted. Meshes get deleted at the end by the SLAssetManager
 vector. The entire scenegraph is deleted by deleting the SLScene::_root3D node.
 Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */
@@ -89,18 +89,15 @@ Simply adds a mesh to its mesh pointer vector of the node.
 */
 void SLNode::addMesh(SLMesh* mesh)
 {
-    if (!mesh)
-        return;
-
-    if (std::find(_meshes.begin(), _meshes.end(), mesh) != _meshes.end())
-        return;
+    assert(mesh && "No mesh passed");
 
     // Take over mesh name if node name is default name
     if (_name == "Node" && mesh->name() != "Mesh")
         _name = mesh->name() + "-Node";
 
+    _mesh = mesh;
+
     _isAABBUpToDate = false;
-    _meshes.push_back(mesh);
     mesh->init(this);
 }
 //-----------------------------------------------------------------------------
@@ -108,191 +105,33 @@ void SLNode::addMesh(SLMesh* mesh)
 Inserts a mesh pointer in the mesh pointer vector after the
 specified afterM pointer.
 */
-bool SLNode::insertMesh(SLMesh* insertM, SLMesh* afterM)
+//! Draws the single mesh
+void SLNode::drawMesh(SLSceneView* sv)
 {
-    assert(insertM && afterM);
-    assert(insertM != afterM);
-
-    auto found = std::find(_meshes.begin(), _meshes.end(), afterM);
-    if (found != _meshes.end())
-    {
-        _meshes.insert(found, insertM);
-        insertM->init(this);
-
-        // Take over mesh name if node name is default name
-        if (_name == "Node" && insertM->name() != "Mesh")
-            _name = insertM->name() + "-Node";
-
-        return true;
-    }
-    return false;
+    if (_mesh)
+        _mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
-/*!
-Removes the last mesh.
-*/
+//! Returns true if a mesh was assigned and set it to nullptr
 bool SLNode::removeMesh()
 {
-    if (!_meshes.empty())
+    if (_mesh)
     {
-        _meshes.pop_back();
+        _mesh = nullptr;
         return true;
     }
     return false;
 }
 //-----------------------------------------------------------------------------
-/*!
-Removes the specified mesh from the vector.
-*/
+//! Returns true if the passed mesh was assigned and sets it to nullptr
 bool SLNode::removeMesh(SLMesh* mesh)
 {
-    assert(mesh);
-    for (SLulong i = 0; i < _meshes.size(); ++i)
+    if (_mesh == mesh && mesh != nullptr)
     {
-        if (_meshes[i] == mesh)
-        {
-            _meshes.erase(_meshes.begin() + i);
-            return true;
-        }
+        _mesh = nullptr;
+        return true;
     }
     return false;
-}
-//-----------------------------------------------------------------------------
-/*!
-Removes the specified mesh by name from the vector.
-*/
-bool SLNode::removeMesh(const SLstring& name)
-{
-    assert(!name.empty());
-    SLMesh* found = findMesh(name);
-    if (found)
-        return removeMesh(found);
-    return false;
-}
-//-----------------------------------------------------------------------------
-/*!
-Returns true if the node contains the provided mesh. Removes and deletes the
-mesh. The mesh is also removed from scene
-*/
-// todo: use removeMesh and delete it outside
-//SLbool SLNode::deleteMesh(SLMesh* mesh)
-//{
-//    assert(mesh);
-//    for (SLulong i = 0; i < _meshes.size(); ++i)
-//    {
-//        if (_meshes[i] == mesh)
-//        {
-//            _meshes.erase(_meshes.begin() + i);
-//
-//            //also delete mesh from scene
-//            SLApplication::scene->removeMesh(mesh);
-//            delete mesh;
-//            mesh = nullptr;
-//
-//            return true;
-//        }
-//    }
-//    return false;
-//}
-//-----------------------------------------------------------------------------
-/*! Finds a mesh by name and returns its pointer. Optionally you can search
-the node hierarchy recursively.
-*/
-SLMesh* SLNode::findMesh(const SLstring& name, SLbool recursive)
-{
-    assert(!name.empty());
-    for (auto* mesh : _meshes)
-        if (mesh->name() == name) return mesh;
-
-    if (recursive && !children().empty())
-    {
-        for (auto* child : _children)
-        {
-            SLMesh* foundMesh = child->findMesh(name, true);
-            if (foundMesh)
-                return foundMesh;
-        }
-    }
-
-    return nullptr;
-}
-//-----------------------------------------------------------------------------
-/*! SLNode::setAllMeshMaterials set on all meshes of the node to the passed
-material. If recursive is true the material is also applied to all child node
-and their meshes.
-*/
-void SLNode::setAllMeshMaterials(SLMaterial* mat, SLbool recursive)
-{
-    assert(mat != nullptr);
-
-    // Reset the nodes alpha flag
-    _aabb.hasAlpha(false);
-
-    for (auto* mesh : _meshes)
-    {
-        mesh->mat(mat);
-
-        // set transparent flag of the node if mesh contains alpha material
-        if (!_aabb.hasAlpha() && mat->hasAlpha())
-            _aabb.hasAlpha(true);
-    }
-
-    if (recursive && !children().empty())
-        for (auto* child : _children)
-            child->setAllMeshMaterials(mat, recursive);
-}
-//-----------------------------------------------------------------------------
-/*!
-Returns true if the node contains the provided mesh
-*/
-SLbool SLNode::containsMesh(const SLMesh* mesh)
-{
-    for (auto* m : _meshes)
-        if (m == mesh)
-            return true;
-    return false;
-}
-//-----------------------------------------------------------------------------
-/*!
-DrawMeshes draws the meshes by just calling the SLMesh::draw method.
-See also the SLNode::drawRec method for more information. There are two
-possibilities to guarantee that the meshes of a node are transformed correctly:
-<ul>
-<li>
-<b>Flat drawing</b>: Before the SLNode::drawMeshes is called we must multiply the
-nodes world matrix (SLNode::_wm) to the OpenGL modelview matrix
-(SLGLState::modelViewMatrix). The flat drawing method is slightly faster and
-the order of drawing doesn't matter anymore. This method is used within
-SLSceneView::draw3D to draw first a list of all opaque meshes and the a list
-of all meshes with a transparent material.
-</li>
-<li>
-<b>Recursive drawing</b>: By calling SLNode::drawRec all meshes are drawn with
-SLNode::drawMeshes with only the object matrix applied before drawing. After
-the meshes the drawRec method is called on each children node. By pushing
-the OpenGL modelview matrix before on a stack this method is also referred as
-stack drawing.
-</li>
-<li>
-<b>Filter meshes for blended or opaque pass</b>:
-SLSceneView::draw3DGLAll renders the opaque nodes before blended nodes and
-the blended nodes have to be drawn from back to front.
-During the cull traversal all nodes with alpha materials are flagged and
-added the to the vector _alphaNodes. The visibleNodes vector contains all
-visible opaque and transparent nodes because a node with alpha meshes still
-can have nodes with opaque material. To avoid double drawing the
-SLNode::drawMeshes draws in the blended pass only the alpha meshes and in
-the opaque pass only the opaque meshes.
-</li>
-</ul>
-*/
-void SLNode::drawMeshes(SLSceneView* sv)
-{
-    SLGLState* stateGL = SLGLState::instance();
-    for (auto* mesh : _meshes)
-        if ((stateGL->blend() && mesh->mat()->hasAlpha()) ||
-            (!stateGL->blend() && !mesh->mat()->hasAlpha()))
-            mesh->draw(sv, this);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -398,7 +237,7 @@ SLNode::findChildren(const SLMesh* mesh,
 }
 //-----------------------------------------------------------------------------
 /*!
-Helper function of findChildren for meshes
+Helper function of findChildren for the passed mesh pointer
 */
 void SLNode::findChildrenHelper(const SLMesh*    mesh,
                                 vector<SLNode*>& list,
@@ -406,7 +245,7 @@ void SLNode::findChildrenHelper(const SLMesh*    mesh,
 {
     for (auto* child : _children)
     {
-        if (child->containsMesh(mesh))
+        if (child->_mesh == mesh)
             list.push_back(child);
         if (findRecursive)
             child->findChildrenHelper(mesh, list, findRecursive);
@@ -427,7 +266,7 @@ SLNode::findChildren(const SLuint drawbit,
 }
 //-----------------------------------------------------------------------------
 /*!
-Helper function of findChildren for meshes
+Helper function of findChildren for passed drawing bit
 */
 void SLNode::findChildrenHelper(const SLuint     drawbit,
                                 vector<SLNode*>& list,
@@ -448,8 +287,10 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
 Does the view frustum culling by checking whether the AABB is inside the 3D
 cameras view frustum. The check is done in world space. If a AABB is visible
 the nodes children are checked recursively.
-If a node containes meshes with alpha blended materials it is added to the
-_blendedNodes vector. See also SLSceneView::draw3DGLAll for more details.
+If a node is visible its mesh material is added to the
+SLSceneview::_visibleMaterials3D set and the node to the
+SLMaterials::nodesVisible3D vector.
+See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
 {
@@ -471,25 +312,31 @@ void SLNode::cull3DRec(SLSceneView* sv)
             child->cull3DRec(sv);
 
         // TODO(dgj1): dont leave this like so!! very bad way of checking
-        if (!this->drawBit(SL_DB_OVERDRAW))
-        {
-            // for leaf nodes add them to the blended vector
-            if (_aabb.hasAlpha())
-                sv->nodesBlended()->push_back(this);
-
-            // Add all nodes to the opaque list
-            // A node that has alpha meshes still can have opaque meshes
-            sv->nodesVisible()->push_back(this);
-        }
+        if (this->drawBit(SL_DB_OVERDRAW))
+            sv->nodesOverdrawn().push_back(this);
         else
         {
-            sv->nodesOverdrawn()->push_back(this);
+            // All nodes with meshes get rendered sorted by their material
+            if (this->mesh())
+            {
+                sv->visibleMaterials3D().insert(this->mesh()->mat());
+                this->mesh()->mat()->nodesVisible3D().push_back(this);
+            }
+            // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
+            else if (typeid(*this) == typeid(SLCamera) ||
+                     typeid(*this) == typeid(SLKeyframeCamera))
+                sv->nodesOpaque3D().push_back(this);
+            else if (typeid(*this) == typeid(SLText))
+                sv->nodesBlended3D().push_back(this);
         }
     }
 }
 //-----------------------------------------------------------------------------
 /*!
-Adds all 2D Nodes to the visible nodes vector
+Does the 2D frustum culling. If a node is visible its mesh material is added
+to the SLSceneview::_visibleMaterials2D set and the node to the
+SLMaterials::nodesVisible2D vector.
+See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull2DRec(SLSceneView* sv)
 {
@@ -501,9 +348,14 @@ void SLNode::cull2DRec(SLSceneView* sv)
     for (auto* child : _children)
         child->cull2DRec(sv);
 
-    // Add all nodes to the opaque list
-    // A node that has alpha meshes still can have opaque meshes
-    sv->nodesVisible2D()->push_back(this);
+    // Add all nodes to the opaque 2D vector
+    if (this->mesh())
+    {
+        sv->visibleMaterials2D().insert(this->mesh()->mat());
+        this->mesh()->mat()->nodesVisible2D().push_back(this);
+    }
+    else if (typeid(*this) == typeid(SLText))
+        sv->nodesBlended2D().push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -528,9 +380,9 @@ void SLNode::drawRec(SLSceneView* sv)
     stateGL->modelViewMatrix.multiply(_om.m());
     stateGL->buildInverseAndNormalMatrix();
 
-    ///////////////
-    drawMeshes(sv);
-    ///////////////
+    /////////////
+    drawMesh(sv);
+    /////////////
 
     for (auto* child : _children)
         child->drawRec(sv);
@@ -550,7 +402,7 @@ void SLNode::drawRec(SLSceneView* sv)
         // Draw AABB of all other shapes only
         if (showBBOX && !showSELECT)
         {
-            if (!_meshes.empty())
+            if (_mesh)
                 _aabb.drawWS(SLCol3f(1, 0, 0));
             else
                 _aabb.drawWS(SLCol3f(1, 0, 1));
@@ -579,16 +431,17 @@ void SLNode::statsRec(SLNodeStats& stats)
     stats.numNodes++;
 
     if (_children.empty())
-        stats.numLeafNodes++;
+        stats.numNodesLeaf++;
     else
-        stats.numGroupNodes++;
+        stats.numNodesGroup++;
 
     if (typeid(*this) == typeid(SLLightSpot)) stats.numLights++;
     if (typeid(*this) == typeid(SLLightRect)) stats.numLights++;
     if (typeid(*this) == typeid(SLLightDirect)) stats.numLights++;
 
-    for (auto* mesh : _meshes)
-        mesh->addStats(stats);
+    if (_mesh)
+        _mesh->addStats(stats);
+
     for (auto* child : _children)
         child->statsRec(stats);
 }
@@ -618,7 +471,7 @@ bool SLNode::hitRec(SLRay* ray)
     SLbool meshWasHit = false;
 
     // Transform ray to object space for non-groups
-    if (_meshes.empty())
+    if (_mesh == nullptr)
     {
         // Special selection for cameras
         if (dynamic_cast<SLCamera*>(this) && ray->sv->camera() != this)
@@ -639,13 +492,10 @@ bool SLNode::hitRec(SLRay* ray)
         ray->setDirOS(_wmI.mat3() * ray->dir);
 
         // test all meshes
-        for (auto* mesh : _meshes)
-        {
-            if (mesh->hit(ray, this) && !meshWasHit)
-                meshWasHit = true;
-            if (ray->isShaded())
-                return true;
-        }
+        if (_mesh->hit(ray, this) && !meshWasHit)
+            meshWasHit = true;
+        if (ray->isShaded())
+            return true;
     }
 
     // Test children nodes
@@ -679,8 +529,9 @@ SLNode* SLNode::copyRec()
     else
         copy->_animation = nullptr;
 
-    for (auto* mesh : _meshes)
-        copy->addMesh(mesh);
+    if (_mesh)
+        copy->addMesh(_mesh);
+
     for (auto* child : _children)
         copy->addChild(child->copyRec());
 
@@ -836,7 +687,7 @@ SLNode::updateAABBRec()
         return _aabb;
 
     // empty the AABB (= max negative AABB)
-    if (!_meshes.empty() || !_children.empty())
+    if (_mesh || !_children.empty())
     {
         _aabb.minWS(SLVec3f(FLT_MAX, FLT_MAX, FLT_MAX));
         _aabb.maxWS(SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX));
@@ -848,10 +699,10 @@ SLNode::updateAABBRec()
     }
 
     // Build or updateRec AABB of meshes & merge them to the nodes aabb in WS
-    for (auto* mesh : _meshes)
+    if (_mesh)
     {
         SLAABBox aabbMesh;
-        mesh->buildAABB(aabbMesh, updateAndGetWM());
+        _mesh->buildAABB(aabbMesh, updateAndGetWM());
         _aabb.mergeWS(aabbMesh);
     }
 
@@ -889,19 +740,13 @@ void SLNode::dumpRec()
     cout << "Node: " << _name << endl;
 
     // dump meshes of node
-    if (!_meshes.empty())
-    {
-        for (auto* mesh : _meshes)
-        {
-            for (SLint i = 0; i < _depth; ++i)
-                cout << "   ";
-            cout << "- Mesh: " << mesh->name();
-            cout << ", " << mesh->numI() * 3 << " tri";
-            if (mesh->mat())
-                cout << ", Mat: " << mesh->mat()->name();
-            cout << endl;
-        }
-    }
+    for (SLint i = 0; i < _depth; ++i)
+        cout << "   ";
+    cout << "- Mesh: " << _mesh->name();
+    cout << ", " << _mesh->numI() * 3 << " tri";
+    if (_mesh->mat())
+        cout << ", Mat: " << _mesh->mat()->name();
+    cout << endl;
 
     // dump children nodes
     for (auto* child : _children)
@@ -926,8 +771,7 @@ void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
     for (auto* child : _children)
         child->setPrimitiveTypeRec(primitiveType);
 
-    for (auto* mesh : _meshes)
-        mesh->primitive(primitiveType);
+    _mesh->primitive(primitiveType);
 }
 //-----------------------------------------------------------------------------
 
@@ -1214,9 +1058,8 @@ void SLNode::resetToInitialState()
 const SLSkeleton*
 SLNode::skeleton()
 {
-    for (auto* mesh : _meshes)
-        if (mesh->skeleton())
-            return mesh->skeleton();
+    if (_mesh && _mesh->skeleton())
+        return _mesh->skeleton();
     return nullptr;
 }
 //-----------------------------------------------------------------------------
@@ -1236,14 +1079,12 @@ void SLNode::updateRec()
 bool SLNode::updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes)
 {
     bool hasChanges = false;
-    for (auto* mesh : _meshes)
+
+    // Do software skinning on changed skeleton
+    if (_mesh && _mesh->skeleton() && _mesh->skeleton()->changed())
     {
-        // Do software skinning on all changed skeletons
-        if (mesh->skeleton() && mesh->skeleton()->changed())
-        {
-            mesh->transformSkin(cbInformNodes);
-            hasChanges = true;
-        }
+        _mesh->transformSkin(cbInformNodes);
+        hasChanges = true;
     }
 
     for (auto* child : _children)
@@ -1256,14 +1097,33 @@ void SLNode::updateMeshAccelStructs()
 {
     PROFILE_FUNCTION();
 
-    for (auto* mesh : _meshes)
-    {
-        // updateRec any out of date acceleration structure for RT or if they're being rendered.
-        mesh->updateAccelStruct();
-    }
+    if (_mesh)
+        _mesh->updateAccelStruct();
 
     for (auto* child : _children)
         child->updateMeshAccelStructs();
+}
+//-----------------------------------------------------------------------------
+//! Updates the mesh material recursively with a material lambda
+void SLNode::updateMeshMat(function<void(SLMaterial* m)> setMat, bool recursive)
+{
+    if (_mesh && _mesh->mat())
+        setMat(_mesh->mat());
+
+    if (recursive)
+        for (auto* child : _children)
+            child->updateMeshMat(setMat, recursive);
+}
+//-----------------------------------------------------------------------------
+//! Set the mesh material recursively
+void SLNode::setMeshMat(SLMaterial* mat, bool recursive)
+{
+    if (_mesh)
+        _mesh->mat(mat);
+
+    if (recursive)
+        for (auto* child : _children)
+            child->setMeshMat(mat, recursive);
 }
 //-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX

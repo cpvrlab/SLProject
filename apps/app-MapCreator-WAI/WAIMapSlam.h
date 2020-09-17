@@ -51,7 +51,7 @@ public:
     virtual void updatePose2(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
     virtual bool update2(cv::Mat& imageGray);
-    virtual void resume(){};
+    virtual void resume(){_localMapping->RequestContinue();};
 
     virtual bool isTracking();
     virtual bool hasStateIdle() { return _state == WAI::TrackingState_Idle; };
