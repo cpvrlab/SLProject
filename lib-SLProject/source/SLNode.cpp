@@ -316,13 +316,18 @@ void SLNode::cull3DRec(SLSceneView* sv)
             sv->nodesOverdrawn().push_back(this);
         else
         {
+            // All nodes with meshes get rendered sorted by their material
             if (this->mesh())
             {
                 sv->visibleMaterials3D().insert(this->mesh()->mat());
                 this->mesh()->mat()->nodesVisible3D().push_back(this);
             }
+            // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
+            else if (typeid(*this) == typeid(SLCamera) ||
+                     typeid(*this) == typeid(SLKeyframeCamera))
+                sv->nodesOpaque3D().push_back(this);
             else if (typeid(*this) == typeid(SLText))
-                sv->nodesText3D().push_back(this);
+                sv->nodesBlended3D().push_back(this);
         }
     }
 }
@@ -350,7 +355,7 @@ void SLNode::cull2DRec(SLSceneView* sv)
         this->mesh()->mat()->nodesVisible2D().push_back(this);
     }
     else if (typeid(*this) == typeid(SLText))
-        sv->nodesText2D().push_back(this);
+        sv->nodesBlended2D().push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!

@@ -930,7 +930,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, S
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, AT_position, &P);
         _vaoSprite.setAttrib(AT_texCoord, AT_texCoord, &T);
-        _vaoSprite.setIndices(&I);
+        _vaoSprite.setIndices(&I, nullptr);
         _vaoSprite.generate(4);
     }
 

@@ -149,6 +149,7 @@ public:
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
     void         generateVAO(SLGLVertexArray& vao);
+    void         computeHardEdgesIndices(float angleRAD, float epsilon);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();
 
@@ -198,6 +199,9 @@ public:
     SLVuint   I32;  //!< Vector of vertex indices 32 bit
     SLVuint   IS32; //!< Vector of rectangle selected vertex indices 32 bit
 
+    SLVushort IE16; //!< Vector of hard edges vertex indices 16 bit
+    SLVuint   IE32; //!< Vector of hard edges vertex indices 32 bit
+
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
 
@@ -209,14 +213,16 @@ private:
     void drawSelectedVertices();
 
 protected:
-    SLGLPrimitiveType  _primitive;  //!< Primitive type (default triangles)
-    SLMaterial*        _mat;        //!< Pointer to the inside material
-    SLMaterial*        _matOut;     //!< Pointer to the outside material
-    SLGLVertexArray    _vao;        //!< OpenGL Vertex Array Object for drawing
-    SLGLVertexArrayExt _vaoN;       //!< OpenGL VAO for optional normal drawing
-    SLGLVertexArrayExt _vaoT;       //!< OpenGL VAO for optional tangent drawing
-    SLGLVertexArrayExt _vaoS;       //!< OpenGL VAO for optional selection drawing
-    SLbool             _isSelected; //!< flag if mesh is partially of fully selected
+    SLGLPrimitiveType  _primitive;        //!< Primitive type (default triangles)
+    SLMaterial*        _mat;              //!< Pointer to the inside material
+    SLMaterial*        _matOut;           //!< Pointer to the outside material
+    SLGLVertexArray    _vao;              //!< OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN;             //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT;             //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS;             //!< OpenGL VAO for optional selection drawing
+    SLbool             _isSelected;       //!< flag if mesh is partially of fully selected
+    SLfloat            _edgeAngleDEG;     //!< edge crease angle in degrees between face normals (30 deg. default)
+    SLfloat            _vertexPosEpsilon; //!< vertex position epsilon
 
 #ifdef SL_HAS_OPTIX
     SLCudaBuffer<SLVec3f>  _vertexBuffer;

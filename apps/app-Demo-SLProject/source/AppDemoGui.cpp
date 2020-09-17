@@ -9,8 +9,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <AppDemoGui.h>
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
@@ -21,7 +19,6 @@
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
-#include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -1794,6 +1791,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
                         selN->drawBits()->toggle(SL_DB_MESHWIRED);
 
+                    if (ImGui::MenuItem("With hard edges", nullptr, selN->drawBits()->get(SL_DB_WITHEDGES)))
+                        selN->drawBits()->toggle(SL_DB_WITHEDGES);
+
+                    if (ImGui::MenuItem("Only hard edges", nullptr, selN->drawBits()->get(SL_DB_ONLYEDGES)))
+                        selN->drawBits()->toggle(SL_DB_ONLYEDGES);
+
                     if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
                         selN->drawBits()->toggle(SL_DB_NORMALS);
 
@@ -1871,6 +1874,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Mesh Wired", "M", sv->drawBits()->get(SL_DB_MESHWIRED)))
                     sv->drawBits()->toggle(SL_DB_MESHWIRED);
 
+                if (ImGui::MenuItem("Width hard edges", "H", sv->drawBits()->get(SL_DB_WITHEDGES)))
+                    sv->drawBits()->toggle(SL_DB_WITHEDGES);
+
+                if (ImGui::MenuItem("Only hard edges", "O", sv->drawBits()->get(SL_DB_ONLYEDGES)))
+                    sv->drawBits()->toggle(SL_DB_ONLYEDGES);
+
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->drawBits()->toggle(SL_DB_NORMALS);
 
@@ -1895,13 +1904,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("All on"))
                 {
                     sv->drawBits()->on(SL_DB_MESHWIRED);
+                    sv->drawBits()->on(SL_DB_WITHEDGES);
+                    sv->drawBits()->on(SL_DB_ONLYEDGES);
                     sv->drawBits()->on(SL_DB_NORMALS);
                     sv->drawBits()->on(SL_DB_VOXELS);
                     sv->drawBits()->on(SL_DB_AXIS);
                     sv->drawBits()->on(SL_DB_BBOX);
                     sv->drawBits()->on(SL_DB_SKELETON);
                     sv->drawBits()->on(SL_DB_CULLOFF);
-                    sv->drawBits()->on(SL_DB_TEXOFF);
                 }
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
@@ -2602,6 +2612,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         if (ImGui::Checkbox("Show wireframe", &db))
                             singleNode->drawBits()->set(SL_DB_MESHWIRED, db);
 
+                        db = singleNode->drawBit(SL_DB_WITHEDGES);
+                        if (ImGui::Checkbox("Show with hard edges", &db))
+                            singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
+
+                        db = singleNode->drawBit(SL_DB_ONLYEDGES);
+                        if (ImGui::Checkbox("Show only hard edges", &db))
+                            singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
+
                         db = singleNode->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
                             singleNode->drawBits()->set(SL_DB_NORMALS, db);
@@ -2621,10 +2639,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         db = singleNode->drawBit(SL_DB_CULLOFF);
                         if (ImGui::Checkbox("Show back faces", &db))
                             singleNode->drawBits()->set(SL_DB_CULLOFF, db);
-
-                        db = singleNode->drawBit(SL_DB_TEXOFF);
-                        if (ImGui::Checkbox("No textures", &db))
-                            singleNode->drawBits()->set(SL_DB_TEXOFF, db);
 
                         ImGui::TreePop();
                     }

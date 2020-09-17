@@ -335,7 +335,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
         glBindVertexArray(mesh->vao().vaoID());
 
         glDrawElements(GL_TRIANGLES,
-                       mesh->vao().numIndices(),
+                       mesh->vao().numIndicesElements(),
                        GL_UNSIGNED_SHORT,
                        nullptr);
     }

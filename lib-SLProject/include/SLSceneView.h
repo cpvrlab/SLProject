@@ -191,8 +191,10 @@ public:
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
     SLbool          doWaitOnIdle() const { return _doWaitOnIdle; }
-    SLVNode&        nodesText2D() { return _nodesText2D; }
-    SLVNode&        nodesText3D() { return _nodesText3D; }
+    SLVNode&        nodesOpaque3D() { return _nodesOpaque3D; }
+    SLVNode&        nodesBlended3D() { return _nodesBlended3D; }
+    SLVNode&        nodesOpaque2D() { return _nodesOpaque2D; }
+    SLVNode&        nodesBlended2D() { return _nodesBlended2D; }
     SLVNode&        nodesOverdrawn() { return _nodesOverdrawn; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
@@ -273,8 +275,15 @@ protected:
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
-    SLVNode _nodesText2D;    //!< Vector of 2D text nodes that get blended (needs redesign)
-    SLVNode _nodesText3D;    //!< Vector of 3D text nodes that get blended (needs redesign)
+
+    unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
+
+    unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
+
+    SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes rendered in 2D
+    SLVNode _nodesBlended2D; //!< Vector of visible blended nodes rendered in 2D
+    SLVNode _nodesOpaque3D;  //!< Vector of visible opaque nodes rendered in 3D
+    SLVNode _nodesBlended3D; //!< Vector of visible blended nodes rendered in 3D
     SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
 
     SLRaytracer                     _raytracer;  //!< Whitted style raytracer
@@ -296,9 +305,6 @@ protected:
     AvgFloat _cullTimesMS;      //!< Averaged time for culling in ms
     AvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
-
-    unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
-    unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
 };
 //-----------------------------------------------------------------------------
 #endif
