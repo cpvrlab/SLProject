@@ -311,7 +311,7 @@ void MapEdition::updateMeshes(std::string                                   name
         cam->fov(fovDeg);
         cam->focalDist(0.11f);
         cam->clipNear(0.1f);
-        cam->clipFar(1000.0f);
+        cam->clipFar(1.0f);
 
         _kfNode->addChild(cam);
     }

@@ -539,6 +539,9 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
         {
             initialized = true;
             saveMap(waiMode.get(), mapDir, Utils::getFileName(currentMapFileName), &mapNode);
+
+            std::string outMatchFile = Utils::getFileNameWOExt(currentMapFileName) + "_match.txt";
+            WAIMapStorage::saveKeyFrameVideoMatching(keyFrameVideoMatching, matchFileVideoNames, mapDir, outMatchFile);
         }
         else
         {

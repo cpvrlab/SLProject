@@ -94,7 +94,8 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-ensureKFIntegration"))
         {
-            config.ensureKFIntegration = true;
+            int val              = std::stoi(argv[++i]);
+            config.ensureKFIntegration = val == 1 ? true : false;
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -132,6 +133,7 @@ void readArgs(int argc, char* argv[], Config& config)
         exit(1);
     }
 }
+
 
 static GLFWwindow* window;          //!< The global glfw window handle
 static SLint       svIndex;         //!< SceneView index

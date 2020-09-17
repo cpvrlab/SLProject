@@ -32,9 +32,6 @@ void AppWAIScene::loadMesh(std::string path)
     for (auto child : augmentationRoot->children())
     {
         child->drawBits()->set(SL_DB_NOTSELECTABLE, true);
-        child->mesh()->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
-        child->mesh()->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
-        child->mesh()->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
     }
 
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
@@ -127,36 +124,26 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         std::string modelPath;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
         {
-            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
+            std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf";
             SLAssimpImporter importer;
-
-            if (!Utils::fileExists(modelPath))
-            {
-                modelPath = _dataDir + "models/Avenches/Aventicum-Amphitheater1.gltf";
-            }
             loadMesh(modelPath);
         }
         else if (area == "cigonier-marker")
         {
-            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf";
             SLAssimpImporter importer;
 
             if (!Utils::fileExists(modelPath))
             {
-                modelPath = _dataDir + "models/Avenches/Aventicum-Cigognier1.gltf";
+                modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf";
             }
 
             loadMesh(modelPath);
         }
         else if (area == "theater-marker" || area == "theater")
         {
-            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
+            std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Theater1.gltf";
             SLAssimpImporter importer;
-
-            if (!Utils::fileExists(modelPath))
-            {
-                modelPath = _dataDir + "models/Avenches/Aventicum-Theater1.gltf";
-            }
 
             loadMesh(modelPath);
         }
