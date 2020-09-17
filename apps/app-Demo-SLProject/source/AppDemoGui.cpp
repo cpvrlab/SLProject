@@ -2615,6 +2615,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         if (ImGui::Checkbox("Show wireframe", &db))
                             singleNode->drawBits()->set(SL_DB_MESHWIRED, db);
 
+                        db = singleNode->drawBit(SL_DB_WITHEDGES);
+                        if (ImGui::Checkbox("Show with hard edges", &db))
+                            singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
+
+                        db = singleNode->drawBit(SL_DB_ONLYEDGES);
+                        if (ImGui::Checkbox("Show only hard edges", &db))
+                            singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
+
                         db = singleNode->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
                             singleNode->drawBits()->set(SL_DB_NORMALS, db);

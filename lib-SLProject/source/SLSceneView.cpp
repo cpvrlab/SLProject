@@ -704,7 +704,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         material->nodesVisible3D().clear();
 
     _visibleMaterials3D.clear();
-    _nodesText3D.clear();
+    _nodesOpaque3D.clear();
+    _nodesBlended3D.clear();
     _nodesOverdrawn.clear();
     _stats3D.numNodesOpaque  = 0;
     _stats3D.numNodesBlended = 0;
@@ -762,18 +763,18 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
  the view frustum get collected in _visibleMaterials. All nodes with their
  meshes get collected in SLMaterial::_nodesVisible3D. <br>
 The 3D rendering has then the following steps:
-1) Draw first the opaque shapes and all helper lines (normals and AABBs)<br>
-2) Draw blended nodes sorted back to front<br>
-3) Draw text nodes blended (needs redesign)<br>
-4) Draw helpers in overlay mode (not depth buffered)<br>
-5) Draw visualization lines of animation curves<br>
-6) Turn blending off again for correct anaglyph stereo modes<br>
+1) Draw nodes with meshes with opaque materials and all helper lines sorted by material<br>
+2) Draw remaining opaque nodes (SLCameras, needs redesign)<br>
+3) Draw nodes with meshes with blended materials sorted by material and sorted back to front<br>
+4) Draw remaining blended nodes (SLText, needs redesign)<br>
+5) Draw helpers in overlay mode (not depth buffered)<br>
+6) Draw visualization lines of animation curves<br>
 */
 void SLSceneView::draw3DGLAll()
 {
     PROFILE_FUNCTION();
 
-    // 1) Draw first the opaque shapes and all helper lines (normals and AABBs)
+    // 1) Draw nodes with meshes with opaque materials and all helper lines sorted by material
     for (auto material : _visibleMaterials3D)
     {
         if (!material->hasAlpha())
@@ -784,7 +785,11 @@ void SLSceneView::draw3DGLAll()
         draw3DGLLines(material->nodesVisible3D());
     }
 
-    // 2) Draw blended nodes sorted back to front
+    // 2) Draw remaining opaque nodes (SLCameras, needs redesign)
+    _stats3D.numNodesOpaque += _nodesOpaque3D.size();
+    draw3DGLNodes(_nodesOpaque3D, false, false);
+
+    // 3) Draw nodes with meshes with blended materials sorted by material and sorted back to front
     for (auto material : _visibleMaterials3D)
     {
         if (material->hasAlpha())
@@ -794,19 +799,19 @@ void SLSceneView::draw3DGLAll()
         }
     }
 
-    // 3) Draw text nodes blended (needs redesign)
-    _stats3D.numNodesBlended += _nodesText3D.size();
-    draw3DGLNodes(_nodesText3D, true, true);
+    // 4) Draw remaining blended nodes (SLText, needs redesign)
+    _stats3D.numNodesBlended += _nodesBlended3D.size();
+    draw3DGLNodes(_nodesBlended3D, true, true);
 
-    // 4) Draw helpers in overlay mode (not depth buffered)
+    // 5) Draw helpers in overlay mode (not depth buffered)
     for (auto material : _visibleMaterials3D)
         draw3DGLLinesOverlay(material->nodesVisible3D());
     draw3DGLLinesOverlay(_nodesOverdrawn);
 
-    // 5) Draw visualization lines of animation curves
+    // 6) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
 
-    // 6) Turn blending off again for correct anaglyph stereo modes
+    // Turn blending off again for correct anaglyph stereo modes
     SLGLState* stateGL = SLGLState::instance();
     stateGL->blend(false);
     stateGL->depthMask(true);
@@ -1027,7 +1032,8 @@ void SLSceneView::draw2DGL()
             for (auto material : _visibleMaterials2D)
                 material->nodesVisible2D().clear();
             _visibleMaterials2D.clear();
-            _nodesText2D.clear();
+            _nodesOpaque2D.clear();
+            _nodesBlended2D.clear();
             if (_s->root2D())
                 _s->root2D()->cull2DRec(this);
 
@@ -1106,9 +1112,9 @@ void SLSceneView::draw2DGLNodes()
         }
     }
 
-    // Depricated: SLText node need to be meshes as well
-    _stats2D.numNodesOpaque += _nodesText2D.size();
-    for (auto* node : _nodesText2D)
+    // Deprecated: SLText node need to be meshes as well
+    _stats2D.numNodesOpaque += _nodesBlended2D.size();
+    for (auto* node : _nodesBlended2D)
     {
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
