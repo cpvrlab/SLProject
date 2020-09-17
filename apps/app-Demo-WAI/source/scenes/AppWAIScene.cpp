@@ -32,9 +32,13 @@ void AppWAIScene::loadMesh(std::string path)
     for (auto child : augmentationRoot->children())
     {
         child->drawBits()->set(SL_DB_NOTSELECTABLE, true);
-        child->mesh()->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
-        child->mesh()->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
-        child->mesh()->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
+        SLMesh* mesh = child->mesh();
+        if (mesh)
+        {
+            child->mesh()->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
+            child->mesh()->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
+            child->mesh()->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
+        }
     }
 
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
