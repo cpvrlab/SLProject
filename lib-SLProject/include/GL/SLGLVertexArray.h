@@ -35,6 +35,7 @@
  The VAO has no or one active index buffer. For drawArrayAs no indices are needed.
  For drawElementsAs the index buffer is used. For triangle meshes also hard edges
  are generated. Their indices are stored behind the indices of the triangles.
+ See SLMesh::computeHardEdgesIndices for more infos on hard edges.
 */
 class SLGLVertexArray
 {

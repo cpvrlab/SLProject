@@ -1197,69 +1197,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Minimal);
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
-                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
-                    {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                        if (Utils::fileExists(largeFile))
-                            s->onLoad(s, sv, SID_LargeModel);
-                        else
-                        {
-                            auto downloadJob = []() {
-                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.bfh.ch");
-                                SLApplication::jobProgressMax(100);
-                                ftplib ftp;
-                                if (ftp.Connect("pallas.bfh.ch:21"))
-                                {
-                                    if (ftp.Login("upload", "FaAdbD3F2a"))
-                                    {
-                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
-                                        ftp.SetCallbackBytes(1024000);
-                                        if (ftp.Chdir("SLProject/models/PLY"))
-                                        {
-                                            int remoteSize = 0;
-                                            ftp.Size("xyzrgb_dragon.ply",
-                                                     &remoteSize,
-                                                     ftplib::transfermode::image);
-                                            ftpXferSizeMax  = remoteSize;
-                                            SLstring plyDir = SLApplication::modelPath + "PLY";
-                                            if (!Utils::dirExists(plyDir))
-                                                Utils::makeDir(plyDir);
-                                            if (Utils::dirExists(plyDir))
-                                            {
-                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                                if (!ftp.Get(outFile.c_str(),
-                                                             "xyzrgb_dragon.ply",
-                                                             ftplib::transfermode::image))
-                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
-                                            }
-                                            else
-                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
-                                        }
-                                        else
-                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
-                                    }
-                                    else
-                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
-                                }
-                                else
-                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
-
-                                ftp.Quit();
-                                SLApplication::jobIsRunning = false;
-                            };
-
-                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                if (Utils::fileExists(largeFile))
-                                    s->onLoad(s, sv, SID_LargeModel);
-                            };
-
-                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
-
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJob);
-                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
-                        }
-                    }
                     if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
                         s->onLoad(s, sv, SID_MeshLoad);
                     if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
@@ -1270,12 +1207,75 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_TextureFilter);
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(s, sv, SID_FrustumCull);
-                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
-                        s->onLoad(s, sv, SID_MassiveScene);
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
+                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
+                    {
+                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_LargeModel);
+                        else
+                        {
+                            auto downloadJob = []() {
+                              SLApplication::jobProgressMsg("Downloading large dragon file from pallas.bfh.ch");
+                              SLApplication::jobProgressMax(100);
+                              ftplib ftp;
+                              if (ftp.Connect("pallas.bfh.ch:21"))
+                              {
+                                  if (ftp.Login("upload", "FaAdbD3F2a"))
+                                  {
+                                      ftp.SetCallbackXferFunction(ftpCallbackXfer);
+                                      ftp.SetCallbackBytes(1024000);
+                                      if (ftp.Chdir("SLProject/models/PLY"))
+                                      {
+                                          int remoteSize = 0;
+                                          ftp.Size("xyzrgb_dragon.ply",
+                                                   &remoteSize,
+                                                   ftplib::transfermode::image);
+                                          ftpXferSizeMax  = remoteSize;
+                                          SLstring plyDir = SLApplication::modelPath + "PLY";
+                                          if (!Utils::dirExists(plyDir))
+                                              Utils::makeDir(plyDir);
+                                          if (Utils::dirExists(plyDir))
+                                          {
+                                              SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                              if (!ftp.Get(outFile.c_str(),
+                                                           "xyzrgb_dragon.ply",
+                                                           ftplib::transfermode::image))
+                                                  SL_LOG("*** ERROR: ftp.Get failed. ***");
+                                          }
+                                          else
+                                              SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
+                                      }
+                                      else
+                                          SL_LOG("*** ERROR: ftp.Chdir failed. ***");
+                                  }
+                                  else
+                                      SL_LOG("*** ERROR: ftp.Login failed. ***");
+                              }
+                              else
+                                  SL_LOG("*** ERROR: ftp.Connect failed. ***");
+
+                              ftp.Quit();
+                              SLApplication::jobIsRunning = false;
+                            };
+
+                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                              if (Utils::fileExists(largeFile))
+                                  s->onLoad(s, sv, SID_LargeModel);
+                            };
+
+                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
+
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJob);
+                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
+                        }
+                    }
+                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
+                        s->onLoad(s, sv, SID_MassiveScene);
 
                     ImGui::EndMenu();
                 }
@@ -2892,10 +2892,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 {
                     SLuint      v = (SLuint)singleFullMesh->P.size();
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
+                    SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
-                    ImGui::Text("Mesh Name       : %s", singleFullMesh->name().c_str());
-                    ImGui::Text("No. of Vertices : %u", v);
-                    ImGui::Text("No. of Triangles: %u", t);
+                    ImGui::Text("Mesh Name        : %s", singleFullMesh->name().c_str());
+                    ImGui::Text("No. of Vertices  : %u", v);
+                    ImGui::Text("No. of Triangles : %u", t);
+                    ImGui::Text("No. of hard edges: %u", e);
 
                     if (m && ImGui::TreeNode("Material"))
                     {
