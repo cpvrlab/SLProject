@@ -780,13 +780,13 @@ void SLSceneView::draw3DGLAll()
         if (!material->hasAlpha())
         {
             draw3DGLNodes(material->nodesVisible3D(), false, false);
-            _stats3D.numNodesOpaque += material->nodesVisible3D().size();
+            _stats3D.numNodesOpaque += (SLuint)material->nodesVisible3D().size();
         }
         draw3DGLLines(material->nodesVisible3D());
     }
 
     // 2) Draw remaining opaque nodes (SLCameras, needs redesign)
-    _stats3D.numNodesOpaque += _nodesOpaque3D.size();
+    _stats3D.numNodesOpaque += (SLuint)_nodesOpaque3D.size();
     draw3DGLNodes(_nodesOpaque3D, false, false);
 
     // 3) Draw nodes with meshes with blended materials sorted by material and sorted back to front
@@ -795,12 +795,12 @@ void SLSceneView::draw3DGLAll()
         if (material->hasAlpha())
         {
             draw3DGLNodes(material->nodesVisible3D(), true, true);
-            _stats3D.numNodesBlended += material->nodesVisible3D().size();
+            _stats3D.numNodesBlended += (SLuint)material->nodesVisible3D().size();
         }
     }
 
     // 4) Draw remaining blended nodes (SLText, needs redesign)
-    _stats3D.numNodesBlended += _nodesBlended3D.size();
+    _stats3D.numNodesBlended += (SLuint)_nodesBlended3D.size();
     draw3DGLNodes(_nodesBlended3D, true, true);
 
     // 5) Draw helpers in overlay mode (not depth buffered)
@@ -1101,7 +1101,7 @@ void SLSceneView::draw2DGLNodes()
     // draw the shapes directly with their wm transform
     for (auto material : _visibleMaterials2D)
     {
-        _stats2D.numNodesOpaque += material->nodesVisible2D().size();
+        _stats2D.numNodesOpaque += (SLuint)material->nodesVisible2D().size();
         for (auto* node : material->nodesVisible2D())
         {
             // Apply world transform
@@ -1113,7 +1113,7 @@ void SLSceneView::draw2DGLNodes()
     }
 
     // Deprecated: SLText node need to be meshes as well
-    _stats2D.numNodesOpaque += _nodesBlended2D.size();
+    _stats2D.numNodesOpaque += (SLuint)_nodesBlended2D.size();
     for (auto* node : _nodesBlended2D)
     {
         // Apply world transform

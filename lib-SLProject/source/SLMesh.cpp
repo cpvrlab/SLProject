@@ -739,16 +739,16 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
     if (_primitive != PT_triangles)
         return;
 
-    Eigen::MatrixXd V;
-    Eigen::MatrixXi F;
-    Eigen::MatrixXd newV;  // new vertices after duplicate removal
-    Eigen::MatrixXi newF;  // new faces after duplicate removal
+    Eigen::MatrixXf V;     // Input vertices for igl
+    Eigen::MatrixXi F;     // Input faces (=triangle) indices for igl
+    Eigen::MatrixXf newV;  // new vertices after duplicate removal
+    Eigen::MatrixXi newF;  // new face indices after duplicate removal
     Eigen::MatrixXi edges; // all edges
     Eigen::MatrixXi edgeMap;
     Eigen::MatrixXi uniqueEdges;
-    Eigen::MatrixXd faceN;
-    Eigen::VectorXi SVI; // new to old index mapping
-    Eigen::VectorXi SVJ; // old to new index mapping
+    Eigen::MatrixXf faceN; // face normals
+    Eigen::VectorXi SVI;   // new to old index mapping
+    Eigen::VectorXi SVJ;   // old to new index mapping
 
     std::vector<std::vector<int>> uE2E;
 
@@ -785,16 +785,15 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
         {
             for (int j = i + 1; j < uE2E[u].size(); j++)
             {
-                const int                   ei  = uE2E[u][i];
-                const int                   fi  = ei % newF.rows();
-                const int                   ej  = uE2E[u][j];
-                const int                   fj  = ej % newF.rows();
-                Eigen::Matrix<double, 1, 3> ni  = faceN.row(fi);
-                Eigen::Matrix<double, 1, 3> nj  = faceN.row(fj);
-                Eigen::Matrix<double, 1, 3> ev  = (newV.row(edges(ei, 1)) - newV.row(edges(ei, 0))).normalized();
-                float                       dij = M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
-                if (std::abs(dij - M_PI) > angleRAD)
-                    sharp = true;
+                const int                  ei  = uE2E[u][i];
+                const int                  fi  = ei % newF.rows();
+                const int                  ej  = uE2E[u][j];
+                const int                  fj  = ej % newF.rows();
+                Eigen::Matrix<float, 1, 3> ni  = faceN.row(fi);
+                Eigen::Matrix<float, 1, 3> nj  = faceN.row(fj);
+                Eigen::Matrix<float, 1, 3> ev  = (newV.row(edges(ei, 1)) - newV.row(edges(ei, 0))).normalized();
+                float                      dij = (float)M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
+                sharp                          = std::abs(dij - M_PI) > angleRAD;
             }
         }
 

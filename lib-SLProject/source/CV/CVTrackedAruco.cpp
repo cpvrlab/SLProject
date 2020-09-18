@@ -19,7 +19,6 @@ for a good top down information.
 #include <CVTrackedAruco.h>
 #include <Utils.h>
 
-using namespace cv;
 //-----------------------------------------------------------------------------
 // Initialize static variables
 bool          CVTrackedAruco::paramsLoaded = false;
@@ -72,22 +71,22 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     objectViewMats.clear();
     CVVVPoint2f corners, rejected;
 
-    aruco::detectMarkers(imageGray,
-                         params.dictionary,
-                         corners,
-                         arucoIDs,
-                         params.arucoParams,
-                         rejected);
+    cv::aruco::detectMarkers(imageGray,
+                             params.dictionary,
+                             corners,
+                             arucoIDs,
+                             params.arucoParams,
+                             rejected);
 
     CVTracked::detectTimesMS.set(_timer.elapsedTimeInMilliSec() - startMS);
 
     if (!arucoIDs.empty())
     {
         if (_drawDetection)
-            aruco::drawDetectedMarkers(imageRgb,
-                                       corners,
-                                       arucoIDs,
-                                       Scalar(0, 0, 255));
+            cv::aruco::drawDetectedMarkers(imageRgb,
+                                           corners,
+                                           arucoIDs,
+                                           cv::Scalar(0, 0, 255));
 
         /////////////////////
         // Pose Estimation //
@@ -99,12 +98,12 @@ bool CVTrackedAruco::track(CVMat          imageGray,
 
         //find the camera extrinsic parameters (rVec & tVec)
         CVVPoint3d rVecs, tVecs;
-        aruco::estimatePoseSingleMarkers(corners,
-                                         params.edgeLength,
-                                         calib->cameraMat(),
-                                         calib->distortion(),
-                                         rVecs,
-                                         tVecs);
+        cv::aruco::estimatePoseSingleMarkers(corners,
+                                             params.edgeLength,
+                                             calib->cameraMat(),
+                                             calib->distortion(),
+                                             rVecs,
+                                             tVecs);
 
         CVTracked::poseTimesMS.set(_timer.elapsedTimeInMilliSec() - startMS);
 
@@ -154,15 +153,15 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
                                           float         dpi,
                                           bool          showImage)
 {
-    cv::Ptr<aruco::Dictionary> dictionary =
-      aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
+    cv::Ptr<cv::aruco::Dictionary> dictionary =
+      cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
-    cv::Ptr<aruco::GridBoard> board = aruco::GridBoard::create(numMarkersX,
-                                                               numMarkersY,
-                                                               markerEdgeM,
-                                                               markerSepaM,
-                                                               dictionary);
-    CVSize                    imageSize;
+    cv::Ptr<cv::aruco::GridBoard> board = cv::aruco::GridBoard::create(numMarkersX,
+                                                                       numMarkersY,
+                                                                       markerEdgeM,
+                                                                       markerSepaM,
+                                                                       dictionary);
+    CVSize                        imageSize;
     imageSize.width  = (int)((markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * (float)numMarkersX);
     imageSize.height = (int)((markerEdgeM + markerSepaM) * 100.0f / 2.54f * dpi * (float)numMarkersY);
 
@@ -176,7 +175,7 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
     if (showImage)
     {
         imshow("board", boardImage);
-        waitKey(0);
+        cv::waitKey(0);
     }
 
     imwrite(imgName, boardImage);
@@ -191,7 +190,7 @@ void CVTrackedAruco::drawArucoMarker(int dictionaryId,
     assert(minMarkerId > 0);
     assert(minMarkerId < maxMarkerId);
 
-    using namespace aruco;
+    using namespace cv::aruco;
 
     cv::Ptr<Dictionary> dict = getPredefinedDictionary(PREDEFINED_DICTIONARY_NAME(dictionaryId));
     if (maxMarkerId > dict->bytesList.rows)

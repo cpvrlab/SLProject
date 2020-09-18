@@ -24,8 +24,6 @@ for a good top down information.
 #include <CVRaulMurOrb.h>
 #include <CVTracked.h>
 
-using namespace cv;
-
 #define SL_SPLIT_DETECT_COMPUTE 0
 #define SL_DO_FEATURE_BENCHMARKING 0
 
@@ -95,7 +93,7 @@ class CVTrackedFeatures : public CVTracked
     void      optimizeMatches();
     bool      trackWithOptFlow(CVMat rvec, CVMat tvec);
 
-    cv::Ptr<DescriptorMatcher> _matcher;    //!< Descriptor matching algorithm
+    cv::Ptr<cv::DescriptorMatcher> _matcher;    //!< Descriptor matching algorithm
     CVCalibration*             _calib;      //!< Current calibration in use
     int                        _frameCount; //!< NO. of frames since process start
     bool                       _isTracking; //!< True if tracking

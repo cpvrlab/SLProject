@@ -87,7 +87,7 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <random>
 #    include <ctime>
 #    include <thread>
-#    include <CoreServices/CoreServices.h> // for system info
+//#    include <CoreServices/CoreServices.h> // for system info
 #    include <sys/sysctl.h>                // for system info
 #elif defined(SL_OS_ANDROID)
 #    include <sys/time.h>

@@ -824,7 +824,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 {
                     // Choose a random material index
                     SLuint   res      = 36;
-                    SLint    iMat     = Utils::random(0, NUM_MAT - 1);
+                    SLint    iMat     = (SLint)Utils::random(0, NUM_MAT - 1);
                     SLstring nodeName = "earth-" + std::to_string(n);
 
                     // Create a new sphere and node and translate it
