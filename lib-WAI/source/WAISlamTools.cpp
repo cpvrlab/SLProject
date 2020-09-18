@@ -722,7 +722,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
     vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
-
+    //vpCandidateKFs = waiMap->GetAllKeyFrames();
     if (vpCandidateKFs.empty())
     {
         AVERAGE_TIMING_STOP("relocalization");
@@ -732,6 +732,10 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     //vector<WAIKeyFrame*> vpCandidateKFs = mpKeyFrameDatabase->keyFrames();
     const int nKFs = (int)vpCandidateKFs.size();
 
+    //DUtils::Random::SeedRandOnce(42);
+    //for(int i= 0; i < 10; ++ i)
+    //    std::cout << "rand: " << DUtils::Random::RandomInt(0, 10) << std::endl;
+    
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
     // Best match < 0.75 * second best match (default is 0.6)

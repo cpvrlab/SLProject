@@ -424,6 +424,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 		if(${CMAKE_GENERATOR} STREQUAL Xcode)
 		    file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 		    file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+			file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
 		endif()
 	endif()
 
@@ -482,8 +483,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	            )
 
 	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-	        file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	        file(COPY ${g2o_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	        file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	        file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
 	    endif()
 	endif()
 
@@ -537,6 +539,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
 	        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 	        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
 	    endif()
 	endif()
 

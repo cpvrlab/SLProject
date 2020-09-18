@@ -17,6 +17,8 @@ const char* mapLocationIdToName(LocationId id)
             return "Biel";
         case LocationId::BERN:
             return "Bern";
+        case LocationId::EVILARD:
+            return "Evilard";
         default:
             return "Missing id to name mapping!";
     }
@@ -62,6 +64,11 @@ const char* mapAreaIdToName(AreaId id)
             return "Southwall";
         case AreaId::BIEL_OFFICE:
             return "Office";
+        //evilard
+        case AreaId::EVILARD_ROC2:
+            return "Roc 2";
+        case AreaId::EVILARD_FIREFIGHTERS:
+            return "Firefighters";
         default:
             return "Missing id to name mapping!";
     }
@@ -183,11 +190,9 @@ const Location defineLocationBiel()
     loc.id                   = LocationId::BIEL;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/biel/locationMapImgBiel.jpg";
-    loc.mapTLLla             = {47.14954, 7.23246, 741.0};
-    //loc.mapTLLla             = {47.14290, 7.24225, 506.3};
-    loc.mapBRLla = {47.14778, 7.23661, 696.0};
-    //loc.mapBRLla             = {47.14060, 7.24693, 434.3};
-    loc.dspPixWidth = 800;
+    loc.mapTLLla             = {47.14290, 7.24225, 506.3};
+    loc.mapBRLla             = {47.14060, 7.24693, 434.3};
+    loc.dspPixWidth          = 800;
     {
         Area area;
         area.id            = AreaId::BIEL_GERECHTIGKEITSBRUNNEN;
@@ -252,6 +257,44 @@ const Location defineLocationBiel()
     return loc;
 }
 
+const Location defineLocationEvilard()
+{
+    Location loc;
+    loc.id                   = LocationId::EVILARD;
+    loc.name                 = mapLocationIdToName(loc.id);
+    loc.areaMapImageFileName = "locations/evilard/locationMapImgEvilard.jpg";
+    loc.mapTLLla             = {47.14954, 7.23246, 741.0};
+    loc.mapBRLla             = {47.14778, 7.23661, 696.0};
+    loc.dspPixWidth          = 2000;
+    {
+        Area area;
+        area.id            = AreaId::EVILARD_ROC2;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix       = 282;
+        area.yPosPix       = 312;
+        area.viewAngleDeg  = 200.f;
+        area.slamMapFileName         = "";
+        area.relocAlignImage         = "locations/evilard/roc2/relocAlignImg.jpg";
+        area.cameraFrameTargetSize   = {640, 360};
+        area.cameraFrameCropToScreen = false;
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area;
+        area.id            = AreaId::EVILARD_FIREFIGHTERS;
+        area.name          = mapAreaIdToName(area.id);
+        area.xPosPix	   = 130;
+        area.yPosPix       = 380;
+        area.viewAngleDeg  = 220.f;
+        area.slamMapFileName         = "";
+        area.relocAlignImage         = "locations/evilard/firefighters/relocAlignImg.jpg";
+        area.cameraFrameTargetSize   = {640, 360};
+        area.cameraFrameCropToScreen = false;
+        loc.areas[area.id] = area;
+    }
+    return loc;
+}
+
 const std::map<LocationId, Location> defineLocations()
 {
     std::map<LocationId, Location> locations;
@@ -259,6 +302,7 @@ const std::map<LocationId, Location> defineLocations()
     locations[LocationId::AVENCHES] = defineLocationAvenches();
     locations[LocationId::BERN]     = defineLocationBern();
     locations[LocationId::BIEL]     = defineLocationBiel();
+    locations[LocationId::EVILARD]  = defineLocationEvilard();
 
     return locations;
 }

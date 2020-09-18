@@ -60,7 +60,8 @@ enum class LocationId
     AUGST,
     AVENCHES,
     BIEL,
-    BERN
+    BERN,
+    EVILARD
 };
 
 const char* mapLocationIdToName(LocationId id);
@@ -87,7 +88,10 @@ enum class AreaId
     BIEL_JACOB_ROSINUS,
     BIEL_LEUBRINGENBAHN,
     BIEL_RING,
-    BIEL_OFFICE
+    BIEL_OFFICE,
+    //EVILARD
+    EVILARD_ROC2,
+    EVILARD_FIREFIGHTERS
 };
 
 const char* mapAreaIdToName(AreaId id);
@@ -102,7 +106,7 @@ public:
     //x position in pixel (only valid for current map image)
     int xPosPix = 0;
     //y position in pixel (only valid for current map image)
-    int yPosPix = 0;
+    int     yPosPix = 0;
     SLVec3f lla;
     //view angle in degree
     float viewAngleDeg = 0.f;
@@ -144,6 +148,7 @@ const Location defineLocationAugst();
 const Location defineLocationAvenches();
 const Location defineLocationBern();
 const Location defineLocationBiel();
+const Location defineLocationEvilard();
 
 const std::map<LocationId, Location> defineLocations();
 

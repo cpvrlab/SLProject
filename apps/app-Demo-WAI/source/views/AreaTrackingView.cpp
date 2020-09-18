@@ -197,6 +197,7 @@ bool AreaTrackingView::update()
                     updateSceneCameraFov();
                 }
                 _waiSlam->update(frame->imgManip);
+                slamState = _waiSlam->getTrackingState();
 
                 bool isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
                 if (isTracking)

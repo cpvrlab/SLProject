@@ -861,10 +861,10 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                 if (itParentKf != kfsMap.end())
                     kf->ChangeParent(itParentKf->second);
                 else
-                    cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+                    cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist of keyframe " << kf->mnId << "! FAIL" << endl;
             }
             else
-                cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+                cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist of keyframe " << kf->mnId << "! FAIL" << endl;
         }
     }
 
@@ -1027,15 +1027,25 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
                     }
                 }
             }
-            //extract keyframe with shortest connection
-            QueueElem topElem = q.top();
-            //remove it from unconKfs and add it to graph
-            WAIKeyFrame* newGraphKf = std::get<0>(topElem);
-            unconKfs.erase(newGraphKf);
-            newGraphKf->ChangeParent(std::get<1>(topElem));
-            //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
-            //update parent
-            graph.insert(newGraphKf);
+
+            if (q.size() == 0)
+            {
+                //no connection: the remaining keyframes are unconnected
+                Utils::log("WAIMapStorage", "Error in building spanning tree: There are %i unconnected keyframes!");
+                break;
+            }
+            else
+            {
+                //extract keyframe with shortest connection
+                QueueElem topElem = q.top();
+                //remove it from unconKfs and add it to graph
+                WAIKeyFrame* newGraphKf = std::get<0>(topElem);
+                unconKfs.erase(newGraphKf);
+                newGraphKf->ChangeParent(std::get<1>(topElem));
+                //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+                //update parent
+                graph.insert(newGraphKf);
+            }
         }
     }
 
@@ -1264,10 +1274,10 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                 if (itParentKf != kfsMap.end())
                     kf->ChangeParent(itParentKf->second);
                 else
-                    cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+                    cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist of keyframe " << kf->mnId << "! FAIL" << endl;
             }
             else
-                cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist! FAIL" << endl;
+                cerr << "[WAIMapIO] loadKeyFrames: Parent does not exist of keyframe " << kf->mnId << "! FAIL" << endl;
         }
     }
 
@@ -1451,15 +1461,25 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
                     }
                 }
             }
-            //extract keyframe with shortest connection
-            QueueElem topElem = q.top();
-            //remove it from unconKfs and add it to graph
-            WAIKeyFrame* newGraphKf = std::get<0>(topElem);
-            unconKfs.erase(newGraphKf);
-            newGraphKf->ChangeParent(std::get<1>(topElem));
-            //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
-            //update parent
-            graph.insert(newGraphKf);
+
+            if (q.size() == 0)
+            {
+                //no connection: the remaining keyframes are unconnected
+                Utils::log("WAIMapStorage", "Error in building spanning tree: There are %i unconnected keyframes!");
+                break;
+            }
+            else
+            {
+                //extract keyframe with shortest connection
+                QueueElem topElem = q.top();
+                //remove it from unconKfs and add it to graph
+                WAIKeyFrame* newGraphKf = std::get<0>(topElem);
+                unconKfs.erase(newGraphKf);
+                newGraphKf->ChangeParent(std::get<1>(topElem));
+                //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+                //update parent
+                graph.insert(newGraphKf);
+            }
         }
     }
 
