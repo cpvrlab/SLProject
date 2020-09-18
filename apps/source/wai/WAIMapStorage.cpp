@@ -168,6 +168,7 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
         fs << "nMaxX" << kf->mnMaxX;
         fs << "nMaxY" << kf->mnMaxY;
 
+#if 0
         std::vector<int>          bestCovisibleKeyFrameIds;
         std::vector<int>          bestCovisibleWeights;
         std::vector<WAIKeyFrame*> bestCovisibles = kf->GetBestCovisibilityKeyFrames(20);
@@ -185,6 +186,7 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
 
         fs << "bestCovisibleKeyFrameIds" << bestCovisibleKeyFrameIds;
         fs << "bestCovisibleWeights" << bestCovisibleWeights;
+#endif
 
         fs << "}"; //close map
 

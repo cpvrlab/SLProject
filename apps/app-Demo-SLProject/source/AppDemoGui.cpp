@@ -9,8 +9,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <AppDemoGui.h>
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
@@ -21,7 +19,6 @@
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
-#include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>

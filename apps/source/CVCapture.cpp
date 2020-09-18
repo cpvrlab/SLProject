@@ -844,6 +844,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     string fullPathAndFilename = Utils::unifySlashes(configPath) + mainCalibFilename;
     if (!Utils::fileExists(fullPathAndFilename))
     {
+        /*
         //todo: move this download call out of cvcaputure (during refactoring of this class)
         string errorMsg;
         if (!FtpUtils::downloadFileLatestVersion(SLApplication::calibFilePath,
@@ -856,6 +857,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
         {
             Utils::log("SLProject", errorMsg.c_str());
         }
+         */
     }
     if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
     {
@@ -865,6 +867,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     activeCamera       = &mainCam;
     hasSecondaryCamera = false;
 #else
+    /*
     //todo: move this download call out of cvcaputure (during refactoring of this class)
     string errorMsg;
     if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
@@ -888,6 +891,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     {
         Utils::log("SLProject", errorMsg.c_str());
     }
+    */
     mainCam.calibration.load(configPath, mainCalibFilename, true);
     scndCam.calibration.load(configPath, scndCalibFilename, true);
     activeCamera       = &mainCam;
