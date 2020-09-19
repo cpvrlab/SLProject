@@ -63,7 +63,7 @@ smooth but also 4 sharp edges. The smooth red normal as the top vertex got
 averaged because its position is only once in the vector P. On the other hand
 are the vertices of the hard edges in the front of the sphere doubled.
 \n
-\image HTML sharpAndSmoothEdges.png
+@image HTML sharpAndSmoothEdges.png
 \n
 \n The following the example creates the box with 24 vertices:
 \n The vertex positions and normals in P and N:
@@ -106,7 +106,7 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n          16,17,18, 16,18,19,
 \n          20,21,22, 20,22,23}
 \n
-\image HTML boxVertices.png
+@image HTML boxVertices.png
 \n
 All vertex attributes are added to the vertex array object _vao (SLVertexArray).<br>
 All arrays remain in the main memory for ray tracing.

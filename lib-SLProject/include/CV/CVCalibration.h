@@ -72,8 +72,8 @@ class CVCalibration
 public:
     //default constructor with uncalibrated state (this is not good because
     //it is not a valid state so everybody who uses it has to check the calibration state first)
-    CVCalibration(CVCameraType camType,
-                  std::string  computerInfos);
+    CVCalibration(CVCameraType camType, std::string  computerInfos);
+
     //creates a fully defined calibration
     CVCalibration(const cv::Mat&     cameraMat,
                   const cv::Mat&     distortion,
@@ -96,8 +96,8 @@ public:
                   float           fovH,
                   bool            mirroredH,
                   bool            mirroredV,
-                  CVCameraType    type,
-                  std::string     computerInfos);
+                  CVCameraType    camType,
+                  string          computerInfos);
 
     //create a guessed calibration using sensor size, camera focal length and captured image size
     CVCalibration(float           sensorWMM,
@@ -107,7 +107,7 @@ public:
                   bool            mirroredH,
                   bool            mirroredV,
                   CVCameraType    camType,
-                  std::string     computerInfos);
+                  string          computerInfos);
 
     bool load(const string& calibDir,
               const string& calibFileName,
@@ -188,10 +188,12 @@ private:
     void calcCameraFovFromUndistortedCameraMat();
     void calculateUndistortedCameraMat();
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
+
     ///////////////////////////////////////////////////////////////////////////////////
     CVMat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
     CVMat _distortion; //!< 4x1 Matrix for intrinsic distortion
     ///////////////////////////////////////////////////////////////////////////////////
+
     //original data used for adaption:
     CVMat  _cameraMatOrig; //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
     CVSize _imageSizeOrig; //!< original image size (original from loading or calibration estimation)

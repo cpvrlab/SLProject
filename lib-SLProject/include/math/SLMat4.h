@@ -697,9 +697,9 @@ void SLMat4<T>::lookAt( const T EyeX, const T EyeY, const T EyeZ,
 //! Defines the view matrix with an eye position, a look at point and an up vector.
 /*!
 This method is equivalent to the OpenGL function gluLookAt.
-\param Eye Vector to the position of the eye (view point).
-\param At Vector to the target point.
-\param Up Vector that points from the viewpoint upwards. If Up is a zero vector
+@param Eye Vector to the position of the eye (view point).
+@param At Vector to the target point.
+@param Up Vector that points from the viewpoint upwards. If Up is a zero vector
 a default up vector is calculated with a default look-right vector (VZ) that 
 lies in the x-z plane.
 */
@@ -823,13 +823,13 @@ void SLMat4<T>::posAtUp(const SLVec3<T>& pos,
 /*!
 The view frustum is the truncated view pyramid of a central projection that
 is defined with the folowing parameters:
-\param l Distance from the center of projection (COP) to the left border on 
+@param l Distance from the center of projection (COP) to the left border on
 the near clipping plane.
-\param r Distance from the COP to the right border on the near clipping plane. 
-\param b Distance from the COP to the bottom border on the near clipping plane. 
-\param t Distance from the COP to the top border on the near clipping plane.
-\param n Distance from the eye to near clipping plane of the view frustum.
-\param f Distance from the eye to far clipping plane of the view frustum.  
+@param r Distance from the COP to the right border on the near clipping plane.
+@param b Distance from the COP to the bottom border on the near clipping plane.
+@param t Distance from the COP to the top border on the near clipping plane.
+@param n Distance from the eye to near clipping plane of the view frustum.
+@param f Distance from the eye to far clipping plane of the view frustum.
 */
 template<class T>
 void SLMat4<T>::frustum(const T l, const T r, const T b, const T t, 
@@ -845,10 +845,10 @@ void SLMat4<T>::frustum(const T l, const T r, const T b, const T t,
 /*!
 This method is equivalent to the OpenGL function gluPerspective except that
 instead of the window aspect the window width and height have to be passed.
-\param fov Vertical field of view angle (zoom angle)
-\param aspect aspect ratio of of the viewport = width / height
-\param n Distance from the eye to near clipping plane of the view frustum.
-\param f Distance from the eye to far clipping plane of the view frustum.
+@param fov Vertical field of view angle (zoom angle)
+@param aspect aspect ratio of of the viewport = width / height
+@param n Distance from the eye to near clipping plane of the view frustum.
+@param f Distance from the eye to far clipping plane of the view frustum.
 */
 template<class T>
 void SLMat4<T>::perspective(const T fov, const T aspect, 
@@ -879,13 +879,13 @@ void SLMat4<T>::perspectiveCenteredPP(const T w, const T h, const T fx, const T 
 //---------------------------------------------------------------------------
 //! Defines a ortographic projection matrix equivalent to OpenGL's glOrtho
 /*!
-\param l Distance from the center of projection (COP) to the left border on 
+@param l Distance from the center of projection (COP) to the left border on
 the near clipping plane.
-\param r Distance from the COP to the right border on the near clipping plane. 
-\param b Distance from the COP to the bottom border on the near clipping plane. 
-\param t Distance from the COP to the top border on the near clipping plane.
-\param n Distance from the eye to near clipping plane of the view frustum.
-\param f Distance from the eye to far clipping plane of the view frustum.  
+@param r Distance from the COP to the right border on the near clipping plane.
+@param b Distance from the COP to the bottom border on the near clipping plane.
+@param t Distance from the COP to the top border on the near clipping plane.
+@param n Distance from the eye to near clipping plane of the view frustum.
+@param f Distance from the eye to far clipping plane of the view frustum.
 */
 template<class T>
 void SLMat4<T>::ortho(const T l, const T r, const T b, const T t, 
@@ -899,12 +899,12 @@ void SLMat4<T>::ortho(const T l, const T r, const T b, const T t,
 //---------------------------------------------------------------------------
 //! Defines a viewport matrix as it is defined by glViewport
 /*!
-\param x left window coord. in px.
-\param y top window coord. in px.
-\param ww window width in px.
-\param wh window height in px.
-\param n near depth range (default 0)
-\param f far depth range (default 1)
+@param x left window coord. in px.
+@param y top window coord. in px.
+@param ww window width in px.
+@param wh window height in px.
+@param n near depth range (default 0)
+@param f far depth range (default 1)
 */
 template<class T>
 void SLMat4<T>::viewport(const T x, const T y, const T ww, const T wh, 

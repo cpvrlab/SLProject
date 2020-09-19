@@ -204,9 +204,7 @@ void CVTrackedFeatures::type(CVDetectDescribeType ddType)
 @param imageGray Current grayscale frame
 @param image Current RGB frame
 @param calib Calibration information
-@param drawDetection Flag if the detected features should be drawn
-@param sv The current scene view
-@return So far allways false
+@return So far always false
 */
 bool CVTrackedFeatures::track(CVMat          imageGray,
                               CVMat          image,

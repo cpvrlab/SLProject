@@ -16,15 +16,15 @@ class CamCalibration
     //! loads a calibration file from given path
     CamCalibration(std::string filePath);
     /*! defines a calibration estimation containing only intrinsics without distortion
-            \param imgSize size of image the calibration is used for
-            \param horizFOV horizontal field of view in degree
+            @param imgSize size of image the calibration is used for
+            @param horizFOV horizontal field of view in degree
          */
     CamCalibration(cv::Size imgSize, double horizFOV = 65);
     /*! Defines a calibration estimation containing only intrinsics without distortion.
             One may only use this kind of calibration if the image uses the whole sensor width (no cropping left and right)
-            \param imgSize size of image the calibration is used for
-            \param camFocalLengthMM camera sensor size in mm
-            \param camSensorSizeMM camera focal length in mm
+            @param imgSize size of image the calibration is used for
+            @param camFocalLengthMM camera sensor size in mm
+            @param camSensorSizeMM camera focal length in mm
          */
     CamCalibration(cv::Size imgSize, float camFocalLengthMM, cv::Size2f camSensorSizeMM);
     //! copy constructor

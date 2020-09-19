@@ -30,7 +30,7 @@ using namespace std;
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
+CVCalibration::CVCalibration(CVCameraType type, std::string computerInfos)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
@@ -49,21 +49,21 @@ CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
 }
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
-CVCalibration::CVCalibration(const cv::Mat& cameraMat,
-                             const cv::Mat& distortion,
-                             cv::Size       imageSize,
-                             cv::Size       boardSize,
-                             float          boardSquareMM,
-                             float          reprojectionError,
-                             int            numCaptured,
-                             const string&  calibrationTime,
-                             int            camSizeIndex,
-                             bool           mirroredH,
-                             bool           mirroredV,
-                             CVCameraType   camType,
-                             string         computerInfos,
-                             int            calibFlags,
-                             bool           calcUndistortionMaps)
+CVCalibration::CVCalibration(const cv::Mat&     cameraMat,
+                             const cv::Mat&     distortion,
+                             cv::Size           imageSize,
+                             cv::Size           boardSize,
+                             float              boardSquareMM,
+                             float              reprojectionError,
+                             int                numCaptured,
+                             const std::string& calibrationTime,
+                             int                camSizeIndex,
+                             bool               mirroredH,
+                             bool               mirroredV,
+                             CVCameraType       camType,
+                             std::string        computerInfos,
+                             int                calibFlags,
+                             bool               calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(std::move(imageSize)),
@@ -390,7 +390,9 @@ other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 If the focal length and sensor size is provided by the device we deduce the
 the fov from it.
- @param fovH average horizontal view angle in degrees
+ @param imageWidthPX Height of image in pixels
+ @param imageHeightPX Width of image in pixels
+ @param fovH Average horizontal view angle in degrees
 */
 void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
                                          int   imageHeightPX,

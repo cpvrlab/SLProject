@@ -135,14 +135,14 @@ bool CVTrackedAruco::track(CVMat          imageGray,
 //-----------------------------------------------------------------------------
 /*! CVTrackedAruco::drawArucoMarkerBoard draws and saves an aruco board
 into an image.
-\param dictionaryId integer id of the dictionary
-\param numMarkersX NO. of markers in x-direction
-\param numMarkersY NO. of markers in y-direction
-\param markerEdgeM Length of one marker in meters
-\param markerSepaM Separation between markers in meters
-\param imgName Image filename inklusive format extension
-\param dpi Dots per inch (default 256)
-\param showImage Shows image in window (default false)
+@param dictionaryId integer id of the dictionary
+@param numMarkersX NO. of markers in x-direction
+@param numMarkersY NO. of markers in y-direction
+@param markerEdgeM Length of one marker in meters
+@param markerSepaM Separation between markers in meters
+@param imgName Image filename inklusive format extension
+@param dpi Dots per inch (default 256)
+@param showImage Shows image in window (default false)
 */
 void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
                                           int           numMarkersX,

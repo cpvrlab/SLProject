@@ -348,7 +348,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 3b) Pass the modelview and modelview-projection matrix to the shader.<br>
 3c) If needed build and pass the inverse modelview and the normal matrix.<br>
 3d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
-4) Finally do the draw call<br>
+4) Finally do the draw call by calling SLGLVertexArray::drawElementsAs<br>
 5) Draw optional normals & tangents<br>
 6) Draw optional acceleration structure<br>
 7) Draw selected mesh with points<br>

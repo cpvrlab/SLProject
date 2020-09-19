@@ -39,7 +39,7 @@ class SLNode;
  tangential vector and U=Up as the ellipsoid's normal vector. Be aware that the
  up vector is normal to the ellipsoid and not to the terrain above. This normal
  does not point the center of the ellipsoid.\n
- If we want to show a local scene on the earth, we do this allways in the ENU
+ If we want to show a local scene on the earth, we do this always in the ENU
  frame because in the ECEF frame with have not enough precision for float
  coordinates. Therefore we have define a local origin in the ENU frame and
  convert all locations from LLA to ECEF and the with the wRecef rotation matrix

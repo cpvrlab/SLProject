@@ -50,12 +50,13 @@ SLSceneView::~SLSceneView()
 }
 //-----------------------------------------------------------------------------
 /*! SLSceneView::init initializes default values for an empty scene
-\param name Name of the sceneview
-\param screenWidth Width of the OpenGL frame buffer.
-\param screenHeight Height of the OpenGL frame buffer.
-\param onWndUpdateCallback Callback for ray tracing update
-\param onSelectNodeMeshCallback Callback on node and mesh selection
-\param SLUiInterface Interface for the external Gui build function
+@param name Name of the sceneview
+@param screenWidth Width of the OpenGL frame buffer.
+@param screenHeight Height of the OpenGL frame buffer.
+@param onWndUpdateCallback Callback for ray tracing update
+@param onSelectNodeMeshCallback Callback on node and mesh selection
+@param gui Interface for the external Gui build function
+@param configPath Path to the config file
 */
 void SLSceneView::init(SLstring           name,
                        SLint              screenWidth,
@@ -569,41 +570,51 @@ SLbool SLSceneView::onPaint()
 The following steps are processed:
 <ol>
 <li>
-<b>Updates the camera</b>:
-If the camera has an animation it gets updated first.
-The camera animation is the only animation that is view dependent.
+<b>Render shadow maps</b>:
+Renders all shadow maps for lights in SLLight::renderShadowMap
 </li>
 <li>
-<b>Clear Buffers</b>:
+<b>Updates the camera</b>:
+If the active camera has an animation it gets updated first in SLCamera::camUpdate
+</li>
+<li>
+<b>Clear all buffers</b>:
 The color and depth buffer are cleared in this step. If the projection is
 the Oculus stereo projection also the framebuffer target is bound.
 </li>
 <li>
-<b>Set Projection and View</b>:
+<b>Set viewport</b>:
 Depending on the projection we set the camera projection and the view
 for the center or left eye.
 </li>
 <li>
-<b>Frustum Culling</b>:
+<b>Render background</b>:
+ If no skybox is used the background is rendered. This can be the camera image
+ if the camera is turned on.
+</li>
+<li>
+<b>Set projection and view</b>:
+ Sets the camera projection matrix
+</li>
+<li>
+<b>Frustum culling</b>:
 During the cull traversal all materials that are seen in the view frustum get
 collected in _visibleMaterials. All nodes with their meshes get collected in
 SLMaterial::_nodesVisible3D. These materials and nodes get drawn in draw3DGLAll.
 </li>
 <li>
-<b>Draw Skybox</b>:
+<b>Draw skybox</b>:
 The skybox is draw as first object with frozen depth buffer.
 The skybox is always around the active camera.
 </li>
 <li>
-<b>Draw Opaque and Blended Nodes</b>:
-By calling the SLSceneView::draw3DGL all visible nodes of all visible materials
-get drawn sorted by material and transparency. If a stereo projection is set,
-the scene gets drawn a second time for the right eye.
+<b>Draw all visible nodes</b>:
+ By calling the SLSceneView::draw3DGL all visible nodes of all visible materials
+ get drawn sorted by material and transparency. If a stereo projection is set,
+ the scene gets drawn a second time for the right eye.
 </li>
 <li>
-<b>Draw Oculus Framebuffer</b>:
-If the projection is the Oculus stereo projection the framebuffer image
-is drawn.
+<b>Draw right eye for stereo projections</b>
 </li>
 </ol>
 */
@@ -616,7 +627,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     preDraw();
 
     ///////////////////////////
-    // 0. Render shadow maps //
+    // 1. Render shadow maps //
     ///////////////////////////
 
     SLfloat startMS = GlobalTimer::timeMS();
@@ -633,7 +644,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _shadowMapTimeMS = GlobalTimer::timeMS() - startMS;
 
     /////////////////////////
-    // 1. Do camera Update //
+    // 2. Do camera Update //
     /////////////////////////
 
     startMS = GlobalTimer::timeMS();
@@ -642,7 +653,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
     //////////////////////
-    // 2. Clear Buffers //
+    // 3. Clear Buffers //
     //////////////////////
 
     // Render into framebuffer if Oculus stereo projection is used
@@ -658,17 +669,16 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     stateGL->clearColorDepthBuffer();
 
     /////////////////////
-    // 3. Set viewport //
+    // 4. Set viewport //
     /////////////////////
 
-    // Set viewport
     if (_camera->projection() > P_monoOrthographic)
         _camera->setViewport(this, ET_left);
     else
         _camera->setViewport(this, ET_center);
 
     //////////////////////////
-    // 3. Render background //
+    // 5. Render background //
     //////////////////////////
 
     // Render solid color, gradient or textured background from active camera
@@ -680,7 +690,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     stateGL->depthTest(_doDepthTest);
 
     //////////////////////////////
-    // 4. Set Projection & View //
+    // 6. Set Projection & View //
     //////////////////////////////
 
     // Set projection
@@ -696,7 +706,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     ////////////////////////
-    // 5. Frustum Culling //
+    // 7. Frustum Culling //
     ////////////////////////
 
     // Delete all visible nodes from the last frame
@@ -717,26 +727,29 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _cullTimeMS = GlobalTimer::timeMS() - startMS;
 
     ////////////////////
-    // 6. Draw skybox //
+    // 8. Draw skybox //
     ////////////////////
 
     if (_skybox)
         _skybox->drawAroundCamera(this);
 
-    ////////////////////////////////////
-    // 7. Draw Opaque & Blended Nodes //
-    ////////////////////////////////////
+    ////////////////////////////
+    // 9. Draw all visible nodes
+    ////////////////////////////
 
     startMS = GlobalTimer::timeMS();
 
     draw3DGLAll();
 
-    // For stereo draw for right eye
+    ///////////////////////////////////////////////
+    // 10. Draw right eye for stereo projections //
+    ///////////////////////////////////////////////
+
     if (_camera->projection() > P_monoOrthographic)
     {
         _camera->setViewport(this, ET_right);
 
-        // Only draw backrounds for stereo projections in different viewports
+        // Only draw backgrounds for stereo projections in different viewports
         if (!_skybox && _camera->projection() < P_stereoLineByLine)
             _camera->background().render(_viewportRect.width, _viewportRect.height);
 
@@ -774,7 +787,7 @@ void SLSceneView::draw3DGLAll()
 {
     PROFILE_FUNCTION();
 
-    // 1) Draw nodes with meshes with opaque materials and all helper lines sorted by material
+    // a) Draw nodes with meshes with opaque materials and all helper lines sorted by material
     for (auto material : _visibleMaterials3D)
     {
         if (!material->hasAlpha())
@@ -785,11 +798,11 @@ void SLSceneView::draw3DGLAll()
         draw3DGLLines(material->nodesVisible3D());
     }
 
-    // 2) Draw remaining opaque nodes (SLCameras, needs redesign)
+    // b) Draw remaining opaque nodes without meshes (SLCameras, needs redesign)
     _stats3D.numNodesOpaque += (SLuint)_nodesOpaque3D.size();
     draw3DGLNodes(_nodesOpaque3D, false, false);
 
-    // 3) Draw nodes with meshes with blended materials sorted by material and sorted back to front
+    // c) Draw nodes with meshes with blended materials sorted by material and sorted back to front
     for (auto material : _visibleMaterials3D)
     {
         if (material->hasAlpha())
@@ -799,16 +812,16 @@ void SLSceneView::draw3DGLAll()
         }
     }
 
-    // 4) Draw remaining blended nodes (SLText, needs redesign)
+    // d) Draw remaining blended nodes (SLText, needs redesign)
     _stats3D.numNodesBlended += (SLuint)_nodesBlended3D.size();
     draw3DGLNodes(_nodesBlended3D, true, true);
 
-    // 5) Draw helpers in overlay mode (not depth buffered)
+    // e) Draw helpers in overlay mode (not depth buffered)
     for (auto material : _visibleMaterials3D)
         draw3DGLLinesOverlay(material->nodesVisible3D());
     draw3DGLLinesOverlay(_nodesOverdrawn);
 
-    // 6) Draw visualization lines of animation curves
+    // f) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);
 
     // Turn blending off again for correct anaglyph stereo modes

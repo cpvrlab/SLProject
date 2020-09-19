@@ -527,10 +527,10 @@ string CVImage::formatString(CVPixFormat format)
 //-----------------------------------------------------------------------------
 //! Save as PNG at a certain compression level (0-9)
 /*!Save as PNG at a certain compression level (0-9)
-\param filename filename with path and extension
-\param compressionLevel compression level 0-9 (default 6)
-\param flipY Flag for vertical mirroring
-\param convertBGR2RGB Flag for BGR to RGB conversion
+@param filename filename with path and extension
+@param compressionLevel compression level 0-9 (default 6)
+@param flipY Flag for vertical mirroring
+@param convertBGR2RGB Flag for BGR to RGB conversion
 */
 void CVImage::savePNG(const string& filename,
                       const int     compressionLevel,
@@ -563,10 +563,10 @@ void CVImage::savePNG(const string& filename,
 //-----------------------------------------------------------------------------
 //! Save as JPG at a certain compression level (0-100)
 /*!Save as JPG at a certain compression level (0-100)
-\param filename filename with path and extension
-\param compressionLevel compression level 0-100 (default 95)
-\param flipY Flag for vertical mirroring
-\param convertBGR2RGB Flag for BGR to RGB conversion
+@param filename filename with path and extension
+@param compressionLevel compression level 0-100 (default 95)
+@param flipY Flag for vertical mirroring
+@param convertBGR2RGB Flag for BGR to RGB conversion
 */
 void CVImage::saveJPG(const string& filename,
                       const int     compressionLevel,
