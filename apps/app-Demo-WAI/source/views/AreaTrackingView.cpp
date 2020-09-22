@@ -23,16 +23,16 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1),
          deviceData.erlebARDir()),
     _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
-    _testScene(deviceData.dataDir()),
+    _userGuidanceScene(deviceData.dataDir()),
     _camera(camera),
     _gps(gps),
     _orientation(orientation),
     _vocabularyDir(deviceData.vocabularyDir()),
     _erlebARDir(deviceData.erlebARDir()),
     _resources(resources),
-    _userGuidance(&_gui)
+    _userGuidance(&_userGuidanceScene, &_gui, gps, orientation, resources)
 {
-    scene(&_testScene);
+    scene(&_userGuidanceScene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     //todo: ->moved to constructor of AreaTrackingScene: can this lead to any problems?
     //_scene.init();
@@ -55,10 +55,83 @@ AreaTrackingView::~AreaTrackingView()
 
 bool AreaTrackingView::update()
 {
+    WAI::TrackingState slamState = WAI::TrackingState_None;
+    try
+    {
+        SENSFramePtr frame;
+        if (_camera)
+            frame = _camera->latestFrame();
+
+        bool isTracking = false;
+        
+        if (frame && _waiSlam)
+        {
+            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+            if (!frame->intrinsics.empty())
+            {
+                auto    calib        = _camera->calibration();
+                cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                            _camera->config().manipWidth,
+                                                            _camera->config().targetWidth);
+                _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
+                updateSceneCameraFov();
+            }
+            _waiSlam->update(frame->imgManip);
+            slamState = _waiSlam->getTrackingState();
+
+            isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
+            if (isTracking)
+                _scene.updateCameraPose(_waiSlam->getPose());
+        }
+        else if (_asyncLoader && _asyncLoader->isReady())
+        {
+            initSlam();
+        }
+        
+        //switch between userguidance scene and tracking scene depending on tracking state
+        VideoBackgroundCamera* currentCamera;
+        if(isTracking)
+        {
+            this->scene(&_scene);
+            this->camera(_scene.camera);
+            currentCamera = _scene.camera;
+        }
+        else
+        {
+            this->scene(&_userGuidanceScene);
+            this->camera(_userGuidanceScene.camera);
+            currentCamera = _userGuidanceScene.camera;
+        }
+        
+        //update visualization
+        if (frame)
+        {
+            //decorate video image and update scene
+            if(_waiSlam)
+                updateTrackingVisualization(isTracking, *frame.get());
+            
+            //set video image camera background
+            updateVideoImage(*frame.get(), currentCamera);
+        }
+
+        _userGuidance.updateTrackingState(isTracking);
+        _userGuidance.updateSensorEstimations();
+    }
+    catch (std::exception& e)
+    {
+        _gui.showErrorMsg(e.what());
+    }
+    catch (...)
+    {
+        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
+    }
+    return onPaint();
+    
+    /*
     if (_userGuidanceMode)
     {
-        this->scene(&_testScene);
-        this->camera(_testScene.camera);
+        this->scene(&_userGuidanceScene);
+        this->camera(_userGuidanceScene.camera);
         if (_orientation)
         {
             ///////////////////////////////////////////////////////////////////////
@@ -83,14 +156,14 @@ bool AreaTrackingView::update()
             SLMat3f wRc = wRenu * enuRs * sRc;
 
             //camera translations w.r.t world:
-            SLVec3f wtc = _testScene.camera->updateAndGetWM().translation();
+            SLVec3f wtc = _userGuidanceScene.camera->updateAndGetWM().translation();
 
             //combination of rotation and translation:
             SLMat4f wTc;
             wTc.setRotation(wRc);
             wTc.setTranslation(wtc);
 
-            _testScene.camera->om(wTc);
+            _userGuidanceScene.camera->om(wTc);
 
             //ARROW ROTATION CALCULATION:
             //auto loc = _gps->getLocation();
@@ -150,7 +223,7 @@ bool AreaTrackingView::update()
             SLMat3f cRw = wRc.transposed();
             SLMat3f cRp = cRw * wRenu * enuRp;
             //set arrow rotation
-            _testScene.updateArrowRot(cRp);
+            _userGuidanceScene.updateArrowRot(cRp);
         }
 
         try
@@ -261,6 +334,7 @@ bool AreaTrackingView::update()
 
         return onPaint();
     }
+     */
 }
 
 SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
@@ -287,23 +361,63 @@ void AreaTrackingView::updateSceneCameraFov()
         if (this->scrWdivH() > imgWdivH)
         {
             //bars left and right: directly use camera vertial field of view as scene vertical field of view
-            _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-            _testScene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+            _scene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+            _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
         }
         else
         {
             //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
-            _scene.updateCameraIntrinsics(fovV);
-            _testScene.updateCameraIntrinsics(fovV);
+            _scene.camera->updateCameraIntrinsics(fovV);
+            _userGuidanceScene.camera->updateCameraIntrinsics(fovV);
         }
     }
     else
     {
         //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
-        _scene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-        _testScene.updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        _scene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
     }
+}
+
+void AreaTrackingView::initSlam()
+{
+    Utils::log("AreaTrackingView", "worker done");
+
+    cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+    if (!mapNodeOm.empty())
+    {
+        SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+        //std::cout << "slOm: " << slOm.toString() << std::endl;
+        _scene.mapNode->om(slOm);
+    }
+
+    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                _camera->config().manipWidth,
+                                                _camera->config().targetWidth);
+
+    WAISlamTrackPool::Params params;
+    params.cullRedundantPerc   = 0.95f;
+    params.ensureKFIntegration = false;
+    params.fixOldKfs           = true;
+    params.onlyTracking        = false;
+    params.retainImg           = false;
+    params.serial              = false;
+    params.trackOptFlow        = false;
+
+    _waiSlam = std::make_unique<WAISlamTrackPool>(
+      scaledCamMat,
+      _camera->calibration()->distortion(),
+      _voc,
+      _initializationExtractor.get(),
+      _relocalizationExtractor.get(),
+      _trackingExtractor.get(),
+      _asyncLoader->moveWaiMap(),
+      params);
+
+    delete _asyncLoader;
+    _asyncLoader = nullptr;
+    _userGuidance.dataIsLoading(false);
 }
 
 std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARDir,
@@ -389,6 +503,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     ErlebAR::Location& location = _locations[locId];
     ErlebAR::Area&     area     = location.areas[areaId];
     _gui.initArea(area);
+    _userGuidance.areaSelected(area.id, area.lla, area.viewAngleDeg);
 
     //start camera
     if (!startCamera(area.cameraFrameTargetSize))
@@ -399,11 +514,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
-
-    if (_userGuidanceMode)
-        this->camera(_testScene.camera);
-    else
-        this->camera(_scene.cameraNode);
 
     updateSceneCameraFov();
 
@@ -426,7 +536,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     _asyncLoader = new MapLoader(_voc, fileName, _erlebARDir, area.slamMapFileName);
     _asyncLoader->start();
-    _gui.showLoading();
+    _userGuidance.dataIsLoading(true);
+
 #else
     //load vocabulary
     std::string fileName = _vocabularyDir + _vocabularyFileName;
@@ -570,7 +681,7 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
     }
 }
 
-void AreaTrackingView::updateVideoImage(SENSFrame& frame)
+void AreaTrackingView::updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground)
 {
     if (_camera->calibration()->state() == SENSCalibration::State::calibrated)
         _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
@@ -581,11 +692,9 @@ void AreaTrackingView::updateVideoImage(SENSFrame& frame)
     //todo: the matrices in the buffer have different sizes.. problem? no! no!
     SENS::extendWithBars(_imgBuffer.outputSlot(), this->viewportWdivH());
 
-    if (_userGuidanceMode)
-        _testScene.updateVideoImage(_imgBuffer.outputSlot());
-    else
-        _scene.updateVideoImage(_imgBuffer.outputSlot());
-
+    //update the current scene
+    videoBackground->updateVideoImage(_imgBuffer.outputSlot());
+    
     _imgBuffer.incrementSlot();
 }
 
@@ -595,8 +704,6 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
     //undistort image and copy image to video texture
     if (_resources.developerMode)
         _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, false, true);
-
-    updateVideoImage(frame);
 
     //update map point visualization
     if (_resources.developerMode)

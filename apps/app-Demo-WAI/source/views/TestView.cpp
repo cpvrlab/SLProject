@@ -108,7 +108,7 @@ bool TestView::update()
             {
                 _camera->setCalibration(_autoCal->consumeCalibration(), true);
                 _calibration = _camera->calibration();
-                _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+                _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                 cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                             _camera->config().manipWidth,
                                                             _camera->config().targetWidth);
@@ -183,7 +183,7 @@ void TestView::handleEvents()
                     SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
                     _camera->setCalibration(calib, false);
                     _calibration = _camera->calibration();
-                    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+                    _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                     cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                                 _camera->config().manipWidth,
                                                                 _camera->config().targetWidth);
@@ -193,7 +193,7 @@ void TestView::handleEvents()
                 {
                     _camera->setCalibration(*_calibrationLoaded, true);
                     _calibration = _camera->calibration();
-                    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+                    _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                     cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
                                                                 _camera->config().manipWidth,
                                                                 _camera->config().targetWidth);
@@ -343,7 +343,7 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     _scene.rebuild(location, area);
 
     doWaitOnIdle(false);
-    camera(_scene.cameraNode);
+    camera(_scene.camera);
     onInitialize();
 }
 
@@ -539,19 +539,19 @@ void TestView::updateSceneCameraFov()
         if (this->scrWdivH() > imgWdivH)
         {
             //bars left and right: directly use camera vertial field of view as scene vertical field of view
-            _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+            _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
         }
         else
         {
             //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_calibration->cameraFovHDeg(), this->scrW(), this->scrH());
-            _scene.updateCameraIntrinsics(fovV);
+            _scene.camera->updateCameraIntrinsics(fovV);
         }
     }
     else
     {
         //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
-        _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+        _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
     }
 }
 
@@ -749,7 +749,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     }
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
-    _scene.updateCameraIntrinsics(_calibration->cameraFovVDeg());
+    _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
 
     // 4. Create new mode ORBSlam
     if (!slamParams.markerFile.empty())
@@ -981,7 +981,7 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& 
     else
         _imgBuffer.inputSlot() = frame.imgRGB;
 
-    _scene.updateVideoImage(_imgBuffer.outputSlot());
+    _scene.camera->updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();
 
     updateTrackingVisualization(iKnowWhereIAm);

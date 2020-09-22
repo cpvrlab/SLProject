@@ -273,7 +273,7 @@ const Location defineLocationEvilard()
         area.xPosPix       = 282;
         area.yPosPix       = 312;
         area.viewAngleDeg  = 200.f;
-        area.slamMapFileName         = "";
+        area.slamMapFileName         = "locations/evilard/roc2/maps/DEVELOPMENT-map_20200918-163220_evilard_roc2_FAST-ORBS-3000_2.waimap";
         area.relocAlignImage         = "locations/evilard/roc2/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};
         area.cameraFrameCropToScreen = false;
@@ -286,7 +286,7 @@ const Location defineLocationEvilard()
         area.xPosPix	   = 130;
         area.yPosPix       = 380;
         area.viewAngleDeg  = 220.f;
-        area.slamMapFileName         = "";
+        area.slamMapFileName         = "locations/evilard/firefighters/maps/DEVELOPMENT-map_20200918-100317_evilard_firefighters_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/evilard/firefighters/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};
         area.cameraFrameCropToScreen = false;

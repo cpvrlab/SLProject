@@ -79,7 +79,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     info("Example for loading an existing pose graph with map points.");
 
     _root3D    = new SLNode("scene");
-    cameraNode = new SLCamera("Camera 1");
 
     mapNode           = new SLNode("map");
     mapPC             = new SLNode("MapPC");
@@ -108,9 +107,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat", SLCol4f::RED);
     loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
-    _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage, false);
-
     // Create directional light for the sun light
     SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
     light->ambientColor(SLCol4f(1, 1, 1));
@@ -122,12 +118,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     light->setDrawBitsRec(SL_DB_HIDDEN, false);
     _root3D->addChild(light);
 
-    cameraNode->translation(0, 0, 0.f);
-    cameraNode->lookAt(0, 0, 1);
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png");
+    camera->translation(0, 0, 0.f);
+    camera->lookAt(0, 0, 1);
     //for tracking we have to use the field of view from calibration
-    cameraNode->clipNear(0.1f);
-    cameraNode->clipFar(1000.0f); // Increase to infinity?
-    cameraNode->setInitialState();
+    camera->clipNear(0.1f);
+    camera->clipFar(1000.0f); // Increase to infinity?
+    camera->setInitialState();
 
     HighResTimer t;
     if (location == "avenches" || location == "Avenches")
@@ -266,8 +263,8 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
          */
         //adjust camera frustum
-        cameraNode->clipNear(1.0f);
-        cameraNode->clipFar(10.0f);
+        camera->clipNear(1.0f);
+        camera->clipFar(10.0f);
     }
 
 #if 0 // office table boxes scene
@@ -330,7 +327,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     mapNode->addChild(covisibilityGraph);
     mapNode->addChild(spanningTree);
     mapNode->addChild(loopEdges);
-    mapNode->addChild(cameraNode);
+    mapNode->addChild(camera);
 
     mapNode->rotate(180, 1, 0, 0);
 
@@ -389,17 +386,7 @@ void AppWAIScene::updateCameraPose(const cv::Mat& pose)
                  -PoseInv.at<float>(3, 2),
                  PoseInv.at<float>(3, 3));
 
-    cameraNode->om(om);
-}
-
-void AppWAIScene::updateVideoImage(const cv::Mat& image)
-{
-    _videoImage->copyVideoImage(image.cols,
-                                image.rows,
-                                CVImage::cv2glPixelFormat(image.type()),
-                                image.data,
-                                image.isContinuous(),
-                                true);
+    camera->om(om);
 }
 
 void AppWAIScene::renderMapPoints(const std::vector<WAIMapPoint*>& pts)

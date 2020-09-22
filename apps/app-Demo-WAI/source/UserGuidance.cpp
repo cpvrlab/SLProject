@@ -1,4 +1,10 @@
 #include "UserGuidance.h"
+
+
+
+
+
+/*
 #include <Gui/AreaTrackingGui.h>
 
 UserGuidance::UserGuidance(AreaTrackingGui * gui)
@@ -116,3 +122,4 @@ void UserGuidance::update(WAI::TrackingState state)
         _queuedInfos.pop();
 }
 
+*/

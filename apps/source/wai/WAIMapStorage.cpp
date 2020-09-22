@@ -1031,7 +1031,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             if (q.size() == 0)
             {
                 //no connection: the remaining keyframes are unconnected
-                Utils::log("WAIMapStorage", "Error in building spanning tree: There are %i unconnected keyframes!");
+                Utils::log("WAIMapStorage", "Error in building spanning tree: There are %i unconnected keyframes!", unconKfs.size());
                 break;
             }
             else

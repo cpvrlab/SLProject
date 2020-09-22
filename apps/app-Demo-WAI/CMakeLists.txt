@@ -74,6 +74,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageBuffer.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GPSMapper2D.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/UserGuidance.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/VideoBackgroundCamera.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
@@ -90,6 +91,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SensorTestView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/UserGuidanceScene.h
 	)
 	
 set(erlebar_sources
@@ -167,6 +169,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SensorTestView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/UserGuidanceScene.cpp
 	)
 	
 set(erlebar_include_directories

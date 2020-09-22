@@ -98,7 +98,7 @@ bool TestRunnerView::update()
                     localMap.keyFrames.clear();
                     localMap.mapPoints.clear();
                     localMap.refKF = nullptr;
-                    //DUtils::Random::SeedRand(42);
+                    DUtils::Random::SeedRand(42);
                     if (WAISlam::relocalization(currentFrame, _map, localMap, inliers))
                     {
                         _relocalizationFrameCount++;
@@ -128,7 +128,7 @@ bool TestRunnerView::update()
                     else
                     {
                         int inliers;
-                        //DUtils::Random::SeedRand(42);
+                        DUtils::Random::SeedRand(42);
                         if (WAISlam::relocalization(currentFrame, _map, _localMap, inliers))
                         {
                             _isTracking     = true;
