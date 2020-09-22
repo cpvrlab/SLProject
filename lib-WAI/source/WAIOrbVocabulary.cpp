@@ -115,3 +115,52 @@ size_t WAIOrbVocabulary::size()
     return _vocabulary->size();
 #endif
 }
+
+void WAIOrbVocabulary::create(std::vector<cv::Mat> features)
+{
+#if USE_FBOW
+    fbow::VocabularyCreator vc;
+    fbow::VocabularyCreator::Params p;
+    p.k        = 10;
+    p.L        = 2;
+    p.nthreads = 1;
+    p.maxIters = 11;
+    p.verbose  = true;
+
+    _vocabulary = new fbow::Vocabulary();
+
+    cout << "Creating a " << p.k << "^" << p.L << " vocabulary..." << endl;
+    vc.create(*_vocabulary, features, "orb2000", p);
+    cout << "... done!" << endl;
+#else
+    const int           k      = 10;
+    const int           L      = 2;
+    const WeightingType weight = TF_IDF;
+    const ScoringType   score  = L1_NORM;
+
+    std::vector<std::vector<cv::Mat>> feats;
+    feat.resize(features.size());
+
+    cout << "Creating a " << p.k << "^" << p.L << " vocabulary..." << endl;
+    for (int i = 0; i < features.size(); i++)
+    {
+        feat[i].resize(features[i].rows());
+        for (int j = 0; j < features[i].rows(); j++)
+            feat[i].push_back(features[i].row(i));
+    }
+
+    _vocabulary = new voc(k, L, weight, score);
+    _vocabulary->create(feat);
+
+    cout << "... done!" << endl;
+#endif
+}
+
+void WAIOrbVocabulary::save(std::string path)
+{
+#if USE_FBOW
+    _vocabulary->saveToFile(path);
+#else
+    _vocabulary->saveToBinaryFile(path);
+#endif
+}
