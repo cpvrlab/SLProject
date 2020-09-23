@@ -32,7 +32,7 @@ void UserGuidance::reset()
     update();
 }
 
-void UserGuidance::areaSelected(ErlebAR::AreaId areaId, SLVec3f areaLocation, float areaOrientation)
+void UserGuidance::areaSelected(ErlebAR::AreaId areaId, SLVec3d areaLocation, float areaOrientation)
 {
     _selectedArea = areaId;
     _areaLocation = areaLocation;

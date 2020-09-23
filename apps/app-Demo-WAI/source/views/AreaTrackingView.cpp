@@ -296,7 +296,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     ErlebAR::Location& location = _locations[locId];
     ErlebAR::Area&     area     = location.areas[areaId];
     _gui.initArea(area);
-    _userGuidance.areaSelected(area.id, area.lla, area.viewAngleDeg);
+    _userGuidance.areaSelected(area.id, area.llaPos, area.viewAngleDeg);
 
     //start camera
     if (!startCamera(area.cameraFrameTargetSize))

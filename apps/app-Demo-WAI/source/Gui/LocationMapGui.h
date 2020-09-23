@@ -74,7 +74,10 @@ private:
     float             _fracH;
     float             _dspPixWidth;
     float             _dspPixHeight;
-
+    
+    //area map positions in pixel
+    std::map<ErlebAR::AreaId, SLVec2i> _areaMapPosPix;
+    
     SENSGps*                     _gps         = nullptr;
     SENSOrientation*             _orientation = nullptr;
     std::unique_ptr<GPSMapper2D> _gpsMapper;

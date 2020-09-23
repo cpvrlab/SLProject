@@ -103,11 +103,8 @@ public:
 
     AreaId      id = AreaId::NONE;
     std::string name;
-    //x position in pixel (only valid for current map image)
-    int xPosPix = 0;
-    //y position in pixel (only valid for current map image)
-    int     yPosPix = 0;
-    SLVec3f lla;
+    //lat lon altitude position in WGS84
+    SLVec3d llaPos;
     //view angle in degree
     float viewAngleDeg = 0.f;
     //map name in erlebAR directory

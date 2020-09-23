@@ -170,9 +170,14 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         {
             const Area& area = it.second;
 
-            //[0, 1] on the texture
-            float x = (float)area.xPosPix / (float)_locTextureW - _x;
-            float y = (float)area.yPosPix / (float)_locTextureH - _y;
+            float x = 0, y = 0;
+            auto areaMapPosPixIt = _areaMapPosPix.find(area.id);
+            if(areaMapPosPixIt != _areaMapPosPix.end())
+            {
+                //[0, 1] on the texture
+                x = (float)areaMapPosPixIt->second.x / (float)_locTextureW - _x;
+                y = (float)areaMapPosPixIt->second.y / (float)_locTextureH - _y;
+            }
 
             //[0, texSize] to screen coordinate
             ImGui::SetCursorPosX(x * (float)_locTextureW * (float)_screenW / (float)(_dspPixWidth));
@@ -298,6 +303,11 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
 
         //instantiate location map for wgs84 to image coordinate system transformation
         _gpsMapper = std::make_unique<GPSMapper2D>(_loc.mapTLLla, _loc.mapBRLla, _locTextureW, _locTextureH);
+        //estimate pixel positions for all areas
+        for (const auto& area : _loc.areas)
+        {
+            _areaMapPosPix[area.first] = _gpsMapper->mapLLALocation(area.second.llaPos);
+        }
     }
     else
         Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);

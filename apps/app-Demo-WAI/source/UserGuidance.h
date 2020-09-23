@@ -52,7 +52,7 @@ public:
     //reset user guidance to state idle
     void reset();
     //update userguidance
-    void areaSelected(ErlebAR::AreaId areaId, SLVec3f areaLocation, float areaOrientation);
+    void areaSelected(ErlebAR::AreaId areaId, SLVec3d areaLocation, float areaOrientation);
     void dataIsLoading(bool isLoading);
     void updateTrackingState(bool isTracking);
     //update values for state updates and transitions depending on sensors
@@ -85,7 +85,7 @@ private:
     //HELPER VARIABLES:
     // distance to area threshold in meter
     const float DIST_TO_AREA_THRES_M = 10.f;
-    SLVec3f _areaLocation{0.f, 0.f, 0.f};
+    SLVec3d _areaLocation{0.f, 0.f, 0.f};
     float _areaOrientation = 0.f;
     float _currentDistanceToAreaM = 0.f;
     // orientation difference to area threshold
@@ -102,10 +102,6 @@ private:
     State _state = State::IDLE;
     State _oldState = State::IDLE;
 };
-
-
-
-
 
 #endif
 
