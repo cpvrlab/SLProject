@@ -59,7 +59,7 @@ WAISlam::WAISlam(const cv::Mat&          intrinsic,
     }
 
     _localMapping = new ORB_SLAM2::LocalMapping(_globalMap.get(), _voc, params.cullRedundantPerc);
-    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap.get(), _voc, false, false);
+    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap.get(), _voc, _params.minCommonWordFactor, false, false);
 
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
@@ -329,7 +329,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap.get(), _localMap, inliers))
+            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers))
             {
                 _relocFrameCounter = 0;
                 _lastRelocFrameId  = frame.mnId;
@@ -371,7 +371,7 @@ void WAISlam::updatePoseKFIntegration(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap.get(), _localMap, inliers))
+            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers))
             {
                 _lastRelocFrameId    = frame.mnId;
                 _velocity            = cv::Mat();

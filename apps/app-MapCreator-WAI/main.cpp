@@ -17,6 +17,7 @@ struct Config
     bool          serialMapping;
     float         thinCullingValue;
     bool          ensureKFIntegration;
+    float         minCommonWordFactor;
 };
 
 void printHelp()
@@ -50,6 +51,7 @@ void readArgs(int argc, char* argv[], Config& config)
     config.thinCullingValue    = 0.995f;
     config.serialMapping       = false;
     config.ensureKFIntegration = false;
+    config.minCommonWordFactor = 0.8;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -77,7 +79,7 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-outputDir"))
         {
-            config.outputDir = argv[++i]; //Not used
+            config.outputDir = argv[++i];
         }
         else if (!strcmp(argv[i], "-level"))
         {
@@ -91,6 +93,10 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-thinCullVal"))
         {
             config.thinCullingValue = std::stof(argv[++i]);
+        }
+        else if (!strcmp(argv[i], "-minCommonWordFactor"))
+        {
+            config.minCommonWordFactor = std::stof(argv[++i]);
         }
         else if (!strcmp(argv[i], "-ensureKFIntegration"))
         {
@@ -224,7 +230,8 @@ int main(int argc, char* argv[])
                               config.outputDir,
                               config.serialMapping,
                               config.thinCullingValue,
-                              config.ensureKFIntegration);
+                              config.ensureKFIntegration,
+                              config.minCommonWordFactor);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

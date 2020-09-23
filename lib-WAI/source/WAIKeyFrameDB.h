@@ -63,10 +63,10 @@ class WAI_API WAIKeyFrameDB
         LOOP_DETECTION_ERROR_NO_CANDIDATES_WITH_COMMON_WORDS,
         LOOP_DETECTION_ERROR_NO_SIMILAR_CANDIDATES
     };
-    std::vector<WAIKeyFrame*> DetectLoopCandidates(WAIKeyFrame* pKF, float minScore, int* errorCode);
+    std::vector<WAIKeyFrame*> DetectLoopCandidates(WAIKeyFrame* pKF, float minCommonWordFactor, float minScore, int* errorCode);
 
     // Relocalization
-    std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIFrame* F, bool applyMinAccScoreFilter = false);
+    std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIFrame* F, float minCommonWordFactor, bool applyMinAccScoreFilter = false);
 
     protected:
     // Associated vocabulary

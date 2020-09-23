@@ -713,6 +713,7 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
 bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                                   WAIMap*   waiMap,
                                   LocalMap& localMap,
+                                  float     minCommonWordFactor,
                                   int&      inliers)
 {
     AVERAGE_TIMING_START("relocalization");
@@ -721,7 +722,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Relocalization is performed when tracking is lost
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
-    vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, true); //put boolean to argument
+    vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, minCommonWordFactor, true); //put boolean to argument
 
     if (vpCandidateKFs.empty())
     {
@@ -1569,4 +1570,67 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string       markerFile,
     nodeTransform = scaleMat * nodeTransform;
 
     return true;
+}
+
+
+bool WAISlamTools::detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visitedNode)
+{
+    std::stack<WAIKeyFrame*> nodeStack;
+
+    nodeStack.push(kf);
+
+    while (!nodeStack.empty())
+    {
+        WAIKeyFrame * k = nodeStack.top();
+        nodeStack.pop();
+
+        if (visitedNode.count(k) == 0)
+        {
+            visitedNode.insert(k);
+            for (WAIKeyFrame * c : k->GetChilds())
+            {
+                if (!c->isBad())
+                    nodeStack.push(c);
+            }
+        }
+        else
+            return true;
+    }
+    return false;
+}
+
+bool WAISlamTools::checkKFConnectionsTree(WAIMap * map)
+{
+    std::vector<WAIKeyFrame*> allKfs = map->GetAllKeyFrames();
+    std::set<WAIKeyFrame*> visitedNode;
+    unsigned int countGood = 0;
+
+    bool b = true;
+    if (detectCycle(allKfs[0], visitedNode))
+    {
+        std::cout << "keyframe graph has a cycle" << std::endl;
+        b = false;
+    }
+
+    for (WAIKeyFrame *kf : allKfs)
+    {
+        if (kf->isBad())
+            continue;
+
+        countGood++;
+
+        if ((kf->GetParent() == nullptr || kf->GetParent()->isBad()) && kf->mnId != 0)
+        {
+            std::cout << "kf " << kf->mnId << " has no parent" << std::endl;
+            b = false;
+        }
+    }
+
+    if (visitedNode.size() != countGood)
+    {
+        std::cout << "keyframe graph is split" << std::endl;
+        std::cout << "visitedNode.size() = " << visitedNode.size() << " and number of good keyframe is " << countGood << std::endl;
+        b = false;
+    }
+    return b;
 }

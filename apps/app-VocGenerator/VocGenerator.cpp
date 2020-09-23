@@ -20,8 +20,6 @@
 using namespace std;
 
 int loadFeatures(std::string videoname, vector<cv::Mat>& features);
-void changeStructure(const cv::Mat& plain, vector<cv::Mat>& out);
-void changeStructure(const cv::Mat& plain, std::map<std::string, cv::Mat>& map,  vector<cv::Mat>& out);
 void buildVoc(vector<cv::Mat>& features);
 std::string desc_to_str(cv::Mat& descriptor);
 

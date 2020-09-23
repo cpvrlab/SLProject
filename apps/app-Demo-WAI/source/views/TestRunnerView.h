@@ -22,6 +22,7 @@ class TestRunnerView : protected SLSceneView
         std::string calibration;
         std::string extractorType;
         int         nLevels;
+        std::string voc;
     };
 
 public:
@@ -90,6 +91,7 @@ private:
     WAIOrbVocabulary             _voc;
     bool                         _videoWasDownloaded;
     float                        _summedTime;
+    const DeviceData&            _deviceData;
 
     // Relocalization test stuff
     int _relocalizationFrameCount;

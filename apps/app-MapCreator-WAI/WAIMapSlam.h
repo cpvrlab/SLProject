@@ -27,10 +27,11 @@ class WAIMapSlam : public WAISlamTools
 public:
     struct Params
     {
-        bool  serial            = false;
-        bool  retainImg         = false;
-        bool  fixOldKfs         = false;
-        float cullRedundantPerc = 0.99f;
+        bool  serial              = false;
+        bool  retainImg           = false;
+        bool  fixOldKfs           = false;
+        float cullRedundantPerc   = 0.99f;
+        float minCommonWordFactor = 0.8f;
     };
 
     WAIMapSlam(const cv::Mat&          intrinsic,

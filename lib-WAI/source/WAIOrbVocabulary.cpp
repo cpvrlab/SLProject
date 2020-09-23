@@ -122,7 +122,7 @@ void WAIOrbVocabulary::create(std::vector<cv::Mat> features)
     fbow::VocabularyCreator vc;
     fbow::VocabularyCreator::Params p;
     p.k        = 10;
-    p.L        = 2;
+    p.L        = 3;
     p.nthreads = 1;
     p.maxIters = 11;
     p.verbose  = true;

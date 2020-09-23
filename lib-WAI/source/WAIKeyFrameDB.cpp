@@ -81,7 +81,7 @@ void WAIKeyFrameDB::clear()
 // 0 - if candidates were found
 // 1 - if no candidates with common words are found
 // 2 - if no candidates with a high enough similarity score are found
-std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, float minScore, int* errorCode)
+std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, float minCommonWordFactor, float minScore, int* errorCode)
 {
     std::set<WAIKeyFrame*>  spConnectedKeyFrames = pKF->GetConnectedKeyFrames();
     std::list<WAIKeyFrame*> lKFsSharingWords;
@@ -128,7 +128,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
             maxCommonWords = (*lit)->mnLoopWords;
     }
 
-    int minCommonWords = (int)(maxCommonWords * 0.8f);
+    int minCommonWords = (int)(maxCommonWords * minCommonWordFactor);
 
     // Compute similarity score. Retain the matches whose score is higher than minScore
     for (std::list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
@@ -206,7 +206,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
     return vpLoopCandidates;
 }
 //-----------------------------------------------------------------------------
-std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, bool applyMinAccScoreFilter)
+std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, float minCommonWordFactor, bool applyMinAccScoreFilter)
 {
     std::list<WAIKeyFrame*> lKFsSharingWords;
 
@@ -253,7 +253,7 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame
             maxCommonWords = (*lit)->mnRelocWords;
     }
 
-    int minCommonWords = (int)(maxCommonWords * 0.8f);
+    int minCommonWords = (int)(maxCommonWords * minCommonWordFactor);
 
     if (!applyMinAccScoreFilter)
     {

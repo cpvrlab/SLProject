@@ -15,10 +15,13 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        std::string   outputDir,
                        bool          serialMapping,
                        float         thinCullingValue,
-                       bool          ensureKFIntegration)
+                       bool          ensureKFIntegration,
+                       float         minCommonWordFactor)
+
   : _erlebARDir(Utils::unifySlashes(erlebARDir)),
     _serialMapping(serialMapping),
-    _thinCullingValue(thinCullingValue)
+    _thinCullingValue(thinCullingValue),
+    _minCommonWordFactor(minCommonWordFactor)
 {
     _calibrationsDir = Utils::unifySlashes(calibrationsDir);
     if (outputDir.empty())
@@ -213,10 +216,11 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
 {
     //wai mode config
     WAIMapSlam::Params modeParams;
-    modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = _serialMapping;
-    modeParams.fixOldKfs         = false;
-    modeParams.retainImg         = false;
+    modeParams.cullRedundantPerc   = cullRedundantPerc;
+    modeParams.serial              = _serialMapping;
+    modeParams.fixOldKfs           = false;
+    modeParams.retainImg           = false;
+    modeParams.minCommonWordFactor = _minCommonWordFactor;
 
     WAIKeyFrameDB* kfDB          = new WAIKeyFrameDB(_voc);
     WAIMap*        map           = new WAIMap(kfDB);
@@ -334,10 +338,11 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
     bool genInitialMatching = false;
     //wai mode config
     WAIMapSlam::Params modeParams;
-    modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = _serialMapping;
-    modeParams.fixOldKfs         = false;
-    modeParams.retainImg         = false;
+    modeParams.cullRedundantPerc   = cullRedundantPerc;
+    modeParams.serial              = _serialMapping;
+    modeParams.fixOldKfs           = false;
+    modeParams.retainImg           = false;
+    modeParams.minCommonWordFactor = _minCommonWordFactor;
 
     //map creation parameter:
     int         videoIndex = 0;
@@ -569,10 +574,11 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
     std::cout << "thinOutNewWAIMap" << std::endl;
     //wai mode config
     WAIMapSlam::Params modeParams;
-    modeParams.cullRedundantPerc = cullRedundantPerc;
-    modeParams.serial            = _serialMapping;
-    modeParams.fixOldKfs         = false;
-    modeParams.retainImg         = false;
+    modeParams.cullRedundantPerc   = cullRedundantPerc;
+    modeParams.serial              = _serialMapping;
+    modeParams.fixOldKfs           = false;
+    modeParams.retainImg           = false;
+    modeParams.minCommonWordFactor = _minCommonWordFactor;
 
     WAIKeyFrameDB*          kfdb = new WAIKeyFrameDB(_voc);
     std::unique_ptr<WAIMap> map  = std::make_unique<WAIMap>(kfdb);
@@ -595,10 +601,15 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
         std::cout << ("MapCreator::thinOutNewWaiMap: Could not load map from file " + inputMapFile) << std::endl;
         return;
     }
-    //testKFVideoMatching(keyFrameVideoMatching);
+
+    std::cout << "Check graph consitency before culling" << std::endl;
+    WAISlamTools::checkKFConnectionsTree(map.get());
     //cull keyframes
     std::vector<WAIKeyFrame*> kfs = map->GetAllKeyFrames();
     cullKeyframes(map.get(), kfs, keyFrameVideoMatching, modeParams.cullRedundantPerc);
+
+    std::cout << "Check graph consitency after culling" << std::endl;
+    WAISlamTools::checkKFConnectionsTree(map.get());
 
     //testKFVideoMatching(keyFrameVideoMatching);
 

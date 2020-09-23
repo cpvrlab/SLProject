@@ -33,12 +33,14 @@ namespace ORB_SLAM2
 
 LoopClosing::LoopClosing(WAIMap*           pMap,
                          WAIOrbVocabulary* pVoc,
+                         const float       minCommonWordFactor,
                          const bool        bFixScale,
                          const bool        manualLoopClose)
   : mbResetRequested(false),
     mbFinishRequested(false),
     mbFinished(true),
     mpMap(pMap),
+    mMinCommonWordFactor(minCommonWordFactor),
     mpVocabulary(pVoc),
     mpMatchedKF(NULL),
     mLastLoopKFid(0),
@@ -211,7 +213,7 @@ bool LoopClosing::DetectLoop()
 
     // Query the database imposing the minimum score
     int                  loopCandidateDetectionError = WAIKeyFrameDB::LOOP_DETECTION_ERROR_NONE;
-    vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
+    vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, mMinCommonWordFactor, minScore, &loopCandidateDetectionError);
     {
         std::lock_guard<std::mutex> lock(mMutexNumCandidates);
         _numOfCandidates = (int)vpCandidateKFs.size();
