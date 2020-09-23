@@ -18,11 +18,11 @@ SettingsGui::SettingsGui(const ImGuiEngine&  imGuiEngine,
     resize(screenWidthPix, screenHeightPix);
 
     //init language settings combo
-    if (_resources.strings().id() == _resources.stringsItalian.id())
+    if (std::string(_resources.strings().id()) == std::string(_resources.stringsItalianId()))
         _currLanguage = 3;
-    else if (_resources.strings().id() == _resources.stringsGerman.id())
+    else if (std::string(_resources.strings().id()) == std::string(_resources.stringsGermanId()))
         _currLanguage = 1;
-    else if (_resources.strings().id() == _resources.stringsFrench.id())
+    else if (std::string(_resources.strings().id()) == std::string(_resources.stringsFrenchId()))
         _currLanguage = 2;
     else
         _currLanguage = 0;

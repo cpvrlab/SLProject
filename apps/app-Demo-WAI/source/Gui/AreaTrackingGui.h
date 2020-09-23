@@ -76,7 +76,7 @@ public:
 
     void initArea(ErlebAR::Area area);
 
-    void showText(std::string str);
+    void showInfoText(std::string str);
     void showImageAlignTexture(float alpha);
     void showLoading() { _isLoading = true; }
     void hideLoading() { _isLoading = false; }
@@ -113,7 +113,7 @@ private:
 
     ErlebAR::Resources& _resources;
 
-    std::string _displayText;
+    std::string _infoText;
     GLuint      _areaAlignTexture         = 0;
     float       _areaAlighTextureBlending = 1.0f;
     bool        _showAlignImage = false;

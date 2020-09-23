@@ -3,9 +3,12 @@
 #include <SENSUtils.h>
 #include <Utils.h>
 
-#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
-#define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
-#define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+//#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+//#define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+//#define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+#define LOG_WEBCAM_WARN
+#define LOG_WEBCAM_INFO
+#define LOG_WEBCAM_DEBUG
 
 const SENSCameraConfig& SENSWebCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,

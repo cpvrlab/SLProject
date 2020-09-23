@@ -18,6 +18,9 @@ public:
 
     void updateArrowRot(SLMat3f camRarrow);
 
+    void hideDirArrow();
+    void showDirArrow();
+    
     VideoBackgroundCamera* camera = nullptr;
 private:
     std::string _dataDir;

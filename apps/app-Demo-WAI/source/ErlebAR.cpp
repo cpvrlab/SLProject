@@ -177,7 +177,7 @@ const Location defineLocationBern()
         area.xPosPix         = 740;
         area.yPosPix         = 294;
         area.viewAngleDeg    = 60;
-        area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200702-173422_christoffel_milchgaessli_FAST-ORBS-2000_2.json";
+        area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200916-154809_bern_milchgaessli_FAST-ORBS-2000_2.waimap";
         //area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id] = area;
     }

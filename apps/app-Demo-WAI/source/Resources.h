@@ -209,6 +209,10 @@ public:
     const char* bernInfoHeading2() const { return _bernInfoHeading2.c_str(); }
     const char* bernInfoText2() const { return _bernInfoText2.c_str(); }
 
+    //tracking view user guidance
+    const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
+    const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
+
     void load(std::string fileName);
 
 protected:
@@ -241,6 +245,10 @@ protected:
     std::string _bernInfoText1    = "bern info 1";
     std::string _bernInfoHeading2 = "bern heading 2";
     std::string _bernInfoText2    = "bern info 2";
+
+    //tracking view user guidance
+    std::string _ugInfoReloc            = "Trying to relocalize, please move slowly sdfslkfdsödlfkjölkjopiwnpvoiwnvpoiwnefopiwefpoiwjefpoiwjefpowijefpowiefjpwoiefjpwoijf";
+    std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
 };
 
 //-----------------------------------------------------------------------------
@@ -257,16 +265,11 @@ public:
     void setLanguageFrench();
     void setLanguageItalien();
 
-    const Strings& strings() { return *_currStrings; }
+    const Strings& strings() const { return *_currStrings; }
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
 
     bool developerMode = true;
-
-    Strings stringsEnglish;
-    Strings stringsGerman;
-    Strings stringsFrench;
-    Strings stringsItalian;
 
     Textures textures;
 
@@ -277,7 +280,17 @@ public:
     void logWinUnInit();
     void logWinDraw();
 
+    const char* stringsEnglishId() const { return stringsEnglish.id(); }
+    const char* stringsGermanId() const { return stringsGerman.id(); }
+    const char* stringsFrenchId() const { return stringsFrench.id(); }
+    const char* stringsItalianId() const { return stringsItalian.id(); }
+
 private:
+    Strings stringsEnglish;
+    Strings stringsGerman;
+    Strings stringsFrench;
+    Strings stringsItalian;
+
     void load(std::string resourceFileName);
     void save();
 

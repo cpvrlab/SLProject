@@ -68,6 +68,7 @@ UserGuidanceScene::UserGuidanceScene(std::string dataDir)
     
     _dirArrow = new DirectionArrow(_assets, "DirArrow", camera);
     camera->addChild(_dirArrow);
+    _dirArrow->drawBits()->set(SL_DB_HIDDEN, true);
     
     // pass the scene group as root node
     root3D(scene);
@@ -81,4 +82,12 @@ void UserGuidanceScene::updateArrowRot(SLMat3f camRarrow)
     _dirArrow->om(cTa);
 }
 
+void UserGuidanceScene::hideDirArrow()
+{
+    _dirArrow->drawBits()->set(SL_DB_HIDDEN, true);
+}
 
+void UserGuidanceScene::showDirArrow()
+{
+    _dirArrow->drawBits()->set(SL_DB_HIDDEN, false);
+}

@@ -147,6 +147,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
+        //loading indicator
         if (_isLoading)
         {
             const float spinnerRadius = _headerBarH;
@@ -171,37 +172,52 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::EndChild();
             ImGui::End();
         }
-        else
+
+        if (!_infoText.empty())
         {
-            if (_displayText != "")
-            {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                {
-                    ImGui::SetNextWindowPos(ImVec2(0.1 * _screenW, 0.1 * _screenH), ImGuiCond_Always);
-                    ImGui::SetNextWindowSize(ImVec2(0.8 * _screenW, 0.8 * _screenH), ImGuiCond_Always);
-                    ImGui::Begin("AreaTrackingGui_UserGuidanceText", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
-                    ImGui::Text("%s", _displayText.c_str());
-                    ImGui::End();
-                }
-                ImGui::PopStyleVar(1);
-            }
+            ImGuiWindowFlags infoBarWinFlags = ImGuiWindowFlags_NoTitleBar |
+                                           ImGuiWindowFlags_NoMove |
+                                           ImGuiWindowFlags_AlwaysAutoResize |
+                                           ImGuiWindowFlags_NoScrollbar;
+            
+            ImGui::PushFont(_resources.fonts().heading);
+            
+            float winPadding = _resources.style().windowPaddingContent * _screenH;
+            float wrapW = _screenW - (2.f * winPadding);
+            ImVec2 textSize = ImGui::CalcTextSize(_infoText.c_str(), nullptr, false, wrapW);
+            float infoBarH = textSize.y + 2.f * winPadding;
+            
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding, winPadding));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundTranspColor);
 
-            if (_showAlignImage && _areaAlignTexture != 0)
-            {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                {
-                    ImGui::SetNextWindowPos(ImVec2(0.1 * _screenW, 0.1 * _screenH), ImGuiCond_Always);
-                    ImGui::SetNextWindowSize(ImVec2(0.8 * _screenW, 0.8 * _screenH), ImGuiCond_Always);
-                    ImGui::Begin("AreaTrackingGui_areaAlignTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
+            ImGui::SetNextWindowPos(ImVec2(0, _screenH - infoBarH), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(_screenW, infoBarH), ImGuiCond_Always);
+            
+            ImGui::Begin("AreaTrackingGui_userGuidanceText", nullptr, infoBarWinFlags);
+            ImGui::PushTextWrapPos(wrapW);
+            ImGui::Text("%s", _infoText.c_str());
+            ImGui::PopTextWrapPos();
+            ImGui::End();
+            
+            ImGui::PopStyleVar(1);
+            ImGui::PopStyleColor(1);
+            ImGui::PopFont();
+        }
 
-                    ImVec2 uv0(0.0f, 0.0f);
-                    ImVec2 uv1(1.f, 1.f);
-                    ImVec4 col(1.f, 1.f, 1.f, _areaAlighTextureBlending);
-                    ImGui::Image((void*)(intptr_t)_areaAlignTexture, ImVec2(0.8 * _screenW, 0.8 * _screenH), uv0, uv1, col);
-                    ImGui::End();
-                }
-                ImGui::PopStyleVar(1);
+        if (_showAlignImage && _areaAlignTexture != 0)
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+            {
+                ImGui::SetNextWindowPos(ImVec2(0.1 * _screenW, 0.1 * _screenH), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(0.8 * _screenW, 0.8 * _screenH), ImGuiCond_Always);
+                ImGui::Begin("AreaTrackingGui_areaAlignTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
+                ImVec2 uv0(0.0f, 0.0f);
+                ImVec2 uv1(1.f, 1.f);
+                ImVec4 col(1.f, 1.f, 1.f, _areaAlighTextureBlending);
+                ImGui::Image((void*)(intptr_t)_areaAlignTexture, ImVec2(0.8 * _screenW, 0.8 * _screenH), uv0, uv1, col);
+                ImGui::End();
             }
+            ImGui::PopStyleVar(1);
         }
 
         ImGui::PopStyleColor(6);
@@ -253,9 +269,9 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     _resources.logWinDraw();
 }
 
-void AreaTrackingGui::showText(std::string str)
+void AreaTrackingGui::showInfoText(std::string str)
 {
-    _displayText = str;
+    _infoText = str;
 }
 
 void AreaTrackingGui::showImageAlignTexture(float alpha)
@@ -275,7 +291,7 @@ void AreaTrackingGui::initArea(ErlebAR::Area area)
     int w, h;
 
     ErlebAR::deleteTexture(_areaAlignTexture);
-    if(Utils::fileExists(_erlebARDir + area.relocAlignImage))
+    if (Utils::fileExists(_erlebARDir + area.relocAlignImage))
     {
         _areaAlignTexture = ErlebAR::loadTexture(_erlebARDir + area.relocAlignImage,
                                                  false,
