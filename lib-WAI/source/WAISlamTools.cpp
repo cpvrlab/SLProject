@@ -1602,15 +1602,9 @@ bool WAISlamTools::detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visited
 bool WAISlamTools::checkKFConnectionsTree(WAIMap * map)
 {
     std::vector<WAIKeyFrame*> allKfs = map->GetAllKeyFrames();
-    std::set<WAIKeyFrame*> visitedNode;
     unsigned int countGood = 0;
-
+    WAIKeyFrame * root = nullptr;
     bool b = true;
-    if (detectCycle(allKfs[0], visitedNode))
-    {
-        std::cout << "keyframe graph has a cycle" << std::endl;
-        b = false;
-    }
 
     for (WAIKeyFrame *kf : allKfs)
     {
@@ -1619,18 +1613,34 @@ bool WAISlamTools::checkKFConnectionsTree(WAIMap * map)
 
         countGood++;
 
+        if (kf->mnId == 0)
+            root = kf;
+
         if ((kf->GetParent() == nullptr || kf->GetParent()->isBad()) && kf->mnId != 0)
         {
             std::cout << "kf " << kf->mnId << " has no parent" << std::endl;
             b = false;
         }
     }
+    std::set<WAIKeyFrame*> visitedNode;
 
-    if (visitedNode.size() != countGood)
+    if (root == nullptr)
     {
-        std::cout << "keyframe graph is split" << std::endl;
-        std::cout << "visitedNode.size() = " << visitedNode.size() << " and number of good keyframe is " << countGood << std::endl;
-        b = false;
+        std::cout << "no root kf" << std::endl;
+    }
+    else
+    {
+        if (detectCycle(root, visitedNode))
+        {
+            std::cout << "keyframe graph has a cycle" << std::endl;
+            b = false;
+        }
+        if (visitedNode.size() != countGood)
+        {
+            std::cout << "keyframe graph is split" << std::endl;
+            std::cout << "visitedNode.size() = " << visitedNode.size() << " != number of good keyframe = " << countGood << std::endl;
+            b = false;
+        }
     }
     return b;
 }
