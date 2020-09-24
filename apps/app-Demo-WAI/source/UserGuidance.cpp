@@ -37,6 +37,10 @@ void UserGuidance::areaSelected(ErlebAR::AreaId areaId, SLVec3d areaLocation, fl
     _selectedArea = areaId;
     _areaLocation = areaLocation;
     _areaOrientation = areaOrientation;
+    
+    estimateEcefToEnuRotation();
+    _ecefAREA.lla2ecef(areaLocation);
+    
     update();
 }
 
@@ -61,17 +65,35 @@ void UserGuidance::updateTrackingState(bool isTracking)
 void UserGuidance::updateSensorEstimations()
 {
     //update distance to area and set _highDistanceToArea
-    //_currentDistanceToAreaM = ...
-    //todo: this change needs some filtering! We dont want state jittering at the border of thresholds
-    float highDistanceToArea = (_currentDistanceToAreaM > DIST_TO_AREA_THRES_M);
-    
+    if(_gps && _gps->permissionGranted() && _gps->isRunning())
+    {
+        SENSGps::Location loc = _gps->getLocation();
+        //ATTENTION: we are using the same altitude as for the area, because gps altitude is not exact
+        _ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, _areaLocation.z});
+        _currentDistanceToAreaM = (float)_ecefDEVICE.distance(_ecefAREA);
+        _highDistanceToArea = (_currentDistanceToAreaM > DIST_TO_AREA_THRES_M);
+        LOG_UG_DEBUG("Distance to Area: %f", _currentDistanceToAreaM);
+        //todo: this change needs some filtering! We dont want state jittering at the border of thresholds
+    }
+
     //update orientation
-    //_currentYawOrientationDeg = ...
-    //todo: this change needs some filtering! We dont want state jittering at the border of thresholds
-    float wrongOrientation = (_currentOrientationDeg > ORIENT_DIFF_TO_AREA_THRES_DEG);
+    if(_orientation && _orientation->isRunning())
+    {
+        SENSOrientation::Quat o = _orientation->getOrientation();
+        SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
+        float                 rollRAD, pitchRAD, yawRAD;
+        quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+        _currentOrientationDeg = yawRAD * RAD2DEG;
+        float orientationDiff = std::abs(_currentOrientationDeg - _areaOrientation);
+        LOG_UG_DEBUG("Orientation Area: %f current: %f diff: %f", _areaOrientation, _currentOrientationDeg, orientationDiff);
+        //todo: this change needs some filtering! We dont want state jittering at the border of thresholds
+        _wrongOrientation = (orientationDiff > ORIENT_DIFF_TO_AREA_THRES_DEG);
+    }
    
     //always call update to update arrow orientation
     update();
+    
+    //update arrow orientation
 }
 
 void UserGuidance::update()
@@ -157,7 +179,7 @@ bool UserGuidance::stateTransition()
                 _state = State::DATA_LOADING;
                 transition = true;
             }
-            else if(_orientation && !_wrongOrientation)
+            else if(_orientation && _wrongOrientation)
             {
                 _state = State::RELOCALIZING_WRONG_ORIENTATION;
                 transition = true;
@@ -211,6 +233,7 @@ void UserGuidance::processStateExit()
         }
         case State::DIR_ARROW: {
             _gui->showInfoText("");
+            _userGuidanceScene->hideDirArrow();
             break;
         }
         case State::RELOCALIZING: {
@@ -240,7 +263,7 @@ void UserGuidance::processStateEntry()
             break;
         }
         case State::DIR_ARROW: {
-            _gui->showInfoText("follow direction arrow");
+            _userGuidanceScene->showDirArrow();
             break;
         }
         case State::RELOCALIZING: {
@@ -272,7 +295,13 @@ void UserGuidance::processState()
         }
         case State::DIR_ARROW: {
             //update orientation calculation of direction arrow and update scene
+            estimateArrowOrientation();
+            
             //update info bar with information about distance to target
+            char buff[255];
+            snprintf(buff, sizeof(buff), _resources.strings().ugInfoDirArrow(), _currentDistanceToAreaM);
+            std::string buffAsStdStr = buff;
+            _gui->showInfoText(buffAsStdStr);
             break;
         }
         case State::RELOCALIZING: {
@@ -290,78 +319,37 @@ void UserGuidance::processState()
 
 void UserGuidance::estimateArrowOrientation()
 {
-    //todo: direction depending on current position and area position
+    //The camera is rotated with respect to the world using the sensor orientation.
+    //The direction arrows direction is estimated wrt. the camera as it is a child of the camera
     
-    ///////////////////////////////////////////////////////////////////////
-    // Build pose of camera in world frame (scene) using device rotation //
-    ///////////////////////////////////////////////////////////////////////
-
+    //ESIMATE CAMERA ROTAION WRT. WORLD
     //camera rotation with respect to (w.r.t.) sensor
     SLMat3f sRc;
     sRc.rotation(-90, 0, 0, 1);
 
     //sensor rotation w.r.t. east-north-down
     SLMat3f enuRs;
-
     SENSOrientation::Quat ori      = _orientation->getOrientation();
     SLMat3f               rotation = SLQuat4f(ori.quatX, ori.quatY, ori.quatZ, ori.quatW).toMat3();
     enuRs.setMatrix(rotation);
 
-    //world-yaw rotation w.r.t. world
+    //enu w.r.t. world rotation
     SLMat3f wRenu;
     wRenu.rotation(-90, 1, 0, 0);
     //combiniation of partial rotations to orientation of camera w.r.t world
     SLMat3f wRc = wRenu * enuRs * sRc;
 
-    //camera translations w.r.t world:
-    SLVec3f wtc = _userGuidanceScene->camera->updateAndGetWM().translation();
-
     //combination of rotation and translation:
     SLMat4f wTc;
     wTc.setRotation(wRc);
-    wTc.setTranslation(wtc);
-
+    wTc.setTranslation(_userGuidanceScene->camera->updateAndGetWM().translation());
     _userGuidanceScene->camera->om(wTc);
 
-    //ARROW ROTATION CALCULATION:
-    //auto loc = _gps->getLocation();
-    SENSGps::Location loc = {47.14899, 7.23354, 728.4, 1.f};
-
-    //ROTATION OF ENU WRT. ECEF
-    //calculation of ecef to world (scene) rotation matrix
-    //definition of rotation matrix for ECEF to world frame rotation:
-    //world frame (scene) w.r.t. ENU frame
-    double phiRad = loc.latitudeDEG * Utils::DEG2RAD;  //   phi == latitude
-    double lamRad = loc.longitudeDEG * Utils::DEG2RAD; //lambda == longitude
-    double sinPhi = sin(phiRad);
-    double cosPhi = cos(phiRad);
-    double sinLam = sin(lamRad);
-    double cosLam = cos(lamRad);
-
-    SLMat3d enuRecef(-sinLam,
-                     cosLam,
-                     0,
-                     -cosLam * sinPhi,
-                     -sinLam * sinPhi,
-                     cosPhi,
-                     cosLam * cosPhi,
-                     sinLam * cosPhi,
-                     sinPhi);
-
     //ROTATION OF DIRECTION ARROW WRT. ENU FRAME
-    //area location in ecef
-    //ErlebAR::Area& area = _locations[_locId].areas[_areaId];
-    SLVec3d ecefAREA;
-    //schornstein brügg
-    ecefAREA.lla2ecef({47.12209, 7.25821, 431.8});
-
-    //device location in ecef
-    SLVec3d ecefDEVICE;
-    ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM});
     //build direction vector from device to area in ecef
-    SLVec3d ecefAD = ecefAREA - ecefDEVICE;
+    SLVec3d ecefAD = _ecefAREA - _ecefDEVICE;
     //rotation to enu
-    SLVec3d X = enuRecef * ecefAD; //enuAD
+    SLVec3d X = _enuRecef * ecefAD; //enuAD
     X.normalize();
     //build y and z vectors
     SLVec3d Y;
@@ -383,6 +371,30 @@ void UserGuidance::estimateArrowOrientation()
     
     //set arrow rotation
     _userGuidanceScene->updateArrowRot(cRp);
+}
+
+void UserGuidance::estimateEcefToEnuRotation()
+{
+    //ROTATION OF ENU WRT. ECEF
+    //calculation of ecef to world (scene) rotation matrix
+    //definition of rotation matrix for ECEF to world frame rotation:
+    //world frame (scene) w.r.t. ENU frame
+    double phiRad = _areaLocation.x * Utils::DEG2RAD;  //   phi == latitude
+    double lamRad = _areaLocation.y * Utils::DEG2RAD; //lambda == longitude
+    double sinPhi = sin(phiRad);
+    double cosPhi = cos(phiRad);
+    double sinLam = sin(lamRad);
+    double cosLam = cos(lamRad);
+
+    _enuRecef = SLMat3d(-sinLam,
+                     cosLam,
+                     0,
+                     -cosLam * sinPhi,
+                     -sinLam * sinPhi,
+                     cosPhi,
+                     cosLam * cosPhi,
+                     sinLam * cosPhi,
+                     sinPhi);
 }
 
 /*

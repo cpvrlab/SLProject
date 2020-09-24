@@ -271,7 +271,7 @@ const Location defineLocationEvilard()
         area.name                    = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {47.14888, 7.23343, 727.3};
-        area.viewAngleDeg            = 200.f;
+        area.viewAngleDeg            = 90.f;
         area.slamMapFileName         = "locations/evilard/roc2/maps/DEVELOPMENT-map_20200918-163220_evilard_roc2_FAST-ORBS-3000_2.waimap";
         area.relocAlignImage         = "locations/evilard/roc2/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};
@@ -284,7 +284,7 @@ const Location defineLocationEvilard()
         area.name                    = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {47.14867, 7.23291, 725.9 };
-        area.viewAngleDeg            = 220.f;
+        area.viewAngleDeg            = -150.f;
         area.slamMapFileName         = "locations/evilard/firefighters/maps/DEVELOPMENT-map_20200918-100317_evilard_firefighters_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/evilard/firefighters/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};

@@ -212,7 +212,8 @@ public:
     //tracking view user guidance
     const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
     const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
-
+    const char* ugInfoDirArrow() const { return _ugInfoDirArrow.c_str(); }
+    
     void load(std::string fileName);
 
 protected:
@@ -247,8 +248,9 @@ protected:
     std::string _bernInfoText2    = "bern info 2";
 
     //tracking view user guidance
-    std::string _ugInfoReloc            = "Trying to relocalize, please move slowly sdfslkfdsödlfkjölkjopiwnpvoiwnvpoiwnefopiwefpoiwjefpoiwjefpowijefpowiefjpwoiefjpwoijf";
+    std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
     std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
+    std::string _ugInfoDirArrow         = "The area is located %.0fm in the direction of the arrow";
 };
 
 //-----------------------------------------------------------------------------

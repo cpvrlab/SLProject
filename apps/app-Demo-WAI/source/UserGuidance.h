@@ -73,6 +73,7 @@ private:
     //update the current state
     void processState();
     
+    void estimateEcefToEnuRotation();
     void estimateArrowOrientation();
     
     SENSGps* _gps = nullptr;
@@ -88,6 +89,9 @@ private:
     SLVec3d _areaLocation{0.f, 0.f, 0.f};
     float _areaOrientation = 0.f;
     float _currentDistanceToAreaM = 0.f;
+    SLVec3d _ecefAREA;
+    SLMat3d _enuRecef;
+    SLVec3d _ecefDEVICE;
     // orientation difference to area threshold
     const float ORIENT_DIFF_TO_AREA_THRES_DEG = 10.f;
     float _currentOrientationDeg = 0.f;

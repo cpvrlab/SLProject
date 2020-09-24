@@ -41,6 +41,10 @@ private:
 class SENSDummyGps : public SENSGps
 {
 public:
+    SENSDummyGps()
+    {
+        _permissionGranted = true;
+    }
     ~SENSDummyGps();
 
     bool start() override;

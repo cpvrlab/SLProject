@@ -76,7 +76,7 @@ public:
 
     void initArea(ErlebAR::Area area);
 
-    void showInfoText(std::string str);
+    void showInfoText(const std::string& str);
     void showImageAlignTexture(float alpha);
     void showLoading() { _isLoading = true; }
     void hideLoading() { _isLoading = false; }

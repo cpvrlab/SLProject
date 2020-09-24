@@ -187,7 +187,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImVec2 textSize = ImGui::CalcTextSize(_infoText.c_str(), nullptr, false, wrapW);
             float infoBarH = textSize.y + 2.f * winPadding;
             
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding, winPadding));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding * 0.8f, winPadding));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundTranspColor);
 
             ImGui::SetNextWindowPos(ImVec2(0, _screenH - infoBarH), ImGuiCond_Always);
@@ -195,7 +195,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             
             ImGui::Begin("AreaTrackingGui_userGuidanceText", nullptr, infoBarWinFlags);
             ImGui::PushTextWrapPos(wrapW);
-            ImGui::Text("%s", _infoText.c_str());
+            ImGui::TextUnformatted(_infoText.c_str());
             ImGui::PopTextWrapPos();
             ImGui::End();
             
@@ -269,7 +269,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     _resources.logWinDraw();
 }
 
-void AreaTrackingGui::showInfoText(std::string str)
+void AreaTrackingGui::showInfoText(const std::string& str)
 {
     _infoText = str;
 }
